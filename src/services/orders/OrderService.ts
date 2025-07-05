@@ -152,3 +152,6 @@ export class OrderService extends BaseService implements IOrderService {
     }
   }
 }
+
+// Export singleton instance
+export const orderService = new OrderService()

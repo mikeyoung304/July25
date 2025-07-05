@@ -1,5 +1,5 @@
 import React from 'react'
-import { OrderNumber } from '../typography/OrderNumber'
+import { OrderNumber } from '../display/OrderIdentifiers'
 import { StatusBadge } from '../badges/StatusBadge'
 import { cn } from '@/lib/utils'
 
@@ -16,7 +16,7 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
 }) => {
   return (
     <div className={cn('flex items-center justify-between', className)}>
-      <OrderNumber orderNumber={orderNumber} size="lg" />
+      <OrderNumber value={orderNumber} size="lg" />
       <StatusBadge status={status} />
     </div>
   )

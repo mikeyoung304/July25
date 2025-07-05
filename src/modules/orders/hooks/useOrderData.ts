@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { Order, OrderFilters } from '../types'
-import { orderService } from '@/services/ServiceFactory'
+import { orderService } from '@/services'
 import { useAsyncState } from '@/hooks/useAsyncState'
 
 export interface UseOrderDataReturn {

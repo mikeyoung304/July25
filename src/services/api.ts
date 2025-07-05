@@ -7,7 +7,7 @@ import {
   tableService,
   menuService,
   orderStatisticsService
-} from './ServiceFactory'
+} from '.'
 
 export * from './types'
 

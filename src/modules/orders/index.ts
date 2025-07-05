@@ -10,4 +10,4 @@ export * from './hooks'
 export * from './types'
 
 // Re-export service from main services
-export { orderService, orderHistoryService } from '@/services/ServiceFactory'
+export { orderService, orderHistoryService } from '@/services'

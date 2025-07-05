@@ -1,5 +1,5 @@
 import React from 'react'
-import { TableLabel } from '../labels/TableLabel'
+import { TableLabel } from '../display/OrderIdentifiers'
 import { ElapsedTimer } from '../timers/ElapsedTimer'
 import { cn } from '@/lib/utils'
 
@@ -16,7 +16,7 @@ export const OrderMetadata: React.FC<OrderMetadataProps> = ({
 }) => {
   return (
     <div className={cn('flex items-center gap-4', className)}>
-      <TableLabel tableNumber={tableNumber} />
+      <TableLabel value={tableNumber} />
       <ElapsedTimer startTime={orderTime} />
     </div>
   )

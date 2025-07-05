@@ -1,6 +1,4 @@
 import React from 'react'
-import { ItemQuantityName } from './ItemQuantityName'
-import { ModifierList } from './ModifierList'
 import { AlertNote } from '../alerts/AlertNote'
 import { StationBadge } from '../badges/StationBadge'
 import { StationType } from '@/types/station'
@@ -26,13 +24,17 @@ export const OrderItemRow: React.FC<OrderItemRowProps> = ({
   return (
     <div className={cn('space-y-1', className)}>
       <div className="flex items-start justify-between">
-        <ItemQuantityName quantity={quantity} name={name} />
+        <span className="font-medium">
+          {quantity}x {name}
+        </span>
         {stationType && (
           <StationBadge stationType={stationType} className="ml-2" />
         )}
       </div>
       {modifiers && modifiers.length > 0 && (
-        <ModifierList modifiers={modifiers} />
+        <div className="text-sm text-muted-foreground pl-4">
+          {modifiers.join(', ')}
+        </div>
       )}
       {note && (
         <AlertNote text={note} variant="subtle" />

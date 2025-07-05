@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { Order } from '../types'
-import { orderService } from '@/services/ServiceFactory'
+import { orderService } from '@/services'
 import { useToast } from '@/hooks/useToast'
 
 export interface UseOrderActionsReturn {

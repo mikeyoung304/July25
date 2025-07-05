@@ -1,10 +1,10 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useOrderData } from '../useOrderData'
-import { orderService } from '@/services/ServiceFactory'
+import { orderService } from '@/services'
 import { Order } from '@/modules/orders/types'
 
 // Mock the orderService
-jest.mock('@/services/ServiceFactory', () => ({
+jest.mock('@/services', () => ({
   orderService: {
     getOrders: jest.fn(),
     updateOrderStatus: jest.fn()
