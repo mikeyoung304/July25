@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { KDSOrderCard } from './KDSOrderCard'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface AnimatedKDSOrderCardProps extends React.ComponentProps<typeof KDSOrderCard> {
   status: 'new' | 'preparing' | 'ready'

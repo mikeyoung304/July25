@@ -4,7 +4,7 @@ import { MicrophonePermission } from './MicrophonePermission'
 import { RecordingIndicator } from './RecordingIndicator'
 import { TranscriptionDisplay } from './TranscriptionDisplay'
 import { useAudioCapture } from '../hooks/useAudioCapture'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface VoiceCaptureProps {
   className?: string

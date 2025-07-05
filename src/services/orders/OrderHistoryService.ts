@@ -89,3 +89,6 @@ export class OrderHistoryService extends BaseService implements IOrderHistorySer
     }
   }
 }
+
+// Export singleton instance
+export const orderHistoryService = new OrderHistoryService()

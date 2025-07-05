@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Clock } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 export interface ElapsedTimerProps {
   startTime: Date

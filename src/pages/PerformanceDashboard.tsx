@@ -7,7 +7,7 @@ import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor'
 import { PerformanceChart } from '@/modules/analytics/components/PerformanceChart'
 import { ComponentMetricsTable } from '@/modules/analytics/components/ComponentMetricsTable'
 import { APIMetricsTable } from '@/modules/analytics/components/APIMetricsTable'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 export const PerformanceDashboard: React.FC = () => {
   const { 

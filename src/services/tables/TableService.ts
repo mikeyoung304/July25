@@ -31,3 +31,6 @@ export class TableService extends BaseService implements ITableService {
     return { success: true, table }
   }
 }
+
+// Export singleton instance
+export const tableService = new TableService()

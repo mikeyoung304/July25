@@ -1,5 +1,5 @@
 import React from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 // Consolidated order and table display components
 // Reduces 48 lines across 2 files to 25 lines in 1 file

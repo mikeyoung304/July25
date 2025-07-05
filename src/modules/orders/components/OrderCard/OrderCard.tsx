@@ -1,10 +1,9 @@
 import React, { memo, useMemo } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { OrderHeader } from '@/components/shared/order/OrderHeader'
-import { OrderMetadata } from '@/components/shared/order/OrderMetadata'
+import { OrderHeader, OrderMetadata } from '@/components/shared/order/OrderHeaders'
 import { OrderItemsList } from '@/components/shared/order/OrderItemsList'
 import { OrderActions } from '@/components/shared/order/OrderActions'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 import type { OrderItem, OrderStatus } from '@/modules/orders/types'
 
 interface OrderCardProps {

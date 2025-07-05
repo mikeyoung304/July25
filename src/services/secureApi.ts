@@ -2,8 +2,7 @@
  * Secure API client wrapper with built-in security features
  */
 
-import { CSRFTokenManager } from '@/utils/security'
-import { sanitizeInput } from '@/utils/validation'
+import { sanitizeInput, CSRFTokenManager } from '@/utils'
 
 export interface SecureRequestOptions extends RequestInit {
   timeout?: number

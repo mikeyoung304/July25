@@ -1,7 +1,7 @@
 import React from 'react'
 import { StatusActionButton } from '../buttons/StatusActionButton'
-import { cn } from '@/lib/utils'
-import { useAriaLive } from '@/hooks/useKeyboardNavigation'
+import { cn } from '@/utils'
+import { useAriaLive } from '@/hooks/keyboard'
 
 export interface OrderActionsProps {
   status: 'new' | 'preparing' | 'ready'

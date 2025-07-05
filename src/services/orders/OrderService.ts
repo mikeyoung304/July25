@@ -3,12 +3,12 @@ import { Order, OrderFilters } from '@/services/types'
 import { orderSubscription, mockOrderGenerator, startOrderProgression } from '@/services/realtime/orderSubscription'
 import { 
   validateTableNumber, 
-  validateItemName, 
-  validateModifiers, 
-  validateNotes, 
+  validateItemName,
+  validateModifiers,
+  validateNotes,
   validateQuantity,
   validatePrice
-} from '@/utils/validation'
+} from '@/utils'
 import { mockData } from '@/services/mockData'
 
 export interface IOrderService {

@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, XCircle, Clock, Package } from 'lucide-react'
 import { Order } from '@/modules/orders/types'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface OrderActionsBarProps {
   orderId: string

@@ -36,3 +36,6 @@ export class MenuService extends BaseService implements IMenuService {
     return { success: true, item }
   }
 }
+
+// Export singleton instance
+export const menuService = new MenuService()

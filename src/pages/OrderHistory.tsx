@@ -7,7 +7,7 @@ import { useOrderHistory } from '@/hooks/useOrderHistory'
 import { OrderHistoryTable } from '@/modules/analytics/components/OrderHistoryTable'
 import { OrderStatisticsCards } from '@/modules/analytics/components/OrderStatisticsCards'
 import { DateRangePicker } from '@/components/shared/inputs/DateRangePicker'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 export const OrderHistory: React.FC = () => {
   const {

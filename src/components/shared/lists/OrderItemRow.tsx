@@ -1,8 +1,8 @@
 import React from 'react'
-import { AlertNote } from '../alerts/AlertNote'
-import { StationBadge } from '../badges/StationBadge'
+import { AlertCircle } from 'lucide-react'
+import { StationBadge } from '../badges'
 import { StationType } from '@/types/station'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 export interface OrderItemRowProps {
   quantity: number
@@ -37,7 +37,10 @@ export const OrderItemRow: React.FC<OrderItemRowProps> = ({
         </div>
       )}
       {note && (
-        <AlertNote text={note} variant="subtle" />
+        <div className="text-sm pl-4 flex items-start gap-1 text-muted-foreground">
+          <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+          <span>{note}</span>
+        </div>
       )}
     </div>
   )

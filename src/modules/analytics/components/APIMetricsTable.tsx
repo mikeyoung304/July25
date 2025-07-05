@@ -1,7 +1,7 @@
 import React from 'react'
 import { Badge } from '@/components/ui/badge'
 import type { APIStats } from '@/services/performance/performanceMonitor'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface APIMetricsTableProps {
   statistics: Record<string, APIStats>

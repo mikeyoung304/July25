@@ -33,3 +33,6 @@ export class OrderStatisticsService extends BaseService implements IOrderStatist
     return stats
   }
 }
+
+// Export singleton instance
+export const orderStatisticsService = new OrderStatisticsService()

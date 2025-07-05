@@ -5,7 +5,7 @@ import { StatusFilter } from './StatusFilter'
 import { SearchFilter } from './SearchFilter'
 import { OrderFilterState } from '../types'
 import { OrderStatus } from '@/modules/orders/types'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface FilterBarProps {
   filters: OrderFilterState

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface PerformanceOverlayProps {
   enabled?: boolean

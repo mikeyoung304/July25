@@ -4,15 +4,12 @@ import { KDSOrderCard } from '../KDSOrderCard'
 import type { OrderItem } from '@/types/order'
 
 // Mock the child components
-jest.mock('@/components/shared/order/OrderHeader', () => ({
+jest.mock('@/components/shared/order/OrderHeaders', () => ({
   OrderHeader: ({ orderNumber, status }: { orderNumber: string; status: string }) => (
     <div data-testid="order-header">
       Order #{orderNumber} - {status}
     </div>
-  )
-}))
-
-jest.mock('@/components/shared/order/OrderMetadata', () => ({
+  ),
   OrderMetadata: ({ tableNumber, orderTime }: { tableNumber: string; orderTime: Date }) => (
     <div data-testid="order-metadata">
       Table {tableNumber} - {orderTime.toLocaleTimeString()}

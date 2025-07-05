@@ -1,6 +1,6 @@
 import React from 'react'
 import { Mic } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface RecordingIndicatorProps {
   isRecording: boolean

@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { Order } from '@/modules/orders/types'
 import { OrderCard } from '../OrderCard'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface OrderListProps {
   orders: Order[]

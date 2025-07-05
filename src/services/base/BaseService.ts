@@ -1,6 +1,6 @@
 // Base service class with common functionality
 
-import { RateLimiter } from '@/utils/validation'
+import { RateLimiter } from '@/utils'
 
 export abstract class BaseService {
   protected rateLimiters = new Map<string, RateLimiter>()
