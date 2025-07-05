@@ -2,7 +2,7 @@ import React from 'react'
 import { AlertCircle } from 'lucide-react'
 import { StationBadge } from '../badges'
 import { StationType } from '@/types/station'
-import { cn } from '@/utils'
+import { cn, escapeHtml } from '@/utils'
 
 export interface OrderItemRowProps {
   quantity: number
@@ -25,7 +25,7 @@ export const OrderItemRow: React.FC<OrderItemRowProps> = ({
     <div className={cn('space-y-1', className)}>
       <div className="flex items-start justify-between">
         <span className="font-medium">
-          {quantity}x {name}
+          {quantity}x {escapeHtml(name)}
         </span>
         {stationType && (
           <StationBadge stationType={stationType} className="ml-2" />
@@ -33,13 +33,13 @@ export const OrderItemRow: React.FC<OrderItemRowProps> = ({
       </div>
       {modifiers && modifiers.length > 0 && (
         <div className="text-sm text-muted-foreground pl-4">
-          {modifiers.join(', ')}
+          {modifiers.map(m => escapeHtml(m)).join(', ')}
         </div>
       )}
       {note && (
         <div className="text-sm pl-4 flex items-start gap-1 text-muted-foreground">
           <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
-          <span>{note}</span>
+          <span>{escapeHtml(note)}</span>
         </div>
       )}
     </div>
