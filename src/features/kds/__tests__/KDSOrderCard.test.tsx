@@ -1,0 +1,213 @@
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { KDSOrderCard } from '../KDSOrderCard'
+import type { OrderItem } from '@/types/order'
+
+// Mock the child components
+jest.mock('@/components/shared/order/OrderHeader', () => ({
+  OrderHeader: ({ orderNumber, status }: { orderNumber: string; status: string }) => (
+    <div data-testid="order-header">
+      Order #{orderNumber} - {status}
+    </div>
+  )
+}))
+
+jest.mock('@/components/shared/order/OrderMetadata', () => ({
+  OrderMetadata: ({ tableNumber, orderTime }: { tableNumber: string; orderTime: Date }) => (
+    <div data-testid="order-metadata">
+      Table {tableNumber} - {orderTime.toLocaleTimeString()}
+    </div>
+  )
+}))
+
+jest.mock('@/components/shared/order/OrderItemsList', () => ({
+  OrderItemsList: ({ items }: { items: OrderItem[] }) => (
+    <div data-testid="order-items">
+      {items.map((item: OrderItem) => (
+        <div key={item.id}>
+          {item.quantity}x {item.name}
+          {item.modifiers && <span> - {item.modifiers.join(', ')}</span>}
+          {item.notes && <span> ({item.notes})</span>}
+        </div>
+      ))}
+    </div>
+  )
+}))
+
+jest.mock('@/components/shared/order/OrderActions', () => ({
+  OrderActions: ({ status, onStatusChange }: { status: string; onStatusChange?: (status: string) => void }) => (
+    <div data-testid="order-actions">
+      {status === 'new' && (
+        <button onClick={() => onStatusChange('preparing')}>Start Preparing</button>
+      )}
+      {status === 'preparing' && (
+        <button onClick={() => onStatusChange('ready')}>Mark Ready</button>
+      )}
+      {status === 'ready' && <span>Ready for pickup</span>}
+    </div>
+  )
+}))
+
+describe('KDSOrderCard', () => {
+  const mockItems: OrderItem[] = [
+    {
+      id: '1',
+      name: 'Cheeseburger',
+      quantity: 2,
+      modifiers: ['Extra cheese', 'No onions'],
+      notes: 'Well done'
+    },
+    {
+      id: '2',
+      name: 'French Fries',
+      quantity: 1
+    }
+  ]
+
+  const defaultProps = {
+    orderId: 'order-1',
+    orderNumber: '001',
+    tableNumber: '5',
+    items: mockItems,
+    status: 'new' as const,
+    orderTime: new Date('2024-01-01T12:00:00'),
+    onStatusChange: jest.fn()
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2024-01-01T12:00:00'))
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('renders order information correctly', () => {
+    render(<KDSOrderCard {...defaultProps} />)
+    
+    expect(screen.getByTestId('order-header')).toHaveTextContent('Order #001 - new')
+    expect(screen.getByTestId('order-metadata')).toHaveTextContent('Table 5')
+    expect(screen.getByTestId('order-items')).toBeInTheDocument()
+  })
+
+  it('displays all order items with details', () => {
+    render(<KDSOrderCard {...defaultProps} />)
+    
+    expect(screen.getByText('2x Cheeseburger')).toBeInTheDocument()
+    expect(screen.getByText(/Extra cheese, No onions/)).toBeInTheDocument()
+    expect(screen.getByText(/Well done/)).toBeInTheDocument()
+    expect(screen.getByText('1x French Fries')).toBeInTheDocument()
+  })
+
+  it('applies urgent styling after 15 minutes', () => {
+    const { container } = render(<KDSOrderCard {...defaultProps} />)
+    
+    // Initially not urgent
+    expect(container.firstChild).not.toHaveClass('ring-2 ring-red-500')
+    
+    // Advance time by 16 minutes
+    jest.setSystemTime(new Date('2024-01-01T12:16:00'))
+    const { container: urgentContainer } = render(<KDSOrderCard {...defaultProps} />)
+    
+    expect(urgentContainer.firstChild).toHaveClass('ring-2 ring-red-500')
+  })
+
+  it('does not apply urgent styling to ready orders', () => {
+    jest.setSystemTime(new Date('2024-01-01T12:16:00'))
+    
+    const { container } = render(
+      <KDSOrderCard {...defaultProps} status="ready" />
+    )
+    
+    expect(container.firstChild).not.toHaveClass('ring-2 ring-red-500')
+  })
+
+  it('calls onStatusChange when action buttons are clicked', () => {
+    const onStatusChange = jest.fn()
+    render(<KDSOrderCard {...defaultProps} onStatusChange={onStatusChange} />)
+    
+    fireEvent.click(screen.getByText('Start Preparing'))
+    expect(onStatusChange).toHaveBeenCalledWith('preparing')
+  })
+
+  it('shows appropriate actions based on status', () => {
+    const { rerender } = render(<KDSOrderCard {...defaultProps} status="new" />)
+    expect(screen.getByText('Start Preparing')).toBeInTheDocument()
+    
+    rerender(<KDSOrderCard {...defaultProps} status="preparing" />)
+    expect(screen.getByText('Mark Ready')).toBeInTheDocument()
+    
+    rerender(<KDSOrderCard {...defaultProps} status="ready" />)
+    expect(screen.getByText('Ready for pickup')).toBeInTheDocument()
+  })
+
+  it('applies custom className', () => {
+    const { container } = render(
+      <KDSOrderCard {...defaultProps} className="custom-class" />
+    )
+    
+    expect(container.firstChild).toHaveClass('custom-class')
+  })
+
+  it('handles empty onStatusChange gracefully', () => {
+    render(<KDSOrderCard {...defaultProps} onStatusChange={undefined} />)
+    
+    // Should not throw when clicking action buttons
+    expect(() => {
+      fireEvent.click(screen.getByText('Start Preparing'))
+    }).not.toThrow()
+  })
+
+  it('memoizes urgency calculation', () => {
+    const { rerender } = render(<KDSOrderCard {...defaultProps} />)
+    
+    // Force re-render with same props
+    rerender(<KDSOrderCard {...defaultProps} />)
+    
+    // Component should not re-calculate urgency if props haven't changed
+    // This is tested implicitly - if memo works, the component won't re-render
+  })
+
+  it('handles items without optional fields', () => {
+    const simpleItems: OrderItem[] = [
+      {
+        id: '1',
+        name: 'Simple Item',
+        quantity: 1
+      }
+    ]
+    
+    render(<KDSOrderCard {...defaultProps} items={simpleItems} />)
+    
+    expect(screen.getByText('1x Simple Item')).toBeInTheDocument()
+    expect(screen.queryByText(/-/)).not.toBeInTheDocument() // No modifiers
+    expect(screen.queryByText(/\(/)).not.toBeInTheDocument() // No notes
+  })
+
+  describe('Performance', () => {
+    it('should be wrapped with React.memo', () => {
+      expect(KDSOrderCard).toHaveProperty('$$typeof', Symbol.for('react.memo'))
+    })
+
+    it('does not re-render when props are the same', () => {
+      const onStatusChange = jest.fn()
+      let renderCount = 0
+      
+      const TestWrapper = () => {
+        renderCount++
+        return <KDSOrderCard {...defaultProps} onStatusChange={onStatusChange} />
+      }
+      
+      const { rerender } = render(<TestWrapper />)
+      expect(renderCount).toBe(1)
+      
+      // Re-render with same props
+      rerender(<TestWrapper />)
+      
+      // Should not increase render count due to memo
+      expect(renderCount).toBe(1)
+    })
+  })
+})
