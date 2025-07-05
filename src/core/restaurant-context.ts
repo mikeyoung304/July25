@@ -1,6 +1,7 @@
 import { createContext } from 'react'
 
-interface Restaurant {
+// Types
+export interface Restaurant {
   id: string
   name: string
   timezone: string
@@ -12,11 +13,12 @@ interface Restaurant {
   }
 }
 
-interface RestaurantContextType {
+export interface RestaurantContextType {
   restaurant: Restaurant | null
   setRestaurant: (restaurant: Restaurant | null) => void
   isLoading: boolean
   error: Error | null
 }
 
+// Context
 export const RestaurantContext = createContext<RestaurantContextType | undefined>(undefined)

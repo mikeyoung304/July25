@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { VoiceCapture } from '@/features/kiosk-voice-capture/components/VoiceCapture'
+import { VoiceCapture } from '@/modules/voice/components/VoiceCapture'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ShoppingCart, Mic, CheckCircle } from 'lucide-react'
-import { parseVoiceOrder, submitVoiceOrder } from '@/features/kiosk-voice-capture/services/orderIntegration'
+import { parseVoiceOrder, submitVoiceOrder } from '@/modules/voice/services/orderIntegration'
 import { useToast } from '@/hooks/useToast'
-import { OrderSuccessAnimation } from '@/features/kiosk-voice-capture/components/OrderSuccessAnimation'
+import { OrderSuccessAnimation } from '@/modules/voice/components/OrderSuccessAnimation'
 
 interface ParsedOrder {
   items: Array<{

@@ -1,19 +1,8 @@
 import React, { useEffect, ReactNode } from 'react'
 import { useAsyncState } from '@/hooks/useAsyncState'
-import { RestaurantContext } from './restaurant-context'
+import { RestaurantContext, type Restaurant } from './restaurant-context'
 
-interface Restaurant {
-  id: string
-  name: string
-  timezone: string
-  currency: string
-  settings?: {
-    orderPrefix?: string
-    autoAcceptOrders?: boolean
-    kitchenDisplayMode?: 'list' | 'grid' | 'table'
-  }
-}
-
+// Provider
 export function RestaurantProvider({ children }: { children: ReactNode }) {
   const { 
     data: restaurant, 
@@ -64,3 +53,4 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     </RestaurantContext.Provider>
   )
 }
+

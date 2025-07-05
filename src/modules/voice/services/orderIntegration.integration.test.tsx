@@ -15,7 +15,7 @@ jest.mock('@/hooks/useToast', () => ({
 }))
 
 // Mock VoiceCapture component to simplify testing
-jest.mock('@/features/kiosk-voice-capture/components/VoiceCapture', () => ({
+jest.mock('@/modules/voice/components/VoiceCapture', () => ({
   VoiceCapture: ({ onOrderComplete }: { onOrderComplete: (text: string) => void }) => (
     <div data-testid="voice-capture">
       <button onClick={() => onOrderComplete("I'd like 2 burgers with extra cheese and a large pizza")}>

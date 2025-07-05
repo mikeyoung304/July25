@@ -1,6 +1,6 @@
 // Order-specific types
 export { Order, OrderFilters } from '@/services/types'
-export { OrderItem } from '@/features/kds/KDSOrderCard'
+export { OrderItem } from '@/modules/kitchen/KDSOrderCard'
 
 export type OrderStatus = 'new' | 'preparing' | 'ready' | 'delivered' | 'completed' | 'cancelled'
 export type PaymentStatus = 'pending' | 'paid'

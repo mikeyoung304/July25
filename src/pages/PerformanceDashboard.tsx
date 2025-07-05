@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor'
-import { PerformanceChart } from '@/features/performance/components/PerformanceChart'
-import { ComponentMetricsTable } from '@/features/performance/components/ComponentMetricsTable'
-import { APIMetricsTable } from '@/features/performance/components/APIMetricsTable'
+import { PerformanceChart } from '@/modules/analytics/components/PerformanceChart'
+import { ComponentMetricsTable } from '@/modules/analytics/components/ComponentMetricsTable'
+import { APIMetricsTable } from '@/modules/analytics/components/APIMetricsTable'
 import { cn } from '@/lib/utils'
 
 export const PerformanceDashboard: React.FC = () => {
