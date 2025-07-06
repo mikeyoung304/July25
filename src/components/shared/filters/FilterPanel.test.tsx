@@ -30,9 +30,13 @@ describe('FilterPanel', () => {
     render(<FilterPanel {...defaultProps} />)
     
     expect(screen.getByText('Filters')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Search orders...')).toBeInTheDocument()
+    
+    // Click expand to show other filter sections
+    fireEvent.click(screen.getByText('Expand'))
+    
     expect(screen.getByText('Status')).toBeInTheDocument()
     expect(screen.getByText('Time Range')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Search orders...')).toBeInTheDocument()
   })
 
   it('should display status checkboxes', () => {
@@ -138,7 +142,8 @@ describe('FilterPanel', () => {
     
     // Check that badges show correct state through their variant
     // Active badges will have different styling
-    const badges = screen.getAllByRole('status')
-    expect(badges).toHaveLength(3) // New, Preparing, Ready
+    expect(screen.getByText('New')).toBeInTheDocument()
+    expect(screen.getByText('Preparing')).toBeInTheDocument()
+    expect(screen.getByText('Ready')).toBeInTheDocument()
   })
 })

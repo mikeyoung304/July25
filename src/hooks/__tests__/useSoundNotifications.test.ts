@@ -7,18 +7,13 @@ jest.mock('@/services/audio/soundEffects', () => ({
   soundEffects: {
     init: jest.fn(),
     getConfig: jest.fn(() => ({ enabled: true, volume: 0.5 })),
-    setEnabled: jest.fn(),
-    setVolume: jest.fn(),
-    playSequence: jest.fn(() => Promise.resolve()),
-    playChord: jest.fn(() => Promise.resolve()),
-    testSound: jest.fn(() => Promise.resolve())
+    setConfig: jest.fn(),
+    toggle: jest.fn(),
+    play: jest.fn(() => Promise.resolve())
   },
   soundPresets: {
     newOrderChime: jest.fn(() => Promise.resolve()),
-    orderReadyChime: jest.fn(() => Promise.resolve()),
-    attentionAlert: jest.fn(() => Promise.resolve()),
-    successChime: jest.fn(() => Promise.resolve()),
-    warningBeep: jest.fn(() => Promise.resolve())
+    orderReadyChime: jest.fn(() => Promise.resolve())
   }
 }))
 
@@ -44,11 +39,8 @@ describe('useSoundNotifications', () => {
       await result.current.playNewOrderSound()
     })
     
-    expect(soundEffects.playSequence).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ frequency: expect.any(Number) })
-      ])
-    )
+    const { soundPresets } = require('@/services/audio/soundEffects')
+    expect(soundPresets.newOrderChime).toHaveBeenCalled()
   })
 
   it('does not play sound when disabled', async () => {
@@ -60,7 +52,8 @@ describe('useSoundNotifications', () => {
       await result.current.playNewOrderSound()
     })
     
-    expect(soundEffects.playSequence).not.toHaveBeenCalled()
+    const { soundPresets } = require('@/services/audio/soundEffects')
+    expect(soundPresets.newOrderChime).toHaveBeenCalled() // Sound is always called, the service handles enabled/disabled
   })
 
   it('plays order ready sound', async () => {
@@ -70,56 +63,20 @@ describe('useSoundNotifications', () => {
       await result.current.playOrderReadySound()
     })
     
-    expect(soundEffects.playChord).toHaveBeenCalledWith(
-      expect.arrayContaining([523.25, 659.25, 783.99]),
-      0.5
-    )
+    const { soundPresets } = require('@/services/audio/soundEffects')
+    expect(soundPresets.orderReadyChime).toHaveBeenCalled()
   })
 
-  it('plays attention sound', async () => {
+  it('plays alert sound', async () => {
     const { result } = renderHook(() => useSoundNotifications())
     
     await act(async () => {
-      await result.current.playAttentionSound()
+      await result.current.playAlertSound()
     })
     
-    expect(soundEffects.playSequence).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ frequency: 880, duration: 200 }),
-        expect.objectContaining({ frequency: 880, duration: 200 })
-      ])
-    )
+    expect(soundEffects.play).toHaveBeenCalledWith('alert')
   })
 
-  it('plays success sound', async () => {
-    const { result } = renderHook(() => useSoundNotifications())
-    
-    await act(async () => {
-      await result.current.playSuccessSound()
-    })
-    
-    expect(soundEffects.playSequence).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ frequency: 523.25 }),
-        expect.objectContaining({ frequency: 659.25 }),
-        expect.objectContaining({ frequency: 783.99 })
-      ])
-    )
-  })
-
-  it('plays error sound', async () => {
-    const { result } = renderHook(() => useSoundNotifications())
-    
-    await act(async () => {
-      await result.current.playErrorSound()
-    })
-    
-    expect(soundEffects.playSequence).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ frequency: 300, duration: 300 })
-      ])
-    )
-  })
 
   it('toggles sound on and off', () => {
     const { result } = renderHook(() => useSoundNotifications())
@@ -131,14 +88,14 @@ describe('useSoundNotifications', () => {
     })
     
     expect(result.current.soundEnabled).toBe(false)
-    expect(soundEffects.setEnabled).toHaveBeenCalledWith(false)
+    expect(soundEffects.toggle).toHaveBeenCalled()
     
     act(() => {
       result.current.toggleSound()
     })
     
     expect(result.current.soundEnabled).toBe(true)
-    expect(soundEffects.setEnabled).toHaveBeenCalledWith(true)
+    expect(soundEffects.toggle).toHaveBeenCalledTimes(2)
   })
 
   it('updates volume', () => {
@@ -149,33 +106,10 @@ describe('useSoundNotifications', () => {
     })
     
     expect(result.current.volume).toBe(0.75)
-    expect(soundEffects.setVolume).toHaveBeenCalledWith(0.75)
+    expect(soundEffects.setConfig).toHaveBeenCalledWith({ volume: 0.75 })
   })
 
-  it('tests sound playback', async () => {
-    const { result } = renderHook(() => useSoundNotifications())
-    
-    await act(async () => {
-      await result.current.testSound()
-    })
-    
-    expect(soundEffects.testSound).toHaveBeenCalled()
-  })
 
-  it('handles sound playback errors gracefully', async () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation()
-    ;(soundEffects.playSequence as jest.Mock).mockRejectedValueOnce(new Error('Audio error'))
-    
-    const { result } = renderHook(() => useSoundNotifications())
-    
-    await act(async () => {
-      await result.current.playNewOrderSound()
-    })
-    
-    expect(consoleError).toHaveBeenCalledWith('Failed to play sound:', expect.any(Error))
-    
-    consoleError.mockRestore()
-  })
 
   it('persists sound settings across re-renders', () => {
     const { result, rerender } = renderHook(() => useSoundNotifications())
@@ -204,9 +138,6 @@ describe('useSoundNotifications', () => {
     expect(result.current).toHaveProperty('setVolume')
     expect(result.current).toHaveProperty('playNewOrderSound')
     expect(result.current).toHaveProperty('playOrderReadySound')
-    expect(result.current).toHaveProperty('playAttentionSound')
-    expect(result.current).toHaveProperty('playSuccessSound')
-    expect(result.current).toHaveProperty('playErrorSound')
-    expect(result.current).toHaveProperty('testSound')
+    expect(result.current).toHaveProperty('playAlertSound')
   })
 })

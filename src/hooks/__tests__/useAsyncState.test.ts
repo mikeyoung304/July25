@@ -55,17 +55,26 @@ describe('useAsyncState', () => {
   it('sets loading state during async operation', async () => {
     const { result } = renderHook(() => useAsyncState<string>())
     
+    let resolvePromise: (value: string) => void
+    const promise = new Promise<string>(resolve => {
+      resolvePromise = resolve
+    })
+    
+    act(() => {
+      result.current.execute(promise)
+    })
+    
+    // Check loading is true while promise is pending
+    expect(result.current.loading).toBe(true)
+    
+    // Resolve the promise
     await act(async () => {
-      const promise = new Promise<string>(resolve => {
-        setTimeout(() => resolve('data'), 10)
-      })
-      
-      const executePromise = result.current.execute(promise)
-      expect(result.current.loading).toBe(true)
-      await executePromise
+      resolvePromise!('data')
+      await promise
     })
     
     expect(result.current.loading).toBe(false)
+    expect(result.current.data).toBe('data')
   })
 
   it('allows manual state updates', () => {
@@ -161,12 +170,21 @@ describe('useAsyncOperations', () => {
   it('maintains loading state during operations', async () => {
     const { result } = renderHook(() => useAsyncOperations())
     
+    let resolvePromise: (value: string) => void
+    const promise = new Promise<string>(resolve => {
+      resolvePromise = resolve
+    })
+    
+    act(() => {
+      result.current.execute([promise])
+    })
+    
+    // Check loading is true while promise is pending
+    expect(result.current.loading).toBe(true)
+    
+    // Resolve the promise
     await act(async () => {
-      const promise = result.current.execute([
-        new Promise(resolve => setTimeout(() => resolve('data'), 10))
-      ])
-      
-      expect(result.current.loading).toBe(true)
+      resolvePromise!('data')
       await promise
     })
     

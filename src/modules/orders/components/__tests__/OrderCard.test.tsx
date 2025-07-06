@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { OrderCard } from '../OrderCard'
+import { OrderCard } from '../OrderCard/OrderCard'
 import { OrderItem } from '@/modules/orders/types'
 
 describe('OrderCard', () => {
@@ -42,11 +42,9 @@ describe('OrderCard', () => {
     
     expect(screen.getByText('Order #001')).toBeInTheDocument()
     expect(screen.getByText(/Table.*5/)).toBeInTheDocument()
-    // Check for quantity and name separately since they might be in different elements
-    expect(screen.getByText('2x')).toBeInTheDocument()
-    expect(screen.getByText('Burger')).toBeInTheDocument()
-    expect(screen.getByText('1x')).toBeInTheDocument()
-    expect(screen.getByText('Fries')).toBeInTheDocument()
+    // Check for quantity and name together as they're rendered in the same element
+    expect(screen.getByText('2x Burger')).toBeInTheDocument()
+    expect(screen.getByText('1x Fries')).toBeInTheDocument()
   })
   
   it('should display modifiers', () => {

@@ -20,7 +20,12 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
   }, [filters])
   
   const refetch = useCallback(async () => {
-    await execute(fetchOrders())
+    try {
+      await execute(fetchOrders())
+    } catch (error) {
+      // Error is already handled by useAsyncState
+      // We catch here to prevent unhandled promise rejection
+    }
   }, [execute, fetchOrders])
   
   const updateOrderStatus = useCallback(async (orderId: string, status: Order['status']) => {

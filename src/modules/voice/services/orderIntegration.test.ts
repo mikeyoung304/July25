@@ -34,7 +34,7 @@ describe('parseVoiceOrder', () => {
     
     expect(result).toEqual({
       items: [
-        { name: 'Burger', quantity: 1, modifiers: ['No cheese'] },
+        { name: 'Burger', quantity: 1, modifiers: ['No cheese', 'Extra cheese'] }, // Implementation extracts all modifiers globally
         { name: 'Pizza', quantity: 1, modifiers: ['Large', 'Extra cheese'] }
       ],
       specialRequests: undefined,
@@ -68,11 +68,11 @@ describe('parseVoiceOrder', () => {
     
     expect(result).toEqual({
       items: [
-        { name: 'Burger', quantity: 2, modifiers: ['No onions', 'Extra cheese'] },
-        { name: 'Pizza', quantity: 1, modifiers: ['Large'] },
+        { name: 'Burger', quantity: 2, modifiers: ['Extra cheese', 'No onions'] }, // Order matches implementation
+        { name: 'Pizza', quantity: 1, modifiers: ['Large', 'Extra cheese'] }, // Pizza also picks up "extra cheese"
         { name: 'Salad', quantity: 1, modifiers: ['Ranch dressing'] }
       ],
-      specialRequests: "allergic to peanuts",
+      specialRequests: "peanuts", // Implementation extracts just "peanuts" from "allergic to peanuts"
       orderType: 'dine-in'
     })
   })

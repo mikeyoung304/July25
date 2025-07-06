@@ -3,6 +3,11 @@ import { useOrderFilters } from './useOrderFilters'
 import type { OrderFilters } from '@/types/filters'
 
 describe('useOrderFilters', () => {
+  beforeEach(() => {
+    // Clear localStorage to prevent test interference
+    localStorage.clear()
+  })
+
   it('should initialize with default filters', () => {
     const { result } = renderHook(() => useOrderFilters())
     
