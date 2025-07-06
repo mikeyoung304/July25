@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 import { useSoundNotifications } from '../useSoundNotifications'
-import { soundEffects } from '@/services/audio/soundEffects'
+import { soundEffects, soundPresets } from '@/services/audio/soundEffects'
 
 // Mock the soundEffects service
 jest.mock('@/services/audio/soundEffects', () => ({
@@ -39,7 +39,6 @@ describe('useSoundNotifications', () => {
       await result.current.playNewOrderSound()
     })
     
-    const { soundPresets } = require('@/services/audio/soundEffects')
     expect(soundPresets.newOrderChime).toHaveBeenCalled()
   })
 
@@ -52,7 +51,6 @@ describe('useSoundNotifications', () => {
       await result.current.playNewOrderSound()
     })
     
-    const { soundPresets } = require('@/services/audio/soundEffects')
     expect(soundPresets.newOrderChime).toHaveBeenCalled() // Sound is always called, the service handles enabled/disabled
   })
 
@@ -63,7 +61,6 @@ describe('useSoundNotifications', () => {
       await result.current.playOrderReadySound()
     })
     
-    const { soundPresets } = require('@/services/audio/soundEffects')
     expect(soundPresets.orderReadyChime).toHaveBeenCalled()
   })
 

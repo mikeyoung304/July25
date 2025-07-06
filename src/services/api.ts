@@ -11,6 +11,18 @@ import {
 
 export * from './types'
 
+// Voice transcription mock function
+export async function submitAudioForTranscription(audioBlob: Blob): Promise<{ success: boolean; transcript: string }> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ 
+        success: true, 
+        transcript: 'This is a successful test transcript.' 
+      })
+    }, 1000)
+  })
+}
+
 // Maintain backward compatibility with existing API structure
 export const api = {
   // Orders

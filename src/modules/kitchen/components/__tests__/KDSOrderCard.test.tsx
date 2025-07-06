@@ -195,18 +195,15 @@ describe('KDSOrderCard', () => {
     it('does not re-render when props are the same', () => {
       const onStatusChange = jest.fn()
       
-      // Create a mock component to track renders
-      const MockKDSOrderCard = jest.fn((props) => <div>Mock Card</div>)
-      
       // Create a parent component that passes props
-      const Parent = ({ value }: { value: number }) => (
+      const Parent = () => (
         <KDSOrderCard {...defaultProps} onStatusChange={onStatusChange} />
       )
       
-      const { rerender } = render(<Parent value={1} />)
+      const { rerender } = render(<Parent />)
       
-      // Re-render parent with same child props (but different parent prop)
-      rerender(<Parent value={2} />)
+      // Re-render parent with same child props
+      rerender(<Parent />)
       
       // The actual test would need to spy on the KDSOrderCard render
       // For now, just verify it's wrapped with memo

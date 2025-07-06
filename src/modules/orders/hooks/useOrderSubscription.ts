@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Order } from '../types'
 import { orderService } from '@/services'
-import { orderSubscription } from '@/services/realtime/orderSubscription'
+import { orderSubscription, OrderEvent } from '@/services/realtime/orderSubscription'
 
 export interface UseOrderSubscriptionOptions {
   onOrderCreated?: (order: Order) => void
@@ -13,33 +13,31 @@ export const useOrderSubscription = (options: UseOrderSubscriptionOptions): void
   const { onOrderCreated, onOrderUpdated, onOrderStatusChanged } = options
   
   useEffect(() => {
-    const unsubscribers: (() => void)[] = []
+    // Create a unique subscription ID
+    const subscriptionId = `order-subscription-${Date.now()}`
     
-    if (onOrderCreated) {
-      unsubscribers.push(
-        orderSubscription.on('orderCreated', onOrderCreated)
-      )
-    }
-    
-    if (onOrderUpdated) {
-      unsubscribers.push(
-        orderSubscription.on('orderUpdated', onOrderUpdated)
-      )
-    }
-    
-    if (onOrderStatusChanged) {
-      unsubscribers.push(
-        orderSubscription.on('orderStatusChanged', onOrderStatusChanged)
-      )
-    }
+    // Subscribe to order events
+    const unsubscribe = orderSubscription.subscribe(subscriptionId, (event: OrderEvent) => {
+      switch (event.type) {
+        case 'ORDER_CREATED':
+          onOrderCreated?.(event.order)
+          break
+        case 'ORDER_UPDATED':
+          onOrderUpdated?.(event.order)
+          break
+        case 'ORDER_STATUS_CHANGED':
+          onOrderStatusChanged?.(event.orderId, event.status, event.previousStatus)
+          break
+      }
+    })
     
     // Subscribe to new orders coming in
     const unsubscribeFromNewOrders = orderService.subscribeToOrders(() => {
-      // This is already handled by the orderCreated event
+      // This is already handled by the ORDER_CREATED event
     })
     
     return () => {
-      unsubscribers.forEach(unsubscribe => unsubscribe())
+      unsubscribe()
       unsubscribeFromNewOrders()
     }
   }, [onOrderCreated, onOrderUpdated, onOrderStatusChanged])

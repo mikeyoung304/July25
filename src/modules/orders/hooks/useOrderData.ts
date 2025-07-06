@@ -22,7 +22,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
   const refetch = useCallback(async () => {
     try {
       await execute(fetchOrders())
-    } catch (error) {
+    } catch {
       // Error is already handled by useAsyncState
       // We catch here to prevent unhandled promise rejection
     }

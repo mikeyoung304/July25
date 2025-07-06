@@ -3,6 +3,11 @@ export default {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      colors: {
+        'macon-blue-dark': '#0E2E3B',
+        'macon-teal': '#1B7A7A',
+        'macon-orange': '#F29F67',
+      },
       keyframes: {
         'pulse-once': {
           '0%, 100%': { opacity: '1' },
