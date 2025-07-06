@@ -10,6 +10,9 @@ jest.mock('@/services/api', () => ({
   }
 }))
 
+// Mock URL.createObjectURL
+global.URL.createObjectURL = jest.fn(() => 'blob:mock-url')
+
 describe('useOrderHistory', () => {
   const mockHistoryResponse = {
     orders: [
