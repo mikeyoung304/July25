@@ -1,6 +1,3 @@
-/**
- * Secure API client wrapper with built-in security features
- */
 
 import { sanitizeInput, CSRFTokenManager } from '@/utils'
 
@@ -19,9 +16,6 @@ export class SecureAPIClient {
     this.defaultTimeout = defaultTimeout
   }
   
-  /**
-   * Make a secure API request with built-in protections
-   */
   async request<T>(
     endpoint: string,
     options: SecureRequestOptions = {}

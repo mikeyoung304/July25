@@ -14,17 +14,14 @@ const mockStations: Station[] = [
 const stationAssignments: Map<string, StationAssignment[]> = new Map()
 
 export const stationRouting = {
-  // Get all stations
   getStations(): Station[] {
     return [...mockStations]
   },
   
-  // Get active stations only
   getActiveStations(): Station[] {
     return mockStations.filter(s => s.isActive)
   },
   
-  // Determine which station type should handle an item
   getStationTypeForItem(item: OrderItem): StationType | null {
     const itemNameLower = item.name.toLowerCase()
     
@@ -36,11 +33,9 @@ export const stationRouting = {
       }
     }
     
-    // Default fallback
     return 'cold'
   },
   
-  // Assign order items to stations
   assignOrderToStations(order: Order): StationAssignment[] {
     const assignments: StationAssignment[] = []
     
@@ -55,7 +50,6 @@ export const stationRouting = {
       
       if (availableStations.length === 0) continue
       
-      // Simple load balancing - assign to station with fewest orders
       const targetStation = availableStations.reduce((prev, curr) => 
         prev.currentOrders.length <= curr.currentOrders.length ? prev : curr
       )
@@ -72,24 +66,19 @@ export const stationRouting = {
       targetStation.currentOrders.push(order.id)
     }
     
-    // Store assignments
     stationAssignments.set(order.id, assignments)
     
     return assignments
   },
   
-  // Get assignments for an order
   getOrderAssignments(orderId: string): StationAssignment[] {
     return stationAssignments.get(orderId) || []
   },
   
-  // Get orders for a specific station
   getStationOrders(stationId: string): { order: Order; items: OrderItem[] }[] {
     const station = mockStations.find(s => s.id === stationId)
     if (!station) return []
     
-    // This would normally come from the API with proper filtering
-    // For now, we'll return mock data based on assignments
     const orders: { order: Order; items: OrderItem[] }[] = []
     
     // In a real implementation, this would query orders assigned to this station

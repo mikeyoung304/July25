@@ -3,7 +3,6 @@ import { BrowserRouter } from 'react-router-dom'
 import { KioskDemo } from '@/pages/KioskDemo'
 import { api } from '@/services/api'
 
-// Mock dependencies
 jest.mock('@/services/api')
 jest.mock('@/hooks/useToast', () => ({
   useToast: () => ({
@@ -14,7 +13,6 @@ jest.mock('@/hooks/useToast', () => ({
   })
 }))
 
-// Mock VoiceCapture component to simplify testing
 jest.mock('@/modules/voice/components/VoiceCapture', () => ({
   VoiceCapture: ({ onOrderComplete }: { onOrderComplete: (text: string) => void }) => (
     <div data-testid="voice-capture">
