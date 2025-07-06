@@ -17,10 +17,11 @@ A modern, modular Restaurant Operating System built with Vite, React, TypeScript
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18 + TypeScript
+- **Backend**: Express.js
+- **Database**: Supabase
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS + shadcn/ui components
 - **State Management**: React Context + Custom hooks
-- **Real-time**: Supabase subscriptions
 - **Testing**: Jest + React Testing Library
 - **Code Quality**: ESLint + Prettier
 

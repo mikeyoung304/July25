@@ -6,10 +6,16 @@
 
 ### **1. 🏛️ Architectural Mandates**
 
-- **MUST Adhere to Modular Architecture**: As defined in `README.md`, all new features MUST be built within the `src/modules/` directory. Use the existing structure as a blueprint.
-- **MUST Use Service Layer**: The `/services` directory is the ONLY integration point with the Supabase backend. All data access MUST go through this layer.
-- **PRIORITY: Multi-Tenancy**: The `RestaurantContext` is the core of our multi-tenant strategy. Your immediate architectural priority is to analyze its current implementation and refactor it based on the patterns from `plate-clean-test` to ensure robust multi-location support.
-- **PRIORITY: Real-time Updates**: All new features requiring real-time data MUST use Supabase subscriptions, following the existing patterns.
+- **MUST Adhere to Modular Architecture**: As defined in `README.md`, all new features MUST be built within the `src/modules/` directory.
+
+- **MUST Adhere to the API Service Layer Pattern**:
+    - The frontend application **NEVER** communicates directly with the database (Supabase).
+    - The `src/services` directory is the ONLY integration point between the frontend and the backend.
+    - This service layer makes HTTP requests (e.g., GET, POST) to the **Express.js server** managed by our backend architect, Luis.
+    - The Express.js server is solely responsible for all database interactions.
+    - For development, this service layer will return mocked data until a real endpoint from Luis is available.
+
+- **PRIORITY: Multi-Tenancy**: The `RestaurantContext` is the core of our multi-tenant strategy. It must be used to provide the necessary `restaurant_id` for all relevant API calls to the Express.js backend.
 
 ### **2. ✅ Quality Gates & Core Commands**
 
