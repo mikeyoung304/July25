@@ -12,6 +12,14 @@ jest.mock('@/services', () => ({
 }))
 
 describe('useOrderData', () => {
+  // Suppress console.error for error handling tests
+  const originalError = console.error
+  beforeAll(() => {
+    console.error = jest.fn()
+  })
+  afterAll(() => {
+    console.error = originalError
+  })
   const mockOrders: Order[] = [
     {
       id: '1',

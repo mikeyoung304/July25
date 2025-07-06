@@ -24,14 +24,27 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
   }, [execute, fetchOrders])
   
   const updateOrderStatus = useCallback(async (orderId: string, status: Order['status']) => {
-    const result = await orderService.updateOrderStatus(orderId, status)
-    if (result.success && data) {
-      // Update local state optimistically
+    // Optimistic update - update immediately
+    if (data) {
       setData(data.map(order => 
         order.id === orderId ? { ...order, status } : order
       ))
     }
-  }, [data, setData])
+    
+    try {
+      const result = await orderService.updateOrderStatus(orderId, status)
+      if (!result.success && data) {
+        // Revert on failure
+        await refetch()
+      }
+    } catch (error) {
+      // Revert on error
+      if (data) {
+        await refetch()
+      }
+      throw error
+    }
+  }, [data, setData, refetch])
   
   useEffect(() => {
     refetch()

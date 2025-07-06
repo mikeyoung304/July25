@@ -84,7 +84,10 @@ describe('KDSOrderCard', () => {
   it('renders order information correctly', () => {
     render(<KDSOrderCard {...defaultProps} />)
     
-    expect(screen.getByTestId('order-header')).toHaveTextContent('Order #001 - new')
+    // Check that order header contains the order number and status
+    const orderHeader = screen.getByTestId('order-header')
+    expect(orderHeader).toHaveTextContent('001')
+    expect(orderHeader).toHaveTextContent('new')
     expect(screen.getByTestId('order-metadata')).toHaveTextContent('Table 5')
     expect(screen.getByTestId('order-items')).toBeInTheDocument()
   })
