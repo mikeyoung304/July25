@@ -11,6 +11,14 @@ import {
 } from '@/utils'
 import { mockData } from '@/services/mockData'
 
+// Map legacy 'delivered' status to 'completed' for backward compatibility
+const mapOrderStatus = (status: string): Order['status'] => {
+  if (status === 'delivered') {
+    return 'completed'
+  }
+  return status as Order['status']
+}
+
 export interface IOrderService {
   getOrders(filters?: OrderFilters): Promise<{ orders: Order[]; total: number }>
   getOrderById(orderId: string): Promise<Order>
@@ -36,14 +44,23 @@ export class OrderService extends BaseService implements IOrderService {
       )
     }
     
-    return { orders: filtered, total: filtered.length }
+    // Map order statuses for backward compatibility
+    const mappedOrders = filtered.map(order => ({
+      ...order,
+      status: mapOrderStatus(order.status)
+    }))
+    
+    return { orders: mappedOrders, total: mappedOrders.length }
   }
 
   async getOrderById(orderId: string): Promise<Order> {
     await this.delay(300)
     const order = mockData.orders.find(o => o.id === orderId)
     if (!order) throw new Error('Order not found')
-    return order
+    return {
+      ...order,
+      status: mapOrderStatus(order.status)
+    }
   }
 
   async updateOrderStatus(orderId: string, status: Order['status']): Promise<{ success: boolean; order: Order }> {
@@ -60,7 +77,13 @@ export class OrderService extends BaseService implements IOrderService {
     orderSubscription.emitOrderStatusChanged(orderId, status, previousStatus)
     
     console.log('Mock: Updated order status', { orderId, status })
-    return { success: true, order }
+    return { 
+      success: true, 
+      order: {
+        ...order,
+        status: mapOrderStatus(order.status)
+      }
+    }
   }
 
   async submitOrder(orderData: Partial<Order>): Promise<{ success: boolean; orderId: string; order: Order }> {
@@ -100,8 +123,8 @@ export class OrderService extends BaseService implements IOrderService {
         name: validatedName,
         quantity: validatedQuantity,
         modifiers: validatedModifiers,
-        notes: validatedNotes,
-        price: validatedPrice
+        notes: validatedNotes !== null ? validatedNotes : undefined,
+        price: validatedPrice !== null ? validatedPrice : undefined
       }
     })
     

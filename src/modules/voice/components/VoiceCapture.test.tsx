@@ -18,13 +18,16 @@ Object.defineProperty(navigator, 'mediaDevices', {
 })
 
 // Mock MediaRecorder
-global.MediaRecorder = jest.fn().mockImplementation(() => ({
+const mockMediaRecorder = jest.fn().mockImplementation(() => ({
   start: jest.fn(),
   stop: jest.fn(),
   state: 'inactive',
   ondataavailable: null,
   onstop: null,
 }))
+// Add isTypeSupported as a static method
+;(mockMediaRecorder as any).isTypeSupported = jest.fn().mockReturnValue(true)
+global.MediaRecorder = mockMediaRecorder as any
 
 describe('VoiceCapture', () => {
   beforeEach(() => {
@@ -129,7 +132,7 @@ describe('VoiceCapture', () => {
       })
       
       // Simulate MediaRecorder stopping and triggering transcription
-      const mediaRecorder = global.MediaRecorder.mock.results[0].value
+      const mediaRecorder = mockMediaRecorder.mock.results[0].value
       
       // Simulate some time passing and then stopping
       await waitFor(() => {

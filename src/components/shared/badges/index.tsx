@@ -25,7 +25,7 @@ export const StationBadge: React.FC<StationBadgeProps> = ({ stationType, classNa
 
 // Status Badge
 export interface StatusBadgeProps {
-  status: 'new' | 'preparing' | 'ready'
+  status: 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
   variant?: 'default' | 'compact'
   className?: string
 }
@@ -42,6 +42,14 @@ const STATUS_CONFIG = {
   ready: {
     label: 'Ready',
     className: 'bg-green-100 text-green-800 border-green-300',
+  },
+  completed: {
+    label: 'Completed',
+    className: 'bg-gray-100 text-gray-800 border-gray-300',
+  },
+  cancelled: {
+    label: 'Cancelled',
+    className: 'bg-red-100 text-red-800 border-red-300',
   },
 } as const
 
@@ -67,8 +75,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 
 // Animated Status Badge
 interface AnimatedStatusBadgeProps {
-  status: 'new' | 'preparing' | 'ready'
-  previousStatus?: 'new' | 'preparing' | 'ready'
+  status: 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
+  previousStatus?: 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
   className?: string
 }
 

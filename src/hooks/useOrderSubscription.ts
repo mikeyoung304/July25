@@ -21,7 +21,7 @@ export const useOrderSubscription = (options: UseOrderSubscriptionOptions = {}) 
   
   const [isConnected, setIsConnected] = useState(false)
   const [lastEvent, setLastEvent] = useState<OrderEvent | null>(null)
-  const subscriptionIdRef = useRef<string>()
+  const subscriptionIdRef = useRef<string | undefined>(undefined)
   
   const handleEvent = useCallback((event: OrderEvent) => {
     setLastEvent(event)

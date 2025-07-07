@@ -20,13 +20,13 @@ import { FilterPanel } from '@/components/shared/filters/FilterPanel'
 import { SortControl } from '@/components/shared/filters/SortControl'
 import { SoundControl } from '@/components/shared/controls/SoundControl'
 import { KDSLayout } from '@/modules/kitchen/components/KDSLayout'
-import { AnimatedKDSOrderCard } from '@/modules/kitchen/AnimatedKDSOrderCard'
-import { KDSOrderListItem } from '@/modules/kitchen/KDSOrderListItem'
+import { AnimatedKDSOrderCard } from '@/modules/kitchen/components/AnimatedKDSOrderCard'
+import { KDSOrderListItem } from '@/modules/kitchen/components/KDSOrderListItem'
 
 export function KitchenDisplay() {
   const { restaurant, isLoading: restaurantLoading } = useRestaurant()
   const [orders, setOrders] = useState<Order[]>([])
-  const { loading: isLoading, execute } = useAsyncState()
+  const { loading: isLoading, execute } = useAsyncState<{ orders: Order[]; total: number }>()
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('grid')
   const { toast } = useToast()
   const { 

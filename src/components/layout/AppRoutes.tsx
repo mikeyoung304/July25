@@ -1,6 +1,8 @@
 import React, { Profiler } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
+import { SplashScreen } from '@/pages/SplashScreen'
+import { Dashboard } from '@/pages/Dashboard'
 import { HomePage } from '@/pages/HomePage'
 import { KitchenDisplay } from '@/pages/KitchenDisplay'
 import { KioskDemo } from '@/pages/KioskDemo'
@@ -11,7 +13,7 @@ import { performanceMonitor } from '@/services/performance/performanceMonitor'
 // Profiler callback for performance tracking
 const onRenderCallback = (
   id: string,
-  phase: 'mount' | 'update',
+  phase: 'mount' | 'update' | 'nested-update',
   actualDuration: number
 ) => {
   performanceMonitor.trackRender(id, actualDuration)
@@ -23,7 +25,9 @@ export function AppRoutes() {
       <ErrorBoundary level="section">
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/home" element={<HomePage />} />
             <Route path="/kitchen" element={
               <ErrorBoundary level="section">
                 <Profiler id="KitchenDisplay" onRender={onRenderCallback}>

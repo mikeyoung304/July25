@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { Order } from '@/modules/orders/types'
-import { OrderCard } from '../OrderCard'
+import { OrderCard } from '../OrderCard/OrderCard'
 import { cn } from '@/utils'
 
 interface OrderListProps {

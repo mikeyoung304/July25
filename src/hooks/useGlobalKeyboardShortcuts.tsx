@@ -17,7 +17,7 @@ export const useGlobalKeyboardShortcuts = () => {
   const { toast } = useToast()
 
   const showShortcutsHelp = useCallback((shortcuts: ShortcutConfig[]) => {
-    toast.info(
+    toast.success(
       <div className="space-y-2">
         <h3 className="font-semibold">Keyboard Shortcuts</h3>
         {shortcuts.map(s => (

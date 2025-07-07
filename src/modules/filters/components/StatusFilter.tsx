@@ -14,7 +14,6 @@ const defaultOptions: FilterOption<OrderStatus | 'all'>[] = [
   { value: 'new', label: 'New' },
   { value: 'preparing', label: 'Preparing' },
   { value: 'ready', label: 'Ready' },
-  { value: 'delivered', label: 'Delivered' },
   { value: 'completed', label: 'Completed' },
   { value: 'cancelled', label: 'Cancelled' }
 ]
@@ -25,7 +24,7 @@ export const StatusFilter = memo<StatusFilterProps>(({
   options = defaultOptions
 }) => {
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={(val) => onChange(val as OrderStatus | 'all')}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Filter by status" />
       </SelectTrigger>

@@ -15,7 +15,13 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
   const { data, loading, error, execute, setData } = useAsyncState<Order[]>([])
   
   const fetchOrders = useCallback(async () => {
-    const result = await orderService.getOrders(filters)
+    // Transform complex filters to simple service filters
+    const serviceFilters = filters ? {
+      status: filters.status && filters.status.length > 0 ? filters.status[0] : undefined,
+      tableId: undefined // Not supported in service layer yet
+    } : undefined
+    
+    const result = await orderService.getOrders(serviceFilters)
     return result.orders
   }, [filters])
   

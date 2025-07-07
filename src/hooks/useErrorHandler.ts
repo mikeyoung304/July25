@@ -43,20 +43,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
       // Show toast notification
       if (showToast) {
         toast.error(errorObj.message || fallbackMessage, {
-          duration: 5000,
-          action: retryable && onRetry
-            ? {
-                label: 'Retry',
-                onClick: () => {
-                  const result = onRetry()
-                  if (result instanceof Promise) {
-                    result.catch(retryError => {
-                      handleError(retryError, { ...options, retryable: false })
-                    })
-                  }
-                }
-              }
-            : undefined
+          duration: 5000
         })
       }
 

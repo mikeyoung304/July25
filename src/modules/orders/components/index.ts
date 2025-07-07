@@ -1,3 +1,3 @@
-export * from './OrderCard'
-export * from './OrderDetails'
-export * from './OrderList'
+export * from './OrderCard/OrderCard'
+export * from './OrderList/OrderList'
+export * from './OrderActions/OrderActionsBar'

@@ -1,10 +1,12 @@
+@import './styles/design-tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 36 33% 97%; /* #FAF8F5 */
     --foreground: 203 61% 14%; /* macon-blue-dark */
     
     --card: 0 0% 100%;

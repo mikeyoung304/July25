@@ -11,7 +11,7 @@ export const usePerformanceMonitor = (options: UsePerformanceMonitorOptions = {}
   const { trackMemory = true, memoryInterval = 10000, component } = options
   const [metrics, setMetrics] = useState(() => performanceMonitor.getMetrics())
   const [statistics, setStatistics] = useState(() => performanceMonitor.getStatistics())
-  const renderStartTime = useRef<number>()
+  const renderStartTime = useRef<number | undefined>(undefined)
 
   // Start render tracking
   useEffect(() => {

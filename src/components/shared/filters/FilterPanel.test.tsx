@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { FilterPanel } from './FilterPanel'
-import type { OrderFilters } from '@/types/filters'
+import type { OrderFilters, OrderStatus } from '@/types/filters'
 
 describe('FilterPanel', () => {
   const defaultFilters: OrderFilters = {
@@ -130,9 +130,9 @@ describe('FilterPanel', () => {
   })
 
   it('should apply correct styling to active status filters', () => {
-    const activeFilters = {
+    const activeFilters: OrderFilters = {
       ...defaultFilters,
-      status: ['new', 'preparing'] // 'ready' is not selected
+      status: ['new', 'preparing'] as OrderStatus[] // 'ready' is not selected
     }
     
     render(<FilterPanel {...defaultProps} filters={activeFilters} />)

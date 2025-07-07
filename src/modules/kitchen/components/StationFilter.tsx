@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
-import { StationBadge } from '@/components/shared/badges/StationBadge'
+import { StationBadge } from '@/components/shared/badges'
 import { StationType } from '@/types/station'
 import { stationRouting } from '@/services/stationRouting'
 

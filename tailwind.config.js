@@ -4,9 +4,60 @@ export default {
   theme: {
     extend: {
       colors: {
+        // MACON Brand Colors - Matching the actual logo
+        'macon-navy': {
+          DEFAULT: '#1a365d',
+          dark: '#0f2442',
+          light: '#2d4a7c',
+          50: '#e6ecf3',
+          100: '#ccd9e7',
+          200: '#99b3cf',
+          300: '#668db7',
+          400: '#33679f',
+          500: '#1a365d',
+          600: '#162d4d',
+          700: '#12243d',
+          800: '#0e1b2d',
+          900: '#0a121d',
+        },
+        'macon-orange': {
+          DEFAULT: '#fb923c',
+          dark: '#ea7c1c',
+          light: '#fca85c',
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316',
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+        },
+        'macon-teal': {
+          DEFAULT: '#38b2ac',
+          dark: '#2c8a86',
+          light: '#4dd4cc',
+          50: '#e6fffa',
+          100: '#b2f5ea',
+          200: '#81e6d9',
+          300: '#4dd4cc',
+          400: '#38b2ac',
+          500: '#319795',
+          600: '#2c8a86',
+          700: '#287876',
+          800: '#236665',
+          900: '#1e5555',
+        },
+        // Keep legacy colors for backward compatibility
         'macon-blue-dark': '#0E2E3B',
-        'macon-teal': '#1B7A7A',
-        'macon-orange': '#F29F67',
+        'macon-teal-old': '#1B7A7A',
+        'macon-orange-old': '#F29F67',
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        mono: ['JetBrains Mono', 'SF Mono', 'Consolas', 'Liberation Mono', 'monospace'],
       },
       keyframes: {
         'pulse-once': {

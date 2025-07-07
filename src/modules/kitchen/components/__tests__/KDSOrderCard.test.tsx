@@ -35,10 +35,10 @@ jest.mock('@/components/shared/order/OrderActions', () => ({
   OrderActions: ({ status, onStatusChange }: { status: string; onStatusChange?: (status: string) => void }) => (
     <div data-testid="order-actions">
       {status === 'new' && (
-        <button onClick={() => onStatusChange('preparing')}>Start Preparing</button>
+        <button onClick={() => onStatusChange?.('preparing')}>Start Preparing</button>
       )}
       {status === 'preparing' && (
-        <button onClick={() => onStatusChange('ready')}>Mark Ready</button>
+        <button onClick={() => onStatusChange?.('ready')}>Mark Ready</button>
       )}
       {status === 'ready' && <span>Ready for pickup</span>}
     </div>

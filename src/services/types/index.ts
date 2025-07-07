@@ -15,7 +15,7 @@ export interface Order {
   orderNumber: string
   tableNumber: string
   items: OrderItem[]
-  status: 'new' | 'preparing' | 'ready' | 'delivered' | 'completed' | 'cancelled'
+  status: 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
   orderTime: Date
   completedTime?: Date
   customerId?: string

@@ -4,7 +4,7 @@ export type { Order }
 export type { OrderFilters } from '@/types/filters'
 export type { OrderItem } from '@/types/order'
 
-export type OrderStatus = 'new' | 'preparing' | 'ready' | 'delivered' | 'completed' | 'cancelled'
+export type OrderStatus = 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
 export type PaymentStatus = 'pending' | 'paid'
 
 export interface OrderEventCallback {

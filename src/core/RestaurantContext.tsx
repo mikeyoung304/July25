@@ -41,7 +41,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   }, [execute])
 
   const contextValue = {
-    restaurant,
+    restaurant: restaurant ?? null,
     setRestaurant,
     isLoading,
     error

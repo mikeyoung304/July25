@@ -49,7 +49,7 @@ export const subscribeToOrders = (
   const subscription = supabase
     .channel(`orders:${restaurantId}`)
     .on(
-      'postgres_changes',
+      'postgres_changes' as any,
       {
         event: '*',
         schema: 'public',
@@ -76,7 +76,7 @@ export const subscribeToTableUpdates = (
   const subscription = supabase
     .channel(`tables:${restaurantId}`)
     .on(
-      'postgres_changes',
+      'postgres_changes' as any,
       {
         event: '*',
         schema: 'public',

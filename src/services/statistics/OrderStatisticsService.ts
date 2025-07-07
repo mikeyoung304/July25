@@ -1,6 +1,6 @@
 import { BaseService } from '@/services/base/BaseService'
 import { OrderStatistics, DateRangeParams } from '@/services/types'
-import { OrderHistoryService } from '@/services/orders/OrderHistoryService'
+import { OrderHistoryService, orderHistoryService } from '@/services/orders/OrderHistoryService'
 
 export interface IOrderStatisticsService {
   getOrderStatistics(params?: DateRangeParams): Promise<OrderStatistics>
@@ -35,4 +35,4 @@ export class OrderStatisticsService extends BaseService implements IOrderStatist
 }
 
 // Export singleton instance
-export const orderStatisticsService = new OrderStatisticsService()
+export const orderStatisticsService = new OrderStatisticsService(orderHistoryService)

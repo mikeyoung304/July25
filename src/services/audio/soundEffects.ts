@@ -3,7 +3,7 @@
  * Provides audio feedback for order events
  */
 
-export type SoundType = 'newOrder' | 'orderReady' | 'alert' | 'success'
+export type SoundType = 'newOrder' | 'orderReady' | 'alert' | 'success' | 'statusChange'
 
 interface SoundConfig {
   volume: number
@@ -99,6 +99,13 @@ export class SoundEffectsService {
           duration: 0.4,
           volumeMultiplier: 0.7
         }
+      case 'statusChange':
+        return {
+          frequency: 523.25, // C5
+          waveform: 'sine' as OscillatorType,
+          duration: 0.25,
+          volumeMultiplier: 0.6
+        }
     }
   }
 
@@ -151,6 +158,20 @@ export class SoundEffectsService {
    * Toggle sound on/off
    */
   toggle(): void {
+    this.config.enabled = !this.config.enabled
+  }
+
+  /**
+   * Set volume level
+   */
+  setVolume(volume: number): void {
+    this.config.volume = Math.max(0, Math.min(1, volume))
+  }
+
+  /**
+   * Toggle mute
+   */
+  toggleMute(): void {
     this.config.enabled = !this.config.enabled
   }
 }

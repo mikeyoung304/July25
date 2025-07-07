@@ -1,7 +1,7 @@
 import type { StationType } from './station'
 import type { Order } from '@/services/api'
 
-export type OrderStatus = 'new' | 'preparing' | 'ready'
+export type OrderStatus = 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
 
 export type SortBy = 
   | 'orderTime' 
@@ -99,7 +99,7 @@ export const sortOrders = (orders: Order[], sortBy: SortBy, direction: SortDirec
         comparison = a.tableNumber.localeCompare(b.tableNumber)
         break
       case 'status': {
-        const statusOrder = { 'new': 0, 'preparing': 1, 'ready': 2 }
+        const statusOrder = { 'new': 0, 'preparing': 1, 'ready': 2, 'completed': 3, 'cancelled': 4 }
         comparison = statusOrder[a.status as OrderStatus] - statusOrder[b.status as OrderStatus]
         break
       }

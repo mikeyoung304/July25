@@ -199,7 +199,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                         filters.stations.includes(key as StationType) && config.color.replace('text-', 'bg-').replace('800', '100')
                       )}
                     >
-                      {config.label}
+                      {config.name}
                     </Badge>
                   </label>
                 ))}

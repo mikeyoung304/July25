@@ -31,14 +31,16 @@ describe('Voice Order to KDS Integration', () => {
     
     mockApi.submitOrder.mockResolvedValue({
       success: true,
+      orderId: 'order-123',
       order: {
         id: 'order-123',
         orderNumber: '1001',
         status: 'new',
         tableNumber: 'K1',
         items: [],
-        orderTime: new Date().toISOString(),
-        totalAmount: 0
+        orderTime: new Date(),
+        totalAmount: 0,
+        paymentStatus: 'pending'
       }
     })
   })

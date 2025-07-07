@@ -2,6 +2,7 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 import { useOrderData } from '../useOrderData'
 import { orderService } from '@/services'
 import { Order } from '@/modules/orders/types'
+import { defaultFilters, OrderStatus, OrderFilters } from '@/types/filters'
 
 // Mock the orderService
 jest.mock('@/services', () => ({
@@ -71,14 +72,17 @@ describe('useOrderData', () => {
   })
   
   it('should fetch orders with filters', async () => {
-    const filters = { status: 'new' }
+    const filters = { ...defaultFilters, status: ['new'] as OrderStatus[] }
     const { result } = renderHook(() => useOrderData(filters))
     
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
     
-    expect(orderService.getOrders).toHaveBeenCalledWith(filters)
+    expect(orderService.getOrders).toHaveBeenCalledWith({
+      status: 'new',
+      tableId: undefined
+    })
   })
   
   it('should refetch orders', async () => {
@@ -133,8 +137,8 @@ describe('useOrderData', () => {
   
   it('should re-fetch when filters change', async () => {
     const { result, rerender } = renderHook(
-      ({ filters }) => useOrderData(filters),
-      { initialProps: { filters: undefined } }
+      ({ filters }: { filters?: OrderFilters }) => useOrderData(filters),
+      { initialProps: { filters: undefined as OrderFilters | undefined } }
     )
     
     await waitFor(() => {
@@ -144,11 +148,14 @@ describe('useOrderData', () => {
     expect(orderService.getOrders).toHaveBeenCalledTimes(1)
     
     // Change filters
-    rerender({ filters: { status: 'new' } })
+    rerender({ filters: { ...defaultFilters, status: ['new'] as OrderStatus[] } })
     
     await waitFor(() => {
       expect(orderService.getOrders).toHaveBeenCalledTimes(2)
-      expect(orderService.getOrders).toHaveBeenLastCalledWith({ status: 'new' })
+      expect(orderService.getOrders).toHaveBeenLastCalledWith({
+        status: 'new',
+        tableId: undefined
+      })
     })
   })
 })

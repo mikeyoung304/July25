@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, XCircle, Clock, Package } from 'lucide-react'
+import { CheckCircle, XCircle, Clock } from 'lucide-react'
 import { Order } from '@/modules/orders/types'
 import { cn } from '@/utils'
 
@@ -24,8 +24,6 @@ export const OrderActionsBar = memo<OrderActionsBarProps>(({
       case 'preparing':
         return 'ready'
       case 'ready':
-        return 'delivered'
-      case 'delivered':
         return 'completed'
       default:
         return null
@@ -47,20 +45,17 @@ export const OrderActionsBar = memo<OrderActionsBarProps>(({
         icon: CheckCircle,
         variant: 'default' as const
       },
-      delivered: {
-        label: 'Mark as Delivered',
-        icon: Package,
-        variant: 'default' as const
-      },
       completed: {
         label: 'Complete Order',
         icon: CheckCircle,
-        variant: 'success' as const
+        variant: 'default' as const
       }
     }
 
-    const config = buttonConfig[nextStatus]
-    if (!config) return null
+    // Type guard to ensure nextStatus is a valid key
+    if (!nextStatus || !(nextStatus in buttonConfig)) return null
+    
+    const config = buttonConfig[nextStatus as keyof typeof buttonConfig]
 
     const Icon = config.icon
 
