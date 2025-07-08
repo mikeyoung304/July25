@@ -4,7 +4,8 @@ import { OrderHeader, OrderMetadata } from '@/components/shared/order/OrderHeade
 import { OrderItemsList } from '@/components/shared/order/OrderItemsList'
 import { OrderActions } from '@/components/shared/order/OrderActions'
 import { cn } from '@/utils'
-import type { OrderItem, OrderStatus } from '@/modules/orders/types'
+import type { OrderItem } from '@/modules/orders/types'
+import type { OrderStatus } from '@/types/filters'
 
 interface OrderCardProps {
   orderId: string

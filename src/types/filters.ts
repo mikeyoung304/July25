@@ -1,7 +1,7 @@
 import type { StationType } from './station'
-import type { Order } from '@/services/api'
+import type { Order } from '@/services/types'
 
-export type OrderStatus = 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
+export type OrderStatus = Order['status']
 
 export type SortBy = 
   | 'orderTime' 
@@ -48,7 +48,7 @@ export const defaultFilters: OrderFilters = {
 export const applyFilters = (orders: Order[], filters: OrderFilters): Order[] => {
   return orders.filter(order => {
     // Status filter
-    if (filters.status.length > 0 && !filters.status.includes(order.status as OrderStatus)) {
+    if (filters.status.length > 0 && !filters.status.includes(order.status)) {
       return false
     }
 
@@ -100,7 +100,7 @@ export const sortOrders = (orders: Order[], sortBy: SortBy, direction: SortDirec
         break
       case 'status': {
         const statusOrder = { 'new': 0, 'preparing': 1, 'ready': 2, 'completed': 3, 'cancelled': 4 }
-        comparison = statusOrder[a.status as OrderStatus] - statusOrder[b.status as OrderStatus]
+        comparison = statusOrder[a.status] - statusOrder[b.status]
         break
       }
       case 'itemCount': {

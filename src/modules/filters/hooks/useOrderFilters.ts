@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import { OrderFilterState } from '../types'
-import { OrderStatus } from '@/modules/orders/types'
+import { OrderStatus } from '@/types/filters'
 
 export interface UseOrderFiltersReturn {
   filters: OrderFilterState

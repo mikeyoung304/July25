@@ -1,4 +1,4 @@
-import { OrderStatus } from '@/modules/orders/types'
+import { OrderStatus } from '@/types/filters'
 
 export interface OrderFilterState {
   status?: OrderStatus | 'all'

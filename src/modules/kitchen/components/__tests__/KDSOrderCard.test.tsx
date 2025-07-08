@@ -105,13 +105,16 @@ describe('KDSOrderCard', () => {
     const { container } = render(<KDSOrderCard {...defaultProps} />)
     
     // Initially not urgent
-    expect(container.firstChild).not.toHaveClass('ring-2 ring-red-500')
+    expect(container.firstChild).not.toHaveClass('shadow-glow-urgent')
+    expect(container.firstChild).not.toHaveClass('border-red-400')
     
     // Advance time by 16 minutes
     jest.setSystemTime(new Date('2024-01-01T12:16:00'))
     const { container: urgentContainer } = render(<KDSOrderCard {...defaultProps} />)
     
-    expect(urgentContainer.firstChild).toHaveClass('ring-2 ring-red-500')
+    expect(urgentContainer.firstChild).toHaveClass('shadow-glow-urgent')
+    expect(urgentContainer.firstChild).toHaveClass('border-red-400')
+    expect(urgentContainer.firstChild).toHaveClass('animate-pulse')
   })
 
   it('does not apply urgent styling to ready orders', () => {
@@ -121,7 +124,8 @@ describe('KDSOrderCard', () => {
       <KDSOrderCard {...defaultProps} status="ready" />
     )
     
-    expect(container.firstChild).not.toHaveClass('ring-2 ring-red-500')
+    expect(container.firstChild).not.toHaveClass('shadow-glow-urgent')
+    expect(container.firstChild).not.toHaveClass('border-red-400')
   })
 
   it('calls onStatusChange when action buttons are clicked', () => {

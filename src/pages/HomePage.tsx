@@ -29,19 +29,37 @@ function FeatureCard({
 }: FeatureCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: delay * 0.1, duration: 0.5 }}
+      initial={{ opacity: 0, y: 40, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ 
+        delay: delay * 0.1, 
+        duration: 0.6,
+        type: 'spring',
+        stiffness: 200,
+        damping: 20
+      }}
+      whileHover={{ y: -8, transition: { duration: 0.3 } }}
     >
-      <Card className="p-0 h-full group hover:shadow-large hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-        <div className="p-6 flex flex-col h-full space-y-4">
+      <Card className="p-0 h-full group relative overflow-visible">
+        {/* Gradient border effect */}
+        <div className="absolute -inset-0.5 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl blur-sm"
+          style={{
+            background: `linear-gradient(135deg, ${iconBg}40 0%, ${iconBg}20 100%)`
+          }} 
+        />
+        
+        <div className="relative bg-white rounded-xl p-6 flex flex-col h-full space-y-4">
           <div className="flex items-center space-x-4">
-            <div
-              className="p-3 rounded-xl transition-all duration-300 group-hover:scale-110 shadow-soft"
+            <motion.div
+              className="p-3 rounded-xl shadow-elevation-2 relative overflow-hidden"
               style={{ backgroundColor: iconBg }}
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: 'spring', stiffness: 300 }}
             >
+              {/* Icon glow effect */}
+              <div className="absolute inset-0 bg-gradient-radial from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               {icon}
-            </div>
+            </motion.div>
             <h3 className="text-xl font-bold text-macon-navy">
               {title}
             </h3>
@@ -52,9 +70,27 @@ function FeatureCard({
           </p>
           
           <Link to={href} className="w-full">
-            <Button variant={buttonVariant} className="w-full group-hover:shadow-medium">
-              {buttonText}
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <Button variant={buttonVariant} className="w-full group/btn relative overflow-hidden">
+              <span className="relative z-10 flex items-center justify-center w-full">
+                {buttonText}
+                <motion.div
+                  className="ml-2"
+                  initial={{ x: 0 }}
+                  animate={{ x: 0 }}
+                  whileHover={{ x: 5 }}
+                  transition={{ type: 'spring', stiffness: 300 }}
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </motion.div>
+              </span>
+              
+              {/* Button hover effect */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: '100%' }}
+                transition={{ duration: 0.6 }}
+              />
             </Button>
           </Link>
         </div>

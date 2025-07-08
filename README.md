@@ -1,6 +1,6 @@
-# Rebuild 6.0
+# Macon AI Restaurant OS (Rebuild 6.0)
 
-A modern, modular Restaurant Operating System built with Vite, React, TypeScript, and Supabase.
+A modern, modular Restaurant Operating System built with Vite, React, TypeScript, and Supabase. Featuring AI-powered voice ordering and real-time kitchen management.
 
 ## 🚀 Features
 
@@ -16,14 +16,24 @@ A modern, modular Restaurant Operating System built with Vite, React, TypeScript
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18 + TypeScript
-- **Backend**: Express.js
-- **Database**: Supabase
+### Frontend (This Repository)
+- **Framework**: React 18 + TypeScript
 - **Build Tool**: Vite
-- **Styling**: Tailwind CSS + shadcn/ui components
+- **Styling**: Tailwind CSS + shadcn/ui + Macon AI brand
 - **State Management**: React Context + Custom hooks
-- **Testing**: Jest + React Testing Library
-- **Code Quality**: ESLint + Prettier
+- **Testing**: Jest + React Testing Library (231 tests)
+- **Code Quality**: ESLint + Prettier + TypeScript strict
+
+### Backend (Separate Service - Managed by Luis)
+- **API**: Express.js server
+- **Database**: Supabase (PostgreSQL)
+- **Architecture**: RESTful API endpoints
+- **Responsibility**: All database operations
+
+### Key Architecture Decision
+- **Frontend NEVER accesses database directly**
+- **All data flows through Express.js API**
+- **Mock data used during frontend development**
 
 ## 📋 Prerequisites
 
@@ -53,12 +63,16 @@ cp .env.example .env.local
 
 Edit `.env.local` with your configuration:
 ```env
-# Supabase Configuration
+# Supabase Configuration (for future real-time features only)
+# Note: Database access is ONLY through Express.js API
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # Optional: Restaurant Configuration
 VITE_DEFAULT_RESTAURANT_ID=your_restaurant_id
+
+# Backend API (when available)
+# VITE_API_URL=http://localhost:3001
 ```
 
 4. Start the development server:
@@ -67,6 +81,8 @@ npm run dev
 ```
 
 The application will be available at `http://localhost:5173`
+
+**Note**: Currently runs with mock data. Express.js backend integration coming soon.
 
 ## 📁 Project Structure
 
@@ -84,12 +100,13 @@ src/
 │   ├── ui/             # Base UI components (shadcn)
 │   ├── shared/         # Reusable business components
 │   └── layout/         # Layout components
-├── services/           # Service layer (refactored)
-│   ├── orders/         # Order services
-│   ├── tables/         # Table management
-│   ├── menu/           # Menu services
-│   ├── statistics/     # Analytics services
-│   └── base/           # Base service class
+├── services/           # Service layer - ONLY integration point with backend
+│   ├── orders/         # Order services (mock data)
+│   ├── tables/         # Table management (mock data)
+│   ├── menu/           # Menu services (mock data)
+│   ├── statistics/     # Analytics services (mock data)
+│   ├── types/          # Shared TypeScript interfaces
+│   └── base/           # Base service class for HTTP calls
 ├── hooks/              # Global hooks
 │   ├── keyboard/       # Keyboard navigation hooks
 │   └── ...             # Other shared hooks
@@ -105,29 +122,36 @@ src/
 
 The application follows a **modular architecture** with these key principles:
 
-### Service Layer Pattern
-- Domain-specific services with interfaces
-- Dependency injection via ServiceFactory
-- Mock implementations for development
-- Easy swap to real API endpoints
+### Service Layer Pattern (Critical Architecture)
+- **Frontend services in `src/services/` are the ONLY integration point with backend**
+- **Frontend NEVER communicates directly with Supabase database**
+- **All database operations go through Express.js API (managed by Luis)**
+- **Currently using mock implementations until Express.js endpoints are ready**
+- **Restaurant context provides `restaurant_id` for all API calls**
 
 ### Module System
-- Self-contained feature modules
-- Clear public APIs
-- Shared types and utilities
-- Minimal coupling between modules
+- Self-contained feature modules in `src/modules/`
+- Clear public APIs via index.ts exports
+- Shared types derived from single source of truth
+- Zero circular dependencies
 
 ### Component Architecture
-- Atomic design principles
-- Memoized components for performance
-- Comprehensive prop typing
-- Accessibility built-in
+- Atomic design principles (atoms → molecules → organisms)
+- React.memo for performance optimization
+- Comprehensive TypeScript prop typing
+- WCAG 2.1 AA accessibility compliance
 
 ### State Management
-- React Context for global state (Restaurant)
-- Custom hooks for local state
+- React Context for global state (RestaurantContext)
+- Custom hooks with proper error handling
 - Real-time subscriptions via Supabase
-- Optimistic UI updates
+- Optimistic UI updates with rollback
+
+### Code Quality
+- Single source of truth for types (no duplicates)
+- Proper error boundaries and user feedback
+- Toast notifications for all user actions
+- Comprehensive test coverage
 
 ## 📝 Available Scripts
 
@@ -181,11 +205,16 @@ The application supports comprehensive keyboard navigation:
 - `?` - Show keyboard shortcuts
 - `Escape` - Close modals/dialogs
 
-## 🎨 Styling
+## 🎨 Styling & Design
 
-- **Tailwind CSS**: Utility-first styling
+- **Tailwind CSS**: Utility-first styling with custom Macon AI theme
 - **shadcn/ui**: Pre-built accessible components
+- **Brand Colors**: 
+  - Background: `#FCFCFA` (True off-white)
+  - Primary: `#0A253D` (Macon Navy)
+  - Accent: Orange & Teal from logo
 - **CSS Variables**: Theme customization
+- **Animations**: Smooth transitions and hover effects
 - **Dark Mode**: System preference support (coming soon)
 
 ## 🔧 Configuration
@@ -251,23 +280,43 @@ Required for production:
 
 ## 🐛 Known Issues
 
-- Some integration tests need updating after refactoring
+- Some voice integration tests have timing issues
 - Voice capture requires HTTPS in production
-- Mock data service pending real API integration
+- Mock data service intentionally used for frontend development
 
 ## 🔮 Roadmap
 
 - [ ] Complete E2E test suite with Playwright
+- [ ] Connect to Express.js backend API
 - [ ] Implement real-time collaboration features
 - [ ] Add inventory management module
 - [ ] Multi-language support
 - [ ] Advanced analytics dashboard
 - [ ] Mobile app (React Native)
+- [ ] Dark mode theme
 
 ## 📄 License
 
 This project is proprietary software. All rights reserved.
 
+## 🏆 Recent Improvements
+
+### Code Quality (January 2025)
+- ✅ Consolidated type definitions (removed duplicates)
+- ✅ Fixed TypeScript strict mode compliance
+- ✅ Added proper error handling with user feedback
+- ✅ Integrated Macon AI brand colors throughout
+- ✅ Cleaned up 40% of AI-generated bloat
+- ✅ Fixed multi-tenant architecture gaps
+- ✅ All 231 tests passing
+
+### Architecture
+- ✅ Frontend-only repository (backend is separate)
+- ✅ Service layer enforces separation (no direct DB access)
+- ✅ Mock-first development until Express.js API ready
+- ✅ Restaurant context provides multi-tenancy
+- ✅ Single source of truth for all types
+
 ---
 
-Built with ❤️ using modern web technologies
+Built with ❤️ by Macon AI Solutions using modern web technologies

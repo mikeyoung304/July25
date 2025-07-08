@@ -81,6 +81,3 @@ export interface OrderStatistics {
     count: number
   }>
 }
-
-// Export OrderStatus as a separate type for compatibility
-export type OrderStatus = Order['status']

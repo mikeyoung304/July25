@@ -75,11 +75,25 @@ export default {
         '128': '32rem',
       },
       boxShadow: {
+        // Elevation System - Apple-inspired layered shadows
+        'elevation-0': 'none',
+        'elevation-1': '0 1px 2px -1px rgba(10, 37, 64, 0.08), 0 2px 4px -2px rgba(10, 37, 64, 0.04)',
+        'elevation-2': '0 4px 8px -2px rgba(10, 37, 64, 0.08), 0 2px 4px -2px rgba(10, 37, 64, 0.04), 0 0 0 1px rgba(10, 37, 64, 0.02)',
+        'elevation-3': '0 8px 16px -4px rgba(10, 37, 64, 0.08), 0 4px 8px -4px rgba(10, 37, 64, 0.06), 0 0 0 1px rgba(10, 37, 64, 0.02)',
+        'elevation-4': '0 16px 32px -8px rgba(10, 37, 64, 0.10), 0 8px 16px -8px rgba(10, 37, 64, 0.08), 0 0 0 1px rgba(10, 37, 64, 0.03)',
+        'elevation-modal': '0 24px 48px -12px rgba(10, 37, 64, 0.18), 0 12px 24px -8px rgba(10, 37, 64, 0.12), 0 0 0 1px rgba(10, 37, 64, 0.04)',
+        // Interactive shadows
+        'hover': '0 8px 30px -8px rgba(10, 37, 64, 0.12), 0 0 0 1px rgba(78, 205, 196, 0.2)',
+        'active': '0 2px 8px -4px rgba(10, 37, 64, 0.12), 0 0 0 1px rgba(255, 107, 53, 0.3)',
+        // Glow effects for status
+        'glow-orange': '0 0 20px rgba(255, 107, 53, 0.15), 0 0 40px rgba(255, 107, 53, 0.1)',
+        'glow-teal': '0 0 20px rgba(78, 205, 196, 0.15), 0 0 40px rgba(78, 205, 196, 0.1)',
+        'glow-urgent': '0 0 30px rgba(239, 68, 68, 0.3), 0 0 60px rgba(239, 68, 68, 0.15)',
+        'glow-success': '0 0 30px rgba(34, 197, 94, 0.3), 0 0 60px rgba(34, 197, 94, 0.15)',
+        // Legacy (for backward compatibility)
         'soft': '0 2px 8px -2px rgba(10, 37, 64, 0.06), 0 2px 4px -2px rgba(10, 37, 64, 0.04)',
         'medium': '0 8px 16px -4px rgba(10, 37, 64, 0.08), 0 4px 8px -4px rgba(10, 37, 64, 0.06)',
         'large': '0 16px 32px -8px rgba(10, 37, 64, 0.10), 0 8px 16px -8px rgba(10, 37, 64, 0.08)',
-        'glow-orange': '0 0 20px rgba(255, 107, 53, 0.15)',
-        'glow-teal': '0 0 20px rgba(78, 205, 196, 0.15)',
         'inner-soft': 'inset 0 2px 4px 0 rgba(10, 37, 64, 0.06)',
       },
       borderRadius: {
@@ -139,6 +153,18 @@ export default {
             borderColor: 'rgba(34, 197, 94, 1)'
           },
         },
+        'shimmer': {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { opacity: '0.5' },
+          '50%': { opacity: '1' },
+        },
       },
       animation: {
         'pulse-once': 'pulse-once 0.5s ease-in-out',
@@ -149,6 +175,35 @@ export default {
         'slide-in-right': 'slide-in-right 0.4s ease-out',
         'pulse-preparing': 'pulse-preparing 2s ease-in-out infinite',
         'pulse-ready': 'pulse-ready 2s ease-in-out infinite',
+        // New sophisticated animations
+        'shimmer': 'shimmer 2s ease-in-out infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+      },
+      backgroundImage: {
+        // Gradient overlays for depth
+        'gradient-radial': 'radial-gradient(ellipse at center, var(--tw-gradient-stops))',
+        'gradient-radial-t': 'radial-gradient(ellipse at top, var(--tw-gradient-stops))',
+        'gradient-radial-b': 'radial-gradient(ellipse at bottom, var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        // Brand gradients
+        'gradient-macon': 'linear-gradient(135deg, #FF6B35 0%, #4ECDC4 100%)',
+        'gradient-orange': 'linear-gradient(135deg, #FF6B35 0%, #ff8255 100%)',
+        'gradient-teal': 'linear-gradient(135deg, #4ECDC4 0%, #6ed9d0 100%)',
+        'gradient-navy': 'linear-gradient(135deg, #0A253D 0%, #1a365d 100%)',
+        // Subtle overlays
+        'gradient-surface': 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%)',
+        'gradient-glass': 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+      },
+      backdropBlur: {
+        'xs': '2px',
+        'glass': '8px',
+        'modal': '16px',
+      },
+      transitionTimingFunction: {
+        'spring': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        'bounce-in': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
     },
   },
