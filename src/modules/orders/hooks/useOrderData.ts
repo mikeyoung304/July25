@@ -1,7 +1,8 @@
 import { useEffect, useCallback } from 'react'
-import { Order, OrderFilters } from '../types'
+import { Order, OrderFilters } from '@/services/types'
 import { orderService } from '@/services'
 import { useAsyncState } from '@/hooks/useAsyncState'
+import { useRestaurant } from '@/core/restaurant-hooks'
 
 export interface UseOrderDataReturn {
   orders: Order[]
@@ -13,17 +14,20 @@ export interface UseOrderDataReturn {
 
 export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
   const { data, loading, error, execute, setData } = useAsyncState<Order[]>([])
+  const { restaurant } = useRestaurant()
   
   const fetchOrders = useCallback(async () => {
+    const restaurantId = restaurant?.id || 'rest-1'
+    
     // Transform complex filters to simple service filters
     const serviceFilters = filters ? {
       status: filters.status && filters.status.length > 0 ? filters.status[0] : undefined,
       tableId: undefined // Not supported in service layer yet
     } : undefined
     
-    const result = await orderService.getOrders(serviceFilters)
+    const result = await orderService.getOrders(restaurantId, serviceFilters)
     return result.orders
-  }, [filters])
+  }, [filters, restaurant?.id])
   
   const refetch = useCallback(async () => {
     try {
@@ -35,6 +39,8 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
   }, [execute, fetchOrders])
   
   const updateOrderStatus = useCallback(async (orderId: string, status: Order['status']) => {
+    const restaurantId = restaurant?.id || 'rest-1'
+    
     // Optimistic update - update immediately
     if (data) {
       setData(data.map(order => 
@@ -43,7 +49,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
     }
     
     try {
-      const result = await orderService.updateOrderStatus(orderId, status)
+      const result = await orderService.updateOrderStatus(restaurantId, orderId, status)
       if (!result.success && data) {
         // Revert on failure
         await refetch()
@@ -55,7 +61,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
       }
       throw error
     }
-  }, [data, setData, refetch])
+  }, [data, setData, refetch, restaurant?.id])
   
   useEffect(() => {
     refetch()

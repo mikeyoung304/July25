@@ -1,8 +1,8 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useOrderData } from '../useOrderData'
 import { orderService } from '@/services'
-import { Order } from '@/modules/orders/types'
-import { defaultFilters, OrderStatus, OrderFilters } from '@/types/filters'
+import { Order, OrderFilters, OrderStatus } from '@/modules/orders/types'
+import { defaultFilters } from '@/types/filters'
 
 // Mock the orderService
 jest.mock('@/services', () => ({
@@ -10,6 +10,14 @@ jest.mock('@/services', () => ({
     getOrders: jest.fn(),
     updateOrderStatus: jest.fn()
   }
+}))
+
+// Mock the restaurant context
+jest.mock('@/core/restaurant-hooks', () => ({
+  useRestaurant: () => ({
+    restaurant: { id: 'rest-1', name: 'Test Restaurant' },
+    isLoading: false
+  })
 }))
 
 describe('useOrderData', () => {
@@ -24,6 +32,7 @@ describe('useOrderData', () => {
   const mockOrders: Order[] = [
     {
       id: '1',
+      restaurant_id: 'rest-1',
       orderNumber: '001',
       tableNumber: '5',
       items: [{ id: '1', name: 'Test Item', quantity: 1 }],
@@ -34,6 +43,7 @@ describe('useOrderData', () => {
     },
     {
       id: '2',
+      restaurant_id: 'rest-1',
       orderNumber: '002',
       tableNumber: '6',
       items: [{ id: '2', name: 'Another Item', quantity: 2 }],
@@ -68,18 +78,21 @@ describe('useOrderData', () => {
     })
     
     expect(orderService.getOrders).toHaveBeenCalledTimes(1)
-    expect(orderService.getOrders).toHaveBeenCalledWith(undefined)
+    expect(orderService.getOrders).toHaveBeenCalledWith('rest-1', undefined)
   })
   
   it('should fetch orders with filters', async () => {
-    const filters = { ...defaultFilters, status: ['new'] as OrderStatus[] }
+    const filters: OrderFilters = { 
+      ...defaultFilters,
+      status: ['new'] 
+    }
     const { result } = renderHook(() => useOrderData(filters))
     
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
     
-    expect(orderService.getOrders).toHaveBeenCalledWith({
+    expect(orderService.getOrders).toHaveBeenCalledWith('rest-1', {
       status: 'new',
       tableId: undefined
     })
@@ -118,7 +131,7 @@ describe('useOrderData', () => {
     expect(result.current.orders[0].status).toBe('preparing')
     
     await waitFor(() => {
-      expect(orderService.updateOrderStatus).toHaveBeenCalledWith('1', 'preparing')
+      expect(orderService.updateOrderStatus).toHaveBeenCalledWith('rest-1', '1', 'preparing')
     })
   })
   
@@ -152,7 +165,7 @@ describe('useOrderData', () => {
     
     await waitFor(() => {
       expect(orderService.getOrders).toHaveBeenCalledTimes(2)
-      expect(orderService.getOrders).toHaveBeenLastCalledWith({
+      expect(orderService.getOrders).toHaveBeenLastCalledWith('rest-1', {
         status: 'new',
         tableId: undefined
       })

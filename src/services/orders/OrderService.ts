@@ -20,19 +20,19 @@ const mapOrderStatus = (status: string): Order['status'] => {
 }
 
 export interface IOrderService {
-  getOrders(filters?: OrderFilters): Promise<{ orders: Order[]; total: number }>
-  getOrderById(orderId: string): Promise<Order>
-  updateOrderStatus(orderId: string, status: Order['status']): Promise<{ success: boolean; order: Order }>
-  submitOrder(orderData: Partial<Order>): Promise<{ success: boolean; orderId: string; order: Order }>
-  subscribeToOrders(callback: (order: Order) => void): () => void
+  getOrders(restaurantId: string, filters?: OrderFilters): Promise<{ orders: Order[]; total: number }>
+  getOrderById(restaurantId: string, orderId: string): Promise<Order>
+  updateOrderStatus(restaurantId: string, orderId: string, status: Order['status']): Promise<{ success: boolean; order: Order }>
+  submitOrder(restaurantId: string, orderData: Partial<Order>): Promise<{ success: boolean; orderId: string; order: Order }>
+  subscribeToOrders(restaurantId: string, callback: (order: Order) => void): () => void
 }
 
 export class OrderService extends BaseService implements IOrderService {
-  async getOrders(filters?: OrderFilters): Promise<{ orders: Order[]; total: number }> {
+  async getOrders(restaurantId: string, filters?: OrderFilters): Promise<{ orders: Order[]; total: number }> {
     this.checkRateLimit('getOrders')
     await this.delay(500)
     
-    let filtered = [...mockData.orders]
+    let filtered = [...mockData.orders].filter(order => order.restaurant_id === restaurantId)
     
     if (filters?.status) {
       filtered = filtered.filter(order => order.status === filters.status)
@@ -53,9 +53,9 @@ export class OrderService extends BaseService implements IOrderService {
     return { orders: mappedOrders, total: mappedOrders.length }
   }
 
-  async getOrderById(orderId: string): Promise<Order> {
+  async getOrderById(restaurantId: string, orderId: string): Promise<Order> {
     await this.delay(300)
-    const order = mockData.orders.find(o => o.id === orderId)
+    const order = mockData.orders.find(o => o.id === orderId && o.restaurant_id === restaurantId)
     if (!order) throw new Error('Order not found')
     return {
       ...order,
@@ -63,11 +63,11 @@ export class OrderService extends BaseService implements IOrderService {
     }
   }
 
-  async updateOrderStatus(orderId: string, status: Order['status']): Promise<{ success: boolean; order: Order }> {
+  async updateOrderStatus(restaurantId: string, orderId: string, status: Order['status']): Promise<{ success: boolean; order: Order }> {
     this.checkRateLimit('updateOrderStatus')
     await this.delay(400)
     
-    const order = mockData.orders.find(o => o.id === orderId)
+    const order = mockData.orders.find(o => o.id === orderId && o.restaurant_id === restaurantId)
     if (!order) throw new Error('Order not found')
     
     const previousStatus = order.status
@@ -86,7 +86,7 @@ export class OrderService extends BaseService implements IOrderService {
     }
   }
 
-  async submitOrder(orderData: Partial<Order>): Promise<{ success: boolean; orderId: string; order: Order }> {
+  async submitOrder(restaurantId: string, orderData: Partial<Order>): Promise<{ success: boolean; orderId: string; order: Order }> {
     this.checkRateLimit('submitOrder')
     await this.delay(600)
     
@@ -137,6 +137,7 @@ export class OrderService extends BaseService implements IOrderService {
     
     const newOrder: Order = {
       id: `order-${Date.now()}`,
+      restaurant_id: restaurantId,
       orderNumber: String(mockData.orders.length + 1).padStart(3, '0'),
       tableNumber,
       items: validatedItems,
@@ -156,22 +157,31 @@ export class OrderService extends BaseService implements IOrderService {
     return { success: true, orderId: newOrder.id, order: newOrder }
   }
 
-  subscribeToOrders(callback: (order: Order) => void): () => void {
+  subscribeToOrders(restaurantId: string, callback: (order: Order) => void): () => void {
     // Start order progression simulation
     const stopProgression = startOrderProgression()
     
-    // Simulate new orders coming in
+    // Subscribe to order events for this restaurant
+    const unsubscribe = orderSubscription.subscribe(`restaurant-${restaurantId}`, (event) => {
+      if (event.type === 'ORDER_CREATED' && event.order.restaurant_id === restaurantId) {
+        callback(event.order)
+      }
+    })
+    
+    // Simulate new orders coming in for this restaurant
     const interval = setInterval(() => {
       const randomOrder = mockOrderGenerator.generateOrder()
+      // Ensure the order has the correct restaurant_id
+      randomOrder.restaurant_id = restaurantId
       mockData.orders.push(randomOrder)
       orderSubscription.emitOrderCreated(randomOrder)
-      callback(randomOrder)
     }, 20000) // New order every 20 seconds
     
     // Return unsubscribe function
     return () => {
       clearInterval(interval)
       stopProgression()
+      unsubscribe()
     }
   }
 }

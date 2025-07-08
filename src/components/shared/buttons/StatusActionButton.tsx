@@ -17,18 +17,18 @@ export interface StatusActionButtonProps {
 const BUTTON_CONFIG = {
   new: {
     label: 'Start Preparing',
-    variant: 'default' as const,
+    variant: 'secondary' as const,
     icon: null,
   },
   preparing: {
     label: 'Mark Ready',
-    variant: 'default' as const,
+    variant: 'teal' as const,
     icon: CheckCircle,
   },
   ready: {
     label: 'Ready for Pickup',
-    variant: 'secondary' as const,
-    icon: null,
+    variant: 'success' as const,
+    icon: CheckCircle,
   },
 } as const
 
@@ -51,7 +51,11 @@ export const StatusActionButton: React.FC<StatusActionButtonProps> = ({
       variant={config.variant}
       onClick={onClick}
       disabled={isDisabled}
-      className={cn('flex-1', className)}
+      className={cn(
+        'flex-1 font-medium',
+        status === 'ready' && 'cursor-default opacity-100',
+        className
+      )}
       aria-label={ariaLabel || config.label}
       aria-describedby={ariaDescribedBy}
       aria-keyshortcuts={ariaKeyShortcuts}

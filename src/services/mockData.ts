@@ -5,6 +5,7 @@ export const mockData = {
   orders: [
     {
       id: '1',
+      restaurant_id: 'rest-1',
       orderNumber: '001',
       tableNumber: '5',
       items: [
@@ -19,6 +20,7 @@ export const mockData = {
     },
     {
       id: '2',
+      restaurant_id: 'rest-1',
       orderNumber: '002',
       tableNumber: '12',
       items: [
@@ -33,16 +35,17 @@ export const mockData = {
   ] as Order[],
 
   tables: [
-    { id: '1', number: '1', seats: 2, status: 'available' as const },
-    { id: '2', number: '2', seats: 4, status: 'occupied' as const, currentOrderId: '1' },
-    { id: '3', number: '3', seats: 6, status: 'available' as const },
-    { id: '4', number: '4', seats: 4, status: 'reserved' as const },
-    { id: '5', number: '5', seats: 2, status: 'occupied' as const, currentOrderId: '2' },
+    { id: '1', restaurant_id: 'rest-1', number: '1', seats: 2, status: 'available' as const },
+    { id: '2', restaurant_id: 'rest-1', number: '2', seats: 4, status: 'occupied' as const, currentOrderId: '1' },
+    { id: '3', restaurant_id: 'rest-1', number: '3', seats: 6, status: 'available' as const },
+    { id: '4', restaurant_id: 'rest-1', number: '4', seats: 4, status: 'reserved' as const },
+    { id: '5', restaurant_id: 'rest-1', number: '5', seats: 2, status: 'occupied' as const, currentOrderId: '2' },
   ] as Table[],
 
   menuItems: [
     {
       id: '1',
+      restaurant_id: 'rest-1',
       name: 'Grilled Salmon',
       description: 'Fresh Atlantic salmon with herbs',
       price: 24.99,
@@ -55,6 +58,7 @@ export const mockData = {
     },
     {
       id: '2',
+      restaurant_id: 'rest-1',
       name: 'Caesar Salad',
       description: 'Classic Caesar with parmesan',
       price: 12.99,
@@ -63,6 +67,7 @@ export const mockData = {
     },
     {
       id: '3',
+      restaurant_id: 'rest-1',
       name: 'Burger',
       description: 'Angus beef with lettuce and tomato',
       price: 15.99,

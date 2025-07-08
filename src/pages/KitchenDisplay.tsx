@@ -15,6 +15,7 @@ import { stationRouting } from '@/services/stationRouting'
 // Components
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Sparkles, Utensils } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FilterPanel } from '@/components/shared/filters/FilterPanel'
 import { SortControl } from '@/components/shared/filters/SortControl'
@@ -154,7 +155,7 @@ export function KitchenDisplay() {
 
   if (restaurantLoading || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-macon-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-muted-foreground">Loading kitchen display...</p>
@@ -164,17 +165,18 @@ export function KitchenDisplay() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-gradient-to-br from-macon-background via-white to-macon-navy/5 p-6">
       <div className="max-w-7xl mx-auto" role="region" aria-label="Kitchen Display System">
-        <header className="mb-6">
+        <header className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">{restaurant?.name || 'Restaurant'} - Kitchen Display</h1>
-              <p className="text-muted-foreground">Real-time order management system</p>
+              <h1 className="text-4xl font-bold text-macon-navy">{restaurant?.name || 'Restaurant'} - Kitchen Display</h1>
+              <p className="text-neutral-600 mt-2">Real-time order management system</p>
             </div>
             <div className="flex items-center gap-4">
-              <Badge variant="secondary">
-                {filteredAndSortedOrders.filter(o => o.status !== 'ready').length} Active Orders
+              <Badge variant="secondary" className="px-4 py-1.5 text-sm">
+                <span className="font-semibold">{filteredAndSortedOrders.filter(o => o.status !== 'ready').length}</span>
+                <span className="ml-1.5">Active Orders</span>
               </Badge>
               <SortControl
                 sortBy={filters.sortBy}
@@ -210,14 +212,19 @@ export function KitchenDisplay() {
         </div>
 
         {filteredAndSortedOrders.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-12">
-              <p className="text-muted-foreground text-lg">
-                {hasActiveFilters
-                  ? 'No orders match your filters. Try adjusting your search criteria.'
-                  : 'No orders yet. Orders will appear here in real-time.'
-                }
-              </p>
+          <Card className="border-0 shadow-large">
+            <CardContent className="text-center py-16">
+              <div className="max-w-md mx-auto">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-macon-navy/10 flex items-center justify-center">
+                  <Utensils className="h-10 w-10 text-macon-navy/40" />
+                </div>
+                <p className="text-neutral-600 text-lg leading-relaxed">
+                  {hasActiveFilters
+                    ? 'No orders match your filters. Try adjusting your search criteria.'
+                    : 'No orders yet. Orders will appear here in real-time.'
+                  }
+                </p>
+              </div>
             </CardContent>
           </Card>
         ) : (
@@ -254,13 +261,16 @@ export function KitchenDisplay() {
           </section>
         )}
 
-        <div className="mt-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Demo Mode</CardTitle>
+        <div className="mt-12">
+          <Card className="border-0 shadow-large bg-gradient-to-br from-white to-macon-orange/5">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-macon-orange" />
+                Demo Mode
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-neutral-600 mb-6 leading-relaxed">
                 This is a demo of the Kitchen Display System. In production, orders would come from real customer orders through the kiosk or drive-thru interfaces.
               </p>
               <Button 
@@ -272,7 +282,7 @@ export function KitchenDisplay() {
                         id: String(Date.now()), 
                         name: ['Pizza Margherita', 'Pasta Carbonara', 'Caesar Salad', 'Grilled Burger'][Math.floor(Math.random() * 4)],
                         quantity: Math.floor(Math.random() * 3) + 1,
-                        modifiers: Math.random() > 0.5 ? ['Extra cheese', 'No onions'][Math.floor(Math.random() * 2)].split(',') : undefined
+                        modifiers: Math.random() > 0.5 ? [['Extra cheese'], ['No onions']][Math.floor(Math.random() * 2)] : undefined
                       }
                     ],
                     totalAmount: Math.random() * 50 + 10,

@@ -37,20 +37,20 @@ export const KDSOrderCard = memo<KDSOrderCardProps>(({
 
   return (
     <Card className={cn(
-      'relative overflow-hidden transition-all duration-200',
-      isUrgent && 'ring-2 ring-red-500',
+      'relative overflow-hidden transition-all duration-300 hover:shadow-large hover:-translate-y-1',
+      isUrgent && 'ring-2 ring-red-500 shadow-glow-orange animate-pulse-once',
       className
     )}>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 bg-gradient-to-r from-macon-navy/5 to-transparent">
         <OrderHeader orderNumber={orderNumber} status={status} />
         <OrderMetadata tableNumber={tableNumber} orderTime={orderTime} />
       </CardHeader>
       
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-3 px-6">
         <OrderItemsList items={items} />
       </CardContent>
       
-      <div className="p-4 pt-0">
+      <div className="p-6 pt-4 border-t border-neutral-100/50">
         <OrderActions 
           status={status} 
           onStatusChange={onStatusChange || (() => {})} 

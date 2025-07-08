@@ -12,6 +12,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string
+  restaurant_id: string
   orderNumber: string
   tableNumber: string
   items: OrderItem[]
@@ -27,6 +28,7 @@ export interface Order {
 
 export interface Table {
   id: string
+  restaurant_id: string
   number: string
   seats: number
   status: 'available' | 'occupied' | 'reserved'
@@ -35,6 +37,7 @@ export interface Table {
 
 export interface MenuItem {
   id: string
+  restaurant_id: string
   name: string
   description: string
   price: number
@@ -78,3 +81,6 @@ export interface OrderStatistics {
     count: number
   }>
 }
+
+// Export OrderStatus as a separate type for compatibility
+export type OrderStatus = Order['status']

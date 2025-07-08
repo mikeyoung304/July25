@@ -12,6 +12,7 @@ describe('OrderService', () => {
     mockData.orders.push(
       {
         id: '1',
+        restaurant_id: 'rest-1',
         orderNumber: '001',
         tableNumber: '5',
         items: [
@@ -27,7 +28,7 @@ describe('OrderService', () => {
   
   describe('getOrders', () => {
     it('should return all orders when no filters provided', async () => {
-      const result = await orderService.getOrders()
+      const result = await orderService.getOrders('rest-1')
       
       expect(result.orders).toHaveLength(1)
       expect(result.total).toBe(1)
@@ -37,6 +38,7 @@ describe('OrderService', () => {
     it('should filter orders by status', async () => {
       mockData.orders.push({
         id: '2',
+        restaurant_id: 'rest-1',
         orderNumber: '002',
         tableNumber: '6',
         items: [],
@@ -46,7 +48,7 @@ describe('OrderService', () => {
         paymentStatus: 'paid'
       })
       
-      const result = await orderService.getOrders({ status: 'new' })
+      const result = await orderService.getOrders('rest-1', { status: 'new' })
       
       expect(result.orders).toHaveLength(1)
       expect(result.orders[0].status).toBe('new')
@@ -56,31 +58,31 @@ describe('OrderService', () => {
       // Make 10 requests (the limit)
       const promises = []
       for (let i = 0; i < 10; i++) {
-        promises.push(orderService.getOrders())
+        promises.push(orderService.getOrders('rest-1'))
       }
       await Promise.all(promises)
       
       // 11th request should fail
-      await expect(orderService.getOrders()).rejects.toThrow('Rate limit exceeded')
+      await expect(orderService.getOrders('rest-1')).rejects.toThrow('Rate limit exceeded')
     }, 10000)
   })
   
   describe('getOrderById', () => {
     it('should return order when found', async () => {
-      const order = await orderService.getOrderById('1')
+      const order = await orderService.getOrderById('rest-1', '1')
       
       expect(order).toBeDefined()
       expect(order.orderNumber).toBe('001')
     })
     
     it('should throw error when order not found', async () => {
-      await expect(orderService.getOrderById('999')).rejects.toThrow('Order not found')
+      await expect(orderService.getOrderById('rest-1', '999')).rejects.toThrow('Order not found')
     })
   })
   
   describe('updateOrderStatus', () => {
     it('should update order status successfully', async () => {
-      const result = await orderService.updateOrderStatus('1', 'preparing')
+      const result = await orderService.updateOrderStatus('rest-1', '1', 'preparing')
       
       expect(result.success).toBe(true)
       expect(result.order.status).toBe('preparing')
@@ -89,7 +91,7 @@ describe('OrderService', () => {
     
     it('should throw error when order not found', async () => {
       await expect(
-        orderService.updateOrderStatus('999', 'preparing')
+        orderService.updateOrderStatus('rest-1', '999', 'preparing')
       ).rejects.toThrow('Order not found')
     })
   })
@@ -104,7 +106,7 @@ describe('OrderService', () => {
         totalAmount: 25.00
       }
       
-      const result = await orderService.submitOrder(orderData)
+      const result = await orderService.submitOrder('rest-1', orderData)
       
       expect(result.success).toBe(true)
       expect(result.orderId).toBeDefined()
@@ -126,17 +128,17 @@ describe('OrderService', () => {
         totalAmount: -100 // Invalid amount
       }
       
-      await expect(orderService.submitOrder(orderData)).rejects.toThrow()
+      await expect(orderService.submitOrder('rest-1', orderData)).rejects.toThrow()
     })
     
     it('should generate sequential order numbers', async () => {
-      const order1 = await orderService.submitOrder({
+      const order1 = await orderService.submitOrder('rest-1', {
         tableNumber: '1',
         items: [{ id: '1', name: 'Item 1', quantity: 1 }],
         totalAmount: 10
       })
       
-      const order2 = await orderService.submitOrder({
+      const order2 = await orderService.submitOrder('rest-1', {
         tableNumber: '2',
         items: [{ id: '2', name: 'Item 2', quantity: 1 }],
         totalAmount: 20

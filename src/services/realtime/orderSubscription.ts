@@ -107,6 +107,7 @@ export const mockOrderGenerator = {
     
     return {
       id: `order-${Date.now()}`,
+      restaurant_id: 'rest-1',
       orderNumber: String(Math.floor(Math.random() * 999) + 1).padStart(3, '0'),
       tableNumber: Math.random() > 0.7 ? 'K1' : String(Math.floor(Math.random() * 20) + 1),
       items,

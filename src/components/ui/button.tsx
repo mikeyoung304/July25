@@ -4,25 +4,29 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-manipulation',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-macon-orange/20 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-manipulation',
   {
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95',
+          'bg-macon-navy text-white shadow-soft hover:bg-macon-navy-dark hover:shadow-medium hover:scale-[1.02] active:scale-[0.98]',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:scale-95',
+          'bg-red-500 text-white shadow-soft hover:bg-red-600 hover:shadow-medium hover:scale-[1.02] active:scale-[0.98]',
         outline:
-          'border border-input bg-background hover:bg-accent hover:text-accent-foreground active:scale-95',
+          'border-2 border-macon-navy/20 bg-transparent text-macon-navy hover:bg-macon-navy/5 hover:border-macon-navy/30 hover:shadow-soft active:scale-[0.98]',
         secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:scale-95',
-        ghost: 'hover:bg-accent hover:text-accent-foreground active:scale-95',
-        link: 'text-primary underline-offset-4 hover:underline',
+          'bg-macon-orange text-white shadow-soft hover:bg-macon-orange-dark hover:shadow-medium hover:scale-[1.02] active:scale-[0.98]',
+        ghost: 'text-macon-navy hover:bg-macon-navy/5 hover:text-macon-navy-dark active:scale-[0.98]',
+        link: 'text-macon-orange underline-offset-4 hover:underline hover:text-macon-orange-dark',
+        teal:
+          'bg-macon-teal text-white shadow-soft hover:bg-macon-teal-dark hover:shadow-medium hover:scale-[1.02] active:scale-[0.98]',
+        success:
+          'bg-macon-teal text-white shadow-soft pointer-events-none',
       },
       size: {
-        default: 'h-11 px-4 py-2 min-w-[44px]',
-        sm: 'h-11 rounded-md px-3 min-w-[44px]',
-        lg: 'h-12 rounded-md px-8 min-w-[48px]',
+        default: 'h-11 px-6 py-2 min-w-[44px]',
+        sm: 'h-9 rounded-lg px-4 min-w-[44px] text-sm',
+        lg: 'h-12 rounded-lg px-8 min-w-[48px] text-base',
         icon: 'h-11 w-11 min-w-[44px]',
         touch: 'h-12 w-12 min-w-[48px] text-base',
       },
@@ -38,6 +42,7 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'teal' | 'success'
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

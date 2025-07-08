@@ -3,19 +3,8 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Utensils, Mic, History, Activity, ArrowRight, Sparkles, Zap, Shield, TrendingUp } from 'lucide-react'
 import { MaconLogo } from '@/components/brand/MaconLogo'
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Heading,
-  Button,
-  GlassCard,
-  FloatingCard,
-  Center,
-  Spacer,
-} from '@/design-system/components'
-import { colors, spacing, pageTransitions, animations, stagger } from '@/design-system/tokens'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 interface FeatureCardProps {
   title: string
@@ -23,7 +12,7 @@ interface FeatureCardProps {
   icon: React.ReactNode
   iconBg: string
   buttonText: string
-  buttonVariant: 'primary' | 'secondary' | 'tertiary'
+  buttonVariant?: 'default' | 'secondary' | 'outline'
   href: string
   delay?: number
 }
@@ -34,332 +23,214 @@ function FeatureCard({
   icon, 
   iconBg, 
   buttonText, 
-  buttonVariant, 
+  buttonVariant = 'default',
   href, 
   delay = 0 
 }: FeatureCardProps) {
   return (
     <motion.div
-      initial="initial"
-      animate="animate"
-      variants={{
-        initial: animations.slideInUp.from,
-        animate: {
-          ...animations.slideInUp.to,
-          transition: { delay: delay * 0.1, ...animations.slideInUp.config }
-        }
-      }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: delay * 0.1, duration: 0.5 }}
     >
-      <FloatingCard
-        p={6}
-        height="100%"
-        className="group"
-      >
-        <VStack spacing={4} fullHeight>
-          <HStack spacing={3} align="center">
-            <Box
-              p={2}
-              borderRadius="lg"
-              bg={iconBg}
-              className="transition-transform duration-300 group-hover:scale-110"
+      <Card className="p-0 h-full group hover:shadow-large hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+        <div className="p-6 flex flex-col h-full space-y-4">
+          <div className="flex items-center space-x-4">
+            <div
+              className="p-3 rounded-xl transition-all duration-300 group-hover:scale-110 shadow-soft"
+              style={{ backgroundColor: iconBg }}
             >
               {icon}
-            </Box>
-            <Heading level={3} className="text-macon-navy">
+            </div>
+            <h3 className="text-xl font-bold text-macon-navy">
               {title}
-            </Heading>
-          </HStack>
+            </h3>
+          </div>
           
-          <Text color={colors.text.secondary} className="flex-1">
+          <p className="text-neutral-600 flex-1 leading-relaxed">
             {description}
-          </Text>
+          </p>
           
           <Link to={href} className="w-full">
-            <Button
-              variant={buttonVariant}
-              fullWidth
-              icon={<ArrowRight className="h-4 w-4" />}
-              iconPosition="right"
-              className="group-hover:shadow-lg"
-            >
+            <Button variant={buttonVariant} className="w-full group-hover:shadow-medium">
               {buttonText}
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
-        </VStack>
-      </FloatingCard>
+        </div>
+      </Card>
     </motion.div>
   )
 }
 
 export function HomePage() {
   return (
-    <Box minHeight="100vh" bg={colors.background.primary}>
+    <div className="min-h-screen bg-macon-background">
       {/* Hero Section */}
-      <Box
-        position="relative"
-        overflow="hidden"
-        pb={20}
-      >
-        {/* Background gradient */}
-        <Box
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          height="100%"
-          bg="linear-gradient(135deg, #f5f7fa 0%, #e6ecf3 50%, #fff7ed 100%)"
-          opacity={0.5}
+      <div className="relative overflow-hidden pb-24">
+        {/* Background gradient with brand colors */}
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{ 
+            background: 'linear-gradient(135deg, #FCFCFA 0%, rgba(78, 205, 196, 0.15) 50%, rgba(255, 107, 53, 0.15) 100%)'
+          }}
         />
         
-        {/* Animated orbs */}
+        {/* Animated orbs with brand colors */}
         <motion.div
-          className="absolute top-20 left-10 w-96 h-96 bg-blue-400 rounded-full filter blur-3xl opacity-20"
+          className="absolute top-20 left-10 w-128 h-128 bg-gradient-to-br from-macon-teal/20 to-macon-teal/5 rounded-full filter blur-3xl"
           animate={{
-            x: [0, 50, 0],
-            y: [0, -30, 0],
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.2, 1],
           }}
           transition={{
             duration: 20,
             repeat: Infinity,
-            ease: "linear"
+            ease: "easeInOut"
           }}
         />
         <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-orange-400 rounded-full filter blur-3xl opacity-20"
+          className="absolute bottom-20 right-10 w-128 h-128 bg-gradient-to-br from-macon-orange/20 to-macon-orange/5 rounded-full filter blur-3xl"
           animate={{
-            x: [0, -50, 0],
-            y: [0, 30, 0],
+            x: [0, -100, 0],
+            y: [0, 50, 0],
+            scale: [1, 1.1, 1],
           }}
           transition={{
             duration: 15,
             repeat: Infinity,
-            ease: "linear"
+            ease: "easeInOut"
           }}
         />
         
-        <Box position="relative" maxWidth="1280px" mx="auto" px={8} pt={12}>
-          <VStack spacing={8} align="center">
+        <div className="relative max-w-7xl mx-auto px-8 pt-12">
+          <div className="flex flex-col items-center space-y-8">
             {/* Logo */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            >
-              <Center>
-                <MaconLogo variant="full" size="xl" />
-              </Center>
-            </motion.div>
-            
-            {/* Hero text */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            >
-              <VStack spacing={4} align="center" maxWidth="800px">
-                <Text
-                  variant="display"
-                  align="center"
-                  weight="bold"
-                  className="bg-gradient-to-r from-macon-navy to-macon-teal bg-clip-text text-transparent"
-                >
-                  Restaurant AI Platform
-                </Text>
-                <Text
-                  variant="title2"
-                  align="center"
-                  color={colors.text.secondary}
-                  className="max-w-2xl"
-                >
-                  Transform your restaurant operations with intelligent automation,
-                  real-time insights, and seamless customer experiences.
-                </Text>
-              </VStack>
-            </motion.div>
-            
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-            >
-              <HStack spacing={4}>
-                <Button size="lg" variant="primary" glowing>
-                  Get Started
-                </Button>
-                <Button size="lg" variant="tertiary">
-                  Watch Demo
-                </Button>
-              </HStack>
-            </motion.div>
-          </VStack>
-        </Box>
-      </Box>
-      
-      {/* Features Grid */}
-      <Box maxWidth="1280px" mx="auto" px={8} pb={20}>
-        <div className="grid md:grid-cols-2 gap-6">
-          <FeatureCard
-            title="Kitchen Display System"
-            description="AI-powered real-time order management for kitchen staff. Smart prioritization, preparation time predictions, and seamless order tracking."
-            icon={<Utensils className="h-6 w-6 text-macon-teal" />}
-            iconBg={colors.brand.tertiary + '20'}
-            buttonText="View Kitchen Display"
-            buttonVariant="primary"
-            href="/kitchen"
-            delay={0}
-          />
-          
-          <FeatureCard
-            title="Voice Ordering Kiosk"
-            description="Revolutionary natural language voice ordering. AI understands complex orders, dietary preferences, and provides instant confirmation."
-            icon={<Mic className="h-6 w-6 text-macon-orange" />}
-            iconBg={colors.brand.secondary + '20'}
-            buttonText="Try Voice Kiosk"
-            buttonVariant="secondary"
-            href="/kiosk"
-            delay={1}
-          />
-          
-          <FeatureCard
-            title="Order Analytics"
-            description="Deep insights into order patterns, customer preferences, and revenue trends. AI-powered forecasting and actionable recommendations."
-            icon={<History className="h-6 w-6 text-macon-navy" />}
-            iconBg={colors.brand.primary + '20'}
-            buttonText="View Analytics"
-            buttonVariant="primary"
-            href="/history"
-            delay={2}
-          />
-          
-          <FeatureCard
-            title="Performance Insights"
-            description="Real-time system monitoring with predictive alerts. Track API performance, optimize operations, and ensure seamless service."
-            icon={<Activity className="h-6 w-6 text-macon-teal" />}
-            iconBg={colors.brand.tertiary + '20'}
-            buttonText="View Performance"
-            buttonVariant="tertiary"
-            href="/performance"
-            delay={3}
-          />
-        </div>
-      </Box>
-      
-      {/* Benefits Section */}
-      <Box bg={colors.surface.secondary} py={20}>
-        <Box maxWidth="1280px" mx="auto" px={8}>
-          <VStack spacing={12}>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <VStack spacing={4} align="center">
-                <HStack spacing={2} align="center">
-                  <Sparkles className="h-5 w-5 text-macon-orange" />
-                  <Text
-                    variant="overline"
-                    color={colors.brand.secondary}
-                    weight="semibold"
-                  >
-                    Powered by AI
-                  </Text>
-                  <Sparkles className="h-5 w-5 text-macon-orange" />
-                </HStack>
-                <Heading level={2} align="center">
-                  Why Choose MACON AI?
-                </Heading>
-              </VStack>
+              <MaconLogo size="lg" className="h-32 w-auto" />
             </motion.div>
             
-            <div className="grid md:grid-cols-3 gap-8">
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-              >
-                <GlassCard variant="light" p={6}>
-                  <VStack spacing={3} align="center">
-                    <Box
-                      p={3}
-                      borderRadius="full"
-                      bg={colors.brand.secondary + '20'}
-                    >
-                      <Zap className="h-8 w-8 text-macon-orange" />
-                    </Box>
-                    <Heading level={4}>Lightning Fast</Heading>
-                    <Text align="center" color={colors.text.secondary}>
-                      Process orders in milliseconds with our optimized AI engine
-                    </Text>
-                  </VStack>
-                </GlassCard>
-              </motion.div>
+            {/* Hero Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="text-center space-y-4 max-w-3xl"
+            >
+              <h1 className="text-5xl md:text-6xl font-bold text-macon-navy leading-tight">
+                Welcome to Macon AI Restaurant OS
+              </h1>
+              <p className="text-xl text-neutral-600 leading-relaxed max-w-2xl mx-auto">
+                Revolutionize your restaurant operations with AI-powered order management,
+                real-time kitchen display, and voice-enabled ordering
+              </p>
+            </motion.div>
+            
+            {/* Feature Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl mt-16">
+              <FeatureCard
+                title="Kitchen Display"
+                description="Real-time order tracking with smart station routing and prep time optimization"
+                icon={<Utensils className="h-6 w-6 text-white" />}
+                iconBg="#0A253D"
+                buttonText="Open Kitchen"
+                href="/kitchen"
+                delay={0}
+              />
               
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-              >
-                <GlassCard variant="light" p={6}>
-                  <VStack spacing={3} align="center">
-                    <Box
-                      p={3}
-                      borderRadius="full"
-                      bg={colors.brand.primary + '20'}
-                    >
-                      <Shield className="h-8 w-8 text-macon-navy" />
-                    </Box>
-                    <Heading level={4}>Enterprise Secure</Heading>
-                    <Text align="center" color={colors.text.secondary}>
-                      Bank-level encryption and compliance for your data
-                    </Text>
-                  </VStack>
-                </GlassCard>
-              </motion.div>
+              <FeatureCard
+                title="Voice Kiosk"
+                description="Natural language ordering with AI-powered voice recognition and menu understanding"
+                icon={<Mic className="h-6 w-6 text-white" />}
+                iconBg="#FF6B35"
+                buttonText="Start Ordering"
+                buttonVariant="secondary"
+                href="/kiosk"
+                delay={1}
+              />
               
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-              >
-                <GlassCard variant="light" p={6}>
-                  <VStack spacing={3} align="center">
-                    <Box
-                      p={3}
-                      borderRadius="full"
-                      bg={colors.brand.tertiary + '20'}
-                    >
-                      <TrendingUp className="h-8 w-8 text-macon-teal" />
-                    </Box>
-                    <Heading level={4}>Proven Results</Heading>
-                    <Text align="center" color={colors.text.secondary}>
-                      30% increase in efficiency, 25% reduction in wait times
-                    </Text>
-                  </VStack>
-                </GlassCard>
-              </motion.div>
+              <FeatureCard
+                title="Order History"
+                description="Comprehensive order tracking with search, filters, and analytics"
+                icon={<History className="h-6 w-6 text-white" />}
+                iconBg="#4ECDC4"
+                buttonText="View Orders"
+                buttonVariant="teal"
+                href="/history"
+                delay={2}
+              />
+              
+              <FeatureCard
+                title="Analytics"
+                description="Real-time performance metrics and insights to optimize operations"
+                icon={<Activity className="h-6 w-6 text-white" />}
+                iconBg="#3eb5ac"
+                buttonText="View Analytics"
+                buttonVariant="teal"
+                href="/performance"
+                delay={3}
+              />
             </div>
-          </VStack>
-        </Box>
-      </Box>
-      
-      {/* Footer CTA */}
-      <Box py={20}>
-        <Center>
-          <VStack spacing={4} align="center">
-            <Text variant="caption" color={colors.text.tertiary}>
-              MACON AI SOLUTIONS
-            </Text>
-            <Text color={colors.text.secondary}>
-              Bringing cutting-edge artificial intelligence to the restaurant industry
-            </Text>
-          </VStack>
-        </Center>
-      </Box>
-    </Box>
+            
+            {/* Features Section */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="w-full max-w-5xl mt-24"
+            >
+              <Card className="p-10 bg-gradient-to-br from-macon-navy/5 via-transparent to-macon-orange/5 border-0 shadow-large">
+                <h2 className="text-3xl font-bold text-center text-macon-navy mb-10">
+                  Why Choose Macon AI?
+                </h2>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="flex items-start space-x-4 group">
+                    <div className="p-2 rounded-lg bg-macon-orange/10 group-hover:bg-macon-orange/20 transition-colors">
+                      <Sparkles className="h-5 w-5 text-macon-orange" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-macon-navy text-lg">AI-Powered Intelligence</h3>
+                      <p className="text-neutral-600 mt-1">Smart order routing and predictive analytics</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4 group">
+                    <div className="p-2 rounded-lg bg-macon-teal/10 group-hover:bg-macon-teal/20 transition-colors">
+                      <Zap className="h-5 w-5 text-macon-teal" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-macon-navy text-lg">Real-Time Updates</h3>
+                      <p className="text-neutral-600 mt-1">Instant synchronization across all stations</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4 group">
+                    <div className="p-2 rounded-lg bg-macon-navy/10 group-hover:bg-macon-navy/20 transition-colors">
+                      <Shield className="h-5 w-5 text-macon-navy" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-macon-navy text-lg">Enterprise Security</h3>
+                      <p className="text-neutral-600 mt-1">Bank-level security for your data</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4 group">
+                    <div className="p-2 rounded-lg bg-macon-orange/10 group-hover:bg-macon-orange/20 transition-colors">
+                      <TrendingUp className="h-5 w-5 text-macon-orange" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-macon-navy text-lg">Boost Efficiency</h3>
+                      <p className="text-neutral-600 mt-1">Reduce wait times by up to 40%</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -42,7 +42,7 @@ const SelectTrigger: React.FC<SelectTriggerProps> = ({ className, children }) =>
       type="button"
       onClick={() => context.setOpen(!context.open)}
       className={cn(
-        'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'flex h-11 w-full items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-sm ring-offset-background placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-macon-navy/20 focus:ring-offset-2 focus:border-macon-navy/30 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 hover:border-neutral-300',
         className
       )}
       aria-expanded={context.open}
@@ -83,7 +83,7 @@ const SelectContent: React.FC<SelectContentProps> = ({ className, children }) =>
       />
       <div
         className={cn(
-          'absolute top-full z-50 mt-1 max-h-96 w-full overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+          'absolute top-full z-50 mt-2 max-h-96 w-full overflow-auto rounded-lg border border-neutral-200 bg-white p-1 text-neutral-900 shadow-large',
           className
         )}
         role="listbox"
@@ -112,8 +112,8 @@ const SelectItem: React.FC<SelectItemProps> = ({ value, className, children }) =
   return (
     <div
       className={cn(
-        'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-        context.value === value && 'bg-accent text-accent-foreground',
+        'relative flex w-full cursor-pointer select-none items-center rounded-md py-2 pl-8 pr-2 text-sm outline-none hover:bg-macon-navy/5 hover:text-macon-navy transition-colors focus:bg-macon-navy/5 focus:text-macon-navy',
+        context.value === value && 'bg-macon-navy/10 text-macon-navy font-medium',
         className
       )}
       onClick={handleClick}

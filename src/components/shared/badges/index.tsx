@@ -33,23 +33,23 @@ export interface StatusBadgeProps {
 const STATUS_CONFIG = {
   new: {
     label: 'New',
-    className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    className: 'bg-amber-50 text-amber-700 border-amber-200 shadow-soft',
   },
   preparing: {
     label: 'Preparing',
-    className: 'bg-blue-100 text-blue-800 border-blue-300',
+    className: 'bg-macon-navy/10 text-macon-navy border-macon-navy/20 shadow-soft',
   },
   ready: {
     label: 'Ready',
-    className: 'bg-green-100 text-green-800 border-green-300',
+    className: 'bg-macon-teal/10 text-macon-teal-dark border-macon-teal/20 shadow-soft',
   },
   completed: {
     label: 'Completed',
-    className: 'bg-gray-100 text-gray-800 border-gray-300',
+    className: 'bg-neutral-100 text-neutral-600 border-neutral-200',
   },
   cancelled: {
     label: 'Cancelled',
-    className: 'bg-red-100 text-red-800 border-red-300',
+    className: 'bg-red-50 text-red-700 border-red-200',
   },
 } as const
 

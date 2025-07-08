@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
-import { Order } from '../types'
-import { orderService } from '@/services'
+import { Order } from '@/services/types'
+import { orderService } from '@/services/orders/OrderService'
 import { useToast } from '@/hooks/useToast'
+import { useRestaurant } from '@/core/restaurant-hooks'
 
 export interface UseOrderActionsReturn {
   submitOrder: (orderData: Partial<Order>) => Promise<{ success: boolean; orderId?: string }>
@@ -11,10 +12,11 @@ export interface UseOrderActionsReturn {
 
 export const useOrderActions = (): UseOrderActionsReturn => {
   const { toast } = useToast()
+  const { restaurant } = useRestaurant()
   
   const submitOrder = useCallback(async (orderData: Partial<Order>) => {
     try {
-      const result = await orderService.submitOrder(orderData)
+      const result = await orderService.submitOrder(restaurant?.id || 'rest-1', orderData)
       if (result.success) {
         toast.success('Order submitted successfully')
       }
@@ -24,11 +26,11 @@ export const useOrderActions = (): UseOrderActionsReturn => {
       toast.error(message)
       return { success: false }
     }
-  }, [toast])
+  }, [toast, restaurant?.id])
   
   const updateOrderStatus = useCallback(async (orderId: string, status: Order['status']) => {
     try {
-      const result = await orderService.updateOrderStatus(orderId, status)
+      const result = await orderService.updateOrderStatus(restaurant?.id || 'rest-1', orderId, status)
       if (result.success) {
         toast.success(`Order status updated to ${status}`)
       }
@@ -38,7 +40,7 @@ export const useOrderActions = (): UseOrderActionsReturn => {
       toast.error(message)
       return false
     }
-  }, [toast])
+  }, [toast, restaurant?.id])
   
   const cancelOrder = useCallback(async (orderId: string) => {
     return updateOrderStatus(orderId, 'cancelled')

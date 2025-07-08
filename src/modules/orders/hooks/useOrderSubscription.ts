@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
-import { Order } from '../types'
+import { Order } from '@/services/types'
 import { orderService } from '@/services'
 import { orderSubscription, OrderEvent } from '@/services/realtime/orderSubscription'
+import { useRestaurant } from '@/core/restaurant-hooks'
 
 export interface UseOrderSubscriptionOptions {
   onOrderCreated?: (order: Order) => void
@@ -11,8 +12,11 @@ export interface UseOrderSubscriptionOptions {
 
 export const useOrderSubscription = (options: UseOrderSubscriptionOptions): void => {
   const { onOrderCreated, onOrderUpdated, onOrderStatusChanged } = options
+  const { restaurant } = useRestaurant()
   
   useEffect(() => {
+    const restaurantId = restaurant?.id || 'rest-1'
+    
     // Create a unique subscription ID
     const subscriptionId = `order-subscription-${Date.now()}`
     
@@ -32,7 +36,7 @@ export const useOrderSubscription = (options: UseOrderSubscriptionOptions): void
     })
     
     // Subscribe to new orders coming in
-    const unsubscribeFromNewOrders = orderService.subscribeToOrders(() => {
+    const unsubscribeFromNewOrders = orderService.subscribeToOrders(restaurantId, () => {
       // This is already handled by the ORDER_CREATED event
     })
     
@@ -40,5 +44,5 @@ export const useOrderSubscription = (options: UseOrderSubscriptionOptions): void
       unsubscribe()
       unsubscribeFromNewOrders()
     }
-  }, [onOrderCreated, onOrderUpdated, onOrderStatusChanged])
+  }, [onOrderCreated, onOrderUpdated, onOrderStatusChanged, restaurant?.id])
 }
