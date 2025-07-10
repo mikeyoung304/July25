@@ -38,7 +38,7 @@ export abstract class HttpServiceAdapter extends BaseService {
       }
     } catch {
       // In test environment, default to mock
-      if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
+      if (import.meta.env.MODE === 'test') {
         defaultUseMock = true
       }
     }
@@ -63,7 +63,7 @@ export abstract class HttpServiceAdapter extends BaseService {
     try {
       defaultFallback = import.meta?.env?.DEV || false
     } catch {
-      defaultFallback = process.env?.NODE_ENV === 'development'
+      defaultFallback = import.meta.env.DEV
     }
     
     const { forceMock, forceReal, fallbackToMock = defaultFallback } = options || {}
@@ -152,7 +152,7 @@ export abstract class HttpServiceAdapter extends BaseService {
     try {
       isDev = import.meta?.env?.DEV || false
     } catch {
-      isDev = process.env?.NODE_ENV === 'development'
+      isDev = import.meta.env.DEV
     }
     
     if (isDev) {

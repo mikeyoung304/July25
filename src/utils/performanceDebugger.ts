@@ -20,7 +20,7 @@ class PerformanceDebugger {
   
   private interceptConsoleWarnings() {
     // Only intercept in development
-    if (process.env.NODE_ENV === 'production') return
+    if (import.meta.env.MODE === 'production') return
     
     console.error = (...args: unknown[]) => {
       const message = args[0]?.toString() || ''
@@ -110,14 +110,14 @@ export const performanceDebugger = new PerformanceDebugger()
 
 // React hook for tracking component renders
 export function usePerformanceTracking(componentName: string) {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     performanceDebugger.recordRender(componentName)
   }
 }
 
 // Utility to log performance report
 export function logPerformanceReport() {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     console.log(performanceDebugger.generateReport())
   }
 }

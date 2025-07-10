@@ -229,5 +229,5 @@ export class APIError extends Error {
  * Default secure API client instance
  */
 export const secureApi = new SecureAPIClient(
-  process.env.VITE_API_BASE_URL || ''
+  import.meta.env.VITE_API_BASE_URL || ''
 )

@@ -13,7 +13,7 @@ export class TranscriptionService {
     // Only access import.meta.env if available (not in test environment)
     const apiKey = typeof import.meta !== 'undefined' && import.meta.env 
       ? import.meta.env.VITE_OPENAI_API_KEY 
-      : process.env.VITE_OPENAI_API_KEY
+      : undefined // Fallback for test environment
     
     if (apiKey) {
       // dangerouslyAllowBrowser: true is used here for demo purposes

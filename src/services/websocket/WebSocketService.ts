@@ -60,8 +60,8 @@ export class WebSocketService extends EventEmitter {
       }
     } catch {
       // Fallback for test environment
-      if (typeof process !== 'undefined' && process.env?.VITE_API_BASE_URL) {
-        apiBaseUrl = process.env.VITE_API_BASE_URL
+      if (import.meta.env.VITE_API_BASE_URL) {
+        apiBaseUrl = import.meta.env.VITE_API_BASE_URL
       }
     }
     

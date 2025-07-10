@@ -9,7 +9,7 @@ import { webSocketService, orderUpdatesHandler } from '@/services/websocket'
 import './App.css'
 
 function App() {
-  const isDevelopment = process.env.NODE_ENV === 'development'
+  const isDevelopment = import.meta.env.DEV
   const [showSplash, setShowSplash] = useState(true)
 
   const handleAnimationComplete = () => {
@@ -28,7 +28,7 @@ function App() {
       }
     } catch {
       // Fallback for test environment
-      if (typeof process !== 'undefined' && process.env?.VITE_API_BASE_URL) {
+      if (import.meta.env.VITE_API_BASE_URL) {
         shouldConnect = true
       }
     }

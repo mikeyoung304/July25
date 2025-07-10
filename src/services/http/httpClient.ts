@@ -41,8 +41,8 @@ export class HttpClient extends SecureAPIClient {
       }
     } catch {
       // Fallback for test environment
-      if (typeof process !== 'undefined' && process.env?.VITE_API_BASE_URL) {
-        baseURL = process.env.VITE_API_BASE_URL
+      if (import.meta.env.VITE_API_BASE_URL) {
+        baseURL = import.meta.env.VITE_API_BASE_URL
       }
     }
     
