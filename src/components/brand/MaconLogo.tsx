@@ -2,7 +2,7 @@ import React from 'react'
 import { cn } from '@/utils'
 
 interface MaconLogoProps {
-  variant?: 'full' | 'icon' | 'horizontal'
+  variant?: 'full' | 'icon' | 'horizontal' | 'transparent'
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
 }
@@ -15,17 +15,18 @@ const sizeMap = {
 }
 
 export const MaconLogo: React.FC<MaconLogoProps> = ({ 
-  variant = 'full', 
+  variant = 'full',
   size = 'md',
   className 
 }) => {
   const dimensions = sizeMap[size]
   
-  // For now, all variants use the same logo image
-  // In the future, we could have different versions
+  // Use transparent logo for transparent variant
+  const logoSrc = variant === 'transparent' ? '/transparent.png' : '/macon-logo.png'
+  
   return (
     <img 
-      src="/macon-logo.png" 
+      src={logoSrc} 
       alt="MACON AI SOLUTIONS"
       width={dimensions.width}
       height={dimensions.height}

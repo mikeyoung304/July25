@@ -26,8 +26,8 @@ const mockMediaRecorder = jest.fn().mockImplementation(() => ({
   onstop: null,
 }))
 // Add isTypeSupported as a static method
-;(mockMediaRecorder as any).isTypeSupported = jest.fn().mockReturnValue(true)
-global.MediaRecorder = mockMediaRecorder as any
+;(mockMediaRecorder as unknown as { isTypeSupported: jest.Mock }).isTypeSupported = jest.fn().mockReturnValue(true)
+global.MediaRecorder = mockMediaRecorder as unknown as typeof MediaRecorder
 
 describe('VoiceCapture', () => {
   beforeEach(() => {

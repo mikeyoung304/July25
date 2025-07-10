@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { KDSOrderCard } from '../KDSOrderCard'
-import type { OrderItem } from '@/types/order'
+import type { OrderItem } from '@/types/common'
 
 // Mock the child components
 jest.mock('@/components/shared/order/OrderHeaders', () => ({

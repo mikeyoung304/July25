@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { stationRouting } from '@/services/stationRouting'
 import { cn } from '@/utils'
 import type { StationType } from '@/types/station'
-import type { OrderItem } from '@/types/order'
+import type { OrderItem } from '@/types/common'
 
 interface KDSOrderListItemProps {
   orderNumber: string

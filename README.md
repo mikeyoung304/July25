@@ -21,7 +21,7 @@ A modern, modular Restaurant Operating System built with Vite, React, TypeScript
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS + shadcn/ui + Macon AI brand
 - **State Management**: React Context + Custom hooks
-- **Testing**: Jest + React Testing Library (231 tests)
+- **Testing**: Jest + React Testing Library (229 tests)
 - **Code Quality**: ESLint + Prettier + TypeScript strict
 
 ### Backend (Separate Service - Managed by Luis)
@@ -72,7 +72,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_DEFAULT_RESTAURANT_ID=your_restaurant_id
 
 # Backend API (when available)
-# VITE_API_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3001
 ```
 
 4. Start the development server:
@@ -89,13 +89,13 @@ The application will be available at `http://localhost:5173`
 ```
 src/
 ├── modules/              # Feature modules (NEW)
+│   ├── analytics/       # Analytics and metrics module
+│   ├── filters/         # Filtering functionality module
+│   ├── floor-plan/      # Floor plan management module
+│   ├── kitchen/         # Kitchen Display System module
 │   ├── orders/          # Order management module
-│   │   ├── components/  # Order-specific components
-│   │   ├── hooks/       # Order-specific hooks
-│   │   ├── types/       # Order types
-│   │   └── index.ts     # Module exports
 │   ├── sound/           # Audio management module
-│   └── filters/         # Filtering functionality module
+│   └── voice/           # Voice capture and ordering module
 ├── components/          # Shared UI components
 │   ├── ui/             # Base UI components (shadcn)
 │   ├── shared/         # Reusable business components
@@ -110,10 +110,8 @@ src/
 ├── hooks/              # Global hooks
 │   ├── keyboard/       # Keyboard navigation hooks
 │   └── ...             # Other shared hooks
-├── features/           # Legacy feature modules
 ├── pages/              # Page components
 ├── core/               # Core providers and contexts
-├── lib/                # Utilities and helpers
 ├── types/              # Global TypeScript types
 └── App.tsx             # Root component
 ```
@@ -152,6 +150,13 @@ The application follows a **modular architecture** with these key principles:
 - Proper error boundaries and user feedback
 - Toast notifications for all user actions
 - Comprehensive test coverage
+
+### API Integration Layer (Project Janus)
+- **HTTP Client**: Automatic JWT auth, multi-tenancy headers, case transformation
+- **Service Adapter Pattern**: Seamless mock-to-real API migration path
+- **WebSocket Service**: Real-time order updates with auto-reconnection
+- **Floor Plan Service**: Save/load functionality with localStorage fallback
+- **Case Transformation**: Deep object conversion between camelCase and snake_case
 
 ## 📝 Available Scripts
 
@@ -308,7 +313,7 @@ This project is proprietary software. All rights reserved.
 - ✅ Integrated Macon AI brand colors throughout
 - ✅ Cleaned up 40% of AI-generated bloat
 - ✅ Fixed multi-tenant architecture gaps
-- ✅ All 231 tests passing
+- ✅ All 229 tests passing
 
 ### Architecture
 - ✅ Frontend-only repository (backend is separate)

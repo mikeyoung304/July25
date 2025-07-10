@@ -1,1 +1,0 @@
-export { VoiceCapture } from './components/VoiceCapture'

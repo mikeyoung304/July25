@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { MicrophonePermissionStatus } from '../components/MicrophonePermission'
+import { transcriptionService } from '../../../services/transcription/TranscriptionService'
 
 interface UseAudioCaptureOptions {
   onTranscription?: (transcription: string, isInterim: boolean) => void
@@ -25,11 +26,14 @@ export const useAudioCapture = ({
   const mediaStreamRef = useRef<MediaStream | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
 
-  // Check if browser supports getUserMedia
+  // Check if browser supports getUserMedia and transcription is available
   useEffect(() => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setPermissionStatus('not-found')
       setError(new Error('getUserMedia is not supported in this browser'))
+    } else if (!transcriptionService.isAvailable()) {
+      setError(new Error('OpenAI API key not configured. Please set VITE_OPENAI_API_KEY in your .env file.'))
+      setPermissionStatus('granted') // Still allow recording, but transcription will fail
     } else {
       setPermissionStatus('granted') // Default to granted, will check on first use
     }
@@ -59,11 +63,19 @@ export const useAudioCapture = ({
       }
       
       mediaRecorder.onstop = async () => {
-        // Here we would normally send to speech-to-text service
-        // For now, simulate with mock transcription
-        setTimeout(() => {
-          onTranscription?.('Mock transcription result', false)
-        }, 1000)
+        // Create blob from collected audio chunks
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+        
+        // Send to OpenAI for transcription
+        const result = await transcriptionService.transcribeAudio(audioBlob)
+        
+        if (result.success && result.transcript) {
+          onTranscription?.(result.transcript, false)
+        } else {
+          const error = new Error(result.error || 'Transcription failed')
+          setError(error)
+          onError?.(error)
+        }
       }
       
       // Start recording

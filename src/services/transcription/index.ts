@@ -1,0 +1,1 @@
+export { transcriptionService, type TranscriptionResult } from './TranscriptionService'

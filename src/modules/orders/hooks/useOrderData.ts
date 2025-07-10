@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react'
-import { Order, OrderFilters } from '@/services/types'
+import { Order } from '@/services/types'
+import { OrderFilters } from '@/types/filters'
 import { orderService } from '@/services'
 import { useAsyncState } from '@/hooks/useAsyncState'
 import { useRestaurant } from '@/core/restaurant-hooks'

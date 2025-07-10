@@ -5,6 +5,9 @@ import { TextEncoder, TextDecoder } from 'util'
 global.TextEncoder = TextEncoder as unknown as typeof global.TextEncoder
 global.TextDecoder = TextDecoder as unknown as typeof global.TextDecoder
 
+// Mock the transcription service
+jest.mock('@/services/transcription/TranscriptionService')
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

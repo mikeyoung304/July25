@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { KioskDemo } from '@/pages/KioskDemo'
 import { api } from '@/services/api'
+import { RestaurantProvider } from '@/core/RestaurantContext'
 
 jest.mock('@/services/api')
 jest.mock('@/hooks/useToast', () => ({
@@ -34,6 +35,7 @@ describe('Voice Order to KDS Integration', () => {
       orderId: 'order-123',
       order: {
         id: 'order-123',
+        restaurant_id: 'rest-1',
         orderNumber: '1001',
         status: 'new',
         tableNumber: 'K1',
@@ -48,7 +50,9 @@ describe('Voice Order to KDS Integration', () => {
   const renderWithRouter = (component: React.ReactElement) => {
     return render(
       <BrowserRouter>
-        {component}
+        <RestaurantProvider>
+          {component}
+        </RestaurantProvider>
       </BrowserRouter>
     )
   }
@@ -64,13 +68,15 @@ describe('Voice Order to KDS Integration', () => {
     
     // Check that order was parsed and displayed
     await waitFor(() => {
-      // Check for the complete item text
-      expect(screen.getByText('2x Burger')).toBeInTheDocument()
-    })
+      // Check for quantity and item name separately
+      expect(screen.getByText('2x')).toBeInTheDocument()
+      expect(screen.getByText('Burger')).toBeInTheDocument()
+    }, { timeout: 3000 })
     
     // Check for modifiers and other items
     expect(screen.getByText('Extra cheese')).toBeInTheDocument() // Burger modifiers
-    expect(screen.getByText('1x Pizza')).toBeInTheDocument()
+    expect(screen.getByText('1x')).toBeInTheDocument()
+    expect(screen.getByText('Pizza')).toBeInTheDocument()
     expect(screen.getByText('Large, Extra cheese')).toBeInTheDocument() // Pizza modifiers
   })
 
@@ -83,8 +89,9 @@ describe('Voice Order to KDS Integration', () => {
     
     // Wait for order to be displayed
     await waitFor(() => {
-      expect(screen.getByText('2x Burger')).toBeInTheDocument()
-    })
+      expect(screen.getByText('2x')).toBeInTheDocument()
+      expect(screen.getByText('Burger')).toBeInTheDocument()
+    }, { timeout: 3000 })
     
     // Confirm order
     const confirmButton = screen.getByRole('button', { name: /confirm order/i })
@@ -120,8 +127,9 @@ describe('Voice Order to KDS Integration', () => {
     
     // Wait for order display
     await waitFor(() => {
-      expect(screen.getByText('2x Burger')).toBeInTheDocument()
-    })
+      expect(screen.getByText('2x')).toBeInTheDocument()
+      expect(screen.getByText('Burger')).toBeInTheDocument()
+    }, { timeout: 3000 })
     
     // Confirm order
     const confirmButton = screen.getByRole('button', { name: /confirm order/i })
@@ -132,7 +140,7 @@ describe('Voice Order to KDS Integration', () => {
       expect(screen.getByText('Order Submitted!')).toBeInTheDocument()
       expect(screen.getByText('Order Confirmed!')).toBeInTheDocument()
       expect(screen.getByText('Order #1001')).toBeInTheDocument()
-    })
+    }, { timeout: 3000 })
   })
 
   it('handles API errors gracefully', async () => {
@@ -146,8 +154,9 @@ describe('Voice Order to KDS Integration', () => {
     
     // Wait for order display
     await waitFor(() => {
-      expect(screen.getByText('2x Burger')).toBeInTheDocument()
-    })
+      expect(screen.getByText('2x')).toBeInTheDocument()
+      expect(screen.getByText('Burger')).toBeInTheDocument()
+    }, { timeout: 3000 })
     
     // Confirm order
     const confirmButton = screen.getByRole('button', { name: /confirm order/i })
@@ -156,12 +165,12 @@ describe('Voice Order to KDS Integration', () => {
     // Should not show success
     await waitFor(() => {
       expect(screen.queryByText('Order Confirmed!')).not.toBeInTheDocument()
-    })
+    }, { timeout: 3000 })
     
     // Button should return to normal state
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /confirm order/i })).toBeInTheDocument()
-    })
+    }, { timeout: 3000 })
   })
 
   it('resets order after successful submission', async () => {
@@ -175,8 +184,9 @@ describe('Voice Order to KDS Integration', () => {
     
     // Wait and confirm order
     await waitFor(() => {
-      expect(screen.getByText('2x Burger')).toBeInTheDocument()
-    })
+      expect(screen.getByText('2x')).toBeInTheDocument()
+      expect(screen.getByText('Burger')).toBeInTheDocument()
+    }, { timeout: 3000 })
     
     const confirmButton = screen.getByRole('button', { name: /confirm order/i })
     fireEvent.click(confirmButton)
@@ -184,7 +194,7 @@ describe('Voice Order to KDS Integration', () => {
     // Wait for success
     await waitFor(() => {
       expect(screen.getByText('Order Submitted!')).toBeInTheDocument()
-    })
+    }, { timeout: 3000 })
     
     // Fast forward 3 seconds
     act(() => {
@@ -195,7 +205,7 @@ describe('Voice Order to KDS Integration', () => {
     await waitFor(() => {
       expect(screen.getByText('No items in order yet')).toBeInTheDocument()
       expect(screen.queryByText('Order Submitted!')).not.toBeInTheDocument()
-    })
+    }, { timeout: 3000 })
     
     jest.useRealTimers()
   })

@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useRestaurant } from '@/core/restaurant-hooks'
 import { useToast } from '@/hooks/useToast'
 import { useAsyncState } from '@/hooks/useAsyncState'
 import { useSoundNotifications } from '@/hooks/useSoundNotifications'
 import { useOrderFilters } from '@/hooks/useOrderFilters'
-import { useOrderSubscription } from '@/hooks/useOrderSubscription'
+import { useStableCallback } from '@/hooks/useStableCallback'
 import { api } from '@/services/api'
 import type { Order } from '@/services/api'
 import type { LayoutMode } from '@/modules/kitchen/components/KDSLayout'
+import type { Station, StationType } from '@/types/station'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
-import { applyFilters, sortOrders, getTimeRangeFromPreset } from '@/types/filters'
+import { applyFilters, sortOrders, getTimeRangeFromPreset, type SortBy, type OrderStatus } from '@/types/filters'
 import { stationRouting } from '@/services/stationRouting'
+import { orderUpdatesHandler, type OrderUpdatePayload } from '@/services/websocket'
 
 // Components
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -49,28 +51,67 @@ export function KitchenDisplay() {
     resetFilters,
     hasActiveFilters
   } = useOrderFilters()
+  
+  // Debounce order updates to prevent rapid re-renders
+  const updateOrdersRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
-  // Subscribe to real-time order events
-  useOrderSubscription({
-    onOrderCreated: async (order) => {
-      setOrders(prev => [order, ...prev])
-      toast.success(`New order #${order.orderNumber} received!`)
-      await playNewOrderSound()
-    },
-    onOrderStatusChanged: (orderId, newStatus) => {
-      setOrders(prev => 
-        prev.map(order => 
-          order.id === orderId ? { ...order, status: newStatus } : order
-        )
-      )
-      // Only toast for ready status
-      if (newStatus === 'ready') {
-        const order = orders.find(o => o.id === orderId)
-        if (order) {
-          toast.success(`Order #${order.orderNumber} is ready!`)
-          playOrderReadySound()
+  // Batch order updates
+  const batchOrderUpdate = useCallback((updateFn: (prev: Order[]) => Order[]) => {
+    if (updateOrdersRef.current) {
+      clearTimeout(updateOrdersRef.current)
+    }
+    
+    updateOrdersRef.current = setTimeout(() => {
+      setOrders(updateFn)
+    }, 50) // 50ms debounce
+  }, [])
+  
+  // Handle WebSocket order updates
+  const handleOrderUpdate = useStableCallback(async (update: OrderUpdatePayload) => {
+    switch (update.action) {
+      case 'created':
+        if (update.order) {
+          batchOrderUpdate(prev => [update.order!, ...prev])
+          await playNewOrderSound()
         }
-      }
+        break
+        
+      case 'updated':
+        if (update.order) {
+          batchOrderUpdate(prev => 
+            prev.map(order => order.id === update.order!.id ? update.order! : order)
+          )
+        }
+        break
+        
+      case 'deleted':
+        if (update.orderId) {
+          batchOrderUpdate(prev => prev.filter(order => order.id !== update.orderId))
+        }
+        break
+        
+      case 'status_changed':
+        if (update.orderId && update.status) {
+          batchOrderUpdate(prev => {
+            const updatedOrders = prev.map(order => 
+              order.id === update.orderId ? { ...order, status: update.status as Order['status'] } : order
+            )
+            
+            if (update.status === 'ready') {
+              const order = updatedOrders.find(o => o.id === update.orderId)
+              if (order) {
+                playOrderReadySound()
+              }
+            }
+            
+            return updatedOrders
+          })
+        }
+        break
+        
+      case 'item_status_changed':
+        // Handle individual item status changes if needed
+        break
     }
   })
 
@@ -79,17 +120,19 @@ export function KitchenDisplay() {
     
     try {
       const result = await execute(api.getOrders())
-      const orders = result.orders
-      const duration = performance.now() - startTime
-      performanceMonitor.trackAPICall('getOrders', duration, 'success')
-      setOrders(orders)
-    } catch {
+      if (result && result.orders) {
+        const duration = performance.now() - startTime
+        performanceMonitor.trackAPICall('getOrders', duration, 'success')
+        setOrders(result.orders)
+      }
+    } catch (error) {
       performanceMonitor.trackAPICall('getOrders', performance.now() - startTime, 'error')
+      console.error('Error loading orders:', error)
       toast.error('Failed to load orders')
     }
   }, [execute, toast])
 
-  const handleStatusChange = async (orderId: string, status: 'preparing' | 'ready') => {
+  const handleStatusChange = useCallback(async (orderId: string, status: 'preparing' | 'ready') => {
     const startTime = performance.now()
     
     try {
@@ -97,52 +140,109 @@ export function KitchenDisplay() {
       const duration = performance.now() - startTime
       performanceMonitor.trackAPICall('updateOrderStatus', duration, 'success')
       
-      setOrders(prev => 
-        prev.map(order => 
+      batchOrderUpdate(prev => {
+        const updatedOrders = prev.map(order => 
           order.id === orderId ? { ...order, status } : order
         )
-      )
-      
-      toast.success(`Order status updated to ${status}`)
+        
+        // Find order for toast notification
+        const order = updatedOrders.find(o => o.id === orderId)
+        if (status === 'ready' && order) {
+          const orderType = order.orderType || 'dine-in'
+          const location = orderType === 'drive-thru' ? 'drive-thru window' : `table ${order.tableNumber}`
+          toast.success(`Order #${order.orderNumber} ready for ${location}!`)
+        } else {
+          toast.success(`Order status updated to ${status}`)
+        }
+        
+        return updatedOrders
+      })
     } catch {
       performanceMonitor.trackAPICall('updateOrderStatus', performance.now() - startTime, 'error')
       toast.error('Failed to update order status')
     }
-  }
+  }, [toast, batchOrderUpdate])
 
   useEffect(() => {
     loadOrders()
     
-    // Start real-time simulation
-    const unsubscribe = api.subscribeToOrders(() => {
-      // The callback is handled by useOrderSubscription hook
-    })
+    // Subscribe to WebSocket order updates
+    const unsubscribe = orderUpdatesHandler.onOrderUpdate(handleOrderUpdate)
 
-    return () => unsubscribe()
-  }, [loadOrders])
+    return () => {
+      unsubscribe()
+      // Clean up any pending updates
+      if (updateOrdersRef.current) {
+        clearTimeout(updateOrdersRef.current)
+      }
+    }
+  }, [loadOrders, handleOrderUpdate])
+
+  // Convert OrderFilterState to OrderFilters format
+  const adaptedFilters = React.useMemo(() => {
+    const statusArray: OrderStatus[] = filters.status === 'all' 
+      ? ['new', 'preparing', 'ready']
+      : [filters.status]
+    
+    // Map station types to include 'all'
+    const stationArray = filters.stations.length === 0 
+      ? ['all'] as (StationType | 'all')[]
+      : filters.stations.map(s => s.type) as (StationType | 'all')[]
+    
+    // Map time range to TimeRange format
+    const timeRangeMap = {
+      'today': 'today' as const,
+      'week': 'today' as const, // Fallback, week not supported in TimeRange preset
+      'month': 'today' as const, // Fallback, month not supported in TimeRange preset
+      'all': 'today' as const // Fallback
+    }
+    
+    return {
+      status: statusArray,
+      stations: stationArray,
+      timeRange: { preset: timeRangeMap[filters.timeRange] },
+      searchQuery: filters.searchQuery,
+      sortBy: filters.sortBy,
+      sortDirection: filters.sortDirection
+    }
+  }, [filters])
 
   // Apply all filters and sorting
   const filteredAndSortedOrders = React.useMemo(() => {
     let result = [...orders]
     
-    // Apply time range filter if set
-    if (filters.timeRange.preset) {
-      const { start, end } = getTimeRangeFromPreset(filters.timeRange.preset)
+    // Apply time range filter based on original filter value
+    if (filters.timeRange !== 'all') {
+      const now = new Date()
+      const start = new Date()
+      
+      switch (filters.timeRange) {
+        case 'today':
+          start.setHours(0, 0, 0, 0)
+          break
+        case 'week':
+          start.setDate(now.getDate() - 7)
+          break
+        case 'month':
+          start.setDate(now.getDate() - 30)
+          break
+      }
+      
       result = result.filter(order => {
         const orderDate = new Date(order.orderTime)
-        return orderDate >= start && orderDate <= end
+        return orderDate >= start && orderDate <= now
       })
     }
     
-    // Apply other filters
-    result = applyFilters(result, filters)
+    // Apply other filters using adapted filters
+    result = applyFilters(result, adaptedFilters)
     
     // Apply station filter
-    if (!filters.stations.includes('all')) {
+    if (filters.stations.length > 0) {
       result = result.filter(order => 
         order.items.some(item => {
           const itemStation = stationRouting.getStationTypeForItem(item)
-          return itemStation && filters.stations.includes(itemStation)
+          return filters.stations.some(s => s.type === itemStation)
         })
       )
     }
@@ -151,7 +251,7 @@ export function KitchenDisplay() {
     result = sortOrders(result, filters.sortBy, filters.sortDirection)
     
     return result
-  }, [orders, filters])
+  }, [orders, filters, adaptedFilters])
 
   if (restaurantLoading || isLoading) {
     return (
@@ -175,13 +275,18 @@ export function KitchenDisplay() {
             </div>
             <div className="flex items-center gap-4">
               <Badge variant="secondary" className="px-4 py-1.5 text-sm">
-                <span className="font-semibold">{filteredAndSortedOrders.filter(o => o.status !== 'ready').length}</span>
+                <span className="font-semibold">{filteredAndSortedOrders.filter(o => o.status !== 'ready' && o.status !== 'completed').length}</span>
                 <span className="ml-1.5">Active Orders</span>
               </Badge>
               <SortControl
-                sortBy={filters.sortBy}
+                sortBy={filters.sortBy as SortBy}
                 sortDirection={filters.sortDirection}
-                onSortChange={updateSort}
+                onSortChange={(sortBy) => {
+                  // Only update if it's a supported sort field
+                  if (sortBy === 'orderTime' || sortBy === 'orderNumber' || sortBy === 'status') {
+                    updateSort(sortBy)
+                  }
+                }}
                 onDirectionToggle={toggleSortDirection}
               />
               <SoundControl
@@ -200,10 +305,29 @@ export function KitchenDisplay() {
         <div className="mb-6">
           <section role="search" aria-label="Order filters">
             <FilterPanel
-              filters={filters}
-              onStatusChange={updateStatusFilter}
-              onStationChange={updateStationFilter}
-              onTimeRangeChange={updateTimeRange}
+              filters={adaptedFilters}
+              onStatusChange={(statuses) => {
+                if (statuses.length === 0 || statuses.length === 3) {
+                  updateStatusFilter('all')
+                } else {
+                  updateStatusFilter(statuses[0])
+                }
+              }}
+              onStationChange={(stations) => {
+                const stationObjects = stations.map(s => {
+                  if (s === 'all') return s
+                  return { type: s, id: s, name: s, isActive: true, currentOrders: [] }
+                })
+                updateStationFilter(stationObjects as Station[])
+              }}
+              onTimeRangeChange={(timeRange) => {
+                // Map TimeRange preset to our simple string format
+                if (timeRange.preset === 'today') {
+                  updateTimeRange('today')
+                } else if (timeRange.preset === 'last1hour' || timeRange.preset === 'last30min' || timeRange.preset === 'last15min') {
+                  updateTimeRange('today') // These are more granular than our filter supports
+                }
+              }}
               onSearchChange={updateSearchQuery}
               onResetFilters={resetFilters}
               hasActiveFilters={hasActiveFilters}
@@ -243,6 +367,7 @@ export function KitchenDisplay() {
                   items={order.items}
                   status={order.status as 'new' | 'preparing' | 'ready'}
                   orderTime={new Date(order.orderTime)}
+                  orderType={order.orderType}
                   onStatusChange={(status) => handleStatusChange(order.id, status)}
                 />
               ) : (

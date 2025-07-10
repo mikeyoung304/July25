@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/30</span>
+                <span class='fraction'>0/32</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>0/28</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/26</span>
+                <span class='fraction'>0/28</span>
             </div>
         
             
@@ -114,10 +114,13 @@
 <a name='L49'></a><a href='#L49'>49</a>
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a>
-<a name='L52'></a><a href='#L52'>52</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -125,6 +128,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -166,9 +170,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { useCallback } from 'react'</span>
-import { Order } from '../types'
-<span class="cstat-no" title="statement not covered" >import { orderService } from '@/services'</span>
+import { Order } from '@/services/types'
+<span class="cstat-no" title="statement not covered" >import { orderService } from '@/services/orders/OrderService'</span>
 <span class="cstat-no" title="statement not covered" >import { useToast } from '@/hooks/useToast'</span>
+<span class="cstat-no" title="statement not covered" >import { useRestaurant } from '@/core/restaurant-hooks'</span>
 &nbsp;
 export interface UseOrderActionsReturn {
   submitOrder: (orderData: Partial&lt;Order&gt;) =&gt; Promise&lt;{ success: boolean; orderId?: string }&gt;
@@ -178,10 +183,11 @@ export interface UseOrderActionsReturn {
 &nbsp;
 export const <span class="cstat-no" title="statement not covered" >useOrderActions = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>): UseOrderActionsReturn =</span>&gt; {</span>
   const { toast } = <span class="cstat-no" title="statement not covered" >useToast()</span>
+  const { restaurant } = <span class="cstat-no" title="statement not covered" >useRestaurant()</span>
   
   const submitOrder = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >async (o</span>rderData: Partial&lt;Order&gt;) =&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
-      const result = <span class="cstat-no" title="statement not covered" >await orderService.submitOrder(orderData)</span>
+      const result = <span class="cstat-no" title="statement not covered" >await orderService.submitOrder(restaurant?.id || 'rest-1', orderData)</span>
 <span class="cstat-no" title="statement not covered" >      if (result.success) {</span>
 <span class="cstat-no" title="statement not covered" >        toast.success('Order submitted successfully')</span>
       }
@@ -191,11 +197,11 @@ export const <span class="cstat-no" title="statement not covered" >useOrderActio
 <span class="cstat-no" title="statement not covered" >      toast.error(message)</span>
 <span class="cstat-no" title="statement not covered" >      return { success: false }</span>
     }
-  }, [toast])
+  }, [toast, restaurant?.id])
   
   const updateOrderStatus = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >async (o</span>rderId: string, status: Order['status']) =&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
-      const result = <span class="cstat-no" title="statement not covered" >await orderService.updateOrderStatus(orderId, status)</span>
+      const result = <span class="cstat-no" title="statement not covered" >await orderService.updateOrderStatus(restaurant?.id || 'rest-1', orderId, status)</span>
 <span class="cstat-no" title="statement not covered" >      if (result.success) {</span>
 <span class="cstat-no" title="statement not covered" >        toast.success(`Order status updated to ${status}`)</span>
       }
@@ -205,7 +211,7 @@ export const <span class="cstat-no" title="statement not covered" >useOrderActio
 <span class="cstat-no" title="statement not covered" >      toast.error(message)</span>
 <span class="cstat-no" title="statement not covered" >      return false</span>
     }
-  }, [toast])
+  }, [toast, restaurant?.id])
   
   const cancelOrder = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >async (o</span>rderId: string) =&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > {</span></span></span>
 <span class="cstat-no" title="statement not covered" >    return updateOrderStatus(orderId, 'cancelled')</span>
@@ -223,7 +229,7 @@ export const <span class="cstat-no" title="statement not covered" >useOrderActio
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-07T18:14:02.793Z
+                at 2025-07-10T03:44:19.031Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

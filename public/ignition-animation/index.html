@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macon AI - Ignition Sequence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="logo-loader" role="img" aria-label="Macon AI logo loading animation">
+        <svg id="macon-ai-logo" width="200" height="250" viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+            <!-- Definitions for gradients and filters -->
+            <defs>
+                <!-- Gradient for stem -->
+                <linearGradient id="stem-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" style="stop-color:#88B0A4;stop-opacity:0.3" />
+                    <stop offset="50%" style="stop-color:#88B0A4;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#88B0A4;stop-opacity:0.8" />
+                </linearGradient>
+                
+                <!-- Radial gradient for nodes -->
+                <radialGradient id="node-gradient">
+                    <stop offset="0%" style="stop-color:#FFD4A3;stop-opacity:1" />
+                    <stop offset="70%" style="stop-color:#F3A463;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#E89348;stop-opacity:1" />
+                </radialGradient>
+                
+                <!-- Gradient for petals -->
+                <linearGradient id="petal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#1E3A4C;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#2A4B5C;stop-opacity:1" />
+                </linearGradient>
+                
+                <!-- Glow filter -->
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+                
+                <!-- Motion blur filter -->
+                <filter id="motion-blur">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="0,2" />
+                </filter>
+            </defs>
+            <g id="circuit-group">
+                <!-- Stem: vertical line with slight curve -->
+                <path id="stem" fill="none" stroke="url(#stem-gradient)" stroke-width="4" stroke-linecap="round" 
+                      d="M100,200 C100,200 100,170 100,140 C100,120 100,100 100,80"/>
+                
+                <!-- Nodes positioned along the stem -->
+                <circle id="node-left" fill="url(#node-gradient)" cx="80" cy="160" r="8" class="node"/>
+                <circle id="node-right" fill="url(#node-gradient)" cx="120" cy="120" r="8" class="node"/>
+                <circle id="node-center" fill="url(#node-gradient)" cx="100" cy="80" r="8" class="node"/>
+                
+                <!-- Particle containers for node ignition -->
+                <g id="particles-left" class="particles" transform="translate(80, 160)"></g>
+                <g id="particles-right" class="particles" transform="translate(120, 120)"></g>
+                <g id="particles-center" class="particles" transform="translate(100, 80)"></g>
+            </g>
+
+            <g id="petals-group">
+                <!-- Six petals arranged in a flower pattern with improved curves -->
+                <path id="petal-1" fill="url(#petal-gradient)" d="M100,80 Q85,50 100,25 Q115,50 100,80" class="petal"/>
+                <path id="petal-2" fill="url(#petal-gradient)" d="M100,80 Q130,65 155,80 Q130,95 100,80" class="petal"/>
+                <path id="petal-3" fill="url(#petal-gradient)" d="M100,80 Q130,110 155,135 Q115,110 100,80" class="petal"/>
+                <path id="petal-4" fill="url(#petal-gradient)" d="M100,80 Q85,110 100,135 Q85,110 100,80" class="petal"/>
+                <path id="petal-5" fill="url(#petal-gradient)" d="M100,80 Q70,110 45,135 Q70,95 100,80" class="petal"/>
+                <path id="petal-6" fill="url(#petal-gradient)" d="M100,80 Q70,65 45,80 Q70,95 100,80" class="petal"/>
+            </g>
+
+            <!-- Energy ripples centered on the center node -->
+            <circle id="energy-ripple" fill="none" stroke="#2A4B5C" stroke-width="2" cx="100" cy="80" r="0" opacity="0"/>
+            <circle id="energy-ripple-2" fill="none" stroke="#88B0A4" stroke-width="1.5" cx="100" cy="80" r="0" opacity="0"/>
+            <circle id="energy-ripple-3" fill="none" stroke="#F3A463" stroke-width="1" cx="100" cy="80" r="0" opacity="0"/>
+
+            <g id="logo-text">
+                <text x="50%" y="230" text-anchor="middle" font-family="'Inter', -apple-system, BlinkMacSystemFont, sans-serif" font-size="24" font-weight="700" fill="#2A4B5C" letter-spacing="1">MACON</text>
+                <text x="50%" y="248" text-anchor="middle" font-family="'Inter', -apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="400" fill="#88B0A4" letter-spacing="2">AI SOLUTIONS</text>
+            </g>
+        </svg>
+        
+        <!-- Skip animation button for accessibility -->
+        <button id="skip-animation" class="skip-button" aria-label="Skip loading animation">
+            Skip
+        </button>
+    </div>
+    
+    <!-- Hidden text for screen readers -->
+    <div class="sr-only" role="status" aria-live="polite">
+        <span id="loading-status">Loading Macon AI</span>
+    </div>
+    
+    <script src="animation.js"></script>
+</body>
+</html>

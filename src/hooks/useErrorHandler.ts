@@ -25,9 +25,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
       const {
         showToast = true,
         fallbackMessage = 'An error occurred',
-        onError,
-        retryable = false,
-        onRetry
+        onError
       } = options
 
       // Convert unknown error to Error object

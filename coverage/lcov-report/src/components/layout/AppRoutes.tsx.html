@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -120,18 +120,30 @@
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -143,6 +155,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -180,13 +202,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import React, { Profiler } from 'react'</span>
 <span class="cstat-no" title="statement not covered" >import { Routes, Route } from 'react-router-dom'</span>
 <span class="cstat-no" title="statement not covered" >import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'</span>
-import { SplashScreen } from '@/pages/SplashScreen'
 <span class="cstat-no" title="statement not covered" >import { Dashboard } from '@/pages/Dashboard'</span>
 <span class="cstat-no" title="statement not covered" >import { HomePage } from '@/pages/HomePage'</span>
 <span class="cstat-no" title="statement not covered" >import { KitchenDisplay } from '@/pages/KitchenDisplay'</span>
 <span class="cstat-no" title="statement not covered" >import { KioskDemo } from '@/pages/KioskDemo'</span>
 <span class="cstat-no" title="statement not covered" >import { OrderHistory } from '@/pages/OrderHistory'</span>
 <span class="cstat-no" title="statement not covered" >import { PerformanceDashboard } from '@/pages/PerformanceDashboard'</span>
+<span class="cstat-no" title="statement not covered" >import { ServerView } from '@/pages/ServerView'</span>
+<span class="cstat-no" title="statement not covered" >import { AdminDashboard } from '@/pages/AdminDashboard'</span>
 <span class="cstat-no" title="statement not covered" >import { performanceMonitor } from '@/services/performance/performanceMonitor'</span>
 &nbsp;
 // Profiler callback for performance tracking
@@ -204,7 +227,7 @@ const onRenderCallback = <span class="cstat-no" title="statement not covered" ><
       &lt;ErrorBoundary level="section"&gt;
         &lt;Profiler id="Routes" onRender={onRenderCallback}&gt;
           &lt;Routes&gt;
-            &lt;Route path="/" element={&lt;Dashboard /&gt;} /&gt;
+            &lt;Route path="/" element={&lt;HomePage /&gt;} /&gt;
             &lt;Route path="/dashboard" element={&lt;Dashboard /&gt;} /&gt;
             &lt;Route path="/home" element={&lt;HomePage /&gt;} /&gt;
             &lt;Route path="/kitchen" element={
@@ -229,6 +252,16 @@ const onRenderCallback = <span class="cstat-no" title="statement not covered" ><
                 &lt;PerformanceDashboard /&gt;
               &lt;/ErrorBoundary&gt;
             } /&gt;
+            &lt;Route path="/server" element={
+              &lt;ErrorBoundary level="section"&gt;
+                &lt;ServerView /&gt;
+              &lt;/ErrorBoundary&gt;
+            } /&gt;
+            &lt;Route path="/admin" element={
+              &lt;ErrorBoundary level="section"&gt;
+                &lt;AdminDashboard /&gt;
+              &lt;/ErrorBoundary&gt;
+            } /&gt;
           &lt;/Routes&gt;
         &lt;/Profiler&gt;
       &lt;/ErrorBoundary&gt;
@@ -241,7 +274,7 @@ const onRenderCallback = <span class="cstat-no" title="statement not covered" ><
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-07T18:14:02.793Z
+                at 2025-07-10T03:44:19.031Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

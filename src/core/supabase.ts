@@ -49,14 +49,14 @@ export const subscribeToOrders = (
   const subscription = supabase
     .channel(`orders:${restaurantId}`)
     .on(
-      'postgres_changes' as any,
+      'postgres_changes',
       {
         event: '*',
         schema: 'public',
         table: 'orders',
         filter: `restaurant_id=eq.${restaurantId}`,
       },
-      callback
+      callback as () => void
     )
     .subscribe()
 
@@ -76,14 +76,14 @@ export const subscribeToTableUpdates = (
   const subscription = supabase
     .channel(`tables:${restaurantId}`)
     .on(
-      'postgres_changes' as any,
+      'postgres_changes',
       {
         event: '*',
         schema: 'public',
         table: 'tables',
         filter: `restaurant_id=eq.${restaurantId}`,
       },
-      callback
+      callback as () => void
     )
     .subscribe()
 

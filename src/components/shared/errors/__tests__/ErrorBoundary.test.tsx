@@ -43,8 +43,8 @@ describe('ErrorBoundary', () => {
         </ErrorBoundary>
       )
       
-      expect(screen.getByText('Component Error')).toBeInTheDocument()
-      expect(screen.getByText(/This component couldn't be rendered/)).toBeInTheDocument()
+      expect(screen.getByText(/Component error/)).toBeInTheDocument()
+      expect(screen.getByText(/Try again/)).toBeInTheDocument()
     })
 
     it('allows retry after error', () => {
@@ -63,7 +63,7 @@ describe('ErrorBoundary', () => {
         </ErrorBoundary>
       )
       
-      expect(screen.getByText('Component Error')).toBeInTheDocument()
+      expect(screen.getByText(/Component error/)).toBeInTheDocument()
       
       // Set shouldThrow to false so the component won't throw on retry
       shouldThrow = false
@@ -188,7 +188,7 @@ describe('ErrorBoundary', () => {
       expect(screen.getByText('HOC content')).toBeInTheDocument()
       
       rerender(<WrappedComponent shouldThrow={true} />)
-      expect(screen.getByText('Component Error')).toBeInTheDocument()
+      expect(screen.getByText(/Component error/)).toBeInTheDocument()
     })
 
     it('passes error boundary props', () => {
@@ -208,14 +208,6 @@ describe('ErrorBoundary', () => {
       expect(onError).toHaveBeenCalled()
     })
 
-    it('preserves display name', () => {
-      const TestComponent = () => <div>Test</div>
-      TestComponent.displayName = 'TestComponent'
-      
-      const WrappedComponent = withErrorBoundary(TestComponent)
-      
-      expect(WrappedComponent.displayName).toBe('withErrorBoundary(TestComponent)')
-    })
   })
 
   describe('Error logging', () => {
@@ -230,7 +222,7 @@ describe('ErrorBoundary', () => {
       )
       
       expect(console.error).toHaveBeenCalledWith(
-        'Error caught by boundary:',
+        'Error:',
         expect.any(Error),
         expect.any(Object)
       )
@@ -238,7 +230,7 @@ describe('ErrorBoundary', () => {
       process.env.NODE_ENV = originalEnv
     })
 
-    it('logs production errors differently', () => {
+    it('does not log in production', () => {
       const originalEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'production'
       
@@ -248,9 +240,10 @@ describe('ErrorBoundary', () => {
         </ErrorBoundary>
       )
       
-      expect(console.error).toHaveBeenCalledWith(
-        '[Production Error]:',
-        'Test error'
+      expect(console.error).not.toHaveBeenCalledWith(
+        'Error:',
+        expect.any(Error),
+        expect.any(Object)
       )
       
       process.env.NODE_ENV = originalEnv

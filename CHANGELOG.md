@@ -8,14 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Comprehensive modular architecture with feature-based modules
+- **Project Janus**: Complete API integration layer for Express.js backend
+  - HTTP client with automatic Supabase JWT authentication
+  - Multi-tenant support via X-Restaurant-ID header
+  - Automatic case transformation (camelCase ↔ snake_case)
+  - Service adapter pattern for gradual migration from mock to real API
+- **WebSocket Service**: Real-time order updates infrastructure
+  - Automatic reconnection with exponential backoff
+  - Message queueing for offline resilience
+  - Event-based architecture for order state changes
+- **Floor Plan Service**: Save/load functionality with localStorage fallback
+- Comprehensive modular architecture with 7 feature-based modules
+  - analytics: Metrics and performance tracking
+  - filters: Reusable filtering functionality
+  - floor-plan: Interactive floor plan management
+  - kitchen: Kitchen Display System
+  - orders: Order management with components, hooks, and types
+  - sound: Audio management for notifications
+  - voice: Voice capture and ordering
 - New `useAsyncState` hook for standardized async state management
 - Keyboard navigation system with 5 specialized hooks
 - Domain-specific service layer with dependency injection
-- Orders module with components, hooks, and types
-- Sound module for audio management
-- Filters module for reusable filtering functionality
-- Comprehensive test suite with 41 new tests
+- Comprehensive test suite (229 tests passing)
 - Code analysis script for metrics tracking
 - Extensive documentation (6 new docs)
 
@@ -28,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced accessibility with ARIA labels and keyboard navigation
 
 ### Fixed
+- Kitchen Display performance issues with memoization and stable callbacks
+- WebSocket import error in tests
 - Performance issues with unnecessary re-renders
 - Complexity issues in keyboard navigation (reduced from 55 to <15)
 - Duplicate code patterns across components

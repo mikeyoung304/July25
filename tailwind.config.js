@@ -5,7 +5,8 @@ export default {
     extend: {
       colors: {
         // MACON Brand Colors - Exact match from logo
-        'macon-background': '#FCFCFA', // True off-white matching logo exactly
+        'macon-background': '#FBFBFA', // Updated off-white background
+        'macon-logo-blue': '#2A4B5C', // Dark blue from transparent logo
         'macon-navy': {
           DEFAULT: '#0A253D', // Exact navy blue from logo
           dark: '#061529',
@@ -15,7 +16,7 @@ export default {
           200: '#a3b7d7',
           300: '#7593c3',
           400: '#476faf',
-          500: '#0A2540',
+          500: '#0A253D',
           600: '#081e33',
           700: '#061729',
           800: '#04101f',

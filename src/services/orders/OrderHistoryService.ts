@@ -30,6 +30,7 @@ export class OrderHistoryService extends BaseService implements IOrderHistorySer
       
       this.historicalOrders.push({
         id: `hist-${i}`,
+        restaurant_id: 'rest-1',
         orderNumber: String(1000 - i).padStart(4, '0'),
         tableNumber: String(Math.floor(Math.random() * 20) + 1),
         items: mockOrderGenerator.generateOrder().items,

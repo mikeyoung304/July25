@@ -20,20 +20,33 @@ export const parseVoiceOrder = (transcription: string): VoiceOrder | null => {
   const lowerText = transcription.toLowerCase()
   const items: VoiceOrderItem[] = []
   
-  // Menu item patterns
+  // Menu item patterns - improved to handle various phrasings
   const menuItems = [
-    { pattern: /(\d+)?\s*(?:x\s*)?burger/gi, name: 'Burger' },
-    { pattern: /(\d+)?\s*(?:x\s*)?pizza/gi, name: 'Pizza' },
-    { pattern: /(\d+)?\s*(?:x\s*)?salad/gi, name: 'Salad' },
-    { pattern: /(\d+)?\s*(?:x\s*)?fries/gi, name: 'Fries' },
-    { pattern: /(\d+)?\s*(?:x\s*)?coke|cola/gi, name: 'Coca Cola' },
+    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?burgers?/gi, name: 'Burger' },
+    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?pizzas?/gi, name: 'Pizza' },
+    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?salads?/gi, name: 'Salad' },
+    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?fries/gi, name: 'Fries' },
+    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:coke|cola)s?/gi, name: 'Coca Cola' },
   ]
   
   // Extract items with quantities
   menuItems.forEach(({ pattern, name }) => {
     const matches = Array.from(transcription.matchAll(pattern))
     matches.forEach(match => {
-      const quantity = match[1] ? parseInt(match[1]) : 1
+      let quantity = 1
+      if (match[1]) {
+        // Handle numeric quantities
+        const num = parseInt(match[1])
+        if (!isNaN(num)) {
+          quantity = num
+        } else {
+          // Handle word quantities
+          const wordToNum: Record<string, number> = {
+            'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5
+          }
+          quantity = wordToNum[match[1].toLowerCase()] || 1
+        }
+      }
       const modifiers = extractModifiers(transcription, name.toLowerCase())
       items.push({ name, quantity, modifiers })
     })

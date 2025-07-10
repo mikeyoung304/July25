@@ -2,19 +2,19 @@ import { type Variants } from 'framer-motion'
 
 // Spring animation configs for consistent motion
 export const spring = {
-  type: 'spring',
+  type: 'spring' as const,
   stiffness: 300,
   damping: 30,
 }
 
 export const smoothSpring = {
-  type: 'spring',
+  type: 'spring' as const,
   stiffness: 200,
   damping: 25,
 }
 
 export const bounceSpring = {
-  type: 'spring',
+  type: 'spring' as const,
   stiffness: 400,
   damping: 15,
 }

@@ -52,6 +52,7 @@ describe('stationRouting', () => {
     it('assigns items to appropriate stations', () => {
       const mockOrder: Order = {
         id: 'order-1',
+        restaurant_id: 'test-restaurant',
         orderNumber: '001',
         tableNumber: '5',
         items: [
@@ -86,6 +87,7 @@ describe('stationRouting', () => {
       
       const order1: Order = {
         id: 'order-1',
+        restaurant_id: 'test-restaurant',
         orderNumber: '001',
         tableNumber: '1',
         items: [{ id: 'item-1', name: 'Burger', quantity: 1 }],
@@ -97,6 +99,7 @@ describe('stationRouting', () => {
       
       const order2: Order = {
         id: 'order-2',
+        restaurant_id: 'test-restaurant',
         orderNumber: '002',
         tableNumber: '2',
         items: [{ id: 'item-2', name: 'Steak', quantity: 1 }],
@@ -129,6 +132,7 @@ describe('stationRouting', () => {
     it('updates assignment status correctly', () => {
       const order: Order = {
         id: 'order-test',
+        restaurant_id: 'test-restaurant',
         orderNumber: '999',
         tableNumber: '1',
         items: [{ id: 'item-test', name: 'Test Burger', quantity: 1 }],
@@ -155,6 +159,7 @@ describe('stationRouting', () => {
     it('removes order from station when completed', () => {
       const order: Order = {
         id: 'order-complete',
+        restaurant_id: 'test-restaurant',
         orderNumber: '888',
         tableNumber: '1',
         items: [{ id: 'item-complete', name: 'Complete Burger', quantity: 1 }],

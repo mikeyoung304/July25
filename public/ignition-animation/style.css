@@ -1,0 +1,448 @@
+/* --- CSS Variables for Easy Customization --- */
+:root {
+    --primary-dark: #2A4B5C;
+    --primary-sage: #88B0A4;
+    --primary-warm: #F3A463;
+    --bg-color: #FBFBFA;
+    --text-primary: #2A4B5C;
+    --text-secondary: #88B0A4;
+    
+    /* Animation timing */
+    --stem-duration: 0.8s;
+    --node-duration: 0.6s;
+    --ripple-duration: 0.8s;
+    --petal-duration: 0.6s;
+    --text-duration: 0.6s;
+    
+    /* Easing functions */
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+/* --- Accessibility --- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* --- Page Setup --- */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+#logo-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transform: translateZ(0); /* Create new stacking context */
+}
+
+/* Skip button */
+.skip-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    background: rgba(42, 75, 92, 0.1);
+    border: 1px solid rgba(42, 75, 92, 0.2);
+    border-radius: 20px;
+    color: var(--primary-dark);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    opacity: 0;
+    animation: fade-in 0.5s var(--ease-smooth) 0.5s forwards;
+    transition: all 0.2s var(--ease-smooth);
+}
+
+.skip-button:hover {
+    background: rgba(42, 75, 92, 0.2);
+    transform: translateY(-1px);
+}
+
+.skip-button:active {
+    transform: translateY(0);
+}
+
+/* --- Initial States with Performance Optimizations --- */
+#macon-ai-logo {
+    opacity: 1;
+    will-change: filter;
+}
+
+/* Prepare the stem for its tracing animation */
+#stem {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    will-change: stroke-dashoffset;
+    filter: drop-shadow(0 0 10px rgba(136, 176, 164, 0));
+}
+
+/* Hide all animated elements initially */
+.node,
+#petals-group path,
+#logo-text,
+#energy-ripple,
+#energy-ripple-2,
+#energy-ripple-3,
+.particles {
+    opacity: 0;
+    will-change: opacity, transform;
+}
+
+/* Set transform origins for optimal animation */
+.petal {
+    transform-origin: 100px 80px;
+}
+
+.node {
+    transform-origin: center;
+}
+
+/* --- Keyframe Definitions --- */
+
+/* Fade in animation */
+@keyframes fade-in {
+    to { opacity: 1; }
+}
+
+/* Phase 1: Enhanced Stem Trace with Glow */
+@keyframes trace-stem {
+    0% { 
+        stroke-dashoffset: 200;
+        filter: drop-shadow(0 0 10px rgba(136, 176, 164, 0));
+    }
+    50% {
+        filter: drop-shadow(0 0 20px rgba(136, 176, 164, 0.6));
+    }
+    100% { 
+        stroke-dashoffset: 0;
+        filter: drop-shadow(0 0 10px rgba(136, 176, 164, 0.3));
+    }
+}
+
+/* Phase 2: Premium Node Ignition */
+@keyframes ignite-node {
+    0% { 
+        opacity: 0;
+        transform: scale(0) rotate(-180deg);
+        filter: brightness(1) blur(4px);
+    }
+    40% {
+        opacity: 1;
+        transform: scale(1.3) rotate(-90deg);
+        filter: brightness(2) blur(0) drop-shadow(0 0 30px currentColor);
+    }
+    60% {
+        transform: scale(0.9) rotate(-45deg);
+        filter: brightness(1.5) drop-shadow(0 0 20px currentColor);
+    }
+    100% { 
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+        filter: brightness(1) drop-shadow(0 0 8px rgba(243, 164, 99, 0.6));
+    }
+}
+
+/* Particle explosion effect */
+@keyframes particle-explosion {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--x), var(--y)) scale(0);
+    }
+}
+
+/* Phase 3: Multi-layer Energy Ripple */
+@keyframes ripple-effect {
+    0% { 
+        opacity: 0.8;
+        r: 0;
+        stroke-width: 4;
+    }
+    50% {
+        opacity: 0.6;
+        stroke-width: 2;
+    }
+    100% { 
+        opacity: 0;
+        r: 80;
+        stroke-width: 0.5;
+    }
+}
+
+@keyframes ripple-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Phase 3: Premium Petal Formation */
+@keyframes form-petal {
+    0% { 
+        opacity: 0;
+        transform: scale(0) rotate(-60deg) translateY(10px);
+        filter: brightness(0.5) blur(2px);
+    }
+    30% {
+        opacity: 0.8;
+        transform: scale(1.1) rotate(-20deg) translateY(5px);
+        filter: brightness(1.2) blur(0);
+    }
+    60% {
+        transform: scale(0.95) rotate(5deg) translateY(-2px);
+    }
+    100% { 
+        opacity: 1;
+        transform: scale(1) rotate(0deg) translateY(0);
+        filter: brightness(1) blur(0);
+    }
+}
+
+/* Petal breathing effect */
+@keyframes petal-breathe {
+    0%, 100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        transform: scale(1.02);
+        filter: brightness(1.1);
+    }
+}
+
+/* Phase 4: Premium Text Reveal */
+@keyframes reveal-text {
+    0% { 
+        opacity: 0;
+        transform: translateY(20px) scaleY(0.8);
+        filter: blur(10px);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateY(5px) scaleY(0.95);
+        filter: blur(2px);
+    }
+    100% { 
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+        filter: blur(0);
+    }
+}
+
+/* Subtle breathing glow for completed logo */
+@keyframes logo-breathe {
+    0%, 100% {
+        filter: drop-shadow(0 0 20px rgba(42, 75, 92, 0.1));
+        transform: scale(1);
+    }
+    50% {
+        filter: drop-shadow(0 0 30px rgba(42, 75, 92, 0.2));
+        transform: scale(1.01);
+    }
+}
+
+/* --- Animation Orchestration --- */
+
+/* Stem animation */
+#stem {
+    animation: trace-stem var(--stem-duration) var(--ease-expo) forwards;
+}
+
+/* Node animations with stagger */
+#node-left {
+    animation: ignite-node var(--node-duration) var(--ease-bounce) forwards;
+    animation-delay: calc(var(--stem-duration) * 0.8);
+}
+
+#node-right {
+    animation: ignite-node var(--node-duration) var(--ease-bounce) forwards;
+    animation-delay: calc(var(--stem-duration) * 0.8 + 0.2s);
+}
+
+#node-center {
+    animation: ignite-node var(--node-duration) var(--ease-bounce) forwards;
+    animation-delay: calc(var(--stem-duration) * 0.8 + 0.4s);
+}
+
+/* Energy ripples with rotation */
+#energy-ripple {
+    animation: 
+        ripple-effect var(--ripple-duration) var(--ease-smooth) forwards,
+        ripple-rotate var(--ripple-duration) linear;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + 0.1s);
+    transform-origin: center;
+}
+
+#energy-ripple-2 {
+    animation: 
+        ripple-effect calc(var(--ripple-duration) * 1.2) var(--ease-smooth) forwards,
+        ripple-rotate calc(var(--ripple-duration) * 1.2) linear reverse;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + 0.2s);
+    transform-origin: center;
+}
+
+#energy-ripple-3 {
+    animation: ripple-effect calc(var(--ripple-duration) * 1.4) var(--ease-smooth) forwards;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + 0.3s);
+}
+
+/* Petal animations with elegant stagger */
+#petal-1 { 
+    animation: 
+        form-petal var(--petal-duration) var(--ease-bounce) forwards,
+        petal-breathe 4s ease-in-out infinite;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + 0.4s), 3s;
+}
+
+#petal-2 { 
+    animation: 
+        form-petal var(--petal-duration) var(--ease-bounce) forwards,
+        petal-breathe 4s ease-in-out 0.5s infinite;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + 0.5s), 3s;
+}
+
+#petal-3 { 
+    animation: 
+        form-petal var(--petal-duration) var(--ease-bounce) forwards,
+        petal-breathe 4s ease-in-out 1s infinite;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + 0.6s), 3s;
+}
+
+#petal-4 { 
+    animation: 
+        form-petal var(--petal-duration) var(--ease-bounce) forwards,
+        petal-breathe 4s ease-in-out 1.5s infinite;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + 0.7s), 3s;
+}
+
+#petal-5 { 
+    animation: 
+        form-petal var(--petal-duration) var(--ease-bounce) forwards,
+        petal-breathe 4s ease-in-out 2s infinite;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + 0.8s), 3s;
+}
+
+#petal-6 { 
+    animation: 
+        form-petal var(--petal-duration) var(--ease-bounce) forwards,
+        petal-breathe 4s ease-in-out 2.5s infinite;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + 0.9s), 3s;
+}
+
+/* Text reveal */
+#logo-text {
+    animation: reveal-text var(--text-duration) var(--ease-smooth) forwards;
+    animation-delay: calc(var(--stem-duration) + var(--node-duration) + var(--petal-duration) + 0.3s);
+}
+
+/* Final logo breathing effect */
+#macon-ai-logo {
+    animation: logo-breathe 6s ease-in-out infinite;
+    animation-delay: 3s;
+}
+
+/* --- Interactive Enhancements --- */
+
+/* Petal hover effects after animation completes */
+.petal {
+    transition: all 0.3s var(--ease-smooth);
+    cursor: pointer;
+}
+
+.petal:hover {
+    transform: scale(1.08) translateY(-2px);
+    filter: brightness(1.2) drop-shadow(0 4px 8px rgba(42, 75, 92, 0.2));
+}
+
+/* Node pulse on hover */
+.node {
+    transition: all 0.3s var(--ease-smooth);
+    cursor: pointer;
+}
+
+.node:hover {
+    filter: brightness(1.3) drop-shadow(0 0 20px currentColor);
+}
+
+/* --- Browser Compatibility --- */
+
+/* Webkit specific fixes */
+@-webkit-keyframes trace-stem {
+    0% { 
+        stroke-dashoffset: 200;
+        filter: drop-shadow(0 0 10px rgba(136, 176, 164, 0));
+    }
+    50% {
+        filter: drop-shadow(0 0 20px rgba(136, 176, 164, 0.6));
+    }
+    100% { 
+        stroke-dashoffset: 0;
+        filter: drop-shadow(0 0 10px rgba(136, 176, 164, 0.3));
+    }
+}
+
+/* Firefox specific optimizations */
+@-moz-document url-prefix() {
+    .petal, .node {
+        transform-style: preserve-3d;
+    }
+}
+
+/* --- Performance Optimizations --- */
+
+/* GPU acceleration for smooth animations */
+#stem, .node, .petal, #energy-ripple, #logo-text {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Reduce paint areas */
+#logo-loader {
+    contain: layout style paint;
+}
+
+/* Ensure smooth rendering */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* High-res display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    svg {
+        transform: translateZ(0) scale(1);
+    }
+}

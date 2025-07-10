@@ -14,12 +14,40 @@ const subscriptions = new Map<string, OrderEventCallback>()
 // Store orders for real-time updates
 const orderStore = new Map<string, Order>()
 
-// Event emitter for broadcasting changes
+// Event emitter for broadcasting changes with debouncing
 class OrderEventEmitter {
+  private eventQueue: OrderEvent[] = []
+  private flushTimeout: NodeJS.Timeout | null = null
+  
   emit(event: OrderEvent) {
+    this.eventQueue.push(event)
+    this.scheduleFlush()
+  }
+  
+  private scheduleFlush() {
+    if (this.flushTimeout) return
+    
+    this.flushTimeout = setTimeout(() => {
+      this.flush()
+    }, 16) // ~60fps, batch events within a frame
+  }
+  
+  private flush() {
+    if (this.eventQueue.length === 0) {
+      this.flushTimeout = null
+      return
+    }
+    
+    const events = [...this.eventQueue]
+    this.eventQueue = []
+    this.flushTimeout = null
+    
+    // Batch emit all events
     subscriptions.forEach(callback => {
-      // Use setTimeout to simulate async nature of real events
-      setTimeout(() => callback(event), 0)
+      // Process all events in a microtask
+      queueMicrotask(() => {
+        events.forEach(event => callback(event))
+      })
     })
   }
 }
@@ -65,19 +93,22 @@ export const orderSubscription = {
 // Mock data generator for realistic order simulation
 export const mockOrderGenerator = {
   menuItems: [
-    { name: 'Grilled Burger', category: 'grill', basePrice: 12.99, prepTime: 12 },
-    { name: 'Cheese Pizza', category: 'pizza', basePrice: 18.99, prepTime: 15 },
-    { name: 'Caesar Salad', category: 'cold', basePrice: 9.99, prepTime: 5 },
-    { name: 'Pasta Carbonara', category: 'pasta', basePrice: 16.99, prepTime: 10 },
-    { name: 'French Fries', category: 'fryer', basePrice: 4.99, prepTime: 6 },
-    { name: 'Chicken Wings', category: 'fryer', basePrice: 11.99, prepTime: 8 },
-    { name: 'Fish Tacos', category: 'grill', basePrice: 13.99, prepTime: 10 },
-    { name: 'Veggie Wrap', category: 'cold', basePrice: 8.99, prepTime: 4 }
+    { name: 'Georgia Soul Bowl', category: 'grill', basePrice: 14.99, prepTime: 12 },
+    { name: 'Teriyaki Chicken Bowl', category: 'grill', basePrice: 13.99, prepTime: 10 },
+    { name: 'Jerk Chicken Bowl', category: 'grill', basePrice: 13.99, prepTime: 10 },
+    { name: 'Mama\'s Chicken Salad', category: 'cold', basePrice: 11.99, prepTime: 5 },
+    { name: 'Pear & Feta Salad', category: 'cold', basePrice: 10.99, prepTime: 4 },
+    { name: 'Monte Cristo Sandwich', category: 'grill', basePrice: 11.00, prepTime: 8 },
+    { name: 'Boiled Peanuts', category: 'cold', basePrice: 4.99, prepTime: 2 },
+    { name: 'Deviled Eggs', category: 'cold', basePrice: 6.99, prepTime: 3 },
+    { name: 'Collard Greens', category: 'stovetop', basePrice: 3.99, prepTime: 5 },
+    { name: 'Sweet Potato Fries', category: 'fryer', basePrice: 4.99, prepTime: 6 }
   ],
   
   modifiers: [
-    'Extra cheese', 'No onions', 'Gluten free', 'Extra spicy', 
-    'Well done', 'Medium rare', 'No sauce', 'Extra sauce'
+    'Extra collards', 'No pico', 'Black rice', 'Yellow rice', 
+    'Extra pineapple salsa', 'No grapes', 'Extra pecans', 'Blue cheese instead',
+    'Side salad', 'Extra broccoli', 'No cranberries'
   ],
   
   generateOrder(): Order {
@@ -105,31 +136,57 @@ export const mockOrderGenerator = {
       return sum + (menuItem?.basePrice || 10) * item.quantity
     }, 0)
     
+    const isDriveThru = Math.random() > 0.5
+    const tableNumber = isDriveThru 
+      ? `DT-${Math.floor(Math.random() * 5) + 1}` 
+      : String(Math.floor(Math.random() * 20) + 1)
+    
     return {
       id: `order-${Date.now()}`,
       restaurant_id: 'rest-1',
       orderNumber: String(Math.floor(Math.random() * 999) + 1).padStart(3, '0'),
-      tableNumber: Math.random() > 0.7 ? 'K1' : String(Math.floor(Math.random() * 20) + 1),
+      tableNumber,
       items,
       status: 'new',
       orderTime: new Date(),
       totalAmount,
-      paymentStatus: Math.random() > 0.3 ? 'paid' : 'pending'
+      paymentStatus: isDriveThru ? 'paid' : (Math.random() > 0.3 ? 'paid' : 'pending'),
+      orderType: isDriveThru ? 'drive-thru' : 'dine-in'
     }
   }
 }
 
-// Auto status progression for demo
+// Initialize orderStore with existing orders
+export const initializeOrderStore = (orders: Order[]) => {
+  orders.forEach(order => {
+    orderStore.set(order.id, order)
+  })
+}
+
+// Auto status progression for demo with batch updates
 export const startOrderProgression = () => {
   const progressionInterval = setInterval(() => {
+    
+    // Collect all status changes before emitting
+    const statusChanges: Array<{orderId: string, newStatus: Order['status'], oldStatus: Order['status']}> = []
+    
     orderStore.forEach((order, orderId) => {
-      if (order.status === 'new' && Date.now() - order.orderTime.getTime() > 30000) {
-        orderSubscription.emitOrderStatusChanged(orderId, 'preparing', 'new')
-      } else if (order.status === 'preparing' && Date.now() - order.orderTime.getTime() > 120000) {
-        orderSubscription.emitOrderStatusChanged(orderId, 'ready', 'preparing')
+      const elapsedMinutes = (Date.now() - new Date(order.orderTime).getTime()) / 60000
+      
+      if (order.status === 'new' && elapsedMinutes > 2) {
+        statusChanges.push({ orderId, newStatus: 'preparing', oldStatus: 'new' })
+      } else if (order.status === 'preparing' && elapsedMinutes > 5) {
+        statusChanges.push({ orderId, newStatus: 'ready', oldStatus: 'preparing' })
+      } else if (order.status === 'ready' && elapsedMinutes > 10) {
+        statusChanges.push({ orderId, newStatus: 'completed', oldStatus: 'ready' })
       }
     })
-  }, 10000) // Check every 10 seconds
+    
+    // Emit all changes together
+    statusChanges.forEach(({ orderId, newStatus, oldStatus }) => {
+      orderSubscription.emitOrderStatusChanged(orderId, newStatus, oldStatus)
+    })
+  }, 5000) // Check every 5 seconds
   
   return () => clearInterval(progressionInterval)
 }

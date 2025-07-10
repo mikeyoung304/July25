@@ -42,23 +42,37 @@ export const useFocusManagement = ({
     }
   }, [getItems, loop, onFocusChange])
 
+  const gridColumnsRef = useRef<number>(1)
+  const lastGridCheckRef = useRef<number>(0)
+  
   const getGridColumns = useCallback((): number => {
     if (!containerRef.current || orientation !== 'grid') return 1
+    
+    // Cache grid columns calculation to avoid repeated layout reflows
+    const now = Date.now()
+    if (now - lastGridCheckRef.current < 100) {
+      return gridColumnsRef.current
+    }
     
     const items = getItems()
     if (items.length < 2) return 1
 
-    // Calculate columns based on item positions
-    const firstItem = items[0].getBoundingClientRect()
-    let columns = 1
+    // Use requestAnimationFrame to batch layout reads
+    requestAnimationFrame(() => {
+      const firstItem = items[0].getBoundingClientRect()
+      let columns = 1
 
-    for (let i = 1; i < items.length; i++) {
-      const itemRect = items[i].getBoundingClientRect()
-      if (itemRect.top > firstItem.top) break
-      columns++
-    }
+      for (let i = 1; i < items.length; i++) {
+        const itemRect = items[i].getBoundingClientRect()
+        if (itemRect.top > firstItem.top) break
+        columns++
+      }
+      
+      gridColumnsRef.current = columns
+      lastGridCheckRef.current = now
+    })
 
-    return columns
+    return gridColumnsRef.current
   }, [containerRef, orientation, getItems])
 
   const handleKeyNavigation = useCallback((event: KeyboardEvent) => {

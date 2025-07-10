@@ -1,8 +1,8 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useOrderData } from '../useOrderData'
 import { orderService } from '@/services'
-import { Order, OrderFilters } from '@/modules/orders/types'
-import { defaultFilters, OrderStatus } from '@/types/filters'
+import { Order } from '@/modules/orders/types'
+import { defaultFilters, OrderStatus, OrderFilters } from '@/types/filters'
 
 // Mock the orderService
 jest.mock('@/services', () => ({

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.46% </span>
+                <span class="strong">83.6% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>46/52</span>
+                <span class='fraction'>51/61</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">59.25% </span>
+                <span class="strong">58.97% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>16/27</span>
+                <span class='fraction'>23/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">90.9% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>10/12</span>
+                <span class='fraction'>10/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.5% </span>
+                <span class="strong">82.45% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>42/48</span>
+                <span class='fraction'>47/57</span>
             </div>
         
             
@@ -176,8 +176,21 @@
 <a name='L111'></a><a href='#L111'>111</a>
 <a name='L112'></a><a href='#L112'>112</a>
 <a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -205,6 +218,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -238,8 +254,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -291,6 +315,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useState, useCallback, useRef, useEffect } from 'react'
 import { MicrophonePermissionStatus } from '../components/MicrophonePermission'
+import { transcriptionService } from '../../../services/transcription/TranscriptionService'
 &nbsp;
 interface UseAudioCaptureOptions {
   onTranscription?: (transcription: string, isInterim: boolean) =&gt; void
@@ -316,11 +341,14 @@ export const useAudioCapture = ({
   const mediaStreamRef = useRef&lt;MediaStream | null&gt;(null)
   const mediaRecorderRef = useRef&lt;MediaRecorder | null&gt;(null)
 &nbsp;
-  // Check if browser supports getUserMedia
+  // Check if browser supports getUserMedia and transcription is available
   useEffect(() =&gt; {
     <span class="missing-if-branch" title="if path not taken" >I</span>if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
 <span class="cstat-no" title="statement not covered" >      setPermissionStatus('not-found')</span>
 <span class="cstat-no" title="statement not covered" >      setError(new Error('getUserMedia is not supported in this browser'))</span>
+    } else <span class="missing-if-branch" title="if path not taken" >I</span>if (!transcriptionService.isAvailable()) {
+<span class="cstat-no" title="statement not covered" >      setError(new Error('OpenAI API key not configured. Please set VITE_OPENAI_API_KEY in your .env file.'))</span>
+<span class="cstat-no" title="statement not covered" >      setPermissionStatus('granted') /</span>/ Still allow recording, but transcription will fail
     } else {
       setPermissionStatus('granted') // Default to granted, will check on first use
     }
@@ -350,11 +378,19 @@ export const useAudioCapture = ({
       }
       
       mediaRecorder.onstop = async () =&gt; {
-        // Here we would normally send to speech-to-text service
-        // For now, simulate with mock transcription
-        setTimeout(<span class="fstat-no" title="function not covered" >() =</span>&gt; {
-<span class="cstat-no" title="statement not covered" >          onTranscription?.('Mock transcription result', false)</span>
-        }, 1000)
+        // Create blob from collected audio chunks
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+        
+        // Send to OpenAI for transcription
+        const result = await transcriptionService.transcribeAudio(audioBlob)
+        
+        if (result.success &amp;&amp; result.transcript) {
+          onTranscription<span class="branch-0 cbranch-no" title="branch not covered" >?.(r</span>esult.transcript, false)
+        } else <span class="missing-if-branch" title="else path not taken" >E</span>{
+          const error = <span class="cstat-no" title="statement not covered" >new Error(result.error || 'Transcription failed')</span>
+<span class="cstat-no" title="statement not covered" >          setError(error)</span>
+<span class="cstat-no" title="statement not covered" >          onError?.(error)</span>
+        }
       }
       
       // Start recording
@@ -371,7 +407,7 @@ export const useAudioCapture = ({
       }
       
       setError(error)
-<span class="branch-1 cbranch-no" title="branch not covered" >      onError?.(error)</span>
+      onError<span class="branch-0 cbranch-no" title="branch not covered" >?.(e</span>rror)
     }
   }, [onTranscription, onError])
 &nbsp;
@@ -409,7 +445,7 @@ export const useAudioCapture = ({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-07T18:14:02.793Z
+                at 2025-07-10T03:44:19.031Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

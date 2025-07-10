@@ -1,21 +1,22 @@
-import React, { memo, useMemo } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { OrderHeader, OrderMetadata } from '@/components/shared/order/OrderHeaders'
 import { OrderItemsList } from '@/components/shared/order/OrderItemsList'
 import { OrderActions } from '@/components/shared/order/OrderActions'
 import { cn } from '@/utils'
-import type { OrderItem, OrderStatus } from '@/types/order'
+import type { OrderItem } from '@/types/common'
 
 // Re-export OrderItem for backward compatibility
-export type { OrderItem } from '@/types/order'
+export type { OrderItem } from '@/types/common'
 
 interface KDSOrderCardProps {
   orderId: string
   orderNumber: string
   tableNumber: string
   items: OrderItem[]
-  status: Extract<OrderStatus, 'new' | 'preparing' | 'ready'>
+  status: 'new' | 'preparing' | 'ready'
   orderTime: Date
+  orderType?: 'dine-in' | 'drive-thru' | 'takeout'
   onStatusChange?: (status: 'preparing' | 'ready') => void
   className?: string
 }
@@ -26,21 +27,37 @@ export const KDSOrderCard = memo<KDSOrderCardProps>(({
   items,
   status,
   orderTime,
+  orderType = 'dine-in',
   onStatusChange,
   className,
 }) => {
   // Calculate urgency levels for progressive visual feedback
-  const { urgencyLevel, elapsedMinutes } = useMemo(() => {
-    const elapsed = Math.floor((Date.now() - orderTime.getTime()) / 60000)
-    let level: 'normal' | 'warning' | 'urgent' | 'critical' = 'normal'
+  const [urgencyLevel, setUrgencyLevel] = useState<'normal' | 'warning' | 'urgent' | 'critical'>('normal')
+  
+  useEffect(() => {
+    if (status === 'ready') {
+      setUrgencyLevel('normal')
+      return
+    }
     
-    if (status !== 'ready') {
+    const calculateUrgency = () => {
+      const elapsed = Math.floor((Date.now() - orderTime.getTime()) / 60000)
+      let level: 'normal' | 'warning' | 'urgent' | 'critical' = 'normal'
+      
       if (elapsed >= 20) level = 'critical'
       else if (elapsed >= 15) level = 'urgent'
       else if (elapsed >= 10) level = 'warning'
+      
+      setUrgencyLevel(level)
     }
     
-    return { urgencyLevel: level, elapsedMinutes: elapsed }
+    // Calculate initial urgency
+    calculateUrgency()
+    
+    // Update urgency every 30 seconds instead of every render
+    const interval = setInterval(calculateUrgency, 30000)
+    
+    return () => clearInterval(interval)
   }, [orderTime, status])
 
   // Dynamic styling based on urgency
@@ -58,6 +75,9 @@ export const KDSOrderCard = memo<KDSOrderCardProps>(({
       'group cursor-pointer',
       urgencyStyles[urgencyLevel],
       status === 'ready' && 'shadow-glow-success border-green-400',
+      // Color coding for order types
+      orderType === 'drive-thru' && 'border-l-4 border-l-macon-orange',
+      orderType === 'dine-in' && 'border-l-4 border-l-macon-teal',
       className
     )}>
       {/* Urgency indicator gradient overlay */}
@@ -75,8 +95,20 @@ export const KDSOrderCard = memo<KDSOrderCardProps>(({
         'bg-gradient-to-br from-white/50 to-transparent',
         urgencyLevel === 'critical' && 'bg-gradient-to-br from-red-50/30 to-transparent'
       )}>
-        <OrderHeader orderNumber={orderNumber} status={status} />
-        <OrderMetadata tableNumber={tableNumber} orderTime={orderTime} />
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <OrderHeader orderNumber={orderNumber} status={status} />
+            <OrderMetadata tableNumber={tableNumber} orderTime={orderTime} />
+          </div>
+          {/* Order Type Badge */}
+          <div className={cn(
+            'px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide',
+            orderType === 'drive-thru' && 'bg-macon-orange/20 text-macon-orange-dark',
+            orderType === 'dine-in' && 'bg-macon-teal/20 text-macon-teal-dark'
+          )}>
+            {orderType === 'drive-thru' ? 'Drive-Thru' : 'Dine In'}
+          </div>
+        </div>
       </CardHeader>
       
       <CardContent className="space-y-3 px-6">

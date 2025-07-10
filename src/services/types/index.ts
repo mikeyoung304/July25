@@ -24,6 +24,7 @@ export interface Order {
   paymentStatus: 'pending' | 'paid'
   notes?: string
   preparationTime?: number // in minutes
+  orderType?: 'dine-in' | 'drive-thru' | 'takeout'
 }
 
 export interface Table {
@@ -53,6 +54,10 @@ export interface MenuItem {
 export interface OrderFilters {
   status?: string
   tableId?: string
+  search?: string
+  dateFrom?: Date
+  dateTo?: Date
+  type?: string
 }
 
 export interface PaginationParams {

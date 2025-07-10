@@ -25,6 +25,15 @@ body {
   }
 }
 
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 .animate-bounce-in {
   animation: bounce-in 0.5s ease-out;
 }

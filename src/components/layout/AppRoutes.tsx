@@ -1,13 +1,14 @@
 import React, { Profiler } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
-import { SplashScreen } from '@/pages/SplashScreen'
 import { Dashboard } from '@/pages/Dashboard'
 import { HomePage } from '@/pages/HomePage'
 import { KitchenDisplay } from '@/pages/KitchenDisplay'
 import { KioskDemo } from '@/pages/KioskDemo'
 import { OrderHistory } from '@/pages/OrderHistory'
 import { PerformanceDashboard } from '@/pages/PerformanceDashboard'
+import { ServerView } from '@/pages/ServerView'
+import { AdminDashboard } from '@/pages/AdminDashboard'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
 // Profiler callback for performance tracking
@@ -25,7 +26,7 @@ export function AppRoutes() {
       <ErrorBoundary level="section">
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/kitchen" element={
@@ -48,6 +49,16 @@ export function AppRoutes() {
             <Route path="/performance" element={
               <ErrorBoundary level="section">
                 <PerformanceDashboard />
+              </ErrorBoundary>
+            } />
+            <Route path="/server" element={
+              <ErrorBoundary level="section">
+                <ServerView />
+              </ErrorBoundary>
+            } />
+            <Route path="/admin" element={
+              <ErrorBoundary level="section">
+                <AdminDashboard />
               </ErrorBoundary>
             } />
           </Routes>

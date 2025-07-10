@@ -1,6 +1,6 @@
 import { BaseService } from '@/services/base/BaseService'
 import { Order, OrderFilters } from '@/services/types'
-import { orderSubscription, mockOrderGenerator, startOrderProgression } from '@/services/realtime/orderSubscription'
+import { orderSubscription, mockOrderGenerator, startOrderProgression, initializeOrderStore } from '@/services/realtime/orderSubscription'
 import { 
   validateTableNumber, 
   validateItemName,
@@ -28,6 +28,12 @@ export interface IOrderService {
 }
 
 export class OrderService extends BaseService implements IOrderService {
+  constructor() {
+    super()
+    // Initialize order store with mock data for real-time updates
+    initializeOrderStore(mockData.orders)
+  }
+
   async getOrders(restaurantId: string, filters?: OrderFilters): Promise<{ orders: Order[]; total: number }> {
     this.checkRateLimit('getOrders')
     await this.delay(500)

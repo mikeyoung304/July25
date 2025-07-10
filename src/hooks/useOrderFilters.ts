@@ -1,118 +1,96 @@
-import { useState, useCallback, useEffect } from 'react'
-import type { OrderFilters, OrderStatus, SortBy, SortDirection, TimeRange } from '@/types/filters'
-import { defaultFilters } from '@/types/filters'
-import type { StationType } from '@/types/station'
+// Compatibility wrapper for the filters module hook
+import { useOrderFilters as useModuleOrderFilters } from '@/modules/filters/hooks/useOrderFilters'
+import { useCallback, useMemo, useState } from 'react'
+import type { OrderStatus } from '@/types/common'
+import type { Station } from '@/types/station'
 
-const STORAGE_KEY = 'kds-order-filters'
+export interface OrderFilterState {
+  status: OrderStatus | 'all'
+  stations: Station[]
+  timeRange: 'today' | 'week' | 'month' | 'all'
+  searchQuery: string
+  sortBy: 'orderTime' | 'orderNumber' | 'status'
+  sortDirection: 'asc' | 'desc'
+}
 
 export interface UseOrderFiltersReturn {
-  filters: OrderFilters
-  updateStatusFilter: (status: OrderStatus[]) => void
-  toggleStatus: (status: OrderStatus) => void
-  updateStationFilter: (stations: (StationType | 'all')[]) => void
-  updateTimeRange: (timeRange: TimeRange) => void
+  filters: OrderFilterState
+  updateStatusFilter: (status: OrderStatus | 'all') => void
+  updateStationFilter: (stations: Station[]) => void
+  updateTimeRange: (range: 'today' | 'week' | 'month' | 'all') => void
   updateSearchQuery: (query: string) => void
-  updateSort: (sortBy: SortBy, direction?: SortDirection) => void
+  updateSort: (sortBy: 'orderTime' | 'orderNumber' | 'status') => void
   toggleSortDirection: () => void
   resetFilters: () => void
   hasActiveFilters: boolean
 }
 
-export const useOrderFilters = (): UseOrderFiltersReturn => {
-  // Load saved filters from localStorage
-  const loadSavedFilters = (): OrderFilters => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        return { ...defaultFilters, ...parsed }
-      }
-    } catch (error) {
-      console.error('Failed to load saved filters:', error)
-    }
-    return defaultFilters
-  }
+export function useOrderFilters(): UseOrderFiltersReturn {
+  const moduleHook = useModuleOrderFilters()
+  const [additionalFilters, setAdditionalFilters] = useState<{
+    stations: Station[]
+    timeRange: 'today' | 'week' | 'month' | 'all'
+    sortBy: 'orderTime' | 'orderNumber' | 'status'
+    sortDirection: 'asc' | 'desc'
+  }>({
+    stations: [],
+    timeRange: 'today',
+    sortBy: 'orderTime',
+    sortDirection: 'desc'
+  })
 
-  const [filters, setFilters] = useState<OrderFilters>(loadSavedFilters)
+  const filters = useMemo<OrderFilterState>(() => ({
+    status: moduleHook.filters.status || 'all',
+    searchQuery: moduleHook.filters.searchQuery || '',
+    ...additionalFilters
+  }), [moduleHook.filters, additionalFilters])
 
-  // Save filters to localStorage when they change
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(filters))
-    } catch (error) {
-      console.error('Failed to save filters:', error)
-    }
-  }, [filters])
+  const updateStatusFilter = useCallback((status: OrderStatus | 'all') => {
+    moduleHook.setStatusFilter(status)
+  }, [moduleHook])
 
-  // Update status filter
-  const updateStatusFilter = useCallback((status: OrderStatus[]) => {
-    setFilters(prev => ({ ...prev, status }))
+  const updateStationFilter = useCallback((stations: Station[]) => {
+    setAdditionalFilters(prev => ({ ...prev, stations }))
   }, [])
 
-  // Toggle individual status
-  const toggleStatus = useCallback((status: OrderStatus) => {
-    setFilters(prev => {
-      const currentStatus = prev.status
-      const isSelected = currentStatus.includes(status)
-      
-      if (isSelected) {
-        return { ...prev, status: currentStatus.filter(s => s !== status) }
-      } else {
-        return { ...prev, status: [...currentStatus, status] }
-      }
-    })
+  const updateTimeRange = useCallback((timeRange: 'today' | 'week' | 'month' | 'all') => {
+    setAdditionalFilters(prev => ({ ...prev, timeRange }))
   }, [])
 
-  // Update station filter
-  const updateStationFilter = useCallback((stations: (StationType | 'all')[]) => {
-    setFilters(prev => ({ ...prev, stations }))
+  const updateSearchQuery = useCallback((query: string) => {
+    moduleHook.setSearchQuery(query)
+  }, [moduleHook])
+
+  const updateSort = useCallback((sortBy: 'orderTime' | 'orderNumber' | 'status') => {
+    setAdditionalFilters(prev => ({ ...prev, sortBy }))
   }, [])
 
-  // Update time range
-  const updateTimeRange = useCallback((timeRange: TimeRange) => {
-    setFilters(prev => ({ ...prev, timeRange }))
-  }, [])
-
-  // Update search query
-  const updateSearchQuery = useCallback((searchQuery: string) => {
-    setFilters(prev => ({ ...prev, searchQuery }))
-  }, [])
-
-  // Update sort options
-  const updateSort = useCallback((sortBy: SortBy, sortDirection?: SortDirection) => {
-    setFilters(prev => ({
-      ...prev,
-      sortBy,
-      sortDirection: sortDirection || prev.sortDirection
-    }))
-  }, [])
-
-  // Toggle sort direction
   const toggleSortDirection = useCallback(() => {
-    setFilters(prev => ({
-      ...prev,
-      sortDirection: prev.sortDirection === 'asc' ? 'desc' : 'asc'
+    setAdditionalFilters(prev => ({ 
+      ...prev, 
+      sortDirection: prev.sortDirection === 'asc' ? 'desc' : 'asc' 
     }))
   }, [])
 
-  // Reset filters to defaults
   const resetFilters = useCallback(() => {
-    setFilters(defaultFilters)
-  }, [])
+    moduleHook.clearFilters()
+    setAdditionalFilters({
+      stations: [],
+      timeRange: 'today',
+      sortBy: 'orderTime',
+      sortDirection: 'desc'
+    })
+  }, [moduleHook])
 
-  // Check if any filters are active (different from defaults)
-  const hasActiveFilters = 
-    filters.status.length !== defaultFilters.status.length ||
-    filters.stations.join(',') !== defaultFilters.stations.join(',') ||
-    filters.timeRange.preset !== defaultFilters.timeRange.preset ||
-    filters.searchQuery !== defaultFilters.searchQuery ||
-    filters.sortBy !== defaultFilters.sortBy ||
-    filters.sortDirection !== defaultFilters.sortDirection
+  const hasActiveFilters = useMemo(() => {
+    return moduleHook.hasActiveFilters || 
+           additionalFilters.stations.length > 0 ||
+           additionalFilters.timeRange !== 'today'
+  }, [moduleHook.hasActiveFilters, additionalFilters])
 
   return {
     filters,
     updateStatusFilter,
-    toggleStatus,
     updateStationFilter,
     updateTimeRange,
     updateSearchQuery,

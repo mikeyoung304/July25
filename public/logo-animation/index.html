@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macon AI - Ignition Sequence</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="logo-loader">
+        <svg id="macon-ai-logo" width="200" height="250" viewBox="0 0 200 250">
+            <g id="circuit-group">
+                <!-- Stem: vertical line with circuit-like path -->
+                <path id="stem" fill="none" stroke="#88B0A4" stroke-width="4" 
+                      d="M100,200 L100,170 L90,160 L90,140 L100,130 L100,110 L90,100 L90,80 L100,70"/>
+                
+                <!-- Nodes positioned along the stem -->
+                <circle id="node-left" fill="#F3A463" cx="90" cy="150" r="8"/>
+                <circle id="node-right" fill="#F3A463" cx="110" cy="120" r="8"/>
+                <circle id="node-center" fill="#F3A463" cx="100" cy="70" r="8"/>
+            </g>
+
+            <g id="petals-group">
+                <!-- Six petals arranged in a flower pattern -->
+                <path id="petal-1" fill="#2A4B5C" d="M100,70 Q90,45 100,20 Q110,45 100,70Z"/>
+                <path id="petal-2" fill="#2A4B5C" d="M100,70 Q125,60 150,70 Q125,80 100,70Z"/>
+                <path id="petal-3" fill="#2A4B5C" d="M100,70 Q125,95 150,120 Q110,85 100,70Z"/>
+                <path id="petal-4" fill="#2A4B5C" d="M100,70 Q90,95 100,120 Q85,85 100,70Z"/>
+                <path id="petal-5" fill="#2A4B5C" d="M100,70 Q75,95 50,120 Q90,85 100,70Z"/>
+                <path id="petal-6" fill="#2A4B5C" d="M100,70 Q75,60 50,70 Q75,80 100,70Z"/>
+            </g>
+
+            <!-- Energy ripple centered on the center node -->
+            <circle id="energy-ripple" fill="none" stroke="#2A4B5C" stroke-width="2" cx="100" cy="70" r="0"/>
+
+            <g id="logo-text">
+                <text x="50%" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#2A4B5C">MACON</text>
+                <text x="50%" y="248" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#2A4B5C">AI SOLUTIONS</text>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>

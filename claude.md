@@ -25,17 +25,19 @@
 
 ### **3. 🎯 Current Mission & Session Log**
 
-- **Current Task**: Update the database schema to support the multi-tenant architecture and then implement real-time KDS order updates.
+- **Current Task**: Continue Phase 3 implementation - E2E testing and final hardening.
 - **Session Log (Most Recent)**:
-    - ✅ **TDD Complete**: Implemented `KDSOrderCard` with 8 passing tests and performance memoization.
-    - ✅ **Config Synced**: Transferred `.env.local` configuration from a reference project.
-    - ✅ **Schema Documented**: Analyzed and noted differences in database architecture.
-    - ✅ **Linting Fixed**: Resolved all 59 ESLint errors, improved test coverage.
-    - ✅ **Lean Architecture Planned**: Documented path to 40% file reduction.
+    - ✅ **Project Janus Phase 1 Complete**: Implemented HTTP client with Luis's API specifications.
+    - ✅ **Case Transformation**: Built utilities for camelCase/snake_case conversion with full test coverage.
+    - ✅ **Service Adapter Pattern**: Created base pattern for gradual migration from mock to real API.
+    - ✅ **Kitchen Display Fixed**: Resolved performance issues with memoization and stable callbacks.
+    - ✅ **Floor Plan Service**: Implemented save/load functionality with localStorage fallback.
+    - ✅ **WebSocket Service**: Built real-time order updates infrastructure (ready for Luis's backend).
+    - ✅ **All Tests Passing**: 229 tests passing with comprehensive coverage.
 - **Next Steps**:
-    1.  **Lean Refactor**: Execute modular refinement plan for cleaner codebase.
-    2.  **DB Refactor**: Implement the schema changes needed for multi-tenancy.
-    3.  **Real-time KDS**: Wire up Supabase subscriptions for real-time order updates.
+    1.  **E2E Testing**: Create comprehensive end-to-end tests for voice-to-kitchen workflow.
+    2.  **Service Migration**: Continue migrating remaining services to HttpServiceAdapter pattern.
+    3.  **Documentation**: Update technical documentation with integration patterns.
 
 ### **4. 🚨 Critical Directives (DO NOT)**
 
@@ -57,7 +59,59 @@
 -   **Builder**: Uses `filesystem` + `desktop` for coding and testing.
 -   **Validator**: Uses `desktop` + `puppeteer` for validation and E2E checks.
 
-### **6. 🔧 Advanced Command Toolkit**
+### **6. 🔗 API Integration Layer (Project Janus)**
+
+**IMPORTANT**: The frontend is now equipped with a complete API integration layer ready for Luis's Express.js backend.
+
+#### Core Components:
+
+**HTTP Client** (`src/services/http/httpClient.ts`):
+- Automatic Supabase JWT authentication in `Authorization` header
+- Multi-tenant support via `X-Restaurant-ID` header
+- Automatic case transformation (camelCase ↔ snake_case)
+- Status code-based error handling
+- Configuration via `VITE_API_BASE_URL` environment variable
+
+**Service Adapter Pattern** (`src/services/base/HttpServiceAdapter.ts`):
+- Base class for all services requiring API integration
+- Seamless switching between mock and real API modes
+- Maintains backward compatibility during migration
+- Example implementation: `OrderService.migrated.ts`
+
+**WebSocket Service** (`src/services/websocket/`):
+- Real-time order updates for Kitchen Display
+- Automatic reconnection with exponential backoff
+- Message queueing for offline resilience
+- Event-based architecture for order state changes
+
+**Case Transformation** (`src/services/utils/caseTransform.ts`):
+- Deep object transformation between naming conventions
+- Handles nested objects, arrays, and Date objects
+- ISO date string to Date object conversion
+- Query parameter transformation support
+
+#### Migration Guide:
+
+1. **For New Services**: Extend `HttpServiceAdapter` and implement both mock and real methods
+2. **For Existing Services**: Create `.migrated.ts` version following OrderService pattern
+3. **Environment Setup**: Set `VITE_API_BASE_URL=http://localhost:3001` for local development
+4. **Authentication**: Ensure user is logged in via Supabase for API calls to work
+
+#### Luis's API Contract:
+```typescript
+// Request Headers
+Authorization: Bearer <supabase-jwt>
+X-Restaurant-ID: <restaurant-id>
+Content-Type: application/json
+
+// Data Format
+- Request body: snake_case
+- Response body: snake_case (auto-converted to camelCase)
+- No response envelope (direct data return)
+- Status code-based error handling
+```
+
+### **7. 🔧 Advanced Command Toolkit**
 
 **NEW**: This project now includes an advanced multi-agent orchestration toolkit located in `.claude/commands/`. These are specialized, on-demand workflows that can be invoked for complex development scenarios.
 

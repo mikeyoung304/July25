@@ -295,7 +295,10 @@
 <a name='L230'></a><a href='#L230'>230</a>
 <a name='L231'></a><a href='#L231'>231</a>
 <a name='L232'></a><a href='#L232'>232</a>
-<a name='L233'></a><a href='#L233'>233</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -374,6 +377,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -511,6 +516,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -551,9 +557,9 @@ interface FilterPanelProps {
 }
 &nbsp;
 const statusOptions: { value: OrderStatus; label: string; color: string }[] = [
-  { value: 'new', label: 'New', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'preparing', label: 'Preparing', color: 'bg-blue-100 text-blue-800' },
-  { value: 'ready', label: 'Ready', color: 'bg-green-100 text-green-800' }
+  { value: 'new', label: 'New', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { value: 'preparing', label: 'Preparing', color: 'bg-macon-navy/10 text-macon-navy border-macon-navy/20' },
+  { value: 'ready', label: 'Ready', color: 'bg-macon-teal/10 text-macon-teal-dark border-macon-teal/20' }
 ]
 &nbsp;
 const timeRangeOptions: { value: TimeRange['preset']; label: string }[] = [
@@ -606,13 +612,15 @@ export const FilterPanel: React.FC&lt;FilterPanelProps&gt; = ({
   }, [filters.stations, onStationChange])
 &nbsp;
   return (
-    &lt;Card className={cn('p-4', className)}&gt;
+    &lt;Card className={cn('p-5 border-0 shadow-soft', className)}&gt;
       &lt;div className="space-y-4"&gt;
         {/* Header */}
         &lt;div className="flex items-center justify-between"&gt;
-          &lt;div className="flex items-center gap-2"&gt;
-            &lt;Filter className="h-4 w-4" /&gt;
-            &lt;h3 className="font-semibold"&gt;Filters&lt;/h3&gt;
+          &lt;div className="flex items-center gap-3"&gt;
+            &lt;div className="p-1.5 rounded-lg bg-macon-navy/10"&gt;
+              &lt;Filter className="h-4 w-4 text-macon-navy" /&gt;
+            &lt;/div&gt;
+            &lt;h3 className="font-semibold text-macon-navy"&gt;Filters&lt;/h3&gt;
             {hasActiveFilters &amp;&amp; (
               &lt;Badge variant="secondary" className="text-xs"&gt;
                 Active
@@ -643,13 +651,13 @@ export const FilterPanel: React.FC&lt;FilterPanelProps&gt; = ({
 &nbsp;
         {/* Search */}
         &lt;div className="relative"&gt;
-          &lt;Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" /&gt;
+          &lt;Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-macon-navy/40" aria-hidden="true" /&gt;
           &lt;Input
             type="search"
             placeholder="Search orders..."
             value={searchInput}
             onChange={(e) =&gt; setSearchInput(e.target.value)}
-            className="pl-9"
+            className="pl-10 border-neutral-200 focus:border-macon-navy/30 focus:ring-macon-navy/20"
             data-search-input
             aria-label="Search orders"
             aria-describedby="search-help"
@@ -664,7 +672,7 @@ export const FilterPanel: React.FC&lt;FilterPanelProps&gt; = ({
           &lt;div className="space-y-4 pt-2"&gt;
             {/* Status Filter */}
             &lt;div&gt;
-              &lt;Label className="text-sm font-medium mb-2 block"&gt;Status&lt;/Label&gt;
+              &lt;Label className="text-sm font-medium text-macon-navy mb-3 block"&gt;Status&lt;/Label&gt;
               &lt;div className="flex flex-wrap gap-2"&gt;
                 {statusOptions.map(({ value, label, color }) =&gt; (
                   &lt;label
@@ -680,8 +688,8 @@ export const FilterPanel: React.FC&lt;FilterPanelProps&gt; = ({
                     &lt;Badge
                       variant={filters.status.includes(value) ? 'default' : 'outline'}
                       className={cn(
-                        'cursor-pointer transition-colors',
-                        filters.status.includes(value) &amp;&amp; color
+                        'cursor-pointer transition-all duration-200 hover:scale-105',
+                        filters.status.includes(value) ? color : 'hover:border-neutral-300'
                       )}
                     &gt;
                       {label}
@@ -693,7 +701,7 @@ export const FilterPanel: React.FC&lt;FilterPanelProps&gt; = ({
 &nbsp;
             {/* Station Filter */}
             &lt;div&gt;
-              &lt;Label className="text-sm font-medium mb-2 block"&gt;Station&lt;/Label&gt;
+              &lt;Label className="text-sm font-medium text-macon-navy mb-3 block"&gt;Station&lt;/Label&gt;
               &lt;div className="flex flex-wrap gap-2"&gt;
                 &lt;label className="flex items-center cursor-pointer"&gt;
                   &lt;input
@@ -704,7 +712,7 @@ export const FilterPanel: React.FC&lt;FilterPanelProps&gt; = ({
                   /&gt;
                   &lt;Badge
                     variant={filters.stations.includes('all') ? 'default' : <span class="branch-1 cbranch-no" title="branch not covered" >'outline'}</span>
-                    className="cursor-pointer"
+                    className="cursor-pointer transition-all duration-200 hover:scale-105"
                   &gt;
                     All Stations
                   &lt;/Badge&gt;
@@ -724,10 +732,11 @@ export const FilterPanel: React.FC&lt;FilterPanelProps&gt; = ({
                     &lt;Badge
                       variant={filters.stations.includes(key as StationType) ? <span class="branch-0 cbranch-no" title="branch not covered" >'default' </span>: 'outline'}
                       className={cn(
-                        'cursor-pointer transition-colors',
+                        'cursor-pointer transition-all duration-200 hover:scale-105',
                         filters.stations.includes(key as StationType) &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >config.color.replace('text-', 'bg-').replace('800', '100')</span>
                       )}
                     &gt;
+                      &lt;span className="mr-1"&gt;{config.icon}&lt;/span&gt;
                       {config.name}
                     &lt;/Badge&gt;
                   &lt;/label&gt;
@@ -737,14 +746,14 @@ export const FilterPanel: React.FC&lt;FilterPanelProps&gt; = ({
 &nbsp;
             {/* Time Range Filter */}
             &lt;div&gt;
-              &lt;Label htmlFor="time-range" className="text-sm font-medium mb-2 block"&gt;
+              &lt;Label htmlFor="time-range" className="text-sm font-medium text-macon-navy mb-3 block"&gt;
                 Time Range
               &lt;/Label&gt;
               &lt;select
                 id="time-range"
                 value={filters.timeRange.preset || <span class="branch-1 cbranch-no" title="branch not covered" >'today'}</span>
                 onChange={<span class="fstat-no" title="function not covered" >(e</span>) =&gt; <span class="cstat-no" title="statement not covered" >onTimeRangeChange({ preset: e.target.value as TimeRange['preset'] })}</span>
-                className="w-full px-3 py-2 border border-input rounded-md bg-background"
+                className="w-full px-4 py-2.5 border border-neutral-200 rounded-lg bg-white hover:border-macon-navy/30 focus:border-macon-navy/30 focus:ring-2 focus:ring-macon-navy/20 focus:outline-none transition-all duration-200"
                 aria-label="Time range"
               &gt;
                 {timeRangeOptions.map(({ value, label }) =&gt; (
@@ -766,7 +775,7 @@ export const FilterPanel: React.FC&lt;FilterPanelProps&gt; = ({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-07T18:14:02.793Z
+                at 2025-07-10T03:44:19.031Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

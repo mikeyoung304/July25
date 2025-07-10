@@ -1,6 +1,6 @@
 import React, { useEffect, ReactNode } from 'react'
 import { useAsyncState } from '@/hooks/useAsyncState'
-import { RestaurantContext, type Restaurant } from './restaurant-context'
+import { RestaurantContext, type Restaurant } from './restaurant-types'
 
 // Provider
 export function RestaurantProvider({ children }: { children: ReactNode }) {
@@ -22,11 +22,11 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       // Mock restaurant data
       const mockRestaurant: Restaurant = {
         id: 'rest-1',
-        name: 'Demo Restaurant',
+        name: 'Grow Fresh Local Food',
         timezone: 'America/New_York',
         currency: 'USD',
         settings: {
-          orderPrefix: 'ORD',
+          orderPrefix: 'GRW',
           autoAcceptOrders: true,
           kitchenDisplayMode: 'grid'
         }

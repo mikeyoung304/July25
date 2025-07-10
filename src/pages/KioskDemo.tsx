@@ -24,6 +24,8 @@ export const KioskDemo: React.FC = () => {
   const [orderSubmitted, setOrderSubmitted] = useState(false)
   const [successOrderNumber, setSuccessOrderNumber] = useState<string>('')
   const { toast } = useToast()
+  // Restaurant context is available but not currently used
+  // const { restaurant } = useRestaurant()
 
   const handleOrderComplete = (transcription: string) => {
     setOrderHistory(prev => [...prev, transcription])

@@ -17,6 +17,7 @@ export const VoiceCapture: React.FC<VoiceCaptureProps> = ({
 }) => {
   const [transcription, setTranscription] = useState('')
   const [isInterim, setIsInterim] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   
   const {
     isRecording,
@@ -27,10 +28,15 @@ export const VoiceCapture: React.FC<VoiceCaptureProps> = ({
     onTranscription: (text, interim) => {
       setTranscription(text)
       setIsInterim(interim)
+      setErrorMessage(null)
       
       if (!interim && text) {
         onOrderComplete?.(text)
       }
+    },
+    onError: (err) => {
+      console.error('Voice capture error:', err)
+      setErrorMessage(err.message)
     },
   })
 
@@ -62,6 +68,12 @@ export const VoiceCapture: React.FC<VoiceCaptureProps> = ({
             isInterim={isInterim}
             isProcessing={isRecording && !transcription}
           />
+          
+          {errorMessage && (
+            <div className="w-full max-w-md p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-700">{errorMessage}</p>
+            </div>
+          )}
         </div>
       </MicrophonePermission>
     </div>
