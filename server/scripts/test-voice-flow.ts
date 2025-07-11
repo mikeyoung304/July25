@@ -80,7 +80,7 @@ async function checkServices() {
   
   const services = [
     { name: 'Backend API', url: 'http://localhost:3001/health' },
-    { name: 'AI Gateway', url: 'http://localhost:3002/health' }
+    { name: 'AI Service', url: 'http://localhost:3001/api/v1/ai/health' }
   ];
   
   let allRunning = true;

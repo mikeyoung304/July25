@@ -34,7 +34,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
       if (!shouldReconnect) return;
       
       setConnectionStatus('connecting');
-      const ws = new WebSocket('ws://localhost:3002/voice-stream');
+      const ws = new WebSocket('ws://localhost:3001/voice-stream');
       
       ws.onopen = () => {
         console.log('Voice WebSocket connected');
