@@ -10,8 +10,8 @@ export interface EnvironmentConfig {
   frontend: {
     url: string;
   };
-  aiGateway: {
-    url: string;
+  openai: {
+    apiKey: string;
   };
   logging: {
     level: string;
@@ -56,8 +56,8 @@ export function getConfig(): EnvironmentConfig {
     frontend: {
       url: process.env.FRONTEND_URL || 'http://localhost:5173',
     },
-    aiGateway: {
-      url: process.env.AI_GATEWAY_URL || 'http://localhost:3002',
+    openai: {
+      apiKey: process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '',
     },
     logging: {
       level: process.env.LOG_LEVEL || 'info',

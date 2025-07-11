@@ -1,0 +1,31 @@
+rules:
+  - name: "No port 3002"
+    pattern: "3002"
+    message: "Port 3002 is forbidden. Use port 3001 for all backend services."
+    severity: "error"
+    
+  - name: "No separate AI Gateway"
+    pattern: "AI Gateway"
+    context: "as a separate service"
+    message: "AI functionality is integrated into the main backend on port 3001."
+    severity: "error"
+    
+  - name: "No microservices"
+    pattern: "microservice"
+    message: "This project uses a unified backend architecture. See ARCHITECTURE.md"
+    severity: "warning"
+    
+  - name: "WebSocket must use 3001"
+    pattern: "WebSocket\\(.*(3002|:[0-9]{4}(?!3001))"
+    message: "WebSocket connections must use port 3001"
+    severity: "error"
+    
+  - name: "API calls must use 3001"
+    pattern: "fetch\\(.*(3002|localhost:[0-9]{4}(?!3001))"
+    message: "API calls must use port 3001"
+    severity: "error"
+
+enforcement:
+  - "These rules are enforced by ARCHITECTURE.md"
+  - "Any violation is a bug to be fixed"
+  - "Pull requests violating these rules must be rejected"

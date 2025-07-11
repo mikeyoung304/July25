@@ -73,8 +73,8 @@ const KioskPageContent: React.FC = () => {
     console.log('Processing voice order:', transcript);
     
     try {
-      // Send to AI Gateway
-      const response = await fetch('http://localhost:3002/chat', {
+      // Send to unified backend AI service
+      const response = await fetch('http://localhost:3001/api/v1/ai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
