@@ -1,0 +1,287 @@
+{
+  "restaurant": {
+    "name": "Grow Fresh Local Food",
+    "location": "Macon, GA",
+    "cuisine": "Farm-to-table Southern Fusion & Greek"
+  },
+  "menu": {
+    "starters": [
+      {
+        "id": "summer-sampler",
+        "name": "Summer Sampler",
+        "price": 16,
+        "description": "GA Made Sausage, Jalapeño Pimento Cheese Bites, Tomato Tea Sandwich, House Pickles, Fruit, Flatbread",
+        "aliases": ["sampler", "sampler plate", "appetizer sampler"],
+        "dietary": []
+      },
+      {
+        "id": "peach-caprese",
+        "name": "Peach & Prosciutto Caprese",
+        "price": 12,
+        "description": "Fresh peaches with prosciutto and mozzarella",
+        "aliases": ["peach and prosciutto", "caprese", "peach salad"],
+        "dietary": []
+      },
+      {
+        "id": "watermelon-tataki",
+        "name": "Watermelon Tataki",
+        "price": 12,
+        "description": "Seared watermelon with Asian-inspired flavors",
+        "aliases": ["watermelon", "tataki"],
+        "dietary": ["vegetarian", "vegan"]
+      },
+      {
+        "id": "tea-sandwiches",
+        "name": "Tea Sandwiches",
+        "price": 10,
+        "description": "Assorted finger sandwiches",
+        "aliases": ["tea sandwich", "finger sandwiches"],
+        "dietary": []
+      },
+      {
+        "id": "jalapeno-pimento",
+        "name": "Jalapeño Pimento Bites",
+        "price": 10,
+        "description": "Spicy pimento cheese bites",
+        "aliases": ["pimento bites", "jalapeno bites", "pimento cheese"],
+        "dietary": ["vegetarian"]
+      }
+    ],
+    "salads": [
+      {
+        "id": "summer-salad",
+        "name": "Summer Salad",
+        "price": 12,
+        "description": "Seasonal greens with fresh summer produce",
+        "aliases": ["house salad", "seasonal salad"],
+        "dietary": ["vegetarian"],
+        "addOns": [
+          { "name": "chicken", "price": 4 },
+          { "name": "salmon", "price": 6 }
+        ]
+      },
+      {
+        "id": "peach-arugula",
+        "name": "Peach Arugula Salad",
+        "price": 12,
+        "description": "Fresh peaches with peppery arugula",
+        "aliases": ["peach salad", "arugula salad"],
+        "dietary": ["vegetarian"],
+        "addOns": [
+          { "name": "prosciutto", "price": 4 }
+        ]
+      },
+      {
+        "id": "greek-salad",
+        "name": "Greek Salad",
+        "price": 12,
+        "description": "Traditional Greek salad with feta and olives",
+        "aliases": ["mediterranean salad"],
+        "dietary": ["vegetarian"],
+        "addOns": [
+          { "name": "chicken", "price": 4 },
+          { "name": "salmon", "price": 6 }
+        ]
+      },
+      {
+        "id": "tuna-salad",
+        "name": "Tuna Salad",
+        "price": 14,
+        "description": "House-made tuna salad on fresh greens",
+        "aliases": ["tuna", "tuna plate"],
+        "dietary": []
+      },
+      {
+        "id": "moms-chicken-salad",
+        "name": "Mom's Chicken Salad",
+        "price": 13,
+        "description": "Family recipe chicken salad",
+        "aliases": ["mama salad", "chicken salad", "mom salad", "mama chicken"],
+        "dietary": []
+      },
+      {
+        "id": "grilled-chicken-salad",
+        "name": "Grilled Chicken Salad",
+        "price": 14,
+        "description": "Grilled chicken breast on mixed greens",
+        "aliases": ["grilled chicken", "chicken breast salad"],
+        "dietary": []
+      }
+    ],
+    "bowls": [
+      {
+        "id": "soul-bowl",
+        "name": "Soul Bowl",
+        "price": 14,
+        "description": "GA made Smoked Sausage, Collards, Black-Eyed Peas, Rice, Pico De Gallo, Cornbread",
+        "aliases": ["georgia soul", "soul food bowl", "sausage bowl", "collard bowl"],
+        "dietary": [],
+        "modifiers": ["no rice", "extra collards"]
+      },
+      {
+        "id": "chicken-fajita-keto",
+        "name": "Chicken Fajita Keto",
+        "price": 14,
+        "description": "Keto-friendly chicken fajita bowl",
+        "aliases": ["fajita bowl", "keto bowl", "chicken fajita", "keto chicken"],
+        "dietary": ["keto"],
+        "modifiers": ["add rice"]
+      },
+      {
+        "id": "greek-bowl",
+        "name": "Greek Bowl",
+        "price": 14,
+        "description": "Marinated Chicken Thigh, Couscous, Cucumber Salad, Feta, Olives, Naan, Tzatziki Sauce",
+        "aliases": ["greek chicken", "mediterranean bowl", "greek chicken bowl"],
+        "dietary": [],
+        "modifiers": ["no olives", "no feta"]
+      },
+      {
+        "id": "summer-vegan-bowl",
+        "name": "Summer Vegan Bowl",
+        "price": 14,
+        "description": "Cold vegan bowl with fresh summer vegetables",
+        "aliases": ["vegan bowl", "cold vegan", "vegan option"],
+        "dietary": ["vegan"],
+        "temperature": "cold"
+      },
+      {
+        "id": "summer-succotash",
+        "name": "Summer Succotash",
+        "price": 14,
+        "description": "Hot vegan succotash bowl",
+        "aliases": ["succotash", "hot vegan", "succotash bowl"],
+        "dietary": ["vegan"],
+        "temperature": "hot"
+      }
+    ],
+    "entrees": [
+      {
+        "id": "peach-chicken",
+        "name": "Peach Chicken",
+        "price": 16,
+        "description": "Chicken with peach glaze",
+        "aliases": ["chicken with peaches", "peach glazed chicken"],
+        "dietary": []
+      },
+      {
+        "id": "teriyaki-salmon",
+        "name": "Teriyaki Salmon Over Rice",
+        "price": 16,
+        "description": "Glazed salmon served over rice",
+        "aliases": ["salmon", "salmon over rice", "salmon rice"],
+        "dietary": []
+      },
+      {
+        "id": "hamburger-steak",
+        "name": "Hamburger Steak over rice",
+        "price": 15,
+        "description": "Southern-style hamburger steak with gravy over rice",
+        "aliases": ["burger steak", "salisbury steak", "steak over rice"],
+        "dietary": []
+      },
+      {
+        "id": "greek-chicken-thighs",
+        "name": "Greek Chicken Thighs (2) Over Rice",
+        "price": 16,
+        "description": "Two marinated Greek chicken thighs served over rice",
+        "aliases": ["greek thighs", "chicken thighs", "greek chicken over rice"],
+        "dietary": []
+      }
+    ],
+    "sides": [
+      {
+        "id": "potatoes-romanoff",
+        "name": "Potatoes Romanoff",
+        "aliases": ["romanoff", "potato romanoff", "creamy potatoes"]
+      },
+      {
+        "id": "black-eyed-peas",
+        "name": "Black Eyed Peas",
+        "aliases": ["black eye peas", "peas", "field peas"]
+      },
+      {
+        "id": "collards",
+        "name": "Collards",
+        "aliases": ["collard greens", "greens"]
+      },
+      {
+        "id": "sweet-potatoes",
+        "name": "Sweet Potatoes",
+        "aliases": ["sweet potato", "yams"]
+      },
+      {
+        "id": "rice",
+        "name": "Rice",
+        "aliases": ["white rice", "steamed rice"]
+      },
+      {
+        "id": "potato-salad",
+        "name": "Potato Salad",
+        "aliases": ["tater salad"]
+      },
+      {
+        "id": "fruit-cup",
+        "name": "Fruit Cup",
+        "aliases": ["fruit", "fresh fruit"]
+      },
+      {
+        "id": "cucumber-salad",
+        "name": "Cucumber Salad",
+        "aliases": ["cucumber", "cucumbers"]
+      },
+      {
+        "id": "side-salad",
+        "name": "Side Salad",
+        "aliases": ["small salad", "garden salad"]
+      },
+      {
+        "id": "peanut-asian-noodles",
+        "name": "Peanut Asian Noodles",
+        "aliases": ["asian noodles", "peanut noodles", "noodles"]
+      }
+    ],
+    "veggiePlate": {
+      "id": "veggie-plate",
+      "name": "Veggie Plate",
+      "description": "Choose your sides",
+      "aliases": ["vegetable plate", "veggie platter", "vegetarian plate"],
+      "options": [
+        { "sides": 3, "price": 10 },
+        { "sides": 4, "price": 12.50 }
+      ]
+    }
+  },
+  "voiceRecognition": {
+    "southernAccentMappings": {
+      "bowl": ["bol", "bole", "bowel"],
+      "soul": ["sole", "sol", "soal"],
+      "chicken": ["chickin", "chiken", "chick'n"],
+      "salad": ["sallad", "salid", "saled"],
+      "collards": ["collards", "collard greens", "greens"],
+      "peas": ["pease", "peaz"],
+      "rice": ["rahce", "rahs"],
+      "fajita": ["fahita", "fajeta", "faheta"],
+      "keto": ["keeto", "ketto"],
+      "vegan": ["veegan", "vaygan"],
+      "peach": ["peech", "pech"],
+      "tea": ["tay", "tee"],
+      "salmon": ["samon", "sammon", "sam'n"]
+    },
+    "commonPhrases": [
+      "I'd like",
+      "Can I get",
+      "Give me",
+      "I want",
+      "Let me have",
+      "I'll take",
+      "I'll have"
+    ],
+    "modifierPhrases": {
+      "without": ["no", "without", "hold the"],
+      "extra": ["extra", "more", "double"],
+      "add": ["add", "with", "include"],
+      "side": ["with a side of", "and", "plus"]
+    }
+  }
+}

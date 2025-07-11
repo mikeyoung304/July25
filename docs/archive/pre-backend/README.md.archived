@@ -31,18 +31,16 @@ A modern, modular Restaurant Operating System built with Vite, React, TypeScript
 - **Server**: Express.js with WebSocket support
 - **Port**: 3002 (runs alongside frontend)
 
-### Backend API (Our Express.js Server)
-- **API**: Express.js + TypeScript server
-- **Database**: Supabase (PostgreSQL) with direct integration
-- **Architecture**: RESTful API endpoints with WebSocket support
-- **Port**: 3001 (runs alongside frontend)
-- **Responsibility**: Complete backend logic and database operations
+### Backend API (Separate Service - Managed by Luis)
+- **API**: Express.js server
+- **Database**: Supabase (PostgreSQL)
+- **Architecture**: RESTful API endpoints
+- **Responsibility**: All database operations
 
-### Key Architecture Evolution
-- **Full-Stack Control**: We now develop both frontend and backend
-- **Direct Integration**: Backend services connect directly to Supabase
-- **Service Layer**: Frontend services communicate with our Express.js API
-- **Development**: Service adapters provide mock/real data switching
+### Key Architecture Decision
+- **Frontend NEVER accesses database directly**
+- **All data flows through Express.js API**
+- **Mock data used during frontend development**
 
 ## 📋 Prerequisites
 
@@ -79,7 +77,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 # OpenAI Configuration (for AI features)
 OPENAI_API_KEY=your_openai_api_key
 
-# Backend API (Our Express server)
+# Backend API (Luis's Express server)
 VITE_API_BASE_URL=http://localhost:3001
 
 # AI Gateway Configuration
@@ -139,12 +137,12 @@ src/
 
 The application follows a **modular architecture** with these key principles:
 
-### Service Layer Pattern (Full-Stack Architecture)
-- **Frontend services in `src/services/` integrate with our Express.js API**
-- **Backend services handle all database operations via Supabase**
-- **Service adapters enable seamless mock-to-real API migration**
-- **Restaurant context provides `restaurant_id` for multi-tenant operations**
-- **WebSocket integration for real-time order updates**
+### Service Layer Pattern (Critical Architecture)
+- **Frontend services in `src/services/` are the ONLY integration point with backend**
+- **Frontend NEVER communicates directly with Supabase database**
+- **All database operations go through Express.js API (managed by Luis)**
+- **Currently using mock implementations until Express.js endpoints are ready**
+- **Restaurant context provides `restaurant_id` for all API calls**
 
 ### Module System
 - Self-contained feature modules in `src/modules/`
@@ -204,7 +202,7 @@ node scripts/analyze-codebase.cjs  # Code metrics analysis
 ## 📜 Available Scripts
 
 ### Development
-- `npm run dev` - Start frontend development server
+- `npm run dev` - Start frontend only
 - `npm run dev:ai` - Start frontend + AI Gateway (recommended)
 
 ### Building & Testing
@@ -259,67 +257,6 @@ The application supports comprehensive keyboard navigation:
 - **CSS Variables**: Theme customization
 - **Animations**: Smooth transitions and hover effects
 - **Dark Mode**: System preference support (coming soon)
-
-## 🚀 Full-Stack Development
-
-This project now includes complete backend implementation alongside the React frontend.
-
-### Backend Features
-- **Express.js API server** (port 3001)
-- **Supabase database integration** with direct backend access
-- **JWT authentication** via Supabase
-- **Multi-tenant architecture** with restaurant-based isolation
-- **Real-time WebSocket updates** for kitchen displays
-- **Comprehensive test coverage** for backend services
-
-### Getting Started with Backend
-```bash
-# Navigate to backend directory
-cd backend
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your Supabase credentials
-
-# Start backend development server
-npm run dev
-```
-
-### Full-Stack Development Workflow
-```bash
-# Terminal 1: Frontend
-npm run dev
-
-# Terminal 2: Backend
-cd backend && npm run dev
-
-# Terminal 3: AI Gateway (optional)
-npm run dev:ai
-```
-
-### Backend Environment Variables
-```env
-# Supabase Configuration
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_KEY=your_supabase_service_key
-
-# Server Configuration
-PORT=3001
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-```
-
-### API Documentation
-- **Base URL**: `http://localhost:3001/api`
-- **Authentication**: JWT via Authorization header
-- **Multi-tenancy**: X-Restaurant-ID header
-- **Data Format**: snake_case requests/responses (auto-converted)
-
-See [Backend Guide](./docs/BACKEND_GUIDE.md) for detailed backend development instructions.
 
 ## 🔧 Configuration
 
@@ -415,7 +352,7 @@ This project is proprietary software. All rights reserved.
 - ✅ All 229 tests passing
 
 ### Architecture
-- ✅ Full-stack application with integrated backend
+- ✅ Frontend-only repository (backend is separate)
 - ✅ Service layer enforces separation (no direct DB access)
 - ✅ Mock-first development until Express.js API ready
 - ✅ Restaurant context provides multi-tenancy
