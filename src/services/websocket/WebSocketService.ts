@@ -13,7 +13,6 @@ export interface WebSocketConfig {
   url?: string
   reconnectInterval?: number
   maxReconnectAttempts?: number
-  heartbeatInterval?: number
 }
 
 export interface WebSocketMessage<T = unknown> {
@@ -27,12 +26,10 @@ export type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'err
 
 export class WebSocketService extends EventEmitter {
   private ws: WebSocket | null = null
-  private config: Required<WebSocketConfig>
+  private config: Required<Omit<WebSocketConfig, 'url'>> & { url: string }
   private reconnectAttempts = 0
   private reconnectTimer: NodeJS.Timeout | null = null
-  private heartbeatTimer: NodeJS.Timeout | null = null
   private connectionState: ConnectionState = 'disconnected'
-  private messageQueue: WebSocketMessage[] = []
   private isIntentionallyClosed = false
 
   constructor(config: WebSocketConfig = {}) {
@@ -42,8 +39,7 @@ export class WebSocketService extends EventEmitter {
     this.config = {
       url: config.url || this.buildWebSocketUrl(),
       reconnectInterval: config.reconnectInterval || 5000,
-      maxReconnectAttempts: config.maxReconnectAttempts || 10,
-      heartbeatInterval: config.heartbeatInterval || 30000
+      maxReconnectAttempts: config.maxReconnectAttempts || 10
     }
   }
 
@@ -53,15 +49,16 @@ export class WebSocketService extends EventEmitter {
   private buildWebSocketUrl(): string {
     let apiBaseUrl = 'http://localhost:3001'
     
-    // Try to get from import.meta if available (Vite)
-    try {
-      if (import.meta?.env?.VITE_API_BASE_URL) {
-        apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-      }
-    } catch {
-      // Fallback for test environment
-      if (import.meta.env.VITE_API_BASE_URL) {
-        apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+    // Skip import.meta in test environment
+    if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+      try {
+        // @ts-ignore - import.meta is available in Vite but not in Jest
+        if (import.meta?.env?.VITE_API_BASE_URL) {
+          // @ts-ignore
+          apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+        }
+      } catch {
+        // Fallback for environments without import.meta
       }
     }
     
@@ -102,15 +99,15 @@ export class WebSocketService extends EventEmitter {
 
       // Create WebSocket connection
       this.ws = new WebSocket(wsUrl.toString())
-
+      
       // Set up event handlers
       this.ws.onopen = this.handleOpen.bind(this)
       this.ws.onmessage = this.handleMessage.bind(this)
       this.ws.onerror = this.handleError.bind(this)
       this.ws.onclose = this.handleClose.bind(this)
-
+      
     } catch (error) {
-      console.error('Failed to connect WebSocket:', error)
+      console.error('Failed to connect to WebSocket:', error)
       this.setConnectionState('error')
       this.scheduleReconnect()
     }
@@ -124,7 +121,7 @@ export class WebSocketService extends EventEmitter {
     this.cleanup()
     
     if (this.ws) {
-      this.ws.close(1000, 'Client disconnect')
+      this.ws.close()
       this.ws = null
     }
     
@@ -135,34 +132,53 @@ export class WebSocketService extends EventEmitter {
    * Send a message through WebSocket
    */
   send<T = unknown>(type: string, payload: T): void {
+    if (!this.isConnected()) {
+      console.warn('Cannot send message - WebSocket not connected')
+      return
+    }
+
     const message: WebSocketMessage<T> = {
       type,
       payload,
       timestamp: new Date().toISOString(),
-      restaurantId: getCurrentRestaurantId() || undefined
+      restaurantId: getCurrentRestaurantId()
     }
 
-    if (this.connectionState === 'connected' && this.ws?.readyState === WebSocket.OPEN) {
-      // Transform to snake_case before sending
-      const transformedMessage = toSnakeCase(message)
-      this.ws.send(JSON.stringify(transformedMessage))
-    } else {
-      // Queue message for later delivery
-      console.warn('WebSocket not connected, queueing message:', type)
-      this.messageQueue.push(message)
+    try {
+      // Convert to snake_case for backend
+      const serializedMessage = JSON.stringify(toSnakeCase(message))
+      this.ws!.send(serializedMessage)
+    } catch (error) {
+      console.error('Failed to send WebSocket message:', error)
     }
   }
 
   /**
    * Subscribe to specific message types
    */
-  subscribe(type: string, callback: (payload: unknown) => void): () => void {
-    this.on(`message:${type}`, callback)
+  subscribe<T = unknown>(
+    messageType: string,
+    callback: (payload: T) => void
+  ): () => void {
+    const handler = (message: WebSocketMessage) => {
+      if (message.type === messageType) {
+        callback(message.payload as T)
+      }
+    }
+    
+    this.on('message', handler)
     
     // Return unsubscribe function
     return () => {
-      this.off(`message:${type}`, callback)
+      this.off('message', handler)
     }
+  }
+
+  /**
+   * Check if connected
+   */
+  isConnected(): boolean {
+    return this.ws?.readyState === WebSocket.OPEN
   }
 
   /**
@@ -172,65 +188,44 @@ export class WebSocketService extends EventEmitter {
     return this.connectionState
   }
 
-  /**
-   * Check if WebSocket is connected
-   */
-  isConnected(): boolean {
-    return this.connectionState === 'connected' && this.ws?.readyState === WebSocket.OPEN
-  }
-
-  // Private methods
-
   private handleOpen(): void {
     console.log('WebSocket connected')
-    this.setConnectionState('connected')
     this.reconnectAttempts = 0
-    
-    // Start heartbeat
-    this.startHeartbeat()
-    
-    // Flush message queue
-    this.flushMessageQueue()
-    
-    // Emit connected event
+    this.setConnectionState('connected')
     this.emit('connected')
   }
 
   private handleMessage(event: MessageEvent): void {
     try {
-      const data = JSON.parse(event.data)
-      // Transform from snake_case to camelCase
-      const message = toCamelCase(data) as WebSocketMessage
+      // Parse and convert from snake_case
+      const message = toCamelCase(JSON.parse(event.data)) as WebSocketMessage
+      
+      // Emit generic message event
+      this.emit('message', message)
       
       // Emit specific message type event
       this.emit(`message:${message.type}`, message.payload)
       
-      // Emit general message event
-      this.emit('message', message)
-      
     } catch (error) {
       console.error('Failed to parse WebSocket message:', error)
-      this.emit('error', new Error('Invalid message format'))
     }
   }
 
   private handleError(event: Event): void {
     console.error('WebSocket error:', event)
     this.setConnectionState('error')
-    this.emit('error', new Error('WebSocket connection error'))
+    this.emit('error', event)
   }
 
   private handleClose(event: CloseEvent): void {
     console.log('WebSocket closed:', event.code, event.reason)
-    this.cleanup()
+    this.setConnectionState('disconnected')
+    this.emit('disconnected', event)
     
-    if (!this.isIntentionallyClosed && event.code !== 1000) {
-      // Unexpected close, attempt reconnection
+    // Schedule reconnection if not intentionally closed
+    if (!this.isIntentionallyClosed) {
       this.scheduleReconnect()
     }
-    
-    this.setConnectionState('disconnected')
-    this.emit('disconnected', { code: event.code, reason: event.reason })
   }
 
   private setConnectionState(state: ConnectionState): void {
@@ -241,17 +236,15 @@ export class WebSocketService extends EventEmitter {
   }
 
   private scheduleReconnect(): void {
-    if (this.isIntentionallyClosed) return
-    
     if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
       console.error('Max reconnection attempts reached')
-      this.emit('error', new Error('Failed to reconnect after maximum attempts'))
+      this.emit('maxReconnectAttemptsReached')
       return
     }
     
     this.reconnectAttempts++
     const delay = Math.min(
-      this.config.reconnectInterval * Math.pow(1.5, this.reconnectAttempts - 1),
+      this.config.reconnectInterval * this.reconnectAttempts,
       30000 // Max 30 seconds
     )
     
@@ -262,35 +255,7 @@ export class WebSocketService extends EventEmitter {
     }, delay)
   }
 
-  private startHeartbeat(): void {
-    this.stopHeartbeat()
-    
-    this.heartbeatTimer = setInterval(() => {
-      if (this.isConnected()) {
-        this.send('ping', { timestamp: new Date().toISOString() })
-      }
-    }, this.config.heartbeatInterval)
-  }
-
-  private stopHeartbeat(): void {
-    if (this.heartbeatTimer) {
-      clearInterval(this.heartbeatTimer)
-      this.heartbeatTimer = null
-    }
-  }
-
-  private flushMessageQueue(): void {
-    while (this.messageQueue.length > 0 && this.isConnected()) {
-      const message = this.messageQueue.shift()
-      if (message) {
-        this.send(message.type, message.payload)
-      }
-    }
-  }
-
   private cleanup(): void {
-    this.stopHeartbeat()
-    
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null

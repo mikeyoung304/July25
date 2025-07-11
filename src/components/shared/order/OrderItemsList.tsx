@@ -2,14 +2,7 @@ import React from 'react'
 import { OrderItemRow } from '../lists/OrderItemRow'
 import { stationRouting } from '@/services/stationRouting'
 import { cn } from '@/utils'
-
-export interface OrderItem {
-  id: string
-  name: string
-  quantity: number
-  modifiers?: string[]
-  notes?: string
-}
+import { OrderItem } from '@/types/common'
 
 export interface OrderItemsListProps {
   items: OrderItem[]

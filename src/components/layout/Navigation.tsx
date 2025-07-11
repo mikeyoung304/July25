@@ -45,6 +45,15 @@ export function Navigation() {
                 Voice Kiosk
               </Link>
               <Link 
+                to="/drive-thru" 
+                className="flex items-center px-4 py-2.5 rounded-lg text-neutral-700 hover:text-macon-orange hover:bg-macon-orange/5 hover:shadow-soft transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-macon-orange/20 font-medium"
+                role="listitem"
+                aria-label="Drive-Thru Voice Ordering"
+              >
+                <Mic className="h-5 w-5 mr-2.5 text-macon-orange" aria-hidden="true" />
+                Drive-Thru
+              </Link>
+              <Link 
                 to="/history" 
                 className="flex items-center px-4 py-2.5 rounded-lg text-neutral-700 hover:text-macon-navy hover:bg-macon-navy/5 hover:shadow-soft transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-macon-orange/20 font-medium"
                 role="listitem"

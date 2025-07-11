@@ -17,8 +17,10 @@ export interface OrderItem {
   id: string
   name: string
   quantity: number
+  price?: number
   modifiers?: string[]
   notes?: string
+  category?: string
 }
 
 export type OrderStatus = 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'

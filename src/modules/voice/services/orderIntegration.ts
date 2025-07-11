@@ -1,13 +1,13 @@
 import { api } from '@/services/api'
 
-export interface VoiceOrderItem {
+export interface ParsedVoiceItem {
   name: string
   quantity: number
   modifiers?: string[]
 }
 
 export interface VoiceOrder {
-  items: VoiceOrderItem[]
+  items: ParsedVoiceItem[]
   specialRequests?: string
   orderType?: 'dine-in' | 'takeout'
 }
@@ -18,7 +18,7 @@ export interface VoiceOrder {
  */
 export const parseVoiceOrder = (transcription: string): VoiceOrder | null => {
   const lowerText = transcription.toLowerCase()
-  const items: VoiceOrderItem[] = []
+  const items: ParsedVoiceItem[] = []
   
   // Menu item patterns - improved to handle various phrasings
   const menuItems = [
@@ -135,7 +135,7 @@ export const submitVoiceOrder = async (voiceOrder: VoiceOrder) => {
   return api.submitOrder(orderData)
 }
 
-const calculateTotal = (items: VoiceOrderItem[]): number => {
+const calculateTotal = (items: ParsedVoiceItem[]): number => {
   // Mock pricing - in production this would come from a menu service
   const prices: Record<string, number> = {
     'Burger': 12.99,

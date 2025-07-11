@@ -1,14 +1,10 @@
 // Common types and interfaces used across services
 
-export interface OrderItem {
-  id: string
-  name: string
-  quantity: number
-  price?: number
-  modifiers?: string[]
-  notes?: string
-  category?: string
-}
+// Import OrderItem type for use in this file
+import type { OrderItem as CommonOrderItem } from '@/types/common'
+
+// Re-export as OrderItem for backward compatibility
+export type OrderItem = CommonOrderItem
 
 export interface Order {
   id: string

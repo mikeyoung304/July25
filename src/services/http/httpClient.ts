@@ -34,15 +34,19 @@ export class HttpClient extends SecureAPIClient {
   constructor() {
     let baseURL = 'http://localhost:3001'
     
-    // Try to get from import.meta if available (Vite)
-    try {
-      if (import.meta?.env?.VITE_API_BASE_URL) {
-        baseURL = import.meta.env.VITE_API_BASE_URL
-      }
-    } catch {
-      // Fallback for test environment
-      if (import.meta.env.VITE_API_BASE_URL) {
-        baseURL = import.meta.env.VITE_API_BASE_URL
+    // Get base URL from environment
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+      // Use default URL in test environment
+      baseURL = 'http://localhost:3001'
+    } else {
+      try {
+        // @ts-ignore - import.meta is available in Vite
+        const viteUrl = import.meta?.env?.VITE_API_BASE_URL
+        if (viteUrl) {
+          baseURL = viteUrl
+        }
+      } catch {
+        // Fallback for environments without import.meta
       }
     }
     
