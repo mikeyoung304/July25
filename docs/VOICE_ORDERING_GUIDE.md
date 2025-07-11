@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-The Restaurant OS features a sophisticated voice ordering system with AI-powered speech recognition and natural language processing, integrated with our full-stack architecture.
+The Restaurant OS features a sophisticated voice ordering system with AI-powered speech recognition and natural language processing, integrated with our unified backend architecture.
 
 ### Two Customer Interfaces
 
@@ -14,15 +14,14 @@ The Restaurant OS features a sophisticated voice ordering system with AI-powered
 ### The ONE Command You Need
 
 ```bash
-npm run dev:ai
+npm run dev
 ```
 
 This single command starts everything:
 - ✅ Frontend (Vite) on http://localhost:5173
-- ✅ AI Gateway on http://localhost:3002
-- ✅ WebSocket server for voice streaming
-- ✅ Backend API server on http://localhost:3001 (when implemented)
-- ✅ Color-coded output in one terminal
+- ✅ Unified Backend with AI Service on http://localhost:3001
+- ✅ WebSocket server for voice streaming (ws://localhost:3001)
+- ✅ Color-coded output with proper orchestration
 
 ### Access Points
 
@@ -68,7 +67,7 @@ interface VoiceControlProps {
 ```
 
 **Features**:
-- WebSocket connection to AI Gateway
+- WebSocket connection to unified backend
 - Real-time audio streaming
 - Visual feedback for recording state
 - Error handling and reconnection logic
@@ -94,10 +93,10 @@ interface VoiceOrderContextType {
 
 ### Backend Integration
 
-#### AI Gateway (`macon-ai-gateway/`)
+#### AI Service (Unified Backend)
 ```javascript
-// WebSocket server for real-time voice processing
-const wss = new WebSocketServer({ port: 3002 });
+// WebSocket server integrated into unified backend (server/src/ai/websocket.ts)
+const wss = new WebSocketServer({ server: httpServer });
 
 wss.on('connection', (ws) => {
   ws.on('message', async (audioData) => {
@@ -146,14 +145,14 @@ Always be friendly and suggest complementary items.
 
 ```typescript
 // Complete voice-to-kitchen workflow
-Voice Input → AI Gateway → Frontend Order → Backend API → Database → Kitchen Display
+Voice Input → Unified Backend (AI Service) → Frontend Order → Backend API → Database → Kitchen Display
 
 1. Customer speaks into microphone
-2. Audio streamed to AI Gateway via WebSocket
-3. Speech-to-text + NLP processing
+2. Audio streamed to unified backend via WebSocket (ws://localhost:3001)
+3. Speech-to-text + NLP processing via AI service
 4. Structured order data returned to frontend
 5. Order validated and displayed to customer
-6. Confirmed order sent to backend API
+6. Confirmed order sent to backend API endpoints
 7. Order stored in database with restaurant_id
 8. Real-time update pushed to kitchen display
 9. Kitchen staff receives order with audio notification
@@ -164,7 +163,7 @@ Voice Input → AI Gateway → Frontend Order → Backend API → Database → K
 ### Basic Order Testing
 ```bash
 # Start the system
-npm run dev:ai
+npm run dev
 
 # Test phrases:
 "I'll have a bacon burger"
@@ -200,41 +199,31 @@ npm run dev:ai
 
 ### Required Environment Variables
 
-**Frontend (.env.local)**:
+**Frontend (client/.env.local)**:
 ```env
 # Supabase (for user authentication and order storage)
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Backend API
+# Backend API (unified backend)
 VITE_API_BASE_URL=http://localhost:3001
-
-# AI Gateway
-VITE_AI_GATEWAY_URL=http://localhost:3002
 ```
 
-**AI Gateway (../macon-ai-gateway/.env)**:
-```env
-# OpenAI for speech recognition and NLP
-OPENAI_API_KEY=your_openai_api_key
-
-# Server configuration
-PORT=3002
-FRONTEND_URL=http://localhost:5173
-
-# Optional: Custom wake word
-WAKE_WORD=grow
-```
-
-**Backend (backend/.env)**:
+**Unified Backend (server/.env)**:
 ```env
 # Supabase service key for backend operations
 SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_KEY=your_service_key
 
+# OpenAI for speech recognition and NLP
+OPENAI_API_KEY=your_openai_api_key
+
 # Server configuration
 PORT=3001
 FRONTEND_URL=http://localhost:5173
+
+# Optional: Custom wake word
+WAKE_WORD=grow
 ```
 
 ### Development Without OpenAI
@@ -257,10 +246,10 @@ const mockResponse = {
 
 ### Production Setup
 
-1. **AI Gateway Deployment**:
+1. **Unified Backend Deployment**:
    ```bash
    # Deploy to Railway, Heroku, or similar
-   cd macon-ai-gateway
+   cd server
    npm run build
    npm start
    ```
@@ -269,8 +258,8 @@ const mockResponse = {
    ```javascript
    // Production WebSocket URL
    const wsUrl = process.env.NODE_ENV === 'production' 
-     ? 'wss://your-ai-gateway.railway.app'
-     : 'ws://localhost:3002';
+     ? 'wss://your-backend.railway.app'
+     : 'ws://localhost:3001';
    ```
 
 3. **HTTPS Requirements**:
@@ -309,13 +298,13 @@ recorder.ondataavailable = (event) => {
 
 ### Common Issues
 
-**AI Gateway Connection Failed**:
+**Backend Connection Failed**:
 ```bash
-# Check if AI Gateway is running
-curl http://localhost:3002/health
+# Check if unified backend is running
+curl http://localhost:3001/api/v1/health
 
-# Restart AI Gateway
-npm run dev:ai
+# Restart the system
+npm run dev
 ```
 
 **Microphone Permission Denied**:
@@ -332,7 +321,7 @@ navigator.mediaDevices.getUserMedia({ audio: true })
 const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
 
 useEffect(() => {
-  const ws = new WebSocket('ws://localhost:3002');
+  const ws = new WebSocket('ws://localhost:3001');
   
   ws.onopen = () => setConnectionState('connected');
   ws.onclose = () => setConnectionState('disconnected');
@@ -359,7 +348,7 @@ curl http://localhost:3001/api/orders \
 Enable verbose logging for development:
 
 ```javascript
-// AI Gateway debug mode
+// Unified backend AI service debug mode
 const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
 if (DEBUG_MODE) {
@@ -413,11 +402,18 @@ ws.onmessage = (event) => {
 
 ### Technical Roadmap
 
-1. **Backend Migration**: Move from AI Gateway to integrated backend services
+1. **✅ Backend Migration**: Completed - AI services now integrated into unified backend
 2. **Real-time Kitchen Integration**: Direct kitchen display updates
 3. **Order Modification**: Voice-based order changes after submission
 4. **Payment Integration**: Voice-initiated payment processing
 5. **Analytics Dashboard**: Voice ordering insights and optimization
+
+### Architecture References
+
+For more details on the unified backend architecture, see:
+- `ARCHITECTURE.md` - Architecture decision record explaining the unified backend
+- `FULLSTACK_ARCHITECTURE.md` - Complete full-stack architecture overview
+- `server/README.md` - Backend implementation details
 
 ---
 
