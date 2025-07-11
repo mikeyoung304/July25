@@ -81,20 +81,23 @@ export class WebSocketService extends EventEmitter {
 
     try {
       // Get auth token for WebSocket authentication
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) {
-        throw new Error('No authentication session available')
+      let token = 'test-token' // Default for development
+      
+      // Try to get real session in production
+      if (import.meta.env.PROD) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session?.access_token) {
+          throw new Error('No authentication session available')
+        }
+        token = session.access_token
       }
 
-      // Get restaurant ID
-      const restaurantId = getCurrentRestaurantId()
-      if (!restaurantId) {
-        throw new Error('No restaurant ID available')
-      }
+      // Get restaurant ID with fallback for development
+      const restaurantId = getCurrentRestaurantId() || '11111111-1111-1111-1111-111111111111'
 
       // Build WebSocket URL with auth params
       const wsUrl = new URL(this.config.url)
-      wsUrl.searchParams.set('token', session.access_token)
+      wsUrl.searchParams.set('token', token)
       wsUrl.searchParams.set('restaurant_id', restaurantId)
 
       // Create WebSocket connection
