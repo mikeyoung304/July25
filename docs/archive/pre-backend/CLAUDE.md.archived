@@ -4,23 +4,18 @@
 
 ---
 
-### **1. 🏛️ Architectural Evolution**
+### **1. 🏛️ Architectural Mandates**
 
-- **Full-Stack Development**: We now build both frontend AND backend components
-- **Backend Stack**: Express.js + Supabase + TypeScript
-- **Modular Architecture**: Features organized in `src/modules/` (frontend) and `backend/src/` (backend)
-- **Service Layer Pattern**: 
-  - Frontend services communicate with our Express.js API
-  - Backend handles all database operations via Supabase
-  - Complete API documentation in `docs/api/`
+- **MUST Adhere to Modular Architecture**: As defined in `README.md`, all new features MUST be built within the `src/modules/` directory.
 
-- **EVOLVED: Full-Stack Service Layer**:
-  - Frontend `src/services` → Express.js API endpoints
-  - Backend `backend/src/services` → Supabase database operations
-  - We control both layers for optimal integration
-  - Service adapters provide mock/real data switching during development
+- **MUST Adhere to the API Service Layer Pattern**:
+    - The frontend application **NEVER** communicates directly with the database (Supabase).
+    - The `src/services` directory is the ONLY integration point between the frontend and the backend.
+    - This service layer makes HTTP requests (e.g., GET, POST) to the **Express.js server** managed by our backend architect, Luis.
+    - The Express.js server is solely responsible for all database interactions.
+    - For development, this service layer will return mocked data until a real endpoint from Luis is available.
 
-- **PRIORITY: Multi-Tenancy**: The `RestaurantContext` provides `restaurant_id` for all API calls to our Express.js backend.
+- **PRIORITY: Multi-Tenancy**: The `RestaurantContext` is the core of our multi-tenant strategy. It must be used to provide the necessary `restaurant_id` for all relevant API calls to the Express.js backend.
 
 ### **2. ✅ Quality Gates & Core Commands**
 
@@ -30,20 +25,19 @@
 
 ### **3. 🎯 Current Mission & Session Log**
 
-- **Current Task**: Full-stack development with backend implementation
+- **Current Task**: Continue Phase 3 implementation - E2E testing and final hardening.
 - **Session Log (Most Recent)**:
-    - ✅ **Full-Stack Architecture**: Evolved from frontend-only to complete stack control
-    - ✅ **Backend Foundation**: Express.js server with Supabase integration
-    - ✅ **API Integration Layer**: HTTP client with authentication and case transformation
-    - ✅ **Service Adapter Pattern**: Seamless mock/real data switching
-    - ✅ **WebSocket Service**: Real-time order updates infrastructure
-    - ✅ **Documentation Overhaul**: Updated for full-stack development
-    - ✅ **All Tests Passing**: 229 tests with comprehensive coverage
+    - ✅ **Project Janus Phase 1 Complete**: Implemented HTTP client with Luis's API specifications.
+    - ✅ **Case Transformation**: Built utilities for camelCase/snake_case conversion with full test coverage.
+    - ✅ **Service Adapter Pattern**: Created base pattern for gradual migration from mock to real API.
+    - ✅ **Kitchen Display Fixed**: Resolved performance issues with memoization and stable callbacks.
+    - ✅ **Floor Plan Service**: Implemented save/load functionality with localStorage fallback.
+    - ✅ **WebSocket Service**: Built real-time order updates infrastructure (ready for Luis's backend).
+    - ✅ **All Tests Passing**: 229 tests passing with comprehensive coverage.
 - **Next Steps**:
-    1.  **Backend Services**: Implement core API endpoints
-    2.  **Database Schema**: Finalize Supabase table structure
-    3.  **E2E Testing**: Voice-to-kitchen workflow validation
-    4.  **Production Setup**: Deployment and monitoring
+    1.  **E2E Testing**: Create comprehensive end-to-end tests for voice-to-kitchen workflow.
+    2.  **Service Migration**: Continue migrating remaining services to HttpServiceAdapter pattern.
+    3.  **Documentation**: Update technical documentation with integration patterns.
 
 ### **4. 🚨 Critical Directives (DO NOT)**
 
@@ -67,7 +61,7 @@
 
 ### **6. 🔗 API Integration Layer (Project Janus)**
 
-**IMPORTANT**: The project now includes complete full-stack architecture with our own Express.js backend.
+**IMPORTANT**: The frontend is now equipped with a complete API integration layer ready for Luis's Express.js backend.
 
 #### Core Components:
 
@@ -103,7 +97,7 @@
 3. **Environment Setup**: Set `VITE_API_BASE_URL=http://localhost:3001` for local development
 4. **Authentication**: Ensure user is logged in via Supabase for API calls to work
 
-#### Our API Contract:
+#### Luis's API Contract:
 ```typescript
 // Request Headers
 Authorization: Bearer <supabase-jwt>

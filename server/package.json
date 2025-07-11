@@ -1,0 +1,70 @@
+{
+  "name": "grow-fresh-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Grow Fresh Local Food Restaurant OS",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:integration": "bash scripts/test-integration.sh",
+    "test:voice": "vitest run tests/voice-integration.test.ts",
+    "seed": "tsx scripts/seed-menu.ts",
+    "seed:menu": "tsx scripts/seed-menu.ts",
+    "migrate": "tsx scripts/migrate.ts",
+    "migrate:run": "tsx scripts/migrate.ts",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "typecheck": "tsc --noEmit",
+    "start:all": "./scripts/start-all.sh",
+    "upload:menu": "tsx scripts/upload-menu.ts",
+    "test:voice:flow": "tsx scripts/test-voice-flow.ts",
+    "check:integration": "tsx scripts/integration-check.ts"
+  },
+  "dependencies": {
+    "express": "4.18.2",
+    "@supabase/supabase-js": "2.39.7",
+    "cors": "2.8.5",
+    "dotenv": "16.4.1",
+    "helmet": "7.1.0",
+    "jsonwebtoken": "9.0.2",
+    "express-rate-limit": "7.1.5",
+    "winston": "3.11.0",
+    "joi": "17.12.0",
+    "ws": "8.16.0",
+    "node-cache": "5.1.2",
+    "chalk": "5.3.0",
+    "openai": "4.56.0",
+    "multer": "1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "typescript": "5.3.3",
+    "@types/express": "4.17.21",
+    "@types/cors": "2.8.17",
+    "@types/jsonwebtoken": "9.0.5",
+    "@types/ws": "8.5.10",
+    "@types/node": "20.11.5",
+    "@types/multer": "1.4.11",
+    "tsx": "4.7.0",
+    "vitest": "1.2.0",
+    "@vitest/ui": "1.2.0",
+    "eslint": "8.56.0",
+    "@typescript-eslint/eslint-plugin": "6.19.0",
+    "@typescript-eslint/parser": "6.19.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "restaurant",
+    "api",
+    "express",
+    "typescript",
+    "supabase"
+  ],
+  "author": "Macon AI Solutions",
+  "license": "PROPRIETARY"
+}

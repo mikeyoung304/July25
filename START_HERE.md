@@ -1,53 +1,58 @@
-# 🚀 Grow Fresh - Start Here
+# 🚀 Grow Fresh - Unified Backend Architecture
 
-## One Command to Rule Them All
-
-```bash
-cd backend
-npm run start:all
-```
-
-This opens 3 Terminal windows:
-- **Backend API** (port 3001) - Your Express.js server
-- **Frontend** (port 5173) - React app  
-- **AI Gateway** (port 3002) - Voice processing
-
-## Then Upload Menu & Test
+## Quick Start (From Root)
 
 ```bash
-# Wait 10 seconds for services to start, then:
-npm run upload:menu        # Upload Grow Fresh menu to AI
-npm run check:integration  # Verify everything works
+npm install        # Installs everything (root + client + server)
+npm run dev        # Starts both server and client
 ```
 
-## Test Voice Ordering
+That's it! Everything runs from one command.
 
-1. Open http://localhost:5173/kiosk
-2. Click microphone
-3. Say "I'd like a soul bowl"
+## What's Running
 
-## Available NPM Scripts
+- **Server** (port 3001) - Unified backend with:
+  - REST API: `http://localhost:3001/api/v1`
+  - Voice AI: `http://localhost:3001/api/v1/ai`
+  - WebSocket: `ws://localhost:3001`
+  
+- **Client** (port 5173) - React frontend
 
-### From `/backend`:
-- `npm run start:all` - Start everything (recommended)
-- `npm run upload:menu` - Sync menu to AI Gateway
-- `npm run test:voice:flow` - Test voice recognition
-- `npm run check:integration` - System health check
+## Project Structure
 
-### From root `/`:
-- `npm run dev` - Frontend only
-- `npm test` - Run tests
+```
+rebuild-6.0/
+├── client/          # All frontend code
+│   ├── src/
+│   ├── public/
+│   └── package.json
+├── server/          # Unified backend (API + AI + WebSocket)
+│   ├── src/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── ai/      # AI functionality integrated
+│   └── package.json
+└── package.json     # Root orchestration
+```
 
-## That's It! 
+## Development Commands
 
-No more confusion. Just `npm run start:all` from backend.
+### From root directory:
+- `npm run dev` - Start everything
+- `npm run build` - Build both client and server
+- `npm run test` - Run all tests
+
+### From server directory:
+- `npm run upload:menu` - Upload menu to AI service
+- `npm run check:integration` - Verify all systems
+
+## Architecture Benefits
+
+1. **One Backend** - No microservices complexity
+2. **Unified Port** - Everything on 3001 (except frontend)
+3. **Simplified Deployment** - One server to deploy
+4. **Easier Development** - No port juggling
 
 ---
 
-### Cleanup Notes
-We've archived old startup scripts to `_archive_old_scripts/`:
-- start-unified-dev.js
-- start-voice-ai-gateway.sh  
-- ai-gateway-*.js
-
-The backend's `start:all` script is now the single source of truth.
+Per Luis's architecture decision: "Everything in one backend"
