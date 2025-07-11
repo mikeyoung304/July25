@@ -1,4 +1,9 @@
-import { BaseService } from '@/services/base/BaseService'
+/**
+ * OrderService - Supports both mock data and real API calls
+ * following Luis's API specification
+ */
+
+import { HttpServiceAdapter } from '@/services/base/HttpServiceAdapter'
 import { Order, OrderFilters } from '@/services/types'
 import { orderSubscription, mockOrderGenerator, startOrderProgression, initializeOrderStore } from '@/services/realtime/orderSubscription'
 import { 
@@ -27,7 +32,7 @@ export interface IOrderService {
   subscribeToOrders(restaurantId: string, callback: (order: Order) => void): () => void
 }
 
-export class OrderService extends BaseService implements IOrderService {
+export class OrderService extends HttpServiceAdapter implements IOrderService {
   constructor() {
     super()
     // Initialize order store with mock data for real-time updates
@@ -36,161 +41,266 @@ export class OrderService extends BaseService implements IOrderService {
 
   async getOrders(restaurantId: string, filters?: OrderFilters): Promise<{ orders: Order[]; total: number }> {
     this.checkRateLimit('getOrders')
-    await this.delay(500)
     
-    let filtered = [...mockData.orders].filter(order => order.restaurant_id === restaurantId)
-    
-    if (filters?.status) {
-      filtered = filtered.filter(order => order.status === filters.status)
-    }
-    
-    if (filters?.tableId) {
-      filtered = filtered.filter(order => 
-        mockData.tables.find(t => t.id === filters.tableId && t.currentOrderId === order.id)
-      )
-    }
-    
-    // Map order statuses for backward compatibility
-    const mappedOrders = filtered.map(order => ({
-      ...order,
-      status: mapOrderStatus(order.status)
-    }))
-    
-    return { orders: mappedOrders, total: mappedOrders.length }
+    return this.execute(
+      // Real API call
+      async () => {
+        const params: Record<string, unknown> = {}
+        
+        // Add filters as query parameters
+        if (filters?.status) {
+          params.status = filters.status
+        }
+        if (filters?.tableId) {
+          params.table_id = filters.tableId
+        }
+        if (filters?.search) {
+          params.search = filters.search
+        }
+        if (filters?.dateFrom) {
+          params.date_from = filters.dateFrom.toISOString()
+        }
+        if (filters?.dateTo) {
+          params.date_to = filters.dateTo.toISOString()
+        }
+        
+        // API returns paginated response
+        const response = await this.httpClient.get<{
+          orders: Order[]
+          total: number
+          page: number
+          pageSize: number
+        }>('/api/v1/orders', { params })
+        
+        this.logServiceCall('GET', '/api/v1/orders', params, response)
+        
+        // Map order statuses for backward compatibility
+        const mappedOrders = response.orders.map(order => ({
+          ...order,
+          status: mapOrderStatus(order.status)
+        }))
+        
+        return { orders: mappedOrders, total: response.total }
+      },
+      // Mock implementation
+      async () => {
+        await this.delay(500)
+        
+        let filtered = [...mockData.orders].filter(order => order.restaurant_id === restaurantId)
+        
+        if (filters?.status) {
+          filtered = filtered.filter(order => order.status === filters.status)
+        }
+        
+        if (filters?.tableId) {
+          filtered = filtered.filter(order => 
+            mockData.tables.find(t => t.id === filters.tableId && t.currentOrderId === order.id)
+          )
+        }
+        
+        const mappedOrders = filtered.map(order => ({
+          ...order,
+          status: mapOrderStatus(order.status)
+        }))
+        
+        return { orders: mappedOrders, total: mappedOrders.length }
+      }
+    )
   }
 
   async getOrderById(restaurantId: string, orderId: string): Promise<Order> {
-    await this.delay(300)
-    const order = mockData.orders.find(o => o.id === orderId && o.restaurant_id === restaurantId)
-    if (!order) throw new Error('Order not found')
-    return {
-      ...order,
-      status: mapOrderStatus(order.status)
-    }
+    return this.execute(
+      // Real API call
+      async () => {
+        const response = await this.httpClient.get<Order>(`/api/v1/orders/${orderId}`)
+        
+        this.logServiceCall('GET', `/api/v1/orders/${orderId}`, null, response)
+        
+        // Verify the order belongs to the correct restaurant
+        if (response.restaurant_id !== restaurantId) {
+          throw new Error('Order not found')
+        }
+        
+        return {
+          ...response,
+          status: mapOrderStatus(response.status)
+        }
+      },
+      // Mock implementation
+      async () => {
+        await this.delay(300)
+        const order = mockData.orders.find(o => o.id === orderId && o.restaurant_id === restaurantId)
+        if (!order) throw new Error('Order not found')
+        return {
+          ...order,
+          status: mapOrderStatus(order.status)
+        }
+      }
+    )
   }
 
   async updateOrderStatus(restaurantId: string, orderId: string, status: Order['status']): Promise<{ success: boolean; order: Order }> {
-    this.checkRateLimit('updateOrderStatus')
-    await this.delay(400)
-    
-    const order = mockData.orders.find(o => o.id === orderId && o.restaurant_id === restaurantId)
-    if (!order) throw new Error('Order not found')
-    
-    const previousStatus = order.status
-    order.status = status
-    
-    // Emit real-time event
-    orderSubscription.emitOrderStatusChanged(orderId, status, previousStatus)
-    
-    console.log('Mock: Updated order status', { orderId, status })
-    return { 
-      success: true, 
-      order: {
-        ...order,
-        status: mapOrderStatus(order.status)
+    return this.execute(
+      // Real API call
+      async () => {
+        const response = await this.httpClient.patch<Order>(
+          `/api/v1/orders/${orderId}/status`,
+          { status }
+        )
+        
+        this.logServiceCall('PATCH', `/api/v1/orders/${orderId}/status`, { status }, response)
+        
+        // Verify the order belongs to the correct restaurant
+        if (response.restaurant_id !== restaurantId) {
+          throw new Error('Order not found')
+        }
+        
+        const updatedOrder = {
+          ...response,
+          status: mapOrderStatus(response.status)
+        }
+        
+        return { success: true, order: updatedOrder }
+      },
+      // Mock implementation
+      async () => {
+        await this.delay(300)
+        const order = mockData.orders.find(o => o.id === orderId && o.restaurant_id === restaurantId)
+        if (!order) throw new Error('Order not found')
+        
+        order.status = status
+        order.completedTime = status === 'completed' ? new Date() : undefined
+        
+        // Notify subscribers
+        const subscribers = orderSubscription.getSubscribers()
+        subscribers.forEach(callback => callback({
+          ...order,
+          status: mapOrderStatus(order.status)
+        }))
+        
+        return { 
+          success: true, 
+          order: {
+            ...order,
+            status: mapOrderStatus(order.status)
+          }
+        }
       }
-    }
+    )
   }
 
   async submitOrder(restaurantId: string, orderData: Partial<Order>): Promise<{ success: boolean; orderId: string; order: Order }> {
-    this.checkRateLimit('submitOrder')
-    await this.delay(600)
+    // Validate order data
+    if (!orderData.tableNumber) throw new Error('Table number is required')
+    validateTableNumber(orderData.tableNumber)
     
-    // Validate table number
-    const tableNumber = orderData.tableNumber ? 
-      validateTableNumber(orderData.tableNumber) : '1'
-    if (!tableNumber) {
-      throw new Error('Invalid table number')
+    if (!orderData.items || orderData.items.length === 0) {
+      throw new Error('Order must contain at least one item')
     }
     
-    // Validate and sanitize items
-    const validatedItems = (orderData.items || []).map(item => {
-      const validatedName = item.name ? validateItemName(item.name) : null
-      if (!validatedName) {
-        throw new Error(`Invalid item name: ${item.name}`)
+    // Validate each item
+    orderData.items.forEach((item, index) => {
+      if (!validateItemName(item.name)) {
+        throw new Error(`Invalid item name at position ${index + 1}`)
       }
-      
-      const validatedQuantity = validateQuantity(item.quantity)
-      if (!validatedQuantity) {
+      if (!validateQuantity(item.quantity)) {
         throw new Error(`Invalid quantity for ${item.name}`)
       }
-      
-      const validatedModifiers = item.modifiers ? 
-        validateModifiers(item.modifiers) : undefined
-      
-      const validatedNotes = item.notes ? 
-        validateNotes(item.notes) : undefined
-      
-      const validatedPrice = item.price !== undefined ? 
-        validatePrice(item.price) : undefined
-      
-      return {
-        ...item,
-        name: validatedName,
-        quantity: validatedQuantity,
-        modifiers: validatedModifiers,
-        notes: validatedNotes !== null ? validatedNotes : undefined,
-        price: validatedPrice !== null ? validatedPrice : undefined
+      if (item.price !== undefined && !validatePrice(item.price)) {
+        throw new Error(`Invalid price for ${item.name}`)
+      }
+      if (item.modifiers && !validateModifiers(item.modifiers)) {
+        throw new Error(`Invalid modifiers for ${item.name}`)
+      }
+      if (item.notes && !validateNotes(item.notes)) {
+        throw new Error(`Invalid notes for ${item.name}`)
       }
     })
     
-    // Validate total amount
-    const validatedTotalAmount = orderData.totalAmount !== undefined ?
-      validatePrice(orderData.totalAmount) : 0
-    if (validatedTotalAmount === null) {
-      throw new Error('Invalid total amount')
-    }
-    
-    const newOrder: Order = {
-      id: `order-${Date.now()}`,
-      restaurant_id: restaurantId,
-      orderNumber: String(mockData.orders.length + 1).padStart(3, '0'),
-      tableNumber,
-      items: validatedItems,
-      status: 'new',
-      orderTime: new Date(),
-      totalAmount: validatedTotalAmount,
-      paymentStatus: 'pending',
-      notes: orderData.notes && validateNotes(orderData.notes) || undefined
-    }
-    
-    mockData.orders.push(newOrder)
-    
-    // Emit real-time event
-    orderSubscription.emitOrderCreated(newOrder)
-    
-    console.log('Mock: Submitted order', newOrder)
-    return { success: true, orderId: newOrder.id, order: newOrder }
+    return this.execute(
+      // Real API call
+      async () => {
+        const response = await this.httpClient.post<{
+          success: boolean
+          orderId: string
+          order: Order
+        }>('/api/v1/orders', {
+          restaurant_id: restaurantId,
+          table_number: orderData.tableNumber,
+          items: orderData.items,
+          notes: orderData.notes,
+          order_type: orderData.orderType
+        })
+        
+        this.logServiceCall('POST', '/api/v1/orders', orderData, response)
+        
+        return {
+          success: response.success,
+          orderId: response.orderId,
+          order: {
+            ...response.order,
+            status: mapOrderStatus(response.order.status)
+          }
+        }
+      },
+      // Mock implementation
+      async () => {
+        await this.delay(500)
+        
+        const table = mockData.tables.find(t => 
+          t.restaurant_id === restaurantId && t.number === orderData.tableNumber
+        )
+        if (!table) throw new Error('Table not found')
+        
+        const newOrder = mockOrderGenerator.generateOrder({
+          restaurant_id: restaurantId,
+          tableNumber: orderData.tableNumber,
+          items: orderData.items!,
+          notes: orderData.notes,
+          orderType: orderData.orderType
+        })
+        
+        mockData.orders.push(newOrder)
+        table.status = 'occupied'
+        table.currentOrderId = newOrder.id
+        
+        // Start order progression simulation
+        startOrderProgression(newOrder)
+        
+        // Notify subscribers
+        const subscribers = orderSubscription.getSubscribers()
+        subscribers.forEach(callback => callback({
+          ...newOrder,
+          status: mapOrderStatus(newOrder.status)
+        }))
+        
+        return { 
+          success: true, 
+          orderId: newOrder.id, 
+          order: {
+            ...newOrder,
+            status: mapOrderStatus(newOrder.status)
+          }
+        }
+      }
+    )
   }
 
   subscribeToOrders(restaurantId: string, callback: (order: Order) => void): () => void {
-    // Start order progression simulation
-    const stopProgression = startOrderProgression()
-    
-    // Subscribe to order events for this restaurant
-    const unsubscribe = orderSubscription.subscribe(`restaurant-${restaurantId}`, (event) => {
-      if (event.type === 'ORDER_CREATED' && event.order.restaurant_id === restaurantId) {
-        callback(event.order)
+    // Wrap callback to filter by restaurant and map status
+    const filteredCallback = (order: Order) => {
+      if (order.restaurant_id === restaurantId) {
+        callback({
+          ...order,
+          status: mapOrderStatus(order.status)
+        })
       }
-    })
-    
-    // Simulate new orders coming in for this restaurant
-    const interval = setInterval(() => {
-      const randomOrder = mockOrderGenerator.generateOrder()
-      // Ensure the order has the correct restaurant_id
-      randomOrder.restaurant_id = restaurantId
-      mockData.orders.push(randomOrder)
-      orderSubscription.emitOrderCreated(randomOrder)
-    }, 20000) // New order every 20 seconds
-    
-    // Return unsubscribe function
-    return () => {
-      clearInterval(interval)
-      stopProgression()
-      unsubscribe()
     }
+    
+    // TODO: Implement real WebSocket subscription when Task 7 is completed
+    // For now, use the mock subscription
+    return orderSubscription.subscribe(filteredCallback)
   }
 }
 
-// Export singleton instance
 export const orderService = new OrderService()

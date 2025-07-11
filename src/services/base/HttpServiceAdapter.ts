@@ -27,23 +27,28 @@ export abstract class HttpServiceAdapter extends BaseService {
     super()
     this.httpClient = config?.httpClient || httpClient
     
-    // Default to mock data in development/test
-    let defaultUseMock = true
-    
-    try {
-      if (import.meta?.env?.VITE_USE_MOCK_DATA !== undefined) {
-        defaultUseMock = import.meta.env.VITE_USE_MOCK_DATA === 'true'
-      } else if (import.meta?.env?.VITE_API_BASE_URL === undefined) {
-        defaultUseMock = true
-      }
-    } catch {
-      // In test environment, default to mock
-      if (import.meta.env.MODE === 'test') {
-        defaultUseMock = true
+    // Determine if we should use mock data
+    if (config?.useMockData !== undefined) {
+      // Explicit configuration takes precedence
+      this.useMockData = config.useMockData
+    } else if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+      // Always use mock data in test environment
+      this.useMockData = true
+    } else {
+      // In development/production, check for API URL or mock flag
+      try {
+        // @ts-ignore - import.meta is available in Vite
+        const hasApiUrl = import.meta?.env?.VITE_API_BASE_URL !== undefined
+        // @ts-ignore
+        const mockFlag = import.meta?.env?.VITE_USE_MOCK_DATA
+        
+        // Use mock if explicitly set to true or if no API URL is configured
+        this.useMockData = mockFlag === 'true' || !hasApiUrl
+      } catch {
+        // Fallback to mock if import.meta is not available
+        this.useMockData = true
       }
     }
-    
-    this.useMockData = config?.useMockData ?? defaultUseMock
   }
 
   /**

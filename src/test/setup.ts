@@ -5,6 +5,18 @@ import { TextEncoder, TextDecoder } from 'util'
 global.TextEncoder = TextEncoder as unknown as typeof global.TextEncoder
 global.TextDecoder = TextDecoder as unknown as typeof global.TextDecoder
 
+// Mock import.meta for tests
+;(globalThis as any).import = {
+  meta: {
+    env: {
+      VITE_API_BASE_URL: 'http://localhost:3001',
+      VITE_USE_MOCK_DATA: 'true',
+      DEV: false,
+      MODE: 'test'
+    }
+  }
+}
+
 // Mock the transcription service
 jest.mock('@/services/transcription/TranscriptionService')
 

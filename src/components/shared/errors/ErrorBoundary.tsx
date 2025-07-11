@@ -24,8 +24,12 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    if (import.meta.env.DEV) {
-      console.error('Error:', error, errorInfo)
+    // Skip import.meta in test environment
+    if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+      // @ts-ignore - import.meta is available in Vite but not in Jest
+      if (import.meta?.env?.DEV) {
+        console.error('Error:', error, errorInfo)
+      }
     }
     this.props.onError?.(error, errorInfo)
   }
@@ -46,7 +50,9 @@ export class ErrorBoundary extends Component<Props, State> {
             <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
             <p className="text-muted-foreground mb-4">An unexpected error occurred. Please try refreshing the page.</p>
-            {import.meta.env.DEV && error && (
+            {(typeof process === 'undefined' || process.env.NODE_ENV !== 'test') && 
+             // @ts-ignore
+             import.meta?.env?.DEV && error && (
               <div className="mt-4 text-left">
                 <h3 className="font-semibold mb-2">Error Details</h3>
                 <pre className="text-xs bg-muted p-2 rounded overflow-auto">

@@ -16,7 +16,7 @@ A modern, modular Restaurant Operating System built with Vite, React, TypeScript
 
 ## 🛠️ Tech Stack
 
-### Frontend (This Repository)
+### Frontend
 - **Framework**: React 18 + TypeScript
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS + shadcn/ui + Macon AI brand
@@ -24,7 +24,14 @@ A modern, modular Restaurant Operating System built with Vite, React, TypeScript
 - **Testing**: Jest + React Testing Library (229 tests)
 - **Code Quality**: ESLint + Prettier + TypeScript strict
 
-### Backend (Separate Service - Managed by Luis)
+### AI Gateway (Integrated)
+- **Voice Processing**: WebSocket streaming for real-time audio
+- **Transcription**: OpenAI Whisper for speech-to-text
+- **Chat AI**: GPT-3.5 for natural order conversations
+- **Server**: Express.js with WebSocket support
+- **Port**: 3002 (runs alongside frontend)
+
+### Backend API (Separate Service - Managed by Luis)
 - **API**: Express.js server
 - **Database**: Supabase (PostgreSQL)
 - **Architecture**: RESTful API endpoints
@@ -61,28 +68,38 @@ npm install
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your configuration:
+Edit `.env` with your configuration:
 ```env
-# Supabase Configuration (for future real-time features only)
-# Note: Database access is ONLY through Express.js API
+# Supabase Configuration
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Optional: Restaurant Configuration
-VITE_DEFAULT_RESTAURANT_ID=your_restaurant_id
+# OpenAI Configuration (for AI features)
+OPENAI_API_KEY=your_openai_api_key
 
-# Backend API (when available)
+# Backend API (Luis's Express server)
 VITE_API_BASE_URL=http://localhost:3001
+
+# AI Gateway Configuration
+PORT=3002
+FRONTEND_URL=http://localhost:5173
 ```
 
-4. Start the development server:
+4. Start the development server with AI features:
 ```bash
-npm run dev
+npm run dev:ai
 ```
 
-The application will be available at `http://localhost:5173`
+This starts both:
+- Frontend at `http://localhost:5173`
+- AI Gateway at `http://localhost:3002`
 
-**Note**: Currently runs with mock data. Express.js backend integration coming soon.
+### Quick Access:
+- 🎤 **Voice Kiosk**: http://localhost:5173/kiosk
+- 🚗 **Drive-Thru**: http://localhost:5173/drive-thru
+- 🍳 **Kitchen Display**: http://localhost:5173/kitchen
+
+**Note**: Voice features require OpenAI API key. Without it, uses mock transcription.
 
 ## 📁 Project Structure
 
@@ -181,6 +198,25 @@ npm test:coverage    # Generate coverage report
 npm run analyze      # Analyze bundle size
 node scripts/analyze-codebase.cjs  # Code metrics analysis
 ```
+
+## 📜 Available Scripts
+
+### Development
+- `npm run dev` - Start frontend only
+- `npm run dev:ai` - Start frontend + AI Gateway (recommended)
+
+### Building & Testing
+- `npm run build` - Build for production
+- `npm test` - Run all tests
+- `npm run test:coverage` - Run tests with coverage
+- `npm run lint` - Check code style
+- `npm run lint:fix` - Fix code style issues
+- `npm run typecheck` - Check TypeScript types
+
+### Other Commands
+- `npm run format` - Format code with Prettier
+- `npm run preview` - Preview production build
+- `npm run analyze` - Analyze bundle size
 
 ## 🧪 Testing
 

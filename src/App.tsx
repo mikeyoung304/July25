@@ -6,6 +6,7 @@ import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
 import { AppContent } from '@/components/layout/AppContent'
 import { SplashScreen } from '@/pages/SplashScreen'
 import { webSocketService, orderUpdatesHandler } from '@/services/websocket'
+import { supabase } from '@/core/supabase'
 import './App.css'
 
 function App() {
@@ -16,38 +17,79 @@ function App() {
     setShowSplash(false)
   }
   
-  // Initialize WebSocket connection
+  // Initialize WebSocket connection when authenticated
   useEffect(() => {
-    // Only connect in development mode or when we have a real backend
-    let shouldConnect = isDevelopment
-    
-    // Check for API URL configuration
-    try {
-      if (import.meta?.env?.VITE_API_BASE_URL) {
-        shouldConnect = true
-      }
-    } catch {
-      // Fallback for test environment
-      if (import.meta.env.VITE_API_BASE_URL) {
-        shouldConnect = true
-      }
-    }
-    
-    if (shouldConnect) {
-      // Initialize order updates handler
-      orderUpdatesHandler.initialize()
-      
-      // Connect to WebSocket
-      webSocketService.connect().catch(error => {
-        console.warn('WebSocket connection failed:', error)
-        // Continue app operation without WebSocket
-      })
-      
-      return () => {
-        // Cleanup on unmount
+    // Subscribe to auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // Only connect in development mode or when we have a real backend
+        let shouldConnect = isDevelopment
+        
+        // Check for API URL configuration
+        try {
+          if (import.meta?.env?.VITE_API_BASE_URL) {
+            shouldConnect = true
+          }
+        } catch {
+          // Fallback for test environment
+          if (import.meta.env.VITE_API_BASE_URL) {
+            shouldConnect = true
+          }
+        }
+        
+        if (shouldConnect) {
+          // Initialize order updates handler
+          orderUpdatesHandler.initialize()
+          
+          // Connect to WebSocket
+          webSocketService.connect().catch(error => {
+            console.warn('WebSocket connection failed:', error)
+            // Continue app operation without WebSocket
+          })
+        }
+      } else if (event === 'SIGNED_OUT') {
+        // Disconnect WebSocket on sign out
         orderUpdatesHandler.cleanup()
         webSocketService.disconnect()
       }
+    })
+
+    // Check if already authenticated
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        // Only connect in development mode or when we have a real backend
+        let shouldConnect = isDevelopment
+        
+        // Check for API URL configuration
+        try {
+          if (import.meta?.env?.VITE_API_BASE_URL) {
+            shouldConnect = true
+          }
+        } catch {
+          // Fallback for test environment
+          if (import.meta.env.VITE_API_BASE_URL) {
+            shouldConnect = true
+          }
+        }
+        
+        if (shouldConnect) {
+          // Initialize order updates handler
+          orderUpdatesHandler.initialize()
+          
+          // Connect to WebSocket
+          webSocketService.connect().catch(error => {
+            console.warn('WebSocket connection failed:', error)
+            // Continue app operation without WebSocket
+          })
+        }
+      }
+    })
+    
+    return () => {
+      // Cleanup on unmount
+      authListener.subscription.unsubscribe()
+      orderUpdatesHandler.cleanup()
+      webSocketService.disconnect()
     }
   }, [isDevelopment])
   
