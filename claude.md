@@ -1,167 +1,120 @@
 > **Project Briefing: Rebuild 6.0**
-> - **Mission**: Evolve a modular Restaurant OS by integrating advanced AI-driven workflows.
-> - **Full Project Docs**: Refer to `README.md` for a complete feature list, architecture, and available `npm` scripts.
+> - **Mission**: Evolve a modular Restaurant OS with unified backend architecture
+> - **Architecture**: See `ARCHITECTURE.md` for Luis's unified backend decision
+> - **Full Project Docs**: Refer to `README.md` for setup and features
 
 ---
 
-### **1. 🏛️ Architectural Evolution**
+### **1. 🏛️ Unified Backend Architecture**
 
-- **Full-Stack Development**: We now build both frontend AND backend components
-- **Backend Stack**: Express.js + Supabase + TypeScript
-- **Modular Architecture**: Features organized in `src/modules/` (frontend) and `backend/src/` (backend)
+- **CRITICAL**: This project uses a UNIFIED BACKEND on port 3001
+- **NO MICROSERVICES**: Everything (API + AI + WebSocket) in one Express.js server
+- **Directory Structure**: 
+  - Frontend in `client/` directory
+  - Backend in `server/` directory (includes AI functionality)
 - **Service Layer Pattern**: 
-  - Frontend services communicate with our Express.js API
-  - Backend handles all database operations via Supabase
-  - Complete API documentation in `docs/api/`
+  - Frontend services → Express.js API (port 3001)
+  - Backend handles all operations including AI/voice
+  - NO separate AI Gateway (port 3002 doesn't exist)
 
-- **EVOLVED: Full-Stack Service Layer**:
-  - Frontend `src/services` → Express.js API endpoints
-  - Backend `backend/src/services` → Supabase database operations
-  - We control both layers for optimal integration
-  - Service adapters provide mock/real data switching during development
+- **Key Architecture Points**:
+  - One backend service handles everything
+  - AI functionality integrated in `server/src/ai/`
+  - WebSocket runs on same port (3001)
+  - See `ARCHITECTURE.md` for rationale
 
-- **PRIORITY: Multi-Tenancy**: The `RestaurantContext` provides `restaurant_id` for all API calls to our Express.js backend.
+- **PRIORITY: Multi-Tenancy**: The `RestaurantContext` provides `restaurant_id` for all API calls
 
 ### **2. ✅ Quality Gates & Core Commands**
 
-- **`npm test`**: **MANDATORY** before every commit. Refer to the `README.md` for specific testing commands like `npm test -- --coverage`.
-- **`npm run lint:fix`**: Run this command to ensure code style consistency.
-- **`npm run typecheck`**: All code must pass TypeScript checks before PR submission.
+- **`npm run dev`**: Start everything (from root directory)
+- **`npm test`**: **MANDATORY** before every commit
+- **`npm run lint:fix`**: Ensure code style consistency
+- **`npm run typecheck`**: All code must pass TypeScript checks
 
 ### **3. 🎯 Current Mission & Session Log**
 
-- **Current Task**: Full-stack development with backend implementation
+- **Current State**: Unified backend architecture fully implemented
 - **Session Log (Most Recent)**:
-    - ✅ **Full-Stack Architecture**: Evolved from frontend-only to complete stack control
-    - ✅ **Backend Foundation**: Express.js server with Supabase integration
-    - ✅ **API Integration Layer**: HTTP client with authentication and case transformation
-    - ✅ **Service Adapter Pattern**: Seamless mock/real data switching
-    - ✅ **WebSocket Service**: Real-time order updates infrastructure
-    - ✅ **Documentation Overhaul**: Updated for full-stack development
-    - ✅ **All Tests Passing**: 229 tests with comprehensive coverage
+    - ✅ **Unified Backend**: Consolidated API + AI into one service
+    - ✅ **Directory Restructure**: client/ and server/ separation
+    - ✅ **Port Consolidation**: Everything on 3001 (no 3002)
+    - ✅ **Documentation Updated**: ARCHITECTURE.md as source of truth
+    - ✅ **AI Integration**: Voice/AI features in main backend
+    - ✅ **Simplified Startup**: Single `npm run dev` command
 - **Next Steps**:
-    1.  **Backend Services**: Implement core API endpoints
-    2.  **Database Schema**: Finalize Supabase table structure
-    3.  **E2E Testing**: Voice-to-kitchen workflow validation
-    4.  **Production Setup**: Deployment and monitoring
+    1. **Test Voice Flow**: Ensure unified backend handles voice correctly
+    2. **Performance Testing**: Validate unified architecture performance
+    3. **Deployment Setup**: Single service deployment configuration
+    4. **Monitoring**: Unified logging and metrics
 
 ### **4. 🚨 Critical Directives (DO NOT)**
 
-- **DO NOT** modify the Supabase client config in `services/supabaseClient.ts` without explicit instruction.
-- **DO NOT** introduce new dependencies (`npm install ...`) without approval.
-- **DO NOT** alter the core build process in `vite.config.ts`.
+- **DO NOT** create separate AI Gateway or suggest port 3002
+- **DO NOT** propose microservices architecture
+- **DO NOT** modify unified backend architecture without updating ARCHITECTURE.md
+- **DO NOT** create complex startup scripts - use `npm run dev`
 
 ### **5. 🧠 MCP Directives & Agent Roles**
 
-- **`filesystem`**: **Primary Tool.** For all file reading, writing, and searching.
-- **`desktop`**: For running `npm` scripts and other shell commands.
-- **`sequential`**: **For Complex Problems.** Use for architectural analysis, complex debugging, and refactoring plans.
-- **`context7`**: For external library documentation (React, TS, Supabase, etc.).
-- **`github`**: For all Git operations and PR management.
-- **`puppeteer`/`playwright`**: For End-to-End (E2E) testing and live app inspection.
+- **`filesystem`**: **Primary Tool.** For all file operations
+- **`desktop`**: For running `npm` scripts and commands
+- **`sequential`**: For architectural analysis (respects unified backend)
+- **`context7`**: For library documentation only
+- **NO AI Gateway references**: All AI code goes in server/src/ai/
 
 **Agent Role Quick Reference:**
--   **Architect**: Uses `sequential` + `filesystem` for planning.
--   **Builder**: Uses `filesystem` + `desktop` for coding and testing.
--   **Validator**: Uses `desktop` + `puppeteer` for validation and E2E checks.
+- **Architect**: Must respect unified backend decision
+- **Builder**: Add features to server/, not new services
+- **Validator**: Test on port 3001 only
 
-### **6. 🔗 API Integration Layer (Project Janus)**
+### **6. 🔗 Unified API Structure**
 
-**IMPORTANT**: The project now includes complete full-stack architecture with our own Express.js backend.
+**IMPORTANT**: ONE backend service handles everything
 
-#### Core Components:
+#### API Endpoints (all on port 3001):
 
-**HTTP Client** (`src/services/http/httpClient.ts`):
-- Automatic Supabase JWT authentication in `Authorization` header
-- Multi-tenant support via `X-Restaurant-ID` header
-- Automatic case transformation (camelCase ↔ snake_case)
-- Status code-based error handling
-- Configuration via `VITE_API_BASE_URL` environment variable
+**Standard API** (`/api/v1/*`):
+- Orders, Menu, Tables, etc.
 
-**Service Adapter Pattern** (`src/services/base/HttpServiceAdapter.ts`):
-- Base class for all services requiring API integration
-- Seamless switching between mock and real API modes
-- Maintains backward compatibility during migration
-- Example implementation: `OrderService.migrated.ts`
+**AI API** (`/api/v1/ai/*`):
+- Voice transcription
+- Order parsing
+- Menu upload
 
-**WebSocket Service** (`src/services/websocket/`):
-- Real-time order updates for Kitchen Display
-- Automatic reconnection with exponential backoff
-- Message queueing for offline resilience
-- Event-based architecture for order state changes
+**WebSocket** (`ws://localhost:3001`):
+- Real-time updates
+- Voice streaming
 
-**Case Transformation** (`src/services/utils/caseTransform.ts`):
-- Deep object transformation between naming conventions
-- Handles nested objects, arrays, and Date objects
-- ISO date string to Date object conversion
-- Query parameter transformation support
+#### No Separate Services:
+- ❌ NO AI Gateway on 3002
+- ❌ NO microservices
+- ❌ NO service orchestration needed
 
-#### Migration Guide:
+### **7. 📚 Key Documentation**
 
-1. **For New Services**: Extend `HttpServiceAdapter` and implement both mock and real methods
-2. **For Existing Services**: Create `.migrated.ts` version following OrderService pattern
-3. **Environment Setup**: Set `VITE_API_BASE_URL=http://localhost:3001` for local development
-4. **Authentication**: Ensure user is logged in via Supabase for API calls to work
+1. **ARCHITECTURE.md** - Source of truth for architecture decisions
+2. **README.md** - Quick start and overview
+3. **CONTRIBUTING_AI.md** - Common pitfalls to avoid
+4. **server/README.md** - Backend implementation details
 
-#### Our API Contract:
-```typescript
-// Request Headers
-Authorization: Bearer <supabase-jwt>
-X-Restaurant-ID: <restaurant-id>
-Content-Type: application/json
+### **8. 🔧 Development Workflow**
 
-// Data Format
-- Request body: snake_case
-- Response body: snake_case (auto-converted to camelCase)
-- No response envelope (direct data return)
-- Status code-based error handling
+```bash
+# From root directory
+npm install          # Install everything
+npm run dev          # Start client + server
+npm test             # Run all tests
+
+# From server directory
+npm run upload:menu  # Upload menu to AI service
+npm run check:integration  # Verify system health
 ```
-
-### **7. 🔧 Advanced Command Toolkit**
-
-**NEW**: This project now includes an advanced multi-agent orchestration toolkit located in `.claude/commands/`. These are specialized, on-demand workflows that can be invoked for complex development scenarios.
-
-#### Available Commands:
-
-**🎯 Core Development Workflows:**
-- **`/m-orchestrated-dev`**: Launch full multi-agent development cycle with Orchestrator, Developer, and Reviewer agents
-- **`/m-task-planner`**: Systematic task decomposition with dependency mapping and visualization
-- **`/m-tdd-planner`**: Test-driven development planning with comprehensive test strategies
-
-**🔍 Code Quality & Review:**
-- **`/m-review-code`**: Comprehensive code review with actionable feedback
-- **`/m-security-scan`**: Security vulnerability assessment and recommendations
-- **`/m-debate-code`**: Multi-perspective code analysis for optimal solutions
-- **`/m-debate-architecture`**: Architectural decision debates with trade-off analysis
-
-**📝 Project Management:**
-- **`/m-commit-push`**: Intelligent commit message generation and git workflow
-- **`/m-document-update`**: Automated documentation updates based on code changes
-- **`/m-project-cleanup`**: Identify and remove dead code, optimize structure
-- **`/m-branch-prune`**: Clean up stale branches with safety checks
-
-**🧪 Testing & Quality:**
-- **`/m-test-generation`**: Generate comprehensive test suites for existing code
-- **`/m-bug-fix`**: Systematic bug investigation and resolution workflow
-
-**📊 Context Management:**
-- **`/m-next-task`**: Intelligent task selection based on project state
-- **`/m-next-context`**: Context preparation for seamless session handoffs
-
-#### Command Usage:
-To invoke any command, simply reference it by name (e.g., "Let's use /m-orchestrated-dev to implement the new feature"). Each command follows a structured multi-agent pattern with:
-- Clear role definitions (Orchestrator, Developer, Reviewer)
-- Evidence-based decision making
-- Built-in quality gates
-- Iterative refinement cycles
-
-#### Command Philosophy:
-These commands implement advanced AI collaboration patterns where multiple specialized agents work together, each bringing unique perspectives and validation to ensure high-quality outcomes. They emphasize:
-- Research-driven development
-- Systematic problem decomposition
-- Continuous quality validation
-- Clear documentation of decisions
 
 ---
 
-**Remember**: The toolkit commands are powerful accelerators for complex tasks but should be used judiciously. For simple tasks, direct implementation remains the most efficient approach.
+**Remember**: 
+- Unified backend on port 3001
+- No separate AI Gateway
+- client/ and server/ directories
+- See ARCHITECTURE.md for any architecture questions

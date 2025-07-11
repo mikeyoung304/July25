@@ -1,426 +1,171 @@
-# Macon AI Restaurant OS (Rebuild 6.0)
+# Grow Fresh Local Food - Restaurant Operating System
 
-A modern, modular Restaurant Operating System built with Vite, React, TypeScript, and Supabase. Featuring AI-powered voice ordering and real-time kitchen management.
+> ⚠️ **ARCHITECTURE**: Unified Backend - Everything runs on port 3001  
+> See [ARCHITECTURE.md](./ARCHITECTURE.md) for details
 
-## 🚀 Features
+A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering, real-time kitchen management, and a unified backend architecture.
 
-- 🍽️ **Kitchen Display System (KDS)**: Real-time order management with status tracking
-- 🎤 **Voice Ordering Kiosk**: Natural language voice capture for customer orders
-- 📊 **Order History & Analytics**: Comprehensive order tracking and performance metrics
-- 🔊 **Audio Notifications**: Customizable sound alerts for new orders and status changes
-- 🎯 **Smart Filtering**: Advanced filtering and search capabilities
+## 🚀 Quick Start
+
+```bash
+# Clone and install
+git clone <repo-url>
+cd rebuild-6.0
+npm install
+
+# Start everything
+npm run dev
+```
+
+That's it! The system is now running:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3001
+
+## 🎯 Key Features
+
+- 🎤 **Voice Ordering**: Natural language processing for customer orders
+- 🍽️ **Kitchen Display System**: Real-time order management
+- 📊 **Analytics Dashboard**: Order history and performance metrics
+- 🔊 **Smart Notifications**: Audio alerts for kitchen staff
 - ♿ **Accessibility First**: Full keyboard navigation and screen reader support
-- 📱 **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- ⚡ **Real-time Updates**: Powered by Supabase for instant synchronization
-- 🏢 **Multi-tenant Ready**: Restaurant context for multi-location support
+- 🏢 **Multi-tenant Ready**: Built for multiple restaurant locations
+
+## 🏗️ Architecture
+
+```
+Frontend (5173) ←→ Unified Backend (3001) ←→ Supabase Database
+```
+
+**One Backend, All Services**:
+- REST API endpoints (`/api/v1/*`)
+- AI/Voice processing (`/api/v1/ai/*`)
+- WebSocket connections for real-time updates
+- Direct Supabase integration
+
+## 📁 Project Structure
+
+```
+rebuild-6.0/
+├── client/          # React frontend
+│   ├── src/
+│   └── package.json
+├── server/          # Express backend (includes AI)
+│   ├── src/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── ai/      # AI functionality
+│   └── package.json
+└── package.json     # Root orchestration
+```
 
 ## 🛠️ Tech Stack
 
 ### Frontend
 - **Framework**: React 18 + TypeScript
 - **Build Tool**: Vite
-- **Styling**: Tailwind CSS + shadcn/ui + Macon AI brand
-- **State Management**: React Context + Custom hooks
-- **Testing**: Jest + React Testing Library (229 tests)
-- **Code Quality**: ESLint + Prettier + TypeScript strict
+- **Styling**: Tailwind CSS + Custom Design System
+- **State Management**: React Context API
+- **Testing**: Jest + React Testing Library
 
-### AI Gateway (Integrated)
-- **Voice Processing**: WebSocket streaming for real-time audio
-- **Transcription**: OpenAI Whisper for speech-to-text
-- **Chat AI**: GPT-3.5 for natural order conversations
-- **Server**: Express.js with WebSocket support
-- **Port**: 3002 (runs alongside frontend)
+### Backend (Unified)
+- **Server**: Express.js + TypeScript
+- **Database**: Supabase (PostgreSQL)
+- **AI/Voice**: OpenAI Whisper + GPT-4
+- **Real-time**: WebSocket (ws)
+- **Architecture**: RESTful + WebSocket
 
-### Backend API (Our Express.js Server)
-- **API**: Express.js + TypeScript server
-- **Database**: Supabase (PostgreSQL) with direct integration
-- **Architecture**: RESTful API endpoints with WebSocket support
-- **Port**: 3001 (runs alongside frontend)
-- **Responsibility**: Complete backend logic and database operations
+## 🔧 Development
 
-### Key Architecture Evolution
-- **Full-Stack Control**: We now develop both frontend and backend
-- **Direct Integration**: Backend services connect directly to Supabase
-- **Service Layer**: Frontend services communicate with our Express.js API
-- **Development**: Service adapters provide mock/real data switching
+### Environment Setup
 
-## 📋 Prerequisites
+Create `.env` files:
 
-- Node.js 18.x or higher
-- npm or yarn package manager
-- Git
-
-## 🚀 Getting Started
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repo-url>
-cd rebuild-6.0
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Set up environment variables:
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env` with your configuration:
+**Server** (`server/.env`):
 ```env
-# Supabase Configuration
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+PORT=3001
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_KEY=your_service_key
+OPENAI_API_KEY=your_openai_key
+DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
+```
 
-# OpenAI Configuration (for AI features)
-OPENAI_API_KEY=your_openai_api_key
-
-# Backend API (Our Express server)
+**Client** (`client/.env.local`):
+```env
 VITE_API_BASE_URL=http://localhost:3001
-
-# AI Gateway Configuration
-PORT=3002
-FRONTEND_URL=http://localhost:5173
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-4. Start the development server with AI features:
-```bash
-npm run dev:ai
-```
+### Available Scripts
 
-This starts both:
-- Frontend at `http://localhost:5173`
-- AI Gateway at `http://localhost:3002`
-
-### Quick Access:
-- 🎤 **Voice Kiosk**: http://localhost:5173/kiosk
-- 🚗 **Drive-Thru**: http://localhost:5173/drive-thru
-- 🍳 **Kitchen Display**: http://localhost:5173/kitchen
-
-**Note**: Voice features require OpenAI API key. Without it, uses mock transcription.
-
-## 📁 Project Structure
-
-```
-src/
-├── modules/              # Feature modules (NEW)
-│   ├── analytics/       # Analytics and metrics module
-│   ├── filters/         # Filtering functionality module
-│   ├── floor-plan/      # Floor plan management module
-│   ├── kitchen/         # Kitchen Display System module
-│   ├── orders/          # Order management module
-│   ├── sound/           # Audio management module
-│   └── voice/           # Voice capture and ordering module
-├── components/          # Shared UI components
-│   ├── ui/             # Base UI components (shadcn)
-│   ├── shared/         # Reusable business components
-│   └── layout/         # Layout components
-├── services/           # Service layer - ONLY integration point with backend
-│   ├── orders/         # Order services (mock data)
-│   ├── tables/         # Table management (mock data)
-│   ├── menu/           # Menu services (mock data)
-│   ├── statistics/     # Analytics services (mock data)
-│   ├── types/          # Shared TypeScript interfaces
-│   └── base/           # Base service class for HTTP calls
-├── hooks/              # Global hooks
-│   ├── keyboard/       # Keyboard navigation hooks
-│   └── ...             # Other shared hooks
-├── pages/              # Page components
-├── core/               # Core providers and contexts
-├── types/              # Global TypeScript types
-└── App.tsx             # Root component
-```
-
-## 🏗️ Architecture
-
-The application follows a **modular architecture** with these key principles:
-
-### Service Layer Pattern (Full-Stack Architecture)
-- **Frontend services in `src/services/` integrate with our Express.js API**
-- **Backend services handle all database operations via Supabase**
-- **Service adapters enable seamless mock-to-real API migration**
-- **Restaurant context provides `restaurant_id` for multi-tenant operations**
-- **WebSocket integration for real-time order updates**
-
-### Module System
-- Self-contained feature modules in `src/modules/`
-- Clear public APIs via index.ts exports
-- Shared types derived from single source of truth
-- Zero circular dependencies
-
-### Component Architecture
-- Atomic design principles (atoms → molecules → organisms)
-- React.memo for performance optimization
-- Comprehensive TypeScript prop typing
-- WCAG 2.1 AA accessibility compliance
-
-### State Management
-- React Context for global state (RestaurantContext)
-- Custom hooks with proper error handling
-- Real-time subscriptions via Supabase
-- Optimistic UI updates with rollback
-
-### Code Quality
-- Single source of truth for types (no duplicates)
-- Proper error boundaries and user feedback
-- Toast notifications for all user actions
-- Comprehensive test coverage
-
-### API Integration Layer (Project Janus)
-- **HTTP Client**: Automatic JWT auth, multi-tenancy headers, case transformation
-- **Service Adapter Pattern**: Seamless mock-to-real API migration path
-- **WebSocket Service**: Real-time order updates with auto-reconnection
-- **Floor Plan Service**: Save/load functionality with localStorage fallback
-- **Case Transformation**: Deep object conversion between camelCase and snake_case
-
-## 📝 Available Scripts
-
-```bash
-# Development
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-
-# Code Quality
-npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint issues
-npm run format       # Format code with Prettier
-npm run typecheck    # TypeScript type checking
-
-# Testing
-npm test             # Run all tests
-npm test:watch       # Run tests in watch mode
-npm test:coverage    # Generate coverage report
-
-# Analysis
-npm run analyze      # Analyze bundle size
-node scripts/analyze-codebase.cjs  # Code metrics analysis
-```
-
-## 📜 Available Scripts
-
-### Development
-- `npm run dev` - Start frontend development server
-- `npm run dev:ai` - Start frontend + AI Gateway (recommended)
-
-### Building & Testing
+From root directory:
+- `npm run dev` - Start both client and server
 - `npm run build` - Build for production
-- `npm test` - Run all tests
-- `npm run test:coverage` - Run tests with coverage
-- `npm run lint` - Check code style
-- `npm run lint:fix` - Fix code style issues
-- `npm run typecheck` - Check TypeScript types
+- `npm run test` - Run all tests
 
-### Other Commands
-- `npm run format` - Format code with Prettier
-- `npm run preview` - Preview production build
-- `npm run analyze` - Analyze bundle size
+From server directory:
+- `npm run upload:menu` - Upload menu to AI service
+- `npm run check:integration` - Verify system health
+
+## 🎤 Voice Ordering Setup
+
+1. Start the system: `npm run dev`
+2. Upload menu data: `cd server && npm run upload:menu`
+3. Navigate to: http://localhost:5173/kiosk
+4. Click microphone and speak naturally
+
+Example commands:
+- "I'd like a soul bowl please"
+- "Can I get mom's chicken salad"
+- "Two green goddess salads"
 
 ## 🧪 Testing
 
-The project includes comprehensive testing:
-
-- **Unit Tests**: Business logic and utilities
-- **Component Tests**: UI components with RTL
-- **Hook Tests**: Custom React hooks
-- **Service Tests**: API layer with mocking
-- **Integration Tests**: Feature workflows
-
-Run tests:
 ```bash
-npm test                    # Run all tests
-npm test -- --coverage      # With coverage report
-npm test -- OrderCard       # Test specific component
+# Run all tests
+npm test
+
+# Run with coverage
+npm run test:coverage
+
+# Run specific module
+npm test -- --testNamePattern="OrderService"
 ```
 
-## ⌨️ Keyboard Shortcuts
-
-The application supports comprehensive keyboard navigation:
-
-- `Ctrl+K` - Go to Kitchen Display
-- `Ctrl+O` - Go to Voice Kiosk
-- `Ctrl+H` - Go to Order History
-- `/` - Focus search
-- `?` - Show keyboard shortcuts
-- `Escape` - Close modals/dialogs
-
-## 🎨 Styling & Design
-
-- **Tailwind CSS**: Utility-first styling with custom Macon AI theme
-- **shadcn/ui**: Pre-built accessible components
-- **Brand Colors**: 
-  - Background: `#FCFCFA` (True off-white)
-  - Primary: `#0A253D` (Macon Navy)
-  - Accent: Orange & Teal from logo
-- **CSS Variables**: Theme customization
-- **Animations**: Smooth transitions and hover effects
-- **Dark Mode**: System preference support (coming soon)
-
-## 🚀 Full-Stack Development
-
-This project now includes complete backend implementation alongside the React frontend.
-
-### Backend Features
-- **Express.js API server** (port 3001)
-- **Supabase database integration** with direct backend access
-- **JWT authentication** via Supabase
-- **Multi-tenant architecture** with restaurant-based isolation
-- **Real-time WebSocket updates** for kitchen displays
-- **Comprehensive test coverage** for backend services
-
-### Getting Started with Backend
-```bash
-# Navigate to backend directory
-cd backend
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your Supabase credentials
-
-# Start backend development server
-npm run dev
-```
-
-### Full-Stack Development Workflow
-```bash
-# Terminal 1: Frontend
-npm run dev
-
-# Terminal 2: Backend
-cd backend && npm run dev
-
-# Terminal 3: AI Gateway (optional)
-npm run dev:ai
-```
-
-### Backend Environment Variables
-```env
-# Supabase Configuration
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_KEY=your_supabase_service_key
-
-# Server Configuration
-PORT=3001
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-```
-
-### API Documentation
-- **Base URL**: `http://localhost:3001/api`
-- **Authentication**: JWT via Authorization header
-- **Multi-tenancy**: X-Restaurant-ID header
-- **Data Format**: snake_case requests/responses (auto-converted)
-
-See [Backend Guide](./docs/BACKEND_GUIDE.md) for detailed backend development instructions.
-
-## 🔧 Configuration
-
-### MCP Servers (Development)
-The project supports Model Context Protocol servers for enhanced development:
-- **filesystem**: File operations
-- **desktop**: System commands
-- **sequential**: Complex analysis
-- **context7**: Documentation lookup
-- **github**: Repository operations
-- **puppeteer/playwright**: Browser automation
-
-## 📊 Performance
-
-- **Code Splitting**: Route-based lazy loading
-- **Memoization**: Optimized re-renders
-- **Virtual Scrolling**: For large lists (planned)
-- **Bundle Size**: < 500KB gzipped
-- **Lighthouse Score**: 90+ (target)
+Current test coverage: ~85% with 229 tests passing
 
 ## 🚀 Deployment
 
-### Production Build
-```bash
-npm run build
-```
+The unified backend simplifies deployment:
 
-The built files will be in the `dist` directory.
+1. Build the client: `cd client && npm run build`
+2. Build the server: `cd server && npm run build`
+3. Deploy server with client's dist folder
+4. Set production environment variables
+5. Start with: `cd server && npm start`
 
-### Environment Variables
-Required for production:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-
-### Hosting Options
-- Vercel (recommended)
-- Netlify
-- AWS S3 + CloudFront
-- Any static hosting service
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Coding Standards
-- Follow TypeScript best practices
-- Write tests for new features
-- Update documentation
-- Follow the established module pattern
-- Ensure accessibility compliance
+See [server/README.md](./server/README.md) for detailed deployment instructions.
 
 ## 📚 Documentation
 
-- [Modular Architecture](./docs/MODULAR_ARCHITECTURE.md)
-- [Refactoring Plan](./docs/REFACTORING_PLAN.md)
-- [Testing Guide](./docs/FUNCTIONAL_TESTING_CHECKLIST.md)
-- [API Documentation](./docs/API.md) (coming soon)
+- [Architecture Decision](./ARCHITECTURE.md) - Why unified backend?
+- [API Reference](./docs/API_REFERENCE.md) - Endpoint documentation
+- [Contributing Guide](./CONTRIBUTING_AI.md) - For AI assistants and developers
+- [Voice Integration](./docs/VOICE_ORDERING_GUIDE.md) - Voice system details
 
-## 🐛 Known Issues
+## 🤝 Contributing
 
-- Some voice integration tests have timing issues
-- Voice capture requires HTTPS in production
-- Mock data service intentionally used for frontend development
-
-## 🔮 Roadmap
-
-- [ ] Complete E2E test suite with Playwright
-- [ ] Connect to Express.js backend API
-- [ ] Implement real-time collaboration features
-- [ ] Add inventory management module
-- [ ] Multi-language support
-- [ ] Advanced analytics dashboard
-- [ ] Mobile app (React Native)
-- [ ] Dark mode theme
+Please read [CONTRIBUTING_AI.md](./CONTRIBUTING_AI.md) for important context about the architecture and common pitfalls to avoid.
 
 ## 📄 License
 
-This project is proprietary software. All rights reserved.
-
-## 🏆 Recent Improvements
-
-### Code Quality (January 2025)
-- ✅ Consolidated type definitions (removed duplicates)
-- ✅ Fixed TypeScript strict mode compliance
-- ✅ Added proper error handling with user feedback
-- ✅ Integrated Macon AI brand colors throughout
-- ✅ Cleaned up 40% of AI-generated bloat
-- ✅ Fixed multi-tenant architecture gaps
-- ✅ All 229 tests passing
-
-### Architecture
-- ✅ Full-stack application with integrated backend
-- ✅ Service layer enforces separation (no direct DB access)
-- ✅ Mock-first development until Express.js API ready
-- ✅ Restaurant context provides multi-tenancy
-- ✅ Single source of truth for all types
+Proprietary - Macon AI Solutions
 
 ---
 
-Built with ❤️ by Macon AI Solutions using modern web technologies
+**Quick Links**:
+- 🎤 Voice Kiosk: http://localhost:5173/kiosk
+- 🍳 Kitchen Display: http://localhost:5173/kitchen
+- 📊 Dashboard: http://localhost:5173/dashboard
+- 🛠️ Admin: http://localhost:5173/admin
