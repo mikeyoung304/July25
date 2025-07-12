@@ -27,6 +27,9 @@ export interface EnvironmentConfig {
   restaurant: {
     defaultId: string;
   };
+  database: {
+    url: string;
+  };
 }
 
 export function validateEnvironment(): void {
@@ -72,6 +75,9 @@ export function getConfig(): EnvironmentConfig {
     },
     restaurant: {
       defaultId: process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
+    },
+    database: {
+      url: process.env.DATABASE_URL!,
     },
   };
 }
