@@ -1,38 +1,42 @@
-# Backend Development Guide
+# Unified Backend Development Guide
 
 ## 🎯 Overview
 
-We now develop the complete Express.js backend for the Restaurant OS, providing full control over API design, database operations, and business logic implementation.
+The Restaurant OS uses a **unified backend architecture** where a single Express.js server handles all backend functionality including API routes, AI/voice processing, and WebSocket connections.
 
 ## 🏗️ Backend Stack
 
 ### Core Technologies
-- **Express.js**: RESTful API server with TypeScript
-- **Supabase**: PostgreSQL database with real-time subscriptions
+- **Express.js**: Unified API server with TypeScript
+- **Supabase**: Cloud PostgreSQL database
 - **JWT Authentication**: Supabase-based user authentication
-- **WebSocket**: Real-time order updates via Socket.IO
+- **WebSocket**: Real-time updates via ws library
+- **OpenAI Integration**: Voice and AI features
 - **Multi-Tenant**: Restaurant-based data isolation
 
 ### Development Tools
 - **TypeScript**: Type-safe backend development
 - **ESLint**: Code quality and consistency
-- **Jest**: Comprehensive test coverage
-- **Nodemon**: Hot reload during development
+- **Vitest**: Comprehensive test coverage
+- **tsx**: Development server with hot reload
 
-## 📁 Backend Architecture
+## 📁 Unified Backend Architecture
 
 ```
-backend/
+server/                      # Unified backend directory
 ├── src/
-│   ├── controllers/          # API route handlers
-│   ├── services/            # Business logic layer
-│   ├── middleware/          # Authentication, validation
-│   ├── models/              # Data models and types
-│   ├── utils/               # Helper functions
-│   └── app.ts               # Express app configuration
-├── tests/                   # Backend test suites
-├── package.json            # Dependencies and scripts
-└── tsconfig.json           # TypeScript configuration
+│   ├── routes/             # API route definitions
+│   ├── services/           # Business logic layer
+│   ├── middleware/         # Auth, validation, error handling
+│   ├── models/             # TypeScript interfaces
+│   ├── utils/              # Helpers, WebSocket, database
+│   ├── ai/                 # AI/Voice functionality
+│   ├── config/             # Configuration files
+│   └── server.ts           # Main server entry point
+├── scripts/                # Utility scripts
+├── tests/                  # Test suites
+├── package.json           # Dependencies and scripts
+└── tsconfig.json          # TypeScript configuration
 ```
 
 ## 🚀 Getting Started
@@ -44,9 +48,9 @@ backend/
 
 ### Setup Steps
 
-1. **Navigate to Backend**:
+1. **Navigate to Server Directory**:
    ```bash
-   cd backend
+   cd server
    ```
 
 2. **Install Dependencies**:
@@ -57,12 +61,13 @@ backend/
 3. **Environment Configuration**:
    ```bash
    cp .env.example .env
-   # Edit .env with your Supabase credentials
+   # Edit .env with your credentials
    ```
 
 4. **Start Development Server**:
    ```bash
    npm run dev
+   # Or from root: npm run dev (starts both frontend and backend)
    ```
 
 5. **Run Tests**:
@@ -79,9 +84,13 @@ SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_KEY=your_supabase_service_key
 
+# OpenAI Configuration (for AI/Voice features)
+OPENAI_API_KEY=your_openai_api_key
+
 # Server Configuration
 PORT=3001
 NODE_ENV=development
+DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
 
 # CORS Configuration
 FRONTEND_URL=http://localhost:5173
@@ -188,20 +197,28 @@ export interface MenuItem {
 
 ```typescript
 // src/utils/websocket.ts
-import { Server } from 'socket.io';
+import { WebSocketServer } from 'ws';
 
 export const setupWebSocket = (server: any) => {
-  const io = new Server(server, {
-    cors: { origin: process.env.FRONTEND_URL }
-  });
+  const wss = new WebSocketServer({ server });
   
-  io.on('connection', (socket) => {
-    socket.on('join-restaurant', (restaurantId) => {
-      socket.join(`restaurant-${restaurantId}`);
+  wss.on('connection', (ws, req) => {
+    console.log('New WebSocket connection');
+    
+    ws.on('message', (data) => {
+      const message = JSON.parse(data.toString());
+      
+      if (message.type === 'join-restaurant') {
+        ws.restaurantId = message.restaurantId;
+      }
+    });
+    
+    ws.on('close', () => {
+      console.log('WebSocket connection closed');
     });
   });
   
-  return io;
+  return wss;
 };
 ```
 
@@ -308,6 +325,41 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 ```
 
+## 🤖 AI/Voice Integration
+
+### Voice Processing
+
+```typescript
+// src/ai/voiceService.ts
+import OpenAI from 'openai';
+
+export class VoiceService {
+  static async transcribeAudio(audioBuffer: Buffer) {
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    
+    const transcription = await openai.audio.transcriptions.create({
+      file: audioBuffer,
+      model: 'whisper-1',
+    });
+    
+    return transcription.text;
+  }
+  
+  static async processOrder(transcript: string) {
+    // Natural language processing for order extraction
+    const response = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'Extract order items from transcript' },
+        { role: 'user', content: transcript }
+      ]
+    });
+    
+    return response.choices[0].message.content;
+  }
+}
+```
+
 ## 🔄 Integration with Frontend
 
 ### API Base URL Configuration
@@ -328,6 +380,13 @@ Frontend connects via `VITE_API_BASE_URL=http://localhost:3001`
 - Backend expects snake_case
 - Automatic transformation via middleware
 
+### Unified Backend Benefits
+
+- **Single Port**: Everything runs on port 3001
+- **Simplified Deployment**: One service to deploy and monitor
+- **Shared Resources**: Database connections, caching, etc.
+- **Easier Development**: No service orchestration needed
+
 ---
 
-**Next Steps**: Review [FULLSTACK_ARCHITECTURE.md](./FULLSTACK_ARCHITECTURE.md) for system-wide architectural overview.
+**Next Steps**: Review [CURRENT_ARCHITECTURE.md](../CURRENT_ARCHITECTURE.md) for complete system architecture.

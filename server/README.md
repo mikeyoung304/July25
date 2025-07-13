@@ -12,11 +12,11 @@ npm install
 cp .env.example .env
 # Edit .env with your Supabase credentials
 
-# Run database migrations
-npm run migrate
+# Upload menu data to AI service
+npm run upload:menu
 
-# Seed menu data
-npm run seed
+# (Optional) Seed test data
+npm run seed:tables
 
 # Start development server
 npm run dev
@@ -149,13 +149,13 @@ npm run test:voice
 # "Mom's chicken salad and fruit cup"
 ```
 
-### Database Migrations
+### Database Management
 ```bash
-# Run migrations
-npm run migrate
+# Pull latest schema from cloud Supabase
+npx supabase db pull
 
-# Create new migration
-npm run migrate:create -- add_order_notes
+# Check integration with database
+npm run check:integration
 ```
 
 ## 🐛 Troubleshooting

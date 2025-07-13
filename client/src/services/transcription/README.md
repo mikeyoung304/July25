@@ -1,37 +1,45 @@
 # Voice Transcription Service
 
-This service provides real-time voice transcription using OpenAI's Whisper API.
+This service provides real-time voice transcription through the unified backend API.
+
+## Architecture
+
+Voice transcription is handled by the unified backend on port 3001:
+- Audio is streamed via WebSocket to `ws://localhost:3001`
+- Backend processes audio using OpenAI's Whisper API
+- Transcription results are returned in real-time
 
 ## Setup
 
-1. Get an OpenAI API key from https://platform.openai.com/api-keys
-2. Add the key to your `.env.local` file:
+The OpenAI API key should be configured in the **backend** only:
+1. Add to `server/.env`:
    ```
-   VITE_OPENAI_API_KEY=your_api_key_here
+   OPENAI_API_KEY=your_api_key_here
    ```
+2. The frontend connects to the backend API - no client-side API keys needed
 
 ## Usage
 
-The transcription is automatically integrated into the `useAudioCapture` hook. When recording stops, the audio is sent to OpenAI for transcription.
+The transcription is automatically integrated into the `useAudioCapture` hook. Audio is streamed to the backend for secure processing.
 
 ## Error Handling
 
 The service handles various error cases:
 
-- **No API Key**: Displays a clear message to configure VITE_OPENAI_API_KEY
-- **Invalid API Key**: Shows authentication error message
-- **Rate Limiting**: Informs user to try again later
-- **Network Errors**: Displays connection error message
-- **Invalid Audio Format**: Shows format error (though webm is supported)
+- **Backend Connection Failed**: Check if backend is running on port 3001
+- **No API Key**: Configure OPENAI_API_KEY in server/.env
+- **Rate Limiting**: Backend handles rate limiting gracefully
+- **Network Errors**: Automatic reconnection with exponential backoff
+- **Invalid Audio Format**: Backend validates audio format
 
-## Security Note
+## Security
 
-⚠️ **Important**: The current implementation uses `dangerouslyAllowBrowser: true` for demo purposes. In production:
+✅ **Production-Ready Architecture**:
 
-1. Never expose API keys in the browser
-2. Implement server-side transcription endpoint
-3. Use proper authentication and rate limiting
-4. Validate and sanitize all inputs
+1. API keys are never exposed to the browser
+2. All transcription happens server-side via unified backend
+3. Proper authentication via Supabase JWT
+4. Rate limiting implemented at API level
 
 ## Supported Audio Formats
 

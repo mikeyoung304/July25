@@ -1,4 +1,8 @@
-# Supabase Migration Guide
+# Supabase Cloud Migration Guide
+
+## Overview
+
+This project uses **cloud-only Supabase** - no local database or Docker required!
 
 ## Quick Start
 
@@ -7,47 +11,41 @@
 # 1. Login to Supabase (only needed once)
 supabase login
 
-# 2. Start development with automatic checks
-npm run dev:supabase
-```
+# 2. Link to the cloud project
+supabase link --project-ref xiwfhcikfdoshxwbtjxt
 
-The `dev:supabase` script will:
-- ✅ Check if you're logged in
-- ✅ Link the project if needed
-- ✅ Apply any pending migrations
-- ✅ Start the development servers
+# 3. Pull the latest schema from cloud
+supabase db pull
 
-### Regular Development
-```bash
-# Just use the smart script - it handles everything
-npm run dev:supabase
-
-# Or if you're already set up, use the regular dev
+# 4. Start development
 npm run dev
 ```
 
-## Migration Commands
-
-### Apply Migrations
+### Regular Development
 ```bash
-npm run db:push
+# Just run the unified dev command
+npm run dev
 ```
 
-### Create a New Migration
+## Working with the Cloud Database
+
+### Pull Latest Schema Changes
 ```bash
-npm run db:migration:new your_migration_name
+# Sync your local schema with cloud database
+supabase db pull
 ```
 
-This creates a new file in `supabase/migrations/`. Edit it with your SQL changes.
+### Make Schema Changes
+1. Use the Supabase Dashboard to modify tables/schema
+2. Or run SQL directly in the SQL Editor
+3. Then pull changes locally:
+   ```bash
+   supabase db pull
+   ```
 
-### Reset Database (CAUTION!)
+### Generate TypeScript Types (Optional)
 ```bash
-npm run db:reset
-```
-
-### Check Database Status
-```bash
-npm run db:status
+supabase gen types typescript --linked > database.types.ts
 ```
 
 ## Common Issues
@@ -63,26 +61,25 @@ The script will automatically link to project `xiwfhcikfdoshxwbtjxt`.
 2. Look for error details in the terminal
 3. You can always apply SQL manually in Supabase dashboard
 
-## Migration Best Practices
+## Cloud-First Best Practices
 
-1. **Name migrations clearly**: Use descriptive names like `add_user_profiles_table`
-2. **Keep migrations small**: One logical change per migration
-3. **Test locally first**: Run migrations in development before production
-4. **Never edit old migrations**: Create new ones to fix issues
+1. **Make changes in Supabase Dashboard**: Visual tools prevent SQL errors
+2. **Use SQL Editor for complex changes**: Test queries before applying
+3. **Pull changes immediately**: Keep local schema in sync
+4. **Document major changes**: Update CHANGELOG.md for significant schema updates
 
 ## Project Structure
 ```
 supabase/
-├── config.toml          # Supabase configuration
-├── migrations/          # SQL migration files
-│   └── 20240712000000_initial_schema.sql
+├── config.toml          # Supabase configuration (for CLI)
+├── migrations/          # Historical migrations (reference only)
 └── MIGRATION_GUIDE.md   # This file
 ```
 
-## Why This Setup?
+## Why Cloud-Only?
 
-This setup solves the copy/paste problem by:
-1. Using official Supabase CLI for migrations
-2. Tracking migration files in version control
-3. Providing a smart script that checks login status
-4. Making migrations repeatable and shareable with your team
+This approach simplifies development:
+1. **No Docker required**: Faster setup, less resource usage
+2. **No local database sync issues**: Cloud is the single source of truth
+3. **Team collaboration**: Everyone works with the same database
+4. **Instant changes**: No migration files to manage or apply

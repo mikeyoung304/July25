@@ -8,6 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Supabase Cloud Migration**: Complete migration from Docker/local to cloud-only Supabase
+  - Eliminated Docker dependencies
+  - Simplified developer setup to just `npm run dev`
+  - Cloud database as single source of truth
+  - Removed complex migration scripts
+
+### Changed
+- **Unified Backend Architecture**: Consolidated all backend services
+  - Merged AI Gateway (port 3002) into main backend (port 3001)
+  - Single Express.js server handles API, AI/Voice, and WebSocket
+  - Simplified environment configuration
+  - Reduced from 2 servers to 1 unified service
+- Updated all documentation to reflect cloud-only approach
+- Removed all Docker-related configuration files
+- Simplified database management to use Supabase cloud tools
+
+### Removed
+- Docker and docker-compose.yml files
+- Local Supabase setup
+- AI Gateway service (port 3002)
+- Complex database migration scripts
+- Redundant environment variables
+
+### Added
 - **Project Janus**: Complete API integration layer for Express.js backend
   - HTTP client with automatic Supabase JWT authentication
   - Multi-tenant support via X-Restaurant-ID header

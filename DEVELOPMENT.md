@@ -42,15 +42,15 @@ This guide covers setting up and running the Grow Fresh Local Food Restaurant Op
 
 4. **Set up the database**
    
-   If using Supabase:
+   Pull the schema from cloud Supabase:
    ```bash
-   npx supabase db push
+   npx supabase db pull
    ```
    
-   Run initial migrations:
+   Run initial seed data (if needed):
    ```bash
    cd server
-   npm run migrate
+   npm run seed:tables
    ```
 
 5. **Start development servers**
@@ -94,15 +94,12 @@ npm run lint:fix
 4. Test voice commands
 
 ### Making Database Schema Changes
-1. Create a new migration file:
+1. Make changes in the Supabase dashboard or SQL editor
+2. Pull the latest schema to sync locally:
    ```bash
-   npx supabase migration new <your_change_name>
+   npx supabase db pull
    ```
-2. Write your SQL in the new migration file
-3. Apply changes to your database:
-   ```bash
-   npx supabase db push
-   ```
+3. This updates your local migration files to match the cloud database
 
 ## Project Structure
 
