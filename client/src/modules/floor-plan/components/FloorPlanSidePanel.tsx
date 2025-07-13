@@ -16,7 +16,7 @@ export function FloorPlanSidePanel({
   onSelectTable,
 }: FloorPlanSidePanelProps) {
   return (
-    <div className="w-80 flex flex-col gap-4">
+    <div className="w-full lg:w-80 flex flex-col gap-4 min-h-0">
       {/* Selected Table Properties */}
       {selectedTable && (
         <div className="bg-white backdrop-blur-xl border border-[rgba(26,54,93,0.08)] rounded-2xl shadow-medium overflow-hidden">

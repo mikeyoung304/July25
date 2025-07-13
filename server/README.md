@@ -58,7 +58,7 @@ src/
 - `GET /api/v1/menu/items` - All menu items
 - `GET /api/v1/menu/items/:id` - Single menu item
 - `GET /api/v1/menu/categories` - Menu categories
-- `POST /api/v1/menu/sync-ai` - Sync menu to AI Gateway
+- `POST /api/v1/menu/sync-ai` - Sync menu to AI service
 
 ### Order Processing
 - `GET /api/v1/orders` - List orders (with filters)
@@ -175,7 +175,7 @@ npm run migrate:create -- add_order_notes
 
 3. **Voice parsing errors**
    - Check menu-upload.json is current
-   - Verify AI Gateway is running
+   - Verify AI service is running
    - Review fuzzy matching thresholds
 
 ## 📚 Related Documentation

@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card'
 import { FloorPlanCanvas } from '@/modules/floor-plan/components/FloorPlanCanvas'
 import { Table } from '@/modules/floor-plan/types'
 import { cn } from '@/utils'
-import { floorPlanService } from '@/services/floorPlan/FloorPlanService'
+import { tableService } from '@/services/tables/TableService'
 import { RestaurantContext } from '@/core/restaurant-types'
 import { toast } from 'react-hot-toast'
 
@@ -61,26 +61,26 @@ export function ServerView() {
   useEffect(() => {
     const loadFloorPlan = async () => {
       if (!restaurant?.id) {
-        setTables(generateMockTables())
+        setTables([])
         setIsLoading(false)
         return
       }
       
       try {
         setIsLoading(true)
-        const floorPlan = await floorPlanService.getFloorPlan(restaurant.id)
+        const { tables: loadedTables } = await tableService.getTables()
         
-        if (floorPlan && floorPlan.tables.length > 0) {
-          setTables(floorPlan.tables)
+        if (loadedTables && loadedTables.length > 0) {
+          setTables(loadedTables)
         } else {
-          // Use mock tables if no floor plan exists
-          setTables(generateMockTables())
-          toast('Using default floor plan. Configure your custom layout in Admin.')
+          // No tables configured yet
+          setTables([])
+          toast('No floor plan configured. Please set up your floor plan in Admin.')
         }
       } catch (error) {
         console.error('Failed to load floor plan:', error)
-        setTables(generateMockTables())
-        toast.error('Failed to load floor plan. Using default layout.')
+        setTables([])
+        toast.error('Failed to load floor plan. Please configure in Admin.')
       } finally {
         setIsLoading(false)
       }
@@ -218,18 +218,38 @@ export function ServerView() {
         >
           <Card className="p-6 bg-white" id="floor-plan-container">
             <div className="relative">
-              <FloorPlanCanvas
-                tables={tables}
-                selectedTableId={selectedTableId}
-                canvasSize={canvasSize}
-                showGrid={false}
-                gridSize={20}
-                onTableClick={handleTableClick}
-                onCanvasClick={handleCanvasClick}
-                snapToGrid={false}
-                zoomLevel={zoomLevel}
-                panOffset={panOffset}
-              />
+              {tables.length > 0 ? (
+                <FloorPlanCanvas
+                  tables={tables}
+                  selectedTableId={selectedTableId}
+                  canvasSize={canvasSize}
+                  showGrid={false}
+                  gridSize={20}
+                  onTableClick={handleTableClick}
+                  onCanvasClick={handleCanvasClick}
+                  snapToGrid={false}
+                  zoomLevel={zoomLevel}
+                  panOffset={panOffset}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 px-4">
+                  <div className="w-24 h-24 mb-6 rounded-full bg-neutral-100 flex items-center justify-center">
+                    <svg className="w-12 h-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-neutral-900 mb-2">No Floor Plan Configured</h3>
+                  <p className="text-neutral-600 text-center max-w-sm mb-6">
+                    Please ask your manager to set up the floor plan in the Admin section.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-neutral-500">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Admin → Floor Plan → Add Tables</span>
+                  </div>
+                </div>
+              )}
               
               {/* Seat Selection Modal */}
               <AnimatePresence>

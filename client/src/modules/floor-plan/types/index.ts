@@ -8,8 +8,14 @@ export interface Table {
   seats: number
   label: string
   rotation: number
-  status: 'available' | 'occupied' | 'reserved'
-  zIndex: number
+  status: 'available' | 'occupied' | 'reserved' | 'unavailable'
+  z_index: number
+  current_order_id?: string | null
+  metadata?: Record<string, any>
+  active?: boolean
+  created_at?: string
+  updated_at?: string
+  restaurant_id?: string
 }
 
 export interface FloorPlanState {

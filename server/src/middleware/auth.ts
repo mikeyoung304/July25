@@ -138,3 +138,19 @@ export function requireRole(roles: string[]) {
     }
   };
 }
+
+// Validate restaurant access middleware
+export function validateRestaurantAccess(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void {
+  const restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
+  
+  if (!restaurantId) {
+    return next(Unauthorized('Restaurant ID is required'));
+  }
+  
+  req.restaurantId = restaurantId;
+  next();
+}

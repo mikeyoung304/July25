@@ -5,6 +5,7 @@
   "description": "Grow Fresh Local Food Restaurant Operating System",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:supabase": "./scripts/dev-with-supabase.sh",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
@@ -16,10 +17,19 @@
     "test:server": "cd server && npm test",
     "start": "cd server && npm start",
     "clean": "rm -rf node_modules server/node_modules client/node_modules",
-    "postinstall": "npm run install:all"
+    "check:integration": "tsx scripts/integration-check.ts",
+    "db:push": "supabase db push",
+    "db:reset": "supabase db reset",
+    "db:migration:new": "supabase migration new",
+    "db:status": "cd server && npm run db:check"
   },
   "devDependencies": {
-    "concurrently": "8.2.2"
+    "@types/node": "^20.10.5",
+    "@types/node-fetch": "^2.6.12",
+    "concurrently": "8.2.2",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2",
+    "tsx": "^4.7.0"
   },
   "keywords": [
     "restaurant",
@@ -32,5 +42,8 @@
   "license": "PROPRIETARY",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.5"
   }
 }

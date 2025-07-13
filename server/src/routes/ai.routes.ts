@@ -1,14 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { aiService } from '../services/ai.service';
 import { logger } from '../utils/logger';
-import multer from 'multer';
+import { audioUpload } from '../middleware/fileValidation';
 import { AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
-const upload = multer({ 
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
-});
 
 const aiLogger = logger.child({ module: 'ai-routes' });
 
@@ -61,7 +57,7 @@ router.get('/menu', (req: Request, res: Response) => {
 /**
  * Transcribe audio file
  */
-router.post('/transcribe', upload.single('audio'), async (req: Request, res: Response) => {
+router.post('/transcribe', audioUpload.single('audio'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({
