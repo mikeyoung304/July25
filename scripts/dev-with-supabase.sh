@@ -52,31 +52,24 @@ fi
 
 echo -e "${GREEN}✅ Project linked${NC}"
 
-# Check for pending migrations
-echo -e "${BLUE}Checking for pending migrations...${NC}"
-MIGRATION_COUNT=$(ls -1 supabase/migrations/*.sql 2>/dev/null | wc -l)
+# Pull latest schema from cloud
+echo -e "${BLUE}Pulling latest schema from cloud Supabase...${NC}"
+echo -e "${BLUE}Would you like to sync with the cloud database? (y/n)${NC}"
+read -r response
 
-if [ $MIGRATION_COUNT -gt 0 ]; then
-    echo -e "${YELLOW}Found $MIGRATION_COUNT migration file(s)${NC}"
-    echo -e "${BLUE}Would you like to apply migrations now? (y/n)${NC}"
-    read -r response
+if [[ "$response" =~ ^[Yy]$ ]]; then
+    echo -e "${BLUE}Pulling schema...${NC}"
+    supabase db pull
     
-    if [[ "$response" =~ ^[Yy]$ ]]; then
-        echo -e "${BLUE}Applying migrations...${NC}"
-        supabase db push
-        
-        if [ $? -eq 0 ]; then
-            echo -e "${GREEN}✅ Migrations applied successfully${NC}"
-        else
-            echo -e "${RED}❌ Migration failed${NC}"
-            echo "You can try applying them manually later with: supabase db push"
-        fi
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ Schema synced successfully${NC}"
     else
-        echo -e "${YELLOW}Skipping migrations${NC}"
-        echo "You can apply them later with: supabase db push"
+        echo -e "${RED}❌ Schema pull failed${NC}"
+        echo "You can try pulling manually later with: supabase db pull"
     fi
 else
-    echo -e "${GREEN}✅ No migrations found${NC}"
+    echo -e "${YELLOW}Skipping schema sync${NC}"
+    echo "You can sync later with: supabase db pull"
 fi
 
 # Install dependencies if needed

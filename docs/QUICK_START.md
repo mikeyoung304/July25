@@ -16,17 +16,21 @@ npm --version   # Should be 8.x or higher
 git clone <repo-url>
 cd rebuild-6.0
 
-# Install dependencies
+# Install all dependencies (root + client + server)
 npm install
 
-# Copy environment file
-cp .env.example .env.local
+# Set up environment files
+cp client/.env.example client/.env.local
+cp server/.env.example server/.env
+# Edit both files with your Supabase and OpenAI credentials
 
-# Start development server
+# Start everything (frontend + backend)
 npm run dev
 ```
 
-Your app is now running at http://localhost:5173 🎉
+Your app is now running:
+- Frontend: http://localhost:5173 🎨
+- Backend API: http://localhost:3001 🚀
 
 ## 🧭 First Steps
 
@@ -95,17 +99,22 @@ npm run format        # Format with Prettier
 ## 🏗️ Architecture Overview
 
 ```
-User Interface
+User Interface (Port 5173)
     ↓
-Page Components (src/pages/)
+Page Components (client/src/pages/)
     ↓
-Module Components (src/modules/*/components/)
+Module Components (client/src/modules/*/components/)
     ↓
-Shared Components (src/components/shared/)
+Shared Components (client/src/components/shared/)
     ↓
-Services Layer (src/services/)
+Services Layer (client/src/services/)
     ↓
-API/Database (Supabase)
+Unified Backend API (Port 3001)
+    ├── REST API (/api/v1/*)
+    ├── AI/Voice (/api/v1/ai/*)
+    └── WebSocket (ws://localhost:3001)
+    ↓
+Cloud Database (Supabase)
 ```
 
 ## 🔑 Key Concepts
@@ -172,11 +181,14 @@ function MyComponent() {
 
 ### Port Already in Use
 ```bash
-# Kill process on port 5173
+# Kill frontend process (port 5173)
 lsof -ti:5173 | xargs kill -9
 
-# Or use different port
-npm run dev -- --port 3000
+# Kill backend process (port 3001)
+lsof -ti:3001 | xargs kill -9
+
+# Or run on different ports
+VITE_PORT=3000 PORT=3002 npm run dev
 ```
 
 ### TypeScript Errors

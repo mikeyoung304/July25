@@ -2,17 +2,17 @@
 
 ## 🌐 System Evolution
 
-### From Frontend-Only to Complete Control
+### From Microservices to Unified Architecture
 
-**Previous State**: Frontend-only application with external backend dependency  
-**Current State**: Full-stack Restaurant OS with unified development control  
-**Trigger**: Luis gave approval for us to develop the backend ourselves
+**Previous State**: Separate AI Gateway (port 3002) + API Backend (port 3001)  
+**Current State**: Unified backend architecture - single service on port 3001  
+**Decision**: "For simplicity, let's put it all in the same backend" - Luis
 
 ## 🏗️ Architecture Components
 
 ### Frontend Layer (React + TypeScript)
 ```
-src/
+client/src/
 ├── components/           # Reusable UI components
 ├── modules/             # Feature-based modules
 │   ├── menu/            # Menu management
@@ -30,26 +30,29 @@ src/
 - Real-time kitchen display
 - Multi-tenant restaurant support
 
-### Backend Layer (Express.js + TypeScript)
+### Unified Backend Layer (Express.js + TypeScript)
 ```
-backend/
+server/
 ├── src/
-│   ├── controllers/     # API route handlers
+│   ├── routes/          # API route definitions
 │   ├── services/        # Business logic
 │   ├── middleware/      # Auth & validation
-│   ├── models/          # Data types
-│   └── utils/           # Helper functions
-├── tests/               # Backend test suites
-└── docs/                # API documentation
+│   ├── models/          # TypeScript interfaces
+│   ├── ai/              # AI/Voice processing
+│   ├── utils/           # WebSocket, helpers
+│   └── server.ts        # Main entry point
+├── tests/               # Test suites
+└── scripts/             # Utility scripts
 ```
 
 **Key Features**:
-- RESTful API design
+- Unified API + AI + WebSocket on port 3001
 - JWT-based authentication
 - Multi-tenant data isolation
-- Real-time WebSocket updates
+- Integrated voice processing
+- Cloud-only Supabase
 
-### Database Layer (Supabase/PostgreSQL)
+### Database Layer (Cloud Supabase)
 ```
 Tables:
 ├── restaurants          # Multi-tenant isolation
@@ -61,10 +64,11 @@ Tables:
 ```
 
 **Key Features**:
+- Cloud-only Supabase (no local/Docker)
 - Row-level security (RLS)
 - Real-time subscriptions
 - Built-in authentication
-- Automatic API generation
+- Direct connection from backend
 
 ## 🔄 Data Flow Architecture
 
@@ -172,17 +176,26 @@ Backend:  { order_id: "123", customer_name: "John" }
 ### WebSocket Integration
 
 ```typescript
-// Backend WebSocket server
-const io = new Server(httpServer);
+// Unified backend WebSocket server (same port as API)
+import { WebSocketServer } from 'ws';
 
-io.on('connection', (socket) => {
-  socket.on('join-restaurant', (restaurantId) => {
-    socket.join(`restaurant-${restaurantId}`);
+const wss = new WebSocketServer({ server: httpServer });
+
+wss.on('connection', (ws) => {
+  ws.on('message', (data) => {
+    const message = JSON.parse(data.toString());
+    if (message.type === 'join-restaurant') {
+      ws.restaurantId = message.restaurantId;
+    }
   });
 });
 
-// Emit order updates to restaurant
-io.to(`restaurant-${restaurantId}`).emit('order-updated', order);
+// Broadcast order updates to restaurant clients
+wss.clients.forEach((client) => {
+  if (client.restaurantId === restaurantId) {
+    client.send(JSON.stringify({ type: 'order-updated', order }));
+  }
+});
 ```
 
 ### Frontend WebSocket Client
@@ -221,21 +234,23 @@ Browser API → Text Transcript → Menu Matching → Database Storage
 
 ## 🔧 Development Workflow
 
-### Full-Stack Development Commands
+### Unified Development Commands
 
 ```bash
-# Frontend development
-npm run dev              # Start React development server
+# Start everything with one command
+npm run dev              # Starts both frontend (5173) and backend (3001)
 
-# Backend development
-cd backend && npm run dev # Start Express.js API server
+# Individual services (if needed)
+cd client && npm run dev # Frontend only
+cd server && npm run dev # Backend only
 
-# Full-stack testing
-npm test                 # Frontend tests
-cd backend && npm test   # Backend tests
+# Testing
+npm test                 # Run all tests
+cd client && npm test    # Frontend tests
+cd server && npm test    # Backend tests
 
 # Code quality
-npm run lint:fix         # Frontend linting
+npm run lint:fix         # Fix linting issues
 npm run typecheck        # TypeScript validation
 ```
 
@@ -294,18 +309,20 @@ Load Balancer → Frontend (Vercel/Netlify)
 
 ### Environment Configuration
 
-**Frontend (.env)**:
+**Frontend (client/.env.local)**:
 ```env
-VITE_API_BASE_URL=https://api.restaurantos.com
-VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_API_BASE_URL=https://api.growfresh.com
+VITE_SUPABASE_URL=https://xiwfhcikfdoshxwbtjxt.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key
 ```
 
-**Backend (.env)**:
+**Unified Backend (server/.env)**:
 ```env
-DATABASE_URL=postgresql://...
+SUPABASE_URL=https://xiwfhcikfdoshxwbtjxt.supabase.co
 SUPABASE_SERVICE_KEY=your_service_key
-FRONTEND_URL=https://app.restaurantos.com
+OPENAI_API_KEY=your_openai_key
+FRONTEND_URL=https://app.growfresh.com
+PORT=3001
 ```
 
 ## 🔄 Migration Strategy
