@@ -23,14 +23,8 @@ export interface Order {
   orderType?: 'dine-in' | 'drive-thru' | 'takeout'
 }
 
-export interface Table {
-  id: string
-  restaurant_id: string
-  number: string
-  seats: number
-  status: 'available' | 'occupied' | 'reserved'
-  currentOrderId?: string
-}
+// Table type has been moved to @/modules/floor-plan/types/index.ts
+// to avoid duplication and ensure consistency
 
 export interface MenuItem {
   id: string

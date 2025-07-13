@@ -8,18 +8,16 @@ A modern Restaurant Operating System built with React, TypeScript, and Express.j
 ## 🚀 Quick Start
 
 ```bash
-# Clone and install
-git clone <repo-url>
-cd rebuild-6.0
-npm install
+# Install dependencies
+npm install:all
 
-# Start everything
+# Start development servers
 npm run dev
 ```
 
-That's it! The system is now running:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3001
+This starts both the frontend (http://localhost:5173) and backend (http://localhost:3001).
+
+Please see the detailed **[DEVELOPMENT.md](./DEVELOPMENT.md)** for first-time setup instructions.
 
 ## 🎯 Key Features
 
@@ -97,16 +95,6 @@ VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-### Available Scripts
-
-From root directory:
-- `npm run dev` - Start both client and server
-- `npm run build` - Build for production
-- `npm run test` - Run all tests
-
-From server directory:
-- `npm run upload:menu` - Upload menu to AI service
-- `npm run check:integration` - Verify system health
 
 ## 🎤 Voice Ordering Setup
 

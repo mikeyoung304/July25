@@ -4,7 +4,7 @@ import { useFloorPlanReducer } from '../hooks/useFloorPlanReducer'
 import { FloorPlanCanvas } from './FloorPlanCanvas'
 import { FloorPlanToolbar } from './FloorPlanToolbar'
 import { FloorPlanSidePanel } from './FloorPlanSidePanel'
-import { floorPlanService } from '@/services/floorPlan/FloorPlanService'
+import { tableService } from '@/services/tables/TableService'
 import { toast } from 'react-hot-toast'
 
 interface FloorPlanEditorProps {
@@ -23,10 +23,10 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
     const loadFloorPlan = async () => {
       try {
         setIsLoading(true)
-        const floorPlan = await floorPlanService.getFloorPlan(restaurantId)
+        const { tables } = await tableService.getTables()
         
-        if (floorPlan && floorPlan.tables.length > 0) {
-          actions.setTables(floorPlan.tables)
+        if (tables && tables.length > 0) {
+          actions.setTables(tables)
           toast.success('Floor plan loaded successfully')
         }
       } catch (error) {
@@ -44,7 +44,14 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
   useEffect(() => {
     const updateCanvasSize = () => {
       if (containerRef.current) {
-        const width = Math.min(1200, containerRef.current.clientWidth - 320) // Account for side panel
+        const containerWidth = containerRef.current.clientWidth
+        const isLargeScreen = window.innerWidth >= 1024 // lg breakpoint
+        
+        // On large screens, account for side panel. On smaller screens, use full width
+        const sidePanelWidth = isLargeScreen ? 320 : 0
+        const padding = 32 // Account for p-4 (16px * 2)
+        const width = Math.min(1200, containerWidth - sidePanelWidth - padding)
+        
         actions.setCanvasSize({ width, height: width * 0.75 })
       }
     }
@@ -75,7 +82,7 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
         label: `Table ${tableCount}`,
         rotation: 0,
         status: 'available',
-        zIndex: 1,
+        z_index: 1,
       }
     },
     [selectors.tables.length, selectors.snapToGrid, selectors.gridSize]
@@ -129,26 +136,35 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
     try {
       setIsSaving(true)
       
-      // Save to backend
-      const response = await floorPlanService.saveFloorPlan(
-        restaurantId,
-        selectors.tables
-      )
+      // Batch update all tables
+      const tablesToUpdate = selectors.tables.map(table => ({
+        id: table.id,
+        type: table.type,
+        x: table.x,
+        y: table.y,
+        width: table.width,
+        height: table.height,
+        seats: table.seats,
+        label: table.label,
+        rotation: table.rotation,
+        status: table.status,
+        z_index: table.z_index,
+        metadata: table.metadata,
+        active: table.active
+      }))
       
-      if (response.success) {
-        toast.success('Floor plan saved successfully')
-        // Call the onSave callback if provided
-        onSave?.(selectors.tables)
-      } else {
-        toast.error('Failed to save floor plan')
-      }
+      await tableService.batchUpdateTables(tablesToUpdate)
+      
+      toast.success('Floor plan saved successfully')
+      // Call the onSave callback if provided
+      onSave?.(selectors.tables)
     } catch (error) {
       console.error('Failed to save floor plan:', error)
       toast.error('Failed to save floor plan. Please try again.')
     } finally {
       setIsSaving(false)
     }
-  }, [restaurantId, selectors.tables, onSave])
+  }, [selectors.tables, onSave])
 
   const handleZoomIn = useCallback(() => {
     actions.setZoomLevel(Math.min(2, selectors.zoomLevel * 1.2))
@@ -222,10 +238,13 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
         isSaving={isSaving}
       />
 
-      <div className="flex flex-1 gap-4 p-4">
-        <div className="flex-1 flex flex-col gap-2">
-          <div className="text-xs text-[#6b7280] px-1">
+      <div className="flex flex-col lg:flex-row flex-1 gap-4 p-4 overflow-hidden">
+        <div className="flex-1 flex flex-col gap-2 min-h-0">
+          <div className="text-xs text-[#6b7280] px-1 hidden sm:block">
             <span className="font-medium text-[#2d4a7c]">Tip:</span> Use Shift+Click or Middle Mouse to pan • Scroll to zoom • Click tables to select
+          </div>
+          <div className="text-xs text-[#6b7280] px-1 sm:hidden">
+            <span className="font-medium text-[#2d4a7c]">Tip:</span> Tap to select • Pinch to zoom
           </div>
           <FloorPlanCanvas
             tables={selectors.tables}

@@ -27,9 +27,6 @@ export interface EnvironmentConfig {
   restaurant: {
     defaultId: string;
   };
-  database: {
-    url: string;
-  };
 }
 
 export function validateEnvironment(): void {
@@ -40,7 +37,7 @@ export function validateEnvironment(): void {
   ];
 
   const missing = required.filter(key => !process.env[key]);
-  
+
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
@@ -75,9 +72,6 @@ export function getConfig(): EnvironmentConfig {
     },
     restaurant: {
       defaultId: process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
-    },
-    database: {
-      url: process.env.DATABASE_URL!,
     },
   };
 }

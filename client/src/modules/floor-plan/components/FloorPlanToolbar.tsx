@@ -45,12 +45,12 @@ export function FloorPlanToolbar({
   isSaving = false,
 }: FloorPlanToolbarProps) {
   return (
-    <div className="relative bg-white backdrop-blur-xl border border-[rgba(26,54,93,0.08)] rounded-2xl shadow-medium mx-4 mt-4 overflow-hidden">
+    <div className="relative bg-white backdrop-blur-xl border border-[rgba(26,54,93,0.08)] rounded-2xl shadow-medium mx-2 sm:mx-4 mt-2 sm:mt-4 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-[#FBFBFA] via-white to-[#FBFBFA]"></div>
-      <div className="relative flex flex-wrap items-center gap-3 p-3">
+      <div className="relative flex flex-wrap items-center gap-2 sm:gap-3 p-2 sm:p-3">
         {/* Add Table Section */}
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#e6ecf3] backdrop-blur">
-          <span className="text-xs font-medium text-[#1a365d] mr-2">Tables</span>
+        <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 rounded-xl bg-[#e6ecf3] backdrop-blur">
+          <span className="text-xs font-medium text-[#1a365d] mr-1 sm:mr-2 hidden sm:inline">Tables</span>
           <Button
             variant="ghost"
             size="sm"
@@ -80,10 +80,10 @@ export function FloorPlanToolbar({
           </Button>
         </div>
 
-        <div className="w-px h-6 bg-[rgba(26,54,93,0.1)]"></div>
+        <div className="w-px h-6 bg-[rgba(26,54,93,0.1)] hidden sm:block"></div>
 
         {/* Edit Actions */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           <Button
             variant="ghost"
             size="sm"
@@ -106,16 +106,16 @@ export function FloorPlanToolbar({
           </Button>
         </div>
 
-        <div className="w-px h-6 bg-[rgba(26,54,93,0.1)]"></div>
+        <div className="w-px h-6 bg-[rgba(26,54,93,0.1)] hidden sm:block"></div>
 
         {/* View Options */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggleGrid}
             title="Toggle Grid"
-            className={`h-8 px-3 transition-all duration-200 ${
+            className={`h-8 px-2 sm:px-3 transition-all duration-200 ${
               showGrid 
                 ? 'bg-[#e6fffa] text-[#38b2ac] hover:bg-[#b2f5ea] shadow-soft' 
                 : 'hover:bg-white hover:shadow-soft text-[#1a365d]'
@@ -128,20 +128,21 @@ export function FloorPlanToolbar({
             size="sm"
             onClick={onToggleSnapToGrid}
             title="Toggle Snap to Grid"
-            className={`h-8 px-3 text-xs font-medium transition-all duration-200 ${
+            className={`h-8 px-2 sm:px-3 text-xs font-medium transition-all duration-200 ${
               snapToGrid 
                 ? 'bg-[#e6fffa] text-[#38b2ac] hover:bg-[#b2f5ea] shadow-soft' 
                 : 'hover:bg-white hover:shadow-soft text-[#1a365d]'
             }`}
           >
-            Snap
+            <span className="hidden sm:inline">Snap</span>
+            <span className="sm:hidden">S</span>
           </Button>
         </div>
 
-        <div className="w-px h-6 bg-[rgba(26,54,93,0.1)]"></div>
+        <div className="w-px h-6 bg-[rgba(26,54,93,0.1)] hidden sm:block"></div>
 
         {/* Undo/Redo */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           <Button
             variant="ghost"
             size="sm"
@@ -164,10 +165,10 @@ export function FloorPlanToolbar({
           </Button>
         </div>
 
-        <div className="flex-1"></div>
+        <div className="flex-1 hidden sm:block"></div>
 
         {/* Zoom Controls */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5 hidden sm:flex">
           <Button
             variant="ghost"
             size="sm"
@@ -199,14 +200,14 @@ export function FloorPlanToolbar({
           </Button>
         </div>
 
-        <div className="w-px h-6 bg-[rgba(26,54,93,0.1)]"></div>
+        <div className="w-px h-6 bg-[rgba(26,54,93,0.1)] hidden sm:block"></div>
 
         {/* Save */}
         <Button
           size="sm"
           onClick={onSave}
           disabled={isSaving}
-          className="bg-gradient-to-r from-[#fb923c] to-[#ea7c1c] hover:from-[#ea7c1c] hover:to-[#d96d0d] text-white font-medium px-4 py-1.5 rounded-lg shadow-medium hover:shadow-large transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-gradient-to-r from-[#fb923c] to-[#ea7c1c] hover:from-[#ea7c1c] hover:to-[#d96d0d] text-white font-medium px-3 sm:px-4 py-1.5 rounded-lg shadow-medium hover:shadow-large transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
         >
           {isSaving ? (
             <>

@@ -24,6 +24,11 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
   }, 30000);
 
   wss.on('connection', async (ws: ExtendedWebSocket, request) => {
+    // Skip voice connections - they're handled by AI WebSocket
+    if (request.url?.includes('/voice')) {
+      return;
+    }
+    
     wsLogger.info('New WebSocket connection');
     
     // Set up heartbeat
