@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { supabase } from '../../config/database';
-import { errorHandler } from '../middleware/errorHandler';
-import { validateRestaurantAccess } from '../middleware/validateRestaurantAccess';
+import { errorHandler } from '../../middleware/errorHandler';
+import { validateRestaurantAccess } from '../../middleware/auth';
 
 const router = Router();
 

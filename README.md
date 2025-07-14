@@ -74,6 +74,24 @@ rebuild-6.0/
 
 ## 🔧 Development
 
+### Quality Gates
+
+Before committing code, ensure all quality gates pass:
+
+```bash
+# Fix code style issues
+npm run lint:fix
+
+# Check TypeScript types
+npm run typecheck
+
+# Run all tests
+npm test
+
+# Verify no forbidden ports (3002, AI_GATEWAY)
+npm run verify:ports
+```
+
 ### Environment Setup
 
 Create `.env` files:

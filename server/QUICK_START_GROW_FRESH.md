@@ -68,7 +68,7 @@ cd server && npm run check:integration
 This project uses a **unified backend architecture**:
 - Everything runs on port 3001 (API + AI + WebSocket)
 - No separate AI Gateway needed
-- No port 3002
+- Single unified backend on port 3001
 - See [ARCHITECTURE.md](../ARCHITECTURE.md) for details
 
 ## ⚠️ Troubleshooting
@@ -77,7 +77,7 @@ This project uses a **unified backend architecture**:
 2. **Menu upload fails**: Wait for backend to fully start (10 seconds)
 3. **Voice not recognizing**: Check menu is uploaded with `npm run upload:menu`
 4. **Wrong menu items**: Re-run `npm run upload:menu` to sync Grow Fresh menu
-5. **WebSocket issues**: Ensure you're connecting to port 3001 (not 3002)
+5. **WebSocket issues**: Ensure you're connecting to port 3001
 
 ## ✅ Success Criteria
 

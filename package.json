@@ -2,6 +2,7 @@
   "name": "grow-fresh-local-food",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "description": "Grow Fresh Local Food Restaurant Operating System",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
@@ -18,17 +19,26 @@
     "start": "cd server && npm start",
     "clean": "rm -rf node_modules server/node_modules client/node_modules",
     "check:integration": "tsx scripts/integration-check.ts",
+    "lint:fix": "eslint --ext .ts,.tsx . --fix",
+    "typecheck": "tsc --build tsconfig.all.json",
+    "verify:ports": "! grep -r --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' --include='*.md' --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=build '3002\\|AI_GATEWAY' client/ server/ || (echo 'Error: Found forbidden port 3002 or AI_GATEWAY references!' && exit 1)",
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
     "db:migration:new": "supabase migration new",
     "db:status": "cd server && npm run db:check"
   },
   "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@playwright/test": "^1.54.1",
     "@types/node": "^20.10.5",
-    "@types/node-fetch": "^2.6.12",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
     "concurrently": "8.2.2",
+    "dependency-cruiser": "^16.10.4",
     "dotenv": "^16.3.1",
-    "node-fetch": "^3.3.2",
+    "eslint": "^9.31.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "tsx": "^4.7.0"
   },
   "keywords": [
@@ -42,8 +52,5 @@
   "license": "PROPRIETARY",
   "engines": {
     "node": ">=18.0.0"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.50.5"
   }
 }
