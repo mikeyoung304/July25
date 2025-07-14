@@ -3,6 +3,7 @@ import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
 import { Readable } from 'stream';
 import fs from 'fs/promises';
+import { createReadStream } from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 
@@ -68,6 +69,8 @@ export class AIService {
     if (!state || !state.isRecording) return;
 
     state.audioBuffer.push(data);
+    const totalBytes = state.audioBuffer.reduce((acc, buf) => acc + buf.length, 0);
+    aiLogger.debug(`Audio chunk received: ${data.length} bytes, total buffered: ${totalBytes} bytes`);
   }
 
   /**
@@ -99,8 +102,10 @@ export class AIService {
     try {
       // Combine audio chunks
       const audioBuffer = Buffer.concat(state.audioBuffer);
+      aiLogger.info(`Stopping recording: ${state.audioBuffer.length} chunks, ${audioBuffer.length} total bytes`);
       
       if (audioBuffer.length === 0) {
+        aiLogger.warn('No audio data received during recording');
         return { success: false, error: 'No audio data received' };
       }
 
@@ -108,17 +113,23 @@ export class AIService {
       const tempFile = path.join('/tmp', `audio-${randomUUID()}.webm`);
       await fs.writeFile(tempFile, audioBuffer);
 
+      // Create a read stream for OpenAI
+      const fileStream = createReadStream(tempFile);
+      
       // Transcribe with OpenAI
       const transcription = await this.openai.audio.transcriptions.create({
-        file: await fs.readFile(tempFile),
+        file: fileStream as any,
         model: 'whisper-1',
-        language: 'en'
+        language: 'en',
+        prompt: this.getWhisperPrompt(),
+        temperature: 0.2  // Lower temperature for more accurate transcription
       });
 
       // Clean up temp file
       await fs.unlink(tempFile).catch(() => {});
 
       aiLogger.info(`Transcription completed: "${transcription.text}"`);
+      aiLogger.debug(`Audio duration: ${duration / 1000}s, File size: ${audioBuffer.length} bytes`);
 
       return {
         success: true,
@@ -199,6 +210,31 @@ If you cannot identify valid menu items, return success: false with an error mes
    */
   getMenu(): any {
     return this.menuData;
+  }
+
+  /**
+   * Generate Whisper prompt with menu context
+   */
+  private getWhisperPrompt(): string {
+    // Common Grow Fresh menu items and phrases
+    const menuItems = [
+      // Bowls
+      'soul bowl', 'summer vegan bowl', 'honey bowl', 'protein power bowl', 'greek bowl',
+      // Salads
+      'green goddess salad', 'moms chicken salad', 'chicken salad', 'caesar salad',
+      // Entrees
+      'mushroom pasta', 'honey mustard chicken', 'lemon pepper salmon',
+      // Sides
+      'fries', 'french fries', 'side salad', 'fruit cup', 'soup',
+      // Drinks
+      'coke', 'coca cola', 'sprite', 'water', 'lemonade', 'sweet tea', 'unsweet tea',
+      // Common modifiers
+      'no onions', 'no cheese', 'extra dressing', 'on the side', 'gluten free', 'vegan',
+      // Common phrases
+      'can I get', 'Id like', 'I want', 'give me', 'let me have', 'I\'ll take', 'I\'ll have'
+    ];
+
+    return `Restaurant order context. Common items: ${menuItems.join(', ')}. Customer is ordering food at Grow Fresh Local Food restaurant.`;
   }
 }
 

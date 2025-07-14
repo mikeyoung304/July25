@@ -11,10 +11,10 @@ interface ExtendedWebSocket extends WebSocket {
 }
 
 export function setupAIWebSocket(wss: WebSocketServer): void {
-  // Handle AI-specific WebSocket connections on /ws/voice path
+  // Handle AI-specific WebSocket connections on /voice-stream path
   wss.on('connection', (ws: ExtendedWebSocket, request) => {
     // Only handle voice connections
-    if (!request.url?.includes('/voice')) {
+    if (!request.url?.includes('/voice-stream')) {
       return;
     }
 
@@ -28,16 +28,28 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
     aiService.handleVoiceConnection(ws, connectionId);
 
     // Handle messages
-    ws.on('message', async (data: Buffer) => {
+    ws.on('message', async (data: Buffer | ArrayBuffer | Buffer[]) => {
       try {
-        // Check if it's a JSON control message
-        const dataStr = data.toString();
-        if (dataStr.startsWith('{')) {
-          const message = JSON.parse(dataStr);
+        // Try to parse as JSON first
+        let isJson = false;
+        let message;
+        
+        try {
+          const dataStr = data.toString();
+          if (dataStr.startsWith('{')) {
+            message = JSON.parse(dataStr);
+            isJson = true;
+          }
+        } catch {
+          // Not JSON, treat as binary audio
+        }
+        
+        if (isJson) {
           await handleControlMessage(ws, connectionId, message);
         } else {
-          // Raw audio data
-          await aiService.processAudioStream(connectionId, data);
+          // Handle binary audio data
+          const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
+          await aiService.processAudioStream(connectionId, buffer);
         }
       } catch (error) {
         wsLogger.error('Message handling error:', error);
@@ -48,10 +60,7 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
       }
     });
 
-    // Handle pong for heartbeat
-    ws.on('pong', () => {
-      ws.isAlive = true;
-    });
+    // Note: pong is now handled in the message handler above
 
     // Handle disconnect
     ws.on('close', () => {
@@ -63,7 +72,7 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
     });
   });
 
-  // Heartbeat interval
+  // Heartbeat interval using JSON messages
   const heartbeatInterval = setInterval(() => {
     wss.clients.forEach((ws: ExtendedWebSocket) => {
       if (ws.isAlive === false) {
@@ -71,7 +80,8 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
         return ws.terminate();
       }
       ws.isAlive = false;
-      ws.ping();
+      // Send JSON ping instead of binary ping
+      ws.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
     });
   }, 30000);
 
@@ -107,6 +117,11 @@ async function handleControlMessage(
         type: 'pong',
         timestamp: Date.now()
       }));
+      break;
+      
+    case 'pong':
+      // Handle pong response from client
+      ws.isAlive = true;
       break;
 
     default:

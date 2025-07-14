@@ -1,6 +1,8 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Mic } from 'lucide-react';
 import { cn } from '@/utils';
+import { useToast } from '@/hooks/useToast';
+import { useRestaurant } from '@/core/restaurant-hooks';
 
 interface VoiceControlProps {
   onTranscript?: (text: string, isFinal: boolean) => void;
@@ -25,6 +27,50 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
   const streamRef = useRef<MediaStream | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { toast } = useToast();
+  const { restaurant } = useRestaurant();
+  
+  // Handle transcription result by creating an order
+  const handleTranscript = useCallback(async (text: string) => {
+    try {
+      // Step 1: Parse the order
+      const parseResponse = await fetch('/api/v1/ai/parse-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text, restaurant_id: restaurant?.id }),
+      });
+
+      if (!parseResponse.ok) {
+        throw new Error('Failed to parse order');
+      }
+
+      const parsedOrder = await parseResponse.json();
+
+      // Step 2: Create the order
+      const orderResponse = await fetch('/api/v1/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...parsedOrder,
+          restaurant_id: restaurant?.id,
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      await orderResponse.json();
+      toast.success('Order created!');
+    } catch (error) {
+      console.error('Error processing order:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to process order');
+    }
+  }, [restaurant?.id, toast]);
 
   // WebSocket connection management
   useEffect(() => {
@@ -72,6 +118,26 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
               console.error('Voice error:', data.message);
               setIsProcessing(false);
               break;
+              
+            case 'ping':
+              // Respond to server ping with pong
+              ws.send(JSON.stringify({ type: 'pong' }));
+              break;
+              
+            case 'transcription_result':
+              // Handle transcription results from server
+              if (data.text) {
+                // Call the transcript handler if provided
+                if (onTranscript) {
+                  onTranscript(data.text, true);
+                }
+                // Process the transcript to create an order
+                handleTranscript(data.text);
+              } else if (!data.success) {
+                console.error('Transcription failed:', data.error);
+              }
+              setIsProcessing(false);
+              break;
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
@@ -113,7 +179,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
         wsRef.current.close();
       }
     };
-  }, [onTranscript]);
+  }, [onTranscript, handleTranscript]);
 
   const startRecording = useCallback(async () => {
     try {
@@ -122,6 +188,8 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
+          sampleRate: 16000,  // Optimal for speech recognition
+          channelCount: 1,    // Mono audio is better for speech
         } 
       });
       streamRef.current = stream;
