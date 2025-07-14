@@ -1,7 +1,6 @@
 import OpenAI from 'openai';
 import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
-import { Readable } from 'stream';
 import fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import path from 'path';

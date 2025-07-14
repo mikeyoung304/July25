@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Voice Ordering Flow Control**: Hardened audio pipeline for reliability
+  - Leaky-bucket flow control with max 3 unacknowledged chunks
+  - Automatic reconnection with exponential backoff
+  - Native WebSocket ping/pong heartbeat
+  - Progress acknowledgments after each audio chunk
+  - Overrun detection and error handling
+- **Prometheus Metrics Endpoint**: `/metrics` for monitoring
+  - `voice_chunks_total`: Total audio chunks received
+  - `voice_overrun_total`: Total overrun events
+  - `voice_active_connections`: Current active voice connections
+- **Quality Gate Scripts**: Development workflow improvements
+  - `npm run lint:fix`: ESLint with auto-fix
+  - `npm run typecheck`: TypeScript type checking
+  - `npm run verify:ports`: Ensure no forbidden port references
 - **Supabase Cloud Migration**: Complete migration from Docker/local to cloud-only Supabase
   - Eliminated Docker dependencies
   - Simplified developer setup to just `npm run dev`
@@ -15,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed complex migration scripts
 
 ### Changed
+- **Voice WebSocket Refactor**: Improved connection reliability
+  - Migrated to `useVoiceSocket` hook with built-in flow control
+  - Added connection status indicators
+  - Improved error messages for users
+  - Auto-close after 30 seconds of inactivity
 - **Unified Backend Architecture**: Consolidated all backend services
   - Merged AI Gateway (port 3002) into main backend (port 3001)
   - Single Express.js server handles API, AI/Voice, and WebSocket
@@ -23,6 +42,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated all documentation to reflect cloud-only approach
 - Removed all Docker-related configuration files
 - Simplified database management to use Supabase cloud tools
+
+### Fixed
+- TypeScript error in `server/src/ai/websocket.ts` for ArrayBuffer handling
+- Missing import paths in server middleware
+- ESLint configuration for unified codebase
 
 ### Removed
 - Docker and docker-compose.yml files

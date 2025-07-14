@@ -15,6 +15,7 @@ import { setupAIWebSocket } from './ai/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
+import { metricsMiddleware } from './middleware/metrics';
 
 // Load environment variables
 dotenv.config();
@@ -38,6 +39,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
+
+// Metrics endpoint (before rate limiting)
+app.use(metricsMiddleware);
 
 // Rate limiting
 app.use('/api/', apiLimiter);

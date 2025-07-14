@@ -3,11 +3,23 @@ import { aiService } from '../services/ai.service';
 import { logger } from '../utils/logger';
 import { randomUUID } from 'crypto';
 
+// Declare global metrics interface
+declare global {
+  var voiceMetrics: {
+    voiceChunksTotal: { inc: () => void };
+    voiceOverrunTotal: { inc: () => void };
+    voiceActiveConnections: { inc: () => void; dec: () => void };
+  } | undefined;
+}
+
 const wsLogger = logger.child({ module: 'ai-websocket' });
 
 interface ExtendedWebSocket extends WebSocket {
   connectionId?: string;
   isAlive?: boolean;
+  unacknowledgedChunks?: number;
+  totalChunksReceived?: number;
+  totalBytesReceived?: number;
 }
 
 export function setupAIWebSocket(wss: WebSocketServer): void {
@@ -21,11 +33,19 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
     const connectionId = randomUUID();
     ws.connectionId = connectionId;
     ws.isAlive = true;
+    ws.unacknowledgedChunks = 0;
+    ws.totalChunksReceived = 0;
+    ws.totalBytesReceived = 0;
 
     wsLogger.info(`AI WebSocket connected: ${connectionId}`);
 
     // Initialize connection in AI service
     aiService.handleVoiceConnection(ws, connectionId);
+    
+    // Track active connections in metrics
+    if (global.voiceMetrics) {
+      global.voiceMetrics.voiceActiveConnections.inc();
+    }
 
     // Handle messages
     ws.on('message', async (data: Buffer | ArrayBuffer | Buffer[]) => {
@@ -47,9 +67,50 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
         if (isJson) {
           await handleControlMessage(ws, connectionId, message);
         } else {
-          // Handle binary audio data
-          const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
+          // Handle binary audio data with flow control
+          const buffer = Buffer.isBuffer(data) 
+            ? data 
+            : data instanceof ArrayBuffer 
+              ? Buffer.from(new Uint8Array(data))
+              : Buffer.from(data as Buffer);
+          
+          // Check for overrun
+          if (ws.unacknowledgedChunks && ws.unacknowledgedChunks >= 3) {
+            wsLogger.warn(`Audio overrun for ${connectionId}: ${ws.unacknowledgedChunks} unacknowledged chunks`);
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: 'overrun',
+              unacknowledgedChunks: ws.unacknowledgedChunks
+            }));
+            // Track overrun in metrics
+            if (global.voiceMetrics) {
+              global.voiceMetrics.voiceOverrunTotal.inc();
+            }
+            return;
+          }
+          
+          // Process audio and track metrics
           await aiService.processAudioStream(connectionId, buffer);
+          
+          // Update metrics
+          ws.unacknowledgedChunks = (ws.unacknowledgedChunks || 0) + 1;
+          ws.totalChunksReceived = (ws.totalChunksReceived || 0) + 1;
+          ws.totalBytesReceived = (ws.totalBytesReceived || 0) + buffer.length;
+          
+          // Send progress acknowledgment
+          ws.send(JSON.stringify({
+            type: 'progress',
+            bytesReceived: buffer.length,
+            totalBytesReceived: ws.totalBytesReceived
+          }));
+          
+          // Decrement unacknowledged chunks after sending progress
+          ws.unacknowledgedChunks = Math.max(0, ws.unacknowledgedChunks - 1);
+          
+          // Track chunks in metrics
+          if (global.voiceMetrics) {
+            global.voiceMetrics.voiceChunksTotal.inc();
+          }
         }
       } catch (error) {
         wsLogger.error('Message handling error:', error);
@@ -65,6 +126,11 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
     // Handle disconnect
     ws.on('close', () => {
       wsLogger.info(`AI WebSocket disconnected: ${connectionId}`);
+      
+      // Update active connections metric
+      if (global.voiceMetrics) {
+        global.voiceMetrics.voiceActiveConnections.dec();
+      }
     });
 
     ws.on('error', (error) => {

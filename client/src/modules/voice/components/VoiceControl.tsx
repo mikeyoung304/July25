@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Mic } from 'lucide-react';
 import { cn } from '@/utils';
 import { useToast } from '@/hooks/useToast';
 import { useRestaurant } from '@/core/restaurant-hooks';
+import { HoldToRecordButton } from './HoldToRecordButton';
+import { useVoiceSocket, VoiceSocketMessage } from '../hooks/useVoiceSocket';
 
 interface VoiceControlProps {
   onTranscript?: (text: string, isFinal: boolean) => void;
@@ -11,7 +12,7 @@ interface VoiceControlProps {
   onFirstPress?: () => void;
 }
 
-type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
+type PermissionState = 'granted' | 'denied' | 'prompt';
 
 const VoiceControl: React.FC<VoiceControlProps> = ({
   onTranscript,
@@ -21,14 +22,48 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
 }) => {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
+  const [permissionState, setPermissionState] = useState<PermissionState>('prompt');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const { restaurant } = useRestaurant();
+  
+  // Check microphone permission status
+  useEffect(() => {
+    let mounted = true;
+    
+    const checkPermission = async () => {
+      try {
+        const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        if (mounted) {
+          setPermissionState(permissionStatus.state as PermissionState);
+        }
+        
+        // Listen for permission changes
+        const handleChange = () => {
+          if (mounted) {
+            setPermissionState(permissionStatus.state as PermissionState);
+          }
+        };
+        
+        permissionStatus.addEventListener('change', handleChange);
+        
+        return () => {
+          permissionStatus.removeEventListener('change', handleChange);
+        };
+      } catch (error) {
+        // Fallback for browsers that don't support permissions API
+        console.log('Permissions API not supported, will check on user interaction');
+      }
+    };
+    
+    checkPermission();
+    
+    return () => {
+      mounted = false;
+    };
+  }, []);
   
   // Handle transcription result by creating an order
   const handleTranscript = useCallback(async (text: string) => {
@@ -72,114 +107,50 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
     }
   }, [restaurant?.id, toast]);
 
-  // WebSocket connection management
-  useEffect(() => {
-    let shouldReconnect = true;
-    
-    const connectWebSocket = () => {
-      if (!shouldReconnect) return;
-      
-      setConnectionStatus('connecting');
-      const ws = new WebSocket('ws://localhost:3001/voice-stream');
-      
-      ws.onopen = () => {
-        console.log('Voice WebSocket connected');
-        setConnectionStatus('connected');
-        
-        // Clear any reconnect timeout
-        if (reconnectTimeoutRef.current) {
-          clearTimeout(reconnectTimeoutRef.current);
-          reconnectTimeoutRef.current = null;
-        }
-      };
-      
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('WebSocket message:', data);
+  // WebSocket connection with flow control
+  const { connectionStatus, send, sendJSON, isConnected } = useVoiceSocket({
+    url: 'ws://localhost:3001/voice-stream',
+    maxUnacknowledgedChunks: 3,
+    reconnectDelay: 3000,
+    onMessage: useCallback((data: VoiceSocketMessage) => {
+      switch (data.type) {
+        case 'connected':
+          console.log('Voice stream ready:', data.message);
+          break;
           
-          switch (data.type) {
-            case 'connected':
-              console.log('Voice stream ready:', data.message);
-              break;
-              
-            case 'transcription':
-              if (onTranscript) {
-                onTranscript(data.text, data.final);
-              }
-              setIsProcessing(false);
-              break;
-              
-            case 'progress':
-              console.log(`Audio progress: ${data.bytesReceived} bytes`);
-              break;
-              
-            case 'error':
-              console.error('Voice error:', data.message);
-              setIsProcessing(false);
-              break;
-              
-            case 'ping':
-              // Respond to server ping with pong
-              ws.send(JSON.stringify({ type: 'pong' }));
-              break;
-              
-            case 'transcription_result':
-              // Handle transcription results from server
-              if (data.text) {
-                // Call the transcript handler if provided
-                if (onTranscript) {
-                  onTranscript(data.text, true);
-                }
-                // Process the transcript to create an order
-                handleTranscript(data.text);
-              } else if (!data.success) {
-                console.error('Transcription failed:', data.error);
-              }
-              setIsProcessing(false);
-              break;
+        case 'transcription':
+          if (onTranscript) {
+            onTranscript(data.text, data.final);
           }
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-      
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setConnectionStatus('error');
-      };
-      
-      ws.onclose = () => {
-        console.log('WebSocket disconnected');
-        setConnectionStatus('disconnected');
-        wsRef.current = null;
-        
-        // Attempt reconnection after 3 seconds
-        if (shouldReconnect && !reconnectTimeoutRef.current) {
-          reconnectTimeoutRef.current = setTimeout(() => {
-            reconnectTimeoutRef.current = null;
-            connectWebSocket();
-          }, 3000);
-        }
-      };
-      
-      wsRef.current = ws;
-    };
-    
-    // Connect immediately
-    connectWebSocket();
-    
-    // Cleanup on unmount
-    return () => {
-      shouldReconnect = false;
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
+          setIsProcessing(false);
+          break;
+          
+        case 'progress':
+          console.log(`Audio progress: ${data.bytesReceived} bytes`);
+          break;
+          
+        case 'error':
+          console.error('Voice error:', data.message);
+          if (data.message === 'overrun') {
+            toast.error('Audio buffer overflow - please speak more slowly');
+          }
+          setIsProcessing(false);
+          break;
+          
+        case 'transcription_result':
+          if (data.text) {
+            if (onTranscript) {
+              onTranscript(data.text, true);
+            }
+            handleTranscript(data.text);
+          } else if (!data.success) {
+            console.error('Transcription failed:', data.error);
+          }
+          setIsProcessing(false);
+          break;
       }
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.close();
-      }
-    };
-  }, [onTranscript, handleTranscript]);
+    }, [onTranscript, handleTranscript, toast]),
+  });
 
   const startRecording = useCallback(async () => {
     try {
@@ -202,17 +173,16 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
       audioChunksRef.current = [];
       
       // Send start recording message
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ type: 'start_recording' }));
-      }
+      sendJSON({ type: 'start_recording' });
       
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
           
-          // Send audio chunks via WebSocket for streaming
-          if (wsRef.current?.readyState === WebSocket.OPEN) {
-            wsRef.current.send(event.data);
+          // Send audio chunks via WebSocket with flow control
+          const sent = send(event.data);
+          if (!sent) {
+            console.warn('Audio chunk dropped due to flow control');
           }
         }
       };
@@ -224,10 +194,8 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
         }
         
         // Send stop recording message
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({ type: 'stop_recording' }));
-          setIsProcessing(true);
-        }
+        sendJSON({ type: 'stop_recording' });
+        setIsProcessing(true);
         
         // Clean up
         stream.getTracks().forEach(track => track.stop());
@@ -239,9 +207,12 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
       
     } catch (error) {
       console.error('Error accessing microphone:', error);
+      if (error instanceof DOMException && error.name === 'NotAllowedError') {
+        setPermissionState('denied');
+      }
       alert('Could not access microphone. Please check permissions.');
     }
-  }, [onAudioData]);
+  }, [onAudioData, send, sendJSON]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -256,14 +227,14 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
     }
     
     // Check WebSocket connection before recording
-    if (connectionStatus !== 'connected') {
+    if (!isConnected) {
       console.warn('WebSocket not connected. Current status:', connectionStatus);
       alert('Voice service is not connected. Please wait a moment and try again.');
       return;
     }
     
     startRecording();
-  }, [isFirstPress, onFirstPress, startRecording, connectionStatus]);
+  }, [isFirstPress, onFirstPress, startRecording, isConnected, connectionStatus]);
 
   const handleMouseUp = useCallback(() => {
     stopRecording();
@@ -289,6 +260,40 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
     }
   };
 
+  // Show permission prompt if needed
+  if (permissionState === 'prompt') {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <button
+          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          onClick={async () => {
+            try {
+              const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+              stream.getTracks().forEach(track => track.stop());
+              setPermissionState('granted');
+            } catch (error) {
+              if (error instanceof DOMException && error.name === 'NotAllowedError') {
+                setPermissionState('denied');
+              }
+            }
+          }}
+        >
+          Enable microphone
+        </button>
+      </div>
+    );
+  }
+  
+  // Show denied message
+  if (permissionState === 'denied') {
+    return (
+      <div className="text-center">
+        <p className="text-red-600 mb-2">Microphone access denied</p>
+        <p className="text-sm text-gray-600">Please enable microphone permissions in your browser settings</p>
+      </div>
+    );
+  }
+  
   return (
     <div className="relative">
       {/* Connection status indicator */}
@@ -301,31 +306,13 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
         </span>
       </div>
       
-      <button
-        className={cn(
-          'relative w-48 h-48 rounded-full text-lg font-bold text-white transition-all duration-300',
-          'hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-4',
-          'focus:outline-none focus:ring-4 focus:ring-offset-2',
-          isListening 
-            ? 'bg-red-500 shadow-[0_0_40px_rgba(239,68,68,0.6)] hover:bg-red-600 focus:ring-red-500' 
-            : 'bg-blue-500 shadow-[0_4px_20px_rgba(0,0,0,0.1)] hover:bg-blue-600 focus:ring-blue-500',
-          isProcessing && 'animate-pulse',
-          connectionStatus !== 'connected' && 'opacity-50 cursor-not-allowed'
-        )}
+      <HoldToRecordButton
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        disabled={connectionStatus !== 'connected'}
-      >
-        <Mic className="w-10 h-10" />
-        <span>
-          {isListening ? 'LISTENING...' : 
-           isProcessing ? 'PROCESSING...' : 
-           'HOLD ME'}
-        </span>
-      </button>
+        isListening={isListening}
+        isProcessing={isProcessing}
+        disabled={!isConnected}
+      />
     </div>
   );
 };

@@ -9,7 +9,7 @@ export interface TranscriptionResult {
 }
 
 export const transcriptionService = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   async transcribe(_audioBlob: Blob): Promise<TranscriptionResult> {
     // Mock implementation
     return {

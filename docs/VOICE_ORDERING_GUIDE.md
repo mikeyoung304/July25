@@ -390,6 +390,117 @@ ws.onmessage = (event) => {
 };
 ```
 
+## 🔄 Back-Pressure and Flow Control
+
+### Overview
+
+The voice ordering system implements a leaky-bucket flow control mechanism to ensure reliable audio streaming under poor network conditions. This prevents buffer overruns and maintains quality of service.
+
+### How It Works
+
+1. **Client-Side Flow Control**:
+   - Maximum of 3 unacknowledged audio chunks in flight
+   - Chunks are queued if the limit is reached
+   - Automatic retry when acknowledgments are received
+
+2. **Server-Side Progress Tracking**:
+   - Sends `progress` messages after processing each chunk
+   - Detects overrun conditions and sends error messages
+   - Tracks metrics for monitoring
+
+### Implementation Details
+
+**Client Hook (useVoiceSocket)**:
+```typescript
+const { send, sendJSON, connectionStatus, isConnected } = useVoiceSocket({
+  url: 'ws://localhost:3001/voice-stream',
+  maxUnacknowledgedChunks: 3,
+  reconnectDelay: 3000,
+  onMessage: (message) => {
+    if (message.type === 'progress') {
+      // Chunk acknowledged, can send more
+    } else if (message.type === 'error' && message.message === 'overrun') {
+      // Buffer overflow detected
+    }
+  },
+  onConnectionChange: (status) => {
+    // Handle connection status changes
+  }
+});
+
+// Audio chunks are automatically flow-controlled
+const sent = send(audioBlob);
+if (!sent) {
+  console.warn('Audio chunk dropped due to flow control');
+}
+```
+
+**Server Response**:
+```json
+// Progress acknowledgment
+{
+  "type": "progress",
+  "bytesReceived": 1024,
+  "totalBytesReceived": 5120
+}
+
+// Overrun error
+{
+  "type": "error",
+  "message": "overrun",
+  "unacknowledgedChunks": 4
+}
+```
+
+### Monitoring
+
+Access Prometheus metrics at `http://localhost:3001/metrics`:
+
+- `voice_chunks_total`: Total audio chunks received
+- `voice_overrun_total`: Total overrun events
+- `voice_active_connections`: Current active voice connections
+
+### Best Practices
+
+1. **Network Resilience**:
+   - System automatically handles reconnections
+   - Audio chunks are buffered during brief disconnections
+   - Flow control prevents overwhelming slow connections
+
+2. **Error Handling**:
+   - Monitor for overrun errors in production
+   - Adjust `maxUnacknowledgedChunks` based on network conditions
+   - Implement user feedback for buffer overflows
+
+3. **Performance Tuning**:
+   ```typescript
+   // Adjust based on network conditions
+   const CHUNK_SIZE = 100; // ms of audio per chunk
+   const MAX_UNACKED = 3;  // max chunks in flight
+   
+   // Higher values for good networks
+   // Lower values for poor/mobile networks
+   ```
+
+4. **Connection Management**:
+   - WebSocket connections auto-close after 30 seconds of inactivity
+   - The system uses native WebSocket ping/pong for keep-alive
+   - Automatic reconnection with exponential backoff
+   - Monitor the connection status indicator in the UI
+
+### Timeout Matrix
+
+| Parameter | Default Value | Description | Configurable |
+|-----------|--------------|-------------|--------------|
+| Ping Interval | 30 seconds | Server sends ping to check client health | Via environment variable |
+| Idle Close | 30 seconds | Connection closes after no activity | Built into heartbeat |
+| Reconnect Delay | 3 seconds | Initial reconnection delay | Via `useVoiceSocket` options |
+| Max Unacked Chunks | 3 | Flow control limit | Via `useVoiceSocket` options |
+| Chunk Timeout | N/A | No timeout on individual chunks | Not implemented |
+| Backoff Sequence | 3s (fixed) | No exponential backoff currently | TODO: Implement exponential |
+
+**Note**: The current implementation uses a fixed 3-second reconnect delay. Exponential backoff is mentioned in docs but not yet implemented in code.
+
 ## 🔮 Future Enhancements
 
 ### Planned Features
