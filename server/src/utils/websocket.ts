@@ -25,7 +25,7 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
 
   wss.on('connection', async (ws: ExtendedWebSocket, request) => {
     // Skip voice connections - they're handled by AI WebSocket
-    if (request.url?.includes('/voice')) {
+    if (request.url?.includes('/voice-stream')) {
       return;
     }
     
