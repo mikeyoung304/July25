@@ -19,7 +19,7 @@ export interface AuthenticatedRequest extends Request {
 // Verify JWT token from Supabase
 export async function authenticate(
   req: AuthenticatedRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
@@ -71,7 +71,7 @@ export async function authenticate(
 // Optional authentication (doesn't fail if no token)
 export async function optionalAuth(
   req: AuthenticatedRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
@@ -84,7 +84,7 @@ export async function optionalAuth(
     }
 
     // If token exists, validate it
-    return authenticate(req, res, next);
+    return authenticate(req, _res, next);
   } catch (error) {
     // Log but don't fail
     logger.warn('Optional auth failed:', error);
@@ -130,7 +130,7 @@ export async function verifyWebSocketAuth(
 
 // Require specific role
 export function requireRole(roles: string[]) {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  return (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role || '')) {
       next(Unauthorized('Insufficient permissions'));
     } else {
@@ -142,7 +142,7 @@ export function requireRole(roles: string[]) {
 // Validate restaurant access middleware
 export function validateRestaurantAccess(
   req: AuthenticatedRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void {
   const restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;

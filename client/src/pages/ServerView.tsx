@@ -15,28 +15,28 @@ import { toast } from 'react-hot-toast'
 const generateMockTables = (): Table[] => {
   const tables: Table[] = [
     // Left side booth section (2-seaters)
-    { id: 'booth-1', type: 'rectangle', x: 100, y: 100, width: 80, height: 60, seats: 2, label: 'B1', rotation: 0, status: 'available', zIndex: 1 },
-    { id: 'booth-2', type: 'rectangle', x: 100, y: 180, width: 80, height: 60, seats: 2, label: 'B2', rotation: 0, status: 'occupied', zIndex: 1 },
-    { id: 'booth-3', type: 'rectangle', x: 100, y: 260, width: 80, height: 60, seats: 2, label: 'B3', rotation: 0, status: 'available', zIndex: 1 },
-    { id: 'booth-4', type: 'rectangle', x: 100, y: 340, width: 80, height: 60, seats: 2, label: 'B4', rotation: 0, status: 'reserved', zIndex: 1 },
+    { id: 'booth-1', type: 'rectangle', x: 100, y: 100, width: 80, height: 60, seats: 2, label: 'B1', rotation: 0, status: 'available', z_index: 1 },
+    { id: 'booth-2', type: 'rectangle', x: 100, y: 180, width: 80, height: 60, seats: 2, label: 'B2', rotation: 0, status: 'occupied', z_index: 1 },
+    { id: 'booth-3', type: 'rectangle', x: 100, y: 260, width: 80, height: 60, seats: 2, label: 'B3', rotation: 0, status: 'available', z_index: 1 },
+    { id: 'booth-4', type: 'rectangle', x: 100, y: 340, width: 80, height: 60, seats: 2, label: 'B4', rotation: 0, status: 'reserved', z_index: 1 },
     
     // Center section (4-seaters)
-    { id: 'table-1', type: 'square', x: 280, y: 120, width: 80, height: 80, seats: 4, label: 'T1', rotation: 45, status: 'available', zIndex: 2 },
-    { id: 'table-2', type: 'square', x: 400, y: 120, width: 80, height: 80, seats: 4, label: 'T2', rotation: 45, status: 'occupied', zIndex: 2 },
-    { id: 'table-3', type: 'square', x: 280, y: 240, width: 80, height: 80, seats: 4, label: 'T3', rotation: 45, status: 'available', zIndex: 2 },
-    { id: 'table-4', type: 'square', x: 400, y: 240, width: 80, height: 80, seats: 4, label: 'T4', rotation: 45, status: 'available', zIndex: 2 },
-    { id: 'table-5', type: 'square', x: 340, y: 360, width: 80, height: 80, seats: 4, label: 'T5', rotation: 45, status: 'occupied', zIndex: 2 },
+    { id: 'table-1', type: 'square', x: 280, y: 120, width: 80, height: 80, seats: 4, label: 'T1', rotation: 45, status: 'available', z_index: 2 },
+    { id: 'table-2', type: 'square', x: 400, y: 120, width: 80, height: 80, seats: 4, label: 'T2', rotation: 45, status: 'occupied', z_index: 2 },
+    { id: 'table-3', type: 'square', x: 280, y: 240, width: 80, height: 80, seats: 4, label: 'T3', rotation: 45, status: 'available', z_index: 2 },
+    { id: 'table-4', type: 'square', x: 400, y: 240, width: 80, height: 80, seats: 4, label: 'T4', rotation: 45, status: 'available', z_index: 2 },
+    { id: 'table-5', type: 'square', x: 340, y: 360, width: 80, height: 80, seats: 4, label: 'T5', rotation: 45, status: 'occupied', z_index: 2 },
     
     // Right side (mix of sizes)
-    { id: 'round-1', type: 'circle', x: 550, y: 100, width: 100, height: 100, seats: 6, label: 'R1', rotation: 0, status: 'available', zIndex: 3 },
-    { id: 'round-2', type: 'circle', x: 680, y: 100, width: 80, height: 80, seats: 4, label: 'R2', rotation: 0, status: 'reserved', zIndex: 3 },
-    { id: 'round-3', type: 'circle', x: 550, y: 240, width: 80, height: 80, seats: 4, label: 'R3', rotation: 0, status: 'available', zIndex: 3 },
-    { id: 'round-4', type: 'circle', x: 680, y: 240, width: 80, height: 80, seats: 4, label: 'R4', rotation: 0, status: 'occupied', zIndex: 3 },
+    { id: 'round-1', type: 'circle', x: 550, y: 100, width: 100, height: 100, seats: 6, label: 'R1', rotation: 0, status: 'available', z_index: 3 },
+    { id: 'round-2', type: 'circle', x: 680, y: 100, width: 80, height: 80, seats: 4, label: 'R2', rotation: 0, status: 'reserved', z_index: 3 },
+    { id: 'round-3', type: 'circle', x: 550, y: 240, width: 80, height: 80, seats: 4, label: 'R3', rotation: 0, status: 'available', z_index: 3 },
+    { id: 'round-4', type: 'circle', x: 680, y: 240, width: 80, height: 80, seats: 4, label: 'R4', rotation: 0, status: 'occupied', z_index: 3 },
     
     // Bar area (high tops)
-    { id: 'bar-1', type: 'circle', x: 550, y: 380, width: 60, height: 60, seats: 2, label: 'H1', rotation: 0, status: 'available', zIndex: 4 },
-    { id: 'bar-2', type: 'circle', x: 620, y: 380, width: 60, height: 60, seats: 2, label: 'H2', rotation: 0, status: 'available', zIndex: 4 },
-    { id: 'bar-3', type: 'circle', x: 690, y: 380, width: 60, height: 60, seats: 2, label: 'H3', rotation: 0, status: 'occupied', zIndex: 4 },
+    { id: 'bar-1', type: 'circle', x: 550, y: 380, width: 60, height: 60, seats: 2, label: 'H1', rotation: 0, status: 'available', z_index: 4 },
+    { id: 'bar-2', type: 'circle', x: 620, y: 380, width: 60, height: 60, seats: 2, label: 'H2', rotation: 0, status: 'available', z_index: 4 },
+    { id: 'bar-3', type: 'circle', x: 690, y: 380, width: 60, height: 60, seats: 2, label: 'H3', rotation: 0, status: 'occupied', z_index: 4 },
   ]
   
   return tables

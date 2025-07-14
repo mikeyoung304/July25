@@ -72,7 +72,7 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
             ? data 
             : data instanceof ArrayBuffer 
               ? Buffer.from(new Uint8Array(data))
-              : Buffer.from(data as Buffer);
+              : Buffer.from(data as unknown as Buffer);
           
           // Check for overrun
           if (ws.unacknowledgedChunks && ws.unacknowledgedChunks >= 3) {

@@ -23,7 +23,7 @@ router.get('/', async (req, res, next) => {
     
     res.json(data || []);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -47,7 +47,7 @@ router.get('/:id', async (req, res, next) => {
     
     res.json(data);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -70,7 +70,7 @@ router.post('/', async (req, res, next) => {
     
     res.status(201).json(data);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -101,7 +101,7 @@ router.put('/:id', async (req, res, next) => {
     
     res.json(data);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -126,7 +126,7 @@ router.delete('/:id', async (req, res, next) => {
     
     res.json({ success: true, id });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -159,7 +159,7 @@ router.patch('/:id/status', async (req, res, next) => {
     
     res.json(data);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -201,7 +201,7 @@ router.put('/batch', async (req, res, next) => {
     const data = results.map(r => r.data);
     res.json(data);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

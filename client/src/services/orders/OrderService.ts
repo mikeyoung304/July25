@@ -5,7 +5,7 @@
 
 import { HttpServiceAdapter } from '@/services/base/HttpServiceAdapter'
 import { Order, OrderFilters } from '@/services/types'
-import { orderSubscription, mockOrderGenerator, startOrderProgression, initializeOrderStore } from '@/services/realtime/orderSubscription'
+import { orderSubscription, mockOrderGenerator, startOrderProgression, initializeOrderStore, OrderEvent } from '@/services/realtime/orderSubscription'
 import { 
   validateTableNumber, 
   validateItemName,
@@ -172,11 +172,11 @@ export class OrderService extends HttpServiceAdapter implements IOrderService {
         order.completedTime = status === 'completed' ? new Date() : undefined
         
         // Notify subscribers
-        const subscribers = orderSubscription.getSubscribers()
-        subscribers.forEach(callback => callback({
-          ...order,
-          status: mapOrderStatus(order.status)
-        }))
+        orderSubscription.emitOrderStatusChanged(
+          orderId,
+          mapOrderStatus(status),
+          mapOrderStatus(previousStatus)
+        )
         
         return { 
           success: true, 
@@ -252,27 +252,17 @@ export class OrderService extends HttpServiceAdapter implements IOrderService {
         )
         if (!table) throw new Error('Table not found')
         
-        const newOrder = mockOrderGenerator.generateOrder({
-          restaurant_id: restaurantId,
-          tableNumber: orderData.tableNumber,
-          items: orderData.items!,
-          notes: orderData.notes,
-          orderType: orderData.orderType
-        })
+        const newOrder = mockOrderGenerator.generateOrder()
         
         mockData.orders.push(newOrder)
         table.status = 'occupied'
         table.currentOrderId = newOrder.id
         
         // Start order progression simulation
-        startOrderProgression(newOrder)
+        startOrderProgression()
         
         // Notify subscribers
-        const subscribers = orderSubscription.getSubscribers()
-        subscribers.forEach(callback => callback({
-          ...newOrder,
-          status: mapOrderStatus(newOrder.status)
-        }))
+        orderSubscription.emitOrderCreated(newOrder)
         
         return { 
           success: true, 
@@ -287,19 +277,24 @@ export class OrderService extends HttpServiceAdapter implements IOrderService {
   }
 
   subscribeToOrders(restaurantId: string, callback: (order: Order) => void): () => void {
-    // Wrap callback to filter by restaurant and map status
-    const filteredCallback = (order: Order) => {
-      if (order.restaurant_id === restaurantId) {
-        callback({
-          ...order,
-          status: mapOrderStatus(order.status)
-        })
+    // Generate unique subscription ID
+    const subscriptionId = `order-sub-${Date.now()}-${Math.random()}`
+    
+    // Wrap callback to handle events and filter by restaurant
+    const eventCallback = (event: OrderEvent) => {
+      if (event.type === 'ORDER_CREATED' || event.type === 'ORDER_UPDATED') {
+        if (event.order.restaurant_id === restaurantId) {
+          callback({
+            ...event.order,
+            status: mapOrderStatus(event.order.status)
+          })
+        }
       }
     }
     
     // TODO: Implement real WebSocket subscription when Task 7 is completed
     // For now, use the mock subscription
-    return orderSubscription.subscribe(filteredCallback)
+    return orderSubscription.subscribe(subscriptionId, eventCallback)
   }
 }
 
