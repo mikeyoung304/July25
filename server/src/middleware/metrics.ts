@@ -35,7 +35,7 @@ export function metricsMiddleware(req: Request, res: Response, next: NextFunctio
     res.set('Content-Type', register.contentType);
     register.metrics().then(metrics => {
       res.send(metrics);
-    }).catch(err => {
+    }).catch(_err => {
       res.status(500).send('Error generating metrics');
     });
   } else {

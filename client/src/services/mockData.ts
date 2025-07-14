@@ -1,5 +1,6 @@
 // Centralized mock data storage
-import { Order, Table, MenuItem } from './types'
+import { Order, MenuItem } from './types'
+import { Table } from '../modules/floor-plan/types'
 
 export const mockData = {
   orders: [

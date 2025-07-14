@@ -157,7 +157,7 @@ describe('Voice Order Flow Integration', () => {
     mockToast.error.mockClear()
     
     const { container } = render(
-      <TestRestaurantProvider restaurant={{ id: 'rest-1', name: 'Test Restaurant' }}>
+      <TestRestaurantProvider restaurant={{ id: 'rest-1', name: 'Test Restaurant', timezone: 'America/New_York', currency: 'USD' }}>
         <VoiceControl onTranscript={mockTranscriptHandler} />
         <Toaster />
       </TestRestaurantProvider>
@@ -235,7 +235,7 @@ describe('Voice Order Flow Integration', () => {
     })
     
     const { container } = render(
-      <TestRestaurantProvider restaurant={{ id: 'rest-1', name: 'Test Restaurant' }}>
+      <TestRestaurantProvider restaurant={{ id: 'rest-1', name: 'Test Restaurant', timezone: 'America/New_York', currency: 'USD' }}>
         <VoiceControl onTranscript={mockTranscriptHandler} />
         <Toaster />
       </TestRestaurantProvider>
@@ -293,7 +293,7 @@ describe('Voice Order Flow Integration', () => {
     })
     
     const { container } = render(
-      <TestRestaurantProvider restaurant={{ id: 'rest-1', name: 'Test Restaurant' }}>
+      <TestRestaurantProvider restaurant={{ id: 'rest-1', name: 'Test Restaurant', timezone: 'America/New_York', currency: 'USD' }}>
         <VoiceControl onTranscript={mockTranscriptHandler} />
         <Toaster />
       </TestRestaurantProvider>

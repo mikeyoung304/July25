@@ -67,7 +67,7 @@ async function checkDatabase(): Promise<HealthStatus['services']['database']> {
 }
 
 // Basic health check endpoint
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (_req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -77,7 +77,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // Detailed status endpoint
-router.get('/status', async (req: Request, res: Response) => {
+router.get('/status', async (_req: Request, res: Response) => {
   try {
     const [databaseStatus] = await Promise.all([
       checkDatabase(),
@@ -124,7 +124,7 @@ router.get('/status', async (req: Request, res: Response) => {
 });
 
 // Readiness probe for k8s
-router.get('/ready', async (req: Request, res: Response) => {
+router.get('/ready', async (_req: Request, res: Response) => {
   try {
     const dbStatus = await checkDatabase();
     
@@ -139,7 +139,7 @@ router.get('/ready', async (req: Request, res: Response) => {
 });
 
 // Liveness probe for k8s
-router.get('/live', (req: Request, res: Response) => {
+router.get('/live', (_req: Request, res: Response) => {
   res.status(200).json({ alive: true });
 });
 

@@ -144,7 +144,7 @@ export class WebSocketService extends EventEmitter {
       type,
       payload,
       timestamp: new Date().toISOString(),
-      restaurantId: getCurrentRestaurantId()
+      restaurantId: getCurrentRestaurantId() || undefined
     }
 
     try {

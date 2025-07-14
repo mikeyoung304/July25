@@ -32,7 +32,8 @@ export async function submitAudioForTranscription(audioBlob?: Blob): Promise<{ s
   }
 }
 
-import type { Order, OrderFilters, Table } from './types'
+import type { Order, OrderFilters } from './types'
+import type { Table } from '../modules/floor-plan/types'
 
 // Default restaurant ID for backward compatibility
 const DEFAULT_RESTAURANT_ID = 'rest-1'

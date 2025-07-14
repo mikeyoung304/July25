@@ -19,6 +19,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    onMouseDown: () => {},
+    onMouseUp: () => {},
     isListening: false,
     isProcessing: false,
     disabled: false,
@@ -27,6 +29,8 @@ export const Default: Story = {
 
 export const Listening: Story = {
   args: {
+    onMouseDown: () => {},
+    onMouseUp: () => {},
     isListening: true,
     isProcessing: false,
     disabled: false,
@@ -35,6 +39,8 @@ export const Listening: Story = {
 
 export const Processing: Story = {
   args: {
+    onMouseDown: () => {},
+    onMouseUp: () => {},
     isListening: false,
     isProcessing: true,
     disabled: false,
@@ -43,6 +49,8 @@ export const Processing: Story = {
 
 export const Disabled: Story = {
   args: {
+    onMouseDown: () => {},
+    onMouseUp: () => {},
     isListening: false,
     isProcessing: false,
     disabled: true,

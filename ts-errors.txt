@@ -1,0 +1,91 @@
+client/src/modules/orders/services/OrderParser.ts(2,35): error TS2307: Cannot find module '../contexts/VoiceOrderContext' or its corresponding type declarations.
+client/src/modules/voice/components/HoldToRecordButton.stories.tsx(21,3): error TS2322: Type '{ isListening: false; isProcessing: false; disabled: false; }' is not assignable to type 'Partial<{ onMouseDown: () => void; onMouseUp: () => void; isListening: boolean; isProcessing: boolean; disabled?: boolean | undefined; className?: string | undefined; }> & { onMouseDown: () => void; ... 4 more ...; className?: string | undefined; }'.
+client/src/modules/voice/components/HoldToRecordButton.stories.tsx(29,3): error TS2322: Type '{ isListening: true; isProcessing: false; disabled: false; }' is not assignable to type 'Partial<{ onMouseDown: () => void; onMouseUp: () => void; isListening: boolean; isProcessing: boolean; disabled?: boolean | undefined; className?: string | undefined; }> & { onMouseDown: () => void; ... 4 more ...; className?: string | undefined; }'.
+client/src/modules/voice/components/HoldToRecordButton.stories.tsx(37,3): error TS2322: Type '{ isListening: false; isProcessing: true; disabled: false; }' is not assignable to type 'Partial<{ onMouseDown: () => void; onMouseUp: () => void; isListening: boolean; isProcessing: boolean; disabled?: boolean | undefined; className?: string | undefined; }> & { onMouseDown: () => void; ... 4 more ...; className?: string | undefined; }'.
+client/src/modules/voice/components/HoldToRecordButton.stories.tsx(45,3): error TS2322: Type '{ isListening: false; isProcessing: false; disabled: true; }' is not assignable to type 'Partial<{ onMouseDown: () => void; onMouseUp: () => void; isListening: boolean; isProcessing: boolean; disabled?: boolean | undefined; className?: string | undefined; }> & { onMouseDown: () => void; ... 4 more ...; className?: string | undefined; }'.
+client/src/modules/voice/services/orderFlow.integration.test.tsx(160,31): error TS2739: Type '{ id: string; name: string; }' is missing the following properties from type 'Restaurant': timezone, currency
+client/src/modules/voice/services/orderFlow.integration.test.tsx(238,31): error TS2739: Type '{ id: string; name: string; }' is missing the following properties from type 'Restaurant': timezone, currency
+client/src/modules/voice/services/orderFlow.integration.test.tsx(296,31): error TS2739: Type '{ id: string; name: string; }' is missing the following properties from type 'Restaurant': timezone, currency
+client/src/pages/DriveThruPage.tsx(90,7): error TS2448: Block-scoped variable 'processVoiceOrder' used before its declaration.
+client/src/pages/DriveThruPage.tsx(90,7): error TS2454: Variable 'processVoiceOrder' is used before being assigned.
+client/src/pages/ServerView.tsx(18,137): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(19,136): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(20,137): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(21,136): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(24,135): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(25,134): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(26,135): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(27,135): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(28,134): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(31,136): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(32,133): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(33,134): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(34,133): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(37,132): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(38,132): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/pages/ServerView.tsx(39,131): error TS2561: Object literal may only specify known properties, but 'zIndex' does not exist in type 'Table'. Did you mean to write 'z_index'?
+client/src/services/api.ts(35,36): error TS2305: Module '"./types"' has no exported member 'Table'.
+client/src/services/mockData.ts(2,17): error TS2305: Module '"./types"' has no exported member 'Table'.
+client/src/services/orders/OrderService.ts(175,47): error TS2339: Property 'getSubscribers' does not exist on type '{ subscribe(id: string, callback: OrderEventCallback): () => void; emitOrderCreated(order: Order): void; emitOrderUpdated(order: Order): void; emitOrderStatusChanged(orderId: string, newStatus: "completed" | ... 3 more ... | "cancelled", previousStatus: "completed" | ... 3 more ... | "cancelled"): void; emitOrderDel...'.
+client/src/services/orders/OrderService.ts(176,29): error TS7006: Parameter 'callback' implicitly has an 'any' type.
+client/src/services/orders/OrderService.ts(255,59): error TS2554: Expected 0 arguments, but got 1.
+client/src/services/orders/OrderService.ts(268,31): error TS2554: Expected 0 arguments, but got 1.
+client/src/services/orders/OrderService.ts(271,47): error TS2339: Property 'getSubscribers' does not exist on type '{ subscribe(id: string, callback: OrderEventCallback): () => void; emitOrderCreated(order: Order): void; emitOrderUpdated(order: Order): void; emitOrderStatusChanged(orderId: string, newStatus: "completed" | ... 3 more ... | "cancelled", previousStatus: "completed" | ... 3 more ... | "cancelled"): void; emitOrderDel...'.
+client/src/services/orders/OrderService.ts(272,29): error TS7006: Parameter 'callback' implicitly has an 'any' type.
+client/src/services/orders/OrderService.ts(302,30): error TS2554: Expected 2 arguments, but got 1.
+client/src/services/websocket/WebSocketService.test.ts(311,40): error TS2353: Object literal may only specify known properties, and 'heartbeatInterval' does not exist in type 'WebSocketConfig'.
+client/src/services/websocket/WebSocketService.ts(147,7): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
+server/src/ai/websocket.ts(75,29): error TS2352: Conversion of type 'Buffer[]' to type 'Buffer' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+server/src/api/routes/tables.ts(31,20): error TS7030: Not all code paths return a value.
+server/src/api/routes/tables.ts(78,20): error TS7030: Not all code paths return a value.
+server/src/api/routes/tables.ts(109,23): error TS7030: Not all code paths return a value.
+server/src/api/routes/tables.ts(134,29): error TS7030: Not all code paths return a value.
+server/src/api/routes/tables.ts(167,22): error TS7030: Not all code paths return a value.
+server/src/middleware/auth.ts(22,3): error TS6133: 'res' is declared but its value is never read.
+server/src/middleware/auth.ts(133,38): error TS6133: 'res' is declared but its value is never read.
+server/src/middleware/auth.ts(145,3): error TS6133: 'res' is declared but its value is never read.
+server/src/middleware/errorHandler.ts(28,3): error TS6133: 'next' is declared but its value is never read.
+server/src/middleware/fileValidation.ts(10,16): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/metrics.ts(38,14): error TS6133: 'err' is declared but its value is never read.
+server/src/middleware/validation.ts(6,25): error TS6133: 'res' is declared but its value is never read.
+server/src/middleware/validation.ts(18,13): error TS7009: 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type.
+server/src/middleware/validation.ts(31,25): error TS6133: 'res' is declared but its value is never read.
+server/src/middleware/validation.ts(43,13): error TS7009: 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type.
+server/src/routes/ai.routes.ts(14,22): error TS7030: Not all code paths return a value.
+server/src/routes/ai.routes.ts(44,21): error TS7030: Not all code paths return a value.
+server/src/routes/ai.routes.ts(44,22): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/ai.routes.ts(60,57): error TS7030: Not all code paths return a value.
+server/src/routes/ai.routes.ts(87,29): error TS7030: Not all code paths return a value.
+server/src/routes/ai.routes.ts(112,24): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/health.routes.ts(70,24): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/health.routes.ts(80,30): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/health.routes.ts(127,29): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/health.routes.ts(142,22): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/orders.routes.ts(52,37): error TS7030: Not all code paths return a value.
+server/src/routes/orders.routes.ts(52,76): error TS6133: 'next' is declared but its value is never read.
+server/src/routes/orders.routes.ts(55,38): error TS6133: 'metadata' is declared but its value is never read.
+server/src/routes/orders.routes.ts(64,46): error TS2307: Cannot find module '../../src/modules/voice/services/orderIntegration' or its corresponding type declarations.
+server/src/routes/orders.routes.ts(102,85): error TS2532: Object is possibly 'undefined'.
+server/src/routes/orders.routes.ts(102,100): error TS2339: Property 'prepTimeMinutes' does not exist on type 'OrderItem'.
+server/src/routes/orders.routes.ts(125,62): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+server/src/routes/orders.routes.ts(155,71): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+server/src/routes/orders.routes.ts(173,7): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+server/src/routes/tables.routes.ts(12,46): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(12,51): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(28,45): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(28,50): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(48,48): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(48,53): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(67,48): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(67,53): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(94,48): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(94,53): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(115,54): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(115,59): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(144,54): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(144,59): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/server.ts(58,21): error TS6133: 'req' is declared but its value is never read.
+server/src/services/ai.service.ts(150,34): error TS6133: 'restaurantId' is declared but its value is never read.
+server/src/services/ai.service.ts(189,33): error TS2532: Object is possibly 'undefined'.
+server/src/services/menu.service.ts(222,13): error TS6133: 'menu' is declared but its value is never read.
+server/src/utils/websocket.ts(90,3): error TS6133: 'wss' is declared but its value is never read.

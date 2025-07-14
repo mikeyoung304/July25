@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { BadRequest } from './errorHandler';
 
 export function validateRequest(schema: Joi.Schema) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     const { error, value } = schema.validate(req.body, {
       abortEarly: false,
       stripUnknown: true,
@@ -15,7 +15,7 @@ export function validateRequest(schema: Joi.Schema) {
         message: detail.message,
       }));
       
-      throw new BadRequest(
+      throw BadRequest(
         `Validation failed: ${errors.map(e => e.message).join(', ')}`,
         'VALIDATION_ERROR'
       );
@@ -28,7 +28,7 @@ export function validateRequest(schema: Joi.Schema) {
 }
 
 export function validateQuery(schema: Joi.Schema) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     const { error, value } = schema.validate(req.query, {
       abortEarly: false,
       stripUnknown: true,
@@ -40,7 +40,7 @@ export function validateQuery(schema: Joi.Schema) {
         message: detail.message,
       }));
       
-      throw new BadRequest(
+      throw BadRequest(
         `Invalid query parameters: ${errors.map(e => e.message).join(', ')}`,
         'VALIDATION_ERROR'
       );

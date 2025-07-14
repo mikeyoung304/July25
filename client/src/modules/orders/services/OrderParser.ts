@@ -1,5 +1,5 @@
 import { MenuItem } from '../types';
-import { OrderModification } from '../contexts/VoiceOrderContext';
+import { OrderModification } from '../../voice/contexts/VoiceOrderContext';
 
 export interface ParsedOrderItem {
   menuItem: MenuItem | null;

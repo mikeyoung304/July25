@@ -308,7 +308,7 @@ describe('WebSocketService', () => {
   
   describe('heartbeat', () => {
     it('should send ping messages periodically', async () => {
-      service = new WebSocketService({ heartbeatInterval: 1000 })
+      service = new WebSocketService()
       
       await service.connect()
       await new Promise(resolve => setTimeout(resolve, 0))

@@ -72,23 +72,6 @@ const DriveThruPageContent: React.FC = () => {
     });
   }, [addItem, removeItem, updateQuantity, items]);
 
-  const handleTranscript = useCallback((text: string, isFinal: boolean) => {
-    if (!isFinal) {
-      setCurrentTranscript(text);
-    } else {
-      const userEntry: ConversationEntry = {
-        id: Date.now().toString(),
-        speaker: 'user',
-        text,
-        timestamp: new Date(),
-      };
-      setConversation(prev => [...prev, userEntry]);
-      setCurrentTranscript('');
-      
-      processVoiceOrder(text);
-    }
-  }, [processVoiceOrder]);
-
   const processVoiceOrder = useCallback(async (transcript: string) => {
     console.log('Processing drive-thru order:', transcript);
     
@@ -140,6 +123,23 @@ const DriveThruPageContent: React.FC = () => {
       setConversation(prev => [...prev, errorEntry]);
     }
   }, [menuItems, items, orderParser, processParsedItems]);
+
+  const handleTranscript = useCallback((text: string, isFinal: boolean) => {
+    if (!isFinal) {
+      setCurrentTranscript(text);
+    } else {
+      const userEntry: ConversationEntry = {
+        id: Date.now().toString(),
+        speaker: 'user',
+        text,
+        timestamp: new Date(),
+      };
+      setConversation(prev => [...prev, userEntry]);
+      setCurrentTranscript('');
+      
+      processVoiceOrder(text);
+    }
+  }, [processVoiceOrder]);
 
   const handleConfirmOrder = useCallback(() => {
     console.log('Order confirmed:', items);

@@ -7,7 +7,7 @@ export const audioUpload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB max
     files: 1 
   },
-  fileFilter: (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedMimes = ['audio/wav', 'audio/mp3', 'audio/webm', 'audio/ogg', 'audio/mpeg']
     
     if (allowedMimes.includes(file.mimetype)) {

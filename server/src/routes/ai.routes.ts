@@ -41,7 +41,7 @@ router.post('/menu', async (req: Request, res: Response) => {
 /**
  * Get current menu
  */
-router.get('/menu', (req: Request, res: Response) => {
+router.get('/menu', (_req: Request, res: Response) => {
   const menu = aiService.getMenu();
   
   if (!menu) {
@@ -109,7 +109,7 @@ router.post('/parse-order', async (req: AuthenticatedRequest, res: Response) => 
 /**
  * Health check for AI service
  */
-router.get('/health', (req: Request, res: Response) => {
+router.get('/health', (_req: Request, res: Response) => {
   const menu = aiService.getMenu();
   
   res.json({
