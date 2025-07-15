@@ -55,7 +55,7 @@ describe('useVoiceSocket', () => {
     (global.WebSocket as any) = class extends MockWebSocket {
       constructor(url: string) {
         super(url);
-        mockWebSocket = this;
+        mockWebSocket = this as MockWebSocket;
       }
     };
   });

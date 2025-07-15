@@ -19,11 +19,11 @@ async function clearTables() {
     }
 
     const tables = await response.json();
-    console.log(`Found ${tables.length} tables to delete`);
+    console.warn(`Found ${tables.length} tables to delete`);
 
     // Delete each table
     for (const table of tables) {
-      console.log(`Deleting table: ${table.label} (${table.id})`);
+      console.warn(`Deleting table: ${table.label} (${table.id})`);
       
       const deleteResponse = await fetch(`${API_BASE_URL}/tables/${table.id}`, {
         method: 'DELETE',
@@ -38,12 +38,12 @@ async function clearTables() {
       }
     }
 
-    console.log('All tables have been deleted (soft delete - marked as inactive)');
-    console.log('You can now create your custom floor plan in the Floor Plan editor!');
+    console.warn('All tables have been deleted (soft delete - marked as inactive)');
+    console.warn('You can now create your custom floor plan in the Floor Plan editor!');
     
   } catch (error) {
     console.error('Error clearing tables:', error.message);
-    console.log('Make sure the server is running on port 3001');
+    console.warn('Make sure the server is running on port 3001');
   }
 }
 

@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ConnectionIndicator } from './ConnectionIndicator';
 import { useState, useEffect } from 'react';
-import type { ConnectionStatus } from '../hooks/useVoiceSocket';
 
 const meta = {
   title: 'Voice/ConnectionIndicator',
@@ -216,7 +215,7 @@ export const InHeader: Story = {
   args: {
     status: 'connected',
   },
-  render: () => {
+  render: function Render() {
     const [status, setStatus] = useState<'connected' | 'connecting' | 'disconnected' | 'error'>('connected');
     
     // Simulate connection changes
