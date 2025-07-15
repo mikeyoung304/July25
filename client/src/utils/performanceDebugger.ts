@@ -118,6 +118,6 @@ export function usePerformanceTracking(componentName: string) {
 // Utility to log performance report
 export function logPerformanceReport() {
   if (import.meta.env.DEV) {
-    console.log(performanceDebugger.generateReport())
+    console.warn(performanceDebugger.generateReport())
   }
 }

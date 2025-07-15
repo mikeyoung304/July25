@@ -173,7 +173,7 @@ describe('useVoiceSocket', () => {
   });
 
   it('should handle ping/pong messages', async () => {
-    const { result } = renderHook(() => 
+    const { result: _result } = renderHook(() => 
       useVoiceSocket({
         url: 'ws://localhost:3001/voice-stream',
       })

@@ -162,9 +162,9 @@ export abstract class HttpServiceAdapter extends BaseService {
     
     if (isDev) {
       console.group(`[${this.constructor.name}] ${method} ${endpoint}`)
-      if (data) console.log('Request:', data)
-      if (response) console.log('Response:', response)
-      console.log('Using mock:', this.useMockData)
+      if (data) console.warn('Request:', data)
+      if (response) console.warn('Response:', response)
+      console.warn('Using mock:', this.useMockData)
       console.groupEnd()
     }
   }

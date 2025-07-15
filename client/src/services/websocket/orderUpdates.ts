@@ -41,7 +41,7 @@ export class OrderUpdatesHandler {
 
     // Handle connection state changes
     webSocketService.on('connected', () => {
-      console.log('Order updates connected')
+      console.warn('Order updates connected')
       // Request current order state after reconnection
       webSocketService.send('orders:sync', { requestFullSync: true })
     })
@@ -98,7 +98,7 @@ export class OrderUpdatesHandler {
    * Handle new order created
    */
   private handleOrderCreated(payload: { order: Order }): void {
-    console.log('New order created:', payload.order.id)
+    console.warn('New order created:', payload.order.id)
     
     this.notifySubscribers({
       action: 'created',
@@ -116,7 +116,7 @@ export class OrderUpdatesHandler {
    * Handle order updated
    */
   private handleOrderUpdated(payload: { order: Order }): void {
-    console.log('Order updated:', payload.order.id)
+    console.warn('Order updated:', payload.order.id)
     
     this.notifySubscribers({
       action: 'updated',
@@ -128,7 +128,7 @@ export class OrderUpdatesHandler {
    * Handle order deleted
    */
   private handleOrderDeleted(payload: { orderId: string }): void {
-    console.log('Order deleted:', payload.orderId)
+    console.warn('Order deleted:', payload.orderId)
     
     this.notifySubscribers({
       action: 'deleted',
@@ -145,7 +145,7 @@ export class OrderUpdatesHandler {
     previousStatus: string
     updatedBy?: string
   }): void {
-    console.log('Order status changed:', payload.orderId, payload.previousStatus, '->', payload.status)
+    console.warn('Order status changed:', payload.orderId, payload.previousStatus, '->', payload.status)
     
     this.notifySubscribers({
       action: 'status_changed',
@@ -174,7 +174,7 @@ export class OrderUpdatesHandler {
     previousStatus: string
     updatedBy?: string
   }): void {
-    console.log('Item status changed:', payload.orderId, payload.itemId, payload.previousStatus, '->', payload.status)
+    console.warn('Item status changed:', payload.orderId, payload.itemId, payload.previousStatus, '->', payload.status)
     
     this.notifySubscribers({
       action: 'item_status_changed',

@@ -115,7 +115,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
     onMessage: useCallback((data: VoiceSocketMessage) => {
       switch (data.type) {
         case 'connected':
-          console.log('Voice stream ready:', data.message);
+          console.warn('Voice stream ready:', data.message);
           break;
           
         case 'transcription':
@@ -126,7 +126,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
           break;
           
         case 'progress':
-          console.log(`Audio progress: ${data.bytesReceived} bytes`);
+          console.warn(`Audio progress: ${data.bytesReceived} bytes`);
           break;
           
         case 'error':
@@ -240,12 +240,12 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
     stopRecording();
   }, [stopRecording]);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+  const _handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
     handleMouseDown();
   }, [handleMouseDown]);
 
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+  const _handleTouchEnd = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
     handleMouseUp();
   }, [handleMouseUp]);

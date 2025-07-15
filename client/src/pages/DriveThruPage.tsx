@@ -73,7 +73,7 @@ const DriveThruPageContent: React.FC = () => {
   }, [addItem, removeItem, updateQuantity, items]);
 
   const processVoiceOrder = useCallback(async (transcript: string) => {
-    console.log('Processing drive-thru order:', transcript);
+    console.warn('Processing drive-thru order:', transcript);
     
     try {
       const response = await fetch('http://localhost:3001/api/v1/ai/chat', {
@@ -142,7 +142,7 @@ const DriveThruPageContent: React.FC = () => {
   }, [processVoiceOrder]);
 
   const handleConfirmOrder = useCallback(() => {
-    console.log('Order confirmed:', items);
+    console.warn('Order confirmed:', items);
     // Add confirmation message
     const confirmEntry: ConversationEntry = {
       id: Date.now().toString(),

@@ -5,7 +5,7 @@ import { InfoIcon } from 'lucide-react'
 
 export const VoiceCaptureDemo: React.FC = () => {
   const handleOrderComplete = (transcription: string) => {
-    console.log('Transcription received:', transcription)
+    console.warn('Transcription received:', transcription)
     // Here you would normally parse the order and submit it
   }
 

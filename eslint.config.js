@@ -28,6 +28,8 @@ export default [
       '*.spec.js',
       '.next/**',
       'storybook-static/**',
+      'docs/archive/**',
+      'server/scripts/**',
     ],
   },
   {
@@ -201,6 +203,9 @@ export default [
         Request: 'readonly',
         AbortController: 'readonly',
         AbortSignal: 'readonly',
+        Performance: 'readonly',
+        queueMicrotask: 'readonly',
+        sessionStorage: 'readonly',
         CanvasGradient: 'readonly',
         CanvasPattern: 'readonly',
         Path2D: 'readonly',
@@ -254,7 +259,7 @@ export default [
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/test/**/*.{ts,tsx}', '**/tests/**/*.{ts,tsx}'],
     languageOptions: {
       globals: {
         describe: 'readonly',
