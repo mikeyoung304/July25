@@ -22,6 +22,7 @@
     "lint:fix": "eslint --ext .ts,.tsx . --fix",
     "typecheck": "tsc --build tsconfig.all.json",
     "verify:ports": "! grep -r --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' --include='*.md' --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=build '3002\\|AI_GATEWAY' client/ server/ || (echo 'Error: Found forbidden port 3002 or AI_GATEWAY references!' && exit 1)",
+    "diagram:render": "node scripts/diagram-ci.js",
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
     "db:migration:new": "supabase migration new",
