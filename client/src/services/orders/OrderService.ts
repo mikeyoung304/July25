@@ -94,7 +94,7 @@ export class OrderService extends HttpServiceAdapter implements IOrderService {
         
         if (filters?.tableId) {
           filtered = filtered.filter(order => 
-            mockData.tables.find(t => t.id === filters.tableId && t.currentOrderId === order.id)
+            mockData.tables.find(t => t.id === filters.tableId && t.current_order_id === order.id)
           )
         }
         
@@ -168,6 +168,7 @@ export class OrderService extends HttpServiceAdapter implements IOrderService {
         const order = mockData.orders.find(o => o.id === orderId && o.restaurant_id === restaurantId)
         if (!order) throw new Error('Order not found')
         
+        const previousStatus = order.status
         order.status = status
         order.completedTime = status === 'completed' ? new Date() : undefined
         
@@ -248,7 +249,7 @@ export class OrderService extends HttpServiceAdapter implements IOrderService {
         await this.delay(500)
         
         const table = mockData.tables.find(t => 
-          t.restaurant_id === restaurantId && t.number === orderData.tableNumber
+          t.restaurant_id === restaurantId && t.label === orderData.tableNumber
         )
         if (!table) throw new Error('Table not found')
         
@@ -256,7 +257,7 @@ export class OrderService extends HttpServiceAdapter implements IOrderService {
         
         mockData.orders.push(newOrder)
         table.status = 'occupied'
-        table.currentOrderId = newOrder.id
+        table.current_order_id = newOrder.id
         
         // Start order progression simulation
         startOrderProgression()

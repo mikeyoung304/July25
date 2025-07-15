@@ -219,7 +219,7 @@ export class MenuService {
    */
   static async syncToAIGateway(restaurantId: string): Promise<void> {
     try {
-      const menu = await this.getFullMenu(restaurantId);
+      await this.getFullMenu(restaurantId);
       
       // TODO: Implement AI Gateway sync
       // const response = await fetch(`${config.aiGateway.url}/upload-menu`, {

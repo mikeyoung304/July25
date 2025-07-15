@@ -149,6 +149,13 @@ export const Disabled: Story = {
 
 // Interactive example with state management
 export const Interactive: Story = {
+  args: {
+    onMouseDown: () => {},
+    onMouseUp: () => {},
+    isListening: false,
+    isProcessing: false,
+    disabled: false,
+  },
   render: function Render() {
     const [isListening, setIsListening] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -196,6 +203,13 @@ export const Interactive: Story = {
 
 // Simulated voice ordering flow
 export const VoiceOrderingFlow: Story = {
+  args: {
+    onMouseDown: () => {},
+    onMouseUp: () => {},
+    isListening: false,
+    isProcessing: false,
+    disabled: false,
+  },
   render: function Render() {
     const [state, setState] = useState<'idle' | 'listening' | 'processing' | 'complete'>('idle');
     const [transcript, setTranscript] = useState('');

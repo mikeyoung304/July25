@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ConnectionIndicator } from './ConnectionIndicator';
 import { useState, useEffect } from 'react';
+import type { ConnectionStatus } from '../hooks/useVoiceSocket';
 
 const meta = {
   title: 'Voice/ConnectionIndicator',
@@ -116,6 +117,9 @@ export const Error: Story = {
 
 // All states showcase
 export const AllStates: Story = {
+  args: {
+    status: 'connected',
+  },
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
@@ -147,6 +151,9 @@ export const AllStates: Story = {
 
 // Simulated connection lifecycle
 export const ConnectionLifecycle: Story = {
+  args: {
+    status: 'disconnected',
+  },
   render: function Render() {
     const [status, setStatus] = useState<'connected' | 'connecting' | 'disconnected' | 'error'>('disconnected');
     const [message, setMessage] = useState('Click to connect');
@@ -206,6 +213,9 @@ export const ConnectionLifecycle: Story = {
 
 // Real-world usage example
 export const InHeader: Story = {
+  args: {
+    status: 'connected',
+  },
   render: () => {
     const [status, setStatus] = useState<'connected' | 'connecting' | 'disconnected' | 'error'>('connected');
     
@@ -256,6 +266,9 @@ export const InHeader: Story = {
 
 // With custom styling
 export const CustomStyling: Story = {
+  args: {
+    status: 'connected',
+  },
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">

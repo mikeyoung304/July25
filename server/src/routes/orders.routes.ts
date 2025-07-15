@@ -102,15 +102,15 @@ router.post('/voice', authenticate, async (req: AuthenticatedRequest, res, _next
       confidence 
     });
 
-    res.json({
+    return res.json({
       success: true,
       order,
       confidence,
-      message: `Perfect! Your ${parsedOrder.items[0].name} will be ready in about ${(order.items?.[0] as any)?.prepTimeMinutes || 10} minutes.`,
+      message: `Perfect! Your ${parsedOrder.items[0]?.name || 'order'} will be ready in about ${(order.items?.[0] as any)?.prepTimeMinutes || 10} minutes.`,
     });
   } catch (error) {
     routeLogger.error('Voice order processing failed', { error });
-    res.json({
+    return res.json({
       success: false,
       message: "Sorry, I couldn't process that order. Please try again.",
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -129,7 +129,7 @@ router.get('/:id', authenticate, async (req: AuthenticatedRequest, res, next) =>
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
 
-    const order = await OrdersService.getOrder(restaurantId, id);
+    const order = await OrdersService.getOrder(restaurantId, id!);
     
     if (!order) {
       throw NotFound('Order not found');
@@ -159,7 +159,7 @@ router.patch('/:id/status', authenticate, async (req: AuthenticatedRequest, res,
 
     routeLogger.info('Updating order status', { restaurantId, orderId: id, status });
 
-    const order = await OrdersService.updateOrderStatus(restaurantId, id, status, notes);
+    const order = await OrdersService.updateOrderStatus(restaurantId, id!, status, notes);
     res.json(order);
   } catch (error) {
     next(error);
@@ -177,7 +177,7 @@ router.delete('/:id', authenticate, async (req: AuthenticatedRequest, res, next)
 
     const order = await OrdersService.updateOrderStatus(
       restaurantId, 
-      id, 
+      id!, 
       'cancelled', 
       reason || 'Cancelled by user'
     );

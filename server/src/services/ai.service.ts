@@ -147,7 +147,7 @@ export class AIService {
   /**
    * Parse order from transcribed text
    */
-  async parseOrder(text: string, restaurantId: string): Promise<any> {
+  async parseOrder(text: string, _restaurantId: string): Promise<any> {
     if (!this.menuData) {
       throw new Error('Menu not loaded');
     }
@@ -186,7 +186,7 @@ If you cannot identify valid menu items, return success: false with an error mes
         response_format: { type: 'json_object' }
       });
 
-      const result = JSON.parse(completion.choices[0].message.content || '{}');
+      const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
       
       aiLogger.info('Order parsed:', result);
       return result;
