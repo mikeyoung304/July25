@@ -192,7 +192,7 @@ export class WebSocketService extends EventEmitter {
   }
 
   private handleOpen(): void {
-    console.log('WebSocket connected')
+    console.warn('WebSocket connected')
     this.reconnectAttempts = 0
     this.setConnectionState('connected')
     this.emit('connected')
@@ -221,7 +221,7 @@ export class WebSocketService extends EventEmitter {
   }
 
   private handleClose(event: CloseEvent): void {
-    console.log('WebSocket closed:', event.code, event.reason)
+    console.warn('WebSocket closed:', event.code, event.reason)
     this.setConnectionState('disconnected')
     this.emit('disconnected', event)
     
@@ -251,7 +251,7 @@ export class WebSocketService extends EventEmitter {
       30000 // Max 30 seconds
     )
     
-    console.log(`Scheduling reconnection attempt ${this.reconnectAttempts} in ${delay}ms`)
+    console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts} in ${delay}ms`)
     
     this.reconnectTimer = setTimeout(() => {
       this.connect()

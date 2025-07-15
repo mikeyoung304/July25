@@ -10,7 +10,7 @@ import type { Order } from '@/services/api'
 import type { LayoutMode } from '@/modules/kitchen/components/KDSLayout'
 import type { Station, StationType } from '@/types/station'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
-import { applyFilters, sortOrders, getTimeRangeFromPreset, type SortBy, type OrderStatus } from '@/types/filters'
+import { applyFilters, sortOrders, getTimeRangeFromPreset as _getTimeRangeFromPreset, type SortBy, type OrderStatus } from '@/types/filters'
 import { stationRouting } from '@/services/stationRouting'
 import { orderUpdatesHandler, type OrderUpdatePayload } from '@/services/websocket'
 

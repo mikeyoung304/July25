@@ -67,7 +67,7 @@ export function useVoiceSocket({
     const ws = new WebSocket(url);
 
     ws.onopen = () => {
-      console.log('Voice WebSocket connected');
+      console.warn('Voice WebSocket connected');
       updateConnectionStatus('connected');
       unacknowledgedChunksRef.current = 0;
       messageQueueRef.current = [];
@@ -83,13 +83,13 @@ export function useVoiceSocket({
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log('WebSocket message:', data);
+        console.warn('WebSocket message:', data);
 
         switch (data.type) {
           case 'progress':
             if (unacknowledgedChunksRef.current > 0) {
               unacknowledgedChunksRef.current--;
-              console.log(`Progress: ${data.bytesReceived} bytes received, ${unacknowledgedChunksRef.current} chunks pending`);
+              console.warn(`Progress: ${data.bytesReceived} bytes received, ${unacknowledgedChunksRef.current} chunks pending`);
             }
             processMessageQueue();
             break;
@@ -119,7 +119,7 @@ export function useVoiceSocket({
     };
 
     ws.onclose = () => {
-      console.log('WebSocket disconnected');
+      console.warn('WebSocket disconnected');
       updateConnectionStatus('disconnected');
       wsRef.current = null;
       unacknowledgedChunksRef.current = 0;

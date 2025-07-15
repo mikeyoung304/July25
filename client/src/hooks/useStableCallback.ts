@@ -5,7 +5,7 @@ import { useRef, useCallback, useEffect } from 'react';
  * but always calls the latest version of the provided function.
  * This prevents unnecessary re-renders in components that depend on callbacks.
  */
-export function useStableCallback<T extends (...args: any[]) => any>(callback: T): T {
+export function useStableCallback<T extends (...args: unknown[]) => unknown>(callback: T): T {
   const callbackRef = useRef(callback);
   
   // Update the ref whenever the callback changes

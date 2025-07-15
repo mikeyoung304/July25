@@ -338,7 +338,7 @@ export class OrderParser {
   }
   
   // Parse user's spoken text directly (for future enhancement)
-  parseUserTranscript(transcript: string): ParsedOrderItem[] {
+  parseUserTranscript(_transcript: string): ParsedOrderItem[] {
     // This method can be enhanced to parse user's direct speech
     // For now, we'll rely on AI to structure the response
     return [];

@@ -170,13 +170,14 @@ async function handleControlMessage(
       }));
       break;
 
-    case 'stop_recording':
+    case 'stop_recording': {
       const result = await aiService.stopRecording(connectionId);
       ws.send(JSON.stringify({
         type: 'transcription_result',
         ...result
       }));
       break;
+    }
 
     case 'ping':
       ws.send(JSON.stringify({

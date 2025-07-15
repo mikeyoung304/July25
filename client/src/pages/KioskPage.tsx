@@ -46,7 +46,7 @@ const KioskPageContent: React.FC = () => {
           case 'add':
             addItem(parsed.menuItem, parsed.quantity, parsed.modifications);
             break;
-          case 'remove':
+          case 'remove': {
             // Find and remove the item
             const itemToRemove = items.find(item => 
               item.menuItem.id === parsed.menuItem?.id
@@ -55,7 +55,8 @@ const KioskPageContent: React.FC = () => {
               removeItem(itemToRemove.id);
             }
             break;
-          case 'update':
+          }
+          case 'update': {
             // Update quantity or modifications
             const itemToUpdate = items.find(item => 
               item.menuItem.id === parsed.menuItem?.id
@@ -64,13 +65,14 @@ const KioskPageContent: React.FC = () => {
               updateQuantity(itemToUpdate.id, parsed.quantity);
             }
             break;
+          }
         }
       }
     });
   }, [addItem, removeItem, updateQuantity, items]);
 
   const processVoiceOrder = useCallback(async (transcript: string) => {
-    console.log('Processing voice order:', transcript);
+    console.warn('Processing voice order:', transcript);
     
     try {
       // Send to unified backend AI service
@@ -151,7 +153,7 @@ const KioskPageContent: React.FC = () => {
 
   const handleConfirmOrder = useCallback(() => {
     // TODO: Send order to backend
-    console.log('Order confirmed:', items);
+    console.warn('Order confirmed:', items);
   }, [items]);
 
   if (loading) {

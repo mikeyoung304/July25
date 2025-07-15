@@ -12,7 +12,7 @@ import { RestaurantContext } from '@/core/restaurant-types'
 import { toast } from 'react-hot-toast'
 
 // Default mock data for tables with realistic restaurant layout
-const generateMockTables = (): Table[] => {
+const _generateMockTables = (): Table[] => {
   const tables: Table[] = [
     // Left side booth section (2-seaters)
     { id: 'booth-1', type: 'rectangle', x: 100, y: 100, width: 80, height: 60, seats: 2, label: 'B1', rotation: 0, status: 'available', z_index: 1 },

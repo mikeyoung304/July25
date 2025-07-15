@@ -32,7 +32,7 @@ export class MenuService extends BaseService implements IMenuService {
     if (!item) throw new Error('Menu item not found')
     
     item.available = available
-    console.log('Mock: Updated menu item availability', { itemId, available })
+    console.warn('Mock: Updated menu item availability', { itemId, available })
     return { success: true, item }
   }
 }
