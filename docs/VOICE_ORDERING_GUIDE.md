@@ -494,12 +494,12 @@ Access Prometheus metrics at `http://localhost:3001/metrics`:
 |-----------|--------------|-------------|--------------|
 | Ping Interval | 30 seconds | Server sends ping to check client health | Via environment variable |
 | Idle Close | 30 seconds | Connection closes after no activity | Built into heartbeat |
-| Reconnect Delay | 3 seconds | Initial reconnection delay | Via `useVoiceSocket` options |
+| Reconnect Delay | 1 second | Initial reconnection delay | Via `useVoiceSocket` options |
 | Max Unacked Chunks | 3 | Flow control limit | Via `useVoiceSocket` options |
 | Chunk Timeout | N/A | No timeout on individual chunks | Not implemented |
-| Backoff Sequence | 3s (fixed) | No exponential backoff currently | TODO: Implement exponential |
+| Backoff Sequence | 1s, 2s, 4s, 8s, 16s (max) | Exponential backoff with max 16s | Implemented in useVoiceSocket |
 
-**Note**: The current implementation uses a fixed 3-second reconnect delay. Exponential backoff is mentioned in docs but not yet implemented in code.
+**Note**: The voice ordering system now implements proper exponential backoff for reconnection attempts. The delay starts at 1 second and doubles with each failed attempt, capping at 16 seconds. After 5 consecutive failures, reconnection attempts stop automatically.
 
 ## 🔮 Future Enhancements
 
