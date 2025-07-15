@@ -51,7 +51,7 @@ const DriveThruPageContent: React.FC = () => {
           case 'add':
             addItem(parsed.menuItem, parsed.quantity, parsed.modifications);
             break;
-          case 'remove':
+          case 'remove': {
             const itemToRemove = items.find(item => 
               item.menuItem.id === parsed.menuItem?.id
             );
@@ -59,7 +59,8 @@ const DriveThruPageContent: React.FC = () => {
               removeItem(itemToRemove.id);
             }
             break;
-          case 'update':
+          }
+          case 'update': {
             const itemToUpdate = items.find(item => 
               item.menuItem.id === parsed.menuItem?.id
             );
@@ -67,6 +68,7 @@ const DriveThruPageContent: React.FC = () => {
               updateQuantity(itemToUpdate.id, parsed.quantity);
             }
             break;
+          }
         }
       }
     });
