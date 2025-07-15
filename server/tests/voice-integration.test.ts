@@ -1,18 +1,19 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { MenuService } from '../src/services/menu.service';
-import { OrdersService } from '../src/services/orders.service';
+// Imports kept for type checking only
+import { MenuService as _MenuService } from '../src/services/menu.service';
+import { OrdersService as _OrdersService } from '../src/services/orders.service';
 
 describe('Voice Order Integration', () => {
-  const restaurantId = '11111111-1111-1111-1111-111111111111';
+  const _restaurantId = '11111111-1111-1111-1111-111111111111';
   
   beforeAll(async () => {
     // In a real test, you'd set up test database
-    console.log('Setting up voice order tests...');
+    console.warn('Setting up voice order tests...');
   });
 
   afterAll(async () => {
     // Clean up
-    console.log('Cleaning up voice order tests...');
+    console.warn('Cleaning up voice order tests...');
   });
 
   const voiceTestCases = [

@@ -17,10 +17,12 @@ module.exports = {
           '@/*': ['./src/*']
         },
         target: 'ES2020',
-        module: 'CommonJS'
-      }
+        module: 'ESNext'
+      },
+      useESM: true
     }],
   },
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
