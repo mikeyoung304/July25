@@ -5,7 +5,7 @@ export default {
       testEnvironment: 'jsdom',
       rootDir: 'client',
       testMatch: ['<rootDir>/src/**/*.{test,spec}.{ts,tsx,js,jsx}'],
-      setupFiles: ['<rootDir>/src/test/jest-globals.js'],
+      setupFiles: ['<rootDir>/../test/setupImportMeta.ts', '<rootDir>/src/test/jest-globals.js'],
       setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
       transform: {
         '^.+\\.(ts|tsx)$': ['ts-jest', {
