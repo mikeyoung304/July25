@@ -104,11 +104,11 @@ export const mockData = {
   ] as Order[],
 
   tables: [
-    { id: '1', restaurant_id: 'rest-1', number: '1', seats: 2, status: 'available' as const },
-    { id: '2', restaurant_id: 'rest-1', number: '2', seats: 4, status: 'occupied' as const, currentOrderId: '1' },
-    { id: '3', restaurant_id: 'rest-1', number: '3', seats: 6, status: 'available' as const },
-    { id: '4', restaurant_id: 'rest-1', number: '4', seats: 4, status: 'reserved' as const },
-    { id: '5', restaurant_id: 'rest-1', number: '5', seats: 2, status: 'occupied' as const, currentOrderId: '2' },
+    { id: '1', restaurant_id: 'rest-1', type: 'square' as const, x: 100, y: 100, width: 80, height: 80, seats: 2, label: '1', rotation: 0, status: 'available' as const, z_index: 1 },
+    { id: '2', restaurant_id: 'rest-1', type: 'square' as const, x: 200, y: 100, width: 80, height: 80, seats: 4, label: '2', rotation: 0, status: 'occupied' as const, z_index: 1, current_order_id: '1' },
+    { id: '3', restaurant_id: 'rest-1', type: 'rectangle' as const, x: 300, y: 100, width: 120, height: 80, seats: 6, label: '3', rotation: 0, status: 'available' as const, z_index: 1 },
+    { id: '4', restaurant_id: 'rest-1', type: 'square' as const, x: 100, y: 200, width: 80, height: 80, seats: 4, label: '4', rotation: 0, status: 'reserved' as const, z_index: 1 },
+    { id: '5', restaurant_id: 'rest-1', type: 'circle' as const, x: 200, y: 200, width: 80, height: 80, seats: 2, label: '5', rotation: 0, status: 'occupied' as const, z_index: 1, current_order_id: '2' },
   ] as Table[],
 
   menuItems: [

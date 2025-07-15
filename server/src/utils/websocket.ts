@@ -87,7 +87,7 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
 function handleWebSocketMessage(
   ws: ExtendedWebSocket,
   message: any,
-  wss: WebSocketServer
+  _wss: WebSocketServer
 ): void {
   const { type, data } = message;
 

@@ -24,14 +24,14 @@ router.post('/menu', async (req: Request, res: Response) => {
 
     aiService.updateMenu(menuData);
     
-    res.json({
+    return res.json({
       success: true,
       message: 'Menu uploaded successfully',
       itemCount: menuData.menu.length
     });
   } catch (error) {
     aiLogger.error('Menu upload error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to upload menu',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -51,7 +51,7 @@ router.get('/menu', (_req: Request, res: Response) => {
     });
   }
   
-  res.json(menu);
+  return res.json(menu);
 });
 
 /**
@@ -67,14 +67,14 @@ router.post('/transcribe', audioUpload.single('audio'), async (req: Request, res
 
     // This endpoint is for direct file upload (not WebSocket streaming)
     // For now, return a placeholder
-    res.json({
+    return res.json({
       success: true,
       text: 'Direct audio transcription not implemented. Use WebSocket streaming.',
       duration: 0
     });
   } catch (error) {
     aiLogger.error('Transcription error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Transcription failed',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -96,10 +96,10 @@ router.post('/parse-order', async (req: AuthenticatedRequest, res: Response) => 
     }
 
     const result = await aiService.parseOrder(text, restaurantId);
-    res.json(result);
+    return res.json(result);
   } catch (error) {
     aiLogger.error('Order parsing error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to parse order',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -112,7 +112,7 @@ router.post('/parse-order', async (req: AuthenticatedRequest, res: Response) => 
 router.get('/health', (_req: Request, res: Response) => {
   const menu = aiService.getMenu();
   
-  res.json({
+  return res.json({
     status: 'ok',
     hasMenu: !!menu,
     menuItems: menu?.menu?.length || 0

@@ -21,7 +21,7 @@ export const getTables = asyncHandler(async (req, res) => {
 
   if (error) throw error;
   
-  res.json(data || []);
+  return res.json(data || []);
 });
 
 // Get single table
@@ -41,7 +41,7 @@ export const getTable = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Table not found' });
   }
   
-  res.json(data);
+  return res.json(data);
 });
 
 // Create new table
@@ -87,7 +87,7 @@ export const updateTable = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Table not found' });
   }
   
-  res.json(data);
+  return res.json(data);
 });
 
 // Delete table (soft delete)
@@ -108,7 +108,7 @@ export const deleteTable = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Table not found' });
   }
   
-  res.json({ success: true, id });
+  return res.json({ success: true, id });
 });
 
 // Update table status
@@ -137,7 +137,7 @@ export const updateTableStatus = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Table not found' });
   }
   
-  res.json(data);
+  return res.json(data);
 });
 
 // Batch update tables (for floor plan editor)
@@ -175,7 +175,7 @@ export const batchUpdateTables = asyncHandler(async (req, res) => {
   }
   
   const data = results.map(r => r.data);
-  res.json(data);
+  return res.json(data);
 });
 
 // Set up routes

@@ -55,7 +55,7 @@ app.use('/api/v1', setupRoutes());
 app.use('/api/v1/ai', aiRoutes);
 
 // Health check (outside API versioning for monitoring tools)
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
