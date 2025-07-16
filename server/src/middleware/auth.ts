@@ -31,8 +31,9 @@ export async function authenticate(
 
     const token = authHeader.substring(7);
     
-    // For development, allow a test token
-    if (process.env.NODE_ENV === 'development' && token === 'test-token') {
+    // For development ONLY, allow a test token
+    if (config.nodeEnv === 'development' && token === 'test-token') {
+      logger.warn('Using test token - this should NEVER appear in production!');
       req.user = {
         id: 'test-user-id',
         email: 'test@example.com',
@@ -42,11 +43,19 @@ export async function authenticate(
       return next();
     }
 
-    // Verify JWT
-    const decoded = jwt.decode(token) as any;
-    
-    if (!decoded) {
-      throw Unauthorized('Invalid token');
+    // Verify JWT with proper signature validation
+    let decoded: any;
+    try {
+      // Use Supabase JWT secret if available, otherwise fall back to anon key
+      const secret = config.supabase.jwtSecret || config.supabase.anonKey;
+      decoded = jwt.verify(token, secret) as any;
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        throw Unauthorized('Token expired');
+      } else if (error instanceof jwt.JsonWebTokenError) {
+        throw Unauthorized('Invalid token');
+      }
+      throw Unauthorized('Token verification failed');
     }
 
     // Set user info
@@ -104,17 +113,22 @@ export async function verifyWebSocketAuth(
       return null;
     }
 
-    // For development, allow test token
-    if (process.env.NODE_ENV === 'development' && token === 'test-token') {
+    // For development ONLY, allow test token
+    if (config.nodeEnv === 'development' && token === 'test-token') {
+      logger.warn('Using test token in WebSocket - this should NEVER appear in production!');
       return {
         userId: 'test-user-id',
         restaurantId: config.restaurant.defaultId,
       };
     }
 
-    const decoded = jwt.decode(token) as any;
-    
-    if (!decoded) {
+    // Verify JWT with proper signature validation
+    let decoded: any;
+    try {
+      const secret = config.supabase.jwtSecret || config.supabase.anonKey;
+      decoded = jwt.verify(token, secret) as any;
+    } catch (error) {
+      logger.error('WebSocket JWT verification failed:', error);
       return null;
     }
 
