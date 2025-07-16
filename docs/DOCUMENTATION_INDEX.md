@@ -36,6 +36,7 @@
 
 ### Operations
 - **[DEPLOYMENT.md](../DEPLOYMENT.md)** - Production deployment guide
+- **[MONITORING.md](../MONITORING.md)** - Monitoring and observability guide
 
 ### Historical Documentation
 - **[docs/archive/](./archive/)** - Previous architecture and refactoring documentation
