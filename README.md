@@ -3,6 +3,9 @@
 > ⚠️ **ARCHITECTURE**: Unified Backend - Everything runs on port 3001  
 > See [ARCHITECTURE.md](./ARCHITECTURE.md) for details
 
+> ✅ **QUALITY**: TypeScript 0 errors | ESLint 30 warnings | Tests passing  
+> 🔒 **SECURITY**: CSP compliant - no external dependencies (fonts self-hosted)
+
 A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering, real-time kitchen management, and a unified backend architecture.
 
 ## 🚀 Quick Start
