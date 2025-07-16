@@ -2,7 +2,10 @@ import { Router, Request, Response } from 'express';
 import { aiService } from '../services/ai.service';
 import { logger } from '../utils/logger';
 import { audioUpload } from '../middleware/fileValidation';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest, authenticate, requireRole } from '../middleware/auth';
+import { aiServiceLimiter, transcriptionLimiter } from '../middleware/rateLimiter';
+import { validateRequest } from '../middleware/validation';
+import { menuUploadSchema, parseOrderSchema } from '../validation/ai.validation';
 
 const router = Router();
 
@@ -10,19 +13,27 @@ const aiLogger = logger.child({ module: 'ai-routes' });
 
 /**
  * Upload menu data for AI parsing
+ * Requires admin role to prevent unauthorized menu modifications
  */
-router.post('/menu', async (req: Request, res: Response) => {
+router.post('/menu', aiServiceLimiter, authenticate, requireRole(['admin', 'manager']), validateRequest(menuUploadSchema), async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const menuData = req.body;
-    
-    if (!menuData.restaurant || !menuData.menu) {
-      return res.status(400).json({
-        error: 'Invalid menu data',
-        message: 'Menu must include restaurant name and menu items'
-      });
-    }
+    const menuData = req.body; // Already validated by middleware
 
-    aiService.updateMenu(menuData);
+    // Add restaurant context from authenticated request
+    const menuWithContext = {
+      ...menuData,
+      restaurantId: req.restaurantId,
+      uploadedBy: req.user?.id,
+      uploadedAt: new Date().toISOString()
+    };
+    
+    aiService.updateMenu(menuWithContext);
+    
+    aiLogger.info('Menu uploaded', { 
+      restaurantId: req.restaurantId, 
+      userId: req.user?.id,
+      itemCount: menuData.menu.length 
+    });
     
     return res.json({
       success: true,
@@ -40,9 +51,18 @@ router.post('/menu', async (req: Request, res: Response) => {
 
 /**
  * Get current menu
+ * Requires authentication to access restaurant-specific menu
  */
-router.get('/menu', (_req: Request, res: Response) => {
+router.get('/menu', aiServiceLimiter, authenticate, (req: AuthenticatedRequest, res: Response) => {
   const menu = aiService.getMenu();
+  
+  // Filter menu by restaurant context
+  if (menu && req.restaurantId && menu.restaurantId !== req.restaurantId) {
+    return res.status(403).json({
+      error: 'Access denied',
+      message: 'Menu belongs to different restaurant'
+    });
+  }
   
   if (!menu) {
     return res.status(404).json({
@@ -56,8 +76,9 @@ router.get('/menu', (_req: Request, res: Response) => {
 
 /**
  * Transcribe audio file
+ * Requires authentication to prevent abuse of transcription service
  */
-router.post('/transcribe', audioUpload.single('audio'), async (req: Request, res: Response) => {
+router.post('/transcribe', transcriptionLimiter, authenticate, audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -65,12 +86,19 @@ router.post('/transcribe', audioUpload.single('audio'), async (req: Request, res
       });
     }
 
+    aiLogger.info('Audio transcription requested', {
+      restaurantId: req.restaurantId,
+      userId: req.user?.id,
+      fileSize: req.file.size
+    });
+    
     // This endpoint is for direct file upload (not WebSocket streaming)
     // For now, return a placeholder
     return res.json({
       success: true,
       text: 'Direct audio transcription not implemented. Use WebSocket streaming.',
-      duration: 0
+      duration: 0,
+      restaurantId: req.restaurantId
     });
   } catch (error) {
     aiLogger.error('Transcription error:', error);
@@ -83,20 +111,25 @@ router.post('/transcribe', audioUpload.single('audio'), async (req: Request, res
 
 /**
  * Parse order from text
+ * Requires authentication to ensure restaurant context
  */
-router.post('/parse-order', async (req: AuthenticatedRequest, res: Response) => {
+router.post('/parse-order', aiServiceLimiter, authenticate, validateRequest(parseOrderSchema), async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { text } = req.body;
-    const restaurantId = req.restaurantId || 'default';
-    
-    if (!text) {
-      return res.status(400).json({
-        error: 'No text provided'
-      });
-    }
+    const { text } = req.body; // Already validated by middleware
+    const restaurantId = req.restaurantId!;
 
+    aiLogger.info('Order parsing requested', {
+      restaurantId,
+      userId: req.user?.id,
+      textLength: text.length
+    });
+    
     const result = await aiService.parseOrder(text, restaurantId);
-    return res.json(result);
+    return res.json({
+      ...result,
+      restaurantId,
+      parsedBy: req.user?.id
+    });
   } catch (error) {
     aiLogger.error('Order parsing error:', error);
     return res.status(500).json({

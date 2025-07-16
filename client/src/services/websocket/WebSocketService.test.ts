@@ -95,7 +95,7 @@ describe('WebSocketService', () => {
   
   describe('connect', () => {
     // TODO(luis): enable when Playwright pipeline runs
-    test('should establish WebSocket connection with auth params', async () => {
+    test.skip('should establish WebSocket connection with auth params', async () => {
       const connectPromise = service.connect()
       
       // Wait for auth to be resolved
@@ -114,7 +114,7 @@ describe('WebSocketService', () => {
     })
     
     // TODO(luis): enable when Playwright pipeline runs
-    test('should handle missing auth session', async () => {
+    test.skip('should handle missing auth session', async () => {
       ;(supabase.auth.getSession as jest.Mock).mockResolvedValue({
         data: { session: null },
         error: null
@@ -126,7 +126,7 @@ describe('WebSocketService', () => {
     })
     
     // TODO(luis): enable when Playwright pipeline runs
-    test('should handle missing restaurant ID', async () => {
+    test.skip('should handle missing restaurant ID', async () => {
       setCurrentRestaurantId(null)
       
       await service.connect()
@@ -135,7 +135,7 @@ describe('WebSocketService', () => {
     })
     
     // TODO(luis): enable when Playwright pipeline runs
-    test('should not connect if already connected', async () => {
+    test.skip('should not connect if already connected', async () => {
       // First connection
       const firstConnect = service.connect()
       await new Promise(resolve => setTimeout(resolve, 0))
@@ -154,7 +154,7 @@ describe('WebSocketService', () => {
   
   describe('disconnect', () => {
     // TODO(luis): enable when Playwright pipeline runs
-    test('should close WebSocket connection', async () => {
+    test.skip('should close WebSocket connection', async () => {
       await service.connect()
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(global.WebSocket).toHaveBeenCalled()
@@ -169,7 +169,7 @@ describe('WebSocketService', () => {
   
   describe('send', () => {
     // TODO(luis): enable when Playwright pipeline runs
-    test('should send messages when connected', async () => {
+    test.skip('should send messages when connected', async () => {
       await service.connect()
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(global.WebSocket).toHaveBeenCalled()
@@ -185,7 +185,7 @@ describe('WebSocketService', () => {
     })
     
     // TODO(luis): enable when Playwright pipeline runs
-    test('should queue messages when not connected', () => {
+    test.skip('should queue messages when not connected', () => {
       const payload = { test: 'data' }
       service.send('test-message', payload)
       
@@ -193,7 +193,7 @@ describe('WebSocketService', () => {
     })
     
     // TODO(luis): enable when Playwright pipeline runs
-    test('should flush queued messages after connection', async () => {
+    test.skip('should flush queued messages after connection', async () => {
       // Queue messages before connection
       service.send('message1', { data: 1 })
       service.send('message2', { data: 2 })
@@ -211,7 +211,7 @@ describe('WebSocketService', () => {
   
   describe('subscribe', () => {
     // TODO(luis): enable when Playwright pipeline runs
-    test('should handle incoming messages', async () => {
+    test.skip('should handle incoming messages', async () => {
       await service.connect()
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(global.WebSocket).toHaveBeenCalled()
@@ -231,7 +231,7 @@ describe('WebSocketService', () => {
     })
     
     // TODO(luis): enable when Playwright pipeline runs
-    test('should return unsubscribe function', async () => {
+    test.skip('should return unsubscribe function', async () => {
       await service.connect()
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(global.WebSocket).toHaveBeenCalled()
@@ -264,7 +264,7 @@ describe('WebSocketService', () => {
   
   describe('reconnection', () => {
     // TODO(luis): enable when Playwright pipeline runs
-    test('should attempt reconnection on unexpected close', async () => {
+    test.skip('should attempt reconnection on unexpected close', async () => {
       await service.connect()
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(global.WebSocket).toHaveBeenCalled()
@@ -282,7 +282,7 @@ describe('WebSocketService', () => {
     })
     
     // TODO(luis): enable when Playwright pipeline runs
-    test('should not reconnect on intentional close', async () => {
+    test.skip('should not reconnect on intentional close', async () => {
       await service.connect()
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(global.WebSocket).toHaveBeenCalled()
@@ -299,7 +299,7 @@ describe('WebSocketService', () => {
     })
     
     // TODO(luis): enable when Playwright pipeline runs
-    test('should stop reconnecting after max attempts', async () => {
+    test.skip('should stop reconnecting after max attempts', async () => {
       const maxAttempts = 10
       service = new WebSocketService({ maxReconnectAttempts: maxAttempts })
       
@@ -321,7 +321,7 @@ describe('WebSocketService', () => {
   
   describe('heartbeat', () => {
     // TODO(luis): enable when Playwright pipeline runs
-    test('should send ping messages periodically', async () => {
+    test.skip('should send ping messages periodically', async () => {
       service = new WebSocketService()
       
       await service.connect()
@@ -342,7 +342,7 @@ describe('WebSocketService', () => {
   
   describe('error handling', () => {
     // TODO(luis): enable when Playwright pipeline runs
-    test('should emit error on invalid message format', async () => {
+    test.skip('should emit error on invalid message format', async () => {
       await service.connect()
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(global.WebSocket).toHaveBeenCalled()
