@@ -30,8 +30,12 @@
 - **[CONTRIBUTING_AI.md](../CONTRIBUTING_AI.md)** - AI development guidelines and pitfalls
 
 ### Testing & Quality
+- **[TEST_ARCHITECTURE.md](../TEST_ARCHITECTURE.md)** - Test strategy, structure, and setup guide
 - **[FUNCTIONAL_TESTING_CHECKLIST.md](./FUNCTIONAL_TESTING_CHECKLIST.md)** - Testing requirements
 - **[CODE_ANALYSIS.md](./CODE_ANALYSIS.md)** - Codebase metrics and analysis
+
+### Operations
+- **[DEPLOYMENT.md](../DEPLOYMENT.md)** - Production deployment guide
 
 ### Historical Documentation
 - **[docs/archive/](./archive/)** - Previous architecture and refactoring documentation
