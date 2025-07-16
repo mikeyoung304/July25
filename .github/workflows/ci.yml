@@ -66,3 +66,48 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+          
+  code-analysis:
+    name: Code Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd server && npm ci
+          cd ../client && npm ci
+          
+      - name: Generate code analysis
+        run: npm run analyze
+        
+      - name: Upload analysis reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-analysis
+          path: |
+            code-analysis.json
+            code-analysis.md
+          retention-days: 30
+          
+      - name: Comment PR with analysis
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('code-analysis.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
