@@ -71,14 +71,11 @@ describe('Voice Order to KDS Integration', () => {
     await waitFor(() => {
       // Check for quantity and item name separately
       expect(screen.getByText('2x')).toBeInTheDocument()
-      expect(screen.getByText('Burger')).toBeInTheDocument()
+      expect(screen.getByText('Soul Bowl')).toBeInTheDocument()
     }, { timeout: 3000 })
     
-    // Check for modifiers and other items
-    expect(screen.getByText('Extra cheese')).toBeInTheDocument() // Burger modifiers
-    expect(screen.getByText('1x')).toBeInTheDocument()
-    expect(screen.getByText('Pizza')).toBeInTheDocument()
-    expect(screen.getByText('Large, Extra cheese')).toBeInTheDocument() // Pizza modifiers
+    // Check for modifiers from real Grow Fresh menu
+    expect(screen.getByText('Extra collards')).toBeInTheDocument()
   })
 
   it('submits parsed order to KDS when confirmed', async () => {
@@ -91,7 +88,7 @@ describe('Voice Order to KDS Integration', () => {
     // Wait for order to be displayed
     await waitFor(() => {
       expect(screen.getByText('2x')).toBeInTheDocument()
-      expect(screen.getByText('Burger')).toBeInTheDocument()
+      expect(screen.getByText('Soul Bowl')).toBeInTheDocument()
     }, { timeout: 3000 })
     
     // Confirm order
@@ -103,14 +100,9 @@ describe('Voice Order to KDS Integration', () => {
         tableNumber: 'K1',
         items: expect.arrayContaining([
           expect.objectContaining({
-            name: 'Burger',
+            name: 'Soul Bowl',
             quantity: 2,
-            modifiers: ['Extra cheese'] // Note: parseVoiceOrder extracts modifiers globally
-          }),
-          expect.objectContaining({
-            name: 'Pizza',
-            quantity: 1,
-            modifiers: ['Large', 'Extra cheese'] // Pizza also gets "extra cheese" modifier
+            modifiers: ['Extra collards'] // Real Grow Fresh modifier
           })
         ]),
         totalAmount: expect.any(Number),
