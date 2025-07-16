@@ -1,9 +1,9 @@
 /** @type {import('jest').Config} */
 module.exports = {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/js-with-ts-esm',
   testEnvironment: 'jest-environment-jsdom',
   roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.+(ts|tsx|js)', '**/?(*.)+(spec|test).+(ts|tsx|js)'],
+  testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}', '<rootDir>/src/**/*.spec.{ts,tsx}'],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: {
@@ -21,13 +21,17 @@ module.exports = {
       },
       useESM: true
     }],
+    '^.+\\.mjs$': ['babel-jest', { presets: ['@babel/preset-env', '@babel/preset-typescript'] }],
   },
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(isows|@supabase|@supabase/.*)/)'
+  ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
-  setupFiles: ['<rootDir>/src/test/jest-globals.js'],
+  setupFiles: ['../test/setupImportMeta.ts', '<rootDir>/src/test/jest-globals.js', '<rootDir>/src/test/setupJest.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
   collectCoverageFrom: [

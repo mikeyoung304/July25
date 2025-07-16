@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Trash2, ShoppingCart } from 'lucide-react';
-import { VoiceOrderProvider, useVoiceOrder } from '@/modules/voice/contexts/VoiceOrderContext';
+import { VoiceOrderProvider } from '@/modules/voice/contexts/VoiceOrderContext';
+import { useVoiceOrder } from '@/modules/voice/hooks/useVoiceOrder';
 import VoiceControl from '@/modules/voice/components/VoiceControl';
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser';
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';

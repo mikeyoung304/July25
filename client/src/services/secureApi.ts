@@ -1,5 +1,6 @@
 
 import { sanitizeInput, CSRFTokenManager } from '@/utils'
+import { env } from '@/utils/env'
 
 export interface SecureRequestOptions extends RequestInit {
   timeout?: number
@@ -229,5 +230,5 @@ export class APIError extends Error {
  * Default secure API client instance
  */
 export const secureApi = new SecureAPIClient(
-  import.meta.env.VITE_API_BASE_URL || ''
+  env.VITE_API_BASE_URL || ''
 )

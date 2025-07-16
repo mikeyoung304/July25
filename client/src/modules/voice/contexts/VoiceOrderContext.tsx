@@ -1,33 +1,7 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { MenuItem } from '@/services/types';
-
-export interface OrderModification {
-  id: string;
-  name: string;
-  price?: number;
-}
-
-export interface VoiceOrderItem {
-  id: string;
-  menuItem: MenuItem;
-  quantity: number;
-  modifications: OrderModification[];
-  specialInstructions?: string;
-  subtotal: number;
-}
-
-interface VoiceOrderContextType {
-  items: VoiceOrderItem[];
-  addItem: (item: MenuItem, quantity?: number, mods?: OrderModification[]) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  updateModifications: (id: string, mods: OrderModification[]) => void;
-  clear: () => void;
-  total: number;
-  itemCount: number;
-}
-
-const VoiceOrderContext = createContext<VoiceOrderContextType | undefined>(undefined);
+import type { OrderModification, VoiceOrderItem } from './types';
+import { VoiceOrderContext } from './context';
 
 export const VoiceOrderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<VoiceOrderItem[]>([]);
@@ -106,10 +80,3 @@ export const VoiceOrderProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   );
 };
 
-export const useVoiceOrder = () => {
-  const context = useContext(VoiceOrderContext);
-  if (!context) {
-    throw new Error('useVoiceOrder must be used within a VoiceOrderProvider');
-  }
-  return context;
-};

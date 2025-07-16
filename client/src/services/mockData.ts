@@ -243,3 +243,15 @@ export const mockData = {
     }
   ] as MenuItem[]
 }
+
+// Create initial copies for reset
+const initialOrders = [...mockData.orders]
+const initialTables = [...mockData.tables]
+const initialMenuItems = [...mockData.menuItems]
+
+// Reset function for tests
+export function resetMockData() {
+  mockData.orders = [...initialOrders]
+  mockData.tables = [...initialTables]
+  mockData.menuItems = [...initialMenuItems]
+}

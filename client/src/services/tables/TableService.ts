@@ -1,5 +1,6 @@
 import { HttpServiceAdapter } from '@/services/base/HttpServiceAdapter'
 import { Table } from '@/modules/floor-plan/types'
+import { env } from '@/utils/env'
 
 export interface ITableService {
   getTables(): Promise<{ tables: Table[] }>
@@ -18,7 +19,7 @@ export class TableService extends HttpServiceAdapter implements ITableService {
 
   private getHeaders() {
     // Restaurant ID can be provided at construction or via environment
-    const restaurantId = this.restaurantId || import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+    const restaurantId = this.restaurantId || env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
     return { 'x-restaurant-id': restaurantId }
   }
 

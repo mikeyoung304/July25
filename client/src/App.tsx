@@ -7,10 +7,11 @@ import { AppContent } from '@/components/layout/AppContent'
 import { SplashScreen } from '@/pages/SplashScreen'
 import { webSocketService, orderUpdatesHandler } from '@/services/websocket'
 import { supabase } from '@/core/supabase'
+import { env } from '@/utils/env'
 import './App.css'
 
 function App() {
-  const isDevelopment = import.meta.env.DEV
+  const isDevelopment = env.DEV
   const [showSplash, setShowSplash] = useState(true)
 
   const handleAnimationComplete = () => {
@@ -26,15 +27,8 @@ function App() {
         let shouldConnect = isDevelopment
         
         // Check for API URL configuration
-        try {
-          if (import.meta?.env?.VITE_API_BASE_URL) {
-            shouldConnect = true
-          }
-        } catch {
-          // Fallback for test environment
-          if (import.meta.env.VITE_API_BASE_URL) {
-            shouldConnect = true
-          }
+        if (env.VITE_API_BASE_URL) {
+          shouldConnect = true
         }
         
         if (shouldConnect) {
@@ -61,15 +55,8 @@ function App() {
         let shouldConnect = isDevelopment
         
         // Check for API URL configuration
-        try {
-          if (import.meta?.env?.VITE_API_BASE_URL) {
-            shouldConnect = true
-          }
-        } catch {
-          // Fallback for test environment
-          if (import.meta.env.VITE_API_BASE_URL) {
-            shouldConnect = true
-          }
+        if (env.VITE_API_BASE_URL) {
+          shouldConnect = true
         }
         
         if (shouldConnect) {

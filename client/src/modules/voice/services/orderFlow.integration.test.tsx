@@ -156,7 +156,7 @@ describe('Voice Order Flow Integration', () => {
     mockToast.success.mockClear()
     mockToast.error.mockClear()
     
-    const { container } = render(
+    const { container: _container } = render(
       <TestRestaurantProvider restaurant={{ id: 'rest-1', name: 'Test Restaurant', timezone: 'America/New_York', currency: 'USD' }}>
         <VoiceControl onTranscript={mockTranscriptHandler} />
         <Toaster />
@@ -234,7 +234,7 @@ describe('Voice Order Flow Integration', () => {
       return Promise.reject(new Error('Unknown URL'))
     })
     
-    const { container } = render(
+    const { container: _container } = render(
       <TestRestaurantProvider restaurant={{ id: 'rest-1', name: 'Test Restaurant', timezone: 'America/New_York', currency: 'USD' }}>
         <VoiceControl onTranscript={mockTranscriptHandler} />
         <Toaster />
@@ -292,7 +292,7 @@ describe('Voice Order Flow Integration', () => {
       return Promise.reject(new Error('Unknown URL'))
     })
     
-    const { container } = render(
+    const { container: _container } = render(
       <TestRestaurantProvider restaurant={{ id: 'rest-1', name: 'Test Restaurant', timezone: 'America/New_York', currency: 'USD' }}>
         <VoiceControl onTranscript={mockTranscriptHandler} />
         <Toaster />

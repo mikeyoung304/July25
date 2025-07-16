@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { useToast } from '@/hooks/useToast'
+import { env } from '@/utils/env'
 
 export interface ErrorHandlerOptions {
   showToast?: boolean
@@ -34,7 +35,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
         : new Error(typeof error === 'string' ? error : fallbackMessage)
 
       // Log error in development
-      if (import.meta.env.DEV) {
+      if (env.DEV) {
         console.error('[Error Handler]:', errorObj)
       }
 
@@ -51,7 +52,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
       }
 
       // In production, send to error tracking service
-      if (import.meta.env.MODE === 'production') {
+      if (env.MODE === 'production') {
         // TODO: Send to Sentry or similar service
         console.error('[Production Error]:', errorObj.message)
       }

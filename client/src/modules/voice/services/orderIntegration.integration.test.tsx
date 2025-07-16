@@ -1,8 +1,3 @@
-// TODO(import-meta-fix): Fix import.meta issues in HttpServiceAdapter
-describe.skip('Voice Order Integration', () => {});
-
-if (false) { // Keep original tests for reference
-
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { KioskDemo } from '@/pages/KioskDemo'
@@ -31,7 +26,8 @@ jest.mock('@/modules/voice/components/VoiceCapture', () => ({
 
 const mockApi = api as jest.Mocked<typeof api>
 
-describe('Voice Order to KDS Integration', () => {
+// TODO(luis): enable when Playwright pipeline runs
+describe.skip('Voice Order to KDS Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     
@@ -215,5 +211,3 @@ describe('Voice Order to KDS Integration', () => {
     jest.useRealTimers()
   })
 })
-
-} // end if (false)

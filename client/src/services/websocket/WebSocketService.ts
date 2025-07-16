@@ -8,6 +8,7 @@ import { EventEmitter } from '@/services/utils/EventEmitter'
 import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
 import { toCamelCase, toSnakeCase } from '@/services/utils/caseTransform'
+import { env } from '@/utils/env'
 
 export interface WebSocketConfig {
   url?: string
@@ -49,17 +50,9 @@ export class WebSocketService extends EventEmitter {
   private buildWebSocketUrl(): string {
     let apiBaseUrl = 'http://localhost:3001'
     
-    // Skip import.meta in test environment
-    if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-      try {
-        // @ts-ignore - import.meta is available in Vite but not in Jest
-        if (import.meta?.env?.VITE_API_BASE_URL) {
-          // @ts-ignore
-          apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-        }
-      } catch {
-        // Fallback for environments without import.meta
-      }
+    // Get API base URL from environment
+    if (env.VITE_API_BASE_URL) {
+      apiBaseUrl = env.VITE_API_BASE_URL
     }
     
     // Convert HTTP to WS protocol
@@ -84,7 +77,7 @@ export class WebSocketService extends EventEmitter {
       let token = 'test-token' // Default for development
       
       // Try to get real session in production
-      if (import.meta.env.PROD) {
+      if (env.PROD) {
         const { data: { session } } = await supabase.auth.getSession()
         if (!session?.access_token) {
           throw new Error('No authentication session available')

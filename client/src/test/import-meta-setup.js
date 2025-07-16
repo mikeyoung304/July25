@@ -1,5 +1,5 @@
-// Comprehensive import.meta polyfill for Jest
-(globalThis as any).import = {
+// import.meta polyfill for Jest - must be loaded before any code that uses import.meta
+global.import = {
   meta: {
     env: {
       VITE_API_BASE_URL: 'http://localhost:3001',

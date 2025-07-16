@@ -47,7 +47,7 @@ jobs:
         run: npm run typecheck
         
       - name: Run tests
-        run: npm test -- --runInBand
+        run: npm test -- --runInBand --maxWorkers=2
         env:
           NODE_ENV: test
           
@@ -55,7 +55,7 @@ jobs:
         run: npx playwright install --with-deps chromium
         
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npx playwright test tests/e2e/**
         env:
           NODE_ENV: test
         
