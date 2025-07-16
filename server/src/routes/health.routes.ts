@@ -133,7 +133,7 @@ router.get('/ready', async (_req: Request, res: Response) => {
     } else {
       res.status(503).json({ ready: false, reason: 'Database not ready' });
     }
-  } catch (_error) {
+  } catch {
     res.status(503).json({ ready: false, reason: 'Health check failed' });
   }
 });

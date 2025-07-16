@@ -259,7 +259,7 @@ export default [
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/test/**/*.{ts,tsx}', '**/tests/**/*.{ts,tsx}', '**/__mocks__/**/*.{ts,tsx}'],
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/test/**/*.{ts,tsx}', '**/tests/**/*.{ts,tsx}', '**/__mocks__/**/*.{ts,tsx}', '**/setupJest.ts', '**/setup.ts', '**/setupImportMeta.ts'],
     languageOptions: {
       globals: {
         describe: 'readonly',
@@ -274,6 +274,9 @@ export default [
         test: 'readonly',
         page: 'readonly',
       },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {

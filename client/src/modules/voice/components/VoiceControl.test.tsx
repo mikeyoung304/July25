@@ -157,7 +157,7 @@ describe('VoiceControl', () => {
       const { act } = await import('@testing-library/react');
       
       // Mock navigator.permissions.query to resolve immediately with granted
-      global.navigator.permissions = {
+      (global.navigator as any).permissions = {
         query: jest.fn().mockResolvedValue(mockPermissionStatus)
       };
       
@@ -355,7 +355,7 @@ describe('VoiceControl', () => {
       const { act: _act } = await import('@testing-library/react');
       
       // Mock navigator.permissions.query to resolve immediately with granted
-      global.navigator.permissions = {
+      (global.navigator as any).permissions = {
         query: jest.fn().mockResolvedValue(mockPermissionStatus)
       };
       

@@ -7,7 +7,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { setupRoutes } from '../index';
 import { errorHandler } from '../../middleware/errorHandler';
-import { apiLimiter, voiceOrderLimiter, transcriptionLimiter } from '../../middleware/rateLimiter';
+import { apiLimiter, voiceOrderLimiter } from '../../middleware/rateLimiter';
 import helmet from 'helmet';
 
 // Mock dependencies
@@ -85,7 +85,9 @@ describe('Security Tests', () => {
       ];
 
       for (const endpoint of endpoints) {
-        const response = await request(app)[endpoint.method](endpoint.path);
+        const req = request(app);
+        const method = endpoint.method as 'get' | 'post' | 'put' | 'delete';
+        const response = await req[method](endpoint.path);
         expect(response.status).toBe(401);
         expect(response.body).toHaveProperty('error');
       }
@@ -196,7 +198,7 @@ describe('Security Tests', () => {
       
       expect(rateLimited.length).toBeGreaterThan(0);
       // Rate limiter returns text message directly
-      expect(rateLimited[0].text).toContain('Voice ordering rate limit exceeded');
+      expect(rateLimited[0]?.text).toContain('Voice ordering rate limit exceeded');
     });
 
     test('should rate limit transcription endpoints', async () => {

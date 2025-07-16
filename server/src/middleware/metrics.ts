@@ -30,7 +30,7 @@ global.voiceMetrics = {
 };
 
 // Create promBundle middleware with automatic HTTP metrics
-export const metricsMiddleware = promBundle({
+const promBundleMiddleware = promBundle({
   includeMethod: true,
   includePath: true,
   includeStatusCode: true,
@@ -45,3 +45,6 @@ export const metricsMiddleware = promBundle({
     },
   },
 });
+
+// Export the middleware function
+export const metricsMiddleware = promBundleMiddleware.metricsMiddleware as any;

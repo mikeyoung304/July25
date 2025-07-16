@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { validateRestaurantAccess, requireRestaurantRole } from '../restaurantAccess';
 import { AuthenticatedRequest } from '../auth';
 import { supabase } from '../../config/database';
@@ -23,7 +23,7 @@ describe('Restaurant Access Middleware', () => {
       restaurantId: undefined
     };
     mockRes = {};
-    mockNext = vi.fn();
+    mockNext = vi.fn() as unknown as NextFunction;
     vi.clearAllMocks();
   });
 
@@ -89,7 +89,7 @@ describe('Restaurant Access Middleware', () => {
           error: null
         })
       };
-      vi.mocked(supabase.from).mockReturnValue(mockQuery);
+      vi.mocked(supabase.from).mockReturnValue(mockQuery as any);
 
       await validateRestaurantAccess(
         mockReq as AuthenticatedRequest,
@@ -117,7 +117,7 @@ describe('Restaurant Access Middleware', () => {
           error: { message: 'No rows found' }
         })
       };
-      vi.mocked(supabase.from).mockReturnValue(mockQuery);
+      vi.mocked(supabase.from).mockReturnValue(mockQuery as any);
 
       await validateRestaurantAccess(
         mockReq as AuthenticatedRequest,

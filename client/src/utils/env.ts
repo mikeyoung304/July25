@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   VITE_API_BASE_URL?: string
   VITE_SUPABASE_URL?: string
   VITE_SUPABASE_ANON_KEY?: string
+  VITE_DEFAULT_RESTAURANT_ID?: string
+  VITE_OPENAI_API_KEY?: string
   DEV?: boolean
   MODE?: string
   PROD?: boolean
@@ -20,9 +22,9 @@ function getEnv(): ImportMetaEnv {
       VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3001',
       VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || 'http://localhost:54321',
       VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || 'test-key',
-      DEV: process.env.NODE_ENV !== 'production',
-      MODE: process.env.NODE_ENV || 'test',
-      PROD: process.env.NODE_ENV === 'production',
+      DEV: true, // In test mode, we're in development
+      MODE: 'test',
+      PROD: false,
       SSR: false
     }
   }
@@ -30,8 +32,9 @@ function getEnv(): ImportMetaEnv {
   // In browser/Vite environment, use import.meta.env
   // This will be handled by the polyfill in test environment
   try {
-    // @ts-expect-error - import.meta is available in Vite
-    return (globalThis as any).import?.meta?.env || {}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const g = globalThis as any
+    return g.import?.meta?.env || {}
   } catch {
     return {}
   }

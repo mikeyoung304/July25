@@ -11,7 +11,7 @@ export interface Table {
   status: 'available' | 'occupied' | 'reserved' | 'unavailable'
   z_index: number
   current_order_id?: string | null
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   active?: boolean
   created_at?: string
   updated_at?: string

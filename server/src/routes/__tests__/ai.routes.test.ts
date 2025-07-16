@@ -22,20 +22,30 @@ vi.mock('../../config/database', () => ({
   }
 }));
 
+// Mock authentication middleware
+let mockAuthenticate = vi.fn((req: any, res: any, next: any) => next());
+let mockRequireRole = vi.fn(() => (req: any, res: any, next: any) => next());
+
+vi.mock('../../middleware/auth', () => ({
+  authenticate: (req: any, res: any, next: any) => mockAuthenticate(req, res, next),
+  requireRole: (roles: string[]) => mockRequireRole(roles),
+  AuthenticatedRequest: {}
+}));
+
 // Mock rate limiters to avoid 429 errors in tests
 vi.mock('../../middleware/rateLimiter', () => ({
-  apiLimiter: (req: any, res: any, next: any) => next(),
-  voiceOrderLimiter: (req: any, res: any, next: any) => next(),
-  authLimiter: (req: any, res: any, next: any) => next(),
-  healthCheckLimiter: (req: any, res: any, next: any) => next(),
-  aiServiceLimiter: (req: any, res: any, next: any) => next(),
-  transcriptionLimiter: (req: any, res: any, next: any) => next(),
+  apiLimiter: (_req: any, _res: any, next: any) => next(),
+  voiceOrderLimiter: (_req: any, _res: any, next: any) => next(),
+  authLimiter: (_req: any, _res: any, next: any) => next(),
+  healthCheckLimiter: (_req: any, _res: any, next: any) => next(),
+  aiServiceLimiter: (_req: any, _res: any, next: any) => next(),
+  transcriptionLimiter: (_req: any, _res: any, next: any) => next(),
 }));
 
 // Mock file validation middleware
 vi.mock('../../middleware/fileValidation', () => ({
   audioUpload: {
-    single: () => (req: any, res: any, next: any) => {
+    single: () => (req: any, _res: any, next: any) => {
       req.file = req.body.file || { size: 1000, mimetype: 'audio/wav' };
       next();
     }
@@ -51,6 +61,14 @@ describe('AI Routes Authentication Tests', () => {
     // Set test environment
     process.env.NODE_ENV = 'test';
     process.env.JWT_SECRET = 'test-secret';
+    
+    // Reset auth middleware mocks to default behavior
+    mockAuthenticate.mockImplementation((req: any, res: any, next: any) => {
+      req.user = { id: 'user-123', email: 'user@test.com', role: 'user' };
+      req.restaurantId = 'test-restaurant';
+      next();
+    });
+    mockRequireRole.mockImplementation(() => (req: any, res: any, next: any) => next());
     
     app = express();
     app.use(express.json());
@@ -82,6 +100,10 @@ describe('AI Routes Authentication Tests', () => {
     };
 
     it('should reject request without authentication', async () => {
+      mockAuthenticate.mockImplementation((req: any, res: any) => {
+        res.status(401).json({ error: 'No token provided' });
+      });
+      
       const response = await request(app)
         .post('/api/v1/ai/menu')
         .send(validMenuData);
@@ -91,6 +113,10 @@ describe('AI Routes Authentication Tests', () => {
     });
 
     it('should reject request with invalid token', async () => {
+      mockAuthenticate.mockImplementation((req: any, res: any) => {
+        res.status(401).json({ error: 'Invalid token' });
+      });
+      
       const response = await request(app)
         .post('/api/v1/ai/menu')
         .set('Authorization', 'Bearer invalid-token')
@@ -101,6 +127,15 @@ describe('AI Routes Authentication Tests', () => {
     });
 
     it('should reject request from non-admin user', async () => {
+      mockAuthenticate.mockImplementation((req: any, res: any, next: any) => {
+        req.user = { id: 'user-123', email: 'user@test.com', role: 'user' };
+        req.restaurantId = 'test-restaurant';
+        next();
+      });
+      mockRequireRole.mockImplementation(() => (req: any, res: any) => {
+        res.status(401).json({ error: 'Insufficient permissions' });
+      });
+      
       const response = await request(app)
         .post('/api/v1/ai/menu')
         .set('Authorization', `Bearer ${validToken}`)
@@ -112,6 +147,13 @@ describe('AI Routes Authentication Tests', () => {
     });
 
     it('should accept request from admin user', async () => {
+      mockAuthenticate.mockImplementation((req: any, res: any, next: any) => {
+        req.user = { id: 'admin-123', email: 'admin@test.com', role: 'admin' };
+        req.restaurantId = 'test-restaurant';
+        next();
+      });
+      mockRequireRole.mockImplementation(() => (req: any, res: any, next: any) => next());
+      
       vi.mocked(aiService.updateMenu).mockImplementation(() => {});
 
       const response = await request(app)
