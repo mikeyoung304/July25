@@ -1,14 +1,13 @@
 import { parseVoiceOrder } from './orderIntegration'
 
-describe.skip('parseVoiceOrder', () => {
-  // TODO(luis): enable when Playwright pipeline runs - these tests use generic menu items not in the Grow Fresh Local Food patterns
-  it('parses a simple burger order', () => {
-    const transcription = "I'd like a burger please"
+describe('parseVoiceOrder', () => {
+  it('parses a simple soul bowl order', () => {
+    const transcription = "I'd like a soul bowl please"
     const result = parseVoiceOrder(transcription)
     
     expect(result).toEqual({
       items: [
-        { name: 'Burger', quantity: 1, modifiers: [] }
+        { name: 'Soul Bowl', quantity: 1, modifiers: [] }
       ],
       specialRequests: undefined,
       orderType: 'dine-in'
@@ -16,13 +15,13 @@ describe.skip('parseVoiceOrder', () => {
   })
 
   it('parses order with quantity', () => {
-    const transcription = "I want 2 burgers and 3 pizzas"
+    const transcription = "I want 2 greek bowls and 3 summer salads"
     const result = parseVoiceOrder(transcription)
     
     expect(result).toEqual({
       items: [
-        { name: 'Burger', quantity: 2, modifiers: [] },
-        { name: 'Pizza', quantity: 3, modifiers: [] }
+        { name: 'Greek Bowl', quantity: 2, modifiers: [] },
+        { name: 'Summer Salad', quantity: 3, modifiers: [] }
       ],
       specialRequests: undefined,
       orderType: 'dine-in'
@@ -30,13 +29,13 @@ describe.skip('parseVoiceOrder', () => {
   })
 
   it('parses order with modifiers', () => {
-    const transcription = "One burger with no cheese and a large pizza with extra cheese"
+    const transcription = "One soul bowl with no rice and a greek salad with add chicken"
     const result = parseVoiceOrder(transcription)
     
     expect(result).toEqual({
       items: [
-        { name: 'Burger', quantity: 1, modifiers: ['No cheese', 'Extra cheese'] }, // Implementation extracts all modifiers globally
-        { name: 'Pizza', quantity: 1, modifiers: ['Large', 'Extra cheese'] }
+        { name: 'Soul Bowl', quantity: 1, modifiers: ['No rice'] },
+        { name: 'Greek Salad', quantity: 1, modifiers: ['Add chicken'] }
       ],
       specialRequests: undefined,
       orderType: 'dine-in'
@@ -44,12 +43,12 @@ describe.skip('parseVoiceOrder', () => {
   })
 
   it('extracts special requests', () => {
-    const transcription = "I'd like a salad please make sure no nuts"
+    const transcription = "I'd like a summer salad please make sure no nuts"
     const result = parseVoiceOrder(transcription)
     
     expect(result).toEqual({
       items: [
-        { name: 'Salad', quantity: 1, modifiers: [] }
+        { name: 'Summer Salad', quantity: 1, modifiers: [] }
       ],
       specialRequests: "make sure no nuts",
       orderType: 'dine-in'
@@ -57,23 +56,28 @@ describe.skip('parseVoiceOrder', () => {
   })
 
   it('identifies takeout orders', () => {
-    const transcription = "Two burgers to go"
+    const transcription = "Two chicken fajita keto to go"
     const result = parseVoiceOrder(transcription)
     
     expect(result?.orderType).toBe('takeout')
+    expect(result?.items[0]).toEqual({ 
+      name: 'Chicken Fajita Keto', 
+      quantity: 2, 
+      modifiers: [] 
+    })
   })
 
   it('handles complex orders', () => {
-    const transcription = "I'd like 2 burgers with extra cheese, no onions, a large pizza, and a salad with ranch dressing. I'm allergic to peanuts"
+    const transcription = "I'd like 2 soul bowls with extra collards, no rice, a veggie plate with three sides, and a peach arugula salad. I'm allergic to peanuts"
     const result = parseVoiceOrder(transcription)
     
     expect(result).toEqual({
       items: [
-        { name: 'Burger', quantity: 2, modifiers: ['Extra cheese', 'No onions'] }, // Order matches implementation
-        { name: 'Pizza', quantity: 1, modifiers: ['Large', 'Extra cheese'] }, // Pizza also picks up "extra cheese"
-        { name: 'Salad', quantity: 1, modifiers: ['Ranch dressing'] }
+        { name: 'Soul Bowl', quantity: 2, modifiers: ['Extra collards', 'No rice'] },
+        { name: 'Veggie Plate', quantity: 1, modifiers: ['Three sides'] },
+        { name: 'Peach Arugula Salad', quantity: 1, modifiers: [] }
       ],
-      specialRequests: "peanuts", // Implementation extracts just "peanuts" from "allergic to peanuts"
+      specialRequests: "peanuts",
       orderType: 'dine-in'
     })
   })
@@ -86,12 +90,12 @@ describe.skip('parseVoiceOrder', () => {
   })
 
   it('handles various quantity formats', () => {
-    const transcription = "3x burger, 2 x pizza, and 1x salad"
+    const transcription = "3x soul bowl, 2 x greek bowl, and 1x summer vegan bowl"
     const result = parseVoiceOrder(transcription)
     
     expect(result?.items).toHaveLength(3)
-    expect(result?.items[0]).toEqual({ name: 'Burger', quantity: 3, modifiers: [] })
-    expect(result?.items[1]).toEqual({ name: 'Pizza', quantity: 2, modifiers: [] })
-    expect(result?.items[2]).toEqual({ name: 'Salad', quantity: 1, modifiers: [] })
+    expect(result?.items[0]).toEqual({ name: 'Soul Bowl', quantity: 3, modifiers: [] })
+    expect(result?.items[1]).toEqual({ name: 'Greek Bowl', quantity: 2, modifiers: [] })
+    expect(result?.items[2]).toEqual({ name: 'Summer Vegan Bowl', quantity: 1, modifiers: [] })
   })
 })

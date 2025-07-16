@@ -27,7 +27,7 @@ jest.mock('@/modules/voice/components/VoiceCapture', () => ({
 const mockApi = api as jest.Mocked<typeof api>
 
 // TODO(luis): enable when Playwright pipeline runs
-describe.skip('Voice Order to KDS Integration', () => {
+describe('Voice Order to KDS Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     
