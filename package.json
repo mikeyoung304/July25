@@ -15,7 +15,7 @@
     "test": "npm run test:client && npm run test:server",
     "test:client": "cd client && npm test",
     "test:server": "cd server && npm test",
-    "test:e2e": "jest --selectProjects=e2e",
+    "test:e2e": "concurrently -k \"NODE_ENV=test npm run dev\" \"wait-on tcp:3001 && npx playwright test tests/e2e/**\"",
     "start": "cd server && npm start",
     "clean": "rm -rf node_modules server/node_modules client/node_modules",
     "check:integration": "tsx scripts/integration-check.ts",
