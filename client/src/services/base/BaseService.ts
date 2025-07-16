@@ -21,4 +21,8 @@ export abstract class BaseService {
       throw error
     }
   }
+
+  protected resetRateLimit(): void {
+    this.rateLimiters.clear()
+  }
 }

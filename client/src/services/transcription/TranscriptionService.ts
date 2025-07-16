@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import { env } from '@/utils/env'
 
 export interface TranscriptionResult {
   success: boolean
@@ -10,10 +11,8 @@ export class TranscriptionService {
   private openai: OpenAI | null = null
 
   constructor() {
-    // Only access import.meta.env if available (not in test environment)
-    const apiKey = typeof import.meta !== 'undefined' && import.meta.env 
-      ? import.meta.env.VITE_OPENAI_API_KEY 
-      : undefined // Fallback for test environment
+    // Get API key from environment
+    const apiKey = env.VITE_OPENAI_API_KEY
     
     if (apiKey) {
       // dangerouslyAllowBrowser: true is used here for demo purposes
@@ -28,7 +27,7 @@ export class TranscriptionService {
   async transcribeAudio(audioBlob: Blob): Promise<TranscriptionResult> {
     if (!this.openai) {
       // Development mode: Return mock transcription
-      if (import.meta.env.DEV) {
+      if (env.DEV) {
         console.warn('OpenAI API key not configured. Using mock transcription for development.')
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000))

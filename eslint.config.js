@@ -259,7 +259,7 @@ export default [
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/test/**/*.{ts,tsx}', '**/tests/**/*.{ts,tsx}'],
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/test/**/*.{ts,tsx}', '**/tests/**/*.{ts,tsx}', '**/__mocks__/**/*.{ts,tsx}'],
     languageOptions: {
       globals: {
         describe: 'readonly',

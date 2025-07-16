@@ -2,6 +2,8 @@
  * Performance debugging utility for tracking React rendering issues
  */
 
+import { env } from '@/utils/env'
+
 interface PerformanceMetrics {
   renderCount: number
   layoutEffectCount: number
@@ -20,7 +22,7 @@ class PerformanceDebugger {
   
   private interceptConsoleWarnings() {
     // Only intercept in development
-    if (import.meta.env.MODE === 'production') return
+    if (env.MODE === 'production') return
     
     console.error = (...args: unknown[]) => {
       const message = args[0]?.toString() || ''
@@ -110,14 +112,14 @@ export const performanceDebugger = new PerformanceDebugger()
 
 // React hook for tracking component renders
 export function usePerformanceTracking(componentName: string) {
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     performanceDebugger.recordRender(componentName)
   }
 }
 
 // Utility to log performance report
 export function logPerformanceReport() {
-  if (import.meta.env.DEV) {
+  if (env.DEV) {
     console.warn(performanceDebugger.generateReport())
   }
 }

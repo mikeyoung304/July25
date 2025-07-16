@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { HoldToRecordButton } from './HoldToRecordButton';
 import { useState } from 'react';
 

@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ErrorBoundary, withErrorBoundary } from '../ErrorBoundary'
+import * as envModule from '@/utils/env'
 
 // Component that throws an error
 const ThrowError: React.FC<{ shouldThrow?: boolean }> = ({ shouldThrow = true }) => {
@@ -144,8 +145,12 @@ describe('ErrorBoundary', () => {
     })
 
     it('shows error details in development', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'development'
+      // Mock env.DEV to be true
+      const originalDEV = envModule.env.DEV
+      Object.defineProperty(envModule.env, 'DEV', {
+        get: () => true,
+        configurable: true
+      })
       
       render(
         <ErrorBoundary level="page">
@@ -156,12 +161,20 @@ describe('ErrorBoundary', () => {
       expect(screen.getByText('Error Details')).toBeInTheDocument()
       expect(screen.getByText(/Error: Test error/)).toBeInTheDocument()
       
-      process.env.NODE_ENV = originalEnv
+      // Restore original value
+      Object.defineProperty(envModule.env, 'DEV', {
+        get: () => originalDEV,
+        configurable: true
+      })
     })
 
     it('hides error details in production', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
+      // Mock env.DEV to be false
+      const originalDEV = envModule.env.DEV
+      Object.defineProperty(envModule.env, 'DEV', {
+        get: () => false,
+        configurable: true
+      })
       
       render(
         <ErrorBoundary level="page">
@@ -171,7 +184,11 @@ describe('ErrorBoundary', () => {
       
       expect(screen.queryByText('Error Details')).not.toBeInTheDocument()
       
-      process.env.NODE_ENV = originalEnv
+      // Restore original value
+      Object.defineProperty(envModule.env, 'DEV', {
+        get: () => originalDEV,
+        configurable: true
+      })
     })
   })
 
@@ -212,8 +229,12 @@ describe('ErrorBoundary', () => {
 
   describe('Error logging', () => {
     it('logs errors in development', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'development'
+      // Mock env.DEV to be true
+      const originalDEV = envModule.env.DEV
+      Object.defineProperty(envModule.env, 'DEV', {
+        get: () => true,
+        configurable: true
+      })
       
       render(
         <ErrorBoundary>
@@ -227,12 +248,23 @@ describe('ErrorBoundary', () => {
         expect.any(Object)
       )
       
-      process.env.NODE_ENV = originalEnv
+      // Restore original value
+      Object.defineProperty(envModule.env, 'DEV', {
+        get: () => originalDEV,
+        configurable: true
+      })
     })
 
     it('does not log in production', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
+      // Mock env.DEV to be false
+      const originalDEV = envModule.env.DEV
+      Object.defineProperty(envModule.env, 'DEV', {
+        get: () => false,
+        configurable: true
+      })
+      
+      // Clear any previous console.error calls
+      ;(console.error as jest.Mock).mockClear()
       
       render(
         <ErrorBoundary>
@@ -246,7 +278,11 @@ describe('ErrorBoundary', () => {
         expect.any(Object)
       )
       
-      process.env.NODE_ENV = originalEnv
+      // Restore original value
+      Object.defineProperty(envModule.env, 'DEV', {
+        get: () => originalDEV,
+        configurable: true
+      })
     })
   })
 })

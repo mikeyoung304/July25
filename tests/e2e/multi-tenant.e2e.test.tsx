@@ -1,7 +1,3 @@
-// TODO(import-meta-fix): Fix import.meta issues
-describe.skip("E2E test", () => {});
-
-if (false) { // Keep original tests
 /**
  * End-to-End Tests for Multi-Tenant Functionality
  * Tests restaurant context switching and data isolation
@@ -354,4 +350,4 @@ describe('Multi-Tenant E2E Tests', () => {
       // This would require UI updates to show restaurant info
     })
   })
-})} // end if (false)
+})

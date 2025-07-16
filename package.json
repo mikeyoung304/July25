@@ -2,7 +2,6 @@
   "name": "grow-fresh-local-food",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
   "description": "Grow Fresh Local Food Restaurant Operating System",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
@@ -16,6 +15,7 @@
     "test": "npm run test:client && npm run test:server",
     "test:client": "cd client && npm test",
     "test:server": "cd server && npm test",
+    "test:e2e": "jest --selectProjects=e2e",
     "start": "cd server && npm start",
     "clean": "rm -rf node_modules server/node_modules client/node_modules",
     "check:integration": "tsx scripts/integration-check.ts",

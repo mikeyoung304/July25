@@ -1,5 +1,5 @@
 import { OrderService } from '../OrderService'
-import { mockData } from '@/services/mockData'
+import { mockData, resetMockData } from '@/services/mockData'
 import { Order } from '@/services/types'
 
 describe('OrderService', () => {
@@ -8,6 +8,7 @@ describe('OrderService', () => {
   beforeEach(() => {
     orderService = new OrderService()
     // Reset mock data
+    resetMockData()
     mockData.orders.length = 0
     mockData.orders.push(
       {
@@ -24,6 +25,56 @@ describe('OrderService', () => {
         paymentStatus: 'pending'
       }
     )
+    // Add test tables
+    mockData.tables.push(
+      {
+        id: 'test-table-1',
+        restaurant_id: 'rest-1',
+        type: 'square',
+        x: 100,
+        y: 100,
+        width: 80,
+        height: 80,
+        seats: 4,
+        label: '1',
+        rotation: 0,
+        status: 'available',
+        z_index: 1
+      },
+      {
+        id: 'test-table-2',
+        restaurant_id: 'rest-1',
+        type: 'square',
+        x: 200,
+        y: 100,
+        width: 80,
+        height: 80,
+        seats: 4,
+        label: '2',
+        rotation: 0,
+        status: 'available',
+        z_index: 1
+      },
+      {
+        id: 'test-table-10',
+        restaurant_id: 'rest-1',
+        type: 'square',
+        x: 300,
+        y: 100,
+        width: 80,
+        height: 80,
+        seats: 4,
+        label: '10',
+        rotation: 0,
+        status: 'available',
+        z_index: 1
+      }
+    )
+  })
+
+  afterEach(() => {
+    orderService.reset()
+    resetMockData()
   })
   
   describe('getOrders', () => {

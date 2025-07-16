@@ -5,7 +5,7 @@
 
 import { HttpServiceAdapter } from '@/services/base/HttpServiceAdapter'
 import { Order, OrderFilters } from '@/services/types'
-import { orderSubscription, mockOrderGenerator, startOrderProgression, initializeOrderStore, OrderEvent } from '@/services/realtime/orderSubscription'
+import { orderSubscription, mockOrderGenerator as _mockOrderGenerator, startOrderProgression, initializeOrderStore, OrderEvent } from '@/services/realtime/orderSubscription'
 import { 
   validateTableNumber, 
   validateItemName,
@@ -253,7 +253,18 @@ export class OrderService extends HttpServiceAdapter implements IOrderService {
         )
         if (!table) throw new Error('Table not found')
         
-        const newOrder = mockOrderGenerator.generateOrder()
+        const newOrder: Order = {
+          id: `order-${Date.now()}`,
+          restaurant_id: restaurantId,
+          orderNumber: String(parseInt(mockData.orders[mockData.orders.length - 1]?.orderNumber || '0') + 1).padStart(3, '0'),
+          tableNumber: orderData.tableNumber!,
+          items: orderData.items!,
+          status: 'new',
+          orderTime: new Date(),
+          totalAmount: orderData.totalAmount!,
+          paymentStatus: 'pending',
+          orderType: orderData.orderType || 'dine-in'
+        }
         
         mockData.orders.push(newOrder)
         table.status = 'occupied'
@@ -296,6 +307,14 @@ export class OrderService extends HttpServiceAdapter implements IOrderService {
     // TODO: Implement real WebSocket subscription when Task 7 is completed
     // For now, use the mock subscription
     return orderSubscription.subscribe(subscriptionId, eventCallback)
+  }
+
+  // Reset method for tests
+  reset(): void {
+    // Reset http client state
+    this.resetRateLimit()
+    // Re-initialize order store with fresh mock data
+    initializeOrderStore(mockData.orders)
   }
 }
 

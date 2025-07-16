@@ -1,7 +1,3 @@
-// TODO(import-meta-fix): Fix import.meta issues
-describe.skip("E2E test", () => {});
-
-if (false) { // Keep original tests
 /**
  * End-to-End Tests for Floor Plan Management
  * Tests the complete workflow for creating and managing restaurant floor plans
@@ -379,4 +375,4 @@ describe('Floor Plan Management E2E', () => {
       })
     })
   })
-})} // end if (false)
+})

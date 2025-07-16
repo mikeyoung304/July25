@@ -10,6 +10,7 @@
 import { SecureAPIClient, APIError } from '@/services/secureApi'
 import { supabase } from '@/core/supabase'
 import { toSnakeCase, toCamelCase, transformQueryParams } from '@/services/utils/caseTransform'
+import { env } from '@/utils/env'
 
 // Global variable to store the current restaurant ID
 // This will be set by the RestaurantContext provider
@@ -40,8 +41,7 @@ export class HttpClient extends SecureAPIClient {
       baseURL = 'http://localhost:3001'
     } else {
       try {
-        // @ts-ignore - import.meta is available in Vite
-        const viteUrl = import.meta?.env?.VITE_API_BASE_URL
+        const viteUrl = env.VITE_API_BASE_URL
         if (viteUrl) {
           baseURL = viteUrl
         }
