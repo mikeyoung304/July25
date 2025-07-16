@@ -143,4 +143,13 @@ router.get('/live', (_req: Request, res: Response) => {
   res.status(200).json({ alive: true });
 });
 
+// Simple health check endpoint
+router.get('/healthz', (_req: Request, res: Response) => {
+  res.status(200).json({
+    ok: true,
+    uptime: process.uptime(),
+    version: process.env.npm_package_version || '1.0.0',
+  });
+});
+
 export { router as healthRoutes };

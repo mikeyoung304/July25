@@ -1,0 +1,39 @@
+{
+  "uid": "rebuild-6-basic-alerts",
+  "title": "Rebuild 6.0 - Basic Alerts",
+  "condition": "condition",
+  "data": [
+    {
+      "refId": "A",
+      "queryType": "",
+      "model": {
+        "expr": "up{job=\"rebuild-6.0\"} == 0",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "refId": "A",
+        "interval": "",
+        "legendFormat": ""
+      },
+      "relativeTimeRange": {
+        "from": 600,
+        "to": 0
+      }
+    }
+  ],
+  "noDataState": "NoData",
+  "execErrState": "Alerting",
+  "for": "5m",
+  "annotations": {
+    "description": "The Rebuild 6.0 service has been down for more than 5 minutes.",
+    "runbook_url": "",
+    "summary": "Rebuild 6.0 service is down"
+  },
+  "labels": {
+    "severity": "critical",
+    "service": "rebuild-6.0"
+  },
+  "folderUID": "rebuild-6-alerts",
+  "ruleGroup": "basic-health"
+}

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import promBundle from 'express-prom-bundle';
 import { Counter, Gauge, register } from 'prom-client';
 
 // Voice metrics
@@ -29,16 +29,19 @@ global.voiceMetrics = {
   voiceActiveConnections,
 };
 
-// Middleware to expose metrics
-export function metricsMiddleware(req: Request, res: Response, next: NextFunction) {
-  if (req.path === '/metrics') {
-    res.set('Content-Type', register.contentType);
-    register.metrics().then(metrics => {
-      res.send(metrics);
-    }).catch(_err => {
-      res.status(500).send('Error generating metrics');
-    });
-  } else {
-    next();
-  }
-}
+// Create promBundle middleware with automatic HTTP metrics
+export const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true,
+  includeStatusCode: true,
+  includeUp: true,
+  customLabels: {
+    app: 'rebuild-6.0',
+    environment: process.env.NODE_ENV || 'development',
+  },
+  promClient: {
+    collectDefaultMetrics: {
+      prefix: 'rebuild_',
+    },
+  },
+});
