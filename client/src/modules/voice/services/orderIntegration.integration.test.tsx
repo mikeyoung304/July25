@@ -17,7 +17,7 @@ jest.mock('@/hooks/useToast', () => ({
 jest.mock('@/modules/voice/components/VoiceCapture', () => ({
   VoiceCapture: ({ onOrderComplete }: { onOrderComplete: (text: string) => void }) => (
     <div data-testid="voice-capture">
-      <button onClick={() => onOrderComplete("I'd like 2 burgers with extra cheese and a large pizza")}>
+      <button onClick={() => onOrderComplete("I'd like 2 soul bowls with extra collards")}>
         Simulate Voice Order
       </button>
     </div>
@@ -129,7 +129,7 @@ describe('Voice Order to KDS Integration', () => {
     // Wait for order display
     await waitFor(() => {
       expect(screen.getByText('2x')).toBeInTheDocument()
-      expect(screen.getByText('Burger')).toBeInTheDocument()
+      expect(screen.getByText('Soul Bowl')).toBeInTheDocument()
     }, { timeout: 3000 })
     
     // Confirm order
@@ -156,7 +156,7 @@ describe('Voice Order to KDS Integration', () => {
     // Wait for order display
     await waitFor(() => {
       expect(screen.getByText('2x')).toBeInTheDocument()
-      expect(screen.getByText('Burger')).toBeInTheDocument()
+      expect(screen.getByText('Soul Bowl')).toBeInTheDocument()
     }, { timeout: 3000 })
     
     // Confirm order
@@ -186,7 +186,7 @@ describe('Voice Order to KDS Integration', () => {
     // Wait and confirm order
     await waitFor(() => {
       expect(screen.getByText('2x')).toBeInTheDocument()
-      expect(screen.getByText('Burger')).toBeInTheDocument()
+      expect(screen.getByText('Soul Bowl')).toBeInTheDocument()
     }, { timeout: 3000 })
     
     const confirmButton = screen.getByRole('button', { name: /confirm order/i })

@@ -10,7 +10,20 @@ import { apiLimiter, voiceOrderLimiter, transcriptionLimiter } from '../../middl
 vi.mock('../../services/ai.service');
 vi.mock('../../services/orders.service');
 vi.mock('../../services/menu.service');
-vi.mock('../../utils/logger');
+vi.mock('../../utils/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    child: vi.fn(() => ({
+      info: vi.fn(),
+      error: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn()
+    }))
+  }
+}));
 
 describe('Security Tests', () => {
   let app: express.Application;

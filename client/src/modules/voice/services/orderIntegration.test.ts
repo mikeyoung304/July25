@@ -73,9 +73,9 @@ describe('parseVoiceOrder', () => {
     
     expect(result).toEqual({
       items: [
-        { name: 'Soul Bowl', quantity: 2, modifiers: ['Extra collards', 'No rice'] },
-        { name: 'Veggie Plate', quantity: 1, modifiers: ['Three sides'] },
-        { name: 'Peach Arugula Salad', quantity: 1, modifiers: [] }
+        { name: 'Soul Bowl', quantity: 2, modifiers: ['No rice', 'Extra collards'] },
+        { name: 'Peach Arugula Salad', quantity: 1, modifiers: [] },
+        { name: 'Veggie Plate', quantity: 1, modifiers: ['Three sides'] }
       ],
       specialRequests: "peanuts",
       orderType: 'dine-in'

@@ -48,3 +48,29 @@ export const healthCheckLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// AI service rate limiter (to prevent abuse of expensive AI operations)
+export const aiServiceLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 20, // Max 20 AI requests per 5 minutes
+  keyGenerator: (req: Request) => {
+    const authReq = req as AuthenticatedRequest;
+    return authReq.user?.id || authReq.restaurantId || authReq.ip || 'anonymous';
+  },
+  message: 'AI service rate limit exceeded. Please wait before making more requests.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Transcription rate limiter (more restrictive due to cost)
+export const transcriptionLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 5, // Max 5 transcriptions per minute
+  keyGenerator: (req: Request) => {
+    const authReq = req as AuthenticatedRequest;
+    return authReq.user?.id || authReq.restaurantId || authReq.ip || 'anonymous';
+  },
+  message: 'Transcription rate limit exceeded. Please wait before transcribing more audio.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});

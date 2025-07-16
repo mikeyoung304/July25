@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
+import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { OrdersService } from '../services/orders.service';
 import { BadRequest, NotFound } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
@@ -8,7 +9,7 @@ const router = Router();
 const routeLogger = logger.child({ route: 'orders' });
 
 // GET /api/v1/orders - List orders with filters
-router.get('/', authenticate, async (req: AuthenticatedRequest, res, next) => {
+router.get('/', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const filters = {
@@ -30,7 +31,7 @@ router.get('/', authenticate, async (req: AuthenticatedRequest, res, next) => {
 });
 
 // POST /api/v1/orders - Create new order
-router.post('/', authenticate, async (req: AuthenticatedRequest, res, next) => {
+router.post('/', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const orderData = req.body;
@@ -49,7 +50,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res, next) => {
 });
 
 // POST /api/v1/orders/voice - Process voice order
-router.post('/voice', authenticate, async (req: AuthenticatedRequest, res, _next) => {
+router.post('/voice', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, _next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { transcription, audioUrl, metadata: _metadata } = req.body;
@@ -124,7 +125,7 @@ router.post('/voice', authenticate, async (req: AuthenticatedRequest, res, _next
 });
 
 // GET /api/v1/orders/:id - Get single order
-router.get('/:id', authenticate, async (req: AuthenticatedRequest, res, next) => {
+router.get('/:id', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
@@ -142,7 +143,7 @@ router.get('/:id', authenticate, async (req: AuthenticatedRequest, res, next) =>
 });
 
 // PATCH /api/v1/orders/:id/status - Update order status
-router.patch('/:id/status', authenticate, async (req: AuthenticatedRequest, res, next) => {
+router.patch('/:id/status', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
@@ -167,7 +168,7 @@ router.patch('/:id/status', authenticate, async (req: AuthenticatedRequest, res,
 });
 
 // DELETE /api/v1/orders/:id - Cancel order
-router.delete('/:id', authenticate, async (req: AuthenticatedRequest, res, next) => {
+router.delete('/:id', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
