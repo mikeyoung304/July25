@@ -26,7 +26,8 @@
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
     "db:migration:new": "supabase migration new",
-    "db:status": "cd server && npm run db:check"
+    "db:status": "cd server && npm run db:check",
+    "analyze": "tsx scripts/gen-code-analysis.ts"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",
