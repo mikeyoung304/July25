@@ -1,126 +1,184 @@
 # Documentation Index
 
-## 📚 Available Documentation
+## 📚 Core Documentation
 
 ### Getting Started
-- **[README.md](../README.md)** - Project overview and setup instructions
+- **[README.md](../README.md)** - Project overview, features, and quick setup
 - **[QUICK_START.md](./QUICK_START.md)** - 5-minute guide for new developers
-- **[CHANGELOG.md](../CHANGELOG.md)** - Version history and recent changes
+- **[DEVELOPMENT.md](../DEVELOPMENT.md)** - Detailed development setup and workflow
 
 ### Architecture & Design
-- **[MODULAR_ARCHITECTURE.md](./MODULAR_ARCHITECTURE.md)** - Module system explanation
-- **[REFACTORING_PLAN.md](./REFACTORING_PLAN.md)** - Initial refactoring strategy
-- **[REFACTORING_ACTION_PLAN.md](./REFACTORING_ACTION_PLAN.md)** - Detailed implementation plan
-- **[REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md)** - Summary of completed work
+- **[ARCHITECTURE.md](../ARCHITECTURE.md)** ⭐ - **Unified backend architecture decision (SOURCE OF TRUTH)**
+- **[CURRENT_ARCHITECTURE.md](../CURRENT_ARCHITECTURE.md)** - Current system architecture overview
+- **[FULLSTACK_ARCHITECTURE.md](./FULLSTACK_ARCHITECTURE.md)** - Full-stack architecture details
+- **[MODULAR_ARCHITECTURE.md](./MODULAR_ARCHITECTURE.md)** - Frontend module system explanation
+- **[MIGRATION_REPORT.md](../MIGRATION_REPORT.md)** - Unified backend migration documentation
 
-### Technical Details
-- **[CODE_ANALYSIS.md](./CODE_ANALYSIS.md)** - Codebase metrics and analysis
+### Backend Documentation
+- **[BACKEND_GUIDE.md](./BACKEND_GUIDE.md)** - Comprehensive backend development guide
+- **[API_ENDPOINTS.md](../API_ENDPOINTS.md)** - Complete API endpoint reference
+- **[server/README.md](../server/README.md)** - Backend service documentation
+- **[server/QUICK_START_GROW_FRESH.md](../server/QUICK_START_GROW_FRESH.md)** - Restaurant-specific setup
+
+### Feature Guides
+- **[VOICE_ORDERING_GUIDE.md](./VOICE_ORDERING_GUIDE.md)** - Voice ordering implementation guide
+- **[FLOOR_PLAN_SETUP.md](../FLOOR_PLAN_SETUP.md)** - Floor plan management setup
+- **[MCP-SETUP.md](./MCP-SETUP.md)** - Model Context Protocol configuration
+
+### AI Development
+- **[CLAUDE.md](../CLAUDE.md)** - Claude AI assistant instructions
+- **[CONTRIBUTING_AI.md](../CONTRIBUTING_AI.md)** - AI development guidelines and pitfalls
+
+### Testing & Quality
 - **[FUNCTIONAL_TESTING_CHECKLIST.md](./FUNCTIONAL_TESTING_CHECKLIST.md)** - Testing requirements
+- **[CODE_ANALYSIS.md](./CODE_ANALYSIS.md)** - Codebase metrics and analysis
 
-### Development Guides
-- **API Documentation** (coming soon) - Service layer API reference
-- **Component Library** (coming soon) - UI component documentation
-- **Deployment Guide** (coming soon) - Production deployment instructions
+### Historical Documentation
+- **[docs/archive/](./archive/)** - Previous architecture and refactoring documentation
 
 ## 🗂️ Documentation Structure
 
 ```
-docs/
-├── Getting Started
-│   ├── README.md (root)
-│   ├── QUICK_START.md
-│   └── CHANGELOG.md (root)
+rebuild-6.0/
+├── Root Documentation
+│   ├── README.md                    # Project overview
+│   ├── ARCHITECTURE.md             # ⭐ Unified backend decision
+│   ├── DEVELOPMENT.md              # Dev setup guide
+│   ├── API_ENDPOINTS.md            # API reference
+│   ├── CURRENT_ARCHITECTURE.md     # System overview
+│   ├── MIGRATION_REPORT.md         # Migration history
+│   ├── FLOOR_PLAN_SETUP.md         # Feature setup
+│   ├── CLAUDE.md                   # AI assistant config
+│   └── CONTRIBUTING_AI.md          # AI guidelines
 │
-├── Architecture
-│   ├── MODULAR_ARCHITECTURE.md
-│   ├── REFACTORING_PLAN.md
-│   ├── REFACTORING_ACTION_PLAN.md
-│   └── REFACTORING_SUMMARY.md
+├── server/
+│   ├── README.md                   # Backend docs
+│   └── QUICK_START_GROW_FRESH.md   # Restaurant setup
 │
-├── Technical
-│   ├── CODE_ANALYSIS.md
-│   └── FUNCTIONAL_TESTING_CHECKLIST.md
+├── client/
+│   └── (component documentation in source)
 │
-└── Reference
-    └── DOCUMENTATION_INDEX.md (this file)
+└── docs/
+    ├── Getting Started
+    │   ├── QUICK_START.md
+    │   └── DOCUMENTATION_INDEX.md (this file)
+    │
+    ├── Architecture
+    │   ├── FULLSTACK_ARCHITECTURE.md
+    │   ├── MODULAR_ARCHITECTURE.md
+    │   └── BACKEND_GUIDE.md
+    │
+    ├── Features
+    │   ├── VOICE_ORDERING_GUIDE.md
+    │   └── MCP-SETUP.md
+    │
+    ├── Quality
+    │   ├── FUNCTIONAL_TESTING_CHECKLIST.md
+    │   └── CODE_ANALYSIS.md
+    │
+    └── archive/
+        └── (historical documentation)
 ```
 
 ## 📝 Documentation Standards
 
 ### File Naming
-- Use UPPERCASE for documentation files
-- Use descriptive names that indicate content
-- Use underscores for multi-word files
+- Use UPPERCASE for documentation files (e.g., `README.md`, `ARCHITECTURE.md`)
+- Use underscores for multi-word files (e.g., `VOICE_ORDERING_GUIDE.md`)
+- Keep names descriptive and action-oriented
 
 ### Content Structure
-1. **Title** - Clear, descriptive title
-2. **Overview** - Brief description of content
-3. **Table of Contents** - For longer documents
-4. **Main Content** - Well-organized sections
-5. **Examples** - Code examples where applicable
-6. **Next Steps** - Links to related documentation
+1. **Title** - Clear, descriptive title with emoji if appropriate
+2. **Overview** - Brief description of content and purpose
+3. **Table of Contents** - For documents longer than 3 sections
+4. **Main Content** - Well-organized sections with clear headers
+5. **Examples** - Code examples with syntax highlighting
+6. **Related Docs** - Links to related documentation
 
 ### Markdown Guidelines
-- Use headers hierarchically (# > ## > ###)
-- Include code blocks with language hints
-- Use tables for structured data
-- Add emoji sparingly for visual interest
+- Use headers hierarchically (# > ## > ### > ####)
+- Include code blocks with language hints (```typescript, ```bash)
+- Use tables for structured comparison data
+- Add emoji sparingly for section headers (📚 📝 ⚠️ ✅)
 - Keep line length reasonable (~100 chars)
+- Use **bold** for emphasis, *italics* for terms
 
 ## 🔄 Keeping Documentation Updated
 
-### When to Update
-- After completing a feature
-- When changing architecture
-- After fixing significant bugs
-- When adding new dependencies
-- Before major releases
+### Critical Documents
+These documents MUST be kept current:
+1. **ARCHITECTURE.md** - Any architecture decisions
+2. **API_ENDPOINTS.md** - When adding/changing endpoints
+3. **README.md** - New features or setup changes
+4. **DEVELOPMENT.md** - Development process changes
 
-### What to Update
-1. **README.md** - New features, setup changes
-2. **CHANGELOG.md** - All notable changes
-3. **Architecture docs** - Design decisions
-4. **API docs** - Interface changes
-5. **Quick Start** - Common tasks
+### When to Update
+- **Before** implementing architecture changes
+- **After** completing a feature
+- **When** changing API contracts
+- **After** fixing significant bugs
+- **Before** major releases
+
+### Update Checklist
+- [ ] Is the unified backend architecture still reflected?
+- [ ] Are all port references correct (3001)?
+- [ ] Do examples still work?
+- [ ] Are file paths still valid?
+- [ ] Is the information current?
 
 ## 🤝 Contributing to Documentation
 
-1. **Write clearly** - Assume no prior knowledge
-2. **Show examples** - Code speaks louder than words
-3. **Stay current** - Update docs with code changes
-4. **Be concise** - Get to the point quickly
-5. **Test instructions** - Ensure steps actually work
+### Principles
+1. **Write for newcomers** - Assume no prior project knowledge
+2. **Show, don't just tell** - Include examples and commands
+3. **Keep it current** - Update docs with code changes
+4. **Be concise** - Get to the point, avoid fluff
+5. **Test everything** - Ensure commands and examples work
 
-## 📊 Documentation Coverage
+### Documentation Reviews
+- Documentation PRs should be reviewed like code
+- Check for accuracy, clarity, and completeness
+- Verify examples work as written
+- Ensure consistency with existing docs
 
-### ✅ Completed
-- Project setup and installation
-- Architecture overview
-- Module system explanation
-- Refactoring documentation
-- Testing guidelines
-- Quick start guide
+## 📊 Documentation Health
 
-### 🚧 In Progress
-- API reference documentation
-- Component library docs
-- Deployment guides
+### ✅ Current & Accurate
+- Unified backend architecture docs
+- API endpoint documentation
+- Development setup guides
+- Core feature documentation
 
-### 📋 Planned
-- Video tutorials
-- Architecture decision records (ADRs)
-- Performance optimization guide
+### ⚠️ Needs Review
+- Testing documentation (may need updates for new test structure)
+- Some feature-specific guides
+- Performance optimization guides
+
+### 📋 Future Documentation
+- Deployment playbooks
+- Performance tuning guide
 - Security best practices
 - Troubleshooting guide
+- Architecture Decision Records (ADRs)
 
 ## 🔗 External Resources
 
+### Core Technologies
 - [React Documentation](https://react.dev)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Express.js Guide](https://expressjs.com/en/guide/routing.html)
 - [Tailwind CSS Docs](https://tailwindcss.com/docs)
+
+### Services & Tools
 - [Supabase Documentation](https://supabase.com/docs)
 - [Vite Guide](https://vitejs.dev/guide/)
+- [Jest Documentation](https://jestjs.io/docs/getting-started)
+- [Playwright Docs](https://playwright.dev/docs/intro)
+
+### AI Development
+- [Claude Documentation](https://docs.anthropic.com/claude/docs)
+- [MCP Specification](https://github.com/modelcontextprotocol/specification)
 
 ---
 
-*Last updated: January 2025*
+*Last updated: January 2025 | Unified Backend Architecture v6.0*

@@ -7,12 +7,9 @@
    npm run dev
    ```
 
-2. In a new terminal, run the clear tables script:
-   ```bash
-   node clear-tables.js
-   ```
-
-3. This will remove all existing mock tables from the database.
+2. To clear existing tables, you have two options:
+   - **Via UI**: In the Floor Plan editor, select tables and delete them using the Delete key or trash button
+   - **Fresh Start**: Stop the server (Ctrl+C) and restart with `npm run dev` to reset to default mock data
 
 ## Create Your Custom Floor Plan
 
