@@ -152,7 +152,7 @@ describe('VoiceControl', () => {
       mockPermissionStatus.state = 'granted';
     });
 
-    it.skip('shows connection status indicator', async () => {
+    it('shows connection status indicator', async () => {
       // TODO(luis): enable when Playwright pipeline runs - needs real WebSocket
       const { act } = await import('@testing-library/react');
       
@@ -346,7 +346,7 @@ describe('VoiceControl', () => {
       });
     });
 
-    it.skip('disables button when WebSocket is not connected', async () => {
+    it('disables button when WebSocket is not connected', async () => {
       // TODO(luis): enable when Playwright pipeline runs - needs real WebSocket
       const { act: _act } = await import('@testing-library/react');
       mockPermissionStatus.state = 'granted';
