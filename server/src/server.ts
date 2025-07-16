@@ -31,13 +31,51 @@ export const wss = new WebSocketServer({ server: httpServer });
 OrdersService.setWebSocketServer(wss);
 
 // Global middleware
-app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true,
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// CORS configuration with stricter settings
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+  process.env.FRONTEND_URL || 'http://localhost:5173'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id'],
+  exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset'],
+  maxAge: 86400, // 24 hours
+}));
+app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(requestLogger);
 
 // Metrics endpoint (before rate limiting)
