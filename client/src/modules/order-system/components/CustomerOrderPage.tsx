@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
-import { MenuGrid } from './MenuGrid';
-import { CategoryFilter } from './CategoryFilter';
+import { MenuSections } from './MenuSections';
+import { SectionNavigation } from './SectionNavigation';
 import { MenuSearch } from './MenuSearch';
 import { CartDrawer } from './CartDrawer';
 import { ItemDetailModal } from './ItemDetailModal';
+import { HeroSection } from './HeroSection';
 import { Cart, CartItem as CartItemType } from '../types';
 import { MenuItem } from '../../menu/types';
 import { useRestaurant } from '@/core/restaurant-hooks';
@@ -16,7 +17,7 @@ export const CustomerOrderPage: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const { setRestaurant } = useRestaurant();
   
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string | undefined>();
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -129,16 +130,16 @@ export const CustomerOrderPage: React.FC = () => {
       <header className="sticky top-0 z-20 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Grow Fresh Local Food
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">🌱</span>
+              <h1 className="text-xl font-bold text-gray-900">
+                Grow Fresh
               </h1>
-              <span className="text-sm text-gray-600">Fresh food made with love and local ingredients</span>
             </div>
             
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 bg-macon-orange text-white rounded-lg hover:bg-macon-orange-dark transition-colors duration-200"
+              className="relative p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
               aria-label={`Open cart with ${cartItemCount} items`}
             >
               <ShoppingCart className="w-6 h-6" />
@@ -152,17 +153,8 @@ export const CustomerOrderPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Restaurant Info Bar */}
-      <div className="bg-green-50 px-6 py-3 border-b border-green-200">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-sm">
-          <div className="flex items-center space-x-4">
-            <span className="text-green-800">📍 1019 Riverside Dr, Macon, GA</span>
-            <span className="text-green-800">📞 (478) 743-4663</span>
-            <span className="text-green-800">🕐 Mon-Fri: 11:00 AM - 3:00 PM</span>
-          </div>
-          <span className="text-green-700 font-medium">Farm to Table • Organic • Local</span>
-        </div>
-      </div>
+      {/* Hero Section */}
+      <HeroSection />
 
       {/* Search Bar */}
       <MenuSearch 
@@ -170,16 +162,17 @@ export const CustomerOrderPage: React.FC = () => {
         onSearchChange={setSearchQuery}
       />
 
-      {/* Category Filter */}
-      <CategoryFilter
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-      />
+      {/* Section Navigation - Only show when not searching */}
+      {!searchQuery && (
+        <SectionNavigation
+          activeSection={activeSection}
+          onSectionClick={setActiveSection}
+        />
+      )}
 
-      {/* Menu Grid */}
+      {/* Menu Sections */}
       <main className="max-w-7xl mx-auto">
-        <MenuGrid
-          selectedCategory={selectedCategory}
+        <MenuSections
           searchQuery={searchQuery}
           onItemClick={handleItemClick}
         />
