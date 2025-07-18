@@ -28,16 +28,31 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       }}
       aria-label={`${item.name} - ${formatPrice(item.price)}`}
     >
-      {item.imageUrl && (
-        <div className="aspect-w-16 aspect-h-9 bg-gray-100">
+      <div className="aspect-w-16 aspect-h-9 bg-gradient-to-br from-green-50 to-green-100">
+        {item.imageUrl ? (
           <img 
             src={item.imageUrl} 
             alt={item.name}
             className="w-full h-48 object-cover"
             loading="lazy"
           />
-        </div>
-      )}
+        ) : (
+          <div className="w-full h-48 flex items-center justify-center">
+            <div className="text-center">
+              <span className="text-4xl mb-2 block">
+                {item.category === 'Beverages' && '🥤'}
+                {item.category === 'Starters' && '🍽️'}
+                {item.category === 'Salads' && '🥗'}
+                {item.category === 'Sandwiches' && '🥪'}
+                {item.category === 'Bowls' && '🍲'}
+                {item.category === 'Vegan' && '🌱'}
+                {item.category === 'Entrees' && '🍴'}
+              </span>
+              <span className="text-sm text-green-700 font-medium">Farm Fresh</span>
+            </div>
+          </div>
+        )}
+      </div>
       
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -51,12 +66,12 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
         )}
         
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-macon-orange">
+          <span className="text-lg font-bold text-green-600">
             {formatPrice(item.price)}
           </span>
           
           <button
-            className="bg-macon-orange text-white px-4 py-2 rounded-md hover:bg-macon-orange-dark transition-colors duration-200 font-medium"
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 font-medium"
             onClick={(e) => {
               e.stopPropagation();
               onClick();

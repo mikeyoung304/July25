@@ -129,9 +129,12 @@ export const CustomerOrderPage: React.FC = () => {
       <header className="sticky top-0 z-20 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Grow Fresh Menu
-            </h1>
+            <div className="flex items-center space-x-4">
+              <h1 className="text-2xl font-bold text-gray-900">
+                Grow Fresh Local Food
+              </h1>
+              <span className="text-sm text-gray-600">Fresh food made with love and local ingredients</span>
+            </div>
             
             <button
               onClick={() => setIsCartOpen(true)}
@@ -148,6 +151,18 @@ export const CustomerOrderPage: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {/* Restaurant Info Bar */}
+      <div className="bg-green-50 px-6 py-3 border-b border-green-200">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-sm">
+          <div className="flex items-center space-x-4">
+            <span className="text-green-800">📍 1019 Riverside Dr, Macon, GA</span>
+            <span className="text-green-800">📞 (478) 743-4663</span>
+            <span className="text-green-800">🕐 Mon-Fri: 11:00 AM - 3:00 PM</span>
+          </div>
+          <span className="text-green-700 font-medium">Farm to Table • Organic • Local</span>
+        </div>
+      </div>
 
       {/* Search Bar */}
       <MenuSearch 
