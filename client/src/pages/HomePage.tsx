@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Users, ChefHat, ShoppingCart, Settings } from 'lucide-react'
+import { Users, ChefHat, ShoppingCart, Settings, Globe } from 'lucide-react'
 
 interface NavigationCardProps {
   title: string
@@ -57,6 +57,12 @@ export function HomePage() {
       color: '#4ECDC4',
     },
     {
+      title: 'Online Order',
+      icon: <Globe className="h-16 w-16" />,
+      href: '/order/1',
+      color: '#7B68EE',
+    },
+    {
       title: 'Admin',
       icon: <Settings className="h-16 w-16" />,
       href: '/admin',
@@ -85,7 +91,7 @@ export function HomePage() {
         </motion.div>
 
         {/* Navigation Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {navigationOptions.map((option, index) => (
             <NavigationCard
               key={option.title}

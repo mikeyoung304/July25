@@ -11,6 +11,7 @@ import { ServerView } from '@/pages/ServerView'
 import { AdminDashboard } from '@/pages/AdminDashboard'
 import KioskPage from '@/pages/KioskPage'
 import DriveThruPage from '@/pages/DriveThruPage'
+import { CustomerOrderPage } from '@/modules/order-system/components'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
 // Profiler callback for performance tracking
@@ -75,6 +76,13 @@ export function AppRoutes() {
             <Route path="/admin" element={
               <ErrorBoundary level="section">
                 <AdminDashboard />
+              </ErrorBoundary>
+            } />
+            <Route path="/order/:restaurantId" element={
+              <ErrorBoundary level="section">
+                <Profiler id="CustomerOrder" onRender={onRenderCallback}>
+                  <CustomerOrderPage />
+                </Profiler>
               </ErrorBoundary>
             } />
           </Routes>
