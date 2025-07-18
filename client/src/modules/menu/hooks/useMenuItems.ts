@@ -4,48 +4,49 @@ import { MenuService } from '@/services/MenuService';
 import { useRestaurant } from '@/core/restaurant-hooks';
 
 // Grow Fresh Local Food actual menu items
+// Using consistent numeric string IDs to match voice ordering and KDS
 const growFreshMenuItems: MenuItem[] = [
   // Beverages
-  { id: 'bev-1', name: 'Sweet Tea w. Lemon', price: 3.00, category: 'Beverages', description: 'Southern-style sweet tea with fresh lemon', restaurant_id: '1', available: true },
-  { id: 'bev-2', name: 'Unsweet Tea w. Lemon', price: 3.00, category: 'Beverages', description: 'Fresh brewed tea with lemon', restaurant_id: '1', available: true },
-  { id: 'bev-3', name: 'Lemonade', price: 3.00, category: 'Beverages', description: 'Fresh-squeezed lemonade', restaurant_id: '1', available: true },
+  { id: '101', name: 'Sweet Tea w. Lemon', price: 3.00, category: 'Beverages', description: 'Southern-style sweet tea with fresh lemon', restaurant_id: '1', available: true },
+  { id: '102', name: 'Unsweet Tea w. Lemon', price: 3.00, category: 'Beverages', description: 'Fresh brewed tea with lemon', restaurant_id: '1', available: true },
+  { id: '103', name: 'Lemonade', price: 3.00, category: 'Beverages', description: 'Fresh-squeezed lemonade', restaurant_id: '1', available: true },
   
   // Starters
-  { id: 'start-1', name: 'Summer Sampler', price: 16.00, category: 'Starters', description: 'A selection of our favorite seasonal starters', restaurant_id: '1', available: true },
-  { id: 'start-2', name: 'Jalapeno Pimento Bites', price: 10.00, category: 'Starters', description: 'Spicy pimento cheese bites with fresh jalapeños', restaurant_id: '1', available: true },
-  { id: 'start-3', name: 'Peach & Prosciutto Caprese', price: 12.00, category: 'Starters', description: 'Fresh Georgia peaches with prosciutto and mozzarella', restaurant_id: '1', available: true },
-  { id: 'start-4', name: 'Watermelon Tataki', price: 10.00, category: 'Starters', description: 'Fresh watermelon with a savory twist', restaurant_id: '1', available: true },
-  { id: 'start-5', name: 'Tea Sandwiches', price: 10.00, category: 'Starters', description: 'Assorted finger sandwiches perfect for sharing', restaurant_id: '1', available: true },
+  { id: '201', name: 'Summer Sampler', price: 16.00, category: 'Starters', description: 'A selection of our favorite seasonal starters', restaurant_id: '1', available: true },
+  { id: '202', name: 'Jalapeno Pimento Bites', price: 10.00, category: 'Starters', description: 'Spicy pimento cheese bites with fresh jalapeños', restaurant_id: '1', available: true },
+  { id: '203', name: 'Peach & Prosciutto Caprese', price: 12.00, category: 'Starters', description: 'Fresh Georgia peaches with prosciutto and mozzarella', restaurant_id: '1', available: true },
+  { id: '204', name: 'Watermelon Tataki', price: 10.00, category: 'Starters', description: 'Fresh watermelon with a savory twist', restaurant_id: '1', available: true },
+  { id: '205', name: 'Tea Sandwiches', price: 10.00, category: 'Starters', description: 'Assorted finger sandwiches perfect for sharing', restaurant_id: '1', available: true },
   
   // Salads
-  { id: 'salad-1', name: 'Summer Salad', price: 12.00, category: 'Salads', description: 'Fresh seasonal greens with summer vegetables', restaurant_id: '1', available: true },
-  { id: 'salad-2', name: 'Greek Salad', price: 12.00, category: 'Salads', description: 'Crisp greens with feta, olives, and Greek dressing', restaurant_id: '1', available: true },
-  { id: 'salad-3', name: 'Peach Arugula Salad', price: 12.00, category: 'Salads', description: 'Peppery arugula with fresh Georgia peaches', restaurant_id: '1', available: true },
-  { id: 'salad-4', name: 'Tuna Salad', price: 14.00, category: 'Salads', description: 'House-made tuna salad on fresh greens', restaurant_id: '1', available: true },
-  { id: 'salad-5', name: "Mom's Chicken Salad", price: 13.00, category: 'Salads', description: 'Traditional chicken salad with grapes and pecans', restaurant_id: '1', available: true },
-  { id: 'salad-6', name: 'Grilled Chicken Salad', price: 14.00, category: 'Salads', description: 'Grilled chicken breast on mixed greens', restaurant_id: '1', available: true },
+  { id: '301', name: 'Summer Salad', price: 12.00, category: 'Salads', description: 'Fresh seasonal greens with summer vegetables', restaurant_id: '1', available: true },
+  { id: '302', name: 'Greek Salad', price: 12.00, category: 'Salads', description: 'Crisp greens with feta, olives, and Greek dressing', restaurant_id: '1', available: true },
+  { id: '303', name: 'Peach Arugula Salad', price: 12.00, category: 'Salads', description: 'Peppery arugula with fresh Georgia peaches', restaurant_id: '1', available: true },
+  { id: '304', name: 'Tuna Salad', price: 14.00, category: 'Salads', description: 'House-made tuna salad on fresh greens', restaurant_id: '1', available: true },
+  { id: '305', name: "Mom's Chicken Salad", price: 13.00, category: 'Salads', description: 'Traditional chicken salad with grapes and pecans', restaurant_id: '1', available: true },
+  { id: '306', name: 'Grilled Chicken Salad', price: 14.00, category: 'Salads', description: 'Grilled chicken breast on mixed greens', restaurant_id: '1', available: true },
   
   // Sandwiches
-  { id: 'sand-1', name: 'Chicken Salad Sandwich', price: 12.00, category: 'Sandwiches', description: 'House-made chicken salad with lettuce and tomato', restaurant_id: '1', available: true },
-  { id: 'sand-2', name: 'BLT Sandwich', price: 12.00, category: 'Sandwiches', description: 'Classic bacon, lettuce, and tomato', restaurant_id: '1', available: true },
-  { id: 'sand-3', name: 'Tuna Salad Sandwich', price: 12.00, category: 'Sandwiches', description: 'Fresh tuna salad on your choice of bread', restaurant_id: '1', available: true },
-  { id: 'sand-4', name: 'Jalapeno Pimento Cheese Sandwich', price: 12.00, category: 'Sandwiches', description: 'Spicy pimento cheese sandwich', restaurant_id: '1', available: true },
-  { id: 'sand-5', name: 'Chopped Italian Sandwich', price: 14.00, category: 'Sandwiches', description: 'Italian meats and cheeses with peppers and onions', restaurant_id: '1', available: true },
+  { id: '401', name: 'Chicken Salad Sandwich', price: 12.00, category: 'Sandwiches', description: 'House-made chicken salad with lettuce and tomato', restaurant_id: '1', available: true },
+  { id: '402', name: 'BLT Sandwich', price: 12.00, category: 'Sandwiches', description: 'Classic bacon, lettuce, and tomato', restaurant_id: '1', available: true },
+  { id: '403', name: 'Tuna Salad Sandwich', price: 12.00, category: 'Sandwiches', description: 'Fresh tuna salad on your choice of bread', restaurant_id: '1', available: true },
+  { id: '404', name: 'Jalapeno Pimento Cheese Sandwich', price: 12.00, category: 'Sandwiches', description: 'Spicy pimento cheese sandwich', restaurant_id: '1', available: true },
+  { id: '405', name: 'Chopped Italian Sandwich', price: 14.00, category: 'Sandwiches', description: 'Italian meats and cheeses with peppers and onions', restaurant_id: '1', available: true },
   
   // Bowls
-  { id: 'bowl-1', name: 'Soul Bowl', price: 14.00, category: 'Bowls', description: 'Georgia-made soul food with field peas, collards, and rice', restaurant_id: '1', available: true },
-  { id: 'bowl-2', name: 'Chicken Fajita Keto Bowl', price: 14.00, category: 'Bowls', description: 'Grilled chicken with peppers and onions, keto-friendly', restaurant_id: '1', available: true },
-  { id: 'bowl-3', name: 'Greek Bowl', price: 14.00, category: 'Bowls', description: 'Mediterranean flavors with chicken, feta, and olives', restaurant_id: '1', available: true },
+  { id: '501', name: 'Soul Bowl', price: 14.00, category: 'Bowls', description: 'Georgia-made soul food with field peas, collards, and rice', restaurant_id: '1', available: true },
+  { id: '502', name: 'Chicken Fajita Keto Bowl', price: 14.00, category: 'Bowls', description: 'Grilled chicken with peppers and onions, keto-friendly', restaurant_id: '1', available: true },
+  { id: '503', name: 'Greek Bowl', price: 14.00, category: 'Bowls', description: 'Mediterranean flavors with chicken, feta, and olives', restaurant_id: '1', available: true },
   
   // Vegan
-  { id: 'vegan-1', name: 'Summer Vegan Bowl (Cold)', price: 14.00, category: 'Vegan', description: 'Fresh seasonal vegetables and grains', restaurant_id: '1', available: true },
-  { id: 'vegan-2', name: 'Summer Succotash', price: 10.00, category: 'Vegan', description: 'Traditional Southern succotash, served hot', restaurant_id: '1', available: true },
+  { id: '601', name: 'Summer Vegan Bowl (Cold)', price: 14.00, category: 'Vegan', description: 'Fresh seasonal vegetables and grains', restaurant_id: '1', available: true },
+  { id: '602', name: 'Summer Succotash', price: 10.00, category: 'Vegan', description: 'Traditional Southern succotash, served hot', restaurant_id: '1', available: true },
   
   // Entrees
-  { id: 'entree-1', name: 'Peach Chicken', price: 16.00, category: 'Entrees', description: 'Grilled chicken with Georgia peach glaze, served with 2 sides', restaurant_id: '1', available: true },
-  { id: 'entree-2', name: 'Teriyaki Salmon', price: 16.00, category: 'Entrees', description: 'Fresh salmon with teriyaki glaze, served with 2 sides', restaurant_id: '1', available: true },
-  { id: 'entree-3', name: 'Hamburger Steak', price: 15.00, category: 'Entrees', description: 'Southern-style hamburger steak with gravy, served with 2 sides', restaurant_id: '1', available: true },
-  { id: 'entree-4', name: 'Greek Chicken Thighs', price: 15.00, category: 'Entrees', description: '2 Greek-seasoned chicken thighs over rice', restaurant_id: '1', available: true },
+  { id: '701', name: 'Peach Chicken', price: 16.00, category: 'Entrees', description: 'Grilled chicken with Georgia peach glaze, served with 2 sides', restaurant_id: '1', available: true },
+  { id: '702', name: 'Teriyaki Salmon', price: 16.00, category: 'Entrees', description: 'Fresh salmon with teriyaki glaze, served with 2 sides', restaurant_id: '1', available: true },
+  { id: '703', name: 'Hamburger Steak', price: 15.00, category: 'Entrees', description: 'Southern-style hamburger steak with gravy, served with 2 sides', restaurant_id: '1', available: true },
+  { id: '704', name: 'Greek Chicken Thighs', price: 15.00, category: 'Entrees', description: '2 Greek-seasoned chicken thighs over rice', restaurant_id: '1', available: true },
 ];
 
 export const useMenuItems = () => {
