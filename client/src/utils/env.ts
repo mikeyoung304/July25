@@ -32,9 +32,7 @@ function getEnv(): ImportMetaEnv {
   // In browser/Vite environment, use import.meta.env
   // This will be handled by the polyfill in test environment
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const g = globalThis as any
-    return g.import?.meta?.env || {}
+    return import.meta.env || {}
   } catch {
     return {}
   }

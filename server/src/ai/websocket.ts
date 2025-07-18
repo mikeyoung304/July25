@@ -14,12 +14,18 @@ declare global {
 
 const wsLogger = logger.child({ module: 'ai-websocket' });
 
+// Connection limits
+const MAX_CONNECTIONS_PER_IP = 2;
+const MAX_TOTAL_CONNECTIONS = 100;
+const connectionsByIP = new Map<string, Set<string>>();
+
 interface ExtendedWebSocket extends WebSocket {
   connectionId?: string;
   isAlive?: boolean;
   unacknowledgedChunks?: number;
   totalChunksReceived?: number;
   totalBytesReceived?: number;
+  clientIP?: string;
 }
 
 export function setupAIWebSocket(wss: WebSocketServer): void {
@@ -30,14 +36,39 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
       return;
     }
 
+    // Get client IP
+    const clientIP = request.headers['x-forwarded-for']?.toString().split(',')[0].trim() || 
+                     request.socket.remoteAddress || 
+                     'unknown';
+
+    // Check total connection limit
+    if (wss.clients.size > MAX_TOTAL_CONNECTIONS) {
+      wsLogger.warn(`Connection rejected: Total connection limit exceeded (${wss.clients.size}/${MAX_TOTAL_CONNECTIONS})`);
+      ws.close(1008, 'Server at capacity');
+      return;
+    }
+
+    // Check per-IP connection limit
+    const ipConnections = connectionsByIP.get(clientIP) || new Set();
+    if (ipConnections.size >= MAX_CONNECTIONS_PER_IP) {
+      wsLogger.warn(`Connection rejected: IP ${clientIP} has ${ipConnections.size} connections (max ${MAX_CONNECTIONS_PER_IP})`);
+      ws.close(1008, 'Too many connections from this IP');
+      return;
+    }
+
     const connectionId = randomUUID();
     ws.connectionId = connectionId;
+    ws.clientIP = clientIP;
     ws.isAlive = true;
     ws.unacknowledgedChunks = 0;
     ws.totalChunksReceived = 0;
     ws.totalBytesReceived = 0;
 
-    wsLogger.info(`AI WebSocket connected: ${connectionId}`);
+    // Track connection by IP
+    ipConnections.add(connectionId);
+    connectionsByIP.set(clientIP, ipConnections);
+
+    wsLogger.info(`AI WebSocket connected: ${connectionId} from ${clientIP}`);
 
     // Initialize connection in AI service
     aiService.handleVoiceConnection(ws, connectionId);
@@ -125,7 +156,18 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
 
     // Handle disconnect
     ws.on('close', () => {
-      wsLogger.info(`AI WebSocket disconnected: ${connectionId}`);
+      wsLogger.info(`AI WebSocket disconnected: ${connectionId} from ${ws.clientIP}`);
+      
+      // Clean up IP tracking
+      if (ws.clientIP && ws.connectionId) {
+        const ipConnections = connectionsByIP.get(ws.clientIP);
+        if (ipConnections) {
+          ipConnections.delete(ws.connectionId);
+          if (ipConnections.size === 0) {
+            connectionsByIP.delete(ws.clientIP);
+          }
+        }
+      }
       
       // Update active connections metric
       if (global.voiceMetrics) {

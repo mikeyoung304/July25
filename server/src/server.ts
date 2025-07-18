@@ -25,32 +25,41 @@ validateEnvironment();
 
 const app: Express = express();
 const httpServer = createServer(app);
-export const wss = new WebSocketServer({ server: httpServer });
+export const wss = new WebSocketServer({ 
+  server: httpServer,
+  perMessageDeflate: false, // Disable compression for better performance
+  maxPayload: 5 * 1024 * 1024, // 5MB max payload
+  clientTracking: true,
+});
 
 // Set WebSocket server for OrdersService
 OrdersService.setWebSocketServer(wss);
 
 // Global middleware
+// Configure helmet with appropriate CSP for each environment
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline needed for Tailwind
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:"], // Removed https: for stricter CSP
-      connectSrc: ["'self'", "ws://localhost:*", "wss://localhost:*"], // Allow WebSocket
-      fontSrc: ["'self'"], // Only self-hosted fonts
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
-    },
-  },
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' 
+    ? {
+      // Production: Strict CSP
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline needed for Tailwind
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'", "wss:"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    }
+    : false, // Development: Disable CSP to avoid conflicts with Vite
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
     preload: true,
   },
-}));
+}))
 
 // CORS configuration with stricter settings
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
