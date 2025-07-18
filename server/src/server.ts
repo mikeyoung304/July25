@@ -15,7 +15,7 @@ import { setupAIWebSocket } from './ai/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
-import { metricsMiddleware } from './middleware/metrics';
+import { metricsMiddleware, register } from './middleware/metrics';
 
 // Load environment variables
 dotenv.config();
@@ -87,8 +87,16 @@ app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(requestLogger);
 
-// Metrics endpoint (before rate limiting)
+// Metrics middleware for tracking (not serving metrics)
 app.use(metricsMiddleware);
+
+// Dedicated metrics endpoint
+app.get('/metrics', (req, res) => {
+  res.set('Content-Type', register.contentType);
+  register.metrics().then(metrics => {
+    res.end(metrics);
+  });
+});
 
 // Rate limiting
 app.use('/api/', apiLimiter);

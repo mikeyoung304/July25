@@ -3,6 +3,7 @@ import { logger } from '../utils/logger';
 import { randomUUID } from 'crypto';
 import { WebSocketServer } from 'ws';
 import { broadcastOrderUpdate, broadcastNewOrder } from '../utils/websocket';
+import { menuIdMapper } from './menu-id-mapper';
 
 const ordersLogger = logger.child({ service: 'OrdersService' });
 
@@ -73,8 +74,20 @@ export class OrdersService {
     orderData: CreateOrderRequest
   ): Promise<Order> {
     try {
+      // Convert external IDs to UUIDs for items
+      const itemsWithUuids = await Promise.all(
+        orderData.items.map(async (item) => {
+          const uuid = await menuIdMapper.getUuid(item.id);
+          if (uuid) {
+            return { ...item, id: uuid };
+          }
+          // If no mapping found, keep original ID (might be UUID already)
+          return item;
+        })
+      );
+
       // Calculate totals
-      const subtotal = orderData.items.reduce((total, item) => {
+      const subtotal = itemsWithUuids.reduce((total, item) => {
         const itemTotal = item.price * item.quantity;
         const modifiersTotal = (item.modifiers || []).reduce(
           (modTotal, mod) => modTotal + mod.price * item.quantity,
@@ -95,7 +108,7 @@ export class OrdersService {
         order_number: orderNumber,
         type: orderData.type || 'kiosk',
         status: 'pending',
-        items: orderData.items,
+        items: itemsWithUuids,
         subtotal,
         tax,
         total_amount: totalAmount,

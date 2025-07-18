@@ -2,6 +2,7 @@ import NodeCache from 'node-cache';
 import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
 import { getConfig } from '../config/environment';
+import { menuIdMapper } from './menu-id-mapper';
 
 const config = getConfig();
 const menuCache = new NodeCache({ stdTTL: config.cache.ttlSeconds });
@@ -83,9 +84,13 @@ export class MenuService {
 
       if (itemError) throw itemError;
 
+      // Map items and convert to external IDs
+      const mappedItems = this.mapItems(items || []);
+      const itemsWithExternalIds = await menuIdMapper.convertToExternalIds(mappedItems);
+
       const response: MenuResponse = {
         categories: this.mapCategories(categories || []),
-        items: this.mapItems(items || []),
+        items: itemsWithExternalIds,
       };
 
       menuCache.set(cacheKey, response);
@@ -120,9 +125,10 @@ export class MenuService {
       if (error) throw error;
 
       const items = this.mapItems(data || []);
-      menuCache.set(cacheKey, items);
+      const itemsWithExternalIds = await menuIdMapper.convertToExternalIds(items);
+      menuCache.set(cacheKey, itemsWithExternalIds);
 
-      return items;
+      return itemsWithExternalIds;
     } catch (error) {
       this.logger.error('Failed to fetch items', { error, restaurantId });
       throw error;
