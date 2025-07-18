@@ -34,6 +34,8 @@ export interface MenuItem {
   price: number
   category: string
   available: boolean
+  imageUrl?: string
+  calories?: number
   modifiers?: {
     id: string
     name: string
