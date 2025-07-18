@@ -8,13 +8,13 @@ import { CartDrawer } from './CartDrawer';
 import { ItemDetailModal } from './ItemDetailModal';
 import { Cart, CartItem as CartItemType } from '../types';
 import { MenuItem } from '../../menu/types';
-import { useRestaurant } from '../../restaurant/hooks/useRestaurant';
+import { useRestaurant } from '@/core/restaurant-hooks';
 
 const TAX_RATE = 0.0825; // 8.25% tax rate
 
 export const CustomerOrderPage: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
-  const { setRestaurantId } = useRestaurant();
+  const { setRestaurant } = useRestaurant();
   
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,9 +39,14 @@ export const CustomerOrderPage: React.FC = () => {
   // Set restaurant context
   useEffect(() => {
     if (restaurantId) {
-      setRestaurantId(restaurantId);
+      setRestaurant({
+        id: restaurantId,
+        name: 'Restaurant',
+        timezone: 'UTC',
+        currency: 'USD'
+      });
     }
-  }, [restaurantId, setRestaurantId]);
+  }, [restaurantId, setRestaurant]);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {

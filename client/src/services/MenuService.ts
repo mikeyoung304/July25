@@ -1,4 +1,4 @@
-import { apiClient } from './api/client';
+import { httpClient } from './http';
 import { MenuItem } from '@/modules/menu/types';
 
 export interface MenuResponse {
@@ -9,7 +9,7 @@ export interface MenuResponse {
 export class MenuService {
   static async getMenuItems(restaurantId: string): Promise<MenuResponse> {
     try {
-      const response = await apiClient.get<{ data: MenuItem[] }>('/menu', {
+      const response = await httpClient.get<{ data: MenuItem[] }>('/menu', {
         headers: {
           'X-Restaurant-ID': restaurantId
         }
@@ -33,7 +33,7 @@ export class MenuService {
 
   static async getMenuItem(restaurantId: string, itemId: string): Promise<MenuItem | null> {
     try {
-      const response = await apiClient.get<{ data: MenuItem }>(`/menu/${itemId}`, {
+      const response = await httpClient.get<{ data: MenuItem }>(`/menu/${itemId}`, {
         headers: {
           'X-Restaurant-ID': restaurantId
         }
@@ -48,7 +48,7 @@ export class MenuService {
 
   static async searchMenuItems(restaurantId: string, query: string): Promise<MenuItem[]> {
     try {
-      const response = await apiClient.get<{ data: MenuItem[] }>('/menu/search', {
+      const response = await httpClient.get<{ data: MenuItem[] }>('/menu/search', {
         params: { q: query },
         headers: {
           'X-Restaurant-ID': restaurantId

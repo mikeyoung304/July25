@@ -1,5 +1,5 @@
-import { apiClient } from './api/client';
-import { Order, OrderItem } from '@/types/order';
+import { httpClient } from './http';
+import { Order, OrderItem } from '@/types/common';
 import { Cart } from '@/modules/order-system/types';
 
 export interface CreateOrderRequest {
@@ -34,7 +34,7 @@ export class OrderService {
     orderData: CreateOrderRequest
   ): Promise<Order> {
     try {
-      const response = await apiClient.post<{ data: Order }>('/orders', orderData, {
+      const response = await httpClient.post<{ data: Order }>('/orders', orderData, {
         headers: {
           'X-Restaurant-ID': restaurantId
         }
@@ -57,7 +57,7 @@ export class OrderService {
     amount: number
   ): Promise<PaymentIntentResponse> {
     try {
-      const response = await apiClient.post<{ data: PaymentIntentResponse }>(
+      const response = await httpClient.post<{ data: PaymentIntentResponse }>(
         '/payments/initiate',
         { orderId, amount },
         {
@@ -84,7 +84,7 @@ export class OrderService {
     paymentId: string
   ): Promise<OrderConfirmationResponse> {
     try {
-      const response = await apiClient.post<{ data: OrderConfirmationResponse }>(
+      const response = await httpClient.post<{ data: OrderConfirmationResponse }>(
         '/payments/confirm',
         { orderId, paymentId },
         {
@@ -107,7 +107,7 @@ export class OrderService {
 
   static async getOrder(restaurantId: string, orderId: string): Promise<Order> {
     try {
-      const response = await apiClient.get<{ data: Order }>(`/orders/${orderId}`, {
+      const response = await httpClient.get<{ data: Order }>(`/orders/${orderId}`, {
         headers: {
           'X-Restaurant-ID': restaurantId
         }
@@ -130,7 +130,7 @@ export class OrderService {
     status: string
   ): Promise<Order> {
     try {
-      const response = await apiClient.patch<{ data: Order }>(
+      const response = await httpClient.patch<{ data: Order }>(
         `/orders/${orderId}/status`,
         { status },
         {
@@ -154,15 +154,12 @@ export class OrderService {
   // Helper to convert cart to order request
   static cartToOrderRequest(cart: Cart, orderType: CreateOrderRequest['orderType']): CreateOrderRequest {
     const items: OrderItem[] = cart.items.map(cartItem => ({
-      menu_item_id: cartItem.menuItemId,
+      id: cartItem.id,
+      name: cartItem.name,
       quantity: cartItem.quantity,
-      modifiers: cartItem.modifiers?.map(mod => ({
-        id: mod.id,
-        name: mod.name,
-        price: mod.price
-      })),
-      special_instructions: cartItem.specialInstructions,
-      price: cartItem.price + (cartItem.modifiers?.reduce((sum, mod) => sum + mod.price, 0) || 0)
+      price: cartItem.price + (cartItem.modifiers?.reduce((sum, mod) => sum + mod.price, 0) || 0),
+      modifiers: cartItem.modifiers?.map(mod => mod.name),
+      notes: cartItem.specialInstructions
     }));
 
     return {
