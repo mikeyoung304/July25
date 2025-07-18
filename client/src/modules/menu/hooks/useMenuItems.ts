@@ -3,30 +3,49 @@ import { MenuItem } from '../types';
 import { MenuService } from '@/services/MenuService';
 import { useRestaurant } from '@/core/restaurant-hooks';
 
-// Mock menu data for development fallback
-const mockMenuItems: MenuItem[] = [
-  // Burgers
-  { id: '1', name: 'Classic Burger', price: 12.99, category: 'burgers', description: 'Beef patty with lettuce, tomato, onion', restaurant_id: '1', available: true, imageUrl: '/images/classic-burger.jpg', calories: 650 },
-  { id: '2', name: 'Bacon Burger', price: 14.99, category: 'burgers', description: 'Classic burger with crispy bacon', restaurant_id: '1', available: true, imageUrl: '/images/bacon-burger.jpg', calories: 750 },
-  { id: '3', name: 'Cheeseburger', price: 13.99, category: 'burgers', description: 'Classic burger with american cheese', restaurant_id: '1', available: true, imageUrl: '/images/cheeseburger.jpg', calories: 700 },
-  { id: '4', name: 'Veggie Burger', price: 11.99, category: 'burgers', description: 'Plant-based patty with fresh vegetables', restaurant_id: '1', available: true, imageUrl: '/images/veggie-burger.jpg', calories: 450 },
+// Grow Fresh Local Food actual menu items
+const growFreshMenuItems: MenuItem[] = [
+  // Beverages
+  { id: 'bev-1', name: 'Sweet Tea w. Lemon', price: 3.00, category: 'Beverages', description: 'Southern-style sweet tea with fresh lemon', restaurant_id: '1', available: true },
+  { id: 'bev-2', name: 'Unsweet Tea w. Lemon', price: 3.00, category: 'Beverages', description: 'Fresh brewed tea with lemon', restaurant_id: '1', available: true },
+  { id: 'bev-3', name: 'Lemonade', price: 3.00, category: 'Beverages', description: 'Fresh-squeezed lemonade', restaurant_id: '1', available: true },
   
-  // Sides
-  { id: '5', name: 'French Fries', price: 3.99, category: 'sides', description: 'Crispy golden fries', restaurant_id: '1', available: true, imageUrl: '/images/fries.jpg', calories: 320 },
-  { id: '6', name: 'Onion Rings', price: 4.99, category: 'sides', description: 'Beer-battered onion rings', restaurant_id: '1', available: true, imageUrl: '/images/onion-rings.jpg', calories: 380 },
-  { id: '7', name: 'Side Salad', price: 4.99, category: 'sides', description: 'Fresh mixed greens', restaurant_id: '1', available: true, imageUrl: '/images/salad.jpg', calories: 150 },
+  // Starters
+  { id: 'start-1', name: 'Summer Sampler', price: 16.00, category: 'Starters', description: 'A selection of our favorite seasonal starters', restaurant_id: '1', available: true },
+  { id: 'start-2', name: 'Jalapeno Pimento Bites', price: 10.00, category: 'Starters', description: 'Spicy pimento cheese bites with fresh jalapeños', restaurant_id: '1', available: true },
+  { id: 'start-3', name: 'Peach & Prosciutto Caprese', price: 12.00, category: 'Starters', description: 'Fresh Georgia peaches with prosciutto and mozzarella', restaurant_id: '1', available: true },
+  { id: 'start-4', name: 'Watermelon Tataki', price: 10.00, category: 'Starters', description: 'Fresh watermelon with a savory twist', restaurant_id: '1', available: true },
+  { id: 'start-5', name: 'Tea Sandwiches', price: 10.00, category: 'Starters', description: 'Assorted finger sandwiches perfect for sharing', restaurant_id: '1', available: true },
   
-  // Drinks
-  { id: '8', name: 'Coca Cola', price: 2.99, category: 'drinks', description: 'Classic Coke', restaurant_id: '1', available: true, imageUrl: '/images/coke.jpg', calories: 140 },
-  { id: '9', name: 'Diet Coke', price: 2.99, category: 'drinks', description: 'Sugar-free cola', restaurant_id: '1', available: true, imageUrl: '/images/diet-coke.jpg', calories: 0 },
-  { id: '10', name: 'Sprite', price: 2.99, category: 'drinks', description: 'Lemon-lime soda', restaurant_id: '1', available: true, imageUrl: '/images/sprite.jpg', calories: 140 },
-  { id: '11', name: 'Orange Juice', price: 3.99, category: 'drinks', description: 'Fresh squeezed', restaurant_id: '1', available: true, imageUrl: '/images/orange-juice.jpg', calories: 110 },
-  { id: '12', name: 'Coffee', price: 2.49, category: 'drinks', description: 'Hot brewed coffee', restaurant_id: '1', available: true, imageUrl: '/images/coffee.jpg', calories: 5 },
+  // Salads
+  { id: 'salad-1', name: 'Summer Salad', price: 12.00, category: 'Salads', description: 'Fresh seasonal greens with summer vegetables', restaurant_id: '1', available: true },
+  { id: 'salad-2', name: 'Greek Salad', price: 12.00, category: 'Salads', description: 'Crisp greens with feta, olives, and Greek dressing', restaurant_id: '1', available: true },
+  { id: 'salad-3', name: 'Peach Arugula Salad', price: 12.00, category: 'Salads', description: 'Peppery arugula with fresh Georgia peaches', restaurant_id: '1', available: true },
+  { id: 'salad-4', name: 'Tuna Salad', price: 14.00, category: 'Salads', description: 'House-made tuna salad on fresh greens', restaurant_id: '1', available: true },
+  { id: 'salad-5', name: "Mom's Chicken Salad", price: 13.00, category: 'Salads', description: 'Traditional chicken salad with grapes and pecans', restaurant_id: '1', available: true },
+  { id: 'salad-6', name: 'Grilled Chicken Salad', price: 14.00, category: 'Salads', description: 'Grilled chicken breast on mixed greens', restaurant_id: '1', available: true },
   
-  // Desserts
-  { id: '13', name: 'Chocolate Shake', price: 5.99, category: 'desserts', description: 'Rich chocolate milkshake', restaurant_id: '1', available: true, imageUrl: '/images/chocolate-shake.jpg', calories: 580 },
-  { id: '14', name: 'Vanilla Shake', price: 5.99, category: 'desserts', description: 'Classic vanilla milkshake', restaurant_id: '1', available: true, imageUrl: '/images/vanilla-shake.jpg', calories: 550 },
-  { id: '15', name: 'Apple Pie', price: 3.99, category: 'desserts', description: 'Warm apple pie slice', restaurant_id: '1', available: true, imageUrl: '/images/apple-pie.jpg', calories: 320 },
+  // Sandwiches
+  { id: 'sand-1', name: 'Chicken Salad Sandwich', price: 12.00, category: 'Sandwiches', description: 'House-made chicken salad with lettuce and tomato', restaurant_id: '1', available: true },
+  { id: 'sand-2', name: 'BLT Sandwich', price: 12.00, category: 'Sandwiches', description: 'Classic bacon, lettuce, and tomato', restaurant_id: '1', available: true },
+  { id: 'sand-3', name: 'Tuna Salad Sandwich', price: 12.00, category: 'Sandwiches', description: 'Fresh tuna salad on your choice of bread', restaurant_id: '1', available: true },
+  { id: 'sand-4', name: 'Jalapeno Pimento Cheese Sandwich', price: 12.00, category: 'Sandwiches', description: 'Spicy pimento cheese sandwich', restaurant_id: '1', available: true },
+  { id: 'sand-5', name: 'Chopped Italian Sandwich', price: 14.00, category: 'Sandwiches', description: 'Italian meats and cheeses with peppers and onions', restaurant_id: '1', available: true },
+  
+  // Bowls
+  { id: 'bowl-1', name: 'Soul Bowl', price: 14.00, category: 'Bowls', description: 'Georgia-made soul food with field peas, collards, and rice', restaurant_id: '1', available: true },
+  { id: 'bowl-2', name: 'Chicken Fajita Keto Bowl', price: 14.00, category: 'Bowls', description: 'Grilled chicken with peppers and onions, keto-friendly', restaurant_id: '1', available: true },
+  { id: 'bowl-3', name: 'Greek Bowl', price: 14.00, category: 'Bowls', description: 'Mediterranean flavors with chicken, feta, and olives', restaurant_id: '1', available: true },
+  
+  // Vegan
+  { id: 'vegan-1', name: 'Summer Vegan Bowl (Cold)', price: 14.00, category: 'Vegan', description: 'Fresh seasonal vegetables and grains', restaurant_id: '1', available: true },
+  { id: 'vegan-2', name: 'Summer Succotash', price: 10.00, category: 'Vegan', description: 'Traditional Southern succotash, served hot', restaurant_id: '1', available: true },
+  
+  // Entrees
+  { id: 'entree-1', name: 'Peach Chicken', price: 16.00, category: 'Entrees', description: 'Grilled chicken with Georgia peach glaze, served with 2 sides', restaurant_id: '1', available: true },
+  { id: 'entree-2', name: 'Teriyaki Salmon', price: 16.00, category: 'Entrees', description: 'Fresh salmon with teriyaki glaze, served with 2 sides', restaurant_id: '1', available: true },
+  { id: 'entree-3', name: 'Hamburger Steak', price: 15.00, category: 'Entrees', description: 'Southern-style hamburger steak with gravy, served with 2 sides', restaurant_id: '1', available: true },
+  { id: 'entree-4', name: 'Greek Chicken Thighs', price: 15.00, category: 'Entrees', description: '2 Greek-seasoned chicken thighs over rice', restaurant_id: '1', available: true },
 ];
 
 export const useMenuItems = () => {
@@ -47,14 +66,14 @@ export const useMenuItems = () => {
             setItems(response.items);
             setError(null);
           } catch (apiError) {
-            // Fall back to mock data in development
-            console.warn('API call failed, using mock data:', apiError);
-            setItems(mockMenuItems);
+            // Fall back to Grow Fresh menu in development
+            console.warn('API call failed, using Grow Fresh menu:', apiError);
+            setItems(growFreshMenuItems);
             setError(null);
           }
         } else {
-          // Use mock data if no restaurant ID
-          setItems(mockMenuItems);
+          // Use Grow Fresh menu if no restaurant ID
+          setItems(growFreshMenuItems);
           setError(null);
         }
       } catch (err) {

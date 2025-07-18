@@ -29,8 +29,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
           <button
             className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors duration-200 ${
               selectedCategory === null
-                ? 'bg-macon-teal text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-green-50'
             }`}
             onClick={() => onCategoryChange(null)}
             aria-pressed={selectedCategory === null}
@@ -43,8 +43,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
               key={category}
               className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors duration-200 ${
                 selectedCategory === category
-                  ? 'bg-macon-teal text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-green-50'
               }`}
               onClick={() => onCategoryChange(category)}
               aria-pressed={selectedCategory === category}
