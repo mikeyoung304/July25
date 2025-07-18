@@ -44,7 +44,14 @@ const promBundleMiddleware = promBundle({
       prefix: 'rebuild_',
     },
   },
+  // CRITICAL: Don't auto-register /metrics route
+  autoregister: false,
+  // Use a specific endpoint for metrics
+  metricsPath: '/metrics',
 });
 
-// Export the middleware function
-export const metricsMiddleware = promBundleMiddleware.metricsMiddleware as any;
+// Export the middleware function that tracks HTTP metrics
+export const metricsMiddleware = promBundleMiddleware;
+
+// Export register for metrics endpoint
+export { register };
