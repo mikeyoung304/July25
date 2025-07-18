@@ -4,7 +4,8 @@
 > See [ARCHITECTURE.md](./ARCHITECTURE.md) for details
 
 > ✅ **QUALITY**: TypeScript 0 errors | ESLint 30 warnings | Tests passing  
-> 🔒 **SECURITY**: CSP compliant - no external dependencies (fonts self-hosted)
+> 🔒 **SECURITY**: CSP compliant - no external dependencies (fonts self-hosted)  
+> 🆕 **UPDATE**: ID mapping system implemented for consistent order flow
 
 A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering, real-time kitchen management, and a unified backend architecture.
 
@@ -117,17 +118,36 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 
+## 🔢 Menu ID Mapping System
+
+The system uses numeric string IDs (101, 201, etc.) for frontend and voice ordering, while the database uses UUIDs. An automatic mapping service handles the conversion:
+
+**ID Ranges by Category**:
+- Beverages: 101-199
+- Starters: 201-299
+- Salads: 301-399
+- Sandwiches: 401-499
+- Bowls: 501-599
+- Vegan: 601-699
+- Entrees: 701-799
+
+To seed the menu with proper ID mappings:
+```bash
+cd server && npx tsx scripts/seed-menu-mapped.ts
+```
+
 ## 🎤 Voice Ordering Setup
 
 1. Start the system: `npm run dev`
-2. Upload menu data: `cd server && npm run upload:menu`
-3. Navigate to: http://localhost:5173/kiosk
-4. Click microphone and speak naturally
+2. Seed the menu: `cd server && npx tsx scripts/seed-menu-mapped.ts`
+3. Upload to AI: `cd server && npm run upload:menu`
+4. Navigate to: http://localhost:5173/kiosk
+5. Click microphone and speak naturally
 
 Example commands:
 - "I'd like a soul bowl please"
 - "Can I get mom's chicken salad"
-- "Two green goddess salads"
+- "Two sweet teas with lemon"
 
 ## 🧪 Testing
 
@@ -140,9 +160,12 @@ npm run test:coverage
 
 # Run specific module
 npm test -- --testNamePattern="OrderService"
+
+# Run menu ID mapper tests
+cd server && npm test tests/services/menu-id-mapper.test.ts
 ```
 
-Current test coverage: ~85% with 229 tests passing
+Current test coverage: ~85% with 238 tests passing (including new ID mapper tests)
 
 ## 🚀 Deployment
 

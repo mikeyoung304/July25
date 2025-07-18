@@ -56,7 +56,7 @@ class MenuIdMapper {
         return { 
           ...item, 
           id: match[1],
-          description: item.description.replace(/\s*\[ID:\d+\]/, '')
+          description: item.description?.replace(/\s*\[ID:\d+\]/, '') || item.description
         };
       }
       
