@@ -7,10 +7,10 @@ export interface CreateOrderRequest {
   customerName?: string;
   customerPhone?: string;
   customerEmail?: string;
-  orderType: 'dine_in' | 'takeout' | 'delivery';
+  orderType: 'dine-in' | 'takeout' | 'delivery' | 'drive-thru';
   paymentMethod?: 'cash' | 'card' | 'online';
   specialInstructions?: string;
-  tableNumber?: number;
+  tableNumber?: string;
 }
 
 export interface PaymentIntentResponse {
