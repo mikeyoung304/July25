@@ -10,4 +10,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    // Ensure HMR works properly
+    hmr: {
+      port: 5173
+    }
+  }
 })
