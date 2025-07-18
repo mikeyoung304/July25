@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MenuItem } from '../types';
 import { MenuService } from '@/services/MenuService';
-import { useRestaurant } from '@/modules/restaurant/hooks/useRestaurant';
+import { useRestaurant } from '@/core/restaurant-hooks';
 
 // Mock menu data for development fallback
 const mockMenuItems: MenuItem[] = [
@@ -33,17 +33,17 @@ export const useMenuItems = () => {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const { restaurantId } = useRestaurant();
+  const { restaurant } = useRestaurant();
 
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
         setLoading(true);
         
-        if (restaurantId) {
+        if (restaurant?.id) {
           // Try to fetch from API
           try {
-            const response = await MenuService.getMenuItems(restaurantId);
+            const response = await MenuService.getMenuItems(restaurant.id);
             setItems(response.items);
             setError(null);
           } catch (apiError) {
@@ -65,7 +65,7 @@ export const useMenuItems = () => {
     };
 
     fetchMenuItems();
-  }, [restaurantId]);
+  }, [restaurant?.id]);
 
   return { items, loading, error };
 };
