@@ -1,0 +1,85 @@
+{
+  "architecture": [
+    "./ARCHITECTURE.md",
+    "./CURRENT_ARCHITECTURE.md",
+    "./docs/FULLSTACK_ARCHITECTURE.md",
+    "./docs/MODULAR_ARCHITECTURE.md",
+    "./docs/MODULAR_REFINEMENT_PLAN.md",
+    "./TEST_ARCHITECTURE.md",
+    "./client/src/services/transcription/README.md",
+    "./server/README.md"
+  ],
+  "voice": [
+    "./docs/VOICE_ORDERING_GUIDE.md",
+    "./docs/archive/pre-backend/voice-docs/QUICK_START_VOICE_ORDERING.md",
+    "./docs/archive/pre-backend/voice-docs/VOICE_ORDERING_COMPLETE.md",
+    "./docs/archive/pre-backend/voice-docs/VOICE_ORDERING_DEBUG.md",
+    "./docs/archive/pre-backend/voice-docs/VOICE_ORDERING_DEBUGGED.md",
+    "./docs/archive/pre-backend/voice-docs/VOICE_ORDERING_FIXES_CONFIRMED.md",
+    "./docs/archive/pre-backend/voice-docs/VOICE_ORDERING_GUIDE.md",
+    "./docs/archive/pre-backend/voice-docs/VOICE_ORDERING_STATUS.md"
+  ],
+  "migration": [
+    "./MIGRATION_REPORT.md",
+    "./MIGRATION_FINAL_STEPS.md",
+    "./docs/archive/MIGRATION_TO_FULLSTACK.md",
+    "./docs/archive/migration-notes.md",
+    "./supabase/MIGRATION_GUIDE.md"
+  ],
+  "system-state": [
+    "./SYSTEM_STATE.md",
+    "./AUDIT_SNAPSHOT.md",
+    "./docs/archive/pre-backend/PROJECT_JANUS_COMPLETION_REPORT.md",
+    "./docs/archive/pre-backend/PROJECT_JANUS_PHASE1_COMPLETE.md",
+    "./docs/IMPLEMENTATION_SUMMARY.md",
+    "./docs/VALIDATION_REPORT.md",
+    "./docs/MCP-STATUS.md"
+  ],
+  "test": [
+    "./docs/FUNCTIONAL_TESTING_CHECKLIST.md",
+    "./.claude/analysis/plate-clean-test-analysis.md"
+  ],
+  "monitoring": [
+    "./MONITORING.md",
+    "./client/src/modules/kitchen/PERFORMANCE-FIX.md",
+    "./docs/AI_COST_PROJECTIONS.md"
+  ],
+  "ops": [
+    "./DEPLOYMENT.md",
+    "./DEVELOPMENT.md",
+    "./docs/QUICK_START.md",
+    "./server/QUICK_START_GROW_FRESH.md",
+    "./docs/BACKEND_GUIDE.md",
+    "./docs/MCP-SETUP.md",
+    "./docs/MCP-USAGE-GUIDE.md",
+    "./FLOOR_PLAN_SETUP.md",
+    "./docs/archive/pre-backend/MaconAI_Dev_Protocol.md",
+    "./client/public/ignition-animation/README.md",
+    "./dist/ignition-animation/README.md"
+  ],
+  "analysis": [
+    "./DOCUMENTATION_DEBT_ANALYSIS.md",
+    "./COMMIT_BY_COMMIT_ANALYSIS.md",
+    "./docs/CODE_ANALYSIS.md",
+    "./docs/DOCUMENTATION_AUDIT_REPORT.md",
+    "./DOCUMENTATION_UPDATE_REPORT.md",
+    "./docs/archive/pre-backend/FRONTEND_API_ANALYSIS.md",
+    "./docs/LEAN_CODEBASE_CHECKLIST.md"
+  ],
+  "backlog": [
+    "./ORDER_SYSTEM_ALIGNMENT.md",
+    "./API_ENDPOINTS.md",
+    "./docs/archive/pre-backend/API_INTEGRATION.md",
+    "./docs/archive/pre-backend/API_REQUIREMENTS_FOR_LUIS.md",
+    "./CONTRIBUTING_AI.md",
+    "./docs/ACCESSIBILITY.md",
+    "./.claude/commands/m-project-cleanup.md",
+    "./.claude/commands/new-feature.md",
+    "./.claude/commands/README.md",
+    "./docs/DOCUMENTATION_INDEX.md",
+    "./docs/archive/pre-backend/ARCHIVED_README.md",
+    "./README.md",
+    "./claude.md",
+    "./CHANGELOG.md"
+  ]
+}

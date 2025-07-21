@@ -25,7 +25,9 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@rebuild/shared": ["../shared/types"],
+      "@rebuild/shared/*": ["../shared/types/*"]
     }
   },
   "include": ["src"]

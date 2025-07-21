@@ -1,5 +1,14 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Get current directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load environment variables from root directory
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 async function uploadMenuToAI() {
   console.log('📤 Uploading menu to AI Gateway...');

@@ -1,9 +1,17 @@
+// IMPORTANT: Load environment variables FIRST before any other imports
+// This ensures all services have access to env vars during initialization
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load from root .env file explicitly
+dotenv.config({ path: path.join(__dirname, '../../.env') });
+
+// Now import everything else
 import express, { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
-import dotenv from 'dotenv';
 import { logger } from './utils/logger';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
@@ -16,9 +24,6 @@ import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
-
-// Load environment variables
-dotenv.config();
 
 // Validate required environment variables
 validateEnvironment();

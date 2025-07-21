@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MenuItem } from '../types';
-import { MenuService } from '@/services/MenuService';
+import { menuService } from '@/services';
 import { useRestaurant } from '@/core/restaurant-hooks';
 
 // Grow Fresh Local Food actual menu items
@@ -63,8 +63,8 @@ export const useMenuItems = () => {
         if (restaurant?.id) {
           // Try to fetch from API
           try {
-            const response = await MenuService.getMenuItems(restaurant.id);
-            setItems(response.items);
+            const items = await menuService.getMenuItems();
+            setItems(items);
             setError(null);
           } catch (apiError) {
             // Fall back to Grow Fresh menu in development

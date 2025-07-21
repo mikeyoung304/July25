@@ -9,8 +9,8 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load environment variables
-dotenv.config({ path: path.join(__dirname, '../.env') });
+// Load environment variables from root directory
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,

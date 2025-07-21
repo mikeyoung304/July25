@@ -93,8 +93,123 @@ Luis evaluated microservices architecture and determined:
 ## Review Date
 This decision will be reviewed if we reach 10,000+ concurrent users or require independent scaling of AI services. Until then, this architecture is NON-NEGOTIABLE.
 
+## API Structure (From Unified Backend)
+
+All endpoints served from port 3001:
+
+### Standard REST API
+```
+GET    /api/v1/health
+GET    /api/v1/status
+GET    /api/v1/menu
+POST   /api/v1/orders
+PATCH  /api/v1/orders/:id/status
+GET    /api/v1/tables
+```
+
+### AI/Voice Endpoints
+```
+POST   /api/v1/ai/transcribe
+POST   /api/v1/ai/chat
+POST   /api/v1/ai/parse-order
+POST   /api/v1/ai/menu-upload
+```
+
+### WebSocket
+```
+ws://localhost:3001          # Development
+wss://production.com         # Production
+```
+
+## Security Architecture
+
+### Authentication Flow
+1. User authenticates via Supabase Auth
+2. Frontend receives JWT token
+3. Token sent with API requests
+4. Backend validates with Supabase
+5. RLS policies enforce access
+
+### Multi-tenancy
+- Restaurant ID in JWT claims
+- X-Restaurant-ID header
+- Database RLS policies
+- Service-level validation
+
+## Production Deployment
+
+```
+┌─────────────────┐
+│   CloudFlare    │
+│   CDN/WAF       │
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│   Load Balancer │
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│   Node.js       │
+│   Server        │
+│   (Port 3001)   │
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│   Supabase      │
+│   Cloud         │
+└─────────────────┘
+```
+
+## Shared Types Module
+
+### Decision
+To ensure type consistency across client and server, we created a shared types module.
+
+### Implementation
+```
+shared/
+├── types/
+│   ├── order.types.ts     # Order, OrderItem, OrderStatus types
+│   ├── menu.types.ts      # MenuItem, MenuCategory types
+│   ├── customer.types.ts  # Customer, CustomerAddress types
+│   ├── table.types.ts     # Table, TableStatus types
+│   ├── websocket.types.ts # WebSocket message types
+│   └── index.ts          # Central export
+├── package.json
+└── tsconfig.json
+```
+
+### Benefits
+1. **Single Source of Truth**: No more duplicate type definitions
+2. **Type Safety**: Guaranteed consistency across client/server boundary
+3. **Better IDE Support**: Auto-complete and type checking everywhere
+4. **Easier Maintenance**: Update types in one place
+
+### Usage
+```typescript
+// Client or Server
+import { Order, MenuItem, WebSocketMessage } from '@rebuild/shared';
+```
+
+## Migration Timeline
+
+### Phase 1: Microservices to Unified (July 2024)
+- **Before**: Separate AI Gateway (3002) + API Backend (3001)
+- **Decision**: "For simplicity, let's put it all in the same backend" - Luis
+- **After**: Single backend service on port 3001
+
+### Phase 2: Docker to Cloud (July 2025)
+- **Before**: Local Supabase via Docker
+- **Decision**: Simplify development with cloud-only approach
+- **After**: Direct cloud Supabase connection
+
+### Phase 3: Type Consolidation (January 2025)
+- **Before**: Duplicate type definitions in client and server
+- **Decision**: Create shared types module for consistency
+- **After**: Single source of truth for all types
+
 ---
 
-**Last Updated**: July 2024  
+**Last Updated**: January 2025
 **Decision Maker**: Luis, Backend Architect  
 **Status**: ENFORCED - This is the law

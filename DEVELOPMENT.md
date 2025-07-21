@@ -114,7 +114,10 @@ rebuild-6.0/
 │   │   ├── services/
 │   │   └── ai/      # AI/Voice functionality
 │   └── package.json
-└── package.json     # Root orchestration
+├── shared/          # Shared types and utilities
+│   ├── types/       # TypeScript type definitions
+│   └── package.json
+└── package.json     # Root orchestration with workspaces
 ```
 
 ## Troubleshooting
@@ -137,6 +140,7 @@ lsof -ti:5173 | xargs kill -9
 ### Voice Ordering Not Working
 - Verify your OpenAI API key is set correctly
 - Check that menu data has been uploaded (`npm run upload:menu`)
+- Note: Environment variables must load before service initialization (handled in server.ts)
 - Ensure microphone permissions are granted in your browser
 
 ## Additional Resources
