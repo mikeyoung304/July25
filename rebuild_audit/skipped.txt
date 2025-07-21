@@ -1,0 +1,24 @@
+./tests/e2e/voice-control.e2e.test.ts:47:      test.skip()
+./server/dist/server/src/routes/__tests__/security.test.js:195:        vitest_1.test.skip('should reject oversized file uploads', async () => {
+./server/dist/server/src/routes/__tests__/security.test.js:204:        vitest_1.test.skip('should reject invalid file types', async () => {
+./server/dist/routes/__tests__/security.test.js:195:        vitest_1.test.skip('should reject oversized file uploads', async () => {
+./server/dist/routes/__tests__/security.test.js:204:        vitest_1.test.skip('should reject invalid file types', async () => {
+./server/src/routes/__tests__/security.test.ts:243:    test.skip('should reject oversized file uploads', async () => {
+./server/src/routes/__tests__/security.test.ts:255:    test.skip('should reject invalid file types', async () => {
+./client/src/modules/voice/components/VoiceControl.test.tsx:155:    it.skip('shows connection status indicator', async () => {
+./client/src/modules/voice/components/VoiceControl.test.tsx:353:    it.skip('disables button when WebSocket is not connected', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:98:    test.skip('should establish WebSocket connection with auth params', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:117:    test.skip('should handle missing auth session', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:129:    test.skip('should handle missing restaurant ID', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:138:    test.skip('should not connect if already connected', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:157:    test.skip('should close WebSocket connection', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:172:    test.skip('should send messages when connected', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:188:    test.skip('should queue messages when not connected', () => {
+./client/src/services/websocket/WebSocketService.test.ts:196:    test.skip('should flush queued messages after connection', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:214:    test.skip('should handle incoming messages', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:234:    test.skip('should return unsubscribe function', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:267:    test.skip('should attempt reconnection on unexpected close', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:285:    test.skip('should not reconnect on intentional close', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:302:    test.skip('should stop reconnecting after max attempts', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:324:    test.skip('should send ping messages periodically', async () => {
+./client/src/services/websocket/WebSocketService.test.ts:345:    test.skip('should emit error on invalid message format', async () => {

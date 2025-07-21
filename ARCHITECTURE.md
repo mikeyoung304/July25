@@ -191,6 +191,25 @@ shared/
 import { Order, MenuItem, WebSocketMessage } from '@rebuild/shared';
 ```
 
+## Monitoring & Observability
+
+### Performance Monitoring
+- Client-side performance metrics collection
+- Web Vitals tracking (CLS, FID, FCP, LCP, TTFB)
+- Component render time tracking
+- API call performance monitoring
+
+### Error Tracking
+- Hierarchical error boundaries with recovery
+- Structured logging service
+- Production error aggregation
+- User-friendly error displays
+
+### Endpoints
+- `/api/v1/metrics` - Performance metrics collection
+- `/api/v1/health` - Basic health check
+- `/api/v1/health/detailed` - Comprehensive system status
+
 ## Migration Timeline
 
 ### Phase 1: Microservices to Unified (July 2024)
@@ -207,6 +226,11 @@ import { Order, MenuItem, WebSocketMessage } from '@rebuild/shared';
 - **Before**: Duplicate type definitions in client and server
 - **Decision**: Create shared types module for consistency
 - **After**: Single source of truth for all types
+
+### Phase 4-6: Production Readiness (January 2025)
+- **Component Unification**: BaseOrderCard, UnifiedVoiceRecorder, shared UI
+- **Monitoring**: Performance tracking, error boundaries, metrics endpoint
+- **Optimization**: Bundle splitting, vendor chunks, modern build targets
 
 ---
 

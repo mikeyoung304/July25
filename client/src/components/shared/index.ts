@@ -21,7 +21,7 @@ export { StatusActionButton } from './buttons/StatusActionButton';
 export { SoundControl } from './controls/SoundControl';
 
 // Display
-export { OrderIdentifiers } from './display/OrderIdentifiers';
+// export { OrderIdentifiers } from './display/OrderIdentifiers';
 
 // Errors
 export { ErrorBoundary } from './errors/ErrorBoundary';
@@ -38,7 +38,7 @@ export { OrderItemRow } from './lists/OrderItemRow';
 
 // Order Components
 export { OrderActions } from './order/OrderActions';
-export { OrderHeaders } from './order/OrderHeaders';
+export { OrderHeader as OrderHeaders } from './order/OrderHeaders';
 export { OrderItemsList } from './order/OrderItemsList';
 
 // Timers
