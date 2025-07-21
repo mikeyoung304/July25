@@ -8,118 +8,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Shared Types Module**: Unified type definitions for client/server consistency
-  - Created `/shared/types/` with comprehensive type definitions
-  - Single source of truth for Order, Menu, Customer, Table, and WebSocket types
-  - Full TypeScript support across the entire stack
-  - Backward compatibility through type mapping layers
-- **Voice Ordering Flow Control**: Hardened audio pipeline for reliability
-  - Leaky-bucket flow control with max 3 unacknowledged chunks
+- **Component Unification (Phase 3)**: Consolidated duplicate components
+  - Created `BaseOrderCard` with variant support (standard, KDS, compact)
+  - Built `UnifiedVoiceRecorder` replacing VoiceControl/VoiceCapture
+  - Added shared UI components: LoadingSpinner, EmptyState, ErrorDisplay, IconButton
+  - Standardized urgency calculation with `useOrderUrgency` hook
+- **Shared Types Module (Phase 2)**: Unified type definitions
+  - Created `/shared/types/` with Order, Menu, Customer, Table, WebSocket types
+  - Single source of truth across client/server boundary
+  - Full TypeScript support with backward compatibility
+- **Voice Ordering Enhancements**: Hardened audio pipeline
+  - Flow control with max 3 unacknowledged chunks
   - Automatic reconnection with exponential backoff
-  - Native WebSocket ping/pong heartbeat
-  - Progress acknowledgments after each audio chunk
-  - Overrun detection and error handling
-- **Prometheus Metrics Endpoint**: `/metrics` for monitoring
-  - `voice_chunks_total`: Total audio chunks received
-  - `voice_overrun_total`: Total overrun events
-  - `voice_active_connections`: Current active voice connections
-- **Quality Gate Scripts**: Development workflow improvements
-  - `npm run lint:fix`: ESLint with auto-fix
-  - `npm run typecheck`: TypeScript type checking
-  - `npm run verify:ports`: Ensure no forbidden port references
-- **Supabase Cloud Migration**: Complete migration from Docker/local to cloud-only Supabase
-  - Eliminated Docker dependencies
-  - Simplified developer setup to just `npm run dev`
-  - Cloud database as single source of truth
-  - Removed complex migration scripts
+  - WebSocket heartbeat and overrun detection
+- **Developer Tools**: Quality gates and monitoring
+  - Prometheus metrics endpoint at `/metrics`
+  - Scripts: `lint:fix`, `typecheck`, `verify:ports`
+  - Component migration guide
 
 ### Changed
-- **Documentation Consolidation**: Major cleanup and reorganization
-  - Reduced from 61 to ~20 markdown files
-  - Consolidated multiple architecture docs into single ARCHITECTURE.md
-  - Merged all documentation audits into docs/DOCUMENTATION.md
-  - Created unified QUICK_START.md at root level
-  - Deleted outdated /docs/archive/pre-backend/ directory (27 files)
-- **Service Consolidation**: Removed duplicate implementations
-  - Consolidated duplicate OrderService and MenuService implementations
-  - Enhanced services to support both API and mock data modes
-  - Improved service architecture with consistent patterns
-- **Voice WebSocket Refactor**: Improved connection reliability
-  - Migrated to `useVoiceSocket` hook with built-in flow control
-  - Added connection status indicators
-  - Improved error messages for users
-  - Auto-close after 30 seconds of inactivity
-- **Unified Backend Architecture**: Consolidated all backend services
-  - Merged AI Gateway (port 3002) into main backend (port 3001)
-  - Single Express.js server handles API, AI/Voice, and WebSocket
-  - Simplified environment configuration
-  - Reduced from 2 servers to 1 unified service
-- Updated all documentation to reflect cloud-only approach
-- Removed all Docker-related configuration files
-- Simplified database management to use Supabase cloud tools
+- **Documentation Overhaul (Phase 1)**: Reduced from 61 to ~20 files
+  - Consolidated into ARCHITECTURE.md, QUICK_START.md, DOCUMENTATION.md
+  - Deleted 27 outdated files from /docs/archive/pre-backend/
+  - Removed duplicate architecture and setup guides
+- **Service Architecture**: Eliminated duplication
+  - Consolidated OrderService and MenuService implementations
+  - Services now support both API and mock data modes
+- **Unified Backend**: Single service on port 3001
+  - Merged AI Gateway into main backend
+  - Simplified from 2 servers to 1
+  - All WebSocket, API, and AI in one Express.js server
 
 ### Fixed
-- **Environment Variable Loading**: Fixed OpenAI API key not being found
-  - Moved `dotenv.config()` to top of server.ts before any imports
-  - Implemented lazy initialization for AI service
-  - Resolved timing issues with service initialization
-- TypeScript error in `server/src/ai/websocket.ts` for ArrayBuffer handling
-- Missing import paths in server middleware
-- ESLint configuration for unified codebase
+- Environment variable loading (OpenAI API key issue)
+- TypeScript errors in WebSocket ArrayBuffer handling
+- Import path issues in server middleware
+- Component prop drilling and duplication issues
 
 ### Removed
-- Docker and docker-compose.yml files
-- Local Supabase setup
+- Docker dependencies and configuration
 - AI Gateway service (port 3002)
-- Complex database migration scripts
-- Redundant environment variables
-
-### Added
-- **Project Janus**: Complete API integration layer for Express.js backend
-  - HTTP client with automatic Supabase JWT authentication
-  - Multi-tenant support via X-Restaurant-ID header
-  - Automatic case transformation (camelCase ↔ snake_case)
-  - Service adapter pattern for gradual migration from mock to real API
-- **WebSocket Service**: Real-time order updates infrastructure
-  - Automatic reconnection with exponential backoff
-  - Message queueing for offline resilience
-  - Event-based architecture for order state changes
-- **Floor Plan Service**: Save/load functionality with localStorage fallback
-- Comprehensive modular architecture with 7 feature-based modules
-  - analytics: Metrics and performance tracking
-  - filters: Reusable filtering functionality
-  - floor-plan: Interactive floor plan management
-  - kitchen: Kitchen Display System
-  - orders: Order management with components, hooks, and types
-  - sound: Audio management for notifications
-  - voice: Voice capture and ordering
-- New `useAsyncState` hook for standardized async state management
-- Keyboard navigation system with 5 specialized hooks
-- Domain-specific service layer with dependency injection
-- Comprehensive test suite (229 tests passing)
-- Code analysis script for metrics tracking
-- Extensive documentation (6 new docs)
-
-### Changed
-- **BREAKING**: Refactored `App.tsx` from 522 lines to 28 lines with component extraction
-- **BREAKING**: Split monolithic `api.ts` (409 lines) into domain services
-- Migrated keyboard navigation from single file to modular hooks
-- Updated project structure to feature-based modules
-- Improved TypeScript typing throughout the codebase
-- Enhanced accessibility with ARIA labels and keyboard navigation
-
-### Fixed
-- Kitchen Display performance issues with memoization and stable callbacks
-- WebSocket import error in tests
-- Performance issues with unnecessary re-renders
-- Complexity issues in keyboard navigation (reduced from 55 to <15)
-- Duplicate code patterns across components
-- Missing error boundaries in critical paths
-
-### Security
-- Added input validation and sanitization
-- Implemented rate limiting for API calls
-- Added XSS prevention measures
+- Duplicate component implementations
+- 27 outdated documentation files
 
 ## [0.5.0] - 2024-01-15
 

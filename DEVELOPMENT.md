@@ -143,6 +143,11 @@ lsof -ti:5173 | xargs kill -9
 - Note: Environment variables must load before service initialization (handled in server.ts)
 - Ensure microphone permissions are granted in your browser
 
+### TypeScript Errors with Shared Types
+- Run `npm install` from root to set up workspaces
+- The shared types are in `/shared/types/`
+- Import like: `import { Order } from '@rebuild/shared'`
+
 ## Additional Resources
 - [Architecture Overview](./ARCHITECTURE.md)
 - [API Reference](./docs/API_REFERENCE.md)
