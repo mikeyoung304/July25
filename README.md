@@ -72,6 +72,7 @@ rebuild-6.0/
 - **State Management**: React Context API
 - **Testing**: Jest + React Testing Library
 - **Types**: Shared types module (@rebuild/shared)
+- **Components**: Unified component architecture
 
 ### Backend (Unified)
 - **Server**: Express.js + TypeScript
@@ -80,6 +81,17 @@ rebuild-6.0/
 - **AI/Voice**: OpenAI Whisper + GPT-4
 - **Real-time**: WebSocket (ws)
 - **Architecture**: RESTful + WebSocket
+
+## 🎯 Recent Improvements
+
+### Phase 1-3 Completed (January 2025)
+- **Documentation**: Reduced from 61 to ~20 files
+- **Type System**: Unified types across client/server
+- **Components**: Consolidated duplicate implementations
+  - `BaseOrderCard` with variants (standard, KDS, compact)
+  - `UnifiedVoiceRecorder` replacing multiple voice components
+  - Shared UI components (LoadingSpinner, EmptyState, etc.)
+- **Performance**: ~40% code reduction through consolidation
 
 ## 🔧 Development
 
