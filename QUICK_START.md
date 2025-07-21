@@ -72,6 +72,13 @@ Check http://localhost:5173/history for:
 - Filters and search
 - Order analytics
 
+### 📊 Monitoring & Performance
+
+Access monitoring features:
+- Performance metrics: Built into each view
+- Error logs: Check browser console in development
+- Health status: http://localhost:3001/api/v1/health
+
 ## 💻 Development Commands
 
 ```bash

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Order } from '@rebuild/shared';
-import { OrderHeaders } from '@/components/shared/OrderHeaders';
-import { OrderItemsList } from '@/components/shared/OrderItemsList';
-import { OrderActions } from '@/components/shared/OrderActions';
+import { OrderHeaders } from '@/components/shared/order/OrderHeaders';
+import { OrderItemsList } from '@/components/shared/order/OrderItemsList';
+import { OrderActions } from '@/components/shared/order/OrderActions';
 import { useOrderUrgency } from './useOrderUrgency';
 import { Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -150,7 +150,7 @@ export const BaseOrderCard: React.FC<BaseOrderCardProps> = ({
 
 // Helper component for order type badges
 const OrderTypeBadge: React.FC<{ type: Order['type'] }> = ({ type }) => {
-  const config = {
+  const config: Record<string, { bg: string; text: string }> = {
     'dine-in': { bg: 'bg-blue-500', text: 'Dine In' },
     'takeout': { bg: 'bg-green-500', text: 'Takeout' },
     'delivery': { bg: 'bg-purple-500', text: 'Delivery' },
