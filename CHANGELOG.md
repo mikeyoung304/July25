@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Shared Types Module**: Unified type definitions for client/server consistency
+  - Created `/shared/types/` with comprehensive type definitions
+  - Single source of truth for Order, Menu, Customer, Table, and WebSocket types
+  - Full TypeScript support across the entire stack
+  - Backward compatibility through type mapping layers
 - **Voice Ordering Flow Control**: Hardened audio pipeline for reliability
   - Leaky-bucket flow control with max 3 unacknowledged chunks
   - Automatic reconnection with exponential backoff
@@ -29,6 +34,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed complex migration scripts
 
 ### Changed
+- **Documentation Consolidation**: Major cleanup and reorganization
+  - Reduced from 61 to ~20 markdown files
+  - Consolidated multiple architecture docs into single ARCHITECTURE.md
+  - Merged all documentation audits into docs/DOCUMENTATION.md
+  - Created unified QUICK_START.md at root level
+  - Deleted outdated /docs/archive/pre-backend/ directory (27 files)
+- **Service Consolidation**: Removed duplicate implementations
+  - Consolidated duplicate OrderService and MenuService implementations
+  - Enhanced services to support both API and mock data modes
+  - Improved service architecture with consistent patterns
 - **Voice WebSocket Refactor**: Improved connection reliability
   - Migrated to `useVoiceSocket` hook with built-in flow control
   - Added connection status indicators
@@ -44,6 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified database management to use Supabase cloud tools
 
 ### Fixed
+- **Environment Variable Loading**: Fixed OpenAI API key not being found
+  - Moved `dotenv.config()` to top of server.ts before any imports
+  - Implemented lazy initialization for AI service
+  - Resolved timing issues with service initialization
 - TypeScript error in `server/src/ai/websocket.ts` for ArrayBuffer handling
 - Missing import paths in server middleware
 - ESLint configuration for unified codebase

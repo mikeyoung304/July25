@@ -57,7 +57,10 @@ rebuild-6.0/
 │   │   ├── services/
 │   │   └── ai/      # AI functionality
 │   └── package.json
-└── package.json     # Root orchestration
+├── shared/          # Shared types and utilities
+│   ├── types/       # TypeScript type definitions
+│   └── package.json
+└── package.json     # Root orchestration with workspaces
 ```
 
 ## 🛠️ Tech Stack
@@ -68,9 +71,11 @@ rebuild-6.0/
 - **Styling**: Tailwind CSS + Custom Design System
 - **State Management**: React Context API
 - **Testing**: Jest + React Testing Library
+- **Types**: Shared types module (@rebuild/shared)
 
 ### Backend (Unified)
 - **Server**: Express.js + TypeScript
+- **Types**: Shared types module (@rebuild/shared)
 - **Database**: Supabase (PostgreSQL)
 - **AI/Voice**: OpenAI Whisper + GPT-4
 - **Real-time**: WebSocket (ws)

@@ -1,4 +1,8 @@
 // Common type definitions used across the application
+// NOTE: These types are legacy and will be migrated to @rebuild/shared
+// For now, they coexist with the shared types
+
+import type { OrderStatus as SharedOrderStatus } from '@rebuild/shared'
 
 export interface Order {
   id: string
@@ -18,12 +22,13 @@ export interface OrderItem {
   name: string
   quantity: number
   price?: number
-  modifiers?: string[]
+  modifiers?: string[] // Legacy: string array instead of object array
   notes?: string
   category?: string
 }
 
-export type OrderStatus = 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
+// Extend shared OrderStatus to include legacy statuses
+export type OrderStatus = SharedOrderStatus
 
 export type Station = 'grill' | 'fryer' | 'salad' | 'expo' | 'bar'
 

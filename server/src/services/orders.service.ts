@@ -4,21 +4,21 @@ import { randomUUID } from 'crypto';
 import { WebSocketServer } from 'ws';
 import { broadcastOrderUpdate, broadcastNewOrder } from '../utils/websocket';
 import { menuIdMapper } from './menu-id-mapper';
+import type {
+  Order as SharedOrder,
+  OrderItem as SharedOrderItem,
+  OrderType,
+  OrderFilters as SharedOrderFilters,
+} from '@rebuild/shared';
 
 const ordersLogger = logger.child({ service: 'OrdersService' });
 
-export interface OrderItem {
-  id: string;
-  name: string;
-  quantity: number;
-  price: number;
-  modifiers?: Array<{
-    name: string;
-    price: number;
-  }>;
+// Extend shared OrderItem for service-specific needs
+export interface OrderItem extends Omit<SharedOrderItem, 'menu_item_id' | 'subtotal'> {
   notes?: string;
 }
 
+// Service-specific create order request
 export interface CreateOrderRequest {
   type?: 'kiosk' | 'drive-thru' | 'online' | 'voice';
   items: OrderItem[];
@@ -28,33 +28,25 @@ export interface CreateOrderRequest {
   metadata?: any;
 }
 
-export interface Order {
-  id: string;
-  restaurantId: string;
-  orderNumber: string;
-  type: string;
-  status: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
-  items: OrderItem[];
-  subtotal: number;
-  tax: number;
-  totalAmount: number;
-  notes?: string;
-  customerName?: string;
-  tableNumber?: string;
+// Extend shared Order type for service layer
+export interface Order extends Omit<SharedOrder, 'order_number' | 'total' | 'payment_status' | 'created_at' | 'updated_at' | 'completed_at' | 'type'> {
+  restaurantId: string; // Maps to restaurant_id
+  orderNumber: string; // Maps to order_number
+  type: OrderType | string; // Allow string for flexibility in service layer
+  totalAmount: number; // Maps to total
   metadata?: any;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string; // Maps to created_at
+  updatedAt: string; // Maps to updated_at
   preparingAt?: string;
   readyAt?: string;
-  completedAt?: string;
+  completedAt?: string; // Maps to completed_at
   cancelledAt?: string;
 }
 
-export interface OrderFilters {
-  status?: string;
-  type?: string;
-  startDate?: string;
-  endDate?: string;
+// Extend shared OrderFilters for service layer
+export interface OrderFilters extends Omit<SharedOrderFilters, 'date_from' | 'date_to'> {
+  startDate?: string; // Maps to date_from
+  endDate?: string; // Maps to date_to
   limit?: number;
   offset?: number;
 }
@@ -447,7 +439,8 @@ export class OrdersService {
       tax: parseFloat(data.tax),
       totalAmount: parseFloat(data.total_amount),
       notes: data.notes,
-      customerName: data.customer_name,
+      customerName: data.customer_name, // Map database field to service field
+      customer_name: data.customer_name, // Keep both for compatibility
       tableNumber: data.table_number,
       metadata: data.metadata,
       createdAt: data.created_at,

@@ -4,21 +4,18 @@
 
 ### Getting Started
 - **[README.md](../README.md)** - Project overview, features, and quick setup
-- **[QUICK_START.md](./QUICK_START.md)** - 5-minute guide for new developers
+- **[QUICK_START.md](../QUICK_START.md)** - 5-minute guide for new developers
 - **[DEVELOPMENT.md](../DEVELOPMENT.md)** - Detailed development setup and workflow
+- **[DOCUMENTATION.md](./DOCUMENTATION.md)** - Documentation standards and organization
 
 ### Architecture & Design
 - **[ARCHITECTURE.md](../ARCHITECTURE.md)** ⭐ - **Unified backend architecture decision (SOURCE OF TRUTH)**
-- **[CURRENT_ARCHITECTURE.md](../CURRENT_ARCHITECTURE.md)** - Current system architecture overview
-- **[FULLSTACK_ARCHITECTURE.md](./FULLSTACK_ARCHITECTURE.md)** - Full-stack architecture details
-- **[MODULAR_ARCHITECTURE.md](./MODULAR_ARCHITECTURE.md)** - Frontend module system explanation
 - **[MIGRATION_REPORT.md](../MIGRATION_REPORT.md)** - Unified backend migration documentation
 
 ### Backend Documentation
 - **[BACKEND_GUIDE.md](./BACKEND_GUIDE.md)** - Comprehensive backend development guide
 - **[API_ENDPOINTS.md](../API_ENDPOINTS.md)** - Complete API endpoint reference
 - **[server/README.md](../server/README.md)** - Backend service documentation
-- **[server/QUICK_START_GROW_FRESH.md](../server/QUICK_START_GROW_FRESH.md)** - Restaurant-specific setup
 
 ### Feature Guides
 - **[VOICE_ORDERING_GUIDE.md](./VOICE_ORDERING_GUIDE.md)** - Voice ordering implementation guide
@@ -39,7 +36,6 @@
 - **[MONITORING.md](../MONITORING.md)** - Monitoring and observability guide
 
 ### Historical Documentation
-- **[docs/archive/](./archive/)** - Previous architecture and refactoring documentation
 
 ## 🗂️ Documentation Structure
 
@@ -58,15 +54,14 @@ rebuild-6.0/
 │
 ├── server/
 │   ├── README.md                   # Backend docs
-│   └── QUICK_START_GROW_FRESH.md   # Restaurant setup
 │
 ├── client/
 │   └── (component documentation in source)
 │
 └── docs/
     ├── Getting Started
-    │   ├── QUICK_START.md
-    │   └── DOCUMENTATION_INDEX.md (this file)
+    │   ├── DOCUMENTATION_INDEX.md (this file)
+    │   └── DOCUMENTATION.md
     │
     ├── Architecture
     │   ├── FULLSTACK_ARCHITECTURE.md
@@ -81,8 +76,6 @@ rebuild-6.0/
     │   ├── FUNCTIONAL_TESTING_CHECKLIST.md
     │   └── CODE_ANALYSIS.md
     │
-    └── archive/
-        └── (historical documentation)
 ```
 
 ## 📝 Documentation Standards

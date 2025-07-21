@@ -36,10 +36,26 @@ export function validateEnvironment(): void {
     'SUPABASE_SERVICE_KEY',
   ];
 
-  const missing = required.filter(key => !process.env[key]);
+  // OPENAI_API_KEY is optional but warn if missing
+  const optional = ['OPENAI_API_KEY'];
+
+  // Check for both regular and VITE_ prefixed versions
+  const missing = required.filter(key => !process.env[key] && !process.env[`VITE_${key}`]);
+  const missingOptional = optional.filter(key => !process.env[key] && !process.env[`VITE_${key}`]);
 
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+
+  if (missingOptional.length > 0) {
+    console.warn(`⚠️  Missing optional environment variables: ${missingOptional.join(', ')}`);
+    console.warn('   Voice ordering features will not be available without OPENAI_API_KEY');
+  }
+
+  // Log successful API key detection
+  if (process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY) {
+    const key = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+    console.log(`✅ OpenAI API key detected: ${key?.substring(0, 7)}...`);
   }
 }
 
@@ -48,9 +64,9 @@ export function getConfig(): EnvironmentConfig {
     port: parseInt(process.env.PORT || '3001', 10),
     nodeEnv: (process.env.NODE_ENV as any) || 'development',
     supabase: {
-      url: process.env.SUPABASE_URL!,
-      anonKey: process.env.SUPABASE_ANON_KEY!,
-      serviceKey: process.env.SUPABASE_SERVICE_KEY!,
+      url: process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL!,
+      anonKey: process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY!,
+      serviceKey: process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_SERVICE_KEY!,
       jwtSecret: process.env.SUPABASE_JWT_SECRET,
     },
     frontend: {

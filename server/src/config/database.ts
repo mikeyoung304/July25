@@ -4,8 +4,8 @@ import { logger } from '../utils/logger';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Ensure environment variables are loaded
-dotenv.config({ path: path.join(__dirname, '../../.env') });
+// Ensure environment variables are loaded from root directory
+dotenv.config({ path: path.join(__dirname, '../../../.env') });
 
 const config = getConfig();
 

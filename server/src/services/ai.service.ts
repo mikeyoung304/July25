@@ -237,5 +237,19 @@ If you cannot identify valid menu items, return success: false with an error mes
   }
 }
 
-// Singleton instance
-export const aiService = new AIService();
+// Lazy-loaded singleton instance
+let aiServiceInstance: AIService | null = null;
+
+export const getAIService = (): AIService => {
+  if (!aiServiceInstance) {
+    aiServiceInstance = new AIService();
+    aiLogger.info('AIService initialized with API key:', {
+      hasKey: !!process.env.OPENAI_API_KEY,
+      keyPrefix: process.env.OPENAI_API_KEY?.substring(0, 7) + '...' // Log first 7 chars for debugging
+    });
+  }
+  return aiServiceInstance;
+};
+
+// Export a getter for backwards compatibility
+export const aiService = getAIService();
