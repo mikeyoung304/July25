@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { MenuItem } from '@/services/types';
 import type { OrderModification, VoiceOrderItem } from './types';
 import { VoiceOrderContext } from './context';
@@ -61,8 +61,12 @@ export const VoiceOrderProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setItems([]);
   }, []);
 
-  const total = items.reduce((sum, item) => sum + item.subtotal, 0);
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const total = useMemo(() => 
+    items.reduce((sum, item) => sum + item.subtotal, 0), [items]
+  );
+  const itemCount = useMemo(() => 
+    items.reduce((sum, item) => sum + item.quantity, 0), [items]
+  );
 
   return (
     <VoiceOrderContext.Provider value={{
