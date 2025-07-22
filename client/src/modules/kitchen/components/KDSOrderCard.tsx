@@ -55,12 +55,12 @@ export const KDSOrderCard = memo<KDSOrderCardProps>(({
     calculateUrgency()
     
     // Update every minute instead of every 30 seconds to reduce overhead
-    let timeoutId: number
+    let timeoutId: NodeJS.Timeout
     let animationId: number
     
     const scheduleUpdate = () => {
       timeoutId = setTimeout(() => {
-        animationId = requestAnimationFrame(() => {
+        animationId = window.requestAnimationFrame(() => {
           calculateUrgency()
           scheduleUpdate()
         })
@@ -71,7 +71,7 @@ export const KDSOrderCard = memo<KDSOrderCardProps>(({
     
     return () => {
       if (timeoutId) clearTimeout(timeoutId)
-      if (animationId) cancelAnimationFrame(animationId)
+      if (animationId) window.cancelAnimationFrame(animationId)
     }
   }, [orderTime, status])
 
