@@ -54,10 +54,25 @@ export const KDSOrderCard = memo<KDSOrderCardProps>(({
     // Calculate initial urgency
     calculateUrgency()
     
-    // Update urgency every 30 seconds instead of every render
-    const interval = setInterval(calculateUrgency, 30000)
+    // Update every minute instead of every 30 seconds to reduce overhead
+    let timeoutId: number
+    let animationId: number
     
-    return () => clearInterval(interval)
+    const scheduleUpdate = () => {
+      timeoutId = setTimeout(() => {
+        animationId = requestAnimationFrame(() => {
+          calculateUrgency()
+          scheduleUpdate()
+        })
+      }, 60000) // Update every minute instead of 30 seconds
+    }
+    
+    scheduleUpdate()
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+      if (animationId) cancelAnimationFrame(animationId)
+    }
   }, [orderTime, status])
 
   // Dynamic styling based on urgency
@@ -138,7 +153,8 @@ KDSOrderCard.displayName = 'KDSOrderCard'
 /**
  * Performance considerations:
  * - Component is wrapped with React.memo to prevent unnecessary re-renders
- * - Urgency calculation is memoized
+ * - Urgency calculation optimized with requestAnimationFrame and 60-second intervals
+ * - Reduced timer frequency from 30s to 60s to minimize CPU usage with multiple orders
  * - All child components handle their own memoization where needed
  * - Parent components should wrap onStatusChange in useCallback to prevent re-renders
  */

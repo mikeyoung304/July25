@@ -54,10 +54,10 @@ export const parseVoiceOrder = (transcription: string): VoiceOrder | null => {
     { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:veggie|vegetable|vegetarian)\s*plates?/gi, name: 'Veggie Plate' },
   ]
   
-  // Extract items with quantities
-  menuItems.forEach(({ pattern, name }) => {
+  // Extract items with quantities - optimized to avoid nested forEach
+  for (const { pattern, name } of menuItems) {
     const matches = Array.from(transcription.matchAll(pattern))
-    matches.forEach(match => {
+    for (const match of matches) {
       let quantity = 1
       if (match[1]) {
         // Handle numeric quantities
@@ -74,8 +74,8 @@ export const parseVoiceOrder = (transcription: string): VoiceOrder | null => {
       }
       const modifiers = extractModifiers(transcription, name.toLowerCase())
       items.push({ name, quantity, modifiers })
-    })
-  })
+    }
+  }
   
   if (items.length === 0) return null
   
