@@ -22,15 +22,8 @@ vi.mock('../../config/database', () => ({
   }
 }));
 
-// Mock authentication middleware
-let mockAuthenticate = vi.fn((req: any, res: any, next: any) => next());
-let mockRequireRole = vi.fn(() => (req: any, res: any, next: any) => next());
-
-vi.mock('../../middleware/auth', () => ({
-  authenticate: (req: any, res: any, next: any) => mockAuthenticate(req, res, next),
-  requireRole: (roles: string[]) => mockRequireRole(roles),
-  AuthenticatedRequest: {}
-}));
+// Mock authentication middleware (simple, no external vars)
+vi.mock('../../middleware/auth', () => require('../../../tests/mocks/auth.ts'));
 
 // Mock rate limiters to avoid 429 errors in tests
 vi.mock('../../middleware/rateLimiter', () => ({
