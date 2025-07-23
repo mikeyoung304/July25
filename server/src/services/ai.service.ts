@@ -27,7 +27,11 @@ export class AIService {
   private menuData: any = null;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+    const apiKey =
+      process.env.OPENAI_API_KEY ||
+      process.env.VITE_OPENAI_API_KEY ||
+      (process.env.NODE_ENV === 'test' ? 'test-dummy' : '');
+
     if (!apiKey) {
       throw new Error('OpenAI API key not configured');
     }
