@@ -21,12 +21,18 @@ This document outlines the migration from the current unified backend (port 3001
 # Supabase Configuration
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+SUPABASE_ANON_KEY=your-anon-key
 
 # OpenAI Configuration  
 OPENAI_API_KEY=your-openai-api-key
 
 # Server Configuration
 PORT=3001
+DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
+
+# Square Payment Configuration (client-side)
+VITE_SQUARE_APP_ID=sandbox-sq0idb-xxxxx
+VITE_SQUARE_LOCATION_ID=L1234567890
 ```
 
 ## Migration Steps
@@ -42,7 +48,11 @@ PORT=3001
 ### 2. Seed Menu Data
 ```bash
 cd server
-npm run seed:menu
+# Option 1: Seed with ID mappings
+npx tsx scripts/seed-menu-mapped.ts
+
+# Option 2: Upload to AI system
+npm run upload:menu
 ```
 
 ### 3. Client Updates Required
@@ -52,6 +62,8 @@ npm run seed:menu
   - `/api/v1/ai/menu` → `/api/menu`
   - `/api/v1/ai/parse-order` → `/api/chat`
   - Add conversation history endpoint
+- Ensure Square payment env vars are set
+- Update WebSocket connection logic
 
 ### 4. Testing Strategy Post-Swap
 
@@ -74,8 +86,10 @@ npm run seed:menu
 ## Known Issues to Address
 - Auth middleware differences
 - Rate limiting implementation
-- CORS configuration
+- CORS configuration (ensure localhost:5173 allowed)
 - WebSocket authentication
+- Menu ID mapping preservation
+- Square payment integration on new endpoints
 
 ## Success Criteria
 1. Menu upload works via `/api/menu`
