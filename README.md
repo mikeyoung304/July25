@@ -1,7 +1,8 @@
 # Grow Fresh Local Food - Restaurant Operating System
 
 > ⚠️ **ARCHITECTURE**: Unified Backend - Everything runs on port 3001  
-> See [ARCHITECTURE.md](./ARCHITECTURE.md) for details
+> See [ARCHITECTURE.md](./ARCHITECTURE.md) for details  
+> 🔄 **BACKEND SWAP**: Migration guide available in [docs/backend-swap.md](./docs/backend-swap.md)
 
 > ✅ **QUALITY**: TypeScript 0 errors | ESLint 30 warnings | Tests passing  
 > 🔒 **SECURITY**: CSP compliant - no external dependencies (fonts self-hosted)  
@@ -138,6 +139,8 @@ DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
 VITE_API_BASE_URL=http://localhost:3001
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SQUARE_APP_ID=sandbox-sq0idb-xxxxx
+VITE_SQUARE_LOCATION_ID=L1234567890
 ```
 
 
@@ -205,7 +208,9 @@ See [server/README.md](./server/README.md) for detailed deployment instructions.
 ## 📚 Documentation
 
 - [Architecture Decision](./ARCHITECTURE.md) - Why unified backend?
-- [API Reference](./docs/API_REFERENCE.md) - Endpoint documentation
+- [Backend Migration](./docs/backend-swap.md) - Luis's Express server swap guide
+- [Customer Ordering](./client/README_ORDERING.md) - Square checkout & cart flow
+- [API Reference](./docs/API.md) - Endpoint documentation
 - [Contributing Guide](./CONTRIBUTING_AI.md) - For AI assistants and developers
 - [Voice Integration](./docs/VOICE_ORDERING_GUIDE.md) - Voice system details
 
