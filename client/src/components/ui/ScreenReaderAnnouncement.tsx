@@ -41,7 +41,7 @@ export const ScreenReaderAnnouncement: React.FC<ScreenReaderAnnouncementProps> =
 export const useScreenReaderAnnouncement = () => {
   const [message, setMessage] = useState('');
 
-  const announce = (text: string, options?: { politeness?: 'polite' | 'assertive'; clearAfter?: number }) => {
+  const announce = (text: string, _options?: { politeness?: 'polite' | 'assertive'; clearAfter?: number }) => {
     // Clear and re-set to ensure announcement is made even if same text
     setMessage('');
     setTimeout(() => setMessage(text), 100);
