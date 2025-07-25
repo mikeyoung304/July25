@@ -1,46 +1,45 @@
 # Customer Ordering UI
 
 ## Overview
-
 ```
 Menu Browse → Cart → Checkout → Order Confirmation
      ↓          ↓         ↓            ↓
-CartContext  localStorage  Square   Thank You
+CartContext  localStorage  Square   Order Details
 ```
 
-## Square Sandbox Setup
+## Routes
+- `/order/:restaurantId` - Menu browsing (CustomerOrderPage)
+- `/checkout` - Guest checkout with payment
+- `/order-confirmation` - Success page with order number
 
-Environment variables in `client/.env.local`:
+## CartContext API
+```typescript
+{
+  cart: Cart;
+  addToCart: (item: CartItem) => void;
+  updateQuantity: (itemId: string, qty: number) => void;
+  removeItem: (itemId: string) => void;
+  updateTip: (amount: number) => void;
+  clearCart: () => void;
+}
+```
+Persists to: `cart_${restaurantId}_v2`
+
+## Environment Variables
 ```env
 VITE_SQUARE_APP_ID=sandbox-sq0idb-xxxxx
 VITE_SQUARE_LOCATION_ID=L1234567890
 ```
 
-## Routes & Components
+## Components
+- [CartContext](src/modules/order-system/context/CartContext.tsx)
+- [CheckoutPage](src/pages/CheckoutPage.tsx)
+- [OrderConfirmationPage](src/pages/OrderConfirmationPage.tsx)
+- [TipSlider](src/modules/order-system/components/TipSlider.tsx)
+- [SquarePaymentForm](src/modules/order-system/components/SquarePaymentForm.tsx)
 
-**Routes:**
-- `/order` - [CustomerOrderPage](src/modules/order-system/components/CustomerOrderPage.tsx)
-- `/checkout` - [CheckoutPage](src/pages/CheckoutPage.tsx)
-- `/order-confirmation` - [OrderConfirmationPage](src/pages/OrderConfirmationPage.tsx)
-
-**Key Components:**
-- [CartContext](src/modules/order-system/context/CartContext.tsx) - State management
-- [CartDrawer](src/modules/order-system/components/CartDrawer.tsx) - Shopping cart UI
-- [TipSlider](src/pages/CheckoutPage.tsx#L20) - Tip selection
-- `SquarePaymentForm` - Payment processing
-
-## Cart Persistence
-
-CartContext uses localStorage with restaurant-specific keys:
-```typescript
-localStorage.setItem(`cart_${restaurantId}`, JSON.stringify(items))
-```
-
-Persists: items, quantities, customizations
-Clears: on successful order submission
-
-## Testing
-
+## Run Tests
 ```bash
-cd client && npm test -- CartContext
+npm test -- CartContext.test.tsx  # Cart tests
+npm run dev                       # Start dev server
 ```

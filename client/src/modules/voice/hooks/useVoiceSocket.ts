@@ -16,8 +16,8 @@ export interface VoiceSocketOptions {
 
 export function useVoiceSocket({
   url,
-  maxUnacknowledgedChunks = 3,
-  reconnectDelay = 3000,
+  maxUnacknowledgedChunks: _maxUnacknowledgedChunks = 3,
+  reconnectDelay: _reconnectDelay = 3000,
   onMessage,
   onConnectionChange,
 }: VoiceSocketOptions) {

@@ -92,7 +92,7 @@ export class AppErrorBoundary extends Component<Props, State> {
       }
       
       localStorage.setItem('error_reports', JSON.stringify(existingErrors));
-    } catch (e) {
+    } catch {
       // Fail silently
     }
   }

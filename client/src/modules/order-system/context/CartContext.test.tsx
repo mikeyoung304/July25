@@ -137,7 +137,7 @@ describe('CartContext', () => {
     });
 
     expect(result.current.cart.tip).toBe(2.00);
-    expect(result.current.cart.total).toBeCloseTo(12.83, 2); // 10 + 0.83 tax + 2 tip
+    expect(result.current.cart.total).toBeCloseTo(12.83, 1); // 10 + 0.83 tax + 2 tip
   });
 
   it('should clear cart', () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { typography, getTypographyClasses } from '@/lib/typography';
+import { getTypographyClasses } from '@/lib/typography';
 
 interface TypographyProps {
   children: React.ReactNode;
