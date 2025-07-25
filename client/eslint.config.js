@@ -34,10 +34,21 @@ export default tseslint.config([
     files: [
       '**/test-utils/**/*.{ts,tsx}',
       '**/*.test.{ts,tsx}',
-      '**/Typography.tsx',
-      '**/LiveRegion.tsx',
-      '**/ScreenReaderAnnouncement.tsx',
-      '**/context/CartContext.tsx'
+      '**/*.spec.{ts,tsx}',
+      '**/test/**/*.{ts,tsx}',
+      '**/tests/**/*.{ts,tsx}',
+      '**/__tests__/**/*.{ts,tsx}'
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off'
+    }
+  },
+  {
+    files: [
+      'src/components/ui/Typography.tsx',
+      'src/components/ui/LiveRegion.tsx',
+      'src/components/ui/ScreenReaderAnnouncement.tsx',
+      'src/modules/order-system/context/CartContext.tsx'
     ],
     rules: {
       'react-refresh/only-export-components': 'off'
