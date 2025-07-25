@@ -32,7 +32,7 @@ export const BaseOrderCard: React.FC<BaseOrderCardProps> = ({
   onStatusChange,
   onCardClick,
   className,
-  animated = false,
+  animated: _animated = false,
 }) => {
   const { urgencyLevel, waitTime, isOverdue, urgencyColor, urgencyBgColor } = 
     useOrderUrgency(order, variant);

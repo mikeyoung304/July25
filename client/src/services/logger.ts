@@ -120,7 +120,7 @@ class Logger {
       }
       
       localStorage.setItem('error_logs', JSON.stringify(errorLogs));
-    } catch (e) {
+    } catch {
       // Fail silently if localStorage is full or unavailable
     }
   }
