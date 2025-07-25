@@ -70,6 +70,10 @@ export const SoundControl: React.FC<SoundControlProps> = ({
                 step={0.1}
                 className="w-full"
                 aria-label="Volume control"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(volume * 100)}
+                aria-valuetext={`${Math.round(volume * 100)} percent`}
               />
             </div>
           )}

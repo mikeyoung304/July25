@@ -45,6 +45,13 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
     }
   }, [disabled, onMouseUp]);
 
+  const getAriaLabel = () => {
+    if (isListening) return 'Release to stop recording';
+    if (isProcessing) return 'Processing your voice order';
+    if (disabled) return 'Voice recording unavailable';
+    return 'Hold to record your voice order';
+  };
+
   return (
     <button
       className={cn(
@@ -52,8 +59,8 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
         'hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-4',
         'focus:outline-none focus:ring-4 focus:ring-offset-2',
         isListening 
-          ? 'bg-red-500 shadow-[0_0_40px_rgba(239,68,68,0.6)] hover:bg-red-600 focus:ring-red-500' 
-          : 'bg-blue-500 shadow-[0_4px_20px_rgba(0,0,0,0.1)] hover:bg-blue-600 focus:ring-blue-500',
+          ? 'bg-danger shadow-[0_0_40px_rgba(239,68,68,0.6)] hover:bg-danger-dark focus:ring-danger' 
+          : 'bg-primary shadow-[0_4px_20px_rgba(0,0,0,0.1)] hover:bg-primary-dark focus:ring-primary',
         isProcessing && 'animate-pulse',
         disabled && 'opacity-50 cursor-not-allowed',
         className
@@ -64,6 +71,10 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       disabled={disabled}
+      aria-label={getAriaLabel()}
+      aria-pressed={isListening}
+      aria-busy={isProcessing}
+      role="button"
     >
       <Mic className="w-10 h-10" />
       <span>

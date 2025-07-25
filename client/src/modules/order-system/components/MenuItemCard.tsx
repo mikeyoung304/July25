@@ -1,5 +1,7 @@
 import React from 'react';
 import { MenuItem } from '../../menu/types';
+import { Button } from '@/components/ui/button';
+import { Coffee, Utensils, Salad, Sandwich, Soup, Leaf, ChefHat } from 'lucide-react';
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -14,9 +16,32 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
     }).format(price);
   };
 
+  const getCategoryIcon = (category: string) => {
+    const iconProps = { size: 48, className: "text-accent-600" };
+    
+    switch (category) {
+      case 'Beverages':
+        return <Coffee {...iconProps} />;
+      case 'Starters':
+        return <Utensils {...iconProps} />;
+      case 'Salads':
+        return <Salad {...iconProps} />;
+      case 'Sandwiches':
+        return <Sandwich {...iconProps} />;
+      case 'Bowls':
+        return <Soup {...iconProps} />;
+      case 'Vegan':
+        return <Leaf {...iconProps} />;
+      case 'Entrees':
+        return <ChefHat {...iconProps} />;
+      default:
+        return <Utensils {...iconProps} />;
+    }
+  };
+
   return (
     <div 
-      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer overflow-hidden"
+      className="bg-white rounded-xl shadow-elevation-2 hover:shadow-elevation-3 transition-all duration-300 ease-spring cursor-pointer overflow-hidden group"
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -28,7 +53,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       }}
       aria-label={`${item.name} - ${formatPrice(item.price)}`}
     >
-      <div className="aspect-w-16 aspect-h-9 bg-gradient-to-br from-green-50 to-green-100">
+      <div className="aspect-w-16 aspect-h-9 bg-gradient-to-br from-accent-50 to-accent-100">
         {item.imageUrl ? (
           <img 
             src={item.imageUrl} 
@@ -38,40 +63,41 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
           />
         ) : (
           <div className="w-full h-48 flex items-center justify-center">
-            <div className="text-center">
-              <span className="text-4xl mb-2 block">
-                {item.category === 'Beverages' && '🥤'}
-                {item.category === 'Starters' && '🍽️'}
-                {item.category === 'Salads' && '🥗'}
-                {item.category === 'Sandwiches' && '🥪'}
-                {item.category === 'Bowls' && '🍲'}
-                {item.category === 'Vegan' && '🌱'}
-                {item.category === 'Entrees' && '🍴'}
-              </span>
-              <span className="text-sm text-green-700 font-medium">Farm Fresh</span>
+            <div className="text-center space-y-2">
+              {getCategoryIcon(item.category)}
+              <p className="text-sm text-accent-700 font-medium">Farm Fresh</p>
             </div>
           </div>
         )}
       </div>
       
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-          {item.name}
-        </h3>
+      <div className="p-4 space-y-3">
+        <div>
+          <h3 className="text-lg font-semibold text-primary">
+            {item.name}
+          </h3>
+          {item.description && (
+            <p className="text-sm text-neutral-600 mt-1 line-clamp-2">
+              {item.description}
+            </p>
+          )}
+        </div>
         
-        {item.description && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-            {item.description}
-          </p>
-        )}
-        
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-green-600">
-            {formatPrice(item.price)}
-          </span>
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col">
+            <span className="text-lg font-bold text-accent">
+              {formatPrice(item.price)}
+            </span>
+            {item.calories && (
+              <span className="text-xs text-neutral-500">
+                {item.calories} cal
+              </span>
+            )}
+          </div>
           
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 font-medium"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               onClick();
@@ -79,14 +105,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
             aria-label={`Add ${item.name} to cart`}
           >
             Add
-          </button>
+          </Button>
         </div>
-
-        {item.calories && (
-          <p className="text-xs text-gray-500 mt-2">
-            {item.calories} cal
-          </p>
-        )}
       </div>
     </div>
   );

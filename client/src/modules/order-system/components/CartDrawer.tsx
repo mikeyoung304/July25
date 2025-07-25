@@ -1,34 +1,27 @@
 import React from 'react';
 import { X, ShoppingCart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { CartItem } from './CartItem';
 import { CartSummary } from './CartSummary';
 import { CheckoutButton } from './CheckoutButton';
-import { Cart } from '../types';
+import { useCart } from '../context/CartContext';
 
-interface CartDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  cart: Cart;
-  onUpdateItem: (itemId: string, updates: Partial<Cart['items'][0]>) => void;
-  onRemoveItem: (itemId: string) => void;
-  onCheckout: () => void;
-}
+export const CartDrawer: React.FC = () => {
+  const navigate = useNavigate();
+  const { cart, updateCartItem, removeFromCart, isCartOpen, setIsCartOpen } = useCart();
+  
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    navigate('/checkout');
+  };
 
-export const CartDrawer: React.FC<CartDrawerProps> = ({ 
-  isOpen, 
-  onClose, 
-  cart,
-  onUpdateItem,
-  onRemoveItem,
-  onCheckout
-}) => {
   return (
     <>
       {/* Backdrop */}
-      {isOpen && (
+      {isCartOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
-          onClick={onClose}
+          onClick={() => setIsCartOpen(false)}
           aria-hidden="true"
         />
       )}
@@ -36,7 +29,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       {/* Drawer */}
       <div 
         className={`fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-xl z-50 transform transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isCartOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"
         aria-modal="true"
@@ -52,7 +45,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
             
             <button
-              onClick={onClose}
+              onClick={() => setIsCartOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Close cart"
             >
@@ -76,8 +69,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <CartItem
                     key={item.id}
                     item={item}
-                    onUpdate={(updates) => onUpdateItem(item.id, updates)}
-                    onRemove={() => onRemoveItem(item.id)}
+                    onUpdate={(updates) => updateCartItem(item.id, updates)}
+                    onRemove={() => removeFromCart(item.id)}
                   />
                 ))}
               </div>
@@ -94,7 +87,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               />
               
               <CheckoutButton 
-                onClick={onCheckout}
+                onClick={handleCheckout}
                 disabled={cart.items.length === 0}
               />
             </div>

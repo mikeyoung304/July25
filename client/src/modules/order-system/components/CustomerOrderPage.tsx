@@ -7,35 +7,21 @@ import { MenuSearch } from './MenuSearch';
 import { CartDrawer } from './CartDrawer';
 import { ItemDetailModal } from './ItemDetailModal';
 import { HeroSection } from './HeroSection';
-import { Cart, CartItem as CartItemType } from '../types';
 import { MenuItem } from '../../menu/types';
 import { useRestaurant } from '@/core/restaurant-hooks';
+import { useCart } from '../context/CartContext';
+import { CartProvider } from '../context/CartContext';
+import { CartItem } from '../../../../../shared/cart';
 
-const TAX_RATE = 0.0825; // 8.25% tax rate
-
-export const CustomerOrderPage: React.FC = () => {
+const CustomerOrderPageContent: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const { setRestaurant } = useRestaurant();
+  const { cart, addToCart, setIsCartOpen } = useCart();
   
   const [activeSection, setActiveSection] = useState<string | undefined>();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
-  
-  const [cart, setCart] = useState<Cart>(() => {
-    const savedCart = localStorage.getItem(`cart_${restaurantId}`);
-    if (savedCart) {
-      return JSON.parse(savedCart);
-    }
-    return {
-      items: [],
-      subtotal: 0,
-      tax: 0,
-      total: 0,
-      restaurantId: restaurantId || ''
-    };
-  });
 
   // Set restaurant context
   useEffect(() => {
@@ -49,77 +35,13 @@ export const CustomerOrderPage: React.FC = () => {
     }
   }, [restaurantId, setRestaurant]);
 
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    if (restaurantId) {
-      localStorage.setItem(`cart_${restaurantId}`, JSON.stringify(cart));
-    }
-  }, [cart, restaurantId]);
-
-  const calculateCartTotals = (items: CartItemType[]): Omit<Cart, 'items' | 'restaurantId'> => {
-    const subtotal = items.reduce((sum, item) => {
-      const itemPrice = item.price + (item.modifiers?.reduce((modSum, mod) => modSum + mod.price, 0) || 0);
-      return sum + (itemPrice * item.quantity);
-    }, 0);
-    
-    const tax = subtotal * TAX_RATE;
-    const total = subtotal + tax;
-    
-    return { subtotal, tax, total };
-  };
-
-  const addToCart = (item: CartItemType) => {
-    setCart(prevCart => {
-      const newItems = [...prevCart.items, item];
-      const totals = calculateCartTotals(newItems);
-      
-      return {
-        ...prevCart,
-        items: newItems,
-        ...totals
-      };
-    });
-    
-    // Show cart drawer after adding item
-    setIsCartOpen(true);
-  };
-
-  const updateCartItem = (itemId: string, updates: Partial<CartItemType>) => {
-    setCart(prevCart => {
-      const newItems = prevCart.items.map(item => 
-        item.id === itemId ? { ...item, ...updates } : item
-      );
-      const totals = calculateCartTotals(newItems);
-      
-      return {
-        ...prevCart,
-        items: newItems,
-        ...totals
-      };
-    });
-  };
-
-  const removeFromCart = (itemId: string) => {
-    setCart(prevCart => {
-      const newItems = prevCart.items.filter(item => item.id !== itemId);
-      const totals = calculateCartTotals(newItems);
-      
-      return {
-        ...prevCart,
-        items: newItems,
-        ...totals
-      };
-    });
-  };
-
   const handleItemClick = (item: MenuItem) => {
     setSelectedMenuItem(item);
     setIsItemModalOpen(true);
   };
 
-  const handleCheckout = () => {
-    // TODO: Implement checkout flow with Square
-    console.log('Proceeding to checkout with cart:', cart);
+  const handleAddToCart = (item: Omit<CartItem, 'id'>) => {
+    addToCart(item);
   };
 
   const cartItemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -179,14 +101,7 @@ export const CustomerOrderPage: React.FC = () => {
       </main>
 
       {/* Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        onUpdateItem={updateCartItem}
-        onRemoveItem={removeFromCart}
-        onCheckout={handleCheckout}
-      />
+      <CartDrawer />
 
       {/* Item Detail Modal */}
       <ItemDetailModal
@@ -196,8 +111,16 @@ export const CustomerOrderPage: React.FC = () => {
           setSelectedMenuItem(null);
         }}
         item={selectedMenuItem}
-        onAddToCart={addToCart}
+        onAddToCart={handleAddToCart}
       />
     </div>
+  );
+};
+
+export const CustomerOrderPage: React.FC = () => {
+  return (
+    <CartProvider>
+      <CustomerOrderPageContent />
+    </CartProvider>
   );
 };

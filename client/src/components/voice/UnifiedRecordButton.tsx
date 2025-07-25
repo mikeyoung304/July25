@@ -109,14 +109,14 @@ export const UnifiedRecordButton: React.FC<UnifiedRecordButtonProps> = ({
     buttonSize,
     {
       // State-based styles
-      'bg-red-500 hover:bg-red-600 text-white scale-110': isRecording,
-      'bg-blue-500 hover:bg-blue-600 text-white': !isRecording && isConnected,
-      'bg-gray-300 text-gray-500 cursor-not-allowed': !isConnected,
+      'bg-danger hover:bg-danger-dark text-white scale-110': isRecording,
+      'bg-primary hover:bg-primary-dark text-white': !isRecording && isConnected,
+      'bg-neutral-300 text-neutral-500 cursor-not-allowed': !isConnected,
       
       // Focus styles
-      'focus:ring-red-200': isRecording,
-      'focus:ring-blue-200': !isRecording && isConnected,
-      'focus:ring-gray-200': !isConnected,
+      'focus:ring-danger-200': isRecording,
+      'focus:ring-primary-200': !isRecording && isConnected,
+      'focus:ring-neutral-200': !isConnected,
       
       // Mode-specific styles
       'active:scale-95': mode === 'hold-to-talk',
@@ -134,7 +134,7 @@ export const UnifiedRecordButton: React.FC<UnifiedRecordButtonProps> = ({
       {isRecording && (
         <div
           className={cn(
-            'absolute rounded-full bg-red-400 animate-ping opacity-25',
+            'absolute rounded-full bg-danger-400 animate-ping opacity-25',
             pulseSize
           )}
           style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}

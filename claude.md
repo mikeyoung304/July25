@@ -110,10 +110,19 @@ npm run upload:menu  # Upload menu to AI service
 npm run check:integration  # Verify system health
 ```
 
+### **9. 🔑 Environment Variables**
+
+**CRITICAL**: All environment variables are in the root `.env` file only!
+- **NO** `.env` files in client/ or server/ directories
+- Both frontend and backend read from root `.env`
+- Use `VITE_` prefix only for values safe to expose to frontend
+- Sensitive keys (SERVICE_KEY, OPENAI_KEY, DATABASE_URL) are backend-only
+
 ---
 
 **Remember**: 
 - Unified backend on port 3001
 - No separate AI Gateway
 - client/ and server/ directories
+- All env vars in root `.env` file only
 - See ARCHITECTURE.md for any architecture questions

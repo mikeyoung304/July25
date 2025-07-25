@@ -12,6 +12,8 @@ import { AdminDashboard } from '@/pages/AdminDashboard'
 import KioskPage from '@/pages/KioskPage'
 import DriveThruPage from '@/pages/DriveThruPage'
 import { CustomerOrderPage } from '@/modules/order-system/components'
+import { CheckoutPage } from '@/pages/CheckoutPage'
+import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
 // Profiler callback for performance tracking
@@ -82,6 +84,20 @@ export function AppRoutes() {
               <ErrorBoundary level="section">
                 <Profiler id="CustomerOrder" onRender={onRenderCallback}>
                   <CustomerOrderPage />
+                </Profiler>
+              </ErrorBoundary>
+            } />
+            <Route path="/checkout" element={
+              <ErrorBoundary level="section">
+                <Profiler id="Checkout" onRender={onRenderCallback}>
+                  <CheckoutPage />
+                </Profiler>
+              </ErrorBoundary>
+            } />
+            <Route path="/order-confirmation" element={
+              <ErrorBoundary level="section">
+                <Profiler id="OrderConfirmation" onRender={onRenderCallback}>
+                  <OrderConfirmationPage />
                 </Profiler>
               </ErrorBoundary>
             } />

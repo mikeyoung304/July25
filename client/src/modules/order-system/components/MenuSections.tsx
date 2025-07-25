@@ -3,6 +3,7 @@ import { MenuSection } from './MenuSection';
 import { MenuItem } from '../../menu/types';
 import { menuSections } from '../types/menu-sections';
 import { useMenuItems } from '../../menu/hooks/useMenuItems';
+import { MenuItemCard } from './MenuItemCard';
 
 interface MenuSectionsProps {
   searchQuery: string;
@@ -54,10 +55,10 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-6">
           {filteredItems.map((item) => (
             <div key={item.id}>
-              {React.createElement(require('./MenuItemCard').MenuItemCard, {
-                item,
-                onClick: () => onItemClick(item)
-              })}
+              <MenuItemCard
+                item={item}
+                onClick={() => onItemClick(item)}
+              />
             </div>
           ))}
         </div>

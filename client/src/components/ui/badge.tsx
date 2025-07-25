@@ -19,9 +19,9 @@ const badgeVariants = cva(
           "hover:from-macon-orange/20 hover:to-macon-orange/10 hover:shadow-elevation-1 " +
           "hover:scale-[1.05] active:scale-[0.98]",
         destructive:
-          "bg-gradient-to-br from-red-100 to-red-50 text-red-700 " +
-          "border border-red-200/50 shadow-sm " +
-          "hover:from-red-200 hover:to-red-100 hover:shadow-elevation-1 " +
+          "bg-gradient-to-br from-danger-100 to-danger-50 text-danger-700 " +
+          "border border-danger-200/50 shadow-sm " +
+          "hover:from-danger-200 hover:to-danger-100 hover:shadow-elevation-1 " +
           "hover:scale-[1.05] active:scale-[0.98]",
         outline: 
           "border border-neutral-300 text-neutral-700 " +
@@ -35,9 +35,9 @@ const badgeVariants = cva(
           "before:absolute before:inset-0 before:bg-gradient-radial before:from-macon-teal/20 before:to-transparent " +
           "before:opacity-0 hover:before:opacity-100 before:transition-opacity before:-z-10",
         warning:
-          "bg-gradient-to-br from-amber-100 to-amber-50 text-amber-700 " +
-          "border border-amber-200/50 shadow-sm " +
-          "hover:from-amber-200 hover:to-amber-100 hover:shadow-elevation-1 " +
+          "bg-gradient-to-br from-warning-100 to-warning-50 text-warning-700 " +
+          "border border-warning-200/50 shadow-sm " +
+          "hover:from-warning-200 hover:to-warning-100 hover:shadow-elevation-1 " +
           "hover:scale-[1.05] active:scale-[0.98]",
       },
     },
