@@ -44,20 +44,20 @@ export function useOrderUrgency(
 
     if (waitTime >= config.highThreshold) {
       urgencyLevel = 'critical';
-      urgencyColor = 'text-red-700';
-      urgencyBgColor = 'bg-red-50 border-red-200';
+      urgencyColor = 'text-danger-700';
+      urgencyBgColor = 'bg-danger-50 border-danger-200';
     } else if (waitTime >= config.mediumThreshold) {
       urgencyLevel = 'high';
-      urgencyColor = 'text-orange-700';
-      urgencyBgColor = 'bg-orange-50 border-orange-200';
+      urgencyColor = 'text-warning-700';
+      urgencyBgColor = 'bg-warning-50 border-warning-200';
     } else if (waitTime >= config.lowThreshold) {
       urgencyLevel = 'medium';
-      urgencyColor = 'text-yellow-700';
-      urgencyBgColor = 'bg-yellow-50 border-yellow-100';
+      urgencyColor = 'text-warning-600';
+      urgencyBgColor = 'bg-warning-50 border-warning-100';
     } else {
       urgencyLevel = 'low';
-      urgencyColor = 'text-gray-600';
-      urgencyBgColor = 'bg-white border-gray-200';
+      urgencyColor = 'text-neutral-600';
+      urgencyBgColor = 'bg-white border-neutral-200';
     }
 
     // Check if order is overdue based on estimated ready time

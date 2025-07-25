@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ShoppingCart, Package, Utensils } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
+import { spacing } from '@/lib/typography'
 
 interface DashboardCardProps {
   title: string
@@ -26,17 +28,16 @@ function DashboardCard({
       transition={{ delay: delay * 0.1, duration: 0.5, ease: 'easeOut' }}
     >
       <Link to={href}>
-        <Card className="p-8 h-full min-h-[250px] group cursor-pointer hover:shadow-lg transition-shadow duration-300">
-          <div className="flex flex-col items-center justify-center h-full space-y-6">
+        <Card className={`${spacing.component.card} h-full min-h-[250px] group cursor-pointer hover:shadow-elevation-3 transition-all duration-300`}>
+          <div className={`flex flex-col items-center justify-center h-full ${spacing.content.stackLarge}`}>
             <div
-              className="p-4 rounded-xl transition-transform duration-300 group-hover:scale-110"
-              style={{ backgroundColor: iconBg }}
+              className={`p-4 rounded-xl transition-transform duration-300 group-hover:scale-110 ${iconBg}`}
             >
               {icon}
             </div>
-            <h2 className="text-2xl font-bold text-macon-navy">
+            <SectionTitle as="h2">
               {title}
-            </h2>
+            </SectionTitle>
           </div>
         </Card>
       </Link>
@@ -48,43 +49,43 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-macon-background">
       <div className="relative overflow-hidden py-20">
-        <div className="relative max-w-7xl mx-auto px-8">
-          <div className="flex flex-col items-center space-y-12">
+        <div className={`relative ${spacing.page.container} ${spacing.page.padding}`}>
+          <div className={`flex flex-col items-center ${spacing.content.stackLarge}`}>
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="text-center space-y-2"
             >
-              <h1 className="text-4xl font-bold text-macon-navy">
+              <PageTitle>
                 Restaurant Command Center
-              </h1>
-              <p className="text-gray-600">
+              </PageTitle>
+              <Body className="text-neutral-600">
                 Select a module to manage your operations
-              </p>
+              </Body>
             </motion.div>
             
-            <div className="grid md:grid-cols-3 gap-8 w-full max-w-4xl">
+            <div className={`grid md:grid-cols-3 ${spacing.grid.gapLarge} w-full max-w-4xl`}>
               <DashboardCard
                 title="Orders"
-                icon={<ShoppingCart className="h-12 w-12 text-macon-orange" />}
-                iconBg="#ff6b3533"
+                icon={<ShoppingCart className="h-12 w-12 text-secondary" />}
+                iconBg="bg-secondary/10"
                 href="/history"
                 delay={0}
               />
               
               <DashboardCard
                 title="Expo"
-                icon={<Package className="h-12 w-12 text-macon-teal" />}
-                iconBg="#00b4d833"
+                icon={<Package className="h-12 w-12 text-accent" />}
+                iconBg="bg-accent/10"
                 href="/expo"
                 delay={1}
               />
               
               <DashboardCard
                 title="Kitchen"
-                icon={<Utensils className="h-12 w-12 text-macon-navy" />}
-                iconBg="#0a253033"
+                icon={<Utensils className="h-12 w-12 text-primary" />}
+                iconBg="bg-primary/10"
                 href="/kitchen"
                 delay={2}
               />

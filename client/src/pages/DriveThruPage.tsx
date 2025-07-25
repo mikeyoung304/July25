@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Headphones, User } from 'lucide-react';
 import { VoiceOrderProvider } from '@/modules/voice/contexts/VoiceOrderContext';
 import { useVoiceOrder } from '@/modules/voice/hooks/useVoiceOrder';
 import VoiceControl from '@/modules/voice/components/VoiceControl';
@@ -165,25 +165,30 @@ const DriveThruPageContent: React.FC = () => {
   }
 
   return (
-    <div className="h-screen bg-gray-900 text-white p-6">
+    <div className="h-screen bg-neutral-900 text-white p-6">
       <div className="max-w-6xl mx-auto h-full flex flex-col">
-        <h1 className="text-4xl font-bold text-center mb-6">DRIVE-THRU ORDER</h1>
+        <h1 className="text-4xl font-bold text-center mb-8 text-primary-50">DRIVE-THRU ORDER</h1>
 
         {/* Conversation Section */}
-        <div className="flex-1 bg-gray-800 rounded-lg p-6 mb-6 overflow-hidden">
-          <div className="h-full overflow-y-auto space-y-4" style={{ fontSize: '1.5rem' }}>
+        <div className="flex-1 bg-neutral-800 rounded-xl p-6 mb-6 overflow-hidden shadow-elevation-2">
+          <div className="h-full overflow-y-auto space-y-4">
             {conversation.map((entry) => (
-              <div key={entry.id} className="mb-4">
-                <p className={`${entry.speaker === 'ai' ? 'text-blue-400' : 'text-white'} font-semibold`}>
-                  {entry.speaker === 'ai' ? '🎧 ' : '🗣️ '}
+              <div key={entry.id} className="mb-4 flex items-start gap-3">
+                {entry.speaker === 'ai' ? (
+                  <Headphones className="w-6 h-6 text-info-400 flex-shrink-0 mt-1" />
+                ) : (
+                  <User className="w-6 h-6 text-white flex-shrink-0 mt-1" />
+                )}
+                <p className={`${entry.speaker === 'ai' ? 'text-info-400' : 'text-white'} font-semibold text-lg`}>
                   {entry.text}
                 </p>
               </div>
             ))}
             {currentTranscript && (
-              <div className="mb-4">
-                <p className="text-gray-400 italic">
-                  🗣️ {currentTranscript}...
+              <div className="mb-4 flex items-start gap-3">
+                <User className="w-6 h-6 text-neutral-400 flex-shrink-0 mt-1" />
+                <p className="text-neutral-400 italic text-lg">
+                  {currentTranscript}...
                 </p>
               </div>
             )}

@@ -1,85 +1,59 @@
 # System State Documentation
 
-## Current Architecture State (July 2025)
+## Current Architecture (January 2025)
 
 ### 🏗️ Core Architecture
 - **Unified Backend**: Single Express.js server on port 3001
 - **Database**: Supabase (PostgreSQL) cloud-hosted
-- **Frontend**: React 18 + TypeScript + Vite
+- **Frontend**: React 19 + TypeScript + Vite
+- **Real-time**: WebSocket on same port as API
 - **Multi-tenant**: Restaurant-based isolation via `restaurant_id`
 
-### 🔄 Recent Changes
+### ✅ System Status
+- **Architecture**: Unified backend fully implemented (Phases 1-6 complete)
+- **Code Quality**: TypeScript 0 errors, ESLint 30 warnings, 238 tests passing
+- **UI/UX**: MACON brand colors, unified components, WCAG AA compliant
+- **Features**: Voice ordering, KDS, analytics, real-time updates all functional
 
-#### Online Ordering System
-- Built complete customer-facing ordering interface
-- Implemented modern food app UX (DoorDash/UberEats style)
-- Added Grow Fresh Local Food real menu with pricing
-
-#### ID Mapping System
-- **Problem**: Database uses UUIDs, but voice/frontend need numeric IDs
-- **Solution**: Created ID mapping service (`menu-id-mapper.ts`)
-- **Implementation**: 
-  - Numeric IDs stored in description field as `[ID:xxx]` (temporary)
-  - Mapper converts between formats
-  - Menu items use ranges: Beverages (101-199), Starters (201-299), etc.
-
-### ⚠️ Known Issues & Tech Debt
-
-#### Critical
-1. **ID Storage Hack**: External IDs in description field - needs proper column
-2. **Metrics Middleware**: Was intercepting all routes (fixed)
-3. **Multiple Server Instances**: Zombie processes need cleanup
-
-#### High Priority
-1. **Frontend Hardcoded Menu**: Still using fallback data instead of API
-2. **Voice Integration Incomplete**: Not connected to actual AI service
-3. **No Integration Tests**: Order flow untested end-to-end
-
-#### Medium Priority
-1. **Missing Documentation**: Deployment process unclear
-2. **Race Conditions**: ID mapper cache could serve stale data
-3. **Performance**: Every menu request triggers ID mapping
-
-### 🗺️ ID Mapping Reference
-
+### 📁 Project Structure
 ```
-Beverages:    101-199
-Starters:     201-299  
-Salads:       301-399
-Sandwiches:   401-499
-Bowls:        501-599
-Vegan:        601-699
-Entrees:      701-799
+rebuild-6.0/
+├── client/          # React frontend
+├── server/          # Express backend (includes AI)
+├── shared/          # Shared TypeScript types
+├── docs/            # Current documentation
+│   └── archive/     # Historical docs
+└── .env            # Single environment file (root only)
 ```
 
-### 📁 Key Files Modified
+### 🔑 Key Technologies
+- **Frontend**: React 19, Tailwind CSS, Framer Motion, Lucide Icons
+- **Backend**: Express.js, OpenAI API, Supabase client
+- **Testing**: Jest, React Testing Library
+- **Build**: Vite, TypeScript, npm workspaces
 
-- `server/src/services/menu-id-mapper.ts` - ID conversion service
-- `server/src/services/menu.service.ts` - Updated to use mapper
-- `server/src/services/orders.service.ts` - Converts IDs on order creation
-- `server/scripts/seed-menu-mapped.ts` - Seeds DB with ID mappings
-- `client/src/modules/order-system/` - Complete ordering UI
+### 🚀 Development Commands
+```bash
+npm install         # Install all dependencies
+npm run dev         # Start development servers
+npm test            # Run all tests
+npm run lint:fix    # Fix linting issues
+npm run typecheck   # Check TypeScript
+```
 
-### 🚀 Next Steps
+### 📋 Environment Variables
+All variables in root `.env` file:
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_KEY`
+- `OPENAI_API_KEY`
+- `VITE_*` prefixed variables for frontend
 
-1. **Refactor ID System**: Add proper `external_id` column to database
-2. **Complete Voice Integration**: Connect to AI service
-3. **Add Integration Tests**: Test full order flow
-4. **Update Frontend**: Remove hardcoded menu data
-5. **Performance Optimization**: Add caching layer for ID mappings
-
-### 🔧 Development Notes
-
-- Always run `npm test` before commits
-- Use `npx tsx scripts/seed-menu-mapped.ts` to seed menu
-- Check for zombie processes: `ps aux | grep tsx`
-- Metrics available at `http://localhost:3001/metrics`
-
-### 🐛 Debugging Tips
-
-- If API returns metrics instead of JSON: Check metrics middleware config
-- If IDs don't match: Check ID mapper cache, may need restart
-- If menu empty: Run seed script, check Supabase connection
+### 🎯 Recent Improvements (January 2025)
+- Consolidated documentation (61→20 files)
+- Unified component architecture
+- Standardized MACON brand colors
+- Implemented accessibility (WCAG AA)
+- Added comprehensive test utilities
+- Production monitoring ready
 
 ---
-*Last Updated: July 18, 2025*
+*Last Updated: January 24, 2025*

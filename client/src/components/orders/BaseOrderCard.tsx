@@ -1,6 +1,6 @@
 import React from 'react';
 import { Order } from '@rebuild/shared';
-import { OrderHeaders } from '@/components/shared/order/OrderHeaders';
+import { OrderHeader } from '@/components/shared/order/OrderHeaders';
 import { OrderItemsList } from '@/components/shared/order/OrderItemsList';
 import { OrderActions } from '@/components/shared/order/OrderActions';
 import { useOrderUrgency } from './useOrderUrgency';
@@ -91,12 +91,9 @@ export const BaseOrderCard: React.FC<BaseOrderCardProps> = ({
 
       {/* Header Section */}
       <div className={headerContainerClasses}>
-        <OrderHeaders
+        <OrderHeader
           orderNumber={order.order_number}
-          customerName={order.customer_name}
-          tableNumber={order.table_number}
-          status={order.status}
-          variant={variant === 'compact' ? 'minimal' : 'default'}
+          status={order.status as 'new' | 'preparing' | 'ready'}
         />
         
         {/* Timer */}
@@ -137,10 +134,9 @@ export const BaseOrderCard: React.FC<BaseOrderCardProps> = ({
       {showActions && layout === 'card' && onStatusChange && (
         <div className="mt-3">
           <OrderActions
-            orderId={order.id}
-            status={order.status}
-            onStatusChange={onStatusChange}
-            variant={variant === 'kds' ? 'kds' : 'default'}
+            status={order.status as 'new' | 'preparing' | 'ready'}
+            onStatusChange={(newStatus) => onStatusChange?.(order.id, newStatus as Order['status'])}
+            orderNumber={order.order_number}
           />
         </div>
       )}
