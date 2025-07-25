@@ -13,7 +13,7 @@ jest.mock('@/core/restaurant-hooks', () => ({
   })
 }));
 
-jest.mock('@/services/menuService', () => ({
+jest.mock('@/services/menu/MenuService', () => ({
   getMenuSections: jest.fn().mockResolvedValue([
     {
       id: 'section-1',
