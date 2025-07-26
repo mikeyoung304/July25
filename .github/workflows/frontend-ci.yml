@@ -20,5 +20,4 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test -- src/modules/order-system/context/CartContext.test.tsx --runInBand
-      # enable once fully deterministic:
-      # - run: npm test -- src/modules/order-system/__tests__/checkout.e2e.test.tsx --runInBand
+      - run: npm test -- src/modules/order-system/__tests__/checkout.e2e.test.tsx --runInBand
