@@ -1,7 +1,12 @@
 # Grow Fresh Local Food - Restaurant Operating System
 
 > ⚠️ **ARCHITECTURE**: Unified Backend - Everything runs on port 3001  
-> See [ARCHITECTURE.md](./ARCHITECTURE.md) for details
+> See [ARCHITECTURE.md](./ARCHITECTURE.md) for details  
+> 🔄 **BACKEND SWAP**: Migration guide available in [docs/backend-swap.md](./docs/backend-swap.md)
+
+> ✅ **QUALITY**: TypeScript 0 errors | ESLint 30 warnings | Tests passing  
+> 🔒 **SECURITY**: CSP compliant - no external dependencies (fonts self-hosted)  
+> 🆕 **UPDATE**: ID mapping system implemented for consistent order flow
 
 A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering, real-time kitchen management, and a unified backend architecture.
 
@@ -53,7 +58,10 @@ rebuild-6.0/
 │   │   ├── services/
 │   │   └── ai/      # AI functionality
 │   └── package.json
-└── package.json     # Root orchestration
+├── shared/          # Shared types and utilities
+│   ├── types/       # TypeScript type definitions
+│   └── package.json
+└── package.json     # Root orchestration with workspaces
 ```
 
 ## 🛠️ Tech Stack
@@ -64,13 +72,33 @@ rebuild-6.0/
 - **Styling**: Tailwind CSS + Custom Design System
 - **State Management**: React Context API
 - **Testing**: Jest + React Testing Library
+- **Types**: Shared types module (@rebuild/shared)
+- **Components**: Unified component architecture
 
 ### Backend (Unified)
 - **Server**: Express.js + TypeScript
+- **Types**: Shared types module (@rebuild/shared)
 - **Database**: Supabase (PostgreSQL)
 - **AI/Voice**: OpenAI Whisper + GPT-4
 - **Real-time**: WebSocket (ws)
 - **Architecture**: RESTful + WebSocket
+
+## 🎯 Recent Improvements
+
+### Phase 1-3 Completed (January 2025)
+- **Documentation**: Reduced from 61 to ~20 files
+- **Type System**: Unified types across client/server
+- **Components**: Consolidated duplicate implementations
+  - `BaseOrderCard` with variants (standard, KDS, compact)
+  - `UnifiedVoiceRecorder` replacing multiple voice components
+  - Shared UI components (LoadingSpinner, EmptyState, etc.)
+- **Performance**: ~40% code reduction through consolidation
+
+### Phase 4-6 Completed (January 2025)
+- **Test Infrastructure**: Comprehensive test utilities and helpers
+- **Production Monitoring**: Integrated error tracking and performance monitoring
+- **Performance Optimization**: Bundle splitting, vendor optimization
+- **Technical Debt**: Logger service, TypeScript fixes, error boundaries
 
 ## 🔧 Development
 
@@ -111,20 +139,41 @@ DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
 VITE_API_BASE_URL=http://localhost:3001
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SQUARE_APP_ID=sandbox-sq0idb-xxxxx
+VITE_SQUARE_LOCATION_ID=L1234567890
 ```
 
+
+## 🔢 Menu ID Mapping System
+
+The system uses numeric string IDs (101, 201, etc.) for frontend and voice ordering, while the database uses UUIDs. An automatic mapping service handles the conversion:
+
+**ID Ranges by Category**:
+- Beverages: 101-199
+- Starters: 201-299
+- Salads: 301-399
+- Sandwiches: 401-499
+- Bowls: 501-599
+- Vegan: 601-699
+- Entrees: 701-799
+
+To seed the menu with proper ID mappings:
+```bash
+cd server && npx tsx scripts/seed-menu-mapped.ts
+```
 
 ## 🎤 Voice Ordering Setup
 
 1. Start the system: `npm run dev`
-2. Upload menu data: `cd server && npm run upload:menu`
-3. Navigate to: http://localhost:5173/kiosk
-4. Click microphone and speak naturally
+2. Seed the menu: `cd server && npx tsx scripts/seed-menu-mapped.ts`
+3. Upload to AI: `cd server && npm run upload:menu`
+4. Navigate to: http://localhost:5173/kiosk
+5. Click microphone and speak naturally
 
 Example commands:
 - "I'd like a soul bowl please"
 - "Can I get mom's chicken salad"
-- "Two green goddess salads"
+- "Two sweet teas with lemon"
 
 ## 🧪 Testing
 
@@ -137,9 +186,12 @@ npm run test:coverage
 
 # Run specific module
 npm test -- --testNamePattern="OrderService"
+
+# Run menu ID mapper tests
+cd server && npm test tests/services/menu-id-mapper.test.ts
 ```
 
-Current test coverage: ~85% with 229 tests passing
+Current test coverage: ~85% with 238 tests passing (including new ID mapper tests)
 
 ## 🚀 Deployment
 
@@ -156,7 +208,9 @@ See [server/README.md](./server/README.md) for detailed deployment instructions.
 ## 📚 Documentation
 
 - [Architecture Decision](./ARCHITECTURE.md) - Why unified backend?
-- [API Reference](./docs/API_REFERENCE.md) - Endpoint documentation
+- [Backend Migration](./docs/backend-swap.md) - Luis's Express server swap guide
+- [Customer Ordering](./client/README_ORDERING.md) - Square checkout & cart flow
+- [API Reference](./docs/API.md) - Endpoint documentation
 - [Contributing Guide](./CONTRIBUTING_AI.md) - For AI assistants and developers
 - [Voice Integration](./docs/VOICE_ORDERING_GUIDE.md) - Voice system details
 

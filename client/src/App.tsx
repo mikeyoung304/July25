@@ -11,7 +11,7 @@ import { env } from '@/utils/env'
 import './App.css'
 
 function App() {
-  const isDevelopment = env.DEV
+  const isDevelopment = env.DEV || false
   const [showSplash, setShowSplash] = useState(true)
 
   const handleAnimationComplete = () => {

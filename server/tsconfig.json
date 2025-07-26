@@ -4,7 +4,7 @@
     "module": "commonjs",
     "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDirs": ["./src", "../shared"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -23,10 +23,15 @@
     "allowJs": false,
     "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@rebuild/shared": ["../shared/types"],
+      "@rebuild/shared/*": ["../shared/types/*"]
+    }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "../shared/**/*"
   ],
   "exclude": [
     "node_modules",

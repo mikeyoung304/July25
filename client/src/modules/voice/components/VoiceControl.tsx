@@ -54,7 +54,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
         };
       } catch (error) {
         // Fallback for browsers that don't support permissions API
-        console.log('Permissions API not supported, will check on user interaction', error);
+        console.warn('Permissions API not supported, will check on user interaction', error);
       }
     };
     

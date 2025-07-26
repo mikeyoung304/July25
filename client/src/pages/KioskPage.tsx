@@ -20,7 +20,7 @@ const KioskPageContent: React.FC = () => {
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [isFirstPress, setIsFirstPress] = useState(true);
   const { items, addItem, removeItem, updateQuantity, total, itemCount } = useVoiceOrder();
-  const { menuItems, loading } = useMenuItems();
+  const { items: menuItems, loading } = useMenuItems();
   const [orderParser, setOrderParser] = useState<OrderParser | null>(null);
 
   useEffect(() => {
