@@ -21,10 +21,10 @@ rebuild-6.0/
 
 ## Test Statistics
 
-- **Total Tests**: 238
+- **Total Tests**: 46 (42 client + 4 server)
 - **Test Suites**: 34
-- **Coverage**: ~85%
-- **ESLint Warnings**: 30 (non-blocking)
+- **Coverage**: ~24.8%
+- **ESLint Warnings**: 71 (non-blocking)
 
 ## Running Tests
 

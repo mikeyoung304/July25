@@ -4,7 +4,7 @@
 > See [ARCHITECTURE.md](./ARCHITECTURE.md) for details  
 > 🔄 **BACKEND SWAP**: Migration guide available in [docs/backend-swap.md](./docs/backend-swap.md)
 
-> ✅ **QUALITY**: TypeScript 0 errors | ESLint 30 warnings | Tests passing  
+> ✅ **QUALITY**: TypeScript 0 errors | ESLint 71 warnings | Tests passing  
 > 🔒 **SECURITY**: CSP compliant - no external dependencies (fonts self-hosted)  
 > 🆕 **UPDATE**: ID mapping system implemented for consistent order flow
 
@@ -188,10 +188,10 @@ npm run test:coverage
 npm test -- --testNamePattern="OrderService"
 
 # Run menu ID mapper tests
-cd server && npm test tests/services/menu-id-mapper.test.ts
+cd server && npm test
 ```
 
-Current test coverage: ~85% with 238 tests passing (including new ID mapper tests)
+Current test coverage: ~24.8% with 46 tests passing (including new ID mapper tests)
 
 ## 🚀 Deployment
 
