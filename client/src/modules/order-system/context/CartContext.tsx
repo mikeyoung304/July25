@@ -1,27 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Cart, CartItem, calculateCartTotals } from '../../../../../shared/cart';
 import { useParams } from 'react-router-dom';
-
-interface CartContextType {
-  cart: Cart;
-  addToCart: (item: Omit<CartItem, 'id'>) => void;
-  updateCartItem: (itemId: string, updates: Partial<CartItem>) => void;
-  removeFromCart: (itemId: string) => void;
-  clearCart: () => void;
-  updateTip: (tip: number) => void;
-  isCartOpen: boolean;
-  setIsCartOpen: (open: boolean) => void;
-}
-
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within CartProvider');
-  }
-  return context;
-};
+import { CartContext } from './cartContext.context';
 
 interface CartProviderProps {
   children: React.ReactNode;

@@ -128,18 +128,3 @@ export const Price: React.FC<TypographyProps> = ({
     {children}
   </Component>
 );
-
-// Export all components
-export const Typography = {
-  PageTitle,
-  SectionTitle,
-  CardTitle,
-  Subtitle,
-  Body,
-  BodyLarge,
-  BodySmall,
-  Label,
-  Caption,
-  Stat,
-  Price,
-};

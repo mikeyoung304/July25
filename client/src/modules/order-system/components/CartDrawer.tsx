@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { CartItem } from './CartItem';
 import { CartSummary } from './CartSummary';
 import { CheckoutButton } from './CheckoutButton';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../context/cartContext.hooks';
 
 export const CartDrawer: React.FC = () => {
   const navigate = useNavigate();

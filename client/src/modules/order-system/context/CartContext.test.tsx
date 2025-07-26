@@ -1,7 +1,8 @@
 import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { CartProvider, useCart } from './CartContext';
+import { CartProvider } from './CartContext';
+import { useCart } from './cartContext.hooks';
 import { CartItem } from '../../../../../shared/cart';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
