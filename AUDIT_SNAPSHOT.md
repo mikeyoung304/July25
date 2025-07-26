@@ -1,9 +1,11 @@
 # AUDIT_SNAPSHOT
 
 > **Post-Cleanup Note (January 2025)**: This snapshot was taken before the Phase 1 documentation cleanup. Many files referenced here have been deleted or consolidated:
-> - `/docs/archive/pre-backend/` directory (27 files) - DELETED
+> - `/docs/archive/pre-backend/` directory (27 files) - **DELETED** (All references below are historical)
 > - `DOCUMENTATION_DEBT_ANALYSIS.md`, `DOCUMENTATION_UPDATE_REPORT.md`, `docs/DOCUMENTATION_AUDIT_REPORT.md` - MERGED into `/docs/DOCUMENTATION.md`
 > - `docs/QUICK_START.md`, `server/QUICK_START_GROW_FRESH.md` - CONSOLIDATED into root `/QUICK_START.md`
+>
+> **IMPORTANT**: This is a historical audit snapshot. Files listed as "pre-backend" no longer exist in the repository.
 
 ## 1. REPO_METADATA
 

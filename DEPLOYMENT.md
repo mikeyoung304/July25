@@ -135,10 +135,13 @@ server {
 }
 ```
 
-### Option 2: Docker
+### Option 2: Docker (ARCHIVED - Not Currently Implemented)
+
+> **Note**: Docker configuration is not currently implemented in this project. 
+> This section is preserved for reference if Docker deployment is needed in the future.
 
 ```dockerfile
-# Dockerfile
+# Example Dockerfile (NOT CURRENTLY IN PROJECT)
 FROM node:18-alpine AS builder
 
 WORKDIR /app
@@ -326,7 +329,7 @@ rm backup_$DATE.sql
 ### Application Backups
 
 - Git tags for each release
-- Docker images in registry
+- ~~Docker images in registry~~ (Docker not currently used)
 - Configuration in version control
 
 ## Troubleshooting
