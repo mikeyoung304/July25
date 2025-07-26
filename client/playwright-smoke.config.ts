@@ -5,7 +5,7 @@ export default defineConfig({
   timeout: 30 * 1000,
   retries: 2,
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:4173', // Use preview port for production build
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },

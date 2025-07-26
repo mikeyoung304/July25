@@ -1,46 +1,85 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Basic route smoke tests', () => {
-  test('home page loads', async ({ page }) => {
+  test('home page loads with expected content', async ({ page }) => {
     await page.goto('/');
     
-    // Check page loaded
-    await expect(page).toHaveURL(/.*localhost.*/);
+    // Wait for page to be fully loaded
+    await page.waitForLoadState('networkidle');
     
-    // Check for basic content (adjust based on your actual home page)
-    const title = await page.title();
-    expect(title).toBeTruthy();
+    // Check URL
+    await expect(page).toHaveURL('http://localhost:4173/');
     
-    // Take screenshot for CI artifacts
-    await page.screenshot({ path: 'smoke-home.png' });
+    // Check for actual home page content - look for the hero section
+    await expect(page.locator('text=Fresh, Healthy, Local')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=Farm-to-table meals delivered')).toBeVisible();
+    
+    // Verify React app mounted successfully
+    const rootElement = page.locator('#root');
+    await expect(rootElement).toBeVisible();
+    await expect(rootElement).not.toBeEmpty();
   });
 
-  test('checkout page loads', async ({ page }) => {
+  test('checkout page loads with cart message', async ({ page }) => {
     await page.goto('/checkout');
     
-    // Check page loaded
-    await expect(page).toHaveURL(/.*checkout.*/);
+    // Wait for page to be fully loaded
+    await page.waitForLoadState('networkidle');
     
-    // Check for checkout-specific content
-    // This is a basic check - adjust based on your actual checkout page
-    const pageContent = await page.content();
-    expect(pageContent).toContain('<!DOCTYPE html>');
+    // Check URL
+    await expect(page).toHaveURL('http://localhost:4173/checkout');
     
-    // Take screenshot for CI artifacts
-    await page.screenshot({ path: 'smoke-checkout.png' });
+    // Check for empty cart message (since we haven't added items)
+    await expect(page.locator('text=Your cart is empty')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=Back to Menu')).toBeVisible();
+    
+    // Verify React app mounted successfully
+    const rootElement = page.locator('#root');
+    await expect(rootElement).toBeVisible();
+    await expect(rootElement).not.toBeEmpty();
   });
 
-  test('navigation between pages works', async ({ page }) => {
-    // Start at home
-    await page.goto('/');
+  test('order page loads with menu sections', async ({ page }) => {
+    await page.goto('/order/test-restaurant');
     
-    // Navigate to checkout (adjust selector based on your actual navigation)
-    // For now, just directly navigate
+    // Wait for page to be fully loaded
+    await page.waitForLoadState('networkidle');
+    
+    // Check URL
+    await expect(page).toHaveURL('http://localhost:4173/order/test-restaurant');
+    
+    // Check for restaurant header
+    await expect(page.locator('text=Grow Fresh')).toBeVisible({ timeout: 5000 });
+    
+    // Check for menu sections
+    await expect(page.locator('text=Popular Items')).toBeVisible();
+    
+    // Verify cart button is present
+    const cartButton = page.locator('[aria-label*="cart"]');
+    await expect(cartButton).toBeVisible();
+  });
+
+  test('app renders without console errors', async ({ page }) => {
+    const consoleErrors: string[] = [];
+    
+    // Listen for console errors
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+    
+    // Visit main pages
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    
     await page.goto('/checkout');
-    await expect(page).toHaveURL(/.*checkout.*/);
+    await page.waitForLoadState('networkidle');
     
-    // Navigate back to home
-    await page.goto('/');
-    await expect(page).toHaveURL(/.*localhost.*5173\/?$/);
+    await page.goto('/order/test-restaurant');
+    await page.waitForLoadState('networkidle');
+    
+    // Verify no console errors
+    expect(consoleErrors).toHaveLength(0);
   });
 });

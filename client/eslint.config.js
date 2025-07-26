@@ -39,15 +39,4 @@ export default tseslint.config([
       'react-refresh/only-export-components': 'off'
     }
   },
-  {
-    files: [
-      'src/components/ui/Typography.tsx',
-      'src/components/ui/LiveRegion.tsx',
-      'src/components/ui/ScreenReaderAnnouncement.tsx',
-      'src/modules/order-system/context/CartContext.tsx'
-    ],
-    rules: {
-      'react-refresh/only-export-components': 'off'
-    }
-  },
 ], storybook.configs["flat/recommended"]);
