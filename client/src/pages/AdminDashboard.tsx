@@ -7,6 +7,8 @@ import { Card } from '@/components/ui/card'
 import { FloorPlanEditor } from '@/modules/floor-plan/components/FloorPlanEditor'
 import { RestaurantContext } from '@/core/restaurant-types'
 import { Table } from '@/modules/floor-plan/types'
+import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
+import { spacing } from '@/lib/typography'
 
 export function AdminDashboard() {
   const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics'>('overview')
@@ -37,10 +39,10 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FBFBFA' }}>
+    <div className="min-h-screen bg-macon-background">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="bg-white shadow-elevation-1 border-b border-neutral-200">
+        <div className={`${spacing.page.container} py-4 flex items-center justify-between`}>
           <div className="flex items-center space-x-4">
             <Link to="/">
               <Button variant="ghost" size="sm">
@@ -48,37 +50,37 @@ export function AdminDashboard() {
                 Back to Home
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-macon-logo-blue">Admin Dashboard</h1>
+            <PageTitle as="h1" className="text-2xl md:text-3xl">Admin Dashboard</PageTitle>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className={`${spacing.page.container} ${spacing.page.padding}`}>
         {activeView === 'overview' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className={`grid grid-cols-1 md:grid-cols-2 ${spacing.grid.gapLarge} max-w-4xl mx-auto`}>
               {/* Floor Plan Creator */}
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <Card 
-                  className="p-8 cursor-pointer bg-white hover:shadow-large transition-all"
+                  className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all`}
                   onClick={() => setActiveView('floorplan')}
                 >
-                  <div className="flex flex-col items-center space-y-4">
+                  <div className={`flex flex-col items-center ${spacing.content.stack}`}>
                     <div className="p-4 rounded-xl bg-macon-logo-blue/10">
                       <LayoutGrid className="h-12 w-12 text-macon-logo-blue" />
                     </div>
-                    <h2 className="text-2xl font-bold text-macon-logo-blue">Floor Plan Creator</h2>
-                    <p className="text-neutral-600 text-center">
+                    <SectionTitle as="h2" className="text-center">Floor Plan Creator</SectionTitle>
+                    <Body className="text-center">
                       Design and manage your restaurant floor layout with drag-and-drop interface
-                    </p>
+                    </Body>
                   </div>
                 </Card>
               </motion.div>
@@ -89,17 +91,17 @@ export function AdminDashboard() {
                 whileTap={{ scale: 0.98 }}
               >
                 <Card 
-                  className="p-8 cursor-pointer bg-white hover:shadow-large transition-all"
+                  className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all`}
                   onClick={() => setActiveView('analytics')}
                 >
-                  <div className="flex flex-col items-center space-y-4">
+                  <div className={`flex flex-col items-center ${spacing.content.stack}`}>
                     <div className="p-4 rounded-xl bg-macon-teal/10">
                       <BarChart3 className="h-12 w-12 text-macon-teal" />
                     </div>
-                    <h2 className="text-2xl font-bold text-macon-logo-blue">Analytics</h2>
-                    <p className="text-neutral-600 text-center">
+                    <SectionTitle as="h2" className="text-center">Analytics</SectionTitle>
+                    <Body className="text-center">
                       View restaurant performance metrics and operational insights
-                    </p>
+                    </Body>
                   </div>
                 </Card>
               </motion.div>

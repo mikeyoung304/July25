@@ -3,6 +3,7 @@
  * Provides a simple event emitter for WebSocket service
  */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventHandler = (...args: any[]) => void
 
 export class EventEmitter {
@@ -27,6 +28,7 @@ export class EventEmitter {
     return this
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   emit(event: string, ...args: any[]): boolean {
     const handlers = this.events.get(event)
     if (!handlers || handlers.size === 0) {

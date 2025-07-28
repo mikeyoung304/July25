@@ -12,7 +12,7 @@ Voice transcription is handled by the unified backend on port 3001:
 ## Setup
 
 The OpenAI API key should be configured in the **backend** only:
-1. Add to `server/.env`:
+1. Add to root `.env`:
    ```
    OPENAI_API_KEY=your_api_key_here
    ```
@@ -27,7 +27,7 @@ The transcription is automatically integrated into the `useAudioCapture` hook. A
 The service handles various error cases:
 
 - **Backend Connection Failed**: Check if backend is running on port 3001
-- **No API Key**: Configure OPENAI_API_KEY in server/.env
+- **No API Key**: Configure OPENAI_API_KEY in root .env
 - **Rate Limiting**: Backend handles rate limiting gracefully
 - **Network Errors**: Automatic reconnection with exponential backoff
 - **Invalid Audio Format**: Backend validates audio format

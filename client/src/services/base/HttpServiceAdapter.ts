@@ -39,10 +39,9 @@ export abstract class HttpServiceAdapter extends BaseService {
       // In development/production, check for API URL or mock flag
       try {
         const hasApiUrl = env.VITE_API_BASE_URL !== undefined
-        const mockFlag = false // No longer used
         
-        // Use mock if explicitly set to true or if no API URL is configured
-        this.useMockData = mockFlag === 'true' || !hasApiUrl
+        // Use mock if no API URL is configured
+        this.useMockData = !hasApiUrl
       } catch {
         // Fallback to mock if import.meta is not available
         this.useMockData = true
@@ -150,11 +149,10 @@ export abstract class HttpServiceAdapter extends BaseService {
     const isDev = env.DEV || false
     
     if (isDev) {
-      console.group(`[${this.constructor.name}] ${method} ${endpoint}`)
+      console.warn(`[${this.constructor.name}] ${method} ${endpoint}`)
       if (data) console.warn('Request:', data)
       if (response) console.warn('Response:', response)
       console.warn('Using mock:', this.useMockData)
-      console.groupEnd()
     }
   }
 }

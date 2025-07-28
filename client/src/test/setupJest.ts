@@ -1,7 +1,6 @@
 // Polyfill for import.meta.env
-if (typeof global !== 'undefined' && !global.import) {
-  // @ts-expect-error - polyfill
-  global.import = {
+if (typeof global !== 'undefined' && !(global as any).import) {
+  (global as any).import = {
     meta: {
       env: {
         VITE_API_URL: 'http://localhost:3001',
@@ -60,22 +59,26 @@ global.webkitAudioContext = MockAudioContext
 // MediaRecorder mock
 class MockMediaRecorder {
   state = 'inactive'
-  ondataavailable = null
-  onerror = null
-  onstart = null
-  onstop = null
+  ondataavailable: ((event: any) => void) | null = null
+  onerror: ((event: any) => void) | null = null
+  onstart: ((event: any) => void) | null = null
+  onstop: ((event: any) => void) | null = null
   
   constructor(public stream: MediaStream, public options?: any) {}
   
   start() {
     this.state = 'recording'
-    if (this.onstart) this.onstart(new Event('start'))
+    if (this.onstart && typeof this.onstart === 'function') {
+      this.onstart(new Event('start'))
+    }
   }
   
   stop() {
     this.state = 'inactive'
-    if (this.onstop) this.onstop(new Event('stop'))
-    if (this.ondataavailable) {
+    if (this.onstop && typeof this.onstop === 'function') {
+      this.onstop(new Event('stop'))
+    }
+    if (this.ondataavailable && typeof this.ondataavailable === 'function') {
       this.ondataavailable({ data: new Blob() })
     }
   }
@@ -86,8 +89,7 @@ class MockMediaRecorder {
   static isTypeSupported() { return true }
 }
 
-// @ts-expect-error - mock
-global.MediaRecorder = MockMediaRecorder
+(global as any).MediaRecorder = MockMediaRecorder
 
 // MediaStream mock
 class MockMediaStream {
@@ -108,8 +110,7 @@ class MockMediaStream {
   getVideoTracks() { return [] }
 }
 
-// @ts-expect-error - mock
-global.MediaStream = MockMediaStream
+(global as any).MediaStream = MockMediaStream
 
 // WebSocket mock
 class MockWebSocket {

@@ -3,6 +3,11 @@
   "private": true,
   "version": "1.0.0",
   "description": "Grow Fresh Local Food Restaurant Operating System",
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:supabase": "./scripts/dev-with-supabase.sh",

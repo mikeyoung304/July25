@@ -12,6 +12,7 @@
 - **Directory Structure**: 
   - Frontend in `client/` directory
   - Backend in `server/` directory (includes AI functionality)
+  - Shared types in `shared/` directory
 - **Service Layer Pattern**: 
   - Frontend services → Express.js API (port 3001)
   - Backend handles all operations including AI/voice
@@ -21,6 +22,7 @@
   - One backend service handles everything
   - AI functionality integrated in `server/src/ai/`
   - WebSocket runs on same port (3001)
+  - Shared types module for client/server consistency
   - See `ARCHITECTURE.md` for rationale
 
 - **PRIORITY: Multi-Tenancy**: The `RestaurantContext` provides `restaurant_id` for all API calls
@@ -35,18 +37,15 @@
 ### **3. 🎯 Current Mission & Session Log**
 
 - **Current State**: Unified backend architecture fully implemented
-- **Session Log (Most Recent)**:
-    - ✅ **Unified Backend**: Consolidated API + AI into one service
-    - ✅ **Directory Restructure**: client/ and server/ separation
-    - ✅ **Port Consolidation**: Everything on 3001 (no 3002)
-    - ✅ **Documentation Updated**: ARCHITECTURE.md as source of truth
-    - ✅ **AI Integration**: Voice/AI features in main backend
-    - ✅ **Simplified Startup**: Single `npm run dev` command
+- **Session Log (Most Recent - January 2025)**:
+    - ✅ **Phase 1**: Documentation cleanup (61→20 files)
+    - ✅ **Phase 2**: Shared types module & service consolidation
+    - ✅ **Phase 3**: Component unification (OrderCard, Voice components)
+    - ✅ **Environment Fix**: Resolved OpenAI API key loading
 - **Next Steps**:
-    1. **Test Voice Flow**: Ensure unified backend handles voice correctly
-    2. **Performance Testing**: Validate unified architecture performance
-    3. **Deployment Setup**: Single service deployment configuration
-    4. **Monitoring**: Unified logging and metrics
+    1. **Phase 4**: Test Infrastructure improvement
+    2. **Phase 5**: Technical Debt Resolution  
+    3. **Phase 6**: Performance & Monitoring
 
 ### **4. 🚨 Critical Directives (DO NOT)**
 
@@ -111,10 +110,27 @@ npm run upload:menu  # Upload menu to AI service
 npm run check:integration  # Verify system health
 ```
 
+### **9. 🔑 Environment Variables**
+
+**CRITICAL**: All environment variables are in the root `.env` file only!
+- **NO** `.env` files in client/ or server/ directories
+- Both frontend and backend read from root `.env`
+- Use `VITE_` prefix only for values safe to expose to frontend
+- Sensitive keys (SERVICE_KEY, OPENAI_KEY, DATABASE_URL) are backend-only
+
+### **10. ⚠️ Common Pitfalls**
+
+**web-vitals Import Error (Blank Page After Splash)**
+- **Problem**: `import { reportWebVitals } from 'web-vitals'` - This export doesn't exist in v5
+- **Solution**: Remove the import. The monitoring service already handles web-vitals correctly
+- **Root Cause**: AI-generated code from July 2025 used outdated v3/v4 API pattern
+- **Fix Applied**: Removed duplicate initialization from main.tsx
+
 ---
 
 **Remember**: 
 - Unified backend on port 3001
 - No separate AI Gateway
 - client/ and server/ directories
+- All env vars in root `.env` file only
 - See ARCHITECTURE.md for any architecture questions

@@ -6,6 +6,10 @@ interface SelectContextType {
   onChange: (value: string) => void
   open: boolean
   setOpen: (open: boolean) => void
+  highlightedIndex: number
+  setHighlightedIndex: (index: number) => void
+  optionsCount: number
+  setOptionsCount: (count: number) => void
 }
 
 const SelectContext = React.createContext<SelectContextType | undefined>(undefined)
@@ -18,9 +22,20 @@ interface SelectProps {
 
 const Select: React.FC<SelectProps> = ({ value, onValueChange, children }) => {
   const [open, setOpen] = React.useState(false)
+  const [highlightedIndex, setHighlightedIndex] = React.useState(-1)
+  const [optionsCount, setOptionsCount] = React.useState(0)
 
   return (
-    <SelectContext.Provider value={{ value, onChange: onValueChange, open, setOpen }}>
+    <SelectContext.Provider value={{ 
+      value, 
+      onChange: onValueChange, 
+      open, 
+      setOpen, 
+      highlightedIndex, 
+      setHighlightedIndex,
+      optionsCount,
+      setOptionsCount 
+    }}>
       <div className="relative">
         {children}
       </div>
@@ -37,16 +52,39 @@ const SelectTrigger: React.FC<SelectTriggerProps> = ({ className, children }) =>
   const context = React.useContext(SelectContext)
   if (!context) throw new Error('SelectTrigger must be used within Select')
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'Enter':
+      case ' ':
+      case 'ArrowDown':
+        e.preventDefault()
+        context.setOpen(true)
+        context.setHighlightedIndex(0)
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        context.setOpen(true)
+        context.setHighlightedIndex(context.optionsCount - 1)
+        break
+      case 'Escape':
+        e.preventDefault()
+        context.setOpen(false)
+        break
+    }
+  }
+
   return (
     <button
       type="button"
       onClick={() => context.setOpen(!context.open)}
+      onKeyDown={handleKeyDown}
       className={cn(
         'flex h-11 w-full items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-sm ring-offset-background placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-macon-navy/20 focus:ring-offset-2 focus:border-macon-navy/30 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 hover:border-neutral-300',
         className
       )}
       aria-expanded={context.open}
       aria-haspopup="listbox"
+      aria-controls="select-listbox"
     >
       {children}
     </button>

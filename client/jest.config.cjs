@@ -2,6 +2,7 @@
 module.exports = {
   preset: 'ts-jest/presets/js-with-ts-esm',
   testEnvironment: 'jest-environment-jsdom',
+  testEnvironmentOptions: { url: 'http://localhost/' },
   roots: ['<rootDir>/src'],
   testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}', '<rootDir>/src/**/*.spec.{ts,tsx}'],
   transform: {

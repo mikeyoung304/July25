@@ -1,13 +1,82 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Bundle size visualization (only in analyze mode)
+    process.env.ANALYZE && visualizer({
+      filename: './dist/stats.html',
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ].filter(Boolean),
+  
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+    },
+  },
+  
+  // Load .env files from the root directory
+  envDir: '..',
+  
+  server: {
+    // Allow Vite to find an available port if 5173 is in use
+    strictPort: false
+  },
+  
+  build: {
+    // Basic minification without removing console logs
+    minify: 'terser',
+    
+    // Set chunk size warnings
+    chunkSizeWarningLimit: 1000, // 1MB
+    
+    // Simple rollup options
+    rollupOptions: {
+      output: {
+        // Basic vendor chunk splitting
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
+    },
+    
+    // Enable source maps for production debugging
+    sourcemap: true,
+    
+    // Target modern browsers for smaller bundles
+    target: 'es2020',
+    
+    // CSS code splitting
+    cssCodeSplit: true,
+    
+    // Asset inlining threshold
+    assetsInlineLimit: 4096, // 4kb
+  },
+  
+  // Optimize dependencies
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@supabase/supabase-js',
+      'lucide-react',
+    ],
+    exclude: ['@rebuild/shared'],
+  },
+  
+  // CSS optimization
+  css: {
+    devSourcemap: true,
+    modules: {
+      localsConvention: 'camelCase',
     },
   },
 })
