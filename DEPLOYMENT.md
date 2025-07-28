@@ -34,8 +34,7 @@ CORS_ORIGIN=https://your-domain.com
 OPENAI_API_KEY=your-openai-key
 ANTHROPIC_API_KEY=your-anthropic-key
 
-# Monitoring (Recommended)
-SENTRY_DSN=your-sentry-dsn
+# Logging
 LOG_LEVEL=info
 ```
 
