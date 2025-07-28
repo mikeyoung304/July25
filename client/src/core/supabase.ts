@@ -5,8 +5,16 @@ import { env } from '@/utils/env'
 const supabaseUrl = env.VITE_SUPABASE_URL || ''
 const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || ''
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Create Supabase client only if we have valid credentials
+let supabase: ReturnType<typeof createClient> | null = null
+
+if (supabaseUrl && supabaseAnonKey) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey)
+} else {
+  console.error('Missing Supabase environment variables. Please check your .env file.')
+}
+
+export { supabase }
 
 // Types for database tables (simplified for now)
 export interface DatabaseOrder {
@@ -47,6 +55,11 @@ export const subscribeToOrders = (
     old: DatabaseOrder | null
   }) => void
 ) => {
+  if (!supabase) {
+    console.warn('Supabase client not initialized. Cannot subscribe to orders.')
+    return () => {} // Return no-op unsubscribe function
+  }
+
   const subscription = supabase
     .channel(`orders:${restaurantId}`)
     .on(
@@ -74,6 +87,11 @@ export const subscribeToTableUpdates = (
     old: DatabaseTable | null
   }) => void
 ) => {
+  if (!supabase) {
+    console.warn('Supabase client not initialized. Cannot subscribe to table updates.')
+    return () => {} // Return no-op unsubscribe function
+  }
+
   const subscription = supabase
     .channel(`tables:${restaurantId}`)
     .on(
@@ -97,6 +115,8 @@ export const subscribeToTableUpdates = (
 export const orderOperations = {
   // Fetch all orders for a restaurant
   async getOrders(restaurantId: string, filters?: { status?: string }) {
+    if (!supabase) throw new Error('Supabase client not initialized')
+    
     let query = supabase
       .from('orders')
       .select('*')
@@ -114,6 +134,8 @@ export const orderOperations = {
 
   // Update order status
   async updateOrderStatus(orderId: string, status: string) {
+    if (!supabase) throw new Error('Supabase client not initialized')
+    
     const { data, error } = await supabase
       .from('orders')
       .update({ status, updated_at: new Date().toISOString() })
@@ -127,6 +149,8 @@ export const orderOperations = {
 
   // Create new order
   async createOrder(orderData: Partial<DatabaseOrder>) {
+    if (!supabase) throw new Error('Supabase client not initialized')
+    
     const { data, error } = await supabase
       .from('orders')
       .insert(orderData)
@@ -142,6 +166,8 @@ export const orderOperations = {
 export const tableOperations = {
   // Fetch all tables for a restaurant
   async getTables(restaurantId: string) {
+    if (!supabase) throw new Error('Supabase client not initialized')
+    
     const { data, error } = await supabase
       .from('tables')
       .select('*')
@@ -154,6 +180,8 @@ export const tableOperations = {
 
   // Update table status
   async updateTableStatus(tableId: string, status: string) {
+    if (!supabase) throw new Error('Supabase client not initialized')
+    
     const { data, error } = await supabase
       .from('tables')
       .update({ status })
