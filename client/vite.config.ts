@@ -22,11 +22,12 @@ export default defineConfig({
     },
   },
   
+  // Load .env files from the root directory
+  envDir: '..',
+  
   server: {
-    // Ensure HMR works properly
-    hmr: {
-      port: 5173
-    }
+    // Allow Vite to find an available port if 5173 is in use
+    strictPort: false
   },
   
   build: {

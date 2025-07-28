@@ -17,10 +17,9 @@ cd rebuild-6.0
 # Install all dependencies
 npm install
 
-# Set up environment files
-cp client/.env.example client/.env.local
-cp server/.env.example server/.env
-# Edit both files with your Supabase and OpenAI credentials
+# Set up environment file (create .env in root directory)
+cp .env.example .env
+# Edit .env with your Supabase and OpenAI credentials
 ```
 
 ## 2️⃣ Start Everything (1 minute)

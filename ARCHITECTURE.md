@@ -57,12 +57,19 @@ We started with microservices (AI Gateway on 3002) but Luis made the architectur
 - WebSocket: `ws://localhost:3001`
 
 ### Environment Variables
+All environment variables are in the root `.env` file:
 ```env
-# Frontend (.env.local)
-VITE_API_BASE_URL=http://localhost:3001
-
-# Backend (.env)
+# Backend Configuration
 PORT=3001
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_KEY=your_service_key
+OPENAI_API_KEY=your_openai_key
+
+# Frontend Configuration (VITE_ prefix required)
+VITE_API_BASE_URL=http://localhost:3001
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ## Common Violations and Fixes

@@ -5,6 +5,7 @@ import { RestaurantIdProvider } from '@/services/http'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
 import { AppContent } from '@/components/layout/AppContent'
 import { SplashScreen } from '@/pages/SplashScreen'
+import { SetupRequiredScreen } from '@/pages/SetupRequiredScreen'
 import { webSocketService, orderUpdatesHandler } from '@/services/websocket'
 import { supabase } from '@/core/supabase'
 import { env } from '@/utils/env'
@@ -20,6 +21,11 @@ function App() {
   
   // Initialize WebSocket connection when authenticated
   useEffect(() => {
+    if (!supabase) {
+      console.warn('Supabase client not initialized. Skipping auth setup.')
+      return
+    }
+
     // Subscribe to auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
@@ -80,8 +86,20 @@ function App() {
     }
   }, [isDevelopment])
   
+  // Check if required environment variables are present
+  const hasRequiredEnvVars = !!(
+    env.VITE_API_BASE_URL && 
+    env.VITE_SUPABASE_URL && 
+    env.VITE_SUPABASE_ANON_KEY
+  )
+  
   if (showSplash) {
     return <SplashScreen onAnimationComplete={handleAnimationComplete} />
+  }
+  
+  // Show setup screen if environment variables are missing
+  if (!hasRequiredEnvVars) {
+    return <SetupRequiredScreen />
   }
   
   return (

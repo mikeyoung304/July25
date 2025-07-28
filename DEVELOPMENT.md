@@ -23,22 +23,25 @@ This guide covers setting up and running the Grow Fresh Local Food Restaurant Op
 
 3. **Configure environment variables**
    
-   Create `.env` file in the `server` directory:
+   Create `.env` file in the root directory:
    ```env
+   # Backend Configuration
    PORT=3001
    SUPABASE_URL=your_supabase_url
    SUPABASE_ANON_KEY=your_supabase_anon_key
    SUPABASE_SERVICE_KEY=your_service_key
    OPENAI_API_KEY=your_openai_key
    DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
-   ```
-   
-   Create `.env.local` file in the `client` directory:
-   ```env
+
+   # Frontend Configuration (VITE_ prefix required)
    VITE_API_BASE_URL=http://localhost:3001
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_SQUARE_APP_ID=sandbox-sq0idb-xxxxx
+   VITE_SQUARE_LOCATION_ID=L1234567890
    ```
+   
+   **IMPORTANT**: All environment variables go in the root `.env` file only. Do NOT create separate `.env` files in client/ or server/ directories.
 
 4. **Set up the database**
    
@@ -133,7 +136,7 @@ lsof -ti:5173 | xargs kill -9
 ```
 
 ### Database Connection Issues
-- Verify your Supabase credentials in the `.env` files
+- Verify your Supabase credentials in the root `.env` file
 - Check that your Supabase project is active
 - Ensure you've run the migrations
 

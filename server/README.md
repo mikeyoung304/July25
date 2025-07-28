@@ -8,9 +8,8 @@ Production-ready Express.js backend for the Restaurant OS serving Grow Fresh Loc
 # Install dependencies
 npm install
 
-# Copy environment variables
-cp .env.example .env
-# Edit .env with your Supabase credentials
+# Environment variables should be in root .env file
+# See root directory README for .env configuration
 
 # Upload menu data to AI service
 npm run upload:menu
@@ -169,7 +168,7 @@ npm run check:integration
    ```
 
 2. **Database connection errors**
-   - Check Supabase credentials in .env
+   - Check Supabase credentials in root .env
    - Verify network connectivity
    - Check RLS policies
 
