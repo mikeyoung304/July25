@@ -118,6 +118,14 @@ npm run check:integration  # Verify system health
 - Use `VITE_` prefix only for values safe to expose to frontend
 - Sensitive keys (SERVICE_KEY, OPENAI_KEY, DATABASE_URL) are backend-only
 
+### **10. ⚠️ Common Pitfalls**
+
+**web-vitals Import Error (Blank Page After Splash)**
+- **Problem**: `import { reportWebVitals } from 'web-vitals'` - This export doesn't exist in v5
+- **Solution**: Remove the import. The monitoring service already handles web-vitals correctly
+- **Root Cause**: AI-generated code from July 2025 used outdated v3/v4 API pattern
+- **Fix Applied**: Removed duplicate initialization from main.tsx
+
 ---
 
 **Remember**: 
