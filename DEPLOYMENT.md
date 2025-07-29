@@ -325,7 +325,6 @@ rm backup_$DATE.sql
 ### Application Backups
 
 - Git tags for each release
-- Docker images in registry
 - Configuration in version control
 
 ## Troubleshooting

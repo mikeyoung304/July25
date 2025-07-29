@@ -67,7 +67,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Component prop drilling and duplication issues
 
 ### Removed
-- Docker dependencies and configuration
 - AI Gateway service (port 3002)
 - Duplicate component implementations
 - 27 outdated documentation files
