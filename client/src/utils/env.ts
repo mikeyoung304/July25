@@ -8,7 +8,6 @@ interface ImportMetaEnv {
   VITE_SUPABASE_URL?: string
   VITE_SUPABASE_ANON_KEY?: string
   VITE_DEFAULT_RESTAURANT_ID?: string
-  VITE_OPENAI_API_KEY?: string
   DEV?: boolean
   MODE?: string
   PROD?: boolean

@@ -216,6 +216,46 @@ If you cannot identify valid menu items, return success: false with an error mes
   }
 
   /**
+   * Transcribe audio file directly (not via WebSocket)
+   */
+  async transcribeAudioFile(audioBuffer: Buffer, mimeType: string): Promise<TranscriptionResult> {
+    try {
+      // Save buffer to temporary file
+      const tempFile = path.join('/tmp', `audio-upload-${randomUUID()}.webm`);
+      await fs.writeFile(tempFile, audioBuffer);
+
+      // Create a read stream for OpenAI
+      const fileStream = createReadStream(tempFile);
+      
+      // Transcribe with OpenAI
+      const transcription = await this.openai.audio.transcriptions.create({
+        file: fileStream as any,
+        model: 'whisper-1',
+        language: 'en',
+        prompt: this.getWhisperPrompt(),
+        temperature: 0.2
+      });
+
+      // Clean up temp file
+      await fs.unlink(tempFile).catch(() => {});
+
+      aiLogger.info(`File transcription completed: "${transcription.text}"`);
+
+      return {
+        success: true,
+        text: transcription.text,
+        duration: 0 // Duration not available from file upload
+      };
+    } catch (error) {
+      aiLogger.error('File transcription error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Transcription failed'
+      };
+    }
+  }
+
+  /**
    * Generate Whisper prompt with menu context
    */
   private getWhisperPrompt(): string {
