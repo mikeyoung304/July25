@@ -1,11 +1,12 @@
 import React from 'react';
+import { vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { CheckoutPage } from '@/pages/CheckoutPage';
 import '@testing-library/jest-dom';
 
 // Mock CartContext
-jest.mock('@/modules/order-system/context/CartContext', () => ({
+vi.mock('@/modules/order-system/context/CartContext', () => ({
   useCart: () => ({
     cart: {
       items: [{
@@ -19,15 +20,15 @@ jest.mock('@/modules/order-system/context/CartContext', () => ({
       tip: 0,
       total: 10.83
     },
-    updateTip: jest.fn(),
-    clearCart: jest.fn()
+    updateTip: vi.fn(),
+    clearCart: vi.fn()
   })
 }));
 
 // Mock router
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn()
+vi.mock('react-router-dom', () => ({
+  ...vi.requireActual('react-router-dom'),
+  useNavigate: () => vi.fn()
 }));
 
 describe('CheckoutPage', () => {

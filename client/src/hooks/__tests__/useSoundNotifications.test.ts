@@ -1,27 +1,28 @@
 import { renderHook, act } from '@testing-library/react'
+import { vi } from 'vitest';
 import { useSoundNotifications } from '../useSoundNotifications'
 import { soundEffects, soundPresets } from '@/services/audio/soundEffects'
 
 // Mock the soundEffects service
-jest.mock('@/services/audio/soundEffects', () => ({
+vi.mock('@/services/audio/soundEffects', () => ({
   soundEffects: {
-    init: jest.fn(),
-    getConfig: jest.fn(() => ({ enabled: true, volume: 0.5 })),
-    setConfig: jest.fn(),
-    toggle: jest.fn(),
-    play: jest.fn(() => Promise.resolve())
+    init: vi.fn(),
+    getConfig: vi.fn(() => ({ enabled: true, volume: 0.5 })),
+    setConfig: vi.fn(),
+    toggle: vi.fn(),
+    play: vi.fn(() => Promise.resolve())
   },
   soundPresets: {
-    newOrderChime: jest.fn(() => Promise.resolve()),
-    orderReadyChime: jest.fn(() => Promise.resolve())
+    newOrderChime: vi.fn(() => Promise.resolve()),
+    orderReadyChime: vi.fn(() => Promise.resolve())
   }
 }))
 
 describe('useSoundNotifications', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Reset mock implementation
-    ;(soundEffects.getConfig as jest.Mock).mockReturnValue({ enabled: true, volume: 0.5 })
+    ;(soundEffects.getConfig as vi.Mock).mockReturnValue({ enabled: true, volume: 0.5 })
   })
 
   it('initializes with sound effects config', () => {
@@ -43,7 +44,7 @@ describe('useSoundNotifications', () => {
   })
 
   it('does not play sound when disabled', async () => {
-    ;(soundEffects.getConfig as jest.Mock).mockReturnValue({ enabled: false, volume: 0.5 })
+    ;(soundEffects.getConfig as vi.Mock).mockReturnValue({ enabled: false, volume: 0.5 })
     
     const { result } = renderHook(() => useSoundNotifications())
     

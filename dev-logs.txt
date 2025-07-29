@@ -1,0 +1,39 @@
+
+> grow-fresh-local-food@1.0.0 dev
+> concurrently "npm run dev:server" "npm run dev:client"
+
+[0] 
+[0] > grow-fresh-local-food@1.0.0 dev:server
+[0] > cd server && npm run dev
+[0] 
+[1] 
+[1] > grow-fresh-local-food@1.0.0 dev:client
+[1] > cd client && npm run dev
+[1] 
+[0] 
+[0] > grow-fresh-backend@1.0.0 dev
+[0] > tsx watch src/server.ts
+[0] 
+[1] 
+[1] > rebuild-6.0@0.0.0 dev
+[1] > vite
+[1] 
+[1] [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+[1] Port 5173 is in use, trying another one...
+[1] 
+[1]   VITE v5.4.19  ready in 80 ms
+[1] 
+[1]   ➜  Local:   http://localhost:5174/
+[1]   ➜  Network: use --host to expose
+[0] {"hasKey":true,"keyPrefix":"sk-proj...","level":"info","message":"AIService initialized with API key:","service":"AIService","timestamp":"2025-07-28T21:05:00.730Z"}
+[0] ✅ OpenAI API key detected: sk-proj...
+[0] {"level":"info","message":"✅ Database connection established","timestamp":"2025-07-28T21:05:01.182Z"}
+[0] {"address":"::","code":"EADDRINUSE","errno":-48,"level":"error","message":"Uncaught Exception: listen EADDRINUSE: address already in use :::3001","port":3001,"stack":"Error: listen EADDRINUSE: address already in use :::3001\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (/Users/mikeyoung/CODING/rebuild-6.0/server/src/server.ts:2:4405)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","syscall":"listen","timestamp":"2025-07-28T21:05:01.183Z"}
+[0] npm error Lifecycle script `dev` failed with error:
+[0] npm error code 15
+[0] npm error path /Users/mikeyoung/CODING/rebuild-6.0/server
+[0] npm error workspace grow-fresh-backend@1.0.0
+[0] npm error location /Users/mikeyoung/CODING/rebuild-6.0/server
+[0] npm error command failed
+[0] npm error command sh -c tsx watch src/server.ts
+[0] npm run dev:server exited with code 15

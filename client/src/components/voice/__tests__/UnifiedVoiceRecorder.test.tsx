@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@/test-utils';
 import { UnifiedVoiceRecorder } from '../UnifiedVoiceRecorder';
-import { vi } from 'vitest';
 
 // Mock the hooks
 vi.mock('@/modules/voice/hooks/useAudioCapture', () => ({

@@ -1,17 +1,18 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
+import { vi } from 'vitest';
 import { useOrderHistory } from './useOrderHistory'
 import { api } from '@/services/api'
 
 // Mock the API
-jest.mock('@/services/api', () => ({
+vi.mock('@/services/api', () => ({
   api: {
-    getOrderHistory: jest.fn(),
-    getOrderStatistics: jest.fn()
+    getOrderHistory: vi.fn(),
+    getOrderStatistics: vi.fn()
   }
 }))
 
 // Mock URL.createObjectURL
-global.URL.createObjectURL = jest.fn(() => 'blob:mock-url')
+global.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
 
 describe('useOrderHistory', () => {
   const mockHistoryResponse = {
@@ -46,9 +47,9 @@ describe('useOrderHistory', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(api.getOrderHistory as jest.Mock).mockResolvedValue(mockHistoryResponse)
-    ;(api.getOrderStatistics as jest.Mock).mockResolvedValue(mockStatsResponse)
+    vi.clearAllMocks()
+    ;(api.getOrderHistory as vi.Mock).mockResolvedValue(mockHistoryResponse)
+    ;(api.getOrderStatistics as vi.Mock).mockResolvedValue(mockStatsResponse)
   })
 
   it('should fetch order history on mount', async () => {
@@ -146,7 +147,7 @@ describe('useOrderHistory', () => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     act(() => {
       result.current.refresh()
@@ -157,8 +158,8 @@ describe('useOrderHistory', () => {
   })
 
   it('should handle errors gracefully', async () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation()
-    ;(api.getOrderHistory as jest.Mock).mockRejectedValue(new Error('API Error'))
+    const consoleError = vi.spyOn(console, 'error').mockImplementation()
+    ;(api.getOrderHistory as vi.Mock).mockRejectedValue(new Error('API Error'))
 
     const { result } = renderHook(() => useOrderHistory())
 
@@ -176,8 +177,8 @@ describe('useOrderHistory', () => {
     const { result } = renderHook(() => useOrderHistory())
 
     // Mock createElement and click
-    const link = { click: jest.fn(), href: '', download: '' }
-    jest.spyOn(document, 'createElement').mockReturnValue(link as unknown as HTMLElement)
+    const link = { click: vi.fn(), href: '', download: '' }
+    vi.spyOn(document, 'createElement').mockReturnValue(link as unknown as HTMLElement)
 
     act(() => {
       result.current.exportToCSV()

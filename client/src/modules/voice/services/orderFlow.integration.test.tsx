@@ -1,9 +1,10 @@
 import React from 'react'
+import { vi } from 'vitest';
 import { render, waitFor, act } from '@testing-library/react'
 
 // Mock toast *before* component import so Jest hoists it
-const mockToast = { success: jest.fn(), error: jest.fn() }
-jest.doMock('@/hooks/useToast', () => ({
+const mockToast = { success: vi.fn(), error: vi.fn() }
+vi.doMock('@/hooks/useToast', () => ({
   useToast: () => ({ toast: mockToast })
 }))
 
@@ -62,9 +63,9 @@ afterAll(() => {
 // Mock navigator.mediaDevices
 Object.defineProperty(navigator, 'mediaDevices', {
   value: {
-    getUserMedia: jest.fn().mockResolvedValue({
+    getUserMedia: vi.fn().mockResolvedValue({
       getTracks: () => [{
-        stop: jest.fn()
+        stop: vi.fn()
       }]
     })
   }
@@ -90,14 +91,14 @@ global.MediaRecorder = MockMediaRecorder as any
 
 describe('Voice Order Flow Integration', () => {
   let mockWs: MockWebSocket
-  let fetchMock: jest.Mock
+  let fetchMock: vi.Mock
   
   beforeEach(() => {
     // Clear WebSocket instances
     MockWebSocket.instances = []
     
     // Mock fetch API
-    fetchMock = jest.fn() as jest.Mock
+    fetchMock = vi.fn() as vi.Mock
     ;(global as any).fetch = fetchMock  // TS-safe override
     
     // Default successful responses
@@ -146,11 +147,11 @@ describe('Voice Order Flow Integration', () => {
   })
   
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
   
   it('should create an order when receiving transcription_result from WebSocket', async () => {
-    const mockTranscriptHandler = jest.fn()
+    const mockTranscriptHandler = vi.fn()
     
     // Clear mock calls from previous tests
     mockToast.success.mockClear()
@@ -217,7 +218,7 @@ describe('Voice Order Flow Integration', () => {
   })
   
   it('should show error toast when order parsing fails', async () => {
-    const mockTranscriptHandler = jest.fn()
+    const mockTranscriptHandler = vi.fn()
     
     // Clear mock calls from previous tests
     mockToast.success.mockClear()
@@ -263,7 +264,7 @@ describe('Voice Order Flow Integration', () => {
   })
   
   it('should show error toast when order creation fails', async () => {
-    const mockTranscriptHandler = jest.fn()
+    const mockTranscriptHandler = vi.fn()
     
     // Clear mock calls from previous tests
     mockToast.success.mockClear()

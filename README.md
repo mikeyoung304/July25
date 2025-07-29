@@ -22,6 +22,8 @@ npm run dev
 
 This starts both the frontend (http://localhost:5173) and backend (http://localhost:3001).
 
+**Note**: Ports are strictly enforced. If port 5173 is in use, run `npm run dev:clean` to kill the process and restart.
+
 Please see the detailed **[DEVELOPMENT.md](./DEVELOPMENT.md)** for first-time setup instructions.
 
 ## 🎯 Key Features
@@ -71,9 +73,11 @@ rebuild-6.0/
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS + Custom Design System
 - **State Management**: React Context API
-- **Testing**: Jest + React Testing Library
+- **Testing**: Vitest + React Testing Library
 - **Types**: Shared types module (@rebuild/shared)
 - **Components**: Unified component architecture
+- **Dev Server**: http://localhost:5173 (strict port)
+- **Preview**: http://localhost:4173 (strict port)
 
 ### Backend (Unified)
 - **Server**: Express.js + TypeScript
@@ -99,6 +103,13 @@ rebuild-6.0/
 - **Production Monitoring**: Integrated error tracking and performance monitoring
 - **Performance Optimization**: Bundle splitting, vendor optimization
 - **Technical Debt**: Logger service, TypeScript fixes, error boundaries
+
+### Frontend Stabilization (January 2025)
+- **Testing**: Migrated from Jest to Vitest for better ESM support
+- **Ports**: Strict port enforcement (dev: 5173, preview: 4173)
+- **Dependencies**: Removed unused client-side dependencies (openai, ws)
+- **Performance**: Optional performance monitoring with VITE_ENABLE_PERF flag
+- **Error Handling**: Simplified error boundaries for better maintainability
 
 ## 🔧 Development
 
@@ -139,6 +150,7 @@ VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_SQUARE_APP_ID=sandbox-sq0idb-xxxxx
 VITE_SQUARE_LOCATION_ID=L1234567890
+VITE_ENABLE_PERF=false  # Set to 'true' to enable performance monitoring
 ```
 
 **IMPORTANT**: All environment variables go in the root `.env` file only. Do NOT create separate `.env` files in client/ or server/ directories.

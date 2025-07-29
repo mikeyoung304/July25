@@ -1,38 +1,38 @@
 import { soundEffects, soundPresets } from './soundEffects'
+import { vi } from 'vitest';
 
-// Mock AudioContext
 const mockAudioContext = {
-  createOscillator: jest.fn(),
-  createGain: jest.fn(),
+  createOscillator: vi.fn(),
+  createGain: vi.fn(),
   destination: {},
   currentTime: 0
 }
 
 const mockOscillator = {
-  connect: jest.fn(),
-  start: jest.fn(),
-  stop: jest.fn(),
+  connect: vi.fn(),
+  start: vi.fn(),
+  stop: vi.fn(),
   frequency: { value: 0 },
   type: 'sine' as OscillatorType
 }
 
 const mockGainNode = {
-  connect: jest.fn(),
+  connect: vi.fn(),
   gain: {
     value: 0,
-    setValueAtTime: jest.fn(),
-    linearRampToValueAtTime: jest.fn(),
-    exponentialRampToValueAtTime: jest.fn()
+    setValueAtTime: vi.fn(),
+    linearRampToValueAtTime: vi.fn(),
+    exponentialRampToValueAtTime: vi.fn()
   }
 }
 
 describe('SoundEffectsService', () => {
   beforeEach(() => {
     // Reset mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     // Setup AudioContext mock
-    global.AudioContext = jest.fn(() => mockAudioContext) as unknown as typeof AudioContext
+    global.AudioContext = vi.fn(() => mockAudioContext) as unknown as typeof AudioContext
     mockAudioContext.createOscillator.mockReturnValue(mockOscillator)
     mockAudioContext.createGain.mockReturnValue(mockGainNode)
     
@@ -42,7 +42,7 @@ describe('SoundEffectsService', () => {
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   describe('init', () => {
@@ -99,7 +99,7 @@ describe('SoundEffectsService', () => {
   describe('playSequence', () => {
     it('should play multiple notes in sequence', async () => {
       // Reset to ensure counting from 0
-      jest.clearAllMocks()
+      vi.clearAllMocks()
       
       const notes = [
         { frequency: 440, duration: 0.1 },
@@ -159,7 +159,7 @@ describe('SoundEffectsService', () => {
   describe('error handling', () => {
     it('should handle errors gracefully', async () => {
       // Spy on console.error to suppress error output
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       
       mockAudioContext.createOscillator.mockImplementation(() => {
         throw new Error('Audio not supported')

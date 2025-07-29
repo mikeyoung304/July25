@@ -1,18 +1,19 @@
 import React from 'react';
+import { vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import VoiceControl from './VoiceControl';
 import { useToast } from '@/hooks/useToast';
 import { useRestaurant } from '@/core/restaurant-hooks';
 
 // Mock dependencies
-jest.mock('@/hooks/useToast');
-jest.mock('@/core/restaurant-hooks');
+vi.mock('@/hooks/useToast');
+vi.mock('@/core/restaurant-hooks');
 
 // Mock navigator.mediaDevices
-const mockGetUserMedia = jest.fn();
+const mockGetUserMedia = vi.fn();
 const mockMediaStream = {
-  getTracks: jest.fn(() => [
-    { stop: jest.fn() }
+  getTracks: vi.fn(() => [
+    { stop: vi.fn() }
   ])
 };
 
@@ -26,11 +27,11 @@ Object.defineProperty(navigator, 'mediaDevices', {
 // Mock navigator.permissions
 const mockPermissionStatus = {
   state: 'prompt',
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
 };
 
-const mockPermissionsQuery = jest.fn();
+const mockPermissionsQuery = vi.fn();
 
 Object.defineProperty(navigator, 'permissions', {
   writable: true,
@@ -40,14 +41,14 @@ Object.defineProperty(navigator, 'permissions', {
 });
 
 // Mock MediaRecorder
-const mockMediaRecorder = jest.fn().mockImplementation(() => ({
-  start: jest.fn(),
-  stop: jest.fn(),
+const mockMediaRecorder = vi.fn().mockImplementation(() => ({
+  start: vi.fn(),
+  stop: vi.fn(),
   state: 'inactive',
   ondataavailable: null,
   onstop: null,
 }));
-(mockMediaRecorder as unknown as { isTypeSupported: jest.Mock }).isTypeSupported = jest.fn().mockReturnValue(true);
+(mockMediaRecorder as unknown as { isTypeSupported: vi.Mock }).isTypeSupported = vi.fn().mockReturnValue(true);
 global.MediaRecorder = mockMediaRecorder as unknown as typeof MediaRecorder;
 
 // Mock WebSocket
@@ -55,8 +56,8 @@ let mockWebSocket: any;
 
 const createMockWebSocket = () => {
   const ws = {
-    send: jest.fn(),
-    close: jest.fn(),
+    send: vi.fn(),
+    close: vi.fn(),
     readyState: WebSocket.CONNECTING,
     onopen: null,
     onmessage: null,
@@ -66,15 +67,15 @@ const createMockWebSocket = () => {
   return ws;
 };
 
-global.WebSocket = jest.fn().mockImplementation(() => {
+global.WebSocket = vi.fn().mockImplementation(() => {
   mockWebSocket = createMockWebSocket();
   return mockWebSocket;
 }) as unknown as typeof WebSocket;
 
 describe('VoiceControl', () => {
   const mockToast = {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   };
 
   const mockRestaurant = {
@@ -82,21 +83,21 @@ describe('VoiceControl', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
-    (useToast as jest.Mock).mockReturnValue({ toast: mockToast });
-    (useRestaurant as jest.Mock).mockReturnValue({ restaurant: mockRestaurant });
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    (useToast as vi.Mock).mockReturnValue({ toast: mockToast });
+    (useRestaurant as vi.Mock).mockReturnValue({ restaurant: mockRestaurant });
     mockPermissionsQuery.mockResolvedValue(mockPermissionStatus);
     mockPermissionStatus.state = 'prompt';
     // Reset WebSocket mock
     mockWebSocket = undefined;
     // Mock window.alert
-    jest.spyOn(window, 'alert').mockImplementation(() => {});
+    vi.spyOn(window, 'alert').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.useRealTimers();
-    jest.restoreAllMocks();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   describe('Permission Guard', () => {
@@ -158,7 +159,7 @@ describe('VoiceControl', () => {
       
       // Mock navigator.permissions.query to resolve immediately with granted
       (global.navigator as any).permissions = {
-        query: jest.fn().mockResolvedValue(mockPermissionStatus)
+        query: vi.fn().mockResolvedValue(mockPermissionStatus)
       };
       
       render(<VoiceControl />);
@@ -269,7 +270,7 @@ describe('VoiceControl', () => {
       const { act } = await import('@testing-library/react');
       mockGetUserMedia.mockResolvedValueOnce(mockMediaStream);
       
-      const onTranscript = jest.fn();
+      const onTranscript = vi.fn();
       render(<VoiceControl onTranscript={onTranscript} />);
       
       // Simulate WebSocket connection
@@ -304,7 +305,7 @@ describe('VoiceControl', () => {
 
     it('creates an order from transcription result', async () => {
       const { act } = await import('@testing-library/react');
-      global.fetch = jest.fn()
+      global.fetch = vi.fn()
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ items: [{ name: 'Coffee', quantity: 1 }] }),
@@ -356,14 +357,14 @@ describe('VoiceControl', () => {
       
       // Mock navigator.permissions.query to resolve immediately with granted
       (global.navigator as any).permissions = {
-        query: jest.fn().mockResolvedValue(mockPermissionStatus)
+        query: vi.fn().mockResolvedValue(mockPermissionStatus)
       };
       
       // Create a WebSocket that starts closed
-      global.WebSocket = jest.fn().mockImplementation(() => {
+      global.WebSocket = vi.fn().mockImplementation(() => {
         mockWebSocket = {
-          send: jest.fn(),
-          close: jest.fn(),
+          send: vi.fn(),
+          close: vi.fn(),
           readyState: WebSocket.CLOSED,
           onopen: null,
           onmessage: null,
@@ -391,7 +392,7 @@ describe('VoiceControl', () => {
       expect(button.parentElement).toBeDisabled();
       
       // Reset WebSocket mock
-      global.WebSocket = jest.fn().mockImplementation(() => {
+      global.WebSocket = vi.fn().mockImplementation(() => {
         mockWebSocket = createMockWebSocket();
         return mockWebSocket;
       }) as unknown as typeof WebSocket;
@@ -402,7 +403,7 @@ describe('VoiceControl', () => {
     it('calls onFirstPress when isFirstPress is true', async () => {
       const { act } = await import('@testing-library/react');
       mockPermissionStatus.state = 'granted';
-      const onFirstPress = jest.fn();
+      const onFirstPress = vi.fn();
       
       render(<VoiceControl isFirstPress={true} onFirstPress={onFirstPress} />);
       

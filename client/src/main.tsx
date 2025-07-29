@@ -8,8 +8,9 @@ import App from './App.tsx'
 // Initialize monitoring services
 monitoring.initialize()
 
-// Start memory tracking in production
-if (!import.meta.env.DEV) {
+// Start memory tracking in production (only if performance monitoring is enabled)
+const perfEnabled = import.meta.env.VITE_ENABLE_PERF === 'true'
+if (!import.meta.env.DEV && perfEnabled) {
   performanceMonitor.startMemoryTracking(30000) // Every 30 seconds
 }
 

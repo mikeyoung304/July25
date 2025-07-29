@@ -1,15 +1,16 @@
 import React from 'react'
+import { vi } from 'vitest';
 import { render } from '@testing-library/react'
 import { ElapsedTimer } from './ElapsedTimer'
 
 describe('ElapsedTimer', () => {
   beforeAll(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2024-01-01T12:00:00Z'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-01-01T12:00:00Z'))
   })
 
   afterAll(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('renders elapsed time in minutes format by default', () => {

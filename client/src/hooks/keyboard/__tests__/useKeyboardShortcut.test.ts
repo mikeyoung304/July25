@@ -1,9 +1,10 @@
 import { renderHook } from '@testing-library/react'
+import { vi } from 'vitest';
 import { fireEvent } from '@testing-library/react'
 import { useKeyboardShortcut, useKeyboardShortcuts } from '../useKeyboardShortcut'
 
 describe('useKeyboardShortcut', () => {
-  const mockAction = jest.fn()
+  const mockAction = vi.fn()
 
   beforeEach(() => {
     mockAction.mockClear()
@@ -60,7 +61,7 @@ describe('useKeyboardShortcut', () => {
   })
 
   it('should prevent default when configured', () => {
-    const preventDefaultSpy = jest.fn()
+    const preventDefaultSpy = vi.fn()
     
     renderHook(() => useKeyboardShortcut({
       key: 'k',
@@ -77,8 +78,8 @@ describe('useKeyboardShortcut', () => {
 })
 
 describe('useKeyboardShortcuts', () => {
-  const mockAction1 = jest.fn()
-  const mockAction2 = jest.fn()
+  const mockAction1 = vi.fn()
+  const mockAction2 = vi.fn()
 
   beforeEach(() => {
     mockAction1.mockClear()

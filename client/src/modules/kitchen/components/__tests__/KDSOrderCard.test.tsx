@@ -1,10 +1,11 @@
 import React from 'react'
+import { vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react'
 import { KDSOrderCard } from '../KDSOrderCard'
 import type { OrderItem } from '@/types/common'
 
 // Mock the child components
-jest.mock('@/components/shared/order/OrderHeaders', () => ({
+vi.mock('@/components/shared/order/OrderHeaders', () => ({
   OrderHeader: ({ orderNumber, status }: { orderNumber: string; status: string }) => (
     <div data-testid="order-header">
       Order #{orderNumber} - {status}
@@ -17,7 +18,7 @@ jest.mock('@/components/shared/order/OrderHeaders', () => ({
   )
 }))
 
-jest.mock('@/components/shared/order/OrderItemsList', () => ({
+vi.mock('@/components/shared/order/OrderItemsList', () => ({
   OrderItemsList: ({ items }: { items: OrderItem[] }) => (
     <div data-testid="order-items">
       {items.map((item: OrderItem) => (
@@ -31,7 +32,7 @@ jest.mock('@/components/shared/order/OrderItemsList', () => ({
   )
 }))
 
-jest.mock('@/components/shared/order/OrderActions', () => ({
+vi.mock('@/components/shared/order/OrderActions', () => ({
   OrderActions: ({ status, onStatusChange }: { status: string; onStatusChange?: (status: string) => void }) => (
     <div data-testid="order-actions">
       {status === 'new' && (
@@ -68,17 +69,17 @@ describe('KDSOrderCard', () => {
     items: mockItems,
     status: 'new' as const,
     orderTime: new Date('2024-01-01T12:00:00'),
-    onStatusChange: jest.fn()
+    onStatusChange: vi.fn()
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2024-01-01T12:00:00'))
+    vi.clearAllMocks()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-01-01T12:00:00'))
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('renders order information correctly', () => {
@@ -109,7 +110,7 @@ describe('KDSOrderCard', () => {
     expect(container.firstChild).not.toHaveClass('border-red-400')
     
     // Advance time by 16 minutes
-    jest.setSystemTime(new Date('2024-01-01T12:16:00'))
+    vi.setSystemTime(new Date('2024-01-01T12:16:00'))
     const { container: urgentContainer } = render(<KDSOrderCard {...defaultProps} />)
     
     expect(urgentContainer.firstChild).toHaveClass('shadow-glow-urgent')
@@ -118,7 +119,7 @@ describe('KDSOrderCard', () => {
   })
 
   it('does not apply urgent styling to ready orders', () => {
-    jest.setSystemTime(new Date('2024-01-01T12:16:00'))
+    vi.setSystemTime(new Date('2024-01-01T12:16:00'))
     
     const { container } = render(
       <KDSOrderCard {...defaultProps} status="ready" />
@@ -129,7 +130,7 @@ describe('KDSOrderCard', () => {
   })
 
   it('calls onStatusChange when action buttons are clicked', () => {
-    const onStatusChange = jest.fn()
+    const onStatusChange = vi.fn()
     render(<KDSOrderCard {...defaultProps} onStatusChange={onStatusChange} />)
     
     fireEvent.click(screen.getByText('Start Preparing'))
@@ -197,7 +198,7 @@ describe('KDSOrderCard', () => {
     })
 
     it('does not re-render when props are the same', () => {
-      const onStatusChange = jest.fn()
+      const onStatusChange = vi.fn()
       
       // Create a parent component that passes props
       const Parent = () => (

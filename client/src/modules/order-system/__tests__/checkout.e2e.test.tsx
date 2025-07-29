@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
@@ -7,7 +8,7 @@ import { CheckoutPage } from '@/pages/CheckoutPage';
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage';
 
 // Module boundary mocks only
-jest.mock('@/modules/order-system/context/CartContext', () => ({
+vi.mock('@/modules/order-system/context/CartContext', () => ({
   useCart: () => ({
     cart: {
       items: [{ id: '1', menuItem: { name: 'Greek Bowl' }, quantity: 1 }],
@@ -16,15 +17,15 @@ jest.mock('@/modules/order-system/context/CartContext', () => ({
       tip: 0,
       total: 10.83,
     },
-    updateTip: jest.fn(),
-    clearCart: jest.fn(),
-    updateCartItem: jest.fn(),
-    removeFromCart: jest.fn(),
+    updateTip: vi.fn(),
+    clearCart: vi.fn(),
+    updateCartItem: vi.fn(),
+    removeFromCart: vi.fn(),
   }),
   CartProvider: ({ children }: any) => children,
 }));
 
-jest.mock('@/modules/order-system/components/SquarePaymentForm', () => ({
+vi.mock('@/modules/order-system/components/SquarePaymentForm', () => ({
   SquarePaymentForm: ({ onSuccess }: any) => (
     <button onClick={() => onSuccess('nonce-123')}>Pay</button>
   ),
@@ -32,7 +33,7 @@ jest.mock('@/modules/order-system/components/SquarePaymentForm', () => ({
 
 describe('Checkout E2E Flow', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('happy path: checkout -> pay -> confirmation navigation', async () => {

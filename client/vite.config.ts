@@ -26,8 +26,13 @@ export default defineConfig({
   envDir: '..',
   
   server: {
-    // Allow Vite to find an available port if 5173 is in use
-    strictPort: false
+    port: 5173,
+    strictPort: true
+  },
+  
+  preview: {
+    port: 4173,
+    strictPort: true
   },
   
   build: {

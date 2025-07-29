@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+import { vi } from 'vitest';
 import { FilterPanel } from './FilterPanel'
 import type { OrderFilters, OrderStatus } from '@/types/filters'
 
@@ -14,16 +15,16 @@ describe('FilterPanel', () => {
 
   const defaultProps = {
     filters: defaultFilters,
-    onStatusChange: jest.fn(),
-    onStationChange: jest.fn(),
-    onTimeRangeChange: jest.fn(),
-    onSearchChange: jest.fn(),
-    onResetFilters: jest.fn(),
+    onStatusChange: vi.fn(),
+    onStationChange: vi.fn(),
+    onTimeRangeChange: vi.fn(),
+    onSearchChange: vi.fn(),
+    onResetFilters: vi.fn(),
     hasActiveFilters: false
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render all filter sections', () => {

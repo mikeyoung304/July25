@@ -1,25 +1,26 @@
 import { renderHook, act } from '@testing-library/react'
+import { vi } from 'vitest';
 import { useSoundNotifications } from './useSoundNotifications'
 import { soundEffects, soundPresets } from '@/services/audio/soundEffects'
 
 // Mock the sound effects service
-jest.mock('@/services/audio/soundEffects', () => ({
+vi.mock('@/services/audio/soundEffects', () => ({
   soundEffects: {
-    init: jest.fn(),
-    play: jest.fn(),
-    setConfig: jest.fn(),
-    getConfig: jest.fn(() => ({ enabled: true, volume: 0.5 })),
-    toggle: jest.fn()
+    init: vi.fn(),
+    play: vi.fn(),
+    setConfig: vi.fn(),
+    getConfig: vi.fn(() => ({ enabled: true, volume: 0.5 })),
+    toggle: vi.fn()
   },
   soundPresets: {
-    newOrderChime: jest.fn(),
-    orderReadyChime: jest.fn()
+    newOrderChime: vi.fn(),
+    orderReadyChime: vi.fn()
   }
 }))
 
 describe('useSoundNotifications', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should initialize sound effects on mount', () => {
