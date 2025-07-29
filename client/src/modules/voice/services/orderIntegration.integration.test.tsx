@@ -1,20 +1,21 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom'
 import { KioskDemo } from '@/pages/KioskDemo'
 import { api } from '@/services/api'
 import { RestaurantProvider } from '@/core/RestaurantContext'
 
-jest.mock('@/services/api')
-jest.mock('@/hooks/useToast', () => ({
+vi.mock('@/services/api')
+vi.mock('@/hooks/useToast', () => ({
   useToast: () => ({
     toast: {
-      success: jest.fn(),
-      error: jest.fn()
+      success: vi.fn(),
+      error: vi.fn()
     }
   })
 }))
 
-jest.mock('@/modules/voice/components/VoiceCapture', () => ({
+vi.mock('@/modules/voice/components/VoiceCapture', () => ({
   VoiceCapture: ({ onOrderComplete }: { onOrderComplete: (text: string) => void }) => (
     <div data-testid="voice-capture">
       <button onClick={() => onOrderComplete("I'd like 2 soul bowls with extra collards")}>
@@ -24,12 +25,12 @@ jest.mock('@/modules/voice/components/VoiceCapture', () => ({
   )
 }))
 
-const mockApi = api as jest.Mocked<typeof api>
+const mockApi = api as vi.Mocked<typeof api>
 
 // TODO(luis): enable when Playwright pipeline runs
 describe('Voice Order to KDS Integration', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     mockApi.submitOrder.mockResolvedValue({
       success: true,
@@ -167,7 +168,7 @@ describe('Voice Order to KDS Integration', () => {
   })
 
   it('resets order after successful submission', async () => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
     
     renderWithRouter(<KioskDemo />)
     
@@ -191,7 +192,7 @@ describe('Voice Order to KDS Integration', () => {
     
     // Fast forward 3 seconds
     act(() => {
-      jest.advanceTimersByTime(3000)
+      vi.advanceTimersByTime(3000)
     })
     
     // Order should be reset
@@ -200,6 +201,6 @@ describe('Voice Order to KDS Integration', () => {
       expect(screen.queryByText('Order Submitted!')).not.toBeInTheDocument()
     }, { timeout: 3000 })
     
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 })

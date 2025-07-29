@@ -13,8 +13,6 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
-  errorInfo: ErrorInfo | null;
-  errorCount: number;
 }
 
 export class AppErrorBoundary extends Component<Props, State> {
@@ -24,8 +22,6 @@ export class AppErrorBoundary extends Component<Props, State> {
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null,
-      errorCount: 0,
     };
   }
 
@@ -41,67 +37,27 @@ export class AppErrorBoundary extends Component<Props, State> {
     logger.error('Application Error Boundary Caught Error', error, {
       componentStack: errorInfo.componentStack,
       errorBoundary: 'AppErrorBoundary',
-      errorCount: this.state.errorCount + 1,
     });
-
-    // Update state with error info
-    this.setState(prevState => ({
-      errorInfo,
-      errorCount: prevState.errorCount + 1,
-    }));
 
     // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
 
-    // Send to error tracking service in production
-    if (!import.meta.env.DEV) {
-      this.reportErrorToService(error, errorInfo);
-    }
-  }
-
-  reportErrorToService(error: Error, errorInfo: ErrorInfo) {
-    // Report to monitoring service
+    // Send to monitoring service
     monitoring.reportError(error, {
       componentStack: errorInfo.componentStack,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       url: window.location.href,
     });
-
-    // Also store in localStorage for debugging
-    try {
-      const errorReport = {
-        message: error.message,
-        stack: error.stack,
-        componentStack: errorInfo.componentStack,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-      };
-
-      const existingErrors = JSON.parse(
-        localStorage.getItem('error_reports') || '[]'
-      );
-      existingErrors.push(errorReport);
-      
-      // Keep only last 10 errors
-      if (existingErrors.length > 10) {
-        existingErrors.splice(0, existingErrors.length - 10);
-      }
-      
-      localStorage.setItem('error_reports', JSON.stringify(existingErrors));
-    } catch {
-      // Fail silently
-    }
   }
+
 
   handleReset = () => {
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null,
     });
   };
 
@@ -120,7 +76,7 @@ export class AppErrorBoundary extends Component<Props, State> {
         return <>{this.props.fallback}</>;
       }
 
-      const { error, errorInfo, errorCount } = this.state;
+      const { error } = this.state;
       const isDevelopment = import.meta.env.DEV;
 
       return (
@@ -136,11 +92,6 @@ export class AppErrorBoundary extends Component<Props, State> {
               <p className="mt-2 text-sm text-gray-600">
                 We're sorry for the inconvenience. The application encountered an unexpected error.
               </p>
-              {errorCount > 2 && (
-                <p className="mt-2 text-sm text-red-600">
-                  Multiple errors detected. You may need to refresh the page.
-                </p>
-              )}
             </div>
 
             {/* Error details in development */}
@@ -158,14 +109,6 @@ export class AppErrorBoundary extends Component<Props, State> {
                       <summary className="font-medium">Stack Trace</summary>
                       <pre className="mt-2 whitespace-pre-wrap text-xs overflow-auto max-h-40">
                         {error.stack}
-                      </pre>
-                    </details>
-                  )}
-                  {errorInfo?.componentStack && (
-                    <details className="cursor-pointer">
-                      <summary className="font-medium">Component Stack</summary>
-                      <pre className="mt-2 whitespace-pre-wrap text-xs overflow-auto max-h-40">
-                        {errorInfo.componentStack}
                       </pre>
                     </details>
                   )}

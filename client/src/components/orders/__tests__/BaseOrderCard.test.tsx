@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@/test-utils';
 import { BaseOrderCard } from '../BaseOrderCard';
-import { mockOrder } from '@/test-utils';
 import { vi } from 'vitest';
 
 describe('BaseOrderCard', () => {

@@ -30,3 +30,9 @@ dist-ssr
 
 *storybook.log
 storybook-static
+
+# Client artifacts
+client/coverage/
+client/dev_vitals_fix.log
+client/ts-errors.txt
+client/checkpoint/
