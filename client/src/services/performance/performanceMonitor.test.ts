@@ -1,9 +1,9 @@
 import { performanceMonitor } from './performanceMonitor'
+import { vi } from 'vitest';
 
-describe('PerformanceMonitor', () => {
   beforeEach(() => {
     performanceMonitor.clear()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('trackRender', () => {

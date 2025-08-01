@@ -30,4 +30,13 @@ export default tseslint.config([
       }],
     },
   },
+  {
+    files: [
+      '**/test-utils/**/*.{ts,tsx}',
+      '**/*.test.{ts,tsx}'
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off'
+    }
+  },
 ], storybook.configs["flat/recommended"]);

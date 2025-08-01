@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
 import { useVoiceSocket } from './useVoiceSocket';
 
 // Mock WebSocket
@@ -49,8 +50,8 @@ describe('useVoiceSocket', () => {
   let mockWebSocket: MockWebSocket;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
     // Capture the WebSocket instance
     (global.WebSocket as any) = class extends MockWebSocket {
       constructor(url: string) {
@@ -61,7 +62,7 @@ describe('useVoiceSocket', () => {
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should connect to WebSocket on mount', async () => {
@@ -75,7 +76,7 @@ describe('useVoiceSocket', () => {
 
     // Wait for connection
     await act(async () => {
-      jest.advanceTimersByTime(10);
+      vi.advanceTimersByTime(10);
     });
 
     expect(result.current.connectionStatus).toBe('connected');
@@ -83,7 +84,7 @@ describe('useVoiceSocket', () => {
   });
 
   it('should handle flow control for audio chunks', async () => {
-    const onMessage = jest.fn();
+    const onMessage = vi.fn();
     const { result } = renderHook(() => 
       useVoiceSocket({
         url: 'ws://localhost:3001/voice-stream',
@@ -94,7 +95,7 @@ describe('useVoiceSocket', () => {
 
     // Wait for connection
     await act(async () => {
-      jest.advanceTimersByTime(10);
+      vi.advanceTimersByTime(10);
     });
 
     // Send 3 audio chunks (should succeed)
@@ -134,7 +135,7 @@ describe('useVoiceSocket', () => {
   });
 
   it('should handle overrun errors', async () => {
-    const onMessage = jest.fn();
+    const onMessage = vi.fn();
     const { result } = renderHook(() => 
       useVoiceSocket({
         url: 'ws://localhost:3001/voice-stream',
@@ -144,7 +145,7 @@ describe('useVoiceSocket', () => {
 
     // Wait for connection
     await act(async () => {
-      jest.advanceTimersByTime(10);
+      vi.advanceTimersByTime(10);
     });
 
     // Fill up the bucket
@@ -181,7 +182,7 @@ describe('useVoiceSocket', () => {
 
     // Wait for connection
     await act(async () => {
-      jest.advanceTimersByTime(10);
+      vi.advanceTimersByTime(10);
     });
 
     // Clear sent messages
@@ -202,7 +203,7 @@ describe('useVoiceSocket', () => {
   });
 
   it('should auto-reconnect after disconnection', async () => {
-    const onConnectionChange = jest.fn();
+    const onConnectionChange = vi.fn();
     const { result } = renderHook(() => 
       useVoiceSocket({
         url: 'ws://localhost:3001/voice-stream',
@@ -213,7 +214,7 @@ describe('useVoiceSocket', () => {
 
     // Wait for initial connection
     await act(async () => {
-      jest.advanceTimersByTime(10);
+      vi.advanceTimersByTime(10);
     });
 
     expect(onConnectionChange).toHaveBeenCalledWith('connected');
@@ -229,7 +230,7 @@ describe('useVoiceSocket', () => {
 
     // Should attempt to reconnect after delay
     act(() => {
-      jest.advanceTimersByTime(3000);
+      vi.advanceTimersByTime(3000);
     });
 
     expect(result.current.connectionStatus).toBe('connecting');
@@ -244,7 +245,7 @@ describe('useVoiceSocket', () => {
 
     // Wait for connection
     await act(async () => {
-      jest.advanceTimersByTime(10);
+      vi.advanceTimersByTime(10);
     });
 
     // Send JSON message

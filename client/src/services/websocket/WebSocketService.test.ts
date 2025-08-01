@@ -1,4 +1,5 @@
 import { WebSocketService } from './WebSocketService'
+import { vi } from 'vitest';
 import { supabase } from '@/core/supabase'
 import { setCurrentRestaurantId } from '@/services/http/httpClient'
 import { toSnakeCase, toCamelCase } from '@/services/utils/caseTransform'
@@ -11,8 +12,8 @@ class MockWebSocket {
   onerror: ((event: Event) => void) | null = null
   onclose: ((event: CloseEvent) => void) | null = null
   
-  send = jest.fn()
-  close = jest.fn()
+  send = vi.fn()
+  close = vi.fn()
   
   simulateOpen() {
     this.readyState = 1 // WebSocket.OPEN
@@ -43,10 +44,10 @@ class MockWebSocket {
 }
 
 // Mock Supabase
-jest.mock('@/core/supabase', () => ({
+vi.mock('@/core/supabase', () => ({
   supabase: {
     auth: {
-      getSession: jest.fn()
+      getSession: vi.fn()
     }
   }
 }))
@@ -60,11 +61,11 @@ describe('WebSocketService', () => {
   let mockWebSocket: MockWebSocket
   
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers()
+    vi.clearAllMocks()
+    vi.useFakeTimers()
     
     // Set up auth mock
-    ;(supabase.auth.getSession as jest.Mock).mockResolvedValue({
+    ;(supabase.auth.getSession as vi.Mock).mockResolvedValue({
       data: {
         session: {
           access_token: 'test-token',
@@ -80,7 +81,7 @@ describe('WebSocketService', () => {
     
     // Mock WebSocket constructor
     // @ts-expect-error - Mock WebSocket for testing
-    global.WebSocket = jest.fn().mockImplementation(() => {
+    global.WebSocket = vi.fn().mockImplementation(() => {
       mockWebSocket = new MockWebSocket()
       return mockWebSocket
     })
@@ -89,7 +90,7 @@ describe('WebSocketService', () => {
   })
   
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
     service.disconnect()
   })
   
@@ -101,7 +102,7 @@ describe('WebSocketService', () => {
       // Wait for auth to be resolved
       await new Promise(resolve => setTimeout(resolve, 0))
       
-      const wsCall = (global.WebSocket as unknown as jest.Mock).mock.calls[0]
+      const wsCall = (global.WebSocket as unknown as vi.Mock).mock.calls[0]
       const url = new URL(wsCall[0])
       
       expect(url.searchParams.get('token')).toBe('test-token')
@@ -115,7 +116,7 @@ describe('WebSocketService', () => {
     
     // TODO(luis): enable when Playwright pipeline runs
     test.skip('should handle missing auth session', async () => {
-      ;(supabase.auth.getSession as jest.Mock).mockResolvedValue({
+      ;(supabase.auth.getSession as vi.Mock).mockResolvedValue({
         data: { session: null },
         error: null
       })
@@ -143,7 +144,7 @@ describe('WebSocketService', () => {
       mockWebSocket.simulateOpen()
       await firstConnect
       
-      ;(global.WebSocket as unknown as jest.Mock).mockClear()
+      ;(global.WebSocket as unknown as vi.Mock).mockClear()
       
       // Second connection attempt
       await service.connect()
@@ -217,7 +218,7 @@ describe('WebSocketService', () => {
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
-      const callback = jest.fn()
+      const callback = vi.fn()
       service.subscribe('test-message', callback)
       
       const payload = { test_data: 'value' }
@@ -237,7 +238,7 @@ describe('WebSocketService', () => {
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
-      const callback = jest.fn()
+      const callback = vi.fn()
       const unsubscribe = service.subscribe('test-message', callback)
       
       // Send message
@@ -270,13 +271,13 @@ describe('WebSocketService', () => {
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
-      ;(global.WebSocket as unknown as jest.Mock).mockClear()
+      ;(global.WebSocket as unknown as vi.Mock).mockClear()
       
       // Simulate unexpected close
       mockWebSocket.simulateClose(1006, 'Connection lost')
       
       // Advance timers
-      jest.advanceTimersByTime(5000)
+      vi.advanceTimersByTime(5000)
       
       expect(global.WebSocket).toHaveBeenCalledTimes(1)
     })
@@ -288,12 +289,12 @@ describe('WebSocketService', () => {
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
-      ;(global.WebSocket as unknown as jest.Mock).mockClear()
+      ;(global.WebSocket as unknown as vi.Mock).mockClear()
       
       service.disconnect()
       
       // Advance timers
-      jest.advanceTimersByTime(10000)
+      vi.advanceTimersByTime(10000)
       
       expect(global.WebSocket).not.toHaveBeenCalled()
     })
@@ -311,10 +312,10 @@ describe('WebSocketService', () => {
       for (let i = 0; i < maxAttempts + 1; i++) {
         mockWebSocket.simulateError()
         mockWebSocket.simulateClose(1006)
-        jest.advanceTimersByTime(30000) // Advance past any reconnect delay
+        vi.advanceTimersByTime(30000) // Advance past any reconnect delay
       }
       
-      const totalCalls = (global.WebSocket as unknown as jest.Mock).mock.calls.length
+      const totalCalls = (global.WebSocket as unknown as vi.Mock).mock.calls.length
       expect(totalCalls).toBeLessThanOrEqual(maxAttempts + 1) // Initial + max retries
     })
   })
@@ -329,7 +330,7 @@ describe('WebSocketService', () => {
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
-      jest.advanceTimersByTime(1000)
+      vi.advanceTimersByTime(1000)
       
       const pingCall = mockWebSocket.send.mock.calls.find(call => {
         const data = JSON.parse(call[0])
@@ -348,7 +349,7 @@ describe('WebSocketService', () => {
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
-      const errorCallback = jest.fn()
+      const errorCallback = vi.fn()
       service.on('error', errorCallback)
       
       // Send invalid JSON

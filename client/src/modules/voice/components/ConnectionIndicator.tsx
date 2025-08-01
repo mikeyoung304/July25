@@ -10,10 +10,10 @@ interface ConnectionIndicatorProps {
 export const ConnectionIndicator: React.FC<ConnectionIndicatorProps> = ({ status, className }) => {
   const getStatusColor = () => {
     switch (status) {
-      case 'connected': return 'bg-green-500';
-      case 'connecting': return 'bg-yellow-500';
-      case 'error': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'connected': return 'bg-success';
+      case 'connecting': return 'bg-warning animate-pulse';
+      case 'error': return 'bg-danger';
+      default: return 'bg-neutral-500';
     }
   };
 
@@ -29,7 +29,7 @@ export const ConnectionIndicator: React.FC<ConnectionIndicatorProps> = ({ status
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <div className={cn('w-2 h-2 rounded-full', getStatusColor())} />
-      <span className="text-xs text-gray-600">
+      <span className="text-xs text-neutral-600">
         {getStatusText()}
       </span>
     </div>

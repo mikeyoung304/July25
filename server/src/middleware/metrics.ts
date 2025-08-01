@@ -30,7 +30,7 @@ global.voiceMetrics = {
 };
 
 // Create promBundle middleware with automatic HTTP metrics
-export const metricsMiddleware = promBundle({
+const promBundleMiddleware = promBundle({
   includeMethod: true,
   includePath: true,
   includeStatusCode: true,
@@ -44,4 +44,14 @@ export const metricsMiddleware = promBundle({
       prefix: 'rebuild_',
     },
   },
+  // CRITICAL: Don't auto-register /metrics route
+  autoregister: false,
+  // Use a specific endpoint for metrics
+  metricsPath: '/metrics',
 });
+
+// Export the middleware function that tracks HTTP metrics
+export const metricsMiddleware = promBundleMiddleware;
+
+// Export register for metrics endpoint
+export { register };

@@ -1,20 +1,21 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom'
 import { KioskDemo } from '@/pages/KioskDemo'
 import { api } from '@/services/api'
 import { RestaurantProvider } from '@/core/RestaurantContext'
 
-jest.mock('@/services/api')
-jest.mock('@/hooks/useToast', () => ({
+vi.mock('@/services/api')
+vi.mock('@/hooks/useToast', () => ({
   useToast: () => ({
     toast: {
-      success: jest.fn(),
-      error: jest.fn()
+      success: vi.fn(),
+      error: vi.fn()
     }
   })
 }))
 
-jest.mock('@/modules/voice/components/VoiceCapture', () => ({
+vi.mock('@/modules/voice/components/VoiceCapture', () => ({
   VoiceCapture: ({ onOrderComplete }: { onOrderComplete: (text: string) => void }) => (
     <div data-testid="voice-capture">
       <button onClick={() => onOrderComplete("I'd like 2 soul bowls with extra collards")}>
@@ -24,12 +25,12 @@ jest.mock('@/modules/voice/components/VoiceCapture', () => ({
   )
 }))
 
-const mockApi = api as jest.Mocked<typeof api>
+const mockApi = api as vi.Mocked<typeof api>
 
 // TODO(luis): enable when Playwright pipeline runs
 describe('Voice Order to KDS Integration', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     mockApi.submitOrder.mockResolvedValue({
       success: true,
@@ -71,14 +72,11 @@ describe('Voice Order to KDS Integration', () => {
     await waitFor(() => {
       // Check for quantity and item name separately
       expect(screen.getByText('2x')).toBeInTheDocument()
-      expect(screen.getByText('Burger')).toBeInTheDocument()
+      expect(screen.getByText('Soul Bowl')).toBeInTheDocument()
     }, { timeout: 3000 })
     
-    // Check for modifiers and other items
-    expect(screen.getByText('Extra cheese')).toBeInTheDocument() // Burger modifiers
-    expect(screen.getByText('1x')).toBeInTheDocument()
-    expect(screen.getByText('Pizza')).toBeInTheDocument()
-    expect(screen.getByText('Large, Extra cheese')).toBeInTheDocument() // Pizza modifiers
+    // Check for modifiers from real Grow Fresh menu
+    expect(screen.getByText('Extra collards')).toBeInTheDocument()
   })
 
   it('submits parsed order to KDS when confirmed', async () => {
@@ -91,7 +89,7 @@ describe('Voice Order to KDS Integration', () => {
     // Wait for order to be displayed
     await waitFor(() => {
       expect(screen.getByText('2x')).toBeInTheDocument()
-      expect(screen.getByText('Burger')).toBeInTheDocument()
+      expect(screen.getByText('Soul Bowl')).toBeInTheDocument()
     }, { timeout: 3000 })
     
     // Confirm order
@@ -103,14 +101,9 @@ describe('Voice Order to KDS Integration', () => {
         tableNumber: 'K1',
         items: expect.arrayContaining([
           expect.objectContaining({
-            name: 'Burger',
+            name: 'Soul Bowl',
             quantity: 2,
-            modifiers: ['Extra cheese'] // Note: parseVoiceOrder extracts modifiers globally
-          }),
-          expect.objectContaining({
-            name: 'Pizza',
-            quantity: 1,
-            modifiers: ['Large', 'Extra cheese'] // Pizza also gets "extra cheese" modifier
+            modifiers: ['Extra collards'] // Real Grow Fresh modifier
           })
         ]),
         totalAmount: expect.any(Number),
@@ -175,7 +168,7 @@ describe('Voice Order to KDS Integration', () => {
   })
 
   it('resets order after successful submission', async () => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
     
     renderWithRouter(<KioskDemo />)
     
@@ -199,7 +192,7 @@ describe('Voice Order to KDS Integration', () => {
     
     // Fast forward 3 seconds
     act(() => {
-      jest.advanceTimersByTime(3000)
+      vi.advanceTimersByTime(3000)
     })
     
     // Order should be reset
@@ -208,6 +201,6 @@ describe('Voice Order to KDS Integration', () => {
       expect(screen.queryByText('Order Submitted!')).not.toBeInTheDocument()
     }, { timeout: 3000 })
     
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 })

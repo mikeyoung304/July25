@@ -1,4 +1,5 @@
 import React from 'react'
+import { vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react'
 import { OrderCard } from '../OrderCard/OrderCard'
 import { OrderItem } from '@/modules/orders/types'
@@ -24,17 +25,17 @@ describe('OrderCard', () => {
     ] as OrderItem[],
     status: 'new' as const,
     orderTime: new Date('2024-01-01T12:00:00'),
-    onStatusChange: jest.fn()
+    onStatusChange: vi.fn()
   }
   
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2024-01-01T12:10:00'))
+    vi.clearAllMocks()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-01-01T12:10:00'))
   })
   
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
   
   it('should render order details correctly', () => {
@@ -78,7 +79,7 @@ describe('OrderCard', () => {
   })
   
   it('should show urgency styling for orders over 15 minutes when not ready', () => {
-    jest.setSystemTime(new Date('2024-01-01T12:20:00')) // 20 minutes later
+    vi.setSystemTime(new Date('2024-01-01T12:20:00')) // 20 minutes later
     
     const { container } = render(<OrderCard {...defaultProps} />)
     
@@ -86,7 +87,7 @@ describe('OrderCard', () => {
   })
   
   it('should not show urgency styling for ready orders', () => {
-    jest.setSystemTime(new Date('2024-01-01T12:20:00')) // 20 minutes later
+    vi.setSystemTime(new Date('2024-01-01T12:20:00')) // 20 minutes later
     
     const { container } = render(<OrderCard {...defaultProps} status="ready" />)
     

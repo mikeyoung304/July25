@@ -1,19 +1,20 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
+import { vi } from 'vitest';
 import { useOrderData } from '../useOrderData'
 import { orderService } from '@/services'
 import { Order } from '@/modules/orders/types'
 import { defaultFilters, OrderStatus, OrderFilters } from '@/types/filters'
 
 // Mock the orderService
-jest.mock('@/services', () => ({
+vi.mock('@/services', () => ({
   orderService: {
-    getOrders: jest.fn(),
-    updateOrderStatus: jest.fn()
+    getOrders: vi.fn(),
+    updateOrderStatus: vi.fn()
   }
 }))
 
 // Mock the restaurant context
-jest.mock('@/core/restaurant-hooks', () => ({
+vi.mock('@/core/restaurant-hooks', () => ({
   useRestaurant: () => ({
     restaurant: { id: 'rest-1', name: 'Test Restaurant' },
     isLoading: false
@@ -21,13 +22,13 @@ jest.mock('@/core/restaurant-hooks', () => ({
 }))
 
 // Mock the toast hook
-jest.mock('@/hooks/useToast', () => ({
+vi.mock('@/hooks/useToast', () => ({
   useToast: () => ({
     toast: {
-      success: jest.fn(),
-      error: jest.fn(),
-      loading: jest.fn(),
-      dismiss: jest.fn()
+      success: vi.fn(),
+      error: vi.fn(),
+      loading: vi.fn(),
+      dismiss: vi.fn()
     }
   })
 }))
@@ -59,12 +60,12 @@ describe('useOrderData', () => {
   ]
   
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(orderService.getOrders as jest.Mock).mockResolvedValue({
+    vi.clearAllMocks()
+    ;(orderService.getOrders as vi.Mock).mockResolvedValue({
       orders: mockOrders,
       total: mockOrders.length
     })
-    ;(orderService.updateOrderStatus as jest.Mock).mockResolvedValue({
+    ;(orderService.updateOrderStatus as vi.Mock).mockResolvedValue({
       success: true,
       order: { ...mockOrders[0], status: 'preparing' }
     })
@@ -109,14 +110,14 @@ describe('useOrderData', () => {
       expect(result.current.loading).toBe(false)
     })
     
-    const initialCallCount = (orderService.getOrders as jest.Mock).mock.calls.length
+    const initialCallCount = (orderService.getOrders as vi.Mock).mock.calls.length
     
     act(() => {
       result.current.refetch()
     })
     
     await waitFor(() => {
-      expect((orderService.getOrders as jest.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
+      expect((orderService.getOrders as vi.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
     })
   })
   
@@ -141,11 +142,11 @@ describe('useOrderData', () => {
   
   it('should handle errors gracefully', async () => {
     const error = new Error('Failed to fetch orders')
-    ;(orderService.getOrders as jest.Mock).mockRejectedValue(error)
+    ;(orderService.getOrders as vi.Mock).mockRejectedValue(error)
     
     // Suppress console.error for this test since we're testing error handling
     const originalError = console.error
-    console.error = jest.fn()
+    console.error = vi.fn()
     
     const { result } = renderHook(() => useOrderData())
     
@@ -169,13 +170,13 @@ describe('useOrderData', () => {
       expect(result.current.loading).toBe(false)
     })
     
-    const initialCallCount = (orderService.getOrders as jest.Mock).mock.calls.length
+    const initialCallCount = (orderService.getOrders as vi.Mock).mock.calls.length
     
     // Change filters
     rerender({ filters: { ...defaultFilters, status: ['new'] as OrderStatus[] } })
     
     await waitFor(() => {
-      expect((orderService.getOrders as jest.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
+      expect((orderService.getOrders as vi.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
       expect(orderService.getOrders).toHaveBeenLastCalledWith('rest-1', {
         status: 'new',
         tableId: undefined

@@ -89,15 +89,25 @@ router.post('/transcribe', transcriptionLimiter, authenticate, audioUpload.singl
     aiLogger.info('Audio transcription requested', {
       restaurantId: req.restaurantId,
       userId: req.user?.id,
-      fileSize: req.file.size
+      fileSize: req.file.size,
+      mimeType: req.file.mimetype
     });
     
-    // This endpoint is for direct file upload (not WebSocket streaming)
-    // For now, return a placeholder
+    // Use the AI service to transcribe the audio
+    const result = await aiService.transcribeAudioFile(req.file.buffer, req.file.mimetype);
+    
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        error: result.error || 'Transcription failed'
+      });
+    }
+    
     return res.json({
       success: true,
-      text: 'Direct audio transcription not implemented. Use WebSocket streaming.',
-      duration: 0,
+      text: result.text,
+      transcript: result.text, // Include both for compatibility
+      duration: result.duration,
       restaurantId: req.restaurantId
     });
   } catch (error) {

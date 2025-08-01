@@ -1,9 +1,17 @@
+// IMPORTANT: Load environment variables FIRST before any other imports
+// This ensures all services have access to env vars during initialization
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load from root .env file explicitly
+dotenv.config({ path: path.join(__dirname, '../../.env') });
+
+// Now import everything else
 import express, { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
-import dotenv from 'dotenv';
 import { logger } from './utils/logger';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
@@ -15,42 +23,48 @@ import { setupAIWebSocket } from './ai/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
-import { metricsMiddleware } from './middleware/metrics';
-
-// Load environment variables
-dotenv.config();
+import { metricsMiddleware, register } from './middleware/metrics';
 
 // Validate required environment variables
 validateEnvironment();
 
 const app: Express = express();
 const httpServer = createServer(app);
-export const wss = new WebSocketServer({ server: httpServer });
+export const wss = new WebSocketServer({ 
+  server: httpServer,
+  perMessageDeflate: false, // Disable compression for better performance
+  maxPayload: 5 * 1024 * 1024, // 5MB max payload
+  clientTracking: true,
+});
 
 // Set WebSocket server for OrdersService
 OrdersService.setWebSocketServer(wss);
 
 // Global middleware
+// Configure helmet with appropriate CSP for each environment
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
-    },
-  },
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' 
+    ? {
+      // Production: Strict CSP
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline needed for Tailwind
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'", "wss:"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    }
+    : false, // Development: Disable CSP to avoid conflicts with Vite
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
     preload: true,
   },
-}));
+}))
 
 // CORS configuration with stricter settings
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
@@ -78,8 +92,16 @@ app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(requestLogger);
 
-// Metrics endpoint (before rate limiting)
+// Metrics middleware for tracking (not serving metrics)
 app.use(metricsMiddleware);
+
+// Dedicated metrics endpoint
+app.get('/metrics', (req, res) => {
+  res.set('Content-Type', register.contentType);
+  register.metrics().then(metrics => {
+    res.end(metrics);
+  });
+});
 
 // Rate limiting
 app.use('/api/', apiLimiter);
