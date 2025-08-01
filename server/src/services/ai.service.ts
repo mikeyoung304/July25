@@ -1,10 +1,7 @@
-import OpenAI from 'openai';
 import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
-import fs from 'fs/promises';
-import { createReadStream } from 'fs';
-import path from 'path';
-import { randomUUID } from 'crypto';
+import { getBuildPanelService } from './buildpanel.service';
+import { AuthenticatedRequest } from '../middleware/auth';
 
 const aiLogger = logger.child({ service: 'AIService' });
 
@@ -22,18 +19,20 @@ interface TranscriptionResult {
 }
 
 export class AIService {
-  private openai: OpenAI;
+  private buildPanel = getBuildPanelService();
   private connections: Map<string, ConnectionState>;
   private menuData: any = null;
+  private useBuildPanel: boolean;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
-
-    this.openai = new OpenAI({ apiKey });
     this.connections = new Map();
+    this.useBuildPanel = process.env.USE_BUILDPANEL === 'true';
+    
+    if (this.useBuildPanel) {
+      aiLogger.info('AIService using BuildPanel for all AI operations');
+    } else {
+      aiLogger.warn('BuildPanel integration disabled - AI features will not work');
+    }
   }
 
   /**
@@ -87,9 +86,9 @@ export class AIService {
   }
 
   /**
-   * Stop recording and transcribe
+   * Stop recording and transcribe using BuildPanel
    */
-  async stopRecording(connectionId: string): Promise<TranscriptionResult> {
+  async stopRecording(connectionId: string, restaurantId: string = 'default'): Promise<TranscriptionResult> {
     const state = this.connections.get(connectionId);
     if (!state || !state.isRecording) {
       return { success: false, error: 'Not recording' };
@@ -97,6 +96,13 @@ export class AIService {
 
     state.isRecording = false;
     const duration = state.startTime ? Date.now() - state.startTime : 0;
+
+    if (!this.useBuildPanel) {
+      return { 
+        success: false, 
+        error: 'BuildPanel integration is disabled. Enable USE_BUILDPANEL in environment.' 
+      };
+    }
 
     try {
       // Combine audio chunks
@@ -108,35 +114,23 @@ export class AIService {
         return { success: false, error: 'No audio data received' };
       }
 
-      // Save to temporary file for transcription
-      const tempFile = path.join('/tmp', `audio-${randomUUID()}.webm`);
-      await fs.writeFile(tempFile, audioBuffer);
+      // Send to BuildPanel for processing
+      const response = await this.buildPanel.processVoice(
+        audioBuffer,
+        'audio/webm',
+        restaurantId
+      );
 
-      // Create a read stream for OpenAI
-      const fileStream = createReadStream(tempFile);
-      
-      // Transcribe with OpenAI
-      const transcription = await this.openai.audio.transcriptions.create({
-        file: fileStream as any,
-        model: 'whisper-1',
-        language: 'en',
-        prompt: this.getWhisperPrompt(),
-        temperature: 0.2  // Lower temperature for more accurate transcription
-      });
-
-      // Clean up temp file
-      await fs.unlink(tempFile).catch(() => {});
-
-      aiLogger.info(`Transcription completed: "${transcription.text}"`);
+      aiLogger.info(`BuildPanel transcription completed: "${response.transcription}"`);
       aiLogger.debug(`Audio duration: ${duration / 1000}s, File size: ${audioBuffer.length} bytes`);
 
       return {
         success: true,
-        text: transcription.text,
+        text: response.transcription,
         duration: duration / 1000
       };
     } catch (error) {
-      aiLogger.error('Transcription error:', error);
+      aiLogger.error('BuildPanel transcription error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Transcription failed'
@@ -212,30 +206,99 @@ If you cannot identify valid menu items, return success: false with an error mes
   }
 
   /**
-   * Generate Whisper prompt with menu context
+   * Transcribe audio file using BuildPanel
    */
-  private getWhisperPrompt(): string {
-    // Common Grow Fresh menu items and phrases
-    const menuItems = [
-      // Bowls
-      'soul bowl', 'summer vegan bowl', 'honey bowl', 'protein power bowl', 'greek bowl',
-      // Salads
-      'green goddess salad', 'moms chicken salad', 'chicken salad', 'caesar salad',
-      // Entrees
-      'mushroom pasta', 'honey mustard chicken', 'lemon pepper salmon',
-      // Sides
-      'fries', 'french fries', 'side salad', 'fruit cup', 'soup',
-      // Drinks
-      'coke', 'coca cola', 'sprite', 'water', 'lemonade', 'sweet tea', 'unsweet tea',
-      // Common modifiers
-      'no onions', 'no cheese', 'extra dressing', 'on the side', 'gluten free', 'vegan',
-      // Common phrases
-      'can I get', 'Id like', 'I want', 'give me', 'let me have', 'I\'ll take', 'I\'ll have'
-    ];
+  async transcribeAudioFile(audioBuffer: Buffer, mimeType: string, restaurantId: string = 'default'): Promise<TranscriptionResult> {
+    if (!this.useBuildPanel) {
+      return { 
+        success: false, 
+        error: 'BuildPanel integration is disabled' 
+      };
+    }
 
-    return `Restaurant order context. Common items: ${menuItems.join(', ')}. Customer is ordering food at Grow Fresh Local Food restaurant.`;
+    try {
+      // Send to BuildPanel for transcription
+      const response = await this.buildPanel.processVoice(
+        audioBuffer,
+        mimeType || 'audio/webm',
+        restaurantId
+      );
+
+      aiLogger.info(`BuildPanel file transcription completed: "${response.transcription}"`);
+
+      return {
+        success: true,
+        text: response.transcription,
+        duration: 0 // Duration not available from file upload
+      };
+    } catch (error) {
+      aiLogger.error('BuildPanel file transcription error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Transcription failed'
+      };
+    }
+  }
+
+  /**
+   * Sync menu from BuildPanel
+   */
+  async syncMenuFromBuildPanel(restaurantId: string): Promise<void> {
+    if (!this.useBuildPanel) {
+      aiLogger.warn('Cannot sync menu - BuildPanel integration is disabled');
+      return;
+    }
+
+    try {
+      const menu = await this.buildPanel.getMenu(restaurantId);
+      this.menuData = {
+        restaurant: restaurantId,
+        menu: menu
+      };
+      aiLogger.info(`Menu synced from BuildPanel for restaurant ${restaurantId}`);
+    } catch (error) {
+      aiLogger.error('Failed to sync menu from BuildPanel:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Process chat message using BuildPanel
+   */
+  async chat(message: string, restaurantId: string = 'default', userId?: string): Promise<string> {
+    if (!this.useBuildPanel) {
+      throw new Error('BuildPanel integration is disabled');
+    }
+
+    try {
+      const response = await this.buildPanel.processChat(
+        message,
+        restaurantId,
+        userId
+      );
+
+      return response.message || 'I apologize, but I could not generate a response.';
+    } catch (error) {
+      aiLogger.error('BuildPanel chat error:', error);
+      throw error;
+    }
   }
 }
 
-// Singleton instance
-export const aiService = new AIService();
+// Lazy-loaded singleton instance
+let aiServiceInstance: AIService | null = null;
+
+export const getAIService = (): AIService => {
+  if (!aiServiceInstance) {
+    aiServiceInstance = new AIService();
+    const useBuildPanel = process.env.USE_BUILDPANEL === 'true';
+    aiLogger.info('AIService initialized:', {
+      useBuildPanel,
+      buildPanelUrl: process.env.BUILDPANEL_URL || 'http://localhost:3003'
+    });
+  }
+  return aiServiceInstance;
+};
+
+// Export a getter for backwards compatibility
+export const aiService = getAIService();

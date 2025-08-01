@@ -1,6 +1,6 @@
 import { BaseService } from '../BaseService'
+import { vi } from 'vitest';
 
-// Create a concrete implementation for testing
 class TestService extends BaseService {
   async testDelay(ms: number): Promise<void> {
     return this.delay(ms)
@@ -16,11 +16,11 @@ describe('BaseService', () => {
   
   beforeEach(() => {
     service = new TestService()
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
   
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
   
   describe('delay', () => {
@@ -28,13 +28,13 @@ describe('BaseService', () => {
       const delayPromise = service.testDelay(1000)
       
       // Should not resolve immediately
-      expect(jest.getTimerCount()).toBe(1)
+      expect(vi.getTimerCount()).toBe(1)
       
       // Fast-forward time
-      jest.advanceTimersByTime(1000)
+      vi.advanceTimersByTime(1000)
       
       await delayPromise
-      expect(jest.getTimerCount()).toBe(0)
+      expect(vi.getTimerCount()).toBe(0)
     })
   })
   
@@ -65,7 +65,7 @@ describe('BaseService', () => {
       expect(() => service.testRateLimit('test-endpoint')).toThrow()
       
       // Fast-forward past the window
-      jest.advanceTimersByTime(1001)
+      vi.advanceTimersByTime(1001)
       
       // Should now allow requests again
       expect(() => service.testRateLimit('test-endpoint')).not.toThrow()

@@ -1,7 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Users, ChefHat, ShoppingCart, Settings } from 'lucide-react'
+import { Users, ChefHat, ShoppingCart, Settings, Globe } from 'lucide-react'
+import { PageTitle, SectionTitle } from '@/components/ui/Typography'
+import { spacing } from '@/lib/typography'
 
 interface NavigationCardProps {
   title: string
@@ -28,7 +30,7 @@ function NavigationCard({ title, icon, href, color, delay = 0 }: NavigationCardP
           <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
           <div className="relative z-10 flex flex-col items-center space-y-4">
             {icon}
-            <h2 className="text-3xl font-bold">{title}</h2>
+            <SectionTitle as="h3" className="text-white">{title}</SectionTitle>
           </div>
         </div>
       </Link>
@@ -57,6 +59,12 @@ export function HomePage() {
       color: '#4ECDC4',
     },
     {
+      title: 'Online Order',
+      icon: <Globe className="h-16 w-16" />,
+      href: '/order/1',
+      color: '#7B68EE',
+    },
+    {
       title: 'Admin',
       icon: <Settings className="h-16 w-16" />,
       href: '/admin',
@@ -65,11 +73,11 @@ export function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FBFBFA' }}>
-      <div className="w-full max-w-7xl px-8">
+    <div className="min-h-screen flex items-center justify-center bg-macon-background">
+      <div className={`w-full ${spacing.page.container} ${spacing.page.padding}`}>
         {/* Logo and Title */}
         <motion.div
-          className="text-center mb-16"
+          className={`text-center ${spacing.page.section}`}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -79,13 +87,13 @@ export function HomePage() {
             alt="MACON AI SOLUTIONS"
             className="h-20 w-auto mx-auto mb-8 object-contain"
           />
-          <h1 className="text-4xl font-bold text-macon-logo-blue">
+          <PageTitle className="text-macon-logo-blue">
             Restaurant OS
-          </h1>
+          </PageTitle>
         </motion.div>
 
         {/* Navigation Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${spacing.grid.gapLarge} max-w-6xl mx-auto`}>
           {navigationOptions.map((option, index) => (
             <NavigationCard
               key={option.title}

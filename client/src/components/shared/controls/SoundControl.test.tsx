@@ -1,12 +1,13 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+import { vi } from 'vitest';
 import { SoundControl } from './SoundControl'
 
 describe('SoundControl', () => {
   const defaultProps = {
     enabled: true,
     volume: 0.5,
-    onToggle: jest.fn(),
-    onVolumeChange: jest.fn()
+    onToggle: vi.fn(),
+    onVolumeChange: vi.fn()
   }
 
   it('should render volume icon when enabled', () => {

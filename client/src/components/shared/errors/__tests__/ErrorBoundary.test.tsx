@@ -1,4 +1,5 @@
 import React from 'react'
+import { vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ErrorBoundary, withErrorBoundary } from '../ErrorBoundary'
 import * as envModule from '@/utils/env'
@@ -14,7 +15,7 @@ const ThrowError: React.FC<{ shouldThrow?: boolean }> = ({ shouldThrow = true })
 // Mock console.error to avoid noise in test output
 const originalError = console.error
 beforeAll(() => {
-  console.error = jest.fn()
+  console.error = vi.fn()
 })
 
 afterAll(() => {
@@ -23,7 +24,7 @@ afterAll(() => {
 
 describe('ErrorBoundary', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Component level error boundary', () => {
@@ -88,7 +89,7 @@ describe('ErrorBoundary', () => {
     })
 
     it('calls onError callback when error occurs', () => {
-      const onError = jest.fn()
+      const onError = vi.fn()
       
       render(
         <ErrorBoundary onError={onError}>
@@ -213,7 +214,7 @@ describe('ErrorBoundary', () => {
         throw new Error('Test')
       }
       
-      const onError = jest.fn()
+      const onError = vi.fn()
       const WrappedComponent = withErrorBoundary(TestComponent, {
         level: 'section',
         onError
@@ -264,7 +265,7 @@ describe('ErrorBoundary', () => {
       })
       
       // Clear any previous console.error calls
-      ;(console.error as jest.Mock).mockClear()
+      ;(console.error as vi.Mock).mockClear()
       
       render(
         <ErrorBoundary>

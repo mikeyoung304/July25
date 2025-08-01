@@ -4,6 +4,7 @@ import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { OrdersService } from '../services/orders.service';
 import { BadRequest, NotFound } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
+import type { OrderStatus } from '@rebuild/shared';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'orders' });
@@ -153,8 +154,8 @@ router.patch('/:id/status', authenticate, validateRestaurantAccess, async (req: 
       throw BadRequest('Status is required');
     }
 
-    const validStatuses = ['pending', 'preparing', 'ready', 'completed', 'cancelled'];
-    if (!validStatuses.includes(status)) {
+    const validStatuses: OrderStatus[] = ['pending', 'preparing', 'ready', 'completed', 'cancelled'];
+    if (!validStatuses.includes(status as OrderStatus)) {
       throw BadRequest(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }
 

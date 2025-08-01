@@ -1,4 +1,3 @@
-import OpenAI from 'openai'
 import { env } from '@/utils/env'
 
 export interface TranscriptionResult {
@@ -8,95 +7,83 @@ export interface TranscriptionResult {
 }
 
 export class TranscriptionService {
-  private openai: OpenAI | null = null
+  private apiBaseUrl: string
 
   constructor() {
-    // Get API key from environment
-    const apiKey = env.VITE_OPENAI_API_KEY
-    
-    if (apiKey) {
-      // dangerouslyAllowBrowser: true is used here for demo purposes
-      // In production, transcription should be handled server-side to protect API keys
-      this.openai = new OpenAI({
-        apiKey,
-        dangerouslyAllowBrowser: true
-      })
-    }
+    this.apiBaseUrl = env.VITE_API_BASE_URL || 'http://localhost:3001'
   }
 
   async transcribeAudio(audioBlob: Blob): Promise<TranscriptionResult> {
-    if (!this.openai) {
-      // Development mode: Return mock transcription
-      if (env.DEV) {
-        console.warn('OpenAI API key not configured. Using mock transcription for development.')
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // Return mock transcriptions for testing
-        const mockTranscriptions = [
-          "I'd like a burger with extra cheese",
-          "Two pizzas and a salad please",
-          "One large pizza with no onions",
-          "Can I get three burgers and two fries"
-        ]
-        const randomIndex = Math.floor(Math.random() * mockTranscriptions.length)
-        
-        return {
-          success: true,
-          transcript: mockTranscriptions[randomIndex]
-        }
-      }
-      
-      return {
-        success: false,
-        transcript: '',
-        error: 'OpenAI API key not configured. Please set VITE_OPENAI_API_KEY in your .env file.'
-      }
-    }
-
     try {
-      // Convert blob to File object required by OpenAI API
+      // Create FormData for multipart upload
+      const formData = new FormData()
       const audioFile = new File([audioBlob], 'audio.webm', { 
         type: audioBlob.type || 'audio/webm' 
       })
+      formData.append('audio', audioFile)
 
-      const response = await this.openai.audio.transcriptions.create({
-        file: audioFile,
-        model: 'whisper-1',
-        language: 'en', // Specify English for better accuracy
-        response_format: 'text'
+      // Get auth token from localStorage (set by Supabase)
+      const token = localStorage.getItem('supabase.auth.token')
+      const authData = token ? JSON.parse(token) : null
+      const accessToken = authData?.currentSession?.access_token
+
+      if (!accessToken) {
+        return {
+          success: false,
+          transcript: '',
+          error: 'Authentication required. Please log in.'
+        }
+      }
+
+      const response = await fetch(`${this.apiBaseUrl}/api/v1/ai/transcribe`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: formData
       })
 
-      return {
-        success: true,
-        transcript: response
-      }
-    } catch (error) {
-      console.error('Transcription error:', error)
-      
-      // Handle specific error cases
-      if (error instanceof OpenAI.APIError) {
-        if (error.status === 401) {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        
+        // Handle specific error cases
+        if (response.status === 401) {
           return {
             success: false,
             transcript: '',
-            error: 'Invalid OpenAI API key. Please check your configuration.'
+            error: 'Authentication failed. Please log in again.'
           }
-        } else if (error.status === 429) {
+        } else if (response.status === 429) {
           return {
             success: false,
             transcript: '',
             error: 'Rate limit exceeded. Please try again later.'
           }
-        } else if (error.status === 400) {
+        } else if (response.status === 400) {
           return {
             success: false,
             transcript: '',
-            error: 'Invalid audio format. Please ensure you are recording in a supported format.'
+            error: errorData.error || 'Invalid audio format. Please ensure you are recording in a supported format.'
           }
+        }
+        
+        return {
+          success: false,
+          transcript: '',
+          error: errorData.error || `Server error: ${response.status}`
         }
       }
 
+      const data = await response.json()
+      
+      return {
+        success: data.success || false,
+        transcript: data.text || data.transcript || '',
+        error: data.error
+      }
+    } catch (error) {
+      console.error('Transcription error:', error)
+      
       // Network errors
       if (error instanceof Error && error.message.includes('fetch')) {
         return {
@@ -115,9 +102,9 @@ export class TranscriptionService {
     }
   }
 
-  // Check if transcription is available
+  // Check if transcription is available (always true when backend is running)
   isAvailable(): boolean {
-    return this.openai !== null
+    return true
   }
 }
 

@@ -23,6 +23,16 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the official decision.
 - ✅ Add features to the existing backend
 - ✅ Use the unified WebSocket server
 
+## QUALITY STANDARDS (Non-Negotiable)
+- ✅ Maintain 0 TypeScript errors
+- ✅ No external CDN dependencies (breaks CSP)
+- ✅ Tests must pass before commits
+- ✅ No Google Fonts or external assets
+
+### Removed for Security/Performance
+- ❌ Google Fonts → Use system fonts
+- ❌ External CDNs → Self-host everything
+
 ## Common Mistakes You WILL Make (Unless You Read This)
 
 ### Mistake 1: "Let me create an AI Gateway"

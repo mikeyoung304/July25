@@ -1,12 +1,13 @@
 import React from 'react'
+import { vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { VoiceCapture } from './VoiceCapture'
 
 // Mock navigator.mediaDevices
-const mockGetUserMedia = jest.fn()
+const mockGetUserMedia = vi.fn()
 const mockMediaStream = {
-  getTracks: jest.fn(() => [
-    { stop: jest.fn() }
+  getTracks: vi.fn(() => [
+    { stop: vi.fn() }
   ])
 }
 
@@ -18,15 +19,15 @@ Object.defineProperty(navigator, 'mediaDevices', {
 })
 
 // Mock MediaRecorder
-const mockMediaRecorder = jest.fn().mockImplementation(() => ({
-  start: jest.fn(),
-  stop: jest.fn(),
+const mockMediaRecorder = vi.fn().mockImplementation(() => ({
+  start: vi.fn(),
+  stop: vi.fn(),
   state: 'inactive',
   ondataavailable: null,
   onstop: null,
 }))
 // Add isTypeSupported as a static method
-;(mockMediaRecorder as unknown as { isTypeSupported: jest.Mock }).isTypeSupported = jest.fn().mockReturnValue(true)
+;(mockMediaRecorder as unknown as { isTypeSupported: vi.Mock }).isTypeSupported = vi.fn().mockReturnValue(true)
 global.MediaRecorder = mockMediaRecorder as unknown as typeof MediaRecorder
 
 describe('VoiceCapture', () => {

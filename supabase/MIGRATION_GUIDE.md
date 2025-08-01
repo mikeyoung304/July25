@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project uses **cloud-only Supabase** - no local database or Docker required!
+This project uses **cloud-only Supabase** - no local database required!
 
 ## Quick Start
 
@@ -79,7 +79,7 @@ supabase/
 ## Why Cloud-Only?
 
 This approach simplifies development:
-1. **No Docker required**: Faster setup, less resource usage
+1. **No local database required**: Faster setup, less resource usage
 2. **No local database sync issues**: Cloud is the single source of truth
 3. **Team collaboration**: Everyone works with the same database
 4. **Instant changes**: No migration files to manage or apply

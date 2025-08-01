@@ -3,6 +3,9 @@
  * Tracks render performance, API calls, and memory usage
  */
 
+// Check if performance monitoring is enabled
+const perfEnabled = import.meta.env.VITE_ENABLE_PERF === 'true'
+
 export interface RenderMetric {
   componentName: string
   duration: number
@@ -262,8 +265,22 @@ class PerformanceMonitorService {
   }
 }
 
-// Export singleton instance
-export const performanceMonitor = new PerformanceMonitorService()
+// Create no-op implementation for when monitoring is disabled
+const noOpMonitor: PerformanceMonitorService = {
+  trackRender: () => {},
+  trackAPICall: () => {},
+  trackMemory: () => {},
+  getMetrics: () => ({ renders: [], apiCalls: [], memory: [] }),
+  getStatistics: () => ({ renders: {}, apiCalls: {}, memory: null }),
+  getSlowRenders: () => [],
+  getSlowAPICalls: () => [],
+  clear: () => {},
+  exportMetrics: () => '{}',
+  startMemoryTracking: () => () => {}
+} as PerformanceMonitorService
+
+// Export singleton instance - use real implementation only if enabled
+export const performanceMonitor = perfEnabled ? new PerformanceMonitorService() : noOpMonitor
 
 // Export Web Vitals integration
 export const trackWebVital = (metric: {

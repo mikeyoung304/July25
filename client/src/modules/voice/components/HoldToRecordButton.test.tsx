@@ -1,17 +1,18 @@
 import React from 'react';
+import { vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { HoldToRecordButton } from './HoldToRecordButton';
 
 describe('HoldToRecordButton', () => {
   const defaultProps = {
-    onMouseDown: jest.fn(),
-    onMouseUp: jest.fn(),
+    onMouseDown: vi.fn(),
+    onMouseUp: vi.fn(),
     isListening: false,
     isProcessing: false,
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders with "HOLD ME" text by default', () => {
