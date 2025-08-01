@@ -37,7 +37,8 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
     }
 
     // Get client IP
-    const clientIP = request.headers['x-forwarded-for']?.toString().split(',')[0].trim() || 
+    const forwardedFor = request.headers['x-forwarded-for'];
+    const clientIP = (forwardedFor ? forwardedFor.toString().split(',')[0].trim() : null) || 
                      request.socket.remoteAddress || 
                      'unknown';
 
@@ -213,10 +214,15 @@ async function handleControlMessage(
       break;
 
     case 'stop_recording': {
-      const result = await aiService.stopRecording(connectionId);
+      // Extract restaurant ID from message or use default
+      const restaurantId = message.restaurantId || 'default';
+      const result = await aiService.stopRecording(connectionId, restaurantId);
+      
+      // If BuildPanel returned audio, include it in response
       ws.send(JSON.stringify({
         type: 'transcription_result',
-        ...result
+        ...result,
+        restaurantId
       }));
       break;
     }
