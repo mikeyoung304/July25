@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { vi } from 'vitest';
-import type { Database } from '../types/supabase';
+// import type { Database } from '../types/supabase'; // Type not currently used
 
 // Mock request object
 export const createMockRequest = (overrides: Partial<Request> = {}): Request => {
@@ -30,7 +30,7 @@ export const createMockResponse = (): Response => {
 
 // Mock next function
 export const createMockNext = (): NextFunction => {
-  return vi.fn() as NextFunction;
+  return vi.fn(() => {}) as unknown as NextFunction;
 };
 
 // Mock Supabase client

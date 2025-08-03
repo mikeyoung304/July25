@@ -4,7 +4,7 @@ import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { OrdersService } from '../services/orders.service';
 import { BadRequest, NotFound } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
-import type { OrderStatus } from '@rebuild/shared';
+import type { OrderStatus, OrderType } from '@rebuild/shared';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'orders' });
@@ -14,8 +14,8 @@ router.get('/', authenticate, validateRestaurantAccess, async (req: Authenticate
   try {
     const restaurantId = req.restaurantId!;
     const filters = {
-      status: req.query.status as string,
-      type: req.query.type as string,
+      status: req.query.status as OrderStatus | undefined,
+      type: req.query.type as OrderType | undefined,
       startDate: req.query.startDate as string,
       endDate: req.query.endDate as string,
       limit: parseInt(req.query.limit as string) || 50,

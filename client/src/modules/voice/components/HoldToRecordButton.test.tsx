@@ -71,16 +71,16 @@ describe('HoldToRecordButton', () => {
     expect(button).toHaveClass('opacity-50', 'cursor-not-allowed');
   });
 
-  it('applies red styling when listening', () => {
+  it('applies danger styling when listening', () => {
     render(<HoldToRecordButton {...defaultProps} isListening={true} />);
     const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-red-500');
+    expect(button).toHaveClass('bg-danger');
   });
 
-  it('applies blue styling when not listening', () => {
+  it('applies primary styling when not listening', () => {
     render(<HoldToRecordButton {...defaultProps} isListening={false} />);
     const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-blue-500');
+    expect(button).toHaveClass('bg-primary');
   });
 
   it('applies pulse animation when processing', () => {

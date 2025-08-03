@@ -7,6 +7,9 @@ Get Rebuild 6.0 running in 5 minutes!
 node --version  # Should be 18.x or higher
 npm --version   # Should be 8.x or higher
 ```
+**REQUIRED: BuildPanel Service**
+- BuildPanel must be running on port 3003 for AI features
+- No OpenAI API key needed - BuildPanel handles all AI processing
 
 ## 1️⃣ Install & Setup (2 minutes)
 ```bash
@@ -19,26 +22,32 @@ npm install
 
 # Set up environment file (create .env in root directory)
 cp .env.example .env
-# Edit .env with your Supabase and OpenAI credentials
+# Edit .env with your Supabase credentials and BuildPanel settings:
+# USE_BUILDPANEL=true
+# BUILDPANEL_URL=http://localhost:3003
 ```
 
 ## 2️⃣ Start Everything (1 minute)
 ```bash
-# From root directory - starts both frontend and backend
+# 1. First, ensure BuildPanel is running on port 3003
+
+# 2. From root directory - starts both frontend and backend
 npm run dev
 ```
 
 Your system is now running:
 - **Frontend**: http://localhost:5173 
-- **Unified Backend**: http://localhost:3001 (API + AI + WebSocket)
+- **Unified Backend**: http://localhost:3001 (API + WebSocket)
+- **BuildPanel**: http://localhost:3003 (AI Processing)
 
 ## 3️⃣ Voice Ordering Setup (2 minutes)
 
-### Upload Menu to AI Service
+### Upload Menu to BuildPanel
 Wait 10 seconds after starting, then:
 ```bash
 cd server && npm run upload:menu
 ```
+This uploads menu data to BuildPanel (not OpenAI).
 
 ### Test Voice Recognition
 1. Open http://localhost:5173/kiosk
@@ -91,20 +100,20 @@ npm run typecheck     # TypeScript checks
 
 # Backend Scripts
 cd server
-npm run upload:menu   # Upload menu to AI
+npm run upload:menu   # Upload menu to BuildPanel
 npm run test:voice:flow  # Test voice flow
 ```
 
 ## 🏗️ Architecture Overview
 
 ```
-Frontend (5173) → Unified Backend (3001) → Supabase
-                  ├── REST API (/api/v1/*)
-                  ├── AI/Voice (/api/v1/ai/*)
-                  └── WebSocket (ws://localhost:3001)
+Frontend (5173) → Unified Backend (3001) → BuildPanel (3003) → Supabase
+                  ├── REST API (/api/v1/*)     ├── AI Processing
+                  ├── AI Proxy (/api/v1/ai/*) ├── Voice Recognition
+                  └── WebSocket (ws://3001)    └── Menu Processing
 ```
 
-**Important**: This project uses a unified backend architecture. Everything runs on port 3001 - there is NO separate AI Gateway. See [ARCHITECTURE.md](./ARCHITECTURE.md) for details.
+**Important**: This project uses a unified backend architecture with BuildPanel integration. The backend on port 3001 handles all requests, with AI features proxied to BuildPanel on port 3003. See [ARCHITECTURE.md](./ARCHITECTURE.md) for details.
 
 ## 🐛 Common Issues
 
@@ -113,12 +122,15 @@ Frontend (5173) → Unified Backend (3001) → Supabase
 # Kill processes
 lsof -ti:5173 | xargs kill -9  # Frontend
 lsof -ti:3001 | xargs kill -9  # Backend
+lsof -ti:3003 | xargs kill -9  # BuildPanel (if local)
 ```
 
 ### Voice Not Recognizing Menu Items
-1. Ensure backend is fully started (wait 10 seconds)
-2. Run `cd server && npm run upload:menu`
-3. Check menu uploaded: `npm run check:integration`
+1. **Ensure BuildPanel is running** on port 3003
+2. Ensure backend is fully started (wait 10 seconds)
+3. Check `USE_BUILDPANEL=true` in your `.env` file
+4. Run `cd server && npm run upload:menu`
+5. Check menu uploaded: `npm run check:integration`
 
 ### TypeScript Errors
 ```bash

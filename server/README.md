@@ -4,20 +4,29 @@ Production-ready Express.js backend for the Restaurant OS serving Grow Fresh Loc
 
 ## 🚀 Quick Start
 
+### Prerequisites
+**REQUIRED: BuildPanel Service**
+- BuildPanel must be running on port 3003 for AI features
+- No OpenAI API key needed - BuildPanel handles all AI processing
+
+### Setup
 ```bash
-# Install dependencies
+# 1. Ensure BuildPanel is running on port 3003
+
+# 2. Install dependencies
 npm install
 
-# Environment variables should be in root .env file
+# 3. Environment variables should be in root .env file
 # See root directory README for .env configuration
+# IMPORTANT: Set USE_BUILDPANEL=true in .env
 
-# Upload menu data to AI service
+# 4. Upload menu data to BuildPanel
 npm run upload:menu
 
-# (Optional) Seed test data
+# 5. (Optional) Seed test data
 npm run seed:tables
 
-# Start development server
+# 6. Start development server
 npm run dev
 ```
 
@@ -57,7 +66,7 @@ src/
 - `GET /api/v1/menu/items` - All menu items
 - `GET /api/v1/menu/items/:id` - Single menu item
 - `GET /api/v1/menu/categories` - Menu categories
-- `POST /api/v1/menu/sync-ai` - Sync menu to AI service
+- `POST /api/v1/menu/sync-ai` - Sync menu to BuildPanel service
 
 ### Order Processing
 - `GET /api/v1/orders` - List orders (with filters)
@@ -127,6 +136,8 @@ npm start
 - `SUPABASE_URL` - Supabase project URL
 - `SUPABASE_SERVICE_KEY` - Service role key
 - `FRONTEND_URL` - Frontend URL for CORS
+- `USE_BUILDPANEL=true` - Enable BuildPanel integration (REQUIRED)
+- `BUILDPANEL_URL` - BuildPanel service URL (default: http://localhost:3003)
 
 ## 📈 Performance
 
@@ -174,7 +185,8 @@ npm run check:integration
 
 3. **Voice parsing errors**
    - Check menu-upload.json is current
-   - Verify AI service is running
+   - Verify BuildPanel service is running on port 3003
+   - Check USE_BUILDPANEL=true in environment
    - Review fuzzy matching thresholds
 
 ## 📚 Related Documentation

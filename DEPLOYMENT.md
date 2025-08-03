@@ -8,6 +8,7 @@ This guide covers deploying the Rebuild 6.0 Restaurant OS to production environm
 
 - Node.js 18.x or higher
 - PostgreSQL 14+ or Supabase project
+- **BuildPanel service** deployed and accessible (REQUIRED for AI features)
 - Domain with SSL certificate
 - Server with at least 2GB RAM
 
@@ -30,9 +31,9 @@ SUPABASE_SERVICE_KEY=your-service-key
 JWT_SECRET=your-jwt-secret-min-32-chars
 CORS_ORIGIN=https://your-domain.com
 
-# AI Services (Optional)
-OPENAI_API_KEY=your-openai-key
-ANTHROPIC_API_KEY=your-anthropic-key
+# BuildPanel Integration (REQUIRED for AI features)
+USE_BUILDPANEL=true
+BUILDPANEL_URL=https://buildpanel.your-domain.com
 
 # Logging
 LOG_LEVEL=info
@@ -131,6 +132,16 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
     }
+
+    # BuildPanel Service (if hosted locally)
+    location /buildpanel {
+        proxy_pass http://localhost:3003;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 }
 ```
 
@@ -200,7 +211,7 @@ Expected response:
   "timestamp": "2025-01-16T00:00:00Z",
   "services": {
     "database": "connected",
-    "ai": "connected",
+    "buildpanel": "connected",
     "websocket": "active"
   }
 }
@@ -357,8 +368,9 @@ NODE_ENV=production LOG_LEVEL=debug pm2 restart restaurant-os
 ## Post-Deployment Checklist
 
 - [ ] Health check passes
+- [ ] **BuildPanel service connectivity verified**
 - [ ] WebSocket connections work
-- [ ] Voice ordering functional
+- [ ] Voice ordering functional (requires BuildPanel)
 - [ ] Orders flow to kitchen display
 - [ ] No console errors in browser
 - [ ] Performance acceptable (< 3s load time)

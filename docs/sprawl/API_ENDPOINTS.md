@@ -243,54 +243,76 @@ PUT /api/v1/floor-plan
 }
 ```
 
-## 🤖 AI/Voice Services
+## 🤖 AI/Voice Services (BuildPanel Integration)
+
+**IMPORTANT**: All AI endpoints now proxy to BuildPanel service. The backend handles authentication and restaurant context, then forwards requests to BuildPanel at `BUILDPANEL_URL` (default: http://localhost:3003).
 
 ### Transcribe Audio
 ```http
 POST /api/v1/ai/transcribe
 ```
-Converts audio to text using Whisper.
+Converts audio to text via BuildPanel's Whisper integration.
 
 **Request**: Multipart form data with audio file
+- **Headers**: `Authorization: Bearer <token>`, `X-Restaurant-ID: <uuid>`
+- **Body**: Form data with `audio` field
+
+**BuildPanel Proxy**: Forwards to `/api/voice-chat` with restaurant context
 
 **Response**:
 ```json
 {
+  "success": true,
+  "text": "I'll have a bacon burger please",
   "transcript": "I'll have a bacon burger please",
-  "confidence": 0.95
+  "duration": 2.5,
+  "restaurantId": "11111111-1111-1111-1111-111111111111"
 }
 ```
 
-### Chat Completion
+### Chat with AI Assistant
 ```http
 POST /api/v1/ai/chat
 ```
-Natural language processing for orders.
+Natural language chat with AI assistant via BuildPanel.
 
 **Request Body**:
 ```json
 {
-  "message": "What desserts do you have?",
-  "context": "ordering"
+  "message": "What desserts do you have?"
 }
 ```
 
-### Parse Order
-```http
-POST /api/v1/ai/parse-order
-```
-Extracts structured order from natural language.
-
-**Request Body**:
-```json
-{
-  "transcript": "Two burgers, one with no pickles, and a large fries"
-}
-```
+**BuildPanel Proxy**: Forwards to `/api/chatbot` with restaurant context
 
 **Response**:
 ```json
 {
+  "success": true,
+  "message": "We have chocolate cake, apple pie, and ice cream!",
+  "restaurantId": "11111111-1111-1111-1111-111111111111"
+}
+```
+
+### Parse Order from Text
+```http
+POST /api/v1/ai/parse-order
+```
+Extracts structured order from natural language via BuildPanel.
+
+**Request Body**:
+```json
+{
+  "text": "Two burgers, one with no pickles, and a large fries"
+}
+```
+
+**BuildPanel Proxy**: Uses BuildPanel's order parsing capabilities
+
+**Response**:
+```json
+{
+  "success": true,
   "items": [
     {
       "name": "Burger",
@@ -302,15 +324,67 @@ Extracts structured order from natural language.
       "quantity": 1,
       "size": "large"
     }
+  ],
+  "restaurantId": "11111111-1111-1111-1111-111111111111",
+  "parsedBy": "user-123"
+}
+```
+
+### Sync Menu to AI
+```http
+POST /api/v1/ai/menu
+```
+Syncs current menu from BuildPanel (replaces upload functionality).
+
+**Request Body**: Empty (uses restaurant context from headers)
+
+**BuildPanel Integration**: Fetches menu from BuildPanel's `/api/menu` endpoint
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Menu synced from BuildPanel successfully",
+  "restaurantId": "11111111-1111-1111-1111-111111111111"
+}
+```
+
+### Get Current AI Menu
+```http
+GET /api/v1/ai/menu
+```
+Returns currently loaded menu for AI processing.
+
+**Response**:
+```json
+{
+  "restaurantId": "11111111-1111-1111-1111-111111111111",
+  "menu": [
+    {
+      "id": "item-1",
+      "name": "Burger",
+      "price": 9.00,
+      "category": "Mains"
+    }
   ]
 }
 ```
 
-### Upload Menu to AI
+### AI Health Check
 ```http
-POST /api/v1/ai/menu-upload
+GET /api/v1/ai/health
 ```
-Updates AI service with current menu for accurate voice ordering.
+Checks AI service health including BuildPanel connectivity.
+
+**Response**:
+```json
+{
+  "status": "ok",
+  "hasMenu": true,
+  "menuItems": 25,
+  "buildPanelStatus": "connected"
+}
+```
 
 ## 🔄 WebSocket Events
 
@@ -363,7 +437,7 @@ Binary audio data chunks sent during recording.
 }
 ```
 
-#### Voice Response
+#### Voice Response (BuildPanel)
 ```json
 {
   "type": "voice-response",
@@ -375,8 +449,99 @@ Binary audio data chunks sent during recording.
       "price": 9.00,
       "quantity": 1
     }
-  ]
+  ],
+  "buildPanelProcessed": true,
+  "restaurantId": "11111111-1111-1111-1111-111111111111"
 }
+```
+
+#### BuildPanel Status
+```json
+{
+  "type": "buildpanel-status",
+  "status": "connected",
+  "lastSync": "2025-01-01T12:00:00Z"
+}
+```
+
+## 🔧 CURL Examples
+
+### AI Endpoints (BuildPanel Proxy)
+
+#### Chat with AI Assistant
+```bash
+curl -X POST http://localhost:3001/api/v1/ai/chat \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your-jwt-token>" \
+  -H "X-Restaurant-ID: 11111111-1111-1111-1111-111111111111" \
+  -d '{
+    "message": "What are your most popular burgers?"
+  }'
+```
+
+#### Transcribe Audio File
+```bash
+curl -X POST http://localhost:3001/api/v1/ai/transcribe \
+  -H "Authorization: Bearer <your-jwt-token>" \
+  -H "X-Restaurant-ID: 11111111-1111-1111-1111-111111111111" \
+  -F "audio=@recording.webm"
+```
+
+#### Parse Order from Text
+```bash
+curl -X POST http://localhost:3001/api/v1/ai/parse-order \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your-jwt-token>" \
+  -H "X-Restaurant-ID: 11111111-1111-1111-1111-111111111111" \
+  -d '{
+    "text": "I would like two cheeseburgers, one without pickles, and a large fries"
+  }'
+```
+
+#### Sync Menu from BuildPanel
+```bash
+curl -X POST http://localhost:3001/api/v1/ai/menu \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your-jwt-token>" \
+  -H "X-Restaurant-ID: 11111111-1111-1111-1111-111111111111"
+```
+
+### Order Management
+
+#### Create Voice Order
+```bash
+curl -X POST http://localhost:3001/api/v1/orders/voice \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your-jwt-token>" \
+  -H "X-Restaurant-ID: 11111111-1111-1111-1111-111111111111" \
+  -d '{
+    "transcript": "Two bacon burgers and a large coke",
+    "order_type": "drive_thru"
+  }'
+```
+
+#### Update Order Status
+```bash
+curl -X PATCH http://localhost:3001/api/v1/orders/order-123/status \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your-jwt-token>" \
+  -H "X-Restaurant-ID: 11111111-1111-1111-1111-111111111111" \
+  -d '{
+    "status": "ready"
+  }'
+```
+
+### Health Checks
+
+#### System Health
+```bash
+curl http://localhost:3001/health
+```
+
+#### AI Service Health
+```bash
+curl -H "Authorization: Bearer <your-jwt-token>" \
+     http://localhost:3001/api/v1/ai/health
 ```
 
 ## 📊 Analytics (Coming Soon)
@@ -418,13 +583,38 @@ All errors follow this format:
 - `FORBIDDEN` - No access to resource
 - `NOT_FOUND` - Resource doesn't exist
 - `VALIDATION_ERROR` - Invalid request data
+- `BUILDPANEL_ERROR` - BuildPanel service unavailable or error
 - `INTERNAL_ERROR` - Server error
+
+**BuildPanel-Specific Errors**:
+```json
+{
+  "error": "BuildPanel chat failed: Connection timeout",
+  "message": "Service temporarily unavailable"
+}
+```
 
 ## 📈 Rate Limits
 
 - **General API**: 100 requests per minute
-- **AI Endpoints**: 20 requests per minute
+- **AI Endpoints**: 20 requests per minute (BuildPanel proxy)
+- **Voice Transcription**: 10 requests per minute
 - **WebSocket**: 1 connection per client
+
+## 🔧 Environment Variables
+
+**BuildPanel Integration**:
+- `BUILDPANEL_URL` - BuildPanel service URL (default: http://localhost:3003)
+
+**Core Services**:
+- `DATABASE_URL` - PostgreSQL connection string
+- `PORT` - Server port (default: 3001)
+- `FRONTEND_URL` - Frontend URL for CORS
+- `NODE_ENV` - Environment (development/production)
+
+**Authentication**:
+- `JWT_SECRET` - JWT signing secret
+- `ALLOWED_ORIGINS` - Comma-separated allowed CORS origins
 
 ---
 

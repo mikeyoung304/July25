@@ -33,7 +33,7 @@ router.post('/metrics', async (req, res) => {
 /**
  * Health check endpoint
  */
-router.get('/health', (req, res) => {
+router.get('/health', (_req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -45,7 +45,7 @@ router.get('/health', (req, res) => {
 /**
  * Detailed health check endpoint
  */
-router.get('/health/detailed', async (req, res) => {
+router.get('/health/detailed', async (_req, res) => {
   const checks = {
     server: {
       status: 'healthy',
@@ -74,7 +74,7 @@ router.get('/health/detailed', async (req, res) => {
  * Test error endpoint (development only)
  */
 if (process.env.NODE_ENV === 'development') {
-  router.post('/test/error', (req, res) => {
+  router.post('/test/error', (_req, _res) => {
     throw new Error('Test error for monitoring integration');
   });
 }

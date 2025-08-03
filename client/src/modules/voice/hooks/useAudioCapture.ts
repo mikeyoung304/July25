@@ -32,7 +32,7 @@ export const useAudioCapture = ({
       setPermissionStatus('not-found')
       setError(new Error('getUserMedia is not supported in this browser'))
     } else if (!transcriptionService.isAvailable()) {
-      setError(new Error('OpenAI API key not configured. Please set VITE_OPENAI_API_KEY in your .env file.'))
+      setError(new Error('Backend transcription service not available. Check server configuration.'))
       setPermissionStatus('granted') // Still allow recording, but transcription will fail
     } else {
       setPermissionStatus('granted') // Default to granted, will check on first use
@@ -66,7 +66,7 @@ export const useAudioCapture = ({
         // Create blob from collected audio chunks
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
         
-        // Send to OpenAI for transcription
+        // Send to backend for transcription via BuildPanel
         const result = await transcriptionService.transcribeAudio(audioBlob)
         
         if (result.success && result.transcript) {

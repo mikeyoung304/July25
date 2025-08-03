@@ -26,6 +26,12 @@ async function checkIntegration() {
       details: (data: any) => `${data.items?.length || 0} items, ${data.categories?.length || 0} categories`
     },
     {
+      name: 'BuildPanel Service',
+      url: 'http://localhost:3001/health/status',
+      validate: (data: any) => data.services?.buildpanel?.status === 'connected',
+      details: (data: any) => `URL: ${data.services?.buildpanel?.url || 'N/A'}, Status: ${data.services?.buildpanel?.status || 'Unknown'}`
+    },
+    {
       name: 'AI Service',
       url: 'http://localhost:3001/api/v1/ai/health',
       validate: (data: any) => data.status === 'ok',
@@ -100,18 +106,20 @@ async function checkIntegration() {
   
   // Manual test instructions
   console.log(chalk.yellow('\n📱 Manual Tests:'));
-  console.log('1. Go to http://localhost:5173/kiosk');
-  console.log('2. Click microphone and say "I\'d like a soul bowl"');
-  console.log('3. Verify order appears in Kitchen Display');
-  console.log('4. Check that order shows proper Grow Fresh menu items');
+  console.log('1. Verify BuildPanel service: curl http://localhost:3003/health');
+  console.log('2. Go to http://localhost:5173/kiosk');
+  console.log('3. Click microphone and say "I\'d like a soul bowl"');
+  console.log('4. Verify order appears in Kitchen Display');
+  console.log('5. Check that order shows proper Grow Fresh menu items');
   
   // Quick start guide
   if (failureCount > 0) {
     console.log(chalk.yellow('\n🚀 Quick Start:'));
-    console.log('1. In backend directory: npm run start:all');
-    console.log('2. Wait for all services to start (10 seconds)');
-    console.log('3. Run: npm run upload:menu');
-    console.log('4. Run: npm run test:voice:flow');
+    console.log('1. Start BuildPanel service (port 3003)');
+    console.log('2. In backend directory: npm run start:all');
+    console.log('3. Wait for all services to start (10 seconds)');
+    console.log('4. Run: npm run upload:menu');
+    console.log('5. Run: npm run test:voice:flow');
   } else {
     console.log(chalk.green('\n🎉 All systems operational! Ready for voice ordering.'));
   }

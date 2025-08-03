@@ -1,3 +1,43 @@
+# AI Cost Projections - ARCHIVED
+
+> **⚠️ ARCHIVED DOCUMENT**
+> 
+> This document contains OpenAI cost projections from the previous architecture.
+> As of the BuildPanel migration, these costs are no longer applicable.
+> 
+> **Current Status**: BuildPanel service handles all AI operations with its own pricing model.
+> **Migration Date**: January 2025
+> **Reason**: Service isolation and simplified cost management
+
+## Historical Context
+
+This document was created when Rebuild 6.0 integrated directly with OpenAI APIs.
+The costs and projections below are **obsolete** and kept for historical reference only.
+
+## BuildPanel Migration Impact
+
+### What Changed
+- **No OpenAI API Keys**: Rebuild backend no longer calls OpenAI directly
+- **Service-Based Pricing**: BuildPanel service has its own pricing structure
+- **Simplified Cost Management**: No need to track per-API-call costs in Rebuild
+- **Service Isolation**: AI costs managed at BuildPanel service level
+
+### New Cost Model
+```
+Old: Rebuild → OpenAI API (per-call pricing)
+New: Rebuild → BuildPanel Service (service-based pricing)
+```
+
+**Cost Benefits**:
+- No API key management overhead
+- Service-level cost controls
+- Simplified billing structure
+- Better cost predictability
+
+## Original Document Content (ARCHIVED)
+
+---
+
 # AI Cost Projections
 
 ## Executive Summary
@@ -157,3 +197,13 @@ const LIMITS = {
 - Queue overflow protection
 - Graceful degradation
 - Priority queuing for VIP restaurants
+
+---
+
+**End of Archived Content**
+
+## References
+
+- [MIGRATION_BUILDPANEL.md](../MIGRATION_BUILDPANEL.md) - Current architecture
+- [SECURITY_BUILDPANEL.md](../SECURITY_BUILDPANEL.md) - Current security model
+- [BuildPanel Service Documentation](https://buildpanel.dev/docs) - Current AI service

@@ -620,7 +620,7 @@ SECTION COMPLETE: ORDER_FLOW_PAYLOADS
    - `client/src/services/transcription/TranscriptionService.ts` - Main service
    
 3. **Transport**
-   - HTTP POST to `/api/v1/ai/voice/transcribe`
+   - HTTP POST to `/api/v1/ai/transcribe` (BuildPanel proxy)
    
 4. **Server Processing**
    - `server/src/routes/ai.routes.ts` - Route handler
@@ -685,12 +685,15 @@ SECTION COMPLETE: WEBSOCKET_ENDPOINTS_AND_EVENTS
 | POST | `/api/v1/menu/items` | Yes | menu.controller.ts |
 | PUT | `/api/v1/menu/items/:id` | Yes | menu.controller.ts |
 
-### AI/Voice API
+### AI/Voice API (BuildPanel Proxy)
 | Method | Path | Auth | Controller |
 |--------|------|------|------------|
-| POST | `/api/v1/ai/voice/transcribe` | Yes | ai.controller.ts |
-| POST | `/api/v1/ai/menu/upload` | Yes | ai.controller.ts |
-| GET | `/api/v1/ai/health` | No | ai.controller.ts |
+| POST | `/api/v1/ai/transcribe` | Yes | ai.routes.ts (BuildPanel proxy) |
+| POST | `/api/v1/ai/chat` | Yes | ai.routes.ts (BuildPanel proxy) |
+| POST | `/api/v1/ai/parse-order` | Yes | ai.routes.ts (BuildPanel proxy) |
+| POST | `/api/v1/ai/menu` | Yes | ai.routes.ts (sync from BuildPanel) |
+| GET | `/api/v1/ai/menu` | Yes | ai.routes.ts |
+| GET | `/api/v1/ai/health` | No | ai.routes.ts |
 
 ### Tables API
 | Method | Path | Auth | Controller |

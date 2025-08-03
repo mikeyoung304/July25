@@ -1,5 +1,9 @@
 # 📊 Monitoring & Observability
 
+> **ARCHIVED**: This document is archived as of January 2025 following the migration from OpenAI direct integration to BuildPanel service architecture. See [MIGRATION_BUILDPANEL.md](../../MIGRATION_BUILDPANEL.md) for current implementation.
+>
+> **Current Documentation**: [OPERATIONS_INFRASTRUCTURE.md](../../OPERATIONS_INFRASTRUCTURE.md)
+
 ## Overview
 
 Rebuild 6.0 includes built-in monitoring and observability features to help track system health, performance, and usage patterns.

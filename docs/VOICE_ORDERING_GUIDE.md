@@ -2,7 +2,7 @@
 
 ## Overview
 
-AI-powered voice ordering system with speech recognition and natural language processing.
+AI-powered voice ordering system with speech recognition and natural language processing through BuildPanel service integration.
 
 **Interfaces:**
 - **Kiosk** (`/kiosk`) - In-store touchscreen
@@ -11,7 +11,15 @@ AI-powered voice ordering system with speech recognition and natural language pr
 ## Quick Start
 
 ```bash
-npm run dev  # Starts everything on port 3001
+# 1. Start BuildPanel service (port 3003)
+# Ensure BuildPanel is running separately
+
+# 2. Configure environment
+export USE_BUILDPANEL=true
+export BUILDPANEL_URL=http://localhost:3003
+
+# 3. Start Rebuild application
+npm run dev  # Starts frontend + backend on port 3001
 ```
 
 **Access:**
@@ -34,13 +42,18 @@ npm run dev  # Starts everything on port 3001
 - **Real-time updates** - WebSocket connection to backend
 
 ### Backend (Port 3001)
-- **WebSocket endpoint** - Audio streaming and transcription
-- **OpenAI integration** - Speech-to-text and order parsing
-- **Order processing** - Natural language to structured data
+- **WebSocket endpoint** - Audio streaming to buffer
+- **BuildPanel integration** - All AI processing via HTTP to port 3003
+- **Order processing** - Natural language to structured data via BuildPanel
+
+### BuildPanel Service (Port 3003)
+- **Voice processing** - Speech-to-text and AI response generation
+- **Restaurant context** - Menu-aware order parsing
+- **Response generation** - Natural language responses with order data
 
 ### Data Flow
 ```
-User speaks → WebSocket → OpenAI Whisper → GPT-4 parsing → Structured order → Kitchen display
+User speaks → WebSocket → Audio Buffer → HTTP to BuildPanel → AI Processing → Structured order → Kitchen display
 ```
 
 ## Key Features
@@ -55,12 +68,14 @@ User speaks → WebSocket → OpenAI Whisper → GPT-4 parsing → Structured or
 
 ### Environment Variables
 ```env
-OPENAI_API_KEY=your-key-here
+USE_BUILDPANEL=true
+BUILDPANEL_URL=http://localhost:3003
 ```
 
-### Menu Upload
+### Menu Sync
 ```bash
-cd server && npm run upload:menu
+# Menu is automatically synced from BuildPanel service
+# BuildPanel maintains restaurant-specific menu context
 ```
 
 ## Troubleshooting
@@ -69,8 +84,9 @@ cd server && npm run upload:menu
 |-------|----------|
 | No microphone access | Check browser permissions |
 | Connection failed | Verify backend is running on 3001 |
-| No transcription | Check OpenAI API key |
-| Menu not recognized | Run menu upload script |
+| No transcription | Check BuildPanel service on port 3003 |
+| Menu not recognized | Verify BuildPanel has restaurant menu data |
+| AI features disabled | Set USE_BUILDPANEL=true in environment |
 
 ## Testing
 

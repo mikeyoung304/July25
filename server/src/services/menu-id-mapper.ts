@@ -15,7 +15,7 @@ export function extractExternalId(item: ItemLike): string | null {
   if (item.external_id && item.external_id.trim() !== '') return item.external_id.trim();
   if (item.description) {
     const m = item.description.match(/\[ID:(\d+)\]/);
-    if (m) return m[1];
+    if (m && m[1]) return m[1];
   }
   return null;
 }
@@ -40,9 +40,48 @@ export function findUuid(items: ItemLike[], externalId: string): string | undefi
   return buildExternalIdMap(items).get(externalId);
 }
 
+/** Menu ID Mapper class for converting between external IDs and UUIDs */
+export class MenuIdMapper {
+  /**
+   * Convert menu items to use external IDs instead of UUIDs
+   * For items without external_id, use the UUID as fallback
+   */
+  async convertToExternalIds<T extends ItemLike>(items: T[]): Promise<T[]> {
+    return items.map(item => {
+      const externalId = extractExternalId(item);
+      return {
+        ...item,
+        id: externalId || item.id // Use external ID if available, otherwise keep UUID
+      };
+    });
+  }
+
+  /**
+   * Convert external IDs back to UUIDs for database operations
+   */
+  async convertToUuids<T extends ItemLike & { id: string }>(
+    items: T[], 
+    allMenuItems: ItemLike[]
+  ): Promise<T[]> {
+    const externalIdMap = buildExternalIdMap(allMenuItems);
+    
+    return items.map(item => {
+      const uuid = resolveUuid(externalIdMap, item.id);
+      return {
+        ...item,
+        id: uuid || item.id // Use UUID if found, otherwise keep original ID
+      };
+    });
+  }
+}
+
+// Singleton instance
+export const menuIdMapper = new MenuIdMapper();
+
 export default {
   extractExternalId,
   buildExternalIdMap,
   resolveUuid,
   findUuid,
+  menuIdMapper,
 };

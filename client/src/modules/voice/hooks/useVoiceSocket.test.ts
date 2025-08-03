@@ -243,14 +243,20 @@ describe('useVoiceSocket', () => {
       })
     );
 
-    // Wait for connection
+    // Wait for connection to be established
     await act(async () => {
+      mockWebSocket.readyState = 1; // OPEN
+      mockWebSocket.onopen?.(new Event('open'));
       vi.advanceTimersByTime(10);
     });
 
+    // Verify connection is established
+    expect(result.current.connectionStatus).toBe('connected');
+
     // Send JSON message
     act(() => {
-      expect(result.current.sendJSON({ type: 'start_recording' })).toBe(true);
+      const sent = result.current.sendJSON({ type: 'start_recording' });
+      expect(sent).toBe(true);
     });
 
     expect(mockWebSocket.sentMessages).toHaveLength(1);

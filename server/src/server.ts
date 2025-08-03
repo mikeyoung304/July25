@@ -18,6 +18,7 @@ import { requestLogger } from './middleware/requestLogger';
 import { setupRoutes } from './routes';
 import { initializeDatabase } from './config/database';
 import { validateEnvironment } from './config/environment';
+import { aiService } from './services/ai.service';
 import { setupWebSocketHandlers } from './utils/websocket';
 import { setupAIWebSocket } from './ai/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
@@ -84,7 +85,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id', 'x-request-id'],
   exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset'],
   maxAge: 86400, // 24 hours
 }));
@@ -96,7 +97,7 @@ app.use(requestLogger);
 app.use(metricsMiddleware);
 
 // Dedicated metrics endpoint
-app.get('/metrics', (req, res) => {
+app.get('/metrics', (_req, res) => {
   res.set('Content-Type', register.contentType);
   register.metrics().then(metrics => {
     res.end(metrics);
@@ -139,6 +140,15 @@ async function startServer() {
     // Initialize database connection
     await initializeDatabase();
     
+    // Initialize menu context for AI service
+    try {
+      const restaurantId = process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
+      await aiService.syncMenuFromBuildPanel(restaurantId);
+      logger.info('✅ Menu context initialized for AI service');
+    } catch (error) {
+      logger.warn('⚠️  Failed to initialize menu context:', error);
+    }
+    
     httpServer.listen(PORT, () => {
       logger.info(`🚀 Unified backend running on port ${PORT}`);
       logger.info(`   - REST API: http://localhost:${PORT}/api/v1`);
@@ -153,14 +163,54 @@ async function startServer() {
   }
 }
 
+// Cleanup tracking
+let isShuttingDown = false;
+
 // Handle graceful shutdown
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully...');
+async function gracefulShutdown(signal: string) {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  
+  logger.info(`${signal} received, shutting down gracefully...`);
+  
+  // Close WebSocket server first
+  wss.clients.forEach((ws) => {
+    ws.close(1001, 'Server shutting down');
+  });
+  wss.close();
+  
+  // Close HTTP server
   httpServer.close(() => {
     logger.info('Server closed');
-    process.exit(0);
   });
-});
+  
+  // Clean up AI service connections
+  // Note: AIService doesn't have cleanup method
+  
+  // Clean up BuildPanel connections
+  try {
+    const { buildPanelServiceInstance } = await import('./services/buildpanel.service');
+    if (buildPanelServiceInstance?.cleanup) {
+      buildPanelServiceInstance.cleanup();
+    }
+  } catch (error) {
+    logger.debug('BuildPanel cleanup not needed:', error instanceof Error ? error.message : String(error));
+  }
+  
+  // Force exit after 3 seconds (tsx watch needs faster exit)
+  setTimeout(() => {
+    logger.info('Force shutdown after timeout');
+    process.exit(0);
+  }, 3000);
+}
+
+// Only add listeners once
+if (!process.listenerCount('SIGTERM')) {
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+}
+if (!process.listenerCount('SIGINT')) {
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+}
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at:', promise, 'reason:', reason);

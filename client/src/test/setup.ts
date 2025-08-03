@@ -1,29 +1,52 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 import { TextEncoder, TextDecoder } from 'util'
 
 // Add TextEncoder/TextDecoder for React Router
 global.TextEncoder = TextEncoder as unknown as typeof global.TextEncoder
 global.TextDecoder = TextDecoder as unknown as typeof global.TextDecoder
 
-// import.meta is already set up in jest-globals.js - just verify it exists
-if (!(globalThis as any).import?.meta) {
-  console.warn('import.meta not properly mocked - check jest-globals.js setup')
-}
+// import.meta is already handled by Vitest natively
 
-// Mock the transcription service
-jest.mock('@/services/transcription/TranscriptionService')
+// Mock the transcription service with BuildPanel integration
+vi.mock('@/services/transcription/TranscriptionService', () => ({
+  default: {
+    transcribe: vi.fn().mockResolvedValue({
+      transcription: 'Mock transcription result',
+      confidence: 0.95
+    })
+  }
+}))
+
+// Mock BuildPanel service calls (backend integration)
+vi.mock('axios', () => ({
+  default: {
+    create: vi.fn(() => ({
+      post: vi.fn().mockResolvedValue({
+        data: {
+          transcription: 'Mock BuildPanel transcription',
+          response: 'Mock BuildPanel response',
+          orderData: null
+        }
+      }),
+      get: vi.fn().mockResolvedValue({
+        data: { status: 'healthy' }
+      })
+    }))
+  }
+}))
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 })

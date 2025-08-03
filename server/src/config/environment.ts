@@ -10,8 +10,9 @@ export interface EnvironmentConfig {
   frontend: {
     url: string;
   };
-  openai: {
-    apiKey: string;
+  buildPanel: {
+    enabled: boolean;
+    url: string;
   };
   logging: {
     level: string;
@@ -36,26 +37,26 @@ export function validateEnvironment(): void {
     'SUPABASE_SERVICE_KEY',
   ];
 
-  // OPENAI_API_KEY is optional but warn if missing
-  const optional = ['OPENAI_API_KEY'];
+  // BuildPanel configuration is required for AI features
+  const buildPanelOptional = ['USE_BUILDPANEL', 'BUILDPANEL_URL'];
 
   // Check for both regular and VITE_ prefixed versions
   const missing = required.filter(key => !process.env[key] && !process.env[`VITE_${key}`]);
-  const missingOptional = optional.filter(key => !process.env[key] && !process.env[`VITE_${key}`]);
+  const missingBuildPanel = buildPanelOptional.filter(key => !process.env[key]);
 
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
 
-  if (missingOptional.length > 0) {
-    console.warn(`⚠️  Missing optional environment variables: ${missingOptional.join(', ')}`);
-    console.warn('   Voice ordering features will not be available without OPENAI_API_KEY');
+  // Warn if BuildPanel is not configured properly
+  if (missingBuildPanel.length > 0) {
+    console.warn(`⚠️  BuildPanel not configured: Missing ${missingBuildPanel.join(', ')}`);
+    console.warn('   AI features (voice, chat) will not be available without BuildPanel configuration');
   }
 
-  // Log successful API key detection
-  if (process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY) {
-    const key = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
-    console.log(`✅ OpenAI API key detected: ${key?.substring(0, 7)}...`);
+  // Log BuildPanel configuration status
+  if (process.env.USE_BUILDPANEL === 'true' && process.env.BUILDPANEL_URL) {
+    console.log(`✅ BuildPanel configured: ${process.env.BUILDPANEL_URL}`);
   }
 }
 
@@ -72,8 +73,9 @@ export function getConfig(): EnvironmentConfig {
     frontend: {
       url: process.env.FRONTEND_URL || 'http://localhost:5173',
     },
-    openai: {
-      apiKey: process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '',
+    buildPanel: {
+      enabled: process.env.USE_BUILDPANEL === 'true',
+      url: process.env.BUILDPANEL_URL || 'http://localhost:3003',
     },
     logging: {
       level: process.env.LOG_LEVEL || 'info',

@@ -11,6 +11,8 @@
 - **Real-time transcription**: See what's being captured
 - **Smart parsing**: Automatically extracts items and modifiers
 - **Multi-mode**: Hold-to-talk or tap-to-toggle
+- **BuildPanel Integration**: All AI processing via external BuildPanel service
+- **Context Isolation**: Restaurant-specific AI context and menu understanding
 
 ## Unified Components
 - **BaseOrderCard**: Single component, multiple display modes
@@ -29,3 +31,60 @@
 - **TypeScript**: Full type safety
 - **Hot reload**: Instant feedback during development
 - **Quality gates**: Linting, type checking, testing
+
+## Testing Strategy
+
+### AI/Voice Testing with BuildPanel Mocks
+- **No Real AI Calls**: All BuildPanel service calls mocked in tests
+- **Voice Order Testing**: Complete ordering flows with realistic scenarios
+- **Error Handling**: BuildPanel service failures and timeouts
+- **Restaurant Context**: Multi-tenant testing with proper isolation
+
+### Test Coverage
+- **Component Tests**: React Testing Library for UI components
+- **Integration Tests**: Complete voice ordering and chat flows
+- **Service Tests**: BuildPanel integration with proper mocking
+- **Error Scenarios**: Network failures, invalid responses, service unavailable
+
+### Voice Testing Patterns
+```typescript
+// Example: Testing voice ordering with BuildPanel mock
+const mockVoiceResponse = createMockVoiceResponse({
+  transcription: 'Two burgers with fries',
+  response: 'Added to your order',
+  orderData: { items: [...], total: 24.98 }
+});
+
+// Mock BuildPanel service
+mockTranscriptionService.transcribe.mockResolvedValue(mockVoiceResponse);
+
+// Test complete voice ordering flow
+fireEvent.click(recordButton);
+await waitFor(() => {
+  expect(screen.getByText('Two burgers with fries')).toBeInTheDocument();
+});
+```
+
+### Chat Testing Patterns
+```typescript
+// Example: Testing chat with BuildPanel mock
+const mockChatResponse = createMockChatResponse({
+  message: 'We have several burger options available',
+  suggestions: ['Classic Burger', 'Cheese Burger']
+});
+
+// Test chat interaction flow
+await user.type(input, 'What burgers do you have?');
+await user.click(sendButton);
+
+await waitFor(() => {
+  expect(screen.getByText('We have several burger options')).toBeInTheDocument();
+});
+```
+
+### Integration Test Requirements
+- **BuildPanel Service Mock**: Never call real BuildPanel service
+- **Restaurant Context**: All tests must include restaurantId
+- **Authentication Mock**: Backend tests need AuthenticatedRequest mocks
+- **WebSocket Mock**: Voice tests require WebSocket connection mocks
+- **Error Recovery**: Test all BuildPanel failure scenarios

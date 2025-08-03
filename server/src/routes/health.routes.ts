@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
+import { getBuildPanelService } from '../services/buildpanel.service';
 import NodeCache from 'node-cache';
 
 const router = Router();
@@ -25,6 +26,11 @@ interface HealthStatus {
       keys: number;
       hits: number;
       misses: number;
+    };
+    buildpanel: {
+      status: 'connected' | 'disconnected' | 'error';
+      url: string;
+      error?: string;
     };
     websocket?: {
       connections: number;
@@ -66,6 +72,28 @@ async function checkDatabase(): Promise<HealthStatus['services']['database']> {
   }
 }
 
+async function checkBuildPanel(): Promise<HealthStatus['services']['buildpanel']> {
+  const buildPanelService = getBuildPanelService();
+  const buildPanelUrl = process.env.BUILDPANEL_URL || process.env.BUILDPANEL_BASE_URL || 'http://localhost:3003';
+  
+  try {
+    const isHealthy = await buildPanelService.healthCheck();
+    
+    return {
+      status: isHealthy ? 'connected' : 'disconnected',
+      url: buildPanelUrl,
+      error: isHealthy ? undefined : 'BuildPanel service unavailable (502 Bad Gateway) - please check if BuildPanel is running'
+    };
+  } catch (error) {
+    logger.error('BuildPanel health check error:', error);
+    return {
+      status: 'error',
+      url: buildPanelUrl,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
 // Basic health check endpoint
 router.get('/', async (_req: Request, res: Response) => {
   res.json({
@@ -79,8 +107,9 @@ router.get('/', async (_req: Request, res: Response) => {
 // Detailed status endpoint
 router.get('/status', async (_req: Request, res: Response) => {
   try {
-    const [databaseStatus] = await Promise.all([
+    const [databaseStatus, buildPanelStatus] = await Promise.all([
       checkDatabase(),
+      checkBuildPanel(),
     ]);
     
     const cacheStats = cache.getStats();
@@ -99,13 +128,17 @@ router.get('/status', async (_req: Request, res: Response) => {
           hits: cacheStats.hits,
           misses: cacheStats.misses,
         },
+        buildpanel: buildPanelStatus,
       },
     };
     
     // Determine overall health status
     if (databaseStatus.status !== 'connected') {
       health.status = 'unhealthy';
-    } else if (databaseStatus.latency && databaseStatus.latency > 1000) {
+    } else if (buildPanelStatus.status === 'error') {
+      health.status = 'unhealthy';
+    } else if (buildPanelStatus.status === 'disconnected' || 
+               (databaseStatus.latency && databaseStatus.latency > 1000)) {
       health.status = 'degraded';
     }
     
@@ -126,12 +159,22 @@ router.get('/status', async (_req: Request, res: Response) => {
 // Readiness probe for k8s
 router.get('/ready', async (_req: Request, res: Response) => {
   try {
-    const dbStatus = await checkDatabase();
+    const [dbStatus, buildPanelStatus] = await Promise.all([
+      checkDatabase(),
+      checkBuildPanel(),
+    ]);
     
-    if (dbStatus.status === 'connected') {
+    if (dbStatus.status === 'connected' && buildPanelStatus.status === 'connected') {
       res.status(200).json({ ready: true });
     } else {
-      res.status(503).json({ ready: false, reason: 'Database not ready' });
+      const reasons = [];
+      if (dbStatus.status !== 'connected') reasons.push('Database not ready');
+      if (buildPanelStatus.status !== 'connected') reasons.push('BuildPanel not ready');
+      
+      res.status(503).json({ 
+        ready: false, 
+        reason: reasons.join(', ')
+      });
     }
   } catch {
     res.status(503).json({ ready: false, reason: 'Health check failed' });

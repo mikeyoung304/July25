@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **BuildPanel Integration**: External AI service architecture
+  - Replaced direct OpenAI integration with BuildPanel service proxy
+  - BuildPanel service runs isolated on port 3003
+  - All AI processing proxied through unified backend (port 3001)
+  - Enhanced security boundary with no direct frontend-to-AI communication
+  - Restaurant context propagation through all AI operations
+  - Service health monitoring and graceful degradation
 - **Production Monitoring (Phase 6)**: Basic monitoring infrastructure
   - Created monitoring service with Web Vitals tracking
   - Added performance monitor for tracking render and API metrics
@@ -48,6 +55,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Component migration guide
 
 ### Changed
+- **AI Architecture Migration**: OpenAI to BuildPanel
+  - Migrated from direct OpenAI API integration to BuildPanel service proxy
+  - Updated security model from API key protection to service boundary isolation
+  - Enhanced authentication flow with restaurant context validation
+  - Improved monitoring and error handling for AI operations
 - **Documentation Overhaul (Phase 1)**: Reduced from 61 to ~20 files
   - Consolidated into ARCHITECTURE.md, QUICK_START.md, DOCUMENTATION.md
   - Deleted 27 outdated files from /docs/archive/pre-backend/
@@ -66,7 +78,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Import path issues in server middleware
 - Component prop drilling and duplication issues
 
-### Removed
+### Removed  
+- **OpenAI Direct Integration**: Replaced with BuildPanel service proxy
+  - Removed OpenAI client imports from frontend code
+  - Eliminated direct API key exposure to browser
+  - Archived OpenAI-specific security documentation
 - AI Gateway service (port 3002)
 - Duplicate component implementations
 - 27 outdated documentation files
