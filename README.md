@@ -5,18 +5,30 @@
 > 🔄 **BACKEND SWAP**: Migration guide available in [docs/backend-swap.md](./docs/backend-swap.md)
 
 > ✅ **QUALITY**: TypeScript 0 errors | ESLint 30 warnings | Tests passing  
-> 🔒 **SECURITY**: CSP compliant - no external dependencies (fonts self-hosted)  
+> 🔒 **SECURITY**: CSP compliant - no external dependencies | BuildPanel service integration  
 > 🆕 **UPDATE**: ID mapping system implemented for consistent order flow
 
 A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering, real-time kitchen management, and a unified backend architecture.
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+**REQUIRED: BuildPanel Service**
+- BuildPanel must be running on port 3003 for AI features (voice/chat)
+- No external AI API keys needed - BuildPanel handles all AI processing
+- Download and start BuildPanel before running the application
+
+### Setup
+
 ```bash
-# Install dependencies
+# 1. Start BuildPanel service (required for AI features)
+# Download and run BuildPanel on port 3003
+
+# 2. Install dependencies
 npm install:all
 
-# Start development servers
+# 3. Start development servers
 npm run dev
 ```
 
@@ -38,14 +50,15 @@ Please see the detailed **[DEVELOPMENT.md](./DEVELOPMENT.md)** for first-time se
 ## 🏗️ Architecture
 
 ```
-Frontend (5173) ←→ Unified Backend (3001) ←→ Supabase Database
+Frontend (5173) ←→ Unified Backend (3001) ←→ BuildPanel (3003) ←→ Supabase Database
 ```
 
-**One Backend, All Services**:
+**Unified Backend + BuildPanel AI**:
 - REST API endpoints (`/api/v1/*`)
-- AI/Voice processing (`/api/v1/ai/*`)
+- AI/Voice processing via BuildPanel (`/api/v1/ai/*`)
 - WebSocket connections for real-time updates
-- Direct Supabase integration
+- BuildPanel handles all AI operations (voice transcription, chat, menu processing)
+- Direct Supabase integration for data persistence
 
 ## 📁 Project Structure
 
@@ -83,7 +96,7 @@ rebuild-6.0/
 - **Server**: Express.js + TypeScript
 - **Types**: Shared types module (@rebuild/shared)
 - **Database**: Supabase (PostgreSQL)
-- **AI/Voice**: OpenAI Whisper + GPT-4
+- **AI/Voice**: BuildPanel Service (port 3003)
 - **Real-time**: WebSocket (ws)
 - **Architecture**: RESTful + WebSocket
 
@@ -107,7 +120,7 @@ rebuild-6.0/
 ### Frontend Stabilization (January 2025)
 - **Testing**: Migrated from Jest to Vitest for better ESM support
 - **Ports**: Strict port enforcement (dev: 5173, preview: 4173)
-- **Dependencies**: Removed unused client-side dependencies (openai, ws)
+- **Dependencies**: Removed unused client-side dependencies (AI SDKs, WebSocket clients)
 - **Performance**: Optional performance monitoring with VITE_ENABLE_PERF flag
 - **Error Handling**: Simplified error boundaries for better maintainability
 
@@ -141,8 +154,11 @@ PORT=3001
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_KEY=your_service_key
-OPENAI_API_KEY=your_openai_key
 DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
+
+# BuildPanel Configuration (REQUIRED for AI features)
+USE_BUILDPANEL=true
+BUILDPANEL_URL=http://localhost:3003
 
 # Frontend Configuration (VITE_ prefix required)
 VITE_API_BASE_URL=http://localhost:3001
@@ -153,7 +169,10 @@ VITE_SQUARE_LOCATION_ID=L1234567890
 VITE_ENABLE_PERF=false  # Set to 'true' to enable performance monitoring
 ```
 
-**IMPORTANT**: All environment variables go in the root `.env` file only. Do NOT create separate `.env` files in client/ or server/ directories.
+**IMPORTANT**: 
+- All environment variables go in the root `.env` file only. Do NOT create separate `.env` files in client/ or server/ directories.
+- `USE_BUILDPANEL=true` is REQUIRED for AI features to work
+- BuildPanel must be running on port 3003 before starting the application
 
 
 ## 🔢 Menu ID Mapping System
@@ -176,11 +195,12 @@ cd server && npx tsx scripts/seed-menu-mapped.ts
 
 ## 🎤 Voice Ordering Setup
 
-1. Start the system: `npm run dev`
-2. Seed the menu: `cd server && npx tsx scripts/seed-menu-mapped.ts`
-3. Upload to AI: `cd server && npm run upload:menu`
-4. Navigate to: http://localhost:5173/kiosk
-5. Click microphone and speak naturally
+1. **Start BuildPanel**: Ensure BuildPanel is running on port 3003
+2. **Start the system**: `npm run dev`
+3. **Seed the menu**: `cd server && npx tsx scripts/seed-menu-mapped.ts`
+4. **Upload to BuildPanel**: `cd server && npm run upload:menu` (syncs menu with BuildPanel service)
+5. **Test Voice Ordering**: Navigate to http://localhost:5173/kiosk
+6. **Speak naturally**: Click microphone and speak your order
 
 Example commands:
 - "I'd like a soul bowl please"
@@ -217,6 +237,21 @@ The unified backend simplifies deployment:
 
 See [server/README.md](./server/README.md) for detailed deployment instructions.
 
+## 🔒 Security
+
+### AI Service Security
+- **External Service**: BuildPanel handles all AI processing externally
+- **No API Keys Required**: No sensitive AI API keys stored in the application
+- **Authenticated Access**: All AI endpoints require restaurant authentication
+- **Service Isolation**: AI operations isolated to BuildPanel service
+
+Run security checks manually:
+```bash
+./scripts/check-buildpanel-security.sh
+```
+
+See [docs/SECURITY_BUILDPANEL.md](./docs/SECURITY_BUILDPANEL.md) for security requirements.
+
 ## 📚 Documentation
 
 - [Architecture Decision](./ARCHITECTURE.md) - Why unified backend?
@@ -225,6 +260,8 @@ See [server/README.md](./server/README.md) for detailed deployment instructions.
 - [API Reference](./docs/API.md) - Endpoint documentation
 - [Contributing Guide](./CONTRIBUTING_AI.md) - For AI assistants and developers
 - [Voice Integration](./docs/VOICE_ORDERING_GUIDE.md) - Voice system details
+- [BuildPanel Security](./docs/SECURITY_BUILDPANEL.md) - AI security boundary enforcement
+- [BuildPanel Migration](./docs/MIGRATION_BUILDPANEL.md) - Migration from OpenAI to BuildPanel service
 
 ## 🤝 Contributing
 

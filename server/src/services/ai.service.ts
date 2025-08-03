@@ -1,7 +1,8 @@
 import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
 import { getBuildPanelService } from './buildpanel.service';
-import { AuthenticatedRequest } from '../middleware/auth';
+// import { AuthenticatedRequest } from '../middleware/auth'; // Currently unused
+import { MenuService } from './menu.service';
 
 const aiLogger = logger.child({ service: 'AIService' });
 
@@ -114,19 +115,19 @@ export class AIService {
         return { success: false, error: 'No audio data received' };
       }
 
-      // Send to BuildPanel for processing
-      const response = await this.buildPanel.processVoice(
+      // Send to BuildPanel for processing with metadata
+      await this.buildPanel.processVoiceWithMetadata(
         audioBuffer,
         'audio/webm',
         restaurantId
       );
 
-      aiLogger.info(`BuildPanel transcription completed: "${response.transcription}"`);
+      aiLogger.info(`BuildPanel transcription completed`);
       aiLogger.debug(`Audio duration: ${duration / 1000}s, File size: ${audioBuffer.length} bytes`);
 
       return {
         success: true,
-        text: response.transcription,
+        text: 'Voice processed successfully', // BuildPanel returns audio, not transcription
         duration: duration / 1000
       };
     } catch (error) {
@@ -139,53 +140,40 @@ export class AIService {
   }
 
   /**
-   * Parse order from transcribed text
+   * Parse order from transcribed text using BuildPanel
    */
-  async parseOrder(text: string, _restaurantId: string): Promise<any> {
-    if (!this.menuData) {
-      throw new Error('Menu not loaded');
+  async parseOrder(text: string, restaurantId: string): Promise<any> {
+    if (!this.useBuildPanel) {
+      throw new Error('BuildPanel integration is disabled - cannot parse orders');
     }
 
     try {
-      const prompt = `You are an AI order parser for ${this.menuData.restaurant}.
+      // Use BuildPanel's chat endpoint with order parsing prompt
+      const orderParsingPrompt = `Parse the following customer order and return a structured response with menu items, quantities, and any special instructions: "${text}"`;
       
-Menu Items:
-${JSON.stringify(this.menuData.menu, null, 2)}
+      const response = await this.buildPanel.processChat(
+        orderParsingPrompt,
+        restaurantId
+      );
 
-Customer said: "${text}"
-
-Parse this into an order. Return a JSON object with:
-{
-  "success": true/false,
-  "items": [
-    {
-      "name": "exact menu item name",
-      "quantity": number,
-      "modifiers": ["any mentioned modifiers"]
-    }
-  ],
-  "specialInstructions": "any special requests",
-  "confidence": 0.0-1.0
-}
-
-If you cannot identify valid menu items, return success: false with an error message.`;
-
-      const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [
-          { role: 'system', content: prompt },
-          { role: 'user', content: text }
-        ],
-        temperature: 0.3,
-        response_format: { type: 'json_object' }
-      });
-
-      const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
+      aiLogger.info('Order parsed via BuildPanel:', response);
       
-      aiLogger.info('Order parsed:', result);
-      return result;
+      // BuildPanel should return structured order data
+      if (response.orderData) {
+        return {
+          success: true,
+          ...response.orderData
+        };
+      }
+      
+      // Fallback if no structured data
+      return {
+        success: false,
+        error: 'Could not parse order from text',
+        message: response.message
+      };
     } catch (error) {
-      aiLogger.error('Order parsing error:', error);
+      aiLogger.error('BuildPanel order parsing error:', error);
       throw error;
     }
   }
@@ -206,7 +194,8 @@ If you cannot identify valid menu items, return success: false with an error mes
   }
 
   /**
-   * Transcribe audio file using BuildPanel
+   * Transcribe audio file using BuildPanel (with metadata)
+   * This method is used for the /transcribe-with-metadata endpoint
    */
   async transcribeAudioFile(audioBuffer: Buffer, mimeType: string, restaurantId: string = 'default'): Promise<TranscriptionResult> {
     if (!this.useBuildPanel) {
@@ -217,8 +206,8 @@ If you cannot identify valid menu items, return success: false with an error mes
     }
 
     try {
-      // Send to BuildPanel for transcription
-      const response = await this.buildPanel.processVoice(
+      // Use processVoiceWithMetadata to get transcription data
+      const response = await this.buildPanel.processVoiceWithMetadata(
         audioBuffer,
         mimeType || 'audio/webm',
         restaurantId
@@ -241,7 +230,37 @@ If you cannot identify valid menu items, return success: false with an error mes
   }
 
   /**
-   * Sync menu from BuildPanel
+   * Process voice audio and return MP3 response
+   * This method is used for the main /transcribe endpoint
+   */
+  async processVoiceAudio(audioBuffer: Buffer, mimeType: string, restaurantId: string = 'default'): Promise<Buffer> {
+    if (!this.useBuildPanel) {
+      throw new Error('BuildPanel integration is disabled');
+    }
+
+    try {
+      // Get MP3 audio response from BuildPanel
+      const audioResponse = await this.buildPanel.processVoice(
+        audioBuffer,
+        mimeType || 'audio/webm',
+        restaurantId
+      );
+
+      aiLogger.info('BuildPanel voice processing completed', {
+        restaurantId,
+        responseSize: audioResponse.length
+      });
+
+      return audioResponse;
+    } catch (error) {
+      aiLogger.error('BuildPanel voice processing error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Sync menu from local database instead of BuildPanel
+   * BuildPanel will receive menu data as context with chat/voice requests
    */
   async syncMenuFromBuildPanel(restaurantId: string): Promise<void> {
     if (!this.useBuildPanel) {
@@ -250,14 +269,25 @@ If you cannot identify valid menu items, return success: false with an error mes
     }
 
     try {
-      const menu = await this.buildPanel.getMenu(restaurantId);
+      // Load menu from our local database instead of BuildPanel
+      const fullMenu = await MenuService.getFullMenu(restaurantId);
+      
+      // Transform to format expected by AI processing
       this.menuData = {
         restaurant: restaurantId,
-        menu: menu
+        menu: fullMenu.items,
+        categories: fullMenu.categories
       };
-      aiLogger.info(`Menu synced from BuildPanel for restaurant ${restaurantId}`);
+      
+      // Set menu context in BuildPanel service for chat/voice requests
+      this.buildPanel.setMenuContext(this.menuData);
+      
+      aiLogger.info(`Menu loaded from local database for restaurant ${restaurantId}`, {
+        itemCount: fullMenu.items.length,
+        categoryCount: fullMenu.categories.length
+      });
     } catch (error) {
-      aiLogger.error('Failed to sync menu from BuildPanel:', error);
+      aiLogger.error('Failed to load menu from database:', error);
       throw error;
     }
   }

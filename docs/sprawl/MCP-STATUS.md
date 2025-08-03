@@ -45,6 +45,7 @@ The MCP servers are integrated with the rebuild-6.0 project workflow:
 2. **Testing**: Test execution via desktop commander (`npm test`)
 3. **Development**: Dev server management (`npm run dev`)
 4. **Documentation**: Context-aware file creation and updates
+5. **BuildPanel Integration**: MCP servers can assist with BuildPanel service monitoring and configuration
 
 ## Usage Examples
 

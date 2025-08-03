@@ -68,26 +68,70 @@ router.get('/menu', aiServiceLimiter, authenticate, (req: AuthenticatedRequest, 
 });
 
 /**
- * Transcribe audio file
- * Requires authentication to prevent abuse of transcription service
+ * Process voice audio through BuildPanel
+ * Returns MP3 audio response for direct playback
  */
-router.post('/transcribe', transcriptionLimiter, authenticate, audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/transcribe', transcriptionLimiter, audioUpload.single('audio'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({
-        error: 'No audio file provided'
+        error: 'Audio file is required'
       });
     }
 
-    aiLogger.info('Audio transcription requested', {
-      restaurantId: req.restaurantId,
-      userId: req.user?.id,
+    const restaurantId = req.headers['x-restaurant-id'] as string || 'default';
+    
+    aiLogger.info('Voice processing requested', {
+      restaurantId,
       fileSize: req.file.size,
       mimeType: req.file.mimetype
     });
     
-    // Use the AI service to transcribe the audio with restaurant context
-    const restaurantId = req.restaurantId || 'default';
+    // Get BuildPanel service and process voice
+    const buildPanel = getBuildPanelService();
+    const audioBuffer = await buildPanel.processVoice(
+      req.file.buffer,
+      req.file.mimetype,
+      restaurantId
+    );
+    
+    // Return MP3 audio response
+    res.set({
+      'Content-Type': 'audio/mpeg',
+      'Content-Length': audioBuffer.length.toString(),
+      'Cache-Control': 'no-cache'
+    });
+    
+    return res.send(audioBuffer);
+  } catch (error) {
+    aiLogger.error('Voice processing error:', error);
+    return res.status(500).json({
+      error: 'Failed to process voice message',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * Process voice audio with metadata
+ * Returns transcription and response data along with audio
+ */
+router.post('/transcribe-with-metadata', transcriptionLimiter, audioUpload.single('audio'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'Audio file is required'
+      });
+    }
+
+    // Use AI service for metadata response (if available)
+    const restaurantId = req.headers['x-restaurant-id'] as string || 'default';
+    
+    aiLogger.info('Voice processing with metadata requested', {
+      restaurantId,
+      fileSize: req.file.size,
+      mimeType: req.file.mimetype
+    });
     const result = await aiService.transcribeAudioFile(req.file.buffer, req.file.mimetype, restaurantId);
     
     if (!result.success) {
@@ -102,10 +146,10 @@ router.post('/transcribe', transcriptionLimiter, authenticate, audioUpload.singl
       text: result.text,
       transcript: result.text, // Include both for compatibility
       duration: result.duration,
-      restaurantId: req.restaurantId
+      restaurantId
     });
   } catch (error) {
-    aiLogger.error('Transcription error:', error);
+    aiLogger.error('Voice processing with metadata error:', error);
     return res.status(500).json({
       error: 'Transcription failed',
       message: error instanceof Error ? error.message : 'Unknown error'

@@ -43,11 +43,12 @@ import { UnifiedVoiceRecorder } from '@/components/voice/UnifiedVoiceRecorder';
   onTranscriptionComplete={handleTranscript}
 />
 
-// Tap-to-toggle mode with order processing
+// Tap-to-toggle mode with order processing via BuildPanel
 <UnifiedVoiceRecorder 
   mode="tap-to-toggle"
   autoProcessOrder={true}
   onOrderProcessed={handleOrder}
+  onAudioResponse={handleAudioPlayback}
 />
 ```
 
@@ -61,6 +62,30 @@ Located in `/client/src/components/shared/`:
 - **IconButton**: Accessible icon buttons
 - **StatusBadge**: Order status indicators
 - **ElapsedTimer**: Time tracking displays
+
+## BuildPanel Integration
+
+The unified components now handle BuildPanel responses:
+
+### Voice Component Data Flow
+```mermaid
+graph TD
+    A[UnifiedVoiceRecorder] --> B[WebSocket Audio Stream]
+    B --> C[Backend Buffer]
+    C --> D[BuildPanel Service]
+    D --> E[AI Processing]
+    E --> F[Transcription + Audio Response]
+    F --> G[WebSocket Response]
+    G --> H[Frontend Handles Both]
+    H --> I[Display Text]
+    H --> J[Play Audio Response]
+```
+
+### Audio Response Handling
+- BuildPanel responses include both transcription text and optional audio
+- Components automatically handle audio playback via Web Audio API
+- Audio responses can be muted via user preference
+- Error handling for both transcription and audio playback failures
 
 ## Migration Examples
 

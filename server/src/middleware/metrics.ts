@@ -1,4 +1,5 @@
 import promBundle from 'express-prom-bundle';
+import type { RequestHandler } from 'express';
 import { Counter, Gauge, register } from 'prom-client';
 
 // Voice metrics
@@ -51,7 +52,7 @@ const promBundleMiddleware = promBundle({
 });
 
 // Export the middleware function that tracks HTTP metrics
-export const metricsMiddleware = promBundleMiddleware;
+export const metricsMiddleware = promBundleMiddleware as unknown as RequestHandler;
 
 // Export register for metrics endpoint
 export { register };

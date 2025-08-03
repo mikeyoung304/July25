@@ -4,7 +4,7 @@
   "description": "Backend API for Grow Fresh Local Food Restaurant OS",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest",
@@ -21,6 +21,7 @@
     "typecheck": "cd .. && npm run typecheck",
     "start:all": "./scripts/start-all.sh",
     "upload:menu": "tsx scripts/upload-menu.ts",
+    "init:menu": "tsx scripts/init-menu-context.ts",
     "check:integration": "tsx scripts/integration-check.ts",
     "db:migrate": "node scripts/run-migrations.js",
     "db:check": "node scripts/run-migrations.js check",

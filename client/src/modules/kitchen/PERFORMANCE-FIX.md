@@ -73,3 +73,11 @@ The React DOM was showing warnings about recursive layout effects in the Kitchen
 2. Implement React.lazy for code splitting
 3. Add performance budgets
 4. Use React DevTools Profiler for deeper analysis
+
+## BuildPanel Integration Impact
+
+The migration to BuildPanel service has minimal impact on kitchen display performance:
+- Voice processing moved to backend, reducing frontend load
+- Audio responses handled via Web Audio API (efficient)
+- Real-time updates continue via WebSocket (unchanged pattern)
+- Kitchen display components remain optimized as documented above

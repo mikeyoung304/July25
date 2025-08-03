@@ -64,7 +64,10 @@ PORT=3001
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_KEY=your_service_key
-OPENAI_API_KEY=your_openai_key
+
+# BuildPanel Integration (REQUIRED for AI features)
+USE_BUILDPANEL=true
+BUILDPANEL_URL=http://localhost:3003
 
 # Frontend Configuration (VITE_ prefix required)
 VITE_API_BASE_URL=http://localhost:3001
@@ -132,16 +135,86 @@ wss://production.com         # Production
 
 ### Authentication Flow
 1. User authenticates via Supabase Auth
-2. Frontend receives JWT token
-3. Token sent with API requests
-4. Backend validates with Supabase
-5. RLS policies enforce access
+2. Frontend receives JWT token with restaurant claims
+3. Token sent with API requests including X-Restaurant-ID header
+4. Backend validates token with Supabase and extracts restaurant context
+5. RLS policies enforce multi-tenant access control
 
 ### Multi-tenancy
 - Restaurant ID in JWT claims
-- X-Restaurant-ID header
-- Database RLS policies
-- Service-level validation
+- X-Restaurant-ID header validation
+- Database RLS policies for tenant isolation
+- Service-level restaurant context validation
+- BuildPanel requests include restaurant_id for context isolation
+
+### BuildPanel Security Boundary
+**CRITICAL**: BuildPanel AI service integration must maintain strict security boundaries.
+
+#### The Golden Rule
+**Never allow direct frontend access to BuildPanel**. All AI operations must be proxied through authenticated backend endpoints with proper tenant context.
+
+#### Implementation
+```
+Frontend                    Backend                     BuildPanel
+─────────                  ─────────                   ──────────
+TranscriptionService  →    /api/v1/ai/transcribe  →   /api/voice-chat
+(No AI SDK imports)        (BuildPanelService)         (Port 3003)
+     ↓                            ↓                           ↓
+Authenticated HTTP         Restaurant context          AI Processing
+   Request                 + BuildPanel proxy          (Isolated)
+```
+
+#### Security Measures
+1. **No Direct BuildPanel Access**: Port 3003 blocked from frontend
+2. **No Client-Side AI Config**: No VITE_BUILDPANEL_URL or similar
+3. **Authentication Required**: All AI endpoints require valid JWT
+4. **Restaurant Context**: Every BuildPanel request includes restaurant_id
+5. **Rate Limiting**: Prevents abuse of expensive AI operations
+6. **Service Isolation**: BuildPanel failures don't compromise core functionality
+7. **File Validation**: Audio/image uploads validated before BuildPanel processing
+
+#### Forbidden Patterns
+```javascript
+// ❌ NEVER in client code - direct BuildPanel access
+const response = await fetch('http://localhost:3003/api/voice-chat', {
+  body: audioFormData
+});
+
+// ❌ NEVER expose BuildPanel config to browser
+VITE_BUILDPANEL_URL=http://localhost:3003
+```
+
+#### Correct Pattern
+```javascript
+// ✅ Client makes authenticated API call to backend only
+const response = await fetch('/api/v1/ai/transcribe', {
+  headers: { 
+    'Authorization': `Bearer ${token}`,
+    'X-Restaurant-ID': restaurantId
+  },
+  body: audioFormData
+});
+
+// ✅ Backend handles BuildPanel with restaurant context
+const response = await this.buildPanel.processVoice(
+  audioBuffer, 
+  restaurantId
+);
+```
+
+### Environment Security
+
+**Secure Configuration:**
+```env
+# Backend-only BuildPanel configuration
+USE_BUILDPANEL=true
+BUILDPANEL_URL=http://localhost:3003
+
+# Frontend has no AI service access
+VITE_API_BASE_URL=http://localhost:3001
+```
+
+See [SECURITY_BUILDPANEL.md](./docs/SECURITY_BUILDPANEL.md) for detailed security requirements.
 
 ## Production Deployment
 

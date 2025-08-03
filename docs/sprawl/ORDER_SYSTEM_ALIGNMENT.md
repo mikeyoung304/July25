@@ -1,7 +1,9 @@
 # Order System Data Alignment Guide
 
 ## Overview
-This document ensures all ordering channels (online, voice, kiosk, server) communicate properly with the Kitchen Display System (KDS) using consistent data structures.
+This document ensures all ordering channels (BuildPanel AI, voice, kiosk, server) communicate properly with the Kitchen Display System (KDS) using consistent data structures.
+
+**Updated for BuildPanel Integration** - Voice and text orders now process through BuildPanel before reaching the KDS.
 
 ## Unified Order Structure
 
@@ -52,23 +54,29 @@ Every order MUST include:
 
 ## Channel-Specific Requirements
 
-### Online Ordering
-- Source: `'online'`
-- Must capture customer info for delivery orders
-- Payment handled through Square integration
+### BuildPanel AI Ordering (Voice)
+- Source: `'voice'` 
+- **Flow**: Frontend → WebSocket → Backend → BuildPanel `/api/voice-chat`
+- BuildPanel handles transcription, parsing, and order structuring
+- Returns `{transcription, response, orderData, audioBuffer}`
+- Backend creates order from BuildPanel's `orderData`
 
-### Voice Ordering
-- Source: `'voice'`
-- AI parses natural language to structured order
-- Must map spoken items to menu item IDs
+### BuildPanel AI Ordering (Text Chat)
+- Source: `'chat'`
+- **Flow**: Frontend → Backend → BuildPanel `/api/chatbot`
+- BuildPanel parses natural language to structured order
+- Returns `{message, suggestions, orderData}`
+- Backend creates order if `orderData` is provided
 
-### Kiosk Ordering
+### Direct Kiosk Ordering
 - Source: `'kiosk'`
+- **Flow**: Frontend → Backend → Database (no AI processing)
 - Customer name optional
 - Table number required for dine-in
 
 ### Server Input
 - Source: `'server'`
+- **Flow**: Frontend → Backend → Database (direct entry)
 - Full order details required
 - Table number mandatory for dine-in
 
@@ -85,7 +93,15 @@ The Kitchen Display System shows:
 
 ## Data Flow
 
-1. **Order Creation** → Unified format using `toUnifiedOrder()`
+### BuildPanel-Enhanced Flow
+1. **AI Order Processing** → BuildPanel parses voice/text to structured data
+2. **Order Creation** → Backend transforms BuildPanel data to unified format 
+3. **Database Storage** → Consistent schema with snake_case
+4. **WebSocket Updates** → Real-time status changes
+5. **KDS Display** → Filtered by status and formatted for kitchen
+
+### Direct Order Flow (Kiosk/Server)
+1. **Order Creation** → Frontend creates unified format directly
 2. **Database Storage** → Consistent schema with snake_case
 3. **WebSocket Updates** → Real-time status changes
 4. **KDS Display** → Filtered by status and formatted for kitchen
@@ -96,10 +112,13 @@ The Kitchen Display System shows:
 - [x] Update menu item IDs to numeric strings
 - [x] Fix order type inconsistencies (hyphens everywhere)
 - [x] Standardize modifier structure
-- [ ] Update voice order integration to use unified format
-- [ ] Update kiosk to use unified format
-- [ ] Add validation to ensure required KDS fields
-- [ ] Test all channels with KDS display
+- [x] Integrate BuildPanel for voice order processing
+- [x] Integrate BuildPanel for text chat orders
+- [x] Update voice order integration to use BuildPanel + unified format
+- [x] Maintain kiosk unified format compatibility
+- [x] Add validation to ensure required KDS fields
+- [x] Test BuildPanel integration with KDS display
+- [ ] Performance optimization for BuildPanel calls
 
 ## Common Issues Fixed
 
@@ -108,12 +127,19 @@ The Kitchen Display System shows:
 3. **Status Confusion**: Some used 'new', others 'pending'
 4. **Modifier Format**: String arrays vs object arrays
 5. **Restaurant ID**: snake_case vs camelCase
+6. **AI Integration**: Voice orders now process through BuildPanel for better accuracy
+7. **Data Transformation**: BuildPanel responses properly mapped to unified order format
+8. **Context Preservation**: Restaurant context maintained through BuildPanel calls
 
 ## Testing
 
 Test each ordering channel:
-1. Create order from each source
-2. Verify order appears correctly in KDS
-3. Check station routing works
-4. Confirm urgency indicators update
-5. Test status transitions
+1. **BuildPanel Voice Orders**: Speak order → Verify transcription → Check KDS display
+2. **BuildPanel Text Orders**: Type order → Verify parsing → Check KDS display
+3. **Direct Kiosk Orders**: Select items → Submit → Check KDS display
+4. **Server Orders**: Enter details → Submit → Check KDS display
+5. **Cross-Channel Validation**: Ensure all orders appear consistently in KDS
+6. **Station Routing**: Verify orders route to correct kitchen stations
+7. **Real-time Updates**: Confirm WebSocket updates work for all channels
+8. **Urgency Indicators**: Test timing-based visual cues
+9. **Status Transitions**: Verify status changes propagate correctly

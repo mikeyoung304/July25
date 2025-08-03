@@ -38,8 +38,8 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
 
     // Get client IP
     const forwardedFor = request.headers['x-forwarded-for'];
-    const clientIP = (forwardedFor ? forwardedFor.toString().split(',')[0].trim() : null) || 
-                     request.socket.remoteAddress || 
+    const clientIP = (Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor?.toString())?.split(',')[0]?.trim() ||
+                     request.socket?.remoteAddress || 
                      'unknown';
 
     // Check total connection limit
@@ -196,6 +196,7 @@ export function setupAIWebSocket(wss: WebSocketServer): void {
 
   wss.on('close', () => {
     clearInterval(heartbeatInterval);
+    connectionsByIP.clear();
   });
 }
 

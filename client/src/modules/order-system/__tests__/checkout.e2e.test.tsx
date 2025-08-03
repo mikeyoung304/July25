@@ -8,20 +8,27 @@ import { CheckoutPage } from '@/pages/CheckoutPage';
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage';
 
 // Module boundary mocks only
+const mockCart = {
+  items: [{ id: '1', menuItem: { name: 'Greek Bowl' }, quantity: 1 }],
+  subtotal: 10,
+  tax: 0.83,
+  tip: 0,
+  total: 10.83,
+};
+
+const mockUseCart = {
+  cart: mockCart,
+  updateTip: vi.fn(),
+  clearCart: vi.fn(),
+  updateCartItem: vi.fn(),
+  removeFromCart: vi.fn(),
+};
+
+vi.mock('@/modules/order-system/context/cartContext.hooks', () => ({
+  useCart: () => mockUseCart
+}));
+
 vi.mock('@/modules/order-system/context/CartContext', () => ({
-  useCart: () => ({
-    cart: {
-      items: [{ id: '1', menuItem: { name: 'Greek Bowl' }, quantity: 1 }],
-      subtotal: 10,
-      tax: 0.83,
-      tip: 0,
-      total: 10.83,
-    },
-    updateTip: vi.fn(),
-    clearCart: vi.fn(),
-    updateCartItem: vi.fn(),
-    removeFromCart: vi.fn(),
-  }),
   CartProvider: ({ children }: any) => children,
 }));
 

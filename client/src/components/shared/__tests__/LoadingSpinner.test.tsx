@@ -4,8 +4,8 @@ import { LoadingSpinner } from '../LoadingSpinner';
 
 describe('LoadingSpinner', () => {
   it('renders with default props', () => {
-    render(<LoadingSpinner />);
-    const spinner = screen.getByRole('presentation', { hidden: true });
+    const { container } = render(<LoadingSpinner />);
+    const spinner = container.querySelector('.animate-spin');
     expect(spinner).toBeInTheDocument();
   });
 

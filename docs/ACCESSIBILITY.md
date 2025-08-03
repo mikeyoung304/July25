@@ -24,6 +24,15 @@
 - `StatusBadge`: Screen reader announcements
 - `LoadingSpinner`: aria-busy indicators
 - `ErrorDisplay`: Role="alert" for errors
+- `UnifiedVoiceRecorder`: Voice recording accessibility with screen reader support
+- `BaseOrderCard`: ARIA labels for order status and actions
+
+### Voice Interface Accessibility
+- **Visual indicators**: Recording status clearly shown with visual cues
+- **Audio feedback**: BuildPanel audio responses provide audible confirmation
+- **Screen reader support**: Voice transcription results announced to screen readers
+- **Keyboard alternatives**: All voice features have keyboard fallbacks
+- **Error handling**: Clear error messages for microphone issues
 
 ## Testing
 

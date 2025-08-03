@@ -8,13 +8,13 @@ export default defineConfig({
   plugins: [
     react(),
     // Bundle size visualization (only in analyze mode)
-    process.env.ANALYZE && visualizer({
+    ...(process.env.ANALYZE ? [visualizer({
       filename: './dist/stats.html',
       open: true,
       gzipSize: true,
       brotliSize: true,
-    }),
-  ].filter(Boolean),
+    })] : []),
+  ],
   
   resolve: {
     alias: {
@@ -27,7 +27,15 @@ export default defineConfig({
   
   server: {
     port: 5173,
-    strictPort: true
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false
+      }
+    },
+    cors: false
   },
   
   preview: {
