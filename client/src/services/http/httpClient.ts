@@ -78,10 +78,21 @@ export class HttpClient extends SecureAPIClient {
         if (session?.access_token) {
           headers.set('Authorization', `Bearer ${session.access_token}`)
         } else {
-          console.warn('No auth session available for API request')
+          // Use test token in development mode
+          if (import.meta.env.DEV) {
+            headers.set('Authorization', 'Bearer test-token')
+            console.log('🔧 Using development test token for API request')
+          } else {
+            console.warn('No auth session available for API request')
+          }
         }
       } catch (error) {
         console.error('Failed to get auth session:', error)
+        // Fallback to test token in development
+        if (import.meta.env.DEV) {
+          headers.set('Authorization', 'Bearer test-token')
+          console.log('🔧 Using development test token (fallback)')
+        }
       }
     }
 

@@ -197,7 +197,7 @@ const DriveThruPageContent: React.FC = () => {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-6">
+        <Card className="bg-neutral-800/80 backdrop-blur rounded-lg p-6 mb-6 border-neutral-700">
           <div className="flex items-center justify-center mb-4">
             <ShoppingCart className="w-10 h-10 mr-3" />
             <h2 className="text-3xl font-bold">YOUR ORDER ({itemCount} items)</h2>
@@ -225,7 +225,7 @@ const DriveThruPageContent: React.FC = () => {
               TOTAL: ${total.toFixed(2)}
             </p>
           </div>
-        </div>
+        </Card>
 
         {/* Controls */}
         <div className="flex flex-col items-center gap-6">
@@ -237,13 +237,51 @@ const DriveThruPageContent: React.FC = () => {
             />
           </div>
           
+          {/* Status Text */}
+          <div className="text-center">
+            {isVoiceActive ? (
+              <p className="text-macon-orange text-lg animate-pulse flex items-center justify-center gap-2">
+                <Volume2 className="w-5 h-5" />
+                AI is responding...
+              </p>
+            ) : isProcessing || isProcessingVoice ? (
+              <p className="text-macon-teal text-lg flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                Processing your order...
+              </p>
+            ) : connectionStatus === 'error' ? (
+              <p className="text-red-400 text-lg flex items-center justify-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                Connection issue - please try again
+              </p>
+            ) : (
+              <p className="text-neutral-400 text-lg">
+                Hold the button and tell us what you'd like to order
+              </p>
+            )}
+          </div>
+          
           <Button
             size="lg"
-            disabled={items.length === 0}
+            disabled={items.length === 0 || orderSubmitted}
             onClick={handleConfirmOrder}
-            className="text-2xl px-12 py-8 bg-green-600 hover:bg-green-700 disabled:bg-gray-600"
+            className={cn(
+              "text-2xl px-12 py-8 transition-all duration-200",
+              orderSubmitted 
+                ? "bg-green-600 text-white cursor-not-allowed" 
+                : items.length === 0 
+                  ? "bg-gray-600 text-gray-400 cursor-not-allowed" 
+                  : "bg-macon-teal hover:bg-macon-teal/80 text-white hover:scale-105 shadow-lg"
+            )}
           >
-            CONFIRM & PAY AT WINDOW
+            {orderSubmitted ? (
+              <>
+                <CheckCircle className="w-6 h-6 mr-2" />
+                ORDER SUBMITTED - DRIVE TO WINDOW
+              </>
+            ) : (
+              "CONFIRM & PAY AT WINDOW"
+            )}
           </Button>
         </div>
       </div>

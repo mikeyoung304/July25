@@ -1,6 +1,7 @@
 import React, { Profiler } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
+import { env } from '@/utils/env'
 import { Dashboard } from '@/pages/Dashboard'
 import { HomePage } from '@/pages/HomePage'
 import { KitchenDisplay } from '@/pages/KitchenDisplay'
@@ -80,6 +81,11 @@ export function AppRoutes() {
                 <AdminDashboard />
               </ErrorBoundary>
             } />
+            {/* Default order redirect to Grow Fresh Local Food */}
+            <Route 
+              path="/order" 
+              element={<Navigate to={`/order/${env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'}`} replace />} 
+            />
             <Route path="/order/:restaurantId" element={
               <ErrorBoundary level="section">
                 <Profiler id="CustomerOrder" onRender={onRenderCallback}>

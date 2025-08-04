@@ -29,7 +29,7 @@ const CheckoutPageContent: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handlePaymentNonce = async (nonce: string) => {
+  const handlePaymentNonce = async (token: string) => {
     // Validate contact info
     const newErrors: Record<string, string> = {};
     
@@ -50,34 +50,79 @@ const CheckoutPageContent: React.FC = () => {
     setErrors({});
 
     try {
-      // Create checkout payload
-      const payload: CheckoutPayload = {
-        cart,
-        customerEmail,
-        customerPhone,
-        paymentNonce: nonce
-      };
+      // First, create the order
+      const orderResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-restaurant-id': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
+        },
+        body: JSON.stringify({
+          type: 'online',
+          items: cart.items.map(item => ({
+            menu_item_id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            modifiers: item.modifiers || [],
+            special_instructions: item.specialInstructions || '',
+          })),
+          customerName: customerEmail.split('@')[0], // Use email prefix as name
+          customerEmail,
+          customerPhone,
+          notes: 'Online order',
+        }),
+      });
 
-      // In a real app, this would send to the backend
-      console.log('Processing checkout:', payload);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      if (!orderResponse.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      const order = await orderResponse.json();
+
+      // Now process the payment
+      const paymentResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/payments/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-restaurant-id': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
+        },
+        body: JSON.stringify({
+          orderId: order.id,
+          token,
+          amount: cart.total,
+          idempotencyKey: `checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        }),
+      });
+
+      if (!paymentResponse.ok) {
+        const paymentError = await paymentResponse.json();
+        throw new Error(paymentError.error || 'Payment failed');
+      }
+
+      const paymentResult = await paymentResponse.json();
+
+      if (!paymentResult.success) {
+        throw new Error(paymentResult.error || 'Payment processing failed');
+      }
+
       // Clear cart and navigate to confirmation
       clearCart();
       navigate('/order-confirmation', { 
         state: { 
-          orderId: `ORD-${Date.now()}`,
-          orderNumber: Math.floor(Math.random() * 9000) + 1000,
+          orderId: order.id,
+          orderNumber: order.orderNumber,
           estimatedTime: '15-20 minutes',
           items: cart.items,
-          total: cart.total
+          total: cart.total,
+          paymentId: paymentResult.paymentId,
         } 
       });
+
     } catch (error) {
       console.error('Checkout error:', error);
-      setErrors({ general: 'An error occurred. Please try again.' });
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred. Please try again.';
+      setErrors({ general: errorMessage });
     } finally {
       setIsProcessing(false);
     }

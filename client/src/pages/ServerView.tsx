@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useContext } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Users, Utensils, CheckCircle2, AlertCircle, Mic } from 'lucide-react'
+import { ArrowLeft, Users, Utensils, CheckCircle2, AlertCircle, Mic, Volume2, VolumeX, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -10,6 +10,9 @@ import { cn } from '@/utils'
 import { tableService } from '@/services/tables/TableService'
 import { RestaurantContext } from '@/core/restaurant-types'
 import { toast } from 'react-hot-toast'
+import VoiceControl from '@/modules/voice/components/VoiceControl'
+import { useVoiceToAudio } from '@/modules/voice/hooks/useVoiceToAudio'
+import { RoleGuard } from '@/components/auth/RoleGuard'
 
 // Default mock data for tables with realistic restaurant layout
 const _generateMockTables = (): Table[] => {
@@ -50,6 +53,10 @@ export function ServerView() {
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null)
   const [showSeatSelection, setShowSeatSelection] = useState(false)
+  const [showVoiceOrder, setShowVoiceOrder] = useState(false)
+  const [currentTranscript, setCurrentTranscript] = useState('')
+  const [isVoiceActive, setIsVoiceActive] = useState(false)
+  const [orderItems, setOrderItems] = useState<string[]>([])
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 500 })
   const [zoomLevel] = useState(1)
   const [panOffset] = useState({ x: 0, y: 0 })
@@ -128,18 +135,92 @@ export function ServerView() {
     setSelectedSeat(seatNumber)
   }, [])
   
-  const handleStartOrder = useCallback(() => {
+  const handleStartVoiceOrder = useCallback(() => {
     if (selectedTableId && selectedSeat) {
-      // Navigate to voice ordering with table and seat context
-      navigate('/kiosk', {
-        state: {
-          tableId: selectedTableId,
-          seatNumber: selectedSeat,
-          tableLabel: selectedTable?.label
-        }
-      })
+      setShowSeatSelection(false)
+      setShowVoiceOrder(true)
+      setCurrentTranscript('')
+      setOrderItems([])
     }
-  }, [selectedTableId, selectedSeat, selectedTable, navigate])
+  }, [selectedTableId, selectedSeat])
+  
+  const handleCloseVoiceOrder = useCallback(() => {
+    setShowVoiceOrder(false)
+    setSelectedTableId(null)
+    setSelectedSeat(null)
+    setCurrentTranscript('')
+    setOrderItems([])
+    setIsVoiceActive(false)
+  }, [])
+  
+  // Voice integration with BuildPanel
+  const { processVoiceWithTranscript, isProcessing } = useVoiceToAudio({
+    onTranscriptReceived: (transcript) => {
+      setCurrentTranscript(transcript)
+      if (transcript && transcript !== 'Voice processed successfully') {
+        setOrderItems(prev => [...prev, transcript])
+      }
+    },
+    onAudioResponseStart: () => {
+      setIsVoiceActive(true)
+    },
+    onAudioResponseEnd: () => {
+      setIsVoiceActive(false)
+    },
+    onError: (error) => {
+      console.error('Voice processing error:', error)
+      setIsVoiceActive(false)
+    }
+  })
+  
+  const handleVoiceTranscript = useCallback((text: string, isFinal: boolean) => {
+    if (isFinal && text.trim()) {
+      setCurrentTranscript(text)
+      setOrderItems(prev => [...prev, text])
+    }
+  }, [])
+  
+  const handleSubmitOrder = useCallback(async () => {
+    if (orderItems.length === 0 || !selectedTableId || !selectedSeat) {
+      toast.error('No order items to submit')
+      return
+    }
+    
+    try {
+      // Submit order to backend
+      const orderText = orderItems.join(', ')
+      const response = await fetch('/api/v1/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-token',
+          'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111'
+        },
+        body: JSON.stringify({
+          table_number: selectedTable?.label,
+          seat_number: selectedSeat,
+          items: orderItems.map((item, index) => ({
+            id: `voice-${Date.now()}-${index}`,
+            name: item,
+            quantity: 1
+          })),
+          notes: `Voice order from ${selectedTable?.label}, Seat ${selectedSeat}`,
+          total_amount: orderItems.length * 12.99, // Mock pricing
+          customer_name: `Table ${selectedTable?.label} - Seat ${selectedSeat}`
+        })
+      })
+      
+      if (response.ok) {
+        toast.success(`Order submitted for ${selectedTable?.label}, Seat ${selectedSeat}!`)
+        handleCloseVoiceOrder()
+      } else {
+        throw new Error('Failed to submit order')
+      }
+    } catch (error) {
+      console.error('Error submitting order:', error)
+      toast.error('Failed to submit order. Please try again.')
+    }
+  }, [orderItems, selectedTableId, selectedSeat, selectedTable, handleCloseVoiceOrder])
   
   const handleCanvasClick = useCallback(() => {
     setSelectedTableId(null)
@@ -177,7 +258,11 @@ export function ServerView() {
   }
   
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FBFBFA' }}>
+    <RoleGuard 
+      suggestedRoles={['server', 'admin']} 
+      pageTitle="Server View - Dining Room"
+    >
+      <div className="min-h-screen" style={{ backgroundColor: '#FBFBFA' }}>
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -306,11 +391,138 @@ export function ServerView() {
                         <Button
                           className="flex-1 bg-macon-orange hover:bg-macon-orange-dark text-white"
                           disabled={!selectedSeat}
-                          onClick={handleStartOrder}
+                          onClick={handleStartVoiceOrder}
                         >
                           <Mic className="h-4 w-4 mr-2" />
                           Start Voice Order
                         </Button>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
+              {/* Voice Order Modal */}
+              <AnimatePresence>
+                {showVoiceOrder && selectedTable && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl z-50"
+                  >
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.9, opacity: 0 }}
+                      className="bg-white rounded-2xl p-8 shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto"
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-2xl font-bold text-macon-logo-blue">
+                          Voice Order - {selectedTable.label}, Seat {selectedSeat}
+                        </h3>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleCloseVoiceOrder}
+                          className="h-8 w-8 p-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* Voice Control Interface */}
+                      <div className="text-center mb-6">
+                        <div className="mb-4">
+                          <VoiceControl
+                            onTranscript={handleVoiceTranscript}
+                            isFirstPress={false}
+                          />
+                        </div>
+                        
+                        <div className="flex items-center justify-center gap-2 text-sm text-neutral-600">
+                          {isVoiceActive ? (
+                            <>
+                              <Volume2 className="h-4 w-4 text-macon-orange" />
+                              <span>AI is responding...</span>
+                            </>
+                          ) : isProcessing ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-macon-orange border-t-transparent rounded-full animate-spin" />
+                              <span>Processing voice...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Mic className="h-4 w-4 text-macon-teal" />
+                              <span>Hold the button and speak your order</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Current Transcript */}
+                      {currentTranscript && (
+                        <div className="mb-4 p-3 bg-neutral-50 rounded-lg">
+                          <p className="text-sm text-neutral-600 mb-1">Current input:</p>
+                          <p className="text-neutral-900">{currentTranscript}</p>
+                        </div>
+                      )}
+                      
+                      {/* Order Items */}
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold text-neutral-900 mb-3">
+                          Order Items ({orderItems.length})
+                        </h4>
+                        {orderItems.length > 0 ? (
+                          <div className="space-y-2 max-h-32 overflow-y-auto">
+                            {orderItems.map((item, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-2 bg-neutral-50 rounded-lg"
+                              >
+                                <span className="text-neutral-900">{item}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setOrderItems(prev => prev.filter((_, i) => i !== index))}
+                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-neutral-500 text-center py-4">
+                            No items added yet. Use voice to add items.
+                          </p>
+                        )}
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex space-x-3">
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={handleCloseVoiceOrder}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="flex-1 bg-macon-teal hover:bg-macon-teal/80 text-white"
+                          disabled={orderItems.length === 0}
+                          onClick={handleSubmitOrder}
+                        >
+                          Submit Order ({orderItems.length} items)
+                        </Button>
+                      </div>
+                      
+                      {/* Instructions */}
+                      <div className="mt-4 p-3 bg-macon-orange/10 rounded-lg border border-macon-orange/20">
+                        <p className="text-xs text-macon-logo-blue">
+                          <strong>Instructions:</strong> Hold the microphone button and clearly state each menu item. 
+                          The AI will process your voice and add items to the order. You can remove items by clicking the X next to them.
+                        </p>
                       </div>
                     </motion.div>
                   </motion.div>
@@ -387,6 +599,7 @@ export function ServerView() {
           </Card>
         </motion.div>
       </div>
-    </div>
+      </div>
+    </RoleGuard>
   )
 }

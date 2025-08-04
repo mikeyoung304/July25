@@ -57,7 +57,7 @@ export class WebSocketService extends EventEmitter {
     
     // Convert HTTP to WS protocol
     const wsUrl = apiBaseUrl.replace(/^http/, 'ws')
-    return `${wsUrl}/ws`
+    return wsUrl // WebSocket server runs on root path, not /ws
   }
 
   /**

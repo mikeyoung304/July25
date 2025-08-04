@@ -4,6 +4,8 @@ import { MenuItem } from '../../menu/types';
 import { menuSections } from '../types/menu-sections';
 import { useMenuItems } from '../../menu/hooks/useMenuItems';
 import { MenuItemCard } from './MenuItemCard';
+import { SectionTitle, Body } from '@/components/ui/Typography';
+import { spacing } from '@/lib/typography';
 
 interface MenuSectionsProps {
   searchQuery: string;
@@ -30,7 +32,7 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
       </div>
     );
   }
@@ -38,7 +40,7 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Error loading menu items</p>
+        <Body className="text-danger">Error loading menu items</Body>
       </div>
     );
   }
@@ -46,25 +48,24 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
   // If searching, show results in a single section
   if (searchQuery) {
     return (
-      <div className="py-6">
-        <div className="mb-6 px-6">
-          <h2 className="text-xl font-semibold text-gray-900">
+      <div className={spacing.page.section}>
+        <div className={spacing.content.stackLarge}>
+          <SectionTitle>
             Search Results ({filteredItems.length} items)
-          </h2>
+          </SectionTitle>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-6">
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${spacing.grid.gapLarge}`}>
           {filteredItems.map((item) => (
-            <div key={item.id}>
-              <MenuItemCard
-                item={item}
-                onClick={() => onItemClick(item)}
-              />
-            </div>
+            <MenuItemCard
+              key={item.id}
+              item={item}
+              onClick={() => onItemClick(item)}
+            />
           ))}
         </div>
         {filteredItems.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No items found for "{searchQuery}"</p>
+            <Body className="text-neutral-500">No items found for "{searchQuery}"</Body>
           </div>
         )}
       </div>
@@ -73,7 +74,7 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
 
   // Show menu sections
   return (
-    <div className="py-6">
+    <div className={spacing.content.stackLarge}>
       {menuSections.map((section) => (
         <MenuSection
           key={section.id}

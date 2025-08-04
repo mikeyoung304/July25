@@ -12,7 +12,8 @@ import type { Station, StationType } from '@/types/station'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 import { applyFilters, sortOrders, getTimeRangeFromPreset as _getTimeRangeFromPreset, type SortBy, type OrderStatus } from '@/types/filters'
 import { stationRouting } from '@/services/stationRouting'
-import { orderUpdatesHandler, type OrderUpdatePayload } from '@/services/websocket'
+import { orderUpdatesHandler, type OrderUpdatePayload, webSocketService } from '@/services/websocket'
+import { RoleGuard } from '@/components/auth/RoleGuard'
 
 // Components
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -128,9 +129,9 @@ export function KitchenDisplay() {
     } catch (error) {
       performanceMonitor.trackAPICall('getOrders', performance.now() - startTime, 'error')
       console.error('Error loading orders:', error)
-      toast.error('Failed to load orders')
+      // Use console.error instead of toast to avoid dependency issues
     }
-  }, [execute, toast])
+  }, [execute])
 
   const handleStatusChange = useCallback(async (orderId: string, status: 'preparing' | 'ready') => {
     const startTime = performance.now()
@@ -176,7 +177,7 @@ export function KitchenDisplay() {
         clearTimeout(updateOrdersRef.current)
       }
     }
-  }, [loadOrders, handleOrderUpdate])
+  }, []) // Remove dependencies to prevent infinite loop - loadOrders and handleOrderUpdate should be stable
 
   // Convert OrderFilterState to OrderFilters format
   const adaptedFilters = React.useMemo(() => {
@@ -265,7 +266,11 @@ export function KitchenDisplay() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-macon-background via-white to-macon-navy/5 p-6">
+    <RoleGuard 
+      suggestedRoles={['kitchen', 'admin']} 
+      pageTitle="Kitchen Display System"
+    >
+      <div className="min-h-screen bg-gradient-to-br from-macon-background via-white to-macon-navy/5 p-6">
       <div className="max-w-7xl mx-auto" role="region" aria-label="Kitchen Display System">
         <header className="mb-8">
           <div className="flex items-center justify-between">
@@ -277,6 +282,13 @@ export function KitchenDisplay() {
               <Badge variant="secondary" className="px-4 py-1.5 text-sm">
                 <span className="font-semibold">{filteredAndSortedOrders.filter(o => o.status !== 'ready' && o.status !== 'completed').length}</span>
                 <span className="ml-1.5">Active Orders</span>
+              </Badge>
+              <Badge 
+                variant={webSocketService.isConnected() ? "default" : "destructive"} 
+                className="px-3 py-1.5 text-sm"
+              >
+                <span className="w-2 h-2 rounded-full bg-current mr-2"></span>
+                {webSocketService.isConnected() ? 'Live Updates' : 'Manual Refresh'}
               </Badge>
               <SortControl
                 sortBy={filters.sortBy as SortBy}
@@ -430,6 +442,7 @@ export function KitchenDisplay() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </RoleGuard>
   )
 }

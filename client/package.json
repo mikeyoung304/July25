@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
+    "@square/web-payments-sdk-types": "^1.76.1",
     "@supabase/supabase-js": "^2.50.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -300,6 +300,74 @@ export class OrdersService {
   }
 
   /**
+   * Update order payment information
+   */
+  static async updateOrderPayment(
+    restaurantId: string,
+    orderId: string,
+    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded',
+    paymentMethod?: 'cash' | 'card' | 'online' | 'other',
+    paymentId?: string
+  ): Promise<Order> {
+    try {
+      // Get current order
+      const currentOrder = await this.getOrder(restaurantId, orderId);
+      if (!currentOrder) {
+        throw new Error('Order not found');
+      }
+
+      // Prepare payment update
+      const update: any = {
+        payment_status: paymentStatus,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (paymentMethod) {
+        update.payment_method = paymentMethod;
+      }
+
+      if (paymentId) {
+        update.payment_id = paymentId;
+      }
+
+      // If payment is successful, update order status to confirmed
+      if (paymentStatus === 'paid' && currentOrder.status === 'pending') {
+        update.status = 'confirmed';
+      }
+
+      const { data, error } = await supabase
+        .from('orders')
+        .update(update)
+        .eq('id', orderId)
+        .eq('restaurant_id', restaurantId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const updatedOrder = this.mapOrder(data);
+
+      // Broadcast order update via WebSocket
+      if (this.wss) {
+        broadcastOrderUpdate(this.wss, updatedOrder);
+      }
+
+      ordersLogger.info('Order payment updated', { 
+        orderId, 
+        restaurantId, 
+        paymentStatus,
+        paymentMethod,
+        paymentId 
+      });
+
+      return updatedOrder;
+    } catch (error) {
+      ordersLogger.error('Failed to update order payment', { error, orderId, restaurantId });
+      throw error;
+    }
+  }
+
+  /**
    * Process voice order
    */
   static async processVoiceOrder(

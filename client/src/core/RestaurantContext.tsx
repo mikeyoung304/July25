@@ -1,6 +1,7 @@
 import React, { useEffect, ReactNode } from 'react'
 import { useAsyncState } from '@/hooks/useAsyncState'
 import { RestaurantContext, type Restaurant } from './restaurant-types'
+import { env } from '@/utils/env'
 
 // Provider
 export function RestaurantProvider({ children }: { children: ReactNode }) {
@@ -19,9 +20,9 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500))
       
-      // Mock restaurant data
+      // Mock restaurant data - use environment variable for restaurant ID
       const mockRestaurant: Restaurant = {
-        id: 'rest-1',
+        id: env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
         name: 'Grow Fresh Local Food',
         timezone: 'America/New_York',
         currency: 'USD',

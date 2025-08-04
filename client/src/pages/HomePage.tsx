@@ -61,7 +61,7 @@ export function HomePage() {
     {
       title: 'Online Order',
       icon: <Globe className="h-16 w-16" />,
-      href: '/order/1',
+      href: '/order',
       color: '#7B68EE',
     },
     {

@@ -2,6 +2,8 @@ import React from 'react';
 import { MenuItemCard } from './MenuItemCard';
 import { MenuItem } from '../../menu/types';
 import { MenuSection as MenuSectionType } from '../types/menu-sections';
+import { SectionTitle, Body, Caption } from '@/components/ui/Typography';
+import { spacing } from '@/lib/typography';
 
 interface MenuSectionProps {
   section: MenuSectionType;
@@ -20,21 +22,27 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   if (sectionItems.length === 0) return null;
 
   return (
-    <div id={`section-${section.id}`} className="mb-12">
+    <section id={`section-${section.id}`} className={spacing.page.section}>
       {/* Section Header */}
-      <div className="mb-6 px-6">
-        <div className="flex items-center space-x-3 mb-2">
-          <span className="text-2xl">{section.icon}</span>
-          <h2 className="text-2xl font-bold text-gray-900">{section.title}</h2>
-          <span className="text-sm text-gray-500">({sectionItems.length} items)</span>
+      <div className={spacing.content.stack}>
+        <div className="flex items-center space-x-4">
+          <div className="p-3 bg-gradient-to-br from-accent-50 to-accent-100 rounded-xl">
+            <span className="text-3xl">{section.icon}</span>
+          </div>
+          <div className="flex-1">
+            <div className="flex items-baseline space-x-3">
+              <SectionTitle>{section.title}</SectionTitle>
+              <Caption className="text-neutral-500">({sectionItems.length} items)</Caption>
+            </div>
+            {section.description && (
+              <Body className="text-neutral-600 mt-1">{section.description}</Body>
+            )}
+          </div>
         </div>
-        {section.description && (
-          <p className="text-gray-600">{section.description}</p>
-        )}
       </div>
 
       {/* Items Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-6">
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${spacing.grid.gapLarge}`}>
         {sectionItems.map((item) => (
           <MenuItemCard
             key={item.id}
@@ -43,6 +51,6 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 };
