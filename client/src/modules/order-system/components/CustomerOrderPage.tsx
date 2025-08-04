@@ -12,28 +12,33 @@ import { useRestaurant } from '@/core/restaurant-hooks';
 import { useCart } from '../context/cartContext.hooks';
 import { CartProvider } from '../context/CartContext';
 import { CartItem } from '../../../../../shared/cart';
+import { PageTitle } from '@/components/ui/Typography';
+import { Button } from '@/components/ui/button';
+import { spacing } from '@/lib/typography';
+import { useRestaurantData } from '../hooks/useRestaurantData';
 
 const CustomerOrderPageContent: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const { setRestaurant } = useRestaurant();
   const { cart, addToCart, setIsCartOpen } = useCart();
+  const { restaurant: restaurantData, loading: restaurantLoading, error: restaurantError } = useRestaurantData(restaurantId);
   
   const [activeSection, setActiveSection] = useState<string | undefined>();
   const [searchQuery, setSearchQuery] = useState('');
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
 
-  // Set restaurant context
+  // Set restaurant context when data loads
   useEffect(() => {
-    if (restaurantId) {
+    if (restaurantData) {
       setRestaurant({
-        id: restaurantId,
-        name: 'Restaurant',
-        timezone: 'UTC',
-        currency: 'USD'
+        id: restaurantData.id,
+        name: restaurantData.name,
+        timezone: restaurantData.timezone,
+        currency: restaurantData.currency
       });
     }
-  }, [restaurantId, setRestaurant]);
+  }, [restaurantData, setRestaurant]);
 
   const handleItemClick = (item: MenuItem) => {
     setSelectedMenuItem(item);
@@ -47,36 +52,41 @@ const CustomerOrderPageContent: React.FC = () => {
   const cartItemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-macon-background">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">🌱</span>
-              <h1 className="text-xl font-bold text-gray-900">
-                Grow Fresh
-              </h1>
+      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-glass shadow-elevation-2 border-b border-neutral-100/30">
+        <div className={`${spacing.page.container} ${spacing.page.padding}`}>
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-gradient-teal rounded-xl">
+                <span className="text-3xl">🌱</span>
+              </div>
+              <PageTitle className="text-primary">
+                {restaurantData?.name || 'Restaurant'}
+              </PageTitle>
             </div>
             
-            <button
+            <Button
+              variant="teal"
+              size="lg"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
               aria-label={`Open cart with ${cartItemCount} items`}
+              className="relative gap-2 min-w-[120px]"
             >
-              <ShoppingCart className="w-6 h-6" />
+              <ShoppingCart className="w-5 h-5" />
+              Cart
               {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-secondary text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-glow-orange">
                   {cartItemCount}
                 </span>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <HeroSection />
+      <HeroSection restaurant={restaurantData} loading={restaurantLoading} />
 
       {/* Search Bar */}
       <MenuSearch 
@@ -93,7 +103,7 @@ const CustomerOrderPageContent: React.FC = () => {
       )}
 
       {/* Menu Sections */}
-      <main className="max-w-7xl mx-auto">
+      <main className={`${spacing.page.container} ${spacing.page.padding}`}>
         <MenuSections
           searchQuery={searchQuery}
           onItemClick={handleItemClick}

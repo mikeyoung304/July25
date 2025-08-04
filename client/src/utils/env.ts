@@ -21,6 +21,7 @@ function getEnv(): ImportMetaEnv {
       VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3001',
       VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || 'http://localhost:54321',
       VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || 'test-key',
+      VITE_DEFAULT_RESTAURANT_ID: process.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
       DEV: true, // In test mode, we're in development
       MODE: 'test',
       PROD: false,

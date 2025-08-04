@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { RestaurantProvider } from '@/core/RestaurantContext'
 import { RestaurantIdProvider } from '@/services/http'
+import { RoleProvider } from '@/contexts/RoleContext'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
 import { AppContent } from '@/components/layout/AppContent'
 import { SplashScreen } from '@/pages/SplashScreen'
@@ -53,6 +54,15 @@ function App() {
         webSocketService.disconnect()
       }
     })
+
+    // Auto-initialize real-time services in development mode
+    if (isDevelopment) {
+      console.log('🔧 Development mode: Auto-initializing real-time services')
+      orderUpdatesHandler.initialize()
+      webSocketService.connect().catch(error => {
+        console.warn('Development WebSocket connection failed:', error)
+      })
+    }
 
     // Check if already authenticated
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -111,11 +121,13 @@ function App() {
       }}
     >
       <Router>
-        <RestaurantProvider>
-          <RestaurantIdProvider>
-            <AppContent isDevelopment={isDevelopment} />
-          </RestaurantIdProvider>
-        </RestaurantProvider>
+        <RoleProvider>
+          <RestaurantProvider>
+            <RestaurantIdProvider>
+              <AppContent isDevelopment={isDevelopment} />
+            </RestaurantIdProvider>
+          </RestaurantProvider>
+        </RoleProvider>
       </Router>
     </ErrorBoundary>
   )

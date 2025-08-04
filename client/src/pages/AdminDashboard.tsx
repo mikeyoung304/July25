@@ -9,6 +9,7 @@ import { RestaurantContext } from '@/core/restaurant-types'
 import { Table } from '@/modules/floor-plan/types'
 import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
 import { spacing } from '@/lib/typography'
+import { RoleGuard } from '@/components/auth/RoleGuard'
 
 export function AdminDashboard() {
   const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics'>('overview')
@@ -39,7 +40,11 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-macon-background">
+    <RoleGuard 
+      suggestedRoles={['admin']} 
+      pageTitle="Admin Dashboard"
+    >
+      <div className="min-h-screen bg-macon-background">
       {/* Header */}
       <div className="bg-white shadow-elevation-1 border-b border-neutral-200">
         <div className={`${spacing.page.container} py-4 flex items-center justify-between`}>
@@ -189,6 +194,7 @@ export function AdminDashboard() {
           </motion.div>
         )}
       </div>
-    </div>
+      </div>
+    </RoleGuard>
   )
 }
