@@ -5,6 +5,7 @@ import { useAsyncState } from '@/hooks/useAsyncState'
 import { useSoundNotifications } from '@/hooks/useSoundNotifications'
 import { useOrderFilters } from '@/hooks/useOrderFilters'
 import { useStableCallback } from '@/hooks/useStableCallback'
+import { useAriaLive } from '@/hooks/keyboard/useAriaLive'
 import { api } from '@/services/api'
 import type { Order } from '@/services/api'
 import type { LayoutMode } from '@/modules/kitchen/components/KDSLayout'
@@ -41,6 +42,7 @@ export function KitchenDisplay() {
     soundEnabled, 
     volume 
   } = useSoundNotifications()
+  const announce = useAriaLive()
   const {
     filters,
     updateStatusFilter,
@@ -74,6 +76,12 @@ export function KitchenDisplay() {
         if (update.order) {
           batchOrderUpdate(prev => [update.order!, ...prev])
           await playNewOrderSound()
+          // Announce to screen readers
+          const orderType = update.order.orderType === 'drive-thru' ? 'drive-thru' : 'dine-in'
+          announce({
+            message: `New ${orderType} order ${update.order.orderNumber} received`,
+            priority: 'assertive'
+          })
         }
         break
         
@@ -102,6 +110,13 @@ export function KitchenDisplay() {
               const order = updatedOrders.find(o => o.id === update.orderId)
               if (order) {
                 playOrderReadySound()
+                // Announce ready orders to screen readers
+                const location = order.orderType === 'drive-thru' ? 'drive-thru window' : 
+                               order.tableNumber ? `table ${order.tableNumber}` : 'pickup counter'
+                announce({
+                  message: `Order ${order.orderNumber} is ready for pickup at ${location}`,
+                  priority: 'assertive'
+                })
               }
             }
             
