@@ -188,6 +188,10 @@ class VoiceSocketManager {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
+    // Clear listeners and queues to prevent memory leaks
+    this.listeners.clear();
+    this.messageQueue = [];
+    this.unacknowledgedChunks = 0;
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.close();
     }

@@ -44,9 +44,21 @@ export const KDSOrderCard = memo<KDSOrderCardProps>(({
       const elapsed = Math.floor((Date.now() - orderTime.getTime()) / 60000)
       let level: 'normal' | 'warning' | 'urgent' | 'critical' = 'normal'
       
-      if (elapsed >= 20) level = 'critical'
-      else if (elapsed >= 15) level = 'urgent'
-      else if (elapsed >= 10) level = 'warning'
+      // Drive-thru orders get tighter timing (8 min target vs 25 min dine-in)
+      const isDriveThru = orderType === 'drive-thru'
+      const urgentThreshold = isDriveThru ? 6 : 10
+      const criticalThreshold = isDriveThru ? 8 : 15
+      
+      // Complex orders (5+ items) get 3 extra minutes
+      const isComplex = items.length >= 5
+      const complexityBonus = isComplex ? 3 : 0
+      
+      const adjustedUrgent = urgentThreshold + complexityBonus
+      const adjustedCritical = criticalThreshold + complexityBonus
+      
+      if (elapsed >= adjustedCritical) level = 'critical'
+      else if (elapsed >= adjustedUrgent) level = 'urgent'
+      else if (elapsed >= adjustedUrgent - 3) level = 'warning'
       
       setUrgencyLevel(level)
     }
