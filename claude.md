@@ -54,18 +54,20 @@
 - **DO NOT** modify unified backend architecture without updating ARCHITECTURE.md
 - **DO NOT** create complex startup scripts - use `npm run dev`
 
-### **5. 🧠 MCP Directives & Agent Roles**
+### **5. 🧠 MCP Configuration & Agent Roles**
 
-- **`filesystem`**: **Primary Tool.** For all file operations
-- **`desktop`**: For running `npm` scripts and commands
-- **`sequential`**: For architectural analysis (respects unified backend)
-- **`context7`**: For library documentation only
-- **NO AI Gateway references**: All AI code goes in server/src/ai/
+**Official MCP Servers (2025):**
+- **`filesystem`**: File operations within `/Users/mikeyoung/CODING` directory tree
+- **`sequential-thinking`**: Complex analysis and multi-step reasoning for architecture decisions
+- **`memory`**: Persistent knowledge graph for storing architectural patterns and decisions
+- **`git`**: Repository operations for rebuild-6.0 project version control
+- **Configuration**: Project-scope MCP servers via `.mcp.json` and `.claude/settings.json`
 
 **Agent Role Quick Reference:**
-- **Architect**: Must respect unified backend decision
-- **Builder**: Add features to server/, not new services
-- **Validator**: Test on port 3001 only
+- **Architect**: Use sequential-thinking + memory for system design, filesystem for code review
+- **Builder**: Use filesystem for component development, git for version control
+- **Analyzer**: Use sequential-thinking for root cause analysis, memory for solution patterns
+- **All Agents**: Must respect unified backend architecture (NO microservices)
 
 ### **6. 🔗 Unified API Structure**
 

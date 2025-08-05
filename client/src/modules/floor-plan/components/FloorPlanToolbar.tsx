@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
-import { Circle, Square, RectangleHorizontal, Trash2, Copy, Grid, Undo, Redo, Save, ZoomIn, ZoomOut } from 'lucide-react'
+import { Circle, Square, RectangleHorizontal, Trash2, Copy, Grid, Undo, Redo, Save, ZoomIn, ZoomOut, RotateCcw, Loader2 } from 'lucide-react'
 import { Table } from '../types'
 
 interface FloorPlanToolbarProps {
@@ -21,7 +21,10 @@ interface FloorPlanToolbarProps {
   onZoomIn: () => void
   onZoomOut: () => void
   onZoomReset: () => void
+  onResetView: () => void
   isSaving?: boolean
+  isCreatingTable?: boolean
+  creatingTableType?: Table['type'] | null
 }
 
 export function FloorPlanToolbar({
@@ -42,7 +45,10 @@ export function FloorPlanToolbar({
   onZoomIn,
   onZoomOut,
   onZoomReset,
+  onResetView,
   isSaving = false,
+  isCreatingTable = false,
+  creatingTableType = null
 }: FloorPlanToolbarProps) {
   return (
     <div className="relative bg-white backdrop-blur-xl border border-[rgba(26,54,93,0.08)] rounded-2xl shadow-medium mx-2 sm:mx-4 mt-2 sm:mt-4 overflow-hidden">
@@ -56,27 +62,42 @@ export function FloorPlanToolbar({
             size="sm"
             onClick={() => onAddTable('circle')}
             title="Add Round Table"
-            className="h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200"
+            disabled={isCreatingTable}
+            className="h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-50"
           >
-            <Circle className="h-4 w-4 text-[#1a365d]" />
+            {isCreatingTable && creatingTableType === 'circle' ? (
+              <Loader2 className="h-4 w-4 text-[#1a365d] animate-spin" />
+            ) : (
+              <Circle className="h-4 w-4 text-[#1a365d]" />
+            )}
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onAddTable('square')}
             title="Add Square Table"
-            className="h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200"
+            disabled={isCreatingTable}
+            className="h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-50"
           >
-            <Square className="h-4 w-4 text-[#1a365d]" />
+            {isCreatingTable && creatingTableType === 'square' ? (
+              <Loader2 className="h-4 w-4 text-[#1a365d] animate-spin" />
+            ) : (
+              <Square className="h-4 w-4 text-[#1a365d]" />
+            )}
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onAddTable('rectangle')}
             title="Add Rectangular Table"
-            className="h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200"
+            disabled={isCreatingTable}
+            className="h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-50"
           >
-            <RectangleHorizontal className="h-4 w-4 text-[#1a365d]" />
+            {isCreatingTable && creatingTableType === 'rectangle' ? (
+              <Loader2 className="h-4 w-4 text-[#1a365d] animate-spin" />
+            ) : (
+              <RectangleHorizontal className="h-4 w-4 text-[#1a365d]" />
+            )}
           </Button>
         </div>
 
@@ -197,6 +218,15 @@ export function FloorPlanToolbar({
             className="h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-30"
           >
             <ZoomIn className="h-4 w-4 text-[#1a365d]" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onResetView}
+            title="Reset View - Center and Fit All Tables"
+            className="h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 text-[#1a365d]"
+          >
+            <RotateCcw className="h-4 w-4" />
           </Button>
         </div>
 

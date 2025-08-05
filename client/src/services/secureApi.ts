@@ -46,13 +46,14 @@ export class SecureAPIClient {
     // Add security headers
     const headers = new Headers(fetchOptions.headers)
     
-    // Add CSRF token for state-changing requests
+    // Add CSRF token for state-changing requests (disabled for development)
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(fetchOptions.method || 'GET')) {
       try {
-        const csrfHeaders = CSRFTokenManager.getHeader()
-        Object.entries(csrfHeaders).forEach(([key, value]) => {
-          headers.set(key, value)
-        })
+        // Only add CSRF if backend supports it (currently disabled)
+        // const csrfHeaders = CSRFTokenManager.getHeader()
+        // Object.entries(csrfHeaders).forEach(([key, value]) => {
+        //   headers.set(key, value)
+        // })
       } catch (error) {
         console.warn('CSRF token not available:', error)
       }

@@ -314,11 +314,8 @@ export function FloorPlanCanvas({
     ctx.restore()
   }, [tables, selectedTableId, canvasSize, showGrid, drawGrid, drawTable, zoomLevel, panOffset])
 
-  const getTableAtPoint = useCallback((x: number, y: number): Table | null => {
-    // Convert screen coordinates to world coordinates
-    const worldX = (x - panOffset.x) / zoomLevel
-    const worldY = (y - panOffset.y) / zoomLevel
-    
+  const getTableAtPoint = useCallback((worldX: number, worldY: number): Table | null => {
+    // worldX and worldY are already in world coordinates
     for (let i = tables.length - 1; i >= 0; i--) {
       const table = tables[i]
       if (table.type === 'circle') {
@@ -340,7 +337,27 @@ export function FloorPlanCanvas({
       }
     }
     return null
-  }, [tables, zoomLevel, panOffset])
+  }, [tables])
+
+  // Collision detection helper
+  const checkTableCollision = useCallback((tableId: string, x: number, y: number, width: number, height: number): boolean => {
+    return tables.some(table => {
+      if (table.id === tableId) return false // Don't check collision with self
+      
+      const padding = 10 // Minimum distance between tables
+      const thisLeft = x - width/2 - padding
+      const thisRight = x + width/2 + padding
+      const thisTop = y - height/2 - padding
+      const thisBottom = y + height/2 + padding
+      
+      const otherLeft = table.x - table.width/2
+      const otherRight = table.x + table.width/2
+      const otherTop = table.y - table.height/2
+      const otherBottom = table.y + table.height/2
+      
+      return !(thisRight < otherLeft || thisLeft > otherRight || thisBottom < otherTop || thisTop > otherBottom)
+    })
+  }, [tables])
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
@@ -354,11 +371,12 @@ export function FloorPlanCanvas({
     const worldX = (x - panOffset.x) / zoomLevel
     const worldY = (y - panOffset.y) / zoomLevel
 
-    // Check for middle mouse button or space key for panning
-    if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+    // Check for panning: middle mouse, shift+left click, or right click
+    if (e.button === 1 || (e.button === 0 && e.shiftKey) || e.button === 2) {
+      e.preventDefault()
       isPanningRef.current = true
       lastPanPositionRef.current = { x: e.clientX, y: e.clientY }
-      canvas.style.cursor = 'grab'
+      canvas.style.cursor = 'grabbing'
       return
     }
 
@@ -378,7 +396,7 @@ export function FloorPlanCanvas({
       }
     }
 
-    const table = getTableAtPoint(x, y)
+    const table = getTableAtPoint(worldX, worldY)
     if (table) {
       onTableClick?.(table.id)
       isDraggingRef.current = true
@@ -463,9 +481,33 @@ export function FloorPlanCanvas({
 
     // Handle dragging
     if (isDraggingRef.current && draggedTableRef.current) {
-      const newX = worldX - dragOffsetRef.current.x
-      const newY = worldY - dragOffsetRef.current.y
-      onTableMove?.(draggedTableRef.current, newX, newY)
+      const table = tables.find(t => t.id === draggedTableRef.current)
+      if (table) {
+        const newX = worldX - dragOffsetRef.current.x
+        const newY = worldY - dragOffsetRef.current.y
+        
+        // Check for collision before moving
+        if (!checkTableCollision(table.id, newX, newY, table.width, table.height)) {
+          onTableMove?.(draggedTableRef.current, newX, newY)
+          // Reset cursor for successful move
+          if (canvasRef.current) {
+            canvasRef.current.style.cursor = 'grabbing'
+          }
+        } else {
+          // Visual feedback for collision: change cursor and add shake effect
+          if (canvasRef.current) {
+            canvasRef.current.style.cursor = 'not-allowed'
+            // Add temporary shake animation
+            canvasRef.current.style.animation = 'shake 0.3s ease-in-out'
+            setTimeout(() => {
+              if (canvasRef.current) {
+                canvasRef.current.style.animation = ''
+                canvasRef.current.style.cursor = 'grabbing'
+              }
+            }, 300)
+          }
+        }
+      }
       return
     }
 
@@ -482,9 +524,9 @@ export function FloorPlanCanvas({
       }
     }
 
-    const table = getTableAtPoint(x, y)
+    const table = getTableAtPoint(worldX, worldY)
     canvas.style.cursor = table ? 'move' : e.shiftKey ? 'grab' : 'default'
-  }, [onTableMove, onTableResize, tables, selectedTableId, snapToGrid, gridSize, getTableAtPoint, zoomLevel, panOffset, onPanChange, getResizeHandleAtPoint])
+  }, [onTableMove, onTableResize, tables, selectedTableId, snapToGrid, gridSize, getTableAtPoint, zoomLevel, panOffset, onPanChange, getResizeHandleAtPoint, checkTableCollision])
 
   const handleMouseUp = useCallback(() => {
     isDraggingRef.current = false
@@ -523,6 +565,7 @@ export function FloorPlanCanvas({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onWheel={handleWheel}
+      onContextMenu={(e) => e.preventDefault()}
       className="rounded-xl shadow-medium cursor-pointer transition-all duration-200 hover:shadow-large"
       style={{ 
         touchAction: 'none',

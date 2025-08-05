@@ -16,7 +16,7 @@ export class ApiError extends Error implements AppError {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
-    this.code = code;
+    this.code = code || undefined;
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -44,7 +44,7 @@ export function errorHandler(
 
   // Don't leak error details in production for non-operational errors
   const message = 
-    isOperational || process.env.NODE_ENV !== 'production'
+    isOperational || process.env['NODE_ENV'] !== 'production'
       ? err.message
       : 'Internal server error';
 

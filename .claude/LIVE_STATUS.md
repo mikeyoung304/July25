@@ -1,6 +1,3 @@
-# MCP Status - Live Data
-*Auto-generated from actual configurations*
-
 # 🎯 MCP System Status - Live Documentation
 *Generated: 2025-08-05T14:09:52.902Z*
 *Source of Truth: Auto-generated from actual configurations*

@@ -38,7 +38,7 @@ const promBundleMiddleware = promBundle({
   includeUp: true,
   customLabels: {
     app: 'rebuild-6.0',
-    environment: process.env.NODE_ENV || 'development',
+    environment: process.env['NODE_ENV'] || 'development',
   },
   promClient: {
     collectDefaultMetrics: {

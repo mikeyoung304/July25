@@ -24,52 +24,40 @@ export class TableService extends HttpServiceAdapter implements ITableService {
   }
 
   async getTables(): Promise<{ tables: Table[] }> {
-    const response = await this.httpClient.get<Table[]>('/api/v1/tables', {
-      headers: this.getHeaders()
-    })
+    const response = await this.httpClient.get<Table[]>('/api/v1/tables')
     return { tables: response }
   }
 
   async getTableById(tableId: string): Promise<Table> {
-    const response = await this.httpClient.get<Table>(`/api/v1/tables/${tableId}`, {
-      headers: this.getHeaders()
-    })
+    const response = await this.httpClient.get<Table>(`/api/v1/tables/${tableId}`)
     return response
   }
 
   async createTable(table: Omit<Table, 'id'>): Promise<Table> {
-    const response = await this.httpClient.post<Table>('/api/v1/tables', table, {
-      headers: this.getHeaders()
-    })
+    const response = await this.httpClient.post<Table>('/api/v1/tables', table)
     return response
   }
 
   async updateTable(tableId: string, updates: Partial<Table>): Promise<Table> {
-    const response = await this.httpClient.put<Table>(`/api/v1/tables/${tableId}`, updates, {
-      headers: this.getHeaders()
-    })
+    const response = await this.httpClient.put<Table>(`/api/v1/tables/${tableId}`, updates)
     return response
   }
 
   async deleteTable(tableId: string): Promise<{ success: boolean }> {
-    const response = await this.httpClient.delete<{ success: boolean }>(`/api/v1/tables/${tableId}`, {
-      headers: this.getHeaders()
-    })
+    const response = await this.httpClient.delete<{ success: boolean }>(`/api/v1/tables/${tableId}`)
     return response
   }
 
   async updateTableStatus(tableId: string, status: Table['status'], orderId?: string): Promise<{ success: boolean; table: Table }> {
     const response = await this.httpClient.patch<Table>(`/api/v1/tables/${tableId}/status`, 
-      { status, orderId },
-      { headers: this.getHeaders() }
+      { status, orderId }
     )
     return { success: true, table: response }
   }
 
   async batchUpdateTables(tables: Partial<Table>[]): Promise<Table[]> {
     const response = await this.httpClient.put<Table[]>('/api/v1/tables/batch', 
-      { tables },
-      { headers: this.getHeaders() }
+      { tables }
     )
     return response
   }
