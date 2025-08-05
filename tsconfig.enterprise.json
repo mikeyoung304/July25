@@ -1,0 +1,76 @@
+{
+  "compilerOptions": {
+    /* Enterprise Grade Type Safety Configuration */
+    
+    /* Basic Options */
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "skipLibCheck": false,
+    
+    /* Strict Type Checking */
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitOverride": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitUseStrict": false,
+    "alwaysStrict": true,
+    
+    /* Additional Checks */
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedSideEffectImports": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    
+    /* Module Resolution */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": false,
+    "moduleDetection": "force",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    
+    /* Type Safety Rules */
+    "useDefineForClassFields": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    
+    /* Path Aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@rebuild/shared": ["./shared/types"],
+      "@rebuild/shared/*": ["./shared/types/*"]
+    }
+  },
+  
+  /* TypeScript Compiler Rules */
+  "compileOnSave": false,
+  
+  /* Enterprise Rules Documentation */
+  "_rules": {
+    "noImplicitAny": "Prevents implicit any types - all types must be explicit",
+    "noImplicitReturns": "Functions must have consistent return statements",
+    "exactOptionalPropertyTypes": "Optional properties cannot be undefined explicitly",
+    "noUncheckedIndexedAccess": "Indexed access must be checked for undefined",
+    "noPropertyAccessFromIndexSignature": "Prevents accessing unknown properties",
+    "noUncheckedSideEffectImports": "Side effect imports must be explicit",
+    "strictNullChecks": "Null and undefined are distinct from other types",
+    "noUnusedLocals": "Unused variables are errors",
+    "noUnusedParameters": "Unused parameters are errors"
+  }
+}

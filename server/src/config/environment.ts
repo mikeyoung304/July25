@@ -5,7 +5,7 @@ export interface EnvironmentConfig {
     url: string;
     anonKey: string;
     serviceKey: string;
-    jwtSecret?: string;
+    jwtSecret?: string | undefined;
   };
   frontend: {
     url: string;
@@ -55,41 +55,41 @@ export function validateEnvironment(): void {
   }
 
   // Log BuildPanel configuration status
-  if (process.env.USE_BUILDPANEL === 'true' && process.env.BUILDPANEL_URL) {
-    console.log(`✅ BuildPanel configured: ${process.env.BUILDPANEL_URL}`);
+  if (process.env['USE_BUILDPANEL'] === 'true' && process.env['BUILDPANEL_URL']) {
+    console.log(`✅ BuildPanel configured: ${process.env['BUILDPANEL_URL']}`);
   }
 }
 
 export function getConfig(): EnvironmentConfig {
   return {
-    port: parseInt(process.env.PORT || '3001', 10),
-    nodeEnv: (process.env.NODE_ENV as any) || 'development',
+    port: parseInt(process.env['PORT'] || '3001', 10),
+    nodeEnv: (process.env['NODE_ENV'] as any) || 'development',
     supabase: {
-      url: process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL!,
-      anonKey: process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY!,
-      serviceKey: process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_SERVICE_KEY!,
-      jwtSecret: process.env.SUPABASE_JWT_SECRET,
+      url: process.env['SUPABASE_URL'] || process.env['VITE_SUPABASE_URL']!,
+      anonKey: process.env['SUPABASE_ANON_KEY'] || process.env['VITE_SUPABASE_ANON_KEY']!,
+      serviceKey: process.env['SUPABASE_SERVICE_KEY'] || process.env['VITE_SUPABASE_SERVICE_KEY']!,
+      jwtSecret: process.env['SUPABASE_JWT_SECRET'] || undefined,
     },
     frontend: {
-      url: process.env.FRONTEND_URL || 'http://localhost:5173',
+      url: process.env['FRONTEND_URL'] || 'http://localhost:5173',
     },
     buildPanel: {
-      enabled: process.env.USE_BUILDPANEL === 'true',
-      url: process.env.BUILDPANEL_URL || 'http://localhost:3003',
+      enabled: process.env['USE_BUILDPANEL'] === 'true',
+      url: process.env['BUILDPANEL_URL'] || 'http://localhost:3003',
     },
     logging: {
-      level: process.env.LOG_LEVEL || 'info',
-      format: (process.env.LOG_FORMAT as any) || 'json',
+      level: process.env['LOG_LEVEL'] || 'info',
+      format: (process.env['LOG_FORMAT'] as any) || 'json',
     },
     cache: {
-      ttlSeconds: parseInt(process.env.CACHE_TTL_SECONDS || '300', 10),
+      ttlSeconds: parseInt(process.env['CACHE_TTL_SECONDS'] || '300', 10),
     },
     rateLimit: {
-      windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10),
-      maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
+      windowMs: parseInt(process.env['RATE_LIMIT_WINDOW_MS'] || '60000', 10),
+      maxRequests: parseInt(process.env['RATE_LIMIT_MAX_REQUESTS'] || '100', 10),
     },
     restaurant: {
-      defaultId: process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
+      defaultId: process.env['DEFAULT_RESTAURANT_ID'] || '11111111-1111-1111-1111-111111111111',
     },
   };
 }

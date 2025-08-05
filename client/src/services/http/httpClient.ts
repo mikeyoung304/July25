@@ -96,13 +96,13 @@ export class HttpClient extends SecureAPIClient {
       }
     }
 
-    // 2. Add X-Restaurant-ID header (per Luis's spec)
+    // 2. Add x-restaurant-id header (per Luis's spec)
     if (!skipRestaurantId) {
       const restaurantId = getCurrentRestaurantId()
       if (restaurantId) {
-        headers.set('X-Restaurant-ID', restaurantId)
+        headers.set('x-restaurant-id', restaurantId)
       } else {
-        console.warn('No restaurant ID available for API request')
+        console.warn('No restaurant ID available for API request to', endpoint)
       }
     }
 

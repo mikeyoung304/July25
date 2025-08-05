@@ -1,0 +1,54 @@
+{
+  "claude": {
+    "version": "2025.8.5",
+    "projectName": "rebuild-6.0",
+    "description": "Restaurant OS with unified backend architecture"
+  },
+  "mcp": {
+    "enabled": true,
+    "servers": {
+      "filesystem": {
+        "enabled": true,
+        "scope": "project",
+        "allowedPaths": ["/Users/mikeyoung/CODING"]
+      },
+      "sequential-thinking": {
+        "enabled": true,
+        "scope": "project"
+      },
+      "memory": {
+        "enabled": true,
+        "scope": "project"
+      },
+      "git": {
+        "enabled": true,
+        "scope": "project",
+        "repository": "/Users/mikeyoung/CODING/rebuild-6.0"
+      }
+    }
+  },
+  "permissions": {
+    "allowedTools": [
+      "Read", "Edit", "Write", "MultiEdit", "LS", "Glob", "Grep",
+      "TodoWrite", "WebFetch", "WebSearch", "Task"
+    ],
+    "bashCommands": {
+      "allowed": [
+        "npm", "node", "git", "claude", "chmod", "mkdir", "cp", "mv",
+        "ls", "pwd", "cd", "echo", "cat", "grep", "find", "which"
+      ],
+      "restricted": [
+        "rm", "sudo", "curl", "wget", "ssh", "scp", "rsync"
+      ]
+    },
+    "fileAccess": {
+      "allowedPaths": ["/Users/mikeyoung/CODING"],
+      "restrictedPaths": ["node_modules", ".git/objects", "*.log", ".env", "*.key", "*.pem"]
+    }
+  },
+  "workflow": {
+    "architecture": "unified-backend",
+    "testRequired": true,
+    "lintRequired": true
+  }
+}

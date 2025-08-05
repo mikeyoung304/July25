@@ -58,8 +58,8 @@ export function ServerView() {
   const [isVoiceActive, setIsVoiceActive] = useState(false)
   const [orderItems, setOrderItems] = useState<string[]>([])
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 500 })
-  const [zoomLevel] = useState(1)
-  const [panOffset] = useState({ x: 0, y: 0 })
+  const [zoomLevel, setZoomLevel] = useState(1)
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
   
   // Get restaurant from context
   const restaurant = context?.restaurant
@@ -227,6 +227,26 @@ export function ServerView() {
     setShowSeatSelection(false)
     setSelectedSeat(null)
   }, [])
+
+  // Pan and zoom controls
+  const handleZoomChange = useCallback((newZoom: number) => {
+    setZoomLevel(Math.max(0.5, Math.min(3, newZoom)))
+  }, [])
+
+  const handlePanChange = useCallback((newOffset: { x: number; y: number }) => {
+    setPanOffset(newOffset)
+  }, [])
+
+  // Simple view reset - just center at origin with reasonable zoom
+  const centerOnTables = useCallback(() => {
+    setZoomLevel(0.8) // Zoom out a bit to see more tables
+    setPanOffset({ x: -100, y: -50 }) // Simple offset to show tables better
+  }, [])
+
+  const resetView = useCallback(() => {
+    // Instead of just resetting to origin, center on all tables
+    centerOnTables()
+  }, [centerOnTables])
   
   // Adjust canvas size based on container
   useEffect(() => {
@@ -275,6 +295,42 @@ export function ServerView() {
             </Link>
             <h1 className="text-2xl font-bold text-macon-logo-blue">Server View - Dining Room</h1>
           </div>
+          
+          {/* Zoom Controls */}
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleZoomChange(zoomLevel - 0.1)}
+                disabled={zoomLevel <= 0.5}
+                className="h-8 w-8 p-0"
+              >
+                -
+              </Button>
+              <span className="text-xs px-2 py-1 min-w-[3rem] text-center">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleZoomChange(zoomLevel + 0.1)}
+                disabled={zoomLevel >= 3}
+                className="h-8 w-8 p-0"
+              >
+                +
+              </Button>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetView}
+              className="text-xs"
+            >
+              Reset View
+            </Button>
+          </div>
+          
           <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-4 text-sm">
               <div className="flex items-center space-x-1">
@@ -315,6 +371,8 @@ export function ServerView() {
                   snapToGrid={false}
                   zoomLevel={zoomLevel}
                   panOffset={panOffset}
+                  onZoomChange={handleZoomChange}
+                  onPanChange={handlePanChange}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 px-4">

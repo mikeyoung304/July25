@@ -18,6 +18,15 @@ export * from './table.types';
 // WebSocket types
 export * from './websocket.types';
 
+// Type transformation utilities
+export * from './transformers';
+
+// Runtime validation utilities
+export * from './validation';
+
+// Utility functions
+export * from '../utils';
+
 // Common types used across modules
 export interface PaginationParams {
   page?: number;
@@ -34,13 +43,13 @@ export interface PaginatedResponse<T> {
   total_pages: number;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: {
-    code: string;
+    code: 'VALIDATION_ERROR' | 'NOT_FOUND' | 'SERVER_ERROR' | 'UNAUTHORIZED' | 'FORBIDDEN' | 'CONFLICT' | 'RATE_LIMITED';
     message: string;
-    details?: any;
+    details?: Record<string, string[]>; // Structured validation errors
   };
 }
 

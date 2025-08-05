@@ -17,8 +17,10 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
   const { selectors, actions } = useFloorPlanReducer()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [isCreatingTable, setIsCreatingTable] = useState(false)
+  const [creatingTableType, setCreatingTableType] = useState<Table['type'] | null>(null)
 
-  // Load floor plan on mount
+  // Load floor plan on mount - Fixed infinite loop by removing unstable dependencies
   useEffect(() => {
     const loadFloorPlan = async () => {
       try {
@@ -38,7 +40,32 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
     }
     
     loadFloorPlan()
-  }, [restaurantId, actions])
+  }, [restaurantId])
+
+  // Separate effect for centering canvas when tables or canvas size changes
+  useEffect(() => {
+    if (selectors.tables.length > 0 && selectors.canvasSize.width > 0) {
+      const tables = selectors.tables
+      const minX = Math.min(...tables.map(t => t.x))
+      const maxX = Math.max(...tables.map(t => t.x + t.width))
+      const minY = Math.min(...tables.map(t => t.y))
+      const maxY = Math.max(...tables.map(t => t.y + t.height))
+      
+      const contentWidth = maxX - minX
+      const contentHeight = maxY - minY
+      const centerX = minX + contentWidth / 2
+      const centerY = minY + contentHeight / 2
+      
+      // Center the content in the viewport with some padding
+      const viewportCenterX = selectors.canvasSize.width / 2
+      const viewportCenterY = selectors.canvasSize.height / 2
+      
+      actions.setPanOffset({
+        x: viewportCenterX - centerX,
+        y: viewportCenterY - centerY
+      })
+    }
+  }, [selectors.tables.length, selectors.canvasSize.width, selectors.canvasSize.height])
 
   // Adjust canvas size on mount and window resize
   useEffect(() => {
@@ -65,19 +92,36 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
   const createDefaultTable = useCallback(
     (type: Table['type']): Table => {
       const tableCount = selectors.tables.length + 1
-      const gridOffset = selectors.snapToGrid ? selectors.gridSize : 20
+      const tableWidth = type === 'circle' ? 80 : 100
+      const tableHeight = type === 'circle' ? 80 : type === 'square' ? 100 : 60
+      
+      // Ensure proper spacing between tables (table width + padding)
+      const horizontalSpacing = Math.max(tableWidth + 40, 120) // 40px padding minimum
+      const verticalSpacing = Math.max(tableHeight + 40, 120)
+      
+      // Calculate grid position (5 tables per row)
+      const col = (tableCount - 1) % 5
+      const row = Math.floor((tableCount - 1) / 5)
+      
+      // Base positions with proper spacing
+      const baseX = 100 + col * horizontalSpacing
+      const baseY = 100 + row * verticalSpacing
+
+      // Apply grid snapping if enabled
+      const finalX = selectors.snapToGrid 
+        ? Math.round(baseX / selectors.gridSize) * selectors.gridSize
+        : baseX
+      const finalY = selectors.snapToGrid
+        ? Math.round(baseY / selectors.gridSize) * selectors.gridSize  
+        : baseY
 
       return {
         id: `table-${Date.now()}`,
         type,
-        x: selectors.snapToGrid
-          ? Math.round((100 + (tableCount % 5) * gridOffset) / selectors.gridSize) * selectors.gridSize
-          : 100 + (tableCount % 5) * gridOffset,
-        y: selectors.snapToGrid
-          ? Math.round((100 + Math.floor(tableCount / 5) * gridOffset) / selectors.gridSize) * selectors.gridSize
-          : 100 + Math.floor(tableCount / 5) * gridOffset,
-        width: type === 'circle' ? 80 : 100,
-        height: type === 'circle' ? 80 : type === 'square' ? 100 : 60,
+        x: finalX,
+        y: finalY,
+        width: tableWidth,
+        height: tableHeight,
         seats: 4,
         label: `Table ${tableCount}`,
         rotation: 0,
@@ -90,10 +134,24 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
 
   // Table management handlers
   const handleAddTable = useCallback(
-    (type: Table['type']) => {
-      const newTable = createDefaultTable(type)
-      actions.addToUndoStack([...selectors.tables])
-      actions.addTable(newTable)
+    async (type: Table['type']) => {
+      try {
+        setIsCreatingTable(true)
+        setCreatingTableType(type)
+        
+        const newTable = createDefaultTable(type)
+        actions.addToUndoStack([...selectors.tables])
+        actions.addTable(newTable)
+        
+        // Small delay to show loading state
+        await new Promise(resolve => setTimeout(resolve, 500))
+      } catch (error) {
+        console.error('Failed to create table:', error)
+        toast.error('Failed to create table')
+      } finally {
+        setIsCreatingTable(false)
+        setCreatingTableType(null)
+      }
     },
     [createDefaultTable, actions, selectors.tables]
   )
@@ -153,6 +211,17 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
         active: table.active
       }))
       
+      console.log('Sending tables to batch update:', {
+        count: tablesToUpdate.length,
+        sample: tablesToUpdate[0],
+        all: tablesToUpdate
+      })
+      
+      if (tablesToUpdate.length === 0) {
+        toast.error('No tables to save')
+        return
+      }
+      
       await tableService.batchUpdateTables(tablesToUpdate)
       
       toast.success('Floor plan saved successfully')
@@ -160,7 +229,19 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
       onSave?.(selectors.tables)
     } catch (error) {
       console.error('Failed to save floor plan:', error)
-      toast.error('Failed to save floor plan. Please try again.')
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'Unknown',
+        cause: error instanceof Error ? error.cause : undefined
+      })
+      
+      let errorMessage = 'Unknown error occurred'
+      if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      toast.error(`Failed to save floor plan: ${errorMessage}`)
     } finally {
       setIsSaving(false)
     }
@@ -177,6 +258,35 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
   const handleZoomReset = useCallback(() => {
     actions.setZoomLevel(1)
   }, [actions])
+
+  const handleResetView = useCallback(() => {
+    // Reset zoom
+    actions.setZoomLevel(1)
+    
+    // Re-center on tables
+    if (selectors.tables.length > 0) {
+      const minX = Math.min(...selectors.tables.map(t => t.x))
+      const maxX = Math.max(...selectors.tables.map(t => t.x + t.width))
+      const minY = Math.min(...selectors.tables.map(t => t.y))
+      const maxY = Math.max(...selectors.tables.map(t => t.y + t.height))
+      
+      const contentWidth = maxX - minX
+      const contentHeight = maxY - minY
+      const centerX = minX + contentWidth / 2
+      const centerY = minY + contentHeight / 2
+      
+      const viewportCenterX = selectors.canvasSize.width / 2
+      const viewportCenterY = selectors.canvasSize.height / 2
+      
+      actions.setPanOffset({
+        x: viewportCenterX - centerX,
+        y: viewportCenterY - centerY
+      })
+    } else {
+      // No tables, center at origin
+      actions.setPanOffset({ x: 0, y: 0 })
+    }
+  }, [actions, selectors.tables, selectors.canvasSize])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -235,16 +345,19 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onZoomReset={handleZoomReset}
+        onResetView={handleResetView}
         isSaving={isSaving}
+        isCreatingTable={isCreatingTable}
+        creatingTableType={creatingTableType}
       />
 
       <div className="flex flex-col lg:flex-row flex-1 gap-4 p-4 overflow-hidden">
         <div className="flex-1 flex flex-col gap-2 min-h-0">
           <div className="text-xs text-[#6b7280] px-1 hidden sm:block">
-            <span className="font-medium text-[#2d4a7c]">Tip:</span> Use Shift+Click or Middle Mouse to pan • Scroll to zoom • Click tables to select
+            <span className="font-medium text-[#2d4a7c]">Tip:</span> Right-click or Shift+Click to pan • Scroll to zoom • Click tables to select • Use Reset View button to center
           </div>
           <div className="text-xs text-[#6b7280] px-1 sm:hidden">
-            <span className="font-medium text-[#2d4a7c]">Tip:</span> Tap to select • Pinch to zoom
+            <span className="font-medium text-[#2d4a7c]">Tip:</span> Tap to select • Pinch to zoom • Use Reset View button
           </div>
           <FloorPlanCanvas
             tables={selectors.tables}

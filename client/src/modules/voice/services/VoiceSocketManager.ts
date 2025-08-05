@@ -1,4 +1,5 @@
 import { VoiceSocketMessage } from '../hooks/useVoiceSocket';
+import { ManagedService, CleanupManager, MemoryMonitor } from '@rebuild/shared/utils/cleanup-manager';
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
@@ -7,7 +8,7 @@ interface VoiceSocketListener {
   onConnectionChange?: (status: ConnectionStatus) => void;
 }
 
-class VoiceSocketManager {
+class VoiceSocketManager extends ManagedService {
   private static instance: VoiceSocketManager | null = null;
   private ws: WebSocket | null = null;
   private listeners: Map<string, VoiceSocketListener> = new Map();
@@ -22,16 +23,92 @@ class VoiceSocketManager {
   private processing = false;
   private url: string;
   private shouldReconnect = true;
+  private memoryMonitorInterval: number | null = null;
+  private unregisterWebSocket: (() => void) | null = null;
 
   private constructor(url: string) {
+    super('VoiceSocketManager');
     this.url = url;
+    this.setupMemoryMonitoring();
   }
 
   static getInstance(url: string): VoiceSocketManager {
     if (!VoiceSocketManager.instance) {
       VoiceSocketManager.instance = new VoiceSocketManager(url);
+      VoiceSocketManager.instance.initialize();
     }
     return VoiceSocketManager.instance;
+  }
+
+  async initialize(): Promise<void> {
+    if (this.status !== 'uninitialized') {
+      return;
+    }
+    
+    this.status = 'initializing';
+    
+    // Setup cleanup for reconnection timeout
+    this.registerCleanup(() => {
+      if (this.reconnectTimeout) {
+        clearTimeout(this.reconnectTimeout);
+        this.reconnectTimeout = null;
+      }
+    });
+    
+    // Setup cleanup for memory monitoring
+    this.registerCleanup(() => {
+      if (this.memoryMonitorInterval) {
+        clearInterval(this.memoryMonitorInterval);
+        this.memoryMonitorInterval = null;
+      }
+    });
+    
+    this.status = 'ready';
+    console.log('VoiceSocketManager initialized with enterprise cleanup patterns');
+  }
+
+  private setupMemoryMonitoring(): void {
+    // Monitor memory usage every 30 seconds
+    this.memoryMonitorInterval = window.setInterval(() => {
+      const memoryInfo = MemoryMonitor.getMemoryTrend();
+      
+      if (memoryInfo.leakWarning) {
+        console.warn('VoiceSocketManager: Memory leak detected', {
+          current: memoryInfo.current,
+          trend: memoryInfo.trend,
+          listeners: this.listeners.size,
+          queueSize: this.messageQueue.length,
+          unacknowledgedChunks: this.unacknowledgedChunks
+        });
+        
+        // Auto-cleanup on memory pressure
+        this.performEmergencyCleanup();
+      }
+    }, 30000);
+  }
+
+  private performEmergencyCleanup(): void {
+    console.log('VoiceSocketManager: Performing emergency cleanup due to memory pressure');
+    
+    // Clear message queue
+    this.messageQueue = [];
+    
+    // Reset counters
+    this.unacknowledgedChunks = 0;
+    
+    // Remove stale listeners (keep only recent ones)
+    if (this.listeners.size > 10) {
+      const listenerEntries = Array.from(this.listeners.entries());
+      const keepCount = Math.min(5, listenerEntries.length);
+      const recentListeners = listenerEntries.slice(-keepCount);
+      
+      this.listeners.clear();
+      recentListeners.forEach(([id, listener]) => {
+        this.listeners.set(id, listener);
+      });
+      
+      console.log(`Cleaned up listeners: ${listenerEntries.length} -> ${this.listeners.size}`);
+    }
   }
 
   connect(): void {
@@ -41,6 +118,12 @@ class VoiceSocketManager {
 
     this.updateConnectionStatus('connecting');
     this.ws = new WebSocket(this.url);
+    
+    // Register WebSocket for automatic cleanup
+    if (this.unregisterWebSocket) {
+      this.unregisterWebSocket();
+    }
+    this.unregisterWebSocket = this.registerWebSocket('primary', this.ws);
 
     this.ws.onopen = () => {
       console.warn('Voice WebSocket connected (singleton)');
@@ -115,6 +198,9 @@ class VoiceSocketManager {
           this.reconnectTimeout = null;
           this.connect();
         }, delay);
+        
+        // Register timeout for cleanup
+        this.registerInterval('reconnect', this.reconnectTimeout);
       }
     };
   }
@@ -183,20 +269,53 @@ class VoiceSocketManager {
   }
 
   disconnect(): void {
+    console.log('VoiceSocketManager: Starting graceful disconnect...');
     this.shouldReconnect = false;
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
+    
+    // Trigger managed cleanup
+    this.cleanup().catch(error => {
+      console.error('VoiceSocketManager cleanup failed:', error);
+    });
+  }
+
+  async cleanup(): Promise<void> {
+    console.log('VoiceSocketManager: Performing managed cleanup...');
+    
+    // Clear state
+    this.shouldReconnect = false;
+    
     // Clear listeners and queues to prevent memory leaks
     this.listeners.clear();
     this.messageQueue = [];
     this.unacknowledgedChunks = 0;
+    
+    // Cleanup WebSocket properly
+    if (this.unregisterWebSocket) {
+      this.unregisterWebSocket();
+      this.unregisterWebSocket = null;
+    }
+    
+    // Close WebSocket if still open
     if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.close();
+      this.ws.close(1000, 'Service cleanup');
     }
     this.ws = null;
+    
+    // Reset singleton instance
     VoiceSocketManager.instance = null;
+    
+    // Call parent cleanup
+    await super.cleanup();
+    
+    console.log('VoiceSocketManager: Cleanup completed');
+  }
+
+  isHealthy(): boolean {
+    return super.isHealthy() && 
+           this.connectionStatus === 'connected' && 
+           this.listeners.size < 50 && // Reasonable listener limit
+           this.messageQueue.length < 100 && // Reasonable queue limit
+           this.unacknowledgedChunks < this.maxUnacknowledgedChunks;
   }
 
   getConnectionStatus(): ConnectionStatus {
