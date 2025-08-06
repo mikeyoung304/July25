@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "concurrently --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\"",
     "dev:supabase": "./scripts/dev-with-supabase.sh",
+    "dev:streaming": "ENABLE_REALTIME_STREAMING=true npm run dev",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
@@ -24,6 +25,9 @@
     "start": "cd server && npm start",
     "clean": "rm -rf node_modules server/node_modules client/node_modules",
     "check:integration": "tsx scripts/integration-check.ts",
+    "test:buildpanel:streaming": "tsx scripts/test-buildpanel-streaming.ts",
+    "poc:streaming": "tsx scripts/poc-streaming-harness.ts",
+    "test:streaming:e2e": "npm run test:buildpanel:streaming && npm run poc:streaming",
     "lint:fix": "eslint --ext .ts,.tsx . --fix",
     "typecheck": "tsc --build tsconfig.all.json",
     "verify:ports": "! grep -r --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' --include='*.md' --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=build '3002\\|AI_GATEWAY' client/ server/ || (echo 'Error: Found forbidden port 3002 or AI_GATEWAY references!' && exit 1)",

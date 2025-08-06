@@ -3,47 +3,22 @@
 ## Available Servers
 
 ### filesystem
-Primary tool for all file operations. Use for reading, writing, editing files.
+File operations within `/Users/mikeyoung/CODING`
 
-### desktop
-Run commands, take screenshots, click elements. Requires system permissions.
+### sequential-thinking  
+Complex analysis and reasoning
 
-### sequential
-Extended thinking for complex problems. Use for architecture decisions.
+### memory
+Context persistence and knowledge storage
 
-### context7
-Library documentation lookup. Use when working with external packages.
+### git
+Repository operations
 
-## Quick Usage
-
-```bash
-# Enable MCP servers
-claude --mcp
-
-# Enable specific server
-claude --mcp --use-mcp filesystem
-
-# Disable MCP
-claude --no-mcp
-```
-
-## Common Patterns
+## Usage
 
 ```bash
-# Complex analysis
-"Analyze the codebase architecture" → Sequential thinking
-
-# Library questions  
-"How do I use React Query?" → Context7 docs
-
-# File operations
-"Update all imports" → Filesystem
-
-# UI automation
-"Click the submit button" → Desktop
+# Check server status
+claude mcp list
 ```
 
-## Best Practices
-- Use native tools first, MCP for complex tasks
-- Sequential for architecture, Context7 for docs
-- Batch similar operations for efficiency
+Servers are configured in `.mcp.json` following [official MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp).

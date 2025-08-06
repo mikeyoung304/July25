@@ -54,18 +54,15 @@
 - **DO NOT** modify unified backend architecture without updating ARCHITECTURE.md
 - **DO NOT** create complex startup scripts - use `npm run dev`
 
-### **5. 🧠 MCP Directives & Agent Roles**
+### **5. 🧠 MCP Servers**
 
-- **`filesystem`**: **Primary Tool.** For all file operations
-- **`desktop`**: For running `npm` scripts and commands
-- **`sequential`**: For architectural analysis (respects unified backend)
-- **`context7`**: For library documentation only
-- **NO AI Gateway references**: All AI code goes in server/src/ai/
+**Available MCP Servers:**
+- **`filesystem`**: File operations within `/Users/mikeyoung/CODING`
+- **`sequential-thinking`**: Complex analysis and reasoning  
+- **`memory`**: Context persistence
+- **`git`**: Repository operations
 
-**Agent Role Quick Reference:**
-- **Architect**: Must respect unified backend decision
-- **Builder**: Add features to server/, not new services
-- **Validator**: Test on port 3001 only
+Configuration in `.mcp.json` following [official MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp).
 
 ### **6. 🔗 Unified API Structure**
 
