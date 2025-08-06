@@ -5,8 +5,9 @@ import { MicrophonePermission } from '@/modules/voice/components/MicrophonePermi
 import { ConnectionIndicator } from '@/modules/voice/components/ConnectionIndicator';
 import { RecordingIndicator } from '@/modules/voice/components/RecordingIndicator';
 import { TranscriptionDisplay } from '@/modules/voice/components/TranscriptionDisplay';
+import { RealtimeTranscription } from '@/modules/voice/components/RealtimeTranscription';
 import { UnifiedRecordButton } from './UnifiedRecordButton';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Zap, ZapOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface UnifiedVoiceRecorderProps {
@@ -20,6 +21,7 @@ export interface UnifiedVoiceRecorderProps {
   showTranscription?: boolean;
   showRecordingIndicator?: boolean;
   autoProcessOrder?: boolean;
+  enableStreaming?: boolean; // NEW: Enable real-time streaming mode
   
   // Customization
   className?: string;
@@ -31,6 +33,14 @@ export interface UnifiedVoiceRecorderProps {
     sampleRate?: number;
     channelCount?: number;
   };
+  
+  // Streaming settings
+  streamingConfig?: {
+    chunkSize?: number; // Chunk size in milliseconds (default 500)
+    showRealtimeTranscription?: boolean;
+    enableTypingEffect?: boolean;
+    confidenceThreshold?: number;
+  };
 }
 
 export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
@@ -41,14 +51,53 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
   showTranscription = true,
   showRecordingIndicator = true,
   autoProcessOrder = false,
+  enableStreaming = false, // NEW: Default to false for now
   className,
   buttonClassName,
   transcriptionClassName,
   audioConfig,
+  streamingConfig = {
+    chunkSize: 500,
+    showRealtimeTranscription: true, 
+    enableTypingEffect: true,
+    confidenceThreshold: 0.7
+  },
 }) => {
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // NEW: Streaming state management
+  const [streamingMode, setStreamingMode] = useState(enableStreaming);
+  const [realtimeTranscript, setRealtimeTranscript] = useState('');
+  const [transcriptConfidence, setTranscriptConfidence] = useState(1);
+  const [isFinalTranscript, setIsFinalTranscript] = useState(false);
+  const [streamingSessionId, setStreamingSessionId] = useState<string | null>(null);
+
+  // Import mock streaming service for UI development
+  const [mockStreamingService, setMockStreamingService] = useState<any>(null);
+
+  // Initialize mock streaming service
+  useEffect(() => {
+    if (streamingMode && !mockStreamingService) {
+      import('@/services/mock/MockStreamingService').then(({ mockStreamingService }) => {
+        setMockStreamingService(mockStreamingService);
+      });
+    }
+  }, [streamingMode, mockStreamingService]);
+
+  // Handle real-time transcription updates
+  const handleTranscriptionUpdate = useCallback((text: string, confidence: number, isFinal: boolean) => {
+    setRealtimeTranscript(text);
+    setTranscriptConfidence(confidence);
+    setIsFinalTranscript(isFinal);
+    
+    if (isFinal) {
+      setTranscript(text);
+      setIsProcessing(false);
+      onTranscriptionComplete?.(text);
+    }
+  }, [onTranscriptionComplete]);
 
   // Use existing hooks
   const audioCapture = useAudioCapture({
@@ -99,12 +148,48 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
     setError(null);
     setTranscript('');
     setIsProcessing(true);
+    
+    // Clear streaming state
+    setRealtimeTranscript('');
+    setTranscriptConfidence(1);
+    setIsFinalTranscript(false);
+    
+    if (streamingMode && mockStreamingService) {
+      // Start streaming mode
+      const sessionId = `stream-${Date.now()}-${Math.random()}`;
+      setStreamingSessionId(sessionId);
+      
+      // Start mock streaming after short delay to simulate connection
+      setTimeout(() => {
+        mockStreamingService.startMockStreaming(
+          sessionId,
+          (update: any) => {
+            handleTranscriptionUpdate(update.text, update.confidence, update.isFinal);
+          }
+        );
+      }, 300);
+    }
+    
     audioCapture.startRecording();
-  }, [audioCapture]);
+  }, [audioCapture, streamingMode, mockStreamingService, handleTranscriptionUpdate]);
 
   const handleRecordingStop = useCallback(() => {
     audioCapture.stopRecording();
-  }, [audioCapture]);
+    
+    if (streamingMode && mockStreamingService && streamingSessionId) {
+      // Stop mock streaming
+      mockStreamingService.stopMockStreaming();
+      setStreamingSessionId(null);
+    }
+  }, [audioCapture, streamingMode, mockStreamingService, streamingSessionId]);
+
+  // Toggle streaming mode
+  const toggleStreamingMode = useCallback(() => {
+    setStreamingMode(prev => !prev);
+    setError(null);
+    setTranscript('');
+    setRealtimeTranscript('');
+  }, []);
 
   // Clear transcript after a delay
   useEffect(() => {
@@ -156,8 +241,40 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
           )}
         </div>
 
-        {/* Transcription Display */}
-        {showTranscription && transcript && (
+        {/* Streaming Mode Toggle */}
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={toggleStreamingMode}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+              streamingMode
+                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            )}
+          >
+            {streamingMode ? <Zap className="w-4 h-4" /> : <ZapOff className="w-4 h-4" />}
+            {streamingMode ? 'Real-time Mode' : 'Standard Mode'}
+          </button>
+        </div>
+
+        {/* Real-time Transcription Display */}
+        {streamingMode && streamingConfig?.showRealtimeTranscription && (
+          <div className="mt-6">
+            <RealtimeTranscription
+              text={realtimeTranscript}
+              isFinal={isFinalTranscript}
+              isListening={audioCapture.isRecording}
+              isProcessing={isProcessing}
+              confidence={transcriptConfidence}
+              showTypingEffect={streamingConfig.enableTypingEffect}
+              className={transcriptionClassName}
+              onTranscriptionComplete={onTranscriptionComplete}
+            />
+          </div>
+        )}
+
+        {/* Standard Transcription Display */}
+        {!streamingMode && showTranscription && transcript && (
           <div className="mt-6">
             <TranscriptionDisplay
               text={transcript}
@@ -167,8 +284,8 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
           </div>
         )}
 
-        {/* Processing Indicator */}
-        {isProcessing && !audioCapture.isRecording && (
+        {/* Processing Indicator (Standard Mode Only) */}
+        {!streamingMode && isProcessing && !audioCapture.isRecording && (
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-500">Processing audio...</p>
           </div>

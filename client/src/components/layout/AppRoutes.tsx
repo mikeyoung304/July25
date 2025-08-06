@@ -15,6 +15,7 @@ import DriveThruPage from '@/pages/DriveThruPage'
 import { CustomerOrderPage } from '@/modules/order-system/components'
 import { CheckoutPage } from '@/pages/CheckoutPage'
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage'
+import StreamingDemo from '@/pages/StreamingDemo'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
 // Profiler callback for performance tracking
@@ -104,6 +105,13 @@ export function AppRoutes() {
               <ErrorBoundary level="section">
                 <Profiler id="OrderConfirmation" onRender={onRenderCallback}>
                   <OrderConfirmationPage />
+                </Profiler>
+              </ErrorBoundary>
+            } />
+            <Route path="/streaming-demo" element={
+              <ErrorBoundary level="section">
+                <Profiler id="StreamingDemo" onRender={onRenderCallback}>
+                  <StreamingDemo />
                 </Profiler>
               </ErrorBoundary>
             } />
