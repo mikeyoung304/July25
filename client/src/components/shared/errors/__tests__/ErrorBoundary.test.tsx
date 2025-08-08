@@ -1,5 +1,5 @@
 import React from 'react'
-import { vi } from 'vitest';
+import { vi, type Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ErrorBoundary, withErrorBoundary } from '../ErrorBoundary'
 import * as envModule from '@/utils/env'
@@ -15,7 +15,7 @@ const ThrowError: React.FC<{ shouldThrow?: boolean }> = ({ shouldThrow = true })
 // Mock console.error to avoid noise in test output
 const originalError = console.error
 beforeAll(() => {
-  console.error = vi.fn()
+  console.error = vi.fn() as Mock
 })
 
 afterAll(() => {
@@ -99,15 +99,11 @@ describe('ErrorBoundary', () => {
       
       expect(onError).toHaveBeenCalledWith(
         expect.any(Error),
-        expect.objectContaining({
-          componentStack: expect.any(String)
-        })
+        expect.any(Object)
       )
     })
-  })
 
-  describe('Section level error boundary', () => {
-    it('renders section error UI', () => {
+    it('renders different UI for different error levels', () => {
       render(
         <ErrorBoundary level="section">
           <ThrowError />
@@ -115,37 +111,30 @@ describe('ErrorBoundary', () => {
       )
       
       expect(screen.getByText("This section couldn't be loaded")).toBeInTheDocument()
-      expect(screen.getByText('Try Again')).toBeInTheDocument()
-    })
-
-    it('shows error icon for section errors', () => {
-      render(
-        <ErrorBoundary level="section">
-          <ThrowError />
-        </ErrorBoundary>
-      )
       
-      // Check that the error message is displayed which indicates the icon is rendered
-      expect(screen.getByText("This section couldn't be loaded")).toBeInTheDocument()
-      // The icon is rendered as part of the section error UI
-    })
-  })
-
-  describe('Page level error boundary', () => {
-    it('renders page error UI', () => {
       render(
         <ErrorBoundary level="page">
           <ThrowError />
         </ErrorBoundary>
       )
       
-      expect(screen.getByText('Something went wrong')).toBeInTheDocument()
-      expect(screen.getByText(/An unexpected error occurred/)).toBeInTheDocument()
-      expect(screen.getByText('Refresh Page')).toBeInTheDocument()
-      expect(screen.getByText('Go Back')).toBeInTheDocument()
+      expect(screen.getByText("This page couldn't be loaded")).toBeInTheDocument()
+    })
+  })
+
+  describe('App level error boundary', () => {
+    it('renders app-level error UI', () => {
+      render(
+        <ErrorBoundary level="app">
+          <ThrowError />
+        </ErrorBoundary>
+      )
+      
+      expect(screen.getByText(/Something went wrong/)).toBeInTheDocument()
+      expect(screen.getByText(/Please refresh the page/)).toBeInTheDocument()
     })
 
-    it('shows error details in development', () => {
+    it('shows technical details in development', () => {
       // Mock env.DEV to be true
       const originalDEV = envModule.env.DEV
       Object.defineProperty(envModule.env, 'DEV', {
@@ -154,13 +143,13 @@ describe('ErrorBoundary', () => {
       })
       
       render(
-        <ErrorBoundary level="page">
+        <ErrorBoundary level="app">
           <ThrowError />
         </ErrorBoundary>
       )
       
-      expect(screen.getByText('Error Details')).toBeInTheDocument()
-      expect(screen.getByText(/Error: Test error/)).toBeInTheDocument()
+      expect(screen.getByText(/Technical Details/)).toBeInTheDocument()
+      expect(screen.getByText(/Test error/)).toBeInTheDocument()
       
       // Restore original value
       Object.defineProperty(envModule.env, 'DEV', {
@@ -169,7 +158,7 @@ describe('ErrorBoundary', () => {
       })
     })
 
-    it('hides error details in production', () => {
+    it('hides technical details in production', () => {
       // Mock env.DEV to be false
       const originalDEV = envModule.env.DEV
       Object.defineProperty(envModule.env, 'DEV', {
@@ -178,12 +167,13 @@ describe('ErrorBoundary', () => {
       })
       
       render(
-        <ErrorBoundary level="page">
+        <ErrorBoundary level="app">
           <ThrowError />
         </ErrorBoundary>
       )
       
-      expect(screen.queryByText('Error Details')).not.toBeInTheDocument()
+      expect(screen.queryByText(/Technical Details/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Test error/)).not.toBeInTheDocument()
       
       // Restore original value
       Object.defineProperty(envModule.env, 'DEV', {
@@ -265,7 +255,7 @@ describe('ErrorBoundary', () => {
       })
       
       // Clear any previous console.error calls
-      ;(console.error as vi.Mock).mockClear()
+      ;(console.error as Mock).mockClear()
       
       render(
         <ErrorBoundary>

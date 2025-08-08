@@ -4,7 +4,7 @@ import { Utensils } from 'lucide-react'
 import { KDSLayout } from '@/modules/kitchen/components/KDSLayout'
 import { AnimatedKDSOrderCard } from '@/modules/kitchen/components/AnimatedKDSOrderCard'
 import { KDSOrderListItem } from '@/modules/kitchen/components/KDSOrderListItem'
-import type { Order } from '@/services/api'
+import type { Order } from '@rebuild/shared'
 import type { LayoutMode } from '@/modules/kitchen/components/KDSLayout'
 
 interface OrdersGridProps {
@@ -49,23 +49,17 @@ export function OrdersGrid({
           layoutMode === 'grid' ? (
             <AnimatedKDSOrderCard
               key={order.id}
-              orderId={order.id}
-              orderNumber={order.orderNumber}
-              tableNumber={order.tableNumber}
-              items={order.items}
-              status={order.status as 'new' | 'preparing' | 'ready'}
-              orderTime={new Date(order.orderTime)}
-              orderType={order.orderType}
+              order={order}
               onStatusChange={(status) => onStatusChange(order.id, status)}
             />
           ) : (
             <KDSOrderListItem
               key={order.id}
-              orderNumber={order.orderNumber}
-              tableNumber={order.tableNumber}
+              orderNumber={order.order_number}
+              tableNumber={order.table_number || 'N/A'}
               items={order.items}
               status={order.status as 'new' | 'preparing' | 'ready'}
-              orderTime={new Date(order.orderTime)}
+              orderTime={new Date(order.created_at)}
               onStatusChange={(status) => onStatusChange(order.id, status)}
             />
           )

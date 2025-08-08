@@ -1,67 +1,107 @@
-import { BaseService } from '@/services/base/BaseService'
-import { MenuItem } from '@/services/types'
-import { mockData } from '@/services/mockData'
-import { httpClient } from '@/services/http'
+import { MenuItem, MenuCategory } from '@rebuild/shared'
+import { api } from '@/services/api'
 
 export interface IMenuService {
-  getMenuItems(category?: string): Promise<MenuItem[]>
-  getMenuItemById(itemId: string): Promise<MenuItem>
-  updateMenuItemAvailability(itemId: string, available: boolean): Promise<{ success: boolean; item: MenuItem }>
+  getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }>
+  getMenuItems(): Promise<MenuItem[]>
+  getMenuCategories(): Promise<MenuCategory[]>
+  updateMenuItemAvailability(itemId: string, available: boolean): Promise<void>
 }
 
-export class MenuService extends BaseService implements IMenuService {
-  async getMenuItems(category?: string): Promise<MenuItem[]> {
-    // Try API first in production mode
-    if (this.options?.apiMode && this.options.apiMode !== 'mock') {
-      try {
-        const response = await httpClient.get<{ items: MenuItem[] }>('/menu', {
-          params: category ? { category } : undefined
-        })
-        return response.items
-      } catch (error) {
-        console.warn('API call failed, falling back to mock data:', error)
-      }
+export class MenuService implements IMenuService {
+  async getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }> {
+    try {
+      const response = await api.getMenu()
+      return response
+    } catch (error) {
+      console.warn('API call failed, falling back to mock data:', error)
+      return this.getMockMenu()
     }
-    
-    // Use mock data
-    await this.delay(400)
-    if (category) {
-      return mockData.menuItems.filter(item => item.category === category)
-    }
-    return mockData.menuItems
   }
 
-  async getMenuItemById(itemId: string): Promise<MenuItem> {
-    await this.delay(200)
-    const item = mockData.menuItems.find(i => i.id === itemId)
-    if (!item) throw new Error('Menu item not found')
-    return item
+  async getMenuItems(): Promise<MenuItem[]> {
+    try {
+      const response = await api.getMenuItems()
+      return response
+    } catch (error) {
+      console.warn('API call failed, falling back to mock data:', error)
+      return this.getMockMenu().items
+    }
   }
 
-  async updateMenuItemAvailability(itemId: string, available: boolean): Promise<{ success: boolean; item: MenuItem }> {
-    // Try API first in production mode
-    if (this.options?.apiMode && this.options.apiMode !== 'mock') {
-      try {
-        const response = await httpClient.patch<{ success: boolean; item: MenuItem }>(
-          `/menu/${itemId}`,
-          { available }
-        )
-        return response
-      } catch (error) {
-        console.warn('API call failed, falling back to mock data:', error)
-      }
+  async getMenuCategories(): Promise<MenuCategory[]> {
+    try {
+      const response = await api.getMenuCategories()
+      return response
+    } catch (error) {
+      console.warn('API call failed, falling back to mock data:', error)
+      return this.getMockMenu().categories
     }
-    
-    // Use mock data
-    await this.delay(300)
-    const item = mockData.menuItems.find(i => i.id === itemId)
-    if (!item) throw new Error('Menu item not found')
-    
-    item.available = available
-    console.warn('Mock: Updated menu item availability', { itemId, available })
-    return { success: true, item }
+  }
+
+  async updateMenuItemAvailability(itemId: string, available: boolean): Promise<void> {
+    try {
+      await api.updateMenuItemAvailability(itemId, available)
+    } catch (error) {
+      console.warn('Mock: Updated menu item availability', { itemId, available })
+      // In mock mode, just log the update
+    }
+  }
+
+  private getMockMenu(): { items: MenuItem[]; categories: MenuCategory[] } {
+    return {
+      items: [
+        {
+          id: '1',
+          name: 'Classic Burger',
+          description: 'Juicy beef patty with lettuce, tomato, and cheese',
+          price: 12.99,
+          category: 'Main Course',
+          available: true,
+          image_url: null,
+          preparation_time: 15,
+          allergens: ['dairy', 'gluten'],
+          nutritional_info: {
+            calories: 650,
+            protein: 25,
+            carbs: 45,
+            fat: 35
+          }
+        },
+        {
+          id: '2',
+          name: 'Caesar Salad',
+          description: 'Fresh romaine lettuce with Caesar dressing',
+          price: 8.99,
+          category: 'Appetizers',
+          available: true,
+          image_url: null,
+          preparation_time: 8,
+          allergens: ['dairy', 'eggs'],
+          nutritional_info: {
+            calories: 320,
+            protein: 8,
+            carbs: 12,
+            fat: 28
+          }
+        }
+      ],
+      categories: [
+        {
+          id: '1',
+          name: 'Appetizers',
+          description: 'Start your meal right',
+          sort_order: 1
+        },
+        {
+          id: '2',
+          name: 'Main Course',
+          description: 'Our signature dishes',
+          sort_order: 2
+        }
+      ]
+    }
   }
 }
 
-// Export singleton instance
 export const menuService = new MenuService()

@@ -14,7 +14,7 @@ export interface UnifiedVoiceRecorderProps {
   // Core functionality
   mode?: 'hold-to-talk' | 'tap-to-toggle';
   onTranscriptionComplete?: (transcript: string) => void;
-  onOrderProcessed?: (result: any) => void;
+  onOrderProcessed?: (result: unknown) => void;
   
   // Feature flags
   showConnectionStatus?: boolean;
@@ -75,7 +75,7 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
   const [streamingSessionId, setStreamingSessionId] = useState<string | null>(null);
 
   // Import mock streaming service for UI development
-  const [mockStreamingService, setMockStreamingService] = useState<any>(null);
+  const [mockStreamingService, setMockStreamingService] = useState<unknown>(null);
 
   // Initialize mock streaming service
   useEffect(() => {
@@ -101,47 +101,51 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
 
   // Use existing hooks
   const audioCapture = useAudioCapture({
-    onRecordingComplete: async (audioBlob) => {
-      if (!socket.isConnected) {
-        setError('Not connected to server');
-        return;
-      }
-      
-      setError(null);
-      // Send audio through WebSocket
-      socket.sendAudio(audioBlob);
-    },
-    audioConfig,
-  });
-
-  const socket = useVoiceSocket({
-    onTranscription: (text) => {
-      setTranscript(text);
-      setIsProcessing(false);
-      
-      if (onTranscriptionComplete) {
-        onTranscriptionComplete(text);
+    onTranscription: (text: string, isInterim: boolean) => {
+      if (!isInterim) {
+        setTranscript(text);
+        setIsProcessing(false);
+        onTranscriptionComplete?.(text);
       }
     },
-    onOrderResult: (result) => {
-      if (onOrderProcessed) {
-        onOrderProcessed(result);
-      }
-    },
-    onError: (error) => {
+    onError: (error: Error) => {
       setError(error.message);
       setIsProcessing(false);
     },
-    autoProcessOrder,
+  });
+
+  const socket = useVoiceSocket({
+    url: 'ws://localhost:3001/voice-stream',
+    onMessage: (message: { type: string; [key: string]: unknown }) => {
+      if (message.type === 'transcription') {
+        const text = message.text as string;
+        setTranscript(text);
+        setIsProcessing(false);
+        
+        if (onTranscriptionComplete) {
+          onTranscriptionComplete(text);
+        }
+      } else if (message.type === 'order_result') {
+        if (onOrderProcessed) {
+          onOrderProcessed(message.result);
+        }
+      }
+    },
+    onConnectionChange: (status: string) => {
+      if (status === 'error') {
+        setError('Connection failed');
+        setIsProcessing(false);
+      }
+    },
   });
 
   // Connect WebSocket on mount
   useEffect(() => {
-    socket.connect();
+    // WebSocket connection is handled by the hook
     return () => {
-      socket.disconnect();
+      // Cleanup is handled by the hook
     };
-  }, [socket]); // Add socket dependency to ensure proper cleanup
+  }, []); // Remove socket dependency to avoid infinite re-renders
 
   // Handle recording state changes
   const handleRecordingStart = useCallback(() => {
@@ -161,12 +165,14 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
       
       // Start mock streaming after short delay to simulate connection
       setTimeout(() => {
-        mockStreamingService.startMockStreaming(
-          sessionId,
-          (update: any) => {
-            handleTranscriptionUpdate(update.text, update.confidence, update.isFinal);
-          }
-        );
+        if (mockStreamingService && typeof (mockStreamingService as any).startMockStreaming === 'function') {
+          (mockStreamingService as any).startMockStreaming(
+            sessionId,
+            (update: { text: string; confidence: number; isFinal: boolean }) => {
+              handleTranscriptionUpdate(update.text, update.confidence, update.isFinal);
+            }
+          );
+        }
       }, 300);
     }
     
@@ -178,7 +184,9 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
     
     if (streamingMode && mockStreamingService && streamingSessionId) {
       // Stop mock streaming
-      mockStreamingService.stopMockStreaming();
+      if (typeof (mockStreamingService as any).stopMockStreaming === 'function') {
+        (mockStreamingService as any).stopMockStreaming();
+      }
       setStreamingSessionId(null);
     }
   }, [audioCapture, streamingMode, mockStreamingService, streamingSessionId]);
@@ -202,95 +210,101 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
     }
   }, [transcript, audioCapture.isRecording]);
 
+  // Handle recording state changes
+  const handleRecordingToggle = useCallback(() => {
+    if (audioCapture.isRecording) {
+      handleRecordingStop();
+    } else {
+      handleRecordingStart();
+    }
+  }, [audioCapture.isRecording, handleRecordingStart, handleRecordingStop]);
+
+  // Handle hold-to-talk mode
+  const handleRecordingStartHold = useCallback(() => {
+    handleRecordingStart();
+  }, [handleRecordingStart]);
+
+  const handleRecordingStopHold = useCallback(() => {
+    handleRecordingStop();
+  }, [handleRecordingStop]);
+
+  // Determine if we should show streaming controls
+  const showStreamingControls = enableStreaming && !streamingMode;
+
   return (
-    <MicrophonePermission>
-      <div className={cn('unified-voice-recorder', className)}>
-        {/* Connection Status */}
-        {showConnectionStatus && (
-          <div className="mb-4">
-            <ConnectionIndicator
-              isConnected={socket.isConnected}
-              connectionState={socket.connectionState}
-            />
-          </div>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        )}
-
-        {/* Recording Button */}
-        <div className="flex flex-col items-center gap-4">
-          <UnifiedRecordButton
-            mode={mode}
-            isRecording={audioCapture.isRecording}
-            isConnected={socket.isConnected}
-            isProcessing={isProcessing}
-            onStart={handleRecordingStart}
-            onStop={handleRecordingStop}
-            className={buttonClassName}
-          />
-
-          {/* Recording Indicator */}
-          {showRecordingIndicator && audioCapture.isRecording && (
-            <RecordingIndicator />
-          )}
+    <div className={cn('flex flex-col gap-4', className)}>
+      {/* Error Display */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          <AlertCircle className="h-4 w-4" />
+          <span className="text-sm">{error}</span>
         </div>
+      )}
+
+      {/* Connection Status */}
+      {showConnectionStatus && (
+        <ConnectionIndicator 
+          status={socket.connectionStatus}
+        />
+      )}
+
+      {/* Recording Controls */}
+      <div className="flex flex-col gap-3">
+        {/* Main Record Button */}
+        <UnifiedRecordButton
+          mode={mode}
+          isRecording={audioCapture.isRecording}
+          isProcessing={isProcessing}
+          onStart={handleRecordingStartHold}
+          onStop={handleRecordingStopHold}
+          onToggle={handleRecordingToggle}
+          className={buttonClassName}
+        />
 
         {/* Streaming Mode Toggle */}
-        <div className="flex justify-center mt-4">
+        {showStreamingControls && (
           <button
             onClick={toggleStreamingMode}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-              streamingMode
-                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            )}
+            className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
           >
-            {streamingMode ? <Zap className="w-4 h-4" /> : <ZapOff className="w-4 h-4" />}
-            {streamingMode ? 'Real-time Mode' : 'Standard Mode'}
+            <Zap className="h-4 w-4" />
+            Enable Real-time Streaming
           </button>
-        </div>
-
-        {/* Real-time Transcription Display */}
-        {streamingMode && streamingConfig?.showRealtimeTranscription && (
-          <div className="mt-6">
-            <RealtimeTranscription
-              text={realtimeTranscript}
-              isFinal={isFinalTranscript}
-              isListening={audioCapture.isRecording}
-              isProcessing={isProcessing}
-              confidence={transcriptConfidence}
-              showTypingEffect={streamingConfig.enableTypingEffect}
-              className={transcriptionClassName}
-              onTranscriptionComplete={onTranscriptionComplete}
-            />
-          </div>
         )}
 
-        {/* Standard Transcription Display */}
-        {!streamingMode && showTranscription && transcript && (
-          <div className="mt-6">
-            <TranscriptionDisplay
-              text={transcript}
-              isListening={audioCapture.isRecording}
-              className={transcriptionClassName}
-            />
-          </div>
-        )}
-
-        {/* Processing Indicator (Standard Mode Only) */}
-        {!streamingMode && isProcessing && !audioCapture.isRecording && (
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-500">Processing audio...</p>
-          </div>
+        {/* Recording Indicator */}
+        {showRecordingIndicator && audioCapture.isRecording && (
+          <RecordingIndicator />
         )}
       </div>
-    </MicrophonePermission>
+
+      {/* Transcription Display */}
+      {showTranscription && (
+        <div className={cn('space-y-2', transcriptionClassName)}>
+          {/* Real-time Transcription (Streaming Mode) */}
+          {streamingMode && streamingConfig.showRealtimeTranscription && (
+            <RealtimeTranscription
+              text={realtimeTranscript}
+              confidence={transcriptConfidence}
+              isFinal={isFinalTranscript}
+              enableTypingEffect={streamingConfig.enableTypingEffect}
+            />
+          )}
+
+          {/* Final Transcription */}
+          {transcript && (
+            <TranscriptionDisplay
+              text={transcript}
+              isProcessing={isProcessing}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Microphone Permission */}
+      <MicrophonePermission 
+        status={audioCapture.permissionStatus}
+      />
+    </div>
   );
 };
