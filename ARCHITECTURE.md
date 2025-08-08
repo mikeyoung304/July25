@@ -20,11 +20,11 @@
 
 ## Architecture Diagram
 ```
-┌─────────────────┐         ┌─────────────────┐
-│   Frontend      │ <-----> │   Backend       │
-│   (React)       │  HTTP   │   (Express)     │
-│   Port: 5173    │  WS     │   Port: 3001    │
-└─────────────────┘         └─────────────────┘
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│   Frontend      │ <-----> │   Backend       │ <-----> │  BuildPanel     │
+│   (React)       │  HTTP   │   (Express)     │  HTTPS  │  (Cloud API)    │
+│   Port: 5173    │  WS     │   Port: 3001    │         │  AI Services    │
+└─────────────────┘         └─────────────────┘         └─────────────────┘
                                    │
                                    ▼
                             ┌─────────────────┐
@@ -65,9 +65,9 @@ SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_KEY=your_service_key
 
-# BuildPanel Integration (REQUIRED for AI features)
+# BuildPanel Integration (Cloud-based AI service)
 USE_BUILDPANEL=true
-BUILDPANEL_URL=http://localhost:3003
+BUILDPANEL_URL=https://api.mike.app.buildpanel.ai
 
 # Frontend Configuration (VITE_ prefix required)
 VITE_API_BASE_URL=http://localhost:3001

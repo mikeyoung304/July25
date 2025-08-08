@@ -1,5 +1,6 @@
-import { MenuItem, MenuCategory } from '@rebuild/shared'
-import { api } from '@/services/api'
+import { MenuItem as SharedMenuItem, MenuCategory } from '@rebuild/shared'
+import { httpClient } from '@/services/http/httpClient'
+import { MenuItem } from '@/services/types'
 
 export interface IMenuService {
   getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }>
@@ -9,10 +10,35 @@ export interface IMenuService {
 }
 
 export class MenuService implements IMenuService {
+  // Transform shared MenuItem to client MenuItem
+  private transformMenuItem(item: SharedMenuItem): MenuItem {
+    return {
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      category: item.category?.name || 'Uncategorized',
+      available: item.is_available, // Map is_available to available
+      imageUrl: item.image_url,
+      restaurant_id: item.restaurant_id,
+      calories: undefined, // Not in shared type
+      modifiers: item.modifier_groups?.flatMap(group => 
+        group.options.map(opt => ({
+          id: opt.id,
+          name: opt.name,
+          price: opt.price_adjustment
+        }))
+      ) || []
+    }
+  }
+
   async getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }> {
     try {
-      const response = await api.getMenu()
-      return response
+      const response = await httpClient.get<{ items: SharedMenuItem[]; categories: MenuCategory[] }>('/api/v1/menu')
+      return {
+        items: response.items.map(item => this.transformMenuItem(item)),
+        categories: response.categories
+      }
     } catch (error) {
       console.warn('API call failed, falling back to mock data:', error)
       return this.getMockMenu()
@@ -21,8 +47,8 @@ export class MenuService implements IMenuService {
 
   async getMenuItems(): Promise<MenuItem[]> {
     try {
-      const response = await api.getMenuItems()
-      return response
+      const response = await httpClient.get<SharedMenuItem[]>('/api/v1/menu/items')
+      return response.map(item => this.transformMenuItem(item))
     } catch (error) {
       console.warn('API call failed, falling back to mock data:', error)
       return this.getMockMenu().items
@@ -31,7 +57,7 @@ export class MenuService implements IMenuService {
 
   async getMenuCategories(): Promise<MenuCategory[]> {
     try {
-      const response = await api.getMenuCategories()
+      const response = await httpClient.get<MenuCategory[]>('/api/v1/menu/categories')
       return response
     } catch (error) {
       console.warn('API call failed, falling back to mock data:', error)
@@ -41,7 +67,7 @@ export class MenuService implements IMenuService {
 
   async updateMenuItemAvailability(itemId: string, available: boolean): Promise<void> {
     try {
-      await api.updateMenuItemAvailability(itemId, available)
+      await httpClient.patch(`/api/v1/menu/items/${itemId}`, { is_available: available })
     } catch (error) {
       console.warn('Mock: Updated menu item availability', { itemId, available })
       // In mock mode, just log the update
