@@ -85,7 +85,7 @@ export function GridLayout({
 
   const gapClasses = {
     'small': spacing.grid.gapSmall,
-    'medium': spacing.grid.gapMedium,
+    'medium': spacing.grid.gap,
     'large': spacing.grid.gapLarge
   }
 

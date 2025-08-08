@@ -2,6 +2,7 @@ import type { StationType } from './station'
 import type { Order } from '@/services/types'
 
 export type OrderStatus = Order['status']
+export type { StationType }
 
 export type SortBy = 
   | 'orderTime' 

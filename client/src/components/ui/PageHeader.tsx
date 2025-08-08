@@ -99,7 +99,7 @@ export function SectionHeader({
   className = ''
 }: SectionHeaderProps) {
   return (
-    <div className={`flex items-center justify-between ${spacing.content.stackMedium} ${className}`}>
+    <div className={`flex items-center justify-between ${spacing.content.stack} ${className}`}>
       <div>
         <h2 className="text-xl font-semibold text-neutral-900">{title}</h2>
         {subtitle && (
