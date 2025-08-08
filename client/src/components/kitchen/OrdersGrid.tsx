@@ -50,7 +50,11 @@ export function OrdersGrid({
             <AnimatedKDSOrderCard
               key={order.id}
               order={order}
-              onStatusChange={(status) => onStatusChange(order.id, status)}
+              onStatusChange={(status) => {
+                if (status === 'preparing' || status === 'ready') {
+                  onStatusChange(order.id, status)
+                }
+              }}
             />
           ) : (
             <KDSOrderListItem
@@ -58,9 +62,15 @@ export function OrdersGrid({
               orderNumber={order.order_number}
               tableNumber={order.table_number || 'N/A'}
               items={order.items}
-              status={order.status as 'new' | 'preparing' | 'ready'}
+              status={(order.status === 'new' || order.status === 'preparing' || order.status === 'ready') 
+                ? order.status as 'new' | 'preparing' | 'ready' 
+                : 'new'}
               orderTime={new Date(order.created_at)}
-              onStatusChange={(status) => onStatusChange(order.id, status)}
+              onStatusChange={(status) => {
+                if (status === 'preparing' || status === 'ready') {
+                  onStatusChange(order.id, status)
+                }
+              }}
             />
           )
         ))}

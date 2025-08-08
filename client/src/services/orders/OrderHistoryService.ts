@@ -1,6 +1,6 @@
-import { BaseService } from '@/services/base/BaseService'
 import { Order, OrderHistoryParams } from '@/services/types'
 import { mockOrderGenerator } from '@/services/realtime/orderSubscription'
+import { api } from '@/services/api'
 
 export interface IOrderHistoryService {
   getOrderHistory(params?: OrderHistoryParams): Promise<{
@@ -12,11 +12,10 @@ export interface IOrderHistoryService {
   }>
 }
 
-export class OrderHistoryService extends BaseService implements IOrderHistoryService {
+export class OrderHistoryService implements IOrderHistoryService {
   private historicalOrders: Order[] = []
 
   constructor() {
-    super()
     this.generateHistoricalOrders()
   }
 
@@ -51,7 +50,8 @@ export class OrderHistoryService extends BaseService implements IOrderHistorySer
     pageSize: number
     totalPages: number
   }> {
-    await this.delay(500)
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500))
     
     // Apply filters
     let filtered = [...this.historicalOrders]

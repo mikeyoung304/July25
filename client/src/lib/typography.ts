@@ -104,7 +104,7 @@ export const typography = {
 // Helper function to get typography classes
 export const getTypographyClasses = (variant: keyof typeof typography) => {
   const styles = typography[variant];
-  return cn(styles.size, styles.weight, styles.leading, styles.tracking);
+  return cn(styles.size, styles.weight, styles.leading, 'tracking' in styles ? styles.tracking : '');
 };
 
 // Spacing scale (using Tailwind's spacing scale)

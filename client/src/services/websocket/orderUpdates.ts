@@ -4,7 +4,7 @@
  */
 
 import { webSocketService } from './WebSocketService'
-import { Order } from '@/services/types'
+import { Order } from '@rebuild/shared'
 import { toast } from 'react-hot-toast'
 
 export interface OrderUpdatePayload {
