@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAsyncState } from '@/hooks/useAsyncState'
 import { useSoundNotifications } from '@/hooks/useSoundNotifications'
 import { useAriaLive } from '@/hooks/keyboard/useAriaLive'
-import { useStableCallback } from '@/hooks/useStableCallback'
 import { useToast } from '@/hooks/useToast'
 import { api } from '@/services/api'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
@@ -28,7 +27,7 @@ export function useKitchenOrders() {
     }, 50)
   }, [])
 
-  const handleOrderUpdate = useStableCallback(async (update: OrderUpdatePayload) => {
+  const handleOrderUpdate = useCallback(async (update: OrderUpdatePayload) => {
     switch (update.action) {
       case 'created':
         if (update.order) {
@@ -81,7 +80,7 @@ export function useKitchenOrders() {
         }
         break
     }
-  })
+  }, [batchOrderUpdate, playNewOrderSound, announce, playOrderReadySound])
 
   const loadOrders = useCallback(async () => {
     const startTime = performance.now()

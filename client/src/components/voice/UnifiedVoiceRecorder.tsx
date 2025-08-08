@@ -8,7 +8,7 @@ import { TranscriptionDisplay } from '@/modules/voice/components/TranscriptionDi
 import { RealtimeTranscription } from '@/modules/voice/components/RealtimeTranscription';
 import { UnifiedRecordButton } from './UnifiedRecordButton';
 import { AlertCircle, Zap, ZapOff } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 export interface UnifiedVoiceRecorderProps {
   // Core functionality

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { Mic, MicOff, Volume2, Loader2 } from 'lucide-react';
 
 interface RealtimeTranscriptionProps {

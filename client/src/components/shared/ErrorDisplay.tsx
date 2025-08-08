@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertCircle, XCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 export interface ErrorDisplayProps {
   error: Error | string | null;
