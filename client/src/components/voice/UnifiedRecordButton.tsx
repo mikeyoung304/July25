@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 export interface UnifiedRecordButtonProps {
   mode: 'hold-to-talk' | 'tap-to-toggle';

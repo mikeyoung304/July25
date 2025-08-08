@@ -1,6 +1,6 @@
 import React from 'react';
 import { BaseOrderCard, BaseOrderCardProps } from './BaseOrderCard';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 /**
  * Kitchen Display System OrderCard component

@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 // Typography scale based on a 1.25 ratio (Major Third)
 export const typography = {
