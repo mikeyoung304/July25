@@ -5,8 +5,8 @@ import { cn } from '@/utils'
 type AnimatedKDSOrderCardProps = React.ComponentProps<typeof KDSOrderCard>
 
 export const AnimatedKDSOrderCard = memo<AnimatedKDSOrderCardProps>((props) => {
-  const { status, className, ...rest } = props
-  const prevStatusRef = useRef(status)
+  const { order, className, ...rest } = props
+  const prevStatusRef = useRef(order.status)
   const animationTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   
   // Calculate animation class directly without state
@@ -15,10 +15,10 @@ export const AnimatedKDSOrderCard = memo<AnimatedKDSOrderCardProps>((props) => {
   
   useEffect(() => {
     // Skip if status hasn't changed
-    if (prevStatusRef.current === status) return
+    if (prevStatusRef.current === order.status) return
     
     const previousStatus = prevStatusRef.current
-    prevStatusRef.current = status
+    prevStatusRef.current = order.status
     
     // Clear any existing animation timeout
     if (animationTimeoutRef.current) {
@@ -26,11 +26,11 @@ export const AnimatedKDSOrderCard = memo<AnimatedKDSOrderCardProps>((props) => {
     }
     
     // Determine animation based on status transition
-    if (previousStatus === 'new' && status === 'preparing') {
+    if (previousStatus === 'new' && order.status === 'preparing') {
       animationClass.current = 'animate-pulse-once border-blue-400 shadow-blue-200/50'
-    } else if (previousStatus === 'preparing' && status === 'ready') {
+    } else if (previousStatus === 'preparing' && order.status === 'ready') {
       animationClass.current = 'animate-bounce-in border-green-400 shadow-green-200/50 shadow-lg'
-    } else if (status === 'ready' && previousStatus !== 'ready') {
+    } else if (order.status === 'ready' && previousStatus !== 'ready') {
       animationClass.current = 'animate-pulse-ready'
     } else {
       animationClass.current = ''
@@ -52,13 +52,13 @@ export const AnimatedKDSOrderCard = memo<AnimatedKDSOrderCardProps>((props) => {
         clearTimeout(animationTimeoutRef.current)
       }
     }
-  }, [status])
+  }, [order.status])
   
   
   return (
     <KDSOrderCard
       {...rest}
-      status={status}
+      order={order}
       className={cn(
         isAnimating ? animationClass.current : '',
         'transition-shadow duration-500',

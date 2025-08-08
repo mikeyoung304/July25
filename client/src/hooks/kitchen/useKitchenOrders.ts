@@ -6,11 +6,11 @@ import { useToast } from '@/hooks/useToast'
 import { api } from '@/services/api'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 import { orderUpdatesHandler, type OrderUpdatePayload } from '@/services/websocket'
-import type { Order } from '@/services/api'
+import type { Order } from '@rebuild/shared'
 
 export function useKitchenOrders() {
   const [orders, setOrders] = useState<Order[]>([])
-  const { loading: isLoading, execute } = useAsyncState<{ orders: Order[]; total: number }>()
+  const { loading: isLoading, execute } = useAsyncState<Order[]>()
   const { playNewOrderSound, playOrderReadySound } = useSoundNotifications()
   const announce = useAriaLive()
   const { toast } = useToast()
@@ -33,9 +33,9 @@ export function useKitchenOrders() {
         if (update.order) {
           batchOrderUpdate(prev => [update.order!, ...prev])
           await playNewOrderSound()
-          const orderType = update.order.orderType === 'drive-thru' ? 'drive-thru' : 'dine-in'
+          const orderType = update.order.type === 'drive-thru' ? 'drive-thru' : 'dine-in'
           announce({
-            message: `New ${orderType} order ${update.order.orderNumber} received`,
+            message: `New ${orderType} order ${update.order.order_number} received`,
             priority: 'assertive'
           })
         }
@@ -66,10 +66,10 @@ export function useKitchenOrders() {
               const order = updatedOrders.find(o => o.id === update.orderId)
               if (order) {
                 playOrderReadySound()
-                const location = order.orderType === 'drive-thru' ? 'drive-thru window' : 
-                               order.tableNumber ? `table ${order.tableNumber}` : 'pickup counter'
+                const location = order.type === 'drive-thru' ? 'drive-thru window' : 
+                               order.table_number ? `table ${order.table_number}` : 'pickup counter'
                 announce({
-                  message: `Order ${order.orderNumber} is ready for pickup at ${location}`,
+                  message: `Order ${order.order_number} is ready for pickup at ${location}`,
                   priority: 'assertive'
                 })
               }
@@ -87,10 +87,10 @@ export function useKitchenOrders() {
     
     try {
       const result = await execute(api.getOrders())
-      if (result && result.orders) {
+      if (result) {
         const duration = performance.now() - startTime
         performanceMonitor.trackAPICall('getOrders', duration, 'success')
-        setOrders(result.orders)
+        setOrders(result)
       }
     } catch (error) {
       performanceMonitor.trackAPICall('getOrders', performance.now() - startTime, 'error')
@@ -113,9 +113,9 @@ export function useKitchenOrders() {
         
         const order = updatedOrders.find(o => o.id === orderId)
         if (status === 'ready' && order) {
-          const orderType = order.orderType || 'dine-in'
-          const location = orderType === 'drive-thru' ? 'drive-thru window' : `table ${order.tableNumber}`
-          toast.success(`Order #${order.orderNumber} ready for ${location}!`)
+          const orderType = order.type || 'dine-in'
+          const location = orderType === 'drive-thru' ? 'drive-thru window' : `table ${order.table_number}`
+          toast.success(`Order #${order.order_number} ready for ${location}!`)
         }
         
         return updatedOrders

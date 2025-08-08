@@ -1,4 +1,3 @@
-import { BaseService } from '@/services/base/BaseService'
 import { OrderStatistics, DateRangeParams } from '@/services/types'
 import { OrderHistoryService, orderHistoryService } from '@/services/orders/OrderHistoryService'
 
@@ -6,13 +5,12 @@ export interface IOrderStatisticsService {
   getOrderStatistics(params?: DateRangeParams): Promise<OrderStatistics>
 }
 
-export class OrderStatisticsService extends BaseService implements IOrderStatisticsService {
-  constructor(private orderHistoryService: OrderHistoryService) {
-    super()
-  }
+export class OrderStatisticsService implements IOrderStatisticsService {
+  constructor(private orderHistoryService: OrderHistoryService) {}
 
   async getOrderStatistics(params?: DateRangeParams): Promise<OrderStatistics> {
-    await this.delay(300)
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300))
     
     const { orders } = await this.orderHistoryService.getOrderHistory(params)
     

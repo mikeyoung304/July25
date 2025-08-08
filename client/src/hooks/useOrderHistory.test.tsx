@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
-import { vi } from 'vitest';
+import { vi } from 'vitest'
 import { useOrderHistory } from './useOrderHistory'
 import { api } from '@/services/api'
 
@@ -48,8 +48,8 @@ describe('useOrderHistory', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(api.getOrderHistory as vi.Mock).mockResolvedValue(mockHistoryResponse)
-    ;(api.getOrderStatistics as vi.Mock).mockResolvedValue(mockStatsResponse)
+    ;(api.getOrderHistory as any).mockResolvedValue(mockHistoryResponse)
+    ;(api.getOrderStatistics as any).mockResolvedValue(mockStatsResponse)
   })
 
   it('should fetch order history on mount', async () => {
@@ -158,8 +158,8 @@ describe('useOrderHistory', () => {
   })
 
   it('should handle errors gracefully', async () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation()
-    ;(api.getOrderHistory as vi.Mock).mockRejectedValue(new Error('API Error'))
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    ;(api.getOrderHistory as any).mockRejectedValue(new Error('API Error'))
 
     const { result } = renderHook(() => useOrderHistory())
 
@@ -178,7 +178,7 @@ describe('useOrderHistory', () => {
 
     // Mock createElement and click
     const link = { click: vi.fn(), href: '', download: '' }
-    vi.spyOn(document, 'createElement').mockReturnValue(link as unknown as HTMLElement)
+    vi.spyOn(document, 'createElement').mockImplementation(() => link as unknown as HTMLElement)
 
     act(() => {
       result.current.exportToCSV()
