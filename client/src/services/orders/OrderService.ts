@@ -4,7 +4,7 @@
  */
 
 import { Order, OrderItem, OrderStatus, OrderType } from '@rebuild/shared'
-import { api } from '@/services/api'
+import { httpClient } from '@/services/http/httpClient'
 
 export interface IOrderService {
   getOrders(filters?: OrderFilters): Promise<Order[]>
@@ -43,7 +43,7 @@ export class OrderService implements IOrderService {
         params.endDate = filters.dateRange.end.toISOString()
       }
 
-      const response = await api.getOrders(params)
+      const response = await httpClient.get<{ orders: any[] }>('/api/v1/orders', { params })
       
       // Map response to match Order type
       const mappedOrders = response.orders.map((order: any) => ({
@@ -66,7 +66,7 @@ export class OrderService implements IOrderService {
 
   async getOrderById(orderId: string): Promise<Order> {
     try {
-      const response = await api.getOrder(orderId)
+      const response = await httpClient.get<any>(`/api/v1/orders/${orderId}`)
       return {
         ...response,
         items: response.items || [],
@@ -88,7 +88,7 @@ export class OrderService implements IOrderService {
 
   async updateOrderStatus(orderId: string, status: OrderStatus): Promise<Order> {
     try {
-      const response = await api.updateOrderStatus(orderId, status)
+      const response = await httpClient.patch<any>(`/api/v1/orders/${orderId}/status`, { status })
       return {
         ...response,
         items: response.items || [],
@@ -117,7 +117,7 @@ export class OrderService implements IOrderService {
     }
 
     try {
-      const response = await api.submitOrder(orderData)
+      const response = await httpClient.post<any>('/api/v1/orders', orderData)
       return {
         ...response,
         items: response.items || [],

@@ -43,28 +43,19 @@ export function RoleGuard({
   const [showSuggestion, setShowSuggestion] = useState(false)
   const [hasShownSuggestion, setHasShownSuggestion] = useState(false)
 
-  // If no role requirements, always show content
-  if (!requiredRole && suggestedRoles.length === 0) {
-    return <>{children}</>
-  }
-
-  // If user has the required role, show content
-  if (requiredRole && currentRole === requiredRole) {
-    return <>{children}</>
-  }
-
-  // If user has one of the suggested roles, show content
-  if (suggestedRoles.length > 0 && currentRole && suggestedRoles.includes(currentRole)) {
-    return <>{children}</>
-  }
-
+  // Calculate conditions before hooks
+  const hasNoRequirements = !requiredRole && suggestedRoles.length === 0
+  const hasRequiredRole = requiredRole && currentRole === requiredRole
+  const hasSuggestedRole = suggestedRoles.length > 0 && currentRole && suggestedRoles.includes(currentRole)
+  
   // Show gentle suggestion if role is not selected or doesn't match
-  const shouldShowSuggestion = !hasShownSuggestion && (
+  const shouldShowSuggestion = !hasShownSuggestion && !hasNoRequirements && !hasRequiredRole && !hasSuggestedRole && (
     !isRoleSelected || 
     (requiredRole && currentRole !== requiredRole) ||
     (suggestedRoles.length > 0 && currentRole && !suggestedRoles.includes(currentRole))
   )
 
+  // Hooks must always be called before any early returns
   React.useEffect(() => {
     if (shouldShowSuggestion) {
       const timer = setTimeout(() => {
@@ -74,6 +65,22 @@ export function RoleGuard({
       return () => clearTimeout(timer)
     }
   }, [shouldShowSuggestion])
+
+  // Now we can have conditional returns after all hooks
+  // If no role requirements, always show content
+  if (hasNoRequirements) {
+    return <>{children}</>
+  }
+
+  // If user has the required role, show content
+  if (hasRequiredRole) {
+    return <>{children}</>
+  }
+
+  // If user has one of the suggested roles, show content
+  if (hasSuggestedRole) {
+    return <>{children}</>
+  }
 
   const handleRoleSelect = (role: UserRole) => {
     setRole(role)
