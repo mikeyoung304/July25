@@ -1,7 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { logger } from '@/services/logger';
-import { monitoring } from '@/services/monitoring';
+import { reportError } from '@/services/monitoring';
 import { Button } from '@/components/ui/button';
 
 interface Props {
@@ -45,7 +45,7 @@ export class AppErrorBoundary extends Component<Props, State> {
     }
 
     // Send to monitoring service
-    monitoring.reportError(error, {
+    reportError(error, {
       componentStack: errorInfo.componentStack,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,

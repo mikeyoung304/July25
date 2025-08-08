@@ -2,88 +2,81 @@
  * Simple monitoring service for error logging and Web Vitals
  */
 
-import { performanceMonitor } from '@/services/performance/performanceMonitor';
-import { logger } from '@/services/logger';
+import { logger } from './logger'
 
-class MonitoringService {
-  private metricsInterval?: NodeJS.Timeout;
+// Web Vitals monitoring
+let webVitalsInitialized = false
 
-  /**
-   * Initialize Web Vitals monitoring
-   */
-  async initialize() {
-    try {
-      // Only monitor Web Vitals in production
-      if (!import.meta.env.DEV) {
-        this.connectWebVitals();
-        this.startMetricsReporting();
-      }
-    } catch (error) {
-      logger.error('Failed to initialize monitoring', error);
-    }
-  }
+export function initializeWebVitals() {
+  if (webVitalsInitialized) return
 
-  /**
-   * Track Web Vitals (CLS, FID, FCP, LCP, TTFB)
-   */
-  private connectWebVitals() {
-    import('web-vitals').then(({ onCLS, onFID, onFCP, onLCP, onTTFB }) => {
-      const reportVital = (metric: any) => {
-        // Log poor performance
-        if (metric.rating !== 'good') {
-          logger.warn(`Poor ${metric.name} performance`, {
-            value: metric.value,
-            rating: metric.rating,
-          });
-        }
-      };
+  try {
+    // Dynamic import to avoid SSR issues
+    import('web-vitals').then(({ onCLS, onFCP, onLCP, onTTFB }) => {
+      // Report Core Web Vitals
+      onCLS((metric) => {
+        logger.info('Web Vital: CLS', { value: metric.value, rating: metric.rating })
+      })
 
-      onCLS(reportVital);
-      onFID(reportVital);
-      onFCP(reportVital);
-      onLCP(reportVital);
-      onTTFB(reportVital);
-    });
-  }
+      onFCP((metric) => {
+        logger.info('Web Vital: FCP', { value: metric.value, rating: metric.rating })
+      })
 
-  /**
-   * Report metrics to backend periodically
-   */
-  private startMetricsReporting() {
-    // Report every 5 minutes
-    this.metricsInterval = setInterval(() => {
-      const stats = performanceMonitor.getStatistics();
-      
-      // Send to backend metrics endpoint
-      fetch('/api/v1/metrics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          stats,
-          timestamp: new Date().toISOString(),
-        }),
-      }).catch(error => {
-        logger.error('Failed to report metrics', error);
-      });
-    }, 5 * 60 * 1000);
-  }
+      onLCP((metric) => {
+        logger.info('Web Vital: LCP', { value: metric.value, rating: metric.rating })
+      })
 
-  /**
-   * Log application errors
-   */
-  reportError(error: Error, context?: Record<string, any>) {
-    logger.error('Application error', error, context);
-  }
+      onTTFB((metric) => {
+        logger.info('Web Vital: TTFB', { value: metric.value, rating: metric.rating })
+      })
 
-  /**
-   * Clean up monitoring
-   */
-  shutdown() {
-    if (this.metricsInterval) {
-      clearInterval(this.metricsInterval);
-    }
+      webVitalsInitialized = true
+    }).catch((error) => {
+      logger.warn('Failed to initialize web vitals', { error })
+    })
+  } catch (error) {
+    logger.warn('Web vitals not available', { error })
   }
 }
 
-// Export singleton instance
-export const monitoring = new MonitoringService();
+// Error reporting
+export function reportError(error: Error, context?: Record<string, unknown>) {
+  logger.error('Application error', { 
+    error: error.message, 
+    stack: error.stack,
+    context 
+  })
+
+  // TODO: Integrate with error monitoring service (Sentry, LogRocket, etc.)
+  // For now, we'll just store in localStorage for debugging
+  try {
+    const errorLog = {
+      timestamp: new Date().toISOString(),
+      message: error.message,
+      stack: error.stack,
+      context
+    }
+
+    const existingErrors = JSON.parse(localStorage.getItem('errorLog') || '[]')
+    existingErrors.push(errorLog)
+    
+    // Keep only last 10 errors
+    if (existingErrors.length > 10) {
+      existingErrors.splice(0, existingErrors.length - 10)
+    }
+    
+    localStorage.setItem('errorLog', JSON.stringify(existingErrors))
+  } catch (storageError) {
+    logger.warn('Failed to store error in localStorage', { storageError })
+  }
+}
+
+// Performance monitoring
+export function trackPerformance(name: string, duration: number) {
+  logger.info('Performance metric', { name, duration })
+}
+
+// User interaction tracking
+export function trackUserInteraction(action: string, details?: Record<string, unknown>) {
+  logger.info('User interaction', { action, details })
+}
