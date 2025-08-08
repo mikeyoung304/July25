@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Testing React App</h1>
+    <div id="test"></div>
+    <script>
+        // Check if the app is loading
+        fetch('http://localhost:5173/src/main.tsx')
+            .then(res => res.text())
+            .then(text => {
+                console.log('Main.tsx loaded:', text.substring(0, 100));
+                document.getElementById('test').innerHTML = 'Main.tsx loads: YES';
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                document.getElementById('test').innerHTML = 'Error: ' + err;
+            });
+            
+        // Check API
+        fetch('http://localhost:3001/api/v1/health')
+            .then(res => res.json())
+            .then(data => {
+                console.log('API response:', data);
+            })
+            .catch(err => console.error('API error:', err));
+    </script>
+</body>
+</html>

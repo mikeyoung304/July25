@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface SplashScreenProps {
@@ -7,23 +7,41 @@ interface SplashScreenProps {
 
 export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
   const [isExiting, setIsExiting] = useState(false)
+  const [videoLoaded, setVideoLoaded] = useState(false)
+  const [videoError, setVideoError] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
   
   useEffect(() => {
-    // Start exit animation after 2.5 seconds
+    // Preload video
+    if (videoRef.current) {
+      videoRef.current.load()
+    }
+    
+    // Start exit animation after video ends or after 5 seconds max
     const exitTimer = setTimeout(() => {
       setIsExiting(true)
-    }, 2500)
+    }, 5000)
     
     // Complete transition after exit animation
     const completeTimer = setTimeout(() => {
       onAnimationComplete()
-    }, 3200)
+    }, 5700)
     
     return () => {
       clearTimeout(exitTimer)
       clearTimeout(completeTimer)
     }
   }, [onAnimationComplete])
+
+  const handleVideoEnd = () => {
+    setIsExiting(true)
+    setTimeout(onAnimationComplete, 700)
+  }
+
+  const handleVideoError = () => {
+    console.warn('Video failed to load, falling back to logo animation')
+    setVideoError(true)
+  }
 
   return (
     <AnimatePresence>
@@ -34,10 +52,6 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: '#FBFBFA',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           overflow: 'hidden',
         }}
         initial={{ opacity: 0 }}
@@ -45,125 +59,166 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Animated background gradients */}
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ duration: 1.5, delay: 0.5 }}
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(255, 107, 53, 0.08) 0%, transparent 40%), radial-gradient(ellipse at top right, rgba(78, 205, 196, 0.08) 0%, transparent 40%), radial-gradient(ellipse at bottom left, rgba(42, 75, 92, 0.08) 0%, transparent 40%)',
-          }}
-        />
-        
-        {/* Logo with sophisticated animations */}
-        <motion.div
-          className="relative"
-          initial={{ scale: 0 }}
-          animate={isExiting ? {
-            scale: 1.1,
-            opacity: 0,
-          } : {
-            scale: 1,
-            opacity: 1,
-          }}
-          transition={{
-            scale: {
-              type: "spring",
-              stiffness: 200,
-              damping: 15,
-              duration: 1.2,
-            },
-            opacity: {
-              duration: isExiting ? 0.5 : 1,
-            }
-          }}
-        >
-          {/* Glow effect */}
+        {!videoError ? (
+          <>
+            {/* Full Bleed Video with Enhancement Filters */}
+            <motion.video
+              ref={videoRef}
+              className="absolute inset-0 w-full h-full"
+              style={{
+                objectFit: 'cover',
+                minWidth: '100%',
+                minHeight: '100%',
+                width: 'auto',
+                height: 'auto',
+                // Visual enhancements to smooth out imperfections
+                filter: 'contrast(1.05) brightness(1.02) saturate(1.1)',
+                imageRendering: 'optimizeQuality',
+                willChange: 'transform',
+                backfaceVisibility: 'hidden',
+                perspective: '1000px',
+                transform: 'translateZ(0)', // Force GPU acceleration
+              }}
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              onCanPlayThrough={() => setVideoLoaded(true)}
+              onEnded={handleVideoEnd}
+              onError={handleVideoError}
+              initial={{ scale: 1.1, opacity: 0, filter: 'blur(2px)' }}
+              animate={isExiting ? {
+                scale: 1.05,
+                opacity: 0,
+                filter: 'blur(4px)',
+              } : {
+                scale: 1,
+                opacity: videoLoaded ? 1 : 0,
+                filter: 'blur(0px)',
+              }}
+              transition={{
+                scale: {
+                  duration: 0.8,
+                  ease: "easeOut",
+                },
+                opacity: {
+                  duration: isExiting ? 0.5 : 0.6,
+                },
+                filter: {
+                  duration: 0.6,
+                }
+              }}
+            >
+              <source src="/assets/mikeyoung304-1.mp4" type="video/mp4" />
+            </motion.video>
+
+            {/* Subtle overlay to smooth visual artifacts */}
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle at center, transparent 60%, rgba(0,0,0,0.05) 100%)',
+                mixBlendMode: 'multiply',
+              }}
+            />
+
+            {/* Loading indicator if video is not ready */}
+            {!videoLoaded && (
+              <motion.div
+                className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <div className="flex space-x-2">
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      className="w-2 h-2 bg-white/80 rounded-full"
+                      animate={{
+                        y: [0, -10, 0],
+                      }}
+                      transition={{
+                        duration: 0.6,
+                        repeat: Infinity,
+                        delay: i * 0.1,
+                      }}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </>
+        ) : (
+          /* Fallback to original logo animation if video fails */
           <motion.div
-            className="absolute inset-0 blur-3xl"
-            initial={{ opacity: 0 }}
-            animate={{ 
-              opacity: [0, 0.3, 0.1, 0.3, 0.1],
+            className="relative"
+            initial={{ scale: 0 }}
+            animate={isExiting ? {
+              scale: 1.1,
+              opacity: 0,
+            } : {
+              scale: 1,
+              opacity: 1,
             }}
             transition={{
-              duration: 2,
-              times: [0, 0.3, 0.5, 0.8, 1],
-              repeat: isExiting ? 0 : Infinity,
-              repeatType: "reverse",
-            }}
-            style={{
-              background: 'radial-gradient(circle, rgba(255, 107, 53, 0.4) 0%, rgba(78, 205, 196, 0.3) 50%, transparent 70%)',
-              transform: 'scale(1.5)',
-            }}
-          />
-          
-          {/* Logo image */}
-          <motion.img
-            src="/transparent.png"
-            alt="MACON AI SOLUTIONS"
-            style={{
-              width: '70vw',
-              height: '70vh',
-              objectFit: 'contain',
-              maxWidth: '600px',
-              maxHeight: '600px',
-              position: 'relative',
-              zIndex: 1,
-            }}
-            initial={{ filter: 'brightness(0.8) contrast(1.1)' }}
-            animate={{ 
-              filter: [
-                'brightness(0.8) contrast(1.1)',
-                'brightness(1.2) contrast(1.2)',
-                'brightness(1) contrast(1)',
-              ],
-              rotate: [0, 1, 0, -1, 0],
-            }}
-            transition={{
-              filter: {
-                duration: 2,
-                times: [0, 0.5, 1],
+              scale: {
+                type: "spring",
+                stiffness: 200,
+                damping: 15,
+                duration: 1.2,
               },
-              rotate: {
-                duration: 4,
-                ease: "easeInOut",
-                repeat: isExiting ? 0 : Infinity,
+              opacity: {
+                duration: isExiting ? 0.5 : 1,
               }
-            }}
-          />
-          
-          {/* Shimmer effect */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            style={{
-              background: 'linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.7) 50%, transparent 60%)',
-              backgroundSize: '200% 200%',
-              backgroundPosition: '-100% 0',
-              mixBlendMode: 'overlay',
-              zIndex: 2,
             }}
           >
             <motion.div
-              className="w-full h-full"
-              animate={{
-                backgroundPosition: ['200% 0', '-100% 0'],
+              className="absolute inset-0 blur-3xl"
+              initial={{ opacity: 0 }}
+              animate={{ 
+                opacity: [0, 0.3, 0.1, 0.3, 0.1],
               }}
               transition={{
                 duration: 2,
-                delay: 1,
-                ease: "easeInOut",
-                repeat: isExiting ? 0 : 1,
+                times: [0, 0.3, 0.5, 0.8, 1],
+                repeat: isExiting ? 0 : Infinity,
+                repeatType: "reverse",
               }}
               style={{
-                background: 'linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.7) 50%, transparent 60%)',
-                backgroundSize: '200% 200%',
+                background: 'radial-gradient(circle, rgba(255, 107, 53, 0.4) 0%, rgba(78, 205, 196, 0.3) 50%, transparent 70%)',
+                transform: 'scale(1.5)',
+              }}
+            />
+            
+            <motion.img
+              src="/transparent.png"
+              alt="MACON AI SOLUTIONS"
+              style={{
+                width: '70vw',
+                height: '70vh',
+                objectFit: 'contain',
+                maxWidth: '600px',
+                maxHeight: '600px',
+                position: 'relative',
+                zIndex: 1,
+              }}
+              initial={{ filter: 'brightness(0.8) contrast(1.1)' }}
+              animate={{ 
+                filter: [
+                  'brightness(0.8) contrast(1.1)',
+                  'brightness(1.2) contrast(1.2)',
+                  'brightness(1) contrast(1)',
+                ],
+              }}
+              transition={{
+                filter: {
+                  duration: 2,
+                  times: [0, 0.5, 1],
+                }
               }}
             />
           </motion.div>
-        </motion.div>
+        )}
       </motion.div>
     </AnimatePresence>
   )

@@ -20,6 +20,7 @@ export interface OrderUpdatePayload {
 export class OrderUpdatesHandler {
   private subscriptions: Array<() => void> = []
   private orderUpdateCallbacks: Array<(update: OrderUpdatePayload) => void> = []
+  private connectionHandlers: { connected?: () => void; disconnected?: () => void; error?: (error: any) => void } = {}
 
   /**
    * Initialize order updates handler
@@ -40,20 +41,24 @@ export class OrderUpdatesHandler {
     )
 
     // Handle connection state changes
-    webSocketService.on('connected', () => {
+    this.connectionHandlers.connected = () => {
       console.warn('Order updates connected')
       // Request current order state after reconnection
       webSocketService.send('orders:sync', { requestFullSync: true })
-    })
-
-    webSocketService.on('disconnected', () => {
+    }
+    
+    this.connectionHandlers.disconnected = () => {
       console.warn('Order updates disconnected')
       toast.error('Lost connection to order updates. Reconnecting...')
-    })
-
-    webSocketService.on('error', (error) => {
+    }
+    
+    this.connectionHandlers.error = (error) => {
       console.error('Order updates error:', error)
-    })
+    }
+
+    webSocketService.on('connected', this.connectionHandlers.connected)
+    webSocketService.on('disconnected', this.connectionHandlers.disconnected)
+    webSocketService.on('error', this.connectionHandlers.error)
   }
 
   /**
@@ -64,6 +69,18 @@ export class OrderUpdatesHandler {
     this.subscriptions.forEach(unsubscribe => unsubscribe())
     this.subscriptions = []
     this.orderUpdateCallbacks = []
+    
+    // Remove connection event listeners
+    if (this.connectionHandlers.connected) {
+      webSocketService.off('connected', this.connectionHandlers.connected)
+    }
+    if (this.connectionHandlers.disconnected) {
+      webSocketService.off('disconnected', this.connectionHandlers.disconnected)
+    }
+    if (this.connectionHandlers.error) {
+      webSocketService.off('error', this.connectionHandlers.error)
+    }
+    this.connectionHandlers = {}
   }
 
   /**

@@ -27,61 +27,49 @@ function App() {
       return
     }
 
+    let isConnected = false // Track connection state to prevent duplicates
+
     // Subscribe to auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         // Only connect in development mode or when we have a real backend
-        let shouldConnect = isDevelopment
+        let shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
         
-        // Check for API URL configuration
-        if (env.VITE_API_BASE_URL) {
-          shouldConnect = true
-        }
-        
-        if (shouldConnect) {
+        if (shouldConnect && !isConnected) {
+          isConnected = true
           // Initialize order updates handler
           orderUpdatesHandler.initialize()
           
           // Connect to WebSocket
           webSocketService.connect().catch(error => {
             console.warn('WebSocket connection failed:', error)
+            isConnected = false // Reset on failure
             // Continue app operation without WebSocket
           })
         }
       } else if (event === 'SIGNED_OUT') {
         // Disconnect WebSocket on sign out
+        isConnected = false
         orderUpdatesHandler.cleanup()
         webSocketService.disconnect()
       }
     })
 
-    // Auto-initialize real-time services in development mode
-    if (isDevelopment) {
-      console.log('🔧 Development mode: Auto-initializing real-time services')
-      orderUpdatesHandler.initialize()
-      webSocketService.connect().catch(error => {
-        console.warn('Development WebSocket connection failed:', error)
-      })
-    }
-
-    // Check if already authenticated
+    // Check if already authenticated (but don't auto-connect in dev)
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+      if (session && !isConnected) {
         // Only connect in development mode or when we have a real backend
-        let shouldConnect = isDevelopment
-        
-        // Check for API URL configuration
-        if (env.VITE_API_BASE_URL) {
-          shouldConnect = true
-        }
+        let shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
         
         if (shouldConnect) {
+          isConnected = true
           // Initialize order updates handler
           orderUpdatesHandler.initialize()
           
           // Connect to WebSocket
           webSocketService.connect().catch(error => {
             console.warn('WebSocket connection failed:', error)
+            isConnected = false
             // Continue app operation without WebSocket
           })
         }

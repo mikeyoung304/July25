@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Users, ChefHat, ShoppingCart, Settings, Globe } from 'lucide-react'
+import { Users, ChefHat, ShoppingCart, Settings, Globe, Package } from 'lucide-react'
 import { PageTitle, SectionTitle } from '@/components/ui/Typography'
 import { spacing } from '@/lib/typography'
 
@@ -69,6 +69,12 @@ export function HomePage() {
       icon: <Settings className="h-16 w-16" />,
       href: '/admin',
       color: '#88B0A4',
+    },
+    {
+      title: 'Expo',
+      icon: <Package className="h-16 w-16" />,
+      href: '/expo',
+      color: '#F4A460',
     },
   ]
 

@@ -10,6 +10,7 @@ import { OrderHistory } from '@/pages/OrderHistory'
 import { PerformanceDashboard } from '@/pages/PerformanceDashboard'
 import { ServerView } from '@/pages/ServerView'
 import { AdminDashboard } from '@/pages/AdminDashboard'
+import { ExpoPage } from '@/pages/ExpoPage'
 import KioskPage from '@/pages/KioskPage'
 import DriveThruPage from '@/pages/DriveThruPage'
 import { CustomerOrderPage } from '@/modules/order-system/components'
@@ -80,6 +81,13 @@ export function AppRoutes() {
             <Route path="/admin" element={
               <ErrorBoundary level="section">
                 <AdminDashboard />
+              </ErrorBoundary>
+            } />
+            <Route path="/expo" element={
+              <ErrorBoundary level="section">
+                <Profiler id="ExpoPage" onRender={onRenderCallback}>
+                  <ExpoPage />
+                </Profiler>
               </ErrorBoundary>
             } />
             {/* Default order redirect to Grow Fresh Local Food */}

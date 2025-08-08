@@ -2,7 +2,7 @@
 // NOTE: These types are legacy and will be migrated to @rebuild/shared
 // For now, they coexist with the shared types
 
-import type { OrderStatus as SharedOrderStatus } from '@rebuild/shared'
+import type { OrderStatus as SharedOrderStatus, OrderItemModifier } from '@rebuild/shared'
 
 export interface Order {
   id: string
@@ -22,7 +22,7 @@ export interface OrderItem {
   name: string
   quantity: number
   price?: number
-  modifiers?: string[] // Legacy: string array instead of object array
+  modifiers?: OrderItemModifier[] // Updated to match shared types
   notes?: string
   category?: string
 }

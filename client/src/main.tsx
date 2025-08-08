@@ -1,21 +1,29 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { monitoring } from './services/monitoring'
-import { performanceMonitor } from './services/performance/performanceMonitor'
+import { memoryLeakDetector } from './utils/memoryLeakPrevention'
 import './index.css'
 import App from './App.tsx'
 
-// Initialize monitoring services
-monitoring.initialize()
-
-// Start memory tracking in production (only if performance monitoring is enabled)
-const perfEnabled = import.meta.env.VITE_ENABLE_PERF === 'true'
-if (!import.meta.env.DEV && perfEnabled) {
-  performanceMonitor.startMemoryTracking(30000) // Every 30 seconds
+// Start memory monitoring
+if (import.meta.env.PROD) {
+  memoryLeakDetector.startMonitoring(120000) // Check every 2 minutes in production
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// Listen for memory pressure events
+window.addEventListener('memory-pressure', (() => {
+  const stats = memoryLeakDetector.getStats()
+  console.warn('Memory pressure detected:', stats)
+}) as EventListener)
+
+const rootElement = document.getElementById('root')
+console.log('Root element:', rootElement)
+
+if (rootElement) {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+} else {
+  console.error('Could not find root element!')
+}
