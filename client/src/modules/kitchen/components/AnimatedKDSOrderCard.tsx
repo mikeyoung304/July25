@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, memo } from 'react'
-import { KDSOrderCard } from './KDSOrderCard'
+import { KDSOrderCard } from '@/components/orders'
 import { cn } from '@/utils'
 
 type AnimatedKDSOrderCardProps = React.ComponentProps<typeof KDSOrderCard>
