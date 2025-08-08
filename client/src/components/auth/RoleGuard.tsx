@@ -11,7 +11,6 @@ import { AlertCircle, Users, ChefHat, Settings, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useRole, UserRole } from '@/contexts/RoleContext'
-import { cn } from '@/utils'
 
 interface RoleGuardProps {
   children: React.ReactNode
@@ -116,7 +115,7 @@ export function RoleGuard({
                   <p className="text-xs text-neutral-600 mb-3">
                     {requiredRole 
                       ? `This page is designed for ${roleNames[requiredRole]} users.`
-                      : `This page works best for ${suggestedRoles.map(r => roleNames[r]).join(' or ')} users.`
+                      : `This page works best for ${suggestedRoles.filter(r => r && roleNames[r]).map(r => roleNames[r!]).join(' or ')} users.`
                     }
                     {' '}Would you like to switch roles for a better experience?
                   </p>

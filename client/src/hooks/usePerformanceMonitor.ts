@@ -35,12 +35,12 @@ export const usePerformanceMonitor = (options: UsePerformanceMonitorOptions = {}
     }
   }, [trackMemory, memoryInterval])
 
-  // Update metrics periodically
+  // Update metrics periodically (reduced frequency to prevent memory pressure)
   useEffect(() => {
     const interval = setInterval(() => {
       setMetrics(performanceMonitor.getMetrics())
       setStatistics(performanceMonitor.getStatistics())
-    }, 1000)
+    }, 5000) // Changed from 1000ms to 5000ms
 
     return () => clearInterval(interval)
   }, [])

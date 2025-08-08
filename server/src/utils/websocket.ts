@@ -21,7 +21,7 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
       ws.isAlive = false;
       ws.ping();
     });
-  }, 30000);
+  }, 60000); // Increased from 30s to 60s for more stability
 
   wss.on('connection', async (ws: ExtendedWebSocket, request) => {
     // Skip voice connections - they're handled by AI WebSocket
@@ -41,12 +41,14 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
     try {
       const auth = await verifyWebSocketAuth(request);
       if (!auth) {
+        wsLogger.warn('WebSocket authentication failed - no auth returned');
         ws.close(1008, 'Unauthorized');
         return;
       }
       
       ws.userId = auth.userId;
-      wsLogger.info(`WebSocket authenticated for user: ${auth.userId}`);
+      ws.restaurantId = auth.restaurantId;
+      wsLogger.info(`WebSocket authenticated for user: ${auth.userId} in restaurant: ${auth.restaurantId}`);
     } catch (error) {
       wsLogger.error('WebSocket authentication failed:', error);
       ws.close(1008, 'Authentication failed');
@@ -89,16 +91,26 @@ function handleWebSocketMessage(
   message: any,
   _wss: WebSocketServer
 ): void {
-  const { type, data } = message;
+  const { type, payload } = message;
 
   switch (type) {
-    case 'join-restaurant':
-      ws.restaurantId = data.restaurantId;
-      wsLogger.info(`Client joined restaurant: ${data.restaurantId}`);
+    case 'orders:sync':
+      wsLogger.info(`Client requested order sync for restaurant: ${ws.restaurantId}`);
       ws.send(JSON.stringify({
-        type: 'joined',
-        restaurantId: data.restaurantId,
+        type: 'sync_complete',
+        payload: { status: 'synced' },
+        timestamp: new Date().toISOString(),
       }));
+      break;
+
+    case 'order:update_status':
+      wsLogger.info(`Order status update: ${JSON.stringify(payload)}`);
+      // Handle status update logic here
+      break;
+
+    case 'order:update_item_status':
+      wsLogger.info(`Order item status update: ${JSON.stringify(payload)}`);
+      // Handle item status update logic here
       break;
 
     case 'ping':
@@ -106,9 +118,11 @@ function handleWebSocketMessage(
       break;
 
     default:
+      wsLogger.warn(`Unknown message type: ${type}`);
       ws.send(JSON.stringify({
-        error: 'Unknown message type',
-        type,
+        type: 'error',
+        payload: { message: 'Unknown message type', type },
+        timestamp: new Date().toISOString(),
       }));
   }
 }

@@ -2,7 +2,7 @@
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["@modelcontextprotocol/server-filesystem", "/Users/mikeyoung/CODING"]
+      "args": ["@modelcontextprotocol/server-filesystem", "/Users/mikeyoung/CODING/rebuild-6.0"]
     },
     "sequential-thinking": {
       "command": "npx", 

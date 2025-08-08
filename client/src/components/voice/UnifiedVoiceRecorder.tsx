@@ -141,7 +141,7 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [socket]); // Add socket dependency to ensure proper cleanup
 
   // Handle recording state changes
   const handleRecordingStart = useCallback(() => {

@@ -15,7 +15,9 @@ async function uploadMenuToAI() {
   
   try {
     // Fetch menu from our API
-    const menuResponse = await fetch('http://localhost:3001/api/v1/menu');
+    const menuResponse = await fetch('http://localhost:3001/api/v1/menu', {
+      headers: { 'x-restaurant-id': process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111' }
+    });
     
     if (!menuResponse.ok) {
       throw new Error(`Failed to fetch menu: ${menuResponse.statusText}`);
@@ -42,7 +44,11 @@ async function uploadMenuToAI() {
     // Upload to unified backend AI endpoint
     const uploadResponse = await fetch('http://localhost:3001/api/v1/ai/menu', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer test-token',
+        'x-restaurant-id': process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+      },
       body: JSON.stringify(aiMenu)
     });
     

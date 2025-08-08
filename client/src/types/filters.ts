@@ -99,7 +99,7 @@ export const sortOrders = (orders: Order[], sortBy: SortBy, direction: SortDirec
         comparison = a.tableNumber.localeCompare(b.tableNumber)
         break
       case 'status': {
-        const statusOrder = { 'new': 0, 'preparing': 1, 'ready': 2, 'completed': 3, 'cancelled': 4 }
+        const statusOrder = { 'new': 0, 'pending': 1, 'confirmed': 2, 'preparing': 3, 'ready': 4, 'completed': 5, 'cancelled': 6 }
         comparison = statusOrder[a.status] - statusOrder[b.status]
         break
       }

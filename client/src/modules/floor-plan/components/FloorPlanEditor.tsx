@@ -44,21 +44,42 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
   useEffect(() => {
     const updateCanvasSize = () => {
       if (containerRef.current) {
-        const containerWidth = containerRef.current.clientWidth
+        const containerRect = containerRef.current.getBoundingClientRect()
         const isLargeScreen = window.innerWidth >= 1024 // lg breakpoint
         
-        // On large screens, account for side panel. On smaller screens, use full width
+        // Calculate available space more accurately
         const sidePanelWidth = isLargeScreen ? 320 : 0
         const padding = 32 // Account for p-4 (16px * 2)
-        const width = Math.min(1200, containerWidth - sidePanelWidth - padding)
+        const availableWidth = containerRect.width - sidePanelWidth - padding
+        const availableHeight = containerRect.height - 120 // Account for toolbar height
         
-        actions.setCanvasSize({ width, height: width * 0.75 })
+        // Use aspect ratio that fits within available space
+        const aspectRatio = 4 / 3
+        let width = Math.min(1200, availableWidth)
+        let height = width / aspectRatio
+        
+        // If height exceeds available space, constrain by height
+        if (height > availableHeight) {
+          height = availableHeight
+          width = height * aspectRatio
+        }
+        
+        // Ensure minimum size
+        width = Math.max(400, width)
+        height = Math.max(300, height)
+        
+        actions.setCanvasSize({ width: Math.floor(width), height: Math.floor(height) })
       }
     }
 
-    updateCanvasSize()
-    window.addEventListener('resize', updateCanvasSize)
-    return () => window.removeEventListener('resize', updateCanvasSize)
+    // Use requestAnimationFrame to ensure DOM is ready
+    const handleResize = () => {
+      requestAnimationFrame(updateCanvasSize)
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [actions])
 
   // Table creation helper
@@ -239,29 +260,31 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
       />
 
       <div className="flex flex-col lg:flex-row flex-1 gap-4 p-4 overflow-hidden">
-        <div className="flex-1 flex flex-col gap-2 min-h-0">
+        <div className="flex-1 flex flex-col gap-2 min-h-0 min-w-0">
           <div className="text-xs text-[#6b7280] px-1 hidden sm:block">
             <span className="font-medium text-[#2d4a7c]">Tip:</span> Use Shift+Click or Middle Mouse to pan • Scroll to zoom • Click tables to select
           </div>
           <div className="text-xs text-[#6b7280] px-1 sm:hidden">
             <span className="font-medium text-[#2d4a7c]">Tip:</span> Tap to select • Pinch to zoom
           </div>
-          <FloorPlanCanvas
-            tables={selectors.tables}
-            selectedTableId={selectors.selectedTableId}
-            canvasSize={selectors.canvasSize}
-            showGrid={selectors.showGrid}
-            gridSize={selectors.gridSize}
-            snapToGrid={selectors.snapToGrid}
-            zoomLevel={selectors.zoomLevel}
-            panOffset={selectors.panOffset}
-            onTableClick={actions.selectTable}
-            onTableMove={handleTableMove}
-            onTableResize={handleTableResize}
-            onCanvasClick={() => actions.selectTable(null)}
-            onZoomChange={actions.setZoomLevel}
-            onPanChange={actions.setPanOffset}
-          />
+          <div className="flex-1 flex items-center justify-center overflow-hidden">
+            <FloorPlanCanvas
+              tables={selectors.tables}
+              selectedTableId={selectors.selectedTableId}
+              canvasSize={selectors.canvasSize}
+              showGrid={selectors.showGrid}
+              gridSize={selectors.gridSize}
+              snapToGrid={selectors.snapToGrid}
+              zoomLevel={selectors.zoomLevel}
+              panOffset={selectors.panOffset}
+              onTableClick={actions.selectTable}
+              onTableMove={handleTableMove}
+              onTableResize={handleTableResize}
+              onCanvasClick={() => actions.selectTable(null)}
+              onZoomChange={actions.setZoomLevel}
+              onPanChange={actions.setPanOffset}
+            />
+          </div>
         </div>
 
         <FloorPlanSidePanel

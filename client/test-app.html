@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test App Status</title>
+</head>
+<body>
+    <h1>Testing App Status</h1>
+    <div id="status">Checking...</div>
+    <div id="error"></div>
+    <script>
+        fetch('http://localhost:5173')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('status').innerHTML = 'App HTML loaded successfully';
+                
+                // Check if there's a root element
+                if (html.includes('id="root"')) {
+                    console.log('Root element found');
+                }
+            })
+            .catch(error => {
+                document.getElementById('error').innerHTML = 'Error: ' + error;
+            });
+    </script>
+</body>
+</html>
