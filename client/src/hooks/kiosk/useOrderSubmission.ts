@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useToast } from '@/hooks/useToast'
-import type { VoiceOrderItem } from '@/modules/voice/hooks/useVoiceOrder'
+import type { VoiceOrderItem } from '@/modules/voice/contexts/types'
 
 export function useOrderSubmission() {
   const { toast } = useToast()
