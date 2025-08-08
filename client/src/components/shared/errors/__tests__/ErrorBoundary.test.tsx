@@ -102,8 +102,10 @@ describe('ErrorBoundary', () => {
         expect.any(Object)
       )
     })
+  })
 
-    it('renders different UI for different error levels', () => {
+  describe('Page and Section error boundaries', () => {
+    it('renders section error UI', () => {
       render(
         <ErrorBoundary level="section">
           <ThrowError />
@@ -111,30 +113,20 @@ describe('ErrorBoundary', () => {
       )
       
       expect(screen.getByText("This section couldn't be loaded")).toBeInTheDocument()
-      
+    })
+
+    it('renders page error UI', () => {
       render(
         <ErrorBoundary level="page">
           <ThrowError />
         </ErrorBoundary>
       )
       
-      expect(screen.getByText("This page couldn't be loaded")).toBeInTheDocument()
-    })
-  })
-
-  describe('App level error boundary', () => {
-    it('renders app-level error UI', () => {
-      render(
-        <ErrorBoundary level="app">
-          <ThrowError />
-        </ErrorBoundary>
-      )
-      
-      expect(screen.getByText(/Something went wrong/)).toBeInTheDocument()
-      expect(screen.getByText(/Please refresh the page/)).toBeInTheDocument()
+      expect(screen.getByText('Something went wrong')).toBeInTheDocument()
+      expect(screen.getByText(/try refreshing the page/i)).toBeInTheDocument()
     })
 
-    it('shows technical details in development', () => {
+    it('shows error details in development for page level', () => {
       // Mock env.DEV to be true
       const originalDEV = envModule.env.DEV
       Object.defineProperty(envModule.env, 'DEV', {
@@ -143,12 +135,12 @@ describe('ErrorBoundary', () => {
       })
       
       render(
-        <ErrorBoundary level="app">
+        <ErrorBoundary level="page">
           <ThrowError />
         </ErrorBoundary>
       )
       
-      expect(screen.getByText(/Technical Details/)).toBeInTheDocument()
+      expect(screen.getByText('Error Details')).toBeInTheDocument()
       expect(screen.getByText(/Test error/)).toBeInTheDocument()
       
       // Restore original value
@@ -158,7 +150,7 @@ describe('ErrorBoundary', () => {
       })
     })
 
-    it('hides technical details in production', () => {
+    it('hides error details in production for page level', () => {
       // Mock env.DEV to be false
       const originalDEV = envModule.env.DEV
       Object.defineProperty(envModule.env, 'DEV', {
@@ -167,12 +159,12 @@ describe('ErrorBoundary', () => {
       })
       
       render(
-        <ErrorBoundary level="app">
+        <ErrorBoundary level="page">
           <ThrowError />
         </ErrorBoundary>
       )
       
-      expect(screen.queryByText(/Technical Details/)).not.toBeInTheDocument()
+      expect(screen.queryByText('Error Details')).not.toBeInTheDocument()
       expect(screen.queryByText(/Test error/)).not.toBeInTheDocument()
       
       // Restore original value
@@ -215,7 +207,6 @@ describe('ErrorBoundary', () => {
       expect(screen.getByText("This section couldn't be loaded")).toBeInTheDocument()
       expect(onError).toHaveBeenCalled()
     })
-
   })
 
   describe('Error logging', () => {
