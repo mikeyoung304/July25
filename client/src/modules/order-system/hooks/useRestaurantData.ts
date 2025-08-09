@@ -31,9 +31,9 @@ export function useRestaurantData(restaurantId: string | undefined) {
         setLoading(true);
         setError(null);
         
-        const response = await httpClient.get(`/restaurants/${restaurantId}`);
+        const response = await httpClient.get<RestaurantData>(`/restaurants/${restaurantId}`);
         
-        if (response.success && response.data) {
+        if (response && 'success' in response && response.success && response.data) {
           setRestaurant(response.data);
         } else {
           throw new Error('Failed to load restaurant data');

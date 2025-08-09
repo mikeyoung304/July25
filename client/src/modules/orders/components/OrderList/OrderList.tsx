@@ -36,13 +36,8 @@ export const OrderList = memo<OrderListProps>(({
       {orders.map((order) => (
         <OrderCard
           key={order.id}
-          orderId={order.id}
-          orderNumber={order.orderNumber}
-          tableNumber={order.tableNumber}
-          items={order.items}
-          status={order.status as 'new' | 'preparing' | 'ready'}
-          orderTime={order.orderTime}
-          onStatusChange={(status) => onStatusChange?.(order.id, status)}
+          order={order}
+          onStatusChange={(orderId, status) => onStatusChange?.(orderId, status as 'preparing' | 'ready')}
         />
       ))}
     </div>
