@@ -4,206 +4,87 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // MACON Brand Colors - Exact match from logo
-        'macon-background': '#FBFBFA', // Updated off-white background
-        'macon-logo-blue': '#2A4B5C', // Dark blue from transparent logo
-        'macon-navy': {
-          DEFAULT: '#0A253D', // Exact navy blue from logo
-          dark: '#061529',
-          light: '#1a365d',
-          50: '#e8edf5',
-          100: '#d1dbeb',
-          200: '#a3b7d7',
-          300: '#7593c3',
-          400: '#476faf',
-          500: '#0A253D',
-          600: '#081e33',
-          700: '#061729',
-          800: '#04101f',
-          900: '#020814',
-        },
-        'macon-orange': {
-          DEFAULT: '#FF6B35', // Vibrant orange from logo
-          dark: '#e55a25',
-          light: '#ff8255',
-          50: '#fff5f0',
-          100: '#ffebe0',
-          200: '#ffd7c1',
-          300: '#ffb392',
-          400: '#ff8f63',
-          500: '#FF6B35',
-          600: '#e55a25',
-          700: '#cc4915',
-          800: '#993714',
-          900: '#662512',
-        },
-        'macon-teal': {
-          DEFAULT: '#4ECDC4', // Bright teal from logo
-          dark: '#3eb5ac',
-          light: '#6ed9d0',
-          50: '#f0fffe',
-          100: '#e0fffc',
-          200: '#b8fff8',
-          300: '#7ffff2',
-          400: '#4ECDC4',
-          500: '#36b5ac',
-          600: '#2d9994',
-          700: '#247d7b',
-          800: '#1c6462',
-          900: '#144a49',
-        },
-        // Neutral colors with brand tint (adjusted for WCAG AA compliance)
+        // Apple-inspired Minimal Color System
         'neutral': {
           50: '#fafafa',
-          100: '#f5f5f5',
+          100: '#f5f5f5', 
           200: '#e5e5e5',
           300: '#d4d4d4',
-          400: '#737373', // Changed from #a3a3a3 to meet WCAG AA (4.5:1)
-          500: '#525252',
-          600: '#404040',
-          700: '#262626',
-          800: '#171717',
-          900: '#0a0a0a',
+          400: '#a3a3a3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
         },
-        // Keep legacy colors for backward compatibility
-        'macon-blue-dark': '#0E2E3B',
-        'macon-teal-old': '#1B7A7A',
-        'macon-orange-old': '#F29F67',
-        
-        // Semantic color mappings for consistent usage
-        'primary': {
-          DEFAULT: '#0A253D', // macon-navy
-          dark: '#061529',
-          light: '#1a365d',
-          50: '#e8edf5',
-          100: '#d1dbeb',
-          200: '#a3b7d7',
-          300: '#7593c3',
-          400: '#476faf',
-          500: '#0A253D',
-          600: '#081e33',
-          700: '#061729',
-          800: '#04101f',
-          900: '#020814',
-        },
-        'secondary': {
-          DEFAULT: '#FF6B35', // macon-orange
-          dark: '#e55a25',
-          light: '#ff8255',
-          50: '#fff5f0',
-          100: '#ffebe0',
-          200: '#ffd7c1',
-          300: '#ffb392',
-          400: '#ff8f63',
-          500: '#FF6B35',
-          600: '#e55a25',
-          700: '#cc4915',
-          800: '#993714',
-          900: '#662512',
-        },
+        // Single accent color - refined teal
         'accent': {
-          DEFAULT: '#4ECDC4', // macon-teal
-          dark: '#3eb5ac',
-          light: '#6ed9d0',
-          50: '#f0fffe',
-          100: '#e0fffc',
-          200: '#b8fff8',
-          300: '#7ffff2',
-          400: '#4ECDC4',
-          500: '#36b5ac',
-          600: '#2d9994',
-          700: '#247d7b',
-          800: '#1c6462',
-          900: '#144a49',
+          DEFAULT: '#4ECDC4',
+          50: '#f0fdfc',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
+          700: '#0f766e',
+          800: '#115e59',
+          900: '#134e4a',
         },
-        // Status colors aligned with brand
-        'success': {
-          DEFAULT: '#4ECDC4', // Using teal for success
-          light: '#6ed9d0',
-          dark: '#3eb5ac',
-          50: '#f0fffe',
-          100: '#e0fffc',
-          200: '#b8fff8',
-          300: '#7ffff2',
-          400: '#4ECDC4',
-          500: '#36b5ac',
-          600: '#2d9994',
-          700: '#247d7b',
-          800: '#1c6462',
-          900: '#144a49',
+        // Legacy support for existing components
+        'primary': {
+          DEFAULT: '#171717',
+          50: '#fafafa',
+          100: '#f5f5f5',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
         },
-        'danger': {
-          DEFAULT: '#DC2626', // Red for errors
-          light: '#EF4444',
-          dark: '#B91C1C',
-          50: '#FEF2F2',
-          100: '#FEE2E2',
-          200: '#FECACA',
-          300: '#FCA5A5',
-          400: '#F87171',
-          500: '#EF4444',
-          600: '#DC2626',
-          700: '#B91C1C',
-          800: '#991B1B',
-          900: '#7F1D1D',
-        },
-        'warning': {
-          DEFAULT: '#FF6B35', // Using orange for warnings
-          light: '#ff8255',
-          dark: '#e55a25',
-          50: '#fff5f0',
-          100: '#ffebe0',
-          200: '#ffd7c1',
-          300: '#ffb392',
-          400: '#ff8f63',
-          500: '#FF6B35',
-          600: '#e55a25',
-          700: '#cc4915',
-          800: '#993714',
-          900: '#662512',
-        },
-        'info': {
-          DEFAULT: '#2A4B5C', // macon-logo-blue for info
-          light: '#3A5B6C',
-          dark: '#1A3B4C',
-          50: '#EBF0F5',
-          100: '#D7E1EB',
-          200: '#AFC3D7',
-          300: '#87A5C3',
-          400: '#5F87AF',
-          500: '#2A4B5C',
-          600: '#203B4C',
-          700: '#162B3C',
-          800: '#0C1B2C',
-          900: '#020B1C',
+        'macon-teal': {
+          DEFAULT: '#4ECDC4',
+          50: '#f0fdfc',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
+          700: '#0f766e',
+          800: '#115e59',
+          900: '#134e4a',
         },
       },
+      // Apple's 8-point grid system
       spacing: {
-        '18': '4.5rem',
-        '88': '22rem',
-        '128': '32rem',
+        '1': '0.125rem',    // 2px
+        '2': '0.25rem',     // 4px  
+        '3': '0.5rem',      // 8px
+        '4': '1rem',        // 16px
+        '6': '1.5rem',      // 24px
+        '8': '2rem',        // 32px
+        '10': '2.5rem',     // 40px
+        '12': '3rem',       // 48px
+        '16': '4rem',       // 64px
+        '20': '5rem',       // 80px
+        '24': '6rem',       // 96px
+        '32': '8rem',       // 128px
       },
       boxShadow: {
-        // Elevation System - Apple-inspired layered shadows
-        'elevation-0': 'none',
-        'elevation-1': '0 1px 2px -1px rgba(10, 37, 64, 0.08), 0 2px 4px -2px rgba(10, 37, 64, 0.04)',
-        'elevation-2': '0 4px 8px -2px rgba(10, 37, 64, 0.08), 0 2px 4px -2px rgba(10, 37, 64, 0.04), 0 0 0 1px rgba(10, 37, 64, 0.02)',
-        'elevation-3': '0 8px 16px -4px rgba(10, 37, 64, 0.08), 0 4px 8px -4px rgba(10, 37, 64, 0.06), 0 0 0 1px rgba(10, 37, 64, 0.02)',
-        'elevation-4': '0 16px 32px -8px rgba(10, 37, 64, 0.10), 0 8px 16px -8px rgba(10, 37, 64, 0.08), 0 0 0 1px rgba(10, 37, 64, 0.03)',
-        'elevation-modal': '0 24px 48px -12px rgba(10, 37, 64, 0.18), 0 12px 24px -8px rgba(10, 37, 64, 0.12), 0 0 0 1px rgba(10, 37, 64, 0.04)',
-        // Interactive shadows
-        'hover': '0 8px 30px -8px rgba(10, 37, 64, 0.12), 0 0 0 1px rgba(78, 205, 196, 0.2)',
-        'active': '0 2px 8px -4px rgba(10, 37, 64, 0.12), 0 0 0 1px rgba(255, 107, 53, 0.3)',
-        // Glow effects for status
-        'glow-orange': '0 0 20px rgba(255, 107, 53, 0.15), 0 0 40px rgba(255, 107, 53, 0.1)',
-        'glow-teal': '0 0 20px rgba(78, 205, 196, 0.15), 0 0 40px rgba(78, 205, 196, 0.1)',
-        'glow-urgent': '0 0 30px rgba(239, 68, 68, 0.3), 0 0 60px rgba(239, 68, 68, 0.15)',
-        'glow-success': '0 0 30px rgba(34, 197, 94, 0.3), 0 0 60px rgba(34, 197, 94, 0.15)',
-        // Legacy (for backward compatibility)
-        'soft': '0 2px 8px -2px rgba(10, 37, 64, 0.06), 0 2px 4px -2px rgba(10, 37, 64, 0.04)',
-        'medium': '0 8px 16px -4px rgba(10, 37, 64, 0.08), 0 4px 8px -4px rgba(10, 37, 64, 0.06)',
-        'large': '0 16px 32px -8px rgba(10, 37, 64, 0.10), 0 8px 16px -8px rgba(10, 37, 64, 0.08)',
-        'inner-soft': 'inset 0 2px 4px 0 rgba(10, 37, 64, 0.06)',
+        // Apple-inspired minimal shadows
+        'card': '0 1px 3px rgba(0, 0, 0, 0.12)',
+        'card-hover': '0 4px 6px rgba(0, 0, 0, 0.15)',
+        'card-active': '0 1px 2px rgba(0, 0, 0, 0.20)',
+        // Legacy support
+        'elevation-1': '0 1px 3px rgba(0, 0, 0, 0.12)',
+        'elevation-2': '0 4px 6px rgba(0, 0, 0, 0.15)',
+        'elevation-3': '0 10px 15px rgba(0, 0, 0, 0.1)',
+        'elevation-4': '0 20px 25px rgba(0, 0, 0, 0.1)',
+        'soft': '0 1px 3px rgba(0, 0, 0, 0.12)',
+        'medium': '0 4px 6px rgba(0, 0, 0, 0.15)',
+        'large': '0 10px 15px rgba(0, 0, 0, 0.1)',
+        'hover': '0 4px 6px rgba(0, 0, 0, 0.15)',
       },
       borderRadius: {
         'xl': '1rem',
@@ -274,6 +155,14 @@ module.exports = {
           '0%, 100%': { opacity: '0.5' },
           '50%': { opacity: '1' },
         },
+        'card-hover': {
+          '0%': { transform: 'translateY(0) scale(1)' },
+          '100%': { transform: 'translateY(-8px) scale(1.02)' },
+        },
+        'smooth-bounce': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' },
+        },
       },
       animation: {
         'pulse-once': 'pulse-once 0.5s ease-in-out',
@@ -288,6 +177,8 @@ module.exports = {
         'shimmer': 'shimmer 2s ease-in-out infinite',
         'float': 'float 3s ease-in-out infinite',
         'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+        'card-hover': 'card-hover 0.3s ease-out',
+        'smooth-bounce': 'smooth-bounce 2s ease-in-out infinite',
       },
       backgroundImage: {
         // Gradient overlays for depth
@@ -310,9 +201,11 @@ module.exports = {
         'modal': '16px',
       },
       transitionTimingFunction: {
-        'spring': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-        'bounce-in': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        'apple': 'cubic-bezier(0.4, 0, 0.2, 1)', // Apple's standard timing
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      transitionDuration: {
+        'apple': '300ms', // Apple's standard duration
       },
     },
   },

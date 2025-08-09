@@ -56,7 +56,7 @@ class PerformanceMonitorService {
     memory: []
   }
 
-  private readonly MAX_METRICS = 1000
+  private readonly MAX_METRICS = 100 // Reduced to prevent memory bloat
   private readonly SLOW_RENDER_THRESHOLD = 16 // 60fps = 16.67ms per frame
   private readonly SLOW_API_THRESHOLD = 1000 // 1 second
 
@@ -254,11 +254,25 @@ class PerformanceMonitorService {
   }
 
   /**
-   * Start automatic memory tracking
+   * Start automatic memory tracking with automatic cleanup
    */
   startMemoryTracking(intervalMs: number = 10000): () => void {
     const interval = setInterval(() => {
       this.trackMemory()
+      
+      // Auto-cleanup if memory usage is too high
+      if (this.metrics.memory.length > 0) {
+        const latest = this.metrics.memory[this.metrics.memory.length - 1]
+        const usagePercent = (latest.usedJSHeapSize / latest.jsHeapSizeLimit) * 100
+        
+        // Clear old metrics if memory usage is above 70%
+        if (usagePercent > 70) {
+          console.warn(`High memory usage detected (${usagePercent.toFixed(1)}%), clearing old metrics`)
+          this.metrics.renders = this.metrics.renders.slice(-20)
+          this.metrics.apiCalls = this.metrics.apiCalls.slice(-20)
+          this.metrics.memory = this.metrics.memory.slice(-10)
+        }
+      }
     }, intervalMs)
 
     return () => clearInterval(interval)

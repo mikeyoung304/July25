@@ -1,67 +1,153 @@
-import { BaseService } from '@/services/base/BaseService'
+import { MenuItem as SharedMenuItem, MenuCategory } from '@rebuild/shared'
+import { httpClient } from '@/services/http/httpClient'
 import { MenuItem } from '@/services/types'
-import { mockData } from '@/services/mockData'
-import { httpClient } from '@/services/http'
 
 export interface IMenuService {
-  getMenuItems(category?: string): Promise<MenuItem[]>
-  getMenuItemById(itemId: string): Promise<MenuItem>
-  updateMenuItemAvailability(itemId: string, available: boolean): Promise<{ success: boolean; item: MenuItem }>
+  getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }>
+  getMenuItems(): Promise<MenuItem[]>
+  getMenuCategories(): Promise<MenuCategory[]>
+  updateMenuItemAvailability(itemId: string, available: boolean): Promise<void>
 }
 
-export class MenuService extends BaseService implements IMenuService {
-  async getMenuItems(category?: string): Promise<MenuItem[]> {
-    // Try API first in production mode
-    if (this.options?.apiMode && this.options.apiMode !== 'mock') {
-      try {
-        const response = await httpClient.get<{ items: MenuItem[] }>('/menu', {
-          params: category ? { category } : undefined
-        })
-        return response.items
-      } catch (error) {
-        console.warn('API call failed, falling back to mock data:', error)
-      }
-    }
+export class MenuService implements IMenuService {
+  private categoriesCache: Map<string, MenuCategory> = new Map()
+
+  // Transform shared MenuItem to client MenuItem
+  private transformMenuItem(item: any, categories?: MenuCategory[]): MenuItem {
+    // Handle both SharedMenuItem format and API response format
+    let category = 'Uncategorized'
     
-    // Use mock data
-    await this.delay(400)
-    if (category) {
-      return mockData.menuItems.filter(item => item.category === category)
+    if (item.category?.name) {
+      category = item.category.name
+    } else if (item.categoryId && categories) {
+      const cat = categories.find(c => c.id === item.categoryId)
+      category = cat?.name || 'Uncategorized'
+    } else if (item.categoryId && this.categoriesCache.has(item.categoryId)) {
+      category = this.categoriesCache.get(item.categoryId)!.name
     }
-    return mockData.menuItems
+
+    return {
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      category,
+      available: item.is_available !== undefined ? item.is_available : item.available,
+      imageUrl: item.image_url || item.imageUrl,
+      restaurant_id: item.restaurant_id,
+      calories: item.calories,
+      modifiers: item.modifier_groups?.flatMap((group: any) => 
+        group.options.map((opt: any) => ({
+          id: opt.id,
+          name: opt.name,
+          price: opt.price_adjustment || opt.price || 0
+        }))
+      ) || item.modifiers || []
+    }
   }
 
-  async getMenuItemById(itemId: string): Promise<MenuItem> {
-    await this.delay(200)
-    const item = mockData.menuItems.find(i => i.id === itemId)
-    if (!item) throw new Error('Menu item not found')
-    return item
+  async getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }> {
+    try {
+      const response = await httpClient.get<{ items: SharedMenuItem[]; categories: MenuCategory[] }>('/api/v1/menu')
+      // Cache categories
+      response.categories.forEach(cat => this.categoriesCache.set(cat.id, cat))
+      return {
+        items: response.items.map(item => this.transformMenuItem(item, response.categories)),
+        categories: response.categories
+      }
+    } catch (error) {
+      console.warn('API call failed, falling back to mock data:', error)
+      return this.getMockMenu()
+    }
   }
 
-  async updateMenuItemAvailability(itemId: string, available: boolean): Promise<{ success: boolean; item: MenuItem }> {
-    // Try API first in production mode
-    if (this.options?.apiMode && this.options.apiMode !== 'mock') {
-      try {
-        const response = await httpClient.patch<{ success: boolean; item: MenuItem }>(
-          `/menu/${itemId}`,
-          { available }
-        )
-        return response
-      } catch (error) {
-        console.warn('API call failed, falling back to mock data:', error)
-      }
+  async getMenuItems(): Promise<MenuItem[]> {
+    try {
+      // First fetch categories to map them properly
+      const categories = await this.getMenuCategories()
+      const response = await httpClient.get<any[]>('/api/v1/menu/items')
+      return response.map(item => this.transformMenuItem(item, categories))
+    } catch (error) {
+      console.warn('API call failed, falling back to mock data:', error)
+      return this.getMockMenu().items
     }
-    
-    // Use mock data
-    await this.delay(300)
-    const item = mockData.menuItems.find(i => i.id === itemId)
-    if (!item) throw new Error('Menu item not found')
-    
-    item.available = available
-    console.warn('Mock: Updated menu item availability', { itemId, available })
-    return { success: true, item }
+  }
+
+  async getMenuCategories(): Promise<MenuCategory[]> {
+    try {
+      const response = await httpClient.get<MenuCategory[]>('/api/v1/menu/categories')
+      // Cache categories
+      response.forEach(cat => this.categoriesCache.set(cat.id, cat))
+      return response
+    } catch (error) {
+      console.warn('API call failed, falling back to mock data:', error)
+      return this.getMockMenu().categories
+    }
+  }
+
+  async updateMenuItemAvailability(itemId: string, available: boolean): Promise<void> {
+    try {
+      await httpClient.patch(`/api/v1/menu/items/${itemId}`, { is_available: available })
+    } catch (error) {
+      console.warn('Mock: Updated menu item availability', { itemId, available })
+      // In mock mode, just log the update
+    }
+  }
+
+  private getMockMenu(): { items: MenuItem[]; categories: MenuCategory[] } {
+    return {
+      items: [
+        {
+          id: '1',
+          name: 'Classic Burger',
+          description: 'Juicy beef patty with lettuce, tomato, and cheese',
+          price: 12.99,
+          category: 'Main Course',
+          available: true,
+          image_url: null,
+          preparation_time: 15,
+          allergens: ['dairy', 'gluten'],
+          nutritional_info: {
+            calories: 650,
+            protein: 25,
+            carbs: 45,
+            fat: 35
+          }
+        },
+        {
+          id: '2',
+          name: 'Caesar Salad',
+          description: 'Fresh romaine lettuce with Caesar dressing',
+          price: 8.99,
+          category: 'Appetizers',
+          available: true,
+          image_url: null,
+          preparation_time: 8,
+          allergens: ['dairy', 'eggs'],
+          nutritional_info: {
+            calories: 320,
+            protein: 8,
+            carbs: 12,
+            fat: 28
+          }
+        }
+      ],
+      categories: [
+        {
+          id: '1',
+          name: 'Appetizers',
+          description: 'Start your meal right',
+          sort_order: 1
+        },
+        {
+          id: '2',
+          name: 'Main Course',
+          description: 'Our signature dishes',
+          sort_order: 2
+        }
+      ]
+    }
   }
 }
 
-// Export singleton instance
 export const menuService = new MenuService()

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
-import { BadRequest, InternalServerError } from '../middleware/errorHandler';
+import { BadRequest } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { SquareClient, SquareEnvironment } from 'square';
 import { randomUUID } from 'crypto';
@@ -12,13 +12,15 @@ const routeLogger = logger.child({ route: 'payments' });
 
 // Initialize Square client
 const client = new SquareClient({
-  accessToken: process.env.SQUARE_ACCESS_TOKEN!,
   environment: process.env.SQUARE_ENVIRONMENT === 'production' 
     ? SquareEnvironment.Production 
     : SquareEnvironment.Sandbox,
+  bearerAuthCredentials: {
+    accessToken: process.env.SQUARE_ACCESS_TOKEN!
+  }
 });
 
-const paymentsApi = client.paymentsApi;
+const paymentsApi = client.payments;
 
 // POST /api/v1/payments/create - Process payment
 router.post('/create', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
@@ -55,11 +57,11 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
       }
 
       // Verify amount matches order total
-      const expectedAmount = Math.round(order.total * 100); // Convert to cents
+      const expectedAmount = Math.round((order as any).total_amount * 100); // Convert to cents
       const providedAmount = Math.round(amount * 100);
       
       if (providedAmount !== expectedAmount) {
-        throw BadRequest(`Amount mismatch. Expected: $${order.total}, provided: $${amount}`);
+        throw BadRequest(`Amount mismatch. Expected: $${(order as any).total_amount}, provided: $${amount}`);
       }
 
       // Create payment request
@@ -72,13 +74,13 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
         },
         locationId: process.env.SQUARE_LOCATION_ID,
         referenceId: orderId,
-        note: `Payment for order #${order.orderNumber}`,
+        note: `Payment for order #${(order as any).order_number}`,
         // Enable verification token for 3D Secure if provided
         ...(req.body.verificationToken && { verificationToken: req.body.verificationToken }),
       };
 
       // Process payment with Square
-      const { result: paymentResult } = await paymentsApi.createPayment(paymentRequest);
+      const { result: paymentResult } = await paymentsApi.createPayment(paymentRequest as any);
 
       if (paymentResult.payment?.status !== 'COMPLETED') {
         routeLogger.warn('Payment not completed', { 
@@ -122,7 +124,7 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
         const errors = squareError.errors || [];
         routeLogger.error('Square API error', { 
           orderId, 
-          errors: errors.map(e => ({ category: e.category, code: e.code, detail: e.detail }))
+          errors: errors.map((e: any) => ({ category: e.category, code: e.code, detail: e.detail }))
         });
 
         // Handle specific Square error types
@@ -154,7 +156,7 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
       throw squareError;
     }
 
-  } catch (error) {
+  } catch (error: any) {
     routeLogger.error('Payment processing failed', { error });
     
     // Update order payment status to failed
@@ -215,7 +217,7 @@ router.post('/:paymentId/refund', authenticate, validateRestaurantAccess, async 
     routeLogger.info('Processing refund', { paymentId, amount, reason });
 
     // Get payment details first
-    const { result: paymentResult } = await paymentsApi.getPayment(paymentId);
+    const { result: paymentResult } = await paymentsApi.getPayment(paymentId as any);
     const payment = paymentResult.payment;
 
     if (!payment) {
@@ -236,7 +238,7 @@ router.post('/:paymentId/refund', authenticate, validateRestaurantAccess, async 
       reason: reason || 'Restaurant initiated refund',
     };
 
-    const { result: refundResult } = await client.refundsApi.refundPayment(refundRequest);
+    const { result: refundResult } = await client.refunds.refundPayment(refundRequest as any);
 
     routeLogger.info('Refund processed', { 
       paymentId, 

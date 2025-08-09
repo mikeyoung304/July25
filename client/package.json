@@ -53,6 +53,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "eslint-plugin-storybook": "^9.0.16",
     "globals": "^16.2.0",
+    "jest-axe": "^10.0.0",
     "jsdom": "^26.1.0",
     "kill-port": "^2.0.1",
     "postcss": "^8.4.47",

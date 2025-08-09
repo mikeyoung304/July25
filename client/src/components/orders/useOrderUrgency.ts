@@ -23,7 +23,7 @@ const KDS_CONFIG: UrgencyConfig = {
 
 export function useOrderUrgency(
   order: Order,
-  variant: 'standard' | 'kds' = 'standard'
+  variant: 'standard' | 'kds' | 'compact' = 'standard'
 ): {
   urgencyLevel: UrgencyLevel;
   waitTime: number;

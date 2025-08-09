@@ -191,6 +191,51 @@ router.post('/parse-order', aiServiceLimiter, authenticate, validateRequest(pars
  * Health check for AI service
  */
 /**
+ * Process voice audio and return response
+ * Combines transcription and chat in one endpoint
+ */
+router.post('/voice-chat', aiServiceLimiter, authenticate, audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'Audio file is required'
+      });
+    }
+
+    const restaurantId = req.restaurantId || 'default';
+    
+    aiLogger.info('Voice chat request via BuildPanel', {
+      restaurantId,
+      userId: req.user?.id,
+      fileSize: req.file.size
+    });
+
+    // Process voice through BuildPanel with metadata to get transcript and response
+    const buildPanel = getBuildPanelService();
+    const result = await buildPanel.processVoiceWithMetadata(
+      req.file.buffer, 
+      req.file.mimetype,
+      restaurantId, 
+      req.user?.id
+    );
+
+    return res.json({
+      success: true,
+      transcript: result.transcription,
+      response: result.response,
+      orderData: result.orderData,
+      restaurantId
+    });
+  } catch (error) {
+    aiLogger.error('Voice chat error:', error);
+    return res.status(500).json({
+      error: 'Voice chat failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
  * Chat with AI assistant using BuildPanel
  * Requires authentication for restaurant context
  */

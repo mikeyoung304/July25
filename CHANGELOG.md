@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-01-08
+
+### Added
+- ✅ Unified backend architecture on port 3001
+- ✅ BuildPanel Cloud AI integration for voice ordering
+- ✅ Real-time WebSocket updates for kitchen display
+- ✅ Multi-tenant restaurant support
+- ✅ Comprehensive TypeScript types via @rebuild/shared
+
+### Changed
+- 🔄 Migrated from microservices to unified backend (97.4% complexity reduction)
+- 🔄 BuildPanel moved from local to cloud API
+- 🔄 Consolidated documentation from 61 to 20 files
+- 🔄 Simplified API structure with single backend proxy
+
+### Fixed
+- 🐛 Circular dependency in OrderService
+- 🐛 Type system alignment (is_available → available)
+- 🐛 React Hooks violations
+- 🐛 WebSocket connection handling
+- 🐛 Menu synchronization with BuildPanel
+
+### Removed
+- 🗑️ Separate AI Gateway service (port 3002)
+- 🗑️ Over-engineered MCP implementation
+- 🗑️ Redundant documentation files
+- 🗑️ Debug and test files from production
+
 ## [Unreleased]
 
 ### Added

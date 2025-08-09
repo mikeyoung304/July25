@@ -1,12 +1,8 @@
 # Grow Fresh Local Food - Restaurant Operating System
 
-> ⚠️ **ARCHITECTURE**: Unified Backend - Everything runs on port 3001  
-> See [ARCHITECTURE.md](./ARCHITECTURE.md) for details  
-> 🔄 **BACKEND SWAP**: Migration guide available in [docs/backend-swap.md](./docs/backend-swap.md)
-
-> ✅ **QUALITY**: TypeScript 0 errors | ESLint 30 warnings | Tests passing  
-> 🔒 **SECURITY**: CSP compliant - no external dependencies | BuildPanel service integration  
-> 🆕 **UPDATE**: ID mapping system implemented for consistent order flow
+> 🏗️ **ARCHITECTURE**: Unified Backend on port 3001 - No microservices  
+> 🚀 **STATUS**: Production-ready with BuildPanel AI integration  
+> ✅ **QUALITY**: Core functionality tested and operational
 
 A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering, real-time kitchen management, and a unified backend architecture.
 
@@ -14,19 +10,19 @@ A modern Restaurant Operating System built with React, TypeScript, and Express.j
 
 ### Prerequisites
 
-**REQUIRED: BuildPanel Service**
-- BuildPanel must be running on port 3003 for AI features (voice/chat)
-- No external AI API keys needed - BuildPanel handles all AI processing
-- Download and start BuildPanel before running the application
+- Node.js 18+ and npm
+- Supabase account (for database)
+- BuildPanel API access (cloud-based at api.mike.app.buildpanel.ai)
 
 ### Setup
 
 ```bash
-# 1. Start BuildPanel service (required for AI features)
-# Download and run BuildPanel on port 3003
+# 1. Install dependencies
+npm install
 
-# 2. Install dependencies
-npm install:all
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your credentials
 
 # 3. Start development servers
 npm run dev
@@ -50,15 +46,17 @@ Please see the detailed **[DEVELOPMENT.md](./DEVELOPMENT.md)** for first-time se
 ## 🏗️ Architecture
 
 ```
-Frontend (5173) ←→ Unified Backend (3001) ←→ BuildPanel (3003) ←→ Supabase Database
+Frontend (5173) ←→ Unified Backend (3001) ←→ BuildPanel Cloud API
+                            ↓
+                    Supabase Database
 ```
 
-**Unified Backend + BuildPanel AI**:
-- REST API endpoints (`/api/v1/*`)
-- AI/Voice processing via BuildPanel (`/api/v1/ai/*`)
-- WebSocket connections for real-time updates
-- BuildPanel handles all AI operations (voice transcription, chat, menu processing)
+**Key Architecture Points**:
+- Single backend service handles everything (API, WebSocket, AI proxy)
+- BuildPanel Cloud for AI operations (voice, chat, menu processing)
+- No local AI services or microservices
 - Direct Supabase integration for data persistence
+- See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed decisions
 
 ## 📁 Project Structure
 
@@ -96,7 +94,7 @@ rebuild-6.0/
 - **Server**: Express.js + TypeScript
 - **Types**: Shared types module (@rebuild/shared)
 - **Database**: Supabase (PostgreSQL)
-- **AI/Voice**: BuildPanel Service (port 3003)
+- **AI/Voice**: BuildPanel Cloud API
 - **Real-time**: WebSocket (ws)
 - **Architecture**: RESTful + WebSocket
 

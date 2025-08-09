@@ -1,5 +1,2 @@
-export { useKeyboardNavigation } from './useKeyboardNavigation'
-export { useFocusTrap } from './useFocusTrap'
 export { useAriaLive } from './useAriaLive'
-export { useKeyboardShortcut, useKeyboardShortcuts } from './useKeyboardShortcut'
-export { useArrowKeyNavigation } from './useArrowKeyNavigation'
+export { useKeyboardShortcuts } from './useKeyboardShortcut'
