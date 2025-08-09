@@ -128,3 +128,14 @@ export const Price: React.FC<TypographyProps> = ({
     {children}
   </Component>
 );
+
+// Small Price
+export const PriceSmall: React.FC<TypographyProps> = ({ 
+  children, 
+  className, 
+  as: Component = 'span' 
+}) => (
+  <Component className={cn(getTypographyClasses('priceSmall'), 'text-accent', className)}>
+    {children}
+  </Component>
+);

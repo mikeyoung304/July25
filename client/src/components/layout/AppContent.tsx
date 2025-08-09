@@ -15,7 +15,12 @@ export function AppContent({ isDevelopment }: AppContentProps) {
   useGlobalKeyboardShortcuts()
   const location = useLocation()
   
-  const showNavigation = location.pathname !== '/'
+  // Hide internal navigation on customer-facing pages
+  const isCustomerPage = location.pathname === '/' || 
+                         location.pathname.startsWith('/order') || 
+                         location.pathname.startsWith('/checkout') || 
+                         location.pathname.startsWith('/order-confirmation')
+  const showNavigation = !isCustomerPage
   
   return (
     <>

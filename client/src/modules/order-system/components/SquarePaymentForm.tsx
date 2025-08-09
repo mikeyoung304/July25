@@ -19,6 +19,7 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
   isProcessing = false 
 }) => {
   const [isSquareLoaded, setIsSquareLoaded] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [squarePayments, setSquarePayments] = useState<any>(null);
   const [card, setCard] = useState<any>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -66,10 +67,12 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
         const cardForm = await payments.card();
         await cardForm.attach(cardContainerRef.current);
         setCard(cardForm);
+        setIsInitializing(false);
 
       } catch (error) {
         console.error('Square initialization error:', error);
         setErrors({ general: 'Payment system initialization failed' });
+        setIsInitializing(false);
       }
     };
 
@@ -167,23 +170,38 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
         </button>
       ) : (
         <div>
-          {/* Square Card Form Container */}
-          <div className="mb-4">
+          {/* Square Card Form Container with Loading State */}
+          <div className="mb-4 relative">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Payment Information
             </label>
             <div
               ref={cardContainerRef}
-              className="border border-gray-300 rounded-lg p-4 min-h-[120px] bg-white"
+              className={`border border-gray-300 rounded-lg p-4 min-h-[120px] bg-white transition-opacity ${
+                isInitializing ? 'opacity-50' : 'opacity-100'
+              }`}
             />
+            
+            {/* Loading Overlay */}
+            {isInitializing && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded-lg mt-7">
+                <div className="flex flex-col items-center">
+                  <svg className="animate-spin h-8 w-8 text-macon-teal mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span className="text-sm text-gray-600">Loading secure payment form...</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}
           <button
             type="button"
             onClick={handleSquarePayment}
-            disabled={isProcessing || !isSquareLoaded}
-            className="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={isProcessing || !isSquareLoaded || isInitializing}
+            className="w-full py-3 px-4 bg-gradient-to-r from-macon-teal to-macon-teal-dark text-white font-medium rounded-lg hover:from-macon-teal-dark hover:to-macon-teal focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-macon-teal disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] disabled:transform-none"
           >
             {isProcessing ? (
               <span className="flex items-center justify-center">
@@ -191,12 +209,20 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Processing...
+                Processing payment...
               </span>
-            ) : !isSquareLoaded ? (
-              'Loading payment form...'
+            ) : isInitializing ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-pulse mr-2 h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
+                </svg>
+                Preparing secure checkout...
+              </span>
             ) : (
-              `Pay $${amount.toFixed(2)}`
+              <span className="flex items-center justify-center">
+                <CreditCard className="w-5 h-5 mr-2" />
+                Complete Order - ${amount.toFixed(2)}
+              </span>
             )}
           </button>
         </div>

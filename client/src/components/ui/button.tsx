@@ -42,11 +42,12 @@ const buttonVariants = cva(
           'transition-all duration-300 ease-spring',
         teal:
           'bg-gradient-teal text-white shadow-elevation-2 ' +
-          'hover:shadow-glow-teal hover:scale-[1.02] ' +
-          'active:scale-[0.98] active:shadow-elevation-1 ' +
+          'hover:shadow-glow-teal hover:scale-[1.05] ' +
+          'active:scale-[0.95] active:shadow-elevation-1 ' +
           'transition-all duration-300 ease-spring ' +
-          'before:absolute before:inset-0 before:bg-gradient-to-t before:from-black/10 before:to-transparent before:opacity-0 ' +
-          'hover:before:opacity-100 before:transition-opacity before:-z-10',
+          'before:absolute before:inset-0 before:bg-gradient-to-t before:from-white/10 before:to-transparent before:opacity-0 ' +
+          'hover:before:opacity-100 before:transition-opacity before:-z-10 ' +
+          'transform-gpu will-change-transform',
         success:
           'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-glow-success ' +
           'animate-bounce-in pointer-events-none',
