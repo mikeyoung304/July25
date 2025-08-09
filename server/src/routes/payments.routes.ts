@@ -12,13 +12,15 @@ const routeLogger = logger.child({ route: 'payments' });
 
 // Initialize Square client
 const client = new SquareClient({
-  accessToken: process.env.SQUARE_ACCESS_TOKEN!,
   environment: process.env.SQUARE_ENVIRONMENT === 'production' 
     ? SquareEnvironment.Production 
     : SquareEnvironment.Sandbox,
+  bearerAuthCredentials: {
+    accessToken: process.env.SQUARE_ACCESS_TOKEN!
+  }
 });
 
-const paymentsApi = client.paymentsApi;
+const paymentsApi = client.payments;
 
 // POST /api/v1/payments/create - Process payment
 router.post('/create', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
@@ -236,7 +238,7 @@ router.post('/:paymentId/refund', authenticate, validateRestaurantAccess, async 
       reason: reason || 'Restaurant initiated refund',
     };
 
-    const { result: refundResult } = await client.refundsApi.refundPayment(refundRequest as any);
+    const { result: refundResult } = await client.refunds.refundPayment(refundRequest as any);
 
     routeLogger.info('Refund processed', { 
       paymentId, 

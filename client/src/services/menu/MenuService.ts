@@ -10,33 +10,49 @@ export interface IMenuService {
 }
 
 export class MenuService implements IMenuService {
+  private categoriesCache: Map<string, MenuCategory> = new Map()
+
   // Transform shared MenuItem to client MenuItem
-  private transformMenuItem(item: SharedMenuItem): MenuItem {
+  private transformMenuItem(item: any, categories?: MenuCategory[]): MenuItem {
+    // Handle both SharedMenuItem format and API response format
+    let category = 'Uncategorized'
+    
+    if (item.category?.name) {
+      category = item.category.name
+    } else if (item.categoryId && categories) {
+      const cat = categories.find(c => c.id === item.categoryId)
+      category = cat?.name || 'Uncategorized'
+    } else if (item.categoryId && this.categoriesCache.has(item.categoryId)) {
+      category = this.categoriesCache.get(item.categoryId)!.name
+    }
+
     return {
       id: item.id,
       name: item.name,
       description: item.description,
       price: item.price,
-      category: item.category?.name || 'Uncategorized',
-      available: item.is_available, // Map is_available to available
-      imageUrl: item.image_url,
+      category,
+      available: item.is_available !== undefined ? item.is_available : item.available,
+      imageUrl: item.image_url || item.imageUrl,
       restaurant_id: item.restaurant_id,
-      calories: undefined, // Not in shared type
-      modifiers: item.modifier_groups?.flatMap(group => 
-        group.options.map(opt => ({
+      calories: item.calories,
+      modifiers: item.modifier_groups?.flatMap((group: any) => 
+        group.options.map((opt: any) => ({
           id: opt.id,
           name: opt.name,
-          price: opt.price_adjustment
+          price: opt.price_adjustment || opt.price || 0
         }))
-      ) || []
+      ) || item.modifiers || []
     }
   }
 
   async getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }> {
     try {
       const response = await httpClient.get<{ items: SharedMenuItem[]; categories: MenuCategory[] }>('/api/v1/menu')
+      // Cache categories
+      response.categories.forEach(cat => this.categoriesCache.set(cat.id, cat))
       return {
-        items: response.items.map(item => this.transformMenuItem(item)),
+        items: response.items.map(item => this.transformMenuItem(item, response.categories)),
         categories: response.categories
       }
     } catch (error) {
@@ -47,8 +63,10 @@ export class MenuService implements IMenuService {
 
   async getMenuItems(): Promise<MenuItem[]> {
     try {
-      const response = await httpClient.get<SharedMenuItem[]>('/api/v1/menu/items')
-      return response.map(item => this.transformMenuItem(item))
+      // First fetch categories to map them properly
+      const categories = await this.getMenuCategories()
+      const response = await httpClient.get<any[]>('/api/v1/menu/items')
+      return response.map(item => this.transformMenuItem(item, categories))
     } catch (error) {
       console.warn('API call failed, falling back to mock data:', error)
       return this.getMockMenu().items
@@ -58,6 +76,8 @@ export class MenuService implements IMenuService {
   async getMenuCategories(): Promise<MenuCategory[]> {
     try {
       const response = await httpClient.get<MenuCategory[]>('/api/v1/menu/categories')
+      // Cache categories
+      response.forEach(cat => this.categoriesCache.set(cat.id, cat))
       return response
     } catch (error) {
       console.warn('API call failed, falling back to mock data:', error)

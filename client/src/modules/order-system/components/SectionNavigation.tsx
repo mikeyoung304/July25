@@ -14,32 +14,32 @@ export const SectionNavigation: React.FC<SectionNavigationProps> = ({
     onSectionClick(sectionId);
     const element = document.getElementById(`section-${sectionId}`);
     if (element) {
-      const yOffset = -140; // Account for sticky headers
+      const yOffset = -180; // Account for larger sticky headers
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
-      <div className="px-6 py-3">
-        <div className="flex items-center space-x-6 overflow-x-auto scrollbar-hide">
+    <div className="bg-white border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <div className="flex items-center space-x-6 md:space-x-8 overflow-x-auto py-6 md:py-8 scrollbar-hide">
           {menuSections.map((section) => (
             <button
               key={section.id}
               onClick={() => scrollToSection(section.id)}
-              className={`flex items-center space-x-2 py-2 px-1 border-b-2 transition-colors whitespace-nowrap ${
+              className={`text-lg md:text-xl font-semibold whitespace-nowrap py-2 px-4 rounded-xl transition-all duration-200 min-h-[48px] ${
                 activeSection === section.id
-                  ? 'border-green-600 text-green-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'bg-teal-600 text-white shadow-md'
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
-              <span className="text-lg">{section.icon}</span>
-              <span className="font-medium">{section.title}</span>
+              {section.title}
             </button>
           ))}
         </div>
       </div>
     </div>
   );
+
 };

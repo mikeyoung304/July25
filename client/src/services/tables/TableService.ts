@@ -1,6 +1,6 @@
 import { Table } from '@/modules/floor-plan/types'
 import { env } from '@/utils/env'
-import { api } from '@/services/api'
+import { httpClient as api } from '@/services/http/httpClient'
 
 export interface ITableService {
   getTables(): Promise<{ tables: Table[] }>
