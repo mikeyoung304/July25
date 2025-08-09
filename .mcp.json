@@ -2,29 +2,19 @@
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["@modelcontextprotocol/server-filesystem", "/Users/mikeyoung/CODING"],
-      "env": {},
-      "description": "File operations within the CODING directory tree"
+      "args": ["@modelcontextprotocol/server-filesystem", "/Users/mikeyoung/CODING/rebuild-6.0"]
     },
     "sequential-thinking": {
-      "command": "npx",
-      "args": ["@modelcontextprotocol/server-sequential-thinking"],
-      "env": {},
-      "description": "Complex problem analysis and multi-step reasoning"
+      "command": "npx", 
+      "args": ["@modelcontextprotocol/server-sequential-thinking"]
     },
     "memory": {
       "command": "npx",
-      "args": ["@modelcontextprotocol/server-memory"],
-      "env": {},
-      "description": "Persistent memory and knowledge graph for Claude"
+      "args": ["@modelcontextprotocol/server-memory"]
     },
     "git": {
       "command": "npx",
-      "args": ["@cyanheads/git-mcp-server"],
-      "env": {
-        "GIT_REPOSITORY_PATH": "/Users/mikeyoung/CODING/rebuild-6.0"
-      },
-      "description": "Git repository operations for rebuild-6.0 project"
+      "args": ["@cyanheads/git-mcp-server"]
     }
   }
 }

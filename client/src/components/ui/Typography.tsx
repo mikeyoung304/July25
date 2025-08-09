@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { getTypographyClasses } from '@/lib/typography';
 
 interface TypographyProps {
@@ -125,6 +125,17 @@ export const Price: React.FC<TypographyProps> = ({
   as: Component = 'span' 
 }) => (
   <Component className={cn(getTypographyClasses('price'), 'text-accent', className)}>
+    {children}
+  </Component>
+);
+
+// Small Price
+export const PriceSmall: React.FC<TypographyProps> = ({ 
+  children, 
+  className, 
+  as: Component = 'span' 
+}) => (
+  <Component className={cn(getTypographyClasses('priceSmall'), 'text-accent', className)}>
     {children}
   </Component>
 );

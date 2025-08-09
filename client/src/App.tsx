@@ -27,60 +27,60 @@ function App() {
       return
     }
 
-    let isWebSocketInitialized = false
-
-    const initializeWebSocket = async () => {
-      if (isWebSocketInitialized) {
-        return // Prevent duplicate initialization
-      }
-
-      // Only connect in development mode or when we have a real backend
-      const shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
-      
-      if (shouldConnect) {
-        isWebSocketInitialized = true
-        console.log('🔧 Initializing real-time services')
-        
-        // Initialize order updates handler
-        orderUpdatesHandler.initialize()
-        
-        // Connect to WebSocket
-        webSocketService.connect().catch(error => {
-          console.warn('WebSocket connection failed:', error)
-          isWebSocketInitialized = false // Allow retry
-        })
-      }
-    }
-
-    const cleanupWebSocket = () => {
-      if (isWebSocketInitialized) {
-        console.log('🔧 Cleaning up real-time services')
-        orderUpdatesHandler.cleanup()
-        webSocketService.disconnect()
-        isWebSocketInitialized = false
-      }
-    }
+    let isConnected = false // Track connection state to prevent duplicates
 
     // Subscribe to auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        await initializeWebSocket()
+        // Only connect in development mode or when we have a real backend
+        let shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
+        
+        if (shouldConnect && !isConnected) {
+          isConnected = true
+          // Initialize order updates handler
+          orderUpdatesHandler.initialize()
+          
+          // Connect to WebSocket
+          webSocketService.connect().catch(error => {
+            console.warn('WebSocket connection failed:', error)
+            isConnected = false // Reset on failure
+            // Continue app operation without WebSocket
+          })
+        }
       } else if (event === 'SIGNED_OUT') {
-        cleanupWebSocket()
+        // Disconnect WebSocket on sign out
+        isConnected = false
+        orderUpdatesHandler.cleanup()
+        webSocketService.disconnect()
       }
     })
 
-    // Check if already authenticated or initialize in development
+    // Check if already authenticated (but don't auto-connect in dev)
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session || isDevelopment) {
-        initializeWebSocket()
+      if (session && !isConnected) {
+        // Only connect in development mode or when we have a real backend
+        let shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
+        
+        if (shouldConnect) {
+          isConnected = true
+          // Initialize order updates handler
+          orderUpdatesHandler.initialize()
+          
+          // Connect to WebSocket
+          webSocketService.connect().catch(error => {
+            console.warn('WebSocket connection failed:', error)
+            isConnected = false
+            // Continue app operation without WebSocket
+          })
+        }
       }
     })
     
     return () => {
       // Cleanup on unmount
       authListener.subscription.unsubscribe()
-      cleanupWebSocket()
+      orderUpdatesHandler.cleanup()
+      webSocketService.disconnect()
     }
   }, [isDevelopment])
   

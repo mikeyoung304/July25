@@ -48,37 +48,52 @@ export function FloorPlanCanvas({
 
   const drawGrid = useCallback((ctx: CanvasRenderingContext2D) => {
     const scaledGridSize = gridSize * zoomLevel
-    const offsetX = panOffset.x % scaledGridSize
-    const offsetY = panOffset.y % scaledGridSize
+    
+    // Calculate grid offset based on pan position
+    const offsetX = ((panOffset.x / zoomLevel) % gridSize) * zoomLevel
+    const offsetY = ((panOffset.y / zoomLevel) % gridSize) * zoomLevel
     
     // Use Macon brand colors for grid
     ctx.strokeStyle = 'rgba(26, 54, 93, 0.05)' // macon-navy with low opacity
-    ctx.lineWidth = 0.5
+    ctx.lineWidth = 0.5 / zoomLevel // Scale line width with zoom
+
+    // Calculate start positions to avoid negative offsets
+    const startX = offsetX >= 0 ? offsetX : offsetX + scaledGridSize
+    const startY = offsetY >= 0 ? offsetY : offsetY + scaledGridSize
 
     // Draw vertical lines
-    for (let x = offsetX; x <= canvasSize.width; x += scaledGridSize) {
-      ctx.beginPath()
-      ctx.moveTo(x, 0)
-      ctx.lineTo(x, canvasSize.height)
-      ctx.stroke()
+    for (let x = startX; x <= canvasSize.width + scaledGridSize; x += scaledGridSize) {
+      if (x >= 0 && x <= canvasSize.width) {
+        ctx.beginPath()
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, canvasSize.height)
+        ctx.stroke()
+      }
     }
 
     // Draw horizontal lines
-    for (let y = offsetY; y <= canvasSize.height; y += scaledGridSize) {
-      ctx.beginPath()
-      ctx.moveTo(0, y)
-      ctx.lineTo(canvasSize.width, y)
-      ctx.stroke()
+    for (let y = startY; y <= canvasSize.height + scaledGridSize; y += scaledGridSize) {
+      if (y >= 0 && y <= canvasSize.height) {
+        ctx.beginPath()
+        ctx.moveTo(0, y)
+        ctx.lineTo(canvasSize.width, y)
+        ctx.stroke()
+      }
     }
     
     // Add subtle dots at major grid intersections
     ctx.fillStyle = 'rgba(26, 54, 93, 0.1)' // macon-navy
     const majorGridSize = scaledGridSize * 4
-    for (let x = offsetX; x <= canvasSize.width; x += majorGridSize) {
-      for (let y = offsetY; y <= canvasSize.height; y += majorGridSize) {
-        ctx.beginPath()
-        ctx.arc(x, y, 1.5, 0, Math.PI * 2)
-        ctx.fill()
+    const majorStartX = startX - (startX % majorGridSize)
+    const majorStartY = startY - (startY % majorGridSize)
+    
+    for (let x = majorStartX; x <= canvasSize.width + majorGridSize; x += majorGridSize) {
+      for (let y = majorStartY; y <= canvasSize.height + majorGridSize; y += majorGridSize) {
+        if (x >= 0 && x <= canvasSize.width && y >= 0 && y <= canvasSize.height) {
+          ctx.beginPath()
+          ctx.arc(x, y, 1.5 / zoomLevel, 0, Math.PI * 2)
+          ctx.fill()
+        }
       }
     }
   }, [canvasSize, gridSize, zoomLevel, panOffset])
@@ -259,15 +274,15 @@ export function FloorPlanCanvas({
     }
   }
 
-  const getResizeHandleAtPoint = useCallback((table: Table, x: number, y: number): string | null => {
+  const getResizeHandleAtPoint = useCallback((table: Table, worldX: number, worldY: number): string | null => {
     const handles = getResizeHandles(table)
-    const threshold = 10 / zoomLevel // Adjust threshold based on zoom
+    const threshold = 10 // Fixed threshold in world coordinates
     
     // Transform point to table's local coordinates
     const cos = Math.cos(-table.rotation * Math.PI / 180)
     const sin = Math.sin(-table.rotation * Math.PI / 180)
-    const localX = (x - table.x) * cos - (y - table.y) * sin
-    const localY = (x - table.x) * sin + (y - table.y) * cos
+    const localX = (worldX - table.x) * cos - (worldY - table.y) * sin
+    const localY = (worldX - table.x) * sin + (worldY - table.y) * cos
     
     for (const [key, handle] of Object.entries(handles)) {
       const distance = Math.sqrt(Math.pow(localX - handle.x, 2) + Math.pow(localY - handle.y, 2))
@@ -277,7 +292,7 @@ export function FloorPlanCanvas({
     }
     
     return null
-  }, [zoomLevel])
+  }, [])
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current
@@ -297,12 +312,16 @@ export function FloorPlanCanvas({
     ctx.translate(panOffset.x, panOffset.y)
     ctx.scale(zoomLevel, zoomLevel)
 
-    // Draw grid
+    // Draw grid (in screen space, not world space)
     if (showGrid) {
       ctx.save()
-      ctx.translate(-panOffset.x / zoomLevel, -panOffset.y / zoomLevel)
+      ctx.setTransform(1, 0, 0, 1, 0, 0) // Reset transform for grid
       drawGrid(ctx)
       ctx.restore()
+      
+      // Restore the zoom and pan transform
+      ctx.translate(panOffset.x, panOffset.y)
+      ctx.scale(zoomLevel, zoomLevel)
     }
 
     // Draw tables
@@ -314,50 +333,44 @@ export function FloorPlanCanvas({
     ctx.restore()
   }, [tables, selectedTableId, canvasSize, showGrid, drawGrid, drawTable, zoomLevel, panOffset])
 
-  const getTableAtPoint = useCallback((worldX: number, worldY: number): Table | null => {
-    // worldX and worldY are already in world coordinates
+  const getTableAtPoint = useCallback((screenX: number, screenY: number): Table | null => {
+    // Convert screen coordinates to world coordinates
+    const worldX = (screenX - panOffset.x) / zoomLevel
+    const worldY = (screenY - panOffset.y) / zoomLevel
+    
+    // Check tables in reverse order (top to bottom)
     for (let i = tables.length - 1; i >= 0; i--) {
       const table = tables[i]
+      
       if (table.type === 'circle') {
         const distance = Math.sqrt(Math.pow(worldX - table.x, 2) + Math.pow(worldY - table.y, 2))
         if (distance <= table.width / 2) {
           return table
         }
       } else {
+        // Handle rotated rectangles properly
+        const cos = Math.cos(-table.rotation * Math.PI / 180)
+        const sin = Math.sin(-table.rotation * Math.PI / 180)
+        
+        // Transform point to table's local coordinates
+        const localX = (worldX - table.x) * cos - (worldY - table.y) * sin
+        const localY = (worldX - table.x) * sin + (worldY - table.y) * cos
+        
         const halfWidth = table.width / 2
         const halfHeight = table.height / 2
+        
         if (
-          worldX >= table.x - halfWidth &&
-          worldX <= table.x + halfWidth &&
-          worldY >= table.y - halfHeight &&
-          worldY <= table.y + halfHeight
+          localX >= -halfWidth &&
+          localX <= halfWidth &&
+          localY >= -halfHeight &&
+          localY <= halfHeight
         ) {
           return table
         }
       }
     }
     return null
-  }, [tables])
-
-  // Collision detection helper
-  const checkTableCollision = useCallback((tableId: string, x: number, y: number, width: number, height: number): boolean => {
-    return tables.some(table => {
-      if (table.id === tableId) return false // Don't check collision with self
-      
-      const padding = 10 // Minimum distance between tables
-      const thisLeft = x - width/2 - padding
-      const thisRight = x + width/2 + padding
-      const thisTop = y - height/2 - padding
-      const thisBottom = y + height/2 + padding
-      
-      const otherLeft = table.x - table.width/2
-      const otherRight = table.x + table.width/2
-      const otherTop = table.y - table.height/2
-      const otherBottom = table.y + table.height/2
-      
-      return !(thisRight < otherLeft || thisLeft > otherRight || thisBottom < otherTop || thisTop > otherBottom)
-    })
-  }, [tables])
+  }, [tables, zoomLevel, panOffset])
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
@@ -371,12 +384,11 @@ export function FloorPlanCanvas({
     const worldX = (x - panOffset.x) / zoomLevel
     const worldY = (y - panOffset.y) / zoomLevel
 
-    // Check for panning: middle mouse, shift+left click, or right click
-    if (e.button === 1 || (e.button === 0 && e.shiftKey) || e.button === 2) {
-      e.preventDefault()
+    // Check for middle mouse button or space key for panning
+    if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
       isPanningRef.current = true
       lastPanPositionRef.current = { x: e.clientX, y: e.clientY }
-      canvas.style.cursor = 'grabbing'
+      canvas.style.cursor = 'grab'
       return
     }
 
@@ -396,7 +408,7 @@ export function FloorPlanCanvas({
       }
     }
 
-    const table = getTableAtPoint(worldX, worldY)
+    const table = getTableAtPoint(x, y)
     if (table) {
       onTableClick?.(table.id)
       isDraggingRef.current = true
@@ -481,33 +493,9 @@ export function FloorPlanCanvas({
 
     // Handle dragging
     if (isDraggingRef.current && draggedTableRef.current) {
-      const table = tables.find(t => t.id === draggedTableRef.current)
-      if (table) {
-        const newX = worldX - dragOffsetRef.current.x
-        const newY = worldY - dragOffsetRef.current.y
-        
-        // Check for collision before moving
-        if (!checkTableCollision(table.id, newX, newY, table.width, table.height)) {
-          onTableMove?.(draggedTableRef.current, newX, newY)
-          // Reset cursor for successful move
-          if (canvasRef.current) {
-            canvasRef.current.style.cursor = 'grabbing'
-          }
-        } else {
-          // Visual feedback for collision: change cursor and add shake effect
-          if (canvasRef.current) {
-            canvasRef.current.style.cursor = 'not-allowed'
-            // Add temporary shake animation
-            canvasRef.current.style.animation = 'shake 0.3s ease-in-out'
-            setTimeout(() => {
-              if (canvasRef.current) {
-                canvasRef.current.style.animation = ''
-                canvasRef.current.style.cursor = 'grabbing'
-              }
-            }, 300)
-          }
-        }
-      }
+      const newX = worldX - dragOffsetRef.current.x
+      const newY = worldY - dragOffsetRef.current.y
+      onTableMove?.(draggedTableRef.current, newX, newY)
       return
     }
 
@@ -524,9 +512,9 @@ export function FloorPlanCanvas({
       }
     }
 
-    const table = getTableAtPoint(worldX, worldY)
+    const table = getTableAtPoint(x, y)
     canvas.style.cursor = table ? 'move' : e.shiftKey ? 'grab' : 'default'
-  }, [onTableMove, onTableResize, tables, selectedTableId, snapToGrid, gridSize, getTableAtPoint, zoomLevel, panOffset, onPanChange, getResizeHandleAtPoint, checkTableCollision])
+  }, [onTableMove, onTableResize, tables, selectedTableId, snapToGrid, gridSize, getTableAtPoint, zoomLevel, panOffset, onPanChange, getResizeHandleAtPoint])
 
   const handleMouseUp = useCallback(() => {
     isDraggingRef.current = false
@@ -544,11 +532,23 @@ export function FloorPlanCanvas({
   }, [])
 
   // Handle zoom with mouse wheel
-  const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault()
-    const delta = e.deltaY > 0 ? 0.9 : 1.1
-    const newZoom = Math.max(0.5, Math.min(2, zoomLevel * delta))
-    onZoomChange?.(newZoom)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const delta = e.deltaY > 0 ? 0.9 : 1.1
+      const newZoom = Math.max(0.5, Math.min(2, zoomLevel * delta))
+      onZoomChange?.(newZoom)
+    }
+
+    // Add non-passive event listener to allow preventDefault
+    canvas.addEventListener('wheel', handleWheel, { passive: false })
+    
+    return () => {
+      canvas.removeEventListener('wheel', handleWheel)
+    }
   }, [zoomLevel, onZoomChange])
 
   useEffect(() => {
@@ -564,8 +564,6 @@ export function FloorPlanCanvas({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      onWheel={handleWheel}
-      onContextMenu={(e) => e.preventDefault()}
       className="rounded-xl shadow-medium cursor-pointer transition-all duration-200 hover:shadow-large"
       style={{ 
         touchAction: 'none',

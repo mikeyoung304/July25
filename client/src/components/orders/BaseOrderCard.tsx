@@ -5,7 +5,7 @@ import { OrderItemsList } from '@/components/shared/order/OrderItemsList';
 import { OrderActions } from '@/components/shared/order/OrderActions';
 import { useOrderUrgency } from './useOrderUrgency';
 import { Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 export interface BaseOrderCardProps {
   order: Order;

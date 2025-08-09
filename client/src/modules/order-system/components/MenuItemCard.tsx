@@ -1,16 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MenuItem } from '../../menu/types';
-import { Button } from '@/components/ui/button';
-import { Coffee, Utensils, Salad, Sandwich, Soup, Leaf, ChefHat, ShoppingCart } from 'lucide-react';
-import { CardTitle, Price, BodyLarge, Caption } from '@/components/ui/Typography';
-import { spacing } from '@/lib/typography';
+import { Minus, Plus } from 'lucide-react';
+import { useCart } from '../context/cartContext.hooks';
 
 interface MenuItemCardProps {
   item: MenuItem;
-  onClick: () => void;
+  onClick?: () => void; // Make optional since we're not using it
 }
 
 export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => {
+  const { cart, addToCart } = useCart();
+  const [localQuantity, setLocalQuantity] = useState(0);
+  const [showQuantitySelector, setShowQuantitySelector] = useState(false);
+  const [showAddedFeedback, setShowAddedFeedback] = useState(false);
+
+  // Calculate total quantity of this item in cart
+  const cartQuantity = cart.items
+    .filter(cartItem => cartItem.menuItemId === item.id)
+    .reduce((sum, cartItem) => sum + cartItem.quantity, 0);
+
+  // Sync local quantity with cart quantity
+  useEffect(() => {
+    if (cartQuantity > 0) {
+      setLocalQuantity(cartQuantity);
+      setShowQuantitySelector(true);
+    } else {
+      setLocalQuantity(0);
+      setShowQuantitySelector(false);
+    }
+  }, [cartQuantity]);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -18,98 +37,142 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
     }).format(price);
   };
 
-  const getCategoryIcon = (category: string) => {
-    const iconProps = { size: 56, className: "text-accent" };
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
     
-    switch (category) {
-      case 'Beverages':
-        return <Coffee {...iconProps} />;
-      case 'Starters':
-        return <Utensils {...iconProps} />;
-      case 'Salads':
-        return <Salad {...iconProps} />;
-      case 'Sandwiches':
-        return <Sandwich {...iconProps} />;
-      case 'Bowls':
-        return <Soup {...iconProps} />;
-      case 'Vegan':
-        return <Leaf {...iconProps} />;
-      case 'Entrees':
-        return <ChefHat {...iconProps} />;
-      default:
-        return <Utensils {...iconProps} />;
+    // Add item to cart
+    addToCart({
+      menuItemId: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: 1
+    });
+
+    // Update local state
+    setLocalQuantity(prev => prev + 1);
+    setShowQuantitySelector(true);
+    
+    // Show feedback
+    setShowAddedFeedback(true);
+    setTimeout(() => setShowAddedFeedback(false), 1500);
+  };
+
+  const handleQuantityChange = (delta: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (delta > 0) {
+      // Add one more item to cart
+      addToCart({
+        menuItemId: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: 1
+      });
+    } else if (delta < 0 && localQuantity > 0) {
+      // For now, just decrease local counter
+      // TODO: Implement remove from cart functionality
+      setLocalQuantity(prev => Math.max(0, prev - 1));
+      if (localQuantity === 1) {
+        setShowQuantitySelector(false);
+      }
     }
   };
 
   return (
-    <div 
-      className="bg-white rounded-xl shadow-elevation-2 hover:shadow-elevation-3 hover:-translate-y-1 transition-all duration-300 ease-spring cursor-pointer overflow-hidden group border border-neutral-100/30"
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyPress={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      aria-label={`${item.name} - ${formatPrice(item.price)}`}
-    >
-      <div className="aspect-w-16 aspect-h-9 bg-gradient-to-br from-accent-50 to-accent-100 relative overflow-hidden">
+    <div className="h-full flex flex-col bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-gray-200">
+      {/* Added to Cart Feedback */}
+      {showAddedFeedback && (
+        <div className="absolute top-4 right-4 z-10 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-medium shadow-lg">
+          ✓ Added!
+        </div>
+      )}
+      
+      {/* Image Zone - Fixed aspect ratio 4:3 */}
+      <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
         {item.imageUrl ? (
           <img 
             src={item.imageUrl} 
             alt={item.name}
-            className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-56 flex items-center justify-center bg-gradient-to-br from-accent-50 to-accent-100">
-            <div className="text-center space-y-3 group-hover:scale-105 transition-transform duration-300">
-              {getCategoryIcon(item.category)}
-              <Caption className="text-accent-700 font-medium">Farm Fresh</Caption>
+          <div className="w-full h-full flex items-center justify-center bg-gray-100">
+            <div className="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center">
+              <div className="w-8 h-8 bg-gray-300 rounded-lg" />
             </div>
           </div>
         )}
       </div>
       
-      <div className={`${spacing.component.card} ${spacing.content.stack}`}>
-        <div className={spacing.content.stackSmall}>
-          <CardTitle as="h3" className="group-hover:text-primary-600 transition-colors">
-            {item.name}
-          </CardTitle>
-          {item.description && (
-            <BodyLarge className="text-neutral-600 line-clamp-2">
-              {item.description}
-            </BodyLarge>
-          )}
-        </div>
+      {/* Content Zone - Centered text with proper spacing */}
+      <div className="flex-1 flex flex-col p-6 space-y-4">
+        {/* Title - Centered, max 2 lines */}
+        <h3 className="text-center text-lg font-semibold leading-tight text-gray-900 line-clamp-2 overflow-hidden">
+          {item.name}
+        </h3>
         
-        <div className="flex items-center justify-between pt-4">
-          <div className="flex flex-col space-y-1">
-            <Price className="text-accent">
-              {formatPrice(item.price)}
-            </Price>
-            {item.calories && (
-              <Caption className="text-neutral-500">
-                {item.calories} cal
-              </Caption>
-            )}
+        {/* Description - Centered, max 2 lines */}
+        {item.description && (
+          <p className="text-center text-sm leading-relaxed text-gray-600 line-clamp-2 overflow-hidden">
+            {item.description}
+          </p>
+        )}
+        
+        {/* Spacer to push price/button to bottom */}
+        <div className="flex-1" />
+        
+        {/* Price/Button Zone - Fixed height, justified */}
+        <div className="h-16 flex items-center justify-between gap-4">
+          {/* Price - Left aligned */}
+          <div className="text-xl font-bold text-gray-900">
+            {formatPrice(item.price)}
           </div>
           
-          <Button
-            variant="teal"
-            size="lg"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClick();
-            }}
-            aria-label={`Add ${item.name} to cart`}
-            className="min-w-[140px] gap-2"
-          >
-            <ShoppingCart className="w-4 h-4" />
-            Add to Cart
-          </Button>
+          {/* Button/Quantity Selector - Right aligned */}
+          {showQuantitySelector && localQuantity > 0 ? (
+            <div className="flex items-center gap-2">
+              {/* Inline Quantity Controls */}
+              <div className="inline-flex items-center bg-gray-100 rounded-lg">
+                <button
+                  onClick={(e) => handleQuantityChange(-1, e)}
+                  className="w-8 h-8 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
+                  aria-label="Decrease quantity"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="w-8 text-center text-sm font-bold text-gray-900">
+                  {localQuantity}
+                </span>
+                <button
+                  onClick={(e) => handleQuantityChange(1, e)}
+                  className="w-8 h-8 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
+                  aria-label="Increase quantity"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+              {/* Compact Add More Button */}
+              <button
+                onClick={handleAddToCart}
+                className="bg-teal-600 text-white font-medium text-sm py-2 px-3 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-1"
+                aria-label="Add another to cart"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </div>
+          ) : (
+            /* Compact Add Button */
+            <button
+              onClick={handleAddToCart}
+              className="bg-teal-600 text-white font-medium text-sm py-3 px-6 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-2"
+              aria-label={`Add ${item.name} to cart for ${formatPrice(item.price)}`}
+            >
+              <Plus className="w-4 h-4" />
+              Add to Cart
+            </button>
+          )}
         </div>
       </div>
     </div>

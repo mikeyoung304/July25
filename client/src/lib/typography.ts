@@ -1,15 +1,8 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
-// Typography scale based on a 1.25 ratio (Major Third)
+// Attention-friendly typography system optimized for readability
+// Mobile-first design with significantly larger text sizes
 export const typography = {
-  // Display - For hero sections and marketing pages
-  display: {
-    size: 'text-5xl md:text-6xl lg:text-7xl',
-    weight: 'font-bold',
-    leading: 'leading-tight',
-    tracking: 'tracking-tight',
-  },
-  
   // Page titles
   h1: {
     size: 'text-4xl md:text-5xl',
@@ -18,127 +11,181 @@ export const typography = {
     tracking: 'tracking-tight',
   },
   
-  // Section titles
+  // Section titles - much larger for attention
   h2: {
     size: 'text-3xl md:text-4xl',
-    weight: 'font-semibold',
-    leading: 'leading-snug',
+    weight: 'font-bold',
+    leading: 'leading-tight',
     tracking: 'tracking-tight',
   },
   
-  // Subsection titles
+  // Card titles - significantly increased
   h3: {
-    size: 'text-2xl md:text-3xl',
-    weight: 'font-semibold',
-    leading: 'leading-snug',
-  },
-  
-  // Card titles
-  h4: {
     size: 'text-xl md:text-2xl',
-    weight: 'font-semibold',
-    leading: 'leading-normal',
+    weight: 'font-semibold', 
+    leading: 'leading-tight',
   },
   
-  // Small headings
-  h5: {
+  h4: {
     size: 'text-lg md:text-xl',
     weight: 'font-semibold',
-    leading: 'leading-normal',
+    leading: 'leading-tight',
   },
   
-  // Tiny headings
-  h6: {
-    size: 'text-base md:text-lg',
-    weight: 'font-semibold',
-    leading: 'leading-normal',
-  },
-  
-  // Body text variants
+  // Body text - much larger for readability
   body: {
-    size: 'text-base',
+    size: 'text-base md:text-lg',
     weight: 'font-normal',
     leading: 'leading-relaxed',
   },
   
   bodyLarge: {
-    size: 'text-lg',
+    size: 'text-lg md:text-xl',
     weight: 'font-normal',
     leading: 'leading-relaxed',
   },
   
   bodySmall: {
-    size: 'text-sm',
+    size: 'text-sm md:text-base',
     weight: 'font-normal',
     leading: 'leading-relaxed',
   },
   
-  // UI text variants
+  // Label text - larger for better readability
   label: {
-    size: 'text-sm',
+    size: 'text-base md:text-lg',
+    weight: 'font-medium',
+    leading: 'leading-tight',
+  },
+  
+  // Price text - much more prominent
+  price: {
+    size: 'text-2xl md:text-3xl',
+    weight: 'font-bold',
+    leading: 'leading-none',
+  },
+  
+  priceSmall: {
+    size: 'text-xl md:text-2xl',
+    weight: 'font-bold',
+    leading: 'leading-none',
+  },
+  
+  // Button text - larger for better tap targets
+  button: {
+    size: 'text-lg md:text-xl',
     weight: 'font-medium',
     leading: 'leading-none',
   },
   
-  caption: {
-    size: 'text-xs',
-    weight: 'font-normal',
+  buttonSmall: {
+    size: 'text-base md:text-lg',
+    weight: 'font-medium',
     leading: 'leading-none',
   },
   
-  // Special variants
+  // Small caption text - still readable
+  caption: {
+    size: 'text-sm md:text-base',
+    weight: 'font-normal',
+    leading: 'leading-tight',
+  },
+  
+  // Statistics
   stat: {
     size: 'text-3xl md:text-4xl',
     weight: 'font-bold',
-    leading: 'leading-none',
+    leading: 'leading-tight',
+  },
+  
+  // Section headers - attention-grabbing
+  sectionHeader: {
+    size: 'text-2xl md:text-3xl',
+    weight: 'font-bold',
+    leading: 'leading-tight',
     tracking: 'tracking-tight',
   },
   
-  price: {
-    size: 'text-lg',
+  // Menu item card title - optimized for scanning
+  menuItemTitle: {
+    size: 'text-xl md:text-2xl',
+    weight: 'font-semibold', 
+    leading: 'leading-tight',
+  },
+  
+  // Menu item description - readable but secondary
+  menuItemDescription: {
+    size: 'text-base md:text-lg',
+    weight: 'font-normal',
+    leading: 'leading-relaxed',
+  },
+  
+  // Menu item price - most prominent after title
+  menuItemPrice: {
+    size: 'text-2xl md:text-3xl',
     weight: 'font-bold',
     leading: 'leading-none',
+  },
+  
+  // Aliases for backward compatibility
+  sectionTitle: {
+    size: 'text-2xl md:text-3xl',
+    weight: 'font-bold',
+    leading: 'leading-tight',
+    tracking: 'tracking-tight',
+  },
+  
+  cardTitle: {
+    size: 'text-xl md:text-2xl',
+    weight: 'font-semibold', 
+    leading: 'leading-tight',
   },
 };
 
 // Helper function to get typography classes
 export const getTypographyClasses = (variant: keyof typeof typography) => {
   const styles = typography[variant];
-  return cn(styles.size, styles.weight, styles.leading, styles.tracking);
+  return cn(styles.size, styles.weight, styles.leading, 'tracking' in styles ? styles.tracking : '');
 };
 
-// Spacing scale (using Tailwind's spacing scale)
+// Attention-friendly 8-point grid with generous spacing
 export const spacing = {
-  // Page-level spacing
+  // Page-level spacing (responsive padding)
   page: {
-    padding: 'p-6 md:p-8 lg:p-10',
+    padding: 'p-5 md:p-8 lg:p-12', // More breathing room
     container: 'max-w-7xl mx-auto',
-    section: 'mb-8 md:mb-12 lg:mb-16',
+    section: 'mb-12 md:mb-16', // Much more space between sections
   },
   
-  // Component-level spacing
+  // Component-level spacing (generous for touch)
   component: {
-    card: 'p-6',
-    cardCompact: 'p-4',
-    button: 'px-4 py-2',
-    buttonLarge: 'px-6 py-3',
-    input: 'px-3 py-2',
+    card: 'p-6 md:p-8', // More internal padding
+    cardCompact: 'p-4 md:p-6', 
+    button: 'px-8 py-4', // Much larger tap targets (48px min height)
+    buttonSmall: 'px-6 py-3', // Still substantial
+    buttonLarge: 'px-12 py-6', // Huge CTAs
   },
   
-  // Content spacing
+  // Content spacing (more breathing room)
   content: {
-    stack: 'space-y-4',
-    stackSmall: 'space-y-2',
-    stackLarge: 'space-y-6',
-    inline: 'space-x-4',
-    inlineSmall: 'space-x-2',
-    inlineLarge: 'space-x-6',
+    stack: 'space-y-6 md:space-y-8', // Much more vertical space
+    stackSmall: 'space-y-4 md:space-y-6', 
+    stackLarge: 'space-y-8 md:space-y-12', 
+    inline: 'space-x-6 md:space-x-8', 
+    inlineSmall: 'space-x-4 md:space-x-6',
   },
   
-  // Grid spacing
+  // Grid spacing (responsive gaps)
   grid: {
-    gap: 'gap-4',
-    gapSmall: 'gap-2',
-    gapLarge: 'gap-6',
+    gap: 'gap-6 md:gap-8 lg:gap-10', // Responsive grid spacing
+    gapSmall: 'gap-4 md:gap-6', 
+    gapLarge: 'gap-8 md:gap-12 lg:gap-16', 
+  },
+  
+  // Menu-specific spacing
+  menu: {
+    sectionGap: 'mb-12 md:mb-16', // Large gaps between menu sections
+    itemGap: 'gap-6 md:gap-8', // Space between menu items
+    cardPadding: 'p-6 md:p-8', // Generous card padding
   },
 };

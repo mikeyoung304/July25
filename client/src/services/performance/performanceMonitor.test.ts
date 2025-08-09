@@ -165,4 +165,3 @@ import { vi } from 'vitest';
       expect(parsed).toHaveProperty('timestamp')
     })
   })
-})

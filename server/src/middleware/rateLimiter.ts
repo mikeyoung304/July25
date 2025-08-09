@@ -2,10 +2,13 @@ import rateLimit from 'express-rate-limit';
 import { Request } from 'express';
 import { AuthenticatedRequest } from './auth';
 
+// Disable rate limiting in development for easier testing
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 // General API rate limiter
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Max 100 requests per window
+  max: isDevelopment ? 10000 : 1000, // Very high limit in dev
   keyGenerator: (req: Request) => {
     const authReq = req as AuthenticatedRequest;
     return authReq.restaurantId || authReq.ip || 'anonymous';
@@ -13,12 +16,13 @@ export const apiLimiter = rateLimit({
   message: 'Too many requests from this restaurant/IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req: Request) => isDevelopment, // Skip rate limiting in development
 });
 
 // Stricter rate limiter for voice orders
 export const voiceOrderLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 10, // Max 10 voice orders per minute
+  max: isDevelopment ? 1000 : 100, // Higher limit in dev
   keyGenerator: (req: Request) => {
     const authReq = req as AuthenticatedRequest;
     return authReq.restaurantId || authReq.ip || 'anonymous';
@@ -26,6 +30,7 @@ export const voiceOrderLimiter = rateLimit({
   message: 'Voice ordering rate limit exceeded. Please wait a moment before placing another order.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req: Request) => isDevelopment, // Skip in development
 });
 
 // Even stricter rate limiter for auth endpoints
@@ -52,7 +57,7 @@ export const healthCheckLimiter = rateLimit({
 // AI service rate limiter (to prevent abuse of expensive AI operations)
 export const aiServiceLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 20, // Max 20 AI requests per 5 minutes
+  max: isDevelopment ? 2000 : 200, // Higher limit in dev
   keyGenerator: (req: Request) => {
     const authReq = req as AuthenticatedRequest;
     return authReq.user?.id || authReq.restaurantId || authReq.ip || 'anonymous';
@@ -60,12 +65,13 @@ export const aiServiceLimiter = rateLimit({
   message: 'AI service rate limit exceeded. Please wait before making more requests.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req: Request) => isDevelopment, // Skip in development
 });
 
 // Transcription rate limiter (more restrictive due to cost)
 export const transcriptionLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 5, // Max 5 transcriptions per minute
+  max: isDevelopment ? 500 : 50, // Higher limit in dev
   keyGenerator: (req: Request) => {
     const authReq = req as AuthenticatedRequest;
     return authReq.user?.id || authReq.restaurantId || authReq.ip || 'anonymous';
@@ -73,4 +79,5 @@ export const transcriptionLimiter = rateLimit({
   message: 'Transcription rate limit exceeded. Please wait before transcribing more audio.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req: Request) => isDevelopment, // Skip in development
 });

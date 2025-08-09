@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Package, Utensils } from 'lucide-react'
+import { ShoppingCart, Package, Utensils, BarChart3, Users, Settings } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
 import { spacing } from '@/lib/typography'
@@ -65,7 +65,7 @@ export function Dashboard() {
               </Body>
             </motion.div>
             
-            <div className={`grid md:grid-cols-3 ${spacing.grid.gapLarge} w-full max-w-4xl`}>
+            <div className={`grid md:grid-cols-3 ${spacing.grid.gapLarge} w-full max-w-5xl`}>
               <DashboardCard
                 title="Orders"
                 icon={<ShoppingCart className="h-12 w-12 text-secondary" />}
@@ -88,6 +88,30 @@ export function Dashboard() {
                 iconBg="bg-primary/10"
                 href="/kitchen"
                 delay={2}
+              />
+              
+              <DashboardCard
+                title="Analytics"
+                icon={<BarChart3 className="h-12 w-12 text-emerald-500" />}
+                iconBg="bg-emerald-500/10"
+                href="/analytics"
+                delay={3}
+              />
+              
+              <DashboardCard
+                title="Staff"
+                icon={<Users className="h-12 w-12 text-blue-500" />}
+                iconBg="bg-blue-500/10"
+                href="/staff"
+                delay={4}
+              />
+              
+              <DashboardCard
+                title="Settings"
+                icon={<Settings className="h-12 w-12 text-gray-500" />}
+                iconBg="bg-gray-500/10"
+                href="/settings"
+                delay={5}
               />
             </div>
           </div>

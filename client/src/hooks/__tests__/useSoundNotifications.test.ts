@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react'
-import { vi } from 'vitest';
+import { vi } from 'vitest'
 import { useSoundNotifications } from '../useSoundNotifications'
 import { soundEffects, soundPresets } from '@/services/audio/soundEffects'
 
@@ -22,7 +22,7 @@ describe('useSoundNotifications', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Reset mock implementation
-    ;(soundEffects.getConfig as vi.Mock).mockReturnValue({ enabled: true, volume: 0.5 })
+    ;(soundEffects.getConfig as any).mockReturnValue({ enabled: true, volume: 0.5 })
   })
 
   it('initializes with sound effects config', () => {
@@ -44,7 +44,7 @@ describe('useSoundNotifications', () => {
   })
 
   it('does not play sound when disabled', async () => {
-    ;(soundEffects.getConfig as vi.Mock).mockReturnValue({ enabled: false, volume: 0.5 })
+    ;(soundEffects.getConfig as any).mockReturnValue({ enabled: false, volume: 0.5 })
     
     const { result } = renderHook(() => useSoundNotifications())
     

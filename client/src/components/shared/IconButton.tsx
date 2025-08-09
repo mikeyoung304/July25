@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { LucideIcon, Loader2 } from 'lucide-react';
 import { Button, ButtonProps } from '@/components/ui/button';
-// import { cn } from '@/lib/utils';
+// import { cn } from '@/utils';
 
 export interface IconButtonProps extends Omit<ButtonProps, 'children'> {
   icon: LucideIcon;
