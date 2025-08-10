@@ -16,13 +16,13 @@ export const sanitizeInput = (input: string): string => {
     .trim()
 }
 
-export const validateOrderNumber = (orderNumber: string): string | null => {
-  const sanitized = sanitizeInput(orderNumber)
+export const validateOrderNumber = (order_number: string): string | null => {
+  const sanitized = sanitizeInput(order_number)
   return /^[A-Za-z0-9-]+$/.test(sanitized) && sanitized.length <= 20 ? sanitized : null
 }
 
-export const validateTableNumber = (tableNumber: string): string | null => {
-  const sanitized = sanitizeInput(tableNumber)
+export const validateTableNumber = (table_number: string): string | null => {
+  const sanitized = sanitizeInput(table_number)
   return /^[A-Za-z0-9]+$/.test(sanitized) && sanitized.length <= 10 ? sanitized : null
 }
 

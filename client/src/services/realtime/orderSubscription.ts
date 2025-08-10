@@ -1,4 +1,4 @@
-import type { Order } from '@/services/api'
+import type { Order, OrderStatus, OrderType, PaymentStatus } from '@rebuild/shared'
 
 export type OrderEvent = 
   | { type: 'ORDER_CREATED'; order: Order }
@@ -144,14 +144,17 @@ export const mockOrderGenerator = {
     return {
       id: `order-${Date.now()}`,
       restaurant_id: 'rest-1',
-      orderNumber: String(Math.floor(Math.random() * 999) + 1).padStart(3, '0'),
-      tableNumber,
+      order_number: String(Math.floor(Math.random() * 999) + 1).padStart(3, '0'),
+      table_number: tableNumber,
       items,
-      status: 'new',
-      orderTime: new Date(),
-      totalAmount,
-      paymentStatus: isDriveThru ? 'paid' : (Math.random() > 0.3 ? 'paid' : 'pending'),
-      orderType: isDriveThru ? 'drive-thru' : 'dine-in'
+      status: 'new' as OrderStatus,
+      type: (isDriveThru ? 'drive-thru' : 'dine-in') as OrderType,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      subtotal: totalAmount * 0.92, // ~8% tax
+      tax: totalAmount * 0.08,
+      total: totalAmount,
+      payment_status: (isDriveThru ? 'paid' : (Math.random() > 0.3 ? 'paid' : 'pending')) as PaymentStatus
     }
   }
 }
@@ -171,7 +174,7 @@ export const startOrderProgression = () => {
     const statusChanges: Array<{orderId: string, newStatus: Order['status'], oldStatus: Order['status']}> = []
     
     orderStore.forEach((order, orderId) => {
-      const elapsedMinutes = (Date.now() - new Date(order.orderTime).getTime()) / 60000
+      const elapsedMinutes = (Date.now() - new Date(order.created_at).getTime()) / 60000
       
       if (order.status === 'new' && elapsedMinutes > 2) {
         statusChanges.push({ orderId, newStatus: 'preparing', oldStatus: 'new' })

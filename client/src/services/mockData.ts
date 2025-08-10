@@ -7,98 +7,98 @@ export const mockData = {
     {
       id: '1',
       restaurant_id: 'rest-1',
-      orderNumber: '001',
-      tableNumber: '5',
+      order_number: '001',
+      table_number: '5',
       items: [
         { id: '1', name: 'Georgia Soul Bowl', quantity: 2, modifiers: ['Extra collards', 'No pico'] },
         { id: '2', name: 'Garden Salad', quantity: 1, modifiers: ['Ranch dressing'] },
         { id: '3', name: 'Sweet Potato Fries', quantity: 1, notes: 'Customer allergic to nuts' }
       ],
       status: 'new' as const,
-      orderTime: new Date(Date.now() - 2 * 60000), // 2 minutes ago
-      totalAmount: 32.50,
-      paymentStatus: 'pending' as const,
-      orderType: 'dine-in' as const
+      created_at: new Date(Date.now() - 2 * 60000), // 2 minutes ago
+      total: 32.50,
+      payment_status: 'pending' as const,
+      type: 'dine-in' as const
     },
     {
       id: '2',
       restaurant_id: 'rest-1',
-      orderNumber: '002',
-      tableNumber: 'DT-1',
+      order_number: '002',
+      table_number: 'DT-1',
       items: [
         { id: '4', name: 'Monte Cristo Sandwich', quantity: 1, modifiers: ['Extra jam', 'Side salad'] },
         { id: '5', name: 'Sweet Tea', quantity: 2 }
       ],
       status: 'preparing' as const,
-      orderTime: new Date(Date.now() - 8 * 60000), // 8 minutes ago
-      totalAmount: 18.50,
-      paymentStatus: 'paid' as const,
-      orderType: 'drive-thru' as const,
+      created_at: new Date(Date.now() - 8 * 60000), // 8 minutes ago
+      total: 18.50,
+      payment_status: 'paid' as const,
+      type: 'drive-thru' as const,
       notes: 'Customer waiting in car'
     },
     {
       id: '3',
       restaurant_id: 'rest-1',
-      orderNumber: '003',
-      tableNumber: '7',
+      order_number: '003',
+      table_number: '7',
       items: [
         { id: '6', name: 'Teriyaki Chicken Bowl', quantity: 1, modifiers: ['Black rice', 'Extra broccoli'] },
         { id: '7', name: 'Boiled Peanuts', quantity: 1 },
         { id: '8', name: 'Lemonade', quantity: 2 }
       ],
       status: 'new' as const,
-      orderTime: new Date(Date.now() - 1 * 60000), // 1 minute ago
-      totalAmount: 28.75,
-      paymentStatus: 'pending' as const,
-      orderType: 'dine-in' as const
+      created_at: new Date(Date.now() - 1 * 60000), // 1 minute ago
+      total: 28.75,
+      payment_status: 'pending' as const,
+      type: 'dine-in' as const
     },
     {
       id: '4',
       restaurant_id: 'rest-1',
-      orderNumber: '004',
-      tableNumber: 'DT-2',
+      order_number: '004',
+      table_number: 'DT-2',
       items: [
         { id: '9', name: 'Jerk Chicken Bowl', quantity: 2, modifiers: ['Yellow rice', 'Extra pineapple salsa'] },
         { id: '10', name: 'Collard Greens', quantity: 1 },
         { id: '11', name: 'Unsweet Tea', quantity: 2 }
       ],
       status: 'ready' as const,
-      orderTime: new Date(Date.now() - 15 * 60000), // 15 minutes ago
-      totalAmount: 34.50,
-      paymentStatus: 'paid' as const,
-      orderType: 'drive-thru' as const
+      created_at: new Date(Date.now() - 15 * 60000), // 15 minutes ago
+      total: 34.50,
+      payment_status: 'paid' as const,
+      type: 'drive-thru' as const
     },
     {
       id: '5',
       restaurant_id: 'rest-1',
-      orderNumber: '005',
-      tableNumber: '9',
+      order_number: '005',
+      table_number: '9',
       items: [
         { id: '12', name: 'Mama\'s Chicken Salad', quantity: 1, modifiers: ['Extra pecans', 'No grapes'], notes: 'Birthday celebration' },
         { id: '13', name: 'Field Peas', quantity: 1 },
         { id: '14', name: 'Fresh Juice', quantity: 1 }
       ],
       status: 'preparing' as const,
-      orderTime: new Date(Date.now() - 10 * 60000), // 10 minutes ago
-      totalAmount: 52.99,
-      paymentStatus: 'paid' as const,
-      orderType: 'dine-in' as const
+      created_at: new Date(Date.now() - 10 * 60000), // 10 minutes ago
+      total: 52.99,
+      payment_status: 'paid' as const,
+      type: 'dine-in' as const
     },
     {
       id: '6',
       restaurant_id: 'rest-1',
-      orderNumber: '006',
-      tableNumber: 'DT-3',
+      order_number: '006',
+      table_number: 'DT-3',
       items: [
         { id: '15', name: 'Pear & Feta Salad', quantity: 3, modifiers: ['No cranberries'] },
         { id: '16', name: 'Deviled Eggs', quantity: 1 },
         { id: '17', name: 'Arnold Palmer', quantity: 2 }
       ],
       status: 'new' as const,
-      orderTime: new Date(Date.now() - 3 * 60000), // 3 minutes ago
-      totalAmount: 38.25,
-      paymentStatus: 'paid' as const,
-      orderType: 'drive-thru' as const,
+      created_at: new Date(Date.now() - 3 * 60000), // 3 minutes ago
+      total: 38.25,
+      payment_status: 'paid' as const,
+      type: 'drive-thru' as const,
       notes: 'No ice in drinks'
     }
   ] as Order[],
@@ -119,7 +119,7 @@ export const mockData = {
       description: 'Smoked sausage, field peas, collards, yellow rice, pico de gallo',
       price: 14.99,
       category: 'Bowls',
-      available: true,
+      is_available: true,
       modifiers: [
         { id: 'm1', name: 'Extra collards', price: 2.00 },
         { id: 'm2', name: 'No pico', price: 0 },
@@ -133,7 +133,7 @@ export const mockData = {
       description: 'Chicken breast, sauteed vegetables, steamed broccoli, pineapple salsa, rice',
       price: 13.99,
       category: 'Bowls',
-      available: true,
+      is_available: true,
       modifiers: [
         { id: 'm4', name: 'Black rice', price: 0 },
         { id: 'm5', name: 'Yellow rice', price: 0 },
@@ -147,7 +147,7 @@ export const mockData = {
       description: 'Jerk chicken breast, cabbage, black beans, pineapple salsa, rice',
       price: 13.99,
       category: 'Bowls',
-      available: true,
+      is_available: true,
       modifiers: [
         { id: 'm7', name: 'Extra pineapple salsa', price: 1.00 },
         { id: 'm8', name: 'Black rice', price: 0 },
@@ -161,7 +161,7 @@ export const mockData = {
       description: 'Chicken breast, mayo, celery, Georgia pecans, grapes, organic greens',
       price: 11.99,
       category: 'Salads',
-      available: true,
+      is_available: true,
       modifiers: [
         { id: 'm10', name: 'Extra pecans', price: 2.00 },
         { id: 'm11', name: 'No grapes', price: 0 },
@@ -175,7 +175,7 @@ export const mockData = {
       description: 'Pears, feta, toasted pecans, dried cranberries, organic greens',
       price: 10.99,
       category: 'Salads',
-      available: true,
+      is_available: true,
       modifiers: [
         { id: 'm13', name: 'Blue cheese instead', price: 0 },
         { id: 'm14', name: 'No cranberries', price: 0 },
@@ -189,7 +189,7 @@ export const mockData = {
       description: 'Ham, turkey, swiss, raspberry jam, powdered sugar',
       price: 11.00,
       category: 'Sandwiches',
-      available: true,
+      is_available: true,
       modifiers: [
         { id: 'm16', name: 'Extra jam', price: 0 },
         { id: 'm17', name: 'Side salad', price: 2.50 },
@@ -203,7 +203,7 @@ export const mockData = {
       description: 'Traditional Southern style',
       price: 4.99,
       category: 'Starters',
-      available: true
+      is_available: true
     },
     {
       id: '8',
@@ -212,7 +212,7 @@ export const mockData = {
       description: 'Six halves, traditional Southern style',
       price: 6.99,
       category: 'Starters',
-      available: true
+      is_available: true
     },
     {
       id: '9',
@@ -221,7 +221,7 @@ export const mockData = {
       description: 'Slow cooked Southern style',
       price: 3.99,
       category: 'Sides',
-      available: true
+      is_available: true
     },
     {
       id: '10',
@@ -230,7 +230,7 @@ export const mockData = {
       description: 'Traditional Southern preparation',
       price: 3.99,
       category: 'Sides',
-      available: true
+      is_available: true
     },
     {
       id: '11',
@@ -239,7 +239,7 @@ export const mockData = {
       description: 'Hand cut and seasoned',
       price: 4.99,
       category: 'Sides',
-      available: true
+      is_available: true
     }
   ] as MenuItem[]
 }

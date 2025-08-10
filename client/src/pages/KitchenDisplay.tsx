@@ -117,7 +117,7 @@ export function KitchenDisplay() {
                           modifiers: Math.random() > 0.5 ? [['Extra cheese'], ['No onions']][Math.floor(Math.random() * 2)] : undefined
                         }
                       ],
-                      totalAmount: Math.random() * 50 + 10,
+                      total: Math.random() * 50 + 10,
                     }
                     
                     try {

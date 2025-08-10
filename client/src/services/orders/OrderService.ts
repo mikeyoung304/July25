@@ -3,7 +3,7 @@
  * following Luis's API specification
  */
 
-import { Order, OrderItem, OrderStatus, OrderType } from '@rebuild/shared'
+import { Order, OrderItem, OrderItemModifier, OrderStatus, OrderType } from '@rebuild/shared'
 import { httpClient } from '@/services/http/httpClient'
 
 export interface IOrderService {
@@ -32,11 +32,11 @@ export class OrderService implements IOrderService {
       if (filters?.status) {
         params.status = filters.status.join(',')
       }
-      if (filters?.tableNumber) {
-        params.tableNumber = filters.tableNumber
+      if (filters?.table_number) {
+        params.table_number = filters.table_number
       }
-      if (filters?.orderType) {
-        params.orderType = filters.orderType
+      if (filters?.type) {
+        params.type = filters.type
       }
       if (filters?.dateRange) {
         params.startDate = filters.dateRange.start.toISOString()
@@ -50,10 +50,10 @@ export class OrderService implements IOrderService {
         ...order,
         items: order.items || [],
         status: order.status || 'new',
-        orderType: order.orderType || 'dine-in',
+        type: order.type || 'dine-in',
         created_at: order.created_at || new Date().toISOString(),
         updated_at: order.updated_at || new Date().toISOString(),
-        subtotal: order.subtotal || order.totalAmount || 0,
+        subtotal: order.subtotal || order.total || 0,
         tax: order.tax || 0
       }))
 
@@ -71,11 +71,13 @@ export class OrderService implements IOrderService {
         ...response,
         items: response.items || [],
         status: response.status || 'new',
-        orderType: response.orderType || 'dine-in',
+        type: response.type || response.type || 'dine-in',
         created_at: response.created_at || new Date().toISOString(),
         updated_at: response.updated_at || new Date().toISOString(),
-        subtotal: response.subtotal || response.totalAmount || 0,
-        tax: response.tax || 0
+        subtotal: response.subtotal || 0,
+        tax: response.tax || 0,
+        total: response.total || response.total || 0,
+        payment_status: response.payment_status || response.payment_status || 'pending'
       }
     } catch (error) {
       console.warn('API call failed, falling back to mock data:', error)
@@ -93,11 +95,13 @@ export class OrderService implements IOrderService {
         ...response,
         items: response.items || [],
         status: response.status || 'new',
-        orderType: response.orderType || 'dine-in',
+        type: response.type || response.type || 'dine-in',
         created_at: response.created_at || new Date().toISOString(),
         updated_at: response.updated_at || new Date().toISOString(),
-        subtotal: response.subtotal || response.totalAmount || 0,
-        tax: response.tax || 0
+        subtotal: response.subtotal || 0,
+        tax: response.tax || 0,
+        total: response.total || response.total || 0,
+        payment_status: response.payment_status || response.payment_status || 'pending'
       }
     } catch (error) {
       console.warn('API call failed, falling back to mock data:', error)
@@ -122,11 +126,13 @@ export class OrderService implements IOrderService {
         ...response,
         items: response.items || [],
         status: response.status || 'new',
-        orderType: response.orderType || 'dine-in',
+        type: response.type || response.type || 'dine-in',
         created_at: response.created_at || new Date().toISOString(),
         updated_at: response.updated_at || new Date().toISOString(),
-        subtotal: response.subtotal || response.totalAmount || 0,
-        tax: response.tax || 0
+        subtotal: response.subtotal || 0,
+        tax: response.tax || 0,
+        total: response.total || response.total || 0,
+        payment_status: response.payment_status || response.payment_status || 'pending'
       }
     } catch (error) {
       console.warn('API call failed, creating mock order:', error)
@@ -135,19 +141,17 @@ export class OrderService implements IOrderService {
       const newOrder: Order = {
         id: `order-${Date.now()}`,
         restaurant_id: orderData.restaurant_id || 'default',
-        orderNumber: `#${Math.floor(Math.random() * 10000)}`,
-        tableNumber: orderData.tableNumber || '1',
+        order_number: `#${Math.floor(Math.random() * 10000)}`,
+        table_number: orderData.table_number || '1',
         items: orderData.items || [],
         status: 'new',
-        orderTime: new Date(),
-        totalAmount: orderData.totalAmount || 0,
-        paymentStatus: 'pending',
-        orderType: orderData.orderType || 'dine-in',
-        type: 'order',
+        type: (orderData.type || 'dine-in') as OrderType,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        subtotal: orderData.subtotal || orderData.totalAmount || 0,
-        tax: orderData.tax || 0
+        subtotal: orderData.subtotal || orderData.total || 0,
+        tax: orderData.tax || 0,
+        total: orderData.total || 0,
+        payment_status: 'pending'
       }
 
       return newOrder
@@ -168,7 +172,7 @@ export class OrderService implements IOrderService {
         return false
       }
 
-      if (item.notes && !this.validateNotes(item.notes)) {
+      if (item.special_instructions && !this.validateNotes(item.special_instructions)) {
         return false
       }
     }
@@ -176,8 +180,12 @@ export class OrderService implements IOrderService {
     return true
   }
 
-  private validateModifiers(modifiers: string[]): boolean {
-    return modifiers.every(modifier => typeof modifier === 'string' && modifier.length > 0)
+  private validateModifiers(modifiers: OrderItemModifier[]): boolean {
+    return modifiers.every(modifier => 
+      modifier.id && 
+      modifier.name && 
+      typeof modifier.price === 'number'
+    )
   }
 
   private validateNotes(notes: string): boolean {
@@ -189,8 +197,8 @@ export class OrderService implements IOrderService {
       {
         id: 'order-1',
         restaurant_id: 'default',
-        orderNumber: '#1001',
-        tableNumber: '1',
+        order_number: '#1001',
+        table_number: '1',
         items: [
           {
             id: 'item-1',
@@ -199,20 +207,24 @@ export class OrderService implements IOrderService {
             quantity: 2,
             price: 12.99,
             subtotal: 25.98,
-            modifiers: ['extra cheese'],
-            notes: 'Well done'
+            modifiers: [
+              {
+                id: 'mod-1',
+                name: 'extra cheese',
+                price: 1.50
+              }
+            ],
+            special_instructions: 'Well done'
           }
         ],
         status: 'new',
-        orderTime: new Date(),
-        totalAmount: 25.98,
-        paymentStatus: 'pending',
-        orderType: 'dine-in',
-        type: 'order',
+        type: 'dine-in' as OrderType,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         subtotal: 25.98,
-        tax: 2.60
+        tax: 2.60,
+        total: 28.58,
+        payment_status: 'pending'
       }
     ]
   }

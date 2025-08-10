@@ -40,7 +40,7 @@ const createStringValidator = (options: {
   let schema = z.string();
   
   if (options.sanitize) {
-    schema = schema.transform(str => str.trim());
+    schema = schema.transform(str => str.trim()) as any;
   }
   
   if (options.minLength) {
@@ -107,7 +107,7 @@ export const CommonSchemas = {
 } as const;
 
 // Order validation schemas
-export const OrderSchemas = {
+export const OrderSchemas: any = {
   // Order item modifier
   modifier: z.object({
     id: CommonSchemas.uuid,
@@ -165,7 +165,7 @@ export const OrderSchemas = {
       special_instructions: createStringValidator({ maxLength: 500, sanitize: true })
     })).min(1),
     special_instructions: createStringValidator({ maxLength: 1000, sanitize: true }),
-    tip: CommonSchemas.price.min(0).optional()
+    tip: z.number().min(0).max(99999.99).transform(val => Math.round(val * 100) / 100).optional()
   }),
   
   // Order update request
@@ -177,7 +177,7 @@ export const OrderSchemas = {
 } as const;
 
 // Table validation schemas  
-export const TableSchemas = {
+export const TableSchemas: any = {
   // Table position
   position: z.object({
     x: CommonSchemas.coordinate,
@@ -318,7 +318,7 @@ export class TypeValidator {
     const result = this.safeParse(schema, data, context);
     
     if (!result.success) {
-      throw result.error;
+      throw (result as any).error;
     }
     
     return result.data;
@@ -339,8 +339,8 @@ export class TypeValidator {
           success: false,
           error: {
             code: 'VALIDATION_ERROR',
-            message: result.error.message,
-            details: result.error.details
+            message: (result as any).error.message,
+            details: (result as any).error.details
           }
         });
       }

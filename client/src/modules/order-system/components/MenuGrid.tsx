@@ -23,7 +23,7 @@ export const MenuGrid: React.FC<MenuGridProps> = ({
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description?.toLowerCase().includes(searchQuery.toLowerCase());
       
-      return matchesCategory && matchesSearch && item.available;
+      return matchesCategory && matchesSearch && item.is_available;
     });
   }, [items, selectedCategory, searchQuery]);
 

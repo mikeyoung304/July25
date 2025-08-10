@@ -5,9 +5,9 @@ export type OrderStatus = Order['status']
 export type { StationType }
 
 export type SortBy = 
-  | 'orderTime' 
-  | 'orderNumber' 
-  | 'tableNumber' 
+  | 'created_at' 
+  | 'order_number' 
+  | 'table_number' 
   | 'status' 
   | 'itemCount'
 
@@ -41,7 +41,7 @@ export const defaultFilters: OrderFilters = {
   stations: ['all'],
   timeRange: { preset: 'today' },
   searchQuery: '',
-  sortBy: 'orderTime',
+  sortBy: 'created_at',
   sortDirection: 'desc'
 }
 
@@ -58,7 +58,7 @@ export const applyFilters = (orders: Order[], filters: OrderFilters): Order[] =>
 
     // Time range filter
     if (filters.timeRange.start || filters.timeRange.end) {
-      const orderDate = new Date(order.orderTime)
+      const orderDate = new Date(order.created_at)
       if (filters.timeRange.start && orderDate < filters.timeRange.start) {
         return false
       }
@@ -70,8 +70,8 @@ export const applyFilters = (orders: Order[], filters: OrderFilters): Order[] =>
     // Search filter
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase()
-      const matchesOrderNumber = order.orderNumber.toLowerCase().includes(query)
-      const matchesTableNumber = order.tableNumber.toLowerCase().includes(query)
+      const matchesOrderNumber = order.order_number.toLowerCase().includes(query)
+      const matchesTableNumber = order.table_number.toLowerCase().includes(query)
       const matchesItems = order.items.some(item => 
         item.name.toLowerCase().includes(query)
       )
@@ -90,14 +90,14 @@ export const sortOrders = (orders: Order[], sortBy: SortBy, direction: SortDirec
     let comparison = 0
 
     switch (sortBy) {
-      case 'orderTime':
-        comparison = new Date(a.orderTime).getTime() - new Date(b.orderTime).getTime()
+      case 'created_at':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         break
-      case 'orderNumber':
-        comparison = a.orderNumber.localeCompare(b.orderNumber)
+      case 'order_number':
+        comparison = a.order_number.localeCompare(b.order_number)
         break
-      case 'tableNumber':
-        comparison = a.tableNumber.localeCompare(b.tableNumber)
+      case 'table_number':
+        comparison = a.table_number.localeCompare(b.table_number)
         break
       case 'status': {
         const statusOrder = { 'new': 0, 'pending': 1, 'confirmed': 2, 'preparing': 3, 'ready': 4, 'completed': 5, 'cancelled': 6 }

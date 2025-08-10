@@ -6,7 +6,7 @@ export interface IMenuService {
   getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }>
   getMenuItems(): Promise<MenuItem[]>
   getMenuCategories(): Promise<MenuCategory[]>
-  updateMenuItemAvailability(itemId: string, available: boolean): Promise<void>
+  updateMenuItemAvailability(itemId: string, is_available: boolean): Promise<void>
 }
 
 export class MenuService implements IMenuService {
@@ -19,11 +19,11 @@ export class MenuService implements IMenuService {
     
     if (item.category?.name) {
       category = item.category.name
-    } else if (item.categoryId && categories) {
-      const cat = categories.find(c => c.id === item.categoryId)
+    } else if (item.category_id && categories) {
+      const cat = categories.find(c => c.id === item.category_id)
       category = cat?.name || 'Uncategorized'
-    } else if (item.categoryId && this.categoriesCache.has(item.categoryId)) {
-      category = this.categoriesCache.get(item.categoryId)!.name
+    } else if (item.category_id && this.categoriesCache.has(item.category_id)) {
+      category = this.categoriesCache.get(item.category_id)!.name
     }
 
     return {
@@ -32,8 +32,8 @@ export class MenuService implements IMenuService {
       description: item.description,
       price: item.price,
       category,
-      available: item.is_available !== undefined ? item.is_available : item.available,
-      imageUrl: item.image_url || item.imageUrl,
+      is_available: item.is_available !== undefined ? item.is_available : item.is_available,
+      image_url: item.image_url || item.image_url,
       restaurant_id: item.restaurant_id,
       calories: item.calories,
       modifiers: item.modifier_groups?.flatMap((group: any) => 
@@ -85,9 +85,9 @@ export class MenuService implements IMenuService {
     }
   }
 
-  async updateMenuItemAvailability(itemId: string, available: boolean): Promise<void> {
+  async updateMenuItemAvailability(itemId: string, is_available: boolean): Promise<void> {
     try {
-      await httpClient.patch(`/api/v1/menu/items/${itemId}`, { is_available: available })
+      await httpClient.patch(`/api/v1/menu/items/${itemId}`, { is_is_available: available })
     } catch (error) {
       console.warn('Mock: Updated menu item availability', { itemId, available })
       // In mock mode, just log the update
@@ -103,7 +103,7 @@ export class MenuService implements IMenuService {
           description: 'Juicy beef patty with lettuce, tomato, and cheese',
           price: 12.99,
           category: 'Main Course',
-          available: true,
+          is_available: true,
           image_url: null,
           preparation_time: 15,
           allergens: ['dairy', 'gluten'],
@@ -120,7 +120,7 @@ export class MenuService implements IMenuService {
           description: 'Fresh romaine lettuce with Caesar dressing',
           price: 8.99,
           category: 'Appetizers',
-          available: true,
+          is_available: true,
           image_url: null,
           preparation_time: 8,
           allergens: ['dairy', 'eggs'],

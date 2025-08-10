@@ -28,8 +28,8 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
       tableId: undefined // Not supported in service layer yet
     } : undefined
     
-    const result = await orderService.getOrders(restaurantId, serviceFilters)
-    return result.orders
+    const result = await orderService.getOrders(serviceFilters)
+    return result
   }, [filters, restaurant?.id])
   
   const refetch = useCallback(async () => {
@@ -53,8 +53,8 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
     }
     
     try {
-      const result = await orderService.updateOrderStatus(restaurantId, orderId, status)
-      if (!result.success) {
+      const result = await orderService.updateOrderStatus(orderId, status)
+      if (!result) {
         toast.error('Failed to update order status')
         // Revert on failure
         if (data) {

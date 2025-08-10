@@ -8,7 +8,7 @@ import { Zap, TestTube, Settings, Info } from 'lucide-react';
 
 const StreamingDemo: React.FC = () => {
   const [selectedScenario, setSelectedScenario] = useState<'perfect' | 'slow-network' | 'low-confidence' | 'choppy'>('perfect');
-  const [lasttranscription, setLastTranscription] = useState<string>('');
+  const [lastTranscription, setLastTranscription] = useState<string>('');
 
   const scenarios = [
     {

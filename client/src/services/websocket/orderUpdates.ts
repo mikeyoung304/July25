@@ -123,7 +123,7 @@ export class OrderUpdatesHandler {
     })
 
     // Show notification for new orders
-    toast.success(`New order #${payload.order.orderNumber} received!`, {
+    toast.success(`New order #${payload.order.order_number} received!`, {
       duration: 5000,
       position: 'top-right'
     })

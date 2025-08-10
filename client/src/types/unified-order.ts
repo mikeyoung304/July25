@@ -19,7 +19,7 @@ export interface UnifiedModifier {
 // Unified order item structure
 export interface UnifiedOrderItem {
   id: string;
-  menuItemId: string;  // References the menu item
+  menu_item_id: string;  // References the menu item
   name: string;
   quantity: number;
   price: number;       // Always required
@@ -33,7 +33,7 @@ export interface UnifiedOrder {
   // Core identification
   id: string;
   restaurant_id: string;  // Using snake_case to match database
-  orderNumber: string;
+  order_number: string;
   
   // Order details
   type: UnifiedOrderType;
@@ -47,15 +47,15 @@ export interface UnifiedOrder {
   tableNumber?: string;  // For dine-in orders
   
   // Timing
-  orderTime: Date | string;
+  created_at: Date | string;
   prepTimeMinutes?: number;  // Estimated prep time
   completedTime?: Date | string;
   
   // Financial
   subtotal: number;
   tax: number;
-  totalAmount: number;
-  paymentStatus: 'pending' | 'paid' | 'refunded';
+  total: number;
+  payment_status: 'pending' | 'paid' | 'refunded';
   paymentMethod?: 'cash' | 'card' | 'online';
   
   // Additional info
@@ -129,34 +129,34 @@ export function toUnifiedOrder(order: any, source: UnifiedOrder['source']): Unif
   return {
     id: order.id || '',
     restaurant_id: order.restaurant_id || order.restaurantId || '',
-    orderNumber: order.orderNumber || order.order_number || '',
+    order_number: order.order_number || order.order_number || '',
     
-    type: normalizeOrderType(order.type || order.orderType || 'takeout'),
+    type: normalizeOrderType(order.type || order.type || 'takeout'),
     status: normalizeOrderStatus(order.status || 'new'),
     items: (order.items || []).map((item: any) => ({
       id: item.id || '',
-      menuItemId: item.menuItemId || item.menu_item_id || item.id || '',
+      menu_item_id: item.menu_item_id || item.menu_item_id || item.id || '',
       name: item.name || '',
       quantity: item.quantity || 1,
       price: item.price || 0,
       modifiers: normalizeModifiers(item.modifiers),
-      specialInstructions: item.specialInstructions || item.notes || item.special_instructions,
+      special_instructions: item.special_instructions || item.notes || item.special_instructions,
       category: item.category
     })),
     
     customerName: order.customerName || order.customer_name,
     customerPhone: order.customerPhone || order.customer_phone,
     customerEmail: order.customerEmail || order.customer_email,
-    tableNumber: order.tableNumber || order.table_number,
+    table_number: order.table_number || order.table_number,
     
-    orderTime: order.orderTime || order.created_at || new Date(),
+    created_at: order.created_at || order.created_at || new Date(),
     prepTimeMinutes: order.prepTimeMinutes || order.prep_time_minutes || order.prepTime,
-    completedTime: order.completedTime || order.completed_at,
+    completed_at: order.completed_at || order.completed_at,
     
     subtotal: order.subtotal || 0,
     tax: order.tax || 0,
-    totalAmount: order.totalAmount || order.total_amount || 0,
-    paymentStatus: order.paymentStatus || order.payment_status || 'pending',
+    total: order.total || order.total_amount || 0,
+    payment_status: order.payment_status || order.payment_status || 'pending',
     paymentMethod: order.paymentMethod || order.payment_method,
     
     notes: order.notes,

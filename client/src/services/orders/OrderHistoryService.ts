@@ -1,4 +1,4 @@
-import { Order, OrderHistoryParams } from '@/services/types'
+import { Order, OrderType, OrderHistoryParams } from '@/services/types'
 import { mockOrderGenerator } from '@/services/realtime/orderSubscription'
 import { api } from '@/services/api'
 
@@ -27,19 +27,27 @@ export class OrderHistoryService implements IOrderHistoryService {
       const orderTime = new Date(now.getTime() - (i * 60 * 60 * 1000)) // 1 hour apart
       const completedTime = new Date(orderTime.getTime() + (15 + Math.random() * 30) * 60 * 1000) // 15-45 min later
       
+      const total = Math.random() * 100 + 10;
+      const tax = total * 0.08; // 8% tax
+      const subtotal = total - tax;
+      
       this.historicalOrders.push({
         id: `hist-${i}`,
         restaurant_id: 'rest-1',
-        orderNumber: String(1000 - i).padStart(4, '0'),
-        tableNumber: String(Math.floor(Math.random() * 20) + 1),
+        order_number: String(1000 - i).padStart(4, '0'),
+        table_number: String(Math.floor(Math.random() * 20) + 1),
         items: mockOrderGenerator.generateOrder().items,
         status: Math.random() > 0.95 ? 'cancelled' : 'completed',
-        orderTime,
-        completedTime,
-        totalAmount: Math.random() * 100 + 10,
-        paymentStatus: 'paid',
-        preparationTime: Math.round((completedTime.getTime() - orderTime.getTime()) / 60000)
-      })
+        type: 'dine-in' as OrderType,
+        created_at: orderTime.toISOString(),
+        updated_at: orderTime.toISOString(),
+        completed_at: completedTime.toISOString(),
+        subtotal,
+        tax,
+        total,
+        payment_status: 'paid',
+        estimated_ready_time: new Date(orderTime.getTime() + 15 * 60000).toISOString()
+      } as Order)
     }
   }
 
@@ -57,18 +65,18 @@ export class OrderHistoryService implements IOrderHistoryService {
     let filtered = [...this.historicalOrders]
     
     if (params?.startDate) {
-      filtered = filtered.filter(order => order.orderTime >= params.startDate!)
+      filtered = filtered.filter(order => new Date(order.created_at) >= params.startDate!)
     }
     
     if (params?.endDate) {
-      filtered = filtered.filter(order => order.orderTime <= params.endDate!)
+      filtered = filtered.filter(order => new Date(order.created_at) <= params.endDate!)
     }
     
     if (params?.searchQuery) {
       const query = params.searchQuery.toLowerCase()
       filtered = filtered.filter(order => 
-        order.orderNumber.toLowerCase().includes(query) ||
-        order.tableNumber.toLowerCase().includes(query) ||
+        order.order_number.toLowerCase().includes(query) ||
+        order.table_number.toLowerCase().includes(query) ||
         order.items.some(item => item.name.toLowerCase().includes(query))
       )
     }

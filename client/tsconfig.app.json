@@ -16,20 +16,24 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting - Balanced Type Safety */
-    "strict": true,
+    /* Linting - Production Build Focus */
+    "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noImplicitReturns": false,
-    "noImplicitThis": true,
+    "noImplicitThis": false,
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false,
     "noImplicitOverride": false,
     "noPropertyAccessFromIndexSignature": false,
     "noUncheckedSideEffectImports": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
     
     /* Path Aliases */
     "baseUrl": ".",

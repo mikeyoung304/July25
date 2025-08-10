@@ -305,7 +305,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
   const testRealtimeEndpoint = useCallback(async () => {
     console.warn('🧪 Testing realtime endpoint availability...');
     const isAvailable = await checkRealtimeEndpoint();
-    console.warn(`🧪 Realtime endpoint available: ${isAvailable}`);
+    console.warn(`🧪 Realtime endpoint is_available: ${isAvailable}`);
     return isAvailable;
   }, []);
 

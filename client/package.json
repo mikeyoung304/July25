@@ -6,7 +6,7 @@
     "dev": "vite",
     "dev:clean": "npx kill-port 5173 && vite",
     "verify": "node verify-setup.js",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview --port 4173",

@@ -16,7 +16,7 @@ interface CartItem {
 
 interface LocationState {
   orderId: string;
-  orderNumber: number;
+  order_number: number;
   estimatedTime: string;
   items: CartItem[];
   total: number;
@@ -68,7 +68,7 @@ export const OrderConfirmationPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4 text-left">
               <div>
                 <p className="text-sm text-gray-500">Order Number</p>
-                <p className="text-lg font-semibold">#{state.orderNumber}</p>
+                <p className="text-lg font-semibold">#{state.order_number}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Order ID</p>

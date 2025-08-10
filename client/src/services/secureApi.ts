@@ -55,7 +55,7 @@ export class SecureAPIClient {
         //   headers.set(key, value)
         // })
       } catch (error) {
-        console.warn('CSRF token not available:', error)
+        console.warn('CSRF token not is_available:', error)
       }
     }
     
