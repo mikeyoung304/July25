@@ -6,7 +6,7 @@ import type { OrderStatus as SharedOrderStatus, OrderItemModifier } from '@rebui
 
 export interface Order {
   id: string
-  orderNumber: string
+  order_number: string
   customerName: string
   items: OrderItem[]
   status: OrderStatus

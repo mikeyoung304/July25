@@ -44,13 +44,13 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const handleAddToCart = () => {
     const cartItem: CartItem = {
       id: `${item.id}-${Date.now()}`,
-      menuItemId: item.id,
+      menu_item_id: item.id,
       name: item.name,
       price: item.price,
       quantity,
       modifiers: selectedModifiers.length > 0 ? selectedModifiers : undefined,
-      specialInstructions: specialInstructions.trim() || undefined,
-      imageUrl: item.imageUrl
+      special_instructions: specialInstructions.trim() || undefined,
+      image_url: item.image_url
     };
     
     onAddToCart(cartItem);
@@ -76,9 +76,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
         <div className="flex flex-col h-full">
           {/* Header with image */}
           <div className="relative">
-            {item.imageUrl && (
+            {item.image_url && (
               <img 
-                src={item.imageUrl} 
+                src={item.image_url} 
                 alt={item.name}
                 className="w-full h-48 object-cover"
               />
@@ -139,7 +139,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               </label>
               <textarea
                 id="special-instructions"
-                value={specialInstructions}
+                value={special_instructions}
                 onChange={(e) => setSpecialInstructions(e.target.value)}
                 placeholder="Any special requests?"
                 className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-macon-orange"

@@ -18,7 +18,7 @@ export function ServerStats({ stats }: ServerStatsProps) {
   const statsData = [
     {
       label: 'Available Tables',
-      value: stats.availableTables,
+      value: stats.is_availableTables,
       total: stats.totalTables,
       icon: Home,
       color: 'text-green-600',
@@ -42,7 +42,7 @@ export function ServerStats({ stats }: ServerStatsProps) {
     },
     {
       label: 'Available Seats',
-      value: stats.availableSeats,
+      value: stats.is_availableSeats,
       total: stats.totalSeats,
       icon: Clock,
       color: 'text-orange-600',

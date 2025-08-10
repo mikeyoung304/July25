@@ -57,9 +57,9 @@ export const KioskDemo: React.FC = () => {
       const result = await submitVoiceOrder(voiceOrder)
       
       if (result.order) {
-        toast.success(`Order #${result.order.orderNumber} submitted to kitchen!`)
+        toast.success(`Order #${result.order.order_number} submitted to kitchen!`)
         setOrderSubmitted(true)
-        setSuccessOrderNumber(result.order.orderNumber)
+        setSuccessOrderNumber(result.order.order_number)
         
         // Reset after 3 seconds
         setTimeout(() => {

@@ -5,7 +5,7 @@ import { OrderStatus } from '@/types/filters'
 export interface UseOrderFiltersReturn {
   filters: OrderFilterState
   setStatusFilter: (status: OrderStatus | 'all') => void
-  setTableFilter: (tableNumber: string) => void
+  setTableFilter: (table_number: string) => void
   setDateRange: (start: Date, end: Date) => void
   setSearchQuery: (query: string) => void
   clearFilters: () => void
@@ -14,7 +14,7 @@ export interface UseOrderFiltersReturn {
 
 const initialFilters: OrderFilterState = {
   status: 'all',
-  tableNumber: '',
+  table_number: '',
   searchQuery: ''
 }
 
@@ -28,7 +28,7 @@ export const useOrderFilters = (defaultFilters?: Partial<OrderFilterState>): Use
     setFilters(prev => ({ ...prev, status }))
   }, [])
   
-  const setTableFilter = useCallback((tableNumber: string) => {
+  const setTableFilter = useCallback((table_number: string) => {
     setFilters(prev => ({ ...prev, tableNumber }))
   }, [])
   
@@ -47,7 +47,7 @@ export const useOrderFilters = (defaultFilters?: Partial<OrderFilterState>): Use
   const hasActiveFilters = useMemo(() => {
     return (
       filters.status !== 'all' ||
-      !!filters.tableNumber ||
+      !!filters.table_number ||
       !!filters.dateRange ||
       !!filters.searchQuery
     )

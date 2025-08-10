@@ -35,14 +35,14 @@ export const useOrderSubscription = (options: UseOrderSubscriptionOptions): void
       }
     })
     
-    // Subscribe to new orders coming in
-    const unsubscribeFromNewOrders = orderService.subscribeToOrders(restaurantId, () => {
-      // This is already handled by the ORDER_CREATED event
-    })
+    // Subscribe to new orders coming in - disabled until implemented
+    // const unsubscribeFromNewOrders = orderService.subscribeToOrders(restaurantId, () => {
+    //   // This is already handled by the ORDER_CREATED event
+    // })
     
     return () => {
       unsubscribe()
-      unsubscribeFromNewOrders()
+      // unsubscribeFromNewOrders()
     }
   }, [onOrderCreated, onOrderUpdated, onOrderStatusChanged, restaurant?.id])
 }

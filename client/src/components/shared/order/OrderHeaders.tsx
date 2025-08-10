@@ -40,7 +40,7 @@ export const AnimatedOrderHeader: React.FC<AnimatedOrderHeaderProps> = ({
 }) => {
   return (
     <div className={cn('flex items-center justify-between', className)}>
-      <OrderNumber value={orderNumber} size="lg" />
+      <OrderNumber value={order_number} size="lg" />
       <AnimatedStatusBadge 
         status={status} 
         previousStatus={previousStatus}
@@ -51,8 +51,8 @@ export const AnimatedOrderHeader: React.FC<AnimatedOrderHeaderProps> = ({
 
 // Order Metadata
 export interface OrderMetadataProps {
-  tableNumber: string
-  orderTime: Date
+  table_number: string
+  created_at: Date
   className?: string
 }
 
@@ -63,8 +63,8 @@ export const OrderMetadata: React.FC<OrderMetadataProps> = ({
 }) => {
   return (
     <div className={cn('flex items-center justify-between text-sm text-gray-600', className)}>
-      <TableLabel value={tableNumber} />
-      <ElapsedTimer startTime={orderTime} showIcon />
+      <TableLabel value={table_number} />
+      <ElapsedTimer startTime={created_at} showIcon />
     </div>
   )
 }

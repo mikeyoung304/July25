@@ -65,7 +65,7 @@ const CheckoutPageContent: React.FC = () => {
             quantity: item.quantity,
             price: item.price,
             modifiers: item.modifiers || [],
-            special_instructions: item.specialInstructions || '',
+            special_instructions: item.special_instructions || '',
           })),
           customerName: customerEmail.split('@')[0], // Use email prefix as name
           customerEmail,
@@ -111,7 +111,7 @@ const CheckoutPageContent: React.FC = () => {
       navigate('/order-confirmation', { 
         state: { 
           orderId: order.id,
-          orderNumber: order.orderNumber,
+          order_number: order.order_number,
           estimatedTime: '15-20 minutes',
           items: cart.items,
           total: cart.total,

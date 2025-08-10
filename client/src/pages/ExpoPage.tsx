@@ -17,7 +17,7 @@ import { format } from 'date-fns'
 
 interface ExpoOrder {
   id: string
-  orderNumber: string
+  order_number: string
   items: Array<{
     name: string
     quantity: number
@@ -25,7 +25,7 @@ interface ExpoOrder {
     status: 'pending' | 'in_progress' | 'ready'
   }>
   status: 'pending' | 'in_progress' | 'ready' | 'completed'
-  orderTime: Date
+  created_at: Date
   table?: string
   server?: string
   priority: 'normal' | 'rush'
@@ -41,7 +41,7 @@ export function ExpoPage() {
     if (ordersData) {
       const expoOrders: ExpoOrder[] = ordersData.map((order: any) => ({
         id: order.id,
-        orderNumber: order.order_number || `#${order.id.slice(-4)}`,
+        order_number: order.order_number || `#${order.id.slice(-4)}`,
         items: order.items.map((item: any) => ({
           name: item.name,
           quantity: item.quantity,
@@ -53,7 +53,7 @@ export function ExpoPage() {
         status: order.status === 'completed' ? 'completed' : 
                 order.status === 'preparing' ? 'in_progress' : 
                 order.status === 'ready' ? 'ready' : 'pending',
-        orderTime: new Date(order.created_at),
+        created_at: new Date(order.created_at),
         table: order.table_number,
         server: order.customer_name, // Use customer_name as server for now
         priority: 'normal'
@@ -99,7 +99,7 @@ export function ExpoPage() {
     }
   }
 
-  const getTimeSinceOrder = (orderTime: Date) => {
+  const getTimeSinceOrder = (created_at: Date) => {
     const minutes = Math.floor((Date.now() - orderTime.getTime()) / 60000)
     if (minutes < 5) return { text: `${minutes}m`, color: 'text-green-600' }
     if (minutes < 10) return { text: `${minutes}m`, color: 'text-yellow-600' }
@@ -173,7 +173,7 @@ export function ExpoPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             <AnimatePresence>
               {(showCompleted ? [...activeOrders, ...completedOrders] : activeOrders).map((order, index) => {
-                const timeInfo = getTimeSinceOrder(order.orderTime)
+                const timeInfo = getTimeSinceOrder(order.created_at)
                 
                 return (
                   <motion.div
@@ -193,7 +193,7 @@ export function ExpoPage() {
                       <div className="flex justify-between items-start mb-4">
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="text-xl font-bold">{order.orderNumber}</h3>
+                            <h3 className="text-xl font-bold">{order.order_number}</h3>
                             {order.priority === 'rush' && (
                               <Badge className="bg-red-500 text-white">RUSH</Badge>
                             )}

@@ -1,6 +1,6 @@
 export interface CartItem {
   id: string;
-  menuItemId: string;
+  menu_item_id: string;
   name: string;
   price: number;
   quantity: number;
@@ -50,7 +50,7 @@ export interface PaymentIntent {
 
 export interface OrderConfirmation {
   orderId: string;
-  orderNumber: string;
+  order_number: string;
   estimatedTime: string;
   items: CartItem[];
   total: number;

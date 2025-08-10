@@ -109,14 +109,14 @@ export const useOrderHistory = (): UseOrderHistoryReturn => {
     const csvContent = [
       headers.join(','),
       ...orders.map(order => [
-        order.orderNumber,
-        order.tableNumber,
+        order.order_number,
+        order.table_number,
         `"${order.items.map(item => `${item.quantity}x ${item.name}`).join(', ')}"`,
         order.status,
-        new Date(order.orderTime).toLocaleString(),
-        order.completedTime ? new Date(order.completedTime).toLocaleString() : '',
-        order.preparationTime || '',
-        order.totalAmount.toFixed(2)
+        new Date(order.created_at).toLocaleString(),
+        order.completed_at ? new Date(order.completed_at).toLocaleString() : '',
+        order.estimated_ready_time || '',
+        order.total.toFixed(2)
       ].join(','))
     ].join('\n')
 

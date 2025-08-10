@@ -2,7 +2,7 @@ import React from 'react'
 import { CheckCircle } from 'lucide-react'
 
 interface OrderSuccessAnimationProps {
-  orderNumber: string
+  order_number: string
   isVisible: boolean
 }
 
@@ -20,7 +20,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
             <CheckCircle className="h-16 w-16 text-green-600" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Order Confirmed!</h2>
-          <p className="text-lg text-gray-600">Order #{orderNumber}</p>
+          <p className="text-lg text-gray-600">Order #{order_number}</p>
           <p className="text-sm text-gray-500">Sent to kitchen</p>
         </div>
       </div>

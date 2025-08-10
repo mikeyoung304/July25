@@ -9,7 +9,7 @@ export interface OrderFilterState {
   stations: Station[]
   timeRange: 'today' | 'week' | 'month' | 'all'
   searchQuery: string
-  sortBy: 'orderTime' | 'orderNumber' | 'status'
+  sortBy: 'created_at' | 'order_number' | 'status'
   sortDirection: 'asc' | 'desc'
 }
 
@@ -19,7 +19,7 @@ export interface UseOrderFiltersReturn {
   updateStationFilter: (stations: Station[]) => void
   updateTimeRange: (range: 'today' | 'week' | 'month' | 'all') => void
   updateSearchQuery: (query: string) => void
-  updateSort: (sortBy: 'orderTime' | 'orderNumber' | 'status') => void
+  updateSort: (sortBy: 'created_at' | 'order_number' | 'status') => void
   toggleSortDirection: () => void
   resetFilters: () => void
   hasActiveFilters: boolean
@@ -30,12 +30,12 @@ export function useOrderFilters(): UseOrderFiltersReturn {
   const [additionalFilters, setAdditionalFilters] = useState<{
     stations: Station[]
     timeRange: 'today' | 'week' | 'month' | 'all'
-    sortBy: 'orderTime' | 'orderNumber' | 'status'
+    sortBy: 'created_at' | 'order_number' | 'status'
     sortDirection: 'asc' | 'desc'
   }>({
     stations: [],
     timeRange: 'today',
-    sortBy: 'orderTime',
+    sortBy: 'created_at',
     sortDirection: 'desc'
   })
 
@@ -61,7 +61,7 @@ export function useOrderFilters(): UseOrderFiltersReturn {
     moduleHook.setSearchQuery(query)
   }, [moduleHook])
 
-  const updateSort = useCallback((sortBy: 'orderTime' | 'orderNumber' | 'status') => {
+  const updateSort = useCallback((sortBy: 'created_at' | 'order_number' | 'status') => {
     setAdditionalFilters(prev => ({ ...prev, sortBy }))
   }, [])
 
@@ -77,7 +77,7 @@ export function useOrderFilters(): UseOrderFiltersReturn {
     setAdditionalFilters({
       stations: [],
       timeRange: 'today',
-      sortBy: 'orderTime',
+      sortBy: 'created_at',
       sortDirection: 'desc'
     })
   }, [moduleHook])

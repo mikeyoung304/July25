@@ -19,16 +19,16 @@ export function useOrderSubmission() {
       )
 
       const orderData = {
-        orderType: 'kiosk' as const,
+        type: 'kiosk' as const,
         items: items.map(item => ({
-          menuItemId: item.menuItem.id,
+          menu_item_id: item.menuItem.id,
           name: item.menuItem.name,
           quantity: item.quantity,
           price: item.menuItem.price,
           modifications: item.modifications || [],
-          specialInstructions: ''
+          special_instructions: ''
         })),
-        totalAmount: total,
+        total: total,
         paymentMethod: 'kiosk',
         customerInfo: {
           name: 'Kiosk Customer',
@@ -59,11 +59,11 @@ export function useOrderSubmission() {
 
       const result = await response.json()
       
-      toast.success(`Order #${result.orderNumber || result.id} submitted successfully!`)
+      toast.success(`Order #${result.order_number || result.id} submitted successfully!`)
       
       return { 
         success: true, 
-        orderNumber: result.orderNumber || result.id,
+        order_number: result.order_number || result.id,
         orderId: result.id,
         estimatedTime: result.estimatedTime || '10-15 minutes'
       }

@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { ShoppingCart, Headphones, User } from 'lucide-react';
+import { ShoppingCart, Headphones, User, Volume2, AlertCircle, CheckCircle } from 'lucide-react';
 import { VoiceOrderProvider } from '@/modules/voice/contexts/VoiceOrderContext';
 import { useVoiceOrder } from '@/modules/voice/hooks/useVoiceOrder';
 import VoiceControl from '@/modules/voice/components/VoiceControl';
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser';
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/utils';
 
 interface ConversationEntry {
   id: string;
@@ -18,6 +19,11 @@ const DriveThruPageContent: React.FC = () => {
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [isFirstPress, setIsFirstPress] = useState(true);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'error' | 'disconnected'>('disconnected');
+  const [orderSubmitted, setOrderSubmitted] = useState(false);
   const { items, addItem, removeItem, updateQuantity, total, itemCount } = useVoiceOrder();
   const { items: menuItems, loading } = useMenuItems();
   const [orderParser, setOrderParser] = useState<OrderParser | null>(null);
@@ -197,7 +203,7 @@ const DriveThruPageContent: React.FC = () => {
         </div>
 
         {/* Order Summary */}
-        <Card className="bg-neutral-800/80 backdrop-blur rounded-lg p-6 mb-6 border-neutral-700">
+        <div className="bg-neutral-800/80 backdrop-blur rounded-lg p-6 mb-6 border border-neutral-700">
           <div className="flex items-center justify-center mb-4">
             <ShoppingCart className="w-10 h-10 mr-3" />
             <h2 className="text-3xl font-bold">YOUR ORDER ({itemCount} items)</h2>
@@ -225,7 +231,7 @@ const DriveThruPageContent: React.FC = () => {
               TOTAL: ${total.toFixed(2)}
             </p>
           </div>
-        </Card>
+        </div>
 
         {/* Controls */}
         <div className="flex flex-col items-center gap-6">

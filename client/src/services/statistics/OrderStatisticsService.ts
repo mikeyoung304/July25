@@ -19,12 +19,12 @@ export class OrderStatisticsService implements IOrderStatisticsService {
       totalOrders: orders.length,
       completedOrders: orders.filter(o => o.status === 'completed').length,
       cancelledOrders: orders.filter(o => o.status === 'cancelled').length,
-      totalRevenue: orders.reduce((sum, o) => sum + o.totalAmount, 0),
-      averageOrderValue: orders.length > 0 ? orders.reduce((sum, o) => sum + o.totalAmount, 0) / orders.length : 0,
-      averagePreparationTime: orders.filter(o => o.preparationTime).reduce((sum, o) => sum + (o.preparationTime || 0), 0) / orders.filter(o => o.preparationTime).length,
+      totalRevenue: orders.reduce((sum, o) => sum + o.total, 0),
+      averageOrderValue: orders.length > 0 ? orders.reduce((sum, o) => sum + o.total, 0) / orders.length : 0,
+      averagePreparationTime: orders.filter(o => o.estimated_ready_time).reduce((sum, o) => sum + (o.estimated_ready_time || 0), 0) / orders.filter(o => o.estimated_ready_time).length,
       ordersByHour: Array.from({ length: 24 }, (_, hour) => ({
         hour,
-        count: orders.filter(o => new Date(o.orderTime).getHours() === hour).length
+        count: orders.filter(o => new Date(o.created_at).getHours() === hour).length
       }))
     }
     

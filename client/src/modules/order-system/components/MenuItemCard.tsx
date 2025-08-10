@@ -16,7 +16,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
 
   // Calculate total quantity of this item in cart
   const cartQuantity = cart.items
-    .filter(cartItem => cartItem.menuItemId === item.id)
+    .filter(cartItem => cartItem.menu_item_id === item.id)
     .reduce((sum, cartItem) => sum + cartItem.quantity, 0);
 
   // Sync local quantity with cart quantity
@@ -42,7 +42,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
     
     // Add item to cart
     addToCart({
-      menuItemId: item.id,
+      menu_item_id: item.id,
       name: item.name,
       price: item.price,
       quantity: 1
@@ -63,7 +63,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
     if (delta > 0) {
       // Add one more item to cart
       addToCart({
-        menuItemId: item.id,
+        menu_item_id: item.id,
         name: item.name,
         price: item.price,
         quantity: 1
@@ -89,9 +89,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       
       {/* Image Zone - Fixed aspect ratio 4:3 */}
       <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
-        {item.imageUrl ? (
+        {item.image_url ? (
           <img 
-            src={item.imageUrl} 
+            src={item.image_url} 
             alt={item.name}
             className="w-full h-full object-cover"
             loading="lazy"

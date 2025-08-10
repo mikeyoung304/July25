@@ -144,7 +144,7 @@ export const transformSharedOrderToClient = (order: SharedOrder): ClientOrder =>
       id: validateString(order.id, 'id'),
       orderNumber: validateString(order.order_number, 'order_number'),
       restaurantId: validateString(order.restaurant_id, 'restaurant_id'),
-      customerId: order.customer_id || undefined,
+      customerId: order.customer_name || undefined,
       tableNumber: order.table_number || undefined,
       status: order.status,
       type: order.type,
@@ -153,9 +153,9 @@ export const transformSharedOrderToClient = (order: SharedOrder): ClientOrder =>
       tax: validateNumber(order.tax, 'tax'),
       tip: order.tip || undefined,
       totalAmount: validateNumber(order.total, 'total'),
-      paymentStatus: order.payment_status,
-      specialInstructions: order.special_instructions || undefined,
-      preparationTimeMinutes: order.preparation_time_minutes || undefined,
+      paymentStatus: order.payment_status === 'paid' ? 'completed' : order.payment_status as any,
+      specialInstructions: order.notes || undefined,
+      preparationTimeMinutes: order.estimated_ready_time ? 15 : undefined,
       orderTime: validateDate(order.created_at, 'created_at'),
       completedTime: order.completed_at ? validateDate(order.completed_at, 'completed_at') : undefined,
       createdAt: validateDate(order.created_at, 'created_at'),
@@ -188,10 +188,10 @@ export const transformClientOrderToShared = (order: ClientOrder): SharedOrder =>
       tax: validateNumber(order.tax, 'tax'),
       tip: order.tip || null,
       total: validateNumber(order.totalAmount, 'totalAmount'),
-      payment_status: order.paymentStatus,
-      special_instructions: order.specialInstructions || null,
-      preparation_time_minutes: order.preparationTimeMinutes || null,
-      completed_at: order.completedTime ? order.completedTime.toISOString() : null,
+      payment_status: order.paymentStatus === 'completed' ? 'paid' : order.paymentStatus as any,
+      notes: order.specialInstructions || undefined,
+      estimated_ready_time: order.preparationTimeMinutes ? new Date(Date.now() + order.preparationTimeMinutes * 60000).toISOString() : undefined,
+      completed_at: order.completedTime ? order.completedTime.toISOString() : undefined,
       created_at: order.createdAt.toISOString(),
       updated_at: order.updatedAt.toISOString()
     };
@@ -214,7 +214,7 @@ export const transformSharedOrderItemToClient = (item: SharedOrderItem): ClientO
       id: validateString(item.id, 'id'),
       menuItemId: validateString(item.menu_item_id, 'menu_item_id'),
       quantity: validateNumber(item.quantity, 'quantity'),
-      unitPrice: validateNumber(item.unit_price, 'unit_price'),
+      unitPrice: validateNumber(item.price, 'price'),
       subtotal: validateNumber(item.subtotal, 'subtotal'),
       modifiers: item.modifiers?.map(mod => ({
         id: validateString(mod.id, 'modifier.id'),
@@ -240,15 +240,16 @@ export const transformClientOrderItemToShared = (item: ClientOrderItem): SharedO
     return {
       id: validateString(item.id, 'id'),
       menu_item_id: validateString(item.menuItemId, 'menuItemId'),
+      name: 'Unknown Item', // Client doesn't have name, use placeholder
       quantity: validateNumber(item.quantity, 'quantity'),
-      unit_price: validateNumber(item.unitPrice, 'unitPrice'),
+      price: validateNumber(item.unitPrice, 'unitPrice'),
       subtotal: validateNumber(item.subtotal, 'subtotal'),
       modifiers: item.modifiers?.map(mod => ({
         id: validateString(mod.id, 'modifier.id'),
         name: validateString(mod.name, 'modifier.name'),
         price: validateNumber(mod.price, 'modifier.price')
-      })) || null,
-      special_instructions: item.specialInstructions || null
+      })) || undefined,
+      special_instructions: item.specialInstructions || undefined
     };
   } catch (error) {
     if (error instanceof TypeTransformationError) {
@@ -274,10 +275,7 @@ export const transformSharedMenuItemToClient = (item: SharedMenuItem): ClientMen
       category: validateString(item.category_id, 'category_id'), // Note: Using category_id as string
       available: item.is_available,
       imageUrl: item.image_url || undefined,
-      prepTimeMinutes: item.prep_time_minutes || undefined,
-      calories: item.calories || undefined,
-      allergens: item.allergens || undefined,
-      spicyLevel: item.spicy_level || undefined,
+      prepTimeMinutes: item.preparation_time || undefined,
       createdAt: validateDate(item.created_at, 'created_at'),
       updatedAt: validateDate(item.updated_at, 'updated_at')
     };
@@ -322,14 +320,14 @@ export const transformSharedTableToClient = (table: SharedTable): ClientTable =>
       id: validateString(table.id, 'id'),
       restaurantId: validateString(table.restaurant_id, 'restaurant_id'),
       tableNumber: validateString(table.table_number, 'table_number'),
-      seats: validateNumber(table.seats, 'seats'),
+      seats: validateNumber(table.capacity, 'capacity'),
       status: table.status,
       x,
       y,
-      width: table.width || 80, // Default dimensions
-      height: table.height || 80,
+      width: 80, // Default dimensions
+      height: 80,
       type,
-      zIndex: table.z_index || 1,
+      zIndex: 1,
       createdAt: validateDate(table.created_at, 'created_at'),
       updatedAt: validateDate(table.updated_at, 'updated_at')
     };
@@ -358,14 +356,12 @@ export const transformClientTableToShared = (table: ClientTable): SharedTable =>
       id: validateString(table.id, 'id'),
       restaurant_id: validateString(table.restaurantId, 'restaurantId'),
       table_number: validateString(table.tableNumber, 'tableNumber'),
-      seats: validateNumber(table.seats, 'seats'),
+      capacity: validateNumber(table.seats, 'seats'),
       status: table.status,
       position: {
         x: validateNumber(table.x, 'x'),
         y: validateNumber(table.y, 'y')
       },
-      width: validateNumber(table.width, 'width'),
-      height: validateNumber(table.height, 'height'),
       shape: typeToShapeMap[table.type],
       z_index: validateNumber(table.zIndex, 'zIndex'),
       created_at: table.createdAt.toISOString(),

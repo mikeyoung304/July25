@@ -88,8 +88,8 @@ export const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
           <tbody className="divide-y">
             {orders.map((order) => (
               <tr key={order.id} className="hover:bg-muted/25 transition-colors">
-                <td className="px-4 py-3 text-sm font-medium">{order.orderNumber}</td>
-                <td className="px-4 py-3 text-sm">{order.tableNumber}</td>
+                <td className="px-4 py-3 text-sm font-medium">{order.order_number}</td>
+                <td className="px-4 py-3 text-sm">{order.table_number}</td>
                 <td className="px-4 py-3 text-sm">
                   <div className="max-w-xs">
                     {order.items.slice(0, 2).map((item, index) => (
@@ -107,15 +107,15 @@ export const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
                 <td className="px-4 py-3">
                   {getStatusBadge(order.status)}
                 </td>
-                <td className="px-4 py-3 text-sm">{formatDate(order.orderTime)}</td>
+                <td className="px-4 py-3 text-sm">{formatDate(order.created_at)}</td>
                 <td className="px-4 py-3 text-sm">
-                  {order.completedTime ? formatDate(order.completedTime) : '-'}
+                  {order.completed_at ? formatDate(order.completed_at) : '-'}
                 </td>
                 <td className="px-4 py-3 text-sm">
-                  {order.preparationTime ? `${order.preparationTime} min` : '-'}
+                  {order.estimated_ready_time ? `${order.estimated_ready_time} min` : '-'}
                 </td>
                 <td className="px-4 py-3 text-sm text-right font-medium">
-                  {formatCurrency(order.totalAmount)}
+                  {formatCurrency(order.total)}
                 </td>
               </tr>
             ))}

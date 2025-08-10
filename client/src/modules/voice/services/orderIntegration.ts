@@ -1,6 +1,8 @@
 import { api } from '@/services/api'
+import { Order, OrderType } from '@rebuild/shared'
 
 export interface ParsedVoiceItem {
+  id?: string
   name: string
   quantity: number
   modifiers?: string[]
@@ -165,24 +167,30 @@ const extractSpecialRequests = (text: string): string | undefined => {
  */
 export const submitVoiceOrder = async (voiceOrder: VoiceOrder) => {
   // Convert to API format
-  const orderData = {
-    tableNumber: 'K1', // K for Kiosk
+  const orderData: Partial<Order> = {
+    table_number: 'K1', // K for Kiosk
     items: voiceOrder.items.map(item => ({
       id: `${Date.now()}-${Math.random()}`,
+      menu_item_id: item.id || `menu-${Date.now()}`,
       name: item.name,
       quantity: item.quantity,
-      modifiers: item.modifiers,
-      notes: voiceOrder.specialRequests
+      price: calculateItemPrice(item.name),
+      subtotal: calculateItemPrice(item.name) * item.quantity,
+      modifiers: item.modifiers?.map(mod => ({
+        id: `mod-${Date.now()}-${Math.random()}`,
+        name: mod,
+        price: 0
+      })),
+      special_instructions: voiceOrder.specialRequests
     })),
-    totalAmount: calculateTotal(voiceOrder.items),
-    orderType: voiceOrder.orderType
+    total: calculateTotal(voiceOrder.items),
+    type: (voiceOrder.type || 'voice') as OrderType
   }
   
   return api.submitOrder(orderData)
 }
 
-const calculateTotal = (items: ParsedVoiceItem[]): number => {
-  // Grow Fresh Local Food pricing
+const calculateItemPrice = (itemName: string): number => {
   const prices: Record<string, number> = {
     // Starters
     'Summer Sampler': 16,
@@ -204,34 +212,15 @@ const calculateTotal = (items: ParsedVoiceItem[]): number => {
     'Chicken Fajita Keto': 14,
     'Greek Bowl': 14,
     'Summer Vegan Bowl': 14,
-    'Summer Succotash': 14,
-    
-    // Entrees
-    'Peach Chicken': 16,
-    'Teriyaki Salmon Over Rice': 16,
-    'Hamburger Steak over rice': 15,
-    'Greek Chicken Thighs (2) Over Rice': 16,
-    
-    // Veggie Plate
-    'Veggie Plate': 10, // Default to 3 sides
+    'Summer Succotash': 14
   }
   
-  // Modifier pricing
-  const modifierPrices: Record<string, number> = {
-    'Add chicken': 4,
-    'Add salmon': 6,
-    'Add prosciutto': 4,
-    'Add rice': 1,
-    'Extra collards': 2,
-    'Three sides': 0, // Base price
-    'Four sides': 2.50, // Additional
-  }
-  
+  return prices[itemName] || 10 // Default price if not found
+}
+
+const calculateTotal = (items: ParsedVoiceItem[]): number => {
   return items.reduce((total, item) => {
-    const basePrice = prices[item.name] || 0
-    const modifierTotal = (item.modifiers || []).reduce((modTotal, mod) => {
-      return modTotal + (modifierPrices[mod] || 0)
-    }, 0)
-    return total + ((basePrice + modifierTotal) * item.quantity)
+    const basePrice = calculateItemPrice(item.name)
+    return total + (basePrice * item.quantity)
   }, 0)
 }

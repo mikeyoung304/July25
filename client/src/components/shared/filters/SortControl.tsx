@@ -19,9 +19,9 @@ interface SortControlProps {
 }
 
 const sortOptions: { value: SortBy; label: string }[] = [
-  { value: 'orderTime', label: 'Order Time' },
-  { value: 'orderNumber', label: 'Order Number' },
-  { value: 'tableNumber', label: 'Table Number' },
+  { value: 'created_at', label: 'Order Time' },
+  { value: 'order_number', label: 'Order Number' },
+  { value: 'table_number', label: 'Table Number' },
   { value: 'status', label: 'Status' },
   { value: 'itemCount', label: 'Item Count' }
 ]

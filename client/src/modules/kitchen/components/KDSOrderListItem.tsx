@@ -60,13 +60,13 @@ export const KDSOrderListItem = memo<KDSOrderListItemProps>(({
         {/* Order Info Section */}
         <div className="flex-1">
           <AnimatedOrderHeader
-            orderNumber={orderNumber}
+            orderNumber={order_number}
             status={status}
             previousStatus={previousStatus}
           />
           <OrderMetadata
-            tableNumber={tableNumber}
-            orderTime={orderTime}
+            tableNumber={table_number}
+            orderTime={created_at}
             className="mt-2"
           />
         </div>

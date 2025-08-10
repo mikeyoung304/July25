@@ -61,7 +61,7 @@ export function KitchenHeader({
             sortBy={filters.sortBy as SortBy}
             sortDirection={filters.sortDirection}
             onSortChange={(sortBy) => {
-              if (sortBy === 'orderTime' || sortBy === 'orderNumber' || sortBy === 'status') {
+              if (sortBy === 'created_at' || sortBy === 'order_number' || sortBy === 'status') {
                 onSortChange(sortBy)
               }
             }}
