@@ -8,7 +8,7 @@ import { EventEmitter } from '@/services/utils/EventEmitter';
 import { getCurrentRestaurantId } from '@/services/http/httpClient';
 import { toCamelCase, toSnakeCase } from '@/services/utils/caseTransform';
 import { env } from '@/utils/env';
-import { ManagedService, CleanupManager, MemoryMonitor } from '@rebuild/shared/utils/cleanup-manager';
+import { ManagedService, CleanupManager, MemoryMonitor } from '@rebuild/shared';
 
 export interface WebSocketConfig {
   url?: string;
