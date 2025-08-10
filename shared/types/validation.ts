@@ -39,10 +39,7 @@ const createStringValidator = (options: {
 }) => {
   let schema = z.string();
   
-  if (options.sanitize) {
-    schema = schema.transform(str => str.trim()) as any;
-  }
-  
+  // Apply validations before transform
   if (options.minLength) {
     schema = schema.min(options.minLength);
   }
@@ -53,6 +50,11 @@ const createStringValidator = (options: {
   
   if (options.pattern) {
     schema = schema.regex(options.pattern);
+  }
+  
+  // Apply transform last
+  if (options.sanitize) {
+    schema = schema.transform(str => str.trim()) as any;
   }
   
   return options.required ? schema : schema.optional();
