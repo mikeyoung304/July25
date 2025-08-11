@@ -69,7 +69,10 @@ app.use(helmet({
 
 // CORS configuration with stricter settings
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-  process.env.FRONTEND_URL || 'http://localhost:5173'
+  process.env.FRONTEND_URL || 'http://localhost:5173',
+  'https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
+  'https://growfreshlocalfood.com',
+  'https://www.growfreshlocalfood.com'
 ];
 
 app.use(cors({
@@ -84,7 +87,7 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id', 'x-request-id'],
   exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset'],
   maxAge: 86400, // 24 hours

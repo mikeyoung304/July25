@@ -1,7 +1,10 @@
-> **Project Briefing: Rebuild 6.0**
-> - **Mission**: Evolve a modular Restaurant OS with unified backend architecture
-> - **Architecture**: See `ARCHITECTURE.md` for Luis's unified backend decision
-> - **Full Project Docs**: Refer to `README.md` for setup and features
+# Rebuild 6.0 Project Memory
+# Last Updated: 2025-08-10
+
+## Project Overview
+- **Mission**: Evolve a modular Restaurant OS with unified backend architecture
+- **Architecture**: See `ARCHITECTURE.md` for Luis's unified backend decision
+- **Full Project Docs**: Refer to `README.md` for setup and features
 
 ---
 
@@ -125,9 +128,28 @@ npm run check:integration  # Verify system health
 
 ---
 
+## Subagent Assignments
+
+### Automatic Delegation
+- **TypeScript errors** → typescript-debugger agent
+- **Build/bundling issues** → vite-builder agent  
+- **Performance problems** → react-optimizer agent
+- **Code review** → code-reviewer agent
+- **Complex features (>3 steps)** → Task tool with general-purpose agent
+
+### Manual Invocation
+Use these phrases to trigger specific agents:
+- "use typescript-debugger to fix type errors"
+- "use vite-builder to optimize the build"
+- "use react-optimizer to improve performance"
+- "review this code" or "audit the changes"
+
+---
+
 **Remember**: 
 - Unified backend on port 3001
 - No separate AI Gateway
 - client/ and server/ directories
 - All env vars in root `.env` file only
 - See ARCHITECTURE.md for any architecture questions
+- Use Task tool for complex multi-step operations

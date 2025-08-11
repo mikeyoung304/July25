@@ -1,54 +1,60 @@
 {
-  "claude": {
-    "version": "2025.8.5",
-    "projectName": "rebuild-6.0",
-    "description": "Restaurant OS with unified backend architecture"
+  "project": {
+    "name": "rebuild-6.0",
+    "type": "restaurant-os",
+    "version": "6.0.0",
+    "stack": ["react", "typescript", "vite", "express", "supabase"]
   },
-  "mcp": {
-    "enabled": true,
-    "servers": {
-      "filesystem": {
-        "enabled": true,
-        "scope": "project",
-        "allowedPaths": ["/Users/mikeyoung/CODING"]
-      },
-      "sequential-thinking": {
-        "enabled": true,
-        "scope": "project"
-      },
-      "memory": {
-        "enabled": true,
-        "scope": "project"
-      },
-      "git": {
-        "enabled": true,
-        "scope": "project",
-        "repository": "/Users/mikeyoung/CODING/rebuild-6.0"
-      }
-    }
-  },
-  "permissions": {
-    "allowedTools": [
-      "Read", "Edit", "Write", "MultiEdit", "LS", "Glob", "Grep",
-      "TodoWrite", "WebFetch", "WebSearch", "Task"
-    ],
-    "bashCommands": {
-      "allowed": [
-        "npm", "node", "git", "claude", "chmod", "mkdir", "cp", "mv",
-        "ls", "pwd", "cd", "echo", "cat", "grep", "find", "which"
-      ],
-      "restricted": [
-        "rm", "sudo", "curl", "wget", "ssh", "scp", "rsync"
-      ]
-    },
-    "fileAccess": {
-      "allowedPaths": ["/Users/mikeyoung/CODING"],
-      "restrictedPaths": ["node_modules", ".git/objects", "*.log", ".env", "*.key", "*.pem"]
+  "architecture": {
+    "backend": "unified",
+    "port": 3001,
+    "microservices": false,
+    "structure": {
+      "frontend": "client/",
+      "backend": "server/",
+      "shared": "shared/"
     }
   },
   "workflow": {
-    "architecture": "unified-backend",
-    "testRequired": true,
-    "lintRequired": true
+    "autoTest": true,
+    "strictTypeCheck": true,
+    "preCommitChecks": ["test", "lint", "typecheck"],
+    "commands": {
+      "dev": "npm run dev",
+      "test": "npm test",
+      "lint": "npm run lint:fix",
+      "typecheck": "npm run typecheck"
+    }
+  },
+  "subagents": {
+    "preferredAgents": [
+      "typescript-debugger",
+      "vite-builder",
+      "react-optimizer"
+    ],
+    "autoDelegate": {
+      "typeErrors": "typescript-debugger",
+      "buildIssues": "vite-builder",
+      "performance": "react-optimizer"
+    }
+  },
+  "multiTenancy": {
+    "enabled": true,
+    "contextProvider": "RestaurantContext",
+    "idField": "restaurant_id"
+  },
+  "aiIntegration": {
+    "location": "server/src/ai/",
+    "websocket": true,
+    "voiceEnabled": true
+  },
+  "qualityGates": {
+    "mandatory": ["test", "typecheck"],
+    "coverage": {
+      "statements": 60,
+      "branches": 50,
+      "functions": 60,
+      "lines": 60
+    }
   }
 }

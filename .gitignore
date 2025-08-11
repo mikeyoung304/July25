@@ -37,3 +37,10 @@ client/dev_vitals_fix.log
 client/ts-errors.txt
 client/checkpoint/
 # Build trigger Sat Aug  9 22:02:46 EDT 2025
+
+# Claude Code
+.claude/settings.local.json
+.claude/cache/
+CLAUDE.local.md
+*.jsonl
+~/.claude.backup*
