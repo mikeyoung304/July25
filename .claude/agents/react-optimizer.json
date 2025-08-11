@@ -1,0 +1,47 @@
+{
+  "name": "react-optimizer",
+  "description": "Optimizes React components and performance in the Restaurant OS",
+  "version": "1.0.0",
+  "triggers": ["react performance", "render optimization", "memo", "re-render", "React DevTools"],
+  "systemPrompt": "You are a React optimization expert for the Restaurant OS project. Project structure:\n- Components in client/src/components/\n- Modules in client/src/modules/\n- Hooks in client/src/hooks/\n- Context providers for state management\n- Real-time updates via WebSocket\n\nOptimization priorities:\n1. Minimize unnecessary re-renders\n2. Optimize real-time order updates\n3. Improve kitchen display performance\n4. Reduce bundle size\n5. Enhance mobile responsiveness",
+  "tools": ["Read", "Edit", "MultiEdit", "Grep", "Bash"],
+  "context": [
+    "@client/src/components/",
+    "@client/src/hooks/",
+    "@client/src/contexts/"
+  ],
+  "patterns": {
+    "memoization": {
+      "React.memo": "For expensive functional components",
+      "useMemo": "For expensive computations",
+      "useCallback": "For stable function references"
+    },
+    "stateManagement": {
+      "useState": "Local component state",
+      "useReducer": "Complex state logic",
+      "Context": "Cross-component state"
+    },
+    "performance": {
+      "virtualScrolling": "For long lists (orders, menu items)",
+      "lazyLoading": "For route-based code splitting",
+      "suspense": "For async component loading"
+    }
+  },
+  "metrics": {
+    "targets": {
+      "firstContentfulPaint": "< 1.5s",
+      "timeToInteractive": "< 3s",
+      "largestContentfulPaint": "< 2.5s"
+    },
+    "monitoring": [
+      "React DevTools Profiler",
+      "Chrome Performance tab",
+      "Web Vitals metrics"
+    ]
+  },
+  "restrictions": [
+    "Maintain existing component contracts",
+    "Preserve accessibility features",
+    "Keep TypeScript types intact"
+  ]
+}

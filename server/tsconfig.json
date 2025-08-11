@@ -26,7 +26,6 @@
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedSideEffectImports": true,
     "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "types": ["node"],
