@@ -11,7 +11,7 @@ export class OpenAITranscriber implements Transcriber {
   private client: OpenAI;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env['OPENAI_API_KEY'];
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY is required for AI features');
     }
@@ -50,12 +50,17 @@ export class OpenAITranscriber implements Transcriber {
         const result = await withRetry(async () => {
           const fileStream = createReadStream(tmpPath);
           
-          const response = await this.client.audio.transcriptions.create({
+          const transcriptionOptions: any = {
             file: fileStream,
             model: 'whisper-1',
-            language: options?.language,
             response_format: 'json'
-          });
+          };
+          
+          if (options?.language) {
+            transcriptionOptions.language = options.language;
+          }
+          
+          const response = await this.client.audio.transcriptions.create(transcriptionOptions);
 
           return response;
         });
@@ -67,7 +72,7 @@ export class OpenAITranscriber implements Transcriber {
 
         return {
           text: result.text,
-          language: options?.language
+          language: options?.language || 'en'
         };
       } finally {
         // Clean up temp file
@@ -86,7 +91,7 @@ export class OpenAITranscriber implements Transcriber {
       // Return degraded response
       return {
         text: '',
-        language: options?.language
+        language: options?.language || 'en'
       };
     }
   }

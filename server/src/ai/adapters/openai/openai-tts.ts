@@ -9,7 +9,7 @@ export class OpenAITextToSpeech implements TTS {
   private client: OpenAI;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env['OPENAI_API_KEY'];
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY is required for AI features');
     }
@@ -69,6 +69,7 @@ export class OpenAITextToSpeech implements TTS {
 
       return {
         audio: result,
+        audioBuffer: result, // For backward compatibility
         mimeType: 'audio/mpeg'
       };
     } catch (error) {
@@ -80,6 +81,7 @@ export class OpenAITextToSpeech implements TTS {
       // Return empty audio as degraded response
       return {
         audio: Buffer.alloc(0),
+        audioBuffer: Buffer.alloc(0), // For backward compatibility
         mimeType: 'audio/mpeg'
       };
     }

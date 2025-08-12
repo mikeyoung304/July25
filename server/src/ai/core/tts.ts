@@ -9,7 +9,8 @@ export interface TTSOptions {
 }
 
 export interface TTSResult {
-  audioBuffer: Buffer;
+  audio: Buffer;
+  audioBuffer?: Buffer; // For backward compatibility
   mimeType: string;
   duration?: number;
 }

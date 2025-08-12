@@ -5,7 +5,7 @@
 import { Transcriber, TranscriberOptions, TranscriptionResult } from '../core/transcriber';
 
 export class TranscriberStub implements Transcriber {
-  async transcribe(audioBuffer: Buffer, options?: TranscriberOptions): Promise<TranscriptionResult> {
+  async transcribe(_audioBuffer: Buffer, options?: TranscriberOptions): Promise<TranscriptionResult> {
     // Stub implementation - returns mock data
     return {
       text: "I'd like to order a large pepperoni pizza",

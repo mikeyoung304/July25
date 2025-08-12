@@ -22,6 +22,7 @@ export interface ParsedOrder {
 }
 
 export interface OrderNLP {
+  parse(request: { restaurantId: string; text: string }): Promise<any>;
   parseOrder(text: string, menu: MenuItem[]): Promise<ParsedOrder>;
   generateOrderSummary(order: ParsedOrder, menu: MenuItem[]): string;
 }

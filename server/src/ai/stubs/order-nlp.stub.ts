@@ -5,7 +5,14 @@
 import { OrderNLP, MenuItem, ParsedOrder } from '../core/order-nlp';
 
 export class OrderNLPStub implements OrderNLP {
-  async parseOrder(text: string, menu: MenuItem[]): Promise<ParsedOrder> {
+  async parse(request: { restaurantId: string; text: string }): Promise<any> {
+    return {
+      items: [],
+      notes: `Stub parsed: "${request.text}" for restaurant ${request.restaurantId}`
+    };
+  }
+
+  async parseOrder(_text: string, _menu: MenuItem[]): Promise<ParsedOrder> {
     // Stub implementation - returns mock parsed order
     return {
       items: [
@@ -22,7 +29,7 @@ export class OrderNLPStub implements OrderNLP {
     };
   }
 
-  generateOrderSummary(order: ParsedOrder, menu: MenuItem[]): string {
+  generateOrderSummary(order: ParsedOrder, _menu: MenuItem[]): string {
     return `Order Summary: ${order.items.length} item(s) for ${order.customerName || 'Guest'}`;
   }
 }

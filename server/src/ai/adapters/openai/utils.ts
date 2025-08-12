@@ -74,3 +74,42 @@ export async function withRetry<T>(
   
   throw lastError;
 }
+
+/**
+ * Execute operation with timeout
+ */
+export async function withTimeout<T>(
+  operation: Promise<T>,
+  timeoutMs: number = 15000
+): Promise<T> {
+  return Promise.race([
+    operation,
+    new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
+    )
+  ]);
+}
+
+/**
+ * Simple retry function
+ */
+export async function retry<T>(
+  operation: () => Promise<T>,
+  maxAttempts: number = 3,
+  delayMs: number = 1000
+): Promise<T> {
+  let lastError: Error | undefined;
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
+      if (attempt < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+  
+  throw lastError;
+}
