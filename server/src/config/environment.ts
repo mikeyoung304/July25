@@ -43,11 +43,18 @@ export function validateEnvironment(): void {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
 
-  // Log OpenAI configuration status
-  if (process.env['OPENAI_API_KEY']) {
-    console.log(`✅ OpenAI configured`);
-  } else {
+  // OpenAI configuration policy
+  const isDevelopment = process.env['NODE_ENV'] === 'development';
+  const isDegradedMode = process.env['AI_DEGRADED_MODE'] === 'true';
+  const hasOpenAIKey = !!process.env['OPENAI_API_KEY'];
+  
+  if (!hasOpenAIKey) {
+    if (!isDevelopment && !isDegradedMode) {
+      throw new Error('OPENAI_API_KEY is required in production. Set AI_DEGRADED_MODE=true to use stubs.');
+    }
     console.warn(`⚠️  OpenAI API key not configured - AI features will use stub implementations`);
+  } else {
+    console.log(`✅ OpenAI configured`);
   }
 }
 
