@@ -25,6 +25,7 @@ import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
+import { authenticate, requireRole } from './middleware/auth';
 
 // Validate required environment variables
 validateEnvironment();
@@ -99,8 +100,8 @@ app.use(requestLogger);
 // Metrics middleware for tracking (not serving metrics)
 app.use(metricsMiddleware);
 
-// Dedicated metrics endpoint
-app.get('/metrics', (_req, res) => {
+// Protected metrics endpoint for internal monitoring
+app.get('/internal/metrics', authenticate, requireRole(['admin']), (_req, res) => {
   res.set('Content-Type', register.contentType);
   register.metrics().then(metrics => {
     res.end(metrics);
