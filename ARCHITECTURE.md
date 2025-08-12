@@ -19,14 +19,30 @@
 3. This document is the TRUTH
 
 ## Architecture Diagram
+```mermaid
+flowchart LR
+  subgraph Client [Client (React/Vite)]
+    UI
+  end
+
+  subgraph Server [Server (Express on 3001)]
+    REST[REST /api/v1/*]
+    AI[AI Modules (Transcriber | OrderNLP | Chat | TTS)]
+    WS[WebSocket (KDS/stream)]
+    Metrics[Metrics & Health]
+  end
+
+  DB[(Supabase/Postgres)]
+  OpenAI[(OpenAI API)]
+  Square[(Square Payments)]
+
+  UI --> REST
+  REST --> DB
+  REST --> Square
+  REST --> AI
+  AI --> OpenAI
+  UI <--> WS
 ```
-┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
-│   Frontend      │ <-----> │   Backend       │ <-----> │  BuildPanel     │
-│   (React)       │  HTTP   │   (Express)     │  HTTPS  │  (Cloud API)    │
-│   Port: 5173    │  WS     │   Port: 3001    │         │  AI Services    │
-└─────────────────┘         └─────────────────┘         └─────────────────┘
-                                   │
-                                   ▼
                             ┌─────────────────┐
                             │   Supabase      │
                             │   (Database)    │
@@ -65,9 +81,8 @@ SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_KEY=your_service_key
 
-# BuildPanel Integration (Cloud-based AI service)
-USE_BUILDPANEL=true
-BUILDPANEL_URL=https://api.mike.app.buildpanel.ai
+# AI Integration
+OPENAI_API_KEY=your_openai_api_key
 
 # Frontend Configuration (VITE_ prefix required)
 VITE_API_BASE_URL=http://localhost:3001
@@ -145,43 +160,43 @@ wss://production.com         # Production
 - X-Restaurant-ID header validation
 - Database RLS policies for tenant isolation
 - Service-level restaurant context validation
-- BuildPanel requests include restaurant_id for context isolation
+- AI requests include restaurant_id for context isolation
 
-### BuildPanel Security Boundary
-**CRITICAL**: BuildPanel AI service integration must maintain strict security boundaries.
+### AI Service Security
+**CRITICAL**: AI service integration maintains strict security boundaries through internal processing.
 
 #### The Golden Rule
-**Never allow direct frontend access to BuildPanel**. All AI operations must be proxied through authenticated backend endpoints with proper tenant context.
+**Never expose AI service keys to the frontend**. All AI operations are handled internally by the backend with proper authentication and tenant context.
 
 #### Implementation
 ```
-Frontend                    Backend                     BuildPanel
+Frontend                    Backend                     AI Services
 ─────────                  ─────────                   ──────────
-TranscriptionService  →    /api/v1/ai/transcribe  →   /api/voice-chat
-(No AI SDK imports)        (BuildPanelService)         (Port 3003)
+TranscriptionService  →    /api/v1/ai/transcribe  →   OpenAI API
+(No AI SDK imports)        (AI Modules)                (Internal)
      ↓                            ↓                           ↓
 Authenticated HTTP         Restaurant context          AI Processing
-   Request                 + BuildPanel proxy          (Isolated)
+   Request                 + OpenAI integration        (Secure)
 ```
 
 #### Security Measures
-1. **No Direct BuildPanel Access**: Port 3003 blocked from frontend
-2. **No Client-Side AI Config**: No VITE_BUILDPANEL_URL or similar
+1. **No Direct AI Access**: AI services only accessible from backend
+2. **No Client-Side AI Config**: No VITE_OPENAI_KEY or similar
 3. **Authentication Required**: All AI endpoints require valid JWT
-4. **Restaurant Context**: Every BuildPanel request includes restaurant_id
+4. **Restaurant Context**: Every AI request includes restaurant_id
 5. **Rate Limiting**: Prevents abuse of expensive AI operations
-6. **Service Isolation**: BuildPanel failures don't compromise core functionality
-7. **File Validation**: Audio/image uploads validated before BuildPanel processing
+6. **Service Isolation**: AI failures don't compromise core functionality
+7. **File Validation**: Audio/image uploads validated before AI processing
 
 #### Forbidden Patterns
 ```javascript
-// ❌ NEVER in client code - direct BuildPanel access
-const response = await fetch('http://localhost:3003/api/voice-chat', {
-  body: audioFormData
+// ❌ NEVER in client code - direct AI service access
+const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  headers: { 'Authorization': 'Bearer sk-...' }
 });
 
-// ❌ NEVER expose BuildPanel config to browser
-VITE_BUILDPANEL_URL=http://localhost:3003
+// ❌ NEVER expose AI keys to browser
+VITE_OPENAI_API_KEY=sk-...
 ```
 
 #### Correct Pattern
@@ -195,8 +210,8 @@ const response = await fetch('/api/v1/ai/transcribe', {
   body: audioFormData
 });
 
-// ✅ Backend handles BuildPanel with restaurant context
-const response = await this.buildPanel.processVoice(
+// ✅ Backend handles AI with restaurant context (server-side only)
+const response = await this.aiService.processVoice(
   audioBuffer, 
   restaurantId
 );
@@ -206,15 +221,12 @@ const response = await this.buildPanel.processVoice(
 
 **Secure Configuration:**
 ```env
-# Backend-only BuildPanel configuration
-USE_BUILDPANEL=true
-BUILDPANEL_URL=http://localhost:3003
+# Backend-only AI configuration
+OPENAI_API_KEY=sk-your-secret-key
 
 # Frontend has no AI service access
 VITE_API_BASE_URL=http://localhost:3001
 ```
-
-See [SECURITY_BUILDPANEL.md](./docs/SECURITY_BUILDPANEL.md) for detailed security requirements.
 
 ## Production Deployment
 

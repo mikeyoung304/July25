@@ -23,7 +23,6 @@
     "lint:fix": "cd .. && npm run lint:fix -- server/src",
     "typecheck": "cd .. && npm run typecheck",
     "start:all": "./scripts/start-all.sh",
-    "upload:menu": "tsx scripts/upload-menu.ts",
     "init:menu": "tsx scripts/init-menu-context.ts",
     "check:integration": "tsx scripts/integration-check.ts",
     "db:migrate": "node scripts/run-migrations.js",

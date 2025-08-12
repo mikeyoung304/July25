@@ -31,10 +31,8 @@ Your Vercel frontend shows mock data because it's trying to connect to `localhos
    SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhpd2ZoY2lrZmRvc2h4d2J0anh0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjI0OTMwMiwiZXhwIjoyMDY3ODI1MzAyfQ.-dXq_uGiXmBQRKTz22LBWya2YBqVXLgZ41oLTdhnB5g
    DATABASE_URL=postgresql://postgres:bf43D86obVkgyaKJ@db.xiwfhcikfdoshxwbtjxt.supabase.co:5432/postgres?sslmode=require
    
-   # BuildPanel settings:
-   USE_BUILDPANEL=true
-   BUILDPANEL_URL=https://api.mike.app.buildpanel.ai
-   BUILDPANEL_BASE_URL=https://api.mike.app.buildpanel.ai
+   # AI settings:
+   OPENAI_API_KEY=your-openai-api-key
    DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
    
    # Square payments:

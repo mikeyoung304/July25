@@ -2,7 +2,7 @@
  * MockStreamingService
  * 
  * Provides realistic mock streaming data for UI development and testing
- * when BuildPanel streaming is not available.
+ * when AI streaming is not available.
  */
 
 export interface MockTranscriptionUpdate {
