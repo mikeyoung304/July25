@@ -95,7 +95,7 @@ This approach simplifies development:
 
 ### Integration Tests
 - **Database Tests**: Use cloud Supabase for integration tests
-- **BuildPanel Tests**: Always mock BuildPanel service calls
+- **OpenAI Tests**: Always mock OpenAI service calls
 - **Multi-tenant Tests**: Use test restaurant IDs for isolation
 - **Data Cleanup**: Tests should not modify shared cloud data
 
@@ -133,6 +133,6 @@ it('should create order in cloud database', async () => {
 
 ### Testing Best Practices
 - **Use test restaurant IDs**: Never test with production restaurant data
-- **Mock BuildPanel**: Database tests should not depend on AI service
+- **Mock OpenAI**: Database tests should not depend on AI service
 - **Clean up test data**: Remove test orders/data after tests complete
 - **Respect rate limits**: Cloud database has connection limits

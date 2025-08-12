@@ -60,7 +60,7 @@ npm install
    - Firefox: Settings → Privacy → Permissions → Microphone
    - Must allow localhost:5173
 
-2. **Verify BuildPanel connection**:
+2. **Verify OpenAI connection**:
 ```bash
 curl https://api.mike.app.buildpanel.ai/api/health
 # Should return: {"status":"OK"}
@@ -190,7 +190,7 @@ npm run preview
 ### Logs Location
 - Frontend logs: Browser console
 - Backend logs: `server/logs/`
-- BuildPanel logs: Check backend logs for AI requests
+- OpenAI logs: Check backend logs for AI requests
 
 ### Debug Mode
 ```bash

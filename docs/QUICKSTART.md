@@ -74,7 +74,7 @@ npx kill-port 3001
 - Ensure network connectivity
 
 ### Voice Features Not Working
-- BuildPanel is cloud-based (no local setup)
+- OpenAI is cloud-based (no local setup)
 - Check browser microphone permissions
 - Verify HTTPS for production
 

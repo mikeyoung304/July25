@@ -219,7 +219,7 @@ async function handleControlMessage(
       const restaurantId = message.restaurantId || 'default';
       const result = await aiService.stopRecording(connectionId, restaurantId);
       
-      // If BuildPanel returned audio, include it in response
+      // If OpenAI TTS returned audio, include it in response
       ws.send(JSON.stringify({
         type: 'transcription_result',
         ...result,

@@ -13,9 +13,9 @@ This document outlines the comprehensive testing strategy for the voice ordering
    ```
 
 2. **Environment Variables**:
-   - `USE_BUILDPANEL=true` (in root `.env`)
-   - `BUILDPANEL_URL=http://localhost:3003` (or your BuildPanel instance)
-   - BuildPanel service must be running and accessible
+   - `OPENAI_API_KEY=your_key` (in root `.env`)
+   - Backend configured with OpenAI adapters
+   - OpenAI API must be accessible
 
 3. **Browser Requirements**:
    - Chrome/Edge (recommended for WebAudio API support)
@@ -79,8 +79,8 @@ This document outlines the comprehensive testing strategy for the voice ordering
 2. Verify error message appears
 3. Reconnect and try again
 
-**3b. BuildPanel Service Down**:
-1. Stop BuildPanel service
+**3b. OpenAI Service Down**:
+1. Stop OpenAI service
 2. Try voice input
 3. Verify meaningful error message
 
@@ -125,7 +125,7 @@ This document outlines the comprehensive testing strategy for the voice ordering
 ### Pre-Test Setup
 - [ ] Server running on port 3001
 - [ ] Client running on port 3000
-- [ ] BuildPanel service accessible
+- [ ] OpenAI service accessible
 - [ ] Microphone connected and working
 - [ ] Audio output device connected
 
@@ -147,7 +147,7 @@ This document outlines the comprehensive testing strategy for the voice ordering
 ### Error Conditions
 - [ ] Network disconnection handled gracefully
 - [ ] Microphone permission denial handled
-- [ ] BuildPanel service unavailable handled
+- [ ] OpenAI service unavailable handled
 - [ ] Audio playback errors handled
 - [ ] Invalid voice input handled
 
@@ -193,7 +193,7 @@ test('voice ordering flow', async ({ page }) => {
 
 **1. No Audio Playback**
 - Check browser audio permissions
-- Verify BuildPanel service is running
+- Verify OpenAI service is running
 - Check network requests in DevTools
 - Confirm audio format support (MP3)
 
@@ -201,10 +201,10 @@ test('voice ordering flow', async ({ page }) => {
 - Check microphone permissions
 - Verify clear speech and minimal background noise
 - Check WebSocket connection status
-- Verify BuildPanel voice processing
+- Verify OpenAI voice processing
 
 **3. Slow Response Times**
-- Check network latency to BuildPanel
+- Check network latency to OpenAI
 - Monitor server logs for processing times
 - Verify adequate system resources
 
@@ -213,7 +213,7 @@ test('voice ordering flow', async ({ page }) => {
 # Check server logs
 tail -f /Users/mikeyoung/CODING/rebuild-6.0/server/server.log
 
-# Test BuildPanel connectivity
+# Test OpenAI connectivity
 curl -X GET http://localhost:3003/health
 
 # Check WebSocket connections
@@ -249,7 +249,7 @@ curl -X GET http://localhost:3003/health
 - Browser: Chrome 119+
 - OS: macOS
 - Server: localhost:3001
-- BuildPanel: localhost:3003
+- OpenAI: localhost:3003
 
 **Test Results**:
 - Basic Voice Flow: ✅/❌

@@ -97,20 +97,20 @@ rebuild-6.0/
 - We migrated everything to port 3001
 - Old code/docs mentioning 3002 are BUGS
 
-## 🔒 BUILDPANEL SECURITY REQUIREMENTS
+## 🔒 OPENAI SECURITY REQUIREMENTS
 
-### CRITICAL: BuildPanel Service Integration Only
+### CRITICAL: OpenAI Service Integration Only
 
-**NEVER** integrate AI services directly in the frontend. All AI processing goes through BuildPanel service via the backend.
+**NEVER** integrate AI services directly in the frontend. All AI processing goes through OpenAI service via the backend.
 
 ### ❌ FORBIDDEN in Client Code
 ```javascript
 // NEVER DO THIS IN FRONTEND
-import { BuildPanelClient } from 'buildpanel-sdk';  // SECURITY VIOLATION!
-const buildPanel = new BuildPanelClient({ 
-  apiKey: process.env.VITE_BUILDPANEL_KEY  // EXPOSED TO BROWSER!
+import { OpenAIClient } from 'buildpanel-sdk';  // SECURITY VIOLATION!
+const buildPanel = new OpenAIClient({ 
+  apiKey: process.env.VITE_OPENAI_KEY  // EXPOSED TO BROWSER!
 }); 
-// Direct frontend calls to BuildPanel service
+// Direct frontend calls to OpenAI service
 fetch('http://localhost:3003/api/voice-chat'); // BYPASSES AUTHENTICATION!
 ```
 
@@ -122,30 +122,30 @@ const response = await fetch('/api/v1/ai/transcribe', {
   body: audioFormData
 });
 
-// Backend: BuildPanel integration is safe here
-import { BuildPanelService } from './services/buildpanel.service';
-const buildPanel = new BuildPanelService();
+// Backend: OpenAI integration is safe here
+import { OpenAIService } from './services/buildpanel.service';
+const buildPanel = new OpenAIService();
 const result = await buildPanel.processVoice(audioBuffer, restaurantId);
 ```
 
 ### Security Checklist
-- [ ] NO direct BuildPanel client imports in client/ directory
-- [ ] NO BuildPanel service URLs exposed to frontend
+- [ ] NO direct OpenAI client imports in client/ directory
+- [ ] NO OpenAI service URLs exposed to frontend
 - [ ] ALL AI requests go through authenticated backend endpoints (/api/v1/ai/*)
-- [ ] Backend validates auth tokens before BuildPanel proxy calls
+- [ ] Backend validates auth tokens before OpenAI proxy calls
 - [ ] Rate limiting on AI endpoints
-- [ ] Restaurant context included in all BuildPanel service calls
-- [ ] BuildPanel service runs isolated on port 3003
-- [ ] No direct frontend-to-BuildPanel communication
+- [ ] Restaurant context included in all OpenAI service calls
+- [ ] OpenAI service runs isolated on port 3003
+- [ ] No direct frontend-to-OpenAI communication
 
 ### If You See This Pattern, It's a BUG
-- BuildPanel client packages in client/package.json
-- Direct BuildPanel service calls from React components
+- OpenAI client packages in client/package.json
+- Direct OpenAI service calls from React components
 - Frontend code making requests to port 3003
 - Unauthenticated AI endpoints
-- BuildPanel service URLs in frontend environment variables
+- OpenAI service URLs in frontend environment variables
 
-See [SECURITY_BUILDPANEL.md](./docs/SECURITY_BUILDPANEL.md) for full details.
+See [SECURITY_OPENAI.md](./docs/SECURITY_OPENAI.md) for full details.
 
 ## Your Pledge
 By reading this document, you pledge to:
@@ -154,8 +154,8 @@ By reading this document, you pledge to:
 - [ ] Always use the unified backend on port 3001
 - [ ] Read ARCHITECTURE.md before coding
 - [ ] Respect Luis's architectural decision
-- [ ] Keep BuildPanel service isolated on port 3003
-- [ ] Never expose BuildPanel service directly to the browser
+- [ ] Keep OpenAI service isolated on port 3003
+- [ ] Never expose OpenAI service directly to the browser
 - [ ] Always proxy AI requests through the unified backend
 
-Remember: **Port 3001 is the way** and **BuildPanel (port 3003) handles the AI via backend proxy**
+Remember: **Port 3001 is the way** and **OpenAI (port 3003) handles the AI via backend proxy**

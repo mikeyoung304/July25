@@ -243,21 +243,21 @@ PUT /api/v1/floor-plan
 }
 ```
 
-## 🤖 AI/Voice Services (BuildPanel Integration)
+## 🤖 AI/Voice Services (OpenAI Integration)
 
-**IMPORTANT**: All AI endpoints now proxy to BuildPanel service. The backend handles authentication and restaurant context, then forwards requests to BuildPanel at `BUILDPANEL_URL` (default: http://localhost:3003).
+**IMPORTANT**: All AI endpoints now proxy to OpenAI service. The backend handles authentication and restaurant context, then forwards requests to OpenAI at `OPENAI_URL` (default: http://localhost:3003).
 
 ### Transcribe Audio
 ```http
 POST /api/v1/ai/transcribe
 ```
-Converts audio to text via BuildPanel's Whisper integration.
+Converts audio to text via OpenAI's Whisper integration.
 
 **Request**: Multipart form data with audio file
 - **Headers**: `Authorization: Bearer <token>`, `X-Restaurant-ID: <uuid>`
 - **Body**: Form data with `audio` field
 
-**BuildPanel Proxy**: Forwards to `/api/voice-chat` with restaurant context
+**OpenAI Proxy**: Forwards to `/api/voice-chat` with restaurant context
 
 **Response**:
 ```json
@@ -274,7 +274,7 @@ Converts audio to text via BuildPanel's Whisper integration.
 ```http
 POST /api/v1/ai/chat
 ```
-Natural language chat with AI assistant via BuildPanel.
+Natural language chat with AI assistant via OpenAI.
 
 **Request Body**:
 ```json
@@ -283,7 +283,7 @@ Natural language chat with AI assistant via BuildPanel.
 }
 ```
 
-**BuildPanel Proxy**: Forwards to `/api/chatbot` with restaurant context
+**OpenAI Proxy**: Forwards to `/api/chatbot` with restaurant context
 
 **Response**:
 ```json
@@ -298,7 +298,7 @@ Natural language chat with AI assistant via BuildPanel.
 ```http
 POST /api/v1/ai/parse-order
 ```
-Extracts structured order from natural language via BuildPanel.
+Extracts structured order from natural language via OpenAI.
 
 **Request Body**:
 ```json
@@ -307,7 +307,7 @@ Extracts structured order from natural language via BuildPanel.
 }
 ```
 
-**BuildPanel Proxy**: Uses BuildPanel's order parsing capabilities
+**OpenAI Proxy**: Uses OpenAI's order parsing capabilities
 
 **Response**:
 ```json
@@ -334,17 +334,17 @@ Extracts structured order from natural language via BuildPanel.
 ```http
 POST /api/v1/ai/menu
 ```
-Syncs current menu from BuildPanel (replaces upload functionality).
+Syncs current menu from OpenAI (replaces upload functionality).
 
 **Request Body**: Empty (uses restaurant context from headers)
 
-**BuildPanel Integration**: Fetches menu from BuildPanel's `/api/menu` endpoint
+**OpenAI Integration**: Fetches menu from OpenAI's `/api/menu` endpoint
 
 **Response**:
 ```json
 {
   "success": true,
-  "message": "Menu synced from BuildPanel successfully",
+  "message": "Menu synced from OpenAI successfully",
   "restaurantId": "11111111-1111-1111-1111-111111111111"
 }
 ```
@@ -374,7 +374,7 @@ Returns currently loaded menu for AI processing.
 ```http
 GET /api/v1/ai/health
 ```
-Checks AI service health including BuildPanel connectivity.
+Checks AI service health including OpenAI connectivity.
 
 **Response**:
 ```json
@@ -437,7 +437,7 @@ Binary audio data chunks sent during recording.
 }
 ```
 
-#### Voice Response (BuildPanel)
+#### Voice Response (OpenAI)
 ```json
 {
   "type": "voice-response",
@@ -455,7 +455,7 @@ Binary audio data chunks sent during recording.
 }
 ```
 
-#### BuildPanel Status
+#### OpenAI Status
 ```json
 {
   "type": "buildpanel-status",
@@ -466,7 +466,7 @@ Binary audio data chunks sent during recording.
 
 ## 🔧 CURL Examples
 
-### AI Endpoints (BuildPanel Proxy)
+### AI Endpoints (OpenAI Proxy)
 
 #### Chat with AI Assistant
 ```bash
@@ -498,7 +498,7 @@ curl -X POST http://localhost:3001/api/v1/ai/parse-order \
   }'
 ```
 
-#### Sync Menu from BuildPanel
+#### Sync Menu from OpenAI
 ```bash
 curl -X POST http://localhost:3001/api/v1/ai/menu \
   -H "Content-Type: application/json" \
@@ -583,13 +583,13 @@ All errors follow this format:
 - `FORBIDDEN` - No access to resource
 - `NOT_FOUND` - Resource doesn't exist
 - `VALIDATION_ERROR` - Invalid request data
-- `BUILDPANEL_ERROR` - BuildPanel service unavailable or error
+- `OPENAI_ERROR` - OpenAI service unavailable or error
 - `INTERNAL_ERROR` - Server error
 
-**BuildPanel-Specific Errors**:
+**OpenAI-Specific Errors**:
 ```json
 {
-  "error": "BuildPanel chat failed: Connection timeout",
+  "error": "OpenAI chat failed: Connection timeout",
   "message": "Service temporarily unavailable"
 }
 ```
@@ -597,14 +597,14 @@ All errors follow this format:
 ## 📈 Rate Limits
 
 - **General API**: 100 requests per minute
-- **AI Endpoints**: 20 requests per minute (BuildPanel proxy)
+- **AI Endpoints**: 20 requests per minute (OpenAI proxy)
 - **Voice Transcription**: 10 requests per minute
 - **WebSocket**: 1 connection per client
 
 ## 🔧 Environment Variables
 
-**BuildPanel Integration**:
-- `BUILDPANEL_URL` - BuildPanel service URL (default: http://localhost:3003)
+**OpenAI Integration**:
+- `OPENAI_URL` - OpenAI service URL (default: http://localhost:3003)
 
 **Core Services**:
 - `DATABASE_URL` - PostgreSQL connection string

@@ -13,7 +13,7 @@
 
 ## Architecture Overview
 
-The Rebuild 6.0 system uses a **Unified Backend Architecture** with **BuildPanel Integration** for AI processing. The Rebuild backend (port 3001) acts as a proxy to BuildPanel (port 3003) for AI operations.
+The Rebuild 6.0 system uses a **Unified Backend Architecture** with **OpenAI Integration** for AI processing. The Rebuild backend (port 3001) acts as a proxy to OpenAI (port 3003) for AI operations.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -25,13 +25,13 @@ The Rebuild 6.0 system uses a **Unified Backend Architecture** with **BuildPanel
 │                  Unified Backend (Express.js)                │
 │                         Port: 3001                          │
 │  ┌─────────────┐  ┌─────────────┐  ┌──────────────────┐   │
-│  │   API       │  │ BuildPanel  │  │   WebSocket      │   │
+│  │   API       │  │ OpenAI  │  │   WebSocket      │   │
 │  │  Routes     │  │   Proxy     │  │    Server        │   │
 │  └─────────────┘  └─────────────┘  └──────────────────┘   │
 └──────────────────────┬──────────────────┬──────────────────┘
                        │                  │ HTTP Proxy
                        │           ┌──────▼──────┐
-                       │           │ BuildPanel  │
+                       │           │ OpenAI  │
                        │           │   Port:     │
                        │           │    3003     │
                        │           └─────────────┘
@@ -42,14 +42,14 @@ The Rebuild 6.0 system uses a **Unified Backend Architecture** with **BuildPanel
 
 ## End-to-End Order Flow
 
-### 1. Voice Order Flow (via BuildPanel)
+### 1. Voice Order Flow (via OpenAI)
 
 ```mermaid
 sequenceDiagram
     participant Customer
     participant Frontend
     participant Backend
-    participant BuildPanel
+    participant OpenAI
     participant Database
     participant WebSocket
     
@@ -57,11 +57,11 @@ sequenceDiagram
     Frontend->>Frontend: Capture audio (WebRTC)
     Frontend->>Backend: Stream audio (WebSocket)
     Backend->>Backend: Buffer audio chunks
-    Backend->>BuildPanel: POST /api/voice-chat (FormData)
-    BuildPanel->>BuildPanel: Transcribe (Whisper)
-    BuildPanel->>BuildPanel: Parse order (GPT-4)
-    BuildPanel->>BuildPanel: Generate audio response
-    BuildPanel-->>Backend: Return {transcription, response, orderData, audioBuffer}
+    Backend->>OpenAI: POST /api/voice-chat (FormData)
+    OpenAI->>OpenAI: Transcribe (Whisper)
+    OpenAI->>OpenAI: Parse order (GPT-4)
+    OpenAI->>OpenAI: Generate audio response
+    OpenAI-->>Backend: Return {transcription, response, orderData, audioBuffer}
     Backend->>Database: Create order from orderData
     Backend->>WebSocket: Broadcast order:created
     Backend->>Frontend: Send transcription + audio response
@@ -69,22 +69,22 @@ sequenceDiagram
     Frontend->>Customer: Play audio response & show order
 ```
 
-### 2. Text Chat Order Flow (via BuildPanel)
+### 2. Text Chat Order Flow (via OpenAI)
 
 ```mermaid
 sequenceDiagram
     participant User
     participant Frontend
     participant Backend
-    participant BuildPanel
+    participant OpenAI
     participant Database
     participant WebSocket
     
     User->>Frontend: Types order message
     Frontend->>Backend: POST /api/v1/ai/chat
-    Backend->>BuildPanel: POST /api/chatbot {message, context}
-    BuildPanel->>BuildPanel: Parse order (GPT-4)
-    BuildPanel-->>Backend: Return {message, suggestions, orderData}
+    Backend->>OpenAI: POST /api/chatbot {message, context}
+    OpenAI->>OpenAI: Parse order (GPT-4)
+    OpenAI-->>Backend: Return {message, suggestions, orderData}
     Backend->>Database: Create order from orderData (if provided)
     Backend->>WebSocket: Broadcast order:created (if order created)
     Backend-->>Frontend: Return chat response
@@ -116,11 +116,11 @@ sequenceDiagram
 
 ## Data Transformation Layers
 
-### 1. BuildPanel → Backend Transformation
+### 1. OpenAI → Backend Transformation
 
 ```typescript
-// BuildPanel Response Format
-interface BuildPanelOrderData {
+// OpenAI Response Format
+interface OpenAIOrderData {
   items: Array<{
     id: string;
     name: string;
@@ -147,7 +147,7 @@ const orderRequest: OrderRequest = {
   userId: userId
 }
 
-// Create order via BuildPanel
+// Create order via OpenAI
 const orderResponse = await buildPanel.createOrder(orderRequest)
 ```
 
@@ -454,19 +454,19 @@ Standard API:
 - GET    /api/v1/menu
 - GET    /api/v1/tables
 
-AI Integration (BuildPanel Proxy):
-- POST   /api/v1/ai/transcribe    → Transcribe audio via BuildPanel
-- POST   /api/v1/ai/parse-order   → Parse text order via BuildPanel
-- POST   /api/v1/ai/chat          → Chat with AI via BuildPanel
-- POST   /api/v1/ai/menu          → Sync menu from BuildPanel
+AI Integration (OpenAI Proxy):
+- POST   /api/v1/ai/transcribe    → Transcribe audio via OpenAI
+- POST   /api/v1/ai/parse-order   → Parse text order via OpenAI
+- POST   /api/v1/ai/chat          → Chat with AI via OpenAI
+- POST   /api/v1/ai/menu          → Sync menu from OpenAI
 - GET    /api/v1/ai/menu          → Get current menu
 - GET    /api/v1/ai/health        → Check AI service status
 
-BuildPanel Direct Endpoints:
-- POST   /api/chatbot             → BuildPanel chat endpoint
-- POST   /api/voice-chat          → BuildPanel voice processing
-- GET    /api/menu                → BuildPanel menu endpoint
-- POST   /api/orders              → BuildPanel order creation
+OpenAI Direct Endpoints:
+- POST   /api/chatbot             → OpenAI chat endpoint
+- POST   /api/voice-chat          → OpenAI voice processing
+- GET    /api/menu                → OpenAI menu endpoint
+- POST   /api/orders              → OpenAI order creation
 
 WebSocket:
 - ws://localhost:3001/voice-stream → Voice streaming to AI service
@@ -486,11 +486,11 @@ Frontend Services:
 Backend Services:
 ├── orders.service.ts    → Order logic
 ├── ai.service.ts        → AI coordination & WebSocket handling
-├── buildpanel.service.ts → BuildPanel API client
+├── buildpanel.service.ts → OpenAI API client
 ├── menu.service.ts      → Menu management
 └── websocket.ts         → Real-time broadcast
 
-BuildPanel Integration:
+OpenAI Integration:
 ├── /api/chatbot         → Text-based order processing
 ├── /api/voice-chat      → Voice order processing
 ├── /api/menu            → Menu synchronization
@@ -509,17 +509,17 @@ VITE_SUPABASE_ANON_KEY=xxx
 
 # Backend-only (no prefix)
 DATABASE_URL=postgresql://...
-OPENAI_API_KEY=sk-...                    # Still used for legacy fallback
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY_HERE  # Required for AI features
 JWT_SECRET=xxx
 SERVICE_KEY=xxx
 
-# BuildPanel Integration
-BUILDPANEL_URL=http://localhost:3003     # BuildPanel service URL
-USE_BUILDPANEL=true                      # Enable BuildPanel integration
+# OpenAI Integration
+OPENAI_URL=http://localhost:3003     # OpenAI service URL
+USE_OPENAI=true                      # Enable OpenAI integration
 DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
 ```
 
-## BuildPanel Integration Sequence Diagrams
+## OpenAI Integration Sequence Diagrams
 
 ### Menu Synchronization Flow
 
@@ -528,13 +528,13 @@ sequenceDiagram
     participant Admin
     participant Frontend
     participant Backend
-    participant BuildPanel
+    participant OpenAI
     participant Database
     
     Admin->>Frontend: POST /api/v1/ai/menu (upload menu)
     Frontend->>Backend: Authenticated request with restaurant context
-    Backend->>BuildPanel: GET /api/menu (sync menu)
-    BuildPanel-->>Backend: Return menu items with IDs
+    Backend->>OpenAI: GET /api/menu (sync menu)
+    OpenAI-->>Backend: Return menu items with IDs
     Backend->>Database: Update/insert menu items
     Backend->>Backend: Update internal menu cache
     Backend-->>Frontend: Success response
@@ -549,7 +549,7 @@ sequenceDiagram
     participant Frontend
     participant WebSocket
     participant AI_Service
-    participant BuildPanel
+    participant OpenAI
     participant Database
     participant KDS
     
@@ -569,11 +569,11 @@ sequenceDiagram
     Frontend->>WebSocket: stop_recording message
     WebSocket->>AI_Service: stopRecording(connectionId, restaurantId)
     AI_Service->>AI_Service: Combine buffered audio chunks
-    AI_Service->>BuildPanel: POST /api/voice-chat (FormData)
+    AI_Service->>OpenAI: POST /api/voice-chat (FormData)
     
-    Note over BuildPanel: - Transcribe with Whisper<br/>- Parse order with GPT-4<br/>- Generate audio response
+    Note over OpenAI: - Transcribe with Whisper<br/>- Parse order with GPT-4<br/>- Generate audio response
     
-    BuildPanel-->>AI_Service: {transcription, response, orderData, audioBuffer}
+    OpenAI-->>AI_Service: {transcription, response, orderData, audioBuffer}
     
     alt Order Data Present
         AI_Service->>Database: Create order from orderData
@@ -592,7 +592,7 @@ sequenceDiagram
     participant Customer
     participant Frontend
     participant Backend
-    participant BuildPanel
+    participant OpenAI
     participant Database
     participant WebSocket
     participant KDS
@@ -600,15 +600,15 @@ sequenceDiagram
     Customer->>Frontend: Types: "I want 2 soul bowls and a greek salad"
     Frontend->>Backend: POST /api/v1/ai/chat
     Backend->>Backend: Extract restaurant context from auth
-    Backend->>BuildPanel: POST /api/chatbot
+    Backend->>OpenAI: POST /api/chatbot
     
-    Note over BuildPanel: {<br/>  message: "I want 2 soul bowls...",<br/>  context: {<br/>    restaurantId: "rest-1",<br/>    userId: "user-123"<br/>  }<br/>}
+    Note over OpenAI: {<br/>  message: "I want 2 soul bowls...",<br/>  context: {<br/>    restaurantId: "rest-1",<br/>    userId: "user-123"<br/>  }<br/>}
     
-    BuildPanel->>BuildPanel: Parse message with GPT-4
-    BuildPanel->>BuildPanel: Map items to menu IDs
-    BuildPanel->>BuildPanel: Calculate totals
+    OpenAI->>OpenAI: Parse message with GPT-4
+    OpenAI->>OpenAI: Map items to menu IDs
+    OpenAI->>OpenAI: Calculate totals
     
-    BuildPanel-->>Backend: {message, suggestions, orderData}
+    OpenAI-->>Backend: {message, suggestions, orderData}
     
     Note over Backend: orderData: {<br/>  items: [{id, name, qty, price}],<br/>  totalAmount: 42.00,<br/>  restaurantId: "rest-1"<br/>}
     
@@ -628,26 +628,26 @@ sequenceDiagram
 sequenceDiagram
     participant Frontend
     participant Backend
-    participant BuildPanel
+    participant OpenAI
     participant Fallback
     
     Frontend->>Backend: AI processing request
-    Backend->>BuildPanel: Forward request
+    Backend->>OpenAI: Forward request
     
-    alt BuildPanel Available
-        BuildPanel-->>Backend: Success response
+    alt OpenAI Available
+        OpenAI-->>Backend: Success response
         Backend-->>Frontend: Process response
-    else BuildPanel Timeout
+    else OpenAI Timeout
         Backend->>Backend: Log error
         Backend->>Fallback: Use local parsing (if available)
         Fallback-->>Backend: Basic response
         Backend-->>Frontend: Limited functionality response
-    else BuildPanel Error
+    else OpenAI Error
         Backend->>Backend: Log error details
         Backend-->>Frontend: Error response with fallback message
     end
     
-    Note over Backend: Health check endpoint monitors<br/>BuildPanel status continuously
+    Note over Backend: Health check endpoint monitors<br/>OpenAI status continuously
 ```
 
 ## Data Flow Best Practices
@@ -660,7 +660,7 @@ sequenceDiagram
 6. **Handle ID mapping** in service layer, not in routes
 7. **Log all critical operations** with context
 8. **Gracefully handle disconnections** in real-time connections
-9. **Monitor BuildPanel health** and implement fallback strategies
+9. **Monitor OpenAI health** and implement fallback strategies
 10. **Buffer audio efficiently** to prevent WebSocket overrun
-11. **Preserve restaurant context** through all BuildPanel calls
-12. **Handle BuildPanel timeouts** gracefully with user feedback
+11. **Preserve restaurant context** through all OpenAI calls
+12. **Handle OpenAI timeouts** gracefully with user feedback
