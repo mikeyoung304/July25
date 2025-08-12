@@ -1,33 +1,34 @@
 import request from 'supertest';
 import express from 'express';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ai } from '../src/ai';
 
 // Mock OpenAI client
-jest.mock('../src/ai', () => ({
+vi.mock('../src/ai', () => ({
   ai: {
     transcriber: {
-      transcribe: jest.fn(),
-      transcribeFile: jest.fn()
+      transcribe: vi.fn(),
+      transcribeFile: vi.fn()
     },
     tts: {
-      synthesize: jest.fn(),
-      speak: jest.fn()
+      synthesize: vi.fn(),
+      speak: vi.fn()
     },
     chat: {
-      chat: jest.fn(),
-      complete: jest.fn()
+      chat: vi.fn(),
+      complete: vi.fn()
     },
     orderNLP: {
-      parse: jest.fn(),
-      parseOrder: jest.fn()
+      parse: vi.fn(),
+      parseOrder: vi.fn()
     }
   },
-  checkAIHealth: jest.fn()
+  checkAIHealth: vi.fn()
 }));
 
 // Mock menu service
-jest.mock('../src/services/menu.service', () => ({
-  fetchMenuItemsForRestaurant: jest.fn().mockResolvedValue([
+vi.mock('../src/services/menu.service', () => ({
+  fetchMenuItemsForRestaurant: vi.fn().mockResolvedValue([
     { id: 'item-1', name: 'Margherita Pizza', price: 12.99 },
     { id: 'item-2', name: 'Pepperoni Pizza', price: 14.99 }
   ])
