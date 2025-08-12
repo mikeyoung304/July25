@@ -2,10 +2,9 @@ services:
   - type: web
     name: grow-fresh-backend
     runtime: node
-    repo: https://github.com/yourusername/rebuild-6.0
+    repo: https://github.com/mikeyoung304/July25
     branch: main
-    rootDir: server
-    buildCommand: npm install
+    buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
