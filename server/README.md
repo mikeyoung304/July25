@@ -5,22 +5,20 @@ Production-ready Express.js backend for the Restaurant OS serving Grow Fresh Loc
 ## 🚀 Quick Start
 
 ### Prerequisites
-**REQUIRED: BuildPanel Service**
-- BuildPanel must be running on port 3003 for AI features
-- No OpenAI API key needed - BuildPanel handles all AI processing
+**OpenAI API Key**
+- Required for AI features (voice transcription, order parsing, chat)
+- Set `OPENAI_API_KEY` in your .env file
 
 ### Setup
 ```bash
-# 1. Ensure BuildPanel is running on port 3003
-
-# 2. Install dependencies
+# 1. Install dependencies
 npm install
 
-# 3. Environment variables should be in root .env file
+# 2. Environment variables should be in root .env file
 # See root directory README for .env configuration
-# IMPORTANT: Set USE_BUILDPANEL=true in .env
+# IMPORTANT: Set OPENAI_API_KEY in .env
 
-# 4. Upload menu data to BuildPanel
+# 3. Upload menu data for AI context
 npm run upload:menu
 
 # 5. (Optional) Seed test data
@@ -66,7 +64,7 @@ src/
 - `GET /api/v1/menu/items` - All menu items
 - `GET /api/v1/menu/items/:id` - Single menu item
 - `GET /api/v1/menu/categories` - Menu categories
-- `POST /api/v1/menu/sync-ai` - Sync menu to BuildPanel service
+- `POST /api/v1/menu/sync-ai` - Sync menu for AI context
 
 ### Order Processing
 - `GET /api/v1/orders` - List orders (with filters)
@@ -136,8 +134,8 @@ npm start
 - `SUPABASE_URL` - Supabase project URL
 - `SUPABASE_SERVICE_KEY` - Service role key
 - `FRONTEND_URL` - Frontend URL for CORS
-- `USE_BUILDPANEL=true` - Enable BuildPanel integration (REQUIRED)
-- `BUILDPANEL_URL` - BuildPanel service URL (default: http://localhost:3003)
+- `OPENAI_API_KEY` - OpenAI API key for AI features (REQUIRED)
+- `AI_DEGRADED_MODE` - Optional fallback mode when OpenAI is unavailable
 
 ## 📈 Performance
 
@@ -185,8 +183,8 @@ npm run check:integration
 
 3. **Voice parsing errors**
    - Check menu-upload.json is current
-   - Verify BuildPanel service is running on port 3003
-   - Check USE_BUILDPANEL=true in environment
+   - Verify OPENAI_API_KEY is set in environment
+   - Check server logs for OpenAI connection status
    - Review fuzzy matching thresholds
 
 ## 📚 Related Documentation
