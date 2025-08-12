@@ -100,6 +100,24 @@
 ## TypeScript Errors Note
 Current count: 334 errors (pre-existing, not addressed in this PR)
 
+## Phase 2 Deliverables
+
+- [ ] OpenAI adapters: Transcriber, TextToSpeech, ChatAgent, OrderNLP
+- [ ] OrderMatchingService (name → canonical menuItemId w/ suggestions)
+- [ ] Routes wired to adapters (no public contract changes)
+- [ ] Provider health endpoint
+- [ ] Rate/body limits on AI routes
+- [ ] Metrics (counters + latency)
+- [ ] Unit + integration tests
+- [ ] Final grep: zero BuildPanel in active code
+
+## Acceptance Criteria
+
+- [ ] POST /api/v1/ai/transcribe returns real text for a small webm
+- [ ] POST /api/v1/ai/parse-order returns zod-validated ParsedOrder with canonical IDs
+- [ ] POST /api/v1/ai/chat replies (can reference menu via server lookup)
+- [ ] Auth + X-Restaurant-ID enforced; single backend on 3001; WS unchanged
+
 ## References
 - BuildPanel usage report: `docs/_reports/buildpanel-usage.md`
 - Original architecture doc: `ARCHITECTURE.md`
