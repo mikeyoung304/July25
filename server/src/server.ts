@@ -147,7 +147,7 @@ async function startServer() {
     // Initialize menu context for AI service
     try {
       const restaurantId = process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
-      await aiService.syncMenuFromBuildPanel(restaurantId);
+      await aiService.syncMenuFromDatabase(restaurantId);
       logger.info('✅ Menu context initialized for AI service');
     } catch (error) {
       logger.warn('⚠️  Failed to initialize menu context:', error);
@@ -191,14 +191,14 @@ async function gracefulShutdown(signal: string) {
   // Clean up AI service connections
   // Note: AIService doesn't have cleanup method
   
-  // Clean up BuildPanel connections
+  // Clean up AI connections
   try {
     const { buildPanelServiceInstance } = await import('./services/buildpanel.service');
     if (buildPanelServiceInstance?.cleanup) {
       buildPanelServiceInstance.cleanup();
     }
   } catch (error) {
-    logger.debug('BuildPanel cleanup not needed:', error instanceof Error ? error.message : String(error));
+    logger.debug('AI cleanup not needed:', error instanceof Error ? error.message : String(error));
   }
   
   // Force exit after 3 seconds (tsx watch needs faster exit)

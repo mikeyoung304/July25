@@ -22,7 +22,7 @@ router.post('/menu', aiServiceLimiter, authenticate, requireRole(['admin', 'mana
     const restaurantId = req.restaurantId || 'default';
 
     // Load menu from local database for AI processing
-    await aiService.syncMenuFromBuildPanel(restaurantId);
+    await aiService.syncMenuFromDatabase(restaurantId);
     
     aiLogger.info('Menu loaded for AI processing', { 
       restaurantId: req.restaurantId, 
@@ -376,18 +376,28 @@ router.post('/chat', aiServiceLimiter, trackAIMetrics('chat'), authenticate, asy
 });
 
 router.get('/health', trackAIMetrics('provider-health'), async (_req: Request, res: Response) => {
-  const menu = aiService.getMenu();
-  const aiHealthCheck = await checkAIHealth();
-  
-  res.set('Cache-Control', 'no-store');
-  return res.json({
-    status: 'ok',
-    hasMenu: !!menu,
-    menuItems: menu?.menu?.length || 0,
-    aiProvider: aiHealthCheck.provider,
-    aiStatus: aiHealthCheck.status,
-    aiDetails: aiHealthCheck.details
-  });
+  try {
+    const aiHealthCheck = await checkAIHealth();
+    
+    // Log internal details but don't expose them
+    aiLogger.debug('AI health check', {
+      provider: aiHealthCheck.provider,
+      status: aiHealthCheck.status,
+      details: aiHealthCheck.details
+    });
+    
+    res.set('Cache-Control', 'no-store');
+    
+    if (aiHealthCheck.status === 'healthy' || aiHealthCheck.status === 'degraded') {
+      return res.status(200).json({ ok: true });
+    } else {
+      return res.status(503).json({ error: 'provider_unavailable' });
+    }
+  } catch (error) {
+    aiLogger.error('Health check failed:', error);
+    res.set('Cache-Control', 'no-store');
+    return res.status(503).json({ error: 'provider_unavailable' });
+  }
 });
 
 export { router as aiRoutes };

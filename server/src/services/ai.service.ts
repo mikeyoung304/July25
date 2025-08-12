@@ -274,7 +274,7 @@ export class AIService {
   /**
    * Load menu from local database for AI processing
    */
-  async syncMenuFromBuildPanel(restaurantId: string): Promise<void> {
+  async syncMenuFromDatabase(restaurantId: string): Promise<void> {
     try {
       // Load menu from our local database
       const fullMenu = await MenuService.getFullMenu(restaurantId);
