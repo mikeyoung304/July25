@@ -1,0 +1,90 @@
+# AI Migration Plan: BuildPanel to OpenAI
+
+## Architectural Constraints (must stay true)
+
+- [ ] One backend (Express) on 3001; existing WS unchanged
+- [ ] Public API routes + response shapes unchanged (/api/v1/*, /api/v1/ai/*)
+- [ ] No client-side AI keys; client only has VITE_API_BASE_URL
+- [ ] BuildPanel is fully removed (no flags, no fallbacks)
+
+## Current State Audit (fill before coding)
+
+### Files that import/use BuildPanel
+- [ ] List of files that import/use BuildPanel (paths + functions)
+- [ ] Where AI routes are wired today (ai.routes.ts etc.)
+- [ ] Any env/config that still mentions BP
+- [ ] Count of TS errors (note they pre-exist; don't solve here)
+
+### BuildPanel Usage Summary
+*To be filled after ground-truth analysis*
+
+## Deliverables (this PR)
+
+- [ ] OpenAI adapters: STT, TTS, Chat, OrderNLP
+- [ ] OrderMatchingService (name→canonical ID, with suggestions)
+- [ ] Route wiring to adapters (no shape changes)
+- [ ] Provider health endpoint
+- [ ] Rate limits + body limits
+- [ ] Metrics (request/error counters, latency)
+- [ ] Tests (unit + integration)
+- [ ] Final greps prove zero BP in active code
+
+## Acceptance Criteria (must pass before PR)
+
+- [ ] `/api/v1/ai/transcribe` → real text from small webm payload
+- [ ] `/api/v1/ai/parse-order` → zod-validated ParsedOrder w/ canonical IDs
+- [ ] `/api/v1/ai/chat` → sensible reply; can reference menu via server lookup
+- [ ] Auth + X-Restaurant-ID enforced on all AI routes
+- [ ] No client exposure of AI keys; single backend on 3001; WS unchanged
+
+## Implementation Status
+
+### Phase 0: Planning & Setup
+- [x] Create branch `86BP-phase2-openai`
+- [x] Create this migration plan document
+- [ ] Ground-truth BuildPanel usage report
+
+### Phase 1: Dependencies & Config
+- [ ] Add openai, zod dependencies
+- [ ] Fail fast if OPENAI_API_KEY missing
+- [ ] Remove BP env vars
+
+### Phase 2: OpenAI Adapters
+- [ ] Transcription adapter (Whisper)
+- [ ] TTS adapter (Speech)
+- [ ] Chat adapter
+- [ ] Order NLP adapter
+
+### Phase 3: Order Matching
+- [ ] OrderMatchingService
+- [ ] ParsedOrder schema (zod)
+- [ ] Menu name → canonical ID mapping
+
+### Phase 4: Route Wiring
+- [ ] Replace BuildPanel calls in ai.routes.ts
+- [ ] Replace BuildPanel calls in ai.service.ts
+- [ ] Add provider health endpoint
+- [ ] Add rate/body limits
+- [ ] Ensure auth/tenant guards
+
+### Phase 5: Cleanup
+- [ ] Delete buildpanel.service.ts
+- [ ] Remove all BP references
+- [ ] Update docs
+
+### Phase 6: Tests & Metrics
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] Metrics & logging
+
+### Phase 7: Final Verification
+- [ ] Clean greps (no BP references)
+- [ ] Pre-push checks pass
+- [ ] PR ready
+
+## TypeScript Errors Note
+Current count: 334 errors (pre-existing, not addressed in this PR)
+
+## References
+- BuildPanel usage report: `docs/_reports/buildpanel-usage.md`
+- Original architecture doc: `ARCHITECTURE.md`
