@@ -137,21 +137,40 @@ export class AIService {
     } catch (error) {
       aiLogger.error('OpenAI order parsing error:', error);
       
-      // Check if it's a 422 error with suggestions
-      if ((error as any).status === 422) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : 'Could not parse order',
-          suggestions: (error as any).suggestions
-        };
+      // Check if it's a timeout or provider unavailable error
+      if (this.isTimeoutError(error)) {
+        const timeoutError = new Error('provider_unavailable') as any;
+        timeoutError.status = 503;
+        timeoutError.error = 'provider_unavailable';
+        throw timeoutError;
       }
       
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Order parsing failed',
-        message: `Failed to parse: "${text}"`
-      };
+      // Check if it's a 422 error with suggestions
+      if ((error as any).status === 422) {
+        const matchError = new Error((error as any).error || 'unknown_item') as any;
+        matchError.status = 422;
+        matchError.error = (error as any).error || 'unknown_item';
+        matchError.suggestions = (error as any).suggestions || [];
+        throw matchError;
+      }
+      
+      throw error;
     }
+  }
+
+  /**
+   * Check if error is a timeout or provider unavailability
+   */
+  private isTimeoutError(error: any): boolean {
+    return (
+      error?.code === 'ECONNRESET' ||
+      error?.code === 'ETIMEDOUT' ||
+      error?.message?.includes('timeout') ||
+      error?.message?.includes('network') ||
+      error?.status === 503 ||
+      error?.status === 502 ||
+      error?.status === 504
+    );
   }
 
   /**
@@ -188,6 +207,14 @@ export class AIService {
       };
     } catch (error) {
       aiLogger.error('OpenAI file transcription error:', error);
+      
+      if (this.isTimeoutError(error)) {
+        const timeoutError = new Error('provider_unavailable') as any;
+        timeoutError.status = 503;
+        timeoutError.error = 'provider_unavailable';
+        throw timeoutError;
+      }
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Transcription failed'
@@ -232,6 +259,14 @@ export class AIService {
       return ttsResult.audio;
     } catch (error) {
       aiLogger.error('OpenAI voice processing error:', error);
+      
+      if (this.isTimeoutError(error)) {
+        const timeoutError = new Error('provider_unavailable') as any;
+        timeoutError.status = 503;
+        timeoutError.error = 'provider_unavailable';
+        throw timeoutError;
+      }
+      
       throw error;
     }
   }
@@ -275,6 +310,14 @@ export class AIService {
       return response.message;
     } catch (error) {
       aiLogger.error('OpenAI chat error:', error);
+      
+      if (this.isTimeoutError(error)) {
+        const timeoutError = new Error('provider_unavailable') as any;
+        timeoutError.status = 503;
+        timeoutError.error = 'provider_unavailable';
+        throw timeoutError;
+      }
+      
       throw error;
     }
   }
