@@ -102,14 +102,18 @@ Current count: 334 errors (pre-existing, not addressed in this PR)
 
 ## Phase 2 Deliverables
 
-- [ ] OpenAI adapters: Transcriber, TextToSpeech, ChatAgent, OrderNLP
-- [ ] OrderMatchingService (name → canonical menuItemId w/ suggestions)
-- [ ] Routes wired to adapters (no public contract changes)
-- [ ] Provider health endpoint
-- [ ] Rate/body limits on AI routes
+- [x] openai-transcriber.ts (commit 01a9425)
+- [x] openai-tts.ts (commit de496a4)
+- [x] openai-chat.ts (commit f01c3a7)
+- [ ] openai-order-nlp.ts
+- [ ] OrderMatchingService (name → canonical IDs + suggestions)
+- [ ] shared/types/orders.ts (zod schema)
+- [ ] Wire routes to adapters (no contract changes)
+- [ ] Delete BuildPanel code (service + imports)
+- [ ] Tests: unit + integration
+- [ ] Provider health + rate/body limits
 - [ ] Metrics (counters + latency)
-- [ ] Unit + integration tests
-- [ ] Final grep: zero BuildPanel in active code
+- [ ] Final greps: zero BP in active code
 
 ## Acceptance Criteria
 
