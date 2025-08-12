@@ -9,13 +9,16 @@
     "shared"
   ],
   "scripts": {
+    "start": "cd server && npm start",
     "dev": "concurrently --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\"",
     "dev:supabase": "./scripts/dev-with-supabase.sh",
     "dev:streaming": "ENABLE_REALTIME_STREAMING=true npm run dev",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "build": "npm run build:client && npm run build:server",
+    "build": "npm run build:render",
+    "build:full": "npm run build:client && npm run build:server",
+    "build:render": "cd server && npm run build",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
     "test": "npm run test:client && npm run test:server",
