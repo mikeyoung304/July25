@@ -105,22 +105,22 @@ Current count: 334 errors (pre-existing, not addressed in this PR)
 - [x] openai-transcriber.ts (commit 01a9425)
 - [x] openai-tts.ts (commit de496a4)
 - [x] openai-chat.ts (commit f01c3a7)
-- [ ] openai-order-nlp.ts
-- [ ] OrderMatchingService (name → canonical IDs + suggestions)
-- [ ] shared/types/orders.ts (zod schema)
-- [ ] Wire routes to adapters (no contract changes)
-- [ ] Delete BuildPanel code (service + imports)
-- [ ] Tests: unit + integration
-- [ ] Provider health + rate/body limits
-- [ ] Metrics (counters + latency)
-- [ ] Final greps: zero BP in active code
+- [x] openai-order-nlp.ts (AI ordering capabilities)
+- [x] OrderMatchingService (name → canonical IDs + suggestions)
+- [x] shared/types/orders.ts (zod schema)
+- [x] Wire routes to adapters (no contract changes)
+- [x] Delete BuildPanel code (service + imports)
+- [x] Tests: unit + integration
+- [x] Provider health + rate/body limits
+- [x] Metrics (counters + latency)
+- [x] Final greps: zero BP in active code
 
 ## Acceptance Criteria
 
-- [ ] POST /api/v1/ai/transcribe returns real text for a small webm
-- [ ] POST /api/v1/ai/parse-order returns zod-validated ParsedOrder with canonical IDs
-- [ ] POST /api/v1/ai/chat replies (can reference menu via server lookup)
-- [ ] Auth + X-Restaurant-ID enforced; single backend on 3001; WS unchanged
+- [x] POST /api/v1/ai/transcribe returns real text for a small webm
+- [x] POST /api/v1/ai/parse-order returns zod-validated ParsedOrder with canonical IDs
+- [x] POST /api/v1/ai/chat replies (can reference menu via server lookup)
+- [x] Auth + X-Restaurant-ID enforced; single backend on 3001; WS unchanged
 
 ## References
 - BuildPanel usage report: `docs/_reports/buildpanel-usage.md`

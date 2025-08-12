@@ -142,6 +142,14 @@ npm test
 npm run verify:ports
 ```
 
+### AI Setup
+
+The system requires OpenAI for AI-powered features:
+
+- **Production**: `OPENAI_API_KEY` is REQUIRED for voice ordering, chat, and order parsing
+- **Development**: Set `AI_DEGRADED_MODE=true` for emergency fallbacks (mocks responses)
+- **Security**: Never expose AI keys client-side - all processing happens in the backend
+
 ### Environment Setup
 
 Create a single `.env` file in the root directory:
@@ -156,6 +164,7 @@ DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
 
 # AI Configuration (REQUIRED for AI features)
 OPENAI_API_KEY=your_openai_api_key
+# AI_DEGRADED_MODE=true  # Emergency fallback mode for dev/testing
 
 # Frontend Configuration (VITE_ prefix required)
 VITE_API_BASE_URL=http://localhost:3001
