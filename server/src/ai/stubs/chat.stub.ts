@@ -5,7 +5,7 @@
 import { Chat, ChatMessage, ChatOptions, ChatResult } from '../core/chat';
 
 export class ChatStub implements Chat {
-  async complete(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResult> {
+  async completeMessages(_messages: ChatMessage[], _options?: ChatOptions): Promise<ChatResult> {
     // Stub implementation - returns mock response
     return {
       message: "I'll help you place that order. You've ordered a large pepperoni pizza.",
@@ -17,7 +17,7 @@ export class ChatStub implements Chat {
     };
   }
 
-  async completeText(prompt: string, options?: ChatOptions): Promise<string> {
+  async completeText(_prompt: string, _options?: ChatOptions): Promise<string> {
     return "Your order has been confirmed. It will be ready in 20 minutes.";
   }
 }

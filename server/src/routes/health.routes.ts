@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
-import { getBuildPanelService } from '../services/buildpanel.service';
+import { checkAIHealth } from '../ai';
 import NodeCache from 'node-cache';
 
 const router = Router();
@@ -27,9 +27,10 @@ interface HealthStatus {
       hits: number;
       misses: number;
     };
-    buildpanel: {
-      status: 'connected' | 'disconnected' | 'error';
-      url: string;
+    ai: {
+      status: 'healthy' | 'degraded' | 'unhealthy';
+      provider: 'openai' | 'stubs';
+      details: any;
       error?: string;
     };
     websocket?: {
@@ -72,23 +73,22 @@ async function checkDatabase(): Promise<HealthStatus['services']['database']> {
   }
 }
 
-async function checkBuildPanel(): Promise<HealthStatus['services']['buildpanel']> {
-  const buildPanelService = getBuildPanelService();
-  const buildPanelUrl = process.env.BUILDPANEL_URL || process.env.BUILDPANEL_BASE_URL || 'http://localhost:3003';
-  
+async function checkAI(): Promise<HealthStatus['services']['ai']> {
   try {
-    const isHealthy = await buildPanelService.healthCheck();
+    const aiHealth = await checkAIHealth();
     
     return {
-      status: isHealthy ? 'connected' : 'disconnected',
-      url: buildPanelUrl,
-      error: isHealthy ? undefined : 'BuildPanel service unavailable (502 Bad Gateway) - please check if BuildPanel is running'
+      status: aiHealth.status,
+      provider: aiHealth.provider,
+      details: aiHealth.details,
+      error: aiHealth.status === 'unhealthy' ? aiHealth.details.error : undefined
     };
   } catch (error) {
-    logger.error('BuildPanel health check error:', error);
+    logger.error('AI health check error:', error);
     return {
-      status: 'error',
-      url: buildPanelUrl,
+      status: 'unhealthy',
+      provider: 'stubs',
+      details: { message: 'AI health check failed' },
       error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
@@ -107,9 +107,9 @@ router.get('/', async (_req: Request, res: Response) => {
 // Detailed status endpoint
 router.get('/status', async (_req: Request, res: Response) => {
   try {
-    const [databaseStatus, buildPanelStatus] = await Promise.all([
+    const [databaseStatus, aiStatus] = await Promise.all([
       checkDatabase(),
-      checkBuildPanel(),
+      checkAI(),
     ]);
     
     const cacheStats = cache.getStats();
@@ -128,16 +128,16 @@ router.get('/status', async (_req: Request, res: Response) => {
           hits: cacheStats.hits,
           misses: cacheStats.misses,
         },
-        buildpanel: buildPanelStatus,
+        ai: aiStatus,
       },
     };
     
     // Determine overall health status
     if (databaseStatus.status !== 'connected') {
       health.status = 'unhealthy';
-    } else if (buildPanelStatus.status === 'error') {
+    } else if (aiStatus.status === 'unhealthy') {
       health.status = 'unhealthy';
-    } else if (buildPanelStatus.status === 'disconnected' || 
+    } else if (aiStatus.status === 'degraded' || 
                (databaseStatus.latency && databaseStatus.latency > 1000)) {
       health.status = 'degraded';
     }
@@ -159,17 +159,17 @@ router.get('/status', async (_req: Request, res: Response) => {
 // Readiness probe for k8s
 router.get('/ready', async (_req: Request, res: Response) => {
   try {
-    const [dbStatus, buildPanelStatus] = await Promise.all([
+    const [dbStatus, aiStatus] = await Promise.all([
       checkDatabase(),
-      checkBuildPanel(),
+      checkAI(),
     ]);
     
-    if (dbStatus.status === 'connected' && buildPanelStatus.status === 'connected') {
+    if (dbStatus.status === 'connected' && aiStatus.status !== 'unhealthy') {
       res.status(200).json({ ready: true });
     } else {
       const reasons = [];
       if (dbStatus.status !== 'connected') reasons.push('Database not ready');
-      if (buildPanelStatus.status !== 'connected') reasons.push('BuildPanel not ready');
+      if (aiStatus.status === 'unhealthy') reasons.push('AI service not ready');
       
       res.status(503).json({ 
         ready: false, 

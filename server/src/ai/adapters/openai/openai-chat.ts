@@ -1,15 +1,15 @@
 import OpenAI from 'openai';
-import { ChatAgent, ChatMessage, ChatOptions, ChatResponse } from '../../core/chat';
+import { ChatAgent, ChatMessage, ChatOptions, ChatResponse, Chat, ChatResult } from '../../core/chat';
 import { withRetry } from './utils';
 import { logger } from '../../../utils/logger';
 
 const chatLogger = logger.child({ service: 'OpenAIChat' });
 
-export class OpenAIChatAgent implements ChatAgent {
+export class OpenAIChatAgent implements ChatAgent, Chat {
   private client: OpenAI;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env['OPENAI_API_KEY'];
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY is required for AI features');
     }
@@ -94,5 +94,18 @@ If asked about menu items, you can reference general categories but specific ite
       options
     );
     return response.message;
+  }
+
+  // Legacy Chat interface methods
+  async completeText(prompt: string, options?: ChatOptions): Promise<string> {
+    return this.complete(prompt, options);
+  }
+
+  async completeMessages(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResult> {
+    const response = await this.respond(messages, options);
+    return {
+      message: response.message,
+      usage: response.metadata?.usage
+    };
   }
 }
