@@ -7,6 +7,7 @@ import { AuthenticatedRequest, authenticate, requireRole } from '../middleware/a
 import { aiServiceLimiter, transcriptionLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validation';
 import { menuUploadSchema, parseOrderSchema } from '../validation/ai.validation';
+import { trackAIMetrics } from '../middleware/metrics';
 
 const router = Router();
 
@@ -83,7 +84,7 @@ router.get('/menu', aiServiceLimiter, authenticate, (req: AuthenticatedRequest, 
  * Process voice audio through OpenAI
  * Returns MP3 audio response for direct playback
  */
-router.post('/transcribe', transcriptionLimiter, audioUpload.single('audio'), async (req: Request, res: Response) => {
+router.post('/transcribe', transcriptionLimiter, trackAIMetrics('transcribe'), audioUpload.single('audio'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       res.set('Cache-Control', 'no-store');
@@ -137,7 +138,7 @@ router.post('/transcribe', transcriptionLimiter, audioUpload.single('audio'), as
  * Process voice audio with metadata
  * Returns transcription and response data along with audio
  */
-router.post('/transcribe-with-metadata', transcriptionLimiter, audioUpload.single('audio'), async (req: Request, res: Response) => {
+router.post('/transcribe-with-metadata', transcriptionLimiter, trackAIMetrics('transcribe-with-metadata'), audioUpload.single('audio'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       res.set('Cache-Control', 'no-store');
@@ -194,7 +195,7 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, audioUpload.singl
  * Parse order from text using OpenAI
  * Requires authentication to ensure restaurant context
  */
-router.post('/parse-order', aiServiceLimiter, authenticate, validateRequest(parseOrderSchema), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/parse-order', aiServiceLimiter, trackAIMetrics('parse-order'), authenticate, validateRequest(parseOrderSchema), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { text } = req.body; // Already validated by middleware
     const restaurantId = req.restaurantId || 'default';
@@ -244,7 +245,7 @@ router.post('/parse-order', aiServiceLimiter, authenticate, validateRequest(pars
  * Process voice audio and return response
  * Combines transcription and chat in one endpoint
  */
-router.post('/voice-chat', aiServiceLimiter, authenticate, audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authenticate, audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.file) {
       res.set('Cache-Control', 'no-store');
@@ -330,7 +331,7 @@ router.post('/voice-chat', aiServiceLimiter, authenticate, audioUpload.single('a
  * Chat with AI assistant using OpenAI
  * Requires authentication for restaurant context
  */
-router.post('/chat', aiServiceLimiter, authenticate, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/chat', aiServiceLimiter, trackAIMetrics('chat'), authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { message } = req.body;
     const restaurantId = req.restaurantId || 'default';
@@ -374,7 +375,7 @@ router.post('/chat', aiServiceLimiter, authenticate, async (req: AuthenticatedRe
   }
 });
 
-router.get('/health', async (_req: Request, res: Response) => {
+router.get('/health', trackAIMetrics('provider-health'), async (_req: Request, res: Response) => {
   const menu = aiService.getMenu();
   const aiHealthCheck = await checkAIHealth();
   
