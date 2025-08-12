@@ -22,11 +22,7 @@ This guide covers setting up and running the Grow Fresh Local Food Restaurant Op
    ```
    This installs dependencies for the root, client, and server directories.
 
-3. **Start BuildPanel service**
-   
-   Ensure BuildPanel is running on port 3003 before starting the application.
-
-4. **Configure environment variables**
+3. **Configure environment variables**
    
    Create `.env` file in the root directory:
    ```env
@@ -37,9 +33,8 @@ This guide covers setting up and running the Grow Fresh Local Food Restaurant Op
    SUPABASE_SERVICE_KEY=your_service_key
    DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
    
-   # BuildPanel Configuration (REQUIRED for AI features)
-   USE_BUILDPANEL=true
-   BUILDPANEL_URL=http://localhost:3003
+   # AI Configuration (REQUIRED for AI features)
+   OPENAI_API_KEY=your_openai_api_key
 
    # Frontend Configuration (VITE_ prefix required)
    VITE_API_BASE_URL=http://localhost:3001
