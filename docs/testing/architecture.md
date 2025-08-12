@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Rebuild 6.0 project uses Jest for unit/integration testing with React Testing Library for component tests. All AI functionality is tested via BuildPanel service mocks.
+The Rebuild 6.0 project uses Jest for unit/integration testing with React Testing Library for component tests. All AI functionality is tested via OpenAI service mocks.
 
 ## Test Structure
 
@@ -49,18 +49,18 @@ Located in `client/src/test/utils/`:
 - `mock-factories.ts` - Mock data generators
 - `test-helpers.ts` - Common test utilities
 
-## BuildPanel Testing Strategy
+## OpenAI Testing Strategy
 
 ### Core Principle
-**ALL AI functionality must be mocked** - Never make real calls to BuildPanel service during tests.
+**ALL AI functionality must be mocked** - Never make real calls to OpenAI service during tests.
 
 ### Mock Patterns
 
 #### 1. Service-Level Mocking
 ```typescript
-// Mock the entire BuildPanel service
+// Mock the entire OpenAI service
 jest.mock('../services/buildpanel.service', () => ({
-  getBuildPanelService: () => ({
+  getOpenAIService: () => ({
     processVoice: jest.fn().mockResolvedValue({
       transcription: 'Mock transcription result',
       response: 'Mock AI response',
@@ -79,7 +79,7 @@ jest.mock('../services/buildpanel.service', () => ({
 
 #### 2. HTTP Client Mocking
 ```typescript
-// Mock axios calls to BuildPanel
+// Mock axios calls to OpenAI
 import axios from 'axios';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -96,8 +96,8 @@ beforeEach(() => {
 
 #### 3. Voice Integration Mocking
 ```typescript
-// Mock WebSocket + BuildPanel integration
-const mockBuildPanelResponse = {
+// Mock WebSocket + OpenAI integration
+const mockOpenAIResponse = {
   transcription: 'Two burgers with fries',
   response: 'I\'ve added two burgers with fries to your order',
   orderData: {
@@ -107,11 +107,11 @@ const mockBuildPanelResponse = {
 };
 
 // In voice component tests
-it('should process voice recording through BuildPanel', async () => {
-  const mockProcessVoice = jest.fn().mockResolvedValue(mockBuildPanelResponse);
+it('should process voice recording through OpenAI', async () => {
+  const mockProcessVoice = jest.fn().mockResolvedValue(mockOpenAIResponse);
   
   jest.mock('../services/buildpanel.service', () => ({
-    getBuildPanelService: () => ({ processVoice: mockProcessVoice })
+    getOpenAIService: () => ({ processVoice: mockProcessVoice })
   }));
 
   // Test voice recording flow
@@ -141,7 +141,7 @@ it('should process voice recording through BuildPanel', async () => {
 ### Integration Test Requirements
 
 #### Prerequisites
-1. **BuildPanel service must be mocked** - Never connect to real BuildPanel during tests
+1. **OpenAI service must be mocked** - Never connect to real OpenAI during tests
 2. **Restaurant context required** - All tests must include restaurantId
 3. **Authentication mocked** - Mock AuthenticatedRequest for backend tests
 4. **WebSocket mocking** - Mock WebSocket connections for voice tests
@@ -149,10 +149,10 @@ it('should process voice recording through BuildPanel', async () => {
 #### Backend Integration Tests
 ```typescript
 describe('AI Service Integration', () => {
-  let mockBuildPanel: jest.Mocked<BuildPanelService>;
+  let mockOpenAI: jest.Mocked<OpenAIService>;
 
   beforeEach(() => {
-    mockBuildPanel = {
+    mockOpenAI = {
       processVoice: jest.fn(),
       processChat: jest.fn(),
       healthCheck: jest.fn(),
@@ -162,12 +162,12 @@ describe('AI Service Integration', () => {
 
     // Mock the service factory
     jest.doMock('../services/buildpanel.service', () => ({
-      getBuildPanelService: () => mockBuildPanel
+      getOpenAIService: () => mockOpenAI
     }));
   });
 
   it('should process voice with restaurant context', async () => {
-    mockBuildPanel.processVoice.mockResolvedValue({
+    mockOpenAI.processVoice.mockResolvedValue({
       transcription: 'Test order',
       response: 'Order processed',
       orderData: null
@@ -181,7 +181,7 @@ describe('AI Service Integration', () => {
     const audioBuffer = Buffer.from('mock audio data');
     const result = await aiService.transcribeAudio(req, audioBuffer, 'audio/webm');
 
-    expect(mockBuildPanel.processVoice).toHaveBeenCalledWith(
+    expect(mockOpenAI.processVoice).toHaveBeenCalledWith(
       audioBuffer,
       'audio/webm',
       'test-restaurant',
@@ -200,7 +200,7 @@ describe('AI Service Integration', () => {
 ```typescript
 describe('Voice Component Integration', () => {
   beforeEach(() => {
-    // Mock the transcription service that calls BuildPanel
+    // Mock the transcription service that calls OpenAI
     jest.mock('@/services/transcription/TranscriptionService', () => ({
       default: {
         transcribe: jest.fn().mockResolvedValue({
@@ -221,7 +221,7 @@ describe('Voice Component Integration', () => {
     
     expect(result.current.isRecording).toBe(true);
     
-    // Stop recording (triggers BuildPanel call via service)
+    // Stop recording (triggers OpenAI call via service)
     act(() => {
       result.current.stopRecording();
     });
@@ -236,15 +236,15 @@ describe('Voice Component Integration', () => {
 ## Key Testing Patterns
 
 1. **Component Testing**: Use React Testing Library
-2. **Service Testing**: Mock BuildPanel service calls
+2. **Service Testing**: Mock OpenAI service calls
 3. **Hook Testing**: Use `renderHook` from RTL
-4. **API Testing**: Mock BuildPanel HTTP endpoints
-5. **Voice Testing**: Mock WebSocket + BuildPanel integration
-6. **Integration Testing**: Test service boundaries with mocked BuildPanel
+4. **API Testing**: Mock OpenAI HTTP endpoints
+5. **Voice Testing**: Mock WebSocket + OpenAI integration
+6. **Integration Testing**: Test service boundaries with mocked OpenAI
 
 ## Mock Data Factories
 
-Create consistent mock data for BuildPanel responses:
+Create consistent mock data for OpenAI responses:
 
 ```typescript
 // client/src/test/utils/buildpanel-mocks.ts
@@ -279,14 +279,14 @@ export const createMockMenuItem = (overrides = {}) => ({
 ### Test Environment Variables
 ```bash
 # .env.test
-USE_BUILDPANEL=false  # Always false in tests
-BUILDPANEL_URL=http://localhost:3003  # Unused in tests
+USE_OPENAI=false  # Always false in tests
+OPENAI_URL=http://localhost:3003  # Unused in tests
 NODE_ENV=test
 ```
 
 ### Jest Configuration
 ```javascript
-// Automatically mock BuildPanel service in all tests
+// Automatically mock OpenAI service in all tests
 module.exports = {
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
   moduleNameMapping: {
@@ -307,33 +307,33 @@ npm run lint:fix      # Fix linting issues
 ## Testing Best Practices
 
 ### DO
-- ✅ Mock all BuildPanel service calls
+- ✅ Mock all OpenAI service calls
 - ✅ Test with realistic restaurant context
 - ✅ Use consistent mock data factories
-- ✅ Test error scenarios (BuildPanel unavailable)
+- ✅ Test error scenarios (OpenAI unavailable)
 - ✅ Verify service call parameters
-- ✅ Test WebSocket + BuildPanel integration flows
+- ✅ Test WebSocket + OpenAI integration flows
 
 ### DON'T
-- ❌ Make real HTTP calls to BuildPanel service
+- ❌ Make real HTTP calls to OpenAI service
 - ❌ Skip restaurant context in tests
 - ❌ Test without proper authentication mocking
-- ❌ Ignore error handling for BuildPanel failures
+- ❌ Ignore error handling for OpenAI failures
 - ❌ Forget to mock WebSocket connections in voice tests
 
 ## Error Handling Tests
 
 ```typescript
-it('should handle BuildPanel service unavailable', async () => {
-  mockBuildPanel.processVoice.mockRejectedValue(
-    new Error('BuildPanel service unavailable')
+it('should handle OpenAI service unavailable', async () => {
+  mockOpenAI.processVoice.mockRejectedValue(
+    new Error('OpenAI service unavailable')
   );
 
   const result = await aiService.transcribeAudio(mockReq, audioBuffer, 'audio/webm');
   
   expect(result).toMatchObject({
     success: false,
-    error: expect.stringContaining('BuildPanel service unavailable')
+    error: expect.stringContaining('OpenAI service unavailable')
   });
 });
 ```

@@ -198,11 +198,11 @@ Authenticated HTTP         Restaurant context          AI Processing
 ```javascript
 // ❌ NEVER in client code - direct AI service access
 const response = await fetch('https://api.openai.com/v1/chat/completions', {
-  headers: { 'Authorization': 'Bearer sk-...' }
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY_HERE' }
 });
 
 // ❌ NEVER expose AI keys to browser
-VITE_OPENAI_API_KEY=sk-...
+VITE_OPENAI_API_KEY=YOUR_API_KEY_HERE
 ```
 
 #### Correct Pattern
@@ -228,7 +228,7 @@ const response = await this.aiService.processVoice(
 **Secure Configuration:**
 ```env
 # Backend-only AI configuration
-OPENAI_API_KEY=sk-your-secret-key
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY_HERE
 
 # Frontend has no AI service access
 VITE_API_BASE_URL=http://localhost:3001

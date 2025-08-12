@@ -11,7 +11,7 @@
 - **Real-time transcription**: See what's being captured
 - **Smart parsing**: Automatically extracts items and modifiers
 - **Multi-mode**: Hold-to-talk or tap-to-toggle
-- **BuildPanel Integration**: All AI processing via external BuildPanel service
+- **OpenAI Integration**: All AI processing via external OpenAI service
 - **Context Isolation**: Restaurant-specific AI context and menu understanding
 
 ## Unified Components
@@ -34,28 +34,28 @@
 
 ## Testing Strategy
 
-### AI/Voice Testing with BuildPanel Mocks
-- **No Real AI Calls**: All BuildPanel service calls mocked in tests
+### AI/Voice Testing with OpenAI Mocks
+- **No Real AI Calls**: All OpenAI service calls mocked in tests
 - **Voice Order Testing**: Complete ordering flows with realistic scenarios
-- **Error Handling**: BuildPanel service failures and timeouts
+- **Error Handling**: OpenAI service failures and timeouts
 - **Restaurant Context**: Multi-tenant testing with proper isolation
 
 ### Test Coverage
 - **Component Tests**: React Testing Library for UI components
 - **Integration Tests**: Complete voice ordering and chat flows
-- **Service Tests**: BuildPanel integration with proper mocking
+- **Service Tests**: OpenAI integration with proper mocking
 - **Error Scenarios**: Network failures, invalid responses, service unavailable
 
 ### Voice Testing Patterns
 ```typescript
-// Example: Testing voice ordering with BuildPanel mock
+// Example: Testing voice ordering with OpenAI mock
 const mockVoiceResponse = createMockVoiceResponse({
   transcription: 'Two burgers with fries',
   response: 'Added to your order',
   orderData: { items: [...], total: 24.98 }
 });
 
-// Mock BuildPanel service
+// Mock OpenAI service
 mockTranscriptionService.transcribe.mockResolvedValue(mockVoiceResponse);
 
 // Test complete voice ordering flow
@@ -67,7 +67,7 @@ await waitFor(() => {
 
 ### Chat Testing Patterns
 ```typescript
-// Example: Testing chat with BuildPanel mock
+// Example: Testing chat with OpenAI mock
 const mockChatResponse = createMockChatResponse({
   message: 'We have several burger options available',
   suggestions: ['Classic Burger', 'Cheese Burger']
@@ -83,8 +83,8 @@ await waitFor(() => {
 ```
 
 ### Integration Test Requirements
-- **BuildPanel Service Mock**: Never call real BuildPanel service
+- **OpenAI Service Mock**: Never call real OpenAI service
 - **Restaurant Context**: All tests must include restaurantId
 - **Authentication Mock**: Backend tests need AuthenticatedRequest mocks
 - **WebSocket Mock**: Voice tests require WebSocket connection mocks
-- **Error Recovery**: Test all BuildPanel failure scenarios
+- **Error Recovery**: Test all OpenAI failure scenarios

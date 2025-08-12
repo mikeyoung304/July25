@@ -8,7 +8,7 @@ This guide covers deploying the Rebuild 6.0 Restaurant OS to production environm
 
 - Node.js 18.x or higher
 - PostgreSQL 14+ or Supabase project
-- **BuildPanel service** deployed and accessible (REQUIRED for AI features)
+- **OpenAI service** deployed and accessible (REQUIRED for AI features)
 - Domain with SSL certificate
 - Server with at least 2GB RAM
 
@@ -31,9 +31,9 @@ SUPABASE_SERVICE_KEY=your-service-key
 JWT_SECRET=your-jwt-secret-min-32-chars
 CORS_ORIGIN=https://your-domain.com
 
-# BuildPanel Integration (REQUIRED for AI features)
-USE_BUILDPANEL=true
-BUILDPANEL_URL=https://buildpanel.your-domain.com
+# OpenAI Integration (REQUIRED for AI features)
+USE_OPENAI=true
+OPENAI_URL=https://buildpanel.your-domain.com
 
 # Logging
 LOG_LEVEL=info
@@ -133,7 +133,7 @@ server {
         proxy_set_header Connection "upgrade";
     }
 
-    # BuildPanel Service (if hosted locally)
+    # OpenAI Service (if hosted locally)
     location /buildpanel {
         proxy_pass http://localhost:3003;
         proxy_http_version 1.1;
@@ -368,9 +368,9 @@ NODE_ENV=production LOG_LEVEL=debug pm2 restart restaurant-os
 ## Post-Deployment Checklist
 
 - [ ] Health check passes
-- [ ] **BuildPanel service connectivity verified**
+- [ ] **OpenAI service connectivity verified**
 - [ ] WebSocket connections work
-- [ ] Voice ordering functional (requires BuildPanel)
+- [ ] Voice ordering functional (requires OpenAI)
 - [ ] Orders flow to kitchen display
 - [ ] No console errors in browser
 - [ ] Performance acceptable (< 3s load time)

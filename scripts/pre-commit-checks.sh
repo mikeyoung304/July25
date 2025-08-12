@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Pre-commit checks for code quality
-# Updated after BuildPanel removal - no longer checking for direct AI service access
+# Check for exposed secrets and direct AI service access
 
 echo "Running pre-commit checks..."
 

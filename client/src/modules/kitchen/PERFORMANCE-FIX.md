@@ -74,9 +74,9 @@ The React DOM was showing warnings about recursive layout effects in the Kitchen
 3. Add performance budgets
 4. Use React DevTools Profiler for deeper analysis
 
-## BuildPanel Integration Impact
+## OpenAI Integration Impact
 
-The migration to BuildPanel service has minimal impact on kitchen display performance:
+The migration to OpenAI service has minimal impact on kitchen display performance:
 - Voice processing moved to backend, reducing frontend load
 - Audio responses handled via Web Audio API (efficient)
 - Real-time updates continue via WebSocket (unchanged pattern)
