@@ -134,10 +134,16 @@ GET    /api/v1/tables
 
 ### AI/Voice Endpoints
 ```
-POST   /api/v1/ai/transcribe
-POST   /api/v1/ai/chat
-POST   /api/v1/ai/parse-order
-POST   /api/v1/ai/menu-upload
+POST   /api/v1/ai/transcribe       # Voice-to-text via OpenAI Whisper
+POST   /api/v1/ai/chat             # Conversational chat via OpenAI GPT
+POST   /api/v1/ai/parse-order      # Order extraction with menu matching
+POST   /api/v1/ai/menu-upload      # Menu synchronization
+GET    /api/v1/ai/health           # AI provider health status
+```
+
+### Internal Endpoints
+```
+GET    /internal/metrics           # Prometheus metrics for AI operations
 ```
 
 ### WebSocket
@@ -301,6 +307,24 @@ import { Order, MenuItem, WebSocketMessage } from '@rebuild/shared';
 - `/api/v1/metrics` - Performance metrics collection
 - `/api/v1/health` - Basic health check
 - `/api/v1/health/detailed` - Comprehensive system status
+- `/internal/metrics` - Prometheus metrics for AI routes and provider health
+
+### AI Provider Integration
+
+#### Degraded Mode
+When `AI_DEGRADED_MODE=true`, the system gracefully handles AI service unavailability:
+- Voice transcription returns "[Audio transcription unavailable]"
+- Chat responses return helpful fallback messages
+- Order parsing uses basic text matching
+- All endpoints maintain the same response structure
+
+#### OpenAI Integration
+- **Transcription**: Whisper API for voice-to-text
+- **Chat**: GPT models for conversational responses
+- **TTS**: OpenAI Speech API for text-to-speech
+- **Order Parsing**: Structured prompts for menu item extraction
+- **Error Mapping**: OpenAI errors mapped to user-friendly messages
+- **Health Monitoring**: Provider availability tracked via `/internal/metrics`
 
 ## Migration Timeline
 

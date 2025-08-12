@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - 2025-08-12
 
+### Added
+- **OpenAI Adapters**: Direct OpenAI integration replacing BuildPanel proxy
+  - Transcription via Whisper API
+  - Chat via GPT models  
+  - TTS via OpenAI Speech API
+  - Order parsing with structured prompts
+- **Environment Policy Enforcement**: Fail-fast validation for missing `OPENAI_API_KEY`
+- **Degraded Mode**: Graceful fallbacks when `AI_DEGRADED_MODE=true` for development
+- **Error Mapping**: OpenAI errors mapped to user-friendly messages
+- **Provider Health Monitoring**: AI service availability tracking
+- **Prometheus Metrics**: Request counters, error rates, and latency for AI routes at `/internal/metrics`
+
 ### Removed
 - **BuildPanel Integration**: Removed all external BuildPanel service dependencies
 - **BuildPanel Scripts**: Removed health checks, security scripts, and streaming tests  
