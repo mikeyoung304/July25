@@ -13,9 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: CI Environment Diagnostics
+        run: |
+          chmod +x ./scripts/ci-echo-env.sh
+          ./scripts/ci-echo-env.sh
+      
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22.x
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
       
