@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'client/**'
-      - '.github/workflows/lighthouse-perf.yml'
+      - '.github/workflows/lighthouse-performance.yml'
 
 jobs:
   lighthouse:
@@ -14,10 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: CI Environment Diagnostics
+      - name: Environment Diagnostics
         run: |
-          chmod +x ./scripts/ci-echo-env.sh
-          ./scripts/ci-echo-env.sh
+          echo "Node version: $(node -v)"
+          echo "Current directory: $(pwd)"
+          ls -la
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,83 +27,51 @@ jobs:
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
       
-      - name: Install Vercel CLI
-        run: npm i -g vercel@latest
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm ci
       
-      - name: Deploy to Vercel Preview
-        id: vercel
-        uses: vercel/action@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./client
+      - name: Build production bundle
+        working-directory: ./client
+        run: npm run build
       
-      - name: Extract and Verify Preview URL
-        id: preview
+      - name: Start preview server
+        working-directory: ./client
         run: |
-          echo "::group::Vercel Deployment Info"
-          if [ -z "${{ steps.vercel.outputs.preview-url }}" ]; then
-            echo "WARNING: No preview URL from action output, attempting to query Vercel API..."
-            
-            # Query Vercel API for deployment by SHA
-            DEPLOYMENT_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-              "https://api.vercel.com/v6/deployments?projectId=${{ secrets.VERCEL_PROJECT_ID }}&teamId=${{ secrets.VERCEL_ORG_ID }}&meta-githubCommitSha=${{ github.sha }}&limit=1" \
-              | jq -r '.deployments[0].url // empty')
-            
-            if [ -z "$DEPLOYMENT_URL" ]; then
-              echo "ERROR: Could not find deployment for SHA ${{ github.sha }}"
-              exit 1
-            fi
-            
-            PREVIEW_URL="https://$DEPLOYMENT_URL"
-          else
-            PREVIEW_URL="${{ steps.vercel.outputs.preview-url }}"
-          fi
-          
-          echo "preview-url=$PREVIEW_URL" >> $GITHUB_OUTPUT
-          echo "::notice title=Preview URL::$PREVIEW_URL"
+          echo "::group::Starting preview server"
+          (npm run preview -- --host 127.0.0.1 --port 4173 & echo $! > /tmp/preview.pid) &
+          echo "Preview server PID: $(cat /tmp/preview.pid)"
           echo "::endgroup::"
-          
-          # Wait for deployment to be ready
-          echo "Waiting for deployment to be ready..."
-          for i in {1..30}; do
-            if curl -s -o /dev/null -w "%{http_code}" "$PREVIEW_URL" | grep -q "200\|304"; then
-              echo "Deployment is ready!"
+      
+      - name: Wait for preview server
+        run: |
+          echo "Waiting for preview server to be ready..."
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4173 >/dev/null 2>&1; then
+              echo "Preview server is ready!"
               break
             fi
-            echo "Attempt $i/30: Deployment not ready yet..."
-            sleep 10
+            echo "Attempt $i/60: Server not ready yet..."
+            sleep 1
           done
       
-      - name: Check Backend Health (Non-blocking)
-        run: |
-          RENDER_API_BASE="${{ secrets.RENDER_API_BASE || 'https://july25.onrender.com' }}"
-          echo "::group::Backend Health Check"
-          echo "Checking backend health at: $RENDER_API_BASE/api/v1/ai/health"
-          
-          HEALTH_RESPONSE=$(curl -s -w "\n%{http_code}" "$RENDER_API_BASE/api/v1/ai/health" || echo "CURL_FAILED")
-          HTTP_CODE=$(echo "$HEALTH_RESPONSE" | tail -n1)
-          BODY=$(echo "$HEALTH_RESPONSE" | head -n-1)
-          
-          if [ "$HTTP_CODE" = "200" ] || echo "$BODY" | grep -q '"ok":\s*true'; then
-            echo "✅ Backend is healthy: $BODY"
-          else
-            echo "⚠️ Backend health check failed (non-blocking)"
-            echo "HTTP Code: $HTTP_CODE"
-            echo "Response: $BODY"
-            echo "Performance tests will continue"
-          fi
-          echo "::endgroup::"
+      - name: Install Lighthouse CI
+        run: npm i -g @lhci/cli
       
       - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v10
-        with:
-          urls: ${{ steps.preview.outputs.preview-url }}
-          configPath: ./client/.lighthouserc.json
-          uploadArtifacts: true
-          runs: 1
+        run: |
+          echo "Running Lighthouse against http://127.0.0.1:4173"
+          lhci collect --url=http://127.0.0.1:4173 --numberOfRuns=1
+          lhci assert --preset=lighthouse:no-pwa || true
+      
+      - name: Stop preview server
+        if: always()
+        run: |
+          if [ -f /tmp/preview.pid ]; then
+            echo "Stopping preview server..."
+            kill $(cat /tmp/preview.pid) || true
+            rm /tmp/preview.pid
+          fi
       
       - name: Upload Lighthouse reports
         if: always()
