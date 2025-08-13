@@ -3,9 +3,8 @@ name: CI
 on:
   push:
     branches: [main, develop]
-  # Disabled on PRs - using frontend-ci, playwright-smoke, lighthouse-performance instead
-  # pull_request:
-  #   branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
 
 jobs:
   quality-gates:
