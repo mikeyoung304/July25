@@ -31,22 +31,22 @@ All API endpoints require:
 | DELETE | /menu/items/:id | Remove item |
 | POST | /menu/sync-ai | Sync menu to AI service |
 
-## AI/Voice (BuildPanel Integration)
+## AI/Voice (OpenAI Integration)
 
 | Method | Endpoint | Description | Response Type |
 |--------|----------|-------------|---------------|
 | POST | /ai/transcribe | Process voice audio and return AI response | audio/mpeg |
 | POST | /ai/transcribe-with-metadata | Process voice with transcription data | application/json |
-| POST | /ai/parse-order | Parse text to order via BuildPanel | application/json |
-| POST | /ai/chat | Chat with AI assistant via BuildPanel | application/json |
-| POST | /ai/menu | Sync menu from BuildPanel | application/json |
+| POST | /ai/parse-order | Parse text to order via OpenAI | application/json |
+| POST | /ai/chat | Chat with AI assistant via OpenAI | application/json |
+| POST | /ai/menu | Sync menu for AI context | application/json |
 | GET | /ai/menu | Get current AI menu | application/json |
 | GET | /ai/health | AI service health check | application/json |
 
 ### Voice Endpoint Details
 
 #### POST /ai/transcribe
-Process voice audio through BuildPanel's speech-to-text and text-to-speech pipeline.
+Process voice audio through OpenAI's speech-to-text and text-to-speech pipeline.
 
 **Request:**
 - Content-Type: `multipart/form-data`
@@ -128,7 +128,7 @@ Events:
 
 ## Environment Variables
 
-- `BUILDPANEL_URL` - BuildPanel service URL (default: http://localhost:3003)
+- `OPENAI_URL` - OpenAI service URL (default: http://localhost:3003)
 - `DATABASE_URL` - PostgreSQL connection string
 - `PORT` - Server port (default: 3001)
 - `FRONTEND_URL` - Frontend URL for CORS (default: http://localhost:5173)

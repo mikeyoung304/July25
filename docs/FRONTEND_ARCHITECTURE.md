@@ -142,7 +142,7 @@ sequenceDiagram
     participant Service as Domain Service
     participant HTTP as HttpClient
     participant API as Backend API
-    participant BP as BuildPanel Service
+    participant BP as OpenAI Service
     
     UI->>Service: Call service method
     Service->>HTTP: Prepare request
@@ -151,7 +151,7 @@ sequenceDiagram
     HTTP->>HTTP: Transform to snake_case
     HTTP->>API: Send request
     
-    Note over API,BP: AI processing via BuildPanel
+    Note over API,BP: AI processing via OpenAI
     API->>BP: Forward AI requests
     BP-->>API: AI response + audio
     
@@ -205,7 +205,7 @@ graph TD
     C --> D[Hold/Tap to Record]
     D --> E[Voice Capture]
     E --> F[WebSocket Stream to Backend]
-    F --> G[Backend AI Processing via BuildPanel]
+    F --> G[Backend AI Processing via OpenAI]
     G --> H[Order Parsing and Audio Response]
     H --> I[Display Order Summary + Play Audio]
     I --> J[Confirm Order]
@@ -250,19 +250,19 @@ graph TD
   - `Authorization: Bearer <token>`
   - `X-Restaurant-ID: <restaurant_id>`
 
-### BuildPanel AI Integration
+### OpenAI AI Integration
 
-The frontend integrates with BuildPanel service through the backend:
+The frontend integrates with OpenAI service through the backend:
 
 **Voice Processing Flow:**
 1. Frontend captures audio via WebSocket streaming
-2. Backend buffers audio and forwards to BuildPanel (port 3003)
-3. BuildPanel processes voice and returns transcription + AI audio response
+2. Backend buffers audio and forwards to OpenAI (port 3003)
+3. OpenAI processes voice and returns transcription + AI audio response
 4. Backend forwards both text and audio data to frontend
 5. Frontend displays transcription and plays audio response
 
 **Audio Response Handling:**
-- BuildPanel responses may include audio data for voice feedback
+- OpenAI responses may include audio data for voice feedback
 - Frontend automatically plays audio responses using Web Audio API
 - Audio playback is optional and can be muted by user preference
 - Audio responses enhance user experience in drive-thru scenarios
@@ -275,12 +275,12 @@ The frontend integrates with BuildPanel service through the backend:
   - Order updates
   - Voice transcription results with audio responses
   - Real-time notifications
-  - BuildPanel AI processing status
+  - OpenAI AI processing status
 
 ### 3. External Services
 
 - **Supabase**: Authentication and data persistence
-- **BuildPanel**: Voice transcription and AI processing (backend proxy)
+- **OpenAI**: Voice transcription and AI processing (backend proxy)
 - **Square**: Payment processing (optional)
 
 ## Performance Optimizations
@@ -411,9 +411,9 @@ VITE_SUPABASE_ANON_KEY=<supabase-key>
 3. **Input Validation**: Client-side validation before submission
 4. **Secure Storage**: No sensitive data in localStorage
 5. **CORS**: Configured for specific origins only
-6. **AI Service Isolation**: No direct frontend access to BuildPanel service
+6. **AI Service Isolation**: No direct frontend access to OpenAI service
 7. **Audio Data**: Voice recordings processed server-side only
-8. **API Key Security**: All AI service keys isolated to backend/BuildPanel
+8. **API Key Security**: All AI service keys isolated to backend/OpenAI
 
 ## Deployment Considerations
 

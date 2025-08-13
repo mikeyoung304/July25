@@ -26,24 +26,22 @@ Your Vercel frontend shows mock data because it's trying to connect to `localhos
    PORT=3001
    
    # Copy these from your .env file:
-   SUPABASE_URL=https://xiwfhcikfdoshxwbtjxt.supabase.co
-   SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhpd2ZoY2lrZmRvc2h4d2J0anh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNDkzMDIsImV4cCI6MjA2NzgyNTMwMn0.f0jqtYOR4oU7-7lJPF9nkL8uk40qQ6G91xzjRpTnCSc
-   SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhpd2ZoY2lrZmRvc2h4d2J0anh0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjI0OTMwMiwiZXhwIjoyMDY3ODI1MzAyfQ.-dXq_uGiXmBQRKTz22LBWya2YBqVXLgZ41oLTdhnB5g
-   DATABASE_URL=postgresql://postgres:bf43D86obVkgyaKJ@db.xiwfhcikfdoshxwbtjxt.supabase.co:5432/postgres?sslmode=require
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_KEY=your_supabase_service_key
+   DATABASE_URL=your_database_url
    
-   # BuildPanel settings:
-   USE_BUILDPANEL=true
-   BUILDPANEL_URL=https://api.mike.app.buildpanel.ai
-   BUILDPANEL_BASE_URL=https://api.mike.app.buildpanel.ai
+   # AI settings:
+   OPENAI_API_KEY=your-openai-api-key
    DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
    
    # Square payments:
-   SQUARE_ACCESS_TOKEN=EAAAl0B9Dc8dvpuk5G3gpAHxHiShdBDHB3EvjPwh8nr-7VUB5IwVLC-2DJ899X_0
+   SQUARE_ACCESS_TOKEN=your_square_access_token
    SQUARE_ENVIRONMENT=sandbox
    SQUARE_LOCATION_ID=L1V8KTKZN0DHD
    
    # Update this after deployment:
-   FRONTEND_URL=https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app
+   FRONTEND_URL=https://your-frontend-domain
    ```
 
 6. **Click "Create Web Service"** and wait for deployment (~5 minutes)

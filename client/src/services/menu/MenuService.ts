@@ -85,11 +85,11 @@ export class MenuService implements IMenuService {
     }
   }
 
-  async updateMenuItemAvailability(itemId: string, is_available: boolean): Promise<void> {
+  async updateMenuItemAvailability(itemId: string, isAvailable: boolean): Promise<void> {
     try {
-      await httpClient.patch(`/api/v1/menu/items/${itemId}`, { is_is_available: available })
+      await httpClient.patch(`/api/v1/menu/items/${itemId}`, { is_available: isAvailable })
     } catch (error) {
-      console.warn('Mock: Updated menu item availability', { itemId, available })
+      console.warn('Mock: Updated menu item availability', { itemId, isAvailable })
       // In mock mode, just log the update
     }
   }

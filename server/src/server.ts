@@ -25,6 +25,7 @@ import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
+import { authenticate, requireRole } from './middleware/auth';
 
 // Validate required environment variables
 validateEnvironment();
@@ -99,8 +100,8 @@ app.use(requestLogger);
 // Metrics middleware for tracking (not serving metrics)
 app.use(metricsMiddleware);
 
-// Dedicated metrics endpoint
-app.get('/metrics', (_req, res) => {
+// Protected metrics endpoint for internal monitoring
+app.get('/internal/metrics', authenticate, requireRole(['admin']), (_req, res) => {
   res.set('Content-Type', register.contentType);
   register.metrics().then(metrics => {
     res.end(metrics);
@@ -146,7 +147,7 @@ async function startServer() {
     // Initialize menu context for AI service
     try {
       const restaurantId = process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
-      await aiService.syncMenuFromBuildPanel(restaurantId);
+      await aiService.syncMenuFromDatabase(restaurantId);
       logger.info('✅ Menu context initialized for AI service');
     } catch (error) {
       logger.warn('⚠️  Failed to initialize menu context:', error);
@@ -190,14 +191,14 @@ async function gracefulShutdown(signal: string) {
   // Clean up AI service connections
   // Note: AIService doesn't have cleanup method
   
-  // Clean up BuildPanel connections
+  // Clean up AI connections
   try {
     const { buildPanelServiceInstance } = await import('./services/buildpanel.service');
     if (buildPanelServiceInstance?.cleanup) {
       buildPanelServiceInstance.cleanup();
     }
   } catch (error) {
-    logger.debug('BuildPanel cleanup not needed:', error instanceof Error ? error.message : String(error));
+    logger.debug('AI cleanup not needed:', error instanceof Error ? error.message : String(error));
   }
   
   // Force exit after 3 seconds (tsx watch needs faster exit)

@@ -29,7 +29,7 @@
 
 ### Voice Interface Accessibility
 - **Visual indicators**: Recording status clearly shown with visual cues
-- **Audio feedback**: BuildPanel audio responses provide audible confirmation
+- **Audio feedback**: OpenAI audio responses provide audible confirmation
 - **Screen reader support**: Voice transcription results announced to screen readers
 - **Keyboard alternatives**: All voice features have keyboard fallbacks
 - **Error handling**: Clear error messages for microphone issues

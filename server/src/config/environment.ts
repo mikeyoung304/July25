@@ -10,9 +10,8 @@ export interface EnvironmentConfig {
   frontend: {
     url: string;
   };
-  buildPanel: {
-    enabled: boolean;
-    url: string;
+  openai: {
+    apiKey?: string;
   };
   logging: {
     level: string;
@@ -37,26 +36,25 @@ export function validateEnvironment(): void {
     'SUPABASE_SERVICE_KEY',
   ];
 
-  // BuildPanel configuration is required for AI features
-  const buildPanelOptional = ['USE_BUILDPANEL', 'BUILDPANEL_URL'];
-
   // Check for both regular and VITE_ prefixed versions
   const missing = required.filter(key => !process.env[key] && !process.env[`VITE_${key}`]);
-  const missingBuildPanel = buildPanelOptional.filter(key => !process.env[key]);
 
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
 
-  // Warn if BuildPanel is not configured properly
-  if (missingBuildPanel.length > 0) {
-    console.warn(`⚠️  BuildPanel not configured: Missing ${missingBuildPanel.join(', ')}`);
-    console.warn('   AI features (voice, chat) will not be available without BuildPanel configuration');
-  }
-
-  // Log BuildPanel configuration status
-  if (process.env['USE_BUILDPANEL'] === 'true' && process.env['BUILDPANEL_URL']) {
-    console.log(`✅ BuildPanel configured: ${process.env['BUILDPANEL_URL']}`);
+  // OpenAI configuration policy
+  const isDevelopment = process.env['NODE_ENV'] === 'development';
+  const isDegradedMode = process.env['AI_DEGRADED_MODE'] === 'true';
+  const hasOpenAIKey = !!process.env['OPENAI_API_KEY'];
+  
+  if (!hasOpenAIKey) {
+    if (!isDevelopment && !isDegradedMode) {
+      throw new Error('OPENAI_API_KEY is required in production. Set AI_DEGRADED_MODE=true to use stubs.');
+    }
+    console.warn(`⚠️  OpenAI API key not configured - AI features will use stub implementations`);
+  } else {
+    console.log(`✅ OpenAI configured`);
   }
 }
 
@@ -73,9 +71,8 @@ export function getConfig(): EnvironmentConfig {
     frontend: {
       url: process.env['FRONTEND_URL'] || 'http://localhost:5173',
     },
-    buildPanel: {
-      enabled: process.env['USE_BUILDPANEL'] === 'true',
-      url: process.env['BUILDPANEL_URL'] || 'http://localhost:3003',
+    openai: {
+      apiKey: process.env['OPENAI_API_KEY'],
     },
     logging: {
       level: process.env['LOG_LEVEL'] || 'info',

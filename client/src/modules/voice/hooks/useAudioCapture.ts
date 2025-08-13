@@ -66,7 +66,7 @@ export const useAudioCapture = ({
         // Create blob from collected audio chunks
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
         
-        // Send to backend for transcription via BuildPanel
+        // Send to backend for transcription via OpenAI
         const result = await transcriptionService.transcribeAudio(audioBlob)
         
         if (result.success && result.transcript) {

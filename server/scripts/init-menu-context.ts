@@ -12,13 +12,13 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 async function initializeMenuContext() {
-  console.log('🍽️  Initializing menu context for BuildPanel...');
+  console.log('🍽️  Initializing menu context for AI services...');
   
   try {
     const restaurantId = process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
     
-    // Load menu from database and set BuildPanel context
-    await aiService.syncMenuFromBuildPanel(restaurantId);
+    // Load menu from database and set AI context
+    await aiService.syncMenuContext(restaurantId);
     
     // Get the loaded menu to verify
     const menu = aiService.getMenu();

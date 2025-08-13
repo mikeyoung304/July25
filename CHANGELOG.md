@@ -5,18 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-08-12
+
+### Added
+- **OpenAI Adapters**: Direct OpenAI integration replacing BuildPanel proxy
+  - Transcription via Whisper API
+  - Chat via GPT models  
+  - TTS via OpenAI Speech API
+  - Order parsing with structured prompts
+- **Environment Policy Enforcement**: Fail-fast validation for missing `OPENAI_API_KEY`
+- **Degraded Mode**: Graceful fallbacks when `AI_DEGRADED_MODE=true` for development
+- **Error Mapping**: OpenAI errors mapped to user-friendly messages
+- **Provider Health Monitoring**: AI service availability tracking
+- **Prometheus Metrics**: Request counters, error rates, and latency for AI routes at `/internal/metrics`
+
+### Removed
+- **BuildPanel Integration**: Removed all external BuildPanel service dependencies
+- **BuildPanel Scripts**: Removed health checks, security scripts, and streaming tests  
+- **BuildPanel Documentation**: Archived all BuildPanel-specific docs to `docs/_archive/2025-08-12-buildpanel/`
+
+### Changed
+- **AI Integration**: Migrated from BuildPanel proxy to direct OpenAI integration in backend
+- **Configuration**: Replaced `USE_BUILDPANEL`/`BUILDPANEL_URL` with `OPENAI_API_KEY`
+- **Security Model**: Updated to secure OpenAI API key in backend environment only
+
+### Migration Notes
+- Remove `USE_BUILDPANEL`, `BUILDPANEL_URL`, `BUILDPANEL_BASE_URL` from environment
+- Add `OPENAI_API_KEY` to backend environment  
+- Ensure `VITE_API_BASE_URL` points to backend service (not BuildPanel)
+- Public API contracts (`/api/v1/*` and `/api/v1/ai/*`) remain unchanged
+
 ## [1.0.0] - 2025-01-08
 
 ### Added
 - ✅ Unified backend architecture on port 3001
-- ✅ BuildPanel Cloud AI integration for voice ordering
+- ✅ AI integration for voice ordering (now uses OpenAI directly)
 - ✅ Real-time WebSocket updates for kitchen display
 - ✅ Multi-tenant restaurant support
 - ✅ Comprehensive TypeScript types via @rebuild/shared
 
 ### Changed
 - 🔄 Migrated from microservices to unified backend (97.4% complexity reduction)
-- 🔄 BuildPanel moved from local to cloud API
+- 🔄 AI service moved to integrated backend modules
 - 🔄 Consolidated documentation from 61 to 20 files
 - 🔄 Simplified API structure with single backend proxy
 
@@ -25,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🐛 Type system alignment (is_available → available)
 - 🐛 React Hooks violations
 - 🐛 WebSocket connection handling
-- 🐛 Menu synchronization with BuildPanel
+- 🐛 Menu synchronization with AI service
 
 ### Removed
 - 🗑️ Separate AI Gateway service (port 3002)
@@ -36,9 +66,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **BuildPanel Integration**: External AI service architecture
-  - Replaced direct OpenAI integration with BuildPanel service proxy
-  - BuildPanel service runs isolated on port 3003
+- **AI Integration**: External AI service architecture
+  - Replaced direct OpenAI integration with service proxy (later reverted to direct integration)
+  - AI service was isolated on port 3003 (now integrated in backend)
   - All AI processing proxied through unified backend (port 3001)
   - Enhanced security boundary with no direct frontend-to-AI communication
   - Restaurant context propagation through all AI operations
@@ -83,8 +113,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Component migration guide
 
 ### Changed
-- **AI Architecture Migration**: OpenAI to BuildPanel
-  - Migrated from direct OpenAI API integration to BuildPanel service proxy
+- **AI Architecture Migration**: OpenAI service integration
+  - Migrated from direct OpenAI API integration to service proxy (later reverted)
   - Updated security model from API key protection to service boundary isolation
   - Enhanced authentication flow with restaurant context validation
   - Improved monitoring and error handling for AI operations
@@ -107,7 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Component prop drilling and duplication issues
 
 ### Removed  
-- **OpenAI Direct Integration**: Replaced with BuildPanel service proxy
+- **OpenAI Direct Integration**: Replaced with service proxy (later reverted to direct integration)
   - Removed OpenAI client imports from frontend code
   - Eliminated direct API key exposure to browser
   - Archived OpenAI-specific security documentation

@@ -7,7 +7,7 @@ import { getConfig } from '../config/environment';
 const router = Router();
 const config = getConfig();
 
-// Apply restaurant validation to all routes (skip in development for BuildPanel integration)
+// Apply restaurant validation to all routes (skip in development for testing)
 if (config.environment !== 'development') {
   router.use(validateRestaurantAccess);
 } else {

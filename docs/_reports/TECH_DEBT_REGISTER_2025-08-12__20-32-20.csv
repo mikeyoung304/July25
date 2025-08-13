@@ -1,0 +1,6 @@
+Severity,Area,File/Path,Finding,Evidence,Proposed Fix
+P0,Types,server/src,Type errors affecting AI routes,"typecheck output","Align shared types & fix casing"
+P1,Residue,*,BuildPanel references in active code,"rg hits","Rewrite/rename/archive; re-grep to 0"
+P1,Tests,server/src/tests,Brittle tests (abort/ids),"vitest output","Mock AbortSignal/fetch; inject restaurant id"
+P2,Deps,*,Unused dev deps,"depcheck output","Remove & retest"
+P2,CI,.github/workflows,Missing ci-guards integration,"workflow grep","Add ci-guards step"
