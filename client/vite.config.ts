@@ -19,7 +19,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@rebuild/shared': path.resolve(__dirname, '../shared'),
+      '@rebuild/shared': path.resolve(__dirname, '../shared/index.ts'),
     },
   },
   
