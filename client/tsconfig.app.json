@@ -39,8 +39,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@rebuild/shared": ["../shared/types"],
-      "@rebuild/shared/*": ["../shared/types/*"]
+      "@rebuild/shared": ["../shared/index.ts"],
+      "@rebuild/shared/*": ["../shared/*"]
     }
   },
   "include": ["src"],
