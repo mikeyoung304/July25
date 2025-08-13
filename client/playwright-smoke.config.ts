@@ -5,7 +5,7 @@ export default defineConfig({
   timeout: 30 * 1000,
   retries: 2,
   use: {
-    baseURL: 'http://localhost:4173', // Use preview port for production build
+    baseURL: process.env.BASE_URL ?? 'http://localhost:4173', // Use BASE_URL from env or local preview
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },

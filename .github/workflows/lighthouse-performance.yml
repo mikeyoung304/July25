@@ -1,13 +1,13 @@
-name: Playwright Smoke Tests
+name: Lighthouse Performance
 
 on:
   pull_request:
     paths:
       - 'client/**'
-      - '.github/workflows/playwright-smoke.yml'
+      - '.github/workflows/lighthouse-perf.yml'
 
 jobs:
-  smoke-test:
+  lighthouse:
     runs-on: ubuntu-latest
     
     steps:
@@ -47,28 +47,18 @@ jobs:
           echo "Checking backend health at: $RENDER_API_BASE"
           ./scripts/wait-for-health.sh "$RENDER_API_BASE"
       
-      - name: Install dependencies
-        working-directory: ./client
-        run: npm ci
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: ${{ steps.preview.outputs.preview-url }}
+          configPath: ./client/.lighthouserc.json
+          uploadArtifacts: true
+          runs: 1
       
-      - name: Install Playwright browsers
-        working-directory: ./client
-        run: npx playwright install --with-deps chromium
-      
-      - name: Run Playwright smoke tests
-        working-directory: ./client
-        env:
-          BASE_URL: ${{ steps.preview.outputs.preview-url }}
-        run: |
-          echo "Running smoke tests against: $BASE_URL"
-          npx playwright test --project=chromium --grep @smoke --reporter=line
-      
-      - name: Upload test artifacts on failure
-        if: failure()
+      - name: Upload Lighthouse reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: |
-            client/test-results/
-            client/playwright-report/
+          name: lighthouse-reports
+          path: ./.lighthouseci/
           retention-days: 7
