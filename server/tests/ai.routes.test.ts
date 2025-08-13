@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, test } from 'vitest';
 import { ai } from '../src/ai';
 
 // Mock OpenAI client
@@ -48,7 +48,7 @@ describe('AI Routes', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('POST /api/v1/ai/parse-order', () => {
