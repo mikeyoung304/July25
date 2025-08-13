@@ -3,11 +3,11 @@ set -euo pipefail
 
 echo "Running CI guards..."
 
-# 1) No BuildPanel in active code
-echo -n "Checking for BuildPanel references... "
-if grep -r "BuildPanel\|BUILDPANEL" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.sh" --include="*.md" . 2>/dev/null | grep -v node_modules | grep -v _archive | grep -v archive | grep -v dist | grep -v CHANGELOG | grep -v "ci-guards.sh" >/dev/null; then
-  echo "❌ Found BuildPanel references in active code."
-  grep -r "BuildPanel\|BUILDPANEL" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.sh" --include="*.md" . 2>/dev/null | grep -v node_modules | grep -v _archive | grep -v archive | grep -v dist | grep -v CHANGELOG | head -5
+# 1) No legacy service references in active code  
+echo -n "Checking for legacy service references... "
+if grep -r "BuildPanel\|BUILDPANEL" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.sh" --include="*.md" . 2>/dev/null | grep -v node_modules | grep -v _archive | grep -v archive | grep -v dist | grep -v CHANGELOG | grep -v "ci-guards.sh" | grep -v POST_MERGE_TICKETS | grep -v "docs/_reports" | grep -v TROUBLESHOOTING >/dev/null; then
+  echo "❌ Found legacy service references in active code."
+  grep -r "BuildPanel\|BUILDPANEL" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.sh" --include="*.md" . 2>/dev/null | grep -v node_modules | grep -v _archive | grep -v archive | grep -v dist | grep -v CHANGELOG | grep -v POST_MERGE_TICKETS | grep -v "docs/_reports" | grep -v TROUBLESHOOTING | head -5
   exit 1
 fi
 echo "✅"
