@@ -10,13 +10,9 @@ test.describe('Basic route smoke tests @smoke', () => {
     // Check URL
     await expect(page).toHaveURL(/.*\/$/);
     
-    // Check for actual home page content - Restaurant OS title
-    await expect(page.locator('text=Restaurant OS')).toBeVisible({ timeout: 5000 });
-    
-    // Check for navigation cards
-    await expect(page.locator('text=Server')).toBeVisible();
-    await expect(page.locator('text=Kitchen')).toBeVisible();
-    await expect(page.locator('text=Kiosk')).toBeVisible();
+    // Check for actual home page content - look for the hero section
+    await expect(page.locator('text=Fresh, Healthy, Local')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=Farm-to-table meals delivered')).toBeVisible();
     
     // Verify React app mounted successfully
     const rootElement = page.locator('#root');
@@ -52,17 +48,15 @@ test.describe('Basic route smoke tests @smoke', () => {
     // Check URL
     await expect(page).toHaveURL(/.*\/order\/test-restaurant$/);
     
-    // Check for core order page elements
-    // The page should have either menu sections or a loading state
-    const menuLoaded = await page.locator('text=/Popular|Appetizers|Main|Desserts|All Items/i').count() > 0;
-    const searchBar = await page.locator('input[placeholder*="Search"]').count() > 0;
+    // Check for restaurant header
+    await expect(page.locator('text=Grow Fresh')).toBeVisible({ timeout: 5000 });
     
-    // At least one of these should be present
-    expect(menuLoaded || searchBar).toBeTruthy();
+    // Check for menu sections
+    await expect(page.locator('text=Popular Items')).toBeVisible();
     
-    // Verify cart functionality is present (either icon or button)
-    const cartElement = await page.locator('[aria-label*="cart"], .cart-icon, text=/cart/i').count() > 0;
-    expect(cartElement).toBeTruthy();
+    // Verify cart button is present
+    const cartButton = page.locator('[aria-label*="cart"]');
+    await expect(cartButton).toBeVisible();
   });
 
   test('app renders without console errors @smoke', async ({ page }) => {
