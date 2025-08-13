@@ -139,7 +139,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               </label>
               <textarea
                 id="special-instructions"
-                value={special_instructions}
+                value={specialInstructions}
                 onChange={(e) => setSpecialInstructions(e.target.value)}
                 placeholder="Any special requests?"
                 className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-macon-orange"
