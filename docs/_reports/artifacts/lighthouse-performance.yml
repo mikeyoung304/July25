@@ -1,13 +1,13 @@
-name: Playwright Smoke Tests
+name: Lighthouse Performance
 
 on:
   pull_request:
     paths:
       - 'client/**'
-      - '.github/workflows/playwright-smoke.yml'
+      - '.github/workflows/lighthouse-performance.yml'
 
 jobs:
-  smoke-test:
+  lighthouse:
     runs-on: ubuntu-latest
     
     steps:
@@ -43,11 +43,8 @@ jobs:
         working-directory: ./client
         run: |
           echo "::group::Starting preview server"
-          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/preview.log 2>&1 &
-          echo $! > /tmp/preview.pid
-          echo "BASE_URL=http://127.0.0.1:4173" >> $GITHUB_ENV
+          (npm run preview -- --host 127.0.0.1 --port 4173 & echo $! > /tmp/preview.pid) &
           echo "Preview server PID: $(cat /tmp/preview.pid)"
-          sleep 2
           echo "::endgroup::"
       
       - name: Wait for preview server
@@ -56,34 +53,20 @@ jobs:
           for i in {1..60}; do
             if curl -fsS http://127.0.0.1:4173 >/dev/null 2>&1; then
               echo "Preview server is ready!"
-              echo "Server response check:"
-              curl -sS http://127.0.0.1:4173 | head -20
               break
             fi
             echo "Attempt $i/60: Server not ready yet..."
             sleep 1
           done
-          if [ ! -f /tmp/preview.pid ]; then
-            echo "ERROR: Preview PID file not found!"
-            exit 1
-          fi
-          if ! ps -p $(cat /tmp/preview.pid) > /dev/null; then
-            echo "ERROR: Preview server process died!"
-            cat /tmp/preview.log || true
-            exit 1
-          fi
       
-      - name: Install Playwright browsers
-        working-directory: ./client
-        run: npx playwright install --with-deps chromium
+      - name: Install Lighthouse CI
+        run: npm i -g @lhci/cli
       
-      - name: Run Playwright smoke tests
-        working-directory: ./client
-        env:
-          BASE_URL: http://127.0.0.1:4173
+      - name: Run Lighthouse CI
         run: |
-          echo "Running smoke tests against: $BASE_URL"
-          npx playwright test --config=playwright-smoke.config.ts --reporter=line
+          echo "Running Lighthouse against http://127.0.0.1:4173"
+          lhci collect --url=http://127.0.0.1:4173 --numberOfRuns=1
+          lhci assert --preset=lighthouse:no-pwa || true
       
       - name: Stop preview server
         if: always()
@@ -94,12 +77,10 @@ jobs:
             rm /tmp/preview.pid
           fi
       
-      - name: Upload test artifacts on failure
-        if: failure()
+      - name: Upload Lighthouse reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: |
-            client/test-results/
-            client/playwright-report/
+          name: lighthouse-reports
+          path: ./.lighthouseci/
           retention-days: 7

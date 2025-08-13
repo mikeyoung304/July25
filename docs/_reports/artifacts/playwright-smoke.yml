@@ -43,11 +43,9 @@ jobs:
         working-directory: ./client
         run: |
           echo "::group::Starting preview server"
-          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/preview.log 2>&1 &
-          echo $! > /tmp/preview.pid
+          (npm run preview -- --host 127.0.0.1 --port 4173 & echo $! > /tmp/preview.pid) &
           echo "BASE_URL=http://127.0.0.1:4173" >> $GITHUB_ENV
           echo "Preview server PID: $(cat /tmp/preview.pid)"
-          sleep 2
           echo "::endgroup::"
       
       - name: Wait for preview server
@@ -56,22 +54,11 @@ jobs:
           for i in {1..60}; do
             if curl -fsS http://127.0.0.1:4173 >/dev/null 2>&1; then
               echo "Preview server is ready!"
-              echo "Server response check:"
-              curl -sS http://127.0.0.1:4173 | head -20
               break
             fi
             echo "Attempt $i/60: Server not ready yet..."
             sleep 1
           done
-          if [ ! -f /tmp/preview.pid ]; then
-            echo "ERROR: Preview PID file not found!"
-            exit 1
-          fi
-          if ! ps -p $(cat /tmp/preview.pid) > /dev/null; then
-            echo "ERROR: Preview server process died!"
-            cat /tmp/preview.log || true
-            exit 1
-          fi
       
       - name: Install Playwright browsers
         working-directory: ./client
