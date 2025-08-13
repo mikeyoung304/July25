@@ -64,22 +64,20 @@ vi.mock('../../middleware/fileValidation', () => ({
   }
 }));
 
+import { checkAIHealth } from '../../ai';
+
 describe('AI Provider Health Endpoint', () => {
   let app: express.Application;
-  let checkAIHealth: any;
-
+  const mockedCheckAIHealth = checkAIHealth as ReturnType<typeof vi.fn>;
+  
   beforeEach(() => {
     app = express();
     app.use('/api/v1/ai', aiRoutes);
-    
-    // Access the mocked function directly
-    const { checkAIHealth: mockedCheckAIHealth } = require('../../ai');
-    checkAIHealth = mockedCheckAIHealth;
     vi.clearAllMocks();
   });
 
   it('should return { ok: true } with 200 when provider is healthy', async () => {
-    checkAIHealth.mockResolvedValue({
+    mockedCheckAIHealth.mockResolvedValue({
       provider: 'openai',
       status: 'healthy',
       details: { message: 'OpenAI API accessible' }
@@ -94,7 +92,7 @@ describe('AI Provider Health Endpoint', () => {
   });
 
   it('should return { ok: true } with 200 when provider is degraded', async () => {
-    checkAIHealth.mockResolvedValue({
+    mockedCheckAIHealth.mockResolvedValue({
       provider: 'stubs',
       status: 'degraded',
       details: { message: 'Using stub implementations' }
@@ -109,7 +107,7 @@ describe('AI Provider Health Endpoint', () => {
   });
 
   it('should return { error: "provider_unavailable" } with 503 when provider is unavailable', async () => {
-    checkAIHealth.mockResolvedValue({
+    mockedCheckAIHealth.mockResolvedValue({
       provider: 'openai',
       status: 'error',
       details: { message: 'Connection failed' }
@@ -124,7 +122,7 @@ describe('AI Provider Health Endpoint', () => {
   });
 
   it('should return { error: "provider_unavailable" } with 503 when health check throws', async () => {
-    checkAIHealth.mockRejectedValue(new Error('Health check failed'));
+    mockedCheckAIHealth.mockRejectedValue(new Error('Health check failed'));
 
     const response = await request(app)
       .get('/api/v1/ai/health')
