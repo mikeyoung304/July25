@@ -7,8 +7,8 @@ const WireItem = z.object({
   modifications: z.array(z.string()).optional(),
   special_instructions: z.string().optional(),
 });
-export const WireOrder = z.object({ items: z.array(WireItem) });
-export type WireOrder = z.infer<typeof WireOrder>;
+export const WireOrderSchema = z.object({ items: z.array(WireItem) });
+export type WireOrder = z.infer<typeof WireOrderSchema>;
 
 // UI (client) shape
 export type ClientItem = {
@@ -20,7 +20,7 @@ export type ClientItem = {
 export type ClientOrder = { items: ClientItem[] };
 
 export function toClientOrder(w: unknown): ClientOrder {
-  const parsed = WireOrder.parse(w);
+  const parsed = WireOrderSchema.parse(w);
   return {
     items: parsed.items.map(i => ({
       menuItemId: i.menu_item_id,
