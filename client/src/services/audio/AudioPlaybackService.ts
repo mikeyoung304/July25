@@ -6,6 +6,7 @@
 export interface AudioPlaybackState {
   isPlaying: boolean;
   isPaused: boolean;
+  // eslint-disable-next-line no-undef
   currentAudio: HTMLAudioElement | null;
   queue: AudioQueueItem[];
   volume: number;

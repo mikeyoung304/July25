@@ -35,7 +35,7 @@ export function useKitchenOrders() {
           await playNewOrderSound()
           const orderType = update.order.type === 'drive-thru' ? 'drive-thru' : 'dine-in'
           announce({
-            message: `New ${type} order ${update.order.order_number} received`,
+            message: `New ${orderType} order ${update.order.order_number} received`,
             priority: 'assertive'
           })
         }

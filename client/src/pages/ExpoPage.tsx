@@ -99,7 +99,7 @@ export function ExpoPage() {
     }
   }
 
-  const getTimeSinceOrder = (created_at: Date) => {
+  const getTimeSinceOrder = (orderTime: Date) => {
     const minutes = Math.floor((Date.now() - orderTime.getTime()) / 60000)
     if (minutes < 5) return { text: `${minutes}m`, color: 'text-green-600' }
     if (minutes < 10) return { text: `${minutes}m`, color: 'text-yellow-600' }
