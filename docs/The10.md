@@ -161,7 +161,7 @@ Picture this: We built a cool voice ordering feature. Customers could speak thei
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-  apiKey: 'sk-proj-abc123...', // Our actual API key!
+  apiKey: 'YOUR_OPENAI_API_KEY_HERE', // Our actual API key!
   dangerouslyAllowBrowser: true
 });
 ```

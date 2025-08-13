@@ -28,7 +28,7 @@ export const useOrderFilters = (defaultFilters?: Partial<OrderFilterState>): Use
     setFilters(prev => ({ ...prev, status }))
   }, [])
   
-  const setTableFilter = useCallback((table_number: string) => {
+  const setTableFilter = useCallback((tableNumber: string) => {
     setFilters(prev => ({ ...prev, tableNumber }))
   }, [])
   

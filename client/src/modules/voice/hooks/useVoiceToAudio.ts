@@ -257,10 +257,10 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
         usedEndpoint = '/api/v1/ai/voice-chat';
       }
 
-      // BuildPanel returns MP3 audio directly - play it immediately
+      // OpenAI TTS returns MP3 audio directly - play it immediately
       const audioBuffer = await transcriptResponse.arrayBuffer();
       
-      console.log('Received audio response from BuildPanel:', audioBuffer.byteLength, 'bytes');
+      console.log('Received audio response from OpenAI TTS:', audioBuffer.byteLength, 'bytes');
       
       // Convert ArrayBuffer to Blob for audio service
       const responseAudioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
@@ -268,11 +268,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       // Play the MP3 response using the correct method
       await audioService.playAudioBlob(responseAudioBlob, 'Voice response', {
         onStart: () => {
-          console.log('BuildPanel audio playback started');
+          console.log('OpenAI TTS audio playback started');
           options.onAudioResponseStart?.();
         },
         onEnd: () => {
-          console.log('BuildPanel audio playback ended');
+          console.log('OpenAI TTS audio playback ended');
           options.onAudioResponseEnd?.();
         },
         onError: (error) => {
@@ -281,7 +281,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
         }
       });
 
-      // Return a placeholder text since BuildPanel doesn't return transcription separately
+      // Return a placeholder text since OpenAI TTS doesn't return transcription separately
       const placeholderText = "Voice processed successfully";
       options.onTranscriptReceived?.(placeholderText);
       

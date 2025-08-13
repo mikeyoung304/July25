@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Rebuild 6.0 restaurant OS integrates voice order capture, AI-powered transcription and parsing through BuildPanel service, and WebSocket-based real-time updates in a unified backend architecture. The backend runs on port 3001 and communicates with BuildPanel service on port 3003 for all AI operations.
+The Rebuild 6.0 restaurant OS integrates voice order capture, AI-powered transcription and parsing through OpenAI service, and WebSocket-based real-time updates in a unified backend architecture. The backend runs on port 3001 and communicates with OpenAI service on port 3003 for all AI operations.
 
 ## Table of Contents
 
@@ -10,7 +10,7 @@ The Rebuild 6.0 restaurant OS integrates voice order capture, AI-powered transcr
 2. [Voice Order Flow](#voice-order-flow)
 3. [WebSocket Protocol](#websocket-protocol)
 4. [Audio Streaming Architecture](#audio-streaming-architecture)
-5. [BuildPanel Service Integration](#buildpanel-service-integration)
+5. [OpenAI Service Integration](#buildpanel-service-integration)
 6. [Real-time Updates](#real-time-updates)
 7. [Security Considerations](#security-considerations)
 8. [Error Handling & Recovery](#error-handling--recovery)
@@ -20,7 +20,7 @@ The Rebuild 6.0 restaurant OS integrates voice order capture, AI-powered transcr
 ```
 ┌─────────────────┐     ┌──────────────────────────────┐     ┌─────────────────┐
 │                 │     │   Unified Backend (3001)     │     │                 │
-│  Frontend       │────▶│                              │────▶│  BuildPanel     │
+│  Frontend       │────▶│                              │────▶│  OpenAI     │
 │  (React/Vite)   │     │  ┌────────────────────┐     │     │  Service (3003) │
 │                 │     │  │  Express.js API    │     │     │                 │
 └─────────────────┘     │  │  - /api/v1/*       │     │     └─────────────────┘
@@ -54,7 +54,7 @@ sequenceDiagram
     participant Frontend
     participant WebSocket
     participant AIService
-    participant BuildPanel
+    participant OpenAI
     
     User->>Frontend: Hold to record
     Frontend->>WebSocket: connect(/voice-stream)
@@ -74,8 +74,8 @@ sequenceDiagram
     
     User->>Frontend: Release button
     Frontend->>WebSocket: stop_recording
-    AIService->>BuildPanel: HTTP POST /api/voice-chat
-    BuildPanel-->>AIService: Transcription + Response + OrderData
+    AIService->>OpenAI: HTTP POST /api/voice-chat
+    OpenAI-->>AIService: Transcription + Response + OrderData
     AIService-->>Frontend: transcription_result
 ```
 
@@ -222,7 +222,7 @@ class VoiceSocketManager {
 2. **Encoding**: WebM/Opus format for efficient streaming
 3. **Chunking**: 1-second chunks for real-time transmission
 4. **Buffering**: Server buffers chunks until recording stops
-5. **Transcription**: Complete audio sent to BuildPanel for AI processing
+5. **Transcription**: Complete audio sent to OpenAI for AI processing
 
 ### Connection Resilience
 
@@ -231,16 +231,16 @@ class VoiceSocketManager {
 - Message queue preservation during disconnections
 - Heartbeat mechanism (30-second intervals)
 
-## BuildPanel Service Integration
+## OpenAI Service Integration
 
 ### Menu Context Loading
 
 ```typescript
-// Menu data is managed by BuildPanel service
-// Backend syncs menu with BuildPanel on startup
-await aiService.syncMenuFromBuildPanel(restaurantId);
+// Menu data is managed by OpenAI service
+// Backend syncs menu with OpenAI on startup
+await aiService.syncMenuFromOpenAI(restaurantId);
 
-// BuildPanel maintains restaurant-specific context
+// OpenAI maintains restaurant-specific context
 const menu = await buildPanel.getMenu(restaurantId);
 ```
 
@@ -268,7 +268,7 @@ interface VoiceResponse {
 ### Chat Processing
 
 ```typescript
-// Text-based chat processing through BuildPanel
+// Text-based chat processing through OpenAI
 const chatResponse = await buildPanel.processChat(
   message,              // User's text message
   restaurantId,         // Restaurant context
@@ -345,10 +345,10 @@ router.post('/parse-order',
 - **Message Size Limits**: 5MB max payload
 - **CORS Configuration**: Strict origin validation
 
-### 4. BuildPanel Service Security
+### 4. OpenAI Service Security
 
 - **No API Keys**: No sensitive AI service keys in Rebuild backend
-- **Service Isolation**: BuildPanel runs as separate service with own security
+- **Service Isolation**: OpenAI runs as separate service with own security
 - **Request Logging**: Audit trail for all AI operations
 - **Restaurant Context**: All requests include restaurant_id for proper scoping
 
@@ -376,9 +376,9 @@ class VoiceSocketManager {
 ### Audio Processing Failures
 
 1. **Buffer Overrun**: Drop chunks and notify client
-2. **BuildPanel Service Down**: Return error with fallback message
-3. **Transcription Failure**: Return error with details from BuildPanel
-4. **Network Issues**: Queue messages for retry with BuildPanel service
+2. **OpenAI Service Down**: Return error with fallback message
+3. **Transcription Failure**: Return error with details from OpenAI
+4. **Network Issues**: Queue messages for retry with OpenAI service
 
 ### Monitoring & Metrics
 

@@ -1,7 +1,6 @@
 import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
-import { getBuildPanelService } from './buildpanel.service';
-// import { AuthenticatedRequest } from '../middleware/auth'; // Currently unused
+import { ai, checkAIHealth } from '../ai';
 import { MenuService } from './menu.service';
 
 const aiLogger = logger.child({ service: 'AIService' });
@@ -20,20 +19,12 @@ interface TranscriptionResult {
 }
 
 export class AIService {
-  private buildPanel = getBuildPanelService();
   private connections: Map<string, ConnectionState>;
   private menuData: any = null;
-  private useBuildPanel: boolean;
 
   constructor() {
     this.connections = new Map();
-    this.useBuildPanel = process.env.USE_BUILDPANEL === 'true';
-    
-    if (this.useBuildPanel) {
-      aiLogger.info('AIService using BuildPanel for all AI operations');
-    } else {
-      aiLogger.warn('BuildPanel integration disabled - AI features will not work');
-    }
+    aiLogger.info('AIService using OpenAI-powered AI operations');
   }
 
   /**
@@ -87,7 +78,7 @@ export class AIService {
   }
 
   /**
-   * Stop recording and transcribe using BuildPanel
+   * Stop recording and transcribe using OpenAI
    */
   async stopRecording(connectionId: string, restaurantId: string = 'default'): Promise<TranscriptionResult> {
     const state = this.connections.get(connectionId);
@@ -97,13 +88,6 @@ export class AIService {
 
     state.isRecording = false;
     const duration = state.startTime ? Date.now() - state.startTime : 0;
-
-    if (!this.useBuildPanel) {
-      return { 
-        success: false, 
-        error: 'BuildPanel integration is disabled. Enable USE_BUILDPANEL in environment.' 
-      };
-    }
 
     try {
       // Combine audio chunks
@@ -115,23 +99,21 @@ export class AIService {
         return { success: false, error: 'No audio data received' };
       }
 
-      // Send to BuildPanel for processing with metadata
-      await this.buildPanel.processVoiceWithMetadata(
-        audioBuffer,
-        'audio/webm',
-        restaurantId
-      );
+      // Transcribe using OpenAI
+      const transcriptionResult = await ai.transcriber.transcribe(audioBuffer, {
+        model: 'audio/webm'
+      });
 
-      aiLogger.info(`BuildPanel transcription completed`);
+      aiLogger.info(`OpenAI transcription completed: "${transcriptionResult.text}"`);
       aiLogger.debug(`Audio duration: ${duration / 1000}s, File size: ${audioBuffer.length} bytes`);
 
       return {
         success: true,
-        text: 'Voice processed successfully', // BuildPanel returns audio, not transcription
+        text: transcriptionResult.text,
         duration: duration / 1000
       };
     } catch (error) {
-      aiLogger.error('BuildPanel transcription error:', error);
+      aiLogger.error('OpenAI transcription error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Transcription failed'
@@ -140,42 +122,55 @@ export class AIService {
   }
 
   /**
-   * Parse order from transcribed text using BuildPanel
+   * Parse order from transcribed text using OpenAI
    */
   async parseOrder(text: string, restaurantId: string): Promise<any> {
-    if (!this.useBuildPanel) {
-      throw new Error('BuildPanel integration is disabled - cannot parse orders');
-    }
-
     try {
-      // Use BuildPanel's chat endpoint with order parsing prompt
-      const orderParsingPrompt = `Parse the following customer order and return a structured response with menu items, quantities, and any special instructions: "${text}"`;
+      const orderData = await ai.orderNLP.parse({ restaurantId, text });
       
-      const response = await this.buildPanel.processChat(
-        orderParsingPrompt,
-        restaurantId
-      );
-
-      aiLogger.info('Order parsed via BuildPanel:', response);
+      aiLogger.info('Order parsed via OpenAI:', orderData);
       
-      // BuildPanel should return structured order data
-      if (response.orderData) {
-        return {
-          success: true,
-          ...response.orderData
-        };
-      }
-      
-      // Fallback if no structured data
       return {
-        success: false,
-        error: 'Could not parse order from text',
-        message: response.message
+        success: true,
+        ...orderData
       };
     } catch (error) {
-      aiLogger.error('BuildPanel order parsing error:', error);
+      aiLogger.error('OpenAI order parsing error:', error);
+      
+      // Check if it's a timeout or provider unavailable error
+      if (this.isTimeoutError(error)) {
+        const timeoutError = new Error('provider_unavailable') as any;
+        timeoutError.status = 503;
+        timeoutError.error = 'provider_unavailable';
+        throw timeoutError;
+      }
+      
+      // Check if it's a 422 error with suggestions
+      if ((error as any).status === 422) {
+        const matchError = new Error((error as any).error || 'unknown_item') as any;
+        matchError.status = 422;
+        matchError.error = (error as any).error || 'unknown_item';
+        matchError.suggestions = (error as any).suggestions || [];
+        throw matchError;
+      }
+      
       throw error;
     }
+  }
+
+  /**
+   * Check if error is a timeout or provider unavailability
+   */
+  private isTimeoutError(error: any): boolean {
+    return (
+      error?.code === 'ECONNRESET' ||
+      error?.code === 'ETIMEDOUT' ||
+      error?.message?.includes('timeout') ||
+      error?.message?.includes('network') ||
+      error?.status === 503 ||
+      error?.status === 502 ||
+      error?.status === 504
+    );
   }
 
   /**
@@ -194,34 +189,32 @@ export class AIService {
   }
 
   /**
-   * Transcribe audio file using BuildPanel (with metadata)
+   * Transcribe audio file using OpenAI (with metadata)
    * This method is used for the /transcribe-with-metadata endpoint
    */
   async transcribeAudioFile(audioBuffer: Buffer, mimeType: string, restaurantId: string = 'default'): Promise<TranscriptionResult> {
-    if (!this.useBuildPanel) {
-      return { 
-        success: false, 
-        error: 'BuildPanel integration is disabled' 
-      };
-    }
-
     try {
-      // Use processVoiceWithMetadata to get transcription data
-      const response = await this.buildPanel.processVoiceWithMetadata(
-        audioBuffer,
-        mimeType || 'audio/webm',
-        restaurantId
-      );
+      const transcriptionResult = await ai.transcriber.transcribe(audioBuffer, {
+        model: mimeType
+      });
 
-      aiLogger.info(`BuildPanel file transcription completed: "${response.transcription}"`);
+      aiLogger.info(`OpenAI file transcription completed: "${transcriptionResult.text}"`);
 
       return {
         success: true,
-        text: response.transcription,
+        text: transcriptionResult.text,
         duration: 0 // Duration not available from file upload
       };
     } catch (error) {
-      aiLogger.error('BuildPanel file transcription error:', error);
+      aiLogger.error('OpenAI file transcription error:', error);
+      
+      if (this.isTimeoutError(error)) {
+        const timeoutError = new Error('provider_unavailable') as any;
+        timeoutError.status = 503;
+        timeoutError.error = 'provider_unavailable';
+        throw timeoutError;
+      }
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Transcription failed'
@@ -231,56 +224,67 @@ export class AIService {
 
   /**
    * Process voice audio and return MP3 response
-   * This method is used for the main /transcribe endpoint
+   * This method transcribes audio, generates a chat response, then converts to speech
    */
   async processVoiceAudio(audioBuffer: Buffer, mimeType: string, restaurantId: string = 'default'): Promise<Buffer> {
-    if (!this.useBuildPanel) {
-      throw new Error('BuildPanel integration is disabled');
-    }
-
     try {
-      // Get MP3 audio response from BuildPanel
-      const audioResponse = await this.buildPanel.processVoice(
-        audioBuffer,
-        mimeType || 'audio/webm',
-        restaurantId
-      );
-
-      aiLogger.info('BuildPanel voice processing completed', {
-        restaurantId,
-        responseSize: audioResponse.length
+      // Step 1: Transcribe the audio
+      const transcriptionResult = await ai.transcriber.transcribe(audioBuffer, {
+        model: mimeType
       });
 
-      return audioResponse;
+      if (!transcriptionResult.text) {
+        throw new Error('No transcription available');
+      }
+
+      // Step 2: Generate chat response
+      const chatResponse = await ai.chat.respond([
+        { role: 'user', content: transcriptionResult.text }
+      ], {
+        context: { restaurantId }
+      });
+
+      // Step 3: Convert response to speech
+      const ttsResult = await ai.tts.synthesize(chatResponse.message, {
+        voice: 'nova'
+      });
+
+      aiLogger.info('OpenAI voice processing completed', {
+        restaurantId,
+        transcript: transcriptionResult.text.substring(0, 50) + '...',
+        responseLength: chatResponse.message.length,
+        audioSize: ttsResult.audio.length
+      });
+
+      return ttsResult.audio;
     } catch (error) {
-      aiLogger.error('BuildPanel voice processing error:', error);
+      aiLogger.error('OpenAI voice processing error:', error);
+      
+      if (this.isTimeoutError(error)) {
+        const timeoutError = new Error('provider_unavailable') as any;
+        timeoutError.status = 503;
+        timeoutError.error = 'provider_unavailable';
+        throw timeoutError;
+      }
+      
       throw error;
     }
   }
 
   /**
-   * Sync menu from local database instead of BuildPanel
-   * BuildPanel will receive menu data as context with chat/voice requests
+   * Load menu from local database for AI processing
    */
-  async syncMenuFromBuildPanel(restaurantId: string): Promise<void> {
-    if (!this.useBuildPanel) {
-      aiLogger.warn('Cannot sync menu - BuildPanel integration is disabled');
-      return;
-    }
-
+  async syncMenuFromDatabase(restaurantId: string): Promise<void> {
     try {
-      // Load menu from our local database instead of BuildPanel
+      // Load menu from our local database
       const fullMenu = await MenuService.getFullMenu(restaurantId);
       
       // Transform to format expected by AI processing
       this.menuData = {
-        restaurant: restaurantId,
+        restaurantId: restaurantId,
         menu: fullMenu.items,
         categories: fullMenu.categories
       };
-      
-      // Set menu context in BuildPanel service for chat/voice requests
-      this.buildPanel.setMenuContext(this.menuData);
       
       aiLogger.info(`Menu loaded from local database for restaurant ${restaurantId}`, {
         itemCount: fullMenu.items.length,
@@ -293,23 +297,27 @@ export class AIService {
   }
 
   /**
-   * Process chat message using BuildPanel
+   * Process chat message using OpenAI
    */
   async chat(message: string, restaurantId: string = 'default', userId?: string): Promise<string> {
-    if (!this.useBuildPanel) {
-      throw new Error('BuildPanel integration is disabled');
-    }
-
     try {
-      const response = await this.buildPanel.processChat(
-        message,
-        restaurantId,
-        userId
-      );
+      const response = await ai.chat.respond([
+        { role: 'user', content: message }
+      ], {
+        context: { restaurantId, userId }
+      });
 
-      return response.message || 'I apologize, but I could not generate a response.';
+      return response.message;
     } catch (error) {
-      aiLogger.error('BuildPanel chat error:', error);
+      aiLogger.error('OpenAI chat error:', error);
+      
+      if (this.isTimeoutError(error)) {
+        const timeoutError = new Error('provider_unavailable') as any;
+        timeoutError.status = 503;
+        timeoutError.error = 'provider_unavailable';
+        throw timeoutError;
+      }
+      
       throw error;
     }
   }
@@ -321,11 +329,7 @@ let aiServiceInstance: AIService | null = null;
 export const getAIService = (): AIService => {
   if (!aiServiceInstance) {
     aiServiceInstance = new AIService();
-    const useBuildPanel = process.env.USE_BUILDPANEL === 'true';
-    aiLogger.info('AIService initialized:', {
-      useBuildPanel,
-      buildPanelUrl: process.env.BUILDPANEL_URL || 'http://localhost:3003'
-    });
+    aiLogger.info('AIService initialized with OpenAI adapters');
   }
   return aiServiceInstance;
 };

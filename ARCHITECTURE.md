@@ -19,14 +19,30 @@
 3. This document is the TRUTH
 
 ## Architecture Diagram
+```mermaid
+flowchart LR
+  subgraph Client [Client (React/Vite)]
+    UI
+  end
+
+  subgraph Server [Server (Express on 3001)]
+    REST[REST /api/v1/*]
+    AI[AI Modules (Transcriber | OrderNLP | Chat | TTS)]
+    WS[WebSocket (KDS/stream)]
+    Metrics[Metrics & Health]
+  end
+
+  DB[(Supabase/Postgres)]
+  OpenAI[(OpenAI API)]
+  Square[(Square Payments)]
+
+  UI --> REST
+  REST --> DB
+  REST --> Square
+  REST --> AI
+  AI --> OpenAI
+  UI <--> WS
 ```
-┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
-│   Frontend      │ <-----> │   Backend       │ <-----> │  BuildPanel     │
-│   (React)       │  HTTP   │   (Express)     │  HTTPS  │  (Cloud API)    │
-│   Port: 5173    │  WS     │   Port: 3001    │         │  AI Services    │
-└─────────────────┘         └─────────────────┘         └─────────────────┘
-                                   │
-                                   ▼
                             ┌─────────────────┐
                             │   Supabase      │
                             │   (Database)    │
@@ -65,9 +81,8 @@ SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_KEY=your_service_key
 
-# BuildPanel Integration (Cloud-based AI service)
-USE_BUILDPANEL=true
-BUILDPANEL_URL=https://api.mike.app.buildpanel.ai
+# AI Integration
+OPENAI_API_KEY=your_openai_api_key
 
 # Frontend Configuration (VITE_ prefix required)
 VITE_API_BASE_URL=http://localhost:3001
@@ -119,10 +134,16 @@ GET    /api/v1/tables
 
 ### AI/Voice Endpoints
 ```
-POST   /api/v1/ai/transcribe
-POST   /api/v1/ai/chat
-POST   /api/v1/ai/parse-order
-POST   /api/v1/ai/menu-upload
+POST   /api/v1/ai/transcribe       # Voice-to-text via OpenAI Whisper
+POST   /api/v1/ai/chat             # Conversational chat via OpenAI GPT
+POST   /api/v1/ai/parse-order      # Order extraction with menu matching
+POST   /api/v1/ai/menu-upload      # Menu synchronization
+GET    /api/v1/ai/health           # AI provider health status
+```
+
+### Internal Endpoints
+```
+GET    /internal/metrics           # Prometheus metrics for AI operations
 ```
 
 ### WebSocket
@@ -145,43 +166,43 @@ wss://production.com         # Production
 - X-Restaurant-ID header validation
 - Database RLS policies for tenant isolation
 - Service-level restaurant context validation
-- BuildPanel requests include restaurant_id for context isolation
+- AI requests include restaurant_id for context isolation
 
-### BuildPanel Security Boundary
-**CRITICAL**: BuildPanel AI service integration must maintain strict security boundaries.
+### AI Service Security
+**CRITICAL**: AI service integration maintains strict security boundaries through internal processing.
 
 #### The Golden Rule
-**Never allow direct frontend access to BuildPanel**. All AI operations must be proxied through authenticated backend endpoints with proper tenant context.
+**Never expose AI service keys to the frontend**. All AI operations are handled internally by the backend with proper authentication and tenant context.
 
 #### Implementation
 ```
-Frontend                    Backend                     BuildPanel
+Frontend                    Backend                     AI Services
 ─────────                  ─────────                   ──────────
-TranscriptionService  →    /api/v1/ai/transcribe  →   /api/voice-chat
-(No AI SDK imports)        (BuildPanelService)         (Port 3003)
+TranscriptionService  →    /api/v1/ai/transcribe  →   OpenAI API
+(No AI SDK imports)        (AI Modules)                (Internal)
      ↓                            ↓                           ↓
 Authenticated HTTP         Restaurant context          AI Processing
-   Request                 + BuildPanel proxy          (Isolated)
+   Request                 + OpenAI integration        (Secure)
 ```
 
 #### Security Measures
-1. **No Direct BuildPanel Access**: Port 3003 blocked from frontend
-2. **No Client-Side AI Config**: No VITE_BUILDPANEL_URL or similar
+1. **No Direct AI Access**: AI services only accessible from backend
+2. **No Client-Side AI Config**: No VITE_OPENAI_KEY or similar
 3. **Authentication Required**: All AI endpoints require valid JWT
-4. **Restaurant Context**: Every BuildPanel request includes restaurant_id
+4. **Restaurant Context**: Every AI request includes restaurant_id
 5. **Rate Limiting**: Prevents abuse of expensive AI operations
-6. **Service Isolation**: BuildPanel failures don't compromise core functionality
-7. **File Validation**: Audio/image uploads validated before BuildPanel processing
+6. **Service Isolation**: AI failures don't compromise core functionality
+7. **File Validation**: Audio/image uploads validated before AI processing
 
 #### Forbidden Patterns
 ```javascript
-// ❌ NEVER in client code - direct BuildPanel access
-const response = await fetch('http://localhost:3003/api/voice-chat', {
-  body: audioFormData
+// ❌ NEVER in client code - direct AI service access
+const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY_HERE' }
 });
 
-// ❌ NEVER expose BuildPanel config to browser
-VITE_BUILDPANEL_URL=http://localhost:3003
+// ❌ NEVER expose AI keys to browser
+VITE_OPENAI_API_KEY=YOUR_API_KEY_HERE
 ```
 
 #### Correct Pattern
@@ -195,8 +216,8 @@ const response = await fetch('/api/v1/ai/transcribe', {
   body: audioFormData
 });
 
-// ✅ Backend handles BuildPanel with restaurant context
-const response = await this.buildPanel.processVoice(
+// ✅ Backend handles AI with restaurant context (server-side only)
+const response = await this.aiService.processVoice(
   audioBuffer, 
   restaurantId
 );
@@ -206,15 +227,12 @@ const response = await this.buildPanel.processVoice(
 
 **Secure Configuration:**
 ```env
-# Backend-only BuildPanel configuration
-USE_BUILDPANEL=true
-BUILDPANEL_URL=http://localhost:3003
+# Backend-only AI configuration
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY_HERE
 
 # Frontend has no AI service access
 VITE_API_BASE_URL=http://localhost:3001
 ```
-
-See [SECURITY_BUILDPANEL.md](./docs/SECURITY_BUILDPANEL.md) for detailed security requirements.
 
 ## Production Deployment
 
@@ -289,6 +307,24 @@ import { Order, MenuItem, WebSocketMessage } from '@rebuild/shared';
 - `/api/v1/metrics` - Performance metrics collection
 - `/api/v1/health` - Basic health check
 - `/api/v1/health/detailed` - Comprehensive system status
+- `/internal/metrics` - Prometheus metrics for AI routes and provider health
+
+### AI Provider Integration
+
+#### Degraded Mode
+When `AI_DEGRADED_MODE=true`, the system gracefully handles AI service unavailability:
+- Voice transcription returns "[Audio transcription unavailable]"
+- Chat responses return helpful fallback messages
+- Order parsing uses basic text matching
+- All endpoints maintain the same response structure
+
+#### OpenAI Integration
+- **Transcription**: Whisper API for voice-to-text
+- **Chat**: GPT models for conversational responses
+- **TTS**: OpenAI Speech API for text-to-speech
+- **Order Parsing**: Structured prompts for menu item extraction
+- **Error Mapping**: OpenAI errors mapped to user-friendly messages
+- **Health Monitoring**: Provider availability tracked via `/internal/metrics`
 
 ## Migration Timeline
 

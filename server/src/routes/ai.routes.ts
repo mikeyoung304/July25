@@ -1,12 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { aiService } from '../services/ai.service';
-import { getBuildPanelService } from '../services/buildpanel.service';
+import { ai, checkAIHealth } from '../ai';
 import { logger } from '../utils/logger';
 import { audioUpload } from '../middleware/fileValidation';
 import { AuthenticatedRequest, authenticate, requireRole } from '../middleware/auth';
 import { aiServiceLimiter, transcriptionLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validation';
 import { menuUploadSchema, parseOrderSchema } from '../validation/ai.validation';
+import { trackAIMetrics } from '../middleware/metrics';
 
 const router = Router();
 
@@ -20,23 +21,33 @@ router.post('/menu', aiServiceLimiter, authenticate, requireRole(['admin', 'mana
   try {
     const restaurantId = req.restaurantId || 'default';
 
-    // Sync menu from BuildPanel instead of uploading
-    await aiService.syncMenuFromBuildPanel(restaurantId);
+    // Load menu from local database for AI processing
+    await aiService.syncMenuFromDatabase(restaurantId);
     
-    aiLogger.info('Menu synced from BuildPanel', { 
+    aiLogger.info('Menu loaded for AI processing', { 
       restaurantId: req.restaurantId, 
       userId: req.user?.id
     });
     
+    res.set('Cache-Control', 'no-store');
     return res.json({
       success: true,
-      message: 'Menu synced from BuildPanel successfully',
+      message: 'Menu loaded for AI processing successfully',
       restaurantId
     });
   } catch (error) {
     aiLogger.error('Menu sync error:', error);
+    res.set('Cache-Control', 'no-store');
+    
+    if ((error as any)?.status === 503) {
+      res.set('x-ai-degraded', 'true');
+      return res.status(503).json({
+        error: 'provider_unavailable'
+      });
+    }
+    
     return res.status(500).json({
-      error: 'Failed to sync menu from BuildPanel',
+      error: 'Failed to load menu for AI processing',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
@@ -48,6 +59,8 @@ router.post('/menu', aiServiceLimiter, authenticate, requireRole(['admin', 'mana
  */
 router.get('/menu', aiServiceLimiter, authenticate, (req: AuthenticatedRequest, res: Response) => {
   const menu = aiService.getMenu();
+  
+  res.set('Cache-Control', 'no-store');
   
   // Filter menu by restaurant context
   if (menu && req.restaurantId && menu.restaurantId !== req.restaurantId) {
@@ -68,12 +81,13 @@ router.get('/menu', aiServiceLimiter, authenticate, (req: AuthenticatedRequest, 
 });
 
 /**
- * Process voice audio through BuildPanel
+ * Process voice audio through OpenAI
  * Returns MP3 audio response for direct playback
  */
-router.post('/transcribe', transcriptionLimiter, audioUpload.single('audio'), async (req: Request, res: Response) => {
+router.post('/transcribe', transcriptionLimiter, trackAIMetrics('transcribe'), audioUpload.single('audio'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
+      res.set('Cache-Control', 'no-store');
       return res.status(400).json({
         error: 'Audio file is required'
       });
@@ -87,9 +101,8 @@ router.post('/transcribe', transcriptionLimiter, audioUpload.single('audio'), as
       mimeType: req.file.mimetype
     });
     
-    // Get BuildPanel service and process voice
-    const buildPanel = getBuildPanelService();
-    const audioBuffer = await buildPanel.processVoice(
+    // Process voice through OpenAI adapters
+    const audioBuffer = await aiService.processVoiceAudio(
       req.file.buffer,
       req.file.mimetype,
       restaurantId
@@ -99,12 +112,21 @@ router.post('/transcribe', transcriptionLimiter, audioUpload.single('audio'), as
     res.set({
       'Content-Type': 'audio/mpeg',
       'Content-Length': audioBuffer.length.toString(),
-      'Cache-Control': 'no-cache'
+      'Cache-Control': 'no-store'
     });
     
     return res.send(audioBuffer);
   } catch (error) {
     aiLogger.error('Voice processing error:', error);
+    res.set('Cache-Control', 'no-store');
+    
+    if ((error as any)?.status === 503) {
+      res.set('x-ai-degraded', 'true');
+      return res.status(503).json({
+        error: 'provider_unavailable'
+      });
+    }
+    
     return res.status(500).json({
       error: 'Failed to process voice message',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -116,9 +138,10 @@ router.post('/transcribe', transcriptionLimiter, audioUpload.single('audio'), as
  * Process voice audio with metadata
  * Returns transcription and response data along with audio
  */
-router.post('/transcribe-with-metadata', transcriptionLimiter, audioUpload.single('audio'), async (req: Request, res: Response) => {
+router.post('/transcribe-with-metadata', transcriptionLimiter, trackAIMetrics('transcribe-with-metadata'), audioUpload.single('audio'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
+      res.set('Cache-Control', 'no-store');
       return res.status(400).json({
         error: 'Audio file is required'
       });
@@ -135,12 +158,14 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, audioUpload.singl
     const result = await aiService.transcribeAudioFile(req.file.buffer, req.file.mimetype, restaurantId);
     
     if (!result.success) {
+      res.set('Cache-Control', 'no-store');
       return res.status(400).json({
         success: false,
         error: result.error || 'Transcription failed'
       });
     }
     
+    res.set('Cache-Control', 'no-store');
     return res.json({
       success: true,
       text: result.text,
@@ -150,6 +175,15 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, audioUpload.singl
     });
   } catch (error) {
     aiLogger.error('Voice processing with metadata error:', error);
+    res.set('Cache-Control', 'no-store');
+    
+    if ((error as any)?.status === 503) {
+      res.set('x-ai-degraded', 'true');
+      return res.status(503).json({
+        error: 'provider_unavailable'
+      });
+    }
+    
     return res.status(500).json({
       error: 'Transcription failed',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -158,30 +192,47 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, audioUpload.singl
 });
 
 /**
- * Parse order from text using BuildPanel
+ * Parse order from text using OpenAI
  * Requires authentication to ensure restaurant context
  */
-router.post('/parse-order', aiServiceLimiter, authenticate, validateRequest(parseOrderSchema), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/parse-order', aiServiceLimiter, trackAIMetrics('parse-order'), authenticate, validateRequest(parseOrderSchema), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { text } = req.body; // Already validated by middleware
     const restaurantId = req.restaurantId || 'default';
 
-    aiLogger.info('Order parsing requested via BuildPanel', {
+    aiLogger.info('Order parsing requested via OpenAI', {
       restaurantId,
       userId: req.user?.id,
       textLength: text.length
     });
     
     const result = await aiService.parseOrder(text, restaurantId);
+    res.set('Cache-Control', 'no-store');
     return res.json({
       ...result,
       restaurantId,
       parsedBy: req.user?.id
     });
   } catch (error) {
-    aiLogger.error('BuildPanel order parsing error:', error);
+    aiLogger.error('OpenAI order parsing error:', error);
+    res.set('Cache-Control', 'no-store');
+    
+    if ((error as any)?.status === 503) {
+      res.set('x-ai-degraded', 'true');
+      return res.status(503).json({
+        error: 'provider_unavailable'
+      });
+    }
+    
+    if ((error as any)?.status === 422) {
+      return res.status(422).json({
+        error: (error as any).error || 'unknown_item',
+        suggestions: (error as any).suggestions || []
+      });
+    }
+    
     return res.status(500).json({
-      error: 'Failed to parse order via BuildPanel',
+      error: 'Failed to parse order via OpenAI',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
@@ -194,9 +245,10 @@ router.post('/parse-order', aiServiceLimiter, authenticate, validateRequest(pars
  * Process voice audio and return response
  * Combines transcription and chat in one endpoint
  */
-router.post('/voice-chat', aiServiceLimiter, authenticate, audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authenticate, audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.file) {
+      res.set('Cache-Control', 'no-store');
       return res.status(400).json({
         error: 'Audio file is required'
       });
@@ -204,30 +256,70 @@ router.post('/voice-chat', aiServiceLimiter, authenticate, audioUpload.single('a
 
     const restaurantId = req.restaurantId || 'default';
     
-    aiLogger.info('Voice chat request via BuildPanel', {
+    aiLogger.info('Voice chat request via OpenAI', {
       restaurantId,
       userId: req.user?.id,
       fileSize: req.file.size
     });
 
-    // Process voice through BuildPanel with metadata to get transcript and response
-    const buildPanel = getBuildPanelService();
-    const result = await buildPanel.processVoiceWithMetadata(
-      req.file.buffer, 
-      req.file.mimetype,
-      restaurantId, 
-      req.user?.id
+    // Step 1: Transcribe the audio
+    const transcriptionResult = await ai.transcriber.transcribe(req.file.buffer, {
+      model: req.file.mimetype
+    });
+
+    if (!transcriptionResult.text) {
+      res.set('Cache-Control', 'no-store');
+      return res.status(400).json({
+        error: 'No transcription available',
+        transcript: ''
+      });
+    }
+
+    // Step 2: Generate chat response
+    const chatResponse = await ai.chat.respond([
+      { role: 'user', content: transcriptionResult.text }
+    ], {
+      context: { restaurantId, userId: req.user?.id }
+    });
+
+    // Step 3: Try to parse order if it seems like an order request
+    let orderData = null;
+    const orderKeywords = ['order', 'want', 'get', 'have', 'buy', 'purchase'];
+    const seemsLikeOrder = orderKeywords.some(keyword => 
+      transcriptionResult.text.toLowerCase().includes(keyword)
     );
 
+    if (seemsLikeOrder) {
+      try {
+        const parsedOrder = await aiService.parseOrder(transcriptionResult.text, restaurantId);
+        if (parsedOrder.success) {
+          orderData = parsedOrder;
+        }
+      } catch (error) {
+        // Order parsing failed, but that's OK - just continue without order data
+        aiLogger.debug('Order parsing failed in voice chat, continuing without order data:', error);
+      }
+    }
+
+    res.set('Cache-Control', 'no-store');
     return res.json({
       success: true,
-      transcript: result.transcription,
-      response: result.response,
-      orderData: result.orderData,
+      transcript: transcriptionResult.text,
+      response: chatResponse.message,
+      orderData,
       restaurantId
     });
   } catch (error) {
     aiLogger.error('Voice chat error:', error);
+    res.set('Cache-Control', 'no-store');
+    
+    if ((error as any)?.status === 503) {
+      res.set('x-ai-degraded', 'true');
+      return res.status(503).json({
+        error: 'provider_unavailable'
+      });
+    }
+    
     return res.status(500).json({
       error: 'Voice chat failed',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -236,21 +328,22 @@ router.post('/voice-chat', aiServiceLimiter, authenticate, audioUpload.single('a
 });
 
 /**
- * Chat with AI assistant using BuildPanel
+ * Chat with AI assistant using OpenAI
  * Requires authentication for restaurant context
  */
-router.post('/chat', aiServiceLimiter, authenticate, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/chat', aiServiceLimiter, trackAIMetrics('chat'), authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { message } = req.body;
     const restaurantId = req.restaurantId || 'default';
     
     if (!message || typeof message !== 'string') {
+      res.set('Cache-Control', 'no-store');
       return res.status(400).json({
         error: 'Message is required'
       });
     }
 
-    aiLogger.info('Chat request via BuildPanel', {
+    aiLogger.info('Chat request via OpenAI', {
       restaurantId,
       userId: req.user?.id,
       messageLength: message.length
@@ -258,13 +351,23 @@ router.post('/chat', aiServiceLimiter, authenticate, async (req: AuthenticatedRe
 
     const response = await aiService.chat(message, restaurantId, req.user?.id);
     
+    res.set('Cache-Control', 'no-store');
     return res.json({
       success: true,
       message: response,
       restaurantId
     });
   } catch (error) {
-    aiLogger.error('BuildPanel chat error:', error);
+    aiLogger.error('OpenAI chat error:', error);
+    res.set('Cache-Control', 'no-store');
+    
+    if ((error as any)?.status === 503) {
+      res.set('x-ai-degraded', 'true');
+      return res.status(503).json({
+        error: 'provider_unavailable'
+      });
+    }
+    
     return res.status(500).json({
       error: 'Chat request failed',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -272,16 +375,29 @@ router.post('/chat', aiServiceLimiter, authenticate, async (req: AuthenticatedRe
   }
 });
 
-router.get('/health', async (_req: Request, res: Response) => {
-  const menu = aiService.getMenu();
-  const buildPanelHealthy = await getBuildPanelService().healthCheck();
-  
-  return res.json({
-    status: 'ok',
-    hasMenu: !!menu,
-    menuItems: menu?.menu?.length || 0,
-    buildPanelStatus: buildPanelHealthy ? 'connected' : 'disconnected'
-  });
+router.get('/health', trackAIMetrics('provider-health'), async (_req: Request, res: Response) => {
+  try {
+    const aiHealthCheck = await checkAIHealth();
+    
+    // Log internal details but don't expose them
+    aiLogger.debug('AI health check', {
+      provider: aiHealthCheck.provider,
+      status: aiHealthCheck.status,
+      details: aiHealthCheck.details
+    });
+    
+    res.set('Cache-Control', 'no-store');
+    
+    if (aiHealthCheck.status === 'healthy' || aiHealthCheck.status === 'degraded') {
+      return res.status(200).json({ ok: true });
+    } else {
+      return res.status(503).json({ error: 'provider_unavailable' });
+    }
+  } catch (error) {
+    aiLogger.error('Health check failed:', error);
+    res.set('Cache-Control', 'no-store');
+    return res.status(503).json({ error: 'provider_unavailable' });
+  }
 });
 
 export { router as aiRoutes };

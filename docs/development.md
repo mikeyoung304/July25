@@ -5,8 +5,8 @@ This guide covers setting up and running the Grow Fresh Local Food Restaurant Op
 ## Prerequisites
 - Node.js 18+ installed
 - Supabase project created (for cloud database)
-- **BuildPanel service** running on port 3003 (REQUIRED for AI features)
-- No OpenAI API key needed - BuildPanel handles all AI processing
+- **OpenAI service** running on port 3003 (REQUIRED for AI features)
+- No OpenAI API key needed - OpenAI handles all AI processing
 
 ## First-Time Setup
 
@@ -22,11 +22,7 @@ This guide covers setting up and running the Grow Fresh Local Food Restaurant Op
    ```
    This installs dependencies for the root, client, and server directories.
 
-3. **Start BuildPanel service**
-   
-   Ensure BuildPanel is running on port 3003 before starting the application.
-
-4. **Configure environment variables**
+3. **Configure environment variables**
    
    Create `.env` file in the root directory:
    ```env
@@ -37,9 +33,8 @@ This guide covers setting up and running the Grow Fresh Local Food Restaurant Op
    SUPABASE_SERVICE_KEY=your_service_key
    DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
    
-   # BuildPanel Configuration (REQUIRED for AI features)
-   USE_BUILDPANEL=true
-   BUILDPANEL_URL=http://localhost:3003
+   # AI Configuration (REQUIRED for AI features)
+   OPENAI_API_KEY=your_openai_api_key
 
    # Frontend Configuration (VITE_ prefix required)
    VITE_API_BASE_URL=http://localhost:3001
@@ -99,9 +94,9 @@ npm run lint:fix
 ```
 
 ### Working with Voice Ordering
-1. **Ensure BuildPanel is running** on port 3003
+1. **Ensure OpenAI is running** on port 3003
 2. Start the development servers
-3. Upload menu data to BuildPanel: `cd server && npm run upload:menu`
+3. Upload menu data to OpenAI: `cd server && npm run upload:menu`
 4. Navigate to http://localhost:5173/kiosk
 5. Test voice commands
 
@@ -150,10 +145,10 @@ lsof -ti:5173 | xargs kill -9
 - Ensure you've run the migrations
 
 ### Voice Ordering Not Working
-- **Verify BuildPanel service is running** on port 3003
-- Check that `USE_BUILDPANEL=true` is set in your `.env` file
-- Check that menu data has been uploaded to BuildPanel (`npm run upload:menu`)
-- Verify `BUILDPANEL_URL=http://localhost:3003` in environment
+- **Verify OpenAI service is running** on port 3003
+- Check that `USE_OPENAI=true` is set in your `.env` file
+- Check that menu data has been uploaded to OpenAI (`npm run upload:menu`)
+- Verify `OPENAI_URL=http://localhost:3003` in environment
 - Ensure microphone permissions are granted in your browser
 
 ### TypeScript Errors with Shared Types
