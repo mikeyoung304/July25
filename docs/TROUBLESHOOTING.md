@@ -62,8 +62,8 @@ npm install
 
 2. **Verify OpenAI connection**:
 ```bash
-curl https://api.mike.app.buildpanel.ai/api/health
-# Should return: {"status":"OK"}
+curl http://localhost:3001/api/v1/ai/provider-health
+# Should return: {"ok":true,"model":"gpt-4o-mini"}
 ```
 
 3. **Check browser console** for errors:

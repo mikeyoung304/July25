@@ -27,9 +27,9 @@ async function checkIntegration() {
     },
     {
       name: 'OpenAI API',
-      url: 'http://localhost:3001/health/status',
-      validate: (data: any) => data.services?.buildpanel?.status === 'connected',
-      details: (data: any) => `URL: ${data.services?.buildpanel?.url || 'N/A'}, Status: ${data.services?.buildpanel?.status || 'Unknown'}`
+      url: 'http://localhost:3001/api/v1/ai/provider-health',
+      validate: (data: any) => data.ok === true,
+      details: (data: any) => `Model: ${data.model || 'N/A'}, Status: ${data.ok ? 'Connected' : 'Disconnected'}`
     },
     {
       name: 'AI Service',
