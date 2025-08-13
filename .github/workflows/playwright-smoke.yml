@@ -14,9 +14,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Environment Diagnostics
+      - name: Environment Diagnostics (pre-setup)
         run: |
-          echo "Node version: $(node -v)"
           echo "Current directory: $(pwd)"
           ls -la
       
@@ -26,6 +25,11 @@ jobs:
           node-version: '22.x'
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
+      
+      - name: Environment Diagnostics (post-setup)
+        run: |
+          echo "Node version: $(node -v)"
+          echo "npm version: $(npm -v)"
       
       - name: Install dependencies
         working-directory: ./client
