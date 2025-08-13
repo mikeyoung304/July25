@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Basic route smoke tests', () => {
-  test('home page loads with expected content', async ({ page }) => {
+test.describe('Basic route smoke tests @smoke', () => {
+  test('home page loads with expected content @smoke', async ({ page }) => {
     await page.goto('/');
     
     // Wait for page to be fully loaded
     await page.waitForLoadState('networkidle');
     
     // Check URL
-    await expect(page).toHaveURL('http://localhost:4173/');
+    await expect(page).toHaveURL(/.*\/$/);
     
     // Check for actual home page content - look for the hero section
     await expect(page.locator('text=Fresh, Healthy, Local')).toBeVisible({ timeout: 5000 });
@@ -20,14 +20,14 @@ test.describe('Basic route smoke tests', () => {
     await expect(rootElement).not.toBeEmpty();
   });
 
-  test('checkout page loads with cart message', async ({ page }) => {
+  test('checkout page loads with cart message @smoke', async ({ page }) => {
     await page.goto('/checkout');
     
     // Wait for page to be fully loaded
     await page.waitForLoadState('networkidle');
     
     // Check URL
-    await expect(page).toHaveURL('http://localhost:4173/checkout');
+    await expect(page).toHaveURL(/.*\/checkout$/);
     
     // Check for empty cart message (since we haven't added items)
     await expect(page.locator('text=Your cart is empty')).toBeVisible({ timeout: 5000 });
@@ -39,14 +39,14 @@ test.describe('Basic route smoke tests', () => {
     await expect(rootElement).not.toBeEmpty();
   });
 
-  test('order page loads with menu sections', async ({ page }) => {
+  test('order page loads with menu sections @smoke', async ({ page }) => {
     await page.goto('/order/test-restaurant');
     
     // Wait for page to be fully loaded
     await page.waitForLoadState('networkidle');
     
     // Check URL
-    await expect(page).toHaveURL('http://localhost:4173/order/test-restaurant');
+    await expect(page).toHaveURL(/.*\/order\/test-restaurant$/);
     
     // Check for restaurant header
     await expect(page.locator('text=Grow Fresh')).toBeVisible({ timeout: 5000 });
@@ -59,7 +59,7 @@ test.describe('Basic route smoke tests', () => {
     await expect(cartButton).toBeVisible();
   });
 
-  test('app renders without console errors', async ({ page }) => {
+  test('app renders without console errors @smoke', async ({ page }) => {
     const consoleErrors: string[] = [];
     
     // Listen for console errors
