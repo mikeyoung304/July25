@@ -343,9 +343,18 @@ export class OpenAIAdapter extends EventEmitter {
     }
   }
 
-  async sendAudio(audioData: string): Promise<void> {
+  async sendAudio(audioData: string, sampleRate?: number): Promise<void> {
     if (!this.isConnected) {
       throw new Error('Not connected to OpenAI');
+    }
+    
+    // Assert 24kHz if sample rate provided
+    if (sampleRate && sampleRate !== 24000) {
+      logger.warn(`Audio sample rate mismatch: expected 24000Hz, got ${sampleRate}Hz`, {
+        sessionId: this.sessionId
+      });
+      // Non-breaking: log and continue
+      // In future, could resample here if needed
     }
 
     const audioEvent = {

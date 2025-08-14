@@ -191,7 +191,7 @@ export class VoiceWebSocketServer {
     if (session.openaiAdapter) {
       // Forward to OpenAI
       try {
-        await session.openaiAdapter.sendAudio(audio);
+        await session.openaiAdapter.sendAudio(audio, 24000); // PCM16 24kHz from client pipeline
       } catch (error) {
         session.metrics.error_count++;
         logger.error('Error sending audio to OpenAI:', error);
