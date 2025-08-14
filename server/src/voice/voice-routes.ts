@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { VoiceWebSocketServer } from './websocket-server';
 import { VoiceServerHealthSchema } from './types';
+import { WebSocket } from 'ws';
 
 let voiceServer: VoiceWebSocketServer;
 
@@ -149,6 +150,91 @@ voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response) =>
     metrics,
     timestamp: new Date().toISOString(),
   });
+});
+
+// Handshake readiness endpoint
+voiceRoutes.get('/handshake', async (_req: Request, res: Response) => {
+  const startTime = Date.now();
+  const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-10-01';
+  const apiKey = process.env.OPENAI_API_KEY;
+  
+  if (!apiKey) {
+    return res.status(502).json({
+      ok: false,
+      model,
+      code: 'NO_API_KEY',
+      message: 'OPENAI_API_KEY not configured'
+    });
+  }
+
+  let ws: WebSocket | null = null;
+  const timeout = setTimeout(() => {
+    if (ws) {
+      ws.close();
+      ws = null;
+    }
+  }, 2000); // 2 second timeout
+
+  try {
+    const url = `wss://api.openai.com/v1/realtime?model=${model}`;
+    
+    // Create WebSocket with required headers
+    ws = new WebSocket(url, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'OpenAI-Beta': 'realtime=v1'
+      }
+    });
+
+    // Wait for connection
+    await new Promise<void>((resolve, reject) => {
+      if (!ws) return reject(new Error('WebSocket creation failed'));
+      
+      ws.on('open', () => {
+        // Send minimal session update
+        ws!.send(JSON.stringify({
+          type: 'session.update',
+          session: { modalities: ['text'] }
+        }));
+        
+        // Close immediately after sending
+        setTimeout(() => {
+          if (ws) ws.close();
+          resolve();
+        }, 100);
+      });
+
+      ws.on('error', (err) => {
+        reject(err);
+      });
+    });
+
+    clearTimeout(timeout);
+    const handshakeMs = Date.now() - startTime;
+
+    res.json({
+      ok: true,
+      model,
+      handshakeMs,
+      note: 'realtime:v1'
+    });
+  } catch (error: any) {
+    clearTimeout(timeout);
+    if (ws) ws.close();
+    
+    // Check for missing header hint
+    const hint = error.message?.includes('401') || error.message?.includes('Unauthorized')
+      ? 'Missing OpenAI-Beta: realtime=v1'
+      : undefined;
+
+    res.status(502).json({
+      ok: false,
+      model,
+      code: error.code || 'HANDSHAKE_FAILED',
+      message: error.message || 'Failed to connect to OpenAI Realtime',
+      hint
+    });
+  }
 });
 
 // WebSocket connection info endpoint

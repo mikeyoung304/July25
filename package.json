@@ -35,7 +35,8 @@
     "db:reset": "supabase db reset",
     "db:migration:new": "supabase migration new",
     "db:status": "cd server && npm run db:check",
-    "analyze": "tsx scripts/gen-code-analysis.ts"
+    "analyze": "tsx scripts/gen-code-analysis.ts",
+    "voice:smoke": "curl -s http://localhost:3001/api/v1/ai/voice/handshake | jq ."
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",
