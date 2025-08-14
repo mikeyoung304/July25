@@ -1,5 +1,5 @@
 import { VoiceSocketMessage } from '../hooks/useVoiceSocket';
-// import { ManagedService, CleanupManager, MemoryMonitor } from '@rebuild/shared';
+import { MemoryMonitor } from '@rebuild/shared';
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
