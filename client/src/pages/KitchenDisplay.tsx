@@ -42,7 +42,7 @@ export function KitchenDisplay() {
 
   return (
     <RoleGuard suggestedRoles={['kitchen', 'admin']} pageTitle="Kitchen Display System">
-      <PageLayout>
+      <PageLayout data-testid="kitchen-root">
         <KitchenHeader
           restaurant={restaurant}
           activeOrdersCount={activeOrdersCount}
