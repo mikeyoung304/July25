@@ -16,7 +16,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
 
   // Calculate total quantity of this item in cart
   const cartQuantity = cart.items
-    .filter(cartItem => cartItem.menu_item_id === item.id)
+    .filter(cartItem => cartItem.menuItemId === item.id)
     .reduce((sum, cartItem) => sum + cartItem.quantity, 0);
 
   // Sync local quantity with cart quantity
@@ -42,7 +42,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
     
     // Add item to cart
     addToCart({
-      menu_item_id: item.id,
+      menuItemId: item.id,
       name: item.name,
       price: item.price,
       quantity: 1
@@ -63,7 +63,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
     if (delta > 0) {
       // Add one more item to cart
       addToCart({
-        menu_item_id: item.id,
+        menuItemId: item.id,
         name: item.name,
         price: item.price,
         quantity: 1

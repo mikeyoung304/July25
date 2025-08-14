@@ -1,27 +1,5 @@
-export interface CartItem {
-  id: string;
-  menu_item_id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  modifiers?: CartModifier[];
-  specialInstructions?: string;
-  imageUrl?: string;
-}
-
-export interface CartModifier {
-  id: string;
-  name: string;
-  price: number;
-}
-
-export interface Cart {
-  items: CartItem[];
-  subtotal: number;
-  tax: number;
-  total: number;
-  restaurantId: string;
-}
+// Import shared types - using camelCase as canonical
+export { CartItem, CartModifier, Cart } from '../../../../shared/cart';
 
 export interface OrderSystemContextType {
   cart: Cart;
@@ -50,7 +28,7 @@ export interface PaymentIntent {
 
 export interface OrderConfirmation {
   orderId: string;
-  order_number: string;
+  orderNumber: string;
   estimatedTime: string;
   items: CartItem[];
   total: number;

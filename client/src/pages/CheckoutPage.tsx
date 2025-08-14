@@ -65,7 +65,7 @@ const CheckoutPageContent: React.FC = () => {
             quantity: item.quantity,
             price: item.price,
             modifiers: item.modifiers || [],
-            special_instructions: item.special_instructions || '',
+            specialInstructions: item.specialInstructions || '',
           })),
           customerName: customerEmail.split('@')[0], // Use email prefix as name
           customerEmail,
