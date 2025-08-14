@@ -8,7 +8,7 @@ import { EventEmitter } from '@/services/utils/EventEmitter';
 import { getCurrentRestaurantId } from '@/services/http/httpClient';
 import { toCamelCase, toSnakeCase } from '@/services/utils/caseTransform';
 import { env } from '@/utils/env';
-import { ManagedService, CleanupManager, MemoryMonitor } from '@rebuild/shared';
+// import { ManagedService, CleanupManager, MemoryMonitor } from '@rebuild/shared';
 
 export interface WebSocketConfig {
   url?: string;
@@ -41,7 +41,7 @@ export interface ConnectionStats {
 /**
  * Enterprise WebSocket Service with managed lifecycle
  */
-export class EnterpriseWebSocketService extends ManagedService {
+export class EnterpriseWebSocketService {
   private ws: WebSocket | null = null;
   private config: Required<WebSocketConfig>;
   private reconnectAttempts = 0;
