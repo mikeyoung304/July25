@@ -8,6 +8,7 @@ export * from './types/transformers';
 export * from './types/validation';
 export * from './utils';
 export * from './runtime';              // new runtime helpers (above)
+export * from './src/voice-types';      // voice websocket types
 
 // Common types used across modules
 export interface PaginationParams {

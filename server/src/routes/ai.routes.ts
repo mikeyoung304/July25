@@ -8,6 +8,7 @@ import { aiServiceLimiter, transcriptionLimiter } from '../middleware/rateLimite
 import { validateRequest } from '../middleware/validation';
 import { menuUploadSchema, parseOrderSchema } from '../validation/ai.validation';
 import { trackAIMetrics } from '../middleware/metrics';
+import { voiceRoutes } from '../voice/voice-routes';
 
 const router = Router();
 
@@ -399,5 +400,8 @@ router.get('/health', trackAIMetrics('provider-health'), async (_req: Request, r
     return res.status(503).json({ error: 'provider_unavailable' });
   }
 });
+
+// Mount voice routes
+router.use('/voice', voiceRoutes);
 
 export { router as aiRoutes };
