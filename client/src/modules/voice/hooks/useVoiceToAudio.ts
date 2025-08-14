@@ -5,7 +5,17 @@ import { useRestaurant } from '@/core/restaurant-hooks';
 
 // Helper to resolve absolute API URLs for production (Vercel)
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
-const url = (path: string) => `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+const url = (path: string) => {
+  if (import.meta.env.DEV && path.startsWith('api/')) {
+    console.warn('[voice] Warning: relative API path detected:', path);
+  }
+  return `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+};
+
+// Dev/preview logging for debugging
+if (import.meta.env.DEV || import.meta.env.MODE === 'preview') {
+  console.log('[voice] API base:', API_BASE || 'http://localhost:3001', '| mode:', import.meta.env.MODE);
+}
 
 export interface VoiceToAudioOptions {
   onTranscriptReceived?: (transcript: string) => void;
