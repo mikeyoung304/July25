@@ -12,10 +12,6 @@ export type {
   CreateOrderDTO,
   UpdateOrderDTO,
   OrderFilters,
-  MenuItem,
-  MenuCategory,
-  MenuItemModifierOption,
-  MenuItemModifierGroup,
   CreateMenuItemDTO,
   UpdateMenuItemDTO,
   Table,
@@ -43,6 +39,15 @@ export type {
   ApiResponse,
   ApiError
 } from '@rebuild/shared'
+
+// Import and re-export API types with camelCase
+export type { 
+  MenuItem, 
+  MenuCategory,
+  MenuResponse,
+  ApiMenuItemModifierOption as MenuItemModifierOption,
+  ApiMenuItemModifierGroup as MenuItemModifierGroup
+} from '@rebuild/shared/api-types'
 
 // Local-only types (if any) that don't exist in shared
 export interface DateRangeParams {
