@@ -72,13 +72,13 @@ router.post('/sync-ai', optionalAuth, async (req: AuthenticatedRequest, res, nex
     }
     
     const restaurantId = req.restaurantId!;
-    routeLogger.info('Syncing menu to AI Gateway', { restaurantId, userId: req.user.id });
+    routeLogger.info('Syncing menu to AI service', { restaurantId, userId: req.user.id });
     
-    await MenuService.syncToAIGateway(restaurantId);
+    await MenuService.syncToAI(restaurantId);
     
     res.json({
       success: true,
-      message: 'Menu synced to AI Gateway',
+      message: 'Menu synced to AI service',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

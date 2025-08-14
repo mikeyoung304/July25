@@ -221,22 +221,22 @@ export class MenuService {
   }
 
   /**
-   * Sync menu to AI Gateway
+   * Sync menu to AI service
    */
-  static async syncToAIGateway(restaurantId: string): Promise<void> {
+  static async syncToAI(restaurantId: string): Promise<void> {
     try {
       await this.getFullMenu(restaurantId);
       
-      // TODO: Implement AI Gateway sync
-      // const response = await fetch(`${config.aiGateway.url}/upload-menu`, {
+      // TODO: Implement AI service sync
+      // const response = await fetch(`${config.ai.url}/upload-menu`, {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({ restaurantId, menu }),
       // });
 
-      this.logger.info('Menu synced to AI Gateway', { restaurantId });
+      this.logger.info('Menu synced to AI service', { restaurantId });
     } catch (error) {
-      this.logger.error('Failed to sync menu to AI Gateway', { error, restaurantId });
+      this.logger.error('Failed to sync menu to AI service', { error, restaurantId });
       throw error;
     }
   }
