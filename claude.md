@@ -126,6 +126,26 @@ npm run check:integration  # Verify system health
 - **Root Cause**: AI-generated code from July 2025 used outdated v3/v4 API pattern
 - **Fix Applied**: Removed duplicate initialization from main.tsx
 
+### **11. 🚀 CI/CD Pipeline**
+
+**Automated Testing with Vercel Previews**
+- **Workflow**: PR → Vercel Preview Deploy → Wait for Backend → Run Tests
+- **Playwright Smoke Tests**: Run against Vercel preview URL with @smoke tagged tests
+- **Lighthouse Performance**: Audits preview URL with soft thresholds (warn only)
+- **Backend Health Check**: Polls Render backend at `https://july25.onrender.com/api/v1/ai/health`
+
+**Required GitHub Secrets**:
+- `VERCEL_TOKEN` - Your Vercel API token
+- `VERCEL_ORG_ID` - Your Vercel organization ID
+- `VERCEL_PROJECT_ID` - The july25-client project ID
+- `RENDER_API_BASE` (optional) - Override default backend URL if needed
+
+**CI Workflows**:
+- `.github/workflows/playwright-smoke.yml` - Smoke tests on PR
+- `.github/workflows/lighthouse-performance.yml` - Performance audits on PR
+- Tests run against Vercel preview URL, not localhost
+- Backend health verified before running tests
+
 ---
 
 ## Subagent Assignments

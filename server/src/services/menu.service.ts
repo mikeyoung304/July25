@@ -3,6 +3,7 @@ import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
 import { getConfig } from '../config/environment';
 import { menuIdMapper } from './menu-id-mapper';
+import { mapMenuItem, mapMenuCategory, mapMenuItems, mapMenuCategories } from '../mappers/menu.mapper';
 
 const config = getConfig();
 const menuCache = new NodeCache({ stdTTL: config.cache.ttlSeconds });
@@ -84,12 +85,12 @@ export class MenuService {
 
       if (itemError) throw itemError;
 
-      // Map items and convert to external IDs
-      const mappedItems = this.mapItems(items || []);
+      // Map items to camelCase and convert to external IDs
+      const mappedItems = mapMenuItems(items || []);
       const itemsWithExternalIds = await menuIdMapper.convertToExternalIds(mappedItems);
 
       const response: MenuResponse = {
-        categories: this.mapCategories(categories || []),
+        categories: mapMenuCategories(categories || []),
         items: itemsWithExternalIds,
       };
 
@@ -124,7 +125,7 @@ export class MenuService {
 
       if (error) throw error;
 
-      const items = this.mapItems(data || []);
+      const items = mapMenuItems(data || []);
       const itemsWithExternalIds = await menuIdMapper.convertToExternalIds(items);
       menuCache.set(cacheKey, itemsWithExternalIds);
 
@@ -159,8 +160,9 @@ export class MenuService {
         throw error;
       }
 
-      const item = this.mapItem(data);
-      menuCache.set(cacheKey, item);
+      const item = mapMenuItem(data);
+      const itemWithExternalId = await menuIdMapper.convertToExternalIds([item]);
+      menuCache.set(cacheKey, itemWithExternalId[0]);
 
       return item;
     } catch (error) {
@@ -190,7 +192,7 @@ export class MenuService {
 
       if (error) throw error;
 
-      const categories = this.mapCategories(data || []);
+      const categories = mapMenuCategories(data || []);
       menuCache.set(cacheKey, categories);
 
       return categories;
@@ -221,56 +223,24 @@ export class MenuService {
   }
 
   /**
-   * Sync menu to AI Gateway
+   * Sync menu to AI service
    */
-  static async syncToAIGateway(restaurantId: string): Promise<void> {
+  static async syncToAI(restaurantId: string): Promise<void> {
     try {
       await this.getFullMenu(restaurantId);
       
-      // TODO: Implement AI Gateway sync
-      // const response = await fetch(`${config.aiGateway.url}/upload-menu`, {
+      // TODO: Implement AI service sync
+      // const response = await fetch(`${config.ai.url}/upload-menu`, {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({ restaurantId, menu }),
       // });
 
-      this.logger.info('Menu synced to AI Gateway', { restaurantId });
+      this.logger.info('Menu synced to AI service', { restaurantId });
     } catch (error) {
-      this.logger.error('Failed to sync menu to AI Gateway', { error, restaurantId });
+      this.logger.error('Failed to sync menu to AI service', { error, restaurantId });
       throw error;
     }
   }
 
-  // Mapping functions
-  private static mapCategories(data: any[]): MenuCategory[] {
-    return data.map(cat => ({
-      id: cat.id,
-      name: cat.name,
-      slug: cat.slug,
-      description: cat.description,
-      displayOrder: cat.display_order,
-      active: cat.active,
-    }));
-  }
-
-  private static mapItems(data: any[]): MenuItem[] {
-    return data.map(item => this.mapItem(item));
-  }
-
-  private static mapItem(item: any): MenuItem {
-    return {
-      id: item.id,
-      categoryId: item.category_id,
-      name: item.name,
-      description: item.description,
-      price: parseFloat(item.price),
-      active: item.active,
-      available: item.available,
-      dietaryFlags: item.dietary_flags || [],
-      modifiers: item.modifiers || [],
-      aliases: item.aliases || [],
-      prepTimeMinutes: item.prep_time_minutes || 10,
-      imageUrl: item.image_url,
-    };
-  }
 }

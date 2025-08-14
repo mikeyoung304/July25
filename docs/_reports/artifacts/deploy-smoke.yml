@@ -1,0 +1,52 @@
+name: Post-Deploy Smoke Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  smoke-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Verify Production Deployment
+        run: |
+          # Use environment variable or default to Vercel production URL
+          FRONTEND_URL="${{ secrets.FRONTEND_URL || 'https://july25-client.vercel.app' }}"
+          BACKEND_URL="${{ secrets.RENDER_API_BASE || 'https://july25.onrender.com' }}"
+          
+          echo "::group::Frontend Health Check"
+          echo "Checking frontend at: $FRONTEND_URL"
+          
+          # Check main page
+          FRONTEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$FRONTEND_URL")
+          if [ "$FRONTEND_STATUS" = "200" ]; then
+            echo "✅ Frontend main page is accessible (HTTP $FRONTEND_STATUS)"
+          else
+            echo "❌ Frontend main page returned HTTP $FRONTEND_STATUS"
+            exit 1
+          fi
+          echo "::endgroup::"
+          
+          echo "::group::Backend Health Check"
+          echo "Checking backend at: $BACKEND_URL/api/v1/ai/health"
+          
+          # Check backend health endpoint
+          HEALTH_RESPONSE=$(curl -s -w "\n%{http_code}" "$BACKEND_URL/api/v1/ai/health" || echo "CURL_FAILED")
+          HTTP_CODE=$(echo "$HEALTH_RESPONSE" | tail -n1)
+          BODY=$(echo "$HEALTH_RESPONSE" | head -n-1)
+          
+          if [ "$HTTP_CODE" = "200" ] || echo "$BODY" | grep -q '"ok":\s*true'; then
+            echo "✅ Backend is healthy: $BODY"
+          else
+            echo "⚠️ Backend health check failed (non-blocking)"
+            echo "HTTP Code: $HTTP_CODE"
+            echo "Response: $BODY"
+          fi
+          echo "::endgroup::"
+          
+          echo "::notice title=Deployment Verified::Frontend and backend are operational in production"

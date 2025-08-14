@@ -1,5 +1,5 @@
 import { VoiceSocketMessage } from '../hooks/useVoiceSocket';
-import { ManagedService, CleanupManager, MemoryMonitor } from '@rebuild/shared';
+import { MemoryMonitor } from '@rebuild/shared';
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
@@ -8,7 +8,7 @@ interface VoiceSocketListener {
   onConnectionChange?: (status: ConnectionStatus) => void;
 }
 
-class VoiceSocketManager extends ManagedService {
+class VoiceSocketManager {
   private static instance: VoiceSocketManager | null = null;
   private ws: WebSocket | null = null;
   private listeners: Map<string, VoiceSocketListener> = new Map();
@@ -27,7 +27,6 @@ class VoiceSocketManager extends ManagedService {
   private unregisterWebSocket: (() => void) | null = null;
 
   private constructor(url: string) {
-    super('VoiceSocketManager');
     this.url = url;
     this.setupMemoryMonitoring();
   }

@@ -11,7 +11,7 @@
 - **Real-time transcription**: See what's being captured
 - **Smart parsing**: Automatically extracts items and modifiers
 - **Multi-mode**: Hold-to-talk or tap-to-toggle
-- **OpenAI Integration**: All AI processing via external OpenAI service
+- **OpenAI Integration**: AI processing via OpenAI API (integrated in unified backend)
 - **Context Isolation**: Restaurant-specific AI context and menu understanding
 
 ## Unified Components
@@ -35,27 +35,27 @@
 ## Testing Strategy
 
 ### AI/Voice Testing with OpenAI Mocks
-- **No Real AI Calls**: All OpenAI service calls mocked in tests
+- **No Real AI Calls**: All OpenAI API calls mocked in tests
 - **Voice Order Testing**: Complete ordering flows with realistic scenarios
-- **Error Handling**: OpenAI service failures and timeouts
+- **Error Handling**: OpenAI API failures and timeouts
 - **Restaurant Context**: Multi-tenant testing with proper isolation
 
 ### Test Coverage
 - **Component Tests**: React Testing Library for UI components
 - **Integration Tests**: Complete voice ordering and chat flows
-- **Service Tests**: OpenAI integration with proper mocking
+- **Service Tests**: OpenAI API integration with proper mocking
 - **Error Scenarios**: Network failures, invalid responses, service unavailable
 
 ### Voice Testing Patterns
 ```typescript
-// Example: Testing voice ordering with OpenAI mock
+// Example: Testing voice ordering with OpenAI API mock
 const mockVoiceResponse = createMockVoiceResponse({
   transcription: 'Two burgers with fries',
   response: 'Added to your order',
   orderData: { items: [...], total: 24.98 }
 });
 
-// Mock OpenAI service
+// Mock OpenAI API calls
 mockTranscriptionService.transcribe.mockResolvedValue(mockVoiceResponse);
 
 // Test complete voice ordering flow
@@ -67,7 +67,7 @@ await waitFor(() => {
 
 ### Chat Testing Patterns
 ```typescript
-// Example: Testing chat with OpenAI mock
+// Example: Testing chat with OpenAI API mock
 const mockChatResponse = createMockChatResponse({
   message: 'We have several burger options available',
   suggestions: ['Classic Burger', 'Cheese Burger']
@@ -83,8 +83,8 @@ await waitFor(() => {
 ```
 
 ### Integration Test Requirements
-- **OpenAI Service Mock**: Never call real OpenAI service
+- **OpenAI API Mock**: Never call real OpenAI API in tests
 - **Restaurant Context**: All tests must include restaurantId
 - **Authentication Mock**: Backend tests need AuthenticatedRequest mocks
 - **WebSocket Mock**: Voice tests require WebSocket connection mocks
-- **Error Recovery**: Test all OpenAI failure scenarios
+- **Error Recovery**: Test all OpenAI API failure scenarios

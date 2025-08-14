@@ -5,8 +5,7 @@ This guide covers setting up and running the Grow Fresh Local Food Restaurant Op
 ## Prerequisites
 - Node.js 18+ installed
 - Supabase project created (for cloud database)
-- **OpenAI service** running on port 3003 (REQUIRED for AI features)
-- No OpenAI API key needed - OpenAI handles all AI processing
+- **OpenAI API key** (REQUIRED for AI features - integrated in unified backend)
 
 ## First-Time Setup
 
@@ -94,9 +93,9 @@ npm run lint:fix
 ```
 
 ### Working with Voice Ordering
-1. **Ensure OpenAI is running** on port 3003
+1. **Ensure OPENAI_API_KEY is configured** in your .env file
 2. Start the development servers
-3. Upload menu data to OpenAI: `cd server && npm run upload:menu`
+3. Upload menu data: `cd server && npm run upload:menu`
 4. Navigate to http://localhost:5173/kiosk
 5. Test voice commands
 
@@ -145,11 +144,10 @@ lsof -ti:5173 | xargs kill -9
 - Ensure you've run the migrations
 
 ### Voice Ordering Not Working
-- **Verify OpenAI service is running** on port 3003
-- Check that `USE_OPENAI=true` is set in your `.env` file
-- Check that menu data has been uploaded to OpenAI (`npm run upload:menu`)
-- Verify `OPENAI_URL=http://localhost:3003` in environment
+- **Verify OPENAI_API_KEY is set** in your `.env` file
+- Check that menu data has been uploaded (`npm run upload:menu`)
 - Ensure microphone permissions are granted in your browser
+- Check backend logs for AI service initialization messages
 
 ### TypeScript Errors with Shared Types
 - Run `npm install` from root to set up workspaces

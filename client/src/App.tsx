@@ -7,6 +7,7 @@ import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
 import { AppContent } from '@/components/layout/AppContent'
 import { SplashScreen } from '@/pages/SplashScreen'
 import { SetupRequiredScreen } from '@/pages/SetupRequiredScreen'
+import { MockDataBanner } from '@/components/MockDataBanner'
 import { webSocketService, orderUpdatesHandler } from '@/services/websocket'
 import { supabase } from '@/core/supabase'
 import { env } from '@/utils/env'
@@ -109,6 +110,7 @@ function App() {
       }}
     >
       <Router>
+        <MockDataBanner />
         <RoleProvider>
           <RestaurantProvider>
             <RestaurantIdProvider>

@@ -3,6 +3,7 @@ import { logger } from '../utils/logger';
 import { randomUUID } from 'crypto';
 import { WebSocketServer } from 'ws';
 import { broadcastOrderUpdate, broadcastNewOrder } from '../utils/websocket';
+import { mapOrder, mapOrders } from '../mappers/cart.mapper';
 // import { menuIdMapper } from './menu-id-mapper'; // Not currently used
 import type {
   Order as SharedOrder,
@@ -119,7 +120,7 @@ export class OrdersService {
 
       if (error) throw error;
 
-      const order = this.mapOrder(data);
+      const order = mapOrder(data);
       
       // Broadcast new order via WebSocket
       if (this.wss) {
@@ -184,7 +185,7 @@ export class OrdersService {
 
       if (error) throw error;
 
-      return (data || []).map(this.mapOrder);
+      return mapOrders(data || []);
     } catch (error) {
       ordersLogger.error('Failed to fetch orders', { error, restaurantId, filters });
       throw error;
@@ -208,7 +209,7 @@ export class OrdersService {
         throw error;
       }
 
-      return this.mapOrder(data);
+      return mapOrder(data);
     } catch (error) {
       ordersLogger.error('Failed to fetch order', { error, restaurantId, orderId });
       throw error;
@@ -263,7 +264,7 @@ export class OrdersService {
 
       if (error) throw error;
 
-      const updatedOrder = this.mapOrder(data);
+      const updatedOrder = mapOrder(data);
 
       // Broadcast order update via WebSocket
       if (this.wss) {
@@ -345,7 +346,7 @@ export class OrdersService {
 
       if (error) throw error;
 
-      const updatedOrder = this.mapOrder(data);
+      const updatedOrder = mapOrder(data);
 
       // Broadcast order update via WebSocket
       if (this.wss) {
@@ -493,31 +494,4 @@ export class OrdersService {
     }
   }
 
-  /**
-   * Map database record to Order interface
-   */
-  private static mapOrder(data: any): Order {
-    return {
-      id: data.id,
-      restaurant_id: data.restaurant_id,
-      restaurantId: data.restaurant_id,
-      orderNumber: data.order_number,
-      type: data.type,
-      status: data.status,
-      items: data.items || [],
-      subtotal: parseFloat(data.subtotal),
-      tax: parseFloat(data.tax),
-      totalAmount: parseFloat(data.total_amount),
-      notes: data.notes,
-      customer_name: data.customer_name,
-      table_number: data.table_number,
-      metadata: data.metadata,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-      preparingAt: data.preparing_at,
-      readyAt: data.ready_at,
-      completedAt: data.completed_at,
-      cancelledAt: data.cancelled_at,
-    };
-  }
 }

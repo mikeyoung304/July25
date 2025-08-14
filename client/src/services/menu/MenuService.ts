@@ -48,6 +48,14 @@ export class MenuService implements IMenuService {
 
   async getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }> {
     try {
+      // Only use mocks if explicitly enabled in dev mode
+      const useMocks = import.meta.env.VITE_USE_MOCK_DATA === 'true' && 
+                      import.meta.env.MODE === 'development';
+      
+      if (useMocks) {
+        return this.getMockMenu();
+      }
+      
       const response = await httpClient.get<{ items: SharedMenuItem[]; categories: MenuCategory[] }>('/api/v1/menu')
       // Cache categories
       response.categories.forEach(cat => this.categoriesCache.set(cat.id, cat))
@@ -56,32 +64,48 @@ export class MenuService implements IMenuService {
         categories: response.categories
       }
     } catch (error) {
-      console.warn('API call failed, falling back to mock data:', error)
-      return this.getMockMenu()
+      console.error('Menu API failed:', error);
+      throw error;
     }
   }
 
   async getMenuItems(): Promise<MenuItem[]> {
     try {
+      // Only use mocks if explicitly enabled in dev mode
+      const useMocks = import.meta.env.VITE_USE_MOCK_DATA === 'true' && 
+                      import.meta.env.MODE === 'development';
+      
+      if (useMocks) {
+        return this.getMockMenu().items;
+      }
+      
       // First fetch categories to map them properly
       const categories = await this.getMenuCategories()
       const response = await httpClient.get<any[]>('/api/v1/menu/items')
       return response.map(item => this.transformMenuItem(item, categories))
     } catch (error) {
-      console.warn('API call failed, falling back to mock data:', error)
-      return this.getMockMenu().items
+      console.error('Menu items API failed:', error);
+      throw error;
     }
   }
 
   async getMenuCategories(): Promise<MenuCategory[]> {
     try {
+      // Only use mocks if explicitly enabled in dev mode
+      const useMocks = import.meta.env.VITE_USE_MOCK_DATA === 'true' && 
+                      import.meta.env.MODE === 'development';
+      
+      if (useMocks) {
+        return this.getMockMenu().categories;
+      }
+      
       const response = await httpClient.get<MenuCategory[]>('/api/v1/menu/categories')
       // Cache categories
       response.forEach(cat => this.categoriesCache.set(cat.id, cat))
       return response
     } catch (error) {
-      console.warn('API call failed, falling back to mock data:', error)
-      return this.getMockMenu().categories
+      console.error('Menu categories API failed:', error);
+      throw error;
     }
   }
 

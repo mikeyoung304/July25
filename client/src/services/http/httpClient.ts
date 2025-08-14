@@ -107,6 +107,13 @@ export class HttpClient extends SecureAPIClient {
       const restaurantId = getCurrentRestaurantId()
       if (restaurantId) {
         headers.set('x-restaurant-id', restaurantId)
+        
+        const debugVoice = import.meta.env.VITE_DEBUG_VOICE === 'true';
+        if (import.meta.env.DEV && debugVoice) {
+          console.log(`[HttpClient] X-Restaurant-ID: ${restaurantId} → ${url}`);
+        }
+      } else if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_VOICE === 'true') {
+        console.warn('[HttpClient] No restaurant context for request:', url);
       } else {
         console.warn('No restaurant ID available for API request to', endpoint)
       }
