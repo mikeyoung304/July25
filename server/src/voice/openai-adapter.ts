@@ -52,7 +52,11 @@ export class OpenAIAdapter extends EventEmitter {
       throw new Error('OPENAI_API_KEY not found in environment');
     }
 
-    const url = 'wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01';
+    // Model configurable via env with safe default
+    const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-10-01';
+    logger.info(`[voice] realtime model: ${model}`);
+    
+    const url = `wss://api.openai.com/v1/realtime?model=${model}`;
     
     try {
       this.ws = new WebSocket(url, {
