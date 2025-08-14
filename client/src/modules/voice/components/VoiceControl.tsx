@@ -5,6 +5,10 @@ import { useRestaurant } from '@/core/restaurant-hooks';
 import { HoldToRecordButton } from './HoldToRecordButton';
 import { useVoiceSocket, VoiceSocketMessage } from '../hooks/useVoiceSocket';
 
+// Helper to resolve absolute API URLs for production (Vercel)
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const url = (path: string) => `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+
 interface VoiceControlProps {
   onTranscript?: (text: string, isFinal: boolean) => void;
   onAudioData?: (audioData: Blob) => void;
@@ -69,7 +73,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
   const handleTranscript = useCallback(async (text: string) => {
     try {
       // Step 1: Parse the order
-      const parseResponse = await fetch('/api/v1/ai/parse-order', {
+      const parseResponse = await fetch(url('/api/v1/ai/parse-order'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +88,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
       const parsedOrder = await parseResponse.json();
 
       // Step 2: Create the order
-      const orderResponse = await fetch('/api/v1/orders', {
+      const orderResponse = await fetch(url('/api/v1/orders'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

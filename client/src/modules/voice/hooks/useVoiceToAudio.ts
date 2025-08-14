@@ -3,6 +3,10 @@ import { getAudioPlaybackService } from '@/services/audio/AudioPlaybackService';
 import { useToast } from '@/hooks/useToast';
 import { useRestaurant } from '@/core/restaurant-hooks';
 
+// Helper to resolve absolute API URLs for production (Vercel)
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const url = (path: string) => `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+
 export interface VoiceToAudioOptions {
   onTranscriptReceived?: (transcript: string) => void;
   onAudioResponseStart?: () => void;
@@ -17,7 +21,7 @@ export interface VoiceToAudioOptions {
 // Quick diagnostic function to check if realtime endpoint exists
 const checkRealtimeEndpoint = async (): Promise<boolean> => {
   try {
-    const response = await fetch('/api/v1/ai/voice-chat-realtime', {
+    const response = await fetch(url('/api/v1/ai/voice-chat-realtime'), {
       method: 'OPTIONS', // Use OPTIONS to check endpoint availability without sending data
       signal: AbortSignal.timeout(2000) // Quick 2-second check
     });
@@ -71,7 +75,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
             console.warn('⏰ Realtime timeout after 8 seconds');
           }, 8000); // Temporarily increase to 8 seconds to test if endpoint works
           
-          const realtimeResponse = await fetch('/api/v1/ai/voice-chat-realtime', {
+          const realtimeResponse = await fetch(url('/api/v1/ai/voice-chat-realtime'), {
             method: 'POST',
             body: realtimeFormData,
             headers: { 'Accept': 'audio/mpeg' },
@@ -96,7 +100,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
           const regularFormData = new FormData();
           regularFormData.append('audio', audioBlob, 'voice.webm');
           
-          response = await fetch('/api/v1/ai/voice-chat', {
+          response = await fetch(url('/api/v1/ai/voice-chat'), {
             method: 'POST',
             body: regularFormData,
             headers: { 'Accept': 'audio/mpeg' }
@@ -111,7 +115,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
         }
       } else {
         // Use regular endpoint only
-        response = await fetch('/api/v1/ai/voice-chat', {
+        response = await fetch(url('/api/v1/ai/voice-chat'), {
           method: 'POST',
           body: formData,
           headers: { 'Accept': 'audio/mpeg' }
@@ -206,7 +210,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
             console.warn('⏰ Realtime transcript timeout after 8 seconds');
           }, 8000); // Temporarily increase to 8 seconds to test if endpoint works
           
-          const realtimeResponse = await fetch('/api/v1/ai/voice-chat-realtime', {
+          const realtimeResponse = await fetch(url('/api/v1/ai/voice-chat-realtime'), {
             method: 'POST',
             body: realtimeFormData,
             headers: { 'Accept': 'audio/mpeg, application/json' },
@@ -231,7 +235,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
           const regularFormData = new FormData();
           regularFormData.append('audio', audioBlob, 'voice.webm');
           
-          transcriptResponse = await fetch('/api/v1/ai/voice-chat', {
+          transcriptResponse = await fetch(url('/api/v1/ai/voice-chat'), {
             method: 'POST',
             body: regularFormData,
             headers: { 'Accept': 'audio/mpeg, application/json' }
@@ -245,7 +249,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
           console.warn(`✅ Regular transcript fallback SUCCESS: ${usedEndpoint} (mode: ${voiceMode})`);
         }
       } else {
-        transcriptResponse = await fetch('/api/v1/ai/voice-chat', {
+        transcriptResponse = await fetch(url('/api/v1/ai/voice-chat'), {
           method: 'POST',
           body: formData,
           headers: { 'Accept': 'audio/mpeg, application/json' }
