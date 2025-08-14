@@ -29,16 +29,16 @@ All API endpoints require:
 | POST | /menu/items | Add menu item |
 | PUT | /menu/items/:id | Update item |
 | DELETE | /menu/items/:id | Remove item |
-| POST | /menu/sync-ai | Sync menu to AI service |
+| POST | /menu/sync-ai | Sync menu to AI context |
 
-## AI/Voice (OpenAI Integration)
+## AI/Voice (Integrated in Unified Backend)
 
 | Method | Endpoint | Description | Response Type |
 |--------|----------|-------------|---------------|
-| POST | /ai/transcribe | Process voice audio and return AI response | audio/mpeg |
+| POST | /ai/transcribe | Process voice audio via OpenAI API | audio/mpeg |
 | POST | /ai/transcribe-with-metadata | Process voice with transcription data | application/json |
-| POST | /ai/parse-order | Parse text to order via OpenAI | application/json |
-| POST | /ai/chat | Chat with AI assistant via OpenAI | application/json |
+| POST | /ai/parse-order | Parse text to order via OpenAI API | application/json |
+| POST | /ai/chat | Chat with AI assistant via OpenAI API | application/json |
 | POST | /ai/menu | Sync menu for AI context | application/json |
 | GET | /ai/menu | Get current AI menu | application/json |
 | GET | /ai/health | AI service health check | application/json |
@@ -46,7 +46,7 @@ All API endpoints require:
 ### Voice Endpoint Details
 
 #### POST /ai/transcribe
-Process voice audio through OpenAI's speech-to-text and text-to-speech pipeline.
+Process voice audio through OpenAI API's speech-to-text and text-to-speech pipeline (integrated in backend).
 
 **Request:**
 - Content-Type: `multipart/form-data`
@@ -128,7 +128,7 @@ Events:
 
 ## Environment Variables
 
-- `OPENAI_URL` - OpenAI service URL (default: http://localhost:3003)
+- `OPENAI_API_KEY` - OpenAI API key for AI/voice features
 - `DATABASE_URL` - PostgreSQL connection string
 - `PORT` - Server port (default: 3001)
 - `FRONTEND_URL` - Frontend URL for CORS (default: http://localhost:5173)
