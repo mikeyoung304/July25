@@ -29,9 +29,10 @@
     "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "types": ["node"],
+    "baseUrl": ".",
     "paths": {
-      "@rebuild/shared": ["../shared/types"],
-      "@rebuild/shared/*": ["../shared/types/*"]
+      "@rebuild/shared": ["../shared/index"],
+      "@rebuild/shared/*": ["../shared/*"]
     }
   },
   "include": [

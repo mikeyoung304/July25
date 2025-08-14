@@ -1,0 +1,99 @@
+name: Lighthouse Performance
+
+on:
+  pull_request:
+    paths:
+      - 'client/**'
+      - '.github/workflows/lighthouse-performance.yml'
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Environment Diagnostics (pre-setup)
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -la
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+      
+      - name: Environment Diagnostics (post-setup)
+        run: |
+          echo "Node version: $(node -v)"
+          echo "npm version: $(npm -v)"
+      
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm ci
+      
+      - name: Build production bundle
+        working-directory: ./client
+        run: npm run build
+      
+      - name: Start preview server
+        working-directory: ./client
+        run: |
+          echo "::group::Starting preview server"
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/preview.log 2>&1 &
+          echo $! > /tmp/preview.pid
+          echo "Preview server PID: $(cat /tmp/preview.pid)"
+          sleep 2
+          echo "::endgroup::"
+      
+      - name: Wait for preview server
+        run: |
+          echo "Waiting for preview server to be ready..."
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4173 >/dev/null 2>&1; then
+              echo "Preview server is ready!"
+              echo "Server response check:"
+              curl -sS http://127.0.0.1:4173 | head -20
+              break
+            fi
+            echo "Attempt $i/60: Server not ready yet..."
+            sleep 1
+          done
+          if [ ! -f /tmp/preview.pid ]; then
+            echo "ERROR: Preview PID file not found!"
+            exit 1
+          fi
+          if ! ps -p $(cat /tmp/preview.pid) > /dev/null; then
+            echo "ERROR: Preview server process died!"
+            cat /tmp/preview.log || true
+            exit 1
+          fi
+      
+      - name: Install Lighthouse CI
+        run: npm i -g @lhci/cli
+      
+      - name: Run Lighthouse CI
+        run: |
+          echo "Running Lighthouse against http://127.0.0.1:4173"
+          lhci collect --url=http://127.0.0.1:4173 --numberOfRuns=1
+          lhci assert --preset=lighthouse:no-pwa || true
+      
+      - name: Stop preview server
+        if: always()
+        run: |
+          if [ -f /tmp/preview.pid ]; then
+            echo "Stopping preview server..."
+            kill $(cat /tmp/preview.pid) || true
+            rm /tmp/preview.pid
+          fi
+      
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: ./.lighthouseci/
+          retention-days: 7

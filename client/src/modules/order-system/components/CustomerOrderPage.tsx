@@ -59,7 +59,7 @@ const CustomerOrderPageContent: React.FC = () => {
   const cartItemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" data-testid="order-root">
       {/* Header - Much larger and more prominent */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 md:px-8">

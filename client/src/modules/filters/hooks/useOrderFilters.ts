@@ -14,7 +14,7 @@ export interface UseOrderFiltersReturn {
 
 const initialFilters: OrderFilterState = {
   status: 'all',
-  table_number: '',
+  tableNumber: '',
   searchQuery: ''
 }
 
@@ -47,7 +47,7 @@ export const useOrderFilters = (defaultFilters?: Partial<OrderFilterState>): Use
   const hasActiveFilters = useMemo(() => {
     return (
       filters.status !== 'all' ||
-      !!filters.table_number ||
+      !!filters.tableNumber ||
       !!filters.dateRange ||
       !!filters.searchQuery
     )

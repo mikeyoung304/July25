@@ -26,9 +26,9 @@ export const CartItem: React.FC<CartItemProps> = ({ item, onUpdate, onRemove }) 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4">
       <div className="flex items-start space-x-3">
-        {item.image_url && (
+        {item.imageUrl && (
           <img 
-            src={item.image_url} 
+            src={item.imageUrl} 
             alt={item.name}
             className="w-16 h-16 rounded-md object-cover"
           />
@@ -47,9 +47,9 @@ export const CartItem: React.FC<CartItemProps> = ({ item, onUpdate, onRemove }) 
             </div>
           )}
           
-          {item.special_instructions && (
+          {item.specialInstructions && (
             <p className="text-sm text-gray-500 italic mt-1">
-              Note: {item.special_instructions}
+              Note: {item.specialInstructions}
             </p>
           )}
           

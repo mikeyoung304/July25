@@ -44,13 +44,13 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const handleAddToCart = () => {
     const cartItem: CartItem = {
       id: `${item.id}-${Date.now()}`,
-      menu_item_id: item.id,
+      menuItemId: item.id,
       name: item.name,
       price: item.price,
       quantity,
       modifiers: selectedModifiers.length > 0 ? selectedModifiers : undefined,
-      special_instructions: specialInstructions.trim() || undefined,
-      image_url: item.image_url
+      specialInstructions: specialInstructions.trim() || undefined,
+      imageUrl: item.imageUrl
     };
     
     onAddToCart(cartItem);

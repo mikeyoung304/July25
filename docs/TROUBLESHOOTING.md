@@ -60,10 +60,10 @@ npm install
    - Firefox: Settings → Privacy → Permissions → Microphone
    - Must allow localhost:5173
 
-2. **Verify OpenAI connection**:
+2. **Verify OpenAI API connection**:
 ```bash
-curl http://localhost:3001/api/v1/ai/provider-health
-# Should return: {"ok":true,"model":"gpt-4o-mini"}
+curl http://localhost:3001/api/v1/ai/health
+# Should return: {"status":"healthy","openai":"connected"}
 ```
 
 3. **Check browser console** for errors:
@@ -190,7 +190,7 @@ npm run preview
 ### Logs Location
 - Frontend logs: Browser console
 - Backend logs: `server/logs/`
-- OpenAI logs: Check backend logs for AI requests
+- OpenAI API logs: Check backend logs for AI/voice requests
 
 ### Debug Mode
 ```bash

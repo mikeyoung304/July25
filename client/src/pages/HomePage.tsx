@@ -22,7 +22,7 @@ function NavigationCard({ title, icon, href, color, delay = 0 }: NavigationCardP
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.98 }}
     >
-      <Link to={href}>
+      <Link to={href} data-testid={title === 'Online Order' ? 'nav-order' : undefined}>
         <div
           className="relative h-64 rounded-2xl p-8 flex flex-col items-center justify-center text-white shadow-large cursor-pointer overflow-hidden group"
           style={{ backgroundColor: color }}
