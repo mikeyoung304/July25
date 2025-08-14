@@ -30,7 +30,7 @@ const onRenderCallback = (
 
 export function AppRoutes() {
   return (
-    <main id="main-content" role="main">
+    <main id="main-content" role="main" data-testid="app-root">
       <ErrorBoundary level="section">
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>

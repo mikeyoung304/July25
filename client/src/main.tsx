@@ -27,6 +27,18 @@ if (rootElement) {
     sentinel.parentElement.removeChild(sentinel);
   }
   console.log('[BOOT] React mounted');
+  
+  // Mark app as ready for E2E tests
+  document.body.dataset.appReady = '1';
+  const probe = document.getElementById('e2e-app-ready');
+  if (!probe) {
+    const el = document.createElement('div');
+    el.id = 'e2e-app-ready';
+    el.setAttribute('data-testid', 'app-ready');
+    el.style.display = 'none';
+    document.body.appendChild(el);
+  }
+  console.log('[E2E] app mounted');
 } else {
   console.error('[BOOT] Could not find root element!')
 }
