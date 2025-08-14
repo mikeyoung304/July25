@@ -8,7 +8,7 @@ This guide covers deploying the Rebuild 6.0 Restaurant OS to production environm
 
 - Node.js 18.x or higher
 - PostgreSQL 14+ or Supabase project
-- **OpenAI service** deployed and accessible (REQUIRED for AI features)
+- **OpenAI API key** (REQUIRED for AI features - integrated in unified backend)
 - Domain with SSL certificate
 - Server with at least 2GB RAM
 
@@ -32,8 +32,7 @@ JWT_SECRET=your-jwt-secret-min-32-chars
 CORS_ORIGIN=https://your-domain.com
 
 # OpenAI Integration (REQUIRED for AI features)
-USE_OPENAI=true
-OPENAI_URL=https://buildpanel.your-domain.com
+OPENAI_API_KEY=your-openai-api-key
 
 # Logging
 LOG_LEVEL=info
@@ -133,15 +132,8 @@ server {
         proxy_set_header Connection "upgrade";
     }
 
-    # OpenAI Service (if hosted locally)
-    location /buildpanel {
-        proxy_pass http://localhost:3003;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+    # Note: AI functionality is integrated in the unified backend on port 3001
+    # No separate AI service proxy required
 }
 ```
 
@@ -211,7 +203,7 @@ Expected response:
   "timestamp": "2025-01-16T00:00:00Z",
   "services": {
     "database": "connected",
-    "buildpanel": "connected",
+    "openai": "connected",
     "websocket": "active"
   }
 }
@@ -368,9 +360,9 @@ NODE_ENV=production LOG_LEVEL=debug pm2 restart restaurant-os
 ## Post-Deployment Checklist
 
 - [ ] Health check passes
-- [ ] **OpenAI service connectivity verified**
+- [ ] **OpenAI API connectivity verified** (check backend logs)
 - [ ] WebSocket connections work
-- [ ] Voice ordering functional (requires OpenAI)
+- [ ] Voice ordering functional (requires OPENAI_API_KEY)
 - [ ] Orders flow to kitchen display
 - [ ] No console errors in browser
 - [ ] Performance acceptable (< 3s load time)
