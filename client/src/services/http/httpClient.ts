@@ -41,7 +41,9 @@ export class HttpClient extends SecureAPIClient {
       baseURL = 'http://localhost:3001'
     } else {
       try {
-        const viteUrl = env.VITE_API_BASE_URL
+        const viteUrl = env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL
+        console.log('[httpClient] env.VITE_API_BASE_URL:', env.VITE_API_BASE_URL)
+        console.log('[httpClient] import.meta.env.VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL)
         if (viteUrl) {
           baseURL = viteUrl
         }
@@ -50,6 +52,8 @@ export class HttpClient extends SecureAPIClient {
           console.error('⚠️ Production build is trying to connect to localhost backend!')
           console.error('Please configure VITE_API_BASE_URL in your Vercel environment variables')
           console.error('You need to deploy your backend and set VITE_API_BASE_URL to its URL')
+          console.error('env object:', env)
+          console.error('import.meta.env:', import.meta.env)
         }
       } catch {
         // Fallback for environments without import.meta
