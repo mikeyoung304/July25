@@ -9,7 +9,6 @@
     "shared"
   ],
   "scripts": {
-    "prepare": "node -e \"if (process.env.NODE_ENV !== 'production' && !process.env.CI && !process.env.RENDER) try { require('husky') } catch {}\"",
     "start": "cd server && npm start",
     "dev": "concurrently --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\"",
     "dev:supabase": "./scripts/dev-with-supabase.sh",
