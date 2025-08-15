@@ -47,6 +47,7 @@ if (import.meta.env.DEV || import.meta.env.MODE === 'preview') {
 
 export interface VoiceToAudioOptions {
   onTranscriptReceived?: (transcript: string) => void;
+  onOrderDataReceived?: (orderData: any) => void;
   onAudioResponseStart?: () => void;
   onAudioResponseEnd?: () => void;
   onError?: (error: Error) => void;
@@ -110,13 +111,40 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       if (contentType?.includes('audio')) {
         console.log('Received audio response from AI service');
         
+        // Extract metadata from headers
+        const transcript = response.headers.get('X-Transcript') 
+          ? decodeURIComponent(response.headers.get('X-Transcript')!) 
+          : '';
+        const responseText = response.headers.get('X-Response-Text')
+          ? decodeURIComponent(response.headers.get('X-Response-Text')!)
+          : 'AI Response';
+        const orderDataHeader = response.headers.get('X-Order-Data');
+        
+        // Parse order data if present
+        if (orderDataHeader) {
+          try {
+            const orderData = JSON.parse(decodeURIComponent(orderDataHeader));
+            console.log('Parsed order data from response:', orderData);
+            
+            // Emit order data for processing
+            options.onOrderDataReceived?.(orderData);
+          } catch (error) {
+            console.error('Failed to parse order data from header:', error);
+          }
+        }
+        
+        // Emit transcript if we got one
+        if (transcript) {
+          options.onTranscriptReceived?.(transcript);
+        }
+        
         // Step 3: Get audio blob from response
         const audioResponseBlob = await response.blob();
         
         // Step 4: Play audio using AudioPlaybackService
         await audioService.playAudioBlob(
           audioResponseBlob,
-          'AI Response', // We don't have transcript from this endpoint
+          responseText,
           {
             onStart: () => {
               console.log('AI audio response started playing');

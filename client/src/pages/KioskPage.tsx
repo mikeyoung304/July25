@@ -114,25 +114,41 @@ const KioskPageContent: React.FC = () => {
       setConversation(prev => [...prev, userEntry]);
       setCurrentTranscript('');
       
-      // Parse the order and add items
-      if (orderParser) {
-        const parsed = orderParser.parseUserTranscript(transcript);
-        if (parsed.length > 0) {
-          processParsedItems(parsed);
-        }
-      }
+      // Don't parse locally - wait for server response with proper menu matching
     } else {
       // Update current transcript for live display
       setCurrentTranscript(transcript);
     }
-  }, [orderParser, processParsedItems]);
+  }, []);
+
+  const handleOrderData = useCallback((orderData: any) => {
+    console.log('Received order data from server:', orderData);
+    
+    if (orderData?.success && orderData?.items?.length > 0) {
+      // Process each item from the server's parsed order
+      orderData.items.forEach((item: any) => {
+        // Find the menu item by ID
+        const menuItem = menuItems.find(m => m.id === item.menuItemId);
+        if (menuItem) {
+          addItem(
+            menuItem,
+            item.quantity || 1,
+            item.modifications || []
+          );
+          console.log('Added item to cart:', menuItem.name, 'qty:', item.quantity);
+        } else {
+          console.warn('Menu item not found for ID:', item.menuItemId);
+        }
+      });
+    }
+  }, [menuItems, addItem]);
 
   const handleAudioStart = useCallback((text: string) => {
     // Add AI response to conversation
     const aiEntry: ConversationEntry = {
       id: `ai-${++conversationIdCounter.current}`,
       speaker: 'ai',
-      text: text,
+      text: text || 'Processing your order...',
       timestamp: new Date(),
     };
     setConversation(prev => [...prev, aiEntry]);
@@ -257,6 +273,7 @@ const KioskPageContent: React.FC = () => {
               >
                 <VoiceControlWithAudio
                   onTranscript={handleVoiceTranscript}
+                  onOrderData={handleOrderData}
                   onAudioStart={handleAudioStart}
                   onAudioEnd={handleAudioEnd}
                   isFirstPress={isFirstPress}
@@ -278,6 +295,7 @@ const KioskPageContent: React.FC = () => {
               <Card className="p-8 flex flex-col items-center justify-center">
                 <VoiceControlWithAudio
                   onTranscript={handleVoiceTranscript}
+                  onOrderData={handleOrderData}
                   onAudioStart={handleAudioStart}
                   onAudioEnd={handleAudioEnd}
                   isFirstPress={isFirstPress}
