@@ -2,6 +2,7 @@ import { useCallback, useRef } from 'react';
 import { getAudioPlaybackService } from '@/services/audio/AudioPlaybackService';
 import { useToast } from '@/hooks/useToast';
 import { useRestaurant } from '@/core/restaurant-hooks';
+import { supabase } from '@/core/supabase';
 
 // Helper to resolve absolute API URLs for production (Vercel)
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -10,6 +11,20 @@ const url = (path: string) => {
     console.warn('[voice] Warning: relative API path detected:', path);
   }
   return `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+};
+
+// Helper to get auth headers
+const getAuthHeaders = async (): Promise<HeadersInit> => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const headers: HeadersInit = {
+    'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111'
+  };
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  } else if (import.meta.env.DEV) {
+    headers['Authorization'] = 'Bearer test-token';
+  }
+  return headers;
 };
 
 // Dev/preview logging for debugging
@@ -31,8 +46,10 @@ export interface VoiceToAudioOptions {
 // Quick diagnostic function to check if realtime endpoint exists
 const checkRealtimeEndpoint = async (): Promise<boolean> => {
   try {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(url('/api/v1/ai/voice-chat-realtime'), {
       method: 'OPTIONS', // Use OPTIONS to check endpoint availability without sending data
+      headers: authHeaders,
       signal: AbortSignal.timeout(2000) // Quick 2-second check
     });
     console.warn(`🔍 Realtime endpoint check: ${response.status} ${response.statusText}`);
@@ -85,10 +102,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
             console.warn('⏰ Realtime timeout after 8 seconds');
           }, 8000); // Temporarily increase to 8 seconds to test if endpoint works
           
+          const authHeaders = await getAuthHeaders();
           const realtimeResponse = await fetch(url('/api/v1/ai/voice-chat-realtime'), {
             method: 'POST',
             body: realtimeFormData,
-            headers: { 'Accept': 'audio/mpeg' },
+            headers: { ...authHeaders, 'Accept': 'audio/mpeg' },
             signal: controller.signal
           });
           
@@ -110,10 +128,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
           const regularFormData = new FormData();
           regularFormData.append('audio', audioBlob, 'voice.webm');
           
+          const authHeaders = await getAuthHeaders();
           response = await fetch(url('/api/v1/ai/voice-chat'), {
             method: 'POST',
             body: regularFormData,
-            headers: { 'Accept': 'audio/mpeg' }
+            headers: { ...authHeaders, 'Accept': 'audio/mpeg' }
           });
           
           if (!response.ok) {
@@ -125,10 +144,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
         }
       } else {
         // Use regular endpoint only
+        const authHeaders = await getAuthHeaders();
         response = await fetch(url('/api/v1/ai/voice-chat'), {
           method: 'POST',
           body: formData,
-          headers: { 'Accept': 'audio/mpeg' }
+          headers: { ...authHeaders, 'Accept': 'audio/mpeg' }
         });
         
         if (!response.ok) {
@@ -220,10 +240,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
             console.warn('⏰ Realtime transcript timeout after 8 seconds');
           }, 8000); // Temporarily increase to 8 seconds to test if endpoint works
           
+          const authHeaders = await getAuthHeaders();
           const realtimeResponse = await fetch(url('/api/v1/ai/voice-chat-realtime'), {
             method: 'POST',
             body: realtimeFormData,
-            headers: { 'Accept': 'audio/mpeg, application/json' },
+            headers: { ...authHeaders, 'Accept': 'audio/mpeg, application/json' },
             signal: controller.signal
           });
           
@@ -245,10 +266,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
           const regularFormData = new FormData();
           regularFormData.append('audio', audioBlob, 'voice.webm');
           
+          const authHeaders = await getAuthHeaders();
           transcriptResponse = await fetch(url('/api/v1/ai/voice-chat'), {
             method: 'POST',
             body: regularFormData,
-            headers: { 'Accept': 'audio/mpeg, application/json' }
+            headers: { ...authHeaders, 'Accept': 'audio/mpeg, application/json' }
           });
           
           if (!transcriptResponse.ok) {
@@ -259,10 +281,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
           console.warn(`✅ Regular transcript fallback SUCCESS: ${usedEndpoint} (mode: ${voiceMode})`);
         }
       } else {
+        const authHeaders = await getAuthHeaders();
         transcriptResponse = await fetch(url('/api/v1/ai/voice-chat'), {
           method: 'POST',
           body: formData,
-          headers: { 'Accept': 'audio/mpeg, application/json' }
+          headers: { ...authHeaders, 'Accept': 'audio/mpeg, application/json' }
         });
         
         if (!transcriptResponse.ok) {

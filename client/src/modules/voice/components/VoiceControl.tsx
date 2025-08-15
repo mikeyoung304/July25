@@ -88,11 +88,10 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
       const parsedOrder = await parseResponse.json();
 
       // Step 2: Create the order
+      const authHeaders2 = await getAuthHeaders();
       const orderResponse = await fetch(url('/api/v1/orders'), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: authHeaders2,
         body: JSON.stringify({
           ...parsedOrder,
           restaurant_id: restaurant?.id,
