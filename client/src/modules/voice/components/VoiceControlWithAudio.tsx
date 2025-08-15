@@ -6,7 +6,8 @@ import { useVoiceToAudio } from '../hooks/useVoiceToAudio';
 
 interface VoiceControlWithAudioProps {
   onTranscript?: (text: string, isFinal: boolean) => void;
-  onAudioStart?: () => void;
+  onOrderData?: (orderData: any) => void;
+  onAudioStart?: (responseText: string) => void;
   onAudioEnd?: () => void;
   isFirstPress?: boolean;
   onFirstPress?: () => void;
@@ -21,6 +22,7 @@ type PermissionState = 'granted' | 'denied' | 'prompt';
  */
 const VoiceControlWithAudio: React.FC<VoiceControlWithAudioProps> = ({
   onTranscript,
+  onOrderData,
   onAudioStart,
   onAudioEnd,
   isFirstPress = true,
@@ -45,10 +47,14 @@ const VoiceControlWithAudio: React.FC<VoiceControlWithAudioProps> = ({
       setCurrentTranscript(transcript);
       onTranscript?.(transcript, true);
     },
+    onOrderDataReceived: (orderData) => {
+      console.log('Order data received:', orderData);
+      onOrderData?.(orderData);
+    },
     onAudioResponseStart: () => {
       console.log('AI audio response started');
       setIsPlayingAudio(true);
-      onAudioStart?.();
+      onAudioStart?.(''); // TODO: pass actual response text
     },
     onAudioResponseEnd: () => {
       console.log('AI audio response ended');

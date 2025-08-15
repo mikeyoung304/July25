@@ -297,37 +297,7 @@ router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authe
       responseLength: chatResponse.message.length
     });
 
-    // Step 3: Check if client wants audio response
-    const acceptHeader = req.headers.accept || '';
-    const wantsAudio = acceptHeader.includes('audio/mpeg');
-
-    if (wantsAudio) {
-      // Generate audio response using TTS
-      try {
-        const ttsResult = await ai.tts.synthesize(chatResponse.message, {
-          voice: 'nova'
-        });
-
-        aiLogger.info('TTS audio generated', {
-          audioSize: ttsResult.audio.length,
-          mimeType: ttsResult.mimeType
-        });
-
-        res.set({
-          'Content-Type': ttsResult.mimeType,
-          'Content-Length': ttsResult.audio.length.toString(),
-          'Cache-Control': 'no-store'
-        });
-        
-        return res.send(ttsResult.audio);
-      } catch (error) {
-        aiLogger.error('TTS generation failed, falling back to JSON:', error);
-        // Fall through to JSON response if TTS fails
-      }
-    }
-
-    // Default JSON response
-    // Step 4: Try to parse order if it seems like an order request
+    // Step 3: Try to parse order if it seems like an order request
     let orderData = null;
     const orderKeywords = ['order', 'want', 'get', 'have', 'buy', 'purchase'];
     const seemsLikeOrder = orderKeywords.some(keyword => 
@@ -346,6 +316,46 @@ router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authe
       }
     }
 
+    // Step 4: Check if client wants audio response
+    const acceptHeader = req.headers.accept || '';
+    const wantsAudio = acceptHeader.includes('audio/mpeg');
+
+    if (wantsAudio) {
+      // Generate audio response using TTS
+      try {
+        const ttsResult = await ai.tts.synthesize(chatResponse.message, {
+          voice: 'nova'
+        });
+
+        aiLogger.info('TTS audio generated', {
+          audioSize: ttsResult.audio.length,
+          mimeType: ttsResult.mimeType
+        });
+
+        // Include order data and transcript in headers for client processing
+        const headers: any = {
+          'Content-Type': ttsResult.mimeType,
+          'Content-Length': ttsResult.audio.length.toString(),
+          'Cache-Control': 'no-store',
+          'X-Transcript': encodeURIComponent(transcriptionResult.text),
+          'X-Response-Text': encodeURIComponent(chatResponse.message)
+        };
+
+        // If order was parsed, include it in headers
+        if (orderData) {
+          headers['X-Order-Data'] = encodeURIComponent(JSON.stringify(orderData));
+        }
+
+        res.set(headers);
+        
+        return res.send(ttsResult.audio);
+      } catch (error) {
+        aiLogger.error('TTS generation failed, falling back to JSON:', error);
+        // Fall through to JSON response if TTS fails
+      }
+    }
+
+    // Default JSON response
     res.set('Cache-Control', 'no-store');
     return res.json({
       success: true,
