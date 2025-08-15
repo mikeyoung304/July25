@@ -1,0 +1,2284 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content class">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >EnterpriseWebSocketService</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/services/websocket/EnterpriseWebSocketService.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Enterprise WebSocket Service with managed lifecycle</p>
+
+            </p>
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#config" >config</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#connectionState" >connectionState</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#connectionTimeout" >connectionTimeout</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#eventEmitter" >eventEmitter</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#isIntentionallyClosed" >isIntentionallyClosed</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#messageQueue" >messageQueue</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#pingTimer" >pingTimer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#reconnectAttempts" >reconnectAttempts</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#reconnectTimer" >reconnectTimer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#stats" >stats</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#unregisterWebSocket" >unregisterWebSocket</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#ws" >ws</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#buildWebSocketUrl" >buildWebSocketUrl</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#cleanup" >cleanup</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#connect" >connect</a>
+                            </li>
+                            <li>
+                                <a href="#disconnect" >disconnect</a>
+                            </li>
+                            <li>
+                                <a href="#getConnectionState" >getConnectionState</a>
+                            </li>
+                            <li>
+                                <a href="#getServiceStatus" >getServiceStatus</a>
+                            </li>
+                            <li>
+                                <a href="#getStats" >getStats</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#initialize" >initialize</a>
+                            </li>
+                            <li>
+                                <a href="#isHealthy" >isHealthy</a>
+                            </li>
+                            <li>
+                                <a href="#on" >on</a>
+                            </li>
+                            <li>
+                                <a href="#onMessage" >onMessage</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#processMessageQueue" >processMessageQueue</a>
+                            </li>
+                            <li>
+                                <a href="#reconnect" >reconnect</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#scheduleReconnect" >scheduleReconnect</a>
+                            </li>
+                            <li>
+                                <a href="#sendMessage" >sendMessage</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#sendMessageImmediately" >sendMessageImmediately</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#setupWebSocketHandlers" >setupWebSocketHandlers</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#startPingTimer" >startPingTimer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#updateConnectionState" >updateConnectionState</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(config: <a href="../interfaces/WebSocketConfig.html" target="_self">WebSocketConfig</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:56</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>config</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../interfaces/WebSocketConfig.html" target="_self" >WebSocketConfig</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="config"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>config</b></span>
+                        <a href="#config"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Required&lt;WebSocketConfig&gt;</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:46</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="connectionState"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>connectionState</b></span>
+                        <a href="#connectionState"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#ConnectionState" target="_self" >ConnectionState</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;disconnected&#x27;</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:49</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="connectionTimeout"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>connectionTimeout</b></span>
+                        <a href="#connectionTimeout"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>NodeJS.Timeout | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:55</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="eventEmitter"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>eventEmitter</b></span>
+                        <a href="#eventEmitter"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../classes/EventEmitter.html" target="_self" >EventEmitter</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:51</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isIntentionallyClosed"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>isIntentionallyClosed</b></span>
+                        <a href="#isIntentionallyClosed"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:50</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="messageQueue"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>messageQueue</b></span>
+                        <a href="#messageQueue"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>WebSocketMessage[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:52</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="pingTimer"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>pingTimer</b></span>
+                        <a href="#pingTimer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>NodeJS.Timeout | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:54</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="reconnectAttempts"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>reconnectAttempts</b></span>
+                        <a href="#reconnectAttempts"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>0</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:47</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="reconnectTimer"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>reconnectTimer</b></span>
+                        <a href="#reconnectTimer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>NodeJS.Timeout | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:48</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="stats"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>stats</b></span>
+                        <a href="#stats"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/ConnectionStats.html" target="_self" >ConnectionStats</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:53</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="unregisterWebSocket"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>unregisterWebSocket</b></span>
+                        <a href="#unregisterWebSocket"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code> | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:56</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ws"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>ws</b></span>
+                        <a href="#ws"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>WebSocket | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:45</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="buildWebSocketUrl"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>buildWebSocketUrl</b></span>
+                        <a href="#buildWebSocketUrl"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>buildWebSocketUrl()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="123"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:123</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Build WebSocket URL based on API base URL</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cleanup"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>cleanup</b></span>
+                        <a href="#cleanup"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>cleanup()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="447"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:447</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Managed cleanup implementation</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="connect"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>connect</b></span>
+                        <a href="#connect"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>connect()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="135"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:135</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Connect to WebSocket with enterprise features</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="disconnect"></a>
+                    <span class="name">
+                        <span ><b>disconnect</b></span>
+                        <a href="#disconnect"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>disconnect()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="434"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:434</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Disconnect gracefully</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getConnectionState"></a>
+                    <span class="name">
+                        <span ><b>getConnectionState</b></span>
+                        <a href="#getConnectionState"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getConnectionState()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="501"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:501</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get current connection state</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#ConnectionState" target="_self" >ConnectionState</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getServiceStatus"></a>
+                    <span class="name">
+                        <span ><b>getServiceStatus</b></span>
+                        <a href="#getServiceStatus"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getServiceStatus()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="521"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:521</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get service status for monitoring</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>literal type</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getStats"></a>
+                    <span class="name">
+                        <span ><b>getStats</b></span>
+                        <a href="#getStats"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getStats()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="488"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:488</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get connection statistics</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/ConnectionStats.html" target="_self" >ConnectionStats</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="initialize"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>initialize</b></span>
+                        <a href="#initialize"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>initialize()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:83</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isHealthy"></a>
+                    <span class="name">
+                        <span ><b>isHealthy</b></span>
+                        <a href="#isHealthy"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>isHealthy()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="478"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:478</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Health check implementation</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="on"></a>
+                    <span class="name">
+                        <span ><b>on</b></span>
+                        <a href="#on"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>on(event: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, callback: (args: any[]) => void)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="366"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:366</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Subscribe to events</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>callback</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onMessage"></a>
+                    <span class="name">
+                        <span ><b>onMessage</b></span>
+                        <a href="#onMessage"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onMessage(messageType: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, callback: (payload: T) => void)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="379"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:379</a></div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Type parameters :</b>
+                            <ul class="type-parameters">
+                                    <li>T</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Subscribe to specific message types</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>messageType</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>callback</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="processMessageQueue"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>processMessageQueue</b></span>
+                        <a href="#processMessageQueue"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>processMessageQueue()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="302"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:302</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Process queued messages</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="reconnect"></a>
+                    <span class="name">
+                        <span ><b>reconnect</b></span>
+                        <a href="#reconnect"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>reconnect()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="508"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:508</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Force reconnect</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="scheduleReconnect"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>scheduleReconnect</b></span>
+                        <a href="#scheduleReconnect"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>scheduleReconnect()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="389"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:389</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Schedule reconnection with exponential backoff</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sendMessage"></a>
+                    <span class="name">
+                        <span ><b>sendMessage</b></span>
+                        <a href="#sendMessage"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>sendMessage(message: WebSocketMessage<T>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="342"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:342</a></div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Type parameters :</b>
+                            <ul class="type-parameters">
+                                    <li>T</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Send message with queueing</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>message</td>
+                                            <td>
+                                                        <code>WebSocketMessage&lt;T&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sendMessageImmediately"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>sendMessageImmediately</b></span>
+                        <a href="#sendMessageImmediately"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>sendMessageImmediately(message: <a href="../interfaces/WebSocketMessage.html" target="_self">WebSocketMessage</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="314"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:314</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Send message immediately</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>message</td>
+                                            <td>
+                                                            <code><a href="../interfaces/WebSocketMessage.html" target="_self" >WebSocketMessage</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setupWebSocketHandlers"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>setupWebSocketHandlers</b></span>
+                        <a href="#setupWebSocketHandlers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>setupWebSocketHandlers()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="185"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:185</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Setup WebSocket event handlers</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="startPingTimer"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>startPingTimer</b></span>
+                        <a href="#startPingTimer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>startPingTimer()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="281"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:281</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Start ping timer to keep connection alive</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateConnectionState"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>updateConnectionState</b></span>
+                        <a href="#updateConnectionState"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateConnectionState(state: <a href="../undefineds/ConnectionState.html" target="_self">ConnectionState</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="418"
+                                    class="link-to-prism">client/src/services/websocket/EnterpriseWebSocketService.ts:418</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update connection state and emit events</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>state</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#ConnectionState" target="_self" >ConnectionState</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+
+
+
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { EventEmitter } from &#x27;@/services/utils/EventEmitter&#x27;;
+import { getCurrentRestaurantId } from &#x27;@/services/http/httpClient&#x27;;
+import { toCamelCase, toSnakeCase } from &#x27;@/services/utils/caseTransform&#x27;;
+import { env } from &#x27;@/utils/env&#x27;;
+// import { ManagedService, CleanupManager, MemoryMonitor } from &#x27;@rebuild/shared&#x27;;
+
+export interface WebSocketConfig {
+  url?: string;
+  reconnectInterval?: number;
+  maxReconnectAttempts?: number;
+  connectionTimeout?: number;
+  pingInterval?: number;
+  maxMessageQueueSize?: number;
+}
+
+export interface WebSocketMessage&lt;T &#x3D; unknown&gt; {
+  type: string;
+  payload: T;
+  timestamp: string;
+  restaurantId?: string;
+}
+
+export type ConnectionState &#x3D; &#x27;connecting&#x27; | &#x27;connected&#x27; | &#x27;disconnected&#x27; | &#x27;error&#x27; | &#x27;terminated&#x27;;
+
+export interface ConnectionStats {
+  totalConnections: number;
+  reconnectAttempts: number;
+  messagesSent: number;
+  messagesReceived: number;
+  lastError?: string;
+  uptime: number;
+  connectionStartTime: number;
+}
+
+/**
+ * Enterprise WebSocket Service with managed lifecycle
+ */
+export class EnterpriseWebSocketService {
+  private ws: WebSocket | null &#x3D; null;
+  private config: Required&lt;WebSocketConfig&gt;;
+  private reconnectAttempts &#x3D; 0;
+  private reconnectTimer: NodeJS.Timeout | null &#x3D; null;
+  private connectionState: ConnectionState &#x3D; &#x27;disconnected&#x27;;
+  private isIntentionallyClosed &#x3D; false;
+  private eventEmitter: EventEmitter;
+  private messageQueue: WebSocketMessage[] &#x3D; [];
+  private stats: ConnectionStats;
+  private pingTimer: NodeJS.Timeout | null &#x3D; null;
+  private connectionTimeout: NodeJS.Timeout | null &#x3D; null;
+  private unregisterWebSocket: (() &#x3D;&gt; void) | null &#x3D; null;
+  
+  constructor(config: WebSocketConfig &#x3D; {}) {
+    super(&#x27;EnterpriseWebSocketService&#x27;);
+    
+    this.eventEmitter &#x3D; new EventEmitter();
+    
+    // Set default configuration
+    this.config &#x3D; {
+      url: config.url || this.buildWebSocketUrl(),
+      reconnectInterval: config.reconnectInterval || 5000,
+      maxReconnectAttempts: config.maxReconnectAttempts || 10,
+      connectionTimeout: config.connectionTimeout || 15000,
+      pingInterval: config.pingInterval || 30000,
+      maxMessageQueueSize: config.maxMessageQueueSize || 100
+    };
+    
+    this.stats &#x3D; {
+      totalConnections: 0,
+      reconnectAttempts: 0,
+      messagesSent: 0,
+      messagesReceived: 0,
+      uptime: 0,
+      connectionStartTime: 0
+    };
+  }
+
+  async initialize(): Promise&lt;void&gt; {
+    if (this.status !&#x3D;&#x3D; &#x27;uninitialized&#x27;) {
+      return;
+    }
+    
+    this.status &#x3D; &#x27;initializing&#x27;;
+    
+    // Setup cleanup for timers
+    this.registerCleanup(() &#x3D;&gt; {
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer &#x3D; null;
+      }
+      if (this.pingTimer) {
+        clearInterval(this.pingTimer);
+        this.pingTimer &#x3D; null;
+      }
+      if (this.connectionTimeout) {
+        clearTimeout(this.connectionTimeout);
+        this.connectionTimeout &#x3D; null;
+      }
+    });
+    
+    // Setup cleanup for event emitter
+    this.registerCleanup(() &#x3D;&gt; {
+      this.eventEmitter.removeAllListeners();
+    });
+    
+    // Setup cleanup for message queue
+    this.registerCleanup(() &#x3D;&gt; {
+      this.messageQueue &#x3D; [];
+    });
+    
+    this.status &#x3D; &#x27;ready&#x27;;
+    console.log(&#x27;EnterpriseWebSocketService initialized&#x27;);
+  }
+
+  /**
+   * Build WebSocket URL based on API base URL
+   */
+  private buildWebSocketUrl(): string {
+    const protocol &#x3D; window.location.protocol &#x3D;&#x3D;&#x3D; &#x27;https:&#x27; ? &#x27;wss:&#x27; : &#x27;ws:&#x27;;
+    const host &#x3D; env.API_BASE_URL ? 
+      env.API_BASE_URL.replace(/^https?:\/\//, &#x27;&#x27;) : 
+      window.location.host;
+    
+    return &#x60;${protocol}//${host}&#x60;;
+  }
+
+  /**
+   * Connect to WebSocket with enterprise features
+   */
+  async connect(): Promise&lt;void&gt; {
+    if (this.ws?.readyState &#x3D;&#x3D;&#x3D; WebSocket.OPEN || 
+        this.ws?.readyState &#x3D;&#x3D;&#x3D; WebSocket.CONNECTING) {
+      return;
+    }
+
+    if (this.status !&#x3D;&#x3D; &#x27;ready&#x27;) {
+      throw new Error(&#x27;Service not initialized&#x27;);
+    }
+
+    this.updateConnectionState(&#x27;connecting&#x27;);
+    this.isIntentionallyClosed &#x3D; false;
+    
+    try {
+      this.ws &#x3D; new WebSocket(this.config.url);
+      this.stats.totalConnections++;
+      this.stats.connectionStartTime &#x3D; Date.now();
+      
+      // Register WebSocket for automatic cleanup
+      if (this.unregisterWebSocket) {
+        this.unregisterWebSocket();
+      }
+      this.unregisterWebSocket &#x3D; this.registerWebSocket(&#x27;primary&#x27;, this.ws, {
+        timeout: this.config.connectionTimeout
+      });
+      
+      // Set connection timeout
+      this.connectionTimeout &#x3D; setTimeout(() &#x3D;&gt; {
+        if (this.ws?.readyState &#x3D;&#x3D;&#x3D; WebSocket.CONNECTING) {
+          console.error(&#x27;WebSocket connection timeout&#x27;);
+          this.ws.close();
+          this.updateConnectionState(&#x27;error&#x27;);
+        }
+      }, this.config.connectionTimeout);
+      
+      this.registerInterval(&#x27;connection-timeout&#x27;, this.connectionTimeout);
+      
+      this.setupWebSocketHandlers();
+      
+    } catch (error) {
+      console.error(&#x27;Failed to create WebSocket connection:&#x27;, error);
+      this.stats.lastError &#x3D; error instanceof Error ? error.message : &#x27;Unknown error&#x27;;
+      this.updateConnectionState(&#x27;error&#x27;);
+      this.scheduleReconnect();
+    }
+  }
+
+  /**
+   * Setup WebSocket event handlers
+   */
+  private setupWebSocketHandlers(): void {
+    if (!this.ws) return;
+
+    this.ws.onopen &#x3D; () &#x3D;&gt; {
+      console.log(&#x27;WebSocket connected successfully&#x27;);
+      
+      // Clear connection timeout
+      if (this.connectionTimeout) {
+        clearTimeout(this.connectionTimeout);
+        this.connectionTimeout &#x3D; null;
+      }
+      
+      this.updateConnectionState(&#x27;connected&#x27;);
+      this.reconnectAttempts &#x3D; 0;
+      this.stats.reconnectAttempts &#x3D; 0;
+      
+      // Start ping timer
+      this.startPingTimer();
+      
+      // Process queued messages
+      this.processMessageQueue();
+      
+      this.eventEmitter.emit(&#x27;connected&#x27;);
+    };
+
+    this.ws.onmessage &#x3D; (event) &#x3D;&gt; {
+      this.stats.messagesReceived++;
+      
+      try {
+        const message: WebSocketMessage &#x3D; JSON.parse(event.data);
+        
+        // Handle pong responses
+        if (message.type &#x3D;&#x3D;&#x3D; &#x27;pong&#x27;) {
+          return;
+        }
+        
+        // Transform snake_case to camelCase for client consumption
+        const transformedPayload &#x3D; toCamelCase(message.payload);
+        
+        this.eventEmitter.emit(&#x27;message&#x27;, {
+          ...message,
+          payload: transformedPayload
+        });
+        
+        // Emit specific message type events
+        this.eventEmitter.emit(&#x60;message:${message.type}&#x60;, transformedPayload);
+        
+      } catch (error) {
+        console.error(&#x27;Failed to parse WebSocket message:&#x27;, error);
+        this.eventEmitter.emit(&#x27;error&#x27;, { 
+          type: &#x27;parse_error&#x27;, 
+          error,
+          rawData: event.data 
+        });
+      }
+    };
+
+    this.ws.onerror &#x3D; (error) &#x3D;&gt; {
+      console.error(&#x27;WebSocket error:&#x27;, error);
+      this.stats.lastError &#x3D; &#x27;WebSocket error occurred&#x27;;
+      this.updateConnectionState(&#x27;error&#x27;);
+      this.eventEmitter.emit(&#x27;error&#x27;, { type: &#x27;connection_error&#x27;, error });
+    };
+
+    this.ws.onclose &#x3D; (event) &#x3D;&gt; {
+      console.log(&#x27;WebSocket disconnected:&#x27;, event.code, event.reason);
+      
+      // Update uptime
+      if (this.stats.connectionStartTime &gt; 0) {
+        this.stats.uptime +&#x3D; Date.now() - this.stats.connectionStartTime;
+      }
+      
+      // Clear timers
+      if (this.pingTimer) {
+        clearInterval(this.pingTimer);
+        this.pingTimer &#x3D; null;
+      }
+      
+      if (this.connectionTimeout) {
+        clearTimeout(this.connectionTimeout);
+        this.connectionTimeout &#x3D; null;
+      }
+      
+      this.updateConnectionState(&#x27;disconnected&#x27;);
+      this.eventEmitter.emit(&#x27;disconnected&#x27;, { code: event.code, reason: event.reason });
+      
+      // Schedule reconnect if not intentionally closed
+      if (!this.isIntentionallyClosed &amp;&amp; this.status &#x3D;&#x3D;&#x3D; &#x27;ready&#x27;) {
+        this.scheduleReconnect();
+      }
+    };
+  }
+
+  /**
+   * Start ping timer to keep connection alive
+   */
+  private startPingTimer(): void {
+    if (this.pingTimer) {
+      clearInterval(this.pingTimer);
+    }
+    
+    this.pingTimer &#x3D; setInterval(() &#x3D;&gt; {
+      if (this.ws?.readyState &#x3D;&#x3D;&#x3D; WebSocket.OPEN) {
+        this.sendMessage({
+          type: &#x27;ping&#x27;,
+          payload: { timestamp: new Date().toISOString() },
+          timestamp: new Date().toISOString()
+        });
+      }
+    }, this.config.pingInterval);
+    
+    this.registerInterval(&#x27;ping&#x27;, this.pingTimer);
+  }
+
+  /**
+   * Process queued messages
+   */
+  private processMessageQueue(): void {
+    while (this.messageQueue.length &gt; 0 &amp;&amp; this.ws?.readyState &#x3D;&#x3D;&#x3D; WebSocket.OPEN) {
+      const message &#x3D; this.messageQueue.shift();
+      if (message) {
+        this.sendMessageImmediately(message);
+      }
+    }
+  }
+
+  /**
+   * Send message immediately
+   */
+  private sendMessageImmediately(message: WebSocketMessage): boolean {
+    if (!this.ws || this.ws.readyState !&#x3D;&#x3D; WebSocket.OPEN) {
+      return false;
+    }
+
+    try {
+      // Transform camelCase to snake_case for server
+      const transformedPayload &#x3D; toSnakeCase(message.payload);
+      const serverMessage &#x3D; {
+        ...message,
+        payload: transformedPayload,
+        restaurant_id: message.restaurantId || getCurrentRestaurantId()
+      };
+
+      this.ws.send(JSON.stringify(serverMessage));
+      this.stats.messagesSent++;
+      return true;
+      
+    } catch (error) {
+      console.error(&#x27;Failed to send WebSocket message:&#x27;, error);
+      this.eventEmitter.emit(&#x27;error&#x27;, { type: &#x27;send_error&#x27;, error, message });
+      return false;
+    }
+  }
+
+  /**
+   * Send message with queueing
+   */
+  sendMessage&lt;T &#x3D; unknown&gt;(message: WebSocketMessage&lt;T&gt;): boolean {
+    // Add restaurant ID if not present
+    if (!message.restaurantId) {
+      message.restaurantId &#x3D; getCurrentRestaurantId();
+    }
+
+    // If connected, send immediately
+    if (this.ws?.readyState &#x3D;&#x3D;&#x3D; WebSocket.OPEN) {
+      return this.sendMessageImmediately(message);
+    }
+
+    // Otherwise, queue the message
+    if (this.messageQueue.length &gt;&#x3D; this.config.maxMessageQueueSize) {
+      console.warn(&#x27;Message queue is full, dropping oldest message&#x27;);
+      this.messageQueue.shift();
+    }
+
+    this.messageQueue.push(message);
+    return true;
+  }
+
+  /**
+   * Subscribe to events
+   */
+  on(event: string, callback: (...args: any[]) &#x3D;&gt; void): () &#x3D;&gt; void {
+    this.eventEmitter.on(event, callback);
+    
+    // Return unsubscribe function and register for cleanup
+    const unsubscribe &#x3D; () &#x3D;&gt; this.eventEmitter.off(event, callback);
+    this.registerSubscription(&#x60;event-${event}-${Date.now()}&#x60;, unsubscribe);
+    
+    return unsubscribe;
+  }
+
+  /**
+   * Subscribe to specific message types
+   */
+  onMessage&lt;T &#x3D; unknown&gt;(
+    messageType: string, 
+    callback: (payload: T) &#x3D;&gt; void
+  ): () &#x3D;&gt; void {
+    return this.on(&#x60;message:${messageType}&#x60;, callback);
+  }
+
+  /**
+   * Schedule reconnection with exponential backoff
+   */
+  private scheduleReconnect(): void {
+    if (this.reconnectAttempts &gt;&#x3D; this.config.maxReconnectAttempts) {
+      console.error(&#x27;Max reconnection attempts reached&#x27;);
+      this.updateConnectionState(&#x27;terminated&#x27;);
+      this.eventEmitter.emit(&#x27;terminated&#x27;);
+      return;
+    }
+
+    const delay &#x3D; Math.min(
+      this.config.reconnectInterval * Math.pow(2, this.reconnectAttempts),
+      30000 // Max 30 seconds
+    );
+
+    console.log(&#x60;Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts + 1})&#x60;);
+    
+    this.reconnectTimer &#x3D; setTimeout(() &#x3D;&gt; {
+      this.reconnectAttempts++;
+      this.stats.reconnectAttempts++;
+      this.connect().catch(error &#x3D;&gt; {
+        console.error(&#x27;Reconnection failed:&#x27;, error);
+      });
+    }, delay);
+    
+    this.registerInterval(&#x27;reconnect&#x27;, this.reconnectTimer);
+  }
+
+  /**
+   * Update connection state and emit events
+   */
+  private updateConnectionState(state: ConnectionState): void {
+    if (this.connectionState !&#x3D;&#x3D; state) {
+      const previousState &#x3D; this.connectionState;
+      this.connectionState &#x3D; state;
+      
+      this.eventEmitter.emit(&#x27;stateChange&#x27;, { 
+        from: previousState, 
+        to: state,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  /**
+   * Disconnect gracefully
+   */
+  disconnect(): void {
+    console.log(&#x27;EnterpriseWebSocketService: Starting graceful disconnect...&#x27;);
+    this.isIntentionallyClosed &#x3D; true;
+    
+    // Trigger managed cleanup
+    this.cleanup().catch(error &#x3D;&gt; {
+      console.error(&#x27;EnterpriseWebSocketService cleanup failed:&#x27;, error);
+    });
+  }
+
+  /**
+   * Managed cleanup implementation
+   */
+  async cleanup(): Promise&lt;void&gt; {
+    console.log(&#x27;EnterpriseWebSocketService: Performing managed cleanup...&#x27;);
+    
+    this.isIntentionallyClosed &#x3D; true;
+    
+    // Clear message queue
+    this.messageQueue &#x3D; [];
+    
+    // Cleanup WebSocket properly
+    if (this.unregisterWebSocket) {
+      this.unregisterWebSocket();
+      this.unregisterWebSocket &#x3D; null;
+    }
+    
+    // Close WebSocket if still open
+    if (this.ws?.readyState &#x3D;&#x3D;&#x3D; WebSocket.OPEN) {
+      this.ws.close(1000, &#x27;Service cleanup&#x27;);
+    }
+    this.ws &#x3D; null;
+    
+    this.updateConnectionState(&#x27;disconnected&#x27;);
+    
+    // Call parent cleanup
+    await super.cleanup();
+    
+    console.log(&#x27;EnterpriseWebSocketService: Cleanup completed&#x27;);
+  }
+
+  /**
+   * Health check implementation
+   */
+  isHealthy(): boolean {
+    return super.isHealthy() &amp;&amp; 
+           this.connectionState &#x3D;&#x3D;&#x3D; &#x27;connected&#x27; &amp;&amp; 
+           this.messageQueue.length &lt; this.config.maxMessageQueueSize &amp;&amp; 
+           this.reconnectAttempts &lt; this.config.maxReconnectAttempts;
+  }
+
+  /**
+   * Get connection statistics
+   */
+  getStats(): ConnectionStats {
+    // Update current uptime
+    if (this.connectionState &#x3D;&#x3D;&#x3D; &#x27;connected&#x27; &amp;&amp; this.stats.connectionStartTime &gt; 0) {
+      this.stats.uptime +&#x3D; Date.now() - this.stats.connectionStartTime;
+      this.stats.connectionStartTime &#x3D; Date.now();
+    }
+    
+    return { ...this.stats };
+  }
+
+  /**
+   * Get current connection state
+   */
+  getConnectionState(): ConnectionState {
+    return this.connectionState;
+  }
+
+  /**
+   * Force reconnect
+   */
+  reconnect(): void {
+    if (this.ws) {
+      this.ws.close();
+    }
+    this.reconnectAttempts &#x3D; 0;
+    this.connect().catch(error &#x3D;&gt; {
+      console.error(&#x27;Manual reconnection failed:&#x27;, error);
+    });
+  }
+
+  /**
+   * Get service status for monitoring
+   */
+  getServiceStatus(): {
+    status: string;
+    connectionState: ConnectionState;
+    stats: ConnectionStats;
+    config: Required&lt;WebSocketConfig&gt;;
+    queueSize: number;
+    healthy: boolean;
+  } {
+    return {
+      status: this.getStatus(),
+      connectionState: this.connectionState,
+      stats: this.getStats(),
+      config: this.config,
+      queueSize: this.messageQueue.length,
+      healthy: this.isHealthy()
+    };
+  }
+}</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'EnterpriseWebSocketService.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

@@ -1,0 +1,562 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  DashboardCardProps</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/pages/Dashboard.tsx</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#delay" 
+>
+                                            delay
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#href" 
+>
+                                            href
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#icon" 
+>
+                                            icon
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#iconBg" 
+>
+                                            iconBg
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#title" 
+>
+                                            title
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="delay"></a>
+                                        <span class="name "><b>delay</b>
+                                            <a href="#delay">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>delay:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="href"></a>
+                                        <span class="name "><b>href</b>
+                                            <a href="#href">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>href:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="icon"></a>
+                                        <span class="name "><b>icon</b>
+                                            <a href="#icon">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>icon:     <code>React.ReactNode</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>React.ReactNode</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="iconBg"></a>
+                                        <span class="name "><b>iconBg</b>
+                                            <a href="#iconBg">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>iconBg:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="title"></a>
+                                        <span class="name "><b>title</b>
+                                            <a href="#title">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>title:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import React from &#x27;react&#x27;
+import { Link } from &#x27;react-router-dom&#x27;
+import { motion } from &#x27;framer-motion&#x27;
+import { ShoppingCart, Package, Utensils, BarChart3, Users, Settings } from &#x27;lucide-react&#x27;
+import { Card } from &#x27;@/components/ui/card&#x27;
+import { PageTitle, SectionTitle, Body } from &#x27;@/components/ui/Typography&#x27;
+import { spacing } from &#x27;@/lib/typography&#x27;
+
+interface DashboardCardProps {
+  title: string
+  icon: React.ReactNode
+  iconBg: string
+  href: string
+  delay?: number
+}
+
+function DashboardCard({ 
+  title, 
+  icon, 
+  iconBg, 
+  href, 
+  delay &#x3D; 0 
+}: DashboardCardProps) {
+  return (
+    &lt;motion.div
+      initial&#x3D;{{ opacity: 0, y: 20 }}
+      animate&#x3D;{{ opacity: 1, y: 0 }}
+      transition&#x3D;{{ delay: delay * 0.1, duration: 0.5, ease: &#x27;easeOut&#x27; }}
+    &gt;
+      &lt;Link to&#x3D;{href}&gt;
+        &lt;Card className&#x3D;{&#x60;${spacing.component.card} h-full min-h-[250px] group cursor-pointer hover:shadow-elevation-3 transition-all duration-300&#x60;}&gt;
+          &lt;div className&#x3D;{&#x60;flex flex-col items-center justify-center h-full ${spacing.content.stackLarge}&#x60;}&gt;
+            &lt;div
+              className&#x3D;{&#x60;p-4 rounded-xl transition-transform duration-300 group-hover:scale-110 ${iconBg}&#x60;}
+            &gt;
+              {icon}
+            &lt;/div&gt;
+            &lt;SectionTitle as&#x3D;&quot;h2&quot;&gt;
+              {title}
+            &lt;/SectionTitle&gt;
+          &lt;/div&gt;
+        &lt;/Card&gt;
+      &lt;/Link&gt;
+    &lt;/motion.div&gt;
+  )
+}
+
+export function Dashboard() {
+  return (
+    &lt;div className&#x3D;&quot;min-h-screen bg-macon-background&quot;&gt;
+      &lt;div className&#x3D;&quot;relative overflow-hidden py-20&quot;&gt;
+        &lt;div className&#x3D;{&#x60;relative ${spacing.page.container} ${spacing.page.padding}&#x60;}&gt;
+          &lt;div className&#x3D;{&#x60;flex flex-col items-center ${spacing.content.stackLarge}&#x60;}&gt;
+            &lt;motion.div
+              initial&#x3D;{{ opacity: 0, y: -20 }}
+              animate&#x3D;{{ opacity: 1, y: 0 }}
+              transition&#x3D;{{ duration: 0.5 }}
+              className&#x3D;&quot;text-center space-y-2&quot;
+            &gt;
+              &lt;PageTitle&gt;
+                Restaurant Command Center
+              &lt;/PageTitle&gt;
+              &lt;Body className&#x3D;&quot;text-neutral-600&quot;&gt;
+                Select a module to manage your operations
+              &lt;/Body&gt;
+            &lt;/motion.div&gt;
+            
+            &lt;div className&#x3D;{&#x60;grid md:grid-cols-3 ${spacing.grid.gapLarge} w-full max-w-5xl&#x60;}&gt;
+              &lt;DashboardCard
+                title&#x3D;&quot;Orders&quot;
+                icon&#x3D;{&lt;ShoppingCart className&#x3D;&quot;h-12 w-12 text-secondary&quot; /&gt;}
+                iconBg&#x3D;&quot;bg-secondary/10&quot;
+                href&#x3D;&quot;/history&quot;
+                delay&#x3D;{0}
+              /&gt;
+              
+              &lt;DashboardCard
+                title&#x3D;&quot;Expo&quot;
+                icon&#x3D;{&lt;Package className&#x3D;&quot;h-12 w-12 text-accent&quot; /&gt;}
+                iconBg&#x3D;&quot;bg-accent/10&quot;
+                href&#x3D;&quot;/expo&quot;
+                delay&#x3D;{1}
+              /&gt;
+              
+              &lt;DashboardCard
+                title&#x3D;&quot;Kitchen&quot;
+                icon&#x3D;{&lt;Utensils className&#x3D;&quot;h-12 w-12 text-primary&quot; /&gt;}
+                iconBg&#x3D;&quot;bg-primary/10&quot;
+                href&#x3D;&quot;/kitchen&quot;
+                delay&#x3D;{2}
+              /&gt;
+              
+              &lt;DashboardCard
+                title&#x3D;&quot;Analytics&quot;
+                icon&#x3D;{&lt;BarChart3 className&#x3D;&quot;h-12 w-12 text-emerald-500&quot; /&gt;}
+                iconBg&#x3D;&quot;bg-emerald-500/10&quot;
+                href&#x3D;&quot;/analytics&quot;
+                delay&#x3D;{3}
+              /&gt;
+              
+              &lt;DashboardCard
+                title&#x3D;&quot;Staff&quot;
+                icon&#x3D;{&lt;Users className&#x3D;&quot;h-12 w-12 text-blue-500&quot; /&gt;}
+                iconBg&#x3D;&quot;bg-blue-500/10&quot;
+                href&#x3D;&quot;/staff&quot;
+                delay&#x3D;{4}
+              /&gt;
+              
+              &lt;DashboardCard
+                title&#x3D;&quot;Settings&quot;
+                icon&#x3D;{&lt;Settings className&#x3D;&quot;h-12 w-12 text-gray-500&quot; /&gt;}
+                iconBg&#x3D;&quot;bg-gray-500/10&quot;
+                href&#x3D;&quot;/settings&quot;
+                delay&#x3D;{5}
+              /&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'DashboardCardProps.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

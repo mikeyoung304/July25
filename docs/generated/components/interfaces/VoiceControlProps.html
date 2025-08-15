@@ -1,0 +1,742 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  VoiceControlProps</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/modules/voice/components/VoiceControl.tsx</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#isFirstPress" 
+>
+                                            isFirstPress
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#onAudioData" 
+>
+                                            onAudioData
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#onFirstPress" 
+>
+                                            onFirstPress
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#onTranscript" 
+>
+                                            onTranscript
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="isFirstPress"></a>
+                                        <span class="name "><b>isFirstPress</b>
+                                            <a href="#isFirstPress">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>isFirstPress:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onAudioData"></a>
+                                        <span class="name "><b>onAudioData</b>
+                                            <a href="#onAudioData">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onAudioData:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onFirstPress"></a>
+                                        <span class="name "><b>onFirstPress</b>
+                                            <a href="#onFirstPress">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onFirstPress:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onTranscript"></a>
+                                        <span class="name "><b>onTranscript</b>
+                                            <a href="#onTranscript">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onTranscript:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import React, { useState, useRef, useCallback, useEffect } from &#x27;react&#x27;;
+import { cn } from &#x27;@/utils&#x27;;
+import { useToast } from &#x27;@/hooks/useToast&#x27;;
+import { useRestaurant } from &#x27;@/core/restaurant-hooks&#x27;;
+import { HoldToRecordButton } from &#x27;./HoldToRecordButton&#x27;;
+import { useVoiceSocket, VoiceSocketMessage } from &#x27;../hooks/useVoiceSocket&#x27;;
+
+// Helper to resolve absolute API URLs for production (Vercel)
+const API_BASE &#x3D; (import.meta.env.VITE_API_BASE_URL || &#x27;&#x27;).replace(/\/$/, &#x27;&#x27;);
+const url &#x3D; (path: string) &#x3D;&gt; &#x60;${API_BASE}${path.startsWith(&#x27;/&#x27;) ? &#x27;&#x27; : &#x27;/&#x27;}${path}&#x60;;
+
+interface VoiceControlProps {
+  onTranscript?: (text: string, isFinal: boolean) &#x3D;&gt; void;
+  onAudioData?: (audioData: Blob) &#x3D;&gt; void;
+  isFirstPress?: boolean;
+  onFirstPress?: () &#x3D;&gt; void;
+}
+
+type PermissionState &#x3D; &#x27;granted&#x27; | &#x27;denied&#x27; | &#x27;prompt&#x27;;
+
+const VoiceControl: React.FC&lt;VoiceControlProps&gt; &#x3D; ({
+  onTranscript,
+  onAudioData,
+  isFirstPress &#x3D; true,
+  onFirstPress,
+}) &#x3D;&gt; {
+  const [isListening, setIsListening] &#x3D; useState(false);
+  const [isProcessing, setIsProcessing] &#x3D; useState(false);
+  const [permissionState, setPermissionState] &#x3D; useState&lt;PermissionState&gt;(&#x27;prompt&#x27;);
+  const mediaRecorderRef &#x3D; useRef&lt;MediaRecorder | null&gt;(null);
+  const audioChunksRef &#x3D; useRef&lt;Blob[]&gt;([]);
+  const streamRef &#x3D; useRef&lt;MediaStream | null&gt;(null);
+  const { toast } &#x3D; useToast();
+  const { restaurant } &#x3D; useRestaurant();
+  
+  // Check microphone permission status
+  useEffect(() &#x3D;&gt; {
+    let mounted &#x3D; true;
+    
+    const checkPermission &#x3D; async () &#x3D;&gt; {
+      try {
+        const permissionStatus &#x3D; await navigator.permissions.query({ name: &#x27;microphone&#x27; as PermissionName });
+        if (mounted) {
+          setPermissionState(permissionStatus.state as PermissionState);
+        }
+        
+        // Listen for permission changes
+        const handleChange &#x3D; () &#x3D;&gt; {
+          if (mounted) {
+            setPermissionState(permissionStatus.state as PermissionState);
+          }
+        };
+        
+        permissionStatus.addEventListener(&#x27;change&#x27;, handleChange);
+        
+        return () &#x3D;&gt; {
+          permissionStatus.removeEventListener(&#x27;change&#x27;, handleChange);
+        };
+      } catch (error) {
+        // Fallback for browsers that don&#x27;t support permissions API
+        console.warn(&#x27;Permissions API not supported, will check on user interaction&#x27;, error);
+      }
+    };
+    
+    checkPermission();
+    
+    return () &#x3D;&gt; {
+      mounted &#x3D; false;
+    };
+  }, []);
+  
+  // Handle transcription result by creating an order
+  const handleTranscript &#x3D; useCallback(async (text: string) &#x3D;&gt; {
+    try {
+      // Step 1: Parse the order
+      const parseResponse &#x3D; await fetch(url(&#x27;/api/v1/ai/parse-order&#x27;), {
+        method: &#x27;POST&#x27;,
+        headers: {
+          &#x27;Content-Type&#x27;: &#x27;application/json&#x27;,
+        },
+        body: JSON.stringify({ text, restaurant_id: restaurant?.id }),
+      });
+
+      if (!parseResponse.ok) {
+        throw new Error(&#x27;Failed to parse order&#x27;);
+      }
+
+      const parsedOrder &#x3D; await parseResponse.json();
+
+      // Step 2: Create the order
+      const authHeaders2 &#x3D; await getAuthHeaders();
+      const orderResponse &#x3D; await fetch(url(&#x27;/api/v1/orders&#x27;), {
+        method: &#x27;POST&#x27;,
+        headers: authHeaders2,
+        body: JSON.stringify({
+          ...parsedOrder,
+          restaurant_id: restaurant?.id,
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        throw new Error(&#x27;Failed to create order&#x27;);
+      }
+
+      await orderResponse.json();
+      toast.success(&#x27;Order created!&#x27;);
+    } catch (error) {
+      console.error(&#x27;Error processing order:&#x27;, error);
+      toast.error(error instanceof Error ? error.message : &#x27;Failed to process order&#x27;);
+    }
+  }, [restaurant?.id, toast]);
+
+  // WebSocket connection with flow control
+  const { connectionStatus, send, sendJSON, isConnected } &#x3D; useVoiceSocket({
+    url: &#x27;ws://localhost:3001/voice-stream&#x27;,
+    maxUnacknowledgedChunks: 3,
+    reconnectDelay: 3000,
+    onMessage: useCallback((data: VoiceSocketMessage) &#x3D;&gt; {
+      switch (data.type) {
+        case &#x27;connected&#x27;:
+          console.warn(&#x27;Voice stream ready:&#x27;, data.message);
+          break;
+          
+        case &#x27;transcription&#x27;:
+          if (onTranscript) {
+            onTranscript(data.text, data.final);
+          }
+          setIsProcessing(false);
+          break;
+          
+        case &#x27;progress&#x27;:
+          console.warn(&#x60;Audio progress: ${data.bytesReceived} bytes&#x60;);
+          break;
+          
+        case &#x27;error&#x27;:
+          console.error(&#x27;Voice error:&#x27;, data.message);
+          if (data.message &#x3D;&#x3D;&#x3D; &#x27;overrun&#x27;) {
+            toast.error(&#x27;Audio buffer overflow - please speak more slowly&#x27;);
+          }
+          setIsProcessing(false);
+          break;
+          
+        case &#x27;transcription_result&#x27;:
+          if (data.text) {
+            if (onTranscript) {
+              onTranscript(data.text, true);
+            }
+            handleTranscript(data.text);
+          } else if (!data.success) {
+            console.error(&#x27;Transcription failed:&#x27;, data.error);
+          }
+          setIsProcessing(false);
+          break;
+      }
+    }, [onTranscript, handleTranscript, toast]),
+  });
+
+  const startRecording &#x3D; useCallback(async () &#x3D;&gt; {
+    try {
+      const stream &#x3D; await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 16000,  // Optimal for speech recognition
+          channelCount: 1,    // Mono audio is better for speech
+        } 
+      });
+      streamRef.current &#x3D; stream;
+      
+      const mediaRecorder &#x3D; new MediaRecorder(stream, {
+        mimeType: &#x27;audio/webm;codecs&#x3D;opus&#x27;,
+      });
+      
+      mediaRecorderRef.current &#x3D; mediaRecorder;
+      audioChunksRef.current &#x3D; [];
+      
+      // Send start recording message
+      sendJSON({ type: &#x27;start_recording&#x27; });
+      
+      mediaRecorder.ondataavailable &#x3D; (event) &#x3D;&gt; {
+        if (event.data.size &gt; 0) {
+          audioChunksRef.current.push(event.data);
+          
+          // Send audio chunks via WebSocket with flow control
+          const sent &#x3D; send(event.data);
+          if (!sent) {
+            console.warn(&#x27;Audio chunk dropped due to flow control&#x27;);
+          }
+        }
+      };
+      
+      mediaRecorder.onstop &#x3D; () &#x3D;&gt; {
+        const audioBlob &#x3D; new Blob(audioChunksRef.current, { type: &#x27;audio/webm&#x27; });
+        if (onAudioData) {
+          onAudioData(audioBlob);
+        }
+        
+        // Send stop recording message
+        sendJSON({ type: &#x27;stop_recording&#x27; });
+        setIsProcessing(true);
+        
+        // Clean up
+        stream.getTracks().forEach(track &#x3D;&gt; track.stop());
+        audioChunksRef.current &#x3D; [];
+      };
+      
+      mediaRecorder.start(100); // Send data every 100ms for streaming
+      setIsListening(true);
+      
+    } catch (error) {
+      console.error(&#x27;Error accessing microphone:&#x27;, error);
+      if (error instanceof DOMException &amp;&amp; error.name &#x3D;&#x3D;&#x3D; &#x27;NotAllowedError&#x27;) {
+        setPermissionState(&#x27;denied&#x27;);
+      }
+      alert(&#x27;Could not access microphone. Please check permissions.&#x27;);
+    }
+  }, [onAudioData, send, sendJSON]);
+
+  const stopRecording &#x3D; useCallback(() &#x3D;&gt; {
+    if (mediaRecorderRef.current &amp;&amp; mediaRecorderRef.current.state &#x3D;&#x3D;&#x3D; &#x27;recording&#x27;) {
+      mediaRecorderRef.current.stop();
+      setIsListening(false);
+    }
+  }, []);
+
+  const handleMouseDown &#x3D; useCallback(() &#x3D;&gt; {
+    if (isFirstPress &amp;&amp; onFirstPress) {
+      onFirstPress();
+    }
+    
+    // Check WebSocket connection before recording
+    if (!isConnected) {
+      console.warn(&#x27;WebSocket not connected. Current status:&#x27;, connectionStatus);
+      alert(&#x27;Voice service is not connected. Please wait a moment and try again.&#x27;);
+      return;
+    }
+    
+    startRecording();
+  }, [isFirstPress, onFirstPress, startRecording, isConnected, connectionStatus]);
+
+  const handleMouseUp &#x3D; useCallback(() &#x3D;&gt; {
+    stopRecording();
+  }, [stopRecording]);
+
+  const _handleTouchStart &#x3D; useCallback((e: React.TouchEvent) &#x3D;&gt; {
+    e.preventDefault();
+    handleMouseDown();
+  }, [handleMouseDown]);
+
+  const _handleTouchEnd &#x3D; useCallback((e: React.TouchEvent) &#x3D;&gt; {
+    e.preventDefault();
+    handleMouseUp();
+  }, [handleMouseUp]);
+
+  // Connection status indicator
+  const getStatusColor &#x3D; () &#x3D;&gt; {
+    switch (connectionStatus) {
+      case &#x27;connected&#x27;: return &#x27;bg-green-500&#x27;;
+      case &#x27;connecting&#x27;: return &#x27;bg-yellow-500&#x27;;
+      case &#x27;error&#x27;: return &#x27;bg-red-500&#x27;;
+      default: return &#x27;bg-gray-500&#x27;;
+    }
+  };
+
+  // Show permission prompt if needed
+  if (permissionState &#x3D;&#x3D;&#x3D; &#x27;prompt&#x27;) {
+    return (
+      &lt;div className&#x3D;&quot;flex flex-col items-center gap-4&quot;&gt;
+        &lt;button
+          className&#x3D;&quot;px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors&quot;
+          onClick&#x3D;{async () &#x3D;&gt; {
+            try {
+              const stream &#x3D; await navigator.mediaDevices.getUserMedia({ audio: true });
+              stream.getTracks().forEach(track &#x3D;&gt; track.stop());
+              setPermissionState(&#x27;granted&#x27;);
+            } catch (error) {
+              if (error instanceof DOMException &amp;&amp; error.name &#x3D;&#x3D;&#x3D; &#x27;NotAllowedError&#x27;) {
+                setPermissionState(&#x27;denied&#x27;);
+              }
+            }
+          }}
+        &gt;
+          Enable microphone
+        &lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+  
+  // Show denied message
+  if (permissionState &#x3D;&#x3D;&#x3D; &#x27;denied&#x27;) {
+    return (
+      &lt;div className&#x3D;&quot;text-center&quot;&gt;
+        &lt;p className&#x3D;&quot;text-red-600 mb-2&quot;&gt;Microphone access denied&lt;/p&gt;
+        &lt;p className&#x3D;&quot;text-sm text-gray-600&quot;&gt;Please enable microphone permissions in your browser settings&lt;/p&gt;
+      &lt;/div&gt;
+    );
+  }
+  
+  return (
+    &lt;div className&#x3D;&quot;relative&quot;&gt;
+      {/* Connection status indicator */}
+      &lt;div className&#x3D;&quot;absolute -top-8 left-1/2 transform -translate-x-1/2 flex items-center gap-2&quot;&gt;
+        &lt;div className&#x3D;{cn(&#x27;w-2 h-2 rounded-full&#x27;, getStatusColor())} /&gt;
+        &lt;span className&#x3D;&quot;text-xs text-gray-600&quot;&gt;
+          {connectionStatus &#x3D;&#x3D;&#x3D; &#x27;connected&#x27; ? &#x27;Voice Ready&#x27; : 
+           connectionStatus &#x3D;&#x3D;&#x3D; &#x27;connecting&#x27; ? &#x27;Connecting...&#x27; : 
+           connectionStatus &#x3D;&#x3D;&#x3D; &#x27;error&#x27; ? &#x27;Connection Error&#x27; : &#x27;Disconnected&#x27;}
+        &lt;/span&gt;
+      &lt;/div&gt;
+      
+      &lt;HoldToRecordButton
+        onMouseDown&#x3D;{handleMouseDown}
+        onMouseUp&#x3D;{handleMouseUp}
+        isListening&#x3D;{isListening}
+        isProcessing&#x3D;{isProcessing}
+        disabled&#x3D;{!isConnected}
+      /&gt;
+    &lt;/div&gt;
+  );
+};
+
+export default VoiceControl;</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'VoiceControlProps.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

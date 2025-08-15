@@ -3,6 +3,7 @@ import { getAudioPlaybackService } from '@/services/audio/AudioPlaybackService';
 import { useToast } from '@/hooks/useToast';
 import { useRestaurant } from '@/core/restaurant-hooks';
 import { supabase } from '@/core/supabase';
+import { getDemoToken } from '@/services/auth/demoAuth';
 
 // Helper to resolve absolute API URLs for production (Vercel)
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -19,12 +20,23 @@ const getAuthHeaders = async (): Promise<HeadersInit> => {
   const headers: HeadersInit = {
     'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111'
   };
+  
   if (session?.access_token) {
     headers['Authorization'] = `Bearer ${session.access_token}`;
   } else {
-    // Always use test-token as fallback for now
-    headers['Authorization'] = 'Bearer test-token';
+    // Use demo token for kiosk mode
+    try {
+      const demoToken = await getDemoToken();
+      headers['Authorization'] = `Bearer ${demoToken}`;
+    } catch (error) {
+      console.error('Failed to get demo token:', error);
+      // Fallback to test-token in development
+      if (import.meta.env.DEV) {
+        headers['Authorization'] = 'Bearer test-token';
+      }
+    }
   }
+  
   return headers;
 };
 

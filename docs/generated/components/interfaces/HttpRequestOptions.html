@@ -1,0 +1,659 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  HttpRequestOptions</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/services/http/httpClient.ts</code>
+        </p>
+
+
+
+            <p class="comment">
+                <h3>Extends</h3>
+            </p>
+            <p class="comment">
+                        <code>RequestInit</code>
+            </p>
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#params" 
+>
+                                            params
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#skipAuth" 
+>
+                                            skipAuth
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#skipRestaurantId" 
+>
+                                            skipRestaurantId
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#skipTransform" 
+>
+                                            skipTransform
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="params"></a>
+                                        <span class="name "><b>params</b>
+                                            <a href="#params">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>params:     <code>Record&lt;string | &gt;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>Record&lt;string | &gt;</code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="skipAuth"></a>
+                                        <span class="name "><b>skipAuth</b>
+                                            <a href="#skipAuth">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>skipAuth:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="skipRestaurantId"></a>
+                                        <span class="name "><b>skipRestaurantId</b>
+                                            <a href="#skipRestaurantId">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>skipRestaurantId:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="skipTransform"></a>
+                                        <span class="name "><b>skipTransform</b>
+                                            <a href="#skipTransform">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>skipTransform:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { SecureAPIClient, APIError } from &#x27;@/services/secureApi&#x27;
+import { supabase } from &#x27;@/core/supabase&#x27;
+import { toSnakeCase, toCamelCase, transformQueryParams } from &#x27;@/services/utils/caseTransform&#x27;
+import { env } from &#x27;@/utils/env&#x27;
+
+// Global variable to store the current restaurant ID
+// This will be set by the RestaurantContext provider
+let currentRestaurantId: string | null &#x3D; null
+
+export function setCurrentRestaurantId(restaurantId: string | null) {
+  currentRestaurantId &#x3D; restaurantId
+}
+
+export function getCurrentRestaurantId(): string | null {
+  return currentRestaurantId
+}
+
+export interface HttpRequestOptions extends RequestInit {
+  params?: Record&lt;string, unknown&gt;
+  skipAuth?: boolean
+  skipRestaurantId?: boolean
+  skipTransform?: boolean
+}
+
+export class HttpClient extends SecureAPIClient {
+  constructor() {
+    let baseURL &#x3D; &#x27;http://localhost:3001&#x27;
+    
+    // Get base URL from environment
+    if (typeof process !&#x3D;&#x3D; &#x27;undefined&#x27; &amp;&amp; process.env.NODE_ENV &#x3D;&#x3D;&#x3D; &#x27;test&#x27;) {
+      // Use default URL in test environment
+      baseURL &#x3D; &#x27;http://localhost:3001&#x27;
+    } else {
+      try {
+        const viteUrl &#x3D; env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL
+        console.log(&#x27;[httpClient] env.VITE_API_BASE_URL:&#x27;, env.VITE_API_BASE_URL)
+        console.log(&#x27;[httpClient] import.meta.env.VITE_API_BASE_URL:&#x27;, import.meta.env.VITE_API_BASE_URL)
+        if (viteUrl) {
+          baseURL &#x3D; viteUrl
+        }
+        // In production without a configured backend, warn the user
+        if (import.meta.env.PROD &amp;&amp; baseURL.includes(&#x27;localhost&#x27;)) {
+          console.error(&#x27;⚠️ Production build is trying to connect to localhost backend!&#x27;)
+          console.error(&#x27;Please configure VITE_API_BASE_URL in your Vercel environment variables&#x27;)
+          console.error(&#x27;You need to deploy your backend and set VITE_API_BASE_URL to its URL&#x27;)
+          console.error(&#x27;env object:&#x27;, env)
+          console.error(&#x27;import.meta.env:&#x27;, import.meta.env)
+        }
+      } catch {
+        // Fallback for environments without import.meta
+      }
+    }
+    
+    super(baseURL)
+  }
+
+  /**
+   * Override the base request method to add our custom logic
+   */
+  async request&lt;T&gt;(
+    endpoint: string,
+    options: HttpRequestOptions &#x3D; {}
+  ): Promise&lt;T&gt; {
+    const {
+      params,
+      skipAuth &#x3D; false,
+      skipRestaurantId &#x3D; false,
+      skipTransform &#x3D; false,
+      ...requestOptions
+    } &#x3D; options
+
+    // Build headers
+    const headers &#x3D; new Headers(requestOptions.headers)
+
+    // 1. Add Supabase JWT authentication (per Luis&#x27;s spec)
+    if (!skipAuth) {
+      try {
+        const { data: { session } } &#x3D; await supabase.auth.getSession()
+        if (session?.access_token) {
+          headers.set(&#x27;Authorization&#x27;, &#x60;Bearer ${session.access_token}&#x60;)
+        } else {
+          // Use test token in development mode
+          if (import.meta.env.DEV) {
+            headers.set(&#x27;Authorization&#x27;, &#x27;Bearer test-token&#x27;)
+            console.log(&#x27;🔧 Using development test token for API request&#x27;)
+          } else {
+            console.warn(&#x27;No auth session available for API request&#x27;)
+          }
+        }
+      } catch (error) {
+        console.error(&#x27;Failed to get auth session:&#x27;, error)
+        // Fallback to test token in development
+        if (import.meta.env.DEV) {
+          headers.set(&#x27;Authorization&#x27;, &#x27;Bearer test-token&#x27;)
+          console.log(&#x27;🔧 Using development test token (fallback)&#x27;)
+        }
+      }
+    }
+
+    // 2. Add x-restaurant-id header (per Luis&#x27;s spec)
+    if (!skipRestaurantId) {
+      const restaurantId &#x3D; getCurrentRestaurantId()
+      if (restaurantId) {
+        headers.set(&#x27;x-restaurant-id&#x27;, restaurantId)
+        
+        const debugVoice &#x3D; import.meta.env.VITE_DEBUG_VOICE &#x3D;&#x3D;&#x3D; &#x27;true&#x27;;
+        if (import.meta.env.DEV &amp;&amp; debugVoice) {
+          console.log(&#x60;[HttpClient] X-Restaurant-ID: ${restaurantId} → ${url}&#x60;);
+        }
+      } else if (import.meta.env.DEV &amp;&amp; import.meta.env.VITE_DEBUG_VOICE &#x3D;&#x3D;&#x3D; &#x27;true&#x27;) {
+        console.warn(&#x27;[HttpClient] No restaurant context for request:&#x27;, url);
+      } else {
+        console.warn(&#x27;No restaurant ID available for API request to&#x27;, endpoint)
+      }
+    }
+
+    // 3. Transform request body to snake_case (per Luis&#x27;s spec)
+    let body &#x3D; requestOptions.body
+    if (body &amp;&amp; typeof body &#x3D;&#x3D;&#x3D; &#x27;string&#x27; &amp;&amp; !skipTransform) {
+      try {
+        const parsed &#x3D; JSON.parse(body)
+        const transformed &#x3D; toSnakeCase(parsed)
+        body &#x3D; JSON.stringify(transformed)
+      } catch {
+        // Body is not JSON, leave as-is
+      }
+    }
+
+    // 4. Transform query params to snake_case
+    let url &#x3D; endpoint
+    if (params &amp;&amp; Object.keys(params).length &gt; 0) {
+      const transformedParams &#x3D; skipTransform ? params : transformQueryParams(params)
+      const searchParams &#x3D; new URLSearchParams()
+      
+      Object.entries(transformedParams).forEach(([key, value]) &#x3D;&gt; {
+        if (value !&#x3D;&#x3D; undefined &amp;&amp; value !&#x3D;&#x3D; null) {
+          searchParams.append(key, String(value))
+        }
+      })
+      
+      url &#x3D; &#x60;${endpoint}?${searchParams.toString()}&#x60;
+    }
+
+    try {
+      // Make the request using the parent class
+      const response &#x3D; await super.request&lt;unknown&gt;(url, {
+        ...requestOptions,
+        headers,
+        body
+      })
+
+      // 5. Transform response from snake_case to camelCase
+      if (!skipTransform &amp;&amp; response !&#x3D;&#x3D; null &amp;&amp; typeof response &#x3D;&#x3D;&#x3D; &#x27;object&#x27;) {
+        return toCamelCase(response) as T
+      }
+
+      return response as T
+    } catch (error) {
+      // Handle API errors according to Luis&#x27;s spec (status code-based)
+      if (error instanceof APIError) {
+        // Transform error details from snake_case if present
+        if (error.details &amp;&amp; !skipTransform) {
+          error.details &#x3D; toCamelCase(error.details)
+        }
+      }
+      throw error
+    }
+  }
+
+  /**
+   * Convenience methods that properly type the parameters
+   */
+  async get&lt;T&gt;(endpoint: string, options?: HttpRequestOptions): Promise&lt;T&gt; {
+    return this.request&lt;T&gt;(endpoint, { ...options, method: &#x27;GET&#x27; })
+  }
+
+  async post&lt;T&gt;(
+    endpoint: string,
+    data?: unknown,
+    options?: HttpRequestOptions
+  ): Promise&lt;T&gt; {
+    return this.request&lt;T&gt;(endpoint, {
+      ...options,
+      method: &#x27;POST&#x27;,
+      body: data ? JSON.stringify(data) : undefined,
+      headers: {
+        &#x27;Content-Type&#x27;: &#x27;application/json&#x27;,
+        ...options?.headers,
+      },
+    })
+  }
+
+  async put&lt;T&gt;(
+    endpoint: string,
+    data?: unknown,
+    options?: HttpRequestOptions
+  ): Promise&lt;T&gt; {
+    return this.request&lt;T&gt;(endpoint, {
+      ...options,
+      method: &#x27;PUT&#x27;,
+      body: data ? JSON.stringify(data) : undefined,
+      headers: {
+        &#x27;Content-Type&#x27;: &#x27;application/json&#x27;,
+        ...options?.headers,
+      },
+    })
+  }
+
+  async patch&lt;T&gt;(
+    endpoint: string,
+    data?: unknown,
+    options?: HttpRequestOptions
+  ): Promise&lt;T&gt; {
+    return this.request&lt;T&gt;(endpoint, {
+      ...options,
+      method: &#x27;PATCH&#x27;,
+      body: data ? JSON.stringify(data) : undefined,
+      headers: {
+        &#x27;Content-Type&#x27;: &#x27;application/json&#x27;,
+        ...options?.headers,
+      },
+    })
+  }
+
+  async delete&lt;T&gt;(endpoint: string, options?: HttpRequestOptions): Promise&lt;T&gt; {
+    return this.request&lt;T&gt;(endpoint, { ...options, method: &#x27;DELETE&#x27; })
+  }
+}
+
+// Create and export a singleton instance
+export const httpClient &#x3D; new HttpClient()
+
+// Export APIError for convenience
+export { APIError }</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'HttpRequestOptions.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

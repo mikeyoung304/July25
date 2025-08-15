@@ -6,6 +6,7 @@ import { paymentRoutes } from './payments.routes';
 import { tableRoutes } from './tables.routes';
 import { aiRoutes } from './ai.routes';
 import { restaurantRoutes } from './restaurants.routes';
+import { authRoutes } from './auth.routes';
 import metricsRoutes from './metrics';
 
 export function setupRoutes(): Router {
@@ -16,6 +17,9 @@ export function setupRoutes(): Router {
 
   // Metrics and monitoring routes
   router.use('/', metricsRoutes);
+
+  // Authentication routes
+  router.use('/auth', authRoutes);
 
   // Menu management routes
   router.use('/menu', menuRoutes);

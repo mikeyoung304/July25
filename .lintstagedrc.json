@@ -1,0 +1,15 @@
+{
+  "*.{ts,tsx}": [
+    "eslint --fix",
+    "npm run typecheck:staged"
+  ],
+  "*.{js,jsx,ts,tsx,json,md}": [
+    "prettier --write"
+  ],
+  "client/src/**/*.{ts,tsx}": [
+    "npm run test:client -- --watchAll=false --findRelatedTests"
+  ],
+  "server/src/**/*.{ts,js}": [
+    "npm run test:server -- --watchAll=false --findRelatedTests"
+  ]
+}

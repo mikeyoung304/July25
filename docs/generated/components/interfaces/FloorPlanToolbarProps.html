@@ -1,0 +1,1333 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  FloorPlanToolbarProps</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/modules/floor-plan/components/FloorPlanToolbar.tsx</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#canRedo" 
+>
+                                            canRedo
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#canUndo" 
+>
+                                            canUndo
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#creatingTableType" 
+>
+                                            creatingTableType
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#hasSelectedTable" 
+>
+                                            hasSelectedTable
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#isCreatingTable" 
+>
+                                            isCreatingTable
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#isSaving" 
+>
+                                            isSaving
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onAddTable" 
+>
+                                            onAddTable
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onDeleteTable" 
+>
+                                            onDeleteTable
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onDuplicateTable" 
+>
+                                            onDuplicateTable
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onRedo" 
+>
+                                            onRedo
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onResetView" 
+>
+                                            onResetView
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onSave" 
+>
+                                            onSave
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onToggleGrid" 
+>
+                                            onToggleGrid
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onToggleSnapToGrid" 
+>
+                                            onToggleSnapToGrid
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onUndo" 
+>
+                                            onUndo
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onZoomIn" 
+>
+                                            onZoomIn
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onZoomOut" 
+>
+                                            onZoomOut
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#onZoomReset" 
+>
+                                            onZoomReset
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#showGrid" 
+>
+                                            showGrid
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#snapToGrid" 
+>
+                                            snapToGrid
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#zoomLevel" 
+>
+                                            zoomLevel
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="canRedo"></a>
+                                        <span class="name "><b>canRedo</b>
+                                            <a href="#canRedo">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>canRedo:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="canUndo"></a>
+                                        <span class="name "><b>canUndo</b>
+                                            <a href="#canUndo">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>canUndo:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="creatingTableType"></a>
+                                        <span class="name "><b>creatingTableType</b>
+                                            <a href="#creatingTableType">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>creatingTableType:     <code> | null</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code> | null</code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="hasSelectedTable"></a>
+                                        <span class="name "><b>hasSelectedTable</b>
+                                            <a href="#hasSelectedTable">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>hasSelectedTable:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="isCreatingTable"></a>
+                                        <span class="name "><b>isCreatingTable</b>
+                                            <a href="#isCreatingTable">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>isCreatingTable:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="isSaving"></a>
+                                        <span class="name "><b>isSaving</b>
+                                            <a href="#isSaving">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>isSaving:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onAddTable"></a>
+                                        <span class="name "><b>onAddTable</b>
+                                            <a href="#onAddTable">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onAddTable:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onDeleteTable"></a>
+                                        <span class="name "><b>onDeleteTable</b>
+                                            <a href="#onDeleteTable">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onDeleteTable:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onDuplicateTable"></a>
+                                        <span class="name "><b>onDuplicateTable</b>
+                                            <a href="#onDuplicateTable">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onDuplicateTable:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onRedo"></a>
+                                        <span class="name "><b>onRedo</b>
+                                            <a href="#onRedo">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onRedo:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onResetView"></a>
+                                        <span class="name "><b>onResetView</b>
+                                            <a href="#onResetView">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onResetView:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onSave"></a>
+                                        <span class="name "><b>onSave</b>
+                                            <a href="#onSave">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onSave:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onToggleGrid"></a>
+                                        <span class="name "><b>onToggleGrid</b>
+                                            <a href="#onToggleGrid">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onToggleGrid:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onToggleSnapToGrid"></a>
+                                        <span class="name "><b>onToggleSnapToGrid</b>
+                                            <a href="#onToggleSnapToGrid">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onToggleSnapToGrid:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onUndo"></a>
+                                        <span class="name "><b>onUndo</b>
+                                            <a href="#onUndo">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onUndo:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onZoomIn"></a>
+                                        <span class="name "><b>onZoomIn</b>
+                                            <a href="#onZoomIn">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onZoomIn:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onZoomOut"></a>
+                                        <span class="name "><b>onZoomOut</b>
+                                            <a href="#onZoomOut">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onZoomOut:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onZoomReset"></a>
+                                        <span class="name "><b>onZoomReset</b>
+                                            <a href="#onZoomReset">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onZoomReset:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="showGrid"></a>
+                                        <span class="name "><b>showGrid</b>
+                                            <a href="#showGrid">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>showGrid:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="snapToGrid"></a>
+                                        <span class="name "><b>snapToGrid</b>
+                                            <a href="#snapToGrid">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>snapToGrid:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="zoomLevel"></a>
+                                        <span class="name "><b>zoomLevel</b>
+                                            <a href="#zoomLevel">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>zoomLevel:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import React from &#x27;react&#x27;
+import { Button } from &#x27;@/components/ui/button&#x27;
+import { Circle, Square, RectangleHorizontal, Trash2, Copy, Grid, Undo, Redo, Save, ZoomIn, ZoomOut, RotateCcw, Loader2 } from &#x27;lucide-react&#x27;
+import { Table } from &#x27;../types&#x27;
+
+interface FloorPlanToolbarProps {
+  onAddTable: (type: Table[&#x27;type&#x27;]) &#x3D;&gt; void
+  onDeleteTable: () &#x3D;&gt; void
+  onDuplicateTable: () &#x3D;&gt; void
+  onToggleGrid: () &#x3D;&gt; void
+  onToggleSnapToGrid: () &#x3D;&gt; void
+  onUndo: () &#x3D;&gt; void
+  onRedo: () &#x3D;&gt; void
+  onSave: () &#x3D;&gt; void
+  showGrid: boolean
+  snapToGrid: boolean
+  canUndo: boolean
+  canRedo: boolean
+  hasSelectedTable: boolean
+  zoomLevel: number
+  onZoomIn: () &#x3D;&gt; void
+  onZoomOut: () &#x3D;&gt; void
+  onZoomReset: () &#x3D;&gt; void
+  onResetView: () &#x3D;&gt; void
+  isSaving?: boolean
+  isCreatingTable?: boolean
+  creatingTableType?: Table[&#x27;type&#x27;] | null
+}
+
+export function FloorPlanToolbar({
+  onAddTable,
+  onDeleteTable,
+  onDuplicateTable,
+  onToggleGrid,
+  onToggleSnapToGrid,
+  onUndo,
+  onRedo,
+  onSave,
+  showGrid,
+  snapToGrid,
+  canUndo,
+  canRedo,
+  hasSelectedTable,
+  zoomLevel,
+  onZoomIn,
+  onZoomOut,
+  onZoomReset,
+  onResetView,
+  isSaving &#x3D; false,
+  isCreatingTable &#x3D; false,
+  creatingTableType &#x3D; null
+}: FloorPlanToolbarProps) {
+  return (
+    &lt;div className&#x3D;&quot;relative bg-white backdrop-blur-xl border border-[rgba(26,54,93,0.08)] rounded-2xl shadow-medium mx-2 sm:mx-4 mt-2 sm:mt-4 overflow-hidden&quot;&gt;
+      &lt;div className&#x3D;&quot;absolute inset-0 bg-gradient-to-r from-[#FBFBFA] via-white to-[#FBFBFA]&quot;&gt;&lt;/div&gt;
+      &lt;div className&#x3D;&quot;relative flex flex-wrap items-center gap-2 sm:gap-3 p-2 sm:p-3&quot;&gt;
+        {/* Add Table Section */}
+        &lt;div className&#x3D;&quot;flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 rounded-xl bg-[#e6ecf3] backdrop-blur&quot;&gt;
+          &lt;span className&#x3D;&quot;text-xs font-medium text-[#1a365d] mr-1 sm:mr-2 hidden sm:inline&quot;&gt;Tables&lt;/span&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{() &#x3D;&gt; onAddTable(&#x27;circle&#x27;)}
+            title&#x3D;&quot;Add Round Table&quot;
+            disabled&#x3D;{isCreatingTable}
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-50&quot;
+          &gt;
+            {isCreatingTable &amp;&amp; creatingTableType &#x3D;&#x3D;&#x3D; &#x27;circle&#x27; ? (
+              &lt;Loader2 className&#x3D;&quot;h-4 w-4 text-[#1a365d] animate-spin&quot; /&gt;
+            ) : (
+              &lt;Circle className&#x3D;&quot;h-4 w-4 text-[#1a365d]&quot; /&gt;
+            )}
+          &lt;/Button&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{() &#x3D;&gt; onAddTable(&#x27;square&#x27;)}
+            title&#x3D;&quot;Add Square Table&quot;
+            disabled&#x3D;{isCreatingTable}
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-50&quot;
+          &gt;
+            {isCreatingTable &amp;&amp; creatingTableType &#x3D;&#x3D;&#x3D; &#x27;square&#x27; ? (
+              &lt;Loader2 className&#x3D;&quot;h-4 w-4 text-[#1a365d] animate-spin&quot; /&gt;
+            ) : (
+              &lt;Square className&#x3D;&quot;h-4 w-4 text-[#1a365d]&quot; /&gt;
+            )}
+          &lt;/Button&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{() &#x3D;&gt; onAddTable(&#x27;rectangle&#x27;)}
+            title&#x3D;&quot;Add Rectangular Table&quot;
+            disabled&#x3D;{isCreatingTable}
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-50&quot;
+          &gt;
+            {isCreatingTable &amp;&amp; creatingTableType &#x3D;&#x3D;&#x3D; &#x27;rectangle&#x27; ? (
+              &lt;Loader2 className&#x3D;&quot;h-4 w-4 text-[#1a365d] animate-spin&quot; /&gt;
+            ) : (
+              &lt;RectangleHorizontal className&#x3D;&quot;h-4 w-4 text-[#1a365d]&quot; /&gt;
+            )}
+          &lt;/Button&gt;
+        &lt;/div&gt;
+
+        &lt;div className&#x3D;&quot;w-px h-6 bg-[rgba(26,54,93,0.1)] hidden sm:block&quot;&gt;&lt;/div&gt;
+
+        {/* Edit Actions */}
+        &lt;div className&#x3D;&quot;flex items-center gap-1 sm:gap-1.5&quot;&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onDuplicateTable}
+            disabled&#x3D;{!hasSelectedTable}
+            title&#x3D;&quot;Duplicate Selected Table (⌘D)&quot;
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-30&quot;
+          &gt;
+            &lt;Copy className&#x3D;&quot;h-4 w-4 text-[#1a365d]&quot; /&gt;
+          &lt;/Button&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onDeleteTable}
+            disabled&#x3D;{!hasSelectedTable}
+            title&#x3D;&quot;Delete Selected Table (Delete)&quot;
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-[#fff7ed] hover:shadow-soft transition-all duration-200 disabled:opacity-30 group&quot;
+          &gt;
+            &lt;Trash2 className&#x3D;&quot;h-4 w-4 text-[#1a365d] group-hover:text-[#fb923c]&quot; /&gt;
+          &lt;/Button&gt;
+        &lt;/div&gt;
+
+        &lt;div className&#x3D;&quot;w-px h-6 bg-[rgba(26,54,93,0.1)] hidden sm:block&quot;&gt;&lt;/div&gt;
+
+        {/* View Options */}
+        &lt;div className&#x3D;&quot;flex items-center gap-1 sm:gap-1.5&quot;&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onToggleGrid}
+            title&#x3D;&quot;Toggle Grid&quot;
+            className&#x3D;{&#x60;h-8 px-2 sm:px-3 transition-all duration-200 ${
+              showGrid 
+                ? &#x27;bg-[#e6fffa] text-[#38b2ac] hover:bg-[#b2f5ea] shadow-soft&#x27; 
+                : &#x27;hover:bg-white hover:shadow-soft text-[#1a365d]&#x27;
+            }&#x60;}
+          &gt;
+            &lt;Grid className&#x3D;&quot;h-4 w-4&quot; /&gt;
+          &lt;/Button&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onToggleSnapToGrid}
+            title&#x3D;&quot;Toggle Snap to Grid&quot;
+            className&#x3D;{&#x60;h-8 px-2 sm:px-3 text-xs font-medium transition-all duration-200 ${
+              snapToGrid 
+                ? &#x27;bg-[#e6fffa] text-[#38b2ac] hover:bg-[#b2f5ea] shadow-soft&#x27; 
+                : &#x27;hover:bg-white hover:shadow-soft text-[#1a365d]&#x27;
+            }&#x60;}
+          &gt;
+            &lt;span className&#x3D;&quot;hidden sm:inline&quot;&gt;Snap&lt;/span&gt;
+            &lt;span className&#x3D;&quot;sm:hidden&quot;&gt;S&lt;/span&gt;
+          &lt;/Button&gt;
+        &lt;/div&gt;
+
+        &lt;div className&#x3D;&quot;w-px h-6 bg-[rgba(26,54,93,0.1)] hidden sm:block&quot;&gt;&lt;/div&gt;
+
+        {/* Undo/Redo */}
+        &lt;div className&#x3D;&quot;flex items-center gap-1 sm:gap-1.5&quot;&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onUndo}
+            disabled&#x3D;{!canUndo}
+            title&#x3D;&quot;Undo (⌘Z)&quot;
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-30&quot;
+          &gt;
+            &lt;Undo className&#x3D;&quot;h-4 w-4 text-[#1a365d]&quot; /&gt;
+          &lt;/Button&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onRedo}
+            disabled&#x3D;{!canRedo}
+            title&#x3D;&quot;Redo (⌘⇧Z)&quot;
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-30&quot;
+          &gt;
+            &lt;Redo className&#x3D;&quot;h-4 w-4 text-[#1a365d]&quot; /&gt;
+          &lt;/Button&gt;
+        &lt;/div&gt;
+
+        &lt;div className&#x3D;&quot;flex-1 hidden sm:block&quot;&gt;&lt;/div&gt;
+
+        {/* Zoom Controls */}
+        &lt;div className&#x3D;&quot;flex items-center gap-1 sm:gap-1.5 hidden sm:flex&quot;&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onZoomOut}
+            disabled&#x3D;{zoomLevel &lt;&#x3D; 0.5}
+            title&#x3D;&quot;Zoom Out&quot;
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-30&quot;
+          &gt;
+            &lt;ZoomOut className&#x3D;&quot;h-4 w-4 text-[#1a365d]&quot; /&gt;
+          &lt;/Button&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onZoomReset}
+            title&#x3D;&quot;Reset Zoom (100%)&quot;
+            className&#x3D;&quot;h-8 px-2 text-xs font-medium hover:bg-white hover:shadow-soft transition-all duration-200 text-[#1a365d]&quot;
+          &gt;
+            {Math.round(zoomLevel * 100)}%
+          &lt;/Button&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onZoomIn}
+            disabled&#x3D;{zoomLevel &gt;&#x3D; 2}
+            title&#x3D;&quot;Zoom In&quot;
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 disabled:opacity-30&quot;
+          &gt;
+            &lt;ZoomIn className&#x3D;&quot;h-4 w-4 text-[#1a365d]&quot; /&gt;
+          &lt;/Button&gt;
+          &lt;Button
+            variant&#x3D;&quot;ghost&quot;
+            size&#x3D;&quot;sm&quot;
+            onClick&#x3D;{onResetView}
+            title&#x3D;&quot;Reset View - Center and Fit All Tables&quot;
+            className&#x3D;&quot;h-8 w-8 p-0 hover:bg-white hover:shadow-soft transition-all duration-200 text-[#1a365d]&quot;
+          &gt;
+            &lt;RotateCcw className&#x3D;&quot;h-4 w-4&quot; /&gt;
+          &lt;/Button&gt;
+        &lt;/div&gt;
+
+        &lt;div className&#x3D;&quot;w-px h-6 bg-[rgba(26,54,93,0.1)] hidden sm:block&quot;&gt;&lt;/div&gt;
+
+        {/* Save */}
+        &lt;Button
+          size&#x3D;&quot;sm&quot;
+          onClick&#x3D;{onSave}
+          disabled&#x3D;{isSaving}
+          className&#x3D;&quot;bg-gradient-to-r from-[#fb923c] to-[#ea7c1c] hover:from-[#ea7c1c] hover:to-[#d96d0d] text-white font-medium px-3 sm:px-4 py-1.5 rounded-lg shadow-medium hover:shadow-large transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base&quot;
+        &gt;
+          {isSaving ? (
+            &lt;&gt;
+              &lt;div className&#x3D;&quot;animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-1.5&quot; /&gt;
+              Saving...
+            &lt;/&gt;
+          ) : (
+            &lt;&gt;
+              &lt;Save className&#x3D;&quot;h-3.5 w-3.5 mr-1.5&quot; /&gt;
+              Save Layout
+            &lt;/&gt;
+          )}
+        &lt;/Button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'FloorPlanToolbarProps.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

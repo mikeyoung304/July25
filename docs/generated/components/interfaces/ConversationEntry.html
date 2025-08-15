@@ -1,0 +1,701 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  ConversationEntry</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/pages/DriveThruPage.tsx</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#id" 
+>
+                                            id
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#speaker" 
+>
+                                            speaker
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#text" 
+>
+                                            text
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#timestamp" 
+>
+                                            timestamp
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="id"></a>
+                                        <span class="name "><b>id</b>
+                                            <a href="#id">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>id:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="speaker"></a>
+                                        <span class="name "><b>speaker</b>
+                                            <a href="#speaker">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>speaker:     <code>&quot;ai&quot; | &quot;user&quot;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>&quot;ai&quot; | &quot;user&quot;</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="text"></a>
+                                        <span class="name "><b>text</b>
+                                            <a href="#text">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>text:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="timestamp"></a>
+                                        <span class="name "><b>timestamp</b>
+                                            <a href="#timestamp">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>timestamp:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank" >Date</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank" >Date</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import React, { useState, useCallback, useEffect, useRef } from &#x27;react&#x27;;
+import { ShoppingCart, Headphones, User, Volume2, AlertCircle, CheckCircle } from &#x27;lucide-react&#x27;;
+import { VoiceOrderProvider } from &#x27;@/modules/voice/contexts/VoiceOrderContext&#x27;;
+import { useVoiceOrder } from &#x27;@/modules/voice/hooks/useVoiceOrder&#x27;;
+import VoiceControl from &#x27;@/modules/voice/components/VoiceControl&#x27;;
+import { OrderParser, ParsedOrderItem } from &#x27;@/modules/orders/services/OrderParser&#x27;;
+import { useMenuItems } from &#x27;@/modules/menu/hooks/useMenuItems&#x27;;
+import { Button } from &#x27;@/components/ui/button&#x27;;
+import { cn } from &#x27;@/utils&#x27;;
+
+interface ConversationEntry {
+  id: string;
+  speaker: &#x27;ai&#x27; | &#x27;user&#x27;;
+  text: string;
+  timestamp: Date;
+}
+
+const DriveThruPageContent: React.FC &#x3D; () &#x3D;&gt; {
+  const [conversation, setConversation] &#x3D; useState&lt;ConversationEntry[]&gt;([]);
+  const [currentTranscript, setCurrentTranscript] &#x3D; useState(&#x27;&#x27;);
+  const [isFirstPress, setIsFirstPress] &#x3D; useState(true);
+  const [isVoiceActive, setIsVoiceActive] &#x3D; useState(false);
+  const [isProcessing, setIsProcessing] &#x3D; useState(false);
+  const [isProcessingVoice, setIsProcessingVoice] &#x3D; useState(false);
+  const [connectionStatus, setConnectionStatus] &#x3D; useState&lt;&#x27;connected&#x27; | &#x27;error&#x27; | &#x27;disconnected&#x27;&gt;(&#x27;disconnected&#x27;);
+  const [orderSubmitted, setOrderSubmitted] &#x3D; useState(false);
+  const { items, addItem, removeItem, updateQuantity, total, itemCount } &#x3D; useVoiceOrder();
+  const { items: menuItems, loading } &#x3D; useMenuItems();
+  const [orderParser, setOrderParser] &#x3D; useState&lt;OrderParser | null&gt;(null);
+  const conversationEndRef &#x3D; useRef&lt;HTMLDivElement&gt;(null);
+
+  useEffect(() &#x3D;&gt; {
+    if (menuItems.length &gt; 0) {
+      setOrderParser(new OrderParser(menuItems));
+    }
+  }, [menuItems]);
+
+  useEffect(() &#x3D;&gt; {
+    // Auto-scroll to bottom of conversation
+    conversationEndRef.current?.scrollIntoView({ behavior: &#x27;smooth&#x27; });
+  }, [conversation, currentTranscript]);
+
+  const handleFirstPress &#x3D; useCallback(() &#x3D;&gt; {
+    setIsFirstPress(false);
+    const greeting: ConversationEntry &#x3D; {
+      id: Date.now().toString(),
+      speaker: &#x27;ai&#x27;,
+      text: &quot;Welcome to Grow! What can I get started for you today?&quot;,
+      timestamp: new Date(),
+    };
+    setConversation([greeting]);
+  }, []);
+
+  const processParsedItems &#x3D; useCallback((parsedItems: ParsedOrderItem[]) &#x3D;&gt; {
+    parsedItems.forEach(parsed &#x3D;&gt; {
+      if (parsed.menuItem) {
+        switch (parsed.action) {
+          case &#x27;add&#x27;:
+            addItem(parsed.menuItem, parsed.quantity, parsed.modifications);
+            break;
+          case &#x27;remove&#x27;: {
+            const itemToRemove &#x3D; items.find(item &#x3D;&gt; 
+              item.menuItem.id &#x3D;&#x3D;&#x3D; parsed.menuItem?.id
+            );
+            if (itemToRemove) {
+              removeItem(itemToRemove.id);
+            }
+            break;
+          }
+          case &#x27;update&#x27;: {
+            const itemToUpdate &#x3D; items.find(item &#x3D;&gt; 
+              item.menuItem.id &#x3D;&#x3D;&#x3D; parsed.menuItem?.id
+            );
+            if (itemToUpdate) {
+              updateQuantity(itemToUpdate.id, parsed.quantity);
+            }
+            break;
+          }
+        }
+      }
+    });
+  }, [addItem, removeItem, updateQuantity, items]);
+
+  const processVoiceOrder &#x3D; useCallback(async (transcript: string) &#x3D;&gt; {
+    console.warn(&#x27;Processing drive-thru order:&#x27;, transcript);
+    
+    try {
+      const response &#x3D; await fetch(&#x27;http://localhost:3001/api/v1/ai/chat&#x27;, {
+        method: &#x27;POST&#x27;,
+        headers: {
+          &#x27;Content-Type&#x27;: &#x27;application/json&#x27;,
+        },
+        body: JSON.stringify({
+          message: transcript,
+          context: {
+            role: &#x27;drive_thru_order_taker&#x27;,
+            menu: menuItems,
+            currentOrder: items,
+          },
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(&#x60;HTTP error! status: ${response.status}&#x60;);
+      }
+      
+      const data &#x3D; await response.json();
+      const aiResponse &#x3D; data.response;
+      
+      const aiEntry: ConversationEntry &#x3D; {
+        id: Date.now().toString(),
+        speaker: &#x27;ai&#x27;,
+        text: aiResponse,
+        timestamp: new Date(),
+      };
+      setConversation(prev &#x3D;&gt; [...prev, aiEntry]);
+      
+      if (orderParser) {
+        const parsedItems &#x3D; orderParser.parseAIResponse(aiResponse);
+        processParsedItems(parsedItems);
+      }
+    } catch (error) {
+      console.error(&#x27;Error processing drive-thru order:&#x27;, error);
+      
+      // Show error to user
+      const errorEntry: ConversationEntry &#x3D; {
+        id: Date.now().toString(),
+        speaker: &#x27;ai&#x27;,
+        text: &quot;I apologize, but I&#x27;m having trouble with your order. Please drive to the window for assistance.&quot;,
+        timestamp: new Date(),
+      };
+      setConversation(prev &#x3D;&gt; [...prev, errorEntry]);
+    }
+  }, [menuItems, items, orderParser, processParsedItems]);
+
+  const handleTranscript &#x3D; useCallback((text: string, isFinal: boolean) &#x3D;&gt; {
+    if (!isFinal) {
+      setCurrentTranscript(text);
+    } else {
+      const userEntry: ConversationEntry &#x3D; {
+        id: Date.now().toString(),
+        speaker: &#x27;user&#x27;,
+        text,
+        timestamp: new Date(),
+      };
+      setConversation(prev &#x3D;&gt; [...prev, userEntry]);
+      setCurrentTranscript(&#x27;&#x27;);
+      
+      processVoiceOrder(text);
+    }
+  }, [processVoiceOrder]);
+
+  const handleConfirmOrder &#x3D; useCallback(() &#x3D;&gt; {
+    console.warn(&#x27;Order confirmed:&#x27;, items);
+    // Add confirmation message
+    const confirmEntry: ConversationEntry &#x3D; {
+      id: Date.now().toString(),
+      speaker: &#x27;ai&#x27;,
+      text: &#x60;Perfect! Your total is $${total.toFixed(2)}. Please drive to the next window.&#x60;,
+      timestamp: new Date(),
+    };
+    setConversation(prev &#x3D;&gt; [...prev, confirmEntry]);
+  }, [items, total]);
+
+  if (loading) {
+    return (
+      &lt;div className&#x3D;&quot;flex items-center justify-center h-screen bg-gray-900 text-white&quot;&gt;
+        &lt;div className&#x3D;&quot;text-2xl&quot;&gt;Loading menu...&lt;/div&gt;
+      &lt;/div&gt;
+    );
+  }
+
+  return (
+    &lt;div className&#x3D;&quot;h-screen bg-neutral-900 text-white p-6&quot;&gt;
+      &lt;div className&#x3D;&quot;max-w-6xl mx-auto h-full flex flex-col&quot;&gt;
+        &lt;h1 className&#x3D;&quot;text-4xl font-bold text-center mb-8 text-primary-50&quot;&gt;DRIVE-THRU ORDER&lt;/h1&gt;
+
+        {/* Conversation Section */}
+        &lt;div className&#x3D;&quot;flex-1 bg-neutral-800 rounded-xl p-6 mb-6 overflow-hidden shadow-elevation-2&quot;&gt;
+          &lt;div className&#x3D;&quot;h-full overflow-y-auto space-y-4&quot;&gt;
+            {conversation.map((entry) &#x3D;&gt; (
+              &lt;div key&#x3D;{entry.id} className&#x3D;&quot;mb-4 flex items-start gap-3&quot;&gt;
+                {entry.speaker &#x3D;&#x3D;&#x3D; &#x27;ai&#x27; ? (
+                  &lt;Headphones className&#x3D;&quot;w-6 h-6 text-info-400 flex-shrink-0 mt-1&quot; /&gt;
+                ) : (
+                  &lt;User className&#x3D;&quot;w-6 h-6 text-white flex-shrink-0 mt-1&quot; /&gt;
+                )}
+                &lt;p className&#x3D;{&#x60;${entry.speaker &#x3D;&#x3D;&#x3D; &#x27;ai&#x27; ? &#x27;text-info-400&#x27; : &#x27;text-white&#x27;} font-semibold text-lg&#x60;}&gt;
+                  {entry.text}
+                &lt;/p&gt;
+              &lt;/div&gt;
+            ))}
+            {currentTranscript &amp;&amp; (
+              &lt;div className&#x3D;&quot;mb-4 flex items-start gap-3&quot;&gt;
+                &lt;User className&#x3D;&quot;w-6 h-6 text-neutral-400 flex-shrink-0 mt-1&quot; /&gt;
+                &lt;p className&#x3D;&quot;text-neutral-400 italic text-lg&quot;&gt;
+                  {currentTranscript}...
+                &lt;/p&gt;
+              &lt;/div&gt;
+            )}
+            &lt;div ref&#x3D;{conversationEndRef} /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        {/* Order Summary */}
+        &lt;div className&#x3D;&quot;bg-neutral-800/80 backdrop-blur rounded-lg p-6 mb-6 border border-neutral-700&quot;&gt;
+          &lt;div className&#x3D;&quot;flex items-center justify-center mb-4&quot;&gt;
+            &lt;ShoppingCart className&#x3D;&quot;w-10 h-10 mr-3&quot; /&gt;
+            &lt;h2 className&#x3D;&quot;text-3xl font-bold&quot;&gt;YOUR ORDER ({itemCount} items)&lt;/h2&gt;
+          &lt;/div&gt;
+          
+          &lt;div className&#x3D;&quot;max-h-32 overflow-y-auto mb-4&quot;&gt;
+            {items.map((item) &#x3D;&gt; (
+              &lt;div key&#x3D;{item.id} className&#x3D;&quot;flex justify-between items-center py-1&quot;&gt;
+                &lt;span className&#x3D;&quot;text-xl&quot;&gt;
+                  {item.quantity &gt; 1 &amp;&amp; &#x60;${item.quantity}x &#x60;}
+                  {item.menuItem.name}
+                  {item.modifications.length &gt; 0 &amp;&amp; (
+                    &lt;span className&#x3D;&quot;text-gray-400 text-lg&quot;&gt;
+                      {&#x27; - &#x27; + item.modifications.map(mod &#x3D;&gt; mod.name).join(&#x27;, &#x27;)}
+                    &lt;/span&gt;
+                  )}
+                &lt;/span&gt;
+                &lt;span className&#x3D;&quot;text-xl&quot;&gt;${item.subtotal.toFixed(2)}&lt;/span&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+          
+          &lt;div className&#x3D;&quot;text-center&quot;&gt;
+            &lt;p className&#x3D;&quot;text-5xl font-bold text-yellow-400&quot;&gt;
+              TOTAL: ${total.toFixed(2)}
+            &lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        {/* Controls */}
+        &lt;div className&#x3D;&quot;flex flex-col items-center gap-6&quot;&gt;
+          &lt;div className&#x3D;&quot;transform scale-150&quot;&gt;
+            &lt;VoiceControl
+              onTranscript&#x3D;{handleTranscript}
+              isFirstPress&#x3D;{isFirstPress}
+              onFirstPress&#x3D;{handleFirstPress}
+            /&gt;
+          &lt;/div&gt;
+          
+          {/* Status Text */}
+          &lt;div className&#x3D;&quot;text-center&quot;&gt;
+            {isVoiceActive ? (
+              &lt;p className&#x3D;&quot;text-macon-orange text-lg animate-pulse flex items-center justify-center gap-2&quot;&gt;
+                &lt;Volume2 className&#x3D;&quot;w-5 h-5&quot; /&gt;
+                AI is responding...
+              &lt;/p&gt;
+            ) : isProcessing || isProcessingVoice ? (
+              &lt;p className&#x3D;&quot;text-macon-teal text-lg flex items-center justify-center gap-2&quot;&gt;
+                &lt;div className&#x3D;&quot;w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin&quot; /&gt;
+                Processing your order...
+              &lt;/p&gt;
+            ) : connectionStatus &#x3D;&#x3D;&#x3D; &#x27;error&#x27; ? (
+              &lt;p className&#x3D;&quot;text-red-400 text-lg flex items-center justify-center gap-2&quot;&gt;
+                &lt;AlertCircle className&#x3D;&quot;w-5 h-5&quot; /&gt;
+                Connection issue - please try again
+              &lt;/p&gt;
+            ) : (
+              &lt;p className&#x3D;&quot;text-neutral-400 text-lg&quot;&gt;
+                Hold the button and tell us what you&#x27;d like to order
+              &lt;/p&gt;
+            )}
+          &lt;/div&gt;
+          
+          &lt;Button
+            size&#x3D;&quot;lg&quot;
+            disabled&#x3D;{items.length &#x3D;&#x3D;&#x3D; 0 || orderSubmitted}
+            onClick&#x3D;{handleConfirmOrder}
+            className&#x3D;{cn(
+              &quot;text-2xl px-12 py-8 transition-all duration-200&quot;,
+              orderSubmitted 
+                ? &quot;bg-green-600 text-white cursor-not-allowed&quot; 
+                : items.length &#x3D;&#x3D;&#x3D; 0 
+                  ? &quot;bg-gray-600 text-gray-400 cursor-not-allowed&quot; 
+                  : &quot;bg-macon-teal hover:bg-macon-teal/80 text-white hover:scale-105 shadow-lg&quot;
+            )}
+          &gt;
+            {orderSubmitted ? (
+              &lt;&gt;
+                &lt;CheckCircle className&#x3D;&quot;w-6 h-6 mr-2&quot; /&gt;
+                ORDER SUBMITTED - DRIVE TO WINDOW
+              &lt;/&gt;
+            ) : (
+              &quot;CONFIRM &amp; PAY AT WINDOW&quot;
+            )}
+          &lt;/Button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+};
+
+const DriveThruPage: React.FC &#x3D; () &#x3D;&gt; {
+  return (
+    &lt;VoiceOrderProvider&gt;
+      &lt;DriveThruPageContent /&gt;
+    &lt;/VoiceOrderProvider&gt;
+  );
+};
+
+export default DriveThruPage;</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'ConversationEntry.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

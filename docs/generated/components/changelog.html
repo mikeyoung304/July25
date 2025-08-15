@@ -1,0 +1,430 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+	   <link rel="stylesheet" href="./styles/style.css">
+        <link rel="stylesheet" href="./styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="./" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content getting-started">
+                   <div class="content-data">
+
+<h1>Changelog</h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
+and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<h2><a href="https://github.com/username/rebuild-6.0/compare/v0.5.0...HEAD">Unreleased</a> - 2025-08-12</h2>
+<h3>Added</h3>
+<ul>
+<li><strong>OpenAI Adapters</strong>: Direct OpenAI integration replacing BuildPanel proxy<ul>
+<li>Transcription via Whisper API</li>
+<li>Chat via GPT models  </li>
+<li>TTS via OpenAI Speech API</li>
+<li>Order parsing with structured prompts</li>
+</ul>
+</li>
+<li><strong>Environment Policy Enforcement</strong>: Fail-fast validation for missing <code>OPENAI_API_KEY</code></li>
+<li><strong>Degraded Mode</strong>: Graceful fallbacks when <code>AI_DEGRADED_MODE=true</code> for development</li>
+<li><strong>Error Mapping</strong>: OpenAI errors mapped to user-friendly messages</li>
+<li><strong>Provider Health Monitoring</strong>: AI service availability tracking</li>
+<li><strong>Prometheus Metrics</strong>: Request counters, error rates, and latency for AI routes at <code>/internal/metrics</code></li>
+</ul>
+<h3>Removed</h3>
+<ul>
+<li><strong>BuildPanel Integration</strong>: Removed all external BuildPanel service dependencies</li>
+<li><strong>BuildPanel Scripts</strong>: Removed health checks, security scripts, and streaming tests  </li>
+<li><strong>BuildPanel Documentation</strong>: Archived all BuildPanel-specific docs to <code>docs/_archive/2025-08-12-buildpanel/</code></li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>AI Integration</strong>: Migrated from BuildPanel proxy to direct OpenAI integration in backend</li>
+<li><strong>Configuration</strong>: Replaced <code>USE_BUILDPANEL</code>/<code>BUILDPANEL_URL</code> with <code>OPENAI_API_KEY</code></li>
+<li><strong>Security Model</strong>: Updated to secure OpenAI API key in backend environment only</li>
+</ul>
+<h3>Migration Notes</h3>
+<ul>
+<li>Remove <code>USE_BUILDPANEL</code>, <code>BUILDPANEL_URL</code>, <code>BUILDPANEL_BASE_URL</code> from environment</li>
+<li>Add <code>OPENAI_API_KEY</code> to backend environment  </li>
+<li>Ensure <code>VITE_API_BASE_URL</code> points to backend service (not BuildPanel)</li>
+<li>Public API contracts (<code>/api/v1/*</code> and <code>/api/v1/ai/*</code>) remain unchanged</li>
+</ul>
+<h2>[1.0.0] - 2025-01-08</h2>
+<h3>Added</h3>
+<ul>
+<li>✅ Unified backend architecture on port 3001</li>
+<li>✅ AI integration for voice ordering (now uses OpenAI directly)</li>
+<li>✅ Real-time WebSocket updates for kitchen display</li>
+<li>✅ Multi-tenant restaurant support</li>
+<li>✅ Comprehensive TypeScript types via @rebuild/shared</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>🔄 Migrated from microservices to unified backend (97.4% complexity reduction)</li>
+<li>🔄 AI service moved to integrated backend modules</li>
+<li>🔄 Consolidated documentation from 61 to 20 files</li>
+<li>🔄 Simplified API structure with single backend proxy</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>🐛 Circular dependency in OrderService</li>
+<li>🐛 Type system alignment (is_available → available)</li>
+<li>🐛 React Hooks violations</li>
+<li>🐛 WebSocket connection handling</li>
+<li>🐛 Menu synchronization with AI service</li>
+</ul>
+<h3>Removed</h3>
+<ul>
+<li>🗑️ Separate AI Gateway service (port 3002)</li>
+<li>🗑️ Over-engineered MCP implementation</li>
+<li>🗑️ Redundant documentation files</li>
+<li>🗑️ Debug and test files from production</li>
+</ul>
+<h2><a href="https://github.com/username/rebuild-6.0/compare/v0.5.0...HEAD">Unreleased</a></h2>
+<h3>Added</h3>
+<ul>
+<li><strong>AI Integration</strong>: External AI service architecture<ul>
+<li>Replaced direct OpenAI integration with service proxy (later reverted to direct integration)</li>
+<li>AI service was isolated on port 3003 (now integrated in backend)</li>
+<li>All AI processing proxied through unified backend (port 3001)</li>
+<li>Enhanced security boundary with no direct frontend-to-AI communication</li>
+<li>Restaurant context propagation through all AI operations</li>
+<li>Service health monitoring and graceful degradation</li>
+</ul>
+</li>
+<li><strong>Production Monitoring (Phase 6)</strong>: Basic monitoring infrastructure<ul>
+<li>Created monitoring service with Web Vitals tracking</li>
+<li>Added performance monitor for tracking render and API metrics</li>
+<li>Added metrics collection endpoint at <code>/api/v1/metrics</code></li>
+<li>Health check endpoints for uptime monitoring</li>
+<li>NOTE: External services (Sentry, DataDog, LogRocket) were documented but not implemented</li>
+</ul>
+</li>
+<li><strong>Performance Optimization (Phase 6)</strong>: Bundle configuration<ul>
+<li>Enhanced Vite config with chunk splitting</li>
+<li>Added terser minification</li>
+<li>Configured asset optimization and modern browser targeting</li>
+<li>NOTE: Console stripping has been removed to maintain debugging capability</li>
+</ul>
+</li>
+<li><strong>Technical Debt Resolution (Phase 5)</strong>: Code quality improvements<ul>
+<li>Created logger service replacing console statements</li>
+<li>Fixed TypeScript strict mode issues (missing utils, imports)</li>
+<li>Implemented comprehensive error boundary with monitoring integration</li>
+<li>Added proper error reporting to production services</li>
+</ul>
+</li>
+<li><strong>Test Infrastructure (Phase 4)</strong>: Testing foundations<ul>
+<li>Created test utilities with custom render and providers</li>
+<li>Added mock data factories for consistent testing</li>
+<li>Built test helpers for API and WebSocket testing</li>
+<li>Added tests for unified components</li>
+</ul>
+</li>
+<li><strong>Component Unification (Phase 3)</strong>: Consolidated duplicate components<ul>
+<li>Created <code>BaseOrderCard</code> with variant support (standard, KDS, compact)</li>
+<li>Built <code>UnifiedVoiceRecorder</code> replacing VoiceControl/VoiceCapture</li>
+<li>Added shared UI components: LoadingSpinner, EmptyState, ErrorDisplay, IconButton</li>
+<li>Standardized urgency calculation with <code>useOrderUrgency</code> hook</li>
+</ul>
+</li>
+<li><strong>Shared Types Module (Phase 2)</strong>: Unified type definitions<ul>
+<li>Created <code>/shared/types/</code> with Order, Menu, Customer, Table, WebSocket types</li>
+<li>Single source of truth across client/server boundary</li>
+<li>Full TypeScript support with backward compatibility</li>
+</ul>
+</li>
+<li><strong>Voice Ordering Enhancements</strong>: Hardened audio pipeline<ul>
+<li>Flow control with max 3 unacknowledged chunks</li>
+<li>Automatic reconnection with exponential backoff</li>
+<li>WebSocket heartbeat and overrun detection</li>
+</ul>
+</li>
+<li><strong>Developer Tools</strong>: Quality gates and monitoring<ul>
+<li>Prometheus metrics endpoint at <code>/metrics</code></li>
+<li>Scripts: <code>lint:fix</code>, <code>typecheck</code>, <code>verify:ports</code></li>
+<li>Component migration guide</li>
+</ul>
+</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>AI Architecture Migration</strong>: OpenAI service integration<ul>
+<li>Migrated from direct OpenAI API integration to service proxy (later reverted)</li>
+<li>Updated security model from API key protection to service boundary isolation</li>
+<li>Enhanced authentication flow with restaurant context validation</li>
+<li>Improved monitoring and error handling for AI operations</li>
+</ul>
+</li>
+<li><strong>Documentation Overhaul (Phase 1)</strong>: Reduced from 61 to ~20 files<ul>
+<li>Consolidated into ARCHITECTURE.md, QUICK_START.md, DOCUMENTATION.md</li>
+<li>Deleted 27 outdated files from /docs/archive/pre-backend/</li>
+<li>Removed duplicate architecture and setup guides</li>
+</ul>
+</li>
+<li><strong>Service Architecture</strong>: Eliminated duplication<ul>
+<li>Consolidated OrderService and MenuService implementations</li>
+<li>Services now support both API and mock data modes</li>
+</ul>
+</li>
+<li><strong>Unified Backend</strong>: Single service on port 3001<ul>
+<li>Merged AI Gateway into main backend</li>
+<li>Simplified from 2 servers to 1</li>
+<li>All WebSocket, API, and AI in one Express.js server</li>
+</ul>
+</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Environment variable loading (OpenAI API key issue)</li>
+<li>TypeScript errors in WebSocket ArrayBuffer handling</li>
+<li>Import path issues in server middleware</li>
+<li>Component prop drilling and duplication issues</li>
+</ul>
+<h3>Removed</h3>
+<ul>
+<li><strong>OpenAI Direct Integration</strong>: Replaced with service proxy (later reverted to direct integration)<ul>
+<li>Removed OpenAI client imports from frontend code</li>
+<li>Eliminated direct API key exposure to browser</li>
+<li>Archived OpenAI-specific security documentation</li>
+</ul>
+</li>
+<li>AI Gateway service (port 3002)</li>
+<li>Duplicate component implementations</li>
+<li>27 outdated documentation files</li>
+</ul>
+<h2><a href="https://github.com/username/rebuild-6.0/compare/v0.4.0...v0.5.0">0.5.0</a> - 2024-01-15</h2>
+<h3>Added</h3>
+<ul>
+<li>Kitchen Display System (KDS) with real-time updates</li>
+<li>Voice ordering kiosk with speech recognition</li>
+<li>Order history and analytics dashboard</li>
+<li>Performance monitoring dashboard</li>
+<li>Sound notifications for order events</li>
+<li>Multi-tenant support with RestaurantContext</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Migrated from Create React App to Vite</li>
+<li>Updated to React 18</li>
+<li>Switched to Tailwind CSS + shadcn/ui</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Memory leaks in real-time subscriptions</li>
+<li>Mobile responsiveness issues</li>
+<li>Accessibility compliance</li>
+</ul>
+<h2><a href="https://github.com/username/rebuild-6.0/compare/v0.3.0...v0.4.0">0.4.0</a> - 2023-12-01</h2>
+<h3>Added</h3>
+<ul>
+<li>Initial Supabase integration</li>
+<li>Real-time order synchronization</li>
+<li>Basic authentication system</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Replaced local state with Supabase backend</li>
+<li>Updated routing structure</li>
+</ul>
+<h3>Security</h3>
+<ul>
+<li>Added row-level security policies</li>
+<li>Implemented secure API key handling</li>
+</ul>
+<h2><a href="https://github.com/username/rebuild-6.0/compare/v0.2.0...v0.3.0">0.3.0</a> - 2023-10-15</h2>
+<h3>Added</h3>
+<ul>
+<li>Order management system</li>
+<li>Table management</li>
+<li>Basic reporting</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>UI redesign with modern components</li>
+<li>Improved mobile experience</li>
+</ul>
+<h2><a href="https://github.com/username/rebuild-6.0/compare/v0.1.0...v0.2.0">0.2.0</a> - 2023-08-01</h2>
+<h3>Added</h3>
+<ul>
+<li>Menu management</li>
+<li>Customer ordering interface</li>
+<li>Basic kitchen display</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Performance issues with large menus</li>
+<li>Order calculation bugs</li>
+</ul>
+<h2><a href="https://github.com/username/rebuild-6.0/releases/tag/v0.1.0">0.1.0</a> - 2023-06-01</h2>
+<h3>Added</h3>
+<ul>
+<li>Initial project setup</li>
+<li>Basic React application structure</li>
+<li>Mock data service</li>
+<li>Development environment configuration</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 0;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
+            var COMPODOC_CURRENT_PAGE_URL = 'changelog.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="./js/libs/custom-elements.min.js"></script>
+       <script src="./js/libs/lit-html.js"></script>
+
+       <script src="./js/menu-wc.js" defer></script>
+       <script nomodule src="./js/menu-wc_es5.js" defer></script>
+
+       <script src="./js/libs/bootstrap-native.js"></script>
+
+       <script src="./js/libs/es6-shim.min.js"></script>
+       <script src="./js/libs/EventDispatcher.js"></script>
+       <script src="./js/libs/promise.min.js"></script>
+
+       <script src="./js/compodoc.js"></script>
+
+       <script src="./js/tabs.js"></script>
+       <script src="./js/menu.js"></script>
+       <script src="./js/libs/clipboard.min.js"></script>
+       <script src="./js/libs/prism.js"></script>
+       <script src="./js/sourceCode.js"></script>
+          <script src="./js/search/search.js"></script>
+          <script src="./js/search/lunr.min.js"></script>
+          <script src="./js/search/search-lunr.js"></script>
+          <script src="./js/search/search_index.js"></script>
+       <script src="./js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

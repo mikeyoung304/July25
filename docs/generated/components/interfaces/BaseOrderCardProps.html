@@ -1,0 +1,912 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  BaseOrderCardProps</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/components/orders/BaseOrderCard.tsx</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#animated" 
+>
+                                            animated
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#className" 
+>
+                                            className
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#layout" 
+>
+                                            layout
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#onCardClick" 
+>
+                                            onCardClick
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#onStatusChange" 
+>
+                                            onStatusChange
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#order" 
+>
+                                            order
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#showActions" 
+>
+                                            showActions
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#showItemGroups" 
+>
+                                            showItemGroups
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#showOrderType" 
+>
+                                            showOrderType
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#showTimer" 
+>
+                                            showTimer
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#variant" 
+>
+                                            variant
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="animated"></a>
+                                        <span class="name "><b>animated</b>
+                                            <a href="#animated">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>animated:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="className"></a>
+                                        <span class="name "><b>className</b>
+                                            <a href="#className">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>className:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="layout"></a>
+                                        <span class="name "><b>layout</b>
+                                            <a href="#layout">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>layout:     <code>&quot;card&quot; | &quot;list&quot;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>&quot;card&quot; | &quot;list&quot;</code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onCardClick"></a>
+                                        <span class="name "><b>onCardClick</b>
+                                            <a href="#onCardClick">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onCardClick:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onStatusChange"></a>
+                                        <span class="name "><b>onStatusChange</b>
+                                            <a href="#onStatusChange">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onStatusChange:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="order"></a>
+                                        <span class="name "><b>order</b>
+                                            <a href="#order">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>order:         <code><a href="../interfaces/Order.html" target="_self" >Order</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="../interfaces/Order.html" target="_self" >Order</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="showActions"></a>
+                                        <span class="name "><b>showActions</b>
+                                            <a href="#showActions">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>showActions:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="showItemGroups"></a>
+                                        <span class="name "><b>showItemGroups</b>
+                                            <a href="#showItemGroups">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>showItemGroups:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="showOrderType"></a>
+                                        <span class="name "><b>showOrderType</b>
+                                            <a href="#showOrderType">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>showOrderType:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="showTimer"></a>
+                                        <span class="name "><b>showTimer</b>
+                                            <a href="#showTimer">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>showTimer:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="variant"></a>
+                                        <span class="name "><b>variant</b>
+                                            <a href="#variant">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>variant:     <code>&quot;standard&quot; | &quot;kds&quot; | &quot;compact&quot;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>&quot;standard&quot; | &quot;kds&quot; | &quot;compact&quot;</code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import React from &#x27;react&#x27;;
+import { Order } from &#x27;@rebuild/shared&#x27;;
+import { OrderHeader } from &#x27;@/components/shared/order/OrderHeaders&#x27;;
+import { OrderItemsList } from &#x27;@/components/shared/order/OrderItemsList&#x27;;
+import { OrderActions } from &#x27;@/components/shared/order/OrderActions&#x27;;
+import { useOrderUrgency } from &#x27;./useOrderUrgency&#x27;;
+import { Clock } from &#x27;lucide-react&#x27;;
+import { cn } from &#x27;@/utils&#x27;;
+
+export interface BaseOrderCardProps {
+  order: Order;
+  variant?: &#x27;standard&#x27; | &#x27;kds&#x27; | &#x27;compact&#x27;;
+  layout?: &#x27;card&#x27; | &#x27;list&#x27;;
+  showOrderType?: boolean;
+  showTimer?: boolean;
+  showActions?: boolean;
+  showItemGroups?: boolean;
+  onStatusChange?: (orderId: string, status: Order[&#x27;status&#x27;]) &#x3D;&gt; void;
+  onCardClick?: (order: Order) &#x3D;&gt; void;
+  className?: string;
+  animated?: boolean;
+}
+
+export const BaseOrderCard: React.FC&lt;BaseOrderCardProps&gt; &#x3D; ({
+  order,
+  variant &#x3D; &#x27;standard&#x27;,
+  layout &#x3D; &#x27;card&#x27;,
+  showOrderType &#x3D; false,
+  showTimer &#x3D; true,
+  showActions &#x3D; true,
+  showItemGroups &#x3D; false,
+  onStatusChange,
+  onCardClick,
+  className,
+  animated: _animated &#x3D; false,
+}) &#x3D;&gt; {
+  const { urgencyLevel, waitTime, isOverdue, urgencyColor, urgencyBgColor } &#x3D; 
+    useOrderUrgency(order, variant);
+
+  const handleCardClick &#x3D; () &#x3D;&gt; {
+    if (onCardClick) {
+      onCardClick(order);
+    }
+  };
+
+  const containerClasses &#x3D; cn(
+    &#x27;order-card relative transition-all duration-200&#x27;,
+    {
+      // Layout styles
+      &#x27;rounded-lg shadow-sm p-4&#x27;: layout &#x3D;&#x3D;&#x3D; &#x27;card&#x27;,
+      &#x27;border-l-4 pl-4 py-2&#x27;: layout &#x3D;&#x3D;&#x3D; &#x27;list&#x27;,
+      
+      // Variant-specific styles
+      &#x27;hover:shadow-md&#x27;: variant &#x3D;&#x3D;&#x3D; &#x27;standard&#x27;,
+      &#x27;hover:shadow-lg transform hover:scale-[1.02]&#x27;: variant &#x3D;&#x3D;&#x3D; &#x27;kds&#x27;,
+      
+      // Urgency styles
+      [urgencyBgColor]: true,
+      &#x27;animate-pulse&#x27;: isOverdue &amp;&amp; variant &#x3D;&#x3D;&#x3D; &#x27;kds&#x27;,
+      
+      // Custom classes
+      [className || &#x27;&#x27;]: !!className,
+    }
+  );
+
+  const headerContainerClasses &#x3D; cn(
+    &#x27;flex justify-between items-start mb-3&#x27;,
+    {
+      &#x27;mb-2&#x27;: layout &#x3D;&#x3D;&#x3D; &#x27;list&#x27;,
+    }
+  );
+
+  // Group items by station if requested
+  const itemGroups &#x3D; showItemGroups 
+    ? groupItemsByStation(order.items)
+    : [{ station: &#x27;all&#x27;, items: order.items }];
+
+  return (
+    &lt;div
+      className&#x3D;{containerClasses}
+      onClick&#x3D;{handleCardClick}
+      data-testid&#x3D;{&#x60;order-card-${order.id}&#x60;}
+      data-urgency&#x3D;{urgencyLevel}
+    &gt;
+      {/* Order Type Badge (KDS variant) */}
+      {showOrderType &amp;&amp; variant &#x3D;&#x3D;&#x3D; &#x27;kds&#x27; &amp;&amp; (
+        &lt;div className&#x3D;&quot;absolute -top-2 -right-2&quot;&gt;
+          &lt;OrderTypeBadge type&#x3D;{order.type} /&gt;
+        &lt;/div&gt;
+      )}
+
+      {/* Header Section */}
+      &lt;div className&#x3D;{headerContainerClasses}&gt;
+        &lt;OrderHeader
+          orderNumber&#x3D;{order.order_number}
+          status&#x3D;{order.status as &#x27;new&#x27; | &#x27;preparing&#x27; | &#x27;ready&#x27;}
+        /&gt;
+        
+        {/* Timer */}
+        {showTimer &amp;&amp; (
+          &lt;div className&#x3D;{cn(&#x27;flex items-center gap-1&#x27;, urgencyColor)}&gt;
+            &lt;Clock className&#x3D;&quot;w-4 h-4&quot; /&gt;
+            &lt;span className&#x3D;&quot;text-sm font-medium&quot;&gt;{waitTime}m&lt;/span&gt;
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+
+      {/* Items Section */}
+      {layout &#x3D;&#x3D;&#x3D; &#x27;card&#x27; ? (
+        &lt;div className&#x3D;&quot;space-y-2&quot;&gt;
+          {itemGroups.map((group, index) &#x3D;&gt; (
+            &lt;div key&#x3D;{index}&gt;
+              {showItemGroups &amp;&amp; group.station !&#x3D;&#x3D; &#x27;all&#x27; &amp;&amp; (
+                &lt;h4 className&#x3D;&quot;text-xs font-medium text-gray-500 uppercase mb-1&quot;&gt;
+                  {group.station}
+                &lt;/h4&gt;
+              )}
+              &lt;OrderItemsList
+                items&#x3D;{group.items}
+                variant&#x3D;{variant &#x3D;&#x3D;&#x3D; &#x27;compact&#x27; ? &#x27;compact&#x27; : &#x27;default&#x27;}
+              /&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+      ) : (
+        &lt;div className&#x3D;&quot;flex items-center justify-between&quot;&gt;
+          &lt;div className&#x3D;&quot;text-sm text-gray-600&quot;&gt;
+            {order.items.length} items • ${order.total.toFixed(2)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      )}
+
+      {/* Actions Section */}
+      {showActions &amp;&amp; layout &#x3D;&#x3D;&#x3D; &#x27;card&#x27; &amp;&amp; onStatusChange &amp;&amp; (
+        &lt;div className&#x3D;&quot;mt-3&quot;&gt;
+          &lt;OrderActions
+            status&#x3D;{order.status as &#x27;new&#x27; | &#x27;preparing&#x27; | &#x27;ready&#x27;}
+            onStatusChange&#x3D;{(newStatus) &#x3D;&gt; onStatusChange?.(order.id, newStatus as Order[&#x27;status&#x27;])}
+            orderNumber&#x3D;{order.order_number}
+          /&gt;
+        &lt;/div&gt;
+      )}
+    &lt;/div&gt;
+  );
+};
+
+// Helper component for order type badges
+const OrderTypeBadge: React.FC&lt;{ type: Order[&#x27;type&#x27;] }&gt; &#x3D; ({ type }) &#x3D;&gt; {
+  const config: Record&lt;string, { bg: string; text: string }&gt; &#x3D; {
+    &#x27;dine-in&#x27;: { bg: &#x27;bg-blue-500&#x27;, text: &#x27;Dine In&#x27; },
+    &#x27;takeout&#x27;: { bg: &#x27;bg-green-500&#x27;, text: &#x27;Takeout&#x27; },
+    &#x27;delivery&#x27;: { bg: &#x27;bg-purple-500&#x27;, text: &#x27;Delivery&#x27; },
+    &#x27;online&#x27;: { bg: &#x27;bg-indigo-500&#x27;, text: &#x27;Online&#x27; },
+  };
+
+  const { bg, text } &#x3D; config[type] || config[&#x27;dine-in&#x27;];
+
+  return (
+    &lt;span className&#x3D;{cn(
+      &#x27;inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white&#x27;,
+      bg
+    )}&gt;
+      {text}
+    &lt;/span&gt;
+  );
+};
+
+// Helper function to group items by station
+function groupItemsByStation(items: Order[&#x27;items&#x27;]) {
+  const groups &#x3D; items.reduce((acc, item) &#x3D;&gt; {
+    // This would use actual station data from items
+    const station &#x3D; &#x27;Kitchen&#x27;; // Placeholder - would come from item data
+    if (!acc[station]) {
+      acc[station] &#x3D; [];
+    }
+    acc[station].push(item);
+    return acc;
+  }, {} as Record&lt;string, typeof items&gt;);
+
+  return Object.entries(groups).map(([station, items]) &#x3D;&gt; ({
+    station,
+    items,
+  }));
+}</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'BaseOrderCardProps.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

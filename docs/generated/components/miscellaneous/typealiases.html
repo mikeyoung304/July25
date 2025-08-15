@@ -1,0 +1,975 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content miscellaneous-typealiases">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Miscellaneous</li>
+  <li class="breadcrumb-item">Type aliases</li>
+</ol>
+
+<section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <ul class="index-list">
+                        <li>
+                            <a href="#AnimatedKDSOrderCardProps" title="client/src/modules/kitchen/components/AnimatedKDSOrderCard.tsx" ><b>AnimatedKDSOrderCardProps</b>&nbsp;&nbsp;&nbsp;(client/.../AnimatedKDSOrderCard.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#ClientItem" title="client/src/api/normalize.ts" ><b>ClientItem</b>&nbsp;&nbsp;&nbsp;(client/.../normalize.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ClientOrder" title="client/src/api/normalize.ts" ><b>ClientOrder</b>&nbsp;&nbsp;&nbsp;(client/.../normalize.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ConnectionState" title="client/src/voice/ws-transport.ts" ><b>ConnectionState</b>&nbsp;&nbsp;&nbsp;(client/.../ws-transport.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ConnectionState" title="client/src/services/websocket/EnterpriseWebSocketService.ts" ><b>ConnectionState</b>&nbsp;&nbsp;&nbsp;(client/.../EnterpriseWebSocketService.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ConnectionState" title="client/src/services/websocket/WebSocketService.ts" ><b>ConnectionState</b>&nbsp;&nbsp;&nbsp;(client/.../WebSocketService.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ConnectionStatus" title="client/src/modules/voice/services/VoiceSocketManager.ts" ><b>ConnectionStatus</b>&nbsp;&nbsp;&nbsp;(client/.../VoiceSocketManager.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#EventHandler" title="client/src/services/utils/EventEmitter.ts" ><b>EventHandler</b>&nbsp;&nbsp;&nbsp;(client/.../EventEmitter.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#FloorPlanAction" title="client/src/modules/floor-plan/types/index.ts" ><b>FloorPlanAction</b>&nbsp;&nbsp;&nbsp;(client/.../index.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#KioskVoiceCaptureConfig" title="client/src/modules/voice/types/index.ts" ><b>KioskVoiceCaptureConfig</b>&nbsp;&nbsp;&nbsp;(client/.../index.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#KioskVoiceCaptureState" title="client/src/modules/voice/types/index.ts" ><b>KioskVoiceCaptureState</b>&nbsp;&nbsp;&nbsp;(client/.../index.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#LabelProps" title="client/src/components/ui/label.tsx" ><b>LabelProps</b>&nbsp;&nbsp;&nbsp;(client/.../label.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#LayoutMode" title="client/src/modules/kitchen/components/KDSLayout.tsx" ><b>LayoutMode</b>&nbsp;&nbsp;&nbsp;(client/.../KDSLayout.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#LogLevel" title="client/src/services/logger.ts" ><b>LogLevel</b>&nbsp;&nbsp;&nbsp;(client/.../logger.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#MicrophonePermissionStatus" title="client/src/modules/voice/components/MicrophonePermission.tsx" ><b>MicrophonePermissionStatus</b>&nbsp;&nbsp;&nbsp;(client/.../MicrophonePermission.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#OrderCardProps" title="client/src/components/orders/OrderCard.tsx" ><b>OrderCardProps</b>&nbsp;&nbsp;&nbsp;(client/.../OrderCard.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#OrderEvent" title="client/src/services/realtime/orderSubscription.ts" ><b>OrderEvent</b>&nbsp;&nbsp;&nbsp;(client/.../orderSubscription.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#OrderEventCallback" title="client/src/services/realtime/orderSubscription.ts" ><b>OrderEventCallback</b>&nbsp;&nbsp;&nbsp;(client/.../orderSubscription.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#OrderStatus" title="client/src/types/common.ts" ><b>OrderStatus</b>&nbsp;&nbsp;&nbsp;(client/.../common.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#OrderStatus" title="client/src/types/filters.ts" ><b>OrderStatus</b>&nbsp;&nbsp;&nbsp;(client/.../filters.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#PermissionState" title="client/src/modules/voice/components/VoiceControl.tsx" ><b>PermissionState</b>&nbsp;&nbsp;&nbsp;(client/.../VoiceControl.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#PermissionState" title="client/src/modules/voice/components/VoiceControlWithAudio.tsx" ><b>PermissionState</b>&nbsp;&nbsp;&nbsp;(client/.../VoiceControlWithAudio.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#RecordingState" title="client/src/test-utils/index.tsx" ><b>RecordingState</b>&nbsp;&nbsp;&nbsp;(client/.../index.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#SortBy" title="client/src/types/filters.ts" ><b>SortBy</b>&nbsp;&nbsp;&nbsp;(client/.../filters.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SortDirection" title="client/src/types/filters.ts" ><b>SortDirection</b>&nbsp;&nbsp;&nbsp;(client/.../filters.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SoundType" title="client/src/services/audio/soundEffects.ts" ><b>SoundType</b>&nbsp;&nbsp;&nbsp;(client/.../soundEffects.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#Station" title="client/src/types/common.ts" ><b>Station</b>&nbsp;&nbsp;&nbsp;(client/.../common.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#StationType" title="client/src/constants/stations.ts" ><b>StationType</b>&nbsp;&nbsp;&nbsp;(client/.../stations.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#StationType" title="client/src/types/station.ts" ><b>StationType</b>&nbsp;&nbsp;&nbsp;(client/.../station.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#Story" title="client/src/modules/voice/components/ConnectionIndicator.stories.tsx" ><b>Story</b>&nbsp;&nbsp;&nbsp;(client/.../ConnectionIndicator.stories.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#Story" title="client/src/modules/voice/components/HoldToRecordButton.stories.tsx" ><b>Story</b>&nbsp;&nbsp;&nbsp;(client/.../HoldToRecordButton.stories.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#UnifiedOrderStatus" title="client/src/types/unified-order.ts" ><b>UnifiedOrderStatus</b>&nbsp;&nbsp;&nbsp;(client/.../unified-order.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#UnifiedOrderType" title="client/src/types/unified-order.ts" ><b>UnifiedOrderType</b>&nbsp;&nbsp;&nbsp;(client/.../unified-order.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#UrgencyLevel" title="client/src/components/orders/useOrderUrgency.ts" ><b>UrgencyLevel</b>&nbsp;&nbsp;&nbsp;(client/.../useOrderUrgency.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#UserRole" title="client/src/contexts/RoleContext.tsx" ><b>UserRole</b>&nbsp;&nbsp;&nbsp;(client/.../RoleContext.tsx)</a>
+                        </li>
+                        <li>
+                            <a href="#WireOrder" title="client/src/api/normalize.ts" ><b>WireOrder</b>&nbsp;&nbsp;&nbsp;(client/.../normalize.ts)</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+    <h3>client/src/modules/kitchen/components/AnimatedKDSOrderCard.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="AnimatedKDSOrderCardProps"></a>
+                    <span class="name "><b>AnimatedKDSOrderCardProps</b><a href="#AnimatedKDSOrderCardProps"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>React.ComponentProps&lt;&gt;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/api/normalize.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ClientItem"></a>
+                    <span class="name "><b>ClientItem</b><a href="#ClientItem"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ClientOrder"></a>
+                    <span class="name "><b>ClientOrder</b><a href="#ClientOrder"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="WireOrder"></a>
+                    <span class="name "><b>WireOrder</b><a href="#WireOrder"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>z.infer&lt;&gt;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/voice/ws-transport.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ConnectionState"></a>
+                    <span class="name "><b>ConnectionState</b><a href="#ConnectionState"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;disconnected&quot; | &quot;connecting&quot; | &quot;connected&quot; | &quot;reconnecting&quot; | &quot;error&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/services/websocket/EnterpriseWebSocketService.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ConnectionState"></a>
+                    <span class="name "><b>ConnectionState</b><a href="#ConnectionState"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;connecting&quot; | &quot;connected&quot; | &quot;disconnected&quot; | &quot;error&quot; | &quot;terminated&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/services/websocket/WebSocketService.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ConnectionState"></a>
+                    <span class="name "><b>ConnectionState</b><a href="#ConnectionState"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;connecting&quot; | &quot;connected&quot; | &quot;disconnected&quot; | &quot;error&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/modules/voice/services/VoiceSocketManager.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ConnectionStatus"></a>
+                    <span class="name "><b>ConnectionStatus</b><a href="#ConnectionStatus"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;disconnected&quot; | &quot;connecting&quot; | &quot;connected&quot; | &quot;error&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/services/utils/EventEmitter.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="EventHandler"></a>
+                    <span class="name "><b>EventHandler</b><a href="#EventHandler"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Browser-compatible EventEmitter implementation
+Provides a simple event emitter for WebSocket service</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/modules/floor-plan/types/index.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="FloorPlanAction"></a>
+                    <span class="name "><b>FloorPlanAction</b><a href="#FloorPlanAction"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type | literal type | literal type | literal type | literal type | literal type | literal type | literal type | literal type | literal type | literal type | literal type | literal type | literal type | literal type | literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/modules/voice/types/index.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="KioskVoiceCaptureConfig"></a>
+                    <span class="name "><b>KioskVoiceCaptureConfig</b><a href="#KioskVoiceCaptureConfig"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Type definitions for kiosk-voice-capture feature</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>Record&lt;string | never&gt;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="KioskVoiceCaptureState"></a>
+                    <span class="name "><b>KioskVoiceCaptureState</b><a href="#KioskVoiceCaptureState"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>Record&lt;string | never&gt;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/components/ui/label.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="LabelProps"></a>
+                    <span class="name "><b>LabelProps</b><a href="#LabelProps"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>React.LabelHTMLAttributes&lt;HTMLLabelElement&gt;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/modules/kitchen/components/KDSLayout.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="LayoutMode"></a>
+                    <span class="name "><b>LayoutMode</b><a href="#LayoutMode"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;grid&quot; | &quot;list&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/services/logger.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="LogLevel"></a>
+                    <span class="name "><b>LogLevel</b><a href="#LogLevel"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Client-side logging service
+Provides environment-aware logging with proper production handling</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;debug&quot; | &quot;info&quot; | &quot;warn&quot; | &quot;error&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/modules/voice/components/MicrophonePermission.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="MicrophonePermissionStatus"></a>
+                    <span class="name "><b>MicrophonePermissionStatus</b><a href="#MicrophonePermissionStatus"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;checking&quot; | &quot;granted&quot; | &quot;denied&quot; | &quot;not-found&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/components/orders/OrderCard.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="OrderCardProps"></a>
+                    <span class="name "><b>OrderCardProps</b><a href="#OrderCardProps"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Standard OrderCard component
+Wrapper around BaseOrderCard for backward compatibility</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../miscellaneous/typealiases.html#OrderCardProps" target="_self" >Omit&lt;BaseOrderCardProps | variant&gt;</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/services/realtime/orderSubscription.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="OrderEvent"></a>
+                    <span class="name "><b>OrderEvent</b><a href="#OrderEvent"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type | literal type | literal type | literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="OrderEventCallback"></a>
+                    <span class="name "><b>OrderEventCallback</b><a href="#OrderEventCallback"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/types/common.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="OrderStatus"></a>
+                    <span class="name "><b>OrderStatus</b><a href="#OrderStatus"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../interfaces/Order.html" target="_self" >SharedOrderStatus</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="Station"></a>
+                    <span class="name "><b>Station</b><a href="#Station"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;grill&quot; | &quot;fryer&quot; | &quot;salad&quot; | &quot;expo&quot; | &quot;bar&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/types/filters.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="OrderStatus"></a>
+                    <span class="name "><b>OrderStatus</b><a href="#OrderStatus"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../interfaces/Order.html" target="_self" >Order</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SortBy"></a>
+                    <span class="name "><b>SortBy</b><a href="#SortBy"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;created_at&quot; | &quot;order_number&quot; | &quot;table_number&quot; | &quot;status&quot; | &quot;itemCount&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SortDirection"></a>
+                    <span class="name "><b>SortDirection</b><a href="#SortDirection"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;asc&quot; | &quot;desc&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/modules/voice/components/VoiceControl.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="PermissionState"></a>
+                    <span class="name "><b>PermissionState</b><a href="#PermissionState"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;granted&quot; | &quot;denied&quot; | &quot;prompt&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/modules/voice/components/VoiceControlWithAudio.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="PermissionState"></a>
+                    <span class="name "><b>PermissionState</b><a href="#PermissionState"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;granted&quot; | &quot;denied&quot; | &quot;prompt&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/test-utils/index.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="RecordingState"></a>
+                    <span class="name "><b>RecordingState</b><a href="#RecordingState"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;inactive&quot; | &quot;recording&quot; | &quot;paused&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/services/audio/soundEffects.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SoundType"></a>
+                    <span class="name "><b>SoundType</b><a href="#SoundType"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Sound effects service for KDS notifications
+Provides audio feedback for order events</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../interfaces/Order.html" target="_self" >&quot;newOrder&quot; | &quot;orderReady&quot; | &quot;alert&quot; | &quot;success&quot; | &quot;statusChange&quot;</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/constants/stations.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="StationType"></a>
+                    <span class="name "><b>StationType</b><a href="#StationType"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/types/station.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="StationType"></a>
+                    <span class="name "><b>StationType</b><a href="#StationType"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;grill&quot; | &quot;fryer&quot; | &quot;cold&quot; | &quot;pizza&quot; | &quot;pasta&quot; | &quot;drinks&quot; | &quot;dessert&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/modules/voice/components/ConnectionIndicator.stories.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="Story"></a>
+                    <span class="name "><b>Story</b><a href="#Story"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>StoryObj&lt;&gt;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/modules/voice/components/HoldToRecordButton.stories.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="Story"></a>
+                    <span class="name "><b>Story</b><a href="#Story"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>StoryObj&lt;&gt;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/types/unified-order.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="UnifiedOrderStatus"></a>
+                    <span class="name "><b>UnifiedOrderStatus</b><a href="#UnifiedOrderStatus"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;new&quot; | &quot;preparing&quot; | &quot;ready&quot; | &quot;completed&quot; | &quot;cancelled&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="UnifiedOrderType"></a>
+                    <span class="name "><b>UnifiedOrderType</b><a href="#UnifiedOrderType"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Unified Order Types for All Ordering Channels
+This ensures consistency across voice, online, kiosk, and server input</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;dine-in&quot; | &quot;drive-thru&quot; | &quot;takeout&quot; | &quot;delivery&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/components/orders/useOrderUrgency.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="UrgencyLevel"></a>
+                    <span class="name "><b>UrgencyLevel</b><a href="#UrgencyLevel"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;low&quot; | &quot;medium&quot; | &quot;high&quot; | &quot;critical&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>client/src/contexts/RoleContext.tsx</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="UserRole"></a>
+                    <span class="name "><b>UserRole</b><a href="#UserRole"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;server&quot; | &quot;kitchen&quot; | &quot;admin&quot; | &quot;customer&quot; | null</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'miscellaneous-typealiases';
+            var COMPODOC_CURRENT_PAGE_URL = 'typealiases.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

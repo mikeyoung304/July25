@@ -12,6 +12,7 @@ export interface AuthenticatedRequest extends Request {
     id: string;
     email?: string;
     role?: string;
+    scopes?: string[];
   };
   restaurantId?: string;
 }
@@ -48,9 +49,21 @@ export async function authenticate(
     // Verify JWT with proper signature validation
     let decoded: any;
     try {
-      // Use Supabase JWT secret if available, otherwise fall back to anon key
-      const secret = config.supabase.jwtSecret || config.supabase.anonKey;
-      decoded = jwt.verify(token, secret) as any;
+      // Try kiosk JWT secret first (for demo tokens)
+      const kioskSecret = process.env.KIOSK_JWT_SECRET;
+      if (kioskSecret) {
+        try {
+          decoded = jwt.verify(token, kioskSecret) as any;
+        } catch (kioskError) {
+          // If kiosk JWT fails, try Supabase JWT
+          const secret = config.supabase.jwtSecret || config.supabase.anonKey;
+          decoded = jwt.verify(token, secret) as any;
+        }
+      } else {
+        // No kiosk secret, use Supabase JWT
+        const secret = config.supabase.jwtSecret || config.supabase.anonKey;
+        decoded = jwt.verify(token, secret) as any;
+      }
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
         throw Unauthorized('Token expired');
@@ -65,6 +78,7 @@ export async function authenticate(
       id: decoded.sub,
       email: decoded.email,
       role: decoded.role || 'user',
+      scopes: decoded.scope || [],
     };
 
     // Set restaurant ID from header or token
@@ -150,6 +164,23 @@ export function requireRole(roles: string[]) {
   return (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role || '')) {
       next(Unauthorized('Insufficient permissions'));
+    } else {
+      next();
+    }
+  };
+}
+
+// Require specific scope
+export function requireScope(requiredScopes: string[]) {
+  return (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
+    if (!req.user || !req.user.scopes) {
+      next(Unauthorized('No scopes available'));
+      return;
+    }
+
+    const hasRequiredScope = requiredScopes.some(scope => req.user!.scopes!.includes(scope));
+    if (!hasRequiredScope) {
+      next(Unauthorized(`Required scope missing. Need one of: ${requiredScopes.join(', ')}`));
     } else {
       next();
     }
