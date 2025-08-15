@@ -73,17 +73,15 @@ export class OpenAITextToSpeech implements TTS {
         mimeType: 'audio/mpeg'
       };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       ttsLogger.error('TTS synthesis failed', {
         requestId,
-        error: error instanceof Error ? error.message : String(error)
+        error: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined
       });
       
-      // Return empty audio as degraded response
-      return {
-        audio: Buffer.alloc(0),
-        audioBuffer: Buffer.alloc(0), // For backward compatibility
-        mimeType: 'audio/mpeg'
-      };
+      // STOP HIDING ERRORS - Throw them so we can see what's wrong
+      throw new Error(`OpenAI TTS failed: ${errorMessage}`);
     }
   }
 }
