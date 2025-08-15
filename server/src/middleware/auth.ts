@@ -31,9 +31,11 @@ export async function authenticate(
 
     const token = authHeader.substring(7);
     
-    // For development ONLY, allow a test token
-    if (config.nodeEnv === 'development' && token === 'test-token') {
-      logger.warn('Using test token - this should NEVER appear in production!');
+    // For development/staging, allow a test token
+    // Check for Render deployment (staging) or local development
+    const isStaging = process.env.RENDER === 'true' || process.env.IS_PULL_REQUEST === 'true';
+    if ((config.nodeEnv === 'development' || isStaging) && token === 'test-token') {
+      logger.warn('Using test token in staging/development');
       req.user = {
         id: 'test-user-id',
         email: 'test@example.com',
@@ -113,9 +115,10 @@ export async function verifyWebSocketAuth(
       return null;
     }
 
-    // For development ONLY, allow test token
-    if (config.nodeEnv === 'development' && token === 'test-token') {
-      logger.warn('Using test token in WebSocket - this should NEVER appear in production!');
+    // For development/staging, allow test token
+    const isStaging = process.env.RENDER === 'true' || process.env.IS_PULL_REQUEST === 'true';
+    if ((config.nodeEnv === 'development' || isStaging) && token === 'test-token') {
+      logger.warn('Using test token in WebSocket (staging/development)');
       return {
         userId: 'test-user-id',
         restaurantId: config.restaurant.defaultId,
