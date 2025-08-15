@@ -21,7 +21,8 @@ const getAuthHeaders = async (): Promise<HeadersInit> => {
   };
   if (session?.access_token) {
     headers['Authorization'] = `Bearer ${session.access_token}`;
-  } else if (import.meta.env.DEV) {
+  } else {
+    // Always use test-token as fallback for now
     headers['Authorization'] = 'Bearer test-token';
   }
   return headers;
