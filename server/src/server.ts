@@ -69,12 +69,14 @@ app.use(helmet({
 }))
 
 // CORS configuration with stricter settings
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+const allowedOrigins = (process.env.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [
   process.env.FRONTEND_URL || 'http://localhost:5173',
   'https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
   'https://growfreshlocalfood.com',
   'https://www.growfreshlocalfood.com'
-];
+]);
+
+console.log('🔧 CORS allowed origins:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -84,6 +86,8 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error(`❌ CORS blocked origin: "${origin}"`);
+      console.error(`   Allowed origins:`, allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
