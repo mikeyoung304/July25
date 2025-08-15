@@ -233,19 +233,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
 
   const isProcessing = () => processingSemaphore.current;
 
-  // Diagnostic function for testing realtime endpoint
-  const testRealtimeEndpoint = useCallback(async () => {
-    console.warn('🧪 Testing realtime endpoint availability...');
-    const isAvailable = await checkRealtimeEndpoint();
-    console.warn(`🧪 Realtime endpoint is_available: ${isAvailable}`);
-    return isAvailable;
-  }, []);
 
   return {
     processVoiceToAudio,
     processVoiceWithTranscript,
     isProcessing,
-    audioService,
-    testRealtimeEndpoint // Export for manual testing
+    audioService
   };
 }
