@@ -3,6 +3,10 @@ import { useVoiceToAudio } from '@/modules/voice/hooks/useVoiceToAudio'
 import { useToast } from '@/hooks/useToast'
 import type { Table } from '@/modules/floor-plan/types'
 
+// Helper to resolve absolute API URLs for production (Vercel)
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const apiUrl = (path: string) => `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+
 export function useVoiceOrderFlow() {
   const { toast } = useToast()
   const [showVoiceOrder, setShowVoiceOrder] = useState(false)
@@ -39,7 +43,7 @@ export function useVoiceOrderFlow() {
     }
     
     try {
-      const response = await fetch('/api/v1/orders', {
+      const response = await fetch(apiUrl('/api/v1/orders'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
