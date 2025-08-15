@@ -9,7 +9,7 @@
     "shared"
   ],
   "scripts": {
-    "prepare": "husky",
+    "prepare": "node -e \"if (process.env.NODE_ENV !== 'production' && !process.env.CI && !process.env.RENDER) try { require('husky') } catch {}\"",
     "start": "cd server && npm start",
     "dev": "concurrently --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\"",
     "dev:supabase": "./scripts/dev-with-supabase.sh",
@@ -46,7 +46,7 @@
     "db:seed": "tsx scripts/seed-database.ts",
     "test:enhanced": "npx playwright test",
     "test:visual": "npx playwright test --project=visual-regression",
-    "test:a11y": "npx playwright test --project=accessibility", 
+    "test:a11y": "npx playwright test --project=accessibility",
     "test:api": "npx playwright test --project=api",
     "test:performance": "npx playwright test --project=performance",
     "voice:smoke": "curl -s http://localhost:3001/api/v1/ai/voice/handshake | jq ."
