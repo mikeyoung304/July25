@@ -35,31 +35,10 @@ export class OpenAITextToSpeech implements TTS {
           response_format: 'mp3'
         });
 
-        // Convert response to Buffer
-        const chunks: Uint8Array[] = [];
-        const reader = response.body?.getReader();
-        
-        if (!reader) {
-          throw new Error('No response body from OpenAI TTS');
-        }
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          chunks.push(value);
-        }
-
-        // Combine all chunks into a single buffer
-        const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-        const buffer = new Uint8Array(totalLength);
-        let offset = 0;
-        
-        for (const chunk of chunks) {
-          buffer.set(chunk, offset);
-          offset += chunk.length;
-        }
-
-        return Buffer.from(buffer);
+        // The OpenAI SDK returns a Response object
+        // Convert it to Buffer using arrayBuffer()
+        const arrayBuffer = await response.arrayBuffer();
+        return Buffer.from(arrayBuffer);
       });
 
       ttsLogger.info('TTS synthesis completed', {
