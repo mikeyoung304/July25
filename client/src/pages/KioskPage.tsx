@@ -116,7 +116,7 @@ const KioskPageContent: React.FC = () => {
       
       // Parse the order and add items
       if (orderParser) {
-        const parsed = orderParser.parseOrderText(transcript);
+        const parsed = orderParser.parseUserTranscript(transcript);
         if (parsed.length > 0) {
           processParsedItems(parsed);
         }

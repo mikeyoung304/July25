@@ -56,22 +56,6 @@ export interface VoiceToAudioOptions {
  * Hook for processing voice input and playing audio responses
  * Handles the complete flow: voice → transcription → AI response → audio playback
  */
-// Quick diagnostic function to check if realtime endpoint exists
-const checkRealtimeEndpoint = async (): Promise<boolean> => {
-  try {
-    const authHeaders = await getAuthHeaders();
-    const response = await fetch(url('/api/v1/ai/voice-chat-realtime'), {
-      method: 'OPTIONS', // Use OPTIONS to check endpoint availability without sending data
-      headers: authHeaders,
-      signal: AbortSignal.timeout(2000) // Quick 2-second check
-    });
-    console.warn(`🔍 Realtime endpoint check: ${response.status} ${response.statusText}`);
-    return response.status !== 404;
-  } catch (error) {
-    console.warn('🔍 Realtime endpoint check failed:', error);
-    return false;
-  }
-};
 
 export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
   const { toast } = useToast();
@@ -95,80 +79,23 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
 
       console.log('Sending voice to AI service for processing...');
 
-      // Step 2: Race pattern - try realtime with fast timeout, fallback immediately
-      const useRealtime = import.meta.env.VITE_USE_REALTIME_VOICE !== 'false'; // Default to true
+      // Step 2: Process voice with AI service
       
       let response: Response;
       let usedEndpoint = '';
 
-      if (useRealtime) {
-        // Try realtime first with manual timeout, immediate fallback on any issue
-        try {
-          console.warn('🚀 Attempting realtime endpoint...');
-          const realtimeFormData = new FormData();
-          realtimeFormData.append('audio', audioBlob, 'voice.webm');
-          
-          // Manual timeout implementation for better browser support
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => {
-            controller.abort();
-            console.warn('⏰ Realtime timeout after 8 seconds');
-          }, 8000); // Temporarily increase to 8 seconds to test if endpoint works
-          
-          const authHeaders = await getAuthHeaders();
-          const realtimeResponse = await fetch(url('/api/v1/ai/voice-chat-realtime'), {
-            method: 'POST',
-            body: realtimeFormData,
-            headers: { ...authHeaders, 'Accept': 'audio/mpeg' },
-            signal: controller.signal
-          });
-          
-          clearTimeout(timeoutId);
-          
-          if (realtimeResponse.ok) {
-            response = realtimeResponse;
-            usedEndpoint = '/api/v1/ai/voice-chat-realtime';
-            const voiceMode = response.headers.get('X-Voice-Mode') || 'realtime';
-            console.warn(`✅ Realtime SUCCESS: ${usedEndpoint} (mode: ${voiceMode})`);
-          } else {
-            console.warn(`❌ Realtime endpoint returned status ${realtimeResponse.status}: ${realtimeResponse.statusText}`);
-            throw new Error(`Realtime endpoint returned ${realtimeResponse.status}: ${realtimeResponse.statusText}`);
-          }
-          
-        } catch (error) {
-          // Immediate fallback to regular endpoint
-          console.warn('❌ Realtime failed, using regular endpoint:', error.message || error);
-          const regularFormData = new FormData();
-          regularFormData.append('audio', audioBlob, 'voice.webm');
-          
-          const authHeaders = await getAuthHeaders();
-          response = await fetch(url('/api/v1/ai/voice-chat'), {
-            method: 'POST',
-            body: regularFormData,
-            headers: { ...authHeaders, 'Accept': 'audio/mpeg' }
-          });
-          
-          if (!response.ok) {
-            throw new Error(`Regular endpoint failed: ${response.status}`);
-          }
-          usedEndpoint = '/api/v1/ai/voice-chat';
-          const voiceMode = response.headers.get('X-Voice-Mode') || 'regular';
-          console.warn(`✅ Regular fallback SUCCESS: ${usedEndpoint} (mode: ${voiceMode})`);
-        }
-      } else {
-        // Use regular endpoint only
-        const authHeaders = await getAuthHeaders();
-        response = await fetch(url('/api/v1/ai/voice-chat'), {
-          method: 'POST',
-          body: formData,
-          headers: { ...authHeaders, 'Accept': 'audio/mpeg' }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Voice processing failed: ${response.status}`);
-        }
-        usedEndpoint = '/api/v1/ai/voice-chat';
+      // Use regular voice-chat endpoint only
+      const authHeaders = await getAuthHeaders();
+      response = await fetch(url('/api/v1/ai/voice-chat'), {
+        method: 'POST',
+        body: formData,
+        headers: { ...authHeaders, 'Accept': 'audio/mpeg' }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Voice processing failed: ${response.status}`);
       }
+      usedEndpoint = '/api/v1/ai/voice-chat';
 
       // Check if response is audio or JSON error
       const contentType = response.headers.get('content-type');
@@ -234,86 +161,41 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'voice.webm');
 
-      // Race pattern for transcript processing too
-      const useRealtime = import.meta.env.VITE_USE_REALTIME_VOICE !== 'false'; // Default to true
+      // Process voice for transcript only
       
       let transcriptResponse: Response;
       let usedEndpoint = '';
 
-      if (useRealtime) {
-        try {
-          console.warn('🚀 Attempting realtime transcript endpoint...');
-          const realtimeFormData = new FormData();
-          realtimeFormData.append('audio', audioBlob, 'voice.webm');
-          
-          // Manual timeout for transcript processing
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => {
-            controller.abort();
-            console.warn('⏰ Realtime transcript timeout after 8 seconds');
-          }, 8000); // Temporarily increase to 8 seconds to test if endpoint works
-          
-          const authHeaders = await getAuthHeaders();
-          const realtimeResponse = await fetch(url('/api/v1/ai/voice-chat-realtime'), {
-            method: 'POST',
-            body: realtimeFormData,
-            headers: { ...authHeaders, 'Accept': 'audio/mpeg, application/json' },
-            signal: controller.signal
-          });
-          
-          clearTimeout(timeoutId);
-          
-          if (realtimeResponse.ok) {
-            transcriptResponse = realtimeResponse;
-            usedEndpoint = '/api/v1/ai/voice-chat-realtime';
-            const voiceMode = transcriptResponse.headers.get('X-Voice-Mode') || 'realtime';
-            console.warn(`✅ Realtime transcript SUCCESS: ${usedEndpoint} (mode: ${voiceMode})`);
-          } else {
-            console.warn(`❌ Realtime transcript endpoint returned status ${realtimeResponse.status}: ${realtimeResponse.statusText}`);
-            throw new Error(`Realtime transcript endpoint returned ${realtimeResponse.status}: ${realtimeResponse.statusText}`);
-          }
-          
-        } catch (error) {
-          // Immediate fallback
-          console.warn('❌ Realtime transcript failed, using regular endpoint:', error.message || error);
-          const regularFormData = new FormData();
-          regularFormData.append('audio', audioBlob, 'voice.webm');
-          
-          const authHeaders = await getAuthHeaders();
-          transcriptResponse = await fetch(url('/api/v1/ai/voice-chat'), {
-            method: 'POST',
-            body: regularFormData,
-            headers: { ...authHeaders, 'Accept': 'audio/mpeg, application/json' }
-          });
-          
-          if (!transcriptResponse.ok) {
-            throw new Error(`Regular transcript endpoint failed: ${transcriptResponse.statusText}`);
-          }
-          usedEndpoint = '/api/v1/ai/voice-chat';
-          const voiceMode = transcriptResponse.headers.get('X-Voice-Mode') || 'regular';
-          console.warn(`✅ Regular transcript fallback SUCCESS: ${usedEndpoint} (mode: ${voiceMode})`);
-        }
-      } else {
-        const authHeaders = await getAuthHeaders();
-        transcriptResponse = await fetch(url('/api/v1/ai/voice-chat'), {
-          method: 'POST',
-          body: formData,
-          headers: { ...authHeaders, 'Accept': 'audio/mpeg, application/json' }
-        });
-        
-        if (!transcriptResponse.ok) {
-          throw new Error(`Voice transcript processing failed: ${transcriptResponse.statusText}`);
-        }
-        usedEndpoint = '/api/v1/ai/voice-chat';
+      // Use regular voice-chat endpoint only for transcript
+      const authHeaders = await getAuthHeaders();
+      transcriptResponse = await fetch(url('/api/v1/ai/voice-chat'), {
+        method: 'POST',
+        body: formData,
+        headers: { ...authHeaders, 'Accept': 'audio/mpeg, application/json' }
+      });
+      
+      if (!transcriptResponse.ok) {
+        throw new Error(`Voice transcript processing failed: ${transcriptResponse.statusText}`);
       }
+      usedEndpoint = '/api/v1/ai/voice-chat';
 
       // OpenAI TTS returns MP3 audio directly - play it immediately
       const audioBuffer = await transcriptResponse.arrayBuffer();
       
       console.log('Received audio response from OpenAI TTS:', audioBuffer.byteLength, 'bytes');
       
-      // Convert ArrayBuffer to Blob for audio service
+      // Validate audio buffer
+      if (audioBuffer.byteLength === 0) {
+        throw new Error('Received empty audio response');
+      }
+      
+      // Convert ArrayBuffer to Blob for audio service with explicit MIME type
       const responseAudioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
+      
+      // Validate blob creation
+      if (responseAudioBlob.size === 0) {
+        throw new Error('Failed to create audio blob');
+      }
       
       // Play the MP3 response using the correct method
       await audioService.playAudioBlob(responseAudioBlob, 'Voice response', {
