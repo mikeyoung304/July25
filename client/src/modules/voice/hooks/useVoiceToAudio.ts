@@ -84,9 +84,9 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       let response: Response;
       let usedEndpoint = '';
 
-      // Use regular voice-chat endpoint only
+      // Use transcribe endpoint for audio response
       const authHeaders = await getAuthHeaders();
-      response = await fetch(url('/api/v1/ai/voice-chat'), {
+      response = await fetch(url('/api/v1/ai/transcribe'), {
         method: 'POST',
         body: formData,
         headers: { ...authHeaders, 'Accept': 'audio/mpeg' }
@@ -95,7 +95,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       if (!response.ok) {
         throw new Error(`Voice processing failed: ${response.status}`);
       }
-      usedEndpoint = '/api/v1/ai/voice-chat';
+      usedEndpoint = '/api/v1/ai/transcribe';
 
       // Check if response is audio or JSON error
       const contentType = response.headers.get('content-type');
@@ -166,9 +166,9 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       let transcriptResponse: Response;
       let usedEndpoint = '';
 
-      // Use regular voice-chat endpoint only for transcript
+      // Use transcribe endpoint for audio response
       const authHeaders = await getAuthHeaders();
-      transcriptResponse = await fetch(url('/api/v1/ai/voice-chat'), {
+      transcriptResponse = await fetch(url('/api/v1/ai/transcribe'), {
         method: 'POST',
         body: formData,
         headers: { ...authHeaders, 'Accept': 'audio/mpeg, application/json' }
@@ -177,7 +177,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       if (!transcriptResponse.ok) {
         throw new Error(`Voice transcript processing failed: ${transcriptResponse.statusText}`);
       }
-      usedEndpoint = '/api/v1/ai/voice-chat';
+      usedEndpoint = '/api/v1/ai/transcribe';
 
       // OpenAI TTS returns MP3 audio directly - play it immediately
       const audioBuffer = await transcriptResponse.arrayBuffer();
