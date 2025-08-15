@@ -76,6 +76,13 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS?.split(',').map(origin => or
   'https://www.growfreshlocalfood.com'
 ]);
 
+// Add July25 Vercel deployments
+const july25Origins = [
+  'https://july25-client.vercel.app',
+  'https://july25-client-git-feat-r-b7c846-mikeyoung304-gmailcoms-projects.vercel.app'
+];
+allowedOrigins.push(...july25Origins);
+
 console.log('🔧 CORS allowed origins:', allowedOrigins);
 
 app.use(cors({
@@ -83,7 +90,13 @@ app.use(cors({
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
     
+    // Check exact matches first
     if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } 
+    // Allow any Vercel preview deployment for July25
+    else if (origin.includes('july25-client') && origin.endsWith('.vercel.app')) {
+      console.log(`✅ Allowing Vercel preview deployment: ${origin}`);
       callback(null, true);
     } else {
       console.error(`❌ CORS blocked origin: "${origin}"`);
@@ -94,7 +107,7 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id', 'x-request-id'],
-  exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset'],
+  exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset', 'x-order-data', 'x-transcript', 'x-response-text'],
   maxAge: 86400, // 24 hours
 }));
 app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
