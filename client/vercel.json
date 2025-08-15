@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "VITE_API_BASE_URL=$VITE_API_BASE_URL npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
@@ -7,8 +7,5 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "env": {
-    "FORCE_REBUILD": "fixed-env-local-override"
-  }
+  ]
 }
