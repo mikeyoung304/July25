@@ -264,11 +264,17 @@ router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authe
     });
 
     // Step 1: Transcribe the audio
+    aiLogger.info('Starting transcription', {
+      fileSize: req.file.size,
+      mimeType: req.file.mimetype
+    });
+
     const transcriptionResult = await ai.transcriber.transcribe(req.file.buffer, {
       model: req.file.mimetype
     });
 
     if (!transcriptionResult.text) {
+      aiLogger.warn('Empty transcription result');
       res.set('Cache-Control', 'no-store');
       return res.status(400).json({
         error: 'No transcription available',
@@ -276,11 +282,19 @@ router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authe
       });
     }
 
+    aiLogger.info('Transcription completed', {
+      text: transcriptionResult.text.substring(0, 100) + '...'
+    });
+
     // Step 2: Generate chat response
     const chatResponse = await ai.chat.respond([
       { role: 'user', content: transcriptionResult.text }
     ], {
       context: { restaurantId, userId: req.user?.id }
+    });
+
+    aiLogger.info('Chat response generated', {
+      responseLength: chatResponse.message.length
     });
 
     // Step 3: Check if client wants audio response
@@ -290,18 +304,22 @@ router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authe
     if (wantsAudio) {
       // Generate audio response using TTS
       try {
-        const audioBuffer = await ai.textToSpeech.generateSpeech(chatResponse.message, {
-          voice: 'alloy',
-          format: 'mp3'
+        const ttsResult = await ai.tts.synthesize(chatResponse.message, {
+          voice: 'nova'
+        });
+
+        aiLogger.info('TTS audio generated', {
+          audioSize: ttsResult.audio.length,
+          mimeType: ttsResult.mimeType
         });
 
         res.set({
-          'Content-Type': 'audio/mpeg',
-          'Content-Length': audioBuffer.length.toString(),
+          'Content-Type': ttsResult.mimeType,
+          'Content-Length': ttsResult.audio.length.toString(),
           'Cache-Control': 'no-store'
         });
         
-        return res.send(audioBuffer);
+        return res.send(ttsResult.audio);
       } catch (error) {
         aiLogger.error('TTS generation failed, falling back to JSON:', error);
         // Fall through to JSON response if TTS fails
@@ -424,6 +442,80 @@ router.get('/health', trackAIMetrics('provider-health'), async (_req: Request, r
     aiLogger.error('Health check failed:', error);
     res.set('Cache-Control', 'no-store');
     return res.status(503).json({ error: 'provider_unavailable' });
+  }
+});
+
+/**
+ * TEST ENDPOINT: Simple TTS test
+ * Send text, get audio back - no auth required for testing
+ */
+router.post('/test-tts', async (req: Request, res: Response) => {
+  try {
+    const { text = "Hello, this is a test of text to speech." } = req.body;
+    
+    aiLogger.info('Test TTS requested', { text });
+    
+    const ttsResult = await ai.tts.synthesize(text, {
+      voice: 'nova'
+    });
+    
+    aiLogger.info('Test TTS completed', {
+      audioSize: ttsResult.audio.length,
+      mimeType: ttsResult.mimeType
+    });
+    
+    res.set({
+      'Content-Type': ttsResult.mimeType,
+      'Content-Length': ttsResult.audio.length.toString(),
+      'Cache-Control': 'no-store'
+    });
+    
+    return res.send(ttsResult.audio);
+  } catch (error) {
+    aiLogger.error('Test TTS failed:', error);
+    return res.status(500).json({
+      error: 'TTS test failed',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: process.env.NODE_ENV === 'development' ? (error as any).stack : undefined
+    });
+  }
+});
+
+/**
+ * TEST ENDPOINT: Simple transcription test
+ * Upload audio, get text back - no auth required for testing
+ */
+router.post('/test-transcribe', audioUpload.single('audio'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Audio file required' });
+    }
+    
+    aiLogger.info('Test transcribe requested', {
+      fileSize: req.file.size,
+      mimeType: req.file.mimetype
+    });
+    
+    const result = await ai.transcriber.transcribe(req.file.buffer, {
+      model: req.file.mimetype
+    });
+    
+    aiLogger.info('Test transcribe completed', {
+      text: result.text
+    });
+    
+    return res.json({
+      success: true,
+      text: result.text,
+      duration: result.duration
+    });
+  } catch (error) {
+    aiLogger.error('Test transcribe failed:', error);
+    return res.status(500).json({
+      error: 'Transcription test failed',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: process.env.NODE_ENV === 'development' ? (error as any).stack : undefined
+    });
   }
 });
 
