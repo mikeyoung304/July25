@@ -6,12 +6,14 @@ import { supabase } from '@/core/supabase';
 import { getDemoToken } from '@/services/auth/demoAuth';
 
 // Helper to resolve absolute API URLs for production (Vercel)
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.PROD ? 'https://july25.onrender.com' : 'http://localhost:3001');
 const url = (path: string) => {
   if (import.meta.env.DEV && path.startsWith('api/')) {
     console.warn('[voice] Warning: relative API path detected:', path);
   }
-  return `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+  const base = API_BASE.replace(/\/$/, '');
+  return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
 };
 
 // Helper to get auth headers
