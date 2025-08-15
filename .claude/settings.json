@@ -28,12 +28,10 @@
   },
   "subagents": {
     "preferredAgents": [
-      "typescript-debugger",
       "vite-builder",
       "react-optimizer"
     ],
     "autoDelegate": {
-      "typeErrors": "typescript-debugger",
       "buildIssues": "vite-builder",
       "performance": "react-optimizer"
     }

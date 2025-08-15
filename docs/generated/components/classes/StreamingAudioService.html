@@ -1,0 +1,1692 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content class">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >StreamingAudioService</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/services/audio/StreamingAudioService.ts</code>
+        </p>
+
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#audioContext" >audioContext</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#options" >options</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#sessions" >sessions</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#addAudioChunk" >addAudioChunk</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#appendAudioBuffers" >appendAudioBuffers</a>
+                            </li>
+                            <li>
+                                <a href="#cleanup" >cleanup</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#cleanupOldChunks" >cleanupOldChunks</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#enableRealtimePlayback" >enableRealtimePlayback</a>
+                            </li>
+                            <li>
+                                <a href="#endSession" >endSession</a>
+                            </li>
+                            <li>
+                                <a href="#getSessionStats" >getSessionStats</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#initializeAudioContext" >initializeAudioContext</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#playAudioBuffer" >playAudioBuffer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#processChunk" >processChunk</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#processSequentialChunks" >processSequentialChunks</a>
+                            </li>
+                            <li>
+                                <a href="#startSession" >startSession</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#validateChunk" >validateChunk</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(options: <a href="../interfaces/StreamingAudioOptions.html" target="_self">StreamingAudioOptions</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:37</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>options</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../interfaces/StreamingAudioOptions.html" target="_self" >StreamingAudioOptions</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="audioContext"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>audioContext</b></span>
+                        <a href="#audioContext"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>AudioContext | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:36</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="options"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>options</b></span>
+                        <a href="#options"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/StreamingAudioOptions.html" target="_self" >Required&lt;StreamingAudioOptions&gt;</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:37</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sessions"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>sessions</b></span>
+                        <a href="#sessions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Map&lt;string, StreamingSession&gt;()</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:35</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="addAudioChunk"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>addAudioChunk</b></span>
+                        <a href="#addAudioChunk"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>addAudioChunk(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, chunk: <a href="../interfaces/AudioChunk.html" target="_self">AudioChunk</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:91</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Add an audio chunk to the streaming session</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>chunk</td>
+                                            <td>
+                                                            <code><a href="../interfaces/AudioChunk.html" target="_self" >AudioChunk</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;boolean&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="appendAudioBuffers"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>appendAudioBuffers</b></span>
+                        <a href="#appendAudioBuffers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>appendAudioBuffers(buffer1: AudioBuffer, buffer2: AudioBuffer)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="166"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:166</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Append two audio buffers together</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>buffer1</td>
+                                            <td>
+                                                        <code>AudioBuffer</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>buffer2</td>
+                                            <td>
+                                                        <code>AudioBuffer</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>AudioBuffer</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cleanup"></a>
+                    <span class="name">
+                        <span ><b>cleanup</b></span>
+                        <a href="#cleanup"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>cleanup()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="318"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:318</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Clean up all resources</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cleanupOldChunks"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>cleanupOldChunks</b></span>
+                        <a href="#cleanupOldChunks"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>cleanupOldChunks(session: <a href="../interfaces/StreamingSession.html" target="_self">StreamingSession</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="263"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:263</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Clean up old chunks to prevent memory leaks</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                            <code><a href="../interfaces/StreamingSession.html" target="_self" >StreamingSession</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="enableRealtimePlayback"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>enableRealtimePlayback</b></span>
+                        <a href="#enableRealtimePlayback"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>enableRealtimePlayback(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="215"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:215</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Play streaming audio as chunks arrive (real-time playback)</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="endSession"></a>
+                    <span class="name">
+                        <span ><b>endSession</b></span>
+                        <a href="#endSession"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>endSession(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="237"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:237</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>End a streaming session</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getSessionStats"></a>
+                    <span class="name">
+                        <span ><b>getSessionStats</b></span>
+                        <a href="#getSessionStats"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getSessionStats(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="281"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:281</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get session statistics for monitoring</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>literal type | null</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="initializeAudioContext"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>initializeAudioContext</b></span>
+                        <a href="#initializeAudioContext"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>initializeAudioContext()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:53</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="playAudioBuffer"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>playAudioBuffer</b></span>
+                        <a href="#playAudioBuffer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>playAudioBuffer(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="192"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:192</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Play the accumulated audio buffer</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="processChunk"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>processChunk</b></span>
+                        <a href="#processChunk"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>processChunk(session: <a href="../interfaces/StreamingSession.html" target="_self">StreamingSession</a>, chunk: <a href="../interfaces/AudioChunk.html" target="_self">AudioChunk</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="139"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:139</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Process a single audio chunk</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                            <code><a href="../interfaces/StreamingSession.html" target="_self" >StreamingSession</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>chunk</td>
+                                            <td>
+                                                            <code><a href="../interfaces/AudioChunk.html" target="_self" >AudioChunk</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="processSequentialChunks"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>processSequentialChunks</b></span>
+                        <a href="#processSequentialChunks"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>processSequentialChunks(session: <a href="../interfaces/StreamingSession.html" target="_self">StreamingSession</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="120"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:120</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Process chunks that are in sequence</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                            <code><a href="../interfaces/StreamingSession.html" target="_self" >StreamingSession</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="startSession"></a>
+                    <span class="name">
+                        <span ><b>startSession</b></span>
+                        <a href="#startSession"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>startSession(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:70</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Start a new streaming session</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/StreamingSession.html" target="_self" >StreamingSession</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateChunk"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>validateChunk</b></span>
+                        <a href="#validateChunk"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateChunk(chunk: <a href="../interfaces/AudioChunk.html" target="_self">AudioChunk</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="249"
+                                    class="link-to-prism">client/src/services/audio/StreamingAudioService.ts:249</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validate an audio chunk</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>chunk</td>
+                                            <td>
+                                                            <code><a href="../interfaces/AudioChunk.html" target="_self" >AudioChunk</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+
+
+
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export interface AudioChunk {
+  sequenceNumber: number;
+  data: ArrayBuffer;
+  timestamp: number;
+  duration?: number;
+}
+
+export interface StreamingSession {
+  sessionId: string;
+  isActive: boolean;
+  startTime: number;
+  chunks: Map&lt;number, AudioChunk&gt;;
+  expectedSequence: number;
+  audioContext?: AudioContext;
+  audioBuffer?: AudioBuffer;
+}
+
+export interface StreamingAudioOptions {
+  maxBufferSize?: number; // Maximum chunks to buffer
+  chunkTimeoutMs?: number; // Timeout for missing chunks
+  enableQualityAdaptation?: boolean;
+  onChunkReceived?: (chunk: AudioChunk) &#x3D;&gt; void;
+  onBufferReady?: (buffer: AudioBuffer) &#x3D;&gt; void;
+  onError?: (error: Error) &#x3D;&gt; void;
+}
+
+export class StreamingAudioService {
+  private sessions &#x3D; new Map&lt;string, StreamingSession&gt;();
+  private audioContext: AudioContext | null &#x3D; null;
+  private options: Required&lt;StreamingAudioOptions&gt;;
+
+  constructor(options: StreamingAudioOptions &#x3D; {}) {
+    this.options &#x3D; {
+      maxBufferSize: 20, // 10 seconds at 500ms chunks
+      chunkTimeoutMs: 2000,
+      enableQualityAdaptation: true,
+      onChunkReceived: () &#x3D;&gt; {},
+      onBufferReady: () &#x3D;&gt; {},
+      onError: () &#x3D;&gt; {},
+      ...options
+    };
+
+    this.initializeAudioContext();
+  }
+
+  private async initializeAudioContext(): Promise&lt;void&gt; {
+    try {
+      this.audioContext &#x3D; new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Handle browser autoplay policies
+      if (this.audioContext.state &#x3D;&#x3D;&#x3D; &#x27;suspended&#x27;) {
+        await this.audioContext.resume();
+      }
+    } catch (error) {
+      console.error(&#x27;Failed to initialize AudioContext:&#x27;, error);
+      this.options.onError(new Error(&#x27;Audio playback not supported&#x27;));
+    }
+  }
+
+  /**
+   * Start a new streaming session
+   */
+  startSession(sessionId: string): StreamingSession {
+    if (this.sessions.has(sessionId)) {
+      throw new Error(&#x60;Session ${sessionId} already exists&#x60;);
+    }
+
+    const session: StreamingSession &#x3D; {
+      sessionId,
+      isActive: true,
+      startTime: Date.now(),
+      chunks: new Map(),
+      expectedSequence: 0,
+      audioContext: this.audioContext || undefined
+    };
+
+    this.sessions.set(sessionId, session);
+    return session;
+  }
+
+  /**
+   * Add an audio chunk to the streaming session
+   */
+  async addAudioChunk(sessionId: string, chunk: AudioChunk): Promise&lt;boolean&gt; {
+    const session &#x3D; this.sessions.get(sessionId);
+    if (!session || !session.isActive) {
+      console.warn(&#x60;Session ${sessionId} not found or inactive&#x60;);
+      return false;
+    }
+
+    // Validate chunk
+    if (!this.validateChunk(chunk)) {
+      console.warn(&#x27;Invalid audio chunk received:&#x27;, chunk);
+      return false;
+    }
+
+    // Store chunk
+    session.chunks.set(chunk.sequenceNumber, chunk);
+    this.options.onChunkReceived(chunk);
+
+    // Process chunks in order
+    await this.processSequentialChunks(session);
+
+    // Clean up old chunks
+    this.cleanupOldChunks(session);
+
+    return true;
+  }
+
+  /**
+   * Process chunks that are in sequence
+   */
+  private async processSequentialChunks(session: StreamingSession): Promise&lt;void&gt; {
+    while (session.chunks.has(session.expectedSequence)) {
+      const chunk &#x3D; session.chunks.get(session.expectedSequence)!;
+      
+      try {
+        await this.processChunk(session, chunk);
+        session.chunks.delete(session.expectedSequence);
+        session.expectedSequence++;
+      } catch (error) {
+        console.error(&#x27;Failed to process chunk:&#x27;, error);
+        this.options.onError(error as Error);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Process a single audio chunk
+   */
+  private async processChunk(session: StreamingSession, chunk: AudioChunk): Promise&lt;void&gt; {
+    if (!this.audioContext) {
+      throw new Error(&#x27;AudioContext not available&#x27;);
+    }
+
+    try {
+      // Decode audio data
+      const audioBuffer &#x3D; await this.audioContext.decodeAudioData(chunk.data.slice(0));
+      
+      // If this is the first chunk, initialize session buffer
+      if (!session.audioBuffer) {
+        session.audioBuffer &#x3D; audioBuffer;
+      } else {
+        // Append to existing buffer
+        session.audioBuffer &#x3D; this.appendAudioBuffers(session.audioBuffer, audioBuffer);
+      }
+
+      this.options.onBufferReady(session.audioBuffer);
+    } catch (error) {
+      console.error(&#x27;Failed to decode audio chunk:&#x27;, error);
+      // Continue with next chunk rather than failing completely
+    }
+  }
+
+  /**
+   * Append two audio buffers together
+   */
+  private appendAudioBuffers(buffer1: AudioBuffer, buffer2: AudioBuffer): AudioBuffer {
+    if (!this.audioContext) {
+      throw new Error(&#x27;AudioContext not available&#x27;);
+    }
+
+    const channels &#x3D; Math.min(buffer1.numberOfChannels, buffer2.numberOfChannels);
+    const length &#x3D; buffer1.length + buffer2.length;
+    const sampleRate &#x3D; buffer1.sampleRate;
+
+    const newBuffer &#x3D; this.audioContext.createBuffer(channels, length, sampleRate);
+
+    for (let channel &#x3D; 0; channel &lt; channels; channel++) {
+      const newChannelData &#x3D; newBuffer.getChannelData(channel);
+      const buffer1Data &#x3D; buffer1.getChannelData(channel);
+      const buffer2Data &#x3D; buffer2.getChannelData(channel);
+
+      newChannelData.set(buffer1Data);
+      newChannelData.set(buffer2Data, buffer1.length);
+    }
+
+    return newBuffer;
+  }
+
+  /**
+   * Play the accumulated audio buffer
+   */
+  async playAudioBuffer(sessionId: string): Promise&lt;void&gt; {
+    const session &#x3D; this.sessions.get(sessionId);
+    if (!session || !session.audioBuffer || !this.audioContext) {
+      return;
+    }
+
+    try {
+      const source &#x3D; this.audioContext.createBufferSource();
+      source.buffer &#x3D; session.audioBuffer;
+      source.connect(this.audioContext.destination);
+      source.start();
+
+      // Clear the buffer after playing
+      session.audioBuffer &#x3D; undefined;
+    } catch (error) {
+      console.error(&#x27;Failed to play audio buffer:&#x27;, error);
+      this.options.onError(error as Error);
+    }
+  }
+
+  /**
+   * Play streaming audio as chunks arrive (real-time playback)
+   */
+  async enableRealtimePlayback(sessionId: string): Promise&lt;void&gt; {
+    const session &#x3D; this.sessions.get(sessionId);
+    if (!session || !this.audioContext) {
+      return;
+    }
+
+    // Set up real-time playback with minimal latency
+    this.options.onBufferReady &#x3D; async (buffer: AudioBuffer) &#x3D;&gt; {
+      try {
+        const source &#x3D; this.audioContext!.createBufferSource();
+        source.buffer &#x3D; buffer;
+        source.connect(this.audioContext!.destination);
+        source.start();
+      } catch (error) {
+        console.error(&#x27;Real-time playback error:&#x27;, error);
+      }
+    };
+  }
+
+  /**
+   * End a streaming session
+   */
+  endSession(sessionId: string): void {
+    const session &#x3D; this.sessions.get(sessionId);
+    if (session) {
+      session.isActive &#x3D; false;
+      session.chunks.clear();
+      this.sessions.delete(sessionId);
+    }
+  }
+
+  /**
+   * Validate an audio chunk
+   */
+  private validateChunk(chunk: AudioChunk): boolean {
+    return (
+      typeof chunk.sequenceNumber &#x3D;&#x3D;&#x3D; &#x27;number&#x27; &amp;&amp;
+      chunk.sequenceNumber &gt;&#x3D; 0 &amp;&amp;
+      chunk.data instanceof ArrayBuffer &amp;&amp;
+      chunk.data.byteLength &gt; 0 &amp;&amp;
+      typeof chunk.timestamp &#x3D;&#x3D;&#x3D; &#x27;number&#x27; &amp;&amp;
+      chunk.timestamp &gt; 0
+    );
+  }
+
+  /**
+   * Clean up old chunks to prevent memory leaks
+   */
+  private cleanupOldChunks(session: StreamingSession): void {
+    if (session.chunks.size &lt;&#x3D; this.options.maxBufferSize) {
+      return;
+    }
+
+    // Remove chunks older than expected sequence - buffer size
+    const minSequence &#x3D; Math.max(0, session.expectedSequence - this.options.maxBufferSize);
+    
+    for (const [sequence] of session.chunks) {
+      if (sequence &lt; minSequence) {
+        session.chunks.delete(sequence);
+      }
+    }
+  }
+
+  /**
+   * Get session statistics for monitoring
+   */
+  getSessionStats(sessionId: string): {
+    isActive: boolean;
+    chunksReceived: number;
+    chunksProcessed: number;
+    sessionDuration: number;
+    bufferHealth: &#x27;good&#x27; | &#x27;warning&#x27; | &#x27;critical&#x27;;
+  } | null {
+    const session &#x3D; this.sessions.get(sessionId);
+    if (!session) {
+      return null;
+    }
+
+    const now &#x3D; Date.now();
+    const sessionDuration &#x3D; now - session.startTime;
+    const chunksReceived &#x3D; session.chunks.size;
+    const chunksProcessed &#x3D; session.expectedSequence;
+    
+    let bufferHealth: &#x27;good&#x27; | &#x27;warning&#x27; | &#x27;critical&#x27; &#x3D; &#x27;good&#x27;;
+    if (chunksReceived &gt; this.options.maxBufferSize * 0.8) {
+      bufferHealth &#x3D; &#x27;warning&#x27;;
+    }
+    if (chunksReceived &gt; this.options.maxBufferSize * 0.95) {
+      bufferHealth &#x3D; &#x27;critical&#x27;;
+    }
+
+    return {
+      isActive: session.isActive,
+      chunksReceived,
+      chunksProcessed,
+      sessionDuration,
+      bufferHealth
+    };
+  }
+
+  /**
+   * Clean up all resources
+   */
+  cleanup(): void {
+    // End all sessions
+    for (const sessionId of this.sessions.keys()) {
+      this.endSession(sessionId);
+    }
+
+    // Close audio context
+    if (this.audioContext &amp;&amp; this.audioContext.state !&#x3D;&#x3D; &#x27;closed&#x27;) {
+      this.audioContext.close();
+    }
+  }
+}
+
+// Singleton instance for global use
+export const streamingAudioService &#x3D; new StreamingAudioService({
+  maxBufferSize: 20,
+  chunkTimeoutMs: 2000,
+  enableQualityAdaptation: true,
+  onError: (error) &#x3D;&gt; {
+    console.error(&#x27;StreamingAudioService error:&#x27;, error);
+  }
+});
+
+export default StreamingAudioService;</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'StreamingAudioService.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

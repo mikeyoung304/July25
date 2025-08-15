@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { useVoiceToAudio } from '@/modules/voice/hooks/useVoiceToAudio'
 import { useToast } from '@/hooks/useToast'
 import type { Table } from '@/modules/floor-plan/types'
+import { getDemoToken } from '@/services/auth/demoAuth'
 
 // Helper to resolve absolute API URLs for production (Vercel)
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -43,11 +44,12 @@ export function useVoiceOrderFlow() {
     }
     
     try {
+      const demoToken = await getDemoToken();
       const response = await fetch(apiUrl('/api/v1/orders'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token',
+          'Authorization': `Bearer ${demoToken}`,
           'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111'
         },
         body: JSON.stringify({

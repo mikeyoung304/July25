@@ -1,0 +1,787 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  VoiceTransportEvents</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/voice/ws-transport.ts</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#connectionChange" 
+>
+                                            connectionChange
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#error" 
+>
+                                            error
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#heartbeat" 
+>
+                                            heartbeat
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#response" 
+>
+                                            response
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#transcript" 
+>
+                                            transcript
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="connectionChange"></a>
+                                        <span class="name "><b>connectionChange</b>
+                                            <a href="#connectionChange">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>connectionChange:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="error"></a>
+                                        <span class="name "><b>error</b>
+                                            <a href="#error">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>error:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="heartbeat"></a>
+                                        <span class="name "><b>heartbeat</b>
+                                            <a href="#heartbeat">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>heartbeat:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="response"></a>
+                                        <span class="name "><b>response</b>
+                                            <a href="#response">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>response:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="transcript"></a>
+                                        <span class="name "><b>transcript</b>
+                                            <a href="#transcript">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>transcript:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export interface VoiceStreamMessage {
+  type: &#x27;audio&#x27; | &#x27;transcript&#x27; | &#x27;response&#x27; | &#x27;error&#x27; | &#x27;heartbeat&#x27; | &#x27;pong&#x27;;
+  data?: any;
+  timestamp?: number;
+}
+
+export interface TranscriptData {
+  text: string;
+  isFinal: boolean;
+  confidence?: number;
+}
+
+export interface ResponseData {
+  text: string;
+  audioUrl?: string;
+  audioData?: string; // base64 encoded audio
+}
+
+export interface AudioData {
+  chunk: string; // base64 encoded PCM16 audio
+  hasVoice: boolean;
+  timestamp: number;
+}
+
+export type ConnectionState &#x3D; &#x27;disconnected&#x27; | &#x27;connecting&#x27; | &#x27;connected&#x27; | &#x27;reconnecting&#x27; | &#x27;error&#x27;;
+
+export interface VoiceTransportEvents {
+  connectionChange: (state: ConnectionState) &#x3D;&gt; void;
+  transcript: (data: TranscriptData) &#x3D;&gt; void;
+  response: (data: ResponseData) &#x3D;&gt; void;
+  error: (error: Error) &#x3D;&gt; void;
+  heartbeat: () &#x3D;&gt; void;
+}
+
+/**
+ * Simple EventEmitter implementation
+ */
+class EventEmitter&lt;T extends Record&lt;string, (...args: any[]) &#x3D;&gt; void&gt;&gt; {
+  private listeners: Map&lt;keyof T, Array&lt;T[keyof T]&gt;&gt; &#x3D; new Map();
+
+  on&lt;K extends keyof T&gt;(event: K, listener: T[K]): void {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event)!.push(listener);
+  }
+
+  off&lt;K extends keyof T&gt;(event: K, listener: T[K]): void {
+    const eventListeners &#x3D; this.listeners.get(event);
+    if (eventListeners) {
+      const index &#x3D; eventListeners.indexOf(listener);
+      if (index &gt; -1) {
+        eventListeners.splice(index, 1);
+      }
+    }
+  }
+
+  emit&lt;K extends keyof T&gt;(event: K, ...args: Parameters&lt;T[K]&gt;): void {
+    const eventListeners &#x3D; this.listeners.get(event);
+    if (eventListeners) {
+      eventListeners.forEach(listener &#x3D;&gt; {
+        try {
+          listener(...args);
+        } catch (error) {
+          console.error(&#x60;Error in event listener for ${String(event)}:&#x60;, error);
+        }
+      });
+    }
+  }
+
+  removeAllListeners(): void {
+    this.listeners.clear();
+  }
+}
+
+export interface VoiceTransportConfig {
+  url: string;
+  reconnectDelay: number;
+  maxReconnectDelay: number;
+  maxReconnectAttempts: number;
+  heartbeatInterval: number;
+  messageQueueMaxSize: number;
+}
+
+export const DEFAULT_CONFIG: VoiceTransportConfig &#x3D; {
+  url: &#x27;ws://localhost:3001/voice-stream&#x27;,
+  reconnectDelay: 1000,
+  maxReconnectDelay: 30000,
+  maxReconnectAttempts: 10,
+  heartbeatInterval: 30000,
+  messageQueueMaxSize: 100,
+};
+
+/**
+ * WebSocket transport for voice streaming with automatic reconnection
+ */
+export class VoiceTransport extends EventEmitter&lt;VoiceTransportEvents&gt; {
+  private config: VoiceTransportConfig;
+  private ws: WebSocket | null &#x3D; null;
+  private connectionState: ConnectionState &#x3D; &#x27;disconnected&#x27;;
+  private reconnectAttempts: number &#x3D; 0;
+  private reconnectTimeout: NodeJS.Timeout | null &#x3D; null;
+  private heartbeatInterval: NodeJS.Timeout | null &#x3D; null;
+  private messageQueue: VoiceStreamMessage[] &#x3D; [];
+  private shouldReconnect: boolean &#x3D; true;
+
+  constructor(config: Partial&lt;VoiceTransportConfig&gt; &#x3D; {}) {
+    super();
+    this.config &#x3D; { ...DEFAULT_CONFIG, ...config };
+  }
+
+  /**
+   * Connect to the WebSocket server
+   */
+  connect(): void {
+    if (this.connectionState &#x3D;&#x3D;&#x3D; &#x27;connecting&#x27; || this.connectionState &#x3D;&#x3D;&#x3D; &#x27;connected&#x27;) {
+      return;
+    }
+
+    this.setConnectionState(&#x27;connecting&#x27;);
+    
+    try {
+      this.ws &#x3D; new WebSocket(this.config.url);
+      this.setupWebSocketHandlers();
+    } catch (error) {
+      console.error(&#x27;Failed to create WebSocket:&#x27;, error);
+      this.handleConnectionError(error as Error);
+    }
+  }
+
+  /**
+   * Disconnect from the WebSocket server
+   */
+  disconnect(): void {
+    this.shouldReconnect &#x3D; false;
+    this.clearReconnectTimeout();
+    this.clearHeartbeat();
+    
+    if (this.ws) {
+      this.ws.close(1000, &#x27;Client disconnect&#x27;);
+      this.ws &#x3D; null;
+    }
+    
+    this.setConnectionState(&#x27;disconnected&#x27;);
+  }
+
+  /**
+   * Send audio data
+   */
+  sendAudio(chunk: string, hasVoice: boolean): boolean {
+    const message: VoiceStreamMessage &#x3D; {
+      type: &#x27;audio&#x27;,
+      data: {
+        chunk,
+        hasVoice,
+        timestamp: Date.now(),
+      } as AudioData,
+      timestamp: Date.now(),
+    };
+
+    return this.sendMessage(message);
+  }
+
+  /**
+   * Send a generic message
+   */
+  sendMessage(message: VoiceStreamMessage): boolean {
+    if (this.connectionState &#x3D;&#x3D;&#x3D; &#x27;connected&#x27; &amp;&amp; this.ws) {
+      try {
+        this.ws.send(JSON.stringify(message));
+        return true;
+      } catch (error) {
+        console.error(&#x27;Failed to send WebSocket message:&#x27;, error);
+        this.handleConnectionError(error as Error);
+        return false;
+      }
+    } else {
+      // Queue message if not connected
+      if (this.messageQueue.length &lt; this.config.messageQueueMaxSize) {
+        this.messageQueue.push(message);
+        return true;
+      } else {
+        console.warn(&#x27;Message queue full, dropping message&#x27;);
+        return false;
+      }
+    }
+  }
+
+  /**
+   * Get current connection state
+   */
+  getConnectionState(): ConnectionState {
+    return this.connectionState;
+  }
+
+  /**
+   * Check if connected
+   */
+  isConnected(): boolean {
+    return this.connectionState &#x3D;&#x3D;&#x3D; &#x27;connected&#x27;;
+  }
+
+  private setupWebSocketHandlers(): void {
+    if (!this.ws) return;
+
+    this.ws.onopen &#x3D; () &#x3D;&gt; {
+      console.log(&#x27;Voice WebSocket connected&#x27;);
+      this.setConnectionState(&#x27;connected&#x27;);
+      this.reconnectAttempts &#x3D; 0;
+      this.clearReconnectTimeout();
+      this.startHeartbeat();
+      this.processMessageQueue();
+    };
+
+    this.ws.onmessage &#x3D; (event) &#x3D;&gt; {
+      try {
+        const message: VoiceStreamMessage &#x3D; JSON.parse(event.data);
+        this.handleMessage(message);
+      } catch (error) {
+        console.error(&#x27;Failed to parse WebSocket message:&#x27;, error);
+        this.emit(&#x27;error&#x27;, new Error(&#x27;Failed to parse server message&#x27;));
+      }
+    };
+
+    this.ws.onerror &#x3D; (error) &#x3D;&gt; {
+      console.error(&#x27;WebSocket error:&#x27;, error);
+      this.handleConnectionError(new Error(&#x27;WebSocket error&#x27;));
+    };
+
+    this.ws.onclose &#x3D; (event) &#x3D;&gt; {
+      console.log(&#x27;WebSocket closed:&#x27;, event.code, event.reason);
+      this.ws &#x3D; null;
+      this.clearHeartbeat();
+      
+      if (this.shouldReconnect &amp;&amp; this.reconnectAttempts &lt; this.config.maxReconnectAttempts) {
+        this.scheduleReconnect();
+      } else {
+        this.setConnectionState(&#x27;disconnected&#x27;);
+      }
+    };
+  }
+
+  private handleMessage(message: VoiceStreamMessage): void {
+    switch (message.type) {
+      case &#x27;transcript&#x27;:
+        this.emit(&#x27;transcript&#x27;, message.data as TranscriptData);
+        break;
+      
+      case &#x27;response&#x27;:
+        this.emit(&#x27;response&#x27;, message.data as ResponseData);
+        break;
+      
+      case &#x27;error&#x27;:
+        this.emit(&#x27;error&#x27;, new Error(message.data?.message || &#x27;Server error&#x27;));
+        break;
+      
+      case &#x27;heartbeat&#x27;:
+        // Respond to server heartbeat
+        this.sendMessage({ type: &#x27;pong&#x27;, timestamp: Date.now() });
+        this.emit(&#x27;heartbeat&#x27;);
+        break;
+      
+      default:
+        console.warn(&#x27;Unknown message type:&#x27;, message.type);
+    }
+  }
+
+  private handleConnectionError(error: Error): void {
+    this.emit(&#x27;error&#x27;, error);
+    
+    if (this.connectionState !&#x3D;&#x3D; &#x27;error&#x27;) {
+      this.setConnectionState(&#x27;error&#x27;);
+      
+      if (this.shouldReconnect) {
+        this.scheduleReconnect();
+      }
+    }
+  }
+
+  private scheduleReconnect(): void {
+    if (this.reconnectTimeout) {
+      return; // Already scheduled
+    }
+
+    this.reconnectAttempts++;
+    this.setConnectionState(&#x27;reconnecting&#x27;);
+    
+    // Exponential backoff with jitter
+    const baseDelay &#x3D; Math.min(
+      this.config.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1),
+      this.config.maxReconnectDelay
+    );
+    const jitter &#x3D; Math.random() * 1000; // Add up to 1 second of jitter
+    const delay &#x3D; baseDelay + jitter;
+
+    console.log(&#x60;Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts})&#x60;);
+
+    this.reconnectTimeout &#x3D; setTimeout(() &#x3D;&gt; {
+      this.reconnectTimeout &#x3D; null;
+      this.connect();
+    }, delay);
+  }
+
+  private processMessageQueue(): void {
+    while (this.messageQueue.length &gt; 0 &amp;&amp; this.connectionState &#x3D;&#x3D;&#x3D; &#x27;connected&#x27;) {
+      const message &#x3D; this.messageQueue.shift();
+      if (message) {
+        this.sendMessage(message);
+      }
+    }
+  }
+
+  private startHeartbeat(): void {
+    this.clearHeartbeat();
+    
+    this.heartbeatInterval &#x3D; setInterval(() &#x3D;&gt; {
+      if (this.connectionState &#x3D;&#x3D;&#x3D; &#x27;connected&#x27;) {
+        this.sendMessage({ type: &#x27;heartbeat&#x27;, timestamp: Date.now() });
+      }
+    }, this.config.heartbeatInterval);
+  }
+
+  private clearHeartbeat(): void {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval &#x3D; null;
+    }
+  }
+
+  private clearReconnectTimeout(): void {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout &#x3D; null;
+    }
+  }
+
+  private setConnectionState(state: ConnectionState): void {
+    if (this.connectionState !&#x3D;&#x3D; state) {
+      this.connectionState &#x3D; state;
+      this.emit(&#x27;connectionChange&#x27;, state);
+    }
+  }
+
+  /**
+   * Cleanup resources
+   */
+  destroy(): void {
+    this.shouldReconnect &#x3D; false;
+    this.disconnect();
+    this.removeAllListeners();
+    this.messageQueue &#x3D; [];
+  }
+}</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'VoiceTransportEvents.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

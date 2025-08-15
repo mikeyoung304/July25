@@ -1,0 +1,1063 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  UnifiedVoiceRecorderProps</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/components/voice/UnifiedVoiceRecorder.tsx</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#audioConfig" 
+>
+                                            audioConfig
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#autoProcessOrder" 
+>
+                                            autoProcessOrder
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#buttonClassName" 
+>
+                                            buttonClassName
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#className" 
+>
+                                            className
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#enableStreaming" 
+>
+                                            enableStreaming
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#mode" 
+>
+                                            mode
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#onOrderProcessed" 
+>
+                                            onOrderProcessed
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#onTranscriptionComplete" 
+>
+                                            onTranscriptionComplete
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#showConnectionStatus" 
+>
+                                            showConnectionStatus
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#showRecordingIndicator" 
+>
+                                            showRecordingIndicator
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#showTranscription" 
+>
+                                            showTranscription
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#streamingConfig" 
+>
+                                            streamingConfig
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#transcriptionClassName" 
+>
+                                            transcriptionClassName
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="audioConfig"></a>
+                                        <span class="name "><b>audioConfig</b>
+                                            <a href="#audioConfig">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>audioConfig:     <code>literal type</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>literal type</code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="autoProcessOrder"></a>
+                                        <span class="name "><b>autoProcessOrder</b>
+                                            <a href="#autoProcessOrder">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>autoProcessOrder:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="buttonClassName"></a>
+                                        <span class="name "><b>buttonClassName</b>
+                                            <a href="#buttonClassName">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>buttonClassName:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="className"></a>
+                                        <span class="name "><b>className</b>
+                                            <a href="#className">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>className:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="enableStreaming"></a>
+                                        <span class="name "><b>enableStreaming</b>
+                                            <a href="#enableStreaming">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>enableStreaming:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="mode"></a>
+                                        <span class="name "><b>mode</b>
+                                            <a href="#mode">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>mode:     <code>&quot;hold-to-talk&quot; | &quot;tap-to-toggle&quot;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>&quot;hold-to-talk&quot; | &quot;tap-to-toggle&quot;</code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onOrderProcessed"></a>
+                                        <span class="name "><b>onOrderProcessed</b>
+                                            <a href="#onOrderProcessed">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onOrderProcessed:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onTranscriptionComplete"></a>
+                                        <span class="name "><b>onTranscriptionComplete</b>
+                                            <a href="#onTranscriptionComplete">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onTranscriptionComplete:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="showConnectionStatus"></a>
+                                        <span class="name "><b>showConnectionStatus</b>
+                                            <a href="#showConnectionStatus">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>showConnectionStatus:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="showRecordingIndicator"></a>
+                                        <span class="name "><b>showRecordingIndicator</b>
+                                            <a href="#showRecordingIndicator">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>showRecordingIndicator:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="showTranscription"></a>
+                                        <span class="name "><b>showTranscription</b>
+                                            <a href="#showTranscription">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>showTranscription:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="streamingConfig"></a>
+                                        <span class="name "><b>streamingConfig</b>
+                                            <a href="#streamingConfig">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>streamingConfig:     <code>literal type</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>literal type</code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="transcriptionClassName"></a>
+                                        <span class="name "><b>transcriptionClassName</b>
+                                            <a href="#transcriptionClassName">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>transcriptionClassName:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import React, { useState, useCallback, useEffect } from &#x27;react&#x27;;
+import { useAudioCapture } from &#x27;@/modules/voice/hooks/useAudioCapture&#x27;;
+import { useVoiceSocket } from &#x27;@/modules/voice/hooks/useVoiceSocket&#x27;;
+import { MicrophonePermission } from &#x27;@/modules/voice/components/MicrophonePermission&#x27;;
+import { ConnectionIndicator } from &#x27;@/modules/voice/components/ConnectionIndicator&#x27;;
+import { RecordingIndicator } from &#x27;@/modules/voice/components/RecordingIndicator&#x27;;
+import { TranscriptionDisplay } from &#x27;@/modules/voice/components/TranscriptionDisplay&#x27;;
+import { RealtimeTranscription } from &#x27;@/modules/voice/components/RealtimeTranscription&#x27;;
+import { UnifiedRecordButton } from &#x27;./UnifiedRecordButton&#x27;;
+import { AlertCircle, Zap } from &#x27;lucide-react&#x27;;
+import { cn } from &#x27;@/utils&#x27;;
+
+export interface UnifiedVoiceRecorderProps {
+  mode?: &#x27;hold-to-talk&#x27; | &#x27;tap-to-toggle&#x27;;
+  onTranscriptionComplete?: (transcript: string) &#x3D;&gt; void;
+  onOrderProcessed?: (result: unknown) &#x3D;&gt; void;
+  showConnectionStatus?: boolean;
+  showTranscription?: boolean;
+  showRecordingIndicator?: boolean;
+  autoProcessOrder?: boolean;
+  enableStreaming?: boolean;
+  className?: string;
+  buttonClassName?: string;
+  transcriptionClassName?: string;
+  audioConfig?: { sampleRate?: number; channelCount?: number };
+  streamingConfig?: {
+    chunkSize?: number;
+    showRealtimeTranscription?: boolean;
+    enableTypingEffect?: boolean;
+    confidenceThreshold?: number;
+  };
+}
+
+export const UnifiedVoiceRecorder: React.FC&lt;UnifiedVoiceRecorderProps&gt; &#x3D; ({
+  mode &#x3D; &#x27;tap-to-toggle&#x27;,
+  onTranscriptionComplete,
+  onOrderProcessed,
+  showConnectionStatus &#x3D; true,
+  showTranscription &#x3D; true,
+  showRecordingIndicator &#x3D; true,
+  autoProcessOrder &#x3D; false,
+  enableStreaming &#x3D; false,
+  className,
+  buttonClassName,
+  transcriptionClassName,
+  audioConfig,
+  streamingConfig &#x3D; {
+    chunkSize: 500,
+    showRealtimeTranscription: true,
+    enableTypingEffect: true,
+    confidenceThreshold: 0.7,
+  },
+}) &#x3D;&gt; {
+  const [error, setError] &#x3D; useState&lt;string | null&gt;(null);
+  const [transcript, setTranscript] &#x3D; useState(&#x27;&#x27;);
+  const [isProcessing, setIsProcessing] &#x3D; useState(false);
+
+  const [streamingMode, setStreamingMode] &#x3D; useState(enableStreaming);
+  const [realtimeTranscript, setRealtimeTranscript] &#x3D; useState(&#x27;&#x27;);
+  const [transcriptConfidence, setTranscriptConfidence] &#x3D; useState(1);
+  const [isFinalTranscript, setIsFinalTranscript] &#x3D; useState(false);
+  const [streamingSessionId, setStreamingSessionId] &#x3D; useState&lt;string | null&gt;(null);
+
+  const [mockStreamingService, setMockStreamingService] &#x3D; useState&lt;unknown&gt;(null);
+
+  useEffect(() &#x3D;&gt; {
+    if (streamingMode &amp;&amp; !mockStreamingService) {
+      import(&#x27;@/services/mock/MockStreamingService&#x27;).then(({ mockStreamingService }) &#x3D;&gt; {
+        setMockStreamingService(mockStreamingService);
+      });
+    }
+  }, [streamingMode, mockStreamingService]);
+
+  const handleTranscriptionUpdate &#x3D; useCallback(
+    (text: string, confidence: number, isFinal: boolean) &#x3D;&gt; {
+      setRealtimeTranscript(text);
+      setTranscriptConfidence(confidence);
+      setIsFinalTranscript(isFinal);
+
+      if (isFinal) {
+        setTranscript(text);
+        setIsProcessing(false);
+        onTranscriptionComplete?.(text);
+      }
+    },
+    [onTranscriptionComplete]
+  );
+
+  const audioCapture &#x3D; useAudioCapture({
+    onTranscription: (text: string, isInterim: boolean) &#x3D;&gt; {
+      if (!isInterim) {
+        setTranscript(text);
+        setIsProcessing(false);
+        onTranscriptionComplete?.(text);
+      }
+    },
+    onError: (error: Error) &#x3D;&gt; {
+      setError(error.message);
+      setIsProcessing(false);
+    },
+  });
+
+  const socket &#x3D; useVoiceSocket({
+    url: &#x27;ws://localhost:3001/voice-stream&#x27;,
+    onMessage: (message: { type: string; [key: string]: unknown }) &#x3D;&gt; {
+      if (message.type &#x3D;&#x3D;&#x3D; &#x27;transcription&#x27;) {
+        const text &#x3D; message.text as string;
+        setTranscript(text);
+        setIsProcessing(false);
+        onTranscriptionComplete?.(text);
+      } else if (message.type &#x3D;&#x3D;&#x3D; &#x27;order_result&#x27;) {
+        onOrderProcessed?.(message.result);
+      }
+    },
+    onConnectionChange: (status: string) &#x3D;&gt; {
+      if (status &#x3D;&#x3D;&#x3D; &#x27;error&#x27;) {
+        setError(&#x27;Connection failed&#x27;);
+        setIsProcessing(false);
+      }
+    },
+  });
+
+  const handleRecordingStart &#x3D; useCallback(() &#x3D;&gt; {
+    setError(null);
+    setTranscript(&#x27;&#x27;);
+    setIsProcessing(true);
+
+    setRealtimeTranscript(&#x27;&#x27;);
+    setTranscriptConfidence(1);
+    setIsFinalTranscript(false);
+
+    if (streamingMode &amp;&amp; mockStreamingService) {
+      const sessionId &#x3D; &#x60;stream-${Date.now()}-${Math.random()}&#x60;;
+      setStreamingSessionId(sessionId);
+
+      setTimeout(() &#x3D;&gt; {
+        if (
+          mockStreamingService &amp;&amp;
+          typeof (mockStreamingService as any).startMockStreaming &#x3D;&#x3D;&#x3D; &#x27;function&#x27;
+        ) {
+          (mockStreamingService as any).startMockStreaming(
+            sessionId,
+            (update: { text: string; confidence: number; isFinal: boolean }) &#x3D;&gt; {
+              handleTranscriptionUpdate(update.text, update.confidence, update.isFinal);
+            }
+          );
+        }
+      }, 300);
+    }
+
+    audioCapture.startRecording();
+  }, [audioCapture, streamingMode, mockStreamingService, handleTranscriptionUpdate]);
+
+  const handleRecordingStop &#x3D; useCallback(() &#x3D;&gt; {
+    audioCapture.stopRecording();
+
+    if (streamingMode &amp;&amp; mockStreamingService &amp;&amp; streamingSessionId) {
+      if (typeof (mockStreamingService as any).stopMockStreaming &#x3D;&#x3D;&#x3D; &#x27;function&#x27;) {
+        (mockStreamingService as any).stopMockStreaming();
+      }
+      setStreamingSessionId(null);
+    }
+  }, [audioCapture, streamingMode, mockStreamingService, streamingSessionId]);
+
+  useEffect(() &#x3D;&gt; {
+    if (transcript &amp;&amp; !audioCapture.isRecording) {
+      const timer &#x3D; setTimeout(() &#x3D;&gt; {
+        setTranscript(&#x27;&#x27;);
+      }, 10000);
+
+      return () &#x3D;&gt; clearTimeout(timer);
+    }
+  }, [transcript, audioCapture.isRecording]);
+
+  return (
+    &lt;MicrophonePermission status&#x3D;{audioCapture.permissionStatus}&gt;
+      &lt;div className&#x3D;{cn(&#x27;flex flex-col gap-4&#x27;, className)}&gt;
+        {error &amp;&amp; (
+          &lt;div className&#x3D;&quot;flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700&quot;&gt;
+            &lt;AlertCircle className&#x3D;&quot;h-4 w-4&quot; /&gt;
+            &lt;span className&#x3D;&quot;text-sm&quot;&gt;{error}&lt;/span&gt;
+          &lt;/div&gt;
+        )}
+
+        {showConnectionStatus &amp;&amp; (
+          &lt;ConnectionIndicator status&#x3D;{socket.connectionStatus} /&gt;
+        )}
+
+        &lt;div className&#x3D;&quot;flex flex-col gap-3&quot;&gt;
+          &lt;UnifiedRecordButton
+            mode&#x3D;{mode}
+            isRecording&#x3D;{audioCapture.isRecording}
+            isConnected&#x3D;{socket.isConnected}
+            isProcessing&#x3D;{isProcessing}
+            onStart&#x3D;{handleRecordingStart}
+            onStop&#x3D;{handleRecordingStop}
+            className&#x3D;{buttonClassName}
+          /&gt;
+
+          {enableStreaming &amp;&amp; !streamingMode &amp;&amp; (
+            &lt;button
+              onClick&#x3D;{() &#x3D;&gt; setStreamingMode(true)}
+              className&#x3D;&quot;flex items-center justify-center gap-2 px-4 py-2 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors&quot;
+            &gt;
+              &lt;Zap className&#x3D;&quot;h-4 w-4&quot; /&gt;
+              Enable Real-time Streaming
+            &lt;/button&gt;
+          )}
+
+          {showRecordingIndicator &amp;&amp; (
+            &lt;RecordingIndicator isRecording&#x3D;{audioCapture.isRecording} /&gt;
+          )}
+        &lt;/div&gt;
+
+        {showTranscription &amp;&amp; (
+          &lt;div className&#x3D;{cn(&#x27;space-y-2&#x27;, transcriptionClassName)}&gt;
+            {streamingMode &amp;&amp; streamingConfig.showRealtimeTranscription &amp;&amp; (
+              &lt;RealtimeTranscription
+                text&#x3D;{realtimeTranscript}
+                isFinal&#x3D;{isFinalTranscript}
+                isListening&#x3D;{audioCapture.isRecording}
+                isProcessing&#x3D;{isProcessing}
+                confidence&#x3D;{transcriptConfidence}
+                showTypingEffect&#x3D;{!!streamingConfig.enableTypingEffect}
+              /&gt;
+            )}
+
+            {transcript &amp;&amp; (
+              &lt;TranscriptionDisplay
+                transcription&#x3D;{transcript}
+                isProcessing&#x3D;{isProcessing}
+              /&gt;
+            )}
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+    &lt;/MicrophonePermission&gt;
+  );
+};</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'UnifiedVoiceRecorderProps.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

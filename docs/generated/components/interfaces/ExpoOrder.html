@@ -1,0 +1,886 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  ExpoOrder</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/pages/ExpoPage.tsx</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#created_at" 
+>
+                                            created_at
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#id" 
+>
+                                            id
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#items" 
+>
+                                            items
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#order_number" 
+>
+                                            order_number
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#priority" 
+>
+                                            priority
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#server" 
+>
+                                            server
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#status" 
+>
+                                            status
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#table" 
+>
+                                            table
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="created_at"></a>
+                                        <span class="name "><b>created_at</b>
+                                            <a href="#created_at">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>created_at:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank" >Date</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank" >Date</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="id"></a>
+                                        <span class="name "><b>id</b>
+                                            <a href="#id">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>id:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="items"></a>
+                                        <span class="name "><b>items</b>
+                                            <a href="#items">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>items:     <code>Array&lt;literal type&gt;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>Array&lt;literal type&gt;</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="order_number"></a>
+                                        <span class="name "><b>order_number</b>
+                                            <a href="#order_number">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>order_number:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="priority"></a>
+                                        <span class="name "><b>priority</b>
+                                            <a href="#priority">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>priority:     <code>&quot;normal&quot; | &quot;rush&quot;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>&quot;normal&quot; | &quot;rush&quot;</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="server"></a>
+                                        <span class="name "><b>server</b>
+                                            <a href="#server">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>server:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="status"></a>
+                                        <span class="name "><b>status</b>
+                                            <a href="#status">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>status:     <code>&quot;pending&quot; | &quot;in_progress&quot; | &quot;ready&quot; | &quot;completed&quot;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>&quot;pending&quot; | &quot;in_progress&quot; | &quot;ready&quot; | &quot;completed&quot;</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="table"></a>
+                                        <span class="name "><b>table</b>
+                                            <a href="#table">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>table:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import React, { useState, useEffect } from &#x27;react&#x27;
+import { motion, AnimatePresence } from &#x27;framer-motion&#x27;
+import { 
+  Package, Clock, CheckCircle, AlertCircle, 
+  RefreshCw, Zap, Eye, EyeOff 
+} from &#x27;lucide-react&#x27;
+import { PageLayout, PageContent, GridLayout } from &#x27;@/components/ui/PageLayout&#x27;
+import { PageHeader } from &#x27;@/components/ui/PageHeader&#x27;
+import { ActionCard } from &#x27;@/components/ui/NavigationCard&#x27;
+import { ActionButton, IconButton } from &#x27;@/components/ui/ActionButton&#x27;
+import { Card } from &#x27;@/components/ui/card&#x27;
+import { SectionTitle, Body } from &#x27;@/components/ui/Typography&#x27;
+import { spacing } from &#x27;@/lib/typography&#x27;
+import { Badge } from &#x27;@/components/ui/badge&#x27;
+import { useOrderData } from &#x27;@/modules/orders/hooks&#x27;
+import { format } from &#x27;date-fns&#x27;
+
+interface ExpoOrder {
+  id: string
+  order_number: string
+  items: Array&lt;{
+    name: string
+    quantity: number
+    station: string
+    status: &#x27;pending&#x27; | &#x27;in_progress&#x27; | &#x27;ready&#x27;
+  }&gt;
+  status: &#x27;pending&#x27; | &#x27;in_progress&#x27; | &#x27;ready&#x27; | &#x27;completed&#x27;
+  created_at: Date
+  table?: string
+  server?: string
+  priority: &#x27;normal&#x27; | &#x27;rush&#x27;
+}
+
+export function ExpoPage() {
+  const [orders, setOrders] &#x3D; useState&lt;ExpoOrder[]&gt;([])
+  const [showCompleted, setShowCompleted] &#x3D; useState(false)
+  const [selectedOrder, setSelectedOrder] &#x3D; useState&lt;string | null&gt;(null)
+  const { orders: ordersData } &#x3D; useOrderData()
+
+  useEffect(() &#x3D;&gt; {
+    if (ordersData) {
+      const expoOrders: ExpoOrder[] &#x3D; ordersData.map((order: any) &#x3D;&gt; ({
+        id: order.id,
+        order_number: order.order_number || &#x60;#${order.id.slice(-4)}&#x60;,
+        items: order.items.map((item: any) &#x3D;&gt; ({
+          name: item.name,
+          quantity: item.quantity,
+          station: item.category &#x3D;&#x3D;&#x3D; &#x27;mains&#x27; ? &#x27;Grill&#x27; : 
+                   item.category &#x3D;&#x3D;&#x3D; &#x27;appetizers&#x27; ? &#x27;Cold&#x27; : 
+                   item.category &#x3D;&#x3D;&#x3D; &#x27;desserts&#x27; ? &#x27;Dessert&#x27; : &#x27;Kitchen&#x27;,
+          status: &#x27;pending&#x27;
+        })),
+        status: order.status &#x3D;&#x3D;&#x3D; &#x27;completed&#x27; ? &#x27;completed&#x27; : 
+                order.status &#x3D;&#x3D;&#x3D; &#x27;preparing&#x27; ? &#x27;in_progress&#x27; : 
+                order.status &#x3D;&#x3D;&#x3D; &#x27;ready&#x27; ? &#x27;ready&#x27; : &#x27;pending&#x27;,
+        created_at: new Date(order.created_at),
+        table: order.table_number,
+        server: order.customer_name, // Use customer_name as server for now
+        priority: &#x27;normal&#x27;
+      }))
+      setOrders(expoOrders)
+    }
+  }, [ordersData])
+
+  const activeOrders &#x3D; orders.filter(o &#x3D;&gt; o.status !&#x3D;&#x3D; &#x27;completed&#x27;)
+  const completedOrders &#x3D; orders.filter(o &#x3D;&gt; o.status &#x3D;&#x3D;&#x3D; &#x27;completed&#x27;)
+
+  const handleRushOrder &#x3D; (orderId: string) &#x3D;&gt; {
+    setOrders(prev &#x3D;&gt; prev.map(order &#x3D;&gt; 
+      order.id &#x3D;&#x3D;&#x3D; orderId 
+        ? { ...order, priority: &#x27;rush&#x27; }
+        : order
+    ))
+  }
+
+  const handleRecallOrder &#x3D; (orderId: string) &#x3D;&gt; {
+    setOrders(prev &#x3D;&gt; prev.map(order &#x3D;&gt; 
+      order.id &#x3D;&#x3D;&#x3D; orderId 
+        ? { ...order, status: &#x27;in_progress&#x27; }
+        : order
+    ))
+  }
+
+  const handleCompleteOrder &#x3D; (orderId: string) &#x3D;&gt; {
+    setOrders(prev &#x3D;&gt; prev.map(order &#x3D;&gt; 
+      order.id &#x3D;&#x3D;&#x3D; orderId 
+        ? { ...order, status: &#x27;completed&#x27; }
+        : order
+    ))
+  }
+
+  const getStatusColor &#x3D; (status: string) &#x3D;&gt; {
+    switch(status) {
+      case &#x27;pending&#x27;: return &#x27;#FFA500&#x27;
+      case &#x27;in_progress&#x27;: return &#x27;#4ECDC4&#x27;
+      case &#x27;ready&#x27;: return &#x27;#4CAF50&#x27;
+      case &#x27;completed&#x27;: return &#x27;#88B0A4&#x27;
+      default: return &#x27;#9CA3AF&#x27;
+    }
+  }
+
+  const getTimeSinceOrder &#x3D; (orderTime: Date) &#x3D;&gt; {
+    const minutes &#x3D; Math.floor((Date.now() - orderTime.getTime()) / 60000)
+    if (minutes &lt; 5) return { text: &#x60;${minutes}m&#x60;, color: &#x27;text-green-600&#x27; }
+    if (minutes &lt; 10) return { text: &#x60;${minutes}m&#x60;, color: &#x27;text-yellow-600&#x27; }
+    return { text: &#x60;${minutes}m&#x60;, color: &#x27;text-red-600&#x27; }
+  }
+
+  return (
+    &lt;PageLayout&gt;
+      &lt;PageHeader 
+        title&#x3D;&quot;Expo Station&quot;
+        subtitle&#x3D;&quot;Manage order flow and quality control&quot;
+        actions&#x3D;{
+          &lt;div className&#x3D;&quot;flex gap-2&quot;&gt;
+            &lt;ActionButton
+              size&#x3D;&quot;medium&quot;
+              variant&#x3D;&quot;outline&quot;
+              icon&#x3D;{showCompleted ? &lt;EyeOff className&#x3D;&quot;h-5 w-5&quot; /&gt; : &lt;Eye className&#x3D;&quot;h-5 w-5&quot; /&gt;}
+              onClick&#x3D;{() &#x3D;&gt; setShowCompleted(!showCompleted)}
+            &gt;
+              {showCompleted ? &#x27;Hide&#x27; : &#x27;Show&#x27;} Completed
+            &lt;/ActionButton&gt;
+            &lt;ActionButton
+              size&#x3D;&quot;medium&quot;
+              icon&#x3D;{&lt;RefreshCw className&#x3D;&quot;h-5 w-5&quot; /&gt;}
+              color&#x3D;&quot;#4ECDC4&quot;
+              onClick&#x3D;{() &#x3D;&gt; window.location.reload()}
+            &gt;
+              Refresh
+            &lt;/ActionButton&gt;
+          &lt;/div&gt;
+        }
+      /&gt;
+
+      &lt;PageContent maxWidth&#x3D;&quot;6xl&quot;&gt;
+        &lt;div className&#x3D;{spacing.page.section}&gt;
+          &lt;GridLayout columns&#x3D;{4} gap&#x3D;&quot;medium&quot;&gt;
+            &lt;ActionCard
+              title&#x3D;&quot;Active Orders&quot;
+              description&#x3D;{&#x60;${activeOrders.length} orders&#x60;}
+              icon&#x3D;{&lt;Package className&#x3D;&quot;h-8 w-8&quot; /&gt;}
+              color&#x3D;&quot;#2A4B5C&quot;
+              compact
+            /&gt;
+            &lt;ActionCard
+              title&#x3D;&quot;Rush Orders&quot;
+              description&#x3D;{&#x60;${orders.filter(o &#x3D;&gt; o.priority &#x3D;&#x3D;&#x3D; &#x27;rush&#x27;).length} urgent&#x60;}
+              icon&#x3D;{&lt;Zap className&#x3D;&quot;h-8 w-8&quot; /&gt;}
+              color&#x3D;&quot;#FF6B35&quot;
+              compact
+            /&gt;
+            &lt;ActionCard
+              title&#x3D;&quot;Ready to Serve&quot;
+              description&#x3D;{&#x60;${orders.filter(o &#x3D;&gt; o.status &#x3D;&#x3D;&#x3D; &#x27;ready&#x27;).length} ready&#x60;}
+              icon&#x3D;{&lt;CheckCircle className&#x3D;&quot;h-8 w-8&quot; /&gt;}
+              color&#x3D;&quot;#4CAF50&quot;
+              compact
+            /&gt;
+            &lt;ActionCard
+              title&#x3D;&quot;Avg Wait Time&quot;
+              description&#x3D;&quot;7 mins&quot;
+              icon&#x3D;{&lt;Clock className&#x3D;&quot;h-8 w-8&quot; /&gt;}
+              color&#x3D;&quot;#7B68EE&quot;
+              compact
+            /&gt;
+          &lt;/GridLayout&gt;
+        &lt;/div&gt;
+
+        &lt;div className&#x3D;{spacing.page.section}&gt;
+          &lt;SectionTitle as&#x3D;&quot;h2&quot; className&#x3D;&quot;mb-4&quot;&gt;Order Queue&lt;/SectionTitle&gt;
+          
+          &lt;div className&#x3D;&quot;grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4&quot;&gt;
+            &lt;AnimatePresence&gt;
+              {(showCompleted ? [...activeOrders, ...completedOrders] : activeOrders).map((order, index) &#x3D;&gt; {
+                const timeInfo &#x3D; getTimeSinceOrder(order.created_at)
+                
+                return (
+                  &lt;motion.div
+                    key&#x3D;{order.id}
+                    initial&#x3D;{{ opacity: 0, scale: 0.9 }}
+                    animate&#x3D;{{ opacity: 1, scale: 1 }}
+                    exit&#x3D;{{ opacity: 0, scale: 0.9 }}
+                    transition&#x3D;{{ delay: index * 0.05 }}
+                  &gt;
+                    &lt;Card 
+                      className&#x3D;{&#x60;p-6 border-2 transition-all duration-200 hover:shadow-elevation-3 ${
+                        order.priority &#x3D;&#x3D;&#x3D; &#x27;rush&#x27; ? &#x27;border-red-500 bg-red-50&#x27; : 
+                        selectedOrder &#x3D;&#x3D;&#x3D; order.id ? &#x27;border-blue-500&#x27; : &#x27;border-transparent&#x27;
+                      }&#x60;}
+                      onClick&#x3D;{() &#x3D;&gt; setSelectedOrder(order.id)}
+                    &gt;
+                      &lt;div className&#x3D;&quot;flex justify-between items-start mb-4&quot;&gt;
+                        &lt;div&gt;
+                          &lt;div className&#x3D;&quot;flex items-center gap-2&quot;&gt;
+                            &lt;h3 className&#x3D;&quot;text-xl font-bold&quot;&gt;{order.order_number}&lt;/h3&gt;
+                            {order.priority &#x3D;&#x3D;&#x3D; &#x27;rush&#x27; &amp;&amp; (
+                              &lt;Badge className&#x3D;&quot;bg-red-500 text-white&quot;&gt;RUSH&lt;/Badge&gt;
+                            )}
+                          &lt;/div&gt;
+                          &lt;div className&#x3D;&quot;flex gap-4 mt-1 text-sm text-gray-600&quot;&gt;
+                            {order.table &amp;&amp; &lt;span&gt;Table {order.table}&lt;/span&gt;}
+                            {order.server &amp;&amp; &lt;span&gt;{order.server}&lt;/span&gt;}
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div className&#x3D;&quot;flex items-center gap-2&quot;&gt;
+                          &lt;span className&#x3D;{&#x60;font-semibold ${timeInfo.color}&#x60;}&gt;
+                            {timeInfo.text}
+                          &lt;/span&gt;
+                          &lt;div 
+                            className&#x3D;&quot;w-3 h-3 rounded-full&quot;
+                            style&#x3D;{{ backgroundColor: getStatusColor(order.status) }}
+                          /&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+
+                      &lt;div className&#x3D;&quot;space-y-2 mb-4&quot;&gt;
+                        {order.items.map((item, idx) &#x3D;&gt; (
+                          &lt;div key&#x3D;{idx} className&#x3D;&quot;flex justify-between items-center&quot;&gt;
+                            &lt;div className&#x3D;&quot;flex items-center gap-2&quot;&gt;
+                              &lt;span className&#x3D;&quot;text-sm font-medium&quot;&gt;{item.quantity}x&lt;/span&gt;
+                              &lt;span className&#x3D;&quot;text-sm&quot;&gt;{item.name}&lt;/span&gt;
+                            &lt;/div&gt;
+                            &lt;Badge 
+                              variant&#x3D;&quot;outline&quot; 
+                              className&#x3D;&quot;text-xs&quot;
+                              style&#x3D;{{ 
+                                borderColor: getStatusColor(item.status),
+                                color: getStatusColor(item.status)
+                              }}
+                            &gt;
+                              {item.station}
+                            &lt;/Badge&gt;
+                          &lt;/div&gt;
+                        ))}
+                      &lt;/div&gt;
+
+                      &lt;div className&#x3D;&quot;flex gap-2&quot;&gt;
+                        {order.status !&#x3D;&#x3D; &#x27;completed&#x27; &amp;&amp; (
+                          &lt;&gt;
+                            {order.priority !&#x3D;&#x3D; &#x27;rush&#x27; &amp;&amp; (
+                              &lt;ActionButton
+                                size&#x3D;&quot;small&quot;
+                                variant&#x3D;&quot;outline&quot;
+                                color&#x3D;&quot;#FF6B35&quot;
+                                onClick&#x3D;{(e) &#x3D;&gt; {
+                                  e.stopPropagation()
+                                  handleRushOrder(order.id)
+                                }}
+                              &gt;
+                                Rush
+                              &lt;/ActionButton&gt;
+                            )}
+                            {order.status &#x3D;&#x3D;&#x3D; &#x27;ready&#x27; &amp;&amp; (
+                              &lt;ActionButton
+                                size&#x3D;&quot;small&quot;
+                                color&#x3D;&quot;#4CAF50&quot;
+                                fullWidth
+                                onClick&#x3D;{(e) &#x3D;&gt; {
+                                  e.stopPropagation()
+                                  handleCompleteOrder(order.id)
+                                }}
+                              &gt;
+                                Complete
+                              &lt;/ActionButton&gt;
+                            )}
+                          &lt;/&gt;
+                        )}
+                        {order.status &#x3D;&#x3D;&#x3D; &#x27;completed&#x27; &amp;&amp; (
+                          &lt;ActionButton
+                            size&#x3D;&quot;small&quot;
+                            variant&#x3D;&quot;outline&quot;
+                            color&#x3D;&quot;#88B0A4&quot;
+                            fullWidth
+                            onClick&#x3D;{(e) &#x3D;&gt; {
+                              e.stopPropagation()
+                              handleRecallOrder(order.id)
+                            }}
+                          &gt;
+                            Recall
+                          &lt;/ActionButton&gt;
+                        )}
+                      &lt;/div&gt;
+                    &lt;/Card&gt;
+                  &lt;/motion.div&gt;
+                )
+              })}
+            &lt;/AnimatePresence&gt;
+          &lt;/div&gt;
+
+          {activeOrders.length &#x3D;&#x3D;&#x3D; 0 &amp;&amp; !showCompleted &amp;&amp; (
+            &lt;Card className&#x3D;&quot;p-12 text-center&quot;&gt;
+              &lt;Package className&#x3D;&quot;h-16 w-16 mx-auto text-gray-400 mb-4&quot; /&gt;
+              &lt;SectionTitle as&#x3D;&quot;h3&quot; className&#x3D;&quot;text-gray-600&quot;&gt;No Active Orders&lt;/SectionTitle&gt;
+              &lt;Body className&#x3D;&quot;text-gray-500 mt-2&quot;&gt;Orders will appear here as they come in&lt;/Body&gt;
+            &lt;/Card&gt;
+          )}
+        &lt;/div&gt;
+
+        &lt;div className&#x3D;{&#x60;${spacing.page.section} grid grid-cols-1 md:grid-cols-3 gap-4&#x60;}&gt;
+          &lt;ActionCard
+            title&#x3D;&quot;All Day Counts&quot;
+            icon&#x3D;{&lt;Eye className&#x3D;&quot;h-8 w-8&quot; /&gt;}
+            color&#x3D;&quot;#7B68EE&quot;
+            onClick&#x3D;{() &#x3D;&gt; console.log(&#x27;View all day counts&#x27;)}
+          /&gt;
+          &lt;ActionCard
+            title&#x3D;&quot;Station Status&quot;
+            icon&#x3D;{&lt;AlertCircle className&#x3D;&quot;h-8 w-8&quot; /&gt;}
+            color&#x3D;&quot;#4ECDC4&quot;
+            onClick&#x3D;{() &#x3D;&gt; console.log(&#x27;View station status&#x27;)}
+          /&gt;
+          &lt;ActionCard
+            title&#x3D;&quot;Quality Check&quot;
+            icon&#x3D;{&lt;CheckCircle className&#x3D;&quot;h-8 w-8&quot; /&gt;}
+            color&#x3D;&quot;#88B0A4&quot;
+            onClick&#x3D;{() &#x3D;&gt; console.log(&#x27;Perform quality check&#x27;)}
+          /&gt;
+        &lt;/div&gt;
+      &lt;/PageContent&gt;
+    &lt;/PageLayout&gt;
+  )
+}</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'ExpoOrder.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

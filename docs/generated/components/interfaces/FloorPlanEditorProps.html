@@ -1,0 +1,735 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  FloorPlanEditorProps</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/modules/floor-plan/components/FloorPlanEditor.tsx</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#onSave" 
+>
+                                            onSave
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#restaurantId" 
+>
+                                            restaurantId
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="onSave"></a>
+                                        <span class="name "><b>onSave</b>
+                                            <a href="#onSave">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>onSave:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="restaurantId"></a>
+                                        <span class="name "><b>restaurantId</b>
+                                            <a href="#restaurantId">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>restaurantId:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import React, { useCallback, useEffect, useRef, useState } from &#x27;react&#x27;
+import { Table } from &#x27;../types&#x27;
+import { useFloorPlanReducer } from &#x27;../hooks/useFloorPlanReducer&#x27;
+import { FloorPlanCanvas } from &#x27;./FloorPlanCanvas&#x27;
+import { FloorPlanToolbar } from &#x27;./FloorPlanToolbar&#x27;
+import { FloorPlanSidePanel } from &#x27;./FloorPlanSidePanel&#x27;
+import { tableService } from &#x27;@/services/tables/TableService&#x27;
+import { toast } from &#x27;react-hot-toast&#x27;
+
+interface FloorPlanEditorProps {
+  restaurantId: string
+  onSave?: (tables: Table[]) &#x3D;&gt; void
+}
+
+export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) {
+  const containerRef &#x3D; useRef&lt;HTMLDivElement&gt;(null)
+  const { selectors, actions } &#x3D; useFloorPlanReducer()
+  const [isLoading, setIsLoading] &#x3D; useState(true)
+  const [isSaving, setIsSaving] &#x3D; useState(false)
+  const [isCreatingTable, setIsCreatingTable] &#x3D; useState(false)
+  const [creatingTableType, setCreatingTableType] &#x3D; useState&lt;Table[&#x27;type&#x27;] | null&gt;(null)
+
+  // Load floor plan on mount - Fixed infinite loop by removing unstable dependencies
+  useEffect(() &#x3D;&gt; {
+    const loadFloorPlan &#x3D; async () &#x3D;&gt; {
+      try {
+        setIsLoading(true)
+        const { tables } &#x3D; await tableService.getTables()
+        
+        if (tables &amp;&amp; tables.length &gt; 0) {
+          actions.setTables(tables)
+          toast.success(&#x27;Floor plan loaded successfully&#x27;)
+        }
+      } catch (error) {
+        console.error(&#x27;Failed to load floor plan:&#x27;, error)
+        toast.error(&#x27;Failed to load floor plan&#x27;)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadFloorPlan()
+  }, [restaurantId])
+
+  // Separate effect for centering canvas when tables or canvas size changes
+  useEffect(() &#x3D;&gt; {
+    if (selectors.tables.length &gt; 0 &amp;&amp; selectors.canvasSize.width &gt; 0) {
+      const tables &#x3D; selectors.tables
+      const minX &#x3D; Math.min(...tables.map(t &#x3D;&gt; t.x))
+      const maxX &#x3D; Math.max(...tables.map(t &#x3D;&gt; t.x + t.width))
+      const minY &#x3D; Math.min(...tables.map(t &#x3D;&gt; t.y))
+      const maxY &#x3D; Math.max(...tables.map(t &#x3D;&gt; t.y + t.height))
+      
+      const contentWidth &#x3D; maxX - minX
+      const contentHeight &#x3D; maxY - minY
+      const centerX &#x3D; minX + contentWidth / 2
+      const centerY &#x3D; minY + contentHeight / 2
+      
+      // Center the content in the viewport with some padding
+      const viewportCenterX &#x3D; selectors.canvasSize.width / 2
+      const viewportCenterY &#x3D; selectors.canvasSize.height / 2
+      
+      actions.setPanOffset({
+        x: viewportCenterX - centerX,
+        y: viewportCenterY - centerY
+      })
+    }
+  }, [selectors.tables.length, selectors.canvasSize.width, selectors.canvasSize.height])
+
+  // Adjust canvas size on mount and window resize
+  useEffect(() &#x3D;&gt; {
+    const updateCanvasSize &#x3D; () &#x3D;&gt; {
+      if (containerRef.current) {
+        const containerRect &#x3D; containerRef.current.getBoundingClientRect()
+        const isLargeScreen &#x3D; window.innerWidth &gt;&#x3D; 1024 // lg breakpoint
+        
+        // Calculate available space more accurately
+        const sidePanelWidth &#x3D; isLargeScreen ? 320 : 0
+        const padding &#x3D; 32 // Account for p-4 (16px * 2)
+        const availableWidth &#x3D; containerRect.width - sidePanelWidth - padding
+        const availableHeight &#x3D; containerRect.height - 120 // Account for toolbar height
+        
+        // Use aspect ratio that fits within available space
+        const aspectRatio &#x3D; 4 / 3
+        let width &#x3D; Math.min(1200, availableWidth)
+        let height &#x3D; width / aspectRatio
+        
+        // If height exceeds available space, constrain by height
+        if (height &gt; availableHeight) {
+          height &#x3D; availableHeight
+          width &#x3D; height * aspectRatio
+        }
+        
+        // Ensure minimum size
+        width &#x3D; Math.max(400, width)
+        height &#x3D; Math.max(300, height)
+        
+        actions.setCanvasSize({ width: Math.floor(width), height: Math.floor(height) })
+      }
+    }
+
+    // Use requestAnimationFrame to ensure DOM is ready
+    const handleResize &#x3D; () &#x3D;&gt; {
+      requestAnimationFrame(updateCanvasSize)
+    }
+
+    handleResize()
+    window.addEventListener(&#x27;resize&#x27;, handleResize)
+    return () &#x3D;&gt; window.removeEventListener(&#x27;resize&#x27;, handleResize)
+  }, [actions])
+
+  // Table creation helper
+  const createDefaultTable &#x3D; useCallback(
+    (type: Table[&#x27;type&#x27;]): Table &#x3D;&gt; {
+      const tableCount &#x3D; selectors.tables.length + 1
+      const tableWidth &#x3D; type &#x3D;&#x3D;&#x3D; &#x27;circle&#x27; ? 80 : 100
+      const tableHeight &#x3D; type &#x3D;&#x3D;&#x3D; &#x27;circle&#x27; ? 80 : type &#x3D;&#x3D;&#x3D; &#x27;square&#x27; ? 100 : 60
+      
+      // Ensure proper spacing between tables (table width + padding)
+      const horizontalSpacing &#x3D; Math.max(tableWidth + 40, 120) // 40px padding minimum
+      const verticalSpacing &#x3D; Math.max(tableHeight + 40, 120)
+      
+      // Calculate grid position (5 tables per row)
+      const col &#x3D; (tableCount - 1) % 5
+      const row &#x3D; Math.floor((tableCount - 1) / 5)
+      
+      // Base positions with proper spacing
+      const baseX &#x3D; 100 + col * horizontalSpacing
+      const baseY &#x3D; 100 + row * verticalSpacing
+
+      // Apply grid snapping if enabled
+      const finalX &#x3D; selectors.snapToGrid 
+        ? Math.round(baseX / selectors.gridSize) * selectors.gridSize
+        : baseX
+      const finalY &#x3D; selectors.snapToGrid
+        ? Math.round(baseY / selectors.gridSize) * selectors.gridSize  
+        : baseY
+
+      return {
+        id: &#x60;table-${Date.now()}&#x60;,
+        type,
+        x: finalX,
+        y: finalY,
+        width: tableWidth,
+        height: tableHeight,
+        seats: 4,
+        label: &#x60;Table ${tableCount}&#x60;,
+        rotation: 0,
+        status: &#x27;available&#x27;,
+        z_index: 1,
+      }
+    },
+    [selectors.tables.length, selectors.snapToGrid, selectors.gridSize]
+  )
+
+  // Table management handlers
+  const handleAddTable &#x3D; useCallback(
+    async (type: Table[&#x27;type&#x27;]) &#x3D;&gt; {
+      try {
+        setIsCreatingTable(true)
+        setCreatingTableType(type)
+        
+        const newTable &#x3D; createDefaultTable(type)
+        actions.addToUndoStack([...selectors.tables])
+        actions.addTable(newTable)
+        
+        // Small delay to show loading state
+        await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 500))
+      } catch (error) {
+        console.error(&#x27;Failed to create table:&#x27;, error)
+        toast.error(&#x27;Failed to create table&#x27;)
+      } finally {
+        setIsCreatingTable(false)
+        setCreatingTableType(null)
+      }
+    },
+    [createDefaultTable, actions, selectors.tables]
+  )
+
+  const handleDeleteTable &#x3D; useCallback(() &#x3D;&gt; {
+    if (!selectors.selectedTable) return
+    actions.addToUndoStack([...selectors.tables])
+    actions.deleteTable(selectors.selectedTable.id)
+  }, [selectors.selectedTable, actions, selectors.tables])
+
+  const handleDuplicateTable &#x3D; useCallback(() &#x3D;&gt; {
+    if (!selectors.selectedTable) return
+    actions.addToUndoStack([...selectors.tables])
+    const newTable: Table &#x3D; {
+      ...selectors.selectedTable,
+      id: &#x60;table-${Date.now()}&#x60;,
+      x: selectors.selectedTable.x + 20,
+      y: selectors.selectedTable.y + 20,
+    }
+    actions.addTable(newTable)
+  }, [selectors.selectedTable, actions, selectors.tables])
+
+  const handleTableMove &#x3D; useCallback(
+    (tableId: string, x: number, y: number) &#x3D;&gt; {
+      const finalX &#x3D; selectors.snapToGrid ? Math.round(x / selectors.gridSize) * selectors.gridSize : x
+      const finalY &#x3D; selectors.snapToGrid ? Math.round(y / selectors.gridSize) * selectors.gridSize : y
+      actions.updateTable(tableId, { x: finalX, y: finalY })
+    },
+    [actions, selectors.snapToGrid, selectors.gridSize]
+  )
+
+  const handleTableResize &#x3D; useCallback(
+    (tableId: string, width: number, height: number) &#x3D;&gt; {
+      actions.updateTable(tableId, { width, height })
+    },
+    [actions]
+  )
+
+  const handleSave &#x3D; useCallback(async () &#x3D;&gt; {
+    try {
+      setIsSaving(true)
+      
+      // Batch update all tables
+      const tablesToUpdate &#x3D; selectors.tables.map(table &#x3D;&gt; ({
+        id: table.id,
+        type: table.type,
+        x: table.x,
+        y: table.y,
+        width: table.width,
+        height: table.height,
+        seats: table.seats,
+        label: table.label,
+        rotation: table.rotation,
+        status: table.status,
+        z_index: table.z_index,
+        metadata: table.metadata,
+        active: table.active
+      }))
+      
+      console.log(&#x27;Sending tables to batch update:&#x27;, {
+        count: tablesToUpdate.length,
+        sample: tablesToUpdate[0],
+        all: tablesToUpdate
+      })
+      
+      if (tablesToUpdate.length &#x3D;&#x3D;&#x3D; 0) {
+        toast.error(&#x27;No tables to save&#x27;)
+        return
+      }
+      
+      await tableService.batchUpdateTables(tablesToUpdate)
+      
+      toast.success(&#x27;Floor plan saved successfully&#x27;)
+      // Call the onSave callback if provided
+      onSave?.(selectors.tables)
+    } catch (error) {
+      console.error(&#x27;Failed to save floor plan:&#x27;, error)
+      console.error(&#x27;Error stack:&#x27;, error instanceof Error ? error.stack : &#x27;No stack trace&#x27;)
+      console.error(&#x27;Error details:&#x27;, {
+        message: error instanceof Error ? error.message : &#x27;Unknown error&#x27;,
+        name: error instanceof Error ? error.name : &#x27;Unknown&#x27;,
+        cause: error instanceof Error ? error.cause : undefined
+      })
+      
+      let errorMessage &#x3D; &#x27;Unknown error occurred&#x27;
+      if (error instanceof Error) {
+        errorMessage &#x3D; error.message
+      }
+      
+      toast.error(&#x60;Failed to save floor plan: ${errorMessage}&#x60;)
+    } finally {
+      setIsSaving(false)
+    }
+  }, [selectors.tables, onSave])
+
+  const handleZoomIn &#x3D; useCallback(() &#x3D;&gt; {
+    actions.setZoomLevel(Math.min(2, selectors.zoomLevel * 1.2))
+  }, [actions, selectors.zoomLevel])
+
+  const handleZoomOut &#x3D; useCallback(() &#x3D;&gt; {
+    actions.setZoomLevel(Math.max(0.5, selectors.zoomLevel / 1.2))
+  }, [actions, selectors.zoomLevel])
+
+  const handleZoomReset &#x3D; useCallback(() &#x3D;&gt; {
+    actions.setZoomLevel(1)
+  }, [actions])
+
+  const handleResetView &#x3D; useCallback(() &#x3D;&gt; {
+    // Reset zoom
+    actions.setZoomLevel(1)
+    
+    // Re-center on tables
+    if (selectors.tables.length &gt; 0) {
+      const minX &#x3D; Math.min(...selectors.tables.map(t &#x3D;&gt; t.x))
+      const maxX &#x3D; Math.max(...selectors.tables.map(t &#x3D;&gt; t.x + t.width))
+      const minY &#x3D; Math.min(...selectors.tables.map(t &#x3D;&gt; t.y))
+      const maxY &#x3D; Math.max(...selectors.tables.map(t &#x3D;&gt; t.y + t.height))
+      
+      const contentWidth &#x3D; maxX - minX
+      const contentHeight &#x3D; maxY - minY
+      const centerX &#x3D; minX + contentWidth / 2
+      const centerY &#x3D; minY + contentHeight / 2
+      
+      const viewportCenterX &#x3D; selectors.canvasSize.width / 2
+      const viewportCenterY &#x3D; selectors.canvasSize.height / 2
+      
+      actions.setPanOffset({
+        x: viewportCenterX - centerX,
+        y: viewportCenterY - centerY
+      })
+    } else {
+      // No tables, center at origin
+      actions.setPanOffset({ x: 0, y: 0 })
+    }
+  }, [actions, selectors.tables, selectors.canvasSize])
+
+  // Keyboard shortcuts
+  useEffect(() &#x3D;&gt; {
+    const handleKeyDown &#x3D; (e: KeyboardEvent) &#x3D;&gt; {
+      // Delete
+      if (e.key &#x3D;&#x3D;&#x3D; &#x27;Delete&#x27; &amp;&amp; selectors.selectedTable) {
+        handleDeleteTable()
+      }
+      // Undo
+      if ((e.metaKey || e.ctrlKey) &amp;&amp; e.key &#x3D;&#x3D;&#x3D; &#x27;z&#x27; &amp;&amp; !e.shiftKey &amp;&amp; selectors.canUndo) {
+        actions.undo()
+      }
+      // Redo
+      if ((e.metaKey || e.ctrlKey) &amp;&amp; (e.key &#x3D;&#x3D;&#x3D; &#x27;y&#x27; || (e.key &#x3D;&#x3D;&#x3D; &#x27;z&#x27; &amp;&amp; e.shiftKey)) &amp;&amp; selectors.canRedo) {
+        actions.redo()
+      }
+      // Duplicate
+      if ((e.metaKey || e.ctrlKey) &amp;&amp; e.key &#x3D;&#x3D;&#x3D; &#x27;d&#x27; &amp;&amp; selectors.selectedTable) {
+        e.preventDefault()
+        handleDuplicateTable()
+      }
+    }
+
+    window.addEventListener(&#x27;keydown&#x27;, handleKeyDown)
+    return () &#x3D;&gt; window.removeEventListener(&#x27;keydown&#x27;, handleKeyDown)
+  }, [selectors.selectedTable, selectors.canUndo, selectors.canRedo, actions, handleDeleteTable, handleDuplicateTable])
+
+  if (isLoading) {
+    return (
+      &lt;div className&#x3D;&quot;flex items-center justify-center h-full&quot; style&#x3D;{{ backgroundColor: &#x27;#FBFBFA&#x27; }}&gt;
+        &lt;div className&#x3D;&quot;text-center&quot;&gt;
+          &lt;div className&#x3D;&quot;animate-spin rounded-full h-12 w-12 border-b-2 border-macon-teal mx-auto mb-4&quot;&gt;&lt;/div&gt;
+          &lt;p className&#x3D;&quot;text-neutral-600&quot;&gt;Loading floor plan...&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    )
+  }
+
+  return (
+    &lt;div ref&#x3D;{containerRef} className&#x3D;&quot;flex flex-col h-full&quot; style&#x3D;{{ backgroundColor: &#x27;#FBFBFA&#x27; }}&gt;
+      &lt;FloorPlanToolbar
+        onAddTable&#x3D;{handleAddTable}
+        onDeleteTable&#x3D;{handleDeleteTable}
+        onDuplicateTable&#x3D;{handleDuplicateTable}
+        onToggleGrid&#x3D;{actions.toggleGrid}
+        onToggleSnapToGrid&#x3D;{actions.toggleSnapToGrid}
+        onUndo&#x3D;{actions.undo}
+        onRedo&#x3D;{actions.redo}
+        onSave&#x3D;{handleSave}
+        showGrid&#x3D;{selectors.showGrid}
+        snapToGrid&#x3D;{selectors.snapToGrid}
+        canUndo&#x3D;{selectors.canUndo}
+        canRedo&#x3D;{selectors.canRedo}
+        hasSelectedTable&#x3D;{!!selectors.selectedTable}
+        zoomLevel&#x3D;{selectors.zoomLevel}
+        onZoomIn&#x3D;{handleZoomIn}
+        onZoomOut&#x3D;{handleZoomOut}
+        onZoomReset&#x3D;{handleZoomReset}
+        onResetView&#x3D;{handleResetView}
+        isSaving&#x3D;{isSaving}
+        isCreatingTable&#x3D;{isCreatingTable}
+        creatingTableType&#x3D;{creatingTableType}
+      /&gt;
+
+      &lt;div className&#x3D;&quot;flex flex-col lg:flex-row flex-1 gap-4 p-4 overflow-hidden&quot;&gt;
+        &lt;div className&#x3D;&quot;flex-1 flex flex-col gap-2 min-h-0 min-w-0&quot;&gt;
+          &lt;div className&#x3D;&quot;text-xs text-[#6b7280] px-1 hidden sm:block&quot;&gt;
+            &lt;span className&#x3D;&quot;font-medium text-[#2d4a7c]&quot;&gt;Tip:&lt;/span&gt; Right-click or Shift+Click to pan • Scroll to zoom • Click tables to select • Use Reset View button to center
+          &lt;/div&gt;
+          &lt;div className&#x3D;&quot;text-xs text-[#6b7280] px-1 sm:hidden&quot;&gt;
+            &lt;span className&#x3D;&quot;font-medium text-[#2d4a7c]&quot;&gt;Tip:&lt;/span&gt; Tap to select • Pinch to zoom • Use Reset View button
+          &lt;/div&gt;
+          &lt;div className&#x3D;&quot;flex-1 flex items-center justify-center overflow-hidden&quot;&gt;
+            &lt;FloorPlanCanvas
+              tables&#x3D;{selectors.tables}
+              selectedTableId&#x3D;{selectors.selectedTableId}
+              canvasSize&#x3D;{selectors.canvasSize}
+              showGrid&#x3D;{selectors.showGrid}
+              gridSize&#x3D;{selectors.gridSize}
+              snapToGrid&#x3D;{selectors.snapToGrid}
+              zoomLevel&#x3D;{selectors.zoomLevel}
+              panOffset&#x3D;{selectors.panOffset}
+              onTableClick&#x3D;{actions.selectTable}
+              onTableMove&#x3D;{handleTableMove}
+              onTableResize&#x3D;{handleTableResize}
+              onCanvasClick&#x3D;{() &#x3D;&gt; actions.selectTable(null)}
+              onZoomChange&#x3D;{actions.setZoomLevel}
+              onPanChange&#x3D;{actions.setPanOffset}
+            /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;FloorPlanSidePanel
+          selectedTable&#x3D;{selectors.selectedTable}
+          tables&#x3D;{selectors.tables}
+          onUpdateTable&#x3D;{actions.updateTable}
+          onSelectTable&#x3D;{actions.selectTable}
+        /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'FloorPlanEditorProps.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

@@ -1,0 +1,823 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content class">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >AudioFramer</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/voice/audio-pipeline.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Frames audio data into 20-40ms chunks</p>
+
+            </p>
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#buffer" >buffer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#frameSize" >frameSize</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#addData" >addData</a>
+                            </li>
+                            <li>
+                                <a href="#flush" >flush</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(sampleRate: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, frameSizeMs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="144" class="link-to-prism">client/src/voice/audio-pipeline.ts:144</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>sampleRate</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>frameSizeMs</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="buffer"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>buffer</b></span>
+                        <a href="#buffer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Float32Array</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Float32Array(0)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="144" class="link-to-prism">client/src/voice/audio-pipeline.ts:144</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="frameSize"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>frameSize</b></span>
+                        <a href="#frameSize"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="143" class="link-to-prism">client/src/voice/audio-pipeline.ts:143</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="addData"></a>
+                    <span class="name">
+                        <span ><b>addData</b></span>
+                        <a href="#addData"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>addData(data: Float32Array)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">client/src/voice/audio-pipeline.ts:150</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>data</td>
+                                            <td>
+                                                        <code>Float32Array</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Float32Array[]</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="flush"></a>
+                    <span class="name">
+                        <span ><b>flush</b></span>
+                        <a href="#flush"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>flush()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="168"
+                                    class="link-to-prism">client/src/voice/audio-pipeline.ts:168</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Float32Array | null</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+
+
+
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export interface AudioConfig {
+  sampleRate: number;
+  channels: number;
+  bitDepth: number;
+  frameSize: number; // in milliseconds (20-40ms)
+  vadThreshold: number; // amplitude threshold for voice activity detection
+}
+
+export const DEFAULT_AUDIO_CONFIG: AudioConfig &#x3D; {
+  sampleRate: 16000, // 16kHz for capture
+  channels: 1,
+  bitDepth: 16,
+  frameSize: 25, // 25ms frames
+  vadThreshold: 0.01, // 1% amplitude threshold
+};
+
+/**
+ * Captures audio from microphone in PCM16 format at 16kHz
+ */
+export class AudioCapture {
+  private audioContext: AudioContext | null &#x3D; null;
+  private mediaStream: MediaStream | null &#x3D; null;
+  private sourceNode: MediaStreamAudioSourceNode | null &#x3D; null;
+  private processorNode: ScriptProcessorNode | null &#x3D; null;
+  private onAudioDataCallback: ((audioData: Float32Array) &#x3D;&gt; void) | null &#x3D; null;
+
+  async initialize(): Promise&lt;void&gt; {
+    // Request microphone permission
+    this.mediaStream &#x3D; await navigator.mediaDevices.getUserMedia({
+      audio: {
+        sampleRate: DEFAULT_AUDIO_CONFIG.sampleRate,
+        channelCount: DEFAULT_AUDIO_CONFIG.channels,
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      }
+    });
+
+    // Create audio context
+    this.audioContext &#x3D; new (window.AudioContext || (window as any).webkitAudioContext)({
+      sampleRate: DEFAULT_AUDIO_CONFIG.sampleRate,
+    });
+
+    // Create source node
+    this.sourceNode &#x3D; this.audioContext.createMediaStreamSource(this.mediaStream);
+
+    // Create processor node (deprecated but still widely supported)
+    const bufferSize &#x3D; Math.floor(DEFAULT_AUDIO_CONFIG.sampleRate * DEFAULT_AUDIO_CONFIG.frameSize / 1000);
+    this.processorNode &#x3D; this.audioContext.createScriptProcessor(bufferSize, 1, 1);
+
+    this.processorNode.onaudioprocess &#x3D; (event) &#x3D;&gt; {
+      const inputBuffer &#x3D; event.inputBuffer.getChannelData(0);
+      if (this.onAudioDataCallback) {
+        this.onAudioDataCallback(new Float32Array(inputBuffer));
+      }
+    };
+
+    // Connect nodes
+    this.sourceNode.connect(this.processorNode);
+    this.processorNode.connect(this.audioContext.destination);
+  }
+
+  start(onAudioData: (audioData: Float32Array) &#x3D;&gt; void): void {
+    this.onAudioDataCallback &#x3D; onAudioData;
+    if (this.audioContext?.state &#x3D;&#x3D;&#x3D; &#x27;suspended&#x27;) {
+      this.audioContext.resume();
+    }
+  }
+
+  stop(): void {
+    this.onAudioDataCallback &#x3D; null;
+    if (this.audioContext?.state &#x3D;&#x3D;&#x3D; &#x27;running&#x27;) {
+      this.audioContext.suspend();
+    }
+  }
+
+  destroy(): void {
+    if (this.processorNode) {
+      this.processorNode.disconnect();
+      this.processorNode &#x3D; null;
+    }
+    if (this.sourceNode) {
+      this.sourceNode.disconnect();
+      this.sourceNode &#x3D; null;
+    }
+    if (this.audioContext) {
+      this.audioContext.close();
+      this.audioContext &#x3D; null;
+    }
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track &#x3D;&gt; track.stop());
+      this.mediaStream &#x3D; null;
+    }
+  }
+}
+
+/**
+ * Resamples audio from 16kHz to 24kHz for OpenAI compatibility
+ */
+export class AudioResampler {
+  private inputSampleRate: number;
+  private outputSampleRate: number;
+  private ratio: number;
+  private buffer: Float32Array &#x3D; new Float32Array(0);
+
+  constructor(inputSampleRate: number &#x3D; 16000, outputSampleRate: number &#x3D; 24000) {
+    this.inputSampleRate &#x3D; inputSampleRate;
+    this.outputSampleRate &#x3D; outputSampleRate;
+    this.ratio &#x3D; outputSampleRate / inputSampleRate;
+  }
+
+  resample(inputData: Float32Array): Float32Array {
+    if (this.ratio &#x3D;&#x3D;&#x3D; 1) {
+      return inputData; // No resampling needed
+    }
+
+    const outputLength &#x3D; Math.ceil(inputData.length * this.ratio);
+    const output &#x3D; new Float32Array(outputLength);
+
+    for (let i &#x3D; 0; i &lt; outputLength; i++) {
+      const inputIndex &#x3D; i / this.ratio;
+      const inputIndexFloor &#x3D; Math.floor(inputIndex);
+      const inputIndexCeil &#x3D; Math.min(inputIndexFloor + 1, inputData.length - 1);
+      const fraction &#x3D; inputIndex - inputIndexFloor;
+
+      // Linear interpolation
+      output[i] &#x3D; inputData[inputIndexFloor] * (1 - fraction) + inputData[inputIndexCeil] * fraction;
+    }
+
+    return output;
+  }
+}
+
+/**
+ * Frames audio data into 20-40ms chunks
+ */
+export class AudioFramer {
+  private frameSize: number;
+  private buffer: Float32Array &#x3D; new Float32Array(0);
+
+  constructor(sampleRate: number, frameSizeMs: number &#x3D; 25) {
+    this.frameSize &#x3D; Math.floor(sampleRate * frameSizeMs / 1000);
+  }
+
+  addData(data: Float32Array): Float32Array[] {
+    // Append new data to buffer
+    const newBuffer &#x3D; new Float32Array(this.buffer.length + data.length);
+    newBuffer.set(this.buffer);
+    newBuffer.set(data, this.buffer.length);
+    this.buffer &#x3D; newBuffer;
+
+    // Extract complete frames
+    const frames: Float32Array[] &#x3D; [];
+    while (this.buffer.length &gt;&#x3D; this.frameSize) {
+      const frame &#x3D; this.buffer.slice(0, this.frameSize);
+      frames.push(frame);
+      this.buffer &#x3D; this.buffer.slice(this.frameSize);
+    }
+
+    return frames;
+  }
+
+  flush(): Float32Array | null {
+    if (this.buffer.length &gt; 0) {
+      const frame &#x3D; this.buffer;
+      this.buffer &#x3D; new Float32Array(0);
+      return frame;
+    }
+    return null;
+  }
+}
+
+/**
+ * Simple Voice Activity Detection based on amplitude
+ */
+export class SimpleVAD {
+  private threshold: number;
+  private windowSize: number;
+  private energyWindow: number[] &#x3D; [];
+
+  constructor(threshold: number &#x3D; 0.01, windowSize: number &#x3D; 10) {
+    this.threshold &#x3D; threshold;
+    this.windowSize &#x3D; windowSize;
+  }
+
+  detectVoice(audioFrame: Float32Array): boolean {
+    // Calculate RMS energy
+    let sum &#x3D; 0;
+    for (let i &#x3D; 0; i &lt; audioFrame.length; i++) {
+      sum +&#x3D; audioFrame[i] * audioFrame[i];
+    }
+    const rms &#x3D; Math.sqrt(sum / audioFrame.length);
+
+    // Add to sliding window
+    this.energyWindow.push(rms);
+    if (this.energyWindow.length &gt; this.windowSize) {
+      this.energyWindow.shift();
+    }
+
+    // Calculate average energy over window
+    const avgEnergy &#x3D; this.energyWindow.reduce((a, b) &#x3D;&gt; a + b, 0) / this.energyWindow.length;
+
+    return avgEnergy &gt; this.threshold;
+  }
+
+  reset(): void {
+    this.energyWindow &#x3D; [];
+  }
+}
+
+/**
+ * Converts Float32Array to PCM16 and encodes as Base64
+ */
+export class AudioEncoder {
+  static float32ToPCM16(float32Array: Float32Array): ArrayBuffer {
+    const buffer &#x3D; new ArrayBuffer(float32Array.length * 2);
+    const view &#x3D; new DataView(buffer);
+    
+    for (let i &#x3D; 0; i &lt; float32Array.length; i++) {
+      const sample &#x3D; Math.max(-1, Math.min(1, float32Array[i]));
+      view.setInt16(i * 2, sample * 0x7FFF, true); // little-endian
+    }
+    
+    return buffer;
+  }
+
+  static arrayBufferToBase64(buffer: ArrayBuffer): string {
+    const bytes &#x3D; new Uint8Array(buffer);
+    let binary &#x3D; &#x27;&#x27;;
+    for (let i &#x3D; 0; i &lt; bytes.byteLength; i++) {
+      binary +&#x3D; String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
+  static encodeFrame(audioFrame: Float32Array): string {
+    const pcm16Buffer &#x3D; this.float32ToPCM16(audioFrame);
+    return this.arrayBufferToBase64(pcm16Buffer);
+  }
+}
+
+/**
+ * Main audio pipeline that coordinates all components
+ */
+export class AudioPipeline {
+  private capture: AudioCapture;
+  private resampler: AudioResampler;
+  private framer: AudioFramer;
+  private vad: SimpleVAD;
+  private isActive: boolean &#x3D; false;
+  private onFrameCallback: ((encodedFrame: string, hasVoice: boolean) &#x3D;&gt; void) | null &#x3D; null;
+
+  constructor(config: AudioConfig &#x3D; DEFAULT_AUDIO_CONFIG) {
+    this.capture &#x3D; new AudioCapture();
+    this.resampler &#x3D; new AudioResampler(config.sampleRate, 24000); // Resample to 24kHz for OpenAI
+    this.framer &#x3D; new AudioFramer(24000, config.frameSize); // Frame at 24kHz
+    this.vad &#x3D; new SimpleVAD(config.vadThreshold);
+  }
+
+  async initialize(): Promise&lt;void&gt; {
+    await this.capture.initialize();
+  }
+
+  start(onFrame: (encodedFrame: string, hasVoice: boolean) &#x3D;&gt; void): void {
+    this.onFrameCallback &#x3D; onFrame;
+    this.isActive &#x3D; true;
+    this.vad.reset();
+
+    this.capture.start((audioData: Float32Array) &#x3D;&gt; {
+      if (!this.isActive) return;
+
+      // Resample from 16kHz to 24kHz
+      const resampledData &#x3D; this.resampler.resample(audioData);
+
+      // Frame the audio
+      const frames &#x3D; this.framer.addData(resampledData);
+
+      // Process each frame
+      frames.forEach(frame &#x3D;&gt; {
+        const hasVoice &#x3D; this.vad.detectVoice(frame);
+        const encodedFrame &#x3D; AudioEncoder.encodeFrame(frame);
+        this.onFrameCallback?.(encodedFrame, hasVoice);
+      });
+    });
+  }
+
+  stop(): void {
+    this.isActive &#x3D; false;
+    this.capture.stop();
+    
+    // Process any remaining buffered audio
+    const remainingFrame &#x3D; this.framer.flush();
+    if (remainingFrame &amp;&amp; this.onFrameCallback) {
+      const hasVoice &#x3D; this.vad.detectVoice(remainingFrame);
+      const encodedFrame &#x3D; AudioEncoder.encodeFrame(remainingFrame);
+      this.onFrameCallback(encodedFrame, hasVoice);
+    }
+  }
+
+  destroy(): void {
+    this.stop();
+    this.capture.destroy();
+    this.onFrameCallback &#x3D; null;
+  }
+
+  getIsActive(): boolean {
+    return this.isActive;
+  }
+}</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'AudioFramer.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

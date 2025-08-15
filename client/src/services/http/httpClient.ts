@@ -11,6 +11,7 @@ import { SecureAPIClient, APIError } from '@/services/secureApi'
 import { supabase } from '@/core/supabase'
 import { toSnakeCase, toCamelCase, transformQueryParams } from '@/services/utils/caseTransform'
 import { env } from '@/utils/env'
+import { getDemoToken } from '@/services/auth/demoAuth'
 
 // Global variable to store the current restaurant ID
 // This will be set by the RestaurantContext provider
@@ -88,20 +89,36 @@ export class HttpClient extends SecureAPIClient {
         if (session?.access_token) {
           headers.set('Authorization', `Bearer ${session.access_token}`)
         } else {
-          // Use test token in development mode
-          if (import.meta.env.DEV) {
-            headers.set('Authorization', 'Bearer test-token')
-            console.log('🔧 Using development test token for API request')
-          } else {
-            console.warn('No auth session available for API request')
+          // Use demo token for kiosk mode
+          try {
+            const demoToken = await getDemoToken()
+            headers.set('Authorization', `Bearer ${demoToken}`)
+            console.log('🔑 Using demo token for API request')
+          } catch (demoError) {
+            console.error('Failed to get demo token:', demoError)
+            // Fallback to test token in development only
+            if (import.meta.env.DEV) {
+              headers.set('Authorization', 'Bearer test-token')
+              console.log('🔧 Fallback to test token in development')
+            } else {
+              console.warn('No auth session available for API request')
+            }
           }
         }
       } catch (error) {
         console.error('Failed to get auth session:', error)
-        // Fallback to test token in development
-        if (import.meta.env.DEV) {
-          headers.set('Authorization', 'Bearer test-token')
-          console.log('🔧 Using development test token (fallback)')
+        // Try demo token as fallback
+        try {
+          const demoToken = await getDemoToken()
+          headers.set('Authorization', `Bearer ${demoToken}`)
+          console.log('🔑 Using demo token (auth session failed)')
+        } catch (demoError) {
+          console.error('All auth methods failed:', demoError)
+          // Final fallback to test token in development
+          if (import.meta.env.DEV) {
+            headers.set('Authorization', 'Bearer test-token')
+            console.log('🔧 Using test token (all auth failed, dev mode)')
+          }
         }
       }
     }

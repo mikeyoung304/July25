@@ -1,0 +1,1094 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>grow-fresh-local-food documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">grow-fresh-local-food documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content class">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >MockWebSocket</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>client/src/services/websocket/WebSocketService.test.ts</code>
+        </p>
+
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#close" >close</a>
+                            </li>
+                            <li>
+                                <a href="#onclose" >onclose</a>
+                            </li>
+                            <li>
+                                <a href="#onerror" >onerror</a>
+                            </li>
+                            <li>
+                                <a href="#onmessage" >onmessage</a>
+                            </li>
+                            <li>
+                                <a href="#onopen" >onopen</a>
+                            </li>
+                            <li>
+                                <a href="#readyState" >readyState</a>
+                            </li>
+                            <li>
+                                <a href="#send" >send</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#simulateClose" >simulateClose</a>
+                            </li>
+                            <li>
+                                <a href="#simulateError" >simulateError</a>
+                            </li>
+                            <li>
+                                <a href="#simulateMessage" >simulateMessage</a>
+                            </li>
+                            <li>
+                                <a href="#simulateOpen" >simulateOpen</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="close"></a>
+                    <span class="name">
+                        <span ><b>close</b></span>
+                        <a href="#close"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>vi.fn()</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:16</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onclose"></a>
+                    <span class="name">
+                        <span ><b>onclose</b></span>
+                        <a href="#onclose"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code> | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:13</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onerror"></a>
+                    <span class="name">
+                        <span ><b>onerror</b></span>
+                        <a href="#onerror"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code> | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:12</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onmessage"></a>
+                    <span class="name">
+                        <span ><b>onmessage</b></span>
+                        <a href="#onmessage"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code> | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:11</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onopen"></a>
+                    <span class="name">
+                        <span ><b>onopen</b></span>
+                        <a href="#onopen"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code> | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:10</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="readyState"></a>
+                    <span class="name">
+                        <span ><b>readyState</b></span>
+                        <a href="#readyState"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>0</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="9" class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:9</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="send"></a>
+                    <span class="name">
+                        <span ><b>send</b></span>
+                        <a href="#send"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>vi.fn()</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:15</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="simulateClose"></a>
+                    <span class="name">
+                        <span ><b>simulateClose</b></span>
+                        <a href="#simulateClose"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>simulateClose(code: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, reason: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="38"
+                                    class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:38</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Default value</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>code</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                                    <code>1000</code>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                                <td>reason</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                                    <code>&#x27;&#x27;</code>
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="simulateError"></a>
+                    <span class="name">
+                        <span ><b>simulateError</b></span>
+                        <a href="#simulateError"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>simulateError()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:31</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="simulateMessage"></a>
+                    <span class="name">
+                        <span ><b>simulateMessage</b></span>
+                        <a href="#simulateMessage"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>simulateMessage(data)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="25"
+                                    class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:25</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>data</td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="simulateOpen"></a>
+                    <span class="name">
+                        <span ><b>simulateOpen</b></span>
+                        <a href="#simulateOpen"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>simulateOpen()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="18"
+                                    class="link-to-prism">client/src/services/websocket/WebSocketService.test.ts:18</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+
+
+
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { WebSocketService } from &#x27;./WebSocketService&#x27;
+import { vi } from &#x27;vitest&#x27;;
+import { supabase } from &#x27;@/core/supabase&#x27;
+import { setCurrentRestaurantId } from &#x27;@/services/http/httpClient&#x27;
+import { toSnakeCase, toCamelCase } from &#x27;@/services/utils/caseTransform&#x27;
+
+// Mock WebSocket
+class MockWebSocket {
+  readyState &#x3D; 0 // WebSocket.CONNECTING
+  onopen: ((event: Event) &#x3D;&gt; void) | null &#x3D; null
+  onmessage: ((event: MessageEvent) &#x3D;&gt; void) | null &#x3D; null
+  onerror: ((event: Event) &#x3D;&gt; void) | null &#x3D; null
+  onclose: ((event: CloseEvent) &#x3D;&gt; void) | null &#x3D; null
+  
+  send &#x3D; vi.fn()
+  close &#x3D; vi.fn()
+  
+  simulateOpen() {
+    this.readyState &#x3D; 1 // WebSocket.OPEN
+    if (this.onopen) {
+      this.onopen(new Event(&#x27;open&#x27;))
+    }
+  }
+  
+  simulateMessage(data: unknown) {
+    if (this.onmessage) {
+      this.onmessage(new MessageEvent(&#x27;message&#x27;, { data: JSON.stringify(data) }))
+    }
+  }
+  
+  simulateError() {
+    this.readyState &#x3D; 3 // WebSocket.CLOSED
+    if (this.onerror) {
+      this.onerror(new Event(&#x27;error&#x27;))
+    }
+  }
+  
+  simulateClose(code &#x3D; 1000, reason &#x3D; &#x27;&#x27;) {
+    this.readyState &#x3D; 3 // WebSocket.CLOSED
+    if (this.onclose) {
+      this.onclose(new CloseEvent(&#x27;close&#x27;, { code, reason }))
+    }
+  }
+}
+
+// Mock Supabase
+vi.mock(&#x27;@/core/supabase&#x27;, () &#x3D;&gt; ({
+  supabase: {
+    auth: {
+      getSession: vi.fn()
+    }
+  }
+}))
+
+// Mock global WebSocket
+// @ts-expect-error - Mock WebSocket for testing
+global.WebSocket &#x3D; MockWebSocket
+
+describe(&#x27;WebSocketService&#x27;, () &#x3D;&gt; {
+  let service: WebSocketService
+  let mockWebSocket: MockWebSocket
+  
+  beforeEach(() &#x3D;&gt; {
+    vi.clearAllMocks()
+    vi.useFakeTimers()
+    
+    // Set up auth mock
+    ;(supabase.auth.getSession as vi.Mock).mockResolvedValue({
+      data: {
+        session: {
+          access_token: &#x27;test-token&#x27;,
+          expires_at: Date.now() + 3600000,
+          user: {} as { id: string }
+        }
+      },
+      error: null
+    })
+    
+    // Set restaurant ID
+    setCurrentRestaurantId(&#x27;test-restaurant&#x27;)
+    
+    // Mock WebSocket constructor
+    // @ts-expect-error - Mock WebSocket for testing
+    global.WebSocket &#x3D; vi.fn().mockImplementation(() &#x3D;&gt; {
+      mockWebSocket &#x3D; new MockWebSocket()
+      return mockWebSocket
+    })
+    
+    service &#x3D; new WebSocketService()
+  })
+  
+  afterEach(() &#x3D;&gt; {
+    vi.useRealTimers()
+    service.disconnect()
+  })
+  
+  describe(&#x27;connect&#x27;, () &#x3D;&gt; {
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should establish WebSocket connection with auth params&#x27;, async () &#x3D;&gt; {
+      const connectPromise &#x3D; service.connect()
+      
+      // Wait for auth to be resolved
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      
+      const wsCall &#x3D; (global.WebSocket as unknown as vi.Mock).mock.calls[0]
+      const url &#x3D; new URL(wsCall[0])
+      
+      expect(url.searchParams.get(&#x27;token&#x27;)).toBe(&#x27;test-token&#x27;)
+      expect(url.searchParams.get(&#x27;restaurant_id&#x27;)).toBe(&#x27;test-restaurant&#x27;)
+      
+      mockWebSocket.simulateOpen()
+      await connectPromise
+      
+      expect(service.isConnected()).toBe(true)
+    })
+    
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should handle missing auth session&#x27;, async () &#x3D;&gt; {
+      ;(supabase.auth.getSession as vi.Mock).mockResolvedValue({
+        data: { session: null },
+        error: null
+      })
+      
+      await service.connect()
+      
+      expect(service.getConnectionState()).toBe(&#x27;error&#x27;)
+    })
+    
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should handle missing restaurant ID&#x27;, async () &#x3D;&gt; {
+      setCurrentRestaurantId(null)
+      
+      await service.connect()
+      
+      expect(service.getConnectionState()).toBe(&#x27;error&#x27;)
+    })
+    
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should not connect if already connected&#x27;, async () &#x3D;&gt; {
+      // First connection
+      const firstConnect &#x3D; service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      await firstConnect
+      
+      ;(global.WebSocket as unknown as vi.Mock).mockClear()
+      
+      // Second connection attempt
+      await service.connect()
+      
+      expect(global.WebSocket).not.toHaveBeenCalled()
+    })
+  })
+  
+  describe(&#x27;disconnect&#x27;, () &#x3D;&gt; {
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should close WebSocket connection&#x27;, async () &#x3D;&gt; {
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      
+      service.disconnect()
+      
+      expect(mockWebSocket.close).toHaveBeenCalledWith(1000, &#x27;Client disconnect&#x27;)
+      expect(service.isConnected()).toBe(false)
+    })
+  })
+  
+  describe(&#x27;send&#x27;, () &#x3D;&gt; {
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should send messages when connected&#x27;, async () &#x3D;&gt; {
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      
+      const payload &#x3D; { test: &#x27;data&#x27; }
+      service.send(&#x27;test-message&#x27;, payload)
+      
+      expect(mockWebSocket.send).toHaveBeenCalled()
+      const sentData &#x3D; JSON.parse(mockWebSocket.send.mock.calls[0][0])
+      expect(sentData.type).toBe(&#x27;test-message&#x27;)
+      expect(sentData.payload).toEqual(toSnakeCase(payload))
+    })
+    
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should queue messages when not connected&#x27;, () &#x3D;&gt; {
+      const payload &#x3D; { test: &#x27;data&#x27; }
+      service.send(&#x27;test-message&#x27;, payload)
+      
+      expect(mockWebSocket).toBeUndefined()
+    })
+    
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should flush queued messages after connection&#x27;, async () &#x3D;&gt; {
+      // Queue messages before connection
+      service.send(&#x27;message1&#x27;, { data: 1 })
+      service.send(&#x27;message2&#x27;, { data: 2 })
+      
+      // Connect
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      
+      // Check messages were sent
+      expect(mockWebSocket.send).toHaveBeenCalledTimes(2)
+    })
+  })
+  
+  describe(&#x27;subscribe&#x27;, () &#x3D;&gt; {
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should handle incoming messages&#x27;, async () &#x3D;&gt; {
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      
+      const callback &#x3D; vi.fn()
+      service.subscribe(&#x27;test-message&#x27;, callback)
+      
+      const payload &#x3D; { test_data: &#x27;value&#x27; }
+      mockWebSocket.simulateMessage({
+        type: &#x27;test-message&#x27;,
+        payload,
+        timestamp: new Date().toISOString()
+      })
+      
+      expect(callback).toHaveBeenCalledWith(toCamelCase(payload))
+    })
+    
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should return unsubscribe function&#x27;, async () &#x3D;&gt; {
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      
+      const callback &#x3D; vi.fn()
+      const unsubscribe &#x3D; service.subscribe(&#x27;test-message&#x27;, callback)
+      
+      // Send message
+      mockWebSocket.simulateMessage({
+        type: &#x27;test-message&#x27;,
+        payload: { test: &#x27;data&#x27; }
+      })
+      
+      expect(callback).toHaveBeenCalledTimes(1)
+      
+      // Unsubscribe
+      unsubscribe()
+      
+      // Send another message
+      mockWebSocket.simulateMessage({
+        type: &#x27;test-message&#x27;,
+        payload: { test: &#x27;data2&#x27; }
+      })
+      
+      // Should not be called again
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+  })
+  
+  describe(&#x27;reconnection&#x27;, () &#x3D;&gt; {
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should attempt reconnection on unexpected close&#x27;, async () &#x3D;&gt; {
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      
+      ;(global.WebSocket as unknown as vi.Mock).mockClear()
+      
+      // Simulate unexpected close
+      mockWebSocket.simulateClose(1006, &#x27;Connection lost&#x27;)
+      
+      // Advance timers
+      vi.advanceTimersByTime(5000)
+      
+      expect(global.WebSocket).toHaveBeenCalledTimes(1)
+    })
+    
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should not reconnect on intentional close&#x27;, async () &#x3D;&gt; {
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      
+      ;(global.WebSocket as unknown as vi.Mock).mockClear()
+      
+      service.disconnect()
+      
+      // Advance timers
+      vi.advanceTimersByTime(10000)
+      
+      expect(global.WebSocket).not.toHaveBeenCalled()
+    })
+    
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should stop reconnecting after max attempts&#x27;, async () &#x3D;&gt; {
+      const maxAttempts &#x3D; 10
+      service &#x3D; new WebSocketService({ maxReconnectAttempts: maxAttempts })
+      
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      
+      // Simulate multiple failed connections
+      for (let i &#x3D; 0; i &lt; maxAttempts + 1; i++) {
+        mockWebSocket.simulateError()
+        mockWebSocket.simulateClose(1006)
+        vi.advanceTimersByTime(30000) // Advance past any reconnect delay
+      }
+      
+      const totalCalls &#x3D; (global.WebSocket as unknown as vi.Mock).mock.calls.length
+      expect(totalCalls).toBeLessThanOrEqual(maxAttempts + 1) // Initial + max retries
+    })
+  })
+  
+  describe(&#x27;heartbeat&#x27;, () &#x3D;&gt; {
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should send ping messages periodically&#x27;, async () &#x3D;&gt; {
+      service &#x3D; new WebSocketService()
+      
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      
+      vi.advanceTimersByTime(1000)
+      
+      const pingCall &#x3D; mockWebSocket.send.mock.calls.find(call &#x3D;&gt; {
+        const data &#x3D; JSON.parse(call[0])
+        return data.type &#x3D;&#x3D;&#x3D; &#x27;ping&#x27;
+      })
+      
+      expect(pingCall).toBeDefined()
+    })
+  })
+  
+  describe(&#x27;error handling&#x27;, () &#x3D;&gt; {
+    // TODO(luis): enable when Playwright pipeline runs
+    test.skip(&#x27;should emit error on invalid message format&#x27;, async () &#x3D;&gt; {
+      await service.connect()
+      await new Promise(resolve &#x3D;&gt; setTimeout(resolve, 0))
+      expect(global.WebSocket).toHaveBeenCalled()
+      mockWebSocket.simulateOpen()
+      
+      const errorCallback &#x3D; vi.fn()
+      service.on(&#x27;error&#x27;, errorCallback)
+      
+      // Send invalid JSON
+      if (mockWebSocket.onmessage) {
+        mockWebSocket.onmessage(new MessageEvent(&#x27;message&#x27;, { data: &#x27;invalid json&#x27; }))
+      }
+      
+      expect(errorCallback).toHaveBeenCalled()
+    })
+  })
+})</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'MockWebSocket.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
