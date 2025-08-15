@@ -9,6 +9,7 @@ import { validateRequest } from '../middleware/validation';
 import { menuUploadSchema, parseOrderSchema } from '../validation/ai.validation';
 import { trackAIMetrics } from '../middleware/metrics';
 import { voiceRoutes } from '../voice/voice-routes';
+import { MenuService } from '../services/menu.service';
 
 const router = Router();
 
@@ -263,7 +264,20 @@ router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authe
       fileSize: req.file.size
     });
 
-    // Step 1: Transcribe the audio
+    // Step 1: Load menu items for context
+    const menuItems = await MenuService.getItems(restaurantId);
+    
+    // Create a menu summary for the AI
+    const menuSummary = menuItems.map(item => 
+      `- ${item.name}${item.description ? `: ${item.description}` : ''} ($${item.price})`
+    ).join('\n');
+    
+    aiLogger.info('Loaded menu for AI context', {
+      restaurantId,
+      itemCount: menuItems.length
+    });
+
+    // Step 2: Transcribe the audio
     aiLogger.info('Starting transcription', {
       fileSize: req.file.size,
       mimeType: req.file.mimetype
@@ -286,8 +300,22 @@ router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authe
       text: transcriptionResult.text.substring(0, 100) + '...'
     });
 
-    // Step 2: Generate chat response
+    // Step 3: Generate chat response with menu context
+    const systemMessage = `You are a friendly restaurant ordering assistant at Grow Fresh Local Food. 
+
+AVAILABLE MENU ITEMS:
+${menuSummary}
+
+INSTRUCTIONS:
+- When customers order, confirm their order by repeating the specific items and prices
+- If they ask what you have, list categories or suggest popular items from the menu above
+- If they order something not on the menu, suggest the closest alternatives from the actual menu
+- Be conversational and helpful, like a real restaurant employee
+- Always mention the total price when confirming orders
+- If asked about ingredients or dietary options, refer to the descriptions provided`;
+
     const chatResponse = await ai.chat.respond([
+      { role: 'system', content: systemMessage },
       { role: 'user', content: transcriptionResult.text }
     ], {
       context: { restaurantId, userId: req.user?.id }
@@ -404,12 +432,38 @@ router.post('/chat', aiServiceLimiter, trackAIMetrics('chat'), authenticate, asy
       messageLength: message.length
     });
 
-    const response = await aiService.chat(message, restaurantId, req.user?.id);
+    // Load menu for context
+    const menuItems = await MenuService.getItems(restaurantId);
+    const menuSummary = menuItems.map(item => 
+      `- ${item.name}${item.description ? `: ${item.description}` : ''} ($${item.price})`
+    ).join('\n');
+
+    // Create system message with menu
+    const systemMessage = `You are a friendly restaurant ordering assistant at Grow Fresh Local Food. 
+
+AVAILABLE MENU ITEMS:
+${menuSummary}
+
+INSTRUCTIONS:
+- When customers order, confirm their order by repeating the specific items and prices
+- If they ask what you have, list categories or suggest popular items from the menu above
+- If they order something not on the menu, suggest the closest alternatives from the actual menu
+- Be conversational and helpful, like a real restaurant employee
+- Always mention the total price when confirming orders
+- If asked about ingredients or dietary options, refer to the descriptions provided`;
+
+    // Use ai.chat directly with menu context instead of aiService
+    const response = await ai.chat.respond([
+      { role: 'system', content: systemMessage },
+      { role: 'user', content: message }
+    ], {
+      context: { restaurantId, userId: req.user?.id }
+    });
     
     res.set('Cache-Control', 'no-store');
     return res.json({
       success: true,
-      message: response,
+      message: response.message,
       restaurantId
     });
   } catch (error) {
