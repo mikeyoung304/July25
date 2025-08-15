@@ -5,14 +5,22 @@ import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  // Load from .env files
+  const fileEnv = loadEnv(mode, process.cwd(), '');
+  
+  // In production, prefer process.env (from Vercel) over file env
+  const env = mode === 'production' ? 
+    { ...fileEnv, ...process.env } : 
+    fileEnv;
   
   // Production safety check
   if (mode === 'production') {
-    const apiUrl = env.VITE_API_BASE_URL || '';
+    const apiUrl = env.VITE_API_BASE_URL || process.env.VITE_API_BASE_URL || '';
     if (/localhost|127\.0\.0\.1/.test(apiUrl)) {
       throw new Error('❌ Production build blocked: VITE_API_BASE_URL points to localhost');
     }
+    // Log what we're using (will show in Vercel build logs)
+    console.log('🔧 Building with VITE_API_BASE_URL:', apiUrl || 'NOT SET!');
   }
   
   return {
