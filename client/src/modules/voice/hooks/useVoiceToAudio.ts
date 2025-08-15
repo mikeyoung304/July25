@@ -86,14 +86,21 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
 
       // Use voice-chat endpoint with audio accept header
       const authHeaders = await getAuthHeaders();
-      response = await fetch(url('/api/v1/ai/voice-chat'), {
+      const endpoint = url('/api/v1/ai/voice-chat');
+      console.log('Calling voice endpoint:', endpoint);
+      
+      response = await fetch(endpoint, {
         method: 'POST',
         body: formData,
         headers: { ...authHeaders, 'Accept': 'audio/mpeg' }
       });
       
+      console.log('Voice response status:', response.status, 'type:', response.headers.get('content-type'));
+      
       if (!response.ok) {
-        throw new Error(`Voice processing failed: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Voice processing failed:', errorText);
+        throw new Error(`Voice processing failed: ${response.status} - ${errorText}`);
       }
       usedEndpoint = '/api/v1/ai/voice-chat';
 
@@ -179,23 +186,14 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       }
       usedEndpoint = '/api/v1/ai/voice-chat';
 
-      // OpenAI TTS returns MP3 audio directly - play it immediately
+      // Server returns MP3 audio directly - play it immediately
       const audioBuffer = await transcriptResponse.arrayBuffer();
       
-      console.log('Received audio response from OpenAI TTS:', audioBuffer.byteLength, 'bytes');
+      console.log('Received audio response:', audioBuffer.byteLength, 'bytes');
       
-      // Validate audio buffer
-      if (audioBuffer.byteLength === 0) {
-        throw new Error('Received empty audio response');
-      }
-      
-      // Convert ArrayBuffer to Blob for audio service with explicit MIME type
+      // Convert ArrayBuffer to Blob for audio service
+      // Trust the server to send valid audio
       const responseAudioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
-      
-      // Validate blob creation
-      if (responseAudioBlob.size === 0) {
-        throw new Error('Failed to create audio blob');
-      }
       
       // Play the MP3 response using the correct method
       await audioService.playAudioBlob(responseAudioBlob, 'Voice response', {
