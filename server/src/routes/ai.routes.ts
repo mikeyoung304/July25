@@ -283,7 +283,33 @@ router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authe
       context: { restaurantId, userId: req.user?.id }
     });
 
-    // Step 3: Try to parse order if it seems like an order request
+    // Step 3: Check if client wants audio response
+    const acceptHeader = req.headers.accept || '';
+    const wantsAudio = acceptHeader.includes('audio/mpeg');
+
+    if (wantsAudio) {
+      // Generate audio response using TTS
+      try {
+        const audioBuffer = await ai.textToSpeech.generateSpeech(chatResponse.message, {
+          voice: 'alloy',
+          format: 'mp3'
+        });
+
+        res.set({
+          'Content-Type': 'audio/mpeg',
+          'Content-Length': audioBuffer.length.toString(),
+          'Cache-Control': 'no-store'
+        });
+        
+        return res.send(audioBuffer);
+      } catch (error) {
+        aiLogger.error('TTS generation failed, falling back to JSON:', error);
+        // Fall through to JSON response if TTS fails
+      }
+    }
+
+    // Default JSON response
+    // Step 4: Try to parse order if it seems like an order request
     let orderData = null;
     const orderKeywords = ['order', 'want', 'get', 'have', 'buy', 'purchase'];
     const seemsLikeOrder = orderKeywords.some(keyword => 
