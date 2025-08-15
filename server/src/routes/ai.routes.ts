@@ -473,10 +473,15 @@ router.post('/test-tts', async (req: Request, res: Response) => {
     return res.send(ttsResult.audio);
   } catch (error) {
     aiLogger.error('Test TTS failed:', error);
+    // ALWAYS show the actual error for debugging
     return res.status(500).json({
       error: 'TTS test failed',
       message: error instanceof Error ? error.message : 'Unknown error',
-      stack: process.env.NODE_ENV === 'development' ? (error as any).stack : undefined
+      details: error instanceof Error ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack?.split('\n').slice(0, 5) // First 5 lines of stack
+      } : String(error)
     });
   }
 });
@@ -511,10 +516,15 @@ router.post('/test-transcribe', audioUpload.single('audio'), async (req: Request
     });
   } catch (error) {
     aiLogger.error('Test transcribe failed:', error);
+    // ALWAYS show the actual error for debugging
     return res.status(500).json({
       error: 'Transcription test failed',
       message: error instanceof Error ? error.message : 'Unknown error',
-      stack: process.env.NODE_ENV === 'development' ? (error as any).stack : undefined
+      details: error instanceof Error ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack?.split('\n').slice(0, 5) // First 5 lines of stack
+      } : String(error)
     });
   }
 });

@@ -83,16 +83,15 @@ export class OpenAITranscriber implements Transcriber {
         }
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       transcriberLogger.error('Transcription failed', {
         requestId,
-        error: error instanceof Error ? error.message : String(error)
+        error: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined
       });
       
-      // Return degraded response
-      return {
-        text: '',
-        language: options?.language || 'en'
-      };
+      // STOP HIDING ERRORS - Throw them so we can see what's wrong
+      throw new Error(`OpenAI Transcription failed: ${errorMessage}`);
     }
   }
 }
