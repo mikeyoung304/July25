@@ -43,7 +43,7 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
     if (dietaryFilters.length > 0) {
       filtered = filtered.filter(item => {
         // Check if item matches any dietary filter
-        if (dietaryFilters.includes('vegan') && item.category === 'Vegan') return true;
+        if (dietaryFilters.includes('vegan') && item.category?.name === 'Vegan') return true;
         if (dietaryFilters.includes('keto') && item.name.toLowerCase().includes('keto')) return true;
         if (dietaryFilters.includes('gluten-free') && item.description?.toLowerCase().includes('gluten')) return false;
         if (dietaryFilters.includes('pescatarian') && 
@@ -72,8 +72,8 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
         // For now, put bowls and salads first as they're popular
         sorted.sort((a, b) => {
           const popularCategories = ['Bowls', 'Salads'];
-          const aPopular = popularCategories.includes(a.category) ? 0 : 1;
-          const bPopular = popularCategories.includes(b.category) ? 0 : 1;
+          const aPopular = a.category?.name && popularCategories.includes(a.category.name) ? 0 : 1;
+          const bPopular = b.category?.name && popularCategories.includes(b.category.name) ? 0 : 1;
           return aPopular - bPopular;
         });
         break;
@@ -93,11 +93,11 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
     const categoryGroups = new Map<string, MenuItem[]>();
     
     filteredItems.forEach(item => {
-      const category = item.category || 'Other';
-      if (!categoryGroups.has(category)) {
-        categoryGroups.set(category, []);
+      const categoryName = item.category?.name || 'Other';
+      if (!categoryGroups.has(categoryName)) {
+        categoryGroups.set(categoryName, []);
       }
-      categoryGroups.get(category)!.push(item);
+      categoryGroups.get(categoryName)!.push(item);
     });
 
     // Define section metadata - Apple minimal style (no icons)
@@ -114,10 +114,10 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
 
     // Convert to sections array
     const sections: MenuSection[] = [];
-    categoryGroups.forEach((items, category) => {
-      const metadata = sectionMetadata[category] || sectionMetadata['Other'];
+    categoryGroups.forEach((items, categoryName) => {
+      const metadata = sectionMetadata[categoryName] || sectionMetadata['Other'];
       sections.push({
-        id: category.toLowerCase().replace(/\s+/g, '-'),
+        id: categoryName.toLowerCase().replace(/\s+/g, '-'),
         title: metadata.title,
         items: items
       });
@@ -125,8 +125,8 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
 
     // Sort sections by defined order
     sections.sort((a, b) => {
-      const aOrder = sectionMetadata[a.items[0]?.category || 'Other']?.order || 999;
-      const bOrder = sectionMetadata[b.items[0]?.category || 'Other']?.order || 999;
+      const aOrder = sectionMetadata[a.items[0]?.category?.name || 'Other']?.order || 999;
+      const bOrder = sectionMetadata[b.items[0]?.category?.name || 'Other']?.order || 999;
       return aOrder - bOrder;
     });
 
