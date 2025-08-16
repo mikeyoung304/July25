@@ -18,7 +18,7 @@ export const MenuGrid: React.FC<MenuGridProps> = ({
 
   const filteredItems = React.useMemo(() => {
     return items.filter(item => {
-      const matchesCategory = !selectedCategory || item.category === selectedCategory;
+      const matchesCategory = !selectedCategory || item.category?.name === selectedCategory;
       const matchesSearch = !searchQuery || 
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description?.toLowerCase().includes(searchQuery.toLowerCase());

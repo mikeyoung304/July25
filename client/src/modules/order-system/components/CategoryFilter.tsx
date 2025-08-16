@@ -15,8 +15,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   const categories = React.useMemo(() => {
     const categorySet = new Set<string>();
     items.forEach(item => {
-      if (item.category) {
-        categorySet.add(item.category);
+      if (item.category?.name) {
+        categorySet.add(item.category.name);
       }
     });
     return Array.from(categorySet).sort();

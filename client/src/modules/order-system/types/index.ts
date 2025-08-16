@@ -1,5 +1,10 @@
 // Import shared types - using camelCase as canonical
-export type { CartItem, CartModifier, Cart } from '@rebuild/shared/cart';
+import type { CartItem as SharedCartItem, CartModifier as SharedCartModifier, Cart as SharedCart } from '@rebuild/shared/cart';
+
+// Re-export for external use
+export type CartItem = SharedCartItem;
+export type CartModifier = SharedCartModifier;
+export type Cart = SharedCart;
 
 export interface OrderSystemContextType {
   cart: Cart;
