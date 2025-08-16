@@ -76,9 +76,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
         <div className="flex flex-col h-full">
           {/* Header with image */}
           <div className="relative">
-            {item.image_url && (
+            {item.imageUrl && (
               <img 
-                src={item.image_url} 
+                src={item.imageUrl} 
                 alt={item.name}
                 className="w-full h-48 object-cover"
               />

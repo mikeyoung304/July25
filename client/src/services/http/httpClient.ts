@@ -9,7 +9,7 @@
 
 import { SecureAPIClient, APIError } from '@/services/secureApi'
 import { supabase } from '@/core/supabase'
-import { toSnakeCase, toCamelCase, transformQueryParams } from '@/services/utils/caseTransform'
+// Removed case transformation - server handles this
 import { env } from '@/utils/env'
 import { getDemoToken } from '@/services/auth/demoAuth'
 
@@ -144,25 +144,15 @@ export class HttpClient extends SecureAPIClient {
       }
     }
 
-    // 3. Transform request body to snake_case (per Luis's spec)
+    // 3. Use request body as-is (server handles transformations)
     let body = requestOptions.body
-    if (body && typeof body === 'string' && !skipTransform) {
-      try {
-        const parsed = JSON.parse(body)
-        const transformed = toSnakeCase(parsed)
-        body = JSON.stringify(transformed)
-      } catch {
-        // Body is not JSON, leave as-is
-      }
-    }
 
-    // 4. Transform query params to snake_case
+    // 4. Pass query params as-is
     let url = endpoint
     if (params && Object.keys(params).length > 0) {
-      const transformedParams = skipTransform ? params : transformQueryParams(params)
       const searchParams = new URLSearchParams()
       
-      Object.entries(transformedParams).forEach(([key, value]) => {
+      Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           searchParams.append(key, String(value))
         }
@@ -179,19 +169,12 @@ export class HttpClient extends SecureAPIClient {
         body
       })
 
-      // 5. Transform response from snake_case to camelCase
-      if (!skipTransform && response !== null && typeof response === 'object') {
-        return toCamelCase(response) as T
-      }
-
+      // 5. Return response as-is (already in camelCase from server)
       return response as T
     } catch (error) {
       // Handle API errors according to Luis's spec (status code-based)
       if (error instanceof APIError) {
-        // Transform error details from snake_case if present
-        if (error.details && !skipTransform) {
-          error.details = toCamelCase(error.details)
-        }
+        // Error details already in correct format from server
       }
       throw error
     }
