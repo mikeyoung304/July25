@@ -13,6 +13,7 @@ class VoiceSocketManager {
   private ws: WebSocket | null = null;
   private listeners: Map<string, VoiceSocketListener> = new Map();
   private connectionStatus: ConnectionStatus = 'disconnected';
+  private status: 'uninitialized' | 'initializing' | 'ready' = 'uninitialized';
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private reconnectDelay = 3000;
   private maxReconnectDelay = 30000;
@@ -25,10 +26,31 @@ class VoiceSocketManager {
   private shouldReconnect = true;
   private memoryMonitorInterval: number | null = null;
   private unregisterWebSocket: (() => void) | null = null;
+  private cleanupCallbacks: (() => void)[] = [];
 
   private constructor(url: string) {
     this.url = url;
     this.setupMemoryMonitoring();
+  }
+
+  private registerCleanup(callback: () => void): void {
+    this.cleanupCallbacks.push(callback);
+  }
+
+  private registerWebSocket(id: string, ws: WebSocket): () => void {
+    // Return a cleanup function
+    return () => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+  }
+
+  private registerInterval(id: string, interval: NodeJS.Timeout): void {
+    // Register interval for cleanup tracking
+    this.registerCleanup(() => {
+      clearTimeout(interval);
+    });
   }
 
   static getInstance(url: string): VoiceSocketManager {
@@ -303,15 +325,13 @@ class VoiceSocketManager {
     // Reset singleton instance
     VoiceSocketManager.instance = null;
     
-    // Call parent cleanup
-    await super.cleanup();
+    // Cleanup completed
     
     console.log('VoiceSocketManager: Cleanup completed');
   }
 
   isHealthy(): boolean {
-    return super.isHealthy() && 
-           this.connectionStatus === 'connected' && 
+    return this.connectionStatus === 'connected' && 
            this.listeners.size < 50 && // Reasonable listener limit
            this.messageQueue.length < 100 && // Reasonable queue limit
            this.unacknowledgedChunks < this.maxUnacknowledgedChunks;
