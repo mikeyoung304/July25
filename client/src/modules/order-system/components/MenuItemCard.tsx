@@ -89,9 +89,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       
       {/* Image Zone - Fixed aspect ratio 4:3 */}
       <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
-        {item.image_url ? (
+        {item.imageUrl ? (
           <img 
-            src={item.image_url} 
+            src={item.imageUrl} 
             alt={item.name}
             className="w-full h-full object-cover"
             loading="lazy"
