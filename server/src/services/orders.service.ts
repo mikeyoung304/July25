@@ -97,10 +97,33 @@ export class OrdersService {
       // Generate order number
       const orderNumber = await this.generateOrderNumber(restaurantId);
 
+      // Map UI order types to database-valid types
+      // Database only accepts: 'online', 'pickup', 'delivery'
+      const orderTypeMapping: Record<string, string> = {
+        'kiosk': 'online',
+        'voice': 'online',
+        'drive-thru': 'pickup',
+        'dine-in': 'online',
+        'takeout': 'pickup',
+        'online': 'online',
+        'pickup': 'pickup',
+        'delivery': 'delivery'
+      };
+      
+      const uiOrderType = orderData.type || 'online';
+      const dbOrderType = orderTypeMapping[uiOrderType] || 'online';
+      
+      if (!orderTypeMapping[uiOrderType]) {
+        ordersLogger.warn('Unknown order type provided, defaulting to online', { 
+          providedType: uiOrderType,
+          mappedTo: dbOrderType
+        });
+      }
+
       const newOrder = {
         restaurant_id: restaurantId,
         order_number: orderNumber,
-        type: orderData.type || 'kiosk',
+        type: dbOrderType, // Use database-valid type
         status: 'pending',
         items: itemsWithUuids,
         subtotal,
@@ -109,7 +132,11 @@ export class OrdersService {
         notes: orderData.notes,
         customer_name: orderData.customerName,
         table_number: orderData.tableNumber,
-        metadata: orderData.metadata || {},
+        metadata: { 
+          ...orderData.metadata,
+          originalType: uiOrderType, // Preserve original type for UI display
+          uiType: uiOrderType // Alternative name for compatibility
+        },
       };
 
       const { data, error } = await supabase
@@ -118,13 +145,20 @@ export class OrdersService {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        ordersLogger.error('Database insertion failed', { 
+          error,
+          orderType: newOrder.type,
+          orderData: { ...newOrder, items: `[${newOrder.items.length} items]` }
+        });
+        throw error;
+      }
 
       const order = mapOrder(data);
       
       // Broadcast new order via WebSocket
       if (this.wss) {
-        broadcastNewOrder(this.wss, order);
+        broadcastNewOrder(this.wss, order);  // Send camelCase order (same as API)
       }
 
       // Log order status change
@@ -268,7 +302,7 @@ export class OrdersService {
 
       // Broadcast order update via WebSocket
       if (this.wss) {
-        broadcastOrderUpdate(this.wss, updatedOrder);
+        broadcastOrderUpdate(this.wss, updatedOrder);  // Send camelCase order (same as API)
       }
 
       // Log status change
@@ -350,7 +384,7 @@ export class OrdersService {
 
       // Broadcast order update via WebSocket
       if (this.wss) {
-        broadcastOrderUpdate(this.wss, updatedOrder);
+        broadcastOrderUpdate(this.wss, updatedOrder);  // Send camelCase order (same as API)
       }
 
       ordersLogger.info('Order payment updated', { 

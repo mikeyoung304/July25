@@ -12,7 +12,11 @@ export type OrderStatus =
   | 'completed'
   | 'cancelled';
 
-export type OrderType = 'dine-in' | 'takeout' | 'delivery' | 'online' | 'drive-thru' | 'kiosk' | 'voice';
+// Database-valid order types (what goes in the database)
+export type OrderType = 'online' | 'pickup' | 'delivery';
+
+// UI order types (what users see in the interface)
+export type UIOrderType = 'dine-in' | 'takeout' | 'delivery' | 'online' | 'drive-thru' | 'kiosk' | 'voice';
 
 export type PaymentStatus = 'pending' | 'paid' | 'refunded' | 'failed';
 

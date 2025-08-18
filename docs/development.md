@@ -97,7 +97,12 @@ npm run lint:fix
 2. Start the development servers
 3. Upload menu data: `cd server && npm run upload:menu`
 4. Navigate to http://localhost:5173/kiosk
-5. Test voice commands
+5. Test voice commands with real menu items:
+   - "I'd like to order a Soul Bowl"
+   - "Can I get a Greek Salad with extra feta"
+   - "Add a BLT Sandwich to my order"
+   
+**Note**: Orders use `"online"` type by default, not `"dine-in"`
 
 ### Making Database Schema Changes
 1. Make changes in the Supabase dashboard or SQL editor
@@ -148,6 +153,18 @@ lsof -ti:5173 | xargs kill -9
 - Check that menu data has been uploaded (`npm run upload:menu`)
 - Ensure microphone permissions are granted in your browser
 - Check backend logs for AI service initialization messages
+- Verify menu context loads: Check for "Loaded menu for voice context" in server logs
+- Test with real menu items: Soul Bowl, Greek Bowl, BLT Sandwich
+
+### Testing Voice-to-Kitchen Flow
+1. Open Kitchen Display: http://localhost:5173/kitchen
+2. Open Kiosk in another tab: http://localhost:5173/kiosk
+3. Connect voice and say: "I'd like a Soul Bowl"
+4. Verify order appears in Kitchen Display with:
+   - Correct item name (Soul Bowl)
+   - Correct price ($14)
+   - Status: "pending" or "new"
+5. Use test order button to verify real menu items are shown
 
 ### TypeScript Errors with Shared Types
 - Run `npm install` from root to set up workspaces

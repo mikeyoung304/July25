@@ -154,9 +154,11 @@ export function broadcastOrderUpdate(
   wss: WebSocketServer,
   order: any
 ): void {
-  broadcastToRestaurant(wss, order.restaurant_id, {
-    type: 'order-updated',
-    order,
+  // Order is in camelCase from mapOrder
+  const restaurantId = order.restaurantId;
+  broadcastToRestaurant(wss, restaurantId, {
+    type: 'order:updated',
+    payload: { order },  // Wrap order in payload for client compatibility
     timestamp: new Date().toISOString(),
   });
 }
@@ -166,9 +168,22 @@ export function broadcastNewOrder(
   wss: WebSocketServer,
   order: any
 ): void {
-  broadcastToRestaurant(wss, order.restaurant_id, {
-    type: 'new-order',
-    order,
+  // Order is in camelCase from mapOrder
+  const restaurantId = order.restaurantId;
+  
+  const message = {
+    type: 'order:created',
+    payload: { order },  // Wrap order in payload for client compatibility
     timestamp: new Date().toISOString(),
+  };
+  
+  // Debug: Log what we're actually sending
+  wsLogger.info('Broadcasting order structure', {
+    hasPayload: true,
+    orderIdField: order.id,
+    orderNumberField: order.orderNumber,
+    firstItemName: order.items?.[0]?.name
   });
+  
+  broadcastToRestaurant(wss, restaurantId, message);
 }

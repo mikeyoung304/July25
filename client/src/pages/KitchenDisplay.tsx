@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Sparkles, Utensils } from 'lucide-react'
 import { api } from '@/services/api'
 import { useToast } from '@/hooks/useToast'
+import { KDSDebugPanel } from '@/components/kitchen/KDSDebugPanel'
 import type { LayoutMode } from '@/modules/kitchen/components/KDSLayout'
 import type { Station } from '@/types/station'
 
@@ -23,6 +24,7 @@ export function KitchenDisplay() {
   const { orders, isLoading, loadOrders, handleStatusChange } = useKitchenOrders()
   const filtering = useOrderFiltering(orders)
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('grid')
+  const [showDebug, setShowDebug] = useState(false)
   const { soundEnabled, volume, toggleSound, setVolume } = useSoundNotifications()
 
   if (restaurantLoading || isLoading) {
@@ -108,26 +110,66 @@ export function KitchenDisplay() {
                   variant="secondary"
                   className="flex items-center gap-2"
                   onClick={async () => {
+                    console.log('[KitchenDisplay] Create Test Order button clicked')
+                    
+                    // Use actual menu items from your restaurant
+                    const realMenuItems = [
+                      { name: 'Soul Bowl', price: 14, category: 'Bowls' },
+                      { name: 'Greek Bowl', price: 14, category: 'Bowls' },
+                      { name: 'Greek Salad', price: 12, category: 'Salads' },
+                      { name: 'Summer Salad', price: 12, category: 'Salads' },
+                      { name: 'BLT Sandwich', price: 12, category: 'Sandwiches' },
+                      { name: 'Chicken Salad Sandwich', price: 12, category: 'Sandwiches' },
+                      { name: 'Teriyaki Salmon', price: 16, category: 'Entrees' },
+                      { name: 'Peach Chicken', price: 16, category: 'Entrees' }
+                    ];
+                    
+                    const randomItem = realMenuItems[Math.floor(Math.random() * realMenuItems.length)];
+                    const quantity = Math.floor(Math.random() * 2) + 1;
+                    
                     const mockOrder = {
+                      customer_name: `Test Customer ${Math.floor(Math.random() * 100)}`,
+                      type: 'online', // Use valid database type
                       items: [
                         {
-                          name: ['Burger', 'Pizza', 'Salad', 'Pasta'][Math.floor(Math.random() * 4)],
-                          quantity: Math.floor(Math.random() * 3) + 1,
-                          price: Math.random() * 20 + 5,
-                          modifiers: Math.random() > 0.5 ? [['Extra cheese'], ['No onions']][Math.floor(Math.random() * 2)] : undefined
+                          id: `item-${Date.now()}`,
+                          menu_item_id: `item-${Date.now()}`, // Add menu_item_id for validation
+                          name: randomItem.name,
+                          quantity: quantity,
+                          price: randomItem.price,
+                          modifiers: Math.random() > 0.5 ? 
+                            randomItem.category === 'Salads' ? [{ id: 'mod-1', name: 'Add Chicken', price: 4 }] :
+                            randomItem.category === 'Sandwiches' ? [{ id: 'mod-2', name: 'Extra Cheese', price: 1 }] : 
+                            [] : []
                         }
                       ],
-                      total: Math.random() * 50 + 10,
+                      subtotal: randomItem.price * quantity,
+                      tax: randomItem.price * quantity * 0.08,
+                      total: randomItem.price * quantity * 1.08,
                     }
                     
+                    console.log('[KitchenDisplay] Prepared mock order:', mockOrder)
+                    
                     try {
+                      console.log('[KitchenDisplay] Calling api.submitOrder...')
                       const result = await api.submitOrder(mockOrder)
-                      if (result.order) {
-                        toast.success('Test order created!')
+                      console.log('[KitchenDisplay] Order created successfully:', result)
+                      
+                      if (result) {
+                        toast.success(`Test order created: ${randomItem.name}`)
+                        console.log('[KitchenDisplay] Toast shown, refreshing orders...')
                         loadOrders()
+                      } else {
+                        console.warn('[KitchenDisplay] submitOrder returned falsy result:', result)
                       }
-                    } catch {
-                      toast.error('Failed to create test order')
+                    } catch (error) {
+                      console.error('[KitchenDisplay] Test order creation failed:', error)
+                      console.error('[KitchenDisplay] Error details:', {
+                        message: error.message,
+                        stack: error.stack,
+                        error
+                      })
+                      toast.error(`Failed to create test order: ${error.message || 'Unknown error'}`)
                     }
                   }}
                 >
@@ -136,6 +178,25 @@ export function KitchenDisplay() {
                 </Button>
               </CardContent>
             </Card>
+            
+            {/* Debug Toggle Button */}
+            <div className="mt-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowDebug(!showDebug)}
+                className="text-xs text-gray-500"
+              >
+                {showDebug ? 'Hide' : 'Show'} Debug Panel
+              </Button>
+            </div>
+            
+            {/* Debug Panel */}
+            {showDebug && (
+              <div className="mt-4">
+                <KDSDebugPanel />
+              </div>
+            )}
           </div>
         </PageContent>
       </PageLayout>

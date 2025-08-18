@@ -13,6 +13,7 @@ export interface AuthenticatedRequest extends Request {
     email?: string;
     role?: string;
     scopes?: string[];
+    restaurant_id?: string; // Add restaurant_id to user interface
   };
   restaurantId?: string;
 }
@@ -32,10 +33,14 @@ export async function authenticate(
 
     const token = authHeader.substring(7);
     
-    // For development only, allow a test token
-    // NEVER allow test tokens in production or staging
-    if (config.nodeEnv === 'development' && process.env.RENDER !== 'true' && token === 'test-token') {
-      logger.warn('Using test token in staging/development');
+    // For local development only, allow a test token
+    // NEVER allow test tokens in production, staging, or any deployed environment
+    const isDevelopment = config.nodeEnv === 'development';
+    const isLocalhost = !process.env.RENDER && !process.env.VERCEL && !process.env.RAILWAY_ENVIRONMENT;
+    const isTestToken = token === 'test-token';
+    
+    if (isDevelopment && isLocalhost && isTestToken) {
+      logger.warn('Using test token in local development only');
       req.user = {
         id: 'test-user-id',
         email: 'test@example.com',
@@ -78,6 +83,7 @@ export async function authenticate(
       email: decoded.email,
       role: decoded.role || 'user',
       scopes: decoded.scope || [],
+      restaurant_id: decoded.restaurant_id, // Add restaurant_id from token
     };
 
     // Set restaurant ID from header or token
@@ -128,10 +134,14 @@ export async function verifyWebSocketAuth(
       return null;
     }
 
-    // For development only, allow test token
-    // NEVER allow test tokens in production or staging
-    if (config.nodeEnv === 'development' && process.env.RENDER !== 'true' && token === 'test-token') {
-      logger.warn('Using test token in WebSocket (staging/development)');
+    // For local development only, allow test token
+    // NEVER allow test tokens in production, staging, or any deployed environment
+    const isDevelopment = config.nodeEnv === 'development';
+    const isLocalhost = !process.env.RENDER && !process.env.VERCEL && !process.env.RAILWAY_ENVIRONMENT;
+    const isTestToken = token === 'test-token';
+    
+    if (isDevelopment && isLocalhost && isTestToken) {
+      logger.warn('Using test token in WebSocket (local development only)');
       return {
         userId: 'test-user-id',
         restaurantId: config.restaurant.defaultId,
@@ -140,17 +150,48 @@ export async function verifyWebSocketAuth(
 
     // Verify JWT with proper signature validation
     let decoded: any;
+    
+    // First, try to decode without verification to check token type
     try {
-      const secret = config.supabase.jwtSecret || config.supabase.anonKey;
-      decoded = jwt.verify(token, secret) as any;
-    } catch (error) {
-      logger.error('WebSocket JWT verification failed:', error);
+      const unverified = jwt.decode(token) as any;
+      
+      // Check if this is a demo/kiosk token (sub starts with 'demo:')
+      if (unverified?.sub?.startsWith('demo:')) {
+        // This is a demo token - verify with KIOSK_JWT_SECRET
+        const kioskSecret = process.env.KIOSK_JWT_SECRET;
+        if (!kioskSecret) {
+          logger.error('KIOSK_JWT_SECRET not configured for demo token verification');
+          return null;
+        }
+        
+        try {
+          decoded = jwt.verify(token, kioskSecret) as any;
+          logger.info('Demo token verified for WebSocket connection', { 
+            userId: decoded.sub,
+            restaurantId: decoded.restaurant_id 
+          });
+        } catch (kioskError) {
+          logger.error('Demo token verification failed:', kioskError);
+          return null;
+        }
+      } else {
+        // Regular Supabase token - verify with Supabase secret
+        const secret = config.supabase.jwtSecret || config.supabase.anonKey;
+        try {
+          decoded = jwt.verify(token, secret) as any;
+        } catch (supabaseError) {
+          logger.error('Supabase JWT verification failed:', supabaseError);
+          return null;
+        }
+      }
+    } catch (decodeError) {
+      logger.error('Failed to decode JWT token:', decodeError);
       return null;
     }
 
     return {
       userId: decoded.sub,
-      restaurantId: decoded.restaurant_id,
+      restaurantId: decoded.restaurant_id || config.restaurant.defaultId,
     };
   } catch (error) {
     logger.error('WebSocket auth error:', error);

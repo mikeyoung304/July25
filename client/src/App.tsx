@@ -30,14 +30,16 @@ function App() {
 
     let isConnected = false // Track connection state to prevent duplicates
 
-    // Subscribe to auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+    // Initialize WebSocket for ALL users (including demo/friends & family)
+    const initializeWebSocket = () => {
+      if (!isConnected) {
         // Only connect in development mode or when we have a real backend
-        let shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
+        const shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
         
-        if (shouldConnect && !isConnected) {
+        if (shouldConnect) {
           isConnected = true
+          console.log('🔌 Initializing WebSocket connection for real-time updates...')
+          
           // Initialize order updates handler
           orderUpdatesHandler.initialize()
           
@@ -48,32 +50,22 @@ function App() {
             // Continue app operation without WebSocket
           })
         }
-      } else if (event === 'SIGNED_OUT') {
-        // Disconnect WebSocket on sign out
+      }
+    }
+
+    // Always initialize WebSocket on app startup
+    initializeWebSocket()
+
+    // Subscribe to auth state changes (for Supabase users)
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, _session) => {
+      if (event === 'SIGNED_OUT') {
+        // Disconnect and reconnect WebSocket on sign out to switch to demo mode
         isConnected = false
         orderUpdatesHandler.cleanup()
         webSocketService.disconnect()
-      }
-    })
-
-    // Check if already authenticated (but don't auto-connect in dev)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && !isConnected) {
-        // Only connect in development mode or when we have a real backend
-        let shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
         
-        if (shouldConnect) {
-          isConnected = true
-          // Initialize order updates handler
-          orderUpdatesHandler.initialize()
-          
-          // Connect to WebSocket
-          webSocketService.connect().catch(error => {
-            console.warn('WebSocket connection failed:', error)
-            isConnected = false
-            // Continue app operation without WebSocket
-          })
-        }
+        // Reinitialize for demo mode
+        setTimeout(() => initializeWebSocket(), 1000)
       }
     })
     

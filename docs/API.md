@@ -43,6 +43,13 @@ All API endpoints require:
 | GET | /ai/menu | Get current AI menu | application/json |
 | GET | /ai/health | AI service health check | application/json |
 
+## Realtime Voice (WebRTC)
+
+| Method | Endpoint | Description | Response Type |
+|--------|----------|-------------|---------------|
+| POST | /realtime/session | Create ephemeral token for WebRTC voice | application/json |
+| GET | /realtime/health | Realtime service health check | application/json |
+
 ### Voice Endpoint Details
 
 #### POST /ai/transcribe
@@ -95,6 +102,32 @@ Alternative endpoint that returns transcription and metadata along with audio UR
   }
 }
 ```
+
+#### POST /realtime/session
+Create ephemeral token for WebRTC voice connection with OpenAI Realtime API.
+
+**Request:**
+- Authorization: Bearer token (supports both kiosk demo tokens and regular auth)
+- X-Restaurant-ID: Restaurant UUID
+
+**Response:**
+```json
+{
+  "id": "sess_ABC123...",
+  "client_secret": {
+    "value": "eph_token_...",
+    "expires_at": 1234567890
+  },
+  "restaurant_id": "11111111-1111-1111-1111-111111111111",
+  "menu_context": "Full menu items loaded for voice recognition",
+  "expires_at": 1234567890
+}
+```
+
+**Notes:**
+- Token expires in 1 minute and should be used immediately
+- Menu context is automatically loaded for the restaurant
+- Supports `kiosk_demo` role for demo/testing purposes
 
 ## Tables & Floor Plan
 

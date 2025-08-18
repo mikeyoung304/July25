@@ -7,7 +7,7 @@
 import { EventEmitter } from '@/services/utils/EventEmitter'
 import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
-import { toCamelCase, toSnakeCase } from '@/services/utils/caseTransform'
+import { toSnakeCase } from '@/services/utils/caseTransform'
 import { env } from '@/utils/env'
 
 export interface WebSocketConfig {
@@ -77,14 +77,27 @@ export class WebSocketService extends EventEmitter {
       // Get auth token for WebSocket authentication
       let token = 'test-token' // Default for development
       
-      // Try to get real session in production
-      if (env.PROD) {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session?.access_token) {
-          console.warn('No authentication session available in production, using test token')
-          // Don't throw error, fall back to test token
-        } else {
-          token = session.access_token
+      // Try to get auth token - prioritize Supabase session, then demo token
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.access_token) {
+        // Use Supabase session token if available
+        token = session.access_token
+        console.log('🔐 Using Supabase session for WebSocket')
+      } else {
+        // No Supabase session - try to get demo token for friends & family
+        try {
+          const { getDemoToken } = await import('@/services/auth/demoAuth')
+          token = await getDemoToken()
+          console.log('🔑 Using demo token for WebSocket')
+        } catch (demoError) {
+          console.warn('Failed to get demo token:', demoError)
+          // In development, fall back to test token
+          if (!env.PROD) {
+            console.log('🔧 Using test token for WebSocket (dev mode)')
+          } else {
+            console.error('No authentication available for WebSocket')
+          }
         }
       }
 
@@ -196,8 +209,17 @@ export class WebSocketService extends EventEmitter {
 
   private handleMessage(event: MessageEvent): void {
     try {
-      // Parse and convert from snake_case
-      const message = toCamelCase(JSON.parse(event.data)) as WebSocketMessage
+      // Parse the message - server sends with payload wrapper
+      const rawMessage = JSON.parse(event.data)
+      
+      // The message structure is already correct from server
+      // Server sends: { type: 'order:created', payload: { order: camelCaseOrder }, timestamp: ... }
+      const message: WebSocketMessage = {
+        type: rawMessage.type,
+        payload: rawMessage.payload, // Already contains camelCase order
+        timestamp: rawMessage.timestamp,
+        restaurantId: rawMessage.restaurant_id || rawMessage.restaurantId
+      }
       
       // Emit generic message event
       this.emit('message', message)

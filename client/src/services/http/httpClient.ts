@@ -92,20 +92,23 @@ export class HttpClient extends SecureAPIClient {
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.access_token) {
           headers.set('Authorization', `Bearer ${session.access_token}`)
+          if (import.meta.env.DEV) {
+            console.log('🔐 Using Supabase session token for API request')
+          }
         } else {
           // Use demo token for kiosk mode
           try {
             const demoToken = await getDemoToken()
             headers.set('Authorization', `Bearer ${demoToken}`)
-            console.log('🔑 Using demo token for API request')
+            console.log('🔑 Using demo/kiosk token for API request')
           } catch (demoError) {
             console.error('Failed to get demo token:', demoError)
             // Fallback to test token in development only
             if (import.meta.env.DEV) {
               headers.set('Authorization', 'Bearer test-token')
-              console.log('🔧 Fallback to test token in development')
+              console.log('🔧 Using test token fallback (development only)')
             } else {
-              console.warn('No auth session available for API request')
+              console.warn('❌ No authentication available for API request')
             }
           }
         }
@@ -129,18 +132,19 @@ export class HttpClient extends SecureAPIClient {
 
     // 2. Add x-restaurant-id header (per Luis's spec)
     if (!skipRestaurantId) {
-      const restaurantId = getCurrentRestaurantId()
-      if (restaurantId) {
-        headers.set('x-restaurant-id', restaurantId)
-        
-        const debugVoice = import.meta.env.VITE_DEBUG_VOICE === 'true';
-        if (import.meta.env.DEV && debugVoice) {
-          console.log(`[HttpClient] X-Restaurant-ID: ${restaurantId} → ${url}`);
-        }
-      } else if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_VOICE === 'true') {
-        console.warn('[HttpClient] No restaurant context for request:', url);
-      } else {
-        console.warn('No restaurant ID available for API request to', endpoint)
+      let restaurantId = getCurrentRestaurantId()
+      
+      // Fallback to demo restaurant ID if not set (for friends & family/demo mode)
+      if (!restaurantId) {
+        restaurantId = '11111111-1111-1111-1111-111111111111'
+        console.log('🏢 Using demo restaurant ID for API request')
+      }
+      
+      headers.set('x-restaurant-id', restaurantId)
+      
+      const debugVoice = import.meta.env.VITE_DEBUG_VOICE === 'true';
+      if (import.meta.env.DEV && debugVoice) {
+        console.log(`[HttpClient] X-Restaurant-ID: ${restaurantId} → ${endpoint}`);
       }
     }
 

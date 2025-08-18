@@ -45,6 +45,7 @@ export const api = {
   getOrderById: (orderId: string) => orderService.getOrderById(orderId),
   updateOrderStatus: (orderId: string, status: Order['status']) => orderService.updateOrderStatus(orderId, status),
   submitOrder: (orderData: Partial<Order>) => orderService.submitOrder(orderData),
+  createOrder: (orderData: any) => orderService.submitOrder(orderData), // Alias for backward compatibility
   
   // Tables
   getTables: () => tableService.getTables(),

@@ -35,7 +35,7 @@ export function useKitchenOrders() {
           await playNewOrderSound()
           const orderType = update.order.type === 'drive-thru' ? 'drive-thru' : 'dine-in'
           announce({
-            message: `New ${orderType} order ${update.order.order_number} received`,
+            message: `New ${orderType} order ${update.order.orderNumber} received`,
             priority: 'assertive'
           })
         }
@@ -67,9 +67,9 @@ export function useKitchenOrders() {
               if (order) {
                 playOrderReadySound()
                 const location = order.type === 'drive-thru' ? 'drive-thru window' : 
-                               order.table_number ? `table ${order.table_number}` : 'pickup counter'
+                               order.tableNumber ? `table ${order.tableNumber}` : 'pickup counter'
                 announce({
-                  message: `Order ${order.order_number} is ready for pickup at ${location}`,
+                  message: `Order ${order.orderNumber} is ready for pickup at ${location}`,
                   priority: 'assertive'
                 })
               }
@@ -114,8 +114,8 @@ export function useKitchenOrders() {
         const order = updatedOrders.find(o => o.id === orderId)
         if (status === 'ready' && order) {
           const orderType = order.type || 'dine-in'
-          const location = orderType === 'drive-thru' ? 'drive-thru window' : `table ${order.table_number}`
-          toast.success(`Order #${order.order_number} ready for ${location}!`)
+          const location = orderType === 'drive-thru' ? 'drive-thru window' : `table ${order.tableNumber}`
+          toast.success(`Order #${order.orderNumber} ready for ${location}!`)
         }
         
         return updatedOrders
