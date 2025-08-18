@@ -7,6 +7,7 @@ import { tableRoutes } from './tables.routes';
 import { aiRoutes } from './ai.routes';
 import { restaurantRoutes } from './restaurants.routes';
 import { authRoutes } from './auth.routes';
+import { realtimeRoutes } from './realtime.routes';
 import metricsRoutes from './metrics';
 
 export function setupRoutes(): Router {
@@ -38,6 +39,9 @@ export function setupRoutes(): Router {
 
   // Restaurant management routes
   router.use('/restaurants', restaurantRoutes);
+
+  // Real-time voice ordering routes
+  router.use('/realtime', realtimeRoutes);
 
   return router;
 }

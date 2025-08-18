@@ -18,6 +18,9 @@ export * from './table.types';
 // WebSocket types
 export * from './websocket.types';
 
+// Event types
+export * from './events.types';
+
 // Type transformation utilities
 export * from './transformers';
 
@@ -53,6 +56,12 @@ export interface ApiResponse<T = unknown> {
   };
 }
 
+export interface RestaurantSettings {
+  orderPrefix?: string;
+  autoAcceptOrders?: boolean;
+  kitchenDisplayMode?: 'grid' | 'list';
+}
+
 export interface Restaurant {
   id: string;
   name: string;
@@ -61,6 +70,23 @@ export interface Restaurant {
   currency: string;
   tax_rate: number;
   default_tip_percentages?: number[];
+  settings?: RestaurantSettings;
   created_at: string;
   updated_at: string;
+}
+
+export interface CreateRestaurantDTO {
+  name: string;
+  timezone: string;
+  currency: string;
+  tax_rate: number;
+  settings?: RestaurantSettings;
+}
+
+export interface UpdateRestaurantDTO {
+  name?: string;
+  timezone?: string;
+  currency?: string;
+  tax_rate?: number;
+  settings?: RestaurantSettings;
 }

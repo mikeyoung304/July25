@@ -636,16 +636,46 @@ export const PerformanceTargets = {
    - React hooks for voice session management
    - Audio visualization components
    - Error boundary handling for voice failures
+   - VoiceOrderProcessor for transcript-to-order conversion
 
 2. **Backend Integration**
    - Express.js middleware for WebSocket upgrade
    - Restaurant context integration for multi-tenancy
    - Order service integration for business logic
+   - MenuService using static methods (not instantiated)
+   - Menu context loading via `/realtime/session` endpoint
 
 3. **External Services**
    - OpenAI Realtime API client with retry logic
-   - Menu service for order validation
+   - Menu service for order validation (static methods)
    - Analytics service for metrics collection
+
+### Implementation Details
+
+1. **Menu Context Loading**
+   ```typescript
+   // Use static methods, not new MenuService()
+   const menuData = await MenuService.getItems(restaurantId);
+   ```
+
+2. **Transcription Accuracy**
+   - Implement phonetic mappings for commonly misheard items:
+   ```typescript
+   const transcriptionMap = {
+     'Soul Bowl': ['soul bowl', 'sobo', 'solo bowl'],
+     'Greek Bowl': ['greek bowl', 'greak bowl'],
+     'BLT Sandwich': ['blt sandwich', 'blt', 'b l t']
+   };
+   ```
+
+3. **Order Type Handling**
+   - Use `"online"` as default order type (database constraint)
+   - Valid types: `online`, `pickup`, `delivery`
+
+4. **Authentication for Kiosk Mode**
+   - Handle `kiosk_demo` role in middleware
+   - Extract `restaurant_id` from JWT token
+   - Auto-scope kiosk users to their restaurant
 
 ### Security Considerations
 

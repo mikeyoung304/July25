@@ -43,10 +43,21 @@ export class OrderService implements IOrderService {
         params.endDate = filters.dateRange.end.toISOString()
       }
 
-      const response = await httpClient.get<{ orders: any[] }>('/api/v1/orders', { params })
+      const response = await httpClient.get<any>('/api/v1/orders', { params })
+      
+      // Handle both array response and object with orders property
+      let orders: any[] = []
+      if (Array.isArray(response)) {
+        orders = response
+      } else if (response.orders && Array.isArray(response.orders)) {
+        orders = response.orders
+      } else {
+        console.warn('API returned invalid orders data:', response)
+        return []
+      }
       
       // Map response to match Order type
-      const mappedOrders = response.orders.map((order: any) => ({
+      const mappedOrders = orders.map((order: any) => ({
         ...order,
         items: order.items || [],
         status: order.status || 'new',
@@ -115,13 +126,19 @@ export class OrderService implements IOrderService {
   }
 
   async submitOrder(orderData: Partial<Order>): Promise<Order> {
+    console.log('[OrderService] submitOrder called with:', orderData)
+    
     // Validate order data
     if (!this.validateOrder(orderData)) {
-      throw new Error('Invalid order data')
+      console.error('[OrderService] Order validation failed, throwing error')
+      throw new Error('Invalid order data - check console for details')
     }
 
+    console.log('[OrderService] Validation passed, sending to API...')
+    
     try {
       const response = await httpClient.post<any>('/api/v1/orders', orderData)
+      console.log('[OrderService] API response:', response)
       return {
         ...response,
         items: response.items || [],
@@ -159,24 +176,48 @@ export class OrderService implements IOrderService {
   }
 
   validateOrder(orderData: Partial<Order>): boolean {
+    console.log('[OrderService] Validating order:', orderData)
+    
     if (!orderData.items || orderData.items.length === 0) {
+      console.warn('[OrderService] Validation failed: No items in order')
       return false
     }
 
-    for (const item of orderData.items) {
-      if (!item.id || !item.name || item.quantity <= 0) {
+    console.log('[OrderService] Checking', orderData.items.length, 'items...')
+    
+    for (let i = 0; i < orderData.items.length; i++) {
+      const item = orderData.items[i]
+      console.log(`[OrderService] Validating item ${i}:`, item)
+      
+      // Check for either id or menu_item_id (support both formats)
+      const hasId = item.id || item.menu_item_id
+      if (!hasId) {
+        console.warn(`[OrderService] Item ${i} missing id or menu_item_id:`, { id: item.id, menu_item_id: item.menu_item_id })
+        return false
+      }
+      
+      if (!item.name) {
+        console.warn(`[OrderService] Item ${i} missing name`)
+        return false
+      }
+      
+      if (!item.quantity || item.quantity <= 0) {
+        console.warn(`[OrderService] Item ${i} invalid quantity:`, item.quantity)
         return false
       }
 
       if (item.modifiers && !this.validateModifiers(item.modifiers)) {
+        console.warn(`[OrderService] Item ${i} has invalid modifiers:`, item.modifiers)
         return false
       }
 
       if (item.special_instructions && !this.validateNotes(item.special_instructions)) {
+        console.warn(`[OrderService] Item ${i} has invalid special instructions:`, item.special_instructions)
         return false
       }
     }
 
+    console.log('[OrderService] Order validation passed!')
     return true
   }
 
@@ -230,4 +271,4 @@ export class OrderService implements IOrderService {
   }
 }
 
-export const orderService = new OrderService()
+export const orderService = new OrderService() 

@@ -34,6 +34,13 @@ export async function validateRestaurantAccess(
       return next();
     }
 
+    // For kiosk demo users, they're already scoped to a specific restaurant
+    if (req.user.role === 'kiosk_demo' && req.user.restaurant_id === requestedRestaurantId) {
+      req.restaurantId = requestedRestaurantId;
+      req.restaurantRole = 'kiosk';
+      return next();
+    }
+
     // For non-admin users, verify they have access to this restaurant
     const { data: userRestaurant, error } = await supabase
       .from('user_restaurants')

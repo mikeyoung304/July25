@@ -1,10 +1,11 @@
 # Grow Fresh Local Food - Restaurant Operating System
 
 > 🏗️ **ARCHITECTURE**: Unified Backend on port 3001 - No microservices  
-> 🚀 **STATUS**: Production-ready with integrated AI services  
-> ✅ **QUALITY**: Core functionality tested and operational
+> 🚀 **STATUS**: Friends & Family Testing Phase  
+> ✅ **DEPLOYMENT**: Frontend (Vercel) | Backend (Render) | Database (Supabase)  
+> 🔧 **VERSION**: 1.0.0-beta
 
-A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering, real-time kitchen management, and a unified backend architecture.
+A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering with OpenAI Realtime API, WebRTC audio streaming, real-time kitchen display system, and demo authentication for testing.
 
 ## 🚀 Quick Start
 
@@ -36,12 +37,19 @@ Please see the detailed **[ARCHITECTURE.md](./ARCHITECTURE.md)** for system arch
 
 ## 🎯 Key Features
 
-- 🎤 **Voice Ordering**: Natural language processing for customer orders
-- 🍽️ **Kitchen Display System**: Real-time order management
+### Working in Production
+- 🎤 **Voice Ordering**: WebRTC + OpenAI Realtime API for natural conversations
+- 🍽️ **Kitchen Display System**: Real-time WebSocket updates for order management
+- 🔐 **Demo Authentication**: JWT-based auth for friends & family testing
+- 📱 **Kiosk Interface**: Touch-optimized self-service ordering
+- 🚗 **Drive-Thru Mode**: Voice-first ordering experience
+- 🔊 **Smart Notifications**: Audio alerts for new orders and status changes
+
+### In Development
 - 📊 **Analytics Dashboard**: Order history and performance metrics
-- 🔊 **Smart Notifications**: Audio alerts for kitchen staff
-- ♿ **Accessibility First**: Full keyboard navigation and screen reader support
-- 🏢 **Multi-tenant Ready**: Built for multiple restaurant locations
+- 💳 **Payment Processing**: Stripe integration for card payments
+- 🎯 **Loyalty Program**: Customer rewards and promotions
+- 📋 **Inventory Management**: Real-time stock tracking
 
 ## 🏗️ Architecture
 
@@ -212,18 +220,33 @@ To seed the menu with proper ID mappings:
 cd server && npx tsx scripts/seed-menu-mapped.ts
 ```
 
+## 📚 Documentation
+
+### Core Systems
+- [**Architecture Overview**](./docs/ARCHITECTURE.md) - System design and decisions
+- [**API Reference**](./docs/API.md) - Complete API documentation
+- [**Kitchen Display System**](./docs/KITCHEN_DISPLAY.md) - KDS setup and operation
+- [**Voice Ordering**](./docs/VOICE_ORDERING.md) - WebRTC/OpenAI integration
+- [**Authentication**](./docs/AUTHENTICATION.md) - Demo and production auth flows
+
+### Deployment
+- Frontend: [july25-client.vercel.app](https://july25-client.vercel.app)
+- Backend: [july25.onrender.com](https://july25.onrender.com)
+- Database: Supabase Cloud
+
 ## 🎤 Voice Ordering Setup
 
-1. **Configure OpenAI**: Add your OpenAI API key to the `.env` file
+1. **Configure OpenAI**: Add `OPENAI_API_KEY` to server `.env`
 2. **Start the system**: `npm run dev`
-3. **Seed the menu**: `cd server && npx tsx scripts/seed-menu-mapped.ts`
-5. **Test Voice Ordering**: Navigate to http://localhost:5173/kiosk
-6. **Speak naturally**: Click microphone and speak your order
+3. **Access Kiosk**: http://localhost:5173/kiosk
+4. **Enable microphone**: Click the voice button
+5. **Speak naturally**: "I'd like a Greek Bowl with extra feta"
 
-Example commands:
-- "I'd like a soul bowl please"
-- "Can I get mom's chicken salad"
-- "Two sweet teas with lemon"
+### Supported Voice Commands
+- Menu inquiries: "What's on the menu today?"
+- Order placement: "I'd like a soul bowl please"
+- Modifications: "Add extra cheese to that"
+- Allergen info: "Does the peanut noodles have nuts?"
 
 ## 🧪 Testing
 

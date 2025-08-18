@@ -170,6 +170,63 @@ sessionStorage.clear()
 3. Check JWT token expiry
 4. Verify Supabase auth settings
 
+### Menu Not Loading in Voice System
+
+**Problem**: Voice system doesn't recognize menu items like "Soul Bowl"
+
+**Solutions**:
+1. Verify MenuService is using static methods (not instantiated with `new`)
+2. Check menu API returns items:
+```bash
+curl http://localhost:3001/api/v1/menu/items \
+  -H "Authorization: Bearer test-token" \
+  -H "X-Restaurant-ID: 11111111-1111-1111-1111-111111111111"
+```
+3. Restart server after fixing MenuService imports
+4. Check server logs for "Loaded menu for voice context" message
+
+### Kiosk/Demo Authentication Errors
+
+**Problem**: "Access denied to this restaurant" for demo users
+
+**Solutions**:
+1. Ensure middleware handles `kiosk_demo` role:
+   - Check `restaurantAccess.ts` includes kiosk_demo handling
+   - Verify JWT token includes `restaurant_id` field
+2. Get fresh demo token:
+```bash
+curl -X POST http://localhost:3001/api/v1/auth/kiosk \
+  -H "Content-Type: application/json" \
+  -d '{"restaurantId": "11111111-1111-1111-1111-111111111111"}'
+```
+3. Check auth middleware extracts `restaurant_id` from token
+
+### Order Type Constraint Violation
+
+**Problem**: "violates check constraint orders_type_check"
+
+**Solutions**:
+1. Use correct order types: `"online"`, not `"dine-in"` or `"dine_in"`
+2. Valid types in database: `online`, `pickup`, `delivery`
+3. Update order creation to use valid type:
+```javascript
+{ type: "online" }  // Correct
+{ type: "dine-in" } // Wrong - will fail
+```
+
+### Voice Transcription Accuracy
+
+**Problem**: "Soul Bowl" transcribed as "sobo" or other variations
+
+**Solutions**:
+1. Add phonetic hints in voice prompt
+2. Use transcription mapping in VoiceOrderProcessor:
+```javascript
+'Soul Bowl': ['soul bowl', 'sobo', 'solo bowl', 'sowl bowl']
+```
+3. Test with clear pronunciation
+4. Ensure menu context is loaded (check /realtime/session response)
+
 ### Performance Issues
 
 **Problem**: Application running slowly

@@ -28,7 +28,13 @@ export class DemoAuthService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Failed to get demo token' }));
-      throw new Error(`Demo auth failed: ${error.error || response.statusText}`);
+      console.error('[DemoAuth] Kiosk auth endpoint failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: error.error,
+        helpUrl: 'See docs/DEMO_AUTH_SETUP.md for configuration'
+      });
+      throw new Error(`Demo auth failed: ${error.error || response.statusText}. Check server logs for details.`);
     }
 
     return response.json();

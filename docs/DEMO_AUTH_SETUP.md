@@ -79,6 +79,13 @@ npm run dev
 - Verify KIOSK_JWT_SECRET is set
 - Restart both frontend and backend
 
+### "Access denied to this restaurant"
+This happens when the auth middleware doesn't recognize kiosk demo users.
+- Ensure `restaurantAccess.ts` middleware handles `kiosk_demo` role
+- Verify JWT token includes `restaurant_id` field
+- Check that `auth.ts` middleware extracts `restaurant_id` from token to user object
+- Restart server after making middleware changes
+
 ### Voice Not Working
 - Check browser microphone permissions
 - Ensure OPENAI_API_KEY is valid
@@ -121,6 +128,28 @@ getAuthToken() {
   }
   return getSupabaseToken(); // Production path
 }
+```
+
+### Kiosk Demo Role Handling
+The backend middleware must handle the `kiosk_demo` role specially:
+```typescript
+// server/src/middleware/restaurantAccess.ts
+if (req.user.role === 'kiosk_demo' && req.user.restaurant_id === requestedRestaurantId) {
+  req.restaurantId = requestedRestaurantId;
+  req.restaurantRole = 'kiosk';
+  return next();
+}
+```
+
+The auth middleware must extract restaurant_id from JWT:
+```typescript
+// server/src/middleware/auth.ts
+req.user = {
+  id: decoded.sub,
+  role: decoded.role,
+  restaurant_id: decoded.restaurant_id, // Critical for kiosk users
+  scopes: decoded.scope || []
+};
 ```
 
 ### WebRTC Connection Flow

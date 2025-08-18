@@ -33,14 +33,18 @@ npm run dev
 ### Voice Ordering
 1. Navigate to Drive-Thru or Kiosk page
 2. Click microphone button
-3. Say: "I'd like a burger with fries"
-4. Watch order populate automatically
+3. Try these real menu commands:
+   - "I'd like to order a Soul Bowl"
+   - "Can I get a Greek Salad with extra feta"
+   - "Add a BLT Sandwich to my order"
+4. Watch order populate automatically with correct items and prices
 
 ### Kitchen Display System
 1. Open Kitchen Display page
-2. Create test orders from Kiosk
+2. Create test orders from Kiosk (uses real menu: Soul Bowl, Greek Bowl, etc.)
 3. Watch real-time order updates
 4. Use keyboard shortcuts (Space to mark ready)
+5. Test order button creates realistic orders with actual menu items
 
 ### Server View
 1. Open Server View page

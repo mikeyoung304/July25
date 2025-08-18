@@ -1,6 +1,7 @@
 /**
  * WebSocket Service Exports
  * Central export point for all WebSocket-related functionality
+ * v2 - Fixed order handler payload handling
  */
 
 export { webSocketService, WebSocketService, type WebSocketMessage, type ConnectionState } from './WebSocketService'

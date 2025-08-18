@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import fetch from 'node-fetch';
-import MenuService from '../services/menu.service';
+import { MenuService } from '../services/menu.service';
 
 const router = Router();
 const realtimeLogger = logger.child({ module: 'realtime-routes' });
@@ -96,8 +96,12 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
           categories: Object.keys(menuByCategory)
         });
       }
-    } catch (error) {
-      realtimeLogger.warn('Failed to load menu context', { error, restaurantId });
+    } catch (error: any) {
+      realtimeLogger.warn('Failed to load menu context', { 
+        error: error.message || 'Unknown error',
+        stack: error.stack,
+        restaurantId 
+      });
       // Continue without menu context
     }
     

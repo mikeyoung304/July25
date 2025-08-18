@@ -17,7 +17,7 @@ export interface OrderUpdatePayload {
   updatedBy?: string
 }
 
-export class OrderUpdatesHandler {
+export class OrderUpdatesHandler { 
   private subscriptions: Array<() => void> = []
   private orderUpdateCallbacks: Array<(update: OrderUpdatePayload) => void> = []
   private connectionHandlers: { connected?: () => void; disconnected?: () => void; error?: (error: any) => void } = {}
@@ -28,16 +28,18 @@ export class OrderUpdatesHandler {
   initialize(): void {
     // Subscribe to order-related WebSocket messages
     this.subscriptions.push(
-      webSocketService.subscribe('order:created', (payload) => 
-        this.handleOrderCreated(payload as { order: Order })),
+      webSocketService.subscribe('order:created', (payload) => {
+        console.log('[OrderUpdates] Raw order:created payload:', payload)
+        this.handleOrderCreated(payload)
+      }),
       webSocketService.subscribe('order:updated', (payload) => 
-        this.handleOrderUpdated(payload as { order: Order })),
+        this.handleOrderUpdated(payload)),
       webSocketService.subscribe('order:deleted', (payload) => 
-        this.handleOrderDeleted(payload as { orderId: string })),
+        this.handleOrderDeleted(payload)),
       webSocketService.subscribe('order:status_changed', (payload) => 
-        this.handleOrderStatusChanged(payload as { orderId: string; status: string; previousStatus: string })),
+        this.handleOrderStatusChanged(payload)),
       webSocketService.subscribe('order:item_status_changed', (payload) => 
-        this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string }))
+        this.handleItemStatusChanged(payload))
     )
 
     // Handle connection state changes
@@ -114,16 +116,24 @@ export class OrderUpdatesHandler {
   /**
    * Handle new order created
    */
-  private handleOrderCreated(payload: { order: Order }): void {
-    console.warn('New order created:', payload.order.id)
+  private handleOrderCreated(payload: any): void {
+    // Handle both direct order and nested order property
+    const order = payload.order || payload
+    
+    if (!order || !order.id) {
+      console.error('[OrderUpdates] Invalid order payload:', payload)
+      return
+    }
+    
+    console.log('[OrderUpdates] New order created:', order.id, order.orderNumber)
     
     this.notifySubscribers({
       action: 'created',
-      order: payload.order
+      order: order
     })
 
     // Show notification for new orders
-    toast.success(`New order #${payload.order.order_number} received!`, {
+    toast.success(`New order #${order.orderNumber} received!`, {
       duration: 5000,
       position: 'top-right'
     })
@@ -132,24 +142,39 @@ export class OrderUpdatesHandler {
   /**
    * Handle order updated
    */
-  private handleOrderUpdated(payload: { order: Order }): void {
-    console.warn('Order updated:', payload.order.id)
+  private handleOrderUpdated(payload: any): void {
+    // Handle both direct order and nested order property
+    const order = payload.order || payload
+    
+    if (!order || !order.id) {
+      console.error('[OrderUpdates] Invalid order update payload:', payload)
+      return
+    }
+    
+    console.log('[OrderUpdates] Order updated:', order.id)
     
     this.notifySubscribers({
       action: 'updated',
-      order: payload.order
+      order: order
     })
   }
 
   /**
    * Handle order deleted
    */
-  private handleOrderDeleted(payload: { orderId: string }): void {
-    console.warn('Order deleted:', payload.orderId)
+  private handleOrderDeleted(payload: any): void {
+    const orderId = payload.orderId || payload.id
+    
+    if (!orderId) {
+      console.error('[OrderUpdates] Invalid order delete payload:', payload)
+      return
+    }
+    
+    console.log('[OrderUpdates] Order deleted:', orderId)
     
     this.notifySubscribers({
       action: 'deleted',
-      orderId: payload.orderId
+      orderId: orderId
     })
   }
 
