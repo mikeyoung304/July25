@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { ShoppingCart, Headphones, User, Volume2, AlertCircle, CheckCircle } from 'lucide-react';
 import { VoiceOrderProvider } from '@/modules/voice/contexts/VoiceOrderContext';
 import { useVoiceOrder } from '@/modules/voice/hooks/useVoiceOrder';
-import VoiceControl from '@/modules/voice/components/VoiceControl';
+import { VoiceControlWebRTC } from '@/modules/voice/components/VoiceControlWebRTC';
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser';
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
 import { Button } from '@/components/ui/button';
@@ -19,10 +19,6 @@ const DriveThruPageContent: React.FC = () => {
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [isFirstPress, setIsFirstPress] = useState(true);
-  const [isVoiceActive, setIsVoiceActive] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'error' | 'disconnected'>('disconnected');
   const [orderSubmitted, setOrderSubmitted] = useState(false);
   const { items, addItem, removeItem, updateQuantity, total, itemCount } = useVoiceOrder();
   const { items: menuItems, loading } = useMenuItems();
@@ -133,22 +129,27 @@ const DriveThruPageContent: React.FC = () => {
     }
   }, [menuItems, items, orderParser, processParsedItems]);
 
-  const handleTranscript = useCallback((text: string, isFinal: boolean) => {
-    if (!isFinal) {
-      setCurrentTranscript(text);
+  const handleTranscript = useCallback((event: { text: string; isFinal: boolean }) => {
+    if (!event.isFinal) {
+      setCurrentTranscript(event.text);
     } else {
       const userEntry: ConversationEntry = {
         id: Date.now().toString(),
         speaker: 'user',
-        text,
+        text: event.text,
         timestamp: new Date(),
       };
       setConversation(prev => [...prev, userEntry]);
       setCurrentTranscript('');
       
-      processVoiceOrder(text);
+      processVoiceOrder(event.text);
     }
   }, [processVoiceOrder]);
+  
+  const handleOrderDetected = useCallback((order: any) => {
+    console.log('Order detected:', order);
+    // Order detection is handled through transcript processing
+  }, []);
 
   const handleConfirmOrder = useCallback(() => {
     console.warn('Order confirmed:', items);
@@ -236,35 +237,18 @@ const DriveThruPageContent: React.FC = () => {
         {/* Controls */}
         <div className="flex flex-col items-center gap-6">
           <div className="transform scale-150">
-            <VoiceControl
+            <VoiceControlWebRTC
               onTranscript={handleTranscript}
-              isFirstPress={isFirstPress}
-              onFirstPress={handleFirstPress}
+              onOrderDetected={handleOrderDetected}
+              debug={false}
             />
           </div>
           
           {/* Status Text */}
           <div className="text-center">
-            {isVoiceActive ? (
-              <p className="text-macon-orange text-lg animate-pulse flex items-center justify-center gap-2">
-                <Volume2 className="w-5 h-5" />
-                AI is responding...
-              </p>
-            ) : isProcessing || isProcessingVoice ? (
-              <p className="text-macon-teal text-lg flex items-center justify-center gap-2">
-                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                Processing your order...
-              </p>
-            ) : connectionStatus === 'error' ? (
-              <p className="text-red-400 text-lg flex items-center justify-center gap-2">
-                <AlertCircle className="w-5 h-5" />
-                Connection issue - please try again
-              </p>
-            ) : (
-              <p className="text-neutral-400 text-lg">
-                Hold the button and tell us what you'd like to order
-              </p>
-            )}
+            <p className="text-neutral-400 text-lg">
+              Hold the button and tell us what you'd like to order
+            </p>
           </div>
           
           <Button

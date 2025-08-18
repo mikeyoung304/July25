@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebRTC Test - Loading Check</title>
+</head>
+<body>
+    <h1>Checking WebRTC Test Page...</h1>
+    <div id="status">Loading...</div>
+    <script>
+        fetch('http://localhost:5173/test-webrtc')
+            .then(response => response.text())
+            .then(html => {
+                // Check if the page contains the React app
+                if (html.includes('id="root"')) {
+                    document.getElementById('status').innerHTML = '✅ Page structure loaded successfully';
+                    
+                    // Try to load the actual page
+                    window.location.href = 'http://localhost:5173/test-webrtc';
+                } else {
+                    document.getElementById('status').innerHTML = '❌ Page structure issue';
+                }
+            })
+            .catch(error => {
+                document.getElementById('status').innerHTML = '❌ Error: ' + error.message;
+            });
+    </script>
+</body>
+</html>

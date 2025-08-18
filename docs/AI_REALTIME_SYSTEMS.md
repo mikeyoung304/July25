@@ -17,23 +17,27 @@ The Rebuild 6.0 restaurant OS integrates voice order capture, AI-powered transcr
 
 ## Architecture Overview
 
+### Current Implementation (WebRTC - December 2024)
+
 ```
 ┌─────────────────┐     ┌──────────────────────────────┐     ┌─────────────────┐
 │                 │     │   Unified Backend (3001)     │     │                 │
-│  Frontend       │────▶│                              │────▶│  OpenAI     │
-│  (React/Vite)   │     │  ┌────────────────────┐     │     │  Service (3003) │
+│  Frontend       │────▶│                              │────▶│  OpenAI         │
+│  (React/Vite)   │     │  ┌────────────────────┐     │     │  Realtime API   │
 │                 │     │  │  Express.js API    │     │     │                 │
 └─────────────────┘     │  │  - /api/v1/*       │     │     └─────────────────┘
-         │              │  │  - /api/v1/ai/*    │     │            │
+         │              │  │  - /api/v1/realtime│     │            ▲
          │              │  └────────────────────┘     │            │
-         │              │                              │     ┌─────────────────┐
-         └─────────────▶│  ┌────────────────────┐     │     │                 │
-      WebSocket         │  │  WebSocket Server  │     │────▶│  PostgreSQL     │
-                        │  │  - /ws (orders)    │     │     │  (Supabase)     │
-                        │  │  - /voice-stream   │     │     │                 │
+         │              │                              │       WebRTC (Direct)
+         └─────────────▶│  ┌────────────────────┐     │            │
+      WebSocket         │  │  WebSocket Server  │     │     ┌─────────────────┐
+      (Orders)          │  │  - /ws (orders)    │     │     │   Browser       │
+                        │  │  - /voice-stream   │     │────▶│   (WebRTC)      │
                         │  └────────────────────┘     │     └─────────────────┘
                         │                              │
                         └──────────────────────────────┘
+
+Note: WebRTC provides ~50% lower latency than WebSocket for voice
 ```
 
 ## Voice Order Flow

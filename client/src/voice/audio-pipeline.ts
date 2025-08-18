@@ -30,6 +30,8 @@ export class AudioCapture {
   private onAudioDataCallback: ((audioData: Float32Array) => void) | null = null;
 
   async initialize(): Promise<void> {
+    console.log('[AudioCapture] Requesting microphone permission...');
+    
     // Request microphone permission
     this.mediaStream = await navigator.mediaDevices.getUserMedia({
       audio: {
@@ -40,10 +42,20 @@ export class AudioCapture {
         autoGainControl: true,
       }
     });
+    
+    console.log('[AudioCapture] Microphone permission granted, stream:', {
+      active: this.mediaStream.active,
+      tracks: this.mediaStream.getTracks().length
+    });
 
     // Create audio context
     this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
       sampleRate: DEFAULT_AUDIO_CONFIG.sampleRate,
+    });
+    
+    console.log('[AudioCapture] Audio context created:', {
+      sampleRate: this.audioContext.sampleRate,
+      state: this.audioContext.state
     });
 
     // Create source node
@@ -56,6 +68,15 @@ export class AudioCapture {
     this.processorNode.onaudioprocess = (event) => {
       const inputBuffer = event.inputBuffer.getChannelData(0);
       if (this.onAudioDataCallback) {
+        // Log audio data periodically (every 100th frame to avoid spam)
+        if (Math.random() < 0.01) {
+          const rms = Math.sqrt(inputBuffer.reduce((sum, val) => sum + val * val, 0) / inputBuffer.length);
+          console.log('[AudioCapture] Processing audio frame:', {
+            bufferLength: inputBuffer.length,
+            rmsLevel: rms.toFixed(4),
+            hasSound: rms > 0.001
+          });
+        }
         this.onAudioDataCallback(new Float32Array(inputBuffer));
       }
     };

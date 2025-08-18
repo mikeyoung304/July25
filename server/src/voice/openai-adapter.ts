@@ -39,6 +39,10 @@ export class OpenAIAdapter extends EventEmitter {
   private reconnectDelay = 1000;
   private heartbeatInterval?: NodeJS.Timeout;
   private responseBuffer: string[] = [];
+  private audioChunkCount = 0;
+  private lastCommitTime = Date.now();
+  private readonly COMMIT_INTERVAL_MS = 100; // Commit every 100ms
+  private readonly COMMIT_CHUNK_THRESHOLD = 4; // Or every 4 chunks (100ms at 25ms/chunk)
 
   constructor(sessionId: string, restaurantId: string) {
     super();
@@ -136,10 +140,7 @@ export class OpenAIAdapter extends EventEmitter {
       type: 'session.update',
       session: {
         modalities: ['text', 'audio'],
-        instructions: `You are a helpful voice assistant for a restaurant named "Restaurant". 
-                      Help customers place food orders. Listen for menu items, quantities, and modifications.
-                      When you detect a complete order, respond with confirmation and ask if there's anything else.
-                      Be friendly, efficient, and accurate.`,
+        instructions: 'You are a restaurant assistant. Give ONE SHORT answer. Maximum 10 words. Never repeat yourself. If item not available, say "Not available" once.',
         voice: 'alloy',
         input_audio_format: 'pcm16',
         output_audio_format: 'pcm16',
@@ -148,14 +149,14 @@ export class OpenAIAdapter extends EventEmitter {
         },
         turn_detection: {
           type: 'server_vad',
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 500
+          threshold: 0.9,  // Very high threshold to minimize false positives
+          prefix_padding_ms: 0,  // No padding before speech
+          silence_duration_ms: 3000  // Long silence required to end turn (3 seconds)
         },
         tools: [],
         tool_choice: 'auto',
-        temperature: 0.8,
-        max_response_output_tokens: 4096
+        temperature: 0.6,
+        max_response_output_tokens: 20  // Even stricter limit
       }
     };
 
@@ -361,12 +362,38 @@ export class OpenAIAdapter extends EventEmitter {
       // In future, could resample here if needed
     }
 
-    const audioEvent = {
+    // Append audio to buffer
+    const appendEvent = {
       type: 'input_audio_buffer.append',
       audio: audioData,
     };
-
-    this.sendToOpenAI(audioEvent);
+    this.sendToOpenAI(appendEvent);
+    
+    this.audioChunkCount++;
+    const timeSinceLastCommit = Date.now() - this.lastCommitTime;
+    
+    // Commit if we have enough chunks OR enough time has passed
+    const shouldCommit = 
+      this.audioChunkCount >= this.COMMIT_CHUNK_THRESHOLD ||
+      timeSinceLastCommit >= this.COMMIT_INTERVAL_MS;
+    
+    if (shouldCommit) {
+      // Commit the buffer to trigger processing
+      const commitEvent = {
+        type: 'input_audio_buffer.commit'
+      };
+      this.sendToOpenAI(commitEvent);
+      
+      logger.debug('[OpenAI] Audio buffer committed', {
+        sessionId: this.sessionId,
+        chunkCount: this.audioChunkCount,
+        timeSinceLastCommit
+      });
+      
+      // Reset counters
+      this.audioChunkCount = 0;
+      this.lastCommitTime = Date.now();
+    }
   }
 
   async disconnect(): Promise<void> {

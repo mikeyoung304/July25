@@ -17,6 +17,8 @@ import { CustomerOrderPage } from '@/modules/order-system/components'
 import { CheckoutPage } from '@/pages/CheckoutPage'
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage'
 import StreamingDemo from '@/pages/StreamingDemo'
+import TestRealTimeAudio from '@/pages/TestRealTimeAudio'
+import { TestWebRTCVoice } from '@/pages/TestWebRTCVoice'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
 // Profiler callback for performance tracking
@@ -120,6 +122,20 @@ export function AppRoutes() {
               <ErrorBoundary level="section">
                 <Profiler id="StreamingDemo" onRender={onRenderCallback}>
                   <StreamingDemo />
+                </Profiler>
+              </ErrorBoundary>
+            } />
+            <Route path="/test-audio" element={
+              <ErrorBoundary level="section">
+                <Profiler id="TestAudio" onRender={onRenderCallback}>
+                  <TestRealTimeAudio />
+                </Profiler>
+              </ErrorBoundary>
+            } />
+            <Route path="/test-webrtc" element={
+              <ErrorBoundary level="section">
+                <Profiler id="TestWebRTCVoice" onRender={onRenderCallback}>
+                  <TestWebRTCVoice />
                 </Profiler>
               </ErrorBoundary>
             } />

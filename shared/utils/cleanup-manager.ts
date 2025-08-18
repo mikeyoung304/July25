@@ -488,7 +488,7 @@ export abstract class ManagedService implements ServiceLifecycle {
 }
 
 // Memory monitoring utilities
-export class MemoryMonitor {
+export class CleanupMemoryMonitor {
   private static measurements: Array<{ timestamp: number; used: number; total: number }> = [];
   private static maxMeasurements = 100;
   

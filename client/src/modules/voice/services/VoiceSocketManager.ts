@@ -1,5 +1,5 @@
 import { VoiceSocketMessage } from '../hooks/useVoiceSocket';
-import { MemoryMonitor } from '@rebuild/shared';
+import { RuntimeMemoryMonitor } from '@rebuild/shared';
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
@@ -91,7 +91,7 @@ class VoiceSocketManager {
   private setupMemoryMonitoring(): void {
     // Monitor memory usage every 30 seconds
     this.memoryMonitorInterval = window.setInterval(() => {
-      const memoryInfo = MemoryMonitor.getMemoryTrend();
+      const memoryInfo = RuntimeMemoryMonitor.getMemoryTrend();
       
       if (memoryInfo.leakWarning) {
         console.warn('VoiceSocketManager: Memory leak detected', {

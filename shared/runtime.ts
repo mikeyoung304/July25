@@ -44,7 +44,7 @@ type MemorySample = {
   leakWarning: boolean;
 };
 
-export class MemoryMonitor {
+export class RuntimeMemoryMonitor {
   // No-throw polling that works in browser or is a no-op in SSR.
   static getMemoryTrend(): MemorySample {
     // @ts-ignore optional runtime
@@ -61,7 +61,7 @@ export class MemoryMonitor {
   start(callback: (s: MemorySample) => void, ms = 60_000) {
     const tick = () => {
       try { 
-        callback(MemoryMonitor.getMemoryTrend()); 
+        callback(RuntimeMemoryMonitor.getMemoryTrend()); 
       } catch {}
     };
     const id = setInterval(tick, ms);

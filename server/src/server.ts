@@ -24,6 +24,7 @@ import { setupAIWebSocket } from './ai/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
+import { realtimeRoutes } from './routes/realtime.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
 
@@ -135,6 +136,9 @@ app.use('/api/v1', setupRoutes());
 
 // AI routes (consolidated into main backend)
 app.use('/api/v1/ai', aiRoutes);
+
+// Real-time voice routes (WebRTC)
+app.use('/api/v1/realtime', realtimeRoutes);
 
 // Health check (outside API versioning for monitoring tools)
 app.get('/health', (_req, res) => {

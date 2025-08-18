@@ -245,7 +245,7 @@ export const RealtimeTranscription: React.FC<RealtimeTranscriptionProps> = ({
       </div>
 
       {/* Real-time Stats (Development/Debug) */}
-      {process.env.NODE_ENV === 'development' && text && (
+      {import.meta.env.DEV && text && (
         <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500 space-y-1">
           <div>Length: {text.length} characters</div>
           <div>Words: {text.split(' ').filter(w => w.length > 0).length}</div>

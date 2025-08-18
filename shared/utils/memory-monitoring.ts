@@ -530,7 +530,9 @@ class MemoryMonitoringSystem {
 }
 
 // Singleton instance
-export const MemoryMonitor = new MemoryMonitoringSystem();
+export const MemoryMonitorInstance = new MemoryMonitoringSystem();
+// Legacy alias for backward compatibility - will be removed
+export const MemoryMonitor = MemoryMonitorInstance;
 
 // React Hook for component memory profiling
 export const useMemoryProfile = (componentName: string) => {
