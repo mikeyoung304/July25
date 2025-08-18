@@ -108,6 +108,8 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private messageQueue: VoiceStreamMessage[] = [];
   private shouldReconnect: boolean = true;
+  private sessionStarted: boolean = false;
+  private restaurantId: string = '11111111-1111-1111-1111-111111111111'; // Default restaurant ID
 
   constructor(config: Partial<VoiceTransportConfig> = {}) {
     super();
@@ -119,16 +121,18 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
    */
   connect(): void {
     if (this.connectionState === 'connecting' || this.connectionState === 'connected') {
+      console.log('[VoiceTransport] Already connected/connecting, skipping');
       return;
     }
 
+    console.log('[VoiceTransport] Connecting to:', this.config.url);
     this.setConnectionState('connecting');
     
     try {
       this.ws = new WebSocket(this.config.url);
       this.setupWebSocketHandlers();
     } catch (error) {
-      console.error('Failed to create WebSocket:', error);
+      console.error('[VoiceTransport] Failed to create WebSocket:', error);
       this.handleConnectionError(error as Error);
     }
   }
@@ -150,9 +154,43 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
   }
 
   /**
+   * Start a voice session
+   */
+  private startSession(): void {
+    if (this.sessionStarted) {
+      console.log('[VoiceTransport] Session already started');
+      return;
+    }
+
+    const sessionMessage = {
+      type: 'session.start',
+      session_config: {
+        restaurant_id: this.restaurantId,
+        loopback: false
+      },
+      timestamp: Date.now()
+    };
+
+    console.log('[VoiceTransport] Starting session with config:', sessionMessage);
+    
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(sessionMessage));
+      // Don't set sessionStarted here - wait for confirmation
+    } else {
+      console.error('[VoiceTransport] Cannot start session - WebSocket not connected');
+    }
+  }
+
+  /**
    * Send audio data
    */
   sendAudio(chunk: string, hasVoice: boolean): boolean {
+    // Don't send audio until session is started
+    if (!this.sessionStarted) {
+      console.warn('[VoiceTransport] Cannot send audio - session not started');
+      return false;
+    }
+
     const message: VoiceStreamMessage = {
       type: 'audio',
       data: {
@@ -162,6 +200,16 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
       } as AudioData,
       timestamp: Date.now(),
     };
+
+    // Log audio chunk details (sample every 100th to avoid spam)
+    if (Math.random() < 0.01) {
+      console.log('[VoiceTransport] Sending audio chunk:', {
+        chunkSize: chunk.length,
+        hasVoice,
+        connectionState: this.connectionState,
+        sessionStarted: this.sessionStarted
+      });
+    }
 
     return this.sendMessage(message);
   }
@@ -209,20 +257,32 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     if (!this.ws) return;
 
     this.ws.onopen = () => {
-      console.log('Voice WebSocket connected');
+      console.log('[VoiceTransport] WebSocket connected successfully');
+      console.log('[VoiceTransport] Connection details:', {
+        url: this.ws?.url,
+        readyState: this.ws?.readyState,
+        protocol: this.ws?.protocol
+      });
       this.setConnectionState('connected');
       this.reconnectAttempts = 0;
       this.clearReconnectTimeout();
       this.startHeartbeat();
-      this.processMessageQueue();
+      
+      // Start session immediately after connection
+      this.startSession();
     };
 
     this.ws.onmessage = (event) => {
       try {
         const message: VoiceStreamMessage = JSON.parse(event.data);
+        console.log('[VoiceTransport] Received message:', {
+          type: message.type,
+          hasData: !!message.data,
+          timestamp: message.timestamp
+        });
         this.handleMessage(message);
       } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
+        console.error('[VoiceTransport] Failed to parse WebSocket message:', error, 'Raw data:', event.data);
         this.emit('error', new Error('Failed to parse server message'));
       }
     };
@@ -233,8 +293,9 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     };
 
     this.ws.onclose = (event) => {
-      console.log('WebSocket closed:', event.code, event.reason);
+      console.log('[VoiceTransport] WebSocket closed:', event.code, event.reason);
       this.ws = null;
+      this.sessionStarted = false; // Reset session flag
       this.clearHeartbeat();
       
       if (this.shouldReconnect && this.reconnectAttempts < this.config.maxReconnectAttempts) {
@@ -247,6 +308,14 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
 
   private handleMessage(message: VoiceStreamMessage): void {
     switch (message.type) {
+      case 'session.started':
+        // Session successfully started
+        console.log('[VoiceTransport] Session started successfully');
+        this.sessionStarted = true;
+        // Now process any queued messages
+        this.processMessageQueue();
+        break;
+
       case 'transcript':
         this.emit('transcript', message.data as TranscriptData);
         break;
@@ -256,7 +325,15 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
         break;
       
       case 'error':
-        this.emit('error', new Error(message.data?.message || 'Server error'));
+        const errorMessage = message.data?.message || 'Server error';
+        console.error('[VoiceTransport] Server error:', errorMessage);
+        
+        // If session start failed, reset the flag
+        if (errorMessage.includes('SESSION')) {
+          this.sessionStarted = false;
+        }
+        
+        this.emit('error', new Error(errorMessage));
         break;
       
       case 'heartbeat':
@@ -266,7 +343,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
         break;
       
       default:
-        console.warn('Unknown message type:', message.type);
+        console.warn('[VoiceTransport] Unknown message type:', message.type);
     }
   }
 

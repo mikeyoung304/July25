@@ -32,7 +32,7 @@ This starts both the frontend (http://localhost:5173) and backend (http://localh
 
 **Note**: Ports are strictly enforced. If port 5173 is in use, run `npm run dev:clean` to kill the process and restart.
 
-Please see the detailed **[DEVELOPMENT.md](./DEVELOPMENT.md)** for first-time setup instructions.
+Please see the detailed **[ARCHITECTURE.md](./ARCHITECTURE.md)** for system architecture and design principles.
 
 ## 🎯 Key Features
 
@@ -180,6 +180,19 @@ VITE_ENABLE_PERF=false  # Set to 'true' to enable performance monitoring
 - `OPENAI_API_KEY` is REQUIRED for AI features to work
 - AI processing is handled internally by the backend service
 
+## 📡 Deployment Status
+
+### Production Environment
+- **Frontend**: Deployed on Vercel at `https://july25-client.vercel.app`
+- **Backend**: Deployed on Render at `https://july25.onrender.com`
+- **Database**: Supabase (PostgreSQL)
+- **Status**: ✅ Operational
+
+### Recent Security Improvements (August 2025)
+- ✅ **Test-token bypass removed** - Now restricted to local development only
+- ✅ **Rate limiting activated** - AI: 50 req/5min, Transcription: 20 req/min
+- ✅ **CORS secured** - Strict allowlist for Vercel deployments
+- ✅ **Type system fixed** - Unified to single transformation layer
 
 ## 🔢 Menu ID Mapping System
 

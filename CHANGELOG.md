@@ -5,7 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2025-08-12
+## [Unreleased] - 2025-08-16
+
+### Security
+- 🔒 **CRITICAL**: Removed test-token bypass from production (only works in local dev now)
+- 🔒 Activated rate limiting for AI endpoints (50/5min) and transcription (20/min)
+- 🔒 Fixed CORS configuration to use strict allowlist for Vercel deployments
+- 🔒 Added abuse logging for rate limit violations
+
+### Fixed
+- 🐛 Resolved 250+ TypeScript errors by removing double transformation layer
+- 🐛 Fixed type system chaos - unified to single camelCase transformation at server
+- 🐛 Fixed VoiceSocketManager missing properties and phantom inheritance
+- 🐛 Connected AI chat to actual restaurant menu (28 items)
+- 🐛 Fixed production API URL routing for Vercel deployments
+- 🐛 Resolved ApiMenuCategory object vs string type mismatches
+- 🐛 Fixed Cart type circular import issues
+
+### Changed
+- ♻️ Removed client-side case transformation (server handles it)
+- ♻️ Optimized AI voice agent for speed (1-2 sentences max)
+- ♻️ Hardcoded API URL in Vercel build configuration for reliability
+- ♻️ Changed all components to use camelCase properties (imageUrl, isAvailable)
+
+### Architecture
+- 🏗️ Established single source of truth for types (@rebuild/shared)
+- 🏗️ Eliminated multiple transformation layers causing type confusion
+- 🏗️ Fixed monorepo boundaries between client/server/shared
+
+## [1.1.0] - 2025-08-12
 
 ### Added
 - **OpenAI Adapters**: Direct OpenAI integration replacing BuildPanel proxy

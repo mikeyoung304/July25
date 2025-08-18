@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Mic } from 'lucide-react';
 import { cn } from '@/utils';
 
@@ -21,31 +21,59 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   disabled = false,
   className,
 }) => {
-  const handleMouseDown = useCallback(() => {
-    if (!disabled) {
-      onMouseDown();
-    }
+  const isHoldingRef = useRef(false);
+  const lastActionTimeRef = useRef(0);
+  
+  const handleStart = useCallback(() => {
+    if (disabled || isHoldingRef.current) return;
+    
+    // Debounce rapid starts
+    const now = Date.now();
+    if (now - lastActionTimeRef.current < 100) return;
+    
+    isHoldingRef.current = true;
+    lastActionTimeRef.current = now;
+    onMouseDown();
   }, [disabled, onMouseDown]);
 
-  const handleMouseUp = useCallback(() => {
-    if (!disabled) {
-      onMouseUp();
+  const handleStop = useCallback(() => {
+    if (!isHoldingRef.current) return;
+    
+    // Debounce rapid stops
+    const now = Date.now();
+    if (now - lastActionTimeRef.current < 100) return;
+    
+    isHoldingRef.current = false;
+    lastActionTimeRef.current = now;
+    onMouseUp();
+  }, [onMouseUp]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    handleStart();
+  }, [handleStart]);
+
+  const handleMouseUp = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    handleStop();
+  }, [handleStop]);
+  
+  const handleMouseLeave = useCallback(() => {
+    // Release if mouse leaves while holding
+    if (isHoldingRef.current) {
+      handleStop();
     }
-  }, [disabled, onMouseUp]);
+  }, [handleStop]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    if (!disabled) {
-      onMouseDown();
-    }
-  }, [disabled, onMouseDown]);
+    handleStart();
+  }, [handleStart]);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    if (!disabled) {
-      onMouseUp();
-    }
-  }, [disabled, onMouseUp]);
+    handleStop();
+  }, [handleStop]);
 
   const getAriaLabel = () => {
     if (isPlayingAudio) return 'AI is speaking';
@@ -70,9 +98,10 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
       )}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
       disabled={disabled}
       aria-label={getAriaLabel()}
       aria-pressed={isListening}

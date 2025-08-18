@@ -32,10 +32,17 @@ export class VoiceWebSocketServer {
   }
 
   handleConnection(ws: WebSocket, request: any) {
-    logger.info('New WebSocket connection for voice');
+    logger.info('[VoiceWebSocket] New connection received', {
+      url: request.url,
+      headers: request.headers,
+      origin: request.headers?.origin
+    });
     
     // Set up connection handlers
-    ws.on('message', (data) => this.handleMessage(ws, data));
+    ws.on('message', (data) => {
+      logger.debug('[VoiceWebSocket] Message received, size:', Buffer.byteLength(data));
+      this.handleMessage(ws, data);
+    });
     ws.on('close', (code, reason) => this.handleClose(ws, code, reason));
     ws.on('error', (error) => this.handleError(ws, error));
     ws.on('pong', () => this.handlePong(ws));
@@ -48,23 +55,33 @@ export class VoiceWebSocketServer {
     try {
       const dataStr = Buffer.isBuffer(data) ? data.toString() : String(data);
       const message = JSON.parse(dataStr);
+      
+      logger.info('[VoiceWebSocket] Parsed message:', {
+        type: message.type,
+        hasData: !!message.data,
+        timestamp: message.timestamp
+      });
+      
       const event = ClientEventSchema.parse(message);
 
       const session = this.getSessionByWebSocket(ws);
       
       if (session) {
+        logger.debug('[VoiceWebSocket] Session found, processing event:', event.type);
         session.lastActivity = Date.now();
         await this.processEvent(session, event);
       } else if (event.type === 'session.start') {
+        logger.info('[VoiceWebSocket] Starting new session');
         await this.startSession(ws, event);
       } else {
+        logger.warn('[VoiceWebSocket] No session found, rejecting message');
         this.sendError(ws, {
           code: 'SESSION_NOT_FOUND',
           message: 'Session not found. Send session.start first.',
         });
       }
     } catch (error) {
-      logger.error('Error handling voice message:', error);
+      logger.error('[VoiceWebSocket] Error handling message:', error, 'Raw data:', data?.toString?.());
       this.sendError(ws, {
         code: 'UNKNOWN_ERROR',
         message: 'Invalid message format',
@@ -183,18 +200,38 @@ export class VoiceWebSocketServer {
   }
 
   private async processAudio(session: VoiceSession, event: any) {
-    const { audio } = event;
+    // Handle both formats: event.audio (direct) or event.data.chunk (from client)
+    const audioData = event.audio || event.data?.chunk;
+    
+    if (!audioData) {
+      logger.error('[VoiceWebSocket] No audio data in event:', event);
+      this.sendError(session.ws, {
+        code: 'INVALID_AUDIO_FORMAT',
+        message: 'No audio data found in message',
+        session_id: session.id,
+      });
+      return;
+    }
+    
+    // Log audio processing (sample to avoid spam)
+    if (Math.random() < 0.01) {
+      logger.debug('[VoiceWebSocket] Processing audio chunk:', {
+        sessionId: session.id,
+        audioSize: audioData.length,
+        hasVoice: event.data?.hasVoice
+      });
+    }
     
     session.state.state = 'processing';
-    session.state.total_audio_duration += 100; // Estimate 100ms per chunk
+    session.state.total_audio_duration += 25; // 25ms chunks from client
 
     if (session.openaiAdapter) {
       // Forward to OpenAI
       try {
-        await session.openaiAdapter.sendAudio(audio, 24000); // PCM16 24kHz from client pipeline
+        await session.openaiAdapter.sendAudio(audioData, 24000); // PCM16 24kHz from client pipeline
       } catch (error) {
         session.metrics.error_count++;
-        logger.error('Error sending audio to OpenAI:', error);
+        logger.error('[VoiceWebSocket] Error sending audio to OpenAI:', error);
         this.sendError(session.ws, {
           code: 'AUDIO_PROCESSING_FAILED',
           message: 'Failed to process audio',
@@ -207,7 +244,7 @@ export class VoiceWebSocketServer {
         type: 'audio',
         event_id: uuidv4(),
         timestamp: Date.now(),
-        audio: audio, // Echo back the same audio
+        audio: audioData, // Echo back the same audio
       });
 
       // Mock transcript for testing

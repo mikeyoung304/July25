@@ -348,6 +348,81 @@ When `AI_DEGRADED_MODE=true`, the system gracefully handles AI service unavailab
 - **Monitoring**: Performance tracking, error boundaries, metrics endpoint
 - **Optimization**: Bundle splitting, vendor chunks, modern build targets
 
+## OpenAI Realtime PTT Flow
+
+### Overview
+The WebRTC voice client implements a deterministic push-to-talk (PTT) flow with OpenAI's Realtime API, ensuring exactly one response per user turn with no duplicate transcripts.
+
+### State Machine
+
+```
+┌──────┐ startRecording() ┌───────────┐ stopRecording() ┌────────────┐
+│ idle │─────────────────>│ recording │────────────────>│ committing │
+└──────┘                  └───────────┘                 └────────────┘
+    ▲                                                           │
+    │                                                           ▼
+    │                     ┌──────────────────┐  transcription ┌─────────────────────┐
+    │ response.done       │ waiting_response │<───completed───│ waiting_user_final  │
+    └─────────────────────┴──────────────────┘                └─────────────────────┘
+```
+
+### Event Flow (Manual PTT)
+
+1. **User holds button** → `turnState: idle → recording`
+   - Enable microphone track
+   - Clear audio buffer
+   - Begin audio transmission
+
+2. **User releases button** → `turnState: recording → committing → waiting_user_final`
+   - Disable microphone track immediately
+   - Send `input_audio_buffer.commit`
+   - Wait for transcription completion
+
+3. **Transcription completes** → `turnState: waiting_user_final → waiting_response`
+   - Receive `conversation.item.input_audio_transcription.completed`
+   - Send exactly one `response.create`
+   - Begin waiting for assistant response
+
+4. **Response completes** → `turnState: waiting_response → idle`
+   - Receive `response.done`
+   - Reset for next turn
+   - Increment turn counter
+
+### Configuration
+
+```typescript
+// Default: Manual PTT mode
+{
+  turn_detection: null,
+  input_audio_transcription: { model: 'whisper-1' }
+}
+
+// Optional: VAD mode (still manual response trigger)
+{
+  turn_detection: {
+    type: 'server_vad',
+    threshold: 0.5,
+    silence_duration_ms: 250,
+    create_response: false  // Still manual
+  }
+}
+```
+
+### Key Guarantees
+
+1. **No double transcripts**: Single Map<itemId, transcript> with deduplication
+2. **Exactly one response per turn**: State machine prevents re-entry
+3. **Clean event routing**: All known events handled without "Unhandled" warnings
+4. **Deterministic logging**: `[RT] t=<turnId>#<eventIndex>` format for debugging
+
+### Testing Checklist
+
+- [ ] Fresh load → Connect Voice → Hold "Hello" → Release
+- [ ] Expect: One user row (streaming → final), one assistant reply
+- [ ] Logs show: commit → item.created → delta* → completed → response.create → response.done
+- [ ] Rapid clicks: Still only one turn processed
+- [ ] Three consecutive turns: State returns to idle each time
+
 ---
 
 **Last Updated**: January 2025

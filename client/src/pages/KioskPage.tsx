@@ -3,7 +3,7 @@ import { Trash2, ShoppingCart, Volume2, VolumeX, MessageCircle, Mic, Package, Cr
 import { motion } from 'framer-motion';
 import { VoiceOrderProvider } from '@/modules/voice/contexts/VoiceOrderContext';
 import { useVoiceOrder } from '@/modules/voice/hooks/useVoiceOrder';
-import VoiceControlWithAudio from '@/modules/voice/components/VoiceControlWithAudio';
+import { VoiceControlWebRTC } from '@/modules/voice/components/VoiceControlWebRTC';
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser';
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ const KioskPageContent: React.FC = () => {
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const conversationIdCounter = useRef(0);
   const [currentTranscript, setCurrentTranscript] = useState('');
+  const [currentResponse, setCurrentResponse] = useState('');
   const [isFirstPress, setIsFirstPress] = useState(true);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [audioVolume, setAudioVolume] = useState(0.8);
@@ -99,27 +100,33 @@ const KioskPageContent: React.FC = () => {
     });
   }, [addItem, removeItem, updateQuantity, items]);
 
-  // Handle transcript from voice (for display only - audio processing is handled by VoiceControlWithAudio)
-  const handleVoiceTranscript = useCallback((transcript: string, isFinal: boolean) => {
-    console.log('Voice transcript received:', transcript, 'final:', isFinal);
+  // Handle transcript from WebRTC voice
+  const handleVoiceTranscript = useCallback((event: { text: string; isFinal: boolean }) => {
+    console.log('Voice transcript received:', event.text, 'final:', event.isFinal);
     
-    if (isFinal) {
+    if (event.isFinal) {
       // Add user's message to conversation
       const userEntry: ConversationEntry = {
         id: `user-${++conversationIdCounter.current}`,
         speaker: 'user',
-        text: transcript,
+        text: event.text,
         timestamp: new Date(),
       };
       setConversation(prev => [...prev, userEntry]);
       setCurrentTranscript('');
       
-      // Don't parse locally - wait for server response with proper menu matching
+      // Parse order locally if we have the parser
+      if (orderParser) {
+        const parsedItems = orderParser.parseOrder(event.text);
+        if (parsedItems.length > 0) {
+          processParsedItems(parsedItems);
+        }
+      }
     } else {
       // Update current transcript for live display
-      setCurrentTranscript(transcript);
+      setCurrentTranscript(event.text);
     }
-  }, []);
+  }, [orderParser, processParsedItems]);
 
   const handleOrderData = useCallback((orderData: any) => {
     console.log('Received order data from server:', orderData);
@@ -271,13 +278,10 @@ const KioskPageContent: React.FC = () => {
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.5 }}
               >
-                <VoiceControlWithAudio
+                <VoiceControlWebRTC
                   onTranscript={handleVoiceTranscript}
-                  onOrderData={handleOrderData}
-                  onAudioStart={handleAudioStart}
-                  onAudioEnd={handleAudioEnd}
-                  isFirstPress={isFirstPress}
-                  onFirstPress={handleFirstPress}
+                  onOrderDetected={handleOrderData}
+                  debug={false}
                 />
                 <div className="mt-8">
                   <SectionTitle className="text-neutral-700 mb-2">Tap and Hold to Order</SectionTitle>
@@ -293,13 +297,10 @@ const KioskPageContent: React.FC = () => {
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Voice Control Card */}
               <Card className="p-8 flex flex-col items-center justify-center">
-                <VoiceControlWithAudio
+                <VoiceControlWebRTC
                   onTranscript={handleVoiceTranscript}
-                  onOrderData={handleOrderData}
-                  onAudioStart={handleAudioStart}
-                  onAudioEnd={handleAudioEnd}
-                  isFirstPress={isFirstPress}
-                  onFirstPress={handleFirstPress}
+                  onOrderDetected={handleOrderData}
+                  debug={false}
                 />
                 <SectionTitle className="text-neutral-700 mt-6">Continue Speaking</SectionTitle>
                 <Body className="text-neutral-500 text-center mt-2">

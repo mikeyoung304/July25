@@ -1,6 +1,6 @@
 # API Endpoints Reference
 
-**Base URL**: `http://localhost:3001` (development) | `https://api.growfresh.com` (production)
+**Base URL**: `http://localhost:3001` (development) | `https://july25.onrender.com` (production)
 
 ## 🔐 Authentication
 
@@ -103,7 +103,7 @@ GET /api/v1/orders
 ```
 
 **Query Parameters**:
-- `status`: Filter by order status (new, in_progress, ready, completed)
+- `status`: Filter by order status (pending, in_progress, ready, completed, cancelled)
 - `date`: Filter by date (YYYY-MM-DD)
 - `limit`: Number of results (default: 50)
 - `offset`: Pagination offset
@@ -115,7 +115,7 @@ GET /api/v1/orders
     {
       "id": "789",
       "order_number": "A001",
-      "status": "new",
+      "status": "pending",
       "total_amount": 25.50,
       "created_at": "2025-07-13T10:00:00Z",
       "items": [...]
@@ -167,7 +167,7 @@ PATCH /api/v1/orders/:id/status
 ```
 
 **Valid Status Values**:
-- `new` - Just created
+- `pending` - Just created, awaiting kitchen
 - `in_progress` - Kitchen preparing
 - `ready` - Ready for pickup/serve
 - `completed` - Delivered/picked up
@@ -216,36 +216,30 @@ PATCH /api/v1/tables/:id
 
 ## 🏢 Floor Plan
 
-### Get Floor Plan
-```http
-GET /api/v1/floor-plan
-```
-Returns saved floor plan layout.
+> **Note**: Floor plan endpoints are documented but not yet implemented in the current version.
 
-### Save Floor Plan
+## 🤖 AI/Voice Services
+
+**IMPORTANT**: All AI services are integrated directly in the backend using OpenAI APIs. The backend handles authentication, restaurant context, and rate limiting.
+
+### Voice Chat (WebSocket)
 ```http
-PUT /api/v1/floor-plan
+POST /api/v1/ai/voice-chat
 ```
+Real-time voice conversation with AI assistant. Handles streaming audio.
+
+### Test TTS
+```http
+POST /api/v1/ai/test-tts
+```
+Test text-to-speech conversion with sample text.
 
 **Request Body**:
 ```json
 {
-  "tables": [
-    {
-      "id": "table-1",
-      "name": "Table 1",
-      "type": "round",
-      "seats": 4,
-      "position": { "x": 100, "y": 200 },
-      "rotation": 0
-    }
-  ]
+  "text": "Welcome to our restaurant!"
 }
 ```
-
-## 🤖 AI/Voice Services (OpenAI Integration)
-
-**IMPORTANT**: All AI endpoints now proxy to OpenAI service. The backend handles authentication and restaurant context, then forwards requests to OpenAI at `OPENAI_URL` (default: http://localhost:3003).
 
 ### Transcribe Audio
 ```http
@@ -257,7 +251,7 @@ Converts audio to text via OpenAI's Whisper integration.
 - **Headers**: `Authorization: Bearer <token>`, `X-Restaurant-ID: <uuid>`
 - **Body**: Form data with `audio` field
 
-**OpenAI Proxy**: Forwards to `/api/voice-chat` with restaurant context
+**Processing**: Uses OpenAI Whisper API for transcription
 
 **Response**:
 ```json
@@ -283,7 +277,7 @@ Natural language chat with AI assistant via OpenAI.
 }
 ```
 
-**OpenAI Proxy**: Forwards to `/api/chatbot` with restaurant context
+**Processing**: Uses OpenAI GPT models with restaurant menu context
 
 **Response**:
 ```json
@@ -437,7 +431,7 @@ Binary audio data chunks sent during recording.
 }
 ```
 
-#### Voice Response (OpenAI)
+#### Voice Response
 ```json
 {
   "type": "voice-response",
@@ -450,23 +444,13 @@ Binary audio data chunks sent during recording.
       "quantity": 1
     }
   ],
-  "buildPanelProcessed": true,
   "restaurantId": "11111111-1111-1111-1111-111111111111"
-}
-```
-
-#### OpenAI Status
-```json
-{
-  "type": "buildpanel-status",
-  "status": "connected",
-  "lastSync": "2025-01-01T12:00:00Z"
 }
 ```
 
 ## 🔧 CURL Examples
 
-### AI Endpoints (OpenAI Proxy)
+### AI Endpoints
 
 #### Chat with AI Assistant
 ```bash
@@ -544,6 +528,80 @@ curl -H "Authorization: Bearer <your-jwt-token>" \
      http://localhost:3001/api/v1/ai/health
 ```
 
+## 💳 Payment Processing
+
+### Create Payment Intent
+```http
+POST /api/v1/payments/create-intent
+```
+Creates a payment intent for Square payment processing.
+
+**Request Body**:
+```json
+{
+  "amount": 2500,
+  "currency": "USD",
+  "orderId": "order-123"
+}
+```
+
+### Process Payment
+```http
+POST /api/v1/payments/process
+```
+Processes payment with tokenized card details.
+
+### Get Payment Status
+```http
+GET /api/v1/payments/:paymentId/status
+```
+Returns current payment status.
+
+### Refund Payment
+```http
+POST /api/v1/payments/:paymentId/refund
+```
+Initiates a refund for a processed payment.
+
+**Request Body**:
+```json
+{
+  "amount": 1000,
+  "reason": "Customer request"
+}
+```
+
+## 🏢 Restaurant Management
+
+### Get Restaurant Details
+```http
+GET /api/v1/restaurant
+```
+Returns current restaurant details including settings and configuration.
+
+### Update Restaurant Settings
+```http
+PATCH /api/v1/restaurant/settings
+```
+Updates restaurant configuration.
+
+**Request Body**:
+```json
+{
+  "name": "Restaurant Name",
+  "timezone": "America/New_York",
+  "operating_hours": {
+    "monday": { "open": "09:00", "close": "22:00" }
+  }
+}
+```
+
+### Get Restaurant Staff
+```http
+GET /api/v1/restaurant/staff
+```
+Returns list of staff members with roles.
+
 ## 📊 Analytics (Coming Soon)
 
 ### Order Analytics
@@ -596,10 +654,16 @@ All errors follow this format:
 
 ## 📈 Rate Limits
 
-- **General API**: 100 requests per minute
-- **AI Endpoints**: 20 requests per minute (OpenAI proxy)
-- **Voice Transcription**: 10 requests per minute
+**Production Limits**:
+- **General API**: 1000 requests per 15 minutes
+- **AI Service**: 50 requests per 5 minutes
+- **Voice Transcription**: 20 requests per minute
+- **Voice Orders**: 100 requests per minute
+- **Authentication**: 5 attempts per 15 minutes
+- **Health Checks**: 30 requests per minute
 - **WebSocket**: 1 connection per client
+
+**Note**: Rate limiting is disabled in local development but enforced on production deployments.
 
 ## 🔧 Environment Variables
 
