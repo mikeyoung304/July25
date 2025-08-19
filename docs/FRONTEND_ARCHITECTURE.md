@@ -5,7 +5,8 @@
 The Rebuild 6.0 frontend is a modern React application built with TypeScript, Vite, and Tailwind CSS. It provides a comprehensive Restaurant Operating System interface with real-time capabilities, voice ordering, and multi-tenant support.
 
 **Key Technologies:**
-- **React 18** with TypeScript
+
+- **React 19.1.0** with TypeScript 5.8.3
 - **Vite** for build tooling
 - **React Router** for navigation
 - **Tailwind CSS** for styling
@@ -143,18 +144,18 @@ sequenceDiagram
     participant HTTP as HttpClient
     participant API as Backend API
     participant BP as OpenAI Service
-    
+
     UI->>Service: Call service method
     Service->>HTTP: Prepare request
     HTTP->>HTTP: Add auth headers
     HTTP->>HTTP: Add restaurant ID
     HTTP->>HTTP: Transform to snake_case
     HTTP->>API: Send request
-    
+
     Note over API,BP: AI processing via OpenAI
     API->>BP: Forward AI requests
     BP-->>API: AI response + audio
-    
+
     API-->>HTTP: Response
     HTTP->>HTTP: Transform to camelCase
     HTTP-->>Service: Parsed response
@@ -166,6 +167,7 @@ sequenceDiagram
 ### 1. Order Card Pattern
 
 Base component with specialized variants:
+
 ```
 components/orders/
 ├── BaseOrderCard.tsx      # Shared order display logic
@@ -176,6 +178,7 @@ components/orders/
 ### 2. Voice Recording Pattern
 
 Modular voice components:
+
 ```
 components/voice/
 ├── UnifiedVoiceRecorder.tsx  # Main recorder component
@@ -186,6 +189,7 @@ components/voice/
 ### 3. Shared Components
 
 Reusable UI elements:
+
 ```
 components/shared/
 ├── LoadingSpinner.tsx
@@ -246,7 +250,7 @@ graph TD
 - **Base URL**: Configured via `VITE_API_BASE_URL`
 - **Port**: 3001 (unified backend)
 - **Authentication**: Supabase JWT tokens
-- **Headers**: 
+- **Headers**:
   - `Authorization: Bearer <token>`
   - `X-Restaurant-ID: <restaurant_id>`
 
@@ -255,6 +259,7 @@ graph TD
 The frontend integrates with OpenAI service through the backend:
 
 **Voice Processing Flow:**
+
 1. Frontend captures audio via WebSocket streaming
 2. Backend buffers audio and forwards to OpenAI (port 3003)
 3. OpenAI processes voice and returns transcription + AI audio response
@@ -262,6 +267,7 @@ The frontend integrates with OpenAI service through the backend:
 5. Frontend displays transcription and plays audio response
 
 **Audio Response Handling:**
+
 - OpenAI responses may include audio data for voice feedback
 - Frontend automatically plays audio responses using Web Audio API
 - Audio playback is optional and can be muted by user preference
@@ -310,6 +316,7 @@ The frontend integrates with OpenAI service through the backend:
 ### 1. UI Components
 
 Located in `components/ui/`:
+
 - Typography system
 - Button variants
 - Card layouts
@@ -336,6 +343,7 @@ Located in `components/ui/`:
 ### 1. Error Boundaries
 
 Multi-level error boundaries:
+
 - App level (App.tsx)
 - Page level (AppRoutes.tsx)
 - Section level (feature modules)
@@ -380,6 +388,7 @@ npm run lint:fix   # Fix linting issues
 ### Environment Configuration
 
 Required environment variables in root `.env`:
+
 ```
 VITE_API_BASE_URL=http://localhost:3001
 VITE_SUPABASE_URL=<supabase-url>

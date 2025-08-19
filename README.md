@@ -5,7 +5,7 @@
 > ✅ **DEPLOYMENT**: Frontend (Vercel) | Backend (Render) | Database (Supabase)  
 > 🔧 **VERSION**: 1.0.0-beta
 
-A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering with OpenAI Realtime API, WebRTC audio streaming, real-time kitchen display system, and demo authentication for testing.
+A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering with OpenAI Realtime API, WebSocket audio streaming, real-time kitchen display system, and demo authentication for testing.
 
 ## 🚀 Quick Start
 
@@ -38,7 +38,8 @@ Please see the detailed **[ARCHITECTURE.md](./ARCHITECTURE.md)** for system arch
 ## 🎯 Key Features
 
 ### Working in Production
-- 🎤 **Voice Ordering**: WebRTC + OpenAI Realtime API for natural conversations
+
+- 🎤 **Voice Ordering**: WebSocket + OpenAI Realtime API for natural conversations
 - 🍽️ **Kitchen Display System**: Real-time WebSocket updates for order management
 - 🔐 **Demo Authentication**: JWT-based auth for friends & family testing
 - 📱 **Kiosk Interface**: Touch-optimized self-service ordering
@@ -46,6 +47,7 @@ Please see the detailed **[ARCHITECTURE.md](./ARCHITECTURE.md)** for system arch
 - 🔊 **Smart Notifications**: Audio alerts for new orders and status changes
 
 ### In Development
+
 - 📊 **Analytics Dashboard**: Order history and performance metrics
 - 💳 **Payment Processing**: Stripe integration for card payments
 - 🎯 **Loyalty Program**: Customer rewards and promotions
@@ -60,6 +62,7 @@ Frontend (5173) ←→ Unified Backend (3001) ←→ Database (Supabase)
 ```
 
 **Key Architecture Points**:
+
 - Single backend service handles everything (API, WebSocket, AI processing)
 - Integrated AI modules for voice transcription, chat, and order processing
 - No external AI services or microservices
@@ -88,7 +91,8 @@ rebuild-6.0/
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework**: React 18 + TypeScript
+
+- **Framework**: React 19.1.0 + TypeScript 5.8.3
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS + Custom Design System
 - **State Management**: React Context API
@@ -99,16 +103,18 @@ rebuild-6.0/
 - **Preview**: http://localhost:4173 (strict port)
 
 ### Backend (Unified)
-- **Server**: Express.js + TypeScript
+
+- **Server**: Express 4.18.2 + TypeScript 5.3.3
 - **Types**: Shared types module (@rebuild/shared)
-- **Database**: Supabase (PostgreSQL)
-- **AI/Voice**: Integrated OpenAI modules
-- **Real-time**: WebSocket (ws)
-- **Architecture**: RESTful + WebSocket
+- **Database**: Supabase 2.39.7 (PostgreSQL)
+- **AI/Voice**: OpenAI Realtime API + Whisper
+- **Real-time**: WebSocket (ws 8.16.0)
+- **Architecture**: RESTful + WebSocket on port 3001
 
 ## 🎯 Recent Improvements
 
 ### Phase 1-3 Completed (January 2025)
+
 - **Documentation**: Reduced from 61 to ~20 files
 - **Type System**: Unified types across client/server
 - **Components**: Consolidated duplicate implementations
@@ -118,12 +124,14 @@ rebuild-6.0/
 - **Performance**: ~40% code reduction through consolidation
 
 ### Phase 4-6 Completed (January 2025)
+
 - **Test Infrastructure**: Comprehensive test utilities and helpers
 - **Production Monitoring**: Integrated error tracking and performance monitoring
 - **Performance Optimization**: Bundle splitting, vendor optimization
 - **Technical Debt**: Logger service, TypeScript fixes, error boundaries
 
 ### Frontend Stabilization (January 2025)
+
 - **Testing**: Migrated from Jest to Vitest for better ESM support
 - **Ports**: Strict port enforcement (dev: 5173, preview: 4173)
 - **Dependencies**: Removed unused client-side dependencies (AI SDKs, WebSocket clients)
@@ -183,7 +191,8 @@ VITE_SQUARE_LOCATION_ID=L1234567890
 VITE_ENABLE_PERF=false  # Set to 'true' to enable performance monitoring
 ```
 
-**IMPORTANT**: 
+**IMPORTANT**:
+
 - All environment variables go in the root `.env` file only. Do NOT create separate `.env` files in client/ or server/ directories.
 - `OPENAI_API_KEY` is REQUIRED for AI features to work
 - AI processing is handled internally by the backend service
@@ -191,12 +200,14 @@ VITE_ENABLE_PERF=false  # Set to 'true' to enable performance monitoring
 ## 📡 Deployment Status
 
 ### Production Environment
+
 - **Frontend**: Deployed on Vercel at `https://july25-client.vercel.app`
 - **Backend**: Deployed on Render at `https://july25.onrender.com`
 - **Database**: Supabase (PostgreSQL)
 - **Status**: ✅ Operational
 
 ### Recent Security Improvements (August 2025)
+
 - ✅ **Test-token bypass removed** - Now restricted to local development only
 - ✅ **Rate limiting activated** - AI: 50 req/5min, Transcription: 20 req/min
 - ✅ **CORS secured** - Strict allowlist for Vercel deployments
@@ -207,6 +218,7 @@ VITE_ENABLE_PERF=false  # Set to 'true' to enable performance monitoring
 The system uses numeric string IDs (101, 201, etc.) for frontend and voice ordering, while the database uses UUIDs. An automatic mapping service handles the conversion:
 
 **ID Ranges by Category**:
+
 - Beverages: 101-199
 - Starters: 201-299
 - Salads: 301-399
@@ -216,6 +228,7 @@ The system uses numeric string IDs (101, 201, etc.) for frontend and voice order
 - Entrees: 701-799
 
 To seed the menu with proper ID mappings:
+
 ```bash
 cd server && npx tsx scripts/seed-menu-mapped.ts
 ```
@@ -223,6 +236,7 @@ cd server && npx tsx scripts/seed-menu-mapped.ts
 ## 📚 Documentation
 
 ### Core Systems
+
 - [**Architecture Overview**](./docs/ARCHITECTURE.md) - System design and decisions
 - [**API Reference**](./docs/API.md) - Complete API documentation
 - [**Kitchen Display System**](./docs/KITCHEN_DISPLAY.md) - KDS setup and operation
@@ -230,6 +244,7 @@ cd server && npx tsx scripts/seed-menu-mapped.ts
 - [**Authentication**](./docs/AUTHENTICATION.md) - Demo and production auth flows
 
 ### Deployment
+
 - Frontend: [july25-client.vercel.app](https://july25-client.vercel.app)
 - Backend: [july25.onrender.com](https://july25.onrender.com)
 - Database: Supabase Cloud
@@ -243,6 +258,7 @@ cd server && npx tsx scripts/seed-menu-mapped.ts
 5. **Speak naturally**: "I'd like a Greek Bowl with extra feta"
 
 ### Supported Voice Commands
+
 - Menu inquiries: "What's on the menu today?"
 - Order placement: "I'd like a soul bowl please"
 - Modifications: "Add extra cheese to that"
@@ -281,6 +297,7 @@ See [server/README.md](./server/README.md) for detailed deployment instructions.
 ## 🔒 Security
 
 ### AI Service Security
+
 - **Internal Processing**: All AI processing handled by the backend service
 - **API Key Security**: OpenAI API key stored securely in backend environment only
 - **Authenticated Access**: All AI endpoints require restaurant authentication
@@ -309,6 +326,7 @@ Proprietary - Macon AI Solutions
 ---
 
 **Quick Links**:
+
 - 🎤 Voice Kiosk: http://localhost:5173/kiosk
 - 🍳 Kitchen Display: http://localhost:5173/kitchen
 - 📊 Dashboard: http://localhost:5173/dashboard
