@@ -125,7 +125,7 @@ export class OrderUpdatesHandler {
       return
     }
     
-    console.log('[OrderUpdates] New order created:', order.id, order.orderNumber)
+    console.log('[OrderUpdates] New order created:', order.id, order.order_number || order.orderNumber)
     
     this.notifySubscribers({
       action: 'created',
@@ -133,7 +133,7 @@ export class OrderUpdatesHandler {
     })
 
     // Show notification for new orders
-    toast.success(`New order #${order.orderNumber} received!`, {
+    toast.success(`New order #${order.order_number || order.orderNumber} received!`, {
       duration: 5000,
       position: 'top-right'
     })
