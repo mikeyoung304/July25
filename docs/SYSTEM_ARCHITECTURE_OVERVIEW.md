@@ -1,7 +1,7 @@
 # Rebuild 6.0 - Complete System Architecture Overview
 
 > **Lead Architect's Synthesis Document**  
-> *Compiled from comprehensive analysis by specialized documentation agents*
+> _Compiled from comprehensive analysis by specialized documentation agents_
 
 ## Executive Summary
 
@@ -25,40 +25,40 @@ graph TB
         KDS[Kitchen Display]
         POS[POS Terminal]
     end
-    
+
     subgraph "Unified Backend - Port 3001"
         API[REST API<br/>/api/v1/*]
         AI[AI Services<br/>/api/v1/ai/*]
         WS[WebSocket<br/>/ws & /voice-stream]
-        
+
         MW[Middleware Pipeline]
         AUTH[Auth Service]
         SERVICES[Business Services]
     end
-    
+
     subgraph "External Services"
         SUPA[Supabase<br/>Auth & Database]
         OPENAI[OpenAI<br/>Whisper & GPT-4]
     end
-    
+
     FE --> API
     FE --> WS
     KIOSK --> API
     KDS --> WS
     POS --> API
-    
+
     API --> MW
     WS --> MW
     MW --> AUTH
     AUTH --> SERVICES
-    
+
     SERVICES --> SUPA
     AI --> OPENAI
-    
+
     classDef frontend fill:#e1f5fe
     classDef backend fill:#fff3e0
     classDef external fill:#f3e5f5
-    
+
     class FE,KIOSK,KDS,POS frontend
     class API,AI,WS,MW,AUTH,SERVICES backend
     class SUPA,OPENAI external
@@ -75,7 +75,8 @@ The React frontend provides multiple user interfaces:
 - **Admin Interfaces**: Dashboard, analytics, configuration
 
 **Key Technologies**:
-- React 18 with TypeScript
+
+- React 19.1.0 with TypeScript 5.8.3
 - Vite for build tooling
 - Tailwind CSS for styling
 - Context API for state management
@@ -86,6 +87,7 @@ The React frontend provides multiple user interfaces:
 The unified Express.js backend handles all server-side operations:
 
 **API Endpoints**:
+
 - `/api/v1/menu` - Menu management
 - `/api/v1/orders` - Order processing
 - `/api/v1/tables` - Table management
@@ -93,6 +95,7 @@ The unified Express.js backend handles all server-side operations:
 - `/api/v1/health` - System monitoring
 
 **WebSocket Paths**:
+
 - `/ws` - Real-time order updates
 - `/voice-stream` - Binary audio streaming
 
@@ -108,7 +111,7 @@ sequenceDiagram
     participant AIService
     participant OpenAI
     participant Database
-    
+
     User->>Frontend: Start voice recording
     Frontend->>WebSocket: Stream audio chunks
     WebSocket->>AIService: Buffer audio
@@ -129,18 +132,18 @@ The system uses a shared types module (`@rebuild/shared`) ensuring type safety a
 
 ```typescript
 // Example: Order flow with consistent types
-import { Order, OrderStatus } from '@rebuild/shared';
+import { Order, OrderStatus } from '@rebuild/shared'
 
 // Frontend
 const submitOrder = async (order: Order) => {
-  return await orderService.create(order);
-};
+  return await orderService.create(order)
+}
 
 // Backend
 router.post('/orders', async (req: Request<{}, {}, Order>) => {
-  const order = await ordersService.createOrder(req.body);
-  return res.json(order);
-});
+  const order = await ordersService.createOrder(req.body)
+  return res.json(order)
+})
 ```
 
 ### 5. Security Architecture
@@ -179,29 +182,29 @@ Multi-layered security approach:
 graph TB
     subgraph "Production Environment"
         LB[Load Balancer]
-        
+
         subgraph "Application Servers"
             APP1[Node.js Server 1]
             APP2[Node.js Server 2]
             APP3[Node.js Server N]
         end
-        
+
         CDN[CloudFlare CDN]
         SUPA[Supabase Cloud]
     end
-    
+
     subgraph "Client Devices"
         BROWSER[Web Browsers]
         TABLET[Tablets/Kiosks]
     end
-    
+
     BROWSER --> CDN
     TABLET --> CDN
     CDN --> LB
     LB --> APP1
     LB --> APP2
     LB --> APP3
-    
+
     APP1 --> SUPA
     APP2 --> SUPA
     APP3 --> SUPA
@@ -273,33 +276,33 @@ graph LR
         TRANS[Transcription Service]
         ORDER[Order Service]
     end
-    
+
     subgraph "Backend Services"
         EXPRESS[Express Server]
         AI_SVC[AI Service]
         ORDER_SVC[Orders Service]
         MENU_SVC[Menu Service]
     end
-    
+
     subgraph "Data Layer"
         TYPES[Shared Types]
         MAPPER[ID Mapper]
         CACHE[Menu Cache]
     end
-    
+
     HTTP --> EXPRESS
     WS_CLIENT --> EXPRESS
     TRANS --> EXPRESS
     ORDER --> EXPRESS
-    
+
     EXPRESS --> AI_SVC
     EXPRESS --> ORDER_SVC
     EXPRESS --> MENU_SVC
-    
+
     AI_SVC --> TYPES
     ORDER_SVC --> TYPES
     MENU_SVC --> TYPES
-    
+
     MENU_SVC --> MAPPER
     MENU_SVC --> CACHE
 ```
@@ -319,9 +322,13 @@ The system is production-ready with comprehensive monitoring, security measures,
 
 ---
 
-*For detailed documentation on specific components, refer to:*
+_For detailed documentation on specific components, refer to:_
+
 - [Frontend Architecture](./FRONTEND_ARCHITECTURE.md)
-- [Backend Services](./BACKEND_SERVICES.md)  
+- [Backend Services](./BACKEND_SERVICES.md)
 - [AI & Real-time Systems](./AI_REALTIME_SYSTEMS.md)
 - [Data Flow & Integration](./DATA_FLOW_INTEGRATION.md)
 - [Operations & Infrastructure](./OPERATIONS_INFRASTRUCTURE.md)
+- [Voice Ordering](./VOICE_ORDERING.md)
+- [Kitchen Display System](./KITCHEN_DISPLAY.md)
+- [API Documentation](./API.md)
