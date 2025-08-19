@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { CartProvider } from './CartContext';
 import { useCart } from './cartContext.hooks';
-import { CartItem } from '../../../../../shared/cart';
+import { CartItem } from '@rebuild/shared';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <MemoryRouter initialEntries={['/order/test-restaurant']}>

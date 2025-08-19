@@ -8,10 +8,10 @@ import { ItemDetailModal } from './ItemDetailModal';
 import { DietaryFilters } from './DietaryFilters';
 import { SortOptions } from './SortOptions';
 import { MenuItem } from '../../menu/types';
-import { useRestaurant } from '@/core/restaurant-hooks';
+import { useRestaurant } from '@/core';
 import { useCart } from '../context/cartContext.hooks';
 import { CartProvider } from '../context/CartContext';
-import { CartItem } from '../../../../../shared/cart';
+import { CartItem } from '@rebuild/shared';
 import { useRestaurantData } from '../hooks/useRestaurantData';
 
 const CustomerOrderPageContent: React.FC = () => {

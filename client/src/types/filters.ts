@@ -1,8 +1,6 @@
 import type { StationType } from './station'
-import type { Order } from '@/services/types'
-
-export type OrderStatus = Order['status']
-export type { StationType }
+import type { Order, OrderStatus } from '@rebuild/shared'
+export type { StationType, OrderStatus }
 
 export type SortBy = 
   | 'created_at' 
@@ -58,7 +56,10 @@ export const applyFilters = (orders: Order[], filters: OrderFilters): Order[] =>
 
     // Time range filter
     if (filters.timeRange.start || filters.timeRange.end) {
-      const orderDate = new Date(order.created_at)
+      // Handle both snake_case and camelCase
+      const createdAt = (order as any).created_at || (order as any).createdAt
+      if (!createdAt) return true // Include if no date
+      const orderDate = new Date(createdAt)
       if (filters.timeRange.start && orderDate < filters.timeRange.start) {
         return false
       }
@@ -70,8 +71,11 @@ export const applyFilters = (orders: Order[], filters: OrderFilters): Order[] =>
     // Search filter
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase()
-      const matchesOrderNumber = order.order_number.toLowerCase().includes(query)
-      const matchesTableNumber = order.table_number.toLowerCase().includes(query)
+      // Handle both snake_case and camelCase
+      const orderNumber = (order as any).order_number || (order as any).orderNumber || ''
+      const tableNumber = (order as any).table_number || (order as any).tableNumber || ''
+      const matchesOrderNumber = orderNumber.toLowerCase().includes(query)
+      const matchesTableNumber = tableNumber.toLowerCase().includes(query)
       const matchesItems = order.items.some(item => 
         item.name.toLowerCase().includes(query)
       )
@@ -91,13 +95,19 @@ export const sortOrders = (orders: Order[], sortBy: SortBy, direction: SortDirec
 
     switch (sortBy) {
       case 'created_at':
-        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        const aCreated = (a as any).created_at || (a as any).createdAt
+        const bCreated = (b as any).created_at || (b as any).createdAt
+        comparison = new Date(aCreated).getTime() - new Date(bCreated).getTime()
         break
       case 'order_number':
-        comparison = a.order_number.localeCompare(b.order_number)
+        const aNum = (a as any).order_number || (a as any).orderNumber || ''
+        const bNum = (b as any).order_number || (b as any).orderNumber || ''
+        comparison = aNum.localeCompare(bNum)
         break
       case 'table_number':
-        comparison = a.table_number.localeCompare(b.table_number)
+        const aTable = (a as any).table_number || (a as any).tableNumber || ''
+        const bTable = (b as any).table_number || (b as any).tableNumber || ''
+        comparison = aTable.localeCompare(bTable)
         break
       case 'status': {
         const statusOrder = { 'new': 0, 'pending': 1, 'confirmed': 2, 'preparing': 3, 'ready': 4, 'completed': 5, 'cancelled': 6 }

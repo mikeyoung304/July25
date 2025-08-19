@@ -4,7 +4,7 @@
  */
 
 import { useEffect } from 'react'
-import { useRestaurant } from '@/core/restaurant-hooks'
+import { useRestaurant } from '@/core'
 import { setCurrentRestaurantId } from './httpClient'
 
 export function RestaurantIdProvider({ children }: { children: React.ReactNode }) {

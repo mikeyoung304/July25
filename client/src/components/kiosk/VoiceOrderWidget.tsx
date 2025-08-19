@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useCallback, useState } from 'react';
-import { Mic, MicOff, Volume2, VolumeX, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mic, MicOff, Volume2, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useVoiceOrder } from '../../voice/useVoiceOrder';
 import styles from './VoiceOrderWidget.module.css';
 
@@ -16,7 +16,7 @@ export interface VoiceOrderWidgetProps {
 }
 
 export const VoiceOrderWidget: React.FC<VoiceOrderWidgetProps> = ({
-  restaurantId,
+  restaurantId: _restaurantId,
   onOrderComplete,
   onError,
   className = '',

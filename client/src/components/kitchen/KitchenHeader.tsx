@@ -6,7 +6,7 @@ import { SoundControl } from '@/components/shared/controls/SoundControl'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { RefreshCw } from 'lucide-react'
 import type { SortBy } from '@/types/filters'
-import type { Restaurant } from '@/core/restaurant-types'
+import type { Restaurant } from '@/core'
 
 interface KitchenHeaderProps {
   restaurant: Restaurant | null | undefined

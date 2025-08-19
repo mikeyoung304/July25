@@ -104,8 +104,7 @@ class Logger {
   }
 
   private sendToMonitoring(entry: LogEntry): void {
-    // TODO: Integrate with error monitoring service (Sentry, LogRocket, etc.)
-    // For now, we'll just store in localStorage for debugging
+    // Store in localStorage for debugging
     try {
       const errorLogs = JSON.parse(localStorage.getItem('error_logs') || '[]');
       errorLogs.push({

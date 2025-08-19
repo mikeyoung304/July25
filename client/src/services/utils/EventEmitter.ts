@@ -14,6 +14,8 @@ export class EventEmitter {
       this.events.set(event, new Set())
     }
     this.events.get(event)!.add(handler)
+    // DIAGNOSTIC: Log handler registration
+    console.log(`[EventEmitter] Handler registered for event '${event}', total handlers: ${this.events.get(event)!.size}`)
     return this
   }
 
@@ -31,7 +33,12 @@ export class EventEmitter {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   emit(event: string, ...args: any[]): boolean {
     const handlers = this.events.get(event)
+    
+    // DIAGNOSTIC: Log emission attempt
+    console.log(`[EventEmitter] Emitting '${event}', handlers: ${handlers ? handlers.size : 0}`)
+    
     if (!handlers || handlers.size === 0) {
+      console.log(`[EventEmitter] WARNING: No handlers for event '${event}'`)
       return false
     }
     

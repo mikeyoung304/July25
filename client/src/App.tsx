@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
-import { RestaurantProvider } from '@/core/RestaurantContext'
+import { RestaurantProvider } from '@/core'
 import { RestaurantIdProvider } from '@/services/http'
 import { RoleProvider } from '@/contexts/RoleContext'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
@@ -31,7 +31,7 @@ function App() {
     let isConnected = false // Track connection state to prevent duplicates
 
     // Initialize WebSocket for ALL users (including demo/friends & family)
-    const initializeWebSocket = () => {
+    const initializeWebSocket = async () => {
       if (!isConnected) {
         // Only connect in development mode or when we have a real backend
         const shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
@@ -40,15 +40,20 @@ function App() {
           isConnected = true
           console.log('🔌 Initializing WebSocket connection for real-time updates...')
           
-          // Initialize order updates handler
-          orderUpdatesHandler.initialize()
-          
-          // Connect to WebSocket
-          webSocketService.connect().catch(error => {
+          try {
+            // CRITICAL FIX: Connect WebSocket FIRST, then initialize handlers
+            await webSocketService.connect()
+            console.log('✅ WebSocket connected, now initializing order updates handler...')
+            
+            // Initialize order updates handler AFTER connection is established
+            orderUpdatesHandler.initialize()
+            console.log('✅ Order updates handler initialized')
+          } catch (error) {
             console.warn('WebSocket connection failed:', error)
             isConnected = false // Reset on failure
-            // Continue app operation without WebSocket
-          })
+            // Try to initialize handler anyway for when connection is restored
+            orderUpdatesHandler.initialize()
+          }
         }
       }
     }

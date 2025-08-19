@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Cart, CartItem, calculateCartTotals } from '../../../../../shared/cart';
+import { Cart, CartItem, calculateCartTotals } from '@rebuild/shared';
 import { useParams } from 'react-router-dom';
 import { CartContext } from './cartContext.context';
 

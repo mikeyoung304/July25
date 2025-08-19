@@ -22,3 +22,7 @@ export interface RestaurantContextType {
 
 // Context
 export const RestaurantContext = createContext<RestaurantContextType | undefined>(undefined)
+
+// Add a unique ID to track context instance
+;(RestaurantContext as any).__contextId = 'restaurant-context-' + Date.now()
+console.log('[restaurant-types] Created RestaurantContext with ID:', (RestaurantContext as any).__contextId)

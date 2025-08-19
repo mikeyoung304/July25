@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { Cart, CartItem } from '../../../../../shared/cart';
+import { Cart, CartItem } from '@rebuild/shared';
 
 export interface CartContextType {
   cart: Cart;

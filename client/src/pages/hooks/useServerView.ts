@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useContext, useMemo } from 'react'
-import { RestaurantContext } from '@/core/restaurant-types'
+import { RestaurantContext } from '@/core'
 import { tableService } from '@/services/tables/TableService'
 import { useToast } from '@/hooks/useToast'
 import type { Table } from '@/modules/floor-plan/types'

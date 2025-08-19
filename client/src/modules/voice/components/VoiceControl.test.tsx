@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import VoiceControl from './VoiceControl';
 import { useToast } from '@/hooks/useToast';
-import { useRestaurant } from '@/core/restaurant-hooks';
+import { useRestaurant } from '@/core';
 
 // Mock dependencies
 vi.mock('@/hooks/useToast');

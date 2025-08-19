@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Order } from '@/services/types'
 import { orderService } from '@/services'
 import { orderSubscription, OrderEvent } from '@/services/realtime/orderSubscription'
-import { useRestaurant } from '@/core/restaurant-hooks'
+import { useRestaurant } from '@/core'
 
 export interface UseOrderSubscriptionOptions {
   onOrderCreated?: (order: Order) => void

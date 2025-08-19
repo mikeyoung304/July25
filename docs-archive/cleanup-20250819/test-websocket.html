@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Order Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+    
+    <script>
+        const ws = new WebSocket('ws://localhost:3001?token=test-token&restaurant_id=11111111-1111-1111-1111-111111111111');
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+        
+        ws.onopen = () => {
+            statusDiv.textContent = 'Connected!';
+            statusDiv.style.color = 'green';
+            console.log('WebSocket connected');
+        };
+        
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            console.log('Received:', message);
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.style.border = '1px solid #ccc';
+            msgDiv.style.padding = '10px';
+            msgDiv.style.margin = '10px 0';
+            msgDiv.innerHTML = `
+                <strong>Type:</strong> ${message.type}<br>
+                <strong>Time:</strong> ${new Date().toLocaleTimeString()}<br>
+                <strong>Payload:</strong> <pre>${JSON.stringify(message.payload, null, 2)}</pre>
+            `;
+            messagesDiv.appendChild(msgDiv);
+            
+            if (message.type === 'order:created') {
+                msgDiv.style.backgroundColor = '#e7ffe7';
+                console.log('NEW ORDER RECEIVED!', message.payload);
+            }
+        };
+        
+        ws.onerror = (error) => {
+            statusDiv.textContent = 'Error: ' + error;
+            statusDiv.style.color = 'red';
+            console.error('WebSocket error:', error);
+        };
+        
+        ws.onclose = () => {
+            statusDiv.textContent = 'Disconnected';
+            statusDiv.style.color = 'orange';
+            console.log('WebSocket closed');
+        };
+    </script>
+</body>
+</html>

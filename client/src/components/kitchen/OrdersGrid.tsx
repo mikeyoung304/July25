@@ -59,13 +59,32 @@ export function OrdersGrid({
           ) : (
             <KDSOrderListItem
               key={order.id}
-              orderNumber={order.order_number}
-              tableNumber={order.table_number || 'N/A'}
+              orderNumber={(order as any).order_number || (order as any).orderNumber}
+              tableNumber={(order as any).table_number || (order as any).tableNumber || 'N/A'}
               items={order.items}
-              status={(order.status === 'new' || order.status === 'preparing' || order.status === 'ready') 
-                ? order.status as 'new' | 'preparing' | 'ready' 
-                : 'new'}
-              orderTime={new Date(order.created_at)}
+              status={(() => {
+                // Safely cast status with comprehensive validation
+                const validStatuses = ['new', 'pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'] as const
+                const currentStatus = order.status
+                
+                if (validStatuses.includes(currentStatus as any)) {
+                  // For KDSOrderListItem, we need to ensure it's one of the accepted types
+                  if (currentStatus === 'new' || currentStatus === 'preparing' || currentStatus === 'ready') {
+                    return currentStatus as 'new' | 'preparing' | 'ready'
+                  }
+                  // Map other statuses to appropriate display status
+                  if (currentStatus === 'pending' || currentStatus === 'confirmed') {
+                    return 'new' as 'new' | 'preparing' | 'ready' // Treat as new for display
+                  }
+                  if (currentStatus === 'completed' || currentStatus === 'cancelled') {
+                    return 'ready' as 'new' | 'preparing' | 'ready' // Treat as ready for display
+                  }
+                }
+                
+                console.warn(`[OrdersGrid] Unknown order status: ${currentStatus}, defaulting to 'new'`)
+                return 'new' as 'new' | 'preparing' | 'ready'
+              })()}
+              orderTime={new Date((order as any).created_at || (order as any).createdAt)}
               onStatusChange={(status) => {
                 if (status === 'preparing' || status === 'ready') {
                   onStatusChange(order.id, status)

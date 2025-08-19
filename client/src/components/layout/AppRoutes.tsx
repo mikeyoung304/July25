@@ -16,9 +16,6 @@ import DriveThruPage from '@/pages/DriveThruPage'
 import { CustomerOrderPage } from '@/modules/order-system/components'
 import { CheckoutPage } from '@/pages/CheckoutPage'
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage'
-import StreamingDemo from '@/pages/StreamingDemo'
-import TestRealTimeAudio from '@/pages/TestRealTimeAudio'
-import { TestWebRTCVoice } from '@/pages/TestWebRTCVoice'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
 // Profiler callback for performance tracking
@@ -40,7 +37,16 @@ export function AppRoutes() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/kitchen" element={
-              <ErrorBoundary level="section">
+              <ErrorBoundary 
+                level="section"
+                onError={(error, errorInfo) => {
+                  console.error('🚨 [AppRoutes] Kitchen route error:', {
+                    error: error.message,
+                    componentStack: errorInfo.componentStack,
+                    errorStack: error.stack
+                  })
+                }}
+              >
                 <Profiler id="KitchenDisplay" onRender={onRenderCallback}>
                   <KitchenDisplay />
                 </Profiler>
@@ -115,27 +121,6 @@ export function AppRoutes() {
               <ErrorBoundary level="section">
                 <Profiler id="OrderConfirmation" onRender={onRenderCallback}>
                   <OrderConfirmationPage />
-                </Profiler>
-              </ErrorBoundary>
-            } />
-            <Route path="/streaming-demo" element={
-              <ErrorBoundary level="section">
-                <Profiler id="StreamingDemo" onRender={onRenderCallback}>
-                  <StreamingDemo />
-                </Profiler>
-              </ErrorBoundary>
-            } />
-            <Route path="/test-audio" element={
-              <ErrorBoundary level="section">
-                <Profiler id="TestAudio" onRender={onRenderCallback}>
-                  <TestRealTimeAudio />
-                </Profiler>
-              </ErrorBoundary>
-            } />
-            <Route path="/test-webrtc" element={
-              <ErrorBoundary level="section">
-                <Profiler id="TestWebRTCVoice" onRender={onRenderCallback}>
-                  <TestWebRTCVoice />
                 </Profiler>
               </ErrorBoundary>
             } />

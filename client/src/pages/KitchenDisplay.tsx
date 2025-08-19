@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useRestaurant } from '@/core/restaurant-hooks'
+import { useRestaurant } from '@/core'
 import { useSoundNotifications } from '@/hooks/useSoundNotifications'
 import { useKitchenOrders } from '@/hooks/kitchen/useKitchenOrders'
 import { useOrderFiltering } from '@/hooks/kitchen/useOrderFiltering'
@@ -20,14 +20,33 @@ import type { Station } from '@/types/station'
 
 export function KitchenDisplay() {
   const { toast } = useToast()
-  const { restaurant, isLoading: restaurantLoading } = useRestaurant()
+  
+  // Enhanced error handling for context
+  const { restaurant, isLoading: restaurantLoading, error: restaurantError } = useRestaurant()
+  
+  // Handle restaurant context errors gracefully instead of throwing
+  if (restaurantError) {
+    console.error('[KitchenDisplay] Restaurant context error:', restaurantError)
+    return (
+      <PageLayout centered>
+        <div className="text-center">
+          <p className="text-destructive">Failed to load restaurant context</p>
+          <p className="text-sm text-muted-foreground mt-2">{restaurantError.message}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Reload Page
+          </Button>
+        </div>
+      </PageLayout>
+    )
+  }
+  
   const { orders, isLoading, loadOrders, handleStatusChange } = useKitchenOrders()
   const filtering = useOrderFiltering(orders)
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('grid')
   const [showDebug, setShowDebug] = useState(false)
   const { soundEnabled, volume, toggleSound, setVolume } = useSoundNotifications()
-
-  if (restaurantLoading || isLoading) {
+  
+    if (restaurantLoading || isLoading) {
     return (
       <PageLayout centered>
         <div className="text-center">
@@ -157,8 +176,8 @@ export function KitchenDisplay() {
                       
                       if (result) {
                         toast.success(`Test order created: ${randomItem.name}`)
-                        console.log('[KitchenDisplay] Toast shown, refreshing orders...')
-                        loadOrders()
+                        console.log('[KitchenDisplay] Toast shown - WebSocket will update the display')
+                        // Don't call loadOrders() - WebSocket already updates the state!
                       } else {
                         console.warn('[KitchenDisplay] submitOrder returned falsy result:', result)
                       }

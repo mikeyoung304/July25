@@ -4,7 +4,7 @@ import { cn } from '@/utils'
 import { useAriaLive } from '@/hooks/keyboard'
 
 export interface OrderActionsProps {
-  status: 'new' | 'preparing' | 'ready'
+  status: 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready'
   onStatusChange?: (status: 'preparing' | 'ready') => void
   layout?: 'vertical' | 'horizontal'
   className?: string
@@ -23,7 +23,7 @@ export const OrderActions: React.FC<OrderActionsProps> = ({
   const handleClick = () => {
     if (!onStatusChange) return
     
-    if (status === 'new') {
+    if (status === 'new' || status === 'pending' || status === 'confirmed') {
       onStatusChange('preparing')
       announce({
         message: `Order ${orderNumber ? `number ${orderNumber}` : ''} is now being prepared`,
@@ -47,6 +47,18 @@ export const OrderActions: React.FC<OrderActionsProps> = ({
           description: 'Begin preparing this order',
           shortcut: 'Alt+S'
         }
+      case 'pending':
+        return {
+          label: 'Start Preparing',
+          description: 'Begin preparing this pending order',
+          shortcut: 'Alt+S'
+        }
+      case 'confirmed':
+        return {
+          label: 'Start Preparing',
+          description: 'Begin preparing this confirmed order',
+          shortcut: 'Alt+S'
+        }
       case 'preparing':
         return {
           label: 'Mark as Ready',
@@ -58,6 +70,12 @@ export const OrderActions: React.FC<OrderActionsProps> = ({
           label: 'Order Ready',
           description: 'This order is ready for pickup',
           shortcut: undefined
+        }
+      default:
+        return {
+          label: 'Start Preparing',
+          description: 'Begin preparing this order',
+          shortcut: 'Alt+S'
         }
     }
   }
