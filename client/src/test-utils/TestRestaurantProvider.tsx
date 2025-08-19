@@ -1,6 +1,6 @@
 /* global jest */
 import React, { ReactNode } from 'react'
-import { RestaurantContext, type Restaurant } from '@/core/restaurant-types'
+import { RestaurantContext, type Restaurant } from '@/core'
 
 interface TestRestaurantProviderProps {
   children: ReactNode

@@ -4,7 +4,7 @@ import { CheckCircle } from 'lucide-react'
 import { cn } from '@/utils'
 
 export interface StatusActionButtonProps {
-  status: 'new' | 'preparing' | 'ready'
+  status: 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready'
   onClick: () => void
   disabled?: boolean
   loading?: boolean
@@ -16,6 +16,16 @@ export interface StatusActionButtonProps {
 
 const BUTTON_CONFIG = {
   new: {
+    label: 'Start Preparing',
+    variant: 'secondary' as const,
+    icon: null,
+  },
+  pending: {
+    label: 'Start Preparing',
+    variant: 'secondary' as const,
+    icon: null,
+  },
+  confirmed: {
     label: 'Start Preparing',
     variant: 'secondary' as const,
     icon: null,
@@ -42,7 +52,7 @@ export const StatusActionButton: React.FC<StatusActionButtonProps> = ({
   'aria-describedby': ariaDescribedBy,
   'aria-keyshortcuts': ariaKeyShortcuts,
 }) => {
-  const config = BUTTON_CONFIG[status]
+  const config = BUTTON_CONFIG[status] || BUTTON_CONFIG.new  // Fallback to 'new' if status not found
   const Icon = config.icon
   const isDisabled = disabled || loading || status === 'ready'
 

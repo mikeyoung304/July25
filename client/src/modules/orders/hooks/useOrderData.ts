@@ -3,7 +3,7 @@ import { Order } from '@/services/types'
 import { OrderFilters } from '@/types/filters'
 import { orderService } from '@/services'
 import { useAsyncState } from '@/hooks/useAsyncState'
-import { useRestaurant } from '@/core/restaurant-hooks'
+import { useRestaurant } from '@/core'
 import { useToast } from '@/hooks/useToast'
 
 export interface UseOrderDataReturn {

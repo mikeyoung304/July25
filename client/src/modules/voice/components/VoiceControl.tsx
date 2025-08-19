@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { cn } from '@/utils';
 import { useToast } from '@/hooks/useToast';
-import { useRestaurant } from '@/core/restaurant-hooks';
+import { useRestaurant } from '@/core';
 import { HoldToRecordButton } from './HoldToRecordButton';
 import { useVoiceSocket, VoiceSocketMessage } from '../hooks/useVoiceSocket';
 

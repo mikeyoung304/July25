@@ -4,10 +4,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { webSocketService } from '@/services/websocket'
 import { api } from '@/services/api'
-import { useRestaurant } from '@/core/restaurant-hooks'
+import { useRestaurant } from '@/core'
 import { useToast } from '@/hooks/useToast'
 import { supabase } from '@/core/supabase'
 import { getDemoToken } from '@/services/auth/demoAuth'
+import { OrderType } from '@rebuild/shared'
 import { 
   CheckCircle, 
   XCircle, 
@@ -141,7 +142,7 @@ export function KDSDebugPanel() {
       addEvent('auth:check', 'Checking authentication...')
       
       const testOrder = {
-        type: 'online', // Use valid database type
+        type: 'online' as OrderType, // Use valid database type
         items: [{
           id: 'test-item-1',
           menu_item_id: 'test-item-1',
@@ -165,8 +166,8 @@ export function KDSDebugPanel() {
       const order = await api.submitOrder(testOrder)
       
       console.log('[KDS Debug] Order created successfully:', order)
-      addEvent('order:created', `Created test order #${order.order_number || order.orderNumber}`, order)
-      toast.success(`Test order #${order.order_number || order.orderNumber} created`)
+      addEvent('order:created', `Created test order #${order.order_number}`, order)
+      toast.success(`Test order #${order.order_number} created`)
       
       // Orders will update via WebSocket - no refresh needed
     } catch (error: any) {

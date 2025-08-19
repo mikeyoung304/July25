@@ -6,6 +6,7 @@
 import { webSocketService } from './WebSocketService'
 import { Order } from '@rebuild/shared'
 import { toast } from 'react-hot-toast'
+import { toCamelCase } from '../utils/caseTransform'
 
 export interface OrderUpdatePayload {
   action: 'created' | 'updated' | 'deleted' | 'status_changed' | 'item_status_changed'
@@ -26,6 +27,9 @@ export class OrderUpdatesHandler {
    * Initialize order updates handler
    */
   initialize(): void {
+    console.log('[OrderUpdates] Initializing order updates handler...')
+    console.log('[OrderUpdates] WebSocket connected?', webSocketService.isConnected())
+    
     // Subscribe to order-related WebSocket messages
     this.subscriptions.push(
       webSocketService.subscribe('order:created', (payload) => {
@@ -44,7 +48,9 @@ export class OrderUpdatesHandler {
 
     // Handle connection state changes
     this.connectionHandlers.connected = () => {
-      console.warn('Order updates connected')
+      console.warn('[OrderUpdates] WebSocket connected event received')
+      // Re-initialize subscriptions on reconnection to ensure they're active
+      this.reinitializeSubscriptions()
       // Request current order state after reconnection
       webSocketService.send('orders:sync', { requestFullSync: true })
     }
@@ -61,6 +67,8 @@ export class OrderUpdatesHandler {
     webSocketService.on('connected', this.connectionHandlers.connected)
     webSocketService.on('disconnected', this.connectionHandlers.disconnected)
     webSocketService.on('error', this.connectionHandlers.error)
+    
+    console.log('[OrderUpdates] Initialization complete, subscriptions:', this.subscriptions.length)
   }
 
   /**
@@ -117,23 +125,33 @@ export class OrderUpdatesHandler {
    * Handle new order created
    */
   private handleOrderCreated(payload: any): void {
-    // Handle both direct order and nested order property
-    const order = payload.order || payload
+    console.log('[OrderUpdates] Raw payload received:', payload)
     
-    if (!order || !order.id) {
-      console.error('[OrderUpdates] Invalid order payload:', payload)
+    // The payload IS { order: snake_case_order }, so we need to extract and transform
+    const rawOrder = payload.order || payload
+    
+    if (!rawOrder) {
+      console.error('[OrderUpdates] No order in payload:', payload)
       return
     }
     
-    console.log('[OrderUpdates] New order created:', order.id, order.order_number || order.orderNumber)
+    // Transform snake_case to camelCase
+    const order = toCamelCase(rawOrder) as Order
+    
+    if (!order || !order.id) {
+      console.error('[OrderUpdates] Invalid order after transformation:', order)
+      return
+    }
+    
+    console.log('[OrderUpdates] New order created:', order.id, order.orderNumber)
     
     this.notifySubscribers({
       action: 'created',
-      order: order
+      order: order  // Now properly transformed to camelCase
     })
 
     // Show notification for new orders
-    toast.success(`New order #${order.order_number || order.orderNumber} received!`, {
+    toast.success(`New order #${order.orderNumber} received!`, {
       duration: 5000,
       position: 'top-right'
     })
@@ -143,11 +161,21 @@ export class OrderUpdatesHandler {
    * Handle order updated
    */
   private handleOrderUpdated(payload: any): void {
-    // Handle both direct order and nested order property
-    const order = payload.order || payload
+    console.log('[OrderUpdates] Update payload received:', payload)
+    
+    // Extract and transform the order
+    const rawOrder = payload.order || payload
+    
+    if (!rawOrder) {
+      console.error('[OrderUpdates] No order in update payload:', payload)
+      return
+    }
+    
+    // Transform snake_case to camelCase
+    const order = toCamelCase(rawOrder) as Order
     
     if (!order || !order.id) {
-      console.error('[OrderUpdates] Invalid order update payload:', payload)
+      console.error('[OrderUpdates] Invalid order update after transformation:', order)
       return
     }
     
@@ -155,7 +183,7 @@ export class OrderUpdatesHandler {
     
     this.notifySubscribers({
       action: 'updated',
-      order: order
+      order: order  // Now properly transformed to camelCase
     })
   }
 
@@ -228,6 +256,35 @@ export class OrderUpdatesHandler {
     })
   }
 
+  /**
+   * Reinitialize subscriptions (useful after reconnection)
+   */
+  private reinitializeSubscriptions(): void {
+    console.log('[OrderUpdates] Reinitializing subscriptions after reconnection...')
+    
+    // Clear old subscriptions
+    this.subscriptions.forEach(unsubscribe => unsubscribe())
+    this.subscriptions = []
+    
+    // Re-create subscriptions
+    this.subscriptions.push(
+      webSocketService.subscribe('order:created', (payload) => {
+        console.log('[OrderUpdates] Raw order:created payload:', payload)
+        this.handleOrderCreated(payload)
+      }),
+      webSocketService.subscribe('order:updated', (payload) => 
+        this.handleOrderUpdated(payload)),
+      webSocketService.subscribe('order:deleted', (payload) => 
+        this.handleOrderDeleted(payload)),
+      webSocketService.subscribe('order:status_changed', (payload) => 
+        this.handleOrderStatusChanged(payload)),
+      webSocketService.subscribe('order:item_status_changed', (payload) => 
+        this.handleItemStatusChanged(payload))
+    )
+    
+    console.log('[OrderUpdates] Subscriptions reinitialized:', this.subscriptions.length)
+  }
+  
   /**
    * Request full order sync
    */

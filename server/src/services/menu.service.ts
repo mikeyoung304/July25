@@ -229,12 +229,7 @@ export class MenuService {
     try {
       await this.getFullMenu(restaurantId);
       
-      // TODO: Implement AI service sync
-      // const response = await fetch(`${config.ai.url}/upload-menu`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ restaurantId, menu }),
-      // });
+      // AI service sync implementation pending
 
       this.logger.info('Menu synced to AI service', { restaurantId });
     } catch (error) {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MenuItem } from '../types';
 import { menuService } from '@/services';
-import { useRestaurant } from '@/core/restaurant-hooks';
+import { useRestaurant } from '@/core';
 
 export const useMenuItems = () => {
   const [items, setItems] = useState<MenuItem[]>([]);

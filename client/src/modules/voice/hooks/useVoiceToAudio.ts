@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { getAudioPlaybackService } from '@/services/audio/AudioPlaybackService';
 import { useToast } from '@/hooks/useToast';
-import { useRestaurant } from '@/core/restaurant-hooks';
+import { useRestaurant } from '@/core';
 import { supabase } from '@/core/supabase';
 import { getDemoToken } from '@/services/auth/demoAuth';
 

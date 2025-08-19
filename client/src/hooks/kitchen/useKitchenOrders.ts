@@ -28,13 +28,24 @@ export function useKitchenOrders() {
   }, [])
 
   const handleOrderUpdate = useCallback(async (update: OrderUpdatePayload) => {
+    console.log('[useKitchenOrders] Handling order update:', update.action, update.order?.id)
+    
     switch (update.action) {
       case 'created':
         if (update.order) {
-          batchOrderUpdate(prev => [update.order!, ...prev])
+          console.log('[useKitchenOrders] Adding new order to state:', update.order.id)
+          // Direct state update to ensure UI refresh
+          setOrders(prev => {
+            console.log('[useKitchenOrders] Previous orders count:', prev.length)
+            const newOrders = [update.order!, ...prev]
+            console.log('[useKitchenOrders] New orders count:', newOrders.length)
+            return newOrders
+          })
           await playNewOrderSound()
-          const orderType = update.order.type === 'drive-thru' ? 'drive-thru' : 'dine-in'
-          const orderNumber = update.order.order_number || update.order.orderNumber
+          // Handle order type for announcements
+          const orderType = update.order.type === 'delivery' ? 'delivery' : update.order.type === 'pickup' ? 'pickup' : 'online'
+          // Order uses snake_case format
+          const orderNumber = update.order.order_number
           announce({
             message: `New ${orderType} order ${orderNumber} received`,
             priority: 'assertive'
@@ -67,9 +78,9 @@ export function useKitchenOrders() {
               const order = updatedOrders.find(o => o.id === update.orderId)
               if (order) {
                 playOrderReadySound()
-                const location = order.type === 'drive-thru' ? 'drive-thru window' : 
-                               (order.table_number || order.tableNumber) ? `table ${order.table_number || order.tableNumber}` : 'pickup counter'
-                const orderNumber = order.order_number || order.orderNumber
+                const location = order.type === 'delivery' ? 'delivery' : 
+                               order.table_number ? `table ${order.table_number}` : 'pickup counter'
+                const orderNumber = order.order_number
                 announce({
                   message: `Order ${orderNumber} is ready for pickup at ${location}`,
                   priority: 'assertive'
@@ -92,6 +103,8 @@ export function useKitchenOrders() {
       if (result) {
         const duration = performance.now() - startTime
         performanceMonitor.trackAPICall('getOrders', duration, 'success')
+        console.log('[useKitchenOrders] Loaded orders from API:', result.length)
+        console.log('[useKitchenOrders] First order sample:', result[0])
         setOrders(result)
       }
     } catch (error) {
@@ -116,9 +129,9 @@ export function useKitchenOrders() {
         const order = updatedOrders.find(o => o.id === orderId)
         if (status === 'ready' && order) {
           const orderType = order.type || 'dine-in'
-          const tableNumber = order.table_number || order.tableNumber
-          const location = orderType === 'drive-thru' ? 'drive-thru window' : `table ${tableNumber}`
-          const orderNumber = order.order_number || order.orderNumber
+          const tableNumber = order.table_number
+          const location = orderType === 'delivery' ? 'delivery' : `table ${tableNumber}`
+          const orderNumber = order.order_number
           toast.success(`Order #${orderNumber} ready for ${location}!`)
         }
         

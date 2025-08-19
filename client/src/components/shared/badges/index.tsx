@@ -25,7 +25,7 @@ export const StationBadge: React.FC<StationBadgeProps> = ({ stationType, classNa
 
 // Status Badge
 export interface StatusBadgeProps {
-  status: 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
+  status: 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled'
   variant?: 'default' | 'compact'
   className?: string
 }
@@ -34,6 +34,14 @@ const STATUS_CONFIG = {
   new: {
     label: 'New',
     className: 'bg-amber-50 text-amber-700 border-amber-200 shadow-soft',
+  },
+  pending: {
+    label: 'Pending',
+    className: 'bg-blue-50 text-blue-700 border-blue-200 shadow-soft',
+  },
+  confirmed: {
+    label: 'Confirmed',
+    className: 'bg-green-50 text-green-700 border-green-200 shadow-soft',
   },
   preparing: {
     label: 'Preparing',
@@ -60,6 +68,23 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 }) => {
   const config = STATUS_CONFIG[status]
   
+  // Debug logging and fallback for undefined config
+  if (!config) {
+    console.error('[StatusBadge] Unknown status:', status, 'Available statuses:', Object.keys(STATUS_CONFIG))
+    const fallbackConfig = STATUS_CONFIG.new
+    return (
+      <Badge 
+        className={cn(
+          fallbackConfig.className,
+          variant === 'compact' && 'text-xs px-2 py-0.5',
+          className
+        )}
+      >
+        {fallbackConfig.label}
+      </Badge>
+    )
+  }
+  
   return (
     <Badge 
       className={cn(
@@ -75,8 +100,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 
 // Animated Status Badge
 interface AnimatedStatusBadgeProps {
-  status: 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
-  previousStatus?: 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled'
+  status: 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled'
+  previousStatus?: 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled'
   className?: string
 }
 

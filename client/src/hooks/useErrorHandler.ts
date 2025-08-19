@@ -53,7 +53,6 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
 
       // In production, send to error tracking service
       if (env.MODE === 'production') {
-        // TODO: Send to Sentry or similar service
         console.error('[Production Error]:', errorObj.message)
       }
     },

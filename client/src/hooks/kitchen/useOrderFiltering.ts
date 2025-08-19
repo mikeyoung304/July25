@@ -20,7 +20,7 @@ export function useOrderFiltering(orders: Order[]) {
 
   const adaptedFilters = useMemo(() => {
     const statusArray: OrderStatus[] = filters.status === 'all' 
-      ? ['new', 'preparing', 'ready']
+      ? ['pending', 'confirmed', 'new', 'preparing', 'ready']
       : [filters.status]
     
     const stationArray = filters.stations.length === 0 
@@ -56,7 +56,13 @@ export function useOrderFiltering(orders: Order[]) {
     }
     
     return orders.filter(order => {
-      const orderDate = new Date(order.created_at)
+      // Handle both snake_case and camelCase
+      const createdAt = order.created_at || order.createdAt
+      if (!createdAt) {
+        console.warn('[useOrderFiltering] Order missing created date:', order)
+        return true // Include orders with no date rather than filter them out
+      }
+      const orderDate = new Date(createdAt)
       return orderDate >= start && orderDate <= now
     })
   }, [orders, filters.timeRange])

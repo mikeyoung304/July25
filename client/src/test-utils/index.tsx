@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { render, RenderOptions, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { RestaurantProvider } from '@/core/RestaurantContext';
+import { RestaurantProvider } from '@/core';
 import { FilterProvider } from '@/modules/filters/contexts/FilterContext';
 import { SoundSettingsProvider } from '@/modules/sound/contexts/SoundSettingsContext';
 import { ToastProvider } from '@/contexts/ToastContext';

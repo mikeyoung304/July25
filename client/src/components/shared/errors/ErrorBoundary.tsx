@@ -25,10 +25,33 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error in development
-    if (env.DEV) {
-      console.error('Error:', error, errorInfo)
+    // Enhanced error logging for debugging
+    const errorDetails = {
+      error: {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      },
+      errorInfo: {
+        componentStack: errorInfo.componentStack
+      },
+      timestamp: new Date().toISOString(),
+      url: window.location.href,
+      userAgent: navigator.userAgent
     }
+    
+    console.error('🚨 [ErrorBoundary] Caught Error:', errorDetails)
+    
+    // Log error in development with full context
+    if (env.DEV) {
+      console.group('🔍 [ErrorBoundary] Error Analysis')
+      console.error('Original Error:', error)
+      console.error('Error Info:', errorInfo)
+      console.error('Component Stack:', errorInfo.componentStack)
+      console.error('Error Stack:', error.stack)
+      console.groupEnd()
+    }
+    
     this.props.onError?.(error, errorInfo)
   }
 

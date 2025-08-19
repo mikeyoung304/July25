@@ -73,9 +73,12 @@ export default defineConfig(({ mode }) => {
       // Simple rollup options
       rollupOptions: {
         output: {
-          // Basic vendor chunk splitting
+          // Improved chunk splitting
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-router-dom'],
+            ui: ['lucide-react', '@radix-ui/react-slot', 'clsx', 'framer-motion'],
+            supabase: ['@supabase/supabase-js'],
+            utils: ['tailwind-merge', 'class-variance-authority'],
           },
         },
       },

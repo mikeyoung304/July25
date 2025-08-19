@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom'
 import { KioskDemo } from '@/pages/KioskDemo'
 import { api } from '@/services/api'
-import { RestaurantProvider } from '@/core/RestaurantContext'
+import { RestaurantProvider } from '@/core'
 
 vi.mock('@/services/api')
 vi.mock('@/hooks/useToast', () => ({

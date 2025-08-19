@@ -5,6 +5,7 @@ import { env } from '@/utils/env'
 
 // Provider
 export function RestaurantProvider({ children }: { children: ReactNode }) {
+  console.log('[RestaurantProvider] Mounting with context ID:', (RestaurantContext as any).__contextId)
   const { 
     data: restaurant, 
     loading: isLoading, 
@@ -47,6 +48,13 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     isLoading,
     error
   }
+  
+  console.log('[RestaurantProvider] Providing context value:', {
+    contextId: (RestaurantContext as any).__contextId,
+    hasRestaurant: !!restaurant,
+    isLoading,
+    hasError: !!error
+  })
 
   return (
     <RestaurantContext.Provider value={contextValue}>

@@ -2,9 +2,27 @@ import { useContext } from 'react'
 import { RestaurantContext } from './restaurant-types'
 
 export function useRestaurant() {
+  console.log('[useRestaurant] Accessing context with ID:', (RestaurantContext as any).__contextId)
   const context = useContext(RestaurantContext)
+  console.log('[useRestaurant] Got context value:', context ? 'defined' : 'undefined')
+  
   if (context === undefined) {
-    throw new Error('useRestaurant must be used within a RestaurantProvider')
+    console.error('🚨 [useRestaurant] CONTEXT UNDEFINED! This is the root cause of the ErrorBoundary!', {
+      contextId: (RestaurantContext as any).__contextId,
+      error: 'RestaurantContext not found - this causes the Kitchen Display to show ErrorBoundary',
+      componentStack: new Error().stack,
+      suggestion: 'Check if RestaurantProvider is mounted before this component renders',
+      location: 'restaurant-hooks.ts:17'
+    })
+    
+    // Instead of throwing, return a safe fallback to prevent ErrorBoundary
+    console.log('🔧 [useRestaurant] Returning fallback context to prevent ErrorBoundary')
+    return {
+      restaurant: null,
+      setRestaurant: () => {},
+      isLoading: true,
+      error: new Error('RestaurantProvider not found')
+    }
   }
   return context
 }

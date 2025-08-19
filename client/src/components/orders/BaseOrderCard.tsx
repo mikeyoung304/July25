@@ -92,7 +92,7 @@ export const BaseOrderCard: React.FC<BaseOrderCardProps> = ({
       {/* Header Section */}
       <div className={headerContainerClasses}>
         <OrderHeader
-          orderNumber={order.order_number}
+          orderNumber={(order as any).order_number || (order as any).orderNumber}
           status={order.status as 'new' | 'preparing' | 'ready'}
         />
         
@@ -136,7 +136,7 @@ export const BaseOrderCard: React.FC<BaseOrderCardProps> = ({
           <OrderActions
             status={order.status as 'new' | 'preparing' | 'ready'}
             onStatusChange={(newStatus) => onStatusChange?.(order.id, newStatus as Order['status'])}
-            orderNumber={order.order_number}
+            orderNumber={(order as any).order_number || (order as any).orderNumber}
           />
         </div>
       )}

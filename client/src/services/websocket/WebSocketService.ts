@@ -7,7 +7,7 @@
 import { EventEmitter } from '@/services/utils/EventEmitter'
 import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
-import { toSnakeCase } from '@/services/utils/caseTransform'
+import { toSnakeCase, toCamelCase } from '@/services/utils/caseTransform'
 import { env } from '@/utils/env'
 
 export interface WebSocketConfig {
@@ -32,15 +32,18 @@ export class WebSocketService extends EventEmitter {
   private reconnectTimer: NodeJS.Timeout | null = null
   private connectionState: ConnectionState = 'disconnected'
   private isIntentionallyClosed = false
+  private lastHeartbeat: number = 0
+  private heartbeatTimer: NodeJS.Timeout | null = null
+  private heartbeatInterval = 30000 // 30 seconds
 
   constructor(config: WebSocketConfig = {}) {
     super()
     
-    // Set default configuration
+    // Set default configuration with enhanced resilience settings
     this.config = {
       url: config.url || this.buildWebSocketUrl(),
-      reconnectInterval: config.reconnectInterval || 5000,
-      maxReconnectAttempts: config.maxReconnectAttempts || 10
+      reconnectInterval: config.reconnectInterval || 2000, // Faster initial reconnect
+      maxReconnectAttempts: config.maxReconnectAttempts || 15 // More attempts
     }
   }
 
@@ -130,6 +133,7 @@ export class WebSocketService extends EventEmitter {
    */
   disconnect(): void {
     this.isIntentionallyClosed = true
+    this.stopHeartbeat()
     this.cleanup()
     
     if (this.ws) {
@@ -172,8 +176,12 @@ export class WebSocketService extends EventEmitter {
     messageType: string,
     callback: (payload: T) => void
   ): () => void {
+    console.log(`[WebSocket] Creating subscription for message type: '${messageType}'`)
+    
     const handler = (message: WebSocketMessage) => {
+      console.log(`[WebSocket] Subscription handler checking: ${message.type} === ${messageType}?`)
       if (message.type === messageType) {
+        console.log(`[WebSocket] Match! Calling callback for ${messageType}`)
         callback(message.payload as T)
       }
     }
@@ -203,7 +211,9 @@ export class WebSocketService extends EventEmitter {
   private handleOpen(): void {
     console.warn('WebSocket connected')
     this.reconnectAttempts = 0
+    this.lastHeartbeat = Date.now()
     this.setConnectionState('connected')
+    this.startHeartbeat()
     this.emit('connected')
   }
 
@@ -212,19 +222,47 @@ export class WebSocketService extends EventEmitter {
       // Parse the message - server sends with payload wrapper
       const rawMessage = JSON.parse(event.data)
       
-      // The message structure is already correct from server
-      // Server sends: { type: 'order:created', payload: { order: camelCaseOrder }, timestamp: ... }
+      console.log('[WebSocket] Raw message received:', rawMessage.type, 
+        rawMessage.payload ? 'has payload' : 'no payload')
+      
+      // DIAGNOSTIC: Log the full structure for order events
+      if (rawMessage.type && rawMessage.type.startsWith('order:')) {
+        console.log('[WebSocket] Order event structure:', {
+          type: rawMessage.type,
+          hasPayload: !!rawMessage.payload,
+          payloadKeys: rawMessage.payload ? Object.keys(rawMessage.payload) : [],
+          hasOrder: !!(rawMessage.payload && rawMessage.payload.order)
+        })
+      }
+      
+      // Server sends snake_case data, we need to transform it
+      // The structure is: { type: 'order:created', payload: { order: snake_case_order }, timestamp: ... }
       const message: WebSocketMessage = {
         type: rawMessage.type,
-        payload: rawMessage.payload, // Already contains camelCase order
+        payload: rawMessage.payload, // Keep the wrapper structure, transform will happen in handlers
         timestamp: rawMessage.timestamp,
         restaurantId: rawMessage.restaurant_id || rawMessage.restaurantId
       }
       
+      // DIAGNOSTIC: Log emission
+      console.log(`[WebSocket] Emitting 'message' event with type: ${message.type}`)
+      
+      // Handle heartbeat responses
+      if (message.type === 'pong') {
+        this.handleHeartbeat()
+        return
+      }
+      
+      // Update heartbeat on any message
+      this.handleHeartbeat()
+      
       // Emit generic message event
       this.emit('message', message)
       
-      // Emit specific message type event
+      console.log(`[WebSocket] Emitting specific event 'message:${message.type}'`)
+      
+      // Emit specific message type event with the full payload
+      // The orderUpdates handler will handle the transformation
       this.emit(`message:${message.type}`, message.payload)
       
     } catch (error) {
@@ -241,6 +279,7 @@ export class WebSocketService extends EventEmitter {
   private handleClose(event: CloseEvent): void {
     console.warn('WebSocket closed:', event.code, event.reason)
     this.setConnectionState('disconnected')
+    this.stopHeartbeat()
     this.emit('disconnected', event)
     
     // Schedule reconnection if not intentionally closed
@@ -264,12 +303,12 @@ export class WebSocketService extends EventEmitter {
     }
     
     this.reconnectAttempts++
-    const delay = Math.min(
-      this.config.reconnectInterval * this.reconnectAttempts,
-      30000 // Max 30 seconds
-    )
+    // Exponential backoff with jitter
+    const baseDelay = this.config.reconnectInterval * Math.pow(2, this.reconnectAttempts - 1)
+    const jitter = Math.random() * 1000 // Add up to 1 second jitter
+    const delay = Math.min(baseDelay + jitter, 30000) // Max 30 seconds
     
-    console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts} in ${delay}ms`)
+    console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts} in ${Math.round(delay)}ms (exponential backoff)`)
     
     this.reconnectTimer = setTimeout(() => {
       this.connect()
@@ -282,12 +321,56 @@ export class WebSocketService extends EventEmitter {
       this.reconnectTimer = null
     }
     
+    this.stopHeartbeat()
+    
     if (this.ws) {
       this.ws.onopen = null
       this.ws.onmessage = null
       this.ws.onerror = null
       this.ws.onclose = null
     }
+  }
+
+  /**
+   * Start heartbeat mechanism to detect dead connections
+   */
+  private startHeartbeat(): void {
+    this.stopHeartbeat()
+    
+    this.heartbeatTimer = setInterval(() => {
+      const now = Date.now()
+      
+      // Check if we haven't received any data recently
+      if (now - this.lastHeartbeat > this.heartbeatInterval * 2) {
+        console.warn('WebSocket heartbeat timeout - connection may be dead')
+        if (this.ws) {
+          this.ws.close()
+        }
+        return
+      }
+      
+      // Send ping if connected
+      if (this.isConnected()) {
+        this.send('ping', { timestamp: now })
+      }
+    }, this.heartbeatInterval)
+  }
+
+  /**
+   * Stop heartbeat mechanism
+   */
+  private stopHeartbeat(): void {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer)
+      this.heartbeatTimer = null
+    }
+  }
+
+  /**
+   * Handle heartbeat response
+   */
+  private handleHeartbeat(): void {
+    this.lastHeartbeat = Date.now()
   }
 }
 

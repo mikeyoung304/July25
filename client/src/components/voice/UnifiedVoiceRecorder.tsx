@@ -61,15 +61,6 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
   const [isFinalTranscript, setIsFinalTranscript] = useState(false);
   const [streamingSessionId, setStreamingSessionId] = useState<string | null>(null);
 
-  const [mockStreamingService, setMockStreamingService] = useState<unknown>(null);
-
-  useEffect(() => {
-    if (streamingMode && !mockStreamingService) {
-      import('@/services/mock/MockStreamingService').then(({ mockStreamingService }) => {
-        setMockStreamingService(mockStreamingService);
-      });
-    }
-  }, [streamingMode, mockStreamingService]);
 
   const handleTranscriptionUpdate = useCallback(
     (text: string, confidence: number, isFinal: boolean) => {
@@ -129,38 +120,12 @@ export const UnifiedVoiceRecorder: React.FC<UnifiedVoiceRecorderProps> = ({
     setTranscriptConfidence(1);
     setIsFinalTranscript(false);
 
-    if (streamingMode && mockStreamingService) {
-      const sessionId = `stream-${Date.now()}-${Math.random()}`;
-      setStreamingSessionId(sessionId);
-
-      setTimeout(() => {
-        if (
-          mockStreamingService &&
-          typeof (mockStreamingService as any).startMockStreaming === 'function'
-        ) {
-          (mockStreamingService as any).startMockStreaming(
-            sessionId,
-            (update: { text: string; confidence: number; isFinal: boolean }) => {
-              handleTranscriptionUpdate(update.text, update.confidence, update.isFinal);
-            }
-          );
-        }
-      }, 300);
-    }
-
     audioCapture.startRecording();
-  }, [audioCapture, streamingMode, mockStreamingService, handleTranscriptionUpdate]);
+  }, [audioCapture, handleTranscriptionUpdate]);
 
   const handleRecordingStop = useCallback(() => {
     audioCapture.stopRecording();
-
-    if (streamingMode && mockStreamingService && streamingSessionId) {
-      if (typeof (mockStreamingService as any).stopMockStreaming === 'function') {
-        (mockStreamingService as any).stopMockStreaming();
-      }
-      setStreamingSessionId(null);
-    }
-  }, [audioCapture, streamingMode, mockStreamingService, streamingSessionId]);
+  }, [audioCapture]);
 
   useEffect(() => {
     if (transcript && !audioCapture.isRecording) {
