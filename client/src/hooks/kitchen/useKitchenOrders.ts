@@ -34,8 +34,9 @@ export function useKitchenOrders() {
           batchOrderUpdate(prev => [update.order!, ...prev])
           await playNewOrderSound()
           const orderType = update.order.type === 'drive-thru' ? 'drive-thru' : 'dine-in'
+          const orderNumber = update.order.order_number || update.order.orderNumber
           announce({
-            message: `New ${orderType} order ${update.order.orderNumber} received`,
+            message: `New ${orderType} order ${orderNumber} received`,
             priority: 'assertive'
           })
         }
@@ -67,9 +68,10 @@ export function useKitchenOrders() {
               if (order) {
                 playOrderReadySound()
                 const location = order.type === 'drive-thru' ? 'drive-thru window' : 
-                               order.tableNumber ? `table ${order.tableNumber}` : 'pickup counter'
+                               (order.table_number || order.tableNumber) ? `table ${order.table_number || order.tableNumber}` : 'pickup counter'
+                const orderNumber = order.order_number || order.orderNumber
                 announce({
-                  message: `Order ${order.orderNumber} is ready for pickup at ${location}`,
+                  message: `Order ${orderNumber} is ready for pickup at ${location}`,
                   priority: 'assertive'
                 })
               }
@@ -114,8 +116,10 @@ export function useKitchenOrders() {
         const order = updatedOrders.find(o => o.id === orderId)
         if (status === 'ready' && order) {
           const orderType = order.type || 'dine-in'
-          const location = orderType === 'drive-thru' ? 'drive-thru window' : `table ${order.tableNumber}`
-          toast.success(`Order #${order.orderNumber} ready for ${location}!`)
+          const tableNumber = order.table_number || order.tableNumber
+          const location = orderType === 'drive-thru' ? 'drive-thru window' : `table ${tableNumber}`
+          const orderNumber = order.order_number || order.orderNumber
+          toast.success(`Order #${orderNumber} ready for ${location}!`)
         }
         
         return updatedOrders

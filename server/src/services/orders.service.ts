@@ -3,7 +3,7 @@ import { logger } from '../utils/logger';
 import { randomUUID } from 'crypto';
 import { WebSocketServer } from 'ws';
 import { broadcastOrderUpdate, broadcastNewOrder } from '../utils/websocket';
-import { mapOrder, mapOrders } from '../mappers/cart.mapper';
+// Removed mapOrder - returning raw snake_case data for frontend consistency
 // import { menuIdMapper } from './menu-id-mapper'; // Not currently used
 import type {
   Order as SharedOrder,
@@ -154,23 +154,23 @@ export class OrdersService {
         throw error;
       }
 
-      const order = mapOrder(data);
+      // Return raw snake_case data - frontend expects this format
       
       // Broadcast new order via WebSocket
       if (this.wss) {
-        broadcastNewOrder(this.wss, order);  // Send camelCase order (same as API)
+        broadcastNewOrder(this.wss, data);  // Send snake_case data
       }
 
       // Log order status change
-      await this.logStatusChange(order.id, restaurantId, null, 'pending');
+      await this.logStatusChange(data.id, restaurantId, null, 'pending');
 
       ordersLogger.info('Order created', { 
-        orderId: order.id, 
-        orderNumber: order.orderNumber,
+        orderId: data.id, 
+        orderNumber: data.order_number,
         restaurantId 
       });
 
-      return order;
+      return data;
     } catch (error) {
       ordersLogger.error('Failed to create order', { error, restaurantId });
       throw error;
@@ -219,7 +219,7 @@ export class OrdersService {
 
       if (error) throw error;
 
-      return mapOrders(data || []);
+      return data || [];  // Return raw snake_case data
     } catch (error) {
       ordersLogger.error('Failed to fetch orders', { error, restaurantId, filters });
       throw error;
@@ -243,7 +243,7 @@ export class OrdersService {
         throw error;
       }
 
-      return mapOrder(data);
+      return data;  // Return raw snake_case data
     } catch (error) {
       ordersLogger.error('Failed to fetch order', { error, restaurantId, orderId });
       throw error;
@@ -298,11 +298,11 @@ export class OrdersService {
 
       if (error) throw error;
 
-      const updatedOrder = mapOrder(data);
+      // Return raw snake_case data
 
       // Broadcast order update via WebSocket
       if (this.wss) {
-        broadcastOrderUpdate(this.wss, updatedOrder);  // Send camelCase order (same as API)
+        broadcastOrderUpdate(this.wss, data);  // Send snake_case data
       }
 
       // Log status change
@@ -316,13 +316,13 @@ export class OrdersService {
 
       ordersLogger.info('Order status updated', {
         orderId,
-        orderNumber: updatedOrder.orderNumber,
+        orderNumber: data.order_number,
         oldStatus: currentOrder.status,
         newStatus,
         restaurantId,
       });
 
-      return updatedOrder;
+      return data;
     } catch (error) {
       ordersLogger.error('Failed to update order status', { 
         error, 
@@ -380,11 +380,11 @@ export class OrdersService {
 
       if (error) throw error;
 
-      const updatedOrder = mapOrder(data);
+      // Return raw snake_case data
 
       // Broadcast order update via WebSocket
       if (this.wss) {
-        broadcastOrderUpdate(this.wss, updatedOrder);  // Send camelCase order (same as API)
+        broadcastOrderUpdate(this.wss, data);  // Send snake_case data
       }
 
       ordersLogger.info('Order payment updated', { 
@@ -395,7 +395,7 @@ export class OrdersService {
         paymentId 
       });
 
-      return updatedOrder;
+      return data;
     } catch (error) {
       ordersLogger.error('Failed to update order payment', { error, orderId, restaurantId });
       throw error;

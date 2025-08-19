@@ -168,10 +168,7 @@ export function KDSDebugPanel() {
       addEvent('order:created', `Created test order #${order.order_number || order.orderNumber}`, order)
       toast.success(`Test order #${order.order_number || order.orderNumber} created`)
       
-      // Refresh orders after creation
-      setTimeout(() => {
-        window.location.reload()
-      }, 2000)
+      // Orders will update via WebSocket - no refresh needed
     } catch (error: any) {
       console.error('[KDS Debug] Failed to create test order:', error)
       console.error('[KDS Debug] Error details:', {
@@ -186,8 +183,7 @@ export function KDSDebugPanel() {
       if (error.message?.includes('validation')) {
         toast.error('Order validation failed - check console for details')
       } else if (error.message?.includes('auth')) {
-        toast.error('Authentication failed - refreshing page...')
-        setTimeout(() => window.location.reload(), 1000)
+        toast.error('Authentication failed - please check your authentication')
       } else {
         toast.error(`Failed to create order: ${error.message || 'Unknown error'}`)
       }
