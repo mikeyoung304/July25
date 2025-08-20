@@ -23,6 +23,7 @@ export class LocalStorageManager {
   private static readonly MAX_SIZE = 5 * 1024 * 1024; // 5MB
   private static readonly MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
   private static readonly MAX_ERROR_LOGS = 50; // Per logger.ts line 117
+  private static cleanupInterval: NodeJS.Timeout | null = null;
   
   // Keys that should never be removed
   private static readonly WHITELIST = [
@@ -283,9 +284,24 @@ export class LocalStorageManager {
     console.log(`LocalStorage: ${usage.itemCount} items, ${(usage.totalSize / 1024).toFixed(1)}KB used`);
     
     // Schedule periodic cleanup (hourly)
-    setInterval(() => {
+    // Clear any existing interval first
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
+    
+    this.cleanupInterval = setInterval(() => {
       this.cleanupExpired();
     }, 60 * 60 * 1000);
+  }
+  
+  /**
+   * Cleanup and stop the interval timer
+   */
+  static destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
   }
 
   /**
