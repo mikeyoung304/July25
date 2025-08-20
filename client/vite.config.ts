@@ -49,8 +49,9 @@ export default defineConfig(({ mode }) => {
       // Code splitting configuration
       rollupOptions: {
         output: {
-          // Manual chunks for better caching
-          manualChunks: {
+          // Manual chunks temporarily disabled to fix build
+          // TODO: Re-enable after verifying all dependencies are installed
+          /*manualChunks: {
             // React ecosystem
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
             
@@ -70,7 +71,7 @@ export default defineConfig(({ mode }) => {
             
             // Utilities
             'utils': ['date-fns', 'clsx'],
-          },
+          },*/
           
           // Optimize chunk size
           chunkFileNames: (chunkInfo) => {
