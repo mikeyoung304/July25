@@ -128,20 +128,28 @@ export function useVoiceOrder(config: VoiceOrderConfig = {}): UseVoiceOrderRetur
     
     const audioElement = audioElementRef.current;
     
-    audioElement.addEventListener('loadstart', () => {
+    const handleLoadStart = () => {
       updateState({ isPlayingResponse: true });
-    });
+    };
     
-    audioElement.addEventListener('ended', () => {
+    const handleEnded = () => {
       updateState({ isPlayingResponse: false });
-    });
+    };
     
-    audioElement.addEventListener('error', () => {
+    const handleError = () => {
       updateState({ isPlayingResponse: false, error: 'Audio playback failed' });
-    });
+    };
+    
+    audioElement.addEventListener('loadstart', handleLoadStart);
+    audioElement.addEventListener('ended', handleEnded);
+    audioElement.addEventListener('error', handleError);
 
     return () => {
       if (audioElement) {
+        // Remove event listeners to prevent memory leaks
+        audioElement.removeEventListener('loadstart', handleLoadStart);
+        audioElement.removeEventListener('ended', handleEnded);
+        audioElement.removeEventListener('error', handleError);
         audioElement.pause();
         audioElement.src = '';
       }
