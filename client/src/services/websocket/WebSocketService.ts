@@ -223,12 +223,14 @@ export class WebSocketService extends EventEmitter {
       // Parse the message - server sends with payload wrapper
       const rawMessage = JSON.parse(event.data)
       
-      logger.info('[WebSocket] Raw message received:', { value: rawMessage.type, extra: rawMessage.payload ? 'has payload' : 'no payload' })
+      logger.info('[WebSocket] Raw message received:', { type: rawMessage.type, payload: rawMessage.payload ? 'has payload' : 'no payload' })
       
       // DIAGNOSTIC: Log the full structure for order events
       if (rawMessage.type && rawMessage.type.startsWith('order:')) {
-        logger.info('[WebSocket] Order event structure:', { value: {
-          type: rawMessage.type, extra: [hasPayload: !!rawMessage.payload, payloadKeys: rawMessage.payload ? Object.keys(rawMessage.payload] }) : [],
+        logger.info('[WebSocket] Order event structure:', {
+          type: rawMessage.type,
+          hasPayload: !!rawMessage.payload,
+          payloadKeys: rawMessage.payload ? Object.keys(rawMessage.payload) : [],
           hasOrder: !!(rawMessage.payload && rawMessage.payload.order)
         })
       }

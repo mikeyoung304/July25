@@ -12,6 +12,7 @@ export interface VoiceOrder {
   items: ParsedVoiceItem[]
   specialRequests?: string
   orderType?: 'dine-in' | 'takeout'
+  type?: OrderType
 }
 
 /**
