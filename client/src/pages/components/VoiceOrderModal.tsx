@@ -5,8 +5,17 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ActionButton } from '@/components/ui/ActionButton'
 import { Badge } from '@/components/ui/badge'
-import VoiceControlWithAudio from '@/modules/voice/components/VoiceControlWithAudio'
+import { VoiceControlWebRTC } from '@/modules/voice/components/VoiceControlWebRTC'
+import { OrderModification } from '@/modules/voice/contexts/types'
 import type { Table } from '@/types/table'
+
+interface OrderItem {
+  id: string
+  menuItemId?: string
+  name: string
+  quantity: number
+  modifications?: OrderModification[]
+}
 
 interface VoiceOrderModalProps {
   show: boolean
@@ -14,11 +23,14 @@ interface VoiceOrderModalProps {
   seat: number | null
   voiceOrder: {
     currentTranscript: string
-    orderItems: string[]
+    orderItems: OrderItem[]
     isVoiceActive: boolean
     isProcessing: boolean
-    handleVoiceTranscript: (text: string, isFinal: boolean) => void
-    setOrderItems: (items: string[]) => void
+    handleVoiceTranscript: (event: { text: string; isFinal: boolean }) => void
+    handleOrderData?: (orderData: any) => void
+    removeOrderItem: (itemId: string) => void
+    setOrderItems: (items: OrderItem[]) => void
+    setIsProcessing: (processing: boolean) => void
   }
   onSubmit: () => void
   onClose: () => void
@@ -33,10 +45,6 @@ export function VoiceOrderModal({
   onClose
 }: VoiceOrderModalProps) {
   if (!show || !table || !seat) return null
-
-  const handleRemoveItem = (index: number) => {
-    voiceOrder.setOrderItems(voiceOrder.orderItems.filter((_, i) => i !== index))
-  }
 
   return (
     <AnimatePresence>
@@ -79,12 +87,10 @@ export function VoiceOrderModal({
 
               <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 250px)' }}>
                 <div className="flex justify-center mb-6">
-                  <VoiceControlWithAudio
+                  <VoiceControlWebRTC
                     onTranscript={voiceOrder.handleVoiceTranscript}
-                    onAudioStart={() => {}}
-                    onAudioEnd={() => {}}
-                    isFirstPress={false}
-                    onFirstPress={() => {}}
+                    onOrderDetected={voiceOrder.handleOrderData}
+                    debug={false}
                   />
                 </div>
 
@@ -122,7 +128,7 @@ export function VoiceOrderModal({
                     <div className="space-y-2">
                       {voiceOrder.orderItems.map((item, index) => (
                         <motion.div
-                          key={index}
+                          key={item.id}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.05 }}
@@ -130,14 +136,21 @@ export function VoiceOrderModal({
                         >
                           <div className="flex items-center gap-3">
                             <span className="text-sm font-semibold text-neutral-500">
-                              {index + 1}.
+                              {item.quantity}x
                             </span>
-                            <span className="text-sm text-neutral-700">{item}</span>
+                            <div className="flex-1">
+                              <span className="text-sm text-neutral-700">{item.name}</span>
+                              {item.modifications && item.modifications.length > 0 && (
+                                <div className="text-xs text-neutral-500 mt-0.5">
+                                  {item.modifications.map(mod => mod.name).join(', ')}
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <button
-                            onClick={() => handleRemoveItem(index)}
+                            onClick={() => voiceOrder.removeOrderItem(item.id)}
                             className="p-1.5 hover:bg-red-100 rounded-md transition-colors group"
-                            aria-label={`Remove ${item}`}
+                            aria-label={`Remove ${item.name}`}
                           >
                             <Trash2 className="h-4 w-4 text-neutral-400 group-hover:text-red-500" />
                           </button>

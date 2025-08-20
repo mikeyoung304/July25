@@ -234,42 +234,84 @@ export const batchUpdateTables = asyncHandler(async (req, res) => {
   });
   
   // Update each table
-  const promises = tables.map(table => {
-    const { id, ...updates } = table;
-    delete updates.restaurant_id;
-    delete updates.created_at;
+  let results;
+  try {
+    const promises = tables.map((table, index) => {
+      const { id, ...updates } = table;
+      delete updates.restaurant_id;
+      delete updates.created_at;
+      delete updates.updated_at; // Let Supabase handle this
+      
+      // Transform frontend properties to database columns
+      const dbUpdates: any = { ...updates };
+      if ('x' in updates) {
+        dbUpdates.x_pos = updates.x;
+        delete dbUpdates.x;
+      }
+      if ('y' in updates) {
+        dbUpdates.y_pos = updates.y;
+        delete dbUpdates.y;
+      }
+      if ('type' in updates) {
+        dbUpdates.shape = updates.type;
+        delete dbUpdates.type;
+      }
+      
+      console.log(`🔄 Updating table ${index + 1}/${tables.length} (id: ${id}):`, {
+        originalData: table,
+        transformedData: dbUpdates,
+        fieldsToUpdate: Object.keys(dbUpdates)
+      });
+      
+      return supabase
+        .from('tables')
+        .update(dbUpdates)
+        .eq('id', id)
+        .eq('restaurant_id', restaurantId)
+        .select()
+        .single();
+    });
     
-    // Transform frontend properties to database columns
-    const dbUpdates: any = { ...updates };
-    if ('x' in updates) {
-      dbUpdates.x_pos = updates.x;
-      delete dbUpdates.x;
-    }
-    if ('y' in updates) {
-      dbUpdates.y_pos = updates.y;
-      delete dbUpdates.y;
-    }
-    if ('type' in updates) {
-      dbUpdates.shape = updates.type;
-      delete dbUpdates.type;
-    }
+    console.log(`🚀 Executing ${promises.length} table updates...`);
+    results = await Promise.all(promises);
+    const errors = results.filter(r => r.error);
     
-    return supabase
-      .from('tables')
-      .update(dbUpdates)
-      .eq('id', id)
-      .eq('restaurant_id', restaurantId)
-      .select()
-      .single();
-  });
-  
-  const results = await Promise.all(promises);
-  const errors = results.filter(r => r.error);
-  
-  if (errors.length > 0) {
-    return res.status(400).json({ 
-      error: 'Some updates failed', 
-      details: errors 
+    console.log(`✅ Update results: ${results.length - errors.length} success, ${errors.length} errors`);
+    
+    if (errors.length > 0) {
+      console.error('❌ Batch update failed. Error details:', {
+        errorCount: errors.length,
+        totalTables: tables.length,
+        errors: errors.map((err, i) => ({
+          tableIndex: i,
+          error: err.error,
+          errorCode: err.error?.code,
+          errorMessage: err.error?.message,
+          errorDetails: err.error?.details,
+          errorHint: err.error?.hint
+        }))
+      });
+      
+      return res.status(400).json({ 
+        error: 'Some updates failed', 
+        details: errors.map(err => ({
+          code: err.error?.code,
+          message: err.error?.message,
+          details: err.error?.details,
+          hint: err.error?.hint
+        }))
+      });
+    }
+  } catch (error) {
+    console.error('❌ Exception in batch update:', {
+      error: error.message,
+      stack: error.stack,
+      tables: tables.map(t => ({ id: t.id, hasValidId: !!t.id }))
+    });
+    
+    return res.status(400).json({
+      error: 'Batch update exception',
+      message: error.message
     });
   }
   

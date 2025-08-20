@@ -55,6 +55,7 @@ const CheckoutPageContent: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-token',
           'x-restaurant-id': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
         },
         body: JSON.stringify({
@@ -85,6 +86,7 @@ const CheckoutPageContent: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer test-token',
           'x-restaurant-id': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
         },
         body: JSON.stringify({

@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Table } from '../types'
-import { useFloorPlanReducer } from '../hooks/useFloorPlanReducer'
 import { FloorPlanCanvas } from './FloorPlanCanvas'
 import { FloorPlanToolbar } from './FloorPlanToolbar'
 import { FloorPlanSidePanel } from './FloorPlanSidePanel'
@@ -13,398 +12,261 @@ interface FloorPlanEditorProps {
 }
 
 export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { selectors, actions } = useFloorPlanReducer()
+  // Simple state - no complex reducers needed
+  const [tables, setTables] = useState<Table[]>([])
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [isCreatingTable, setIsCreatingTable] = useState(false)
-  const [creatingTableType, setCreatingTableType] = useState<Table['type'] | null>(null)
+  const [canvasSize, setCanvasSize] = useState({ width: 1200, height: 900 })
+  const [zoomLevel, setZoomLevel] = useState(1)
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
+  const [showGrid, setShowGrid] = useState(true)
+  const [snapToGrid, setSnapToGrid] = useState(true)
 
-  // Load floor plan on mount - Fixed infinite loop by removing unstable dependencies
+  const selectedTable = tables.find(t => t.id === selectedTableId)
+
+  // Load tables on mount
   useEffect(() => {
-    const loadFloorPlan = async () => {
+    const loadTables = async () => {
       try {
         setIsLoading(true)
         const { tables } = await tableService.getTables()
-        
-        if (tables && tables.length > 0) {
-          actions.setTables(tables)
-          toast.success('Floor plan loaded successfully')
+        setTables(tables || [])
+        if (tables?.length > 0) {
+          toast.success(`Loaded ${tables.length} tables`)
         }
       } catch (error) {
-        console.error('Failed to load floor plan:', error)
+        console.error('Failed to load tables:', error)
         toast.error('Failed to load floor plan')
       } finally {
         setIsLoading(false)
       }
     }
-    
-    loadFloorPlan()
+    loadTables()
   }, [restaurantId])
 
-  // Separate effect for centering canvas when tables or canvas size changes
-  useEffect(() => {
-    if (selectors.tables.length > 0 && selectors.canvasSize.width > 0) {
-      const tables = selectors.tables
-      const minX = Math.min(...tables.map(t => t.x))
-      const maxX = Math.max(...tables.map(t => t.x + t.width))
-      const minY = Math.min(...tables.map(t => t.y))
-      const maxY = Math.max(...tables.map(t => t.y + t.height))
-      
-      const contentWidth = maxX - minX
-      const contentHeight = maxY - minY
-      const centerX = minX + contentWidth / 2
-      const centerY = minY + contentHeight / 2
-      
-      // Center the content in the viewport with some padding
-      const viewportCenterX = selectors.canvasSize.width / 2
-      const viewportCenterY = selectors.canvasSize.height / 2
-      
-      actions.setPanOffset({
-        x: viewportCenterX - centerX,
-        y: viewportCenterY - centerY
-      })
-    }
-  }, [selectors.tables.length, selectors.canvasSize.width, selectors.canvasSize.height])
-
-  // Adjust canvas size on mount and window resize
-  useEffect(() => {
-    const updateCanvasSize = () => {
-      if (containerRef.current) {
-        const containerRect = containerRef.current.getBoundingClientRect()
-        const isLargeScreen = window.innerWidth >= 1024 // lg breakpoint
-        
-        // Calculate available space more accurately
-        const sidePanelWidth = isLargeScreen ? 320 : 0
-        const padding = 32 // Account for p-4 (16px * 2)
-        const availableWidth = containerRect.width - sidePanelWidth - padding
-        const availableHeight = containerRect.height - 120 // Account for toolbar height
-        
-        // Use aspect ratio that fits within available space
-        const aspectRatio = 4 / 3
-        let width = Math.min(1200, availableWidth)
-        let height = width / aspectRatio
-        
-        // If height exceeds available space, constrain by height
-        if (height > availableHeight) {
-          height = availableHeight
-          width = height * aspectRatio
-        }
-        
-        // Ensure minimum size
-        width = Math.max(400, width)
-        height = Math.max(300, height)
-        
-        actions.setCanvasSize({ width: Math.floor(width), height: Math.floor(height) })
-      }
+  // Simple table creation
+  const addTable = useCallback((type: Table['type']) => {
+    const existingLabels = tables.map(t => t.label.toLowerCase())
+    let tableNumber = 1
+    while (existingLabels.includes(`table ${tableNumber}`)) {
+      tableNumber++
     }
 
-    // Use requestAnimationFrame to ensure DOM is ready
-    const handleResize = () => {
-      requestAnimationFrame(updateCanvasSize)
-    }
-
-    handleResize()
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [actions])
-
-  // Table creation helper
-  const createDefaultTable = useCallback(
-    (type: Table['type']): Table => {
-      const tableCount = selectors.tables.length + 1
-      const tableWidth = type === 'circle' ? 80 : 100
-      const tableHeight = type === 'circle' ? 80 : type === 'square' ? 100 : 60
-      
-      // Ensure proper spacing between tables (table width + padding)
-      const horizontalSpacing = Math.max(tableWidth + 40, 120) // 40px padding minimum
-      const verticalSpacing = Math.max(tableHeight + 40, 120)
-      
-      // Calculate grid position (5 tables per row)
-      const col = (tableCount - 1) % 5
-      const row = Math.floor((tableCount - 1) / 5)
-      
-      // Base positions with proper spacing
-      const baseX = 100 + col * horizontalSpacing
-      const baseY = 100 + row * verticalSpacing
-
-      // Apply grid snapping if enabled
-      const finalX = selectors.snapToGrid 
-        ? Math.round(baseX / selectors.gridSize) * selectors.gridSize
-        : baseX
-      const finalY = selectors.snapToGrid
-        ? Math.round(baseY / selectors.gridSize) * selectors.gridSize  
-        : baseY
-
-      return {
-        id: `table-${Date.now()}`,
-        type,
-        x: finalX,
-        y: finalY,
-        width: tableWidth,
-        height: tableHeight,
-        seats: 4,
-        label: `Table ${tableCount}`,
-        rotation: 0,
-        status: 'available',
-        z_index: 1,
-      }
-    },
-    [selectors.tables.length, selectors.snapToGrid, selectors.gridSize]
-  )
-
-  // Table management handlers
-  const handleAddTable = useCallback(
-    async (type: Table['type']) => {
-      try {
-        setIsCreatingTable(true)
-        setCreatingTableType(type)
-        
-        const newTable = createDefaultTable(type)
-        actions.addToUndoStack([...selectors.tables])
-        actions.addTable(newTable)
-        
-        // Small delay to show loading state
-        await new Promise(resolve => setTimeout(resolve, 500))
-      } catch (error) {
-        console.error('Failed to create table:', error)
-        toast.error('Failed to create table')
-      } finally {
-        setIsCreatingTable(false)
-        setCreatingTableType(null)
-      }
-    },
-    [createDefaultTable, actions, selectors.tables]
-  )
-
-  const handleDeleteTable = useCallback(() => {
-    if (!selectors.selectedTable) return
-    actions.addToUndoStack([...selectors.tables])
-    actions.deleteTable(selectors.selectedTable.id)
-  }, [selectors.selectedTable, actions, selectors.tables])
-
-  const handleDuplicateTable = useCallback(() => {
-    if (!selectors.selectedTable) return
-    actions.addToUndoStack([...selectors.tables])
     const newTable: Table = {
-      ...selectors.selectedTable,
-      id: `table-${Date.now()}`,
-      x: selectors.selectedTable.x + 20,
-      y: selectors.selectedTable.y + 20,
+      id: `table-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      x: 100 + (tables.length % 5) * 120,
+      y: 100 + Math.floor(tables.length / 5) * 120,
+      width: type === 'circle' ? 80 : 100,
+      height: type === 'circle' ? 80 : type === 'square' ? 100 : 60,
+      seats: 4,
+      label: `Table ${tableNumber}`,
+      rotation: 0,
+      status: 'available',
+      z_index: 1,
     }
-    actions.addTable(newTable)
-  }, [selectors.selectedTable, actions, selectors.tables])
 
-  const handleTableMove = useCallback(
-    (tableId: string, x: number, y: number) => {
-      const finalX = selectors.snapToGrid ? Math.round(x / selectors.gridSize) * selectors.gridSize : x
-      const finalY = selectors.snapToGrid ? Math.round(y / selectors.gridSize) * selectors.gridSize : y
-      actions.updateTable(tableId, { x: finalX, y: finalY })
-    },
-    [actions, selectors.snapToGrid, selectors.gridSize]
-  )
+    setTables(prev => [...prev, newTable])
+    setSelectedTableId(newTable.id)
+  }, [tables])
 
-  const handleTableResize = useCallback(
-    (tableId: string, width: number, height: number) => {
-      actions.updateTable(tableId, { width, height })
-    },
-    [actions]
-  )
+  // Update table
+  const updateTable = useCallback((id: string, updates: Partial<Table>) => {
+    setTables(prev => prev.map(table => 
+      table.id === id ? { ...table, ...updates } : table
+    ))
+  }, [])
 
+  // Delete table
+  const deleteTable = useCallback(() => {
+    if (!selectedTableId) return
+    setTables(prev => prev.filter(t => t.id !== selectedTableId))
+    setSelectedTableId(null)
+  }, [selectedTableId])
+
+  // Duplicate table
+  const duplicateTable = useCallback(() => {
+    if (!selectedTable) return
+    const newTable: Table = {
+      ...selectedTable,
+      id: `table-${Date.now()}`,
+      x: selectedTable.x + 20,
+      y: selectedTable.y + 20,
+      label: `${selectedTable.label} Copy`
+    }
+    setTables(prev => [...prev, newTable])
+    setSelectedTableId(newTable.id)
+  }, [selectedTable])
+
+  // Smart save with create/update logic
   const handleSave = useCallback(async () => {
+    if (tables.length === 0) {
+      toast.error('No tables to save')
+      return
+    }
+
+    // Basic duplicate name check
+    const labels = tables.map(t => t.label.trim().toLowerCase())
+    const duplicates = labels.filter((label, index) => 
+      label && labels.indexOf(label) !== index
+    )
+    
+    if (duplicates.length > 0) {
+      toast.error(`Duplicate table names found. Please rename tables.`)
+      return
+    }
+
+    setIsSaving(true)
     try {
-      setIsSaving(true)
+      // Separate new tables (with generated IDs) from existing tables (with UUID IDs)
+      const newTables = tables.filter(table => table.id.startsWith('table-'))
+      const existingTables = tables.filter(table => !table.id.startsWith('table-'))
       
-      // Batch update all tables
-      const tablesToUpdate = selectors.tables.map(table => ({
-        id: table.id,
-        type: table.type,
-        x: table.x,
-        y: table.y,
-        width: table.width,
-        height: table.height,
-        seats: table.seats,
-        label: table.label,
-        rotation: table.rotation,
-        status: table.status,
-        z_index: table.z_index,
-        metadata: table.metadata,
-        active: table.active
-      }))
-      
-      console.log('Sending tables to batch update:', {
-        count: tablesToUpdate.length,
-        sample: tablesToUpdate[0],
-        all: tablesToUpdate
+      console.log('🔧 Save analysis:', { 
+        total: tables.length, 
+        new: newTables.length, 
+        existing: existingTables.length 
       })
-      
-      if (tablesToUpdate.length === 0) {
-        toast.error('No tables to save')
-        return
+
+      const savedTables: Table[] = []
+
+      // 1. Create new tables first
+      if (newTables.length > 0) {
+        console.log('🆕 Creating', newTables.length, 'new tables...')
+        for (const table of newTables) {
+          const cleanNewTable = {
+            label: table.label.trim(),
+            seats: table.seats,
+            x: Math.round(table.x),
+            y: Math.round(table.y),
+            width: Math.round(table.width),
+            height: Math.round(table.height),
+            rotation: table.rotation || 0,
+            type: table.type,
+            status: table.status,
+            current_order_id: table.current_order_id || null,
+            active: table.active !== false,
+            z_index: table.z_index || 1
+          }
+          
+          const createdTable = await tableService.createTable(cleanNewTable)
+          savedTables.push(createdTable)
+          console.log('✅ Created table:', createdTable.id)
+        }
       }
+
+      // 2. Update existing tables
+      if (existingTables.length > 0) {
+        console.log('🔄 Updating', existingTables.length, 'existing tables...')
+        const cleanExistingTables = existingTables.map(table => ({
+          id: table.id,
+          label: table.label.trim(),
+          seats: table.seats,
+          x: Math.round(table.x),
+          y: Math.round(table.y),
+          width: Math.round(table.width),
+          height: Math.round(table.height),
+          rotation: table.rotation || 0,
+          type: table.type,
+          status: table.status,
+          current_order_id: table.current_order_id || null,
+          active: table.active !== false,
+          z_index: table.z_index || 1
+        }))
+
+        const updatedTables = await tableService.batchUpdateTables(cleanExistingTables)
+        savedTables.push(...updatedTables)
+      }
+
+      // Update local state with the new IDs from created tables
+      setTables(savedTables)
       
-      await tableService.batchUpdateTables(tablesToUpdate)
-      
-      toast.success('Floor plan saved successfully')
-      // Call the onSave callback if provided
-      onSave?.(selectors.tables)
+      console.log('✅ Save successful, total tables:', savedTables.length)
+      toast.success(`Floor plan saved! (${savedTables.length} tables)`)
+      onSave?.(savedTables)
     } catch (error) {
-      console.error('Failed to save floor plan:', error)
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
-      console.error('Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'Unknown',
-        cause: error instanceof Error ? error.cause : undefined
-      })
-      
-      let errorMessage = 'Unknown error occurred'
-      if (error instanceof Error) {
-        errorMessage = error.message
-      }
-      
-      toast.error(`Failed to save floor plan: ${errorMessage}`)
+      console.error('❌ Save failed with error:', error)
+      console.error('❌ Error type:', error.constructor.name)
+      console.error('❌ Error message:', error.message)
+      console.error('❌ Error status:', error.status)
+      console.error('❌ Error details:', error.details)
+      toast.error('Failed to save floor plan')
     } finally {
       setIsSaving(false)
     }
-  }, [selectors.tables, onSave])
+  }, [tables, onSave])
 
-  const handleZoomIn = useCallback(() => {
-    actions.setZoomLevel(Math.min(2, selectors.zoomLevel * 1.2))
-  }, [actions, selectors.zoomLevel])
-
-  const handleZoomOut = useCallback(() => {
-    actions.setZoomLevel(Math.max(0.5, selectors.zoomLevel / 1.2))
-  }, [actions, selectors.zoomLevel])
-
-  const handleZoomReset = useCallback(() => {
-    actions.setZoomLevel(1)
-  }, [actions])
-
-  const handleResetView = useCallback(() => {
-    // Reset zoom
-    actions.setZoomLevel(1)
-    
-    // Re-center on tables
-    if (selectors.tables.length > 0) {
-      const minX = Math.min(...selectors.tables.map(t => t.x))
-      const maxX = Math.max(...selectors.tables.map(t => t.x + t.width))
-      const minY = Math.min(...selectors.tables.map(t => t.y))
-      const maxY = Math.max(...selectors.tables.map(t => t.y + t.height))
-      
-      const contentWidth = maxX - minX
-      const contentHeight = maxY - minY
-      const centerX = minX + contentWidth / 2
-      const centerY = minY + contentHeight / 2
-      
-      const viewportCenterX = selectors.canvasSize.width / 2
-      const viewportCenterY = selectors.canvasSize.height / 2
-      
-      actions.setPanOffset({
-        x: viewportCenterX - centerX,
-        y: viewportCenterY - centerY
-      })
-    } else {
-      // No tables, center at origin
-      actions.setPanOffset({ x: 0, y: 0 })
-    }
-  }, [actions, selectors.tables, selectors.canvasSize])
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Delete
-      if (e.key === 'Delete' && selectors.selectedTable) {
-        handleDeleteTable()
-      }
-      // Undo
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey && selectors.canUndo) {
-        actions.undo()
-      }
-      // Redo
-      if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey)) && selectors.canRedo) {
-        actions.redo()
-      }
-      // Duplicate
-      if ((e.metaKey || e.ctrlKey) && e.key === 'd' && selectors.selectedTable) {
-        e.preventDefault()
-        handleDuplicateTable()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectors.selectedTable, selectors.canUndo, selectors.canRedo, actions, handleDeleteTable, handleDuplicateTable])
+  // Table position updates
+  const handleTableMove = useCallback((tableId: string, x: number, y: number) => {
+    const finalX = snapToGrid ? Math.round(x / 20) * 20 : x
+    const finalY = snapToGrid ? Math.round(y / 20) * 20 : y
+    updateTable(tableId, { x: finalX, y: finalY })
+  }, [snapToGrid, updateTable])
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full" style={{ backgroundColor: '#FBFBFA' }}>
+      <div className="flex items-center justify-center h-full bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-macon-teal mx-auto mb-4"></div>
-          <p className="text-neutral-600">Loading floor plan...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading floor plan...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div ref={containerRef} className="flex flex-col h-full" style={{ backgroundColor: '#FBFBFA' }}>
+    <div className="flex flex-col h-full bg-gray-50">
       <FloorPlanToolbar
-        onAddTable={handleAddTable}
-        onDeleteTable={handleDeleteTable}
-        onDuplicateTable={handleDuplicateTable}
-        onToggleGrid={actions.toggleGrid}
-        onToggleSnapToGrid={actions.toggleSnapToGrid}
-        onUndo={actions.undo}
-        onRedo={actions.redo}
+        onAddTable={addTable}
+        onDeleteTable={deleteTable}
+        onDuplicateTable={duplicateTable}
+        onToggleGrid={() => setShowGrid(!showGrid)}
+        onToggleSnapToGrid={() => setSnapToGrid(!snapToGrid)}
         onSave={handleSave}
-        showGrid={selectors.showGrid}
-        snapToGrid={selectors.snapToGrid}
-        canUndo={selectors.canUndo}
-        canRedo={selectors.canRedo}
-        hasSelectedTable={!!selectors.selectedTable}
-        zoomLevel={selectors.zoomLevel}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        onZoomReset={handleZoomReset}
-        onResetView={handleResetView}
+        showGrid={showGrid}
+        snapToGrid={snapToGrid}
+        hasSelectedTable={!!selectedTable}
+        zoomLevel={zoomLevel}
+        onZoomIn={() => setZoomLevel(Math.min(2, zoomLevel * 1.2))}
+        onZoomOut={() => setZoomLevel(Math.max(0.5, zoomLevel / 1.2))}
+        onZoomReset={() => setZoomLevel(1)}
+        onResetView={() => {
+          setZoomLevel(1)
+          setPanOffset({ x: 0, y: 0 })
+        }}
         isSaving={isSaving}
-        isCreatingTable={isCreatingTable}
-        creatingTableType={creatingTableType}
       />
 
       <div className="flex flex-col lg:flex-row flex-1 gap-4 p-4 overflow-hidden">
         <div className="flex-1 flex flex-col gap-2 min-h-0 min-w-0">
-          <div className="text-xs text-[#6b7280] px-1 hidden sm:block">
-            <span className="font-medium text-[#2d4a7c]">Tip:</span> Right-click or Shift+Click to pan • Scroll to zoom • Click tables to select • Use Reset View button to center
-          </div>
-          <div className="text-xs text-[#6b7280] px-1 sm:hidden">
-            <span className="font-medium text-[#2d4a7c]">Tip:</span> Tap to select • Pinch to zoom • Use Reset View button
+          <div className="text-xs text-gray-500 px-1">
+            Tip: Click tables to select • Drag to move • Use toolbar to add/remove tables
           </div>
           <div className="flex-1 flex items-center justify-center overflow-hidden">
             <FloorPlanCanvas
-              tables={selectors.tables}
-              selectedTableId={selectors.selectedTableId}
-              canvasSize={selectors.canvasSize}
-              showGrid={selectors.showGrid}
-              gridSize={selectors.gridSize}
-              snapToGrid={selectors.snapToGrid}
-              zoomLevel={selectors.zoomLevel}
-              panOffset={selectors.panOffset}
-              onTableClick={actions.selectTable}
+              tables={tables}
+              selectedTableId={selectedTableId}
+              canvasSize={canvasSize}
+              showGrid={showGrid}
+              gridSize={20}
+              snapToGrid={snapToGrid}
+              zoomLevel={zoomLevel}
+              panOffset={panOffset}
+              onTableClick={setSelectedTableId}
               onTableMove={handleTableMove}
-              onTableResize={handleTableResize}
-              onCanvasClick={() => actions.selectTable(null)}
-              onZoomChange={actions.setZoomLevel}
-              onPanChange={actions.setPanOffset}
+              onCanvasClick={() => setSelectedTableId(null)}
+              onZoomChange={setZoomLevel}
+              onPanChange={setPanOffset}
             />
           </div>
         </div>
 
         <FloorPlanSidePanel
-          selectedTable={selectors.selectedTable}
-          tables={selectors.tables}
-          onUpdateTable={actions.updateTable}
-          onSelectTable={actions.selectTable}
+          selectedTable={selectedTable}
+          tables={tables}
+          onUpdateTable={updateTable}
+          onSelectTable={setSelectedTableId}
         />
       </div>
     </div>

@@ -273,6 +273,8 @@ export class WebSocketService extends EventEmitter {
   private handleError(event: Event): void {
     console.error('WebSocket error:', event)
     this.setConnectionState('error')
+    // FIX: Stop heartbeat on error to prevent memory leak
+    this.stopHeartbeat()
     this.emit('error', event)
   }
 

@@ -305,6 +305,17 @@ class VoiceSocketManager {
     // Clear state
     this.shouldReconnect = false;
     
+    // CRITICAL FIX: Execute all registered cleanup callbacks
+    // This was missing and causing memory leaks!
+    this.cleanupCallbacks.forEach(callback => {
+      try {
+        callback();
+      } catch (error) {
+        console.error('VoiceSocketManager: Cleanup callback failed:', error);
+      }
+    });
+    this.cleanupCallbacks = [];
+    
     // Clear listeners and queues to prevent memory leaks
     this.listeners.clear();
     this.messageQueue = [];

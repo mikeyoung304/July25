@@ -16,7 +16,17 @@ export const PerformanceDashboard: React.FC = () => {
     getSlowOperations, 
     exportPerformanceData, 
     clearMetrics 
-  } = usePerformanceMonitor()
+  } = usePerformanceMonitor({ 
+    trackMemory: true, 
+    memoryInterval: 5000,
+    component: 'PerformanceDashboard' 
+  })
+
+  console.log('📈 PerformanceDashboard render:', { 
+    metrics, 
+    statistics, 
+    memoryStats: statistics.memory 
+  })
 
   const slowOps = getSlowOperations()
   const hasPerformanceIssues = slowOps.renders.length > 0 || slowOps.apiCalls.length > 0
@@ -35,6 +45,15 @@ export const PerformanceDashboard: React.FC = () => {
     : 0
 
   const memoryStats = statistics.memory
+  
+  console.log('📊 Calculated metrics:', {
+    totalRenders,
+    totalAPICalls,
+    avgRenderTime,
+    avgAPITime,
+    apiErrorRate,
+    memoryStats
+  })
 
   return (
     <div className="min-h-screen bg-macon-background p-4">
@@ -152,6 +171,14 @@ export const PerformanceDashboard: React.FC = () => {
               <p className="text-xs text-muted-foreground mt-1">
                 {memoryStats ? `${((memoryStats.current / memoryStats.limit) * 100).toFixed(0)}% of limit` : 'N/A'}
               </p>
+              <div className="text-xs text-blue-600 mt-2">
+                Debug: {JSON.stringify({ 
+                  hasMemoryStats: !!memoryStats,
+                  metricsCount: metrics.memory.length,
+                  hasPerfApi: 'memory' in performance,
+                  perfEnabled: import.meta.env.DEV
+                })}
+              </div>
             </CardContent>
           </Card>
         </div>

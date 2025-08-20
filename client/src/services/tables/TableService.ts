@@ -22,10 +22,18 @@ export class TableService implements ITableService {
   }
 
   async getTables(): Promise<{ tables: Table[] }> {
-    const response = await api.get<Table[]>('/api/v1/tables', {
-      headers: this.getHeaders()
-    })
-    return { tables: response }
+    try {
+      const response = await api.get<Table[]>('/api/v1/tables', {
+        headers: this.getHeaders()
+      })
+      return { tables: response }
+    } catch (error) {
+      console.error('TableService.getTables() failed:', {
+        error: error.message,
+        status: error.status
+      })
+      throw error
+    }
   }
 
   async getTableById(tableId: string): Promise<Table> {

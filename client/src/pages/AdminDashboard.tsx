@@ -15,6 +15,8 @@ export function AdminDashboard() {
   const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics'>('overview')
   const context = useContext(RestaurantContext)
   
+  console.log('🏛️ AdminDashboard render', { activeView, context, restaurant: context?.restaurant })
+  
   if (!context) {
     throw new Error('AdminDashboard must be used within a RestaurantProvider')
   }
@@ -70,46 +72,44 @@ export function AdminDashboard() {
           >
             <div className={`grid grid-cols-1 md:grid-cols-2 ${spacing.grid.gapLarge} max-w-4xl mx-auto`}>
               {/* Floor Plan Creator */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <div
+                className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all rounded-xl shadow-elevation-2 border border-neutral-100/30 p-6`}
+                onClick={() => {
+                  console.log('🖱️ Floor Plan Creator clicked, changing activeView to floorplan')
+                  setActiveView('floorplan')
+                }}
+                style={{ cursor: 'pointer' }}
               >
-                <Card 
-                  className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all`}
-                  onClick={() => setActiveView('floorplan')}
-                >
-                  <div className={`flex flex-col items-center ${spacing.content.stack}`}>
-                    <div className="p-4 rounded-xl bg-macon-logo-blue/10">
-                      <LayoutGrid className="h-12 w-12 text-macon-logo-blue" />
-                    </div>
-                    <SectionTitle as="h2" className="text-center">Floor Plan Creator</SectionTitle>
-                    <Body className="text-center">
-                      Design and manage your restaurant floor layout with drag-and-drop interface
-                    </Body>
+                <div className={`flex flex-col items-center ${spacing.content.stack}`}>
+                  <div className="p-4 rounded-xl bg-macon-logo-blue/10">
+                    <LayoutGrid className="h-12 w-12 text-macon-logo-blue" />
                   </div>
-                </Card>
-              </motion.div>
+                  <SectionTitle as="h2" className="text-center">Floor Plan Creator</SectionTitle>
+                  <Body className="text-center">
+                    Design and manage your restaurant floor layout with drag-and-drop interface
+                  </Body>
+                </div>
+              </div>
 
               {/* Analytics */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <div
+                className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all rounded-xl shadow-elevation-2 border border-neutral-100/30 p-6`}
+                onClick={() => {
+                  console.log('🖱️ Analytics clicked, changing activeView to analytics')
+                  setActiveView('analytics')
+                }}
+                style={{ cursor: 'pointer' }}
               >
-                <Card 
-                  className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all`}
-                  onClick={() => setActiveView('analytics')}
-                >
-                  <div className={`flex flex-col items-center ${spacing.content.stack}`}>
-                    <div className="p-4 rounded-xl bg-macon-teal/10">
-                      <BarChart3 className="h-12 w-12 text-macon-teal" />
-                    </div>
-                    <SectionTitle as="h2" className="text-center">Analytics</SectionTitle>
-                    <Body className="text-center">
-                      View restaurant performance metrics and operational insights
-                    </Body>
+                <div className={`flex flex-col items-center ${spacing.content.stack}`}>
+                  <div className="p-4 rounded-xl bg-macon-teal/10">
+                    <BarChart3 className="h-12 w-12 text-macon-teal" />
                   </div>
-                </Card>
-              </motion.div>
+                  <SectionTitle as="h2" className="text-center">Analytics</SectionTitle>
+                  <Body className="text-center">
+                    View restaurant performance metrics and operational insights
+                  </Body>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
@@ -123,7 +123,10 @@ export function AdminDashboard() {
             <div className="mb-6">
               <Button
                 variant="ghost"
-                onClick={() => setActiveView('overview')}
+                onClick={() => {
+                  console.log('🔙 Back to overview clicked')
+                  setActiveView('overview')
+                }}
                 className="mb-4"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -141,6 +144,7 @@ export function AdminDashboard() {
             </div>
           </motion.div>
         )}
+
 
         {activeView === 'analytics' && (
           <motion.div
