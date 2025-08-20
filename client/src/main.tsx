@@ -1,10 +1,13 @@
 import { StrictMode } from 'react'
 import { logger } from '@/services/logger'
 import { createRoot } from 'react-dom/client'
+import { LocalStorageManager } from '@/services/monitoring/localStorage-manager'
 import './index.css'
 import App from './App.tsx'
 
-logger.info('[BOOT] main.tsx loaded');
+// Initialize localStorage cleanup before anything else
+LocalStorageManager.initialize()
+logger.info('[BOOT] main.tsx loaded, localStorage initialized');
 
 // Capture any window errors
 window.addEventListener('error', e => {
