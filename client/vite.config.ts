@@ -35,6 +35,92 @@ export default defineConfig(({ mode }) => {
       })] : []),
     ],
     
+    // Optimize build output
+    build: {
+      // Enable minification
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: mode === 'production',
+          drop_debugger: true,
+        },
+      },
+      
+      // Code splitting configuration
+      rollupOptions: {
+        output: {
+          // Manual chunks for better caching
+          manualChunks: {
+            // React ecosystem
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            
+            // Supabase and auth
+            'supabase': ['@supabase/supabase-js'],
+            
+            // UI components
+            'ui-vendor': [
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-dropdown-menu',
+              '@radix-ui/react-select',
+              '@radix-ui/react-tabs',
+            ],
+            
+            // Charts and data visualization
+            'charts': ['recharts'],
+            
+            // Utilities
+            'utils': ['date-fns', 'clsx'],
+          },
+          
+          // Optimize chunk size
+          chunkFileNames: (chunkInfo) => {
+            const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
+            return `js/[name]-${facadeModuleId}-[hash].js`;
+          },
+          
+          // Asset file naming
+          assetFileNames: (assetInfo) => {
+            const extType = assetInfo.name?.split('.').pop() || 'asset';
+            if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
+              return `images/[name]-[hash][extname]`;
+            }
+            if (/woff|woff2|eot|ttf|otf/i.test(extType)) {
+              return `fonts/[name]-[hash][extname]`;
+            }
+            return `assets/[name]-[hash][extname]`;
+          },
+        },
+      },
+      
+      // Set chunk size warnings
+      chunkSizeWarningLimit: 500, // 500kb warning threshold
+      
+      // Enable source maps for production debugging
+      sourcemap: mode === 'development' ? 'inline' : false,
+      
+      // Target modern browsers for smaller bundles
+      target: 'es2020',
+      
+      // Enable CSS code splitting
+      cssCodeSplit: true,
+      
+      // Optimize deps
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
+    },
+    
+    // Optimize dependencies
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        '@supabase/supabase-js',
+      ],
+      exclude: ['@rebuild/shared'], // Exclude workspace packages
+    },
+    
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

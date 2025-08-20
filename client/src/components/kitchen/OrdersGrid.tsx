@@ -15,7 +15,7 @@ interface OrdersGridProps {
   hasActiveFilters: boolean
 }
 
-export function OrdersGrid({ 
+const OrdersGrid = memo(function OrdersGrid({ 
   orders, 
   layoutMode, 
   onLayoutModeChange, 
@@ -97,3 +97,5 @@ export function OrdersGrid({
     </section>
   )
 }
+
+export { OrdersGrid };
