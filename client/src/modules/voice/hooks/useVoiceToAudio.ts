@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { getAudioPlaybackService } from '@/services/audio/AudioPlaybackService';
 import { useToast } from '@/hooks/useToast';
 import { useRestaurant } from '@/core';
@@ -65,6 +65,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
   const { restaurant } = useRestaurant();
   const audioService = getAudioPlaybackService();
   const processingSemaphore = useRef(false);
+  const [isVoiceProcessing, setIsVoiceProcessing] = useState(false);
 
   const processVoiceToAudio = useCallback(async (audioBlob: Blob): Promise<void> => {
     // Prevent concurrent processing
@@ -74,6 +75,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
     }
 
     processingSemaphore.current = true;
+    setIsVoiceProcessing(true);
 
     try {
       // Step 1: Create form data for API call
@@ -181,6 +183,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       toast.error(errorMessage);
     } finally {
       processingSemaphore.current = false;
+      setIsVoiceProcessing(false);
     }
   }, [audioService, options, toast, restaurant]);
 
@@ -192,6 +195,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
     }
 
     processingSemaphore.current = true;
+    setIsVoiceProcessing(true);
 
     try {
       // Step 1: Get transcription with metadata
@@ -256,16 +260,14 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       return null;
     } finally {
       processingSemaphore.current = false;
+      setIsVoiceProcessing(false);
     }
   }, [processVoiceToAudio, options, toast]);
-
-  const isProcessing = () => processingSemaphore.current;
-
 
   return {
     processVoiceToAudio,
     processVoiceWithTranscript,
-    isProcessing,
+    isProcessing: isVoiceProcessing,
     audioService
   };
 }

@@ -175,7 +175,7 @@ const VoiceControlWithAudio: React.FC<VoiceControlWithAudioProps> = ({
     }
     
     // Don't allow new recording while processing or playing audio
-    if (isProcessing || isPlayingAudio || isVoiceProcessing()) {
+    if (isProcessing || isPlayingAudio || isVoiceProcessing) {
       return;
     }
     
@@ -221,7 +221,7 @@ const VoiceControlWithAudio: React.FC<VoiceControlWithAudioProps> = ({
   }
   
   // Determine if button should be disabled
-  const isButtonDisabled = isPlayingAudio || isProcessing || isVoiceProcessing();
+  const isButtonDisabled = isPlayingAudio || isProcessing || isVoiceProcessing;
   
   return (
     <div className={cn("relative", className)}>
@@ -229,7 +229,7 @@ const VoiceControlWithAudio: React.FC<VoiceControlWithAudioProps> = ({
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         isListening={isListening}
-        isProcessing={isProcessing || isVoiceProcessing()}
+        isProcessing={isProcessing || isVoiceProcessing}
         isPlayingAudio={isPlayingAudio}
         disabled={isButtonDisabled}
         className={cn(

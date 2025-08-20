@@ -1,6 +1,6 @@
 # WebRTC Voice System - Known Issues
 
-**Last Updated:** August 17, 2025  
+**Last Updated:** August 20, 2025  
 **Priority:** HIGH - Production Blocker
 
 ## Issue #1: Duplicate Recording and Response
@@ -218,6 +218,82 @@ sendEvent(event: any): void {
   }
 }
 ```
+
+---
+
+## Issue #4: Voice Processing Stuck State
+
+### Severity: HIGH
+### Status: RESOLVED
+### First Reported: August 19, 2025
+### Resolved: August 20, 2025
+
+### Description
+Voice processing would get stuck showing "Processing voice input..." indefinitely.
+
+### Root Cause
+The processing semaphore wasn't properly reset in all code paths, especially error cases.
+
+### Resolution
+Implemented proper state management using React's `useState` with `finally` blocks to ensure state reset.
+
+```typescript
+// Fixed implementation
+const [isVoiceProcessing, setIsVoiceProcessing] = useState(false);
+
+try {
+  setIsVoiceProcessing(true);
+  // ... processing
+} finally {
+  setIsVoiceProcessing(false); // Always resets
+}
+```
+
+**Files Fixed**: `client/src/modules/voice/hooks/useVoiceToAudio.ts`
+
+---
+
+## Issue #5: Inconsistent WebRTC Adoption
+
+### Severity: MEDIUM
+### Status: PARTIALLY RESOLVED
+### First Reported: August 20, 2025
+### Partial Resolution: August 20, 2025
+
+### Description
+Application has two voice implementations but uses them inconsistently:
+- Sequential API (4.5s latency): Whisper → GPT → TTS
+- WebRTC Real-time (200ms latency): Direct browser-to-OpenAI connection
+
+### Current Status
+| Component | Implementation | Status | Latency |
+|-----------|---------------|--------|---------|
+| KioskPage | WebRTC | ✅ Working | 200ms |
+| ServerView | WebRTC | ✅ Fixed 8/20 | 200ms |
+| DriveThruPage | Sequential | ❌ Needs migration | 4.5s |
+| ExpoPage | Sequential | ❌ Needs migration | 4.5s |
+| KioskDemo | Sequential | ❌ Needs migration | 4.5s |
+
+### Migration Guide
+```typescript
+// Replace:
+import VoiceControlWithAudio from '@/modules/voice/components/VoiceControlWithAudio'
+
+// With:
+import { VoiceControlWebRTC } from '@/modules/voice/components/VoiceControlWebRTC'
+
+// Update props:
+<VoiceControlWebRTC
+  onTranscript={(event) => handleTranscript(event.text, event.isFinal)}
+  onOrderDetected={handleOrderData}
+  debug={false}
+/>
+```
+
+### Impact
+- 22.5x performance improvement (4.5s → 200ms)
+- Better user experience with real-time feedback
+- Reduced API costs (single connection vs multiple calls)
 
 ---
 

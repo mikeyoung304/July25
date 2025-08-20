@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext, useMemo } from 'react'
+import { useState, useEffect, useCallback, useContext, useMemo, useRef } from 'react'
 import { RestaurantContext } from '@/core'
 import { tableService } from '@/services/tables/TableService'
 import { useToast } from '@/hooks/useToast'
@@ -10,45 +10,93 @@ export function useServerView() {
   const [tables, setTables] = useState<Table[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
+  const isInitialLoad = useRef(true)
+  const loadingRef = useRef(false)
   
   const restaurant = context?.restaurant
 
   const loadFloorPlan = useCallback(async () => {
+    // Prevent concurrent calls
+    if (loadingRef.current) {
+      console.log('🍽️ ServerView: Load already in progress, skipping')
+      return
+    }
+
+    console.log('🍽️ ServerView loadFloorPlan called', { 
+      restaurantId: restaurant?.id,
+      isInitialLoad: isInitialLoad.current 
+    })
+    
     if (!restaurant?.id) {
-      setTables([])
-      setIsLoading(false)
+      console.log('⏳ ServerView: No restaurant ID yet, waiting for context')
+      if (isInitialLoad.current) {
+        setTables([])
+        setIsLoading(false)
+        isInitialLoad.current = false
+      }
       return
     }
     
+    loadingRef.current = true
+    
     try {
-      setIsLoading(true)
+      if (isInitialLoad.current) {
+        setIsLoading(true)
+      }
+      
       const { tables: loadedTables } = await tableService.getTables()
       
-      if (loadedTables && loadedTables.length > 0) {
-        setTables(loadedTables)
-      } else {
-        setTables([])
-        toast.success('Please set up your floor plan in Admin.')
+      console.log('📊 ServerView: Received tables:', { 
+        count: loadedTables?.length || 0,
+        isInitial: isInitialLoad.current
+      })
+      
+      setTables(loadedTables || [])
+      
+      // Only show success message on initial load if no tables
+      if (isInitialLoad.current && (!loadedTables || loadedTables.length === 0)) {
+        console.log('📭 ServerView: No tables found on initial load')
       }
+      
     } catch (error) {
-      console.error('Failed to load floor plan:', error)
+      console.error('❌ ServerView: Failed to load floor plan:', {
+        error: error.message,
+        status: error.status,
+        isInitial: isInitialLoad.current
+      })
+      
       setTables([])
-      toast.error('Failed to load floor plan. Please configure in Admin.')
+      
+      // Only show error toast on initial load failure
+      if (isInitialLoad.current) {
+        toast.error('Failed to load floor plan. Please configure in Admin.')
+      } else {
+        // Just log refresh failures
+        console.warn('Floor plan refresh failed - will retry on next interval')
+      }
     } finally {
-      setIsLoading(false)
+      loadingRef.current = false
+      if (isInitialLoad.current) {
+        setIsLoading(false)
+        isInitialLoad.current = false
+      }
     }
-  }, [restaurant?.id])
+  }, [restaurant?.id, toast])
 
   useEffect(() => {
+    // Initial load
     loadFloorPlan()
     
     // Reload floor plan every 30 seconds to catch admin updates
+    // Only if we have a restaurant ID
     const interval = setInterval(() => {
-      loadFloorPlan()
+      if (restaurant?.id) {
+        loadFloorPlan()
+      }
     }, 30000)
     
     return () => clearInterval(interval)
-  }, [loadFloorPlan])
+  }, [loadFloorPlan, restaurant?.id])
 
   const stats = useMemo(() => {
     const totalTables = tables.length

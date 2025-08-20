@@ -4,7 +4,7 @@ import { RoleGuard } from '@/components/auth/RoleGuard'
 import { Card } from '@/components/ui/card'
 import { useServerView } from './hooks/useServerView'
 import { useTableInteraction } from './hooks/useTableInteraction'
-import { useVoiceOrderFlow } from './hooks/useVoiceOrderFlow'
+import { useVoiceOrderWebRTC } from './hooks/useVoiceOrderWebRTC'
 import { ServerFloorPlan } from './components/ServerFloorPlan'
 import { SeatSelectionModal } from './components/SeatSelectionModal'
 import { VoiceOrderModal } from './components/VoiceOrderModal'
@@ -24,7 +24,7 @@ export function ServerView() {
   } = useServerView()
   
   const { handleTableClick } = useTableInteraction(tables, setSelectedTableId)
-  const voiceOrder = useVoiceOrderFlow()
+  const voiceOrder = useVoiceOrderWebRTC()
   const [showSeatSelection, setShowSeatSelection] = useState(false)
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null)
 
