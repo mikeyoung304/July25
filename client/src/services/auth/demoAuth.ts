@@ -1,4 +1,5 @@
 import { env } from '@/utils/env';
+import { logger } from '@/services/logger'
 
 const STORAGE_KEY = 'DEMO_AUTH_TOKEN';
 const RESTO_ID = '11111111-1111-1111-1111-111111111111';
@@ -87,7 +88,7 @@ export class DemoAuthService {
         expiresAt
       }));
 
-      console.log('🔑 Demo token refreshed');
+      logger.info('🔑 Demo token refreshed');
       return token;
     } catch (error) {
       console.error('Failed to get demo token:', error);

@@ -4,6 +4,7 @@
  */
 
 import { webSocketService } from './WebSocketService'
+import { logger } from '@/services/logger'
 import { Order } from '@rebuild/shared'
 import { toast } from 'react-hot-toast'
 import { toCamelCase } from '../utils/caseTransform'
@@ -27,13 +28,13 @@ export class OrderUpdatesHandler {
    * Initialize order updates handler
    */
   initialize(): void {
-    console.log('[OrderUpdates] Initializing order updates handler...')
-    console.log('[OrderUpdates] WebSocket connected?', webSocketService.isConnected())
+    logger.info('[OrderUpdates] Initializing order updates handler...')
+    logger.info('[OrderUpdates] WebSocket connected?', webSocketService.isConnected())
     
     // Subscribe to order-related WebSocket messages
     this.subscriptions.push(
       webSocketService.subscribe('order:created', (payload) => {
-        console.log('[OrderUpdates] Raw order:created payload:', payload)
+        logger.info('[OrderUpdates] Raw order:created payload:', payload)
         this.handleOrderCreated(payload)
       }),
       webSocketService.subscribe('order:updated', (payload) => 
@@ -68,7 +69,7 @@ export class OrderUpdatesHandler {
     webSocketService.on('disconnected', this.connectionHandlers.disconnected)
     webSocketService.on('error', this.connectionHandlers.error)
     
-    console.log('[OrderUpdates] Initialization complete, subscriptions:', this.subscriptions.length)
+    logger.info('[OrderUpdates] Initialization complete, subscriptions:', this.subscriptions.length)
   }
 
   /**
@@ -125,7 +126,7 @@ export class OrderUpdatesHandler {
    * Handle new order created
    */
   private handleOrderCreated(payload: any): void {
-    console.log('[OrderUpdates] Raw payload received:', payload)
+    logger.info('[OrderUpdates] Raw payload received:', payload)
     
     // The payload IS { order: snake_case_order }, so we need to extract and transform
     const rawOrder = payload.order || payload
@@ -143,7 +144,7 @@ export class OrderUpdatesHandler {
       return
     }
     
-    console.log('[OrderUpdates] New order created:', order.id, order.orderNumber)
+    logger.info('[OrderUpdates] New order created:', order.id, order.orderNumber)
     
     this.notifySubscribers({
       action: 'created',
@@ -161,7 +162,7 @@ export class OrderUpdatesHandler {
    * Handle order updated
    */
   private handleOrderUpdated(payload: any): void {
-    console.log('[OrderUpdates] Update payload received:', payload)
+    logger.info('[OrderUpdates] Update payload received:', payload)
     
     // Extract and transform the order
     const rawOrder = payload.order || payload
@@ -179,7 +180,7 @@ export class OrderUpdatesHandler {
       return
     }
     
-    console.log('[OrderUpdates] Order updated:', order.id)
+    logger.info('[OrderUpdates] Order updated:', order.id)
     
     this.notifySubscribers({
       action: 'updated',
@@ -198,7 +199,7 @@ export class OrderUpdatesHandler {
       return
     }
     
-    console.log('[OrderUpdates] Order deleted:', orderId)
+    logger.info('[OrderUpdates] Order deleted:', orderId)
     
     this.notifySubscribers({
       action: 'deleted',
@@ -260,7 +261,7 @@ export class OrderUpdatesHandler {
    * Reinitialize subscriptions (useful after reconnection)
    */
   private reinitializeSubscriptions(): void {
-    console.log('[OrderUpdates] Reinitializing subscriptions after reconnection...')
+    logger.info('[OrderUpdates] Reinitializing subscriptions after reconnection...')
     
     // Clear old subscriptions
     this.subscriptions.forEach(unsubscribe => unsubscribe())
@@ -269,7 +270,7 @@ export class OrderUpdatesHandler {
     // Re-create subscriptions
     this.subscriptions.push(
       webSocketService.subscribe('order:created', (payload) => {
-        console.log('[OrderUpdates] Raw order:created payload:', payload)
+        logger.info('[OrderUpdates] Raw order:created payload:', payload)
         this.handleOrderCreated(payload)
       }),
       webSocketService.subscribe('order:updated', (payload) => 
@@ -282,7 +283,7 @@ export class OrderUpdatesHandler {
         this.handleItemStatusChanged(payload))
     )
     
-    console.log('[OrderUpdates] Subscriptions reinitialized:', this.subscriptions.length)
+    logger.info('[OrderUpdates] Subscriptions reinitialized:', this.subscriptions.length)
   }
   
   /**

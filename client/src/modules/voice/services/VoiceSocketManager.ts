@@ -1,4 +1,5 @@
 import { VoiceSocketMessage } from '../hooks/useVoiceSocket';
+import { logger } from '@/services/logger'
 import { RuntimeMemoryMonitor } from '@rebuild/shared';
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -85,7 +86,7 @@ class VoiceSocketManager {
     });
     
     this.status = 'ready';
-    console.log('VoiceSocketManager initialized with enterprise cleanup patterns');
+    logger.info('VoiceSocketManager initialized with enterprise cleanup patterns');
   }
 
   private setupMemoryMonitoring(): void {
@@ -109,7 +110,7 @@ class VoiceSocketManager {
   }
 
   private performEmergencyCleanup(): void {
-    console.log('VoiceSocketManager: Performing emergency cleanup due to memory pressure');
+    logger.info('VoiceSocketManager: Performing emergency cleanup due to memory pressure');
     
     // Clear message queue
     this.messageQueue = [];
@@ -128,7 +129,7 @@ class VoiceSocketManager {
         this.listeners.set(id, listener);
       });
       
-      console.log(`Cleaned up listeners: ${listenerEntries.length} -> ${this.listeners.size}`);
+      logger.info(`Cleaned up listeners: ${listenerEntries.length} -> ${this.listeners.size}`);
     }
   }
 
@@ -290,7 +291,7 @@ class VoiceSocketManager {
   }
 
   disconnect(): void {
-    console.log('VoiceSocketManager: Starting graceful disconnect...');
+    logger.info('VoiceSocketManager: Starting graceful disconnect...');
     this.shouldReconnect = false;
     
     // Trigger managed cleanup
@@ -300,7 +301,7 @@ class VoiceSocketManager {
   }
 
   async cleanup(): Promise<void> {
-    console.log('VoiceSocketManager: Performing managed cleanup...');
+    logger.info('VoiceSocketManager: Performing managed cleanup...');
     
     // Clear state
     this.shouldReconnect = false;
@@ -338,7 +339,7 @@ class VoiceSocketManager {
     
     // Cleanup completed
     
-    console.log('VoiceSocketManager: Cleanup completed');
+    logger.info('VoiceSocketManager: Cleanup completed');
   }
 
   isHealthy(): boolean {

@@ -4,6 +4,7 @@
  */
 
 import { Order, OrderItem, OrderItemModifier, OrderStatus, OrderType } from '@rebuild/shared'
+import { logger } from '@/services/logger'
 import { httpClient } from '@/services/http/httpClient'
 
 export interface IOrderService {
@@ -126,7 +127,7 @@ export class OrderService implements IOrderService {
   }
 
   async submitOrder(orderData: Partial<Order>): Promise<Order> {
-    console.log('[OrderService] submitOrder called with:', orderData)
+    logger.info('[OrderService] submitOrder called with:', orderData)
     
     // Validate order data
     if (!this.validateOrder(orderData)) {
@@ -134,11 +135,11 @@ export class OrderService implements IOrderService {
       throw new Error('Invalid order data - check console for details')
     }
 
-    console.log('[OrderService] Validation passed, sending to API...')
+    logger.info('[OrderService] Validation passed, sending to API...')
     
     try {
       const response = await httpClient.post<any>('/api/v1/orders', orderData)
-      console.log('[OrderService] API response:', response)
+      logger.info('[OrderService] API response:', response)
       return {
         ...response,
         items: response.items || [],
@@ -176,18 +177,18 @@ export class OrderService implements IOrderService {
   }
 
   validateOrder(orderData: Partial<Order>): boolean {
-    console.log('[OrderService] Validating order:', orderData)
+    logger.info('[OrderService] Validating order:', orderData)
     
     if (!orderData.items || orderData.items.length === 0) {
       console.warn('[OrderService] Validation failed: No items in order')
       return false
     }
 
-    console.log('[OrderService] Checking', orderData.items.length, 'items...')
+    logger.info('[OrderService] Checking', orderData.items.length, 'items...')
     
     for (let i = 0; i < orderData.items.length; i++) {
       const item = orderData.items[i]
-      console.log(`[OrderService] Validating item ${i}:`, item)
+      logger.info(`[OrderService] Validating item ${i}:`, item)
       
       // Check for either id or menu_item_id (support both formats)
       const hasId = item.id || item.menu_item_id
@@ -217,7 +218,7 @@ export class OrderService implements IOrderService {
       }
     }
 
-    console.log('[OrderService] Order validation passed!')
+    logger.info('[OrderService] Order validation passed!')
     return true
   }
 

@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { logger } from '@/services/logger'
 import { Trash2, ShoppingCart, Volume2, VolumeX, MessageCircle, Mic, Package, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { VoiceOrderProvider } from '@/modules/voice/contexts/VoiceOrderContext';
@@ -102,7 +103,7 @@ const KioskPageContent: React.FC = () => {
 
   // Handle transcript from WebRTC voice
   const handleVoiceTranscript = useCallback((event: { text: string; isFinal: boolean }) => {
-    console.log('Voice transcript received:', event.text, 'final:', event.isFinal);
+    logger.info('Voice transcript received:', event.text, 'final:', event.isFinal);
     
     if (event.isFinal) {
       // Add user's message to conversation
@@ -129,7 +130,7 @@ const KioskPageContent: React.FC = () => {
   }, [orderParser, processParsedItems]);
 
   const handleOrderData = useCallback((orderData: any) => {
-    console.log('Received order data from server:', orderData);
+    logger.info('Received order data from server:', orderData);
     
     if (orderData?.success && orderData?.items?.length > 0) {
       // Process each item from the server's parsed order
@@ -142,7 +143,7 @@ const KioskPageContent: React.FC = () => {
             item.quantity || 1,
             item.modifications || []
           );
-          console.log('Added item to cart:', menuItem.name, 'qty:', item.quantity);
+          logger.info('Added item to cart:', menuItem.name, 'qty:', item.quantity);
         } else {
           console.warn('Menu item not found for ID:', item.menuItemId);
         }
@@ -163,7 +164,7 @@ const KioskPageContent: React.FC = () => {
 
   const handleAudioEnd = useCallback(() => {
     // Audio playback completed
-    console.log('Audio playback ended');
+    logger.info('Audio playback ended');
   }, []);
 
   const handleVolumeChange = useCallback((volume: number) => {
@@ -459,28 +460,28 @@ const KioskPageContent: React.FC = () => {
               icon={<Package className="h-8 w-8" />}
               color="#88B0A4"
               compact
-              onClick={() => console.log('Show popular items')}
+              onClick={() => logger.info('Show popular items')}
             />
             <ActionCard
               title="Dietary Options"
               icon={<Package className="h-8 w-8" />}
               color="#F4A460"
               compact
-              onClick={() => console.log('Show dietary options')}
+              onClick={() => logger.info('Show dietary options')}
             />
             <ActionCard
               title="Combos"
               icon={<Package className="h-8 w-8" />}
               color="#9333EA"
               compact
-              onClick={() => console.log('Show combos')}
+              onClick={() => logger.info('Show combos')}
             />
             <ActionCard
               title="Help"
               icon={<MessageCircle className="h-8 w-8" />}
               color="#64748B"
               compact
-              onClick={() => console.log('Show help')}
+              onClick={() => logger.info('Show help')}
             />
           </GridLayout>
         </div>

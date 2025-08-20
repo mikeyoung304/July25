@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { logger } from '@/services/logger'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -159,13 +160,13 @@ export function KDSDebugPanel() {
         total: 14.03
       }
       
-      console.log('[KDS Debug] Creating test order:', testOrder)
+      logger.info('[KDS Debug] Creating test order:', testOrder)
       addEvent('order:submit', 'Submitting order to API...')
       
       // Use submitOrder instead of createOrder for consistency
       const order = await api.submitOrder(testOrder)
       
-      console.log('[KDS Debug] Order created successfully:', order)
+      logger.info('[KDS Debug] Order created successfully:', order)
       addEvent('order:created', `Created test order #${order.order_number}`, order)
       toast.success(`Test order #${order.order_number} created`)
       

@@ -1,4 +1,5 @@
 import { supabase } from '@/core/supabase';
+import { logger } from '@/services/logger'
 import { getDemoToken } from './demoAuth';
 
 /**
@@ -9,27 +10,27 @@ export async function getAuthToken(): Promise<string> {
   try {
     // In development/demo mode, use demo token
     if (import.meta.env.DEV || import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-      console.log('[Auth] Getting demo token...');
+      logger.info('[Auth] Getting demo token...');
       const token = await getDemoToken();
-      console.log('[Auth] Demo token obtained:', token ? 'yes' : 'no');
+      logger.info('[Auth] Demo token obtained:', token ? 'yes' : 'no');
       return token;
     }
 
     // In production, get Supabase session token
     if (supabase) {
-      console.log('[Auth] Getting Supabase session...');
+      logger.info('[Auth] Getting Supabase session...');
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.access_token) {
-        console.log('[Auth] Supabase token obtained: yes');
+        logger.info('[Auth] Supabase token obtained: yes');
         return session.access_token;
       }
-      console.log('[Auth] No Supabase session, falling back to demo token');
+      logger.info('[Auth] No Supabase session, falling back to demo token');
     }
 
     // Fallback to demo token if no auth available
-    console.log('[Auth] Falling back to demo token...');
+    logger.info('[Auth] Falling back to demo token...');
     const token = await getDemoToken();
-    console.log('[Auth] Fallback demo token obtained:', token ? 'yes' : 'no');
+    logger.info('[Auth] Fallback demo token obtained:', token ? 'yes' : 'no');
     return token;
   } catch (error) {
     console.error('[Auth] Error getting auth token:', error);

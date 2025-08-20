@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { logger } from '@/services/logger'
 import { useAsyncState } from '@/hooks/useAsyncState'
 import { useSoundNotifications } from '@/hooks/useSoundNotifications'
 import { useAriaLive } from '@/hooks/keyboard/useAriaLive'
@@ -28,17 +29,17 @@ export function useKitchenOrders() {
   }, [])
 
   const handleOrderUpdate = useCallback(async (update: OrderUpdatePayload) => {
-    console.log('[useKitchenOrders] Handling order update:', update.action, update.order?.id)
+    logger.info('[useKitchenOrders] Handling order update:', update.action, update.order?.id)
     
     switch (update.action) {
       case 'created':
         if (update.order) {
-          console.log('[useKitchenOrders] Adding new order to state:', update.order.id)
+          logger.info('[useKitchenOrders] Adding new order to state:', update.order.id)
           // Direct state update to ensure UI refresh
           setOrders(prev => {
-            console.log('[useKitchenOrders] Previous orders count:', prev.length)
+            logger.info('[useKitchenOrders] Previous orders count:', prev.length)
             const newOrders = [update.order!, ...prev]
-            console.log('[useKitchenOrders] New orders count:', newOrders.length)
+            logger.info('[useKitchenOrders] New orders count:', newOrders.length)
             return newOrders
           })
           await playNewOrderSound()
@@ -103,8 +104,8 @@ export function useKitchenOrders() {
       if (result) {
         const duration = performance.now() - startTime
         performanceMonitor.trackAPICall('getOrders', duration, 'success')
-        console.log('[useKitchenOrders] Loaded orders from API:', result.length)
-        console.log('[useKitchenOrders] First order sample:', result[0])
+        logger.info('[useKitchenOrders] Loaded orders from API:', result.length)
+        logger.info('[useKitchenOrders] First order sample:', result[0])
         setOrders(result)
       }
     } catch (error) {

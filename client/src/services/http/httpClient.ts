@@ -8,6 +8,7 @@
  */
 
 import { SecureAPIClient, APIError } from '@/services/secureApi'
+import { logger } from '@/services/logger'
 import { supabase } from '@/core/supabase'
 // Removed case transformation - server handles this
 import { env } from '@/utils/env'
@@ -43,14 +44,14 @@ export class HttpClient extends SecureAPIClient {
     } else {
       try {
         const viteUrl = env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL
-        console.log('[httpClient] env.VITE_API_BASE_URL:', env.VITE_API_BASE_URL)
-        console.log('[httpClient] import.meta.env.VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL)
+        logger.info('[httpClient] env.VITE_API_BASE_URL:', env.VITE_API_BASE_URL)
+        logger.info('[httpClient] import.meta.env.VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL)
         if (viteUrl) {
           baseURL = viteUrl
         } else if (import.meta.env.PROD) {
           // Default to production API if no env var set
           baseURL = 'https://july25.onrender.com'
-          console.log('[httpClient] Using default production API:', baseURL)
+          logger.info('[httpClient] Using default production API:', baseURL)
         }
         // In production without a configured backend, warn the user
         if (import.meta.env.PROD && baseURL.includes('localhost')) {
@@ -93,20 +94,20 @@ export class HttpClient extends SecureAPIClient {
         if (session?.access_token) {
           headers.set('Authorization', `Bearer ${session.access_token}`)
           if (import.meta.env.DEV) {
-            console.log('🔐 Using Supabase session token for API request')
+            logger.info('🔐 Using Supabase session token for API request')
           }
         } else {
           // Use demo token for kiosk mode
           try {
             const demoToken = await getDemoToken()
             headers.set('Authorization', `Bearer ${demoToken}`)
-            console.log('🔑 Using demo/kiosk token for API request')
+            logger.info('🔑 Using demo/kiosk token for API request')
           } catch (demoError) {
             console.error('Failed to get demo token:', demoError)
             // Fallback to test token in development only
             if (import.meta.env.DEV) {
               headers.set('Authorization', 'Bearer test-token')
-              console.log('🔧 Using test token fallback (development only)')
+              logger.info('🔧 Using test token fallback (development only)')
             } else {
               console.warn('❌ No authentication available for API request')
             }
@@ -118,13 +119,13 @@ export class HttpClient extends SecureAPIClient {
         try {
           const demoToken = await getDemoToken()
           headers.set('Authorization', `Bearer ${demoToken}`)
-          console.log('🔑 Using demo token (auth session failed)')
+          logger.info('🔑 Using demo token (auth session failed)')
         } catch (demoError) {
           console.error('All auth methods failed:', demoError)
           // Final fallback to test token in development
           if (import.meta.env.DEV) {
             headers.set('Authorization', 'Bearer test-token')
-            console.log('🔧 Using test token (all auth failed, dev mode)')
+            logger.info('🔧 Using test token (all auth failed, dev mode)')
           }
         }
       }
@@ -137,14 +138,14 @@ export class HttpClient extends SecureAPIClient {
       // Fallback to demo restaurant ID if not set (for friends & family/demo mode)
       if (!restaurantId) {
         restaurantId = '11111111-1111-1111-1111-111111111111'
-        console.log('🏢 Using demo restaurant ID for API request')
+        logger.info('🏢 Using demo restaurant ID for API request')
       }
       
       headers.set('x-restaurant-id', restaurantId)
       
       const debugVoice = import.meta.env.VITE_DEBUG_VOICE === 'true';
       if (import.meta.env.DEV && debugVoice) {
-        console.log(`[HttpClient] X-Restaurant-ID: ${restaurantId} → ${endpoint}`);
+        logger.info(`[HttpClient] X-Restaurant-ID: ${restaurantId} → ${endpoint}`);
       }
     }
 

@@ -1,9 +1,10 @@
 import { StrictMode } from 'react'
+import { logger } from '@/services/logger'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 
-console.log('[BOOT] main.tsx loaded');
+logger.info('[BOOT] main.tsx loaded');
 
 // Capture any window errors
 window.addEventListener('error', e => {
@@ -11,7 +12,7 @@ window.addEventListener('error', e => {
 });
 
 const rootElement = document.getElementById('root')
-console.log('[BOOT] Root element:', rootElement)
+logger.info('[BOOT] Root element:', rootElement)
 
 if (rootElement) {
   const root = createRoot(rootElement);
@@ -26,7 +27,7 @@ if (rootElement) {
   if (sentinel?.parentElement) {
     sentinel.parentElement.removeChild(sentinel);
   }
-  console.log('[BOOT] React mounted');
+  logger.info('[BOOT] React mounted');
   
   // Mark app as ready for E2E tests
   document.body.dataset.appReady = '1';
@@ -38,7 +39,7 @@ if (rootElement) {
     el.style.display = 'none';
     document.body.appendChild(el);
   }
-  console.log('[E2E] app mounted');
+  logger.info('[E2E] app mounted');
 } else {
   console.error('[BOOT] Could not find root element!')
 }

@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { logger } from '@/services/logger'
 import { getAudioPlaybackService } from '@/services/audio/AudioPlaybackService';
 import { useToast } from '@/hooks/useToast';
 import { useRestaurant } from '@/core';
@@ -44,7 +45,7 @@ const getAuthHeaders = async (): Promise<HeadersInit> => {
 
 // Dev/preview logging for debugging
 if (import.meta.env.DEV || import.meta.env.MODE === 'preview') {
-  console.log('[voice] API base:', API_BASE || 'http://localhost:3001', '| mode:', import.meta.env.MODE);
+  logger.info('[voice] API base:', API_BASE || 'http://localhost:3001', '| mode:', import.meta.env.MODE);
 }
 
 export interface VoiceToAudioOptions {
@@ -82,7 +83,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'voice.webm');
 
-      console.log('Sending voice to AI service for processing...');
+      logger.info('Sending voice to AI service for processing...');
 
       // Step 2: Process voice with AI service
       
@@ -92,7 +93,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       // Use voice-chat endpoint with audio accept header
       const authHeaders = await getAuthHeaders();
       const endpoint = url('/api/v1/ai/voice-chat');
-      console.log('Calling voice endpoint:', endpoint);
+      logger.info('Calling voice endpoint:', endpoint);
       
       response = await fetch(endpoint, {
         method: 'POST',
@@ -100,7 +101,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
         headers: { ...authHeaders, 'Accept': 'audio/mpeg' }
       });
       
-      console.log('Voice response status:', response.status, 'type:', response.headers.get('content-type'));
+      logger.info('Voice response status:', response.status, 'type:', response.headers.get('content-type'));
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -113,7 +114,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       const contentType = response.headers.get('content-type');
       
       if (contentType?.includes('audio')) {
-        console.log('Received audio response from AI service');
+        logger.info('Received audio response from AI service');
         
         // Extract metadata from headers
         const transcript = response.headers.get('X-Transcript') 
@@ -128,7 +129,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
         if (orderDataHeader) {
           try {
             const orderData = JSON.parse(decodeURIComponent(orderDataHeader));
-            console.log('Parsed order data from response:', orderData);
+            logger.info('Parsed order data from response:', orderData);
             
             // Emit order data for processing
             options.onOrderDataReceived?.(orderData);
@@ -151,11 +152,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
           responseText,
           {
             onStart: () => {
-              console.log('AI audio response started playing');
+              logger.info('AI audio response started playing');
               options.onAudioResponseStart?.();
             },
             onEnd: () => {
-              console.log('AI audio response finished playing');
+              logger.info('AI audio response finished playing');
               options.onAudioResponseEnd?.();
             },
             onError: (error) => {
@@ -223,7 +224,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       // Server returns MP3 audio directly - play it immediately
       const audioBuffer = await transcriptResponse.arrayBuffer();
       
-      console.log('Received audio response:', audioBuffer.byteLength, 'bytes');
+      logger.info('Received audio response:', audioBuffer.byteLength, 'bytes');
       
       // Convert ArrayBuffer to Blob for audio service
       // Trust the server to send valid audio
@@ -232,11 +233,11 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       // Play the MP3 response using the correct method
       await audioService.playAudioBlob(responseAudioBlob, 'Voice response', {
         onStart: () => {
-          console.log('OpenAI TTS audio playback started');
+          logger.info('OpenAI TTS audio playback started');
           options.onAudioResponseStart?.();
         },
         onEnd: () => {
-          console.log('OpenAI TTS audio playback ended');
+          logger.info('OpenAI TTS audio playback ended');
           options.onAudioResponseEnd?.();
         },
         onError: (error) => {

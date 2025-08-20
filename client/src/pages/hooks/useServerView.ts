@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useContext, useMemo, useRef } from 'react'
+import { logger } from '@/services/logger'
 import { RestaurantContext } from '@/core'
 import { tableService } from '@/services/tables/TableService'
 import { useToast } from '@/hooks/useToast'
@@ -18,17 +19,17 @@ export function useServerView() {
   const loadFloorPlan = useCallback(async () => {
     // Prevent concurrent calls
     if (loadingRef.current) {
-      console.log('🍽️ ServerView: Load already in progress, skipping')
+      logger.info('🍽️ ServerView: Load already in progress, skipping')
       return
     }
 
-    console.log('🍽️ ServerView loadFloorPlan called', { 
+    logger.info('🍽️ ServerView loadFloorPlan called', { 
       restaurantId: restaurant?.id,
       isInitialLoad: isInitialLoad.current 
     })
     
     if (!restaurant?.id) {
-      console.log('⏳ ServerView: No restaurant ID yet, waiting for context')
+      logger.info('⏳ ServerView: No restaurant ID yet, waiting for context')
       if (isInitialLoad.current) {
         setTables([])
         setIsLoading(false)
@@ -46,7 +47,7 @@ export function useServerView() {
       
       const { tables: loadedTables } = await tableService.getTables()
       
-      console.log('📊 ServerView: Received tables:', { 
+      logger.info('📊 ServerView: Received tables:', { 
         count: loadedTables?.length || 0,
         isInitial: isInitialLoad.current
       })
@@ -55,7 +56,7 @@ export function useServerView() {
       
       // Only show success message on initial load if no tables
       if (isInitialLoad.current && (!loadedTables || loadedTables.length === 0)) {
-        console.log('📭 ServerView: No tables found on initial load')
+        logger.info('📭 ServerView: No tables found on initial load')
       }
       
     } catch (error) {

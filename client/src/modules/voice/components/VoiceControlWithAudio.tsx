@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { logger } from '@/services/logger'
 import { cn } from '@/utils';
 import { useToast } from '@/hooks/useToast';
 import { HoldToRecordButton } from './HoldToRecordButton';
@@ -43,21 +44,21 @@ const VoiceControlWithAudio: React.FC<VoiceControlWithAudioProps> = ({
   // Voice to audio processing hook
   const { processVoiceWithTranscript, isProcessing: isVoiceProcessing } = useVoiceToAudio({
     onTranscriptReceived: (transcript) => {
-      console.log('Transcript received:', transcript);
+      logger.info('Transcript received:', transcript);
       setCurrentTranscript(transcript);
       onTranscript?.(transcript, true);
     },
     onOrderDataReceived: (orderData) => {
-      console.log('Order data received:', orderData);
+      logger.info('Order data received:', orderData);
       onOrderData?.(orderData);
     },
     onAudioResponseStart: () => {
-      console.log('AI audio response started');
+      logger.info('AI audio response started');
       setIsPlayingAudio(true);
       onAudioStart?.(''); // TODO: pass actual response text
     },
     onAudioResponseEnd: () => {
-      console.log('AI audio response ended');
+      logger.info('AI audio response ended');
       setIsPlayingAudio(false);
       onAudioEnd?.();
       setCurrentTranscript(''); // Clear transcript when done

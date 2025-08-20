@@ -1,4 +1,5 @@
 import React from 'react'
+import { logger } from '@/services/logger'
 import { Activity, Download, Trash2, AlertTriangle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,7 +23,7 @@ export const PerformanceDashboard: React.FC = () => {
     component: 'PerformanceDashboard' 
   })
 
-  console.log('📈 PerformanceDashboard render:', { 
+  logger.info('📈 PerformanceDashboard render:', { 
     metrics, 
     statistics, 
     memoryStats: statistics.memory 
@@ -46,7 +47,7 @@ export const PerformanceDashboard: React.FC = () => {
 
   const memoryStats = statistics.memory
   
-  console.log('📊 Calculated metrics:', {
+  logger.info('📊 Calculated metrics:', {
     totalRenders,
     totalAPICalls,
     avgRenderTime,

@@ -4,6 +4,7 @@
  */
 
 import { useRef, useCallback, useEffect, useState } from 'react';
+import { logger } from '@/services/logger'
 import { AudioPipeline, DEFAULT_AUDIO_CONFIG, AudioConfig } from './audio-pipeline';
 import { VoiceTransport, ConnectionState, TranscriptData, ResponseData, DEFAULT_CONFIG, VoiceTransportConfig } from './ws-transport';
 
@@ -102,7 +103,7 @@ export function useVoiceOrder(config: VoiceOrderConfig = {}): UseVoiceOrderRetur
 
     transport.on('heartbeat', () => {
       // Keep connection alive
-      console.debug('Heartbeat received');
+      logger.debug('Heartbeat received');
     });
 
     return () => {

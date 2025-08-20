@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { logger } from '@/services/logger'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { RestaurantProvider } from '@/core'
 import { RestaurantIdProvider } from '@/services/http'
@@ -38,16 +39,16 @@ function App() {
         
         if (shouldConnect) {
           isConnected = true
-          console.log('🔌 Initializing WebSocket connection for real-time updates...')
+          logger.info('🔌 Initializing WebSocket connection for real-time updates...')
           
           try {
             // CRITICAL FIX: Connect WebSocket FIRST, then initialize handlers
             await webSocketService.connect()
-            console.log('✅ WebSocket connected, now initializing order updates handler...')
+            logger.info('✅ WebSocket connected, now initializing order updates handler...')
             
             // Initialize order updates handler AFTER connection is established
             orderUpdatesHandler.initialize()
-            console.log('✅ Order updates handler initialized')
+            logger.info('✅ Order updates handler initialized')
           } catch (error) {
             console.warn('WebSocket connection failed:', error)
             isConnected = false // Reset on failure
