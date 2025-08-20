@@ -25,7 +25,7 @@ export class VoiceOrderProcessor {
   async loadMenuItems(restaurantId: string): Promise<void> {
     try {
       this.menuItems = await api.getMenuItems();
-      logger.info('[VoiceOrderProcessor] Loaded', this.menuItems.length, 'menu items');
+      logger.info('[VoiceOrderProcessor] Loaded menu items:', this.menuItems.length);
     } catch (error) {
       console.error('[VoiceOrderProcessor] Failed to load menu items:', error);
     }
@@ -128,7 +128,7 @@ export class VoiceOrderProcessor {
    */
   addToCurrentOrder(items: ParsedOrderItem[]): void {
     this.currentOrder.push(...items);
-    logger.info('[VoiceOrderProcessor] Current order has', this.currentOrder.length, 'items');
+    logger.info('[VoiceOrderProcessor] Current order has items:', this.currentOrder.length);
   }
   
   /**

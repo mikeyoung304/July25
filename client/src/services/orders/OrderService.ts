@@ -16,8 +16,9 @@ export interface IOrderService {
 }
 
 export interface OrderFilters {
-  status?: OrderStatus[]
+  status?: OrderStatus | OrderStatus[]
   tableNumber?: string
+  tableId?: string
   orderType?: OrderType
   dateRange?: {
     start: Date
@@ -31,13 +32,15 @@ export class OrderService implements IOrderService {
       const params: Record<string, unknown> = {}
       
       if (filters?.status) {
-        params.status = filters.status.join(',')
+        params.status = Array.isArray(filters.status) 
+          ? filters.status.join(',') 
+          : filters.status
       }
-      if (filters?.table_number) {
-        params.table_number = filters.table_number
+      if (filters?.tableNumber) {
+        params.table_number = filters.tableNumber
       }
-      if (filters?.type) {
-        params.type = filters.type
+      if (filters?.orderType) {
+        params.type = filters.orderType
       }
       if (filters?.dateRange) {
         params.startDate = filters.dateRange.start.toISOString()

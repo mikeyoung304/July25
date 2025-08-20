@@ -29,7 +29,7 @@ export function useKitchenOrders() {
   }, [])
 
   const handleOrderUpdate = useCallback(async (update: OrderUpdatePayload) => {
-    logger.info('[useKitchenOrders] Handling order update:', update.action, update.order?.id)
+    logger.info('[useKitchenOrders] Handling order update:', { action: update.action, orderId: update.order?.id })
     
     switch (update.action) {
       case 'created':

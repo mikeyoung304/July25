@@ -45,7 +45,7 @@ const getAuthHeaders = async (): Promise<HeadersInit> => {
 
 // Dev/preview logging for debugging
 if (import.meta.env.DEV || import.meta.env.MODE === 'preview') {
-  logger.info('[voice] API base:', API_BASE || 'http://localhost:3001', '| mode:', import.meta.env.MODE);
+  logger.info('[voice] API base:', { base: API_BASE || 'http://localhost:3001', mode: import.meta.env.MODE });
 }
 
 export interface VoiceToAudioOptions {
@@ -96,12 +96,12 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       logger.info('Calling voice endpoint:', endpoint);
       
       response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
+        method: 'POST', 
+        body: formData, 
         headers: { ...authHeaders, 'Accept': 'audio/mpeg' }
       });
       
-      logger.info('Voice response status:', response.status, 'type:', response.headers.get('content-type'));
+      logger.info('Voice response status:', { status: response.status, type: response.headers.get('content-type') });
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -224,7 +224,7 @@ export function useVoiceToAudio(options: VoiceToAudioOptions = {}) {
       // Server returns MP3 audio directly - play it immediately
       const audioBuffer = await transcriptResponse.arrayBuffer();
       
-      logger.info('Received audio response:', audioBuffer.byteLength, 'bytes');
+      logger.info('Received audio response:', { bytes: audioBuffer.byteLength });
       
       // Convert ArrayBuffer to Blob for audio service
       // Trust the server to send valid audio
