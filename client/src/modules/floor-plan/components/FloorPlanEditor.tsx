@@ -134,7 +134,7 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
 
       // 1. Create new tables first
       if (newTables.length > 0) {
-        logger.info('🆕 Creating', newTables.length, 'new tables...')
+        logger.info(`🆕 Creating ${newTables.length} new tables...`)
         for (const table of newTables) {
           const cleanNewTable = {
             label: table.label.trim(),
@@ -159,7 +159,7 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
 
       // 2. Update existing tables
       if (existingTables.length > 0) {
-        logger.info('🔄 Updating', existingTables.length, 'existing tables...')
+        logger.info(`🔄 Updating ${existingTables.length} existing tables...`)
         const cleanExistingTables = existingTables.map(table => ({
           id: table.id,
           label: table.label.trim(),
@@ -183,7 +183,7 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
       // Update local state with the new IDs from created tables
       setTables(savedTables)
       
-      logger.info('✅ Save successful, total tables:', savedTables.length)
+      logger.info(`✅ Save successful, total tables: ${savedTables.length}`)
       toast.success(`Floor plan saved! (${savedTables.length} tables)`)
       onSave?.(savedTables)
     } catch (error) {

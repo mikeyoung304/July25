@@ -95,9 +95,9 @@ export class WebSocketService extends EventEmitter {
           token = await getDemoToken()
           logger.info('🔑 Using demo token for WebSocket')
         } catch (demoError) {
-          console.warn('Failed to get demo token:', demoError)
-          // In development, fall back to test token
-          if (!env.PROD) {
+          console.warn('Failed to get demo token:', { value: demoError)
+          // In development, extra: fall back to test token
+          if (!env.PROD }) {
             logger.info('🔧 Using test token for WebSocket (dev mode)')
           } else {
             console.error('No authentication available for WebSocket')
@@ -110,8 +110,8 @@ export class WebSocketService extends EventEmitter {
 
       // Build WebSocket URL with auth params
       const wsUrl = new URL(this.config.url)
-      wsUrl.searchParams.set('token', token)
-      wsUrl.searchParams.set('restaurant_id', restaurantId)
+      wsUrl.searchParams.set('token', { value: token)
+      wsUrl.searchParams.set('restaurant_id', extra: restaurantId })
 
       // Create WebSocket connection
       this.ws = new WebSocket(wsUrl.toString())
@@ -187,11 +187,11 @@ export class WebSocketService extends EventEmitter {
       }
     }
     
-    this.on('message', handler)
+    this.on('message', { value: handler)
     
     // Return unsubscribe function
     return () => {
-      this.off('message', handler)
+      this.off('message', extra: handler })
     }
   }
 
@@ -223,15 +223,12 @@ export class WebSocketService extends EventEmitter {
       // Parse the message - server sends with payload wrapper
       const rawMessage = JSON.parse(event.data)
       
-      logger.info('[WebSocket] Raw message received:', rawMessage.type, 
-        rawMessage.payload ? 'has payload' : 'no payload')
+      logger.info('[WebSocket] Raw message received:', { value: rawMessage.type, extra: rawMessage.payload ? 'has payload' : 'no payload' })
       
       // DIAGNOSTIC: Log the full structure for order events
       if (rawMessage.type && rawMessage.type.startsWith('order:')) {
-        logger.info('[WebSocket] Order event structure:', {
-          type: rawMessage.type,
-          hasPayload: !!rawMessage.payload,
-          payloadKeys: rawMessage.payload ? Object.keys(rawMessage.payload) : [],
+        logger.info('[WebSocket] Order event structure:', { value: {
+          type: rawMessage.type, extra: [hasPayload: !!rawMessage.payload, payloadKeys: rawMessage.payload ? Object.keys(rawMessage.payload] }) : [],
           hasOrder: !!(rawMessage.payload && rawMessage.payload.order)
         })
       }
@@ -258,13 +255,13 @@ export class WebSocketService extends EventEmitter {
       this.handleHeartbeat()
       
       // Emit generic message event
-      this.emit('message', message)
+      this.emit('message', { value: message)
       
       logger.info(`[WebSocket] Emitting specific event 'message:${message.type}'`)
       
       // Emit specific message type event with the full payload
       // The orderUpdates handler will handle the transformation
-      this.emit(`message:${message.type}`, message.payload)
+      this.emit(`message:${message.type}`, extra: message.payload })
       
     } catch (error) {
       console.error('Failed to parse WebSocket message:', error)

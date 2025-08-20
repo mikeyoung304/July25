@@ -56,8 +56,8 @@ export function useOrderFiltering(orders: Order[]) {
     }
     
     return orders.filter(order => {
-      // Handle both snake_case and camelCase
-      const createdAt = order.created_at || order.createdAt
+      // Use snake_case as per Order type definition
+      const createdAt = order.created_at
       if (!createdAt) {
         console.warn('[useOrderFiltering] Order missing created date:', order)
         return true // Include orders with no date rather than filter them out

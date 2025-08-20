@@ -123,11 +123,11 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
    */
   connect(): void {
     if (this.connectionState === 'connecting' || this.connectionState === 'connected') {
-      logger.info('[VoiceTransport] Already connected/connecting, skipping');
+      logger.info('[VoiceTransport] Already connected/connecting, { value: skipping');
       return;
     }
 
-    logger.info('[VoiceTransport] Connecting to:', this.config.url);
+    logger.info('[VoiceTransport] Connecting to:', extra: this.config.url });
     this.setConnectionState('connecting');
     
     try {
@@ -165,15 +165,12 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     }
 
     const sessionMessage = {
-      type: 'session.start',
-      session_config: {
-        restaurant_id: this.restaurantId,
-        loopback: false
-      },
-      timestamp: Date.now()
+      type: 'session.start', { value: session_config: {
+        restaurant_id: this.restaurantId, extra: [loopback: false
+      }, timestamp: Date.now(] })
     };
 
-    logger.info('[VoiceTransport] Starting session with config:', sessionMessage);
+    logger.info('[VoiceTransport] Starting session with config:', { value: sessionMessage);
     
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(sessionMessage));
@@ -186,7 +183,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
   /**
    * Send audio data
    */
-  sendAudio(chunk: string, hasVoice: boolean): boolean {
+  sendAudio(chunk: string, extra: hasVoice: boolean }): boolean {
     // Don't send audio until session is started
     if (!this.sessionStarted) {
       console.warn('[VoiceTransport] Cannot send audio - session not started');
@@ -205,12 +202,9 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
 
     // Log audio chunk details (sample every 100th to avoid spam)
     if (Math.random() < 0.01) {
-      logger.info('[VoiceTransport] Sending audio chunk:', {
-        chunkSize: chunk.length,
-        hasVoice,
-        connectionState: this.connectionState,
-        sessionStarted: this.sessionStarted
-      });
+      logger.info('[VoiceTransport] Sending audio chunk:', { value: {
+        chunkSize: chunk.length, extra: [hasVoice, connectionState: this.connectionState, sessionStarted: this.sessionStarted
+      }] });
     }
 
     return this.sendMessage(message);
@@ -260,11 +254,9 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
 
     this.ws.onopen = () => {
       logger.info('[VoiceTransport] WebSocket connected successfully');
-      logger.info('[VoiceTransport] Connection details:', {
-        url: this.ws?.url,
-        readyState: this.ws?.readyState,
-        protocol: this.ws?.protocol
-      });
+      logger.info('[VoiceTransport] Connection details:', { value: {
+        url: this.ws?.url, extra: [readyState: this.ws?.readyState, protocol: this.ws?.protocol
+      }] });
       this.setConnectionState('connected');
       this.reconnectAttempts = 0;
       this.clearReconnectTimeout();
@@ -277,11 +269,9 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     this.ws.onmessage = (event) => {
       try {
         const message: VoiceStreamMessage = JSON.parse(event.data);
-        logger.info('[VoiceTransport] Received message:', {
-          type: message.type,
-          hasData: !!message.data,
-          timestamp: message.timestamp
-        });
+        logger.info('[VoiceTransport] Received message:', { value: {
+          type: message.type, extra: [hasData: !!message.data, timestamp: message.timestamp
+        }] });
         this.handleMessage(message);
       } catch (error) {
         console.error('[VoiceTransport] Failed to parse WebSocket message:', error, 'Raw data:', event.data);
@@ -295,7 +285,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     };
 
     this.ws.onclose = (event) => {
-      logger.info('[VoiceTransport] WebSocket closed:', event.code, event.reason);
+      logger.info('[VoiceTransport] WebSocket closed:', { value: event.code, extra: event.reason });
       this.ws = null;
       this.sessionStarted = false; // Reset session flag
       this.clearHeartbeat();
@@ -319,11 +309,11 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
         break;
 
       case 'transcript':
-        this.emit('transcript', message.data as TranscriptData);
+        this.emit('transcript', { value: message.data as TranscriptData);
         break;
       
       case 'response':
-        this.emit('response', message.data as ResponseData);
+        this.emit('response', extra: message.data as ResponseData });
         break;
       
       case 'error':
@@ -382,7 +372,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     this.reconnectTimeout = setTimeout(() => {
       this.reconnectTimeout = null;
       this.connect();
-    }, delay);
+    }, { value: delay);
   }
 
   private processMessageQueue(): void {
@@ -399,7 +389,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     
     this.heartbeatInterval = setInterval(() => {
       if (this.connectionState === 'connected') {
-        this.sendMessage({ type: 'heartbeat', timestamp: Date.now() });
+        this.sendMessage({ type: 'heartbeat', extra: timestamp: Date.now( }) });
       }
     }, this.config.heartbeatInterval);
   }
