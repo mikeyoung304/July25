@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { getAuthToken } from '../../../services/auth';
 
 export interface WebRTCVoiceConfig {
