@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Utensils } from 'lucide-react'
 import { KDSLayout } from '@/modules/kitchen/components/KDSLayout'
@@ -96,6 +96,6 @@ const OrdersGrid = memo(function OrdersGrid({
       </KDSLayout>
     </section>
   )
-}
+})
 
-export { OrdersGrid };
+export { OrdersGrid }

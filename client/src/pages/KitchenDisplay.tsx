@@ -58,11 +58,12 @@ export function KitchenDisplay() {
     )
   }
 
-  const activeOrdersCount = useMemo(() => filtering.filteredAndSortedOrders.filter(
-    o => o.status !== 'ready' && o.status !== 'completed'
-  ), [filtering, filteredAndSortedOrders])
-    o => o.status !== 'ready' && o.status !== 'completed'
-  ).length
+  const activeOrdersCount = useMemo(() => 
+    filtering.filteredAndSortedOrders.filter(
+      o => o.status !== 'ready' && o.status !== 'completed'
+    ).length,
+    [filtering.filteredAndSortedOrders]
+  )
 
   return (
     <RoleGuard suggestedRoles={['kitchen', 'admin']} pageTitle="Kitchen Display System">

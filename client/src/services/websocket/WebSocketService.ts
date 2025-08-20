@@ -95,9 +95,9 @@ export class WebSocketService extends EventEmitter {
           token = await getDemoToken()
           logger.info('🔑 Using demo token for WebSocket')
         } catch (demoError) {
-          console.warn('Failed to get demo token:', { value: demoError)
-          // In development, extra: fall back to test token
-          if (!env.PROD }) {
+          console.warn('Failed to get demo token:', demoError)
+          // In development, fall back to test token
+          if (!env.PROD) {
             logger.info('🔧 Using test token for WebSocket (dev mode)')
           } else {
             console.error('No authentication available for WebSocket')
@@ -110,8 +110,8 @@ export class WebSocketService extends EventEmitter {
 
       // Build WebSocket URL with auth params
       const wsUrl = new URL(this.config.url)
-      wsUrl.searchParams.set('token', { value: token)
-      wsUrl.searchParams.set('restaurant_id', extra: restaurantId })
+      wsUrl.searchParams.set('token', token)
+      wsUrl.searchParams.set('restaurant_id', restaurantId)
 
       // Create WebSocket connection
       this.ws = new WebSocket(wsUrl.toString())
@@ -187,11 +187,11 @@ export class WebSocketService extends EventEmitter {
       }
     }
     
-    this.on('message', { value: handler)
+    this.on('message', handler)
     
     // Return unsubscribe function
     return () => {
-      this.off('message', extra: handler })
+      this.off('message', handler)
     }
   }
 
@@ -257,13 +257,13 @@ export class WebSocketService extends EventEmitter {
       this.handleHeartbeat()
       
       // Emit generic message event
-      this.emit('message', { value: message)
+      this.emit('message', message)
       
       logger.info(`[WebSocket] Emitting specific event 'message:${message.type}'`)
       
       // Emit specific message type event with the full payload
       // The orderUpdates handler will handle the transformation
-      this.emit(`message:${message.type}`, extra: message.payload })
+      this.emit(`message:${message.type}`, message.payload)
       
     } catch (error) {
       console.error('Failed to parse WebSocket message:', error)

@@ -246,7 +246,7 @@ class PerformanceMonitor {
           };
           
           this.addMetric(metric);
-        }.bind(this));
+        });
       }
       
       return originalSend.apply(this, [body]);

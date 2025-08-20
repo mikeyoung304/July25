@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { MenuItemCard } from './MenuItemCard';
 import { MenuItem } from '../../menu/types';
 import { MenuSection as MenuSectionType } from '../types/menu-sections';
@@ -17,7 +17,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   onItemClick 
 }) => {
   // Filter items that belong to this section
-  const sectionItems = useMemo(() => items.filter(item => section.items.includes(item.id)), [items, section, item])item => section.items.includes(item.id));
+  const sectionItems = useMemo(() => items.filter(item => section.items.includes(item.id)), [items, section.items]);
 
   if (sectionItems.length === 0) return null;
 

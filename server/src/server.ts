@@ -1,7 +1,6 @@
 // IMPORTANT: Load environment variables FIRST before any other imports
 // This ensures all services have access to env vars during initialization
 import dotenv from 'dotenv';
-import { logger } from '../services/logger'
 import path from 'path';
 
 // Load from root .env file explicitly

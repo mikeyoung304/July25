@@ -149,7 +149,8 @@ export default defineConfig(({ mode }) => {
       strictPort: true
     },
     
-    build: {
+    // Duplicate build config removed - merged with first build config above
+    /*build: {
       // Basic minification without removing console logs
       minify: 'terser',
       
@@ -180,10 +181,10 @@ export default defineConfig(({ mode }) => {
       
       // Asset inlining threshold
       assetsInlineLimit: 4096, // 4kb
-    },
+    },*/
     
-    // Optimize dependencies
-    optimizeDeps: {
+    // Duplicate optimizeDeps removed - merged with first optimizeDeps above
+    /*optimizeDeps: {
       include: [
         'react',
         'react-dom',
@@ -192,7 +193,7 @@ export default defineConfig(({ mode }) => {
         'lucide-react',
       ],
       exclude: ['@rebuild/shared'],
-    },
+    },*/
     
     // CSS optimization
     css: {

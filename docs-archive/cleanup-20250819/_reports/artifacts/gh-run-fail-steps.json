@@ -1,6 +1,0 @@
-{"name":"lighthouse","steps":{"completedAt":"2025-08-13T21:06:03Z","conclusion":"failure","name":"Run Lighthouse CI","number":11,"startedAt":"2025-08-13T21:04:16Z","status":"completed"}}
-{"name":"smoke-test","steps":{"completedAt":"2025-08-13T21:05:46Z","conclusion":"failure","name":"Run Playwright smoke tests","number":11,"startedAt":"2025-08-13T21:04:41Z","status":"completed"}}
-{"name":"Code Analysis","steps":{"completedAt":"2025-08-13T21:03:33Z","conclusion":"failure","name":"Set up job","number":1,"startedAt":"2025-08-13T21:03:33Z","status":"completed"}}
-{"name":"Quality Gates","steps":{"completedAt":"2025-08-13T21:03:34Z","conclusion":"failure","name":"Set up job","number":1,"startedAt":"2025-08-13T21:03:33Z","status":"completed"}}
-{"name":"smoke-test","steps":{"completedAt":"2025-08-13T20:21:46Z","conclusion":"failure","name":"Run Playwright smoke tests","number":10,"startedAt":"2025-08-13T20:20:40Z","status":"completed"}}
-{"name":"lighthouse","steps":{"completedAt":"2025-08-13T20:21:23Z","conclusion":"failure","name":"Run Lighthouse CI","number":10,"startedAt":"2025-08-13T20:19:33Z","status":"completed"}}

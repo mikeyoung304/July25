@@ -126,12 +126,12 @@ export class OrderUpdatesHandler {
    * Handle new order created
    */
   private handleOrderCreated(payload: any): void {
-    logger.info('[OrderUpdates] Raw payload received:', { value: payload)
+    logger.info('[OrderUpdates] Raw payload received:', payload)
     
     // The payload IS { order: snake_case_order }, extra: so we need to extract and transform
     const rawOrder = payload.order || payload
     
-    if (!rawOrder }) {
+    if (!rawOrder) {
       console.error('[OrderUpdates] No order in payload:', payload)
       return
     }
@@ -162,13 +162,13 @@ export class OrderUpdatesHandler {
    * Handle order updated
    */
   private handleOrderUpdated(payload: any): void {
-    logger.info('[OrderUpdates] Update payload received:', { value: payload)
+    logger.info('[OrderUpdates] Update payload received:', payload)
     
     // Extract and transform the order
     const rawOrder = payload.order || payload
     
     if (!rawOrder) {
-      console.error('[OrderUpdates] No order in update payload:', extra: payload })
+      console.error('[OrderUpdates] No order in update payload:', payload)
       return
     }
     
@@ -180,11 +180,12 @@ export class OrderUpdatesHandler {
       return
     }
     
-    logger.info('[OrderUpdates] Order updated:', { value: order.id)
+    logger.info('[OrderUpdates] Order updated:', order.id)
     
     this.notifySubscribers({
-      action: 'updated', extra: order: order  // Now properly transformed to camelCase
-    } })
+      action: 'updated',
+      order: order  // Now properly transformed to camelCase
+    })
   }
 
   /**
@@ -198,11 +199,12 @@ export class OrderUpdatesHandler {
       return
     }
     
-    logger.info('[OrderUpdates] Order deleted:', { value: orderId)
+    logger.info('[OrderUpdates] Order deleted:', orderId)
     
     this.notifySubscribers({
-      action: 'deleted', extra: orderId: orderId
-    } })
+      action: 'deleted',
+      orderId: orderId
+    })
   }
 
   /**
@@ -267,8 +269,8 @@ export class OrderUpdatesHandler {
     
     // Re-create subscriptions
     this.subscriptions.push(
-      webSocketService.subscribe('order:created', { value: (payload) => {
-        logger.info('[OrderUpdates] Raw order:created payload:', extra: payload })
+      webSocketService.subscribe('order:created', (payload) => {
+        logger.info('[OrderUpdates] Raw order:created payload:', payload)
         this.handleOrderCreated(payload)
       }),
       webSocketService.subscribe('order:updated', (payload) => 
@@ -281,7 +283,7 @@ export class OrderUpdatesHandler {
         this.handleItemStatusChanged(payload))
     )
     
-    logger.info('[OrderUpdates] Subscriptions reinitialized:', { value: this.subscriptions.length)
+    logger.info('[OrderUpdates] Subscriptions reinitialized:', this.subscriptions.length)
   }
   
   /**
@@ -289,7 +291,7 @@ export class OrderUpdatesHandler {
    */
   requestSync(): void {
     if (webSocketService.isConnected()) {
-      webSocketService.send('orders:sync', extra: { requestFullSync: true } })
+      webSocketService.send('orders:sync', { requestFullSync: true })
     }
   }
 
