@@ -58,7 +58,9 @@ export function KitchenDisplay() {
     )
   }
 
-  const activeOrdersCount = filtering.filteredAndSortedOrders.filter(
+  const activeOrdersCount = useMemo(() => filtering.filteredAndSortedOrders.filter(
+    o => o.status !== 'ready' && o.status !== 'completed'
+  ), [filtering, filteredAndSortedOrders])
     o => o.status !== 'ready' && o.status !== 'completed'
   ).length
 

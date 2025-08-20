@@ -26,7 +26,9 @@ export function AdminDashboard() {
 
   // The FloorPlanEditor now handles saving internally via the FloorPlanService
   // This callback is optional and can be used for additional actions after save
-  const handleSaveFloorPlan = (tables: Table[]) => {
+  const handleSaveFloorPlan = useCallback((tables: Table[]) => {
+    console.warn('Floor plan saved for restaurant:', restaurant?.id, 'Tables:', tables.length)
+  }, [tables]) {
     console.warn('Floor plan saved for restaurant:', restaurant?.id, 'Tables:', tables.length)
   }
   
