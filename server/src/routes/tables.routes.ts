@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { logger } from '../services/logger'
+import { logger } from '../utils/logger'
 import { supabase } from '../config/database';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { validateRestaurantAccess } from '../middleware/auth';

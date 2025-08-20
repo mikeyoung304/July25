@@ -1,7 +1,0 @@
-Severity,Area,File/Path,Finding,Evidence,Proposed Fix
-P0,TypeScript,server/src,Type errors in server code,npm run typecheck output,Fix type definitions and imports
-P1,Migration,Various,BuildPanel references still present,grep results show references,Complete migration to OpenAI
-P2,Dependencies,Root,Unused dependencies detected,depcheck analysis,Remove unused packages
-P2,Code Quality,Various,Multiple TODO/FIXME items,grep count shows items,Address or create tickets
-P3,Documentation,.env.example,May contain outdated references,Config drift detected,Update example configs
-P3,Testing,server/src/ai,AI adapter tests may need updates,Test output warnings,Review and update test coverage

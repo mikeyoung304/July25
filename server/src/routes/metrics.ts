@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { logger } from '../services/logger';
+import { logger } from '../utils/logger';
 
 const router = Router();
 

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useCallback } from 'react'
 import { logger } from '@/services/logger'
 import { motion } from 'framer-motion'
 import { ArrowLeft, LayoutGrid, BarChart3 } from 'lucide-react'
@@ -28,9 +28,7 @@ export function AdminDashboard() {
   // This callback is optional and can be used for additional actions after save
   const handleSaveFloorPlan = useCallback((tables: Table[]) => {
     console.warn('Floor plan saved for restaurant:', restaurant?.id, 'Tables:', tables.length)
-  }, [tables]) {
-    console.warn('Floor plan saved for restaurant:', restaurant?.id, 'Tables:', tables.length)
-  }
+  }, [restaurant?.id])
   
   // Show loading state while restaurant data is being fetched
   if (!restaurant) {

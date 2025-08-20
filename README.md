@@ -113,22 +113,29 @@ rebuild-6.0/
 
 ## 🎯 Recent Improvements
 
-### Phase 1-3 Completed (January 2025)
+### Bug Fixes (August 20, 2025)
 
-- **Documentation**: Reduced from 61 to ~20 files
-- **Type System**: Unified types across client/server
-- **Components**: Consolidated duplicate implementations
-  - `BaseOrderCard` with variants (standard, KDS, compact)
-  - `UnifiedVoiceRecorder` replacing multiple voice components
-  - Shared UI components (LoadingSpinner, EmptyState, etc.)
-- **Performance**: ~40% code reduction through consolidation
+#### Critical Fixes ✅
+- **Memory Leaks**: Fixed VoiceSocketManager cleanup callbacks not executing
+- **WebSocket**: Fixed heartbeat timer memory leak on error
+- **Floor Plan**: Fixed save failures for new tables (CREATE vs UPDATE)
+- **Voice Processing**: Fixed "Processing voice input..." stuck state
+- **Syntax Errors**: Fixed 7 critical syntax errors from automated refactoring
 
-### Phase 4-6 Completed (January 2025)
+#### Performance Foundations (Created but not integrated)
+- **Request Batching**: Service created at `client/src/services/http/RequestBatcher.ts`
+- **Response Cache**: LRU cache created at `client/src/services/cache/ResponseCache.ts`
+- **Virtual Scrolling**: Hook created at `client/src/hooks/useVirtualization.ts`
+- **LocalStorage Manager**: Created at `client/src/services/monitoring/localStorage-manager.ts`
+- **Note**: These services need integration into the application
 
-- **Test Infrastructure**: Comprehensive test utilities and helpers
-- **Production Monitoring**: Integrated error tracking and performance monitoring
-- **Performance Optimization**: Bundle splitting, vendor optimization
-- **Technical Debt**: Logger service, TypeScript fixes, error boundaries
+### System Stabilization (August 2025)
+
+- **WebRTC Voice**: Integrated real-time voice (200ms latency vs 4.5s sequential)
+- **Type System**: Working on unifying types across client/server
+- **Components**: Some consolidation of duplicate implementations
+- **Kitchen Display**: Fixed order status handling for all 7 states
+- **Authentication**: Demo auth system for testing
 
 ### Frontend Stabilization (January 2025)
 
