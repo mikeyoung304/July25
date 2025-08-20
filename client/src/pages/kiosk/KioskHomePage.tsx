@@ -4,6 +4,7 @@
  */
 
 import React, { useCallback, useState } from 'react';
+import { logger } from '@/services/logger'
 import { ShoppingCart, Menu, Settings, HelpCircle } from 'lucide-react';
 import { VoiceOrderWidget } from '../../components/kiosk/VoiceOrderWidget';
 import { useRestaurant } from '../../core/restaurant-hooks';
@@ -18,7 +19,7 @@ export const KioskHomePage: React.FC<KioskHomePageProps> = ({ className = '' }) 
   const { restaurant } = useRestaurant();
 
   const handleOrderComplete = useCallback((transcript: string) => {
-    console.log('Order completed:', transcript);
+    logger.info('Order completed:', transcript);
     setOrderTranscript(transcript);
     setOrderCount(prev => prev + 1);
     
@@ -35,12 +36,12 @@ export const KioskHomePage: React.FC<KioskHomePageProps> = ({ className = '' }) 
 
   const handleViewCart = useCallback(() => {
     // Navigate to cart/checkout
-    console.log('View cart clicked');
+    logger.info('View cart clicked');
   }, []);
 
   const handleViewMenu = useCallback(() => {
     // Navigate to digital menu
-    console.log('View menu clicked');
+    logger.info('View menu clicked');
   }, []);
 
   return (

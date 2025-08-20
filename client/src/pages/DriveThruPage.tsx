@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { logger } from '@/services/logger'
 import { ShoppingCart, Headphones, User, Volume2, AlertCircle, CheckCircle } from 'lucide-react';
 import { VoiceOrderProvider } from '@/modules/voice/contexts/VoiceOrderContext';
 import { useVoiceOrder } from '@/modules/voice/hooks/useVoiceOrder';
@@ -147,7 +148,7 @@ const DriveThruPageContent: React.FC = () => {
   }, [processVoiceOrder]);
   
   const handleOrderDetected = useCallback((order: any) => {
-    console.log('Order detected:', order);
+    logger.info('Order detected:', order);
     // Order detection is handled through transcript processing
   }, []);
 

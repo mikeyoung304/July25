@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { logger } from '@/services/logger'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Package, Clock, CheckCircle, AlertCircle, 
@@ -302,19 +303,19 @@ export function ExpoPage() {
             title="All Day Counts"
             icon={<Eye className="h-8 w-8" />}
             color="#7B68EE"
-            onClick={() => console.log('View all day counts')}
+            onClick={() => logger.info('View all day counts')}
           />
           <ActionCard
             title="Station Status"
             icon={<AlertCircle className="h-8 w-8" />}
             color="#4ECDC4"
-            onClick={() => console.log('View station status')}
+            onClick={() => logger.info('View station status')}
           />
           <ActionCard
             title="Quality Check"
             icon={<CheckCircle className="h-8 w-8" />}
             color="#88B0A4"
-            onClick={() => console.log('Perform quality check')}
+            onClick={() => logger.info('Perform quality check')}
           />
         </div>
       </PageContent>

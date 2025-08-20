@@ -1,3 +1,5 @@
+import { logger } from '@/services/logger'
+
 /**
  * Browser-compatible EventEmitter implementation
  * Provides a simple event emitter for WebSocket service
@@ -15,7 +17,7 @@ export class EventEmitter {
     }
     this.events.get(event)!.add(handler)
     // DIAGNOSTIC: Log handler registration
-    console.log(`[EventEmitter] Handler registered for event '${event}', total handlers: ${this.events.get(event)!.size}`)
+    logger.info(`[EventEmitter] Handler registered for event '${event}', total handlers: ${this.events.get(event)!.size}`)
     return this
   }
 
@@ -35,10 +37,10 @@ export class EventEmitter {
     const handlers = this.events.get(event)
     
     // DIAGNOSTIC: Log emission attempt
-    console.log(`[EventEmitter] Emitting '${event}', handlers: ${handlers ? handlers.size : 0}`)
+    logger.info(`[EventEmitter] Emitting '${event}', handlers: ${handlers ? handlers.size : 0}`)
     
     if (!handlers || handlers.size === 0) {
-      console.log(`[EventEmitter] WARNING: No handlers for event '${event}'`)
+      logger.info(`[EventEmitter] WARNING: No handlers for event '${event}'`)
       return false
     }
     

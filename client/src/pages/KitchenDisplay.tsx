@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { logger } from '@/services/logger'
 import { useRestaurant } from '@/core'
 import { useSoundNotifications } from '@/hooks/useSoundNotifications'
 import { useKitchenOrders } from '@/hooks/kitchen/useKitchenOrders'
@@ -129,7 +130,7 @@ export function KitchenDisplay() {
                   variant="secondary"
                   className="flex items-center gap-2"
                   onClick={async () => {
-                    console.log('[KitchenDisplay] Create Test Order button clicked')
+                    logger.info('[KitchenDisplay] Create Test Order button clicked')
                     
                     // Use actual menu items from your restaurant
                     const realMenuItems = [
@@ -167,16 +168,16 @@ export function KitchenDisplay() {
                       total: randomItem.price * quantity * 1.08,
                     }
                     
-                    console.log('[KitchenDisplay] Prepared mock order:', mockOrder)
+                    logger.info('[KitchenDisplay] Prepared mock order:', mockOrder)
                     
                     try {
-                      console.log('[KitchenDisplay] Calling api.submitOrder...')
+                      logger.info('[KitchenDisplay] Calling api.submitOrder...')
                       const result = await api.submitOrder(mockOrder)
-                      console.log('[KitchenDisplay] Order created successfully:', result)
+                      logger.info('[KitchenDisplay] Order created successfully:', result)
                       
                       if (result) {
                         toast.success(`Test order created: ${randomItem.name}`)
-                        console.log('[KitchenDisplay] Toast shown - WebSocket will update the display')
+                        logger.info('[KitchenDisplay] Toast shown - WebSocket will update the display')
                         // Don't call loadOrders() - WebSocket already updates the state!
                       } else {
                         console.warn('[KitchenDisplay] submitOrder returned falsy result:', result)

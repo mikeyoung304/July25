@@ -1,3 +1,5 @@
+import { logger } from '@/services/logger'
+
 /**
  * AudioPlaybackService - Handles TTS audio playback from AI responses
  * Manages audio queue, playback state, and error handling
@@ -93,12 +95,12 @@ class AudioPlaybackService {
 
       // Set up event listeners
       audio.onplay = () => {
-        console.log('Audio playback started:', item.text);
+        logger.info('Audio playback started:', item.text);
         item.onStart?.();
       };
 
       audio.onended = () => {
-        console.log('Audio playback ended:', item.text);
+        logger.info('Audio playback ended:', item.text);
         item.onEnd?.();
         
         // Clean up object URL to prevent memory leaks

@@ -5,6 +5,7 @@
  */
 
 import { EventEmitter } from '@/services/utils/EventEmitter'
+import { logger } from '@/services/logger'
 import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
 import { toSnakeCase, toCamelCase } from '@/services/utils/caseTransform'
@@ -86,18 +87,18 @@ export class WebSocketService extends EventEmitter {
       if (session?.access_token) {
         // Use Supabase session token if available
         token = session.access_token
-        console.log('🔐 Using Supabase session for WebSocket')
+        logger.info('🔐 Using Supabase session for WebSocket')
       } else {
         // No Supabase session - try to get demo token for friends & family
         try {
           const { getDemoToken } = await import('@/services/auth/demoAuth')
           token = await getDemoToken()
-          console.log('🔑 Using demo token for WebSocket')
+          logger.info('🔑 Using demo token for WebSocket')
         } catch (demoError) {
           console.warn('Failed to get demo token:', demoError)
           // In development, fall back to test token
           if (!env.PROD) {
-            console.log('🔧 Using test token for WebSocket (dev mode)')
+            logger.info('🔧 Using test token for WebSocket (dev mode)')
           } else {
             console.error('No authentication available for WebSocket')
           }
@@ -176,12 +177,12 @@ export class WebSocketService extends EventEmitter {
     messageType: string,
     callback: (payload: T) => void
   ): () => void {
-    console.log(`[WebSocket] Creating subscription for message type: '${messageType}'`)
+    logger.info(`[WebSocket] Creating subscription for message type: '${messageType}'`)
     
     const handler = (message: WebSocketMessage) => {
-      console.log(`[WebSocket] Subscription handler checking: ${message.type} === ${messageType}?`)
+      logger.info(`[WebSocket] Subscription handler checking: ${message.type} === ${messageType}?`)
       if (message.type === messageType) {
-        console.log(`[WebSocket] Match! Calling callback for ${messageType}`)
+        logger.info(`[WebSocket] Match! Calling callback for ${messageType}`)
         callback(message.payload as T)
       }
     }
@@ -222,12 +223,12 @@ export class WebSocketService extends EventEmitter {
       // Parse the message - server sends with payload wrapper
       const rawMessage = JSON.parse(event.data)
       
-      console.log('[WebSocket] Raw message received:', rawMessage.type, 
+      logger.info('[WebSocket] Raw message received:', rawMessage.type, 
         rawMessage.payload ? 'has payload' : 'no payload')
       
       // DIAGNOSTIC: Log the full structure for order events
       if (rawMessage.type && rawMessage.type.startsWith('order:')) {
-        console.log('[WebSocket] Order event structure:', {
+        logger.info('[WebSocket] Order event structure:', {
           type: rawMessage.type,
           hasPayload: !!rawMessage.payload,
           payloadKeys: rawMessage.payload ? Object.keys(rawMessage.payload) : [],
@@ -245,7 +246,7 @@ export class WebSocketService extends EventEmitter {
       }
       
       // DIAGNOSTIC: Log emission
-      console.log(`[WebSocket] Emitting 'message' event with type: ${message.type}`)
+      logger.info(`[WebSocket] Emitting 'message' event with type: ${message.type}`)
       
       // Handle heartbeat responses
       if (message.type === 'pong') {
@@ -259,7 +260,7 @@ export class WebSocketService extends EventEmitter {
       // Emit generic message event
       this.emit('message', message)
       
-      console.log(`[WebSocket] Emitting specific event 'message:${message.type}'`)
+      logger.info(`[WebSocket] Emitting specific event 'message:${message.type}'`)
       
       // Emit specific message type event with the full payload
       // The orderUpdates handler will handle the transformation

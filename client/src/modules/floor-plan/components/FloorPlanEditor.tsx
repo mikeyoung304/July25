@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { logger } from '@/services/logger'
 import { Table } from '../types'
 import { FloorPlanCanvas } from './FloorPlanCanvas'
 import { FloorPlanToolbar } from './FloorPlanToolbar'
@@ -123,7 +124,7 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
       const newTables = tables.filter(table => table.id.startsWith('table-'))
       const existingTables = tables.filter(table => !table.id.startsWith('table-'))
       
-      console.log('🔧 Save analysis:', { 
+      logger.info('🔧 Save analysis:', { 
         total: tables.length, 
         new: newTables.length, 
         existing: existingTables.length 
@@ -133,7 +134,7 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
 
       // 1. Create new tables first
       if (newTables.length > 0) {
-        console.log('🆕 Creating', newTables.length, 'new tables...')
+        logger.info('🆕 Creating', newTables.length, 'new tables...')
         for (const table of newTables) {
           const cleanNewTable = {
             label: table.label.trim(),
@@ -152,13 +153,13 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
           
           const createdTable = await tableService.createTable(cleanNewTable)
           savedTables.push(createdTable)
-          console.log('✅ Created table:', createdTable.id)
+          logger.info('✅ Created table:', createdTable.id)
         }
       }
 
       // 2. Update existing tables
       if (existingTables.length > 0) {
-        console.log('🔄 Updating', existingTables.length, 'existing tables...')
+        logger.info('🔄 Updating', existingTables.length, 'existing tables...')
         const cleanExistingTables = existingTables.map(table => ({
           id: table.id,
           label: table.label.trim(),
@@ -182,7 +183,7 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
       // Update local state with the new IDs from created tables
       setTables(savedTables)
       
-      console.log('✅ Save successful, total tables:', savedTables.length)
+      logger.info('✅ Save successful, total tables:', savedTables.length)
       toast.success(`Floor plan saved! (${savedTables.length} tables)`)
       onSave?.(savedTables)
     } catch (error) {

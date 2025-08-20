@@ -1,6 +1,7 @@
 // IMPORTANT: Load environment variables FIRST before any other imports
 // This ensures all services have access to env vars during initialization
 import dotenv from 'dotenv';
+import { logger } from '../services/logger'
 import path from 'path';
 
 // Load from root .env file explicitly
@@ -84,7 +85,7 @@ const july25Origins = [
 ];
 allowedOrigins.push(...july25Origins);
 
-console.log('🔧 CORS allowed origins:', allowedOrigins);
+logger.info('🔧 CORS allowed origins:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -97,7 +98,7 @@ app.use(cors({
     } 
     // Allow any Vercel preview deployment for July25
     else if (origin.includes('july25-client') && origin.endsWith('.vercel.app')) {
-      console.log(`✅ Allowing Vercel preview deployment: ${origin}`);
+      logger.info(`✅ Allowing Vercel preview deployment: ${origin}`);
       callback(null, true);
     } else {
       console.error(`❌ CORS blocked origin: "${origin}"`);

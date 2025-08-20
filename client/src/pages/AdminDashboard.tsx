@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react'
+import { logger } from '@/services/logger'
 import { motion } from 'framer-motion'
 import { ArrowLeft, LayoutGrid, BarChart3 } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -15,7 +16,7 @@ export function AdminDashboard() {
   const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics'>('overview')
   const context = useContext(RestaurantContext)
   
-  console.log('🏛️ AdminDashboard render', { activeView, context, restaurant: context?.restaurant })
+  logger.info('🏛️ AdminDashboard render', { activeView, context, restaurant: context?.restaurant })
   
   if (!context) {
     throw new Error('AdminDashboard must be used within a RestaurantProvider')
@@ -75,7 +76,7 @@ export function AdminDashboard() {
               <div
                 className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all rounded-xl shadow-elevation-2 border border-neutral-100/30 p-6`}
                 onClick={() => {
-                  console.log('🖱️ Floor Plan Creator clicked, changing activeView to floorplan')
+                  logger.info('🖱️ Floor Plan Creator clicked, changing activeView to floorplan')
                   setActiveView('floorplan')
                 }}
                 style={{ cursor: 'pointer' }}
@@ -95,7 +96,7 @@ export function AdminDashboard() {
               <div
                 className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all rounded-xl shadow-elevation-2 border border-neutral-100/30 p-6`}
                 onClick={() => {
-                  console.log('🖱️ Analytics clicked, changing activeView to analytics')
+                  logger.info('🖱️ Analytics clicked, changing activeView to analytics')
                   setActiveView('analytics')
                 }}
                 style={{ cursor: 'pointer' }}
@@ -124,7 +125,7 @@ export function AdminDashboard() {
               <Button
                 variant="ghost"
                 onClick={() => {
-                  console.log('🔙 Back to overview clicked')
+                  logger.info('🔙 Back to overview clicked')
                   setActiveView('overview')
                 }}
                 className="mb-4"

@@ -4,6 +4,7 @@
  */
 
 import { api } from '@/services/api';
+import { logger } from '@/services/logger'
 import { MenuItem } from '@/modules/menu/types';
 import { Order, OrderItem } from '@rebuild/shared';
 
@@ -24,7 +25,7 @@ export class VoiceOrderProcessor {
   async loadMenuItems(restaurantId: string): Promise<void> {
     try {
       this.menuItems = await api.getMenuItems();
-      console.log('[VoiceOrderProcessor] Loaded', this.menuItems.length, 'menu items');
+      logger.info('[VoiceOrderProcessor] Loaded', this.menuItems.length, 'menu items');
     } catch (error) {
       console.error('[VoiceOrderProcessor] Failed to load menu items:', error);
     }
@@ -127,7 +128,7 @@ export class VoiceOrderProcessor {
    */
   addToCurrentOrder(items: ParsedOrderItem[]): void {
     this.currentOrder.push(...items);
-    console.log('[VoiceOrderProcessor] Current order has', this.currentOrder.length, 'items');
+    logger.info('[VoiceOrderProcessor] Current order has', this.currentOrder.length, 'items');
   }
   
   /**
@@ -204,7 +205,7 @@ export class VoiceOrderProcessor {
     
     try {
       const order = await api.submitOrder(orderData);
-      console.log('[VoiceOrderProcessor] Order submitted:', order.order_number);
+      logger.info('[VoiceOrderProcessor] Order submitted:', order.order_number);
       this.clearCurrentOrder();
       return order;
     } catch (error) {

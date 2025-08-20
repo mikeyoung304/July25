@@ -1,4 +1,5 @@
 import { createContext } from 'react'
+import { logger } from '@/services/logger'
 
 // Types
 export interface Restaurant {
@@ -25,4 +26,4 @@ export const RestaurantContext = createContext<RestaurantContextType | undefined
 
 // Add a unique ID to track context instance
 ;(RestaurantContext as any).__contextId = 'restaurant-context-' + Date.now()
-console.log('[restaurant-types] Created RestaurantContext with ID:', (RestaurantContext as any).__contextId)
+logger.info('[restaurant-types] Created RestaurantContext with ID:', (RestaurantContext as any).__contextId)

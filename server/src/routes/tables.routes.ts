@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { logger } from '../services/logger'
 import { supabase } from '../config/database';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { validateRestaurantAccess } from '../middleware/auth';
@@ -204,7 +205,7 @@ export const updateTableStatus = asyncHandler(async (req, res) => {
 export const batchUpdateTables = asyncHandler(async (req, res) => {
   const restaurantId = req.headers['x-restaurant-id'] as string;
   
-  console.log('Batch update request received:', {
+  logger.info('Batch update request received:', {
     restaurantId,
     bodyKeys: Object.keys(req.body),
     body: req.body,
@@ -227,7 +228,7 @@ export const batchUpdateTables = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Tables must be an array' });
   }
   
-  console.log('Tables array received:', {
+  logger.info('Tables array received:', {
     length: tables.length,
     firstTable: tables[0],
     sampleTable: JSON.stringify(tables[0], null, 2)
@@ -257,7 +258,7 @@ export const batchUpdateTables = asyncHandler(async (req, res) => {
         delete dbUpdates.type;
       }
       
-      console.log(`🔄 Updating table ${index + 1}/${tables.length} (id: ${id}):`, {
+      logger.info(`🔄 Updating table ${index + 1}/${tables.length} (id: ${id}):`, {
         originalData: table,
         transformedData: dbUpdates,
         fieldsToUpdate: Object.keys(dbUpdates)
@@ -272,11 +273,11 @@ export const batchUpdateTables = asyncHandler(async (req, res) => {
         .single();
     });
     
-    console.log(`🚀 Executing ${promises.length} table updates...`);
+    logger.info(`🚀 Executing ${promises.length} table updates...`);
     results = await Promise.all(promises);
     const errors = results.filter(r => r.error);
     
-    console.log(`✅ Update results: ${results.length - errors.length} success, ${errors.length} errors`);
+    logger.info(`✅ Update results: ${results.length - errors.length} success, ${errors.length} errors`);
     
     if (errors.length > 0) {
       console.error('❌ Batch update failed. Error details:', {

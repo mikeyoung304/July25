@@ -1,11 +1,12 @@
 import React, { useEffect, ReactNode } from 'react'
+import { logger } from '@/services/logger'
 import { useAsyncState } from '@/hooks/useAsyncState'
 import { RestaurantContext, type Restaurant } from './restaurant-types'
 import { env } from '@/utils/env'
 
 // Provider
 export function RestaurantProvider({ children }: { children: ReactNode }) {
-  console.log('[RestaurantProvider] Mounting with context ID:', (RestaurantContext as any).__contextId)
+  logger.info('[RestaurantProvider] Mounting with context ID:', (RestaurantContext as any).__contextId)
   const { 
     data: restaurant, 
     loading: isLoading, 
@@ -49,7 +50,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     error
   }
   
-  console.log('[RestaurantProvider] Providing context value:', {
+  logger.info('[RestaurantProvider] Providing context value:', {
     contextId: (RestaurantContext as any).__contextId,
     hasRestaurant: !!restaurant,
     isLoading,

@@ -1,3 +1,5 @@
+import { logger } from '@/services/logger'
+
 /**
  * WebSocket Transport for Voice Streaming
  * Handles connection, reconnection, message queuing, and event emission
@@ -121,11 +123,11 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
    */
   connect(): void {
     if (this.connectionState === 'connecting' || this.connectionState === 'connected') {
-      console.log('[VoiceTransport] Already connected/connecting, skipping');
+      logger.info('[VoiceTransport] Already connected/connecting, skipping');
       return;
     }
 
-    console.log('[VoiceTransport] Connecting to:', this.config.url);
+    logger.info('[VoiceTransport] Connecting to:', this.config.url);
     this.setConnectionState('connecting');
     
     try {
@@ -158,7 +160,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
    */
   private startSession(): void {
     if (this.sessionStarted) {
-      console.log('[VoiceTransport] Session already started');
+      logger.info('[VoiceTransport] Session already started');
       return;
     }
 
@@ -171,7 +173,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
       timestamp: Date.now()
     };
 
-    console.log('[VoiceTransport] Starting session with config:', sessionMessage);
+    logger.info('[VoiceTransport] Starting session with config:', sessionMessage);
     
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(sessionMessage));
@@ -203,7 +205,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
 
     // Log audio chunk details (sample every 100th to avoid spam)
     if (Math.random() < 0.01) {
-      console.log('[VoiceTransport] Sending audio chunk:', {
+      logger.info('[VoiceTransport] Sending audio chunk:', {
         chunkSize: chunk.length,
         hasVoice,
         connectionState: this.connectionState,
@@ -257,8 +259,8 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     if (!this.ws) return;
 
     this.ws.onopen = () => {
-      console.log('[VoiceTransport] WebSocket connected successfully');
-      console.log('[VoiceTransport] Connection details:', {
+      logger.info('[VoiceTransport] WebSocket connected successfully');
+      logger.info('[VoiceTransport] Connection details:', {
         url: this.ws?.url,
         readyState: this.ws?.readyState,
         protocol: this.ws?.protocol
@@ -275,7 +277,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     this.ws.onmessage = (event) => {
       try {
         const message: VoiceStreamMessage = JSON.parse(event.data);
-        console.log('[VoiceTransport] Received message:', {
+        logger.info('[VoiceTransport] Received message:', {
           type: message.type,
           hasData: !!message.data,
           timestamp: message.timestamp
@@ -293,7 +295,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     };
 
     this.ws.onclose = (event) => {
-      console.log('[VoiceTransport] WebSocket closed:', event.code, event.reason);
+      logger.info('[VoiceTransport] WebSocket closed:', event.code, event.reason);
       this.ws = null;
       this.sessionStarted = false; // Reset session flag
       this.clearHeartbeat();
@@ -310,7 +312,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     switch (message.type) {
       case 'session.started':
         // Session successfully started
-        console.log('[VoiceTransport] Session started successfully');
+        logger.info('[VoiceTransport] Session started successfully');
         this.sessionStarted = true;
         // Now process any queued messages
         this.processMessageQueue();
@@ -375,7 +377,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     const jitter = Math.random() * 1000; // Add up to 1 second of jitter
     const delay = baseDelay + jitter;
 
-    console.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts})`);
+    logger.info(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts})`);
 
     this.reconnectTimeout = setTimeout(() => {
       this.reconnectTimeout = null;

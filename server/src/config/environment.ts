@@ -1,3 +1,5 @@
+import { logger } from '../services/logger'
+
 export interface EnvironmentConfig {
   port: number;
   nodeEnv: 'development' | 'production' | 'test';
@@ -54,7 +56,7 @@ export function validateEnvironment(): void {
     }
     console.warn(`⚠️  OpenAI API key not configured - AI features will use stub implementations`);
   } else {
-    console.log(`✅ OpenAI configured`);
+    logger.info(`✅ OpenAI configured`);
   }
 }
 
