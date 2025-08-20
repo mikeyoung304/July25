@@ -123,11 +123,11 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
    */
   connect(): void {
     if (this.connectionState === 'connecting' || this.connectionState === 'connected') {
-      logger.info('[VoiceTransport] Already connected/connecting, { value: skipping');
+      logger.info('[VoiceTransport] Already connected/connecting, skipping');
       return;
     }
 
-    logger.info('[VoiceTransport] Connecting to:', extra: this.config.url });
+    logger.info('[VoiceTransport] Connecting to:', this.config.url);
     this.setConnectionState('connecting');
     
     try {
@@ -170,7 +170,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
       }, timestamp: Date.now(] })
     };
 
-    logger.info('[VoiceTransport] Starting session with config:', { value: sessionMessage);
+    logger.info('[VoiceTransport] Starting session with config:', sessionMessage);
     
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(sessionMessage));
@@ -202,7 +202,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
 
     // Log audio chunk details (sample every 100th to avoid spam)
     if (Math.random() < 0.01) {
-      logger.info('[VoiceTransport] Sending audio chunk:', { value: {
+      logger.info('[VoiceTransport] Sending audio chunk:', {
         chunkSize: chunk.length, extra: [hasVoice, connectionState: this.connectionState, sessionStarted: this.sessionStarted
       }] });
     }
@@ -254,7 +254,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
 
     this.ws.onopen = () => {
       logger.info('[VoiceTransport] WebSocket connected successfully');
-      logger.info('[VoiceTransport] Connection details:', { value: {
+      logger.info('[VoiceTransport] Connection details:', {
         url: this.ws?.url, extra: [readyState: this.ws?.readyState, protocol: this.ws?.protocol
       }] });
       this.setConnectionState('connected');
@@ -269,7 +269,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     this.ws.onmessage = (event) => {
       try {
         const message: VoiceStreamMessage = JSON.parse(event.data);
-        logger.info('[VoiceTransport] Received message:', { value: {
+        logger.info('[VoiceTransport] Received message:', {
           type: message.type, extra: [hasData: !!message.data, timestamp: message.timestamp
         }] });
         this.handleMessage(message);
@@ -285,7 +285,7 @@ export class VoiceTransport extends EventEmitter<VoiceTransportEvents> {
     };
 
     this.ws.onclose = (event) => {
-      logger.info('[VoiceTransport] WebSocket closed:', { value: event.code, extra: event.reason });
+      logger.info('[VoiceTransport] WebSocket closed:', { code: event.code, reason: event.reason });
       this.ws = null;
       this.sessionStarted = false; // Reset session flag
       this.clearHeartbeat();
