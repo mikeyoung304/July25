@@ -32,8 +32,8 @@ export class MenuService implements IMenuService {
       description: item.description,
       price: item.price,
       category,
-      is_available: item.is_available !== undefined ? item.is_available : item.is_available,
-      image_url: item.image_url || item.image_url,
+      is_available: item.is_available !== undefined ? item.is_available : item.available,
+      image_url: item.imageUrl || item.image_url,
       restaurant_id: item.restaurant_id,
       calories: item.calories,
       modifiers: item.modifier_groups?.flatMap((group: any) => 

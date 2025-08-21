@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MenuItem } from '../../menu/types';
 import { Minus, Plus } from 'lucide-react';
 import { useCart } from '../context/cartContext.hooks';
+import { OptimizedImage } from '@/components/shared/OptimizedImage';
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -89,20 +90,13 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       
       {/* Image Zone - Fixed aspect ratio 4:3 */}
       <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
-        {item.imageUrl ? (
-          <img 
-            src={item.imageUrl} 
-            alt={item.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-100">
-            <div className="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center">
-              <div className="w-8 h-8 bg-gray-300 rounded-lg" />
-            </div>
-          </div>
-        )}
+        <OptimizedImage
+          src={item.image_url}
+          alt={`${item.name} - ${item.category || 'menu item'}`}
+          width={400}
+          height={300}
+          className="w-full h-full object-cover"
+        />
       </div>
       
       {/* Content Zone - Centered text with proper spacing */}
