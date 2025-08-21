@@ -263,27 +263,41 @@ export class OrderUpdatesHandler {
   private reinitializeSubscriptions(): void {
     logger.info('[OrderUpdates] Reinitializing subscriptions after reconnection...')
     
-    // Clear old subscriptions
-    this.subscriptions.forEach(unsubscribe => unsubscribe())
-    this.subscriptions = []
+    // CRITICAL FIX: Properly clear old subscriptions to prevent duplicates
+    if (this.subscriptions && this.subscriptions.length > 0) {
+      logger.info(`[OrderUpdates] Clearing ${this.subscriptions.length} old subscriptions`)
+      this.subscriptions.forEach(unsubscribe => {
+        if (typeof unsubscribe === 'function') {
+          try {
+            unsubscribe()
+          } catch (error) {
+            console.warn('[OrderUpdates] Error unsubscribing:', error)
+          }
+        }
+      })
+      this.subscriptions = []
+    }
     
-    // Re-create subscriptions
-    this.subscriptions.push(
-      webSocketService.subscribe('order:created', (payload) => {
-        logger.info('[OrderUpdates] Raw order:created payload:', payload)
-        this.handleOrderCreated(payload)
-      }),
-      webSocketService.subscribe('order:updated', (payload) => 
-        this.handleOrderUpdated(payload)),
-      webSocketService.subscribe('order:deleted', (payload) => 
-        this.handleOrderDeleted(payload)),
-      webSocketService.subscribe('order:status_changed', (payload) => 
-        this.handleOrderStatusChanged(payload)),
-      webSocketService.subscribe('order:item_status_changed', (payload) => 
-        this.handleItemStatusChanged(payload))
-    )
-    
-    logger.info('[OrderUpdates] Subscriptions reinitialized:', this.subscriptions.length)
+    // Add a small delay to ensure old subscriptions are fully cleared
+    setTimeout(() => {
+      // Re-create subscriptions
+      this.subscriptions.push(
+        webSocketService.subscribe('order:created', (payload) => {
+          logger.info('[OrderUpdates] Raw order:created payload:', payload)
+          this.handleOrderCreated(payload)
+        }),
+        webSocketService.subscribe('order:updated', (payload) => 
+          this.handleOrderUpdated(payload)),
+        webSocketService.subscribe('order:deleted', (payload) => 
+          this.handleOrderDeleted(payload)),
+        webSocketService.subscribe('order:status_changed', (payload) => 
+          this.handleOrderStatusChanged(payload)),
+        webSocketService.subscribe('order:item_status_changed', (payload) => 
+          this.handleItemStatusChanged(payload))
+      )
+      
+      logger.info('[OrderUpdates] Subscriptions reinitialized:', this.subscriptions.length)
+    }, 100)
   }
   
   /**

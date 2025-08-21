@@ -32,7 +32,7 @@ interface ExpoOrder {
   priority: 'normal' | 'rush'
 }
 
-export function ExpoPage() {
+function ExpoPage() {
   const [orders, setOrders] = useState<ExpoOrder[]>([])
   const [showCompleted, setShowCompleted] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null)
@@ -322,3 +322,5 @@ export function ExpoPage() {
     </PageLayout>
   )
 }
+
+export default ExpoPage;

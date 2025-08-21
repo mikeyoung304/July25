@@ -5,7 +5,7 @@
 
 import { memo, useRef, useEffect } from 'react';
 import { useVirtualization, VIRTUALIZATION_PRESETS } from '@/hooks/useVirtualization';
-import { BaseOrderCard } from '@/components/orders/BaseOrderCard';
+import { OrderCard } from '@/components/kitchen/OrderCard';
 import type { Order } from '@rebuild/shared';
 
 interface VirtualizedOrderListProps {
@@ -72,10 +72,9 @@ export const VirtualizedOrderList = memo(function VirtualizedOrderList({
             aria-setsize={orders.length}
             aria-posinset={index + 1}
           >
-            <BaseOrderCard
+            <OrderCard
               order={order}
-              onClick={() => onOrderClick?.(order)}
-              onStatusChange={(status) => onStatusChange?.(order.id, status)}
+              onStatusChange={(orderId, status) => onStatusChange?.(orderId, status)}
             />
           </div>
         ))}

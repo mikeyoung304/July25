@@ -273,7 +273,7 @@ export class WebSocketService extends EventEmitter {
   private handleError(event: Event): void {
     console.error('WebSocket error:', event)
     this.setConnectionState('error')
-    // FIX: Stop heartbeat on error to prevent memory leak
+    // Stop heartbeat on error to prevent memory leak
     this.stopHeartbeat()
     this.emit('error', event)
   }
@@ -298,6 +298,12 @@ export class WebSocketService extends EventEmitter {
   }
 
   private scheduleReconnect(): void {
+    // Clear any existing reconnect timer first to prevent memory leaks
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = null
+    }
+    
     if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
       console.error('Max reconnection attempts reached')
       this.emit('maxReconnectAttemptsReached')
@@ -313,24 +319,38 @@ export class WebSocketService extends EventEmitter {
     console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts} in ${Math.round(delay)}ms (exponential backoff)`)
     
     this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null // Clear reference after execution
       this.connect()
     }, delay)
   }
 
   private cleanup(): void {
+    // Clear reconnect timer
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
     
+    // Stop heartbeat
     this.stopHeartbeat()
     
+    // Remove all WebSocket event handlers to prevent memory leaks
     if (this.ws) {
       this.ws.onopen = null
       this.ws.onmessage = null
       this.ws.onerror = null
       this.ws.onclose = null
+      
+      // Close connection if still open
+      if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
+        this.ws.close(1000, 'Cleanup')
+      }
+      
+      this.ws = null
     }
+    
+    // Clear all event listeners from EventEmitter
+    this.removeAllListeners()
   }
 
   /**

@@ -72,11 +72,13 @@ rebuild-6.0/
 - Batch order updates to prevent UI thrashing
 - Monitor for memory leaks in long-running connections
 
-## AI Integration
+## Voice System (UNIFIED - 2025-08-21)
 
-- Location: `server/src/ai/`
-- WebSocket enabled for real-time communication
-- Voice ordering through OpenAI Realtime API
+- **Single Implementation**: WebRTC + OpenAI Realtime API only
+- **Location**: `client/src/modules/voice/services/WebRTCVoiceClient.ts`
+- **UI Component**: `VoiceControlWebRTC` (used by all pages)
+- **API Endpoint**: `/api/v1/realtime/session`
+- **No competing systems**: All WebSocket/blob-based voice removed
 - Context provider: RestaurantContext (restaurant_id field)
 
 ## Specialized Agents

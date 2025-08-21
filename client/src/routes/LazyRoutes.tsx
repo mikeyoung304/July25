@@ -28,7 +28,7 @@ export const LazyRoutes = {
   
   // Kitchen routes
   KitchenDisplay: lazy(() => 
-    import(/* webpackChunkName: "kitchen" */ '@/pages/KitchenDisplay')
+    import(/* webpackChunkName: "kitchen" */ '@/pages/KitchenDisplaySimple')
   ),
   ExpoPage: lazy(() => 
     import(/* webpackChunkName: "expo" */ '@/pages/ExpoPage')

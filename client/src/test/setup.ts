@@ -8,16 +8,6 @@ global.TextDecoder = TextDecoder as unknown as typeof global.TextDecoder
 
 // import.meta is already handled by Vitest natively
 
-// Mock the transcription service
-vi.mock('@/services/transcription/TranscriptionService', () => ({
-  default: {
-    transcribe: vi.fn().mockResolvedValue({
-      transcription: 'Mock transcription result',
-      confidence: 0.95
-    })
-  }
-}))
-
 // Mock AI service calls (backend integration)
 vi.mock('axios', () => ({
   default: {

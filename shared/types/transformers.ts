@@ -15,7 +15,9 @@ import type {
   MenuItem as SharedMenuItem,
   Table as SharedTable,
   Customer as SharedCustomer,
-  Restaurant
+  Restaurant,
+  OrderType,
+  UIOrderType
 } from './index';
 
 // Validation error types
@@ -462,4 +464,36 @@ export class TypeTransformer {
       );
     }
   }
+}
+
+/**
+ * Convert UI order types to database-valid order types
+ * Maps user-facing order types to the database schema
+ */
+export function uiOrderTypeToDb(uiType: UIOrderType): OrderType {
+  const mapping: Record<UIOrderType, OrderType> = {
+    'dine-in': 'online',    // Dine-in orders use online flow
+    'takeout': 'pickup',    // Takeout is pickup
+    'delivery': 'delivery', // Direct mapping
+    'online': 'online',     // Direct mapping
+    'drive-thru': 'pickup', // Drive-thru is pickup
+    'kiosk': 'online',      // Kiosk orders use online flow
+    'voice': 'online'       // Voice orders use online flow
+  };
+  
+  return mapping[uiType];
+}
+
+/**
+ * Convert database order types to UI display types
+ * Maps database schema to user-facing order types
+ */
+export function dbOrderTypeToUI(dbType: OrderType): UIOrderType {
+  const mapping: Record<OrderType, UIOrderType> = {
+    'online': 'online',
+    'pickup': 'takeout',
+    'delivery': 'delivery'
+  };
+  
+  return mapping[dbType];
 }

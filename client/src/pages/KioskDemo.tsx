@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { VoiceCapture } from '@/modules/voice/components/VoiceCapture'
+import { VoiceControlWebRTC } from '@/modules/voice/components/VoiceControlWebRTC'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ShoppingCart, Mic, CheckCircle } from 'lucide-react'
@@ -17,7 +17,7 @@ interface ParsedOrder {
   confidence: number
 }
 
-export const KioskDemo: React.FC = () => {
+const KioskDemo: React.FC = () => {
   const [parsedOrder, setParsedOrder] = useState<ParsedOrder | null>(null)
   const [orderHistory, setOrderHistory] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -119,7 +119,10 @@ export const KioskDemo: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                <VoiceCapture onOrderComplete={handleOrderComplete} />
+                <VoiceControlWebRTC 
+                  onTranscript={handleOrderComplete}
+                  className="w-full"
+                />
                 
                 {/* Sample phrases */}
                 <div className="mt-6 p-4 bg-gradient-to-br from-macon-navy/5 to-macon-orange/5 rounded-xl border border-macon-navy/10">
@@ -257,3 +260,5 @@ export const KioskDemo: React.FC = () => {
     </div>
   )
 }
+
+export default KioskDemo;

@@ -27,7 +27,7 @@ export { SoundControl } from './controls/SoundControl';
 export { ErrorBoundary } from './errors/ErrorBoundary';
 
 // Filters
-export { FilterPanel } from './filters/FilterPanel';
+// Removed FilterPanel - using simple status toggle instead
 export { SortControl } from './filters/SortControl';
 
 // Inputs
@@ -36,10 +36,7 @@ export { DateRangePicker } from './inputs/DateRangePicker';
 // Lists
 export { OrderItemRow } from './lists/OrderItemRow';
 
-// Order Components
-export { OrderActions } from './order/OrderActions';
-export { OrderHeader as OrderHeaders } from './order/OrderHeaders';
-export { OrderItemsList } from './order/OrderItemsList';
+// Order Components - removed over-componentized pieces
 
 // Timers
 export { ElapsedTimer } from './timers/ElapsedTimer';
