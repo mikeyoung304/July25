@@ -9,10 +9,19 @@ import App from './App.tsx'
 LocalStorageManager.initialize()
 logger.info('[BOOT] main.tsx loaded, localStorage initialized');
 
-// Capture any window errors
-window.addEventListener('error', e => {
+// Capture any window errors with proper cleanup
+const handleWindowError = (e: ErrorEvent) => {
   console.error('[WINDOW-ERROR]', e?.error || e?.message);
-});
+};
+window.addEventListener('error', handleWindowError);
+
+// Store cleanup function for later use
+const cleanupGlobalListeners = () => {
+  window.removeEventListener('error', handleWindowError);
+};
+
+// Clean up on page unload to prevent memory leaks
+window.addEventListener('beforeunload', cleanupGlobalListeners);
 
 const rootElement = document.getElementById('root')
 logger.info('[BOOT] Root element:', rootElement)

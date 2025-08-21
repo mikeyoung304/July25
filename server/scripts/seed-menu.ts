@@ -52,6 +52,7 @@ const GROW_FRESH_DATA = {
       category: 'starters',
       description: 'GA Made Sausage, Jalapeño Pimento Cheese Bites, Tomato Tea Sandwich, House Pickles, Fruit, Flatbread',
       price: 16.00,
+      image_url: '/images/menu/summer-sampler.jpeg',
       aliases: ['sampler', 'sampler plate', 'appetizer sampler'],
       prep_time_minutes: 10
     },
@@ -68,6 +69,7 @@ const GROW_FRESH_DATA = {
       category: 'starters',
       description: 'Seared watermelon with Asian-inspired flavors',
       price: 12.00,
+      image_url: '/images/menu/watermelon-tataki.jpeg',
       aliases: ['watermelon', 'tataki'],
       dietary_flags: ['vegetarian', 'vegan'],
       prep_time_minutes: 8
@@ -85,6 +87,7 @@ const GROW_FRESH_DATA = {
       category: 'starters',
       description: 'Spicy pimento cheese bites',
       price: 10.00,
+      image_url: '/images/menu/pimento-cheese.jpeg',
       aliases: ['pimento bites', 'jalapeno bites', 'pimento cheese'],
       dietary_flags: ['vegetarian'],
       prep_time_minutes: 5
@@ -109,6 +112,7 @@ const GROW_FRESH_DATA = {
       category: 'salads',
       description: 'Fresh peaches with peppery arugula',
       price: 12.00,
+      image_url: '/images/menu/peach-arugula-salad.jpeg',
       aliases: ['peach salad', 'arugula salad'],
       dietary_flags: ['vegetarian'],
       modifiers: [
@@ -121,6 +125,7 @@ const GROW_FRESH_DATA = {
       category: 'salads',
       description: 'Traditional Greek salad with feta and olives',
       price: 12.00,
+      image_url: '/images/menu/greek-salad.jpeg',
       aliases: ['mediterranean salad'],
       dietary_flags: ['vegetarian'],
       modifiers: [
@@ -142,6 +147,7 @@ const GROW_FRESH_DATA = {
       category: 'salads',
       description: 'Family recipe chicken salad',
       price: 13.00,
+      image_url: '/images/menu/moms-chicken-salad.jpeg',
       aliases: ['mama salad', 'chicken salad', 'mom salad', 'mama chicken'],
       prep_time_minutes: 5
     },
@@ -160,6 +166,7 @@ const GROW_FRESH_DATA = {
       category: 'bowls',
       description: 'GA made Smoked Sausage, Collards, Black-Eyed Peas, Rice, Pico De Gallo, Cornbread',
       price: 14.00,
+      image_url: '/images/menu/soul-bowl.jpeg',
       aliases: ['georgia soul', 'soul food bowl', 'sausage bowl', 'collard bowl'],
       modifiers: [
         { name: 'No Rice', price: 0 },
@@ -184,6 +191,7 @@ const GROW_FRESH_DATA = {
       category: 'bowls',
       description: 'Marinated Chicken Thigh, Couscous, Cucumber Salad, Feta, Olives, Naan, Tzatziki Sauce',
       price: 14.00,
+      image_url: '/images/menu/greek-bowl.jpeg',
       aliases: ['greek chicken', 'mediterranean bowl', 'greek chicken bowl'],
       modifiers: [
         { name: 'No Olives', price: 0 },
@@ -224,6 +232,7 @@ const GROW_FRESH_DATA = {
       category: 'entrees',
       description: 'Glazed salmon served over rice',
       price: 16.00,
+      image_url: '/images/menu/teriyaki-salmon.jpeg',
       aliases: ['salmon', 'salmon over rice', 'salmon rice'],
       prep_time_minutes: 12
     },

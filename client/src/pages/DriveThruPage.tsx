@@ -130,14 +130,18 @@ const DriveThruPageContent: React.FC = () => {
     }
   }, [menuItems, items, orderParser, processParsedItems]);
 
-  const handleTranscript = useCallback((event: { text: string; isFinal: boolean }) => {
-    if (!event.isFinal) {
-      setCurrentTranscript(event.text);
+  const handleTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
+    // Normalize input to handle both signatures
+    const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text;
+    const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal;
+    
+    if (!isFinal) {
+      setCurrentTranscript(text);
     } else {
       const userEntry: ConversationEntry = {
         id: Date.now().toString(),
         speaker: 'user',
-        text: event.text,
+        text: text,
         timestamp: new Date(),
       };
       setConversation(prev => [...prev, userEntry]);

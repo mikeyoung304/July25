@@ -12,7 +12,7 @@ import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
 import { spacing } from '@/lib/typography'
 import { RoleGuard } from '@/components/auth/RoleGuard'
 
-export function AdminDashboard() {
+function AdminDashboard() {
   const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics'>('overview')
   const context = useContext(RestaurantContext)
   
@@ -203,3 +203,5 @@ export function AdminDashboard() {
     </RoleGuard>
   )
 }
+
+export default AdminDashboard;

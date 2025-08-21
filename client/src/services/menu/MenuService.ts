@@ -57,7 +57,8 @@ export class MenuService implements IMenuService {
       }
       
       const response = await httpClient.get<{ items: SharedMenuItem[]; categories: MenuCategory[] }>('/api/v1/menu')
-      // Cache categories
+      
+      // Cache categories locally for transformation
       response.categories.forEach(cat => this.categoriesCache.set(cat.id, cat))
       return {
         items: response.items.map(item => this.transformMenuItem(item, response.categories)),
@@ -128,7 +129,7 @@ export class MenuService implements IMenuService {
           price: 12.99,
           category: 'Main Course',
           is_available: true,
-          image_url: null,
+          image_url: '/images/menu/Gemini_Generated_Image_5m93ul5m93ul5m93.jpeg',
           preparation_time: 15,
           allergens: ['dairy', 'gluten'],
           nutritional_info: {
@@ -145,7 +146,7 @@ export class MenuService implements IMenuService {
           price: 8.99,
           category: 'Appetizers',
           is_available: true,
-          image_url: null,
+          image_url: '/images/menu/greek-salad.jpeg',
           preparation_time: 8,
           allergens: ['dairy', 'eggs'],
           nutritional_info: {
@@ -174,4 +175,5 @@ export class MenuService implements IMenuService {
   }
 }
 
+// Export singleton instance with default restaurant ID
 export const menuService = new MenuService()

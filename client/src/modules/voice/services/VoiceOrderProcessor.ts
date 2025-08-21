@@ -6,7 +6,7 @@
 import { api } from '@/services/api';
 import { logger } from '@/services/logger'
 import { MenuItem } from '@/modules/menu/types';
-import { Order, OrderItem } from '@rebuild/shared';
+import { Order, OrderItem, uiOrderTypeToDb } from '@rebuild/shared';
 
 interface ParsedOrderItem {
   menuItem: MenuItem;
@@ -191,10 +191,10 @@ export class VoiceOrderProcessor {
     const tax = subtotal * 0.08; // 8% tax
     const total = subtotal + tax;
     
-    // Submit order
+    // Submit order - convert UI order type to database type
     const orderData: Partial<Order> = {
       customer_name: customerName,
-      type: orderType,
+      type: uiOrderTypeToDb(orderType),
       status: 'new',
       items: orderItems as OrderItem[],
       subtotal,

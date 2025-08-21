@@ -23,24 +23,25 @@
 flowchart LR
   subgraph Client [Client (React/Vite)]
     UI
+    WebRTC[WebRTC Voice Client]
   end
 
   subgraph Server [Server (Express on 3001)]
     REST[REST /api/v1/*]
-    AI[AI Modules (Transcriber | OrderNLP | Chat | TTS)]
-    WS[WebSocket (KDS/stream)]
+    RT[Realtime Session /api/v1/realtime/*]
+    WS[WebSocket (KDS only)]
     Metrics[Metrics & Health]
   end
 
   DB[(Supabase/Postgres)]
-  OpenAI[(OpenAI API)]
+  OpenAI[(OpenAI Realtime API)]
   Square[(Square Payments)]
 
   UI --> REST
+  WebRTC --> RT
+  RT --> OpenAI
   REST --> DB
   REST --> Square
-  REST --> AI
-  AI --> OpenAI
   UI <--> WS
 ```
                             ┌─────────────────┐
@@ -61,16 +62,19 @@ We started with microservices (AI Gateway on 3002) but Luis made the architectur
 
 ### What Goes Where
 - **Frontend** (`client/`): All React/UI code
+  - WebRTC Voice Client (direct connection to OpenAI)
+  - UI Components
 - **Backend** (`server/`): ALL server-side code including:
   - REST API endpoints
-  - AI/Voice processing
-  - WebSocket handlers
+  - Realtime session management (ephemeral tokens)
+  - WebSocket handlers (KDS updates only)
   - Database operations
 
 ### Correct Endpoints
 - REST API: `http://localhost:3001/api/v1/*`
-- AI endpoints: `http://localhost:3001/api/v1/ai/*`
-- WebSocket: `ws://localhost:3001`
+- Realtime session: `http://localhost:3001/api/v1/realtime/session`
+- WebSocket (KDS): `ws://localhost:3001`
+- Voice: WebRTC direct to OpenAI (client-side)
 
 ### Environment Variables
 All environment variables are in the root `.env` file:
@@ -117,6 +121,14 @@ Luis evaluated microservices architecture and determined:
 
 ## Review Date
 This decision will be reviewed if we reach 10,000+ concurrent users or require independent scaling of AI services. Until then, this architecture is NON-NEGOTIABLE.
+
+## Voice System Architecture (Updated 2025-08-21)
+### SINGLE IMPLEMENTATION: WebRTC + OpenAI Realtime API
+- **Client-side**: WebRTCVoiceClient establishes direct P2P connection with OpenAI
+- **Server role**: Only provides ephemeral tokens for authentication
+- **No competing systems**: All WebSocket/REST-based voice implementations removed
+- **Used everywhere**: KioskPage, DriveThruPage, KioskDemo, ServerView all use VoiceControlWebRTC
+- **Benefits**: 200ms lower latency, real-time transcription, unified codebase
 
 ## API Structure (From Unified Backend)
 

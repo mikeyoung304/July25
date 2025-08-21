@@ -283,10 +283,12 @@ const CheckoutPageContent: React.FC = () => {
   );
 };
 
-export const CheckoutPage: React.FC = () => {
+const CheckoutPage: React.FC = () => {
   return (
     <CartProvider>
       <CheckoutPageContent />
     </CartProvider>
   );
 };
+
+export default CheckoutPage;

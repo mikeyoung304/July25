@@ -5,7 +5,7 @@
 > ✅ **DEPLOYMENT**: Frontend (Vercel) | Backend (Render) | Database (Supabase)  
 > 🔧 **VERSION**: 1.0.0-beta
 
-A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering with OpenAI Realtime API, WebSocket audio streaming, real-time kitchen display system, and demo authentication for testing.
+A modern Restaurant Operating System built with React, TypeScript, and Express.js. Features AI-powered voice ordering with OpenAI Realtime API via WebRTC (unified implementation), real-time kitchen display system, and demo authentication for testing.
 
 ## 🚀 Quick Start
 
@@ -39,7 +39,7 @@ Please see the detailed **[ARCHITECTURE.md](./ARCHITECTURE.md)** for system arch
 
 ### Working in Production
 
-- 🎤 **Voice Ordering**: WebSocket + OpenAI Realtime API for natural conversations
+- 🎤 **Voice Ordering**: WebRTC + OpenAI Realtime API (single unified implementation)
 - 🍽️ **Kitchen Display System**: Real-time WebSocket updates for order management
 - 🔐 **Demo Authentication**: JWT-based auth for friends & family testing
 - 📱 **Kiosk Interface**: Touch-optimized self-service ordering

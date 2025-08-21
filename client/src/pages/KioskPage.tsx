@@ -102,15 +102,19 @@ const KioskPageContent: React.FC = () => {
   }, [addItem, removeItem, updateQuantity, items]);
 
   // Handle transcript from WebRTC voice
-  const handleVoiceTranscript = useCallback((event: { text: string; isFinal: boolean }) => {
-    logger.info('Voice transcript received:', event.text, 'final:', event.isFinal);
+  const handleVoiceTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
+    // Normalize input to handle both signatures
+    const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text;
+    const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal;
     
-    if (event.isFinal) {
+    logger.info('Voice transcript received:', text, 'final:', isFinal);
+    
+    if (isFinal) {
       // Add user's message to conversation
       const userEntry: ConversationEntry = {
         id: `user-${++conversationIdCounter.current}`,
         speaker: 'user',
-        text: event.text,
+        text: text,
         timestamp: new Date(),
       };
       setConversation(prev => [...prev, userEntry]);
@@ -118,14 +122,14 @@ const KioskPageContent: React.FC = () => {
       
       // Parse order locally if we have the parser
       if (orderParser) {
-        const parsedItems = orderParser.parseOrder(event.text);
+        const parsedItems = orderParser.parseOrder(text);
         if (parsedItems.length > 0) {
           processParsedItems(parsedItems);
         }
       }
     } else {
       // Update current transcript for live display
-      setCurrentTranscript(event.text);
+      setCurrentTranscript(text);
     }
   }, [orderParser, processParsedItems]);
 

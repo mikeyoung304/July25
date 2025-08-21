@@ -10,7 +10,7 @@ import { ComponentMetricsTable } from '@/modules/analytics/components/ComponentM
 import { APIMetricsTable } from '@/modules/analytics/components/APIMetricsTable'
 import { cn } from '@/utils'
 
-export const PerformanceDashboard: React.FC = () => {
+const PerformanceDashboard: React.FC = () => {
   const { 
     metrics, 
     statistics, 
@@ -234,3 +234,5 @@ export const PerformanceDashboard: React.FC = () => {
     </div>
   )
 }
+
+export default PerformanceDashboard;

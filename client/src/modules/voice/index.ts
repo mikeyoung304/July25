@@ -1,10 +1,16 @@
-// Voice Ordering Module
-export * from './components/VoiceCapture'
-export * from './components/RecordingIndicator'
+// Voice Ordering Module - WebRTC Real-time Implementation Only
+// All voice features use OpenAI Realtime API via WebRTC
 export * from './components/MicrophonePermission'
 export * from './components/TranscriptionDisplay'
 export * from './components/OrderSuccessAnimation'
-export * from './components/VoiceControlWithAudio'
 export * from './components/HoldToRecordButton'
+export * from './components/VoiceControlWebRTC'
+export * from './components/VoiceDebugPanel'
+export * from './components/RealtimeTranscription'
 export * from './services/orderIntegration'
-export * from './hooks/useVoiceToAudio'
+export * from './services/WebRTCVoiceClient'
+export * from './services/VoiceOrderProcessor'
+export * from './hooks/useWebRTCVoice'
+export * from './hooks/useVoiceOrder'
+export * from './contexts/VoiceOrderContext'
+export * from './contexts/types'

@@ -81,23 +81,27 @@ export function useVoiceOrderWebRTC() {
     }
   }, [orderItems, toast])
 
-  // Handle transcript from WebRTC voice
-  const handleVoiceTranscript = useCallback((event: { text: string; isFinal: boolean }) => {
-    console.log('[useVoiceOrderWebRTC] Voice transcript:', event.text, 'final:', event.isFinal)
+  // Handle transcript from WebRTC voice - accepts both string and event object
+  const handleVoiceTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
+    // Normalize input to handle both signatures
+    const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text
+    const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal
     
-    if (event.isFinal) {
+    console.log('[useVoiceOrderWebRTC] Voice transcript:', text, 'final:', isFinal)
+    
+    if (isFinal) {
       setCurrentTranscript('')
       
       // Parse order locally if we have the parser
       if (orderParserRef.current) {
-        const parsedItems = orderParserRef.current.parse(event.text)
+        const parsedItems = orderParserRef.current.parse(text)
         if (parsedItems.length > 0) {
           processParsedItems(parsedItems)
         } else {
           // If no items parsed, add as raw text for manual processing
           const rawItem: OrderItem = {
             id: `voice-${Date.now()}-${Math.random()}`,
-            name: event.text,
+            name: text,
             quantity: 1
           }
           setOrderItems(prev => [...prev, rawItem])
@@ -106,14 +110,14 @@ export function useVoiceOrderWebRTC() {
         // No parser available, add as raw text
         const rawItem: OrderItem = {
           id: `voice-${Date.now()}-${Math.random()}`,
-          name: event.text,
+          name: text,
           quantity: 1
         }
         setOrderItems(prev => [...prev, rawItem])
       }
     } else {
       // Update current transcript for live display
-      setCurrentTranscript(event.text)
+      setCurrentTranscript(text)
     }
   }, [processParsedItems])
 

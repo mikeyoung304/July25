@@ -33,7 +33,26 @@ export interface HttpRequestOptions extends RequestInit {
   skipTransform?: boolean
 }
 
+// Simple cache for GET requests
+interface CacheEntry<T> {
+  data: T
+  timestamp: number
+}
+
+// Cache configuration
+const CACHE_TTL = {
+  '/api/v1/menu': 5 * 60 * 1000,          // 5 minutes for menu
+  '/api/v1/menu/categories': 5 * 60 * 1000, // 5 minutes for categories
+  '/api/v1/tables': 30 * 1000,            // 30 seconds for tables
+  default: 60 * 1000                      // 1 minute default
+}
+
 export class HttpClient extends SecureAPIClient {
+  // Simple in-memory cache for GET requests
+  private cache = new Map<string, CacheEntry<any>>()
+  // Track in-flight requests to prevent duplicates
+  private inFlightRequests = new Map<string, Promise<any>>()
+  
   constructor() {
     let baseURL = 'http://localhost:3001'
     
@@ -186,10 +205,92 @@ export class HttpClient extends SecureAPIClient {
   }
 
   /**
+   * Get cache TTL for an endpoint
+   */
+  private getCacheTTL(endpoint: string): number {
+    // Find matching TTL config
+    for (const [key, ttl] of Object.entries(CACHE_TTL)) {
+      if (endpoint.startsWith(key)) {
+        return ttl as number
+      }
+    }
+    return CACHE_TTL.default
+  }
+
+  /**
    * Convenience methods that properly type the parameters
    */
   async get<T>(endpoint: string, options?: HttpRequestOptions): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: 'GET' })
+    // Build full URL with params for cache key
+    let cacheKey = endpoint
+    if (options?.params && Object.keys(options.params).length > 0) {
+      const searchParams = new URLSearchParams()
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, String(value))
+        }
+      })
+      cacheKey = `${endpoint}?${searchParams.toString()}`
+    }
+    
+    // Check cache for GET requests
+    const cached = this.cache.get(cacheKey)
+    if (cached) {
+      const age = Date.now() - cached.timestamp
+      const ttl = this.getCacheTTL(endpoint)
+      if (age < ttl) {
+        if (import.meta.env.DEV) {
+          logger.info(`[Cache HIT] ${endpoint} (age: ${Math.round(age/1000)}s)`)
+        }
+        return cached.data as T
+      }
+    }
+    
+    // Check for in-flight request
+    const inFlight = this.inFlightRequests.get(cacheKey)
+    if (inFlight) {
+      if (import.meta.env.DEV) {
+        logger.info(`[Cache DEDUP] ${endpoint} (waiting for in-flight request)`)
+      }
+      return inFlight as Promise<T>
+    }
+    
+    // Make the request
+    const requestPromise = this.request<T>(endpoint, { ...options, method: 'GET' })
+    
+    // Track in-flight request
+    this.inFlightRequests.set(cacheKey, requestPromise)
+    
+    // Cache the result
+    requestPromise.then(data => {
+      this.cache.set(cacheKey, { data, timestamp: Date.now() })
+      this.inFlightRequests.delete(cacheKey)
+      if (import.meta.env.DEV) {
+        logger.info(`[Cache SET] ${endpoint}`)
+      }
+    }).catch(() => {
+      // Clean up on error
+      this.inFlightRequests.delete(cacheKey)
+    })
+    
+    return requestPromise
+  }
+
+  /**
+   * Clear cache for a specific endpoint or all cache
+   */
+  clearCache(endpoint?: string): void {
+    if (endpoint) {
+      // Clear specific endpoint
+      for (const key of this.cache.keys()) {
+        if (key.startsWith(endpoint)) {
+          this.cache.delete(key)
+        }
+      }
+    } else {
+      // Clear all cache
+      this.cache.clear()
+    }
   }
 
   async post<T>(
@@ -197,6 +298,13 @@ export class HttpClient extends SecureAPIClient {
     data?: unknown,
     options?: HttpRequestOptions
   ): Promise<T> {
+    // Clear related cache on mutations
+    if (endpoint.includes('/menu')) {
+      this.clearCache('/api/v1/menu')
+    } else if (endpoint.includes('/tables')) {
+      this.clearCache('/api/v1/tables')
+    }
+    
     return this.request<T>(endpoint, {
       ...options,
       method: 'POST',
@@ -213,6 +321,13 @@ export class HttpClient extends SecureAPIClient {
     data?: unknown,
     options?: HttpRequestOptions
   ): Promise<T> {
+    // Clear related cache on mutations
+    if (endpoint.includes('/menu')) {
+      this.clearCache('/api/v1/menu')
+    } else if (endpoint.includes('/tables')) {
+      this.clearCache('/api/v1/tables')
+    }
+    
     return this.request<T>(endpoint, {
       ...options,
       method: 'PUT',
@@ -229,6 +344,13 @@ export class HttpClient extends SecureAPIClient {
     data?: unknown,
     options?: HttpRequestOptions
   ): Promise<T> {
+    // Clear related cache on mutations
+    if (endpoint.includes('/menu')) {
+      this.clearCache('/api/v1/menu')
+    } else if (endpoint.includes('/tables')) {
+      this.clearCache('/api/v1/tables')
+    }
+    
     return this.request<T>(endpoint, {
       ...options,
       method: 'PATCH',
@@ -241,6 +363,13 @@ export class HttpClient extends SecureAPIClient {
   }
 
   async delete<T>(endpoint: string, options?: HttpRequestOptions): Promise<T> {
+    // Clear related cache on mutations
+    if (endpoint.includes('/menu')) {
+      this.clearCache('/api/v1/menu')
+    } else if (endpoint.includes('/tables')) {
+      this.clearCache('/api/v1/tables')
+    }
+    
     return this.request<T>(endpoint, { ...options, method: 'DELETE' })
   }
 }
@@ -250,3 +379,18 @@ export const httpClient = new HttpClient()
 
 // Export APIError for convenience
 export { APIError }
+
+// Expose cache stats in development for debugging
+if (import.meta.env.DEV) {
+  (window as any).__httpCache = {
+    getStats: () => ({
+      cacheSize: httpClient['cache'].size,
+      inFlightRequests: httpClient['inFlightRequests'].size,
+      entries: Array.from(httpClient['cache'].entries()).map(([key, value]) => ({
+        key,
+        age: Math.round((Date.now() - value.timestamp) / 1000) + 's'
+      }))
+    }),
+    clear: () => httpClient.clearCache()
+  }
+}

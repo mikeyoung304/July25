@@ -1006,12 +1006,23 @@ ENTRÉES → Ask:
       this.dc = null;
     }
     
-    // Close peer connection
+    // Close peer connection and clean up event handlers
     if (this.pc) {
       try {
-        this.pc.close();
+        // Remove all event handlers to prevent memory leaks
+        this.pc.onicecandidate = null;
+        this.pc.oniceconnectionstatechange = null;
+        this.pc.onconnectionstatechange = null;
+        this.pc.onsignalingstatechange = null;
+        this.pc.ontrack = null;
+        this.pc.ondatachannel = null;
+        
+        // Close the connection
+        if (this.pc.signalingState !== 'closed') {
+          this.pc.close();
+        }
       } catch (e) {
-        // Ignore errors during cleanup
+        console.warn('[WebRTCVoice] Error cleaning up peer connection:', e);
       }
       this.pc = null;
     }
@@ -1028,12 +1039,28 @@ ENTRÉES → Ask:
       this.mediaStream = null;
     }
     
-    // Remove audio element
+    // Clean up audio element properly to prevent memory leaks
     if (this.audioElement) {
       try {
-        this.audioElement.remove();
+        // Stop any playing audio
+        this.audioElement.pause();
+        
+        // Clear the source to release media resources
+        this.audioElement.srcObject = null;
+        this.audioElement.src = '';
+        
+        // Remove all event listeners
+        this.audioElement.onloadedmetadata = null;
+        this.audioElement.onplay = null;
+        this.audioElement.onpause = null;
+        this.audioElement.onerror = null;
+        
+        // Remove from DOM
+        if (this.audioElement.parentNode) {
+          this.audioElement.parentNode.removeChild(this.audioElement);
+        }
       } catch (e) {
-        // Ignore errors during cleanup
+        console.warn('[WebRTCVoice] Error cleaning up audio element:', e);
       }
       this.audioElement = null;
     }

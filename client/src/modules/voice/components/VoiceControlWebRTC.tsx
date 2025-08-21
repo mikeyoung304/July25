@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useWebRTCVoice } from '../hooks/useWebRTCVoice';
-import { ConnectionIndicator } from './ConnectionIndicator';
+// ConnectionIndicator removed - using inline status
 import { HoldToRecordButton } from './HoldToRecordButton';
 import { TranscriptionDisplay } from './TranscriptionDisplay';
 import { VoiceDebugPanel } from './VoiceDebugPanel';
@@ -145,7 +145,15 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     <div className={`voice-control-webrtc space-y-4 ${className}`}>
       {/* Connection Status */}
       <div className="flex items-center justify-between">
-        <ConnectionIndicator status={connectionState} />
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${
+            connectionState === 'connected' ? 'bg-green-500' :
+            connectionState === 'connecting' ? 'bg-yellow-500 animate-pulse' :
+            connectionState === 'error' ? 'bg-red-500' :
+            'bg-gray-400'
+          }`} />
+          <span className="text-xs text-gray-600 capitalize">{connectionState}</span>
+        </div>
         
         {/* Debug Toggle */}
         {debug && (
