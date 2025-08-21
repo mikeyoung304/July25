@@ -52,7 +52,7 @@ const GROW_FRESH_DATA = {
       category: 'starters',
       description: 'GA Made Sausage, Jalapeño Pimento Cheese Bites, Tomato Tea Sandwich, House Pickles, Fruit, Flatbread',
       price: 16.00,
-      image_url: '/images/menu/summer-sampler.jpeg',
+      image_url: '/images/menu/summer-sampler.jpg',
       aliases: ['sampler', 'sampler plate', 'appetizer sampler'],
       prep_time_minutes: 10
     },
@@ -61,6 +61,7 @@ const GROW_FRESH_DATA = {
       category: 'starters',
       description: 'Fresh peaches with prosciutto and mozzarella',
       price: 12.00,
+      image_url: '/images/menu/peach-caprese.jpg',
       aliases: ['peach and prosciutto', 'caprese', 'peach salad'],
       prep_time_minutes: 8
     },
@@ -69,7 +70,7 @@ const GROW_FRESH_DATA = {
       category: 'starters',
       description: 'Seared watermelon with Asian-inspired flavors',
       price: 12.00,
-      image_url: '/images/menu/watermelon-tataki.jpeg',
+      image_url: '/images/menu/watermelon-tataki.jpg',
       aliases: ['watermelon', 'tataki'],
       dietary_flags: ['vegetarian', 'vegan'],
       prep_time_minutes: 8
@@ -79,6 +80,7 @@ const GROW_FRESH_DATA = {
       category: 'starters',
       description: 'Assorted finger sandwiches',
       price: 10.00,
+      image_url: '/images/menu/tea-sandwiches.jpg',
       aliases: ['tea sandwich', 'finger sandwiches'],
       prep_time_minutes: 6
     },
@@ -87,7 +89,7 @@ const GROW_FRESH_DATA = {
       category: 'starters',
       description: 'Spicy pimento cheese bites',
       price: 10.00,
-      image_url: '/images/menu/pimento-cheese.jpeg',
+      image_url: '/images/menu/pimento-bites.jpg',
       aliases: ['pimento bites', 'jalapeno bites', 'pimento cheese'],
       dietary_flags: ['vegetarian'],
       prep_time_minutes: 5
@@ -99,6 +101,7 @@ const GROW_FRESH_DATA = {
       category: 'salads',
       description: 'Seasonal greens with fresh summer produce',
       price: 12.00,
+      image_url: '/images/menu/summer-salad.jpg',
       aliases: ['house salad', 'seasonal salad'],
       dietary_flags: ['vegetarian'],
       modifiers: [
@@ -112,7 +115,7 @@ const GROW_FRESH_DATA = {
       category: 'salads',
       description: 'Fresh peaches with peppery arugula',
       price: 12.00,
-      image_url: '/images/menu/peach-arugula-salad.jpeg',
+      image_url: '/images/menu/peach-arugula.jpg',
       aliases: ['peach salad', 'arugula salad'],
       dietary_flags: ['vegetarian'],
       modifiers: [
@@ -125,7 +128,7 @@ const GROW_FRESH_DATA = {
       category: 'salads',
       description: 'Traditional Greek salad with feta and olives',
       price: 12.00,
-      image_url: '/images/menu/greek-salad.jpeg',
+      image_url: '/images/menu/greek-salad.jpg',
       aliases: ['mediterranean salad'],
       dietary_flags: ['vegetarian'],
       modifiers: [
@@ -139,6 +142,7 @@ const GROW_FRESH_DATA = {
       category: 'salads',
       description: 'House-made tuna salad on fresh greens',
       price: 14.00,
+      image_url: '/images/menu/tuna-salad.jpg',
       aliases: ['tuna', 'tuna plate'],
       prep_time_minutes: 5
     },
@@ -147,7 +151,7 @@ const GROW_FRESH_DATA = {
       category: 'salads',
       description: 'Family recipe chicken salad',
       price: 13.00,
-      image_url: '/images/menu/moms-chicken-salad.jpeg',
+      image_url: '/images/menu/chicken-salad.jpg',
       aliases: ['mama salad', 'chicken salad', 'mom salad', 'mama chicken'],
       prep_time_minutes: 5
     },
@@ -156,6 +160,7 @@ const GROW_FRESH_DATA = {
       category: 'salads',
       description: 'Grilled chicken breast on mixed greens',
       price: 14.00,
+      image_url: '/images/menu/grilled-chicken-salad.jpg',
       aliases: ['grilled chicken', 'chicken breast salad'],
       prep_time_minutes: 8
     },
@@ -166,7 +171,7 @@ const GROW_FRESH_DATA = {
       category: 'bowls',
       description: 'GA made Smoked Sausage, Collards, Black-Eyed Peas, Rice, Pico De Gallo, Cornbread',
       price: 14.00,
-      image_url: '/images/menu/soul-bowl.jpeg',
+      image_url: '/images/menu/soul-bowl.jpg',
       aliases: ['georgia soul', 'soul food bowl', 'sausage bowl', 'collard bowl'],
       modifiers: [
         { name: 'No Rice', price: 0 },
@@ -179,6 +184,7 @@ const GROW_FRESH_DATA = {
       category: 'bowls',
       description: 'Keto-friendly chicken fajita bowl',
       price: 14.00,
+      image_url: '/images/menu/fajita-keto.jpg',
       aliases: ['fajita bowl', 'keto bowl', 'chicken fajita', 'keto chicken'],
       dietary_flags: ['keto'],
       modifiers: [
@@ -191,7 +197,7 @@ const GROW_FRESH_DATA = {
       category: 'bowls',
       description: 'Marinated Chicken Thigh, Couscous, Cucumber Salad, Feta, Olives, Naan, Tzatziki Sauce',
       price: 14.00,
-      image_url: '/images/menu/greek-bowl.jpeg',
+      image_url: '/images/menu/greek-bowl.jpg',
       aliases: ['greek chicken', 'mediterranean bowl', 'greek chicken bowl'],
       modifiers: [
         { name: 'No Olives', price: 0 },
@@ -204,6 +210,7 @@ const GROW_FRESH_DATA = {
       category: 'bowls',
       description: 'Cold vegan bowl with fresh summer vegetables',
       price: 14.00,
+      image_url: '/images/menu/vegan-bowl.jpg',
       aliases: ['vegan bowl', 'cold vegan', 'vegan option'],
       dietary_flags: ['vegan'],
       prep_time_minutes: 8
@@ -213,6 +220,7 @@ const GROW_FRESH_DATA = {
       category: 'bowls',
       description: 'Hot vegan succotash bowl',
       price: 14.00,
+      image_url: '/images/menu/succotash-bowl.jpg',
       aliases: ['succotash', 'hot vegan', 'succotash bowl'],
       dietary_flags: ['vegan'],
       prep_time_minutes: 10
@@ -224,6 +232,7 @@ const GROW_FRESH_DATA = {
       category: 'entrees',
       description: 'Chicken with peach glaze',
       price: 16.00,
+      image_url: '/images/menu/peach-chicken.jpg',
       aliases: ['chicken with peaches', 'peach glazed chicken'],
       prep_time_minutes: 15
     },
@@ -232,7 +241,7 @@ const GROW_FRESH_DATA = {
       category: 'entrees',
       description: 'Glazed salmon served over rice',
       price: 16.00,
-      image_url: '/images/menu/teriyaki-salmon.jpeg',
+      image_url: '/images/menu/teriyaki-salmon.jpg',
       aliases: ['salmon', 'salmon over rice', 'salmon rice'],
       prep_time_minutes: 12
     },
@@ -241,6 +250,7 @@ const GROW_FRESH_DATA = {
       category: 'entrees',
       description: 'Southern-style hamburger steak with gravy over rice',
       price: 15.00,
+      image_url: '/images/menu/hamburger-steak.jpg',
       aliases: ['burger steak', 'salisbury steak', 'steak over rice'],
       prep_time_minutes: 15
     },
@@ -249,6 +259,7 @@ const GROW_FRESH_DATA = {
       category: 'entrees',
       description: 'Two marinated Greek chicken thighs served over rice',
       price: 16.00,
+      image_url: '/images/menu/greek-thighs.jpg',
       aliases: ['greek thighs', 'chicken thighs', 'greek chicken over rice'],
       prep_time_minutes: 15
     },
@@ -258,6 +269,7 @@ const GROW_FRESH_DATA = {
       name: 'Potatoes Romanoff',
       category: 'sides',
       price: 4.00,
+      image_url: '/images/menu/romanoff-potatoes.jpg',
       aliases: ['romanoff', 'potato romanoff', 'creamy potatoes'],
       dietary_flags: ['vegetarian'],
       prep_time_minutes: 5
@@ -266,6 +278,7 @@ const GROW_FRESH_DATA = {
       name: 'Black Eyed Peas',
       category: 'sides',
       price: 4.00,
+      image_url: '/images/menu/black-eyed-peas.jpg',
       aliases: ['black eye peas', 'peas', 'field peas'],
       dietary_flags: ['vegan'],
       prep_time_minutes: 5
@@ -274,6 +287,7 @@ const GROW_FRESH_DATA = {
       name: 'Collards',
       category: 'sides',
       price: 4.00,
+      image_url: '/images/menu/collard-greens.jpg',
       aliases: ['collard greens', 'greens'],
       prep_time_minutes: 5
     },
@@ -281,6 +295,7 @@ const GROW_FRESH_DATA = {
       name: 'Sweet Potatoes',
       category: 'sides',
       price: 4.00,
+      image_url: '/images/menu/sweet-potatoes.jpg',
       aliases: ['sweet potato', 'yams'],
       dietary_flags: ['vegetarian'],
       prep_time_minutes: 5
@@ -289,6 +304,7 @@ const GROW_FRESH_DATA = {
       name: 'Rice',
       category: 'sides',
       price: 3.00,
+      image_url: '/images/menu/white-rice.jpg',
       aliases: ['white rice', 'steamed rice'],
       dietary_flags: ['vegan'],
       prep_time_minutes: 3
@@ -297,6 +313,7 @@ const GROW_FRESH_DATA = {
       name: 'Potato Salad',
       category: 'sides',
       price: 4.00,
+      image_url: '/images/menu/potato-salad.jpg',
       aliases: ['tater salad'],
       dietary_flags: ['vegetarian'],
       prep_time_minutes: 3
@@ -305,6 +322,7 @@ const GROW_FRESH_DATA = {
       name: 'Fruit Cup',
       category: 'sides',
       price: 4.00,
+      image_url: '/images/menu/fruit-cup.jpg',
       aliases: ['fruit', 'fresh fruit'],
       dietary_flags: ['vegan'],
       prep_time_minutes: 3
@@ -313,6 +331,7 @@ const GROW_FRESH_DATA = {
       name: 'Cucumber Salad',
       category: 'sides',
       price: 4.00,
+      image_url: '/images/menu/cucumber-salad.jpg',
       aliases: ['cucumber', 'cucumbers'],
       dietary_flags: ['vegan'],
       prep_time_minutes: 3
@@ -321,6 +340,7 @@ const GROW_FRESH_DATA = {
       name: 'Side Salad',
       category: 'sides',
       price: 4.00,
+      image_url: '/images/menu/side-salad.jpg',
       aliases: ['small salad', 'garden salad'],
       dietary_flags: ['vegetarian'],
       prep_time_minutes: 3
@@ -329,6 +349,7 @@ const GROW_FRESH_DATA = {
       name: 'Peanut Asian Noodles',
       category: 'sides',
       price: 4.00,
+      image_url: '/images/menu/asian-noodles.jpg',
       aliases: ['asian noodles', 'peanut noodles', 'noodles'],
       dietary_flags: ['vegetarian'],
       prep_time_minutes: 5
@@ -340,6 +361,7 @@ const GROW_FRESH_DATA = {
       category: 'veggie-plate',
       description: 'Choose 3 or 4 sides',
       price: 10.00,
+      image_url: '/images/menu/veggie-plate.jpg',
       aliases: ['vegetable plate', 'veggie platter', 'vegetarian plate'],
       dietary_flags: ['vegetarian'],
       modifiers: [
@@ -416,20 +438,27 @@ async function seedMenu() {
         continue;
       }
       
+      // Generate a unique external_id for each item
+      const externalId = `${item.category}-${item.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+      
       const { error } = await supabase
         .from('menu_items')
-        .insert({
+        .upsert({
           restaurant_id: RESTAURANT_ID,
           category_id: categoryId,
           name: item.name,
           description: item.description,
           price: item.price,
+          image_url: item.image_url || null,
+          external_id: externalId,
           active: true,
           available: true,
           dietary_flags: item.dietary_flags || [],
           modifiers: item.modifiers || [],
           aliases: item.aliases || [],
           prep_time_minutes: item.prep_time_minutes || 10
+        }, {
+          onConflict: 'external_id'
         });
       
       if (error) {

@@ -142,7 +142,13 @@ export default defineConfig(({ mode }) => {
           secure: false
         }
       },
-      cors: false
+      cors: false,
+      headers: {
+        // Cache images for 1 year in production, 1 hour in dev
+        'Cache-Control': mode === 'production' 
+          ? 'public, max-age=31536000, immutable'
+          : 'public, max-age=3600'
+      }
     },
     
     preview: {
