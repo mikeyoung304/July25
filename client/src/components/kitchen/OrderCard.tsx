@@ -7,12 +7,12 @@ import type { Order } from '@rebuild/shared'
 
 export interface OrderCardProps {
   order: Order
-  onStatusChange: (orderId: string, status: 'preparing' | 'ready') => void
+  onStatusChange: (orderId: string, status: 'ready') => void
 }
 
 /**
- * Simple KDS Order Card - Industry Standard Implementation
- * Based on Toast/Square KDS: Single component, no unnecessary abstraction
+ * Minimal KDS Order Card
+ * Single complete button, no multi-step workflow
  */
 export function OrderCard({ order, onStatusChange }: OrderCardProps) {
   // Calculate elapsed time and urgency color (industry standard: green → yellow → red)
@@ -68,7 +68,7 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
 
   return (
     <Card className={cn(
-      'relative transition-all duration-200 hover:shadow-lg',
+      'relative',
       cardColor
     )}>
       <CardContent className="p-4">
@@ -134,27 +134,16 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
           ))}
         </div>
 
-        {/* Action Buttons - Industry standard: Start/Ready */}
+        {/* Single Action Button - Complete */}
         <div className="flex gap-2">
-          {(order.status === 'new' || order.status === 'pending' || order.status === 'confirmed') && (
-            <Button
-              onClick={() => onStatusChange(order.id, 'preparing')}
-              className="flex-1"
-              variant="default"
-              size="sm"
-            >
-              Start Preparing
-            </Button>
-          )}
-          
-          {order.status === 'preparing' && (
+          {(order.status !== 'ready' && order.status !== 'completed' && order.status !== 'cancelled') && (
             <Button
               onClick={() => onStatusChange(order.id, 'ready')}
               className="flex-1"
               variant="default"
               size="sm"
             >
-              Mark Ready
+              Complete Order
             </Button>
           )}
           

@@ -15,11 +15,12 @@ export function AppContent({ isDevelopment }: AppContentProps) {
   useGlobalKeyboardShortcuts()
   const location = useLocation()
   
-  // Hide internal navigation on customer-facing pages
+  // Hide internal navigation on customer-facing and focused pages
   const isCustomerPage = location.pathname === '/' || 
                          location.pathname.startsWith('/order') || 
                          location.pathname.startsWith('/checkout') || 
-                         location.pathname.startsWith('/order-confirmation')
+                         location.pathname.startsWith('/order-confirmation') ||
+                         location.pathname.startsWith('/kitchen')  // Kitchen display should be standalone
   const showNavigation = !isCustomerPage
   
   return (
