@@ -1,5 +1,4 @@
 import React from 'react'
-import { logger } from '@/services/logger'
 import { Activity, Download, Trash2, AlertTriangle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,6 +8,7 @@ import { PerformanceChart } from '@/modules/analytics/components/PerformanceChar
 import { ComponentMetricsTable } from '@/modules/analytics/components/ComponentMetricsTable'
 import { APIMetricsTable } from '@/modules/analytics/components/APIMetricsTable'
 import { cn } from '@/utils'
+import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 
 const PerformanceDashboard: React.FC = () => {
   const { 
@@ -23,11 +23,6 @@ const PerformanceDashboard: React.FC = () => {
     component: 'PerformanceDashboard' 
   })
 
-  logger.info('📈 PerformanceDashboard render:', { 
-    metrics, 
-    statistics, 
-    memoryStats: statistics.memory 
-  })
 
   const slowOps = getSlowOperations()
   const hasPerformanceIssues = slowOps.renders.length > 0 || slowOps.apiCalls.length > 0
@@ -46,28 +41,23 @@ const PerformanceDashboard: React.FC = () => {
     : 0
 
   const memoryStats = statistics.memory
-  
-  logger.info('📊 Calculated metrics:', {
-    totalRenders,
-    totalAPICalls,
-    avgRenderTime,
-    avgAPITime,
-    apiErrorRate,
-    memoryStats
-  })
 
   return (
     <div className="min-h-screen bg-macon-background p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Activity className="h-8 w-8" />
-              Performance Dashboard
-            </h1>
-            <p className="text-muted-foreground">Monitor and analyze KDS performance metrics</p>
+        <div className="mb-6">
+          <div className="mb-4">
+            <BackToDashboard />
           </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold flex items-center gap-2">
+                <Activity className="h-8 w-8" />
+                Performance Dashboard
+              </h1>
+              <p className="text-muted-foreground">Monitor and analyze KDS performance metrics</p>
+            </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={exportPerformanceData}>
               <Download className="h-4 w-4 mr-2" />
@@ -77,6 +67,7 @@ const PerformanceDashboard: React.FC = () => {
               <Trash2 className="h-4 w-4 mr-2" />
               Clear
             </Button>
+          </div>
           </div>
         </div>
 
@@ -172,14 +163,6 @@ const PerformanceDashboard: React.FC = () => {
               <p className="text-xs text-muted-foreground mt-1">
                 {memoryStats ? `${((memoryStats.current / memoryStats.limit) * 100).toFixed(0)}% of limit` : 'N/A'}
               </p>
-              <div className="text-xs text-blue-600 mt-2">
-                Debug: {JSON.stringify({ 
-                  hasMemoryStats: !!memoryStats,
-                  metricsCount: metrics.memory.length,
-                  hasPerfApi: 'memory' in performance,
-                  perfEnabled: import.meta.env.DEV
-                })}
-              </div>
             </CardContent>
           </Card>
         </div>
