@@ -13,7 +13,7 @@ import type { Order } from '@rebuild/shared'
  * Core function: Display orders and update their status
  */
 function KitchenDisplaySimple() {
-  const { restaurant, isLoading: restaurantLoading, error: restaurantError } = useRestaurant()
+  const { isLoading: restaurantLoading, error: restaurantError } = useRestaurant()
   
   // Single state for orders
   const [orders, setOrders] = useState<Order[]>([])
@@ -34,7 +34,7 @@ function KitchenDisplaySimple() {
       } else {
         setOrders([])
       }
-    } catch (error) {
+    } catch {
       setOrders([])
     } finally {
       setIsLoading(false)
@@ -50,7 +50,7 @@ function KitchenDisplaySimple() {
       setOrders(prev => prev.map(order => 
         order.id === orderId ? { ...order, status } : order
       ))
-    } catch (error) {
+    } catch {
       // Silent failure - order will sync via WebSocket
     }
   }, [])
@@ -63,33 +63,37 @@ function KitchenDisplaySimple() {
   // WebSocket subscriptions for real-time updates
   useEffect(() => {
     // Subscribe to WebSocket events
-    const unsubscribeCreated = webSocketService.subscribe('order:created', (payload: any) => {
-      const rawOrder = payload.order || payload
+    const unsubscribeCreated = webSocketService.subscribe('order:created', (payload: unknown) => {
+      const data = payload as { order?: unknown } | unknown
+      const rawOrder = (data as { order?: unknown })?.order || data
       if (rawOrder) {
         const order = toCamelCase(rawOrder) as Order
         setOrders(prev => [order, ...prev])
       }
     })
 
-    const unsubscribeUpdated = webSocketService.subscribe('order:updated', (payload: any) => {
-      const rawOrder = payload.order || payload
+    const unsubscribeUpdated = webSocketService.subscribe('order:updated', (payload: unknown) => {
+      const data = payload as { order?: unknown } | unknown
+      const rawOrder = (data as { order?: unknown })?.order || data
       if (rawOrder) {
         const order = toCamelCase(rawOrder) as Order
         setOrders(prev => prev.map(o => o.id === order.id ? order : o))
       }
     })
 
-    const unsubscribeDeleted = webSocketService.subscribe('order:deleted', (payload: any) => {
-      const orderId = payload.orderId || payload.id
+    const unsubscribeDeleted = webSocketService.subscribe('order:deleted', (payload: unknown) => {
+      const data = payload as { orderId?: string; id?: string }
+      const orderId = data.orderId || data.id
       if (orderId) {
         setOrders(prev => prev.filter(o => o.id !== orderId))
       }
     })
 
-    const unsubscribeStatusChanged = webSocketService.subscribe('order:status_changed', (payload: any) => {
-      if (payload.orderId && payload.status) {
+    const unsubscribeStatusChanged = webSocketService.subscribe('order:status_changed', (payload: unknown) => {
+      const data = payload as { orderId?: string; status?: string }
+      if (data.orderId && data.status) {
         setOrders(prev => prev.map(o => 
-          o.id === payload.orderId ? { ...o, status: payload.status } : o
+          o.id === data.orderId ? { ...o, status: data.status as Order['status'] } : o
         ))
       }
     })
