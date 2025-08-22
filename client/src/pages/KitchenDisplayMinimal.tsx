@@ -12,7 +12,7 @@ import type { Order } from '@rebuild/shared'
  * Matches Dashboard aesthetic: large cards, minimal colors, maximum clarity
  */
 function KitchenDisplayMinimal() {
-  const { restaurant, isLoading: restaurantLoading, error: restaurantError } = useRestaurant()
+  const { isLoading: restaurantLoading, error: restaurantError } = useRestaurant()
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<'active' | 'ready'>('active')
@@ -27,7 +27,7 @@ function KitchenDisplayMinimal() {
       } else {
         setOrders([])
       }
-    } catch (error) {
+    } catch {
       setOrders([])
     } finally {
       setIsLoading(false)
@@ -41,7 +41,7 @@ function KitchenDisplayMinimal() {
       setOrders(prev => prev.map(order => 
         order.id === orderId ? { ...order, status: 'ready' } : order
       ))
-    } catch (error) {
+    } catch {
       // Silent failure
     }
   }, [])
@@ -52,33 +52,37 @@ function KitchenDisplayMinimal() {
 
   // WebSocket subscriptions
   useEffect(() => {
-    const unsubscribeCreated = webSocketService.subscribe('order:created', (payload: any) => {
-      const rawOrder = payload.order || payload
+    const unsubscribeCreated = webSocketService.subscribe('order:created', (payload: unknown) => {
+      const data = payload as { order?: unknown } | unknown
+      const rawOrder = (data as { order?: unknown })?.order || data
       if (rawOrder) {
         const order = toCamelCase(rawOrder) as Order
         setOrders(prev => [order, ...prev])
       }
     })
 
-    const unsubscribeUpdated = webSocketService.subscribe('order:updated', (payload: any) => {
-      const rawOrder = payload.order || payload
+    const unsubscribeUpdated = webSocketService.subscribe('order:updated', (payload: unknown) => {
+      const data = payload as { order?: unknown } | unknown
+      const rawOrder = (data as { order?: unknown })?.order || data
       if (rawOrder) {
         const order = toCamelCase(rawOrder) as Order
         setOrders(prev => prev.map(o => o.id === order.id ? order : o))
       }
     })
 
-    const unsubscribeDeleted = webSocketService.subscribe('order:deleted', (payload: any) => {
-      const orderId = payload.orderId || payload.id
+    const unsubscribeDeleted = webSocketService.subscribe('order:deleted', (payload: unknown) => {
+      const data = payload as { orderId?: string; id?: string }
+      const orderId = data.orderId || data.id
       if (orderId) {
         setOrders(prev => prev.filter(o => o.id !== orderId))
       }
     })
 
-    const unsubscribeStatusChanged = webSocketService.subscribe('order:status_changed', (payload: any) => {
-      if (payload.orderId && payload.status) {
+    const unsubscribeStatusChanged = webSocketService.subscribe('order:status_changed', (payload: unknown) => {
+      const data = payload as { orderId?: string; status?: string }
+      if (data.orderId && data.status) {
         setOrders(prev => prev.map(o => 
-          o.id === payload.orderId ? { ...o, status: payload.status } : o
+          o.id === data.orderId ? { ...o, status: data.status as Order['status'] } : o
         ))
       }
     })
