@@ -6,109 +6,77 @@ import { CartItem } from '@/modules/order-system/components/CartItem';
 import { CartSummary } from '@/modules/order-system/components/CartSummary';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
 import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
-// Define CheckoutPayload locally
-interface CheckoutPayload {
-  cart: {
-    items: any[];
-    subtotal: number;
-    tax: number;
-    tip: number;
-    total: number;
-  };
-  customerEmail: string;
-  customerPhone: string;
-  paymentNonce: string;
-}
+import { useApiRequest } from '@/hooks/useApiRequest';
+import { useFormValidation, validators } from '@/utils/validation';
+
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { cart, updateCartItem, removeFromCart, updateTip, clearCart } = useCart();
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const orderApi = useApiRequest();
+  const paymentApi = useApiRequest();
+  
+  // Use form validation hook
+  const form = useFormValidation({
+    customerEmail: '',
+    customerPhone: '',
+  }, {
+    customerEmail: {
+      rules: [validators.required, validators.email],
+      validateOnBlur: true,
+    },
+    customerPhone: {
+      rules: [validators.required, validators.phone],
+      validateOnBlur: true,
+    },
+  });
 
   const handlePaymentNonce = async (token: string) => {
-    // Validate contact info
-    const newErrors: Record<string, string> = {};
-    
-    if (!customerEmail || !customerEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-    
-    if (!customerPhone || !customerPhone.match(/^\d{10}$/)) {
-      newErrors.phone = 'Please enter a valid 10-digit phone number';
-    }
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    // Validate form
+    if (!form.validateForm()) {
       return;
     }
     
     setIsProcessing(true);
-    setErrors({});
+    form.clearErrors();
 
     try {
-      // First, create the order
-      const orderResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token',
-          'x-restaurant-id': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
-        },
-        body: JSON.stringify({
-          type: 'online',
-          items: cart.items.map(item => ({
-            menu_item_id: item.id,
-            name: item.name,
-            quantity: item.quantity,
-            price: item.price,
-            modifiers: item.modifiers || [],
-            specialInstructions: item.specialInstructions || '',
-          })),
-          customerName: customerEmail.split('@')[0], // Use email prefix as name
-          customerEmail,
-          customerPhone,
-          notes: 'Online order',
-          subtotal: cart.subtotal,
-          tax: cart.tax,
-          tip: cart.tip,
-          total_amount: cart.total,
-        }),
+      // First, create the order using the new API hook
+      const order = await orderApi.post('/api/v1/orders', {
+        type: 'online',
+        items: cart.items.map(item => ({
+          menu_item_id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          modifiers: item.modifiers || [],
+          specialInstructions: item.specialInstructions || '',
+        })),
+        customerName: form.values.customerEmail.split('@')[0], // Use email prefix as name
+        customerEmail: form.values.customerEmail,
+        customerPhone: form.values.customerPhone.replace(/\D/g, ''), // Clean phone number
+        notes: 'Online order',
+        subtotal: cart.subtotal,
+        tax: cart.tax,
+        tip: cart.tip,
+        total_amount: cart.total,
       });
 
-      if (!orderResponse.ok) {
+      if (!order) {
         throw new Error('Failed to create order');
       }
 
-      const order = await orderResponse.json();
-
-      // Now process the payment
-      const paymentResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/payments/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token',
-          'x-restaurant-id': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
-        },
-        body: JSON.stringify({
-          orderId: order.id,
-          token,
-          amount: cart.total,
-          idempotencyKey: `checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        }),
+      // Now process the payment using the new API hook
+      const payment = await paymentApi.post('/api/v1/payments/create', {
+        orderId: order.id,
+        token,
+        amount: cart.total,
+        idempotencyKey: `checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       });
 
-      if (!paymentResponse.ok) {
-        const paymentError = await paymentResponse.json();
-        throw new Error(paymentError.error || 'Payment failed');
-      }
-
-      const paymentResult = await paymentResponse.json();
-
-      if (!paymentResult.success) {
-        throw new Error(paymentResult.error || 'Payment processing failed');
+      if (!payment) {
+        throw new Error('Payment processing failed');
       }
 
       // Clear cart and navigate to confirmation
@@ -120,13 +88,13 @@ const CheckoutPage: React.FC = () => {
           estimatedTime: '15-20 minutes',
           items: cart.items,
           total: cart.total,
-          paymentId: paymentResult.paymentId,
+          paymentId: payment.id || payment.paymentId,
         } 
       });
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred. Please try again.';
-      setErrors({ general: errorMessage });
+      form.setFieldError('general' as keyof typeof form.values, errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -190,16 +158,17 @@ const CheckoutPage: React.FC = () => {
                   <input
                     id="email"
                     type="email"
-                    value={customerEmail}
-                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    value={form.values.customerEmail}
+                    onChange={form.handleChange('customerEmail')}
+                    onBlur={form.handleBlur('customerEmail')}
                     placeholder="john@example.com"
                     className={`block w-full px-3 py-2 border rounded-lg ${
-                      errors.email ? 'border-red-300' : 'border-gray-300'
+                      form.errors.customerEmail ? 'border-red-300' : 'border-gray-300'
                     }`}
                     disabled={isProcessing}
                   />
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                  {form.errors.customerEmail && (
+                    <p className="mt-1 text-sm text-red-600">{form.errors.customerEmail}</p>
                   )}
                 </div>
 
@@ -210,16 +179,17 @@ const CheckoutPage: React.FC = () => {
                   <input
                     id="phone"
                     type="tel"
-                    value={formatPhoneNumber(customerPhone)}
-                    onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ''))}
+                    value={form.values.customerPhone}
+                    onChange={form.handleChange('customerPhone')}
+                    onBlur={form.handleBlur('customerPhone')}
                     placeholder="(555) 123-4567"
                     className={`block w-full px-3 py-2 border rounded-lg ${
-                      errors.phone ? 'border-red-300' : 'border-gray-300'
+                      form.errors.customerPhone ? 'border-red-300' : 'border-gray-300'
                     }`}
                     disabled={isProcessing}
                   />
-                  {errors.phone && (
-                    <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                  {form.errors.customerPhone && (
+                    <p className="mt-1 text-sm text-red-600">{form.errors.customerPhone}</p>
                   )}
                 </div>
               </div>
@@ -251,9 +221,9 @@ const CheckoutPage: React.FC = () => {
             {/* Payment Form */}
             <div className="bg-white rounded-lg p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Method</h2>
-              {errors.general && (
+              {form.errors.general && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  {errors.general}
+                  {form.errors.general}
                 </div>
               )}
               <SquarePaymentForm
