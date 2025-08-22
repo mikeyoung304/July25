@@ -56,7 +56,7 @@ export class OrderService implements IOrderService {
       } else if (response.orders && Array.isArray(response.orders)) {
         orders = response.orders
       } else {
-        console.warn('API returned invalid orders data:', response)
+        logger.warn('API returned invalid orders data:', response)
         return []
       }
       
@@ -74,7 +74,7 @@ export class OrderService implements IOrderService {
 
       return mappedOrders
     } catch (error) {
-      console.warn('API call failed, falling back to mock data:', error)
+      logger.warn('API call failed, falling back to mock data:', error)
       return this.getMockOrders()
     }
   }
@@ -95,7 +95,7 @@ export class OrderService implements IOrderService {
         payment_status: response.payment_status || response.payment_status || 'pending'
       }
     } catch (error) {
-      console.warn('API call failed, falling back to mock data:', error)
+      logger.warn('API call failed, falling back to mock data:', error)
       const mockOrders = this.getMockOrders()
       const order = mockOrders.find(o => o.id === orderId)
       if (!order) throw new Error('Order not found')
@@ -119,7 +119,7 @@ export class OrderService implements IOrderService {
         payment_status: response.payment_status || response.payment_status || 'pending'
       }
     } catch (error) {
-      console.warn('API call failed, falling back to mock data:', error)
+      logger.warn('API call failed, falling back to mock data:', error)
       const mockOrders = this.getMockOrders()
       const order = mockOrders.find(o => o.id === orderId)
       if (!order) throw new Error('Order not found')
@@ -134,7 +134,7 @@ export class OrderService implements IOrderService {
     
     // Validate order data
     if (!this.validateOrder(orderData)) {
-      console.error('[OrderService] Order validation failed, throwing error')
+      logger.error('[OrderService] Order validation failed, throwing error')
       throw new Error('Invalid order data - check console for details')
     }
 
@@ -156,7 +156,7 @@ export class OrderService implements IOrderService {
         payment_status: response.payment_status || response.payment_status || 'pending'
       }
     } catch (error) {
-      console.warn('API call failed, creating mock order:', error)
+      logger.warn('API call failed, creating mock order:', error)
       
       // Create mock order
       const newOrder: Order = {
@@ -183,7 +183,7 @@ export class OrderService implements IOrderService {
     logger.info('[OrderService] Validating order:', orderData)
     
     if (!orderData.items || orderData.items.length === 0) {
-      console.warn('[OrderService] Validation failed: No items in order')
+      logger.warn('[OrderService] Validation failed: No items in order')
       return false
     }
 
@@ -196,27 +196,27 @@ export class OrderService implements IOrderService {
       // Check for either id or menu_item_id (support both formats)
       const hasId = item.id || item.menu_item_id
       if (!hasId) {
-        console.warn(`[OrderService] Item ${i} missing id or menu_item_id:`, { id: item.id, menu_item_id: item.menu_item_id })
+        logger.warn(`[OrderService] Item ${i} missing id or menu_item_id:`, { id: item.id, menu_item_id: item.menu_item_id })
         return false
       }
       
       if (!item.name) {
-        console.warn(`[OrderService] Item ${i} missing name`)
+        logger.warn(`[OrderService] Item ${i} missing name`)
         return false
       }
       
       if (!item.quantity || item.quantity <= 0) {
-        console.warn(`[OrderService] Item ${i} invalid quantity:`, item.quantity)
+        logger.warn(`[OrderService] Item ${i} invalid quantity:`, item.quantity)
         return false
       }
 
       if (item.modifiers && !this.validateModifiers(item.modifiers)) {
-        console.warn(`[OrderService] Item ${i} has invalid modifiers:`, item.modifiers)
+        logger.warn(`[OrderService] Item ${i} has invalid modifiers:`, item.modifiers)
         return false
       }
 
       if (item.special_instructions && !this.validateNotes(item.special_instructions)) {
-        console.warn(`[OrderService] Item ${i} has invalid special instructions:`, item.special_instructions)
+        logger.warn(`[OrderService] Item ${i} has invalid special instructions:`, item.special_instructions)
         return false
       }
     }
