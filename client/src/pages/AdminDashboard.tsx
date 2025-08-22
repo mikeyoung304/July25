@@ -1,8 +1,5 @@
 import React, { useState, useContext, useCallback } from 'react'
-import { logger } from '@/services/logger'
-import { motion } from 'framer-motion'
 import { ArrowLeft, LayoutGrid, BarChart3 } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { FloorPlanEditor } from '@/modules/floor-plan/components/FloorPlanEditor'
@@ -11,12 +8,11 @@ import { Table } from '@/modules/floor-plan/types'
 import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
 import { spacing } from '@/lib/typography'
 import { RoleGuard } from '@/components/auth/RoleGuard'
+import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 
 function AdminDashboard() {
   const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics'>('overview')
   const context = useContext(RestaurantContext)
-  
-  logger.info('🏛️ AdminDashboard render', { activeView, context, restaurant: context?.restaurant })
   
   if (!context) {
     throw new Error('AdminDashboard must be used within a RestaurantProvider')
@@ -24,18 +20,14 @@ function AdminDashboard() {
   
   const { restaurant } = context
 
-  // The FloorPlanEditor now handles saving internally via the FloorPlanService
-  // This callback is optional and can be used for additional actions after save
   const handleSaveFloorPlan = useCallback((tables: Table[]) => {
-    console.warn('Floor plan saved for restaurant:', restaurant?.id, 'Tables:', tables.length)
+    // Floor plan saved
   }, [restaurant?.id])
   
-  // Show loading state while restaurant data is being fetched
   if (!restaurant) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FBFBFA' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-macon-logo-blue mx-auto mb-4"></div>
           <p className="text-neutral-600">Loading restaurant data...</p>
         </div>
       </div>
@@ -49,15 +41,10 @@ function AdminDashboard() {
     >
       <div className="min-h-screen bg-macon-background">
       {/* Header */}
-      <div className="bg-white shadow-elevation-1 border-b border-neutral-200">
+      <div className="bg-white border-b border-neutral-200">
         <div className={`${spacing.page.container} py-4 flex items-center justify-between`}>
           <div className="flex items-center space-x-4">
-            <Link to="/">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
+            <BackToDashboard />
             <PageTitle as="h1" className="text-2xl md:text-3xl">Admin Dashboard</PageTitle>
           </div>
         </div>
@@ -66,20 +53,12 @@ function AdminDashboard() {
       {/* Main Content */}
       <div className={`${spacing.page.container} ${spacing.page.padding}`}>
         {activeView === 'overview' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div>
             <div className={`grid grid-cols-1 md:grid-cols-2 ${spacing.grid.gapLarge} max-w-4xl mx-auto`}>
               {/* Floor Plan Creator */}
               <div
-                className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all rounded-xl shadow-elevation-2 border border-neutral-100/30 p-6`}
-                onClick={() => {
-                  logger.info('🖱️ Floor Plan Creator clicked, changing activeView to floorplan')
-                  setActiveView('floorplan')
-                }}
-                style={{ cursor: 'pointer' }}
+                className={`${spacing.component.card} cursor-pointer bg-white rounded-xl border border-neutral-100/30 p-6`}
+                onClick={() => setActiveView('floorplan')}
               >
                 <div className={`flex flex-col items-center ${spacing.content.stack}`}>
                   <div className="p-4 rounded-xl bg-macon-logo-blue/10">
@@ -94,12 +73,8 @@ function AdminDashboard() {
 
               {/* Analytics */}
               <div
-                className={`${spacing.component.card} cursor-pointer bg-white hover:shadow-elevation-3 transition-all rounded-xl shadow-elevation-2 border border-neutral-100/30 p-6`}
-                onClick={() => {
-                  logger.info('🖱️ Analytics clicked, changing activeView to analytics')
-                  setActiveView('analytics')
-                }}
-                style={{ cursor: 'pointer' }}
+                className={`${spacing.component.card} cursor-pointer bg-white rounded-xl border border-neutral-100/30 p-6`}
+                onClick={() => setActiveView('analytics')}
               >
                 <div className={`flex flex-col items-center ${spacing.content.stack}`}>
                   <div className="p-4 rounded-xl bg-macon-teal/10">
@@ -112,22 +87,15 @@ function AdminDashboard() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {activeView === 'floorplan' && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div>
             <div className="mb-6">
               <Button
                 variant="ghost"
-                onClick={() => {
-                  logger.info('🔙 Back to overview clicked')
-                  setActiveView('overview')
-                }}
+                onClick={() => setActiveView('overview')}
                 className="mb-4"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -143,16 +111,11 @@ function AdminDashboard() {
                 onSave={handleSaveFloorPlan}
               />
             </div>
-          </motion.div>
+          </div>
         )}
 
-
         {activeView === 'analytics' && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div>
             <div className="mb-6">
               <Button
                 variant="ghost"
@@ -196,7 +159,7 @@ function AdminDashboard() {
                 </div>
               </div>
             </Card>
-          </motion.div>
+          </div>
         )}
       </div>
       </div>

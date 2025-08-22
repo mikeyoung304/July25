@@ -1,30 +1,18 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { logger } from '@/services/logger'
-import { ShoppingCart, Headphones, User, Volume2, AlertCircle, CheckCircle } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { VoiceOrderProvider } from '@/modules/voice/contexts/VoiceOrderContext';
 import { useVoiceOrder } from '@/modules/voice/hooks/useVoiceOrder';
 import { VoiceControlWebRTC } from '@/modules/voice/components/VoiceControlWebRTC';
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser';
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/utils';
+import { ActionButton } from '@/components/ui/ActionButton';
+import { BackToDashboard } from '@/components/navigation/BackToDashboard';
 
-interface ConversationEntry {
-  id: string;
-  speaker: 'ai' | 'user';
-  text: string;
-  timestamp: Date;
-}
 
 const DriveThruPageContent: React.FC = () => {
-  const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState('');
-  const [isFirstPress, setIsFirstPress] = useState(true);
-  const [orderSubmitted, setOrderSubmitted] = useState(false);
-  const { items, addItem, removeItem, updateQuantity, total, itemCount } = useVoiceOrder();
+  const { items, addItem, total, itemCount } = useVoiceOrder();
   const { items: menuItems, loading } = useMenuItems();
   const [orderParser, setOrderParser] = useState<OrderParser | null>(null);
-  const conversationEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (menuItems.length > 0) {
@@ -32,252 +20,132 @@ const DriveThruPageContent: React.FC = () => {
     }
   }, [menuItems]);
 
-  useEffect(() => {
-    // Auto-scroll to bottom of conversation
-    conversationEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversation, currentTranscript]);
-
-  const handleFirstPress = useCallback(() => {
-    setIsFirstPress(false);
-    const greeting: ConversationEntry = {
-      id: Date.now().toString(),
-      speaker: 'ai',
-      text: "Welcome to Grow! What can I get started for you today?",
-      timestamp: new Date(),
-    };
-    setConversation([greeting]);
-  }, []);
-
   const processParsedItems = useCallback((parsedItems: ParsedOrderItem[]) => {
     parsedItems.forEach(parsed => {
-      if (parsed.menuItem) {
-        switch (parsed.action) {
-          case 'add':
-            addItem(parsed.menuItem, parsed.quantity, parsed.modifications);
-            break;
-          case 'remove': {
-            const itemToRemove = items.find(item => 
-              item.menuItem.id === parsed.menuItem?.id
-            );
-            if (itemToRemove) {
-              removeItem(itemToRemove.id);
-            }
-            break;
-          }
-          case 'update': {
-            const itemToUpdate = items.find(item => 
-              item.menuItem.id === parsed.menuItem?.id
-            );
-            if (itemToUpdate) {
-              updateQuantity(itemToUpdate.id, parsed.quantity);
-            }
-            break;
-          }
-        }
+      if (parsed.menuItem && parsed.action === 'add') {
+        addItem(parsed.menuItem, parsed.quantity, parsed.modifications);
       }
     });
-  }, [addItem, removeItem, updateQuantity, items]);
+  }, [addItem]);
 
-  const processVoiceOrder = useCallback(async (transcript: string) => {
-    console.warn('Processing drive-thru order:', transcript);
-    
-    try {
-      const response = await fetch('http://localhost:3001/api/v1/ai/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: transcript,
-          context: {
-            role: 'drive_thru_order_taker',
-            menu: menuItems,
-            currentOrder: items,
-          },
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      const aiResponse = data.response;
-      
-      const aiEntry: ConversationEntry = {
-        id: Date.now().toString(),
-        speaker: 'ai',
-        text: aiResponse,
-        timestamp: new Date(),
-      };
-      setConversation(prev => [...prev, aiEntry]);
-      
-      if (orderParser) {
-        const parsedItems = orderParser.parseAIResponse(aiResponse);
-        processParsedItems(parsedItems);
-      }
-    } catch (error) {
-      console.error('Error processing drive-thru order:', error);
-      
-      // Show error to user
-      const errorEntry: ConversationEntry = {
-        id: Date.now().toString(),
-        speaker: 'ai',
-        text: "I apologize, but I'm having trouble with your order. Please drive to the window for assistance.",
-        timestamp: new Date(),
-      };
-      setConversation(prev => [...prev, errorEntry]);
-    }
-  }, [menuItems, items, orderParser, processParsedItems]);
 
   const handleTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
-    // Normalize input to handle both signatures
     const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text;
     const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal;
     
     if (!isFinal) {
       setCurrentTranscript(text);
     } else {
-      const userEntry: ConversationEntry = {
-        id: Date.now().toString(),
-        speaker: 'user',
-        text: text,
-        timestamp: new Date(),
-      };
-      setConversation(prev => [...prev, userEntry]);
       setCurrentTranscript('');
       
-      processVoiceOrder(event.text);
+      if (orderParser) {
+        const parsedItems = orderParser.parseOrder(text);
+        if (parsedItems.length > 0) {
+          processParsedItems(parsedItems);
+        }
+      }
     }
-  }, [processVoiceOrder]);
+  }, [orderParser, processParsedItems]);
   
   const handleOrderDetected = useCallback((order: any) => {
-    logger.info('Order detected:', order);
     // Order detection is handled through transcript processing
   }, []);
 
   const handleConfirmOrder = useCallback(() => {
-    console.warn('Order confirmed:', items);
-    // Add confirmation message
-    const confirmEntry: ConversationEntry = {
-      id: Date.now().toString(),
-      speaker: 'ai',
-      text: `Perfect! Your total is $${total.toFixed(2)}. Please drive to the next window.`,
-      timestamp: new Date(),
-    };
-    setConversation(prev => [...prev, confirmEntry]);
-  }, [items, total]);
+    // TODO: Navigate to checkout or confirmation
+    window.location.href = '/checkout';
+  }, []);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
-        <div className="text-2xl">Loading menu...</div>
+      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+        <p className="text-gray-600">Loading menu...</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-neutral-900 text-white p-6">
-      <div className="max-w-6xl mx-auto h-full flex flex-col">
-        <h1 className="text-4xl font-bold text-center mb-8 text-primary-50">DRIVE-THRU ORDER</h1>
-
-        {/* Conversation Section */}
-        <div className="flex-1 bg-neutral-800 rounded-xl p-6 mb-6 overflow-hidden shadow-elevation-2">
-          <div className="h-full overflow-y-auto space-y-4">
-            {conversation.map((entry) => (
-              <div key={entry.id} className="mb-4 flex items-start gap-3">
-                {entry.speaker === 'ai' ? (
-                  <Headphones className="w-6 h-6 text-info-400 flex-shrink-0 mt-1" />
-                ) : (
-                  <User className="w-6 h-6 text-white flex-shrink-0 mt-1" />
-                )}
-                <p className={`${entry.speaker === 'ai' ? 'text-info-400' : 'text-white'} font-semibold text-lg`}>
-                  {entry.text}
-                </p>
-              </div>
-            ))}
-            {currentTranscript && (
-              <div className="mb-4 flex items-start gap-3">
-                <User className="w-6 h-6 text-neutral-400 flex-shrink-0 mt-1" />
-                <p className="text-neutral-400 italic text-lg">
-                  {currentTranscript}...
-                </p>
-              </div>
-            )}
-            <div ref={conversationEndRef} />
-          </div>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <BackToDashboard />
+        </div>
+        
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Drive-Thru</h1>
+          <p className="text-gray-600">{itemCount} items • ${total.toFixed(2)}</p>
         </div>
 
-        {/* Order Summary */}
-        <div className="bg-neutral-800/80 backdrop-blur rounded-lg p-6 mb-6 border border-neutral-700">
-          <div className="flex items-center justify-center mb-4">
-            <ShoppingCart className="w-10 h-10 mr-3" />
-            <h2 className="text-3xl font-bold">YOUR ORDER ({itemCount} items)</h2>
-          </div>
-          
-          <div className="max-h-32 overflow-y-auto mb-4">
-            {items.map((item) => (
-              <div key={item.id} className="flex justify-between items-center py-1">
-                <span className="text-xl">
-                  {item.quantity > 1 && `${item.quantity}x `}
-                  {item.menuItem.name}
-                  {item.modifications.length > 0 && (
-                    <span className="text-gray-400 text-lg">
-                      {' - ' + item.modifications.map(mod => mod.name).join(', ')}
-                    </span>
-                  )}
-                </span>
-                <span className="text-xl">${item.subtotal.toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
-          
-          <div className="text-center">
-            <p className="text-5xl font-bold text-yellow-400">
-              TOTAL: ${total.toFixed(2)}
-            </p>
-          </div>
-        </div>
-
-        {/* Controls */}
-        <div className="flex flex-col items-center gap-6">
-          <div className="transform scale-150">
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Voice Control */}
+          <div className="bg-white border border-gray-200 rounded p-6 text-center">
             <VoiceControlWebRTC
               onTranscript={handleTranscript}
               onOrderDetected={handleOrderDetected}
               debug={false}
             />
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Voice Ordering</h3>
+              <p className="text-gray-600">Press and hold to speak your order</p>
+              {currentTranscript && (
+                <p className="mt-2 text-sm text-gray-500 italic">
+                  "{currentTranscript}..."
+                </p>
+              )}
+            </div>
           </div>
-          
-          {/* Status Text */}
-          <div className="text-center">
-            <p className="text-neutral-400 text-lg">
-              Hold the button and tell us what you'd like to order
-            </p>
-          </div>
-          
-          <Button
-            size="lg"
-            disabled={items.length === 0 || orderSubmitted}
-            onClick={handleConfirmOrder}
-            className={cn(
-              "text-2xl px-12 py-8 transition-all duration-200",
-              orderSubmitted 
-                ? "bg-green-600 text-white cursor-not-allowed" 
-                : items.length === 0 
-                  ? "bg-gray-600 text-gray-400 cursor-not-allowed" 
-                  : "bg-macon-teal hover:bg-macon-teal/80 text-white hover:scale-105 shadow-lg"
-            )}
-          >
-            {orderSubmitted ? (
-              <>
-                <CheckCircle className="w-6 h-6 mr-2" />
-                ORDER SUBMITTED - DRIVE TO WINDOW
-              </>
+
+          {/* Current Order */}
+          <div className="bg-white border border-gray-200 rounded p-6">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Current Order</h3>
+            </div>
+
+            {items.length > 0 ? (
+              <div className="space-y-3 mb-6">
+                {items.map((item) => (
+                  <div key={item.id} className="flex justify-between items-center py-2">
+                    <div>
+                      <span className="font-medium text-gray-900">
+                        {item.quantity}x {item.menuItem.name}
+                      </span>
+                      {item.modifications && item.modifications.length > 0 && (
+                        <p className="text-sm text-gray-600">
+                          {item.modifications.map(mod => mod.name).join(', ')}
+                        </p>
+                      )}
+                    </div>
+                    <span className="font-semibold text-gray-900">
+                      ${(item.menuItem.price * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
             ) : (
-              "CONFIRM & PAY AT WINDOW"
+              <div className="text-center py-8">
+                <p className="text-gray-500">No items yet</p>
+                <p className="text-sm text-gray-400 mt-1">Use voice to add items</p>
+              </div>
             )}
-          </Button>
+
+            {items.length > 0 && (
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-lg font-semibold text-gray-900">Total</span>
+                  <span className="text-xl font-bold text-gray-900">
+                    ${total.toFixed(2)}
+                  </span>
+                </div>
+                <ActionButton
+                  size="small"
+                  className="w-full bg-gray-900 hover:bg-gray-800 text-white"
+                  onClick={handleConfirmOrder}
+                >
+                  Confirm Order
+                </ActionButton>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -292,4 +160,4 @@ const DriveThruPage: React.FC = () => {
   );
 };
 
-export default DriveThruPage;
+export default DriveThruPage
