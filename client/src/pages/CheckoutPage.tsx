@@ -72,6 +72,10 @@ const CheckoutPageContent: React.FC = () => {
           customerEmail,
           customerPhone,
           notes: 'Online order',
+          subtotal: cart.subtotal,
+          tax: cart.tax,
+          tip: cart.tip,
+          total_amount: cart.total,
         }),
       });
 
