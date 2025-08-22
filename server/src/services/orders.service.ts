@@ -24,8 +24,14 @@ export interface CreateOrderRequest {
   type?: 'kiosk' | 'drive-thru' | 'online' | 'voice';
   items: OrderItem[];
   customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
   tableNumber?: string;
   notes?: string;
+  subtotal?: number;
+  tax?: number;
+  tip?: number;
+  total_amount?: number;
   metadata?: any;
 }
 
@@ -80,8 +86,8 @@ export class OrdersService {
         })
       );
 
-      // Calculate totals
-      const subtotal = itemsWithUuids.reduce((total, item) => {
+      // Calculate totals - use provided values if available, otherwise calculate
+      const subtotal = orderData.subtotal !== undefined ? orderData.subtotal : itemsWithUuids.reduce((total, item) => {
         const itemTotal = item.price * item.quantity;
         const modifiersTotal = (item.modifiers || []).reduce(
           (modTotal, mod) => modTotal + mod.price * item.quantity,
@@ -91,8 +97,9 @@ export class OrdersService {
       }, 0);
 
       const taxRate = 0.07; // 7% tax - should be configurable per restaurant
-      const tax = subtotal * taxRate;
-      const totalAmount = subtotal + tax;
+      const tax = orderData.tax !== undefined ? orderData.tax : subtotal * taxRate;
+      const tip = orderData.tip || 0;
+      const totalAmount = orderData.total_amount !== undefined ? orderData.total_amount : (subtotal + tax + tip);
 
       // Generate order number
       const orderNumber = await this.generateOrderNumber(restaurantId);
@@ -128,14 +135,20 @@ export class OrdersService {
         items: itemsWithUuids,
         subtotal,
         tax,
+        // tip column doesn't exist - it's included in total_amount
         total_amount: totalAmount,
         notes: orderData.notes,
         customer_name: orderData.customerName,
+        // customer_email and customer_phone columns don't exist in DB
+        // Store them in metadata instead
         table_number: orderData.tableNumber,
         metadata: { 
           ...orderData.metadata,
           originalType: uiOrderType, // Preserve original type for UI display
-          uiType: uiOrderType // Alternative name for compatibility
+          uiType: uiOrderType, // Alternative name for compatibility
+          customerEmail: orderData.customerEmail,
+          customerPhone: orderData.customerPhone,
+          tip: tip // Store tip in metadata
         },
       };
 
