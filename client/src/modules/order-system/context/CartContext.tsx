@@ -7,15 +7,24 @@ interface CartProviderProps {
   children: React.ReactNode;
 }
 
+// Use default restaurant ID from environment or fallback
+const DEFAULT_RESTAURANT_ID = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
+
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
-  const { restaurantId } = useParams<{ restaurantId: string }>();
+  const params = useParams<{ restaurantId: string }>();
+  const restaurantId = params.restaurantId || DEFAULT_RESTAURANT_ID;
   const [isCartOpen, setIsCartOpen] = useState(false);
   
   const [cart, setCart] = useState<Cart>(() => {
-    const savedCart = localStorage.getItem(`cart_${restaurantId}`);
+    // Use a consistent cart key for localStorage
+    const savedCart = localStorage.getItem('cart_current');
     if (savedCart) {
       try {
-        return JSON.parse(savedCart);
+        const parsed = JSON.parse(savedCart);
+        // Only use saved cart if it's for the same restaurant
+        if (parsed.restaurantId === restaurantId) {
+          return parsed;
+        }
       } catch (e) {
         console.error('Failed to parse saved cart:', e);
       }
@@ -26,16 +35,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       tax: 0,
       tip: 0,
       total: 0,
-      restaurantId: restaurantId || ''
+      restaurantId: restaurantId
     };
   });
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    if (restaurantId) {
-      localStorage.setItem(`cart_${restaurantId}`, JSON.stringify(cart));
-    }
-  }, [cart, restaurantId]);
+    localStorage.setItem('cart_current', JSON.stringify(cart));
+  }, [cart]);
 
   // Clear cart if restaurant changes
   useEffect(() => {

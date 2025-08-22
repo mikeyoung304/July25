@@ -357,9 +357,10 @@ export class OrdersService {
         updated_at: new Date().toISOString(),
       };
 
-      if (paymentMethod) {
-        update.payment_method = paymentMethod;
-      }
+      // Commented out - payment_method column doesn't exist in database
+      // if (paymentMethod) {
+      //   update.payment_method = paymentMethod;
+      // }
 
       if (paymentId) {
         update.payment_id = paymentId;

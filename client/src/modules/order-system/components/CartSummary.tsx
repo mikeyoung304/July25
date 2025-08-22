@@ -37,7 +37,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, tax, tip, to
       <div className="border-t pt-2">
         <div className="flex justify-between text-lg font-semibold">
           <span>Total</span>
-          <span className="text-macon-orange">{formatPrice(total)}</span>
+          <span className="text-green-600">{formatPrice(total)}</span>
         </div>
       </div>
     </div>

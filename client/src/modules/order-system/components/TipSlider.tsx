@@ -40,7 +40,8 @@ export const TipSlider: React.FC<TipSliderProps> = ({ subtotal, onTipChange, ini
     if (!isCustom) {
       onTipChange(calculateTip(tipPercentage));
     }
-  }, [tipPercentage, subtotal, isCustom, onTipChange, calculateTip]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipPercentage, subtotal, isCustom]);
 
   const handleCustomTipChange = (value: string) => {
     setCustomTip(value);
