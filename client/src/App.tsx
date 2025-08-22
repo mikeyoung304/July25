@@ -4,6 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { RestaurantProvider } from '@/core'
 import { RestaurantIdProvider } from '@/services/http'
 import { RoleProvider } from '@/contexts/RoleContext'
+import { CartProvider } from '@/modules/order-system/context/CartContext'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
 import { AppContent } from '@/components/layout/AppContent'
 import { SplashScreen } from '@/pages/SplashScreen'
@@ -112,7 +113,9 @@ function App() {
         <RoleProvider>
           <RestaurantProvider>
             <RestaurantIdProvider>
-              <AppContent isDevelopment={isDevelopment} />
+              <CartProvider>
+                <AppContent isDevelopment={isDevelopment} />
+              </CartProvider>
             </RestaurantIdProvider>
           </RestaurantProvider>
         </RoleProvider>

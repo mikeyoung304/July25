@@ -14,7 +14,7 @@ export const CheckoutButton: React.FC<CheckoutButtonProps> = ({ onClick, disable
       className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${
         disabled
           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          : 'bg-macon-orange text-white hover:bg-macon-orange-dark active:bg-orange-700'
+          : 'bg-green-600 text-white hover:bg-green-700 active:bg-green-800'
       }`}
       aria-label="Proceed to checkout"
     >

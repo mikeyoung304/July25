@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/modules/order-system/context/cartContext.hooks';
-import { CartProvider } from '@/modules/order-system/context/CartContext';
 import { CartItem } from '@/modules/order-system/components/CartItem';
 import { CartSummary } from '@/modules/order-system/components/CartSummary';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
@@ -21,7 +20,7 @@ interface CheckoutPayload {
   paymentNonce: string;
 }
 
-const CheckoutPageContent: React.FC = () => {
+const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { cart, updateCartItem, removeFromCart, updateTip, clearCart } = useCart();
   const [customerEmail, setCustomerEmail] = useState('');
@@ -149,7 +148,7 @@ const CheckoutPageContent: React.FC = () => {
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">Your cart is empty</h2>
           <p className="text-gray-600 mb-4">Add some items to your cart to checkout</p>
           <Link
-            to="/"
+            to="/order/11111111-1111-1111-1111-111111111111"
             className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -167,7 +166,7 @@ const CheckoutPageContent: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link
-              to="/"
+              to="/order/11111111-1111-1111-1111-111111111111"
               className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
@@ -284,14 +283,6 @@ const CheckoutPageContent: React.FC = () => {
         </div>
       </main>
     </div>
-  );
-};
-
-const CheckoutPage: React.FC = () => {
-  return (
-    <CartProvider>
-      <CheckoutPageContent />
-    </CartProvider>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { ShoppingCart, Search } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { ShoppingCart, Search, ArrowLeft } from 'lucide-react';
 import { MenuSections } from './MenuSections';
 import { SectionNavigation } from './SectionNavigation';
 import { CartDrawer } from './CartDrawer';
@@ -10,11 +10,10 @@ import { SortOptions } from './SortOptions';
 import { MenuItem } from '../../menu/types';
 import { useRestaurant } from '@/core';
 import { useCart } from '../context/cartContext.hooks';
-import { CartProvider } from '../context/CartContext';
 import { CartItem } from '@rebuild/shared';
 import { useRestaurantData } from '../hooks/useRestaurantData';
 
-const CustomerOrderPageContent: React.FC = () => {
+export const CustomerOrderPage: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const { setRestaurant } = useRestaurant();
   const { cart, addToCart, setIsCartOpen } = useCart();
@@ -65,6 +64,13 @@ const CustomerOrderPageContent: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <div className="flex items-center justify-between h-20 md:h-24">
             <div className="flex items-center space-x-4">
+              <Link
+                to="/"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mr-4"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="text-sm font-medium">Dashboard</span>
+              </Link>
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
                 {restaurantData?.name || 'Restaurant'}
               </h1>
@@ -165,13 +171,5 @@ const CustomerOrderPageContent: React.FC = () => {
         onAddToCart={handleAddToCart}
       />
     </div>
-  );
-};
-
-export const CustomerOrderPage: React.FC = () => {
-  return (
-    <CartProvider>
-      <CustomerOrderPageContent />
-    </CartProvider>
   );
 };
