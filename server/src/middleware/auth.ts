@@ -45,6 +45,7 @@ export async function authenticate(
         id: 'test-user-id',
         email: 'test@example.com',
         role: 'admin',
+        scopes: ['orders:create', 'orders:read', 'orders:write', 'payments:write', 'payments:read'],
       };
       req.restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
       return next();
