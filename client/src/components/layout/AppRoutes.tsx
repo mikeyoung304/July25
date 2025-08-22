@@ -4,7 +4,7 @@ import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
 import { env } from '@/utils/env'
 import { Dashboard } from '@/pages/Dashboard'
 import { HomePage } from '@/pages/HomePage'
-import KitchenDisplay from '@/pages/KitchenDisplaySimple'
+import KitchenDisplaySimple from '@/pages/KitchenDisplaySimple'
 import KioskDemo from '@/pages/KioskDemo'
 import { OrderHistory } from '@/pages/OrderHistory'
 import PerformanceDashboard from '@/pages/PerformanceDashboard'
@@ -48,7 +48,7 @@ export function AppRoutes() {
                 }}
               >
                 <Profiler id="KitchenDisplay" onRender={onRenderCallback}>
-                  <KitchenDisplay />
+                  <KitchenDisplaySimple />
                 </Profiler>
               </ErrorBoundary>
             } />

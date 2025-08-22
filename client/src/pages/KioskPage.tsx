@@ -1,43 +1,18 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { logger } from '@/services/logger'
-import { Trash2, ShoppingCart, Volume2, VolumeX, MessageCircle, Mic, Package, CreditCard } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState, useCallback, useEffect } from 'react';
 import { VoiceOrderProvider } from '@/modules/voice/contexts/VoiceOrderContext';
 import { useVoiceOrder } from '@/modules/voice/hooks/useVoiceOrder';
 import { VoiceControlWebRTC } from '@/modules/voice/components/VoiceControlWebRTC';
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser';
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { PageTitle, SectionTitle, Body, BodySmall, Price } from '@/components/ui/Typography';
-import { PageLayout, PageContent, GridLayout } from '@/components/ui/PageLayout';
-import { PageHeader } from '@/components/ui/PageHeader';
-import { NavigationCard, ActionCard } from '@/components/ui/NavigationCard';
 import { ActionButton } from '@/components/ui/ActionButton';
-import { spacing } from '@/lib/typography';
-import { getAudioPlaybackService } from '@/services/audio/AudioPlaybackService';
+import { BackToDashboard } from '@/components/navigation/BackToDashboard';
 
-interface ConversationEntry {
-  id: string;
-  speaker: 'ai' | 'user';
-  text: string;
-  timestamp: Date;
-}
 
 const KioskPageContent: React.FC = () => {
-  const [conversation, setConversation] = useState<ConversationEntry[]>([]);
-  const conversationIdCounter = useRef(0);
-  const [currentTranscript, setCurrentTranscript] = useState('');
-  const [currentResponse, setCurrentResponse] = useState('');
-  const [isFirstPress, setIsFirstPress] = useState(true);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [audioVolume, setAudioVolume] = useState(0.8);
-  const [activeView, setActiveView] = useState<'order' | 'conversation' | 'cart'>('order');
-  const { items, addItem, removeItem, updateQuantity, total, itemCount } = useVoiceOrder();
+  const { items, addItem, total, itemCount } = useVoiceOrder();
   const { items: menuItems, loading } = useMenuItems();
   const [orderParser, setOrderParser] = useState<OrderParser | null>(null);
-  const audioService = getAudioPlaybackService();
 
   useEffect(() => {
     if (menuItems.length > 0) {
@@ -45,101 +20,30 @@ const KioskPageContent: React.FC = () => {
     }
   }, [menuItems]);
 
-  // Subscribe to audio service state changes
-  useEffect(() => {
-    const unsubscribe = audioService.subscribe((state) => {
-      setIsAudioPlaying(state.isPlaying);
-    });
-    
-    // Set initial volume
-    audioService.setVolume(audioVolume);
-    
-    return unsubscribe;
-  }, [audioService, audioVolume]);
-
-  const handleFirstPress = useCallback(() => {
-    setIsFirstPress(false);
-    const greeting: ConversationEntry = {
-      id: `ai-${++conversationIdCounter.current}`,
-      speaker: 'ai',
-      text: "Welcome to Grow! What can I get started for you today?",
-      timestamp: new Date(),
-    };
-    setConversation([greeting]);
-    setActiveView('conversation');
-  }, []);
 
   const processParsedItems = useCallback((parsedItems: ParsedOrderItem[]) => {
     parsedItems.forEach(parsed => {
-      if (parsed.menuItem) {
-        switch (parsed.action) {
-          case 'add':
-            addItem(parsed.menuItem, parsed.quantity, parsed.modifications);
-            break;
-          case 'remove': {
-            // Find and remove the item
-            const itemToRemove = items.find(item => 
-              item.menuItem.id === parsed.menuItem?.id
-            );
-            if (itemToRemove) {
-              removeItem(itemToRemove.id);
-            }
-            break;
-          }
-          case 'update': {
-            // Update quantity or modifications
-            const itemToUpdate = items.find(item => 
-              item.menuItem.id === parsed.menuItem?.id
-            );
-            if (itemToUpdate) {
-              updateQuantity(itemToUpdate.id, parsed.quantity);
-            }
-            break;
-          }
-        }
+      if (parsed.menuItem && parsed.action === 'add') {
+        addItem(parsed.menuItem, parsed.quantity, parsed.modifications);
       }
     });
-  }, [addItem, removeItem, updateQuantity, items]);
+  }, [addItem]);
 
-  // Handle transcript from WebRTC voice
   const handleVoiceTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
-    // Normalize input to handle both signatures
     const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text;
     const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal;
     
-    logger.info('Voice transcript received:', text, 'final:', isFinal);
-    
-    if (isFinal) {
-      // Add user's message to conversation
-      const userEntry: ConversationEntry = {
-        id: `user-${++conversationIdCounter.current}`,
-        speaker: 'user',
-        text: text,
-        timestamp: new Date(),
-      };
-      setConversation(prev => [...prev, userEntry]);
-      setCurrentTranscript('');
-      
-      // Parse order locally if we have the parser
-      if (orderParser) {
-        const parsedItems = orderParser.parseOrder(text);
-        if (parsedItems.length > 0) {
-          processParsedItems(parsedItems);
-        }
+    if (isFinal && orderParser) {
+      const parsedItems = orderParser.parseOrder(text);
+      if (parsedItems.length > 0) {
+        processParsedItems(parsedItems);
       }
-    } else {
-      // Update current transcript for live display
-      setCurrentTranscript(text);
     }
   }, [orderParser, processParsedItems]);
 
   const handleOrderData = useCallback((orderData: any) => {
-    logger.info('Received order data from server:', orderData);
-    
     if (orderData?.success && orderData?.items?.length > 0) {
-      // Process each item from the server's parsed order
       orderData.items.forEach((item: any) => {
-        // Find the menu item by ID
         const menuItem = menuItems.find(m => m.id === item.menuItemId);
         if (menuItem) {
           addItem(
@@ -147,350 +51,105 @@ const KioskPageContent: React.FC = () => {
             item.quantity || 1,
             item.modifications || []
           );
-          logger.info('Added item to cart:', menuItem.name, 'qty:', item.quantity);
-        } else {
-          console.warn('Menu item not found for ID:', item.menuItemId);
         }
       });
     }
   }, [menuItems, addItem]);
 
-  const handleAudioStart = useCallback((text: string) => {
-    // Add AI response to conversation
-    const aiEntry: ConversationEntry = {
-      id: `ai-${++conversationIdCounter.current}`,
-      speaker: 'ai',
-      text: text || 'Processing your order...',
-      timestamp: new Date(),
-    };
-    setConversation(prev => [...prev, aiEntry]);
-  }, []);
-
-  const handleAudioEnd = useCallback(() => {
-    // Audio playback completed
-    logger.info('Audio playback ended');
-  }, []);
-
-  const handleVolumeChange = useCallback((volume: number) => {
-    setAudioVolume(volume);
-    audioService.setVolume(volume);
-  }, [audioService]);
-
-  const toggleMute = useCallback(() => {
-    if (audioVolume > 0) {
-      handleVolumeChange(0);
-    } else {
-      handleVolumeChange(0.8);
-    }
-  }, [audioVolume, handleVolumeChange]);
-
-  const handleRemoveItem = useCallback((itemId: string) => {
-    removeItem(itemId);
-  }, [removeItem]);
 
   const handleConfirmOrder = useCallback(() => {
-    // TODO: Send order to backend
-    console.warn('Order confirmed:', items);
-  }, [items]);
+    // TODO: Navigate to checkout
+    window.location.href = '/checkout';
+  }, []);
 
   if (loading) {
     return (
-      <PageLayout centered>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-          <SectionTitle>Loading menu...</SectionTitle>
-        </motion.div>
-      </PageLayout>
+      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+        <p className="text-gray-600">Loading menu...</p>
+      </div>
     );
   }
 
   return (
-    <PageLayout>
-      <PageHeader 
-        title="Self-Service Kiosk"
-        subtitle="Order with voice or touch"
-        showBack={true}
-        backPath="/"
-        actions={
-          <div className="flex items-center gap-2">
-            {isAudioPlaying && (
-              <div className="flex items-center gap-1 text-secondary text-sm">
-                <Volume2 className="w-4 h-4 animate-pulse" />
-                <span>Speaking</span>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <BackToDashboard />
+        </div>
+        
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Voice Kiosk</h1>
+          <p className="text-gray-600">{itemCount} items • ${total.toFixed(2)}</p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Voice Control */}
+          <Card className="p-8 text-center bg-white border border-gray-200">
+            <VoiceControlWebRTC
+              onTranscript={handleVoiceTranscript}
+              onOrderDetected={handleOrderData}
+              debug={false}
+            />
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Voice Ordering</h3>
+              <p className="text-gray-600">Press and hold to speak your order</p>
+            </div>
+          </Card>
+
+          {/* Current Order */}
+          <Card className="p-6 bg-white border border-gray-200">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Current Order</h3>
+            </div>
+
+            {items.length > 0 ? (
+              <div className="space-y-3 mb-6">
+                {items.map((item) => (
+                  <div key={item.id} className="flex justify-between items-center py-2">
+                    <div>
+                      <span className="font-medium text-gray-900">
+                        {item.quantity}x {item.menuItem.name}
+                      </span>
+                      {item.modifications && item.modifications.length > 0 && (
+                        <p className="text-sm text-gray-600">
+                          {item.modifications.join(', ')}
+                        </p>
+                      )}
+                    </div>
+                    <span className="font-semibold text-gray-900">
+                      ${(item.menuItem.price * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No items yet</p>
+                <p className="text-sm text-gray-400 mt-1">Use voice to add items</p>
               </div>
             )}
-            <ActionButton
-              size="small"
-              variant="ghost"
-              onClick={toggleMute}
-              icon={audioVolume > 0 ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-            >
-              {audioVolume > 0 ? 'Mute' : 'Unmute'}
-            </ActionButton>
-          </div>
-        }
-      />
 
-      <PageContent maxWidth="6xl">
-        {/* Main Action Cards */}
-        <div className={spacing.page.section}>
-          <GridLayout columns={3} gap="large">
-            <ActionCard
-              title="Start Voice Order"
-              description="Speak to order"
-              icon={<Mic className="h-12 w-12" />}
-              color="#4ECDC4"
-              onClick={() => setActiveView('conversation')}
-              disabled={false}
-            />
-            
-            <ActionCard
-              title="View Cart"
-              description={`${itemCount} items`}
-              icon={<ShoppingCart className="h-12 w-12" />}
-              color="#FF6B35"
-              onClick={() => setActiveView('cart')}
-              disabled={itemCount === 0}
-            />
-            
-            <ActionCard
-              title="Checkout"
-              description={`Total: $${total.toFixed(2)}`}
-              icon={<CreditCard className="h-12 w-12" />}
-              color="#7B68EE"
-              onClick={handleConfirmOrder}
-              disabled={itemCount === 0}
-            />
-          </GridLayout>
-        </div>
-
-        {/* Dynamic Content Area */}
-        <motion.div
-          key={activeView}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className={spacing.page.section}
-        >
-          {activeView === 'order' && (
-            <Card className="p-12 text-center">
-              <motion.div
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <VoiceControlWebRTC
-                  onTranscript={handleVoiceTranscript}
-                  onOrderDetected={handleOrderData}
-                  debug={false}
-                />
-                <div className="mt-8">
-                  <SectionTitle className="text-neutral-700 mb-2">Tap and Hold to Order</SectionTitle>
-                  <Body className="text-neutral-500">
-                    Press the microphone button and speak your order
-                  </Body>
+            {items.length > 0 && (
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-lg font-semibold text-gray-900">Total</span>
+                  <span className="text-xl font-bold text-gray-900">
+                    ${total.toFixed(2)}
+                  </span>
                 </div>
-              </motion.div>
-            </Card>
-          )}
-
-          {activeView === 'conversation' && (
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Voice Control Card */}
-              <Card className="p-8 flex flex-col items-center justify-center">
-                <VoiceControlWebRTC
-                  onTranscript={handleVoiceTranscript}
-                  onOrderDetected={handleOrderData}
-                  debug={false}
-                />
-                <SectionTitle className="text-neutral-700 mt-6">Continue Speaking</SectionTitle>
-                <Body className="text-neutral-500 text-center mt-2">
-                  Add more items or say "that's all"
-                </Body>
-              </Card>
-
-              {/* Conversation History Card */}
-              <Card className="p-6 h-[500px] flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <SectionTitle as="h3">Conversation</SectionTitle>
-                </div>
-
-                <div className="flex-1 overflow-y-auto space-y-3">
-                  {conversation.map((entry, index) => (
-                    <motion.div
-                      key={entry.id}
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className={`p-4 rounded-xl ${
-                        entry.speaker === 'ai' 
-                          ? 'bg-secondary/10 text-secondary-dark' 
-                          : 'bg-neutral-100 text-neutral-700'
-                      }`}
-                    >
-                      <div className={`text-xs font-semibold mb-1 ${
-                        entry.speaker === 'ai' ? 'text-secondary' : 'text-neutral-500'
-                      }`}>
-                        {entry.speaker === 'ai' ? 'Assistant' : 'You'}
-                      </div>
-                      <div className="text-sm">{entry.text}</div>
-                    </motion.div>
-                  ))}
-                  {currentTranscript && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="p-4 rounded-xl bg-accent/10 border-2 border-accent"
-                    >
-                      <div className="text-xs font-semibold text-accent mb-1">You (speaking...)</div>
-                      <div className="text-sm text-neutral-600 italic">{currentTranscript}</div>
-                    </motion.div>
-                  )}
-                  
-                  {conversation.length === 0 && !currentTranscript && (
-                    <div className="flex-1 flex items-center justify-center text-center">
-                      <div>
-                        <MessageCircle className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
-                        <Body className="text-neutral-400">
-                          Your conversation will appear here
-                        </Body>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {activeView === 'cart' && (
-            <Card className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <SectionTitle as="h2">Your Order</SectionTitle>
-                <Badge className="bg-primary text-white px-4 py-2">
-                  {itemCount} {itemCount === 1 ? 'item' : 'items'}
-                </Badge>
+                <ActionButton
+                  size="small"
+                  className="w-full bg-gray-900 hover:bg-gray-800 text-white"
+                  onClick={handleConfirmOrder}
+                >
+                  Checkout
+                </ActionButton>
               </div>
-
-              <div className="space-y-4 mb-8">
-                {items.length > 0 ? (
-                  items.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <span className="text-lg font-semibold text-neutral-700">
-                            {item.quantity}x
-                          </span>
-                          <div>
-                            <Body className="font-medium">{item.menuItem.name}</Body>
-                            {item.modifications && item.modifications.length > 0 && (
-                              <BodySmall className="text-neutral-500">
-                                {item.modifications.join(', ')}
-                              </BodySmall>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <Price>${(item.menuItem.price * item.quantity).toFixed(2)}</Price>
-                        <ActionButton
-                          size="small"
-                          variant="ghost"
-                          color="#EF4444"
-                          onClick={() => handleRemoveItem(item.id)}
-                          icon={<Trash2 className="w-4 h-4" />}
-                        />
-                      </div>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="text-center py-12">
-                    <Package className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-                    <Body className="text-neutral-400">Your cart is empty</Body>
-                    <Body className="text-neutral-400 mt-2">Add items by speaking your order</Body>
-                  </div>
-                )}
-              </div>
-
-              {items.length > 0 && (
-                <div className="border-t pt-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <SectionTitle as="h3">Total</SectionTitle>
-                    <Price className="text-2xl font-bold text-primary">
-                      ${total.toFixed(2)}
-                    </Price>
-                  </div>
-                  
-                  <GridLayout columns={2} gap="medium">
-                    <ActionButton
-                      size="large"
-                      variant="outline"
-                      color="#2A4B5C"
-                      onClick={() => setActiveView('conversation')}
-                      icon={<Mic className="h-6 w-6" />}
-                      fullWidth
-                    >
-                      Add More Items
-                    </ActionButton>
-                    <ActionButton
-                      size="large"
-                      color="#4CAF50"
-                      onClick={handleConfirmOrder}
-                      icon={<CreditCard className="h-6 w-6" />}
-                      fullWidth
-                    >
-                      Checkout
-                    </ActionButton>
-                  </GridLayout>
-                </div>
-              )}
-            </Card>
-          )}
-        </motion.div>
-
-        {/* Quick Action Footer */}
-        <div className={spacing.page.section}>
-          <GridLayout columns={4} gap="medium">
-            <ActionCard
-              title="Popular Items"
-              icon={<Package className="h-8 w-8" />}
-              color="#88B0A4"
-              compact
-              onClick={() => logger.info('Show popular items')}
-            />
-            <ActionCard
-              title="Dietary Options"
-              icon={<Package className="h-8 w-8" />}
-              color="#F4A460"
-              compact
-              onClick={() => logger.info('Show dietary options')}
-            />
-            <ActionCard
-              title="Combos"
-              icon={<Package className="h-8 w-8" />}
-              color="#9333EA"
-              compact
-              onClick={() => logger.info('Show combos')}
-            />
-            <ActionCard
-              title="Help"
-              icon={<MessageCircle className="h-8 w-8" />}
-              color="#64748B"
-              compact
-              onClick={() => logger.info('Show help')}
-            />
-          </GridLayout>
+            )}
+          </Card>
         </div>
-      </PageContent>
-    </PageLayout>
+      </div>
+    </div>
   );
 };
 
@@ -502,4 +161,4 @@ const KioskPage: React.FC = () => {
   );
 };
 
-export default KioskPage;
+export default KioskPage

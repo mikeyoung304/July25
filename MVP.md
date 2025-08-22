@@ -53,9 +53,13 @@ Strip every page down to its core function. If it doesn't directly support the p
 **Core Function**: Complete payment for order
 
 **Remove:**
-- [ ] "Back to Menu" header link (lines 165-171)
-- [ ] Shopping cart decorative icon in empty state (line 144)
-- [ ] Replace with BackToDashboard component
+- ✅ "Back to Menu" header link (lines 165-171)
+- ✅ Shopping cart decorative icon in empty state (line 144)
+- ✅ Replaced with BackToDashboard component
+- ✅ Removed all hover effects and visual transitions
+- ✅ Removed shadow effects from cards
+- ✅ Removed console.error statement
+- ✅ Simplified entire header structure
 
 **Keep:** Cart items, contact form, payment form, order summary
 
@@ -65,13 +69,18 @@ Strip every page down to its core function. If it doesn't directly support the p
 **Core Function**: Coordinate orders between kitchen stations
 
 **Remove:**
-- [ ] All framer-motion animations
-- [ ] Rush order functionality (lines 69-74)
-- [ ] Recall order feature (lines 76-83)
-- [ ] Show/hide completed toggle
-- [ ] Decorative badges and icons
-- [ ] Complex state management for priorities
-- [ ] All logger statements
+- ✅ All framer-motion animations (AnimatePresence, motion.div)
+- ✅ Rush order functionality (lines 69-74)
+- ✅ Recall order feature (lines 76-83) 
+- ✅ Show/hide completed toggle (showCompleted state)
+- ✅ Decorative badges and icons (Rush badges, station badges)
+- ✅ Complex state management for priorities (priority field removed)
+- ✅ All logger statements (removed import and usage)
+- ✅ PageLayout/PageHeader complex structure
+- ✅ ActionCard statistics grid
+- ✅ Color-coded status indicators
+- ✅ Time tracking and urgency colors
+- ✅ Hover effects and transitions
 
 **Keep:** Order list, station assignments, complete button
 
@@ -81,12 +90,17 @@ Strip every page down to its core function. If it doesn't directly support the p
 **Core Function**: Voice ordering interface
 
 **Remove:**
-- [ ] Volume controls (lines 35, 55-58)
-- [ ] Audio playback state management (lines 34, 49-58)
-- [ ] View switcher (order/conversation/cart) (line 36)
-- [ ] Conversation history display
-- [ ] Audio service subscriptions
-- [ ] All logger statements
+- ✅ Volume controls (audioVolume state, toggle functions)
+- ✅ Audio playback state management (isAudioPlaying, audio service subscriptions)
+- ✅ View switcher (order/conversation/cart activeView state)
+- ✅ Conversation history display (conversation state, transcript display)
+- ✅ Audio service subscriptions (useEffect hooks)
+- ✅ All logger statements (removed imports and usage)
+- ✅ Framer-motion animations (motion.div, transitions)
+- ✅ PageLayout/PageHeader complex structure
+- ✅ ActionCard grid layouts (main actions, quick actions footer)
+- ✅ Complex state management (conversation entries, audio controls)
+- ✅ First press greeting logic and conversation management
 
 **Keep:** Voice control component, current order display, checkout button
 
@@ -188,6 +202,38 @@ Strip every page down to its core function. If it doesn't directly support the p
 ### Completed Pages
 
 - ✅ KitchenDisplaySimple - 2025-08-21 - Removed ~100 lines of bloat
+- ✅ CheckoutPage - 2025-08-22 - Removed ~80 lines of bloat
+- ✅ ExpoPage - 2025-08-22 - Removed ~200 lines of bloat
+  - **Complete transformation**: From complex expo station to minimal order completion interface
+- ✅ KioskPage - 2025-08-22 - Removed ~400 lines of bloat
+  - **Massive simplification**: From 505 lines to 105 lines (79% reduction)
+  - Removed complex view switching system (order/conversation/cart activeView)
+  - Eliminated conversation history display and transcript management
+  - Stripped out volume controls and audio playback state management
+  - Removed audio service subscriptions and complex useEffect hooks
+  - Eliminated framer-motion animations throughout the component
+  - Simplified from PageLayout/PageHeader to basic div structure
+  - Removed ActionCard grids (main actions, quick actions footer)
+  - Stripped out first press greeting logic and conversation entries
+  - **Dashboard-style redesign**: Two-column layout with voice control and current order
+  - **Core functionality preserved**: Voice ordering, order display, checkout navigation
+  - Removed framer-motion animations (AnimatePresence, motion.div with stagger delays)
+  - Eliminated PageLayout/PageHeader complex structure, replaced with simple div
+  - Removed ActionCard statistics grid (Active Orders, Rush Orders, Ready to Serve, Avg Wait Time)
+  - Stripped out rush order functionality and priority state management
+  - Removed recall order feature and show/hide completed toggle
+  - Eliminated decorative badges (RUSH, station assignment badges)
+  - Removed color-coded status indicators and time tracking with urgency colors
+  - Simplified from 324 lines to 80 lines (75% reduction)
+  - **Dashboard-style redesign**: Gray/white minimal palette, simple cards, essential functionality only
+  - **Navigation simplification**: Replaced entire header with BackToDashboard component
+  - Removed "Back to Menu" link and shopping cart decorative icon
+  - Eliminated all hover effects and focus ring transitions
+  - Removed shadow effects from all cards (switched to flat design)
+  - Removed console.error debug statement
+  - Simplified empty cart state (removed icon, reduced text)
+  - Standardized color scheme to gray/white Dashboard palette
+  - Maintained core functionality: cart management, contact forms, payment processing
   - **Round 1**: Eliminated 6 console.log statements
   - Removed connection status UI, refresh button, search functionality
   - Stripped out toast notifications and sound effects
@@ -212,9 +258,9 @@ Strip every page down to its core function. If it doesn't directly support the p
 
 ### Pending Pages
 - ✅ KitchenDisplaySimple - 2025-08-21
-- [ ] CheckoutPage
-- [ ] ExpoPage
-- [ ] KioskPage
+- ✅ CheckoutPage - 2025-08-22
+- ✅ ExpoPage - 2025-08-22
+- ✅ KioskPage - 2025-08-22
 - [ ] DriveThruPage
 - [ ] AdminDashboard
 - [ ] HomePage
@@ -239,5 +285,5 @@ Strip every page down to its core function. If it doesn't directly support the p
 
 ---
 
-_Last Updated: 2025-08-21_
-_Status: Kitchen Page Complete - Continuing Implementation_
+_Last Updated: 2025-08-22_
+_Status: ExpoPage Complete - Continuing with KioskPage_
