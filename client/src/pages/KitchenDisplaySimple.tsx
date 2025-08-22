@@ -1,11 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { useRestaurant } from '@/core'
-import { webSocketService } from '@/services/websocket'
-import { api } from '@/services/api'
+import React, { useState, useMemo } from 'react'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { Button } from '@/components/ui/button'
-import { toCamelCase } from '@/services/utils/caseTransform'
+import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
 import type { Order } from '@rebuild/shared'
 
 /**
@@ -13,99 +10,16 @@ import type { Order } from '@rebuild/shared'
  * Core function: Display orders and update their status
  */
 function KitchenDisplaySimple() {
-  const { isLoading: restaurantLoading, error: restaurantError } = useRestaurant()
-  
-  // Single state for orders
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  // Use shared hook for real-time order management
+  const { orders, isLoading, error, updateOrderStatus } = useKitchenOrdersRealtime()
   
   // Simple filtering - active or ready only
   const [statusFilter, setStatusFilter] = useState<'active' | 'ready'>('active')
 
-  // Load orders from API
-  const loadOrders = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      const result = await api.getOrders()
-      
-      // api.getOrders returns an array directly
-      if (Array.isArray(result)) {
-        setOrders(result)
-      } else {
-        setOrders([])
-      }
-    } catch {
-      setOrders([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  // Handle order status change
-  const handleStatusChange = useCallback(async (orderId: string, status: 'ready') => {
-    try {
-      await api.updateOrderStatus(orderId, status)
-      
-      // Update local state optimistically
-      setOrders(prev => prev.map(order => 
-        order.id === orderId ? { ...order, status } : order
-      ))
-    } catch {
-      // Silent failure - order will sync via WebSocket
-    }
-  }, [])
-
-  // Initial load on mount
-  useEffect(() => {
-    loadOrders()
-  }, [loadOrders])
-
-  // WebSocket subscriptions for real-time updates
-  useEffect(() => {
-    // Subscribe to WebSocket events
-    const unsubscribeCreated = webSocketService.subscribe('order:created', (payload: unknown) => {
-      const data = payload as { order?: unknown } | unknown
-      const rawOrder = (data as { order?: unknown })?.order || data
-      if (rawOrder) {
-        const order = toCamelCase(rawOrder) as Order
-        setOrders(prev => [order, ...prev])
-      }
-    })
-
-    const unsubscribeUpdated = webSocketService.subscribe('order:updated', (payload: unknown) => {
-      const data = payload as { order?: unknown } | unknown
-      const rawOrder = (data as { order?: unknown })?.order || data
-      if (rawOrder) {
-        const order = toCamelCase(rawOrder) as Order
-        setOrders(prev => prev.map(o => o.id === order.id ? order : o))
-      }
-    })
-
-    const unsubscribeDeleted = webSocketService.subscribe('order:deleted', (payload: unknown) => {
-      const data = payload as { orderId?: string; id?: string }
-      const orderId = data.orderId || data.id
-      if (orderId) {
-        setOrders(prev => prev.filter(o => o.id !== orderId))
-      }
-    })
-
-    const unsubscribeStatusChanged = webSocketService.subscribe('order:status_changed', (payload: unknown) => {
-      const data = payload as { orderId?: string; status?: string }
-      if (data.orderId && data.status) {
-        setOrders(prev => prev.map(o => 
-          o.id === data.orderId ? { ...o, status: data.status as Order['status'] } : o
-        ))
-      }
-    })
-
-    // Cleanup
-    return () => {
-      unsubscribeCreated()
-      unsubscribeUpdated()
-      unsubscribeDeleted()
-      unsubscribeStatusChanged()
-    }
-  }, [])
+  // Handle order status change - now uses shared hook
+  const handleStatusChange = async (orderId: string, status: 'ready') => {
+    await updateOrderStatus(orderId, status)
+  }
 
   // Simple filtering logic
   const filteredOrders = useMemo(() => {
@@ -126,11 +40,11 @@ function KitchenDisplaySimple() {
     )
   }, [orders, statusFilter])
 
-  // Handle restaurant context errors
-  if (restaurantError) {
+  // Handle errors and loading states
+  if (error) {
     return (
       <div className="p-6 text-center">
-        <p className="text-destructive">Failed to load restaurant context</p>
+        <p className="text-destructive">Failed to load kitchen display: {error}</p>
         <Button onClick={() => window.location.reload()} className="mt-4">
           Reload Page
         </Button>
@@ -138,7 +52,7 @@ function KitchenDisplaySimple() {
     )
   }
 
-  if (restaurantLoading || isLoading) {
+  if (isLoading) {
     return (
       <div className="p-6 text-center">
         <p className="text-muted-foreground">Loading kitchen display...</p>
