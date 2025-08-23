@@ -137,6 +137,15 @@ describe('Voice-to-Kitchen E2E Flow', () => {
       close: jest.fn()
     }))
   })
+  
+  afterEach(() => {
+    // CRITICAL: Clear all data references to prevent memory accumulation
+    mockOrders = []
+    orderUpdateCallbacks = []
+    
+    // Clear all mocks
+    jest.clearAllMocks()
+  })
 
   describe('Complete Order Flow', () => {
     it('should complete full flow from table selection to kitchen display', async () => {
@@ -460,9 +469,11 @@ describe('Voice-to-Kitchen E2E Flow', () => {
   })
 
   describe('Performance and Load Testing', () => {
-    it('should handle large number of orders efficiently', async () => {
-      // Create 50 orders
-      mockOrders = Array.from({ length: 50 }, (_, i) => ({
+    let largeMockOrders: Order[] = []
+    
+    beforeEach(() => {
+      // Create 50 orders for performance testing
+      largeMockOrders = Array.from({ length: 50 }, (_, i) => ({
         id: `order-${i}`,
         restaurant_id: 'test-restaurant',
         orderNumber: String(i + 1).padStart(3, '0'),
@@ -475,6 +486,21 @@ describe('Voice-to-Kitchen E2E Flow', () => {
         totalAmount: Math.random() * 50 + 10,
         paymentStatus: 'paid' as const
       }))
+    })
+    
+    afterEach(() => {
+      // CRITICAL: Clear large dataset to prevent memory accumulation
+      largeMockOrders = []
+      mockOrders = []
+      orderUpdateCallbacks = []
+      
+      // Force cleanup
+      jest.clearAllMocks()
+    })
+
+    it('should handle large number of orders efficiently', async () => {
+      // Use the pre-created orders
+      mockOrders = largeMockOrders
       
       const startTime = performance.now()
       

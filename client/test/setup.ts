@@ -5,11 +5,63 @@
 
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
-import { afterEach, beforeAll, vi } from 'vitest'
+import { afterEach, afterAll, beforeAll, vi } from 'vitest'
 
-// Cleanup after each test
+// Enable manual GC for tests
+beforeAll(() => {
+  if (!global.gc) {
+    console.warn('Garbage collection not exposed. Run tests with --expose-gc flag for better memory management');
+  }
+})
+
+// Comprehensive cleanup after each test
 afterEach(() => {
+  // React cleanup
   cleanup()
+  
+  // Clear all timers to prevent memory leaks
+  vi.clearAllTimers()
+  vi.clearAllMocks()
+  
+  // Clear response cache if available
+  try {
+    const { responseCache } = require('../src/services/cache/ResponseCache')
+    if (responseCache && typeof responseCache.destroy === 'function') {
+      responseCache.destroy()
+    }
+  } catch {
+    // ResponseCache might not be loaded in all tests
+  }
+  
+  // Close any open WebSocket connections
+  if ((global as any).__websockets__) {
+    (global as any).__websockets__.forEach((ws: WebSocket) => {
+      if (ws && ws.close) {
+        ws.close()
+      }
+    })
+    ;(global as any).__websockets__ = []
+  }
+  
+  // Force garbage collection if available
+  if (global.gc) {
+    global.gc()
+  }
+})
+
+// Final cleanup after all tests
+afterAll(() => {
+  // Clear any remaining intervals/timeouts
+  const highestId = setTimeout(() => {}, 0)
+  for (let i = 0; i < highestId; i++) {
+    clearTimeout(i)
+    clearInterval(i)
+  }
+  
+  // Final garbage collection
+  if (global.gc) {
+    global.gc()
+  }
 })
 
 // Mock window.matchMedia
@@ -82,18 +134,28 @@ global.navigator.mediaDevices = {
   enumerateDevices: vi.fn().mockResolvedValue([]),
 } as any
 
-// Mock WebSocket
-global.WebSocket = vi.fn().mockImplementation(() => ({
-  send: vi.fn(),
-  close: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  readyState: 1,
-  CONNECTING: 0,
-  OPEN: 1,
-  CLOSING: 2,
-  CLOSED: 3,
-})) as any
+// Mock WebSocket with connection tracking for cleanup
+global.WebSocket = vi.fn().mockImplementation(() => {
+  const ws = {
+    send: vi.fn(),
+    close: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    readyState: 1,
+    CONNECTING: 0,
+    OPEN: 1,
+    CLOSING: 2,
+    CLOSED: 3,
+  }
+  
+  // Track WebSocket connections for cleanup
+  if (!(global as any).__websockets__) {
+    ;(global as any).__websockets__ = []
+  }
+  ;(global as any).__websockets__.push(ws)
+  
+  return ws
+}) as any
 
 // Suppress console errors in tests (unless debugging)
 if (!process.env.DEBUG_TESTS) {

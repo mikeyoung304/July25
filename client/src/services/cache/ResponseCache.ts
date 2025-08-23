@@ -39,6 +39,7 @@ export class ResponseCache {
     memoryUsage: 0,
   };
   private memoryUsage: number = 0;
+  private cleanupInterval?: NodeJS.Timeout;
 
   constructor(config: Partial<CacheConfig> = {}) {
     this.config = {
@@ -48,8 +49,8 @@ export class ResponseCache {
       enableCompression: config.enableCompression || false,
     };
 
-    // Periodic cleanup
-    setInterval(() => this.cleanup(), 60 * 1000); // Every minute
+    // Periodic cleanup - store reference for proper cleanup
+    this.cleanupInterval = setInterval(() => this.cleanup(), 60 * 1000);
   }
 
   /**
@@ -205,6 +206,32 @@ export class ResponseCache {
   }
 
   /**
+   * Destroy cache and clean up resources
+   */
+  destroy(): void {
+    // Clear cleanup interval to prevent memory leak
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = undefined;
+    }
+    
+    // Clear all cache entries
+    this.cache.clear();
+    this.memoryUsage = 0;
+    
+    // Reset stats
+    this.stats = {
+      hits: 0,
+      misses: 0,
+      evictions: 0,
+      size: 0,
+      memoryUsage: 0,
+    };
+    
+    logger.info('ResponseCache destroyed and cleaned up');
+  }
+
+  /**
    * Estimate size of data in bytes
    */
   private estimateSize(data: any): number {
@@ -277,8 +304,34 @@ export class ResponseCache {
   }
 }
 
-// Singleton instance
-export const responseCache = new ResponseCache();
+// Singleton instance with proper cleanup support
+class ResponseCacheSingleton {
+  private static instance: ResponseCache | null = null;
+
+  static getInstance(): ResponseCache {
+    if (!ResponseCacheSingleton.instance) {
+      ResponseCacheSingleton.instance = new ResponseCache();
+    }
+    return ResponseCacheSingleton.instance;
+  }
+
+  static destroy(): void {
+    if (ResponseCacheSingleton.instance) {
+      ResponseCacheSingleton.instance.destroy();
+      ResponseCacheSingleton.instance = null;
+    }
+  }
+}
+
+// Export singleton with backward compatibility
+export const responseCache = new Proxy({} as ResponseCache & { destroy: () => void }, {
+  get(target, prop) {
+    if (prop === 'destroy') {
+      return () => ResponseCacheSingleton.destroy();
+    }
+    return (ResponseCacheSingleton.getInstance() as any)[prop];
+  }
+});
 
 // Cache decorators for common patterns
 export function cacheable(ttl?: number) {

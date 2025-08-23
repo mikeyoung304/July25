@@ -35,6 +35,12 @@ describe('Floor Plan Management E2E', () => {
     // Clear localStorage
     localStorage.clear()
   })
+  
+  afterEach(() => {
+    // CRITICAL: Ensure cleanup between tests
+    localStorage.clear()
+    jest.clearAllMocks()
+  })
 
   describe('Floor Plan Creation', () => {
     it('should create and save a floor plan', async () => {
@@ -325,11 +331,11 @@ describe('Floor Plan Management E2E', () => {
   })
 
   describe('Performance with Large Floor Plans', () => {
-    it('should handle floor plans with many tables', async () => {
-      const user = userEvent.setup()
-      
-      // Create large floor plan
-      const largePlan = {
+    let largePlan: any = null
+    
+    beforeEach(() => {
+      // Create large floor plan data
+      largePlan = {
         tables: Array.from({ length: 100 }, (_, i) => ({
           id: `table-${i}`,
           type: ['square', 'circle', 'rectangle'][i % 3] as 'square' | 'circle' | 'rectangle',
@@ -345,7 +351,23 @@ describe('Floor Plan Management E2E', () => {
         })),
         lastModified: new Date().toISOString()
       }
+    })
+    
+    afterEach(() => {
+      // CRITICAL: Clear large dataset to prevent memory accumulation
+      largePlan = null
       
+      // Clear localStorage
+      localStorage.clear()
+      
+      // Force cleanup
+      jest.clearAllMocks()
+    })
+
+    it('should handle floor plans with many tables', async () => {
+      const user = userEvent.setup()
+      
+      // Use the pre-created large plan
       localStorage.setItem('floorPlan_test-restaurant', JSON.stringify(largePlan))
       
       const startTime = performance.now()
