@@ -1,58 +1,32 @@
 {
+  "extends": "~/.claude/settings.json",
   "project": {
     "name": "rebuild-6.0",
-    "type": "restaurant-os",
-    "version": "6.0.0",
-    "stack": ["react", "typescript", "vite", "express", "supabase"]
+    "description": "Restaurant OS - Point of Sale + Management System",
+    "stack": ["react", "typescript", "vite", "express", "supabase"],
+    "port": 3001
   },
-  "architecture": {
-    "backend": "unified",
-    "port": 3001,
-    "microservices": false,
-    "structure": {
-      "frontend": "client/",
-      "backend": "server/",
-      "shared": "shared/"
-    }
+  "commands": {
+    "dev": "npm run dev",
+    "test": "npm test",
+    "lint": "npm run lint:fix",
+    "typecheck": "npm run typecheck",
+    "build": "npm run build"
   },
-  "workflow": {
-    "autoTest": true,
-    "strictTypeCheck": true,
-    "preCommitChecks": ["test", "lint", "typecheck"],
-    "commands": {
-      "dev": "npm run dev",
-      "test": "npm test",
-      "lint": "npm run lint:fix",
-      "typecheck": "npm run typecheck"
-    }
-  },
-  "subagents": {
-    "preferredAgents": [
-      "vite-builder",
-      "react-optimizer"
-    ],
-    "autoDelegate": {
-      "buildIssues": "vite-builder",
-      "performance": "react-optimizer"
-    }
-  },
-  "multiTenancy": {
-    "enabled": true,
-    "contextProvider": "RestaurantContext",
-    "idField": "restaurant_id"
-  },
-  "aiIntegration": {
-    "location": "server/src/ai/",
-    "websocket": true,
-    "voiceEnabled": true
-  },
-  "qualityGates": {
-    "mandatory": ["test", "typecheck"],
-    "coverage": {
-      "statements": 60,
-      "branches": 50,
-      "functions": 60,
-      "lines": 60
+  "preferredAgents": ["vite-builder", "react-optimizer"],
+  "projectSpecific": {
+    "multiTenancy": {
+      "contextProvider": "RestaurantContext",
+      "idField": "restaurant_id"
+    },
+    "quality": {
+      "coverage": 60,
+      "preCommit": ["test", "lint", "typecheck"]
+    },
+    "voiceSystem": {
+      "implementation": "WebRTC + OpenAI Realtime",
+      "component": "VoiceControlWebRTC",
+      "apiEndpoint": "/api/v1/realtime/session"
     }
   }
 }
