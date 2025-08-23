@@ -60,7 +60,13 @@ export function ServerView() {
   return (
     <RoleGuard suggestedRoles={['server', 'admin']} pageTitle="Server View - Dining Room">
       <div className="min-h-screen bg-macon-background">
-        <ServerHeader restaurant={restaurant} />
+        <ServerHeader restaurant={restaurant ? {
+          ...restaurant,
+          logo_url: undefined,
+          tax_rate: 0.08,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        } : null} />
         
         <div className="max-w-7xl mx-auto px-4 py-8">
           <motion.div 
@@ -78,7 +84,16 @@ export function ServerView() {
 
             <SeatSelectionModal
               show={showSeatSelection && !!selectedTable}
-              table={selectedTable}
+              table={selectedTable ? {
+                id: selectedTable.id,
+                restaurant_id: selectedTable.restaurant_id || '',
+                label: selectedTable.label,
+                capacity: selectedTable.seats,
+                status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
+                current_order_id: selectedTable.current_order_id,
+                created_at: selectedTable.created_at || new Date().toISOString(),
+                updated_at: selectedTable.updated_at || new Date().toISOString()
+              } : null}
               selectedSeat={selectedSeat}
               onSeatSelect={setSelectedSeat}
               onStartVoiceOrder={handleStartVoiceOrder}

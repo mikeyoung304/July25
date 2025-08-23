@@ -2,7 +2,7 @@
  * Unified Order Types
  * Single source of truth for all order-related types
  */
-export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+export type OrderStatus = 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 export type OrderType = 'dine-in' | 'takeout' | 'delivery' | 'online';
 export type PaymentStatus = 'pending' | 'paid' | 'refunded' | 'failed';
 export type PaymentMethod = 'cash' | 'card' | 'online' | 'other';

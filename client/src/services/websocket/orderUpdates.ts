@@ -7,7 +7,6 @@ import { webSocketService } from './WebSocketService'
 import { logger } from '@/services/logger'
 import { Order } from '@rebuild/shared'
 import { toast } from 'react-hot-toast'
-import { toCamelCase } from '../utils/caseTransform'
 
 export interface OrderUpdatePayload {
   action: 'created' | 'updated' | 'deleted' | 'status_changed' | 'item_status_changed'
@@ -128,7 +127,7 @@ export class OrderUpdatesHandler {
   private handleOrderCreated(payload: any): void {
     logger.info('[OrderUpdates] Raw payload received:', payload)
     
-    // The payload IS { order: snake_case_order }, extra: so we need to extract and transform
+    // The payload contains { order: snake_case_order } - extract the order
     const rawOrder = payload.order || payload
     
     if (!rawOrder) {
@@ -136,8 +135,8 @@ export class OrderUpdatesHandler {
       return
     }
     
-    // Transform snake_case to camelCase
-    const order = toCamelCase(rawOrder) as Order
+    // Use order data as-is (snake_case matches our shared types)
+    const order = rawOrder as Order
     
     if (!order || !order.id) {
       console.error('[OrderUpdates] Invalid order after transformation:', order)
@@ -148,7 +147,7 @@ export class OrderUpdatesHandler {
     
     this.notifySubscribers({
       action: 'created',
-      order: order  // Now properly transformed to camelCase
+      order: order  // Order data in snake_case format as expected
     })
 
     // Show notification for new orders
@@ -164,7 +163,7 @@ export class OrderUpdatesHandler {
   private handleOrderUpdated(payload: any): void {
     logger.info('[OrderUpdates] Update payload received:', payload)
     
-    // Extract and transform the order
+    // Extract the order data
     const rawOrder = payload.order || payload
     
     if (!rawOrder) {
@@ -172,8 +171,8 @@ export class OrderUpdatesHandler {
       return
     }
     
-    // Transform snake_case to camelCase
-    const order = toCamelCase(rawOrder) as Order
+    // Use order data as-is (snake_case matches our shared types)
+    const order = rawOrder as Order
     
     if (!order || !order.id) {
       console.error('[OrderUpdates] Invalid order update after transformation:', order)
@@ -184,7 +183,7 @@ export class OrderUpdatesHandler {
     
     this.notifySubscribers({
       action: 'updated',
-      order: order  // Now properly transformed to camelCase
+      order: order  // Order data in snake_case format as expected
     })
   }
 

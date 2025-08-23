@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Order } from '@/services/types'
+import { Order } from '@rebuild/shared'
 import { orderService } from '@/services/orders/OrderService'
 import { useToast } from '@/hooks/useToast'
 

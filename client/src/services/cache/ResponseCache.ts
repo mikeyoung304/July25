@@ -260,7 +260,7 @@ export class ResponseCache {
     if (typeof data === 'object') {
       let size = 24; // Object overhead
       for (const key in data) {
-        if (data.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
           size += key.length * 2 + this.estimateSize(data[key]);
         }
       }
