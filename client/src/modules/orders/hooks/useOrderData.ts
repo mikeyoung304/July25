@@ -46,7 +46,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
     const restaurantId = restaurant?.id || 'rest-1'
     
     // Optimistic update - update immediately
-    if (data) {
+    if (data && Array.isArray(data)) {
       setData(data.map(order => 
         order.id === orderId ? { ...order, status } : order
       ))

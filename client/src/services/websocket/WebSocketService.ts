@@ -79,7 +79,7 @@ export class WebSocketService extends EventEmitter {
 
     try {
       // Get auth token for WebSocket authentication
-      let token = 'test-token' // Default for development
+      let token: string | null = null
       
       // Try to get auth token - prioritize Supabase session, then demo token
       const { data: { session } } = await supabase.auth.getSession()
@@ -97,10 +97,12 @@ export class WebSocketService extends EventEmitter {
         } catch (demoError) {
           console.warn('Failed to get demo token:', demoError)
           // In development, fall back to test token
-          if (!env.PROD) {
-            logger.info('🔧 Using test token for WebSocket (dev mode)')
+          if (import.meta.env.DEV) {
+            token = 'test-token'
+            logger.info('🔧 Using test token for WebSocket (dev mode only)')
           } else {
             console.error('No authentication available for WebSocket')
+            // Don't set token - let the connection fail properly
           }
         }
       }
@@ -110,7 +112,11 @@ export class WebSocketService extends EventEmitter {
 
       // Build WebSocket URL with auth params
       const wsUrl = new URL(this.config.url)
-      wsUrl.searchParams.set('token', token)
+      if (token) {
+        wsUrl.searchParams.set('token', token)
+      } else {
+        logger.warn('⚠️ Connecting WebSocket without authentication token')
+      }
       wsUrl.searchParams.set('restaurant_id', restaurantId)
 
       // Create WebSocket connection

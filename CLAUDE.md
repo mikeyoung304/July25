@@ -86,6 +86,51 @@ rebuild-6.0/
 - **vite-builder**: Build issues, bundle optimization, HMR
 - **react-optimizer**: Performance optimization, React patterns
 
+## Available DRY Utilities (USE THESE!)
+
+### API Requests - `useApiRequest`
+```typescript
+import { useApiRequest } from '@/hooks/useApiRequest';
+
+// Automatically handles auth, restaurant context, loading/error states
+const api = useApiRequest<Order[]>();
+await api.get('/api/v1/orders');
+await api.post('/api/v1/orders', orderData);
+```
+
+### Form Validation - `useFormValidation`
+```typescript
+import { useFormValidation, validators } from '@/utils/validation';
+
+const form = useFormValidation({
+  email: '',
+  phone: ''
+}, {
+  email: { rules: [validators.required, validators.email] },
+  phone: { rules: [validators.required, validators.phone] }
+});
+```
+
+### Modal Management - `useModal`
+```typescript
+import { useModal } from '@/hooks/useModal';
+
+const modal = useModal({
+  closeOnEscape: true,
+  preventScroll: true
+});
+```
+
+### Error Boundaries - `PaymentErrorBoundary`
+```typescript
+import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
+
+// Wrap payment components for graceful error recovery
+<PaymentErrorBoundary>
+  <CheckoutForm />
+</PaymentErrorBoundary>
+```
+
 ## Development Guidelines
 
 1. **File Operations**: Always read files before editing
@@ -97,6 +142,7 @@ rebuild-6.0/
 7. **Runtime Debugging**: Use browser console over server logs for UI issues
 8. **Status Validation**: Test components with all possible status values
 9. **WebSocket Resilience**: Implement proper reconnection and error handling
+10. **USE DRY UTILITIES**: Always check for existing hooks/utilities before creating new ones
 
 ## Environment
 

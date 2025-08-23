@@ -8,9 +8,9 @@ import { TipSlider } from '@/modules/order-system/components/TipSlider';
 import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useFormValidation, validators } from '@/utils/validation';
+import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 
-
-const CheckoutPage: React.FC = () => {
+const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
   const { cart, updateCartItem, removeFromCart, updateTip, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -237,6 +237,15 @@ const CheckoutPage: React.FC = () => {
         </main>
       </div>
     </div>
+  );
+};
+
+// Wrap the checkout page with payment error boundary
+const CheckoutPage: React.FC = () => {
+  return (
+    <PaymentErrorBoundary>
+      <CheckoutPageContent />
+    </PaymentErrorBoundary>
   );
 };
 
