@@ -56,6 +56,7 @@ export async function authenticate(
     try {
       // Try kiosk JWT secret first (for demo tokens)
       const kioskSecret = process.env.KIOSK_JWT_SECRET;
+      
       if (kioskSecret) {
         try {
           decoded = jwt.verify(token, kioskSecret) as any;
@@ -70,6 +71,7 @@ export async function authenticate(
         decoded = jwt.verify(token, secret) as any;
       }
     } catch (error) {
+      logger.error('Token verification failed:', error.message);
       if (error instanceof jwt.TokenExpiredError) {
         throw Unauthorized('Token expired');
       } else if (error instanceof jwt.JsonWebTokenError) {

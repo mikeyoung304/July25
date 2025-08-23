@@ -34,7 +34,7 @@ const KioskPageContent: React.FC = () => {
     const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal;
     
     if (isFinal && orderParser) {
-      const parsedItems = orderParser.parseOrder(text);
+      const parsedItems = orderParser.parseUserTranscript(text);
       if (parsedItems.length > 0) {
         processParsedItems(parsedItems);
       }

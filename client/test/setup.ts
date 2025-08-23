@@ -25,7 +25,9 @@ afterEach(() => {
   
   // Clear response cache if available
   try {
-    const { responseCache } = require('../src/services/cache/ResponseCache')
+    // Use require for test environment compatibility
+    const ResponseCacheModule = require('../src/services/cache/ResponseCache')
+    const responseCache = ResponseCacheModule.responseCache || ResponseCacheModule.default?.responseCache
     if (responseCache && typeof responseCache.destroy === 'function') {
       responseCache.destroy()
     }

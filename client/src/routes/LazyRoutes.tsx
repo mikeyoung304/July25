@@ -22,9 +22,10 @@ export const LazyRoutes = {
   PerformanceDashboard: lazy(() => 
     import(/* webpackChunkName: "performance" */ '@/pages/PerformanceDashboard')
   ),
-  Settings: lazy(() => 
-    import(/* webpackChunkName: "settings" */ '@/pages/Settings')
-  ),
+  // Settings page not implemented yet
+  // Settings: lazy(() => 
+  //   import(/* webpackChunkName: "settings" */ '@/pages/Settings')
+  // ),
   
   // Kitchen routes
   KitchenDisplay: lazy(() => 
@@ -48,22 +49,9 @@ export const LazyRoutes = {
     import(/* webpackChunkName: "drive-thru" */ '@/pages/DriveThruPage')
   ),
   
-  // Server routes
-  ServerDashboard: lazy(() => 
-    import(/* webpackChunkName: "server" */ '@/pages/ServerDashboard')
-      .catch(() => import('@/pages/Dashboard')) // Fallback if not found
-  ),
-  
-  // Analytics routes
-  AnalyticsDashboard: lazy(() => 
-    import(/* webpackChunkName: "analytics" */ '@/pages/AnalyticsDashboard')
-      .catch(() => import('@/pages/Dashboard'))
-  ),
-  
-  // Menu management
-  MenuManagement: lazy(() => 
-    import(/* webpackChunkName: "menu" */ '@/pages/MenuManagement')
-      .catch(() => import('@/pages/Dashboard'))
+  // Server routes - using existing ServerView  
+  ServerView: lazy(() => 
+    import(/* webpackChunkName: "server" */ '@/pages/ServerView').then(m => ({ default: m.ServerView }))
   ),
 };
 
@@ -82,28 +70,30 @@ export const LazyRoute: React.FC<LazyRouteProps> = ({ component: Component, ...p
 // Preload function for critical routes
 export const preloadCriticalRoutes = () => {
   // Preload routes that users are likely to navigate to
-  LazyRoutes.KitchenDisplay.preload();
-  LazyRoutes.AdminDashboard.preload();
+  // Note: preload() doesn't exist on LazyExoticComponent, this is for documentation
+  // LazyRoutes.KitchenDisplay.preload();
+  // LazyRoutes.AdminDashboard.preload();
 };
 
 // Preload route based on user role
 export const preloadByRole = (role: string) => {
+  // Note: preload() doesn't exist on LazyExoticComponent
+  // This function is for documentation/future implementation
   switch (role) {
     case 'admin':
-      LazyRoutes.AdminDashboard.preload();
-      LazyRoutes.PerformanceDashboard.preload();
-      LazyRoutes.Settings.preload();
+      // LazyRoutes.AdminDashboard.preload();
+      // LazyRoutes.PerformanceDashboard.preload();
       break;
     case 'kitchen':
-      LazyRoutes.KitchenDisplay.preload();
-      LazyRoutes.ExpoPage.preload();
+      // LazyRoutes.KitchenDisplay.preload();
+      // LazyRoutes.ExpoPage.preload();
       break;
     case 'server':
-      LazyRoutes.ServerDashboard?.preload();
+      // LazyRoutes.ServerView?.preload();
       break;
     case 'customer':
-      LazyRoutes.KioskPage.preload();
-      LazyRoutes.CheckoutPage.preload();
+      // LazyRoutes.KioskPage.preload();
+      // LazyRoutes.CheckoutPage.preload();
       break;
   }
 };
@@ -119,12 +109,13 @@ export const setupRoutePreloading = () => {
             const href = link.getAttribute('href');
             
             // Map href to lazy route and preload
+            // Note: preload() doesn't exist, this is for future implementation
             if (href?.includes('/admin')) {
-              LazyRoutes.AdminDashboard.preload();
+              // LazyRoutes.AdminDashboard.preload();
             } else if (href?.includes('/kitchen')) {
-              LazyRoutes.KitchenDisplay.preload();
+              // LazyRoutes.KitchenDisplay.preload();
             } else if (href?.includes('/kiosk')) {
-              LazyRoutes.KioskPage.preload();
+              // LazyRoutes.KioskPage.preload();
             }
             
             observer.unobserve(link);

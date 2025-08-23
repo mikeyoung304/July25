@@ -88,7 +88,7 @@ export function VoiceOrderModal({
               <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 250px)' }}>
                 <div className="flex justify-center mb-6">
                   <VoiceControlWebRTC
-                    onTranscript={voiceOrder.handleVoiceTranscript}
+                    onTranscript={(text) => voiceOrder.handleVoiceTranscript({ text, isFinal: false })}
                     onOrderDetected={voiceOrder.handleOrderData}
                     debug={false}
                   />

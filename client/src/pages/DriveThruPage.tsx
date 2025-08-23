@@ -39,7 +39,7 @@ const DriveThruPageContent: React.FC = () => {
       setCurrentTranscript('');
       
       if (orderParser) {
-        const parsedItems = orderParser.parseOrder(text);
+        const parsedItems = orderParser.parseUserTranscript(text);
         if (parsedItems.length > 0) {
           processParsedItems(parsedItems);
         }

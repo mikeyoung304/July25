@@ -91,7 +91,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       {/* Image Zone - Fixed aspect ratio 4:3 */}
       <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
         <OptimizedImage
-          src={item.image_url}
+          src={item.imageUrl}
           alt={`${item.name} - ${item.category || 'menu item'}`}
           width={400}
           height={300}

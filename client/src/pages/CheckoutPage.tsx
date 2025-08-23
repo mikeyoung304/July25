@@ -43,7 +43,7 @@ const CheckoutPageContent: React.FC = () => {
 
     try {
       // First, create the order using the new API hook
-      const order = await orderApi.post('/api/v1/orders', {
+      const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
           menu_item_id: item.id,
@@ -63,21 +63,25 @@ const CheckoutPageContent: React.FC = () => {
         total_amount: cart.total,
       });
 
-      if (!order) {
+      if (!orderResponse) {
         throw new Error('Failed to create order');
       }
 
+      const order = orderResponse as { id: string; order_number: string };
+
       // Now process the payment using the new API hook
-      const payment = await paymentApi.post('/api/v1/payments/create', {
+      const paymentResponse = await paymentApi.post('/api/v1/payments/create', {
         orderId: order.id,
         token,
         amount: cart.total,
         idempotencyKey: `checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       });
 
-      if (!payment) {
+      if (!paymentResponse) {
         throw new Error('Payment processing failed');
       }
+
+      const payment = paymentResponse as { id?: string; paymentId?: string };
 
       // Clear cart and navigate to confirmation
       clearCart();

@@ -155,6 +155,32 @@ if (!restaurantId) {
 headers.set('x-restaurant-id', restaurantId)
 ```
 
+### Token Consistency Architecture
+
+Both HTTP and WebSocket clients use identical token selection logic, ensuring no authentication mismatches:
+
+```typescript
+// Shared authentication flow in both httpClient.ts and WebSocketService.ts
+const { data: { session } } = await supabase.auth.getSession()
+const token = session?.access_token || await getDemoToken()
+```
+
+**Architecture Benefits**:
+- ✅ **No token mismatches possible** - Same source for both connection types
+- ✅ **Automatic token refresh** - Both systems refresh tokens from same cache
+- ✅ **Development stability** - HMR preserves authentication state
+- ✅ **Consistent restaurant context** - Both systems use same ID resolution
+
+**Token Caching Strategy**:
+- Demo tokens cached in sessionStorage with 5-minute refresh buffer
+- Supabase tokens managed by Supabase client with auto-refresh
+- Failed token requests automatically fall back through hierarchy
+
+**Development Experience**:
+- Hot Module Replacement doesn't break WebSocket authentication
+- Authentication works seamlessly across development server restarts
+- No manual token management required for developers
+
 ## WebSocket Authentication
 
 WebSocket connections use URL parameters for authentication:

@@ -94,7 +94,7 @@ export function useVoiceOrderWebRTC() {
       
       // Parse order locally if we have the parser
       if (orderParserRef.current) {
-        const parsedItems = orderParserRef.current.parse(text)
+        const parsedItems = orderParserRef.current.parseUserTranscript(text)
         if (parsedItems.length > 0) {
           processParsedItems(parsedItems)
         } else {

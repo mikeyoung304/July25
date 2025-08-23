@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { MenuItem } from '../../menu/types';
+import { MenuItem, Modifier } from '../../menu/types';
 import { ModifierSelector } from './ModifierSelector';
 import { QuantitySelector } from './QuantitySelector';
 import { CartItem, CartModifier } from '../types';
@@ -112,7 +112,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               <div className="mb-6">
                 <h3 className="font-semibold mb-3">Customize Your Order</h3>
                 <ModifierSelector
-                  modifiers={item.modifiers}
+                  modifiers={item.modifiers.filter(m => m.id) as Modifier[]}
                   selectedModifiers={selectedModifiers}
                   onModifierToggle={(modifier) => {
                     setSelectedModifiers(prev => {

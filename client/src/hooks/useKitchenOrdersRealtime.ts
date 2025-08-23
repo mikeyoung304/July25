@@ -130,7 +130,7 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
   return {
     orders,
     isLoading: restaurantLoading || isLoading,
-    error: (restaurantError?.message || restaurantError) || error,
+    error: (restaurantError instanceof Error ? restaurantError.message : restaurantError) || error,
     updateOrderStatus
   }
 }

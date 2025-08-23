@@ -3,6 +3,13 @@
  * Moved from websocket-pool.ts to separate browser concerns from server compilation
  */
 
+// Browser environment check and type declarations
+declare const globalThis: typeof global & {
+  WebSocket?: typeof WebSocket;
+  window?: typeof window;
+  IntersectionObserver?: typeof IntersectionObserver;
+};
+
 import { ManagedService, CleanupManager } from './cleanup-manager';
 
 // Import MemoryMonitor safely
@@ -29,7 +36,7 @@ export interface WebSocketPoolConfig {
 export interface PooledWebSocketConnection {
   id: string;
   url: string;
-  socket: WebSocket;
+  socket: any; // WebSocket type, but browser-safe
   state: 'connecting' | 'connected' | 'disconnected' | 'failed';
   lastActivity: number;
   messagesSent: number;
