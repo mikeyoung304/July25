@@ -3,7 +3,6 @@ import { useRestaurant } from '@/core'
 import { webSocketService } from '@/services/websocket'
 import { api } from '@/services/api'
 import { useOrderActions } from '@/modules/orders/hooks/useOrderActions'
-import { toCamelCase } from '@/services/utils/caseTransform'
 import type { Order } from '@rebuild/shared'
 
 interface UseKitchenOrdersRealtimeReturn {
@@ -73,15 +72,23 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
     }
   }, [loadOrders, restaurantLoading, restaurantError])
 
-  // WebSocket subscriptions for real-time updates
+  // WebSocket connection and subscriptions for real-time updates
   useEffect(() => {
     if (restaurantLoading || restaurantError) return
+
+    // Connect to WebSocket first
+    console.log('🔌 [KDS] Attempting WebSocket connection...')
+    webSocketService.connect().then(() => {
+      console.log('✅ [KDS] WebSocket connected successfully')
+    }).catch((error) => {
+      console.error('❌ [KDS] WebSocket connection failed:', error)
+    })
 
     const unsubscribeCreated = webSocketService.subscribe('order:created', (payload: unknown) => {
       const data = payload as { order?: unknown } | unknown
       const rawOrder = (data as { order?: unknown })?.order || data
       if (rawOrder) {
-        const order = toCamelCase(rawOrder) as Order
+        const order = rawOrder as Order
         setOrders(prev => [order, ...prev])
       }
     })
@@ -90,7 +97,7 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
       const data = payload as { order?: unknown } | unknown
       const rawOrder = (data as { order?: unknown })?.order || data
       if (rawOrder) {
-        const order = toCamelCase(rawOrder) as Order
+        const order = rawOrder as Order
         setOrders(prev => prev.map(o => o.id === order.id ? order : o))
       }
     })
@@ -123,7 +130,7 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
   return {
     orders,
     isLoading: restaurantLoading || isLoading,
-    error: restaurantError || error,
+    error: (restaurantError?.message || restaurantError) || error,
     updateOrderStatus
   }
 }

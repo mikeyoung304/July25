@@ -3,7 +3,9 @@ import { Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { OrderCard } from '@/components/kitchen/OrderCard'
+import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBoundary'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
+import { STATUS_GROUPS, isStatusInGroup, getSafeOrderStatus } from '@/utils/orderStatusValidation'
 import type { Order } from '@rebuild/shared'
 
 function ExpoPage() {
@@ -19,13 +21,24 @@ function ExpoPage() {
   // For kitchen overview - no-op function
   const handleNoOp = () => {}
 
-  // Filter orders for expo view: preparing (for overview) and ready (for completion)
-  const { preparingOrders, readyOrders } = useMemo(() => {
+  // Filter orders for expo view using status validation utilities
+  const { activeOrders, readyOrders } = useMemo(() => {
+    // Ensure all orders have valid statuses
+    const safeOrders = orders.map(order => ({
+      ...order,
+      status: getSafeOrderStatus(order)
+    }))
+    
     return {
-      preparingOrders: orders.filter(o => o.status === 'preparing').sort((a, b) => 
+      // Show all active orders: new, pending, confirmed, preparing (everything before ready)
+      activeOrders: safeOrders.filter(o => 
+        isStatusInGroup(o.status, 'ACTIVE')
+      ).sort((a, b) => 
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       ),
-      readyOrders: orders.filter(o => o.status === 'ready').sort((a, b) => 
+      readyOrders: safeOrders.filter(o => 
+        isStatusInGroup(o.status, 'READY')
+      ).sort((a, b) => 
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       )
     }
@@ -67,21 +80,22 @@ function ExpoPage() {
             <div className="flex items-center gap-2 mb-3">
               <Eye className="h-5 w-5 text-gray-600" />
               <h2 className="text-lg font-semibold">Kitchen Activity</h2>
-              <span className="text-sm text-gray-500">({preparingOrders.length} preparing)</span>
+              <span className="text-sm text-gray-500">({activeOrders.length} active)</span>
             </div>
             
-            {preparingOrders.length === 0 ? (
+            {activeOrders.length === 0 ? (
               <div className="bg-white rounded-lg p-8 text-center border">
-                <p className="text-gray-500">No orders being prepared</p>
+                <p className="text-gray-500">No active orders</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {preparingOrders.map(order => (
-                  <OrderCard
-                    key={order.id}
-                    order={order}
-                    onStatusChange={handleNoOp} // Read-only - no interactions
-                  />
+                {activeOrders.map(order => (
+                  <OrderStatusErrorBoundary key={order.id} fallbackMessage="Unable to display this active order">
+                    <OrderCard
+                      order={order}
+                      onStatusChange={handleNoOp} // Read-only - no interactions
+                    />
+                  </OrderStatusErrorBoundary>
                 ))}
               </div>
             )}
@@ -102,11 +116,12 @@ function ExpoPage() {
             ) : (
               <div className="space-y-3">
                 {readyOrders.map(order => (
-                  <OrderCard
-                    key={order.id}
-                    order={order}
-                    onStatusChange={handleCompleteOrder}
-                  />
+                  <OrderStatusErrorBoundary key={order.id} fallbackMessage="Unable to display this ready order">
+                    <OrderCard
+                      order={order}
+                      onStatusChange={handleCompleteOrder}
+                    />
+                  </OrderStatusErrorBoundary>
                 ))}
               </div>
             )}

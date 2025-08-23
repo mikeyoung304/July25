@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { useRestaurant } from '@/core'
-import { webSocketService } from '@/services/websocket'
-import { api } from '@/services/api'
+import React, { useState, useMemo } from 'react'
+import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
-import { toCamelCase } from '@/services/utils/caseTransform'
+import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBoundary'
+import { STATUS_GROUPS, isStatusInGroup, getSafeOrderStatus } from '@/utils/orderStatusValidation'
 import { Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import type { Order } from '@rebuild/shared'
 
@@ -12,99 +11,27 @@ import type { Order } from '@rebuild/shared'
  * Matches Dashboard aesthetic: large cards, minimal colors, maximum clarity
  */
 function KitchenDisplayMinimal() {
-  const { isLoading: restaurantLoading, error: restaurantError } = useRestaurant()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  // Use shared hook for consistent data management
+  const { orders, isLoading, error, updateOrderStatus } = useKitchenOrdersRealtime()
   const [statusFilter, setStatusFilter] = useState<'active' | 'ready'>('active')
 
-  // Load orders
-  const loadOrders = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      const result = await api.getOrders()
-      if (Array.isArray(result)) {
-        setOrders(result)
-      } else {
-        setOrders([])
-      }
-    } catch {
-      setOrders([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  // Handle order completion - mark as ready for expo
+  const handleComplete = async (orderId: string) => {
+    await updateOrderStatus(orderId, 'ready')
+  }
 
-  // Handle order completion
-  const handleComplete = useCallback(async (orderId: string) => {
-    try {
-      await api.updateOrderStatus(orderId, 'ready')
-      setOrders(prev => prev.map(order => 
-        order.id === orderId ? { ...order, status: 'ready' } : order
-      ))
-    } catch {
-      // Silent failure
-    }
-  }, [])
 
-  useEffect(() => {
-    loadOrders()
-  }, [loadOrders])
-
-  // WebSocket subscriptions
-  useEffect(() => {
-    const unsubscribeCreated = webSocketService.subscribe('order:created', (payload: unknown) => {
-      const data = payload as { order?: unknown } | unknown
-      const rawOrder = (data as { order?: unknown })?.order || data
-      if (rawOrder) {
-        const order = toCamelCase(rawOrder) as Order
-        setOrders(prev => [order, ...prev])
-      }
-    })
-
-    const unsubscribeUpdated = webSocketService.subscribe('order:updated', (payload: unknown) => {
-      const data = payload as { order?: unknown } | unknown
-      const rawOrder = (data as { order?: unknown })?.order || data
-      if (rawOrder) {
-        const order = toCamelCase(rawOrder) as Order
-        setOrders(prev => prev.map(o => o.id === order.id ? order : o))
-      }
-    })
-
-    const unsubscribeDeleted = webSocketService.subscribe('order:deleted', (payload: unknown) => {
-      const data = payload as { orderId?: string; id?: string }
-      const orderId = data.orderId || data.id
-      if (orderId) {
-        setOrders(prev => prev.filter(o => o.id !== orderId))
-      }
-    })
-
-    const unsubscribeStatusChanged = webSocketService.subscribe('order:status_changed', (payload: unknown) => {
-      const data = payload as { orderId?: string; status?: string }
-      if (data.orderId && data.status) {
-        setOrders(prev => prev.map(o => 
-          o.id === data.orderId ? { ...o, status: data.status as Order['status'] } : o
-        ))
-      }
-    })
-
-    return () => {
-      unsubscribeCreated()
-      unsubscribeUpdated()
-      unsubscribeDeleted()
-      unsubscribeStatusChanged()
-    }
-  }, [])
-
-  // Filter orders
+  // Filter orders using status validation utilities
   const filteredOrders = useMemo(() => {
-    let filtered = orders
+    let filtered = orders.map(order => ({
+      ...order,
+      status: getSafeOrderStatus(order)
+    }))
 
     if (statusFilter === 'active') {
-      filtered = filtered.filter(o => 
-        o.status !== 'ready' && o.status !== 'completed' && o.status !== 'cancelled'
-      )
+      filtered = filtered.filter(o => isStatusInGroup(o.status, 'ACTIVE'))
     } else if (statusFilter === 'ready') {
-      filtered = filtered.filter(o => o.status === 'ready')
+      filtered = filtered.filter(o => isStatusInGroup(o.status, 'READY'))
     }
 
     return filtered.sort((a, b) => 
@@ -112,17 +39,15 @@ function KitchenDisplayMinimal() {
     )
   }, [orders, statusFilter])
 
-  // Count helpers
-  const activeCount = orders.filter(o => 
-    o.status !== 'ready' && o.status !== 'completed' && o.status !== 'cancelled'
-  ).length
-  const readyCount = orders.filter(o => o.status === 'ready').length
+  // Count helpers using status groups
+  const activeCount = orders.filter(o => isStatusInGroup(getSafeOrderStatus(o), 'ACTIVE')).length
+  const readyCount = orders.filter(o => isStatusInGroup(getSafeOrderStatus(o), 'READY')).length
 
-  if (restaurantError) {
+  if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Failed to load</p>
+          <p className="text-gray-600 mb-4">Failed to load: {error}</p>
           <button 
             onClick={() => window.location.reload()} 
             className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
@@ -134,7 +59,7 @@ function KitchenDisplayMinimal() {
     )
   }
 
-  if (restaurantLoading || isLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <p className="text-gray-500">Loading...</p>
@@ -181,7 +106,7 @@ function KitchenDisplayMinimal() {
           </button>
         </div>
 
-        {/* Orders Grid - Simplified Cards */}
+        {/* Orders Grid - Simplified Cards with Error Boundary */}
         {filteredOrders.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-gray-400 text-lg">No {statusFilter} orders</p>
@@ -189,11 +114,12 @@ function KitchenDisplayMinimal() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-w-7xl mx-auto">
             {filteredOrders.map(order => (
-              <MinimalOrderCard
-                key={order.id}
-                order={order}
-                onComplete={handleComplete}
-              />
+              <OrderStatusErrorBoundary key={order.id} fallbackMessage="Unable to display this order">
+                <MinimalOrderCard
+                  order={order}
+                  onComplete={handleComplete}
+                />
+              </OrderStatusErrorBoundary>
             ))}
           </div>
         )}
