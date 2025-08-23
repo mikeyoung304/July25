@@ -49,8 +49,9 @@ export default defineConfig(({ mode }) => {
       // Code splitting configuration
       rollupOptions: {
         output: {
-          // CRITICAL: Manual chunks prevent memory explosion
-          manualChunks: {
+          // Manual chunks temporarily disabled to fix build
+          // TODO: Re-enable after verifying all dependencies are installed
+          /*manualChunks: {
             // React ecosystem
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
             
@@ -70,7 +71,7 @@ export default defineConfig(({ mode }) => {
             
             // Utilities
             'utils': ['date-fns', 'clsx'],
-          },
+          },*/
           
           // Optimize chunk size
           chunkFileNames: (chunkInfo) => {
@@ -155,6 +156,51 @@ export default defineConfig(({ mode }) => {
       strictPort: true
     },
     
+    // Duplicate build config removed - merged with first build config above
+    /*build: {
+      // Basic minification without removing console logs
+      minify: 'terser',
+      
+      // Set chunk size warnings
+      chunkSizeWarningLimit: 1000, // 1MB
+      
+      // Simple rollup options
+      rollupOptions: {
+        output: {
+          // Improved chunk splitting
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+            ui: ['lucide-react', '@radix-ui/react-slot', 'clsx', 'framer-motion'],
+            supabase: ['@supabase/supabase-js'],
+            utils: ['tailwind-merge', 'class-variance-authority'],
+          },
+        },
+      },
+      
+      // Enable source maps for production debugging
+      sourcemap: true,
+      
+      // Target modern browsers for smaller bundles
+      target: 'es2020',
+      
+      // CSS code splitting
+      cssCodeSplit: true,
+      
+      // Asset inlining threshold
+      assetsInlineLimit: 4096, // 4kb
+    },*/
+    
+    // Duplicate optimizeDeps removed - merged with first optimizeDeps above
+    /*optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        '@supabase/supabase-js',
+        'lucide-react',
+      ],
+      exclude: ['@rebuild/shared'],
+    },*/
     
     // CSS optimization
     css: {

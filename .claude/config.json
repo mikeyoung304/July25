@@ -1,0 +1,19 @@
+{
+  "version": "5.0",
+  "type": "standalone",
+  "project": "rebuild-6.0",
+  "memory": {
+    "development": 6144,
+    "build": 12288,
+    "warning_threshold": 5000
+  },
+  "permissions": {
+    "allow": ["*"],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf ~)",
+      "Bash(sudo *)",
+      "Write(.env.production)"
+    ]
+  }
+}
