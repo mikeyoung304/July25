@@ -73,6 +73,7 @@ app.use(helmet({
 const allowedOrigins = (process.env.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [
   process.env.FRONTEND_URL || 'http://localhost:5173',
   'https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
+  'https://grow-ir056u92z-mikeyoung304-gmailcoms-projects.vercel.app',
   'https://growfreshlocalfood.com',
   'https://www.growfreshlocalfood.com'
 ]);
