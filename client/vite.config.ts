@@ -57,19 +57,8 @@ export default defineConfig(({ mode }) => {
             // Supabase and auth
             'supabase': ['@supabase/supabase-js'],
             
-            // UI components
-            'ui-vendor': [
-              '@radix-ui/react-dialog',
-              '@radix-ui/react-dropdown-menu',
-              '@radix-ui/react-select',
-              '@radix-ui/react-tabs',
-            ],
-            
-            // Charts and data visualization
-            'charts': ['recharts'],
-            
-            // Utilities
-            'utils': ['date-fns', 'clsx'],
+            // Utilities (only installed packages)
+            'utils': ['clsx'],
           },
           
           // Optimize chunk size

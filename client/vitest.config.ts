@@ -15,8 +15,32 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./test/setup.ts'],
     css: true,
+    globals: true,
+    
+    // CRITICAL: Memory-conscious test pooling strategy 
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true,  // Sequential execution, less memory
+        maxForks: 1,
+      }
+    },
+    
+    // Memory-conscious settings
+    testTimeout: 30000,
+    hookTimeout: 30000,
+    teardownTimeout: 10000,
+    
+    // Enhanced isolation for memory cleanup
+    isolate: true,
+    clearMocks: true,
+    mockReset: true,
+    restoreMocks: true,
+    
     coverage: {
+      enabled: process.env.VITEST_COVERAGE !== 'false', // Allow disabling for memory
       reporter: ['text', 'html'],
+      provider: 'v8', // More memory efficient
       exclude: [
         'node_modules/',
         'src/test/',
@@ -28,6 +52,5 @@ export default defineConfig({
         'src/vite-env.d.ts',
       ],
     },
-    globals: true,
   },
 });
