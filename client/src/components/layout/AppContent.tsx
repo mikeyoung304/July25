@@ -6,6 +6,7 @@ import { PerformanceOverlay } from '@/components/shared/debug/PerformanceOverlay
 import { useGlobalKeyboardShortcuts } from '@/hooks/useGlobalKeyboardShortcuts'
 import { Navigation } from './Navigation'
 import { AppRoutes } from './AppRoutes'
+import { FloatingDashboardButton } from '@/components/navigation/FloatingDashboardButton'
 
 interface AppContentProps {
   isDevelopment: boolean
@@ -33,6 +34,7 @@ export function AppContent({ isDevelopment }: AppContentProps) {
         </div>
         <Toaster position="top-right" />
         {isDevelopment && <PerformanceOverlay />}
+        <FloatingDashboardButton />
       </div>
     </>
   )
