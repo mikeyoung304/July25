@@ -1,8 +1,11 @@
 # Copy these environment variables to Vercel Dashboard
 # Project Settings > Environment Variables
+# 
+# ⚠️  SECURITY: Replace placeholder values with your actual credentials
+#     DO NOT commit real values to version control
 
-VITE_SUPABASE_URL=https://xiwfhcikfdoshxwbtjxt.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhpd2ZoY2lrZmRvc2h4d2J0anh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNDkzMDIsImV4cCI6MjA2NzgyNTMwMn0.f0jqtYOR4oU7-7lJPF9nkL8uk40qQ6G91xzjRpTnCSc
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 VITE_API_BASE_URL=http://localhost:3001
 VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
 VITE_USE_MOCK_DATA=false

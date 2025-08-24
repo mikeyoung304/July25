@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
-import { Circle, Square, RectangleHorizontal, Trash2, Copy, Grid, Save, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
+import { Circle, Square, RectangleHorizontal, Trash2, Copy, Grid, Save, ZoomIn, ZoomOut, RotateCcw, Maximize } from 'lucide-react'
 import { Table } from '../types'
 
 interface FloorPlanToolbarProps {
@@ -18,6 +18,7 @@ interface FloorPlanToolbarProps {
   onZoomOut: () => void
   onZoomReset: () => void
   onResetView: () => void
+  onFitAllTables?: () => void
   isSaving?: boolean
 }
 
@@ -36,6 +37,7 @@ export function FloorPlanToolbar({
   onZoomOut,
   onZoomReset,
   onResetView,
+  onFitAllTables,
   isSaving = false,
 }: FloorPlanToolbarProps) {
   return (
@@ -141,7 +143,7 @@ export function FloorPlanToolbar({
             variant="ghost"
             size="sm"
             onClick={onZoomOut}
-            disabled={zoomLevel <= 0.5}
+            disabled={zoomLevel <= 0.25}
             title="Zoom Out"
             className="h-8 w-8 p-0 hover:bg-gray-50 transition-all duration-200 disabled:opacity-30"
           >
@@ -160,12 +162,25 @@ export function FloorPlanToolbar({
             variant="ghost"
             size="sm"
             onClick={onZoomIn}
-            disabled={zoomLevel >= 2}
+            disabled={zoomLevel >= 3}
             title="Zoom In"
             className="h-8 w-8 p-0 hover:bg-gray-50 transition-all duration-200 disabled:opacity-30"
           >
             <ZoomIn className="h-4 w-4 text-gray-600" />
           </Button>
+          
+          {onFitAllTables && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onFitAllTables}
+              title="Fit All Tables"
+              className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+            >
+              <Maximize className="h-4 w-4" />
+            </Button>
+          )}
+          
           <Button
             variant="ghost"
             size="sm"

@@ -2,6 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Users, ChefHat, ShoppingCart, Settings, Globe, Package } from 'lucide-react'
+import { BrandHeader } from '@/components/layout/BrandHeader'
+import { BrandHeaderPresets } from '@/components/layout/BrandHeaderPresets'
 
 interface NavigationCardProps {
   title: string
@@ -84,23 +86,11 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
-      {/* Logo and Title - Compact */}
-      <motion.div
-        className="text-center py-6 md:py-8"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <img
-          src="/transparent.png"
-          alt="MACON AI SOLUTIONS"
-          className="h-14 md:h-16 lg:h-20 w-auto mx-auto mb-3 object-contain"
-        />
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
-          Restaurant OS
-        </h1>
-        <p className="text-gray-600 mt-1 text-sm md:text-base">Select your workspace</p>
-      </motion.div>
+      {/* Logo and Title - Using BrandHeader with HomePage preset */}
+      <BrandHeader 
+        {...BrandHeaderPresets.homepage}
+        className="py-6 md:py-8"
+      />
 
       {/* Navigation Grid - Use all available space */}
       <div className="flex-1 px-4 md:px-8 lg:px-12 pb-4 md:pb-8">

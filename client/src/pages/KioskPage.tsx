@@ -72,10 +72,8 @@ const KioskPageContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
+      <BackToDashboard variant="floating" />
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <BackToDashboard />
-        </div>
         
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Voice Kiosk</h1>

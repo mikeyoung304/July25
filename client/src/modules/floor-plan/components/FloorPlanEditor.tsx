@@ -198,6 +198,48 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
     }
   }, [tables, onSave])
 
+  // Calculate bounding box of all tables for "Fit All" functionality
+  const calculateTablesBounds = useCallback(() => {
+    if (tables.length === 0) return { minX: 0, minY: 0, maxX: 1200, maxY: 900 }
+    
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    
+    tables.forEach(table => {
+      const halfWidth = table.width / 2
+      const halfHeight = table.height / 2
+      minX = Math.min(minX, table.x - halfWidth)
+      maxX = Math.max(maxX, table.x + halfWidth)
+      minY = Math.min(minY, table.y - halfHeight)
+      maxY = Math.max(maxY, table.y + halfHeight)
+    })
+    
+    return { minX, minY, maxX, maxY }
+  }, [tables])
+
+  // Fit all tables in view with padding
+  const fitAllTables = useCallback(() => {
+    if (tables.length === 0) return
+    
+    const bounds = calculateTablesBounds()
+    const boundsWidth = bounds.maxX - bounds.minX
+    const boundsHeight = bounds.maxY - bounds.minY
+    const padding = 100
+    
+    // Calculate zoom to fit all tables with padding
+    const zoomX = (canvasSize.width - padding * 2) / boundsWidth
+    const zoomY = (canvasSize.height - padding * 2) / boundsHeight
+    const newZoom = Math.min(Math.max(0.25, Math.min(zoomX, zoomY)), 3)
+    
+    // Center the view on the tables
+    const centerX = (bounds.minX + bounds.maxX) / 2
+    const centerY = (bounds.minY + bounds.maxY) / 2
+    const newPanX = canvasSize.width / 2 - centerX * newZoom
+    const newPanY = canvasSize.height / 2 - centerY * newZoom
+    
+    setZoomLevel(newZoom)
+    setPanOffset({ x: newPanX, y: newPanY })
+  }, [tables, canvasSize, calculateTablesBounds])
+
   // Table position updates
   const handleTableMove = useCallback((tableId: string, x: number, y: number) => {
     const finalX = snapToGrid ? Math.round(x / 20) * 20 : x
@@ -229,13 +271,14 @@ export function FloorPlanEditor({ restaurantId, onSave }: FloorPlanEditorProps) 
         snapToGrid={snapToGrid}
         hasSelectedTable={!!selectedTable}
         zoomLevel={zoomLevel}
-        onZoomIn={() => setZoomLevel(Math.min(2, zoomLevel * 1.2))}
-        onZoomOut={() => setZoomLevel(Math.max(0.5, zoomLevel / 1.2))}
+        onZoomIn={() => setZoomLevel(Math.min(3, zoomLevel * 1.2))}
+        onZoomOut={() => setZoomLevel(Math.max(0.25, zoomLevel / 1.2))}
         onZoomReset={() => setZoomLevel(1)}
         onResetView={() => {
           setZoomLevel(1)
           setPanOffset({ x: 0, y: 0 })
         }}
+        onFitAllTables={fitAllTables}
         isSaving={isSaving}
       />
 

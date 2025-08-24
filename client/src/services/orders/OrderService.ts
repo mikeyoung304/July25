@@ -28,6 +28,8 @@ export interface OrderFilters {
 
 export class OrderService implements IOrderService {
   async getOrders(filters?: OrderFilters): Promise<Order[]> {
+    logger.info('[OrderService] Starting getOrders call with filters:', filters)
+    
     try {
       const params: Record<string, unknown> = {}
       
@@ -47,18 +49,29 @@ export class OrderService implements IOrderService {
         params.endDate = filters.dateRange.end.toISOString()
       }
 
+      logger.info('[OrderService] Making API request to /api/v1/orders with params:', params)
       const response = await httpClient.get<any>('/api/v1/orders', { params })
+      logger.info('[OrderService] API response received:', { 
+        isArray: Array.isArray(response), 
+        length: Array.isArray(response) ? response.length : 'N/A',
+        hasOrdersProperty: !!(response && response.orders),
+        responseType: typeof response
+      })
       
       // Handle both array response and object with orders property
       let orders: any[] = []
       if (Array.isArray(response)) {
         orders = response
+        logger.info('[OrderService] Using array response with', orders.length, 'orders')
       } else if (response.orders && Array.isArray(response.orders)) {
         orders = response.orders
+        logger.info('[OrderService] Using response.orders property with', orders.length, 'orders')
       } else {
-        logger.warn('API returned invalid orders data:', response)
+        logger.warn('[OrderService] API returned invalid orders data:', response)
         return []
       }
+      
+      logger.info('[OrderService] Processing', orders.length, 'orders for mapping')
       
       // Map response to match Order type
       const mappedOrders = orders.map((order: any) => ({
@@ -72,9 +85,24 @@ export class OrderService implements IOrderService {
         tax: order.tax || 0
       }))
 
+      console.log('[OrderService] ✅ SUCCESS! Got', mappedOrders.length, 'orders from API')
+      console.log('[OrderService] First few orders:', mappedOrders.slice(0, 3))
+      logger.info('[OrderService] Successfully mapped', mappedOrders.length, 'orders')
       return mappedOrders
     } catch (error) {
-      logger.warn('API call failed, falling back to mock data:', error)
+      console.error('[OrderService] API call failed, falling back to mock data:', error)
+      console.error('[OrderService] Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        status: (error as any)?.status,
+        statusText: (error as any)?.statusText,
+        response: (error as any)?.response
+      })
+      logger.error('[OrderService] API call failed, falling back to mock data:', error)
+      logger.error('[OrderService] Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      })
       return this.getMockOrders()
     }
   }

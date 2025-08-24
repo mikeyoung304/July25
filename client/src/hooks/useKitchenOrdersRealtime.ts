@@ -27,22 +27,33 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
 
   // Load orders from API
   const loadOrders = useCallback(async () => {
+    console.log('[useKitchenOrdersRealtime] 🔄 Starting loadOrders...')
     try {
       setIsLoading(true)
       setError(null)
+      console.log('[useKitchenOrdersRealtime] Calling api.getOrders()...')
       const result = await api.getOrders()
+      console.log('[useKitchenOrdersRealtime] Got result:', { 
+        isArray: Array.isArray(result), 
+        length: Array.isArray(result) ? result.length : 'N/A',
+        result: Array.isArray(result) ? result.slice(0, 2) : result
+      })
       
       if (Array.isArray(result)) {
         setOrders(result)
+        console.log('[useKitchenOrdersRealtime] ✅ Set orders state with', result.length, 'orders')
       } else {
         setOrders([])
+        console.log('[useKitchenOrdersRealtime] ⚠️ Result was not array, set empty orders')
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load orders'
+      console.error('[useKitchenOrdersRealtime] ❌ loadOrders failed:', err)
       setError(errorMessage)
       setOrders([])
     } finally {
       setIsLoading(false)
+      console.log('[useKitchenOrdersRealtime] 🏁 loadOrders finished')
     }
   }, [])
 
@@ -67,8 +78,15 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
 
   // Initial load on mount
   useEffect(() => {
+    console.log('[useKitchenOrdersRealtime] useEffect - initial load check:', {
+      restaurantLoading,
+      restaurantError: restaurantError ? 'has error' : 'no error'
+    })
     if (!restaurantLoading && !restaurantError) {
+      console.log('[useKitchenOrdersRealtime] ✅ Conditions met, triggering loadOrders()')
       loadOrders()
+    } else {
+      console.log('[useKitchenOrdersRealtime] ⏳ Waiting for restaurant context...')
     }
   }, [loadOrders, restaurantLoading, restaurantError])
 

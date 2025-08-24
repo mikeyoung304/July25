@@ -12,7 +12,6 @@ import { ServerView } from '@/pages/ServerView'
 import AdminDashboard from '@/pages/AdminDashboard'
 import ExpoPage from '@/pages/ExpoPage'
 import KioskPage from '@/pages/KioskPage'
-import DriveThruPage from '@/pages/DriveThruPage'
 import { CustomerOrderPage } from '@/modules/order-system/components'
 import CheckoutPage from '@/pages/CheckoutPage'
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage'
@@ -61,13 +60,6 @@ export function AppRoutes() {
               <ErrorBoundary level="section">
                 <Profiler id="KioskVoice" onRender={onRenderCallback}>
                   <KioskPage />
-                </Profiler>
-              </ErrorBoundary>
-            } />
-            <Route path="/drive-thru" element={
-              <ErrorBoundary level="section">
-                <Profiler id="DriveThru" onRender={onRenderCallback}>
-                  <DriveThruPage />
                 </Profiler>
               </ErrorBoundary>
             } />

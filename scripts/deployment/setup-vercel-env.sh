@@ -14,9 +14,12 @@ fi
 # Set environment variables for production, preview, and development
 echo "📝 Adding environment variables to Vercel..."
 
-# Supabase Configuration
-vercel env add VITE_SUPABASE_URL production preview development <<< "https://xiwfhcikfdoshxwbtjxt.supabase.co"
-vercel env add VITE_SUPABASE_ANON_KEY production preview development <<< "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhpd2ZoY2lrZmRvc2h4d2J0anh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNDkzMDIsImV4cCI6MjA2NzgyNTMwMn0.f0jqtYOR4oU7-7lJPF9nkL8uk40qQ6G91xzjRpTnCSc"
+# Supabase Configuration - SECURE THESE VALUES
+# Set environment variables before running this script:
+# export VITE_SUPABASE_URL="your_supabase_url"
+# export VITE_SUPABASE_ANON_KEY="your_supabase_anon_key"
+vercel env add VITE_SUPABASE_URL production preview development <<< "$VITE_SUPABASE_URL"
+vercel env add VITE_SUPABASE_ANON_KEY production preview development <<< "$VITE_SUPABASE_ANON_KEY"
 
 # API Configuration (you may want to update this for production)
 vercel env add VITE_API_BASE_URL production preview development <<< "http://localhost:3001"

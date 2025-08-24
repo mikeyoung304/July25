@@ -165,7 +165,7 @@ export class VoiceOrderProcessor {
   /**
    * Submit current order to the system
    */
-  async submitCurrentOrder(customerName: string, orderType: 'dine-in' | 'takeout' | 'drive-thru' = 'dine-in'): Promise<Order> {
+  async submitCurrentOrder(customerName: string, orderType: 'dine-in' | 'takeout' = 'dine-in'): Promise<Order> {
     if (this.currentOrder.length === 0) {
       throw new Error('No items in order');
     }

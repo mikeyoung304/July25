@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ShoppingCart, Package, Utensils, BarChart3, Users, Settings } from 'lucide-react'
 import { Card } from '@/components/ui/card'
-import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
+import { SectionTitle } from '@/components/ui/Typography'
+import { BrandHeader } from '@/components/layout/BrandHeader'
+import { BrandHeaderPresets } from '@/components/layout/BrandHeaderPresets'
 import { spacing } from '@/lib/typography'
 
 interface DashboardCardProps {
@@ -49,21 +51,13 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-macon-background">
       <div className="relative overflow-hidden py-20">
-        <div className={`relative ${spacing.page.container} ${spacing.page.padding}`}>
+        <div className={`relative ${spacing.page.container}`}>
           <div className={`flex flex-col items-center ${spacing.content.stackLarge}`}>
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center space-y-2"
-            >
-              <PageTitle>
-                Restaurant Command Center
-              </PageTitle>
-              <Body className="text-neutral-600">
-                Select a module to manage your operations
-              </Body>
-            </motion.div>
+            {/* Use BrandHeader with dashboard preset */}
+            <BrandHeader 
+              {...BrandHeaderPresets.dashboard}
+              className="mb-8"
+            />
             
             <div className={`grid md:grid-cols-3 ${spacing.grid.gapLarge} w-full max-w-5xl`}>
               <DashboardCard

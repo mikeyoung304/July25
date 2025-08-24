@@ -7,6 +7,8 @@ import { useOrderHistory } from '@/hooks/useOrderHistory'
 import { OrderHistoryTable } from '@/modules/analytics/components/OrderHistoryTable'
 import { OrderStatisticsCards } from '@/modules/analytics/components/OrderStatisticsCards'
 import { DateRangePicker } from '@/components/shared/inputs/DateRangePicker'
+import { BrandHeader } from '@/components/layout/BrandHeader'
+import { BrandHeaderPresets } from '@/components/layout/BrandHeaderPresets'
 import { cn } from '@/utils'
 
 export const OrderHistory: React.FC = () => {
@@ -30,11 +32,16 @@ export const OrderHistory: React.FC = () => {
   return (
     <div className="min-h-screen bg-macon-background p-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">Order History</h1>
-          <p className="text-muted-foreground">View and analyze past orders</p>
-        </div>
+        {/* BrandHeader with logo and back button */}
+        <BrandHeader
+          {...BrandHeaderPresets.admin}
+          title="Order History"
+          subtitle="View and analyze past orders"
+          rightContent={
+            <span className="text-xs text-macon-orange font-medium">ORDER ANALYTICS</span>
+          }
+          className="bg-white rounded-lg shadow-sm border mb-6"
+        />
 
         {/* Statistics */}
         {statistics && (

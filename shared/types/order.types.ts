@@ -16,7 +16,7 @@ export type OrderStatus =
 export type OrderType = 'online' | 'pickup' | 'delivery';
 
 // UI order types (what users see in the interface)
-export type UIOrderType = 'dine-in' | 'takeout' | 'delivery' | 'online' | 'drive-thru' | 'kiosk' | 'voice';
+export type UIOrderType = 'dine-in' | 'takeout' | 'delivery' | 'online' | 'kiosk' | 'voice';
 
 export type PaymentStatus = 'pending' | 'paid' | 'refunded' | 'failed';
 

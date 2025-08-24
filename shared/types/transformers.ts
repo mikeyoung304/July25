@@ -476,7 +476,6 @@ export function uiOrderTypeToDb(uiType: UIOrderType): OrderType {
     'takeout': 'pickup',    // Takeout is pickup
     'delivery': 'delivery', // Direct mapping
     'online': 'online',     // Direct mapping
-    'drive-thru': 'pickup', // Drive-thru is pickup
     'kiosk': 'online',      // Kiosk orders use online flow
     'voice': 'online'       // Voice orders use online flow
   };

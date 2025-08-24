@@ -12,9 +12,9 @@ echo ""
 
 # Generate the commands
 cat << 'EOF'
-# Supabase Configuration
-vercel env add VITE_SUPABASE_URL production <<< "https://xiwfhcikfdoshxwbtjxt.supabase.co"
-vercel env add VITE_SUPABASE_ANON_KEY production <<< "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhpd2ZoY2lrZmRvc2h4d2J0anh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNDkzMDIsImV4cCI6MjA2NzgyNTMwMn0.f0jqtYOR4oU7-7lJPF9nkL8uk40qQ6G91xzjRpTnCSc"
+# Supabase Configuration - SECURE THESE VALUES
+vercel env add VITE_SUPABASE_URL production <<< "$VITE_SUPABASE_URL"
+vercel env add VITE_SUPABASE_ANON_KEY production <<< "$VITE_SUPABASE_ANON_KEY"
 
 # API Configuration
 vercel env add VITE_API_BASE_URL production <<< "http://localhost:3001"

@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react'
 import { Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { BackToDashboard } from '@/components/navigation/BackToDashboard'
+import { BrandHeader } from '@/components/layout/BrandHeader'
+import { BrandHeaderPresets } from '@/components/layout/BrandHeaderPresets'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBoundary'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
@@ -66,10 +67,16 @@ function ExpoPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b px-4 py-2">
-        <BackToDashboard />
-      </div>
+      {/* BrandHeader with logo and back button */}
+      <BrandHeader
+        {...BrandHeaderPresets.server}
+        title="Order Expediting"
+        subtitle="Manage ready orders for delivery"
+        rightContent={
+          <span className="text-xs text-macon-orange font-medium">EXPO STATION</span>
+        }
+        className="bg-white shadow-sm border-b"
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-3">
         {/* Two-Panel Layout: Kitchen Overview | Ready Orders */}

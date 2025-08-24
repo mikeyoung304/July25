@@ -107,21 +107,11 @@ Strip every page down to its core function. If it doesn't directly support the p
 ---
 
 ### DriveThruPage (`/drive-thru`)
-**Core Function**: Drive-thru voice ordering
+**Status**: ❌ **REMOVED FROM MVP** - Not included in current release
 
-**Remove:**
-- ✅ Order submission confirmation state (orderSubmitted state)
-- ✅ Full conversation history (conversation state, ConversationEntry interface)
-- ✅ First press greeting logic (handleFirstPress, isFirstPress state)
-- ✅ Auto-scroll to conversation bottom (conversationEndRef, useEffect scroll)
-- ✅ All logger statements (removed imports and usage)
-- ✅ Complex AI chat API integration (processVoiceOrder function)
-- ✅ Dark theme styling (neutral-900 backgrounds, complex color schemes)
-- ✅ Large-scale UI elements (4xl headings, 5xl totals, scale transforms)
-- ✅ Order submission animations and state management
-- ✅ Complex conversation rendering with icons and timestamps
+**Reason:** Drive-thru functionality paused for MVP focus. Voice ordering still available through kiosk page.
 
-**Keep:** Voice control, simple current order display, basic transcript
+**Previous Work:** Page was successfully cleaned up (61% code reduction) but removed entirely to simplify MVP scope.
 
 ---
 
@@ -224,7 +214,7 @@ Strip every page down to its core function. If it doesn't directly support the p
   - Stripped out first press greeting logic and conversation entries
   - **Dashboard-style redesign**: Two-column layout with voice control and current order
   - **Core functionality preserved**: Voice ordering, order display, checkout navigation
-- ✅ DriveThruPage - 2025-08-22 - Removed ~180 lines of bloat
+- ❌ DriveThruPage - 2025-08-24 - REMOVED FROM MVP (previously cleaned: ~180 lines of bloat removed)
   - **Dramatic simplification**: From 295 lines to 115 lines (61% reduction)
   - Removed full conversation history system with ConversationEntry interface
   - Eliminated complex AI chat API integration (processVoiceOrder function)
@@ -292,12 +282,12 @@ Strip every page down to its core function. If it doesn't directly support the p
   - Kept essential metrics displays, performance charts, and data tables
   - **Core functionality preserved**: All performance monitoring, export/clear functions, alerts
 
-### Pending Pages
+### MVP Pages Status
 - ✅ KitchenDisplaySimple - 2025-08-21
 - ✅ CheckoutPage - 2025-08-22
 - ✅ ExpoPage - 2025-08-22
 - ✅ KioskPage - 2025-08-22
-- ✅ DriveThruPage - 2025-08-22
+- ❌ DriveThruPage - 2025-08-24 (REMOVED FROM MVP)
 - ✅ AdminDashboard - 2025-08-22
 - ✅ HomePage - 2025-08-22 (PRESERVED - Perfect design)
 - ✅ PerformanceDashboard - 2025-08-22
@@ -322,4 +312,4 @@ Strip every page down to its core function. If it doesn't directly support the p
 ---
 
 _Last Updated: 2025-08-22_
-_Status: ✅ **MVP CLEANUP COMPLETED** - All 8 pages processed, 30-79% code reduction achieved_
+_Status: ✅ **MVP CLEANUP COMPLETED** - 7 pages processed (1 removed), 30-79% code reduction achieved_

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
-import { BackToDashboard } from '@/components/navigation/BackToDashboard'
+import { BrandHeader } from '@/components/layout/BrandHeader'
+import { BrandHeaderPresets } from '@/components/layout/BrandHeaderPresets'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { Button } from '@/components/ui/button'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
@@ -62,10 +63,16 @@ function KitchenDisplaySimple() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Minimal Header */}
-      <div className="bg-white border-b px-4 py-2">
-        <BackToDashboard />
-      </div>
+      {/* BrandHeader with logo and back button */}
+      <BrandHeader
+        {...BrandHeaderPresets.server}
+        title="Kitchen Orders"
+        subtitle="Manage incoming orders"
+        rightContent={
+          <span className="text-xs text-macon-orange font-medium">KITCHEN DISPLAY</span>
+        }
+        className="bg-white shadow-sm border-b"
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-3">
         {/* Minimal Filters - Active/Ready only */}
@@ -86,10 +93,39 @@ function KitchenDisplaySimple() {
           </Button>
         </div>
 
+        {/* DEBUG: Test API Button */}
+        <div className="mb-4 p-4 bg-yellow-100 rounded-lg">
+          <button 
+            onClick={async () => {
+              console.log('=== MANUAL API TEST START ===')
+              try {
+                const { api } = await import('@/services/api')
+                console.log('Calling api.getOrders()...')
+                const result = await api.getOrders()
+                console.log('Manual API test result:', result)
+                console.log('Result is array?', Array.isArray(result))
+                console.log('Result length:', Array.isArray(result) ? result.length : 'N/A')
+                if (Array.isArray(result) && result.length > 0) {
+                  console.log('First order:', result[0])
+                }
+              } catch (error) {
+                console.error('Manual API test failed:', error)
+              }
+              console.log('=== MANUAL API TEST END ===')
+            }}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            🔍 Test API Manually
+          </button>
+          <p className="text-sm text-gray-600 mt-2">
+            Debug: Click to test API call directly (check browser console)
+          </p>
+        </div>
+
         {/* Orders Grid */}
         {filteredOrders.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg">
-            <p className="text-gray-500">No active orders</p>
+            <p className="text-gray-500">No active orders (showing {orders.length} total orders from hook)</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

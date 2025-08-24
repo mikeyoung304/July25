@@ -162,6 +162,66 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
 });
 
 /**
+ * Proxy WebRTC SDP exchange to OpenAI (ADR #001 compliance)
+ * Prevents client-side direct OpenAI API calls
+ */
+router.post('/connect', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { sdp, model, ephemeralToken } = req.body;
+    
+    if (!sdp || !ephemeralToken) {
+      return res.status(400).json({
+        error: 'Missing required fields: sdp and ephemeralToken'
+      });
+    }
+
+    realtimeLogger.info('Proxying WebRTC SDP exchange to OpenAI', {
+      userId: req.user?.id,
+      model: model || 'default'
+    });
+
+    // Proxy the SDP exchange to OpenAI
+    const openaiModel = model || process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03';
+    const response = await fetch(
+      `https://api.openai.com/v1/realtime?model=${openaiModel}`,
+      {
+        method: 'POST',
+        body: sdp,
+        headers: {
+          'Authorization': `Bearer ${ephemeralToken}`,
+          'Content-Type': 'application/sdp',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      realtimeLogger.error('OpenAI WebRTC SDP exchange failed', {
+        status: response.status,
+        error: errorText
+      });
+      
+      return res.status(response.status).json({
+        error: 'WebRTC SDP exchange failed',
+        details: errorText
+      });
+    }
+
+    // Return the SDP answer from OpenAI
+    const answerSdp = await response.text();
+    res.set('Content-Type', 'application/sdp');
+    res.send(answerSdp);
+    
+  } catch (error) {
+    realtimeLogger.error('Error in WebRTC SDP proxy:', error);
+    return res.status(500).json({
+      error: 'Internal server error during SDP exchange',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
  * Health check for real-time service
  */
 router.get('/health', (_req, res: Response) => {

@@ -45,9 +45,6 @@ export const LazyRoutes = {
   CheckoutPage: lazy(() => 
     import(/* webpackChunkName: "checkout" */ '@/pages/CheckoutPage')
   ),
-  DriveThruPage: lazy(() => 
-    import(/* webpackChunkName: "drive-thru" */ '@/pages/DriveThruPage')
-  ),
   
   // Server routes - using existing ServerView  
   ServerView: lazy(() => 

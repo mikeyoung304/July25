@@ -54,7 +54,7 @@ rebuild-6.0/
 
 - Backend sends all 7 statuses - frontend components must handle all
 - OrderType database format: 'online' | 'pickup' | 'delivery'
-- UI display format: 'dine-in' | 'takeout' | 'delivery' | 'online' | 'drive-thru' | 'kiosk' | 'voice'
+- UI display format: 'dine-in' | 'takeout' | 'delivery' | 'online' | 'kiosk' | 'voice'
 - All WebSocket events must include restaurant_id for multi-tenancy
 
 ### Error Prevention Checklist

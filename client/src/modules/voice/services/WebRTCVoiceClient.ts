@@ -151,16 +151,24 @@ export class WebRTCVoiceClient extends EventEmitter {
         console.log('[WebRTCVoice] SDP m-lines in offer:', mLines);
       }
       
-      // Step 7: Send SDP to OpenAI
+      // Step 7: Send SDP to backend proxy (ADR #001 compliance)
       const model = import.meta.env.VITE_OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03';
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+      const authToken = await getAuthToken();
+      
       const sdpResponse = await fetch(
-        `https://api.openai.com/v1/realtime?model=${model}`,
+        `${apiBase}/api/v1/realtime/connect`,
         {
           method: 'POST',
-          body: offer.sdp,
+          body: JSON.stringify({
+            sdp: offer.sdp,
+            model: model,
+            ephemeralToken: this.ephemeralToken
+          }),
           headers: {
-            'Authorization': `Bearer ${this.ephemeralToken}`,
-            'Content-Type': 'application/sdp',
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+            'x-restaurant-id': this.config.restaurantId,
           },
         }
       );

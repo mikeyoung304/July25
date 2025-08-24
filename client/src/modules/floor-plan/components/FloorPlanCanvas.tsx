@@ -538,8 +538,10 @@ export function FloorPlanCanvas({
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
-      const delta = e.deltaY > 0 ? 0.9 : 1.1
-      const newZoom = Math.max(0.5, Math.min(2, zoomLevel * delta))
+      // Slower, more controlled zoom: 5% increments instead of 10%
+      const delta = e.deltaY > 0 ? 0.95 : 1.05
+      // Extended zoom range: 0.25x to 3x for better flexibility
+      const newZoom = Math.max(0.25, Math.min(3, zoomLevel * delta))
       onZoomChange?.(newZoom)
     }
 

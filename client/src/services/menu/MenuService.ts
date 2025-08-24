@@ -31,10 +31,10 @@ export class MenuService implements IMenuService {
       name: item.name,
       description: item.description,
       price: item.price,
-      category,
-      is_available: item.is_available !== undefined ? item.is_available : item.available,
-      image_url: item.imageUrl || item.image_url,
-      restaurant_id: item.restaurant_id,
+      category: category ? { name: category } : undefined,
+      isAvailable: item.isAvailable !== undefined ? item.isAvailable : (item.available !== undefined ? item.available : item.is_available),
+      imageUrl: item.imageUrl || item.image_url,
+      restaurantId: item.restaurantId || item.restaurant_id,
       calories: item.calories,
       modifiers: item.modifier_groups?.flatMap((group: any) => 
         group.options.map((opt: any) => ({

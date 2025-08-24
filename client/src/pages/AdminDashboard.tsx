@@ -5,10 +5,11 @@ import { Card } from '@/components/ui/card'
 import { FloorPlanEditor } from '@/modules/floor-plan/components/FloorPlanEditor'
 import { RestaurantContext } from '@/core'
 import { Table } from '@/modules/floor-plan/types'
-import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
+import { SectionTitle, Body } from '@/components/ui/Typography'
+import { BrandHeader } from '@/components/layout/BrandHeader'
+import { BrandHeaderPresets } from '@/components/layout/BrandHeaderPresets'
 import { spacing } from '@/lib/typography'
 import { RoleGuard } from '@/components/auth/RoleGuard'
-import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 
 function AdminDashboard() {
   const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics'>('overview')
@@ -40,15 +41,15 @@ function AdminDashboard() {
       pageTitle="Admin Dashboard"
     >
       <div className="min-h-screen bg-macon-background">
-      {/* Header */}
-      <div className="bg-white border-b border-neutral-200">
-        <div className={`${spacing.page.container} py-4 flex items-center justify-between`}>
-          <div className="flex items-center space-x-4">
-            <BackToDashboard />
-            <PageTitle as="h1" className="text-2xl md:text-3xl">Admin Dashboard</PageTitle>
-          </div>
-        </div>
-      </div>
+      {/* Header with BrandHeader */}
+      <BrandHeader 
+        {...BrandHeaderPresets.admin}
+        title="Admin Dashboard"
+        rightContent={
+          <span className="text-xs text-macon-orange font-medium">ADMIN PORTAL</span>
+        }
+        className="bg-white border-b border-neutral-200"
+      />
 
       {/* Main Content */}
       <div className={`${spacing.page.container} ${spacing.page.padding}`}>

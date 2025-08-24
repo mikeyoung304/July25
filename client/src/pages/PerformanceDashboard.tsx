@@ -8,7 +8,8 @@ import { PerformanceChart } from '@/modules/analytics/components/PerformanceChar
 import { ComponentMetricsTable } from '@/modules/analytics/components/ComponentMetricsTable'
 import { APIMetricsTable } from '@/modules/analytics/components/APIMetricsTable'
 import { cn } from '@/utils'
-import { BackToDashboard } from '@/components/navigation/BackToDashboard'
+import { BrandHeader } from '@/components/layout/BrandHeader'
+import { BrandHeaderPresets } from '@/components/layout/BrandHeaderPresets'
 
 const PerformanceDashboard: React.FC = () => {
   const { 
@@ -45,31 +46,28 @@ const PerformanceDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-macon-background p-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="mb-4">
-            <BackToDashboard />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold flex items-center gap-2">
-                <Activity className="h-8 w-8" />
-                Performance Dashboard
-              </h1>
-              <p className="text-muted-foreground">Monitor and analyze KDS performance metrics</p>
+        {/* BrandHeader with logo and back button */}
+        <BrandHeader
+          {...BrandHeaderPresets.admin}
+          title="Performance Dashboard"
+          subtitle="Monitor and analyze KDS performance metrics"
+          rightContent={
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-macon-orange font-medium">PERFORMANCE MONITOR</span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={exportPerformanceData}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+                <Button variant="outline" size="sm" onClick={clearMetrics}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear
+                </Button>
+              </div>
             </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={exportPerformanceData}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button variant="outline" size="sm" onClick={clearMetrics}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Clear
-            </Button>
-          </div>
-          </div>
-        </div>
+          }
+          className="bg-white rounded-lg shadow-sm border mb-6"
+        />
 
         {/* Performance Alert */}
         {hasPerformanceIssues && (
