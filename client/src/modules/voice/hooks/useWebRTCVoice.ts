@@ -68,7 +68,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
         setTranscript('');
       }
       if (debug) {
-        console.log('[useWebRTCVoice] Connection state changed:', state);
+        // console.log('[useWebRTCVoice] Connection state changed:', state);
       }
     });
     
@@ -78,7 +78,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       setIsProcessing(false);
       
       if (debug) {
-        console.log('[useWebRTCVoice] Transcript:', event.text);
+        // console.log('[useWebRTCVoice] Transcript:', event.text);
       }
       
       onTranscript?.(event);
@@ -86,7 +86,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     
     client.on('order.detected', (event: OrderEvent) => {
       if (debug) {
-        console.log('[useWebRTCVoice] Order detected:', event);
+        // console.log('[useWebRTCVoice] Order detected:', event);
       }
       onOrderDetected?.(event);
     });
@@ -111,7 +111,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       setTranscript(''); // Clear previous transcript
       setResponseText(''); // Clear previous response
       if (debug) {
-        console.log('[useWebRTCVoice] Speech started');
+        // console.log('[useWebRTCVoice] Speech started');
       }
     });
     
@@ -119,7 +119,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       // User stopped speaking, processing will continue
       setIsListening(false);
       if (debug) {
-        console.log('[useWebRTCVoice] Speech stopped');
+        // console.log('[useWebRTCVoice] Speech stopped');
       }
     });
     

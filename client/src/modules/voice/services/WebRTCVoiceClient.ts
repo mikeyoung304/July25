@@ -80,10 +80,10 @@ export class WebRTCVoiceClient extends EventEmitter {
     
     // Log API base once at initialization
     const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-    console.log(`[RT] WebRTC Voice Client initialized - API: ${apiBase}`);
+    // console.log(`[RT] WebRTC Voice Client initialized - API: ${apiBase}`);
     
     if (this.config.debug) {
-      console.log('[RT] Debug mode enabled, config:', config);
+      // console.log('[RT] Debug mode enabled, config:', config);
     }
   }
 
@@ -93,18 +93,18 @@ export class WebRTCVoiceClient extends EventEmitter {
   async connect(): Promise<void> {
     // Prevent duplicate connections
     if (this.isConnecting || this.connectionState === 'connected') {
-      console.log('[WebRTCVoice] Already connecting or connected, skipping...');
+      // console.log('[WebRTCVoice] Already connecting or connected, skipping...');
       return;
     }
     
     this.isConnecting = true;
     
     try {
-      console.log('[WebRTCVoice] Starting connection...');
+      // console.log('[WebRTCVoice] Starting connection...');
       this.setConnectionState('connecting');
       
       // Step 1: Get ephemeral token from our server
-      console.log('[WebRTCVoice] Fetching ephemeral token...');
+      // console.log('[WebRTCVoice] Fetching ephemeral token...');
       await this.fetchEphemeralToken();
       
       // Step 2: Create RTCPeerConnection
@@ -125,7 +125,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       
       this.pc.ontrack = (event) => {
         if (this.config.debug) {
-          console.log('[WebRTCVoice] Received remote audio track:', event.streams);
+          // console.log('[WebRTCVoice] Received remote audio track:', event.streams);
         }
         if (this.audioElement && event.streams[0]) {
           this.audioElement.srcObject = event.streams[0];
@@ -148,7 +148,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       if (this.config.debug) {
         // Log the m-lines in the offer to debug ordering
         const mLines = offer.sdp?.match(/m=.*/g);
-        console.log('[WebRTCVoice] SDP m-lines in offer:', mLines);
+        // console.log('[WebRTCVoice] SDP m-lines in offer:', mLines);
       }
       
       // Step 7: Send SDP to OpenAI via backend proxy (ADR #001 compliance)
@@ -197,7 +197,7 @@ export class WebRTCVoiceClient extends EventEmitter {
         sdp: answerSdp,
       };
       
-      console.log('[WebRTCVoice] Setting remote description...');
+      // console.log('[WebRTCVoice] Setting remote description...');
       await this.pc.setRemoteDescription(answer);
       
       this.sessionActive = true;
@@ -205,7 +205,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.isConnecting = false;
       
       if (this.config.debug) {
-        console.log('[WebRTCVoice] WebRTC connection established');
+        // console.log('[WebRTCVoice] WebRTC connection established');
       }
       
     } catch (error) {
@@ -221,7 +221,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.reconnectAttempts++;
       if (this.reconnectAttempts < this.maxReconnectAttempts) {
         const delay = Math.min(5000, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
-        console.log(`[WebRTCVoice] Will retry connection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+        // console.log(`[WebRTCVoice] Will retry connection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
         setTimeout(() => {
           if (this.connectionState !== 'connected') {
             this.reconnect();
@@ -241,7 +241,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
     
     if (this.config.debug) {
-      console.log('[RT] Fetching ephemeral token from:', `${apiBase}/api/v1/realtime/session`);
+      // console.log('[RT] Fetching ephemeral token from:', `${apiBase}/api/v1/realtime/session`);
     }
     
     const response = await fetch(`${apiBase}/api/v1/realtime/session`, {
@@ -264,14 +264,14 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Store menu context if provided
     if (data.menu_context) {
       this.menuContext = data.menu_context;
-      console.log('[RT] Menu context loaded:', this.menuContext.split('\n').length, 'lines');
+      // console.log('[RT] Menu context loaded:', this.menuContext.split('\n').length, 'lines');
     }
     
     // Schedule token refresh 10 seconds before expiry
     this.scheduleTokenRefresh();
     
     if (this.config.debug) {
-      console.log('[WebRTCVoice] Got ephemeral token, expires at:', new Date(this.tokenExpiresAt));
+      // console.log('[WebRTCVoice] Got ephemeral token, expires at:', new Date(this.tokenExpiresAt));
     }
   }
 
@@ -290,7 +290,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     if (refreshTime > 0) {
       this.tokenRefreshTimer = setTimeout(async () => {
         if (this.sessionActive) {
-          console.log('[WebRTCVoice] Refreshing ephemeral token...');
+          // console.log('[WebRTCVoice] Refreshing ephemeral token...');
           try {
             await this.fetchEphemeralToken();
             // Note: We can't update an active WebRTC session token
@@ -320,16 +320,16 @@ export class WebRTCVoiceClient extends EventEmitter {
       const audioTrack = this.mediaStream.getAudioTracks()[0];
       if (this.pc && audioTrack) {
         // CRITICAL: Ensure track is MUTED before adding to connection
-        console.log('[WebRTCVoice] Audio track initial state - enabled:', audioTrack.enabled);
+        // console.log('[WebRTCVoice] Audio track initial state - enabled:', audioTrack.enabled);
         audioTrack.enabled = false;
-        console.log('[WebRTCVoice] Audio track after muting - enabled:', audioTrack.enabled);
+        // console.log('[WebRTCVoice] Audio track after muting - enabled:', audioTrack.enabled);
         
         // Simple approach: just add the track
         this.pc.addTrack(audioTrack, this.mediaStream);
-        console.log('[WebRTCVoice] Audio track added to peer connection in MUTED state');
+        // console.log('[WebRTCVoice] Audio track added to peer connection in MUTED state');
         
         if (this.config.debug) {
-          console.log('[WebRTCVoice] Microphone connected but muted - will only transmit when button held');
+          // console.log('[WebRTCVoice] Microphone connected but muted - will only transmit when button held');
         }
       }
     } catch (error) {
@@ -346,7 +346,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     
     this.dc.onopen = () => {
       if (this.config.debug) {
-        console.log('[WebRTCVoice] Data channel opened');
+        // console.log('[WebRTCVoice] Data channel opened');
       }
       
       this.dcReady = true;
@@ -354,7 +354,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       
       // Flush any queued messages
       if (this.messageQueue.length > 0) {
-        console.log(`[WebRTCVoice] Flushing ${this.messageQueue.length} queued messages`);
+        // console.log(`[WebRTCVoice] Flushing ${this.messageQueue.length} queued messages`);
         for (const msg of this.messageQueue) {
           this.dc!.send(JSON.stringify(msg));
         }
@@ -379,7 +379,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     
     this.dc.onclose = () => {
       if (this.config.debug) {
-        console.log('[WebRTCVoice] Data channel closed');
+        // console.log('[WebRTCVoice] Data channel closed');
       }
       this.dcReady = false;
       this.handleDisconnection();
@@ -393,7 +393,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Deduplication check
     if (event.event_id && this.seenEventIds.has(event.event_id)) {
       if (this.config.debug) {
-        console.log(`[RT] Duplicate event ignored: ${event.event_id}`);
+        // console.log(`[RT] Duplicate event ignored: ${event.event_id}`);
       }
       return;
     }
@@ -411,14 +411,14 @@ export class WebRTCVoiceClient extends EventEmitter {
     const logPrefix = `[RT] t=${this.turnId}#${String(this.eventIndex).padStart(2, '0')}`;
     
     if (this.config.debug) {
-      console.log(`${logPrefix} ${event.type}`, event);
+      // console.log(`${logPrefix} ${event.type}`, event);
     }
     
     switch (event.type) {
       case 'session.created':
-        console.log(`${logPrefix} Session created successfully`);
+        // console.log(`${logPrefix} Session created successfully`);
         if (this.config.debug) {
-          console.log('Session details:', JSON.stringify(event.session, null, 2));
+          // console.log('Session details:', JSON.stringify(event.session, null, 2));
         }
         this.emit('session.created', event.session);
         // Now send session.update after session is created
@@ -426,11 +426,11 @@ export class WebRTCVoiceClient extends EventEmitter {
         break;
         
       case 'session.updated':
-        console.log(`${logPrefix} Session configuration updated`);
+        // console.log(`${logPrefix} Session configuration updated`);
         break;
         
       case 'input_audio_buffer.speech_started':
-        console.log(`${logPrefix} Speech started detected`);
+        // console.log(`${logPrefix} Speech started detected`);
         if (this.turnState === 'recording') {
           this.partialTranscript = '';
           this.emit('speech.started');
@@ -438,29 +438,29 @@ export class WebRTCVoiceClient extends EventEmitter {
         break;
         
       case 'input_audio_buffer.speech_stopped':
-        console.log(`${logPrefix} Speech stopped detected`);
+        // console.log(`${logPrefix} Speech stopped detected`);
         if (this.turnState === 'recording') {
           this.emit('speech.stopped');
         }
         break;
         
       case 'input_audio_buffer.committed':
-        console.log(`${logPrefix} Audio buffer committed`);
+        // console.log(`${logPrefix} Audio buffer committed`);
         break;
         
       case 'input_audio_buffer.cleared':
-        console.log(`${logPrefix} Audio buffer cleared`);
+        // console.log(`${logPrefix} Audio buffer cleared`);
         break;
         
       case 'conversation.item.created':
         // Track items by role
         if (event.item?.role === 'user' && event.item?.id) {
           this.currentUserItemId = event.item.id;
-          console.log(`${logPrefix} User item created: ${this.currentUserItemId}`);
+          // console.log(`${logPrefix} User item created: ${this.currentUserItemId}`);
           // Initialize transcript entry
           this.transcriptMap.set(event.item.id, { text: '', final: false, role: 'user' });
         } else if (event.item?.role === 'assistant' && event.item?.id) {
-          console.log(`${logPrefix} Assistant item created: ${event.item.id}`);
+          // console.log(`${logPrefix} Assistant item created: ${event.item.id}`);
           this.transcriptMap.set(event.item.id, { text: '', final: false, role: 'assistant' });
         }
         break;
@@ -471,7 +471,7 @@ export class WebRTCVoiceClient extends EventEmitter {
           const entry = this.transcriptMap.get(event.item_id);
           if (entry && entry.role === 'user') {
             entry.text += event.delta;
-            console.log(`${logPrefix} User transcript delta (len=${event.delta.length})`);
+            // console.log(`${logPrefix} User transcript delta (len=${event.delta.length})`);
             
             // Emit partial transcript
             const partialTranscript: TranscriptEvent = {
@@ -500,12 +500,12 @@ export class WebRTCVoiceClient extends EventEmitter {
               timestamp: Date.now(),
             };
             this.emit('transcript', finalTranscript);
-            console.log(`${logPrefix} User transcript completed: "${event.transcript}"`);
+            // console.log(`${logPrefix} User transcript completed: "${event.transcript}"`);
             
             // State transition: waiting_user_final → waiting_response
             if (this.turnState === 'waiting_user_final' && 
                 event.item_id === this.currentUserItemId) {
-              console.log(`${logPrefix} Turn state: waiting_user_final → waiting_response`);
+              // console.log(`${logPrefix} Turn state: waiting_user_final → waiting_response`);
               this.turnState = 'waiting_response';
               
               // Send exactly one response.create
@@ -516,7 +516,7 @@ export class WebRTCVoiceClient extends EventEmitter {
                   instructions: 'Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences. English only.',
                 }
               });
-              console.log(`${logPrefix} Manual response.create sent`);
+              // console.log(`${logPrefix} Manual response.create sent`);
               
               // Detect order intent
               this.detectOrderIntent(event.transcript);
@@ -529,7 +529,7 @@ export class WebRTCVoiceClient extends EventEmitter {
         // Track the active response
         if (event.response?.id) {
           this.activeResponseId = event.response.id;
-          console.log(`${logPrefix} Response created: ${this.activeResponseId}`);
+          // console.log(`${logPrefix} Response created: ${this.activeResponseId}`);
           // Initialize assistant transcript entry
           if (event.response.output && event.response.output.length > 0) {
             const itemId = event.response.output[0].id;
@@ -550,7 +550,7 @@ export class WebRTCVoiceClient extends EventEmitter {
           if (assistantItems.length > 0) {
             const [itemId, entry] = assistantItems[assistantItems.length - 1];
             entry.text += event.delta;
-            console.log(`${logPrefix} Assistant transcript delta (len=${event.delta.length})`);
+            // console.log(`${logPrefix} Assistant transcript delta (len=${event.delta.length})`);
             
             // Emit partial response
             this.emit('response.text', entry.text);
@@ -568,7 +568,7 @@ export class WebRTCVoiceClient extends EventEmitter {
             const [itemId, entry] = assistantItems[assistantItems.length - 1];
             entry.text = event.transcript;
             entry.final = true;
-            console.log(`${logPrefix} Assistant transcript done: "${event.transcript}"`);
+            // console.log(`${logPrefix} Assistant transcript done: "${event.transcript}"`);
             
             this.emit('response.complete', event.transcript);
           }
@@ -584,14 +584,14 @@ export class WebRTCVoiceClient extends EventEmitter {
         
       case 'response.audio.delta':
         // Audio is handled via WebRTC audio track
-        console.log(`${logPrefix} Audio delta received (${event.delta?.length || 0} bytes)`);
+        // console.log(`${logPrefix} Audio delta received (${event.delta?.length || 0} bytes)`);
         break;
         
       case 'response.done':
         // Turn complete - transition back to idle
-        console.log(`${logPrefix} Response done`);
+        // console.log(`${logPrefix} Response done`);
         if (this.turnState === 'waiting_response') {
-          console.log(`${logPrefix} Turn state: waiting_response → idle`);
+          // console.log(`${logPrefix} Turn state: waiting_response → idle`);
           this.turnState = 'idle';
           this.currentUserItemId = null;
           this.activeResponseId = null;
@@ -608,7 +608,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       case 'response.content_part.done':
       case 'rate_limits.updated':
         // Known benign events - log but don't warn
-        console.log(`${logPrefix} ${event.type}`);
+        // console.log(`${logPrefix} ${event.type}`);
         break;
         
       case 'error':
@@ -632,7 +632,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       default:
         // Log truly unhandled events
         if (this.config.debug) {
-          console.log(`${logPrefix} Unhandled event type: ${event.type}`);
+          // console.log(`${logPrefix} Unhandled event type: ${event.type}`);
         }
     }
   }
@@ -653,9 +653,9 @@ export class WebRTCVoiceClient extends EventEmitter {
         silence_duration_ms: 250,
         create_response: false, // Still manually trigger responses
       };
-      console.log(`${logPrefix} Configuring session with VAD enabled (manual response trigger)`);
+      // console.log(`${logPrefix} Configuring session with VAD enabled (manual response trigger)`);
     } else {
-      console.log(`${logPrefix} Configuring session with manual PTT control`);
+      // console.log(`${logPrefix} Configuring session with manual PTT control`);
     }
     
     // Build instructions with menu context
@@ -743,7 +743,7 @@ ENTRÉES → Ask:
       type: 'input_audio_buffer.clear'
     });
     
-    console.log(`${logPrefix} Session configured for manual PTT control`);
+    // console.log(`${logPrefix} Session configured for manual PTT control`);
   }
 
   /**
@@ -781,14 +781,14 @@ ENTRÉES → Ask:
       
       const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
       if (this.config.debug) {
-        console.log(`${logPrefix} Sent: ${event.type}`);
+        // console.log(`${logPrefix} Sent: ${event.type}`);
       } else {
-        console.log(`${logPrefix} → ${event.type}`);
+        // console.log(`${logPrefix} → ${event.type}`);
       }
     } else {
       // Queue the message for later
       this.messageQueue.push(event);
-      console.log(`[RT] Queued event (${event.type}) - DC not ready. Queue size: ${this.messageQueue.length}`);
+      // console.log(`[RT] Queued event (${event.type}) - DC not ready. Queue size: ${this.messageQueue.length}`);
     }
   }
 
@@ -808,7 +808,7 @@ ENTRÉES → Ask:
     }
     
     const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
-    console.log(`${logPrefix} Turn state: idle → recording`);
+    // console.log(`${logPrefix} Turn state: idle → recording`);
     this.turnState = 'recording';
     
     // Clear transcript map for new turn
@@ -829,7 +829,7 @@ ENTRÉES → Ask:
     const audioTrack = this.mediaStream.getAudioTracks()[0];
     if (audioTrack) {
       audioTrack.enabled = true;
-      console.log(`${logPrefix} Microphone ENABLED - transmitting audio`);
+      // console.log(`${logPrefix} Microphone ENABLED - transmitting audio`);
     }
     
     this.isRecording = true;
@@ -840,7 +840,7 @@ ENTRÉES → Ask:
     this.emit('transcript', { text: '', isFinal: false, confidence: 0, timestamp: Date.now() });
     
     if (this.config.debug) {
-      console.log(`${logPrefix} Recording started - hold button to continue`);
+      // console.log(`${logPrefix} Recording started - hold button to continue`);
     }
   }
 
@@ -872,31 +872,31 @@ ENTRÉES → Ask:
     const audioTrack = this.mediaStream.getAudioTracks()[0];
     if (audioTrack) {
       audioTrack.enabled = false;
-      console.log(`${logPrefix} Microphone DISABLED - stopped transmitting`);
+      // console.log(`${logPrefix} Microphone DISABLED - stopped transmitting`);
     }
     
     this.lastCommitTime = now;
     this.isRecording = false;
     
     // State transition: recording → committing
-    console.log(`${logPrefix} Turn state: recording → committing`);
+    // console.log(`${logPrefix} Turn state: recording → committing`);
     this.turnState = 'committing';
     
     // Commit the audio buffer
     this.sendEvent({
       type: 'input_audio_buffer.commit'
     });
-    console.log(`${logPrefix} Audio buffer committed`);
+    // console.log(`${logPrefix} Audio buffer committed`);
     
     // State transition: committing → waiting_user_final
-    console.log(`${logPrefix} Turn state: committing → waiting_user_final`);
+    // console.log(`${logPrefix} Turn state: committing → waiting_user_final`);
     this.turnState = 'waiting_user_final';
     
     this.emit('recording.stopped');
     
     // Note: response.create will be sent when transcription.completed arrives
     if (this.config.debug) {
-      console.log(`${logPrefix} Waiting for user transcript to finalize...`);
+      // console.log(`${logPrefix} Waiting for user transcript to finalize...`);
     }
   }
 
@@ -908,7 +908,7 @@ ENTRÉES → Ask:
     
     this.pc.oniceconnectionstatechange = () => {
       if (this.config.debug) {
-        console.log('[WebRTCVoice] ICE connection state:', this.pc?.iceConnectionState);
+        // console.log('[WebRTCVoice] ICE connection state:', this.pc?.iceConnectionState);
       }
       
       if (this.pc?.iceConnectionState === 'failed' || this.pc?.iceConnectionState === 'disconnected') {
@@ -918,7 +918,7 @@ ENTRÉES → Ask:
     
     this.pc.onconnectionstatechange = () => {
       if (this.config.debug) {
-        console.log('[WebRTCVoice] Connection state:', this.pc?.connectionState);
+        // console.log('[WebRTCVoice] Connection state:', this.pc?.connectionState);
       }
     };
   }
@@ -939,7 +939,7 @@ ENTRÉES → Ask:
   private handleRateLimitError(): void {
     // Exponential backoff for rate limits
     const backoffDelay = Math.min(30000, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
-    console.log(`[WebRTCVoice] Waiting ${backoffDelay}ms before retry due to rate limit`);
+    // console.log(`[WebRTCVoice] Waiting ${backoffDelay}ms before retry due to rate limit`);
     
     setTimeout(() => {
       if (this.sessionActive) {
@@ -952,7 +952,7 @@ ENTRÉES → Ask:
    * Handle session expiration
    */
   private async handleSessionExpired(): Promise<void> {
-    console.log('[WebRTCVoice] Handling session expiration...');
+    // console.log('[WebRTCVoice] Handling session expiration...');
     
     // Clear current session
     this.sessionActive = false;
@@ -987,7 +987,7 @@ ENTRÉES → Ask:
    * Reconnect to the service
    */
   private async reconnect(): Promise<void> {
-    console.log(`[WebRTCVoice] Reconnecting... attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+    // console.log(`[WebRTCVoice] Reconnecting... attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
     
     // Clean up existing connection
     this.disconnect();
@@ -1098,7 +1098,7 @@ ENTRÉES → Ask:
     this.setConnectionState('disconnected');
     
     if (this.config.debug) {
-      console.log('[WebRTCVoice] Disconnected');
+      // console.log('[WebRTCVoice] Disconnected');
     }
   }
 

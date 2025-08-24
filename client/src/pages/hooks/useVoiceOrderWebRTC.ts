@@ -87,7 +87,7 @@ export function useVoiceOrderWebRTC() {
     const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text
     const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal
     
-    console.log('[useVoiceOrderWebRTC] Voice transcript:', text, 'final:', isFinal)
+    // Voice transcript processed - final: {isFinal}
     
     if (isFinal) {
       setCurrentTranscript('')
@@ -123,7 +123,7 @@ export function useVoiceOrderWebRTC() {
 
   // Handle order data from server (if server-side parsing is enabled)
   const handleOrderData = useCallback((orderData: any) => {
-    console.log('[useVoiceOrderWebRTC] Order data from server:', orderData)
+    // Order data received from server
     
     if (orderData?.success && orderData?.items?.length > 0) {
       const newItems: OrderItem[] = orderData.items.map((item: any) => {
