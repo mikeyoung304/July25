@@ -3,6 +3,7 @@ import { healthRoutes } from './health.routes';
 import { menuRoutes } from './menu.routes';
 import { orderRoutes } from './orders.routes';
 import { paymentRoutes } from './payments.routes';
+import { terminalRoutes } from './terminal.routes';
 import { tableRoutes } from './tables.routes';
 import { aiRoutes } from './ai.routes';
 import { restaurantRoutes } from './restaurants.routes';
@@ -30,6 +31,9 @@ export function setupRoutes(): Router {
 
   // Payment processing routes
   router.use('/payments', paymentRoutes);
+
+  // Terminal payment routes
+  router.use('/terminal', terminalRoutes);
 
   // Table management routes
   router.use('/tables', tableRoutes);

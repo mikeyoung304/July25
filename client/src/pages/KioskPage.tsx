@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRestaurant } from '@/core';
 import { KioskErrorBoundary } from '@/components/kiosk/KioskErrorBoundary';
 import { KioskCartProvider, useKioskCart } from '@/components/kiosk/KioskCartProvider';
@@ -11,6 +11,9 @@ const KioskPageContent: React.FC = () => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { setRestaurant } = useRestaurant();
   const { cart } = useKioskCart();
+  
+  // Track voice checkout orchestrator for terminal integration
+  const voiceCheckoutOrchestratorRef = useRef<any>(null);
 
   // Set default restaurant context for kiosk
   React.useEffect(() => {
@@ -41,7 +44,12 @@ const KioskPageContent: React.FC = () => {
 
   // Checkout flow
   if (isCheckingOut) {
-    return <KioskCheckoutPage onBack={handleBackFromCheckout} />;
+    return (
+      <KioskCheckoutPage 
+        onBack={handleBackFromCheckout} 
+        voiceCheckoutOrchestrator={voiceCheckoutOrchestratorRef.current}
+      />
+    );
   }
 
   // Mode selection
@@ -62,6 +70,9 @@ const KioskPageContent: React.FC = () => {
       <VoiceOrderingMode
         onBack={handleBackToModeSelection}
         onCheckout={handleCheckout}
+        onOrchestratorReady={(orchestrator) => {
+          voiceCheckoutOrchestratorRef.current = orchestrator;
+        }}
       />
     );
   }

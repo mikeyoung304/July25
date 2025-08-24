@@ -1,9 +1,13 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { VoiceControlWebRTC } from '@/modules/voice/components/VoiceControlWebRTC';
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser';
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
 import { useKioskCart } from './KioskCartProvider';
 import { useKioskOrderSubmission } from '@/hooks/kiosk/useKioskOrderSubmission';
+import { useApiRequest } from '@/hooks/useApiRequest';
+import { useToast } from '@/hooks/useToast';
+import { useNavigate } from 'react-router-dom';
+import { VoiceCheckoutOrchestrator } from '@/modules/voice/services/VoiceCheckoutOrchestrator';
 import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BrandHeader } from '@/components/layout/BrandHeader';
@@ -12,19 +16,93 @@ import { ShoppingCart, Mic, MicOff, Volume2, Trash2 } from 'lucide-react';
 interface VoiceOrderingModeProps {
   onBack: () => void;
   onCheckout: () => void;
+  onOrchestratorReady?: (orchestrator: VoiceCheckoutOrchestrator) => void;
 }
 
 export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   onBack,
-  onCheckout
+  onCheckout,
+  onOrchestratorReady
 }) => {
   const { cart, addItem, removeFromCart, clearCart } = useKioskCart();
   const { items: menuItems, loading } = useMenuItems();
   const { submitOrderAndNavigate, isSubmitting } = useKioskOrderSubmission();
+  const apiClient = useApiRequest();
+  const toast = useToast();
+  const navigate = useNavigate();
+  
   const [orderParser, setOrderParser] = useState<OrderParser | null>(null);
   const [isListening] = useState(false);
   const [lastTranscript, setLastTranscript] = useState('');
   const [recentlyAdded, setRecentlyAdded] = useState<string[]>([]);
+  const [voiceFeedback, setVoiceFeedback] = useState('');
+  
+  // Voice checkout orchestrator
+  const checkoutOrchestratorRef = useRef<VoiceCheckoutOrchestrator | null>(null);
+
+  // Initialize checkout orchestrator
+  useEffect(() => {
+    if (!checkoutOrchestratorRef.current) {
+      checkoutOrchestratorRef.current = new VoiceCheckoutOrchestrator({
+        restaurantId: import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'demo-restaurant',
+        debug: import.meta.env.DEV
+      });
+
+      // Initialize with React hooks
+      checkoutOrchestratorRef.current.initialize(apiClient, toast, navigate);
+      
+      // Notify parent that orchestrator is ready
+      if (onOrchestratorReady) {
+        onOrchestratorReady(checkoutOrchestratorRef.current);
+      }
+
+      // Set up event listeners
+      const orchestrator = checkoutOrchestratorRef.current;
+
+      // Listen for checkout events
+      orchestrator.on('checkout.confirmation.requested', (data) => {
+        const feedbackText = `Proceeding to checkout with ${data.items.length} items totaling $${data.total.toFixed(2)}`;
+        setVoiceFeedback(feedbackText);
+        setTimeout(() => setVoiceFeedback(''), 5000);
+      });
+
+      // Listen for summary requests
+      orchestrator.on('summary.text', (data) => {
+        setVoiceFeedback(data.text);
+        setTimeout(() => setVoiceFeedback(''), 10000);
+      });
+
+      // Listen for payment feedback
+      orchestrator.on('payment.feedback', (data) => {
+        setVoiceFeedback(data.text);
+        setTimeout(() => setVoiceFeedback(''), 5000);
+      });
+
+      // Listen for error feedback
+      orchestrator.on('payment.error.feedback', (data) => {
+        setVoiceFeedback(data.text);
+        setTimeout(() => setVoiceFeedback(''), 5000);
+      });
+    }
+
+    return () => {
+      if (checkoutOrchestratorRef.current) {
+        checkoutOrchestratorRef.current.destroy();
+        checkoutOrchestratorRef.current = null;
+      }
+    };
+  }, [apiClient, toast, navigate]);
+
+  // Update orchestrator when cart changes
+  useEffect(() => {
+    if (checkoutOrchestratorRef.current) {
+      checkoutOrchestratorRef.current.updateCart(cart.items, {
+        subtotal: cart.subtotal,
+        tax: cart.tax,
+        total: cart.total
+      });
+    }
+  }, [cart.items, cart.subtotal, cart.tax, cart.total]);
 
   useEffect(() => {
     if (menuItems.length > 0) {
@@ -126,16 +204,22 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
       }
     }
     
-    // Handle order confirmation events
+    // Handle order confirmation events via VoiceCheckoutOrchestrator
     else if (orderData?.action) {
       console.log('[VoiceOrderingMode] Order action:', orderData.action);
       
-      if (orderData.action === 'checkout' && cart.items.length > 0) {
-        // Auto-trigger checkout
-        onCheckout();
-      } else if (orderData.action === 'review') {
-        // Could show order summary or read it back
-        console.log('Order review requested, current cart:', cart.items);
+      if (checkoutOrchestratorRef.current) {
+        checkoutOrchestratorRef.current.handleOrderConfirmation({
+          action: orderData.action,
+          timestamp: Date.now()
+        });
+      } else {
+        // Fallback to original behavior
+        if (orderData.action === 'checkout' && cart.items.length > 0) {
+          onCheckout();
+        } else if (orderData.action === 'review') {
+          console.log('Order review requested, current cart:', cart.items);
+        }
       }
     }
     
@@ -262,6 +346,19 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                     <p className="text-green-800 text-lg">
                       {recentlyAdded.join(', ')}
                     </p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Voice Feedback */}
+            {voiceFeedback && (
+              <Card className="p-6 bg-purple-50 border-2 border-purple-200">
+                <div className="flex items-start space-x-4">
+                  <Volume2 className="w-6 h-6 text-purple-600 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-purple-900 mb-2">System:</h3>
+                    <p className="text-purple-800 text-lg">{voiceFeedback}</p>
                   </div>
                 </div>
               </Card>
