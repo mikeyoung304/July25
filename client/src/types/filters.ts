@@ -94,21 +94,24 @@ export const sortOrders = (orders: Order[], sortBy: SortBy, direction: SortDirec
     let comparison = 0
 
     switch (sortBy) {
-      case 'created_at':
+      case 'created_at': {
         const aCreated = (a as any).created_at || (a as any).createdAt
         const bCreated = (b as any).created_at || (b as any).createdAt
         comparison = new Date(aCreated).getTime() - new Date(bCreated).getTime()
         break
-      case 'order_number':
+      }
+      case 'order_number': {
         const aNum = (a as any).order_number || (a as any).orderNumber || ''
         const bNum = (b as any).order_number || (b as any).orderNumber || ''
         comparison = aNum.localeCompare(bNum)
         break
-      case 'table_number':
+      }
+      case 'table_number': {
         const aTable = (a as any).table_number || (a as any).tableNumber || ''
         const bTable = (b as any).table_number || (b as any).tableNumber || ''
         comparison = aTable.localeCompare(bTable)
         break
+      }
       case 'status': {
         const statusOrder = { 'new': 0, 'pending': 1, 'confirmed': 2, 'preparing': 3, 'ready': 4, 'completed': 5, 'cancelled': 6 }
         comparison = statusOrder[a.status] - statusOrder[b.status]

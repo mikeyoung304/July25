@@ -5,26 +5,18 @@
  * IMPORTANT: This is NON-BREAKING - all routes remain accessible without role selection
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import React, { createContext, useState, useEffect, ReactNode } from 'react'
 
 export type UserRole = 'server' | 'kitchen' | 'admin' | 'customer' | null
 
-interface RoleContextType {
+export interface RoleContextType {
   currentRole: UserRole
   setRole: (role: UserRole) => void
   hasRole: (role: UserRole) => boolean
   isRoleSelected: boolean
 }
 
-const RoleContext = createContext<RoleContextType | undefined>(undefined)
-
-export function useRole(): RoleContextType {
-  const context = useContext(RoleContext)
-  if (!context) {
-    throw new Error('useRole must be used within a RoleProvider')
-  }
-  return context
-}
+export const RoleContext = createContext<RoleContextType | undefined>(undefined)
 
 interface RoleProviderProps {
   children: ReactNode
@@ -69,3 +61,5 @@ export function RoleProvider({ children }: RoleProviderProps) {
     </RoleContext.Provider>
   )
 }
+
+// Hook is now in separate file: /hooks/useRole.ts

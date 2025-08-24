@@ -169,7 +169,7 @@ export class HttpClient extends SecureAPIClient {
     }
 
     // 3. Use request body as-is (server handles transformations)
-    let body = requestOptions.body
+    const body = requestOptions.body
 
     // 4. Pass query params as-is
     let url = endpoint

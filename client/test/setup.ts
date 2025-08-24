@@ -15,7 +15,7 @@ beforeAll(() => {
 })
 
 // Comprehensive cleanup after each test
-afterEach(() => {
+afterEach(async () => {
   // React cleanup
   cleanup()
   
@@ -25,8 +25,8 @@ afterEach(() => {
   
   // Clear response cache if available
   try {
-    // Use require for test environment compatibility
-    const ResponseCacheModule = require('../src/services/cache/ResponseCache')
+    // Use dynamic import for test environment compatibility
+    const ResponseCacheModule = await import('../src/services/cache/ResponseCache')
     const responseCache = ResponseCacheModule.responseCache || ResponseCacheModule.default?.responseCache
     if (responseCache && typeof responseCache.destroy === 'function') {
       responseCache.destroy()

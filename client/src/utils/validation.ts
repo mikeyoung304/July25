@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo } from 'react';
  * Common validation rules
  */
 export const validators = {
-  required: (value: any, message = 'This field is required') => {
+  required: (value: unknown, message = 'This field is required') => {
     if (value === null || value === undefined || value === '') {
       return message;
     }
@@ -42,7 +42,7 @@ export const validators = {
     return pattern.test(value) ? null : message;
   },
 
-  number: (value: any, message = 'Must be a valid number') => {
+  number: (value: unknown, message = 'Must be a valid number') => {
     if (!value && value !== 0) return null;
     return !isNaN(Number(value)) ? null : message;
   },
@@ -86,7 +86,7 @@ export const validators = {
 /**
  * Validation rule type
  */
-export type ValidationRule = (value: any) => string | null;
+export type ValidationRule = (value: unknown) => string | null;
 
 /**
  * Field configuration for form validation
@@ -124,7 +124,7 @@ export interface UseFormValidationReturn<T> {
   touched: Record<string, boolean>;
   isValid: boolean;
   isDirty: boolean;
-  setFieldValue: (field: keyof T, value: any) => void;
+  setFieldValue: (field: keyof T, value: unknown) => void;
   setFieldError: (field: keyof T, error: string | null) => void;
   setFieldTouched: (field: keyof T, touched?: boolean) => void;
   validateField: (field: keyof T) => string | null;
@@ -153,7 +153,7 @@ export interface UseFormValidationReturn<T> {
  *   },
  * });
  */
-export function useFormValidation<T extends Record<string, any>>(
+export function useFormValidation<T extends Record<string, unknown>>(
   initialValues: T,
   config: FormConfig = {}
 ): UseFormValidationReturn<T> {
@@ -174,7 +174,7 @@ export function useFormValidation<T extends Record<string, any>>(
     return null;
   }, [config, values]);
 
-  const setFieldValue = useCallback((field: keyof T, value: any) => {
+  const setFieldValue = useCallback((field: keyof T, value: unknown) => {
     setValues(prev => ({ ...prev, [field]: value }));
     setIsDirty(true);
 

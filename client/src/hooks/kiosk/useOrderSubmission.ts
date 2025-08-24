@@ -80,7 +80,7 @@ export function useOrderSubmission() {
     } finally {
       setIsSubmitting(false)
     }
-  }, [])
+  }, [toast])
 
   return {
     submitOrder,
