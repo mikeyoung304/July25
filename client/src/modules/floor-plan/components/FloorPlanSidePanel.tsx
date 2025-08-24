@@ -21,6 +21,7 @@ export function FloorPlanSidePanel({
     available: tables.filter(t => t.status === 'available'),
     occupied: tables.filter(t => t.status === 'occupied'),
     reserved: tables.filter(t => t.status === 'reserved'),
+    cleaning: tables.filter(t => t.status === 'cleaning'),
     unavailable: tables.filter(t => t.status === 'unavailable')
   }
 
@@ -53,9 +54,10 @@ export function FloorPlanSidePanel({
           </div>
         </div>
         <div className={`w-3 h-3 rounded-full ${
-          table.status === 'available' ? 'bg-green-500' :
-          table.status === 'occupied' ? 'bg-red-500' :
-          table.status === 'reserved' ? 'bg-yellow-500' :
+          table.status === 'available' ? 'bg-emerald-500' :
+          table.status === 'occupied' ? 'bg-amber-500' :
+          table.status === 'reserved' ? 'bg-blue-500' :
+          table.status === 'cleaning' ? 'bg-violet-500' :
           'bg-gray-400'
         }`}></div>
       </button>
@@ -106,6 +108,7 @@ export function FloorPlanSidePanel({
                   <option value="available">Available</option>
                   <option value="occupied">Occupied</option>
                   <option value="reserved">Reserved</option>
+                  <option value="cleaning">Cleaning</option>
                   <option value="unavailable">Unavailable</option>
                 </select>
               </div>
@@ -136,7 +139,7 @@ export function FloorPlanSidePanel({
               {groupedTables.available.length > 0 && (
                 <div>
                   <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                     Available ({groupedTables.available.length})
                   </h4>
                   <div className="space-y-2">
@@ -149,7 +152,7 @@ export function FloorPlanSidePanel({
               {groupedTables.occupied.length > 0 && (
                 <div>
                   <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                     Occupied ({groupedTables.occupied.length})
                   </h4>
                   <div className="space-y-2">
@@ -162,11 +165,24 @@ export function FloorPlanSidePanel({
               {groupedTables.reserved.length > 0 && (
                 <div>
                   <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                     Reserved ({groupedTables.reserved.length})
                   </h4>
                   <div className="space-y-2">
                     {groupedTables.reserved.map(renderTableItem)}
+                  </div>
+                </div>
+              )}
+
+              {/* Cleaning Tables */}
+              {groupedTables.cleaning.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-violet-500"></div>
+                    Cleaning ({groupedTables.cleaning.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {groupedTables.cleaning.map(renderTableItem)}
                   </div>
                 </div>
               )}

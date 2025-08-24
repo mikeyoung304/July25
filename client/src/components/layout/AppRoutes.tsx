@@ -11,6 +11,7 @@ import PerformanceDashboard from '@/pages/PerformanceDashboard'
 import { ServerView } from '@/pages/ServerView'
 import AdminDashboard from '@/pages/AdminDashboard'
 import ExpoPage from '@/pages/ExpoPage'
+import ExpoPageDebug from '@/pages/ExpoPageDebug'
 import KioskPage from '@/pages/KioskPage'
 import DriveThruPage from '@/pages/DriveThruPage'
 import { CustomerOrderPage } from '@/modules/order-system/components'
@@ -95,6 +96,13 @@ export function AppRoutes() {
               <ErrorBoundary level="section">
                 <Profiler id="ExpoPage" onRender={onRenderCallback}>
                   <ExpoPage />
+                </Profiler>
+              </ErrorBoundary>
+            } />
+            <Route path="/expo-debug" element={
+              <ErrorBoundary level="section">
+                <Profiler id="ExpoPageDebug" onRender={onRenderCallback}>
+                  <ExpoPageDebug />
                 </Profiler>
               </ErrorBoundary>
             } />

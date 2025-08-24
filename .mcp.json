@@ -23,6 +23,10 @@
     "playwright": {
       "command": "npx",
       "args": ["@modelcontextprotocol/server-playwright"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["@context7/mcp-server"]
     }
   }
 }
