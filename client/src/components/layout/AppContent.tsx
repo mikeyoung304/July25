@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { SkipNavigation } from '@/components/shared/accessibility/SkipNavigation'
 import { PerformanceOverlay } from '@/components/shared/debug/PerformanceOverlay'
 import { useGlobalKeyboardShortcuts } from '@/hooks/useGlobalKeyboardShortcuts'
-import { Navigation } from './Navigation'
+import { BrandHeader } from './BrandHeader'
 import { AppRoutes } from './AppRoutes'
 
 interface AppContentProps {
@@ -15,20 +15,19 @@ export function AppContent({ isDevelopment }: AppContentProps) {
   useGlobalKeyboardShortcuts()
   const location = useLocation()
   
-  // Hide internal navigation on customer-facing and focused pages
-  const isCustomerPage = location.pathname === '/' || 
-                         location.pathname.startsWith('/order') || 
-                         location.pathname.startsWith('/checkout') || 
-                         location.pathname.startsWith('/order-confirmation') ||
-                         location.pathname.startsWith('/kitchen')  // Kitchen display should be standalone
-  const showNavigation = !isCustomerPage
+  // Hide header on customer-facing order flow pages only
+  const isCustomerOrderPage = location.pathname.startsWith('/order') || 
+                              location.pathname.startsWith('/checkout') || 
+                              location.pathname.startsWith('/order-confirmation')
+  
+  const showHeader = !isCustomerOrderPage
   
   return (
     <>
       <SkipNavigation />
       <div className="min-h-screen bg-macon-background">
-        {showNavigation && <Navigation />}
-        <div className={showNavigation ? "pt-18" : ""}>
+        {showHeader && <BrandHeader />}
+        <div className={showHeader ? "pt-18" : ""}>
           <AppRoutes />
         </div>
         <Toaster position="top-right" />
