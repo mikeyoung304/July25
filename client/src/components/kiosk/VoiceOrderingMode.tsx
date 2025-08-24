@@ -139,8 +139,8 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
       }
     }
     
-    // Handle legacy format if it exists
-    else if (orderData?.success && orderData?.items?.length > 0) {
+    // Handle legacy format if it exists (different condition structure)
+    if (orderData?.success && orderData?.items?.length > 0 && !orderData?.action) {
       orderData.items.forEach((item: any) => {
         const menuItem = menuItems.find(m => m.id === item.menuItemId);
         if (menuItem) {
