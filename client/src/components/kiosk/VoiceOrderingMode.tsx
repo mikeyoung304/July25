@@ -24,18 +24,11 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   const [orderParser, setOrderParser] = useState<OrderParser | null>(null);
   const [isListening] = useState(false);
   const [lastTranscript, setLastTranscript] = useState('');
-  const [voiceHints, setVoiceHints] = useState<string[]>([]);
   const [recentlyAdded, setRecentlyAdded] = useState<string[]>([]);
 
   useEffect(() => {
     if (menuItems.length > 0) {
       setOrderParser(new OrderParser(menuItems));
-      // Generate voice hints from popular menu items
-      const hints = menuItems
-        .slice(0, 6)
-        .map(item => `"${item.name}"`)
-        .concat(['Add 2 burgers', 'I want a large pizza', 'Remove last item']);
-      setVoiceHints(hints);
     }
   }, [menuItems]);
 
@@ -71,28 +64,82 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   }, [orderParser, processParsedItems]);
 
   const handleOrderData = useCallback((orderData: any) => {
-    // Handle WebRTC OrderEvent format: { items: [{ name, quantity, modifiers }] }
+    console.log('[VoiceOrderingMode] Received order data:', orderData);
+    
+    // Handle function call format from WebRTC: { items: [{ name, quantity, modifications }] }
     if (orderData?.items?.length > 0) {
+      const addedItems: string[] = [];
+      
       orderData.items.forEach((item: any) => {
-        // Try to match by name since WebRTC OrderEvent doesn't include menuItemId
-        const menuItem = menuItems.find(m => 
-          m.name.toLowerCase() === item.name.toLowerCase() ||
-          m.name.toLowerCase().includes(item.name.toLowerCase()) ||
-          item.name.toLowerCase().includes(m.name.toLowerCase())
-        );
+        // Enhanced fuzzy matching for menu items
+        const menuItem = menuItems.find(m => {
+          const itemNameLower = item.name.toLowerCase();
+          const menuNameLower = m.name.toLowerCase();
+          
+          // Exact match
+          if (menuNameLower === itemNameLower) return true;
+          
+          // Contains match
+          if (menuNameLower.includes(itemNameLower) || itemNameLower.includes(menuNameLower)) return true;
+          
+          // Handle common variations
+          const variations: Record<string, string[]> = {
+            'soul bowl': ['soul', 'bowl', 'sobo', 'solo bowl'],
+            'greek salad': ['greek', 'greek salad'],
+            'peach arugula': ['peach', 'arugula', 'peach salad'],
+            'jalapeño pimento': ['jalapeno', 'pimento', 'cheese bites'],
+            'succotash': ['succotash', 'suck a toss'],
+          };
+          
+          for (const [menuKey, aliases] of Object.entries(variations)) {
+            if (menuNameLower.includes(menuKey) && aliases.some(alias => itemNameLower.includes(alias))) {
+              return true;
+            }
+          }
+          
+          return false;
+        });
         
         if (menuItem) {
-          const modifications = item.modifiers || [];
+          // Handle modifications from function call
+          const modifications = item.modifications || item.modifiers || [];
+          
+          console.log(`[VoiceOrderingMode] Adding ${item.quantity}x ${menuItem.name} with modifications:`, modifications);
+          
           addItem(
             menuItem,
             item.quantity || 1,
-            modifications
+            modifications,
+            item.specialInstructions
           );
+          
+          addedItems.push(`${item.quantity || 1}x ${menuItem.name}`);
+        } else {
+          console.warn(`[VoiceOrderingMode] Could not find menu item for: ${item.name}`);
         }
       });
+      
+      // Update recently added items for visual feedback
+      if (addedItems.length > 0) {
+        setRecentlyAdded(addedItems);
+        setTimeout(() => setRecentlyAdded([]), 5000); // Show for 5 seconds
+      }
     }
     
-    // Also handle legacy format if it exists
+    // Handle order confirmation events
+    else if (orderData?.action) {
+      console.log('[VoiceOrderingMode] Order action:', orderData.action);
+      
+      if (orderData.action === 'checkout' && cart.items.length > 0) {
+        // Auto-trigger checkout
+        onCheckout();
+      } else if (orderData.action === 'review') {
+        // Could show order summary or read it back
+        console.log('Order review requested, current cart:', cart.items);
+      }
+    }
+    
+    // Handle legacy format if it exists
     else if (orderData?.success && orderData?.items?.length > 0) {
       orderData.items.forEach((item: any) => {
         const menuItem = menuItems.find(m => m.id === item.menuItemId);
@@ -106,7 +153,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         }
       });
     }
-  }, [menuItems, addItem]);
+  }, [menuItems, addItem, cart.items, onCheckout]);
 
   const handleQuickOrder = useCallback(async () => {
     const result = await submitOrderAndNavigate(cart.items);
@@ -220,17 +267,6 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
               </Card>
             )}
 
-            {/* Voice Command Hints */}
-            <Card className="p-8 bg-white/90 backdrop-blur-sm">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Try saying:</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {voiceHints.map((hint, index) => (
-                  <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <p className="text-gray-700 font-medium">{hint}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
           </div>
 
           {/* Order Summary */}

@@ -1,5 +1,6 @@
 import React, { useState, useContext, useCallback } from 'react'
 import { ArrowLeft, LayoutGrid, BarChart3 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { FloorPlanEditor } from '@/modules/floor-plan/components/FloorPlanEditor'
@@ -9,6 +10,46 @@ import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
 import { spacing } from '@/lib/typography'
 import { RoleGuard } from '@/components/auth/RoleGuard'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
+
+interface AdminDashboardCardProps {
+  title: string
+  icon: React.ReactNode
+  iconBg: string
+  onClick: () => void
+  delay?: number
+}
+
+function AdminDashboardCard({ 
+  title, 
+  icon, 
+  iconBg, 
+  onClick,
+  delay = 0 
+}: AdminDashboardCardProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: delay * 0.1, duration: 0.5, ease: 'easeOut' }}
+    >
+      <Card 
+        className={`${spacing.component.card} h-full min-h-[250px] group cursor-pointer hover:shadow-elevation-3 transition-all duration-300`}
+        onClick={onClick}
+      >
+        <div className={`flex flex-col items-center justify-center h-full ${spacing.content.stackLarge}`}>
+          <div
+            className={`p-4 rounded-xl transition-transform duration-300 group-hover:scale-110 ${iconBg}`}
+          >
+            {icon}
+          </div>
+          <SectionTitle as="h2">
+            {title}
+          </SectionTitle>
+        </div>
+      </Card>
+    </motion.div>
+  )
+}
 
 function AdminDashboard() {
   const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics'>('overview')
@@ -40,93 +81,72 @@ function AdminDashboard() {
       pageTitle="Admin Dashboard"
     >
       <div className="min-h-screen bg-macon-background">
-      {/* Header */}
-      <div className="bg-white border-b border-neutral-200">
-        <div className={`${spacing.page.container} py-4 flex items-center justify-between`}>
-          <div className="flex items-center space-x-4">
-            <BackToDashboard />
-            <PageTitle as="h1" className="text-2xl md:text-3xl">Admin Dashboard</PageTitle>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
-      <div className={`${spacing.page.container} ${spacing.page.padding}`}>
+      <div className="relative overflow-hidden py-20">
+        <div className={`relative ${spacing.page.container} ${spacing.page.padding}`}>
         {activeView === 'overview' && (
-          <div>
-            <div className={`grid grid-cols-1 md:grid-cols-2 ${spacing.grid.gapLarge} max-w-4xl mx-auto`}>
-              {/* Floor Plan Creator */}
-              <div
-                className={`${spacing.component.card} cursor-pointer bg-white rounded-xl border border-neutral-100/30 p-6`}
-                onClick={() => setActiveView('floorplan')}
-              >
-                <div className={`flex flex-col items-center ${spacing.content.stack}`}>
-                  <div className="p-4 rounded-xl bg-macon-logo-blue/10">
-                    <LayoutGrid className="h-12 w-12 text-macon-logo-blue" />
-                  </div>
-                  <SectionTitle as="h2" className="text-center">Floor Plan Creator</SectionTitle>
-                  <Body className="text-center">
-                    Design and manage your restaurant floor layout with drag-and-drop interface
-                  </Body>
-                </div>
-              </div>
-
-              {/* Analytics */}
-              <div
-                className={`${spacing.component.card} cursor-pointer bg-white rounded-xl border border-neutral-100/30 p-6`}
-                onClick={() => setActiveView('analytics')}
-              >
-                <div className={`flex flex-col items-center ${spacing.content.stack}`}>
-                  <div className="p-4 rounded-xl bg-macon-teal/10">
-                    <BarChart3 className="h-12 w-12 text-macon-teal" />
-                  </div>
-                  <SectionTitle as="h2" className="text-center">Analytics</SectionTitle>
-                  <Body className="text-center">
-                    View restaurant performance metrics and operational insights
-                  </Body>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeView === 'floorplan' && (
-          <div>
-            <div className="mb-6">
-              <Button
-                variant="ghost"
-                onClick={() => setActiveView('overview')}
-                className="mb-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Admin Overview
-              </Button>
-              <h2 className="text-3xl font-bold text-macon-logo-blue mb-2">Floor Plan Creator</h2>
-              <p className="text-neutral-600">Create and manage your restaurant floor layout</p>
-            </div>
+          <div className={`flex flex-col items-center ${spacing.content.stackLarge}`}>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center space-y-2"
+            >
+              <PageTitle>
+                Restaurant Admin Center
+              </PageTitle>
+              <Body className="text-neutral-600">
+                Configure and manage your restaurant operations
+              </Body>
+            </motion.div>
             
-            <div className="bg-white rounded-lg border border-neutral-200 p-4" style={{ height: 'calc(100vh - 200px)' }}>
-              <FloorPlanEditor
-                restaurantId={restaurant.id}
-                onSave={handleSaveFloorPlan}
+            <div className={`grid md:grid-cols-2 ${spacing.grid.gapLarge} w-full max-w-5xl`}>
+              <AdminDashboardCard
+                title="Floor Plan Creator"
+                icon={<LayoutGrid className="h-12 w-12 text-primary" />}
+                iconBg="bg-primary/10"
+                onClick={() => setActiveView('floorplan')}
+                delay={0}
+              />
+              
+              <AdminDashboardCard
+                title="Analytics"
+                icon={<BarChart3 className="h-12 w-12 text-emerald-500" />}
+                iconBg="bg-emerald-500/10"
+                onClick={() => setActiveView('analytics')}
+                delay={1}
               />
             </div>
           </div>
         )}
 
+        {activeView === 'floorplan' && (
+          <div className="fixed inset-0 bg-gray-50 z-50">
+            <FloorPlanEditor
+              restaurantId={restaurant.id}
+              onSave={handleSaveFloorPlan}
+              onBack={() => setActiveView('overview')}
+            />
+          </div>
+        )}
+
         {activeView === 'analytics' && (
           <div>
-            <div className="mb-6">
-              <Button
-                variant="ghost"
-                onClick={() => setActiveView('overview')}
-                className="mb-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Admin Overview
-              </Button>
-              <h2 className="text-3xl font-bold text-macon-logo-blue mb-2">Analytics Dashboard</h2>
-              <p className="text-neutral-600">Restaurant performance metrics and insights</p>
+            {/* Header with Back Button */}
+            <div className="bg-white border-b border-neutral-200 -mx-8 -mt-20 mb-8 px-8 py-4">
+              <div className="flex items-center space-x-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => setActiveView('overview')}
+                  className="text-macon-logo-blue hover:bg-macon-logo-blue/10"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Admin
+                </Button>
+                <div>
+                  <PageTitle as="h1" className="text-2xl md:text-3xl">Analytics Dashboard</PageTitle>
+                </div>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -161,6 +181,7 @@ function AdminDashboard() {
             </Card>
           </div>
         )}
+        </div>
       </div>
       </div>
     </RoleGuard>

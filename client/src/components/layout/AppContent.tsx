@@ -15,10 +15,11 @@ export function AppContent({ isDevelopment }: AppContentProps) {
   useGlobalKeyboardShortcuts()
   const location = useLocation()
   
-  // Hide header on customer-facing order flow pages only
+  // Hide header on customer-facing order flow pages and kiosk pages
   const isCustomerOrderPage = location.pathname.startsWith('/order') || 
                               location.pathname.startsWith('/checkout') || 
-                              location.pathname.startsWith('/order-confirmation')
+                              location.pathname.startsWith('/order-confirmation') ||
+                              location.pathname.startsWith('/kiosk')
   
   const showHeader = !isCustomerOrderPage
   

@@ -509,8 +509,8 @@ export class WebRTCVoiceClient extends EventEmitter {
               });
               console.log(`${logPrefix} Manual response.create sent`);
               
-              // Detect order intent
-              this.detectOrderIntent(event.transcript);
+              // Note: Order detection now happens via function calling
+              // The AI will call add_to_order function when items are detected
             }
           }
         }
@@ -602,6 +602,63 @@ export class WebRTCVoiceClient extends EventEmitter {
         console.log(`${logPrefix} ${event.type}`);
         break;
         
+      case 'response.function_call_arguments.start':
+        // Function call started
+        console.log(`${logPrefix} Function call started: ${event.name}`);
+        break;
+        
+      case 'response.function_call_arguments.delta':
+        // Function call arguments being streamed
+        console.log(`${logPrefix} Function call delta for: ${event.name}`);
+        break;
+        
+      case 'response.function_call_arguments.done':
+        // Function call complete - parse and emit structured events
+        console.log(`${logPrefix} Function call complete: ${event.name}`, event.arguments);
+        
+        try {
+          const args = JSON.parse(event.arguments);
+          
+          if (event.name === 'add_to_order') {
+            // Emit structured order event with items
+            const orderEvent: OrderEvent = {
+              items: args.items || [],
+              confidence: 0.95,
+              timestamp: Date.now(),
+            };
+            
+            console.log(`${logPrefix} Emitting order.detected with ${orderEvent.items.length} items`);
+            this.emit('order.detected', orderEvent);
+            
+            // Also emit for legacy compatibility
+            if (orderEvent.items.length > 0) {
+              this.emit('order.items.added', {
+                items: orderEvent.items,
+                timestamp: Date.now()
+              });
+            }
+          } else if (event.name === 'confirm_order') {
+            // Emit order confirmation event
+            console.log(`${logPrefix} Emitting order.confirmation: ${args.action}`);
+            this.emit('order.confirmation', {
+              action: args.action,
+              timestamp: Date.now()
+            });
+          } else if (event.name === 'remove_from_order') {
+            // Emit item removal event
+            console.log(`${logPrefix} Emitting order.item.removed: ${args.itemName}`);
+            this.emit('order.item.removed', {
+              itemName: args.itemName,
+              quantity: args.quantity,
+              timestamp: Date.now()
+            });
+          }
+        } catch (error) {
+          console.error(`${logPrefix} Failed to parse function call arguments:`, error);
+          console.error('Raw arguments:', event.arguments);
+        }
+        break;
+        
       case 'error':
         console.error('[WebRTCVoice] API error:', JSON.stringify(event.error, null, 2));
         console.error('[WebRTCVoice] Full error event:', JSON.stringify(event, null, 2));
@@ -656,12 +713,15 @@ export class WebRTCVoiceClient extends EventEmitter {
 - Help guests choose items and take complete, correct orders
 - Be concise (1-2 sentences), warm, and proactive
 - Always confirm: final order, price, pickup/dine-in choice
+- Use the add_to_order function when customer orders items
+- Use confirm_order function when customer wants to checkout
 
 ⚠️ GOLDEN RULES:
 1. Ask about allergies/dietary needs EARLY: "Any allergies or dietary preferences?"
 2. Clarify required choices (dressing, side, bread) before moving on
 3. Summarize clearly: item → options → quantity → price
 4. If uncertain about something, say so
+5. ALWAYS use the add_to_order function to add items, don't just acknowledge
 
 🎤 TRANSCRIPTION HELP (common misheard items):
 - "Soul Bowl" (NOT "sobo" or "solo") - Southern comfort food bowl
@@ -710,6 +770,91 @@ ENTRÉES → Ask:
       instructions += `\n\nNote: Menu information is currently unavailable. Please ask the customer what they'd like and I'll do my best to help.`;
     }
     
+    // Define tools/functions for structured order extraction
+    const tools = [
+      {
+        type: 'function',
+        function: {
+          name: 'add_to_order',
+          description: 'Add items to the customer\'s order when they request specific menu items',
+          parameters: {
+            type: 'object',
+            properties: {
+              items: {
+                type: 'array',
+                description: 'Array of items to add to the order',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { 
+                      type: 'string',
+                      description: 'The menu item name (e.g., "Soul Bowl", "Greek Salad")'
+                    },
+                    quantity: { 
+                      type: 'integer',
+                      minimum: 1,
+                      default: 1,
+                      description: 'Number of this item'
+                    },
+                    modifications: { 
+                      type: 'array', 
+                      items: { type: 'string' },
+                      description: 'Modifications like "no onions", "extra cheese", "add chicken"'
+                    },
+                    specialInstructions: {
+                      type: 'string',
+                      description: 'Any special preparation instructions'
+                    }
+                  },
+                  required: ['name', 'quantity']
+                }
+              }
+            },
+            required: ['items']
+          }
+        }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'confirm_order',
+          description: 'Confirm the order and proceed with checkout when customer is ready',
+          parameters: {
+            type: 'object',
+            properties: {
+              action: { 
+                type: 'string',
+                enum: ['checkout', 'review', 'cancel'],
+                description: 'Action to take with the order'
+              }
+            },
+            required: ['action']
+          }
+        }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'remove_from_order',
+          description: 'Remove items from the order when customer changes their mind',
+          parameters: {
+            type: 'object',
+            properties: {
+              itemName: {
+                type: 'string',
+                description: 'Name of the item to remove'
+              },
+              quantity: {
+                type: 'integer',
+                description: 'Number to remove (optional, removes all if not specified)'
+              }
+            },
+            required: ['itemName']
+          }
+        }
+      }
+    ];
+    
     const sessionUpdate = {
       type: 'session.update',
       session: {
@@ -723,7 +868,8 @@ ENTRÉES → Ask:
         },
         turn_detection: turnDetection,
         temperature: 0.6, // Minimum temperature for Realtime API
-        max_response_output_tokens: 500 // Sufficient for complete responses
+        max_response_output_tokens: 500, // Sufficient for complete responses
+        tools: tools // Add function calling tools
       }
     };
     
@@ -734,32 +880,19 @@ ENTRÉES → Ask:
       type: 'input_audio_buffer.clear'
     });
     
-    console.log(`${logPrefix} Session configured for manual PTT control`);
+    console.log(`${logPrefix} Session configured with function calling for order extraction`);
   }
 
   /**
-   * Detect order intent from transcription
+   * Legacy order detection - now handled by function calling
+   * Kept for backward compatibility but no longer used
+   * @deprecated Use function calling instead
    */
   private detectOrderIntent(text: string): void {
-    const orderKeywords = ['order', 'like', 'want', 'get', 'have', 'please'];
-    const menuItems = ['pizza', 'burger', 'salad', 'pasta', 'sandwich', 'drink', 'fries'];
-    
-    const hasOrderIntent = orderKeywords.some(keyword => 
-      text.toLowerCase().includes(keyword)
-    );
-    
-    const hasMenuItem = menuItems.some(item => 
-      text.toLowerCase().includes(item)
-    );
-    
-    if (hasOrderIntent || hasMenuItem) {
-      const orderEvent: OrderEvent = {
-        items: [], // Would need menu parsing logic here
-        confidence: hasOrderIntent && hasMenuItem ? 0.9 : 0.6,
-        timestamp: Date.now(),
-      };
-      this.emit('order.detected', orderEvent);
-    }
+    // Order detection is now handled via OpenAI function calling
+    // The AI will automatically call add_to_order when it detects menu items
+    // This provides much more accurate extraction with proper quantities and modifications
+    console.log('[RT] detectOrderIntent called but using function calling instead');
   }
 
 
