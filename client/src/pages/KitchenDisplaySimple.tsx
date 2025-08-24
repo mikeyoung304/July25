@@ -25,10 +25,10 @@ function KitchenDisplaySimple() {
   const filteredOrders = useMemo(() => {
     let filtered = orders
 
-    // Status filter
+    // Status filter - include pending orders in active filter
     if (statusFilter === 'active') {
       filtered = filtered.filter(o => 
-        o.status !== 'ready' && o.status !== 'completed' && o.status !== 'cancelled'
+        ['new', 'pending', 'confirmed', 'preparing'].includes(o.status)
       )
     } else if (statusFilter === 'ready') {
       filtered = filtered.filter(o => o.status === 'ready')
@@ -75,7 +75,7 @@ function KitchenDisplaySimple() {
             size="sm"
             onClick={() => setStatusFilter('active')}
           >
-            Active ({orders.filter(o => o.status !== 'ready' && o.status !== 'completed' && o.status !== 'cancelled').length})
+            Active ({orders.filter(o => ['new', 'pending', 'confirmed', 'preparing'].includes(o.status)).length})
           </Button>
           <Button
             variant={statusFilter === 'ready' ? 'default' : 'outline'}
