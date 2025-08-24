@@ -20,12 +20,20 @@ export const OrderActionsBar = memo<OrderActionsBarProps>(({
   const getNextStatus = (): Order['status'] | null => {
     switch (status) {
       case 'new':
+      case 'pending':
+        return 'confirmed'
+      case 'confirmed':
         return 'preparing'
       case 'preparing':
         return 'ready'
       case 'ready':
         return 'completed'
+      case 'completed':
+      case 'cancelled':
+        return null // Terminal states
       default:
+        // Fallback for any unhandled status
+        console.warn(`OrderActionsBar: Unhandled order status "${status}", treating as terminal state`)
         return null
     }
   }
@@ -35,6 +43,11 @@ export const OrderActionsBar = memo<OrderActionsBarProps>(({
     if (!nextStatus) return null
 
     const buttonConfig = {
+      confirmed: {
+        label: 'Confirm Order',
+        icon: CheckCircle,
+        variant: 'default' as const
+      },
       preparing: {
         label: 'Start Preparing',
         icon: Clock,
@@ -71,7 +84,7 @@ export const OrderActionsBar = memo<OrderActionsBarProps>(({
     )
   }
 
-  const canCancel = status === 'new' || status === 'preparing'
+  const canCancel = status === 'new' || status === 'pending' || status === 'confirmed' || status === 'preparing'
 
   return (
     <div className={cn('flex gap-2', className)}>
