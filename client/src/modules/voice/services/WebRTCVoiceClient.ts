@@ -151,17 +151,25 @@ export class WebRTCVoiceClient extends EventEmitter {
         console.log('[WebRTCVoice] SDP m-lines in offer:', mLines);
       }
       
-      // Step 7: Send SDP to OpenAI
+      // Step 7: Send SDP to OpenAI via backend proxy (ADR #001 compliance)
       const model = import.meta.env.VITE_OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03';
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+      const authToken = await getAuthToken();
+      
       const sdpResponse = await fetch(
-        `https://api.openai.com/v1/realtime?model=${model}`,
+        `${apiBase}/api/v1/realtime/connect`,
         {
           method: 'POST',
-          body: offer.sdp,
           headers: {
-            'Authorization': `Bearer ${this.ephemeralToken}`,
-            'Content-Type': 'application/sdp',
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+            'x-restaurant-id': this.config.restaurantId,
           },
+          body: JSON.stringify({
+            sdp: offer.sdp,
+            model,
+            ephemeralToken: this.ephemeralToken
+          }),
         }
       );
       
@@ -169,8 +177,9 @@ export class WebRTCVoiceClient extends EventEmitter {
         throw new Error(`OpenAI SDP exchange failed: ${sdpResponse.status}`);
       }
       
-      // Step 8: Set remote description
-      const answerSdp = await sdpResponse.text();
+      // Step 8: Set remote description from backend proxy response
+      const responseData = await sdpResponse.json();
+      const answerSdp = responseData.sdp || await sdpResponse.text(); // Fallback for direct SDP response
       
       // Check if pc still exists and is in correct state
       if (!this.pc) {

@@ -1,14 +1,13 @@
 import { useState, useCallback, useRef } from 'react'
 import { useToast } from '@/hooks/useToast'
+import { useApiRequest } from '@/hooks/useApiRequest'
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser'
 import { OrderModification } from '@/modules/voice/contexts/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import type { Table } from '@/modules/floor-plan/types'
-import { getDemoToken } from '@/services/auth/demoAuth'
+// Removed getDemoToken - using centralized API client
 
-// Helper to resolve absolute API URLs for production
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
-const apiUrl = (path: string) => `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+// Using centralized API client - no need for manual URL construction
 
 interface OrderItem {
   id: string
@@ -20,6 +19,7 @@ interface OrderItem {
 
 export function useVoiceOrderWebRTC() {
   const { toast } = useToast()
+  const api = useApiRequest()
   const { items: menuItems } = useMenuItems()
   const [showVoiceOrder, setShowVoiceOrder] = useState(false)
   const [currentTranscript, setCurrentTranscript] = useState('')
@@ -155,15 +155,8 @@ export function useVoiceOrderWebRTC() {
     }
     
     try {
-      const demoToken = await getDemoToken()
-      const response = await fetch(apiUrl('/api/v1/orders'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${demoToken}`,
-          'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111'
-        },
-        body: JSON.stringify({
+      // Use centralized API client with proper auth and restaurant context
+      const result = await api.post('/api/v1/orders', {
           table_number: selectedTable.label,
           seat_number: selectedSeat,
           items: orderItems.map(item => ({
@@ -181,22 +174,16 @@ export function useVoiceOrderWebRTC() {
           customer_name: `Table ${selectedTable.label} - Seat ${selectedSeat}`,
           order_type: 'dine-in'
         })
-      })
       
-      if (response.ok) {
-        toast.success(`Order submitted for ${selectedTable.label}, Seat ${selectedSeat}!`)
-        return true
-      } else {
-        const errorText = await response.text()
-        console.error('Order submission failed:', errorText)
-        throw new Error('Failed to submit order')
-      }
+      // Success - the API client already handles error cases
+      toast.success(`Order submitted for ${selectedTable.label}, Seat ${selectedSeat}!`)
+      return true
     } catch (error) {
       console.error('Error submitting order:', error)
       toast.error('Failed to submit order. Please try again.')
       return false
     }
-  }, [orderItems, menuItems, toast])
+  }, [orderItems, menuItems, toast, api])
 
   // Reset voice order state
   const resetVoiceOrder = useCallback(() => {

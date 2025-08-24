@@ -9,7 +9,7 @@ export interface AudioPlaybackState {
   isPlaying: boolean;
   isPaused: boolean;
    
-  currentAudio: HTMLAudioElement | null;
+  currentAudio: Audio | null;
   queue: AudioQueueItem[];
   volume: number;
 }

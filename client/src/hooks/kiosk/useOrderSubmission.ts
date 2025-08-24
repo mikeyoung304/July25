@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react'
 import { useToast } from '@/hooks/useToast'
+import { useApiRequest } from '@/hooks/useApiRequest'
 import type { VoiceOrderItem } from '@/modules/voice/contexts/types'
 
 export function useOrderSubmission() {
   const { toast } = useToast()
+  const api = useApiRequest()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const submitOrder = useCallback(async (items: VoiceOrderItem[]) => {
@@ -42,22 +44,12 @@ export function useOrderSubmission() {
         }
       }
 
-      const response = await fetch('/api/v1/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer kiosk-token',
-          'X-Restaurant-ID': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
-        },
-        body: JSON.stringify(orderData)
+      // Use centralized API client with proper auth and restaurant context
+      const result = await api.post('/api/v1/orders', orderData, {
+        customHeaders: {
+          'Authorization': 'Bearer kiosk-token'
+        }
       })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || `HTTP ${response.status}`)
-      }
-
-      const result = await response.json()
       
       toast.success(`Order #${result.order_number || result.id} submitted successfully!`)
       
