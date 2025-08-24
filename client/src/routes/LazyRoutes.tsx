@@ -53,6 +53,17 @@ export const LazyRoutes = {
   ServerView: lazy(() => 
     import(/* webpackChunkName: "server" */ '@/pages/ServerView').then(m => ({ default: m.ServerView }))
   ),
+  
+  // Additional routes
+  OrderHistory: lazy(() => 
+    import(/* webpackChunkName: "order-history" */ '@/pages/OrderHistory').then(m => ({ default: m.OrderHistory }))
+  ),
+  CustomerOrderPage: lazy(() => 
+    import(/* webpackChunkName: "customer-order" */ '@/modules/order-system/components').then(m => ({ default: m.CustomerOrderPage }))
+  ),
+  OrderConfirmationPage: lazy(() => 
+    import(/* webpackChunkName: "order-confirmation" */ '@/pages/OrderConfirmationPage').then(m => ({ default: m.OrderConfirmationPage }))
+  ),
 };
 
 // Wrapper component to handle suspense for lazy routes

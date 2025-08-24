@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Clock, Package, User } from 'lucide-react'
@@ -13,8 +13,9 @@ export interface OrderCardProps {
 /**
  * Minimal KDS Order Card
  * Single complete button, no multi-step workflow
+ * Memoized for performance in order lists
  */
-export function OrderCard({ order, onStatusChange }: OrderCardProps) {
+const OrderCard = memo<OrderCardProps>(function OrderCard({ order, onStatusChange }) {
   // Calculate elapsed time and urgency color (industry standard: green → yellow → red)
   const { elapsedMinutes, urgencyColor, cardColor } = useMemo(() => {
     const created = new Date(order.created_at)
@@ -156,4 +157,6 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
       </CardContent>
     </Card>
   )
-}
+})
+
+export { OrderCard }

@@ -2,21 +2,12 @@ import React, { Profiler } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
 import { env } from '@/utils/env'
-import { Dashboard } from '@/pages/Dashboard'
-import { HomePage } from '@/pages/HomePage'
-import KitchenDisplaySimple from '@/pages/KitchenDisplaySimple'
-import KioskDemo from '@/pages/KioskDemo'
-import { OrderHistory } from '@/pages/OrderHistory'
-import PerformanceDashboard from '@/pages/PerformanceDashboard'
-import { ServerView } from '@/pages/ServerView'
-import AdminDashboard from '@/pages/AdminDashboard'
-import ExpoPage from '@/pages/ExpoPage'
-import KioskPage from '@/pages/KioskPage'
-import DriveThruPage from '@/pages/DriveThruPage'
-import { CustomerOrderPage } from '@/modules/order-system/components'
-import CheckoutPage from '@/pages/CheckoutPage'
-import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage'
+import { LazyRoutes, LazyRoute } from '@/routes/LazyRoutes'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
+
+// Static imports only for critical/home pages (immediate load needed)
+import { HomePage } from '@/pages/HomePage'
+import { Dashboard } from '@/pages/Dashboard'
 
 // Profiler callback for performance tracking
 const onRenderCallback = (
@@ -48,53 +39,53 @@ export function AppRoutes() {
                 }}
               >
                 <Profiler id="KitchenDisplay" onRender={onRenderCallback}>
-                  <KitchenDisplaySimple />
+                  <LazyRoute component={LazyRoutes.KitchenDisplay} />
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/kiosk-demo" element={
               <ErrorBoundary level="section">
-                <KioskDemo />
+                <LazyRoute component={LazyRoutes.KioskDemo} />
               </ErrorBoundary>
             } />
             <Route path="/kiosk" element={
               <ErrorBoundary level="section">
                 <Profiler id="KioskVoice" onRender={onRenderCallback}>
-                  <KioskPage />
+                  <LazyRoute component={LazyRoutes.KioskPage} />
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/drive-thru" element={
               <ErrorBoundary level="section">
                 <Profiler id="DriveThru" onRender={onRenderCallback}>
-                  <DriveThruPage />
+                  <LazyRoute component={LazyRoutes.DriveThruPage} />
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/history" element={
               <ErrorBoundary level="section">
-                <OrderHistory />
+                <LazyRoute component={LazyRoutes.OrderHistory} />
               </ErrorBoundary>
             } />
             <Route path="/performance" element={
               <ErrorBoundary level="section">
-                <PerformanceDashboard />
+                <LazyRoute component={LazyRoutes.PerformanceDashboard} />
               </ErrorBoundary>
             } />
             <Route path="/server" element={
               <ErrorBoundary level="section">
-                <ServerView />
+                <LazyRoute component={LazyRoutes.ServerView} />
               </ErrorBoundary>
             } />
             <Route path="/admin" element={
               <ErrorBoundary level="section">
-                <AdminDashboard />
+                <LazyRoute component={LazyRoutes.AdminDashboard} />
               </ErrorBoundary>
             } />
             <Route path="/expo" element={
               <ErrorBoundary level="section">
                 <Profiler id="ExpoPage" onRender={onRenderCallback}>
-                  <ExpoPage />
+                  <LazyRoute component={LazyRoutes.ExpoPage} />
                 </Profiler>
               </ErrorBoundary>
             } />
@@ -106,21 +97,21 @@ export function AppRoutes() {
             <Route path="/order/:restaurantId" element={
               <ErrorBoundary level="section">
                 <Profiler id="CustomerOrder" onRender={onRenderCallback}>
-                  <CustomerOrderPage />
+                  <LazyRoute component={LazyRoutes.CustomerOrderPage} />
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/checkout" element={
               <ErrorBoundary level="section">
                 <Profiler id="Checkout" onRender={onRenderCallback}>
-                  <CheckoutPage />
+                  <LazyRoute component={LazyRoutes.CheckoutPage} />
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/order-confirmation" element={
               <ErrorBoundary level="section">
                 <Profiler id="OrderConfirmation" onRender={onRenderCallback}>
-                  <OrderConfirmationPage />
+                  <LazyRoute component={LazyRoutes.OrderConfirmationPage} />
                 </Profiler>
               </ErrorBoundary>
             } />
