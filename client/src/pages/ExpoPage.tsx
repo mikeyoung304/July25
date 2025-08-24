@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react'
 import { Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBoundary'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
@@ -66,10 +65,6 @@ function ExpoPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b px-4 py-2">
-        <BackToDashboard />
-      </div>
 
       <div className="max-w-7xl mx-auto px-4 py-3">
         {/* Two-Panel Layout: Kitchen Overview | Ready Orders */}
