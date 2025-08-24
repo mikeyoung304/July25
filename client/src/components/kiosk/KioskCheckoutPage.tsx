@@ -1,26 +1,123 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useKioskCart } from './KioskCartProvider';
 import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
 import { useApiRequest } from '@/hooks/useApiRequest';
+import { useSquareTerminal } from '@/hooks/useSquareTerminal';
 import { useFormValidation, validators } from '@/utils/validation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BrandHeader } from '@/components/layout/BrandHeader';
-import { ArrowLeft, ShoppingCart, CreditCard, Mail, Phone, User } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, CreditCard, Mail, Phone, User, Smartphone, DollarSign } from 'lucide-react';
 
 interface KioskCheckoutPageProps {
   onBack: () => void;
+  voiceCheckoutOrchestrator?: any; // For voice integration
 }
 
-const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack }) => {
+type PaymentMethod = 'card' | 'terminal' | 'mobile' | 'cash';
+
+const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, voiceCheckoutOrchestrator }) => {
   const navigate = useNavigate();
   const { cart, updateTip, clearCart } = useKioskCart();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('card');
+  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
   const orderApi = useApiRequest();
   const paymentApi = useApiRequest();
+  
+  // Square Terminal integration
+  const terminal = useSquareTerminal({
+    onSuccess: (orderData, paymentData) => {
+      // Clear cart and navigate to confirmation
+      clearCart();
+      navigate('/order-confirmation', {
+        state: {
+          orderId: orderData.id,
+          order_number: orderData.order_number,
+          estimatedTime: '15-20 minutes',
+          items: cart.items,
+          total: cart.total,
+          paymentId: paymentData.paymentId || paymentData.id,
+          isKioskOrder: true,
+          isVoiceOrder: !!voiceCheckoutOrchestrator,
+          paymentMethod: 'terminal',
+        }
+      });
+      
+      // Notify voice orchestrator if present
+      if (voiceCheckoutOrchestrator) {
+        voiceCheckoutOrchestrator.handlePaymentSuccess(orderData);
+      }
+    },
+    onError: (error) => {
+      form.setFieldError('general' as keyof typeof form.values, error);
+      
+      // Notify voice orchestrator if present
+      if (voiceCheckoutOrchestrator) {
+        voiceCheckoutOrchestrator.handlePaymentError(error);
+      }
+    },
+    onStatusChange: (status) => {
+      console.log('Terminal status changed:', status);
+      
+      // Provide voice feedback for status changes
+      if (voiceCheckoutOrchestrator) {
+        let feedbackText = '';
+        switch (status) {
+          case 'PENDING':
+            feedbackText = 'Preparing terminal for payment. Please wait.';
+            break;
+          case 'IN_PROGRESS':
+            feedbackText = 'Please complete the payment on the terminal.';
+            break;
+          case 'COMPLETED':
+            feedbackText = 'Payment completed successfully. Processing your order.';
+            break;
+          case 'FAILED':
+            feedbackText = 'Payment failed. Please try again or select a different payment method.';
+            break;
+          case 'CANCELED':
+            feedbackText = 'Payment was cancelled. Please try again or select a different payment method.';
+            break;
+        }
+        
+        if (feedbackText) {
+          voiceCheckoutOrchestrator.emit('payment.status.feedback', { 
+            text: feedbackText, 
+            timestamp: Date.now() 
+          });
+        }
+      }
+    },
+    debug: process.env.NODE_ENV === 'development'
+  });
+  
+  // Load terminal devices on mount
+  useEffect(() => {
+    terminal.loadDevices();
+  }, []);
+  
+  // Handle voice payment method selection
+  useEffect(() => {
+    if (voiceCheckoutOrchestrator) {
+      const handlePaymentMethodSelected = (event: any) => {
+        if (event.method === 'card') {
+          setSelectedPaymentMethod('terminal');
+        } else {
+          setSelectedPaymentMethod(event.method);
+        }
+      };
+      
+      voiceCheckoutOrchestrator.on('payment.method.selected', handlePaymentMethodSelected);
+      
+      return () => {
+        voiceCheckoutOrchestrator.off('payment.method.selected', handlePaymentMethodSelected);
+      };
+    }
+  }, [voiceCheckoutOrchestrator]);
   
   // Use form validation hook with kiosk-friendly validation
   const form = useFormValidation({
@@ -42,10 +139,11 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack }) 
     },
   });
 
-  const handlePaymentNonce = async (token: string) => {
+  // Create order function (shared by all payment methods)
+  const createOrder = async () => {
     // Validate form
     if (!form.validateForm()) {
-      return;
+      return null;
     }
     
     setIsProcessing(true);
@@ -78,7 +176,45 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack }) 
       }
 
       const order = orderResponse as { id: string; order_number: string };
+      setCreatedOrderId(order.id);
+      
+      return order;
 
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create order';
+      form.setFieldError('general' as keyof typeof form.values, errorMessage);
+      return null;
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  // Handle terminal payment
+  const handleTerminalPayment = async () => {
+    const order = await createOrder();
+    if (!order) return;
+    
+    // Use first available terminal device
+    // In production, you might want to let user select device
+    const device = terminal.availableDevices[0];
+    if (!device) {
+      form.setFieldError('general' as keyof typeof form.values, 'No terminal devices available');
+      return;
+    }
+    
+    try {
+      await terminal.startCheckout(order.id, device.deviceId);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to start terminal payment';
+      form.setFieldError('general' as keyof typeof form.values, errorMessage);
+    }
+  };
+
+  const handlePaymentNonce = async (token: string) => {
+    const order = await createOrder();
+    if (!order) return;
+    
+    try {
       // Process the payment
       const paymentResponse = await paymentApi.post('/api/v1/payments/create', {
         orderId: order.id,
@@ -104,16 +240,119 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack }) 
           total: cart.total,
           paymentId: payment.id || payment.paymentId,
           isKioskOrder: true,
+          isVoiceOrder: !!voiceCheckoutOrchestrator,
+          paymentMethod: 'card',
         } 
       });
+      
+      // Notify voice orchestrator if present
+      if (voiceCheckoutOrchestrator) {
+        voiceCheckoutOrchestrator.handlePaymentSuccess({ ...order, payment });
+      }
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred. Please try again.';
+      const errorMessage = error instanceof Error ? error.message : 'Payment processing failed';
       form.setFieldError('general' as keyof typeof form.values, errorMessage);
-    } finally {
-      setIsProcessing(false);
+      
+      // Notify voice orchestrator if present
+      if (voiceCheckoutOrchestrator) {
+        voiceCheckoutOrchestrator.handlePaymentError(errorMessage);
+      }
     }
   };
+  
+  // Handle payment method selection
+  const handlePaymentMethodChange = (method: PaymentMethod) => {
+    setSelectedPaymentMethod(method);
+    form.clearErrors();
+    
+    // Notify voice orchestrator
+    if (voiceCheckoutOrchestrator) {
+      voiceCheckoutOrchestrator.handlePaymentMethodSelection(method);
+    }
+  };
+  
+  // Handle payment submission based on selected method
+  const handlePaymentSubmit = async () => {
+    switch (selectedPaymentMethod) {
+      case 'terminal':
+        await handleTerminalPayment();
+        break;
+      case 'cash':
+        // For cash payments, just create the order and navigate
+        const order = await createOrder();
+        if (order) {
+          clearCart();
+          navigate('/order-confirmation', {
+            state: {
+              orderId: order.id,
+              order_number: order.order_number,
+              estimatedTime: '15-20 minutes',
+              items: cart.items,
+              total: cart.total,
+              isKioskOrder: true,
+              isVoiceOrder: !!voiceCheckoutOrchestrator,
+              paymentMethod: 'cash',
+              isPendingPayment: true,
+            }
+          });
+          
+          if (voiceCheckoutOrchestrator) {
+            voiceCheckoutOrchestrator.handlePaymentSuccess(order);
+          }
+        }
+        break;
+      case 'mobile':
+        // Placeholder for mobile payments (Apple Pay, Google Pay, etc.)
+        form.setFieldError('general' as keyof typeof form.values, 'Mobile payments not yet supported');
+        break;
+      case 'card':
+      default:
+        // This will be handled by SquarePaymentForm callback
+        break;
+    }
+  };
+  
+  // Get payment button props based on selected method
+  const getPaymentButtonProps = () => {
+    const isTerminalActive = terminal.isCheckoutActive;
+    const baseProps = {
+      disabled: isProcessing || isTerminalActive,
+      loading: isProcessing || terminal.isLoading,
+    };
+    
+    switch (selectedPaymentMethod) {
+      case 'terminal':
+        return {
+          ...baseProps,
+          text: isTerminalActive 
+            ? 'Payment in Progress...' 
+            : `Pay $${cart.total.toFixed(2)} with Terminal`,
+          onClick: handlePaymentSubmit,
+        };
+      case 'cash':
+        return {
+          ...baseProps,
+          text: `Pay $${cart.total.toFixed(2)} with Cash`,
+          onClick: handlePaymentSubmit,
+        };
+      case 'mobile':
+        return {
+          ...baseProps,
+          text: 'Mobile Payment (Coming Soon)',
+          onClick: handlePaymentSubmit,
+          disabled: true,
+        };
+      case 'card':
+      default:
+        return {
+          ...baseProps,
+          // SquarePaymentForm handles its own button
+        };
+    }
+  };
+  
+  const paymentButtonProps = getPaymentButtonProps();
 
   if (cart.items.length === 0) {
     return (
@@ -301,7 +540,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack }) 
               </div>
             </Card>
 
-            {/* Payment Form */}
+            {/* Payment Method Selection */}
             <Card className="p-8 bg-white/90 backdrop-blur-sm">
               <div className="flex items-center mb-6">
                 <CreditCard className="w-6 h-6 mr-3 text-gray-700" />
@@ -314,11 +553,112 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack }) 
                 </div>
               )}
               
-              <SquarePaymentForm
-                onPaymentNonce={handlePaymentNonce}
-                amount={cart.total}
-                isProcessing={isProcessing}
-              />
+              {/* Payment Method Options */}
+              <div className="space-y-4 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Card Payment */}
+                  <button
+                    type="button"
+                    onClick={() => handlePaymentMethodChange('card')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      selectedPaymentMethod === 'card'
+                        ? 'border-teal-500 bg-teal-50 text-teal-700'
+                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                    }`}
+                  >
+                    <CreditCard className="w-6 h-6 mx-auto mb-2" />
+                    <div className="text-sm font-medium">Credit/Debit Card</div>
+                  </button>
+                  
+                  {/* Terminal Payment */}
+                  <button
+                    type="button"
+                    onClick={() => handlePaymentMethodChange('terminal')}
+                    disabled={terminal.availableDevices.length === 0}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      selectedPaymentMethod === 'terminal'
+                        ? 'border-teal-500 bg-teal-50 text-teal-700'
+                        : terminal.availableDevices.length === 0
+                        ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                    }`}
+                  >
+                    <Smartphone className="w-6 h-6 mx-auto mb-2" />
+                    <div className="text-sm font-medium">
+                      Terminal
+                      {terminal.availableDevices.length === 0 && ' (Unavailable)'}
+                    </div>
+                  </button>
+                  
+                  {/* Cash Payment */}
+                  <button
+                    type="button"
+                    onClick={() => handlePaymentMethodChange('cash')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      selectedPaymentMethod === 'cash'
+                        ? 'border-teal-500 bg-teal-50 text-teal-700'
+                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                    }`}
+                  >
+                    <DollarSign className="w-6 h-6 mx-auto mb-2" />
+                    <div className="text-sm font-medium">Cash</div>
+                  </button>
+                  
+                  {/* Mobile Payment - Coming Soon */}
+                  <button
+                    type="button"
+                    onClick={() => handlePaymentMethodChange('mobile')}
+                    disabled
+                    className="p-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                  >
+                    <Smartphone className="w-6 h-6 mx-auto mb-2" />
+                    <div className="text-sm font-medium">Mobile Pay</div>
+                    <div className="text-xs text-gray-400">(Coming Soon)</div>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Terminal Status */}
+              {selectedPaymentMethod === 'terminal' && terminal.currentCheckout && (
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-blue-800 font-medium">
+                        Terminal Status: {terminal.currentCheckout.status.replace('_', ' ').toLowerCase()}
+                      </div>
+                      <div className="text-blue-600 text-sm mt-1">
+                        Please follow instructions on the terminal device.
+                      </div>
+                    </div>
+                    {terminal.isCheckoutActive && (
+                      <button
+                        onClick={terminal.cancelCheckout}
+                        className="text-red-600 hover:text-red-700 text-sm font-medium"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Payment Form */}
+              {selectedPaymentMethod === 'card' ? (
+                <SquarePaymentForm
+                  onPaymentNonce={handlePaymentNonce}
+                  amount={cart.total}
+                  isProcessing={isProcessing}
+                />
+              ) : (
+                <ActionButton
+                  onClick={paymentButtonProps.onClick}
+                  disabled={paymentButtonProps.disabled}
+                  size="large"
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white py-4 text-lg font-semibold"
+                >
+                  {paymentButtonProps.text}
+                </ActionButton>
+              )}
             </Card>
           </div>
         </div>
