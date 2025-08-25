@@ -25,12 +25,18 @@ rebuild-6.0/
 - `npm run lint:fix` - Fix linting issues
 - `npm run typecheck` - TypeScript validation
 - `npm run build` - Production build
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run analyze` - Analyze bundle size
+- `npm run test:memory` - Test with memory monitoring
 
 ## Quality Requirements
 
 - **Mandatory**: All tests pass, TypeScript strict mode
 - **Coverage**: 60% statements, 50% branches, 60% functions/lines
 - **Pre-commit**: test, lint, typecheck must pass
+- **Bundle Size**: Main chunk <100KB (use `npm run analyze`)
+- **Memory**: 4GB max for builds (down from 12GB)
+- **TypeScript**: 482 remaining errors (non-blocking, down from 670+)
 
 ## Key Features
 
@@ -89,39 +95,46 @@ rebuild-6.0/
 ## Available DRY Utilities (USE THESE!)
 
 ### API Requests - `useApiRequest`
+
 ```typescript
-import { useApiRequest } from '@/hooks/useApiRequest';
+import { useApiRequest } from '@/hooks/useApiRequest'
 
 // Automatically handles auth, restaurant context, loading/error states
-const api = useApiRequest<Order[]>();
-await api.get('/api/v1/orders');
-await api.post('/api/v1/orders', orderData);
+const api = useApiRequest<Order[]>()
+await api.get('/api/v1/orders')
+await api.post('/api/v1/orders', orderData)
 ```
 
 ### Form Validation - `useFormValidation`
-```typescript
-import { useFormValidation, validators } from '@/utils/validation';
 
-const form = useFormValidation({
-  email: '',
-  phone: ''
-}, {
-  email: { rules: [validators.required, validators.email] },
-  phone: { rules: [validators.required, validators.phone] }
-});
+```typescript
+import { useFormValidation, validators } from '@/utils/validation'
+
+const form = useFormValidation(
+  {
+    email: '',
+    phone: '',
+  },
+  {
+    email: { rules: [validators.required, validators.email] },
+    phone: { rules: [validators.required, validators.phone] },
+  }
+)
 ```
 
 ### Modal Management - `useModal`
+
 ```typescript
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/useModal'
 
 const modal = useModal({
   closeOnEscape: true,
-  preventScroll: true
-});
+  preventScroll: true,
+})
 ```
 
 ### Error Boundaries - `PaymentErrorBoundary`
+
 ```typescript
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 
@@ -152,8 +165,10 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 
 ## Memory Management
 
-- Use NODE_OPTIONS="--max-old-space-size=8192" for builds
+- Use NODE_OPTIONS="--max-old-space-size=4096" for builds (optimized from 8192)
 - Clear Vite cache if HMR issues: `rm -rf node_modules/.vite`
+- Monitor memory leaks with `npm run test:memory`
+- Long-running components use cleanup utilities from `shared/utils/cleanup-manager`
 
 ## Common Patterns
 
@@ -162,3 +177,8 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 - Shared types in `shared/` directory
 - Error boundaries for React components
 - Proper WebSocket cleanup in useEffect hooks
+- UnifiedCartContext for all cart operations
+- Code splitting with React.lazy() for routes
+- WebSocket event handlers use `on`/`off` pattern (not subscribe return)
+- Browser API checks: `typeof window !== 'undefined'`
+- API responses cast with `as` (not generic parameters)
