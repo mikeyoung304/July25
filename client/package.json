@@ -13,8 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:memory": "NODE_OPTIONS='--max-old-space-size=8192 --expose-gc' vitest run",
-    "test:ci": "NODE_OPTIONS='--max-old-space-size=8192 --expose-gc' VITEST_COVERAGE=false vitest run",
+    "test:memory": "NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' vitest run",
+    "test:ci": "NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' VITEST_COVERAGE=false vitest run",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "analyze": "vite build --mode analyze"
