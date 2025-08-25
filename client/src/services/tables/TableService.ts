@@ -1,6 +1,7 @@
 import { Table } from '@/modules/floor-plan/types'
 import { env } from '@/utils/env'
 import { httpClient as api } from '@/services/http/httpClient'
+import { logger } from '@/services/logger'
 
 export interface ITableService {
   getTables(): Promise<{ tables: Table[] }>
@@ -47,6 +48,9 @@ export class TableService implements ITableService {
     const response = await api.post<Table>('/api/v1/tables', table, {
       headers: this.getHeaders()
     })
+    // Clear cache after mutation
+    api.clearCache('/api/v1/tables')
+    logger.info('[TableService] Cache cleared after createTable')
     return response
   }
 
@@ -54,6 +58,9 @@ export class TableService implements ITableService {
     const response = await api.put<Table>(`/api/v1/tables/${tableId}`, updates, {
       headers: this.getHeaders()
     })
+    // Clear cache after mutation
+    api.clearCache('/api/v1/tables')
+    logger.info('[TableService] Cache cleared after updateTable')
     return response
   }
 
@@ -73,10 +80,14 @@ export class TableService implements ITableService {
   }
 
   async batchUpdateTables(tables: Partial<Table>[]): Promise<Table[]> {
+    logger.info('[TableService] Batch updating tables:', { count: tables.length })
     const response = await api.put<Table[]>('/api/v1/tables/batch', 
       { tables },
       { headers: this.getHeaders() }
     )
+    // Clear cache after batch mutation
+    api.clearCache('/api/v1/tables')
+    logger.info('[TableService] Cache cleared after batchUpdateTables')
     return response
   }
 }

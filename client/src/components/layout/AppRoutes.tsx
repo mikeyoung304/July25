@@ -1,23 +1,34 @@
-import React, { Profiler } from 'react'
+import React, { Profiler, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
 import { env } from '@/utils/env'
-import { Dashboard } from '@/pages/Dashboard'
-import { HomePage } from '@/pages/HomePage'
-import KitchenDisplaySimple from '@/pages/KitchenDisplaySimple'
-import KioskDemo from '@/pages/KioskDemo'
-import { OrderHistory } from '@/pages/OrderHistory'
-import PerformanceDashboard from '@/pages/PerformanceDashboard'
-import { ServerView } from '@/pages/ServerView'
-import AdminDashboard from '@/pages/AdminDashboard'
-import ExpoPage from '@/pages/ExpoPage'
-import ExpoPageDebug from '@/pages/ExpoPageDebug'
-import KioskPage from '@/pages/KioskPage'
-import DriveThruPage from '@/pages/DriveThruPage'
-import { CustomerOrderPage } from '@/modules/order-system/components'
-import CheckoutPage from '@/pages/CheckoutPage'
-import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
+
+// Eager load critical/common pages
+import { HomePage } from '@/pages/HomePage'
+
+// Lazy load all other routes for code splitting
+const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })))
+const KitchenDisplaySimple = lazy(() => import('@/pages/KitchenDisplaySimple'))
+const KioskDemo = lazy(() => import('@/pages/KioskDemo'))
+const OrderHistory = lazy(() => import('@/pages/OrderHistory').then(m => ({ default: m.OrderHistory })))
+const PerformanceDashboard = lazy(() => import('@/pages/PerformanceDashboard'))
+const ServerView = lazy(() => import('@/pages/ServerView').then(m => ({ default: m.ServerView })))
+const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'))
+const ExpoPage = lazy(() => import('@/pages/ExpoPage'))
+const ExpoPageDebug = lazy(() => import('@/pages/ExpoPageDebug'))
+const KioskPage = lazy(() => import('@/pages/KioskPage'))
+const DriveThruPage = lazy(() => import('@/pages/DriveThruPage'))
+const CustomerOrderPage = lazy(() => import('@/modules/order-system/components').then(m => ({ default: m.CustomerOrderPage })))
+const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'))
+const OrderConfirmationPage = lazy(() => import('@/pages/OrderConfirmationPage').then(m => ({ default: m.OrderConfirmationPage })))
+
+// Loading component for Suspense fallback
+const RouteLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  </div>
+)
 
 // Profiler callback for performance tracking
 const onRenderCallback = (
@@ -35,7 +46,11 @@ export function AppRoutes() {
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={
+              <Suspense fallback={<RouteLoader />}>
+                <Dashboard />
+              </Suspense>
+            } />
             <Route path="/home" element={<HomePage />} />
             <Route path="/kitchen" element={
               <ErrorBoundary 
@@ -49,60 +64,80 @@ export function AppRoutes() {
                 }}
               >
                 <Profiler id="KitchenDisplay" onRender={onRenderCallback}>
-                  <KitchenDisplaySimple />
+                  <Suspense fallback={<RouteLoader />}>
+                    <KitchenDisplaySimple />
+                  </Suspense>
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/kiosk-demo" element={
               <ErrorBoundary level="section">
-                <KioskDemo />
+                <Suspense fallback={<RouteLoader />}>
+                  <KioskDemo />
+                </Suspense>
               </ErrorBoundary>
             } />
             <Route path="/kiosk" element={
               <ErrorBoundary level="section">
                 <Profiler id="KioskVoice" onRender={onRenderCallback}>
-                  <KioskPage />
+                  <Suspense fallback={<RouteLoader />}>
+                    <KioskPage />
+                  </Suspense>
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/drive-thru" element={
               <ErrorBoundary level="section">
                 <Profiler id="DriveThru" onRender={onRenderCallback}>
-                  <DriveThruPage />
+                  <Suspense fallback={<RouteLoader />}>
+                    <DriveThruPage />
+                  </Suspense>
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/history" element={
               <ErrorBoundary level="section">
-                <OrderHistory />
+                <Suspense fallback={<RouteLoader />}>
+                  <OrderHistory />
+                </Suspense>
               </ErrorBoundary>
             } />
             <Route path="/performance" element={
               <ErrorBoundary level="section">
-                <PerformanceDashboard />
+                <Suspense fallback={<RouteLoader />}>
+                  <PerformanceDashboard />
+                </Suspense>
               </ErrorBoundary>
             } />
             <Route path="/server" element={
               <ErrorBoundary level="section">
-                <ServerView />
+                <Suspense fallback={<RouteLoader />}>
+                  <ServerView />
+                </Suspense>
               </ErrorBoundary>
             } />
             <Route path="/admin" element={
               <ErrorBoundary level="section">
-                <AdminDashboard />
+                <Suspense fallback={<RouteLoader />}>
+                  <AdminDashboard />
+                </Suspense>
               </ErrorBoundary>
             } />
             <Route path="/expo" element={
               <ErrorBoundary level="section">
                 <Profiler id="ExpoPage" onRender={onRenderCallback}>
-                  <ExpoPage />
+                  <Suspense fallback={<RouteLoader />}>
+                    <ExpoPage />
+                  </Suspense>
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/expo-debug" element={
               <ErrorBoundary level="section">
                 <Profiler id="ExpoPageDebug" onRender={onRenderCallback}>
-                  <ExpoPageDebug />
+                  <Suspense fallback={<RouteLoader />}>
+                    <ExpoPageDebug />
+                  </Suspense>
                 </Profiler>
               </ErrorBoundary>
             } />
@@ -114,21 +149,27 @@ export function AppRoutes() {
             <Route path="/order/:restaurantId" element={
               <ErrorBoundary level="section">
                 <Profiler id="CustomerOrder" onRender={onRenderCallback}>
-                  <CustomerOrderPage />
+                  <Suspense fallback={<RouteLoader />}>
+                    <CustomerOrderPage />
+                  </Suspense>
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/checkout" element={
               <ErrorBoundary level="section">
                 <Profiler id="Checkout" onRender={onRenderCallback}>
-                  <CheckoutPage />
+                  <Suspense fallback={<RouteLoader />}>
+                    <CheckoutPage />
+                  </Suspense>
                 </Profiler>
               </ErrorBoundary>
             } />
             <Route path="/order-confirmation" element={
               <ErrorBoundary level="section">
                 <Profiler id="OrderConfirmation" onRender={onRenderCallback}>
-                  <OrderConfirmationPage />
+                  <Suspense fallback={<RouteLoader />}>
+                    <OrderConfirmationPage />
+                  </Suspense>
                 </Profiler>
               </ErrorBoundary>
             } />

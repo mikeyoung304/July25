@@ -13,6 +13,8 @@ import { supabase } from '@/core/supabase'
 // Removed case transformation - server handles this
 import { env } from '@/utils/env'
 import { getDemoToken } from '@/services/auth/demoAuth'
+import { RequestBatcher } from './RequestBatcher'
+import { ResponseCache } from '../cache/ResponseCache'
 
 // Global variable to store the current restaurant ID
 // This will be set by the RestaurantContext provider
@@ -43,7 +45,7 @@ interface CacheEntry<T> {
 const CACHE_TTL = {
   '/api/v1/menu': 5 * 60 * 1000,          // 5 minutes for menu
   '/api/v1/menu/categories': 5 * 60 * 1000, // 5 minutes for categories
-  '/api/v1/tables': 30 * 1000,            // 30 seconds for tables
+  '/api/v1/tables': 0,                    // No caching for tables (floor plan needs real-time data)
   default: 60 * 1000                      // 1 minute default
 }
 
@@ -52,6 +54,10 @@ export class HttpClient extends SecureAPIClient {
   private cache = new Map<string, CacheEntry<any>>()
   // Track in-flight requests to prevent duplicates
   private inFlightRequests = new Map<string, Promise<any>>()
+  // Request batcher for reducing network overhead
+  private batcher: RequestBatcher
+  // Response cache with LRU eviction
+  private responseCache: ResponseCache
   
   constructor() {
     let baseURL = 'http://localhost:3001'
@@ -86,6 +92,19 @@ export class HttpClient extends SecureAPIClient {
     }
     
     super(baseURL)
+    
+    // Initialize request batcher
+    this.batcher = new RequestBatcher({
+      maxBatchSize: 10,
+      maxWaitTime: 50,
+      batchEndpoint: '/api/v1/batch'
+    })
+    
+    // Initialize response cache
+    this.responseCache = new ResponseCache({
+      maxSize: 100,
+      defaultTTL: 60000
+    })
   }
 
   /**
@@ -233,7 +252,16 @@ export class HttpClient extends SecureAPIClient {
       cacheKey = `${endpoint}?${searchParams.toString()}`
     }
     
-    // Check cache for GET requests
+    // Check ResponseCache first (uses LRU eviction)
+    const cachedResponse = this.responseCache.get(cacheKey)
+    if (cachedResponse) {
+      if (import.meta.env.DEV) {
+        logger.info(`[ResponseCache HIT] ${endpoint}`)
+      }
+      return cachedResponse as T
+    }
+    
+    // Fallback to simple cache for backward compatibility
     const cached = this.cache.get(cacheKey)
     if (cached) {
       const age = Date.now() - cached.timestamp
@@ -242,6 +270,8 @@ export class HttpClient extends SecureAPIClient {
         if (import.meta.env.DEV) {
           logger.info(`[Cache HIT] ${endpoint} (age: ${Math.round(age/1000)}s)`)
         }
+        // Also store in ResponseCache for next time
+        this.responseCache.set(cacheKey, cached.data, ttl)
         return cached.data as T
       }
     }
@@ -264,6 +294,9 @@ export class HttpClient extends SecureAPIClient {
     // Cache the result
     requestPromise.then(data => {
       this.cache.set(cacheKey, { data, timestamp: Date.now() })
+      // Also store in ResponseCache with TTL
+      const ttl = this.getCacheTTL(endpoint)
+      this.responseCache.set(cacheKey, data, ttl)
       this.inFlightRequests.delete(cacheKey)
       if (import.meta.env.DEV) {
         logger.info(`[Cache SET] ${endpoint}`)
@@ -281,15 +314,22 @@ export class HttpClient extends SecureAPIClient {
    */
   clearCache(endpoint?: string): void {
     if (endpoint) {
-      // Clear specific endpoint
+      // Clear specific endpoint from both caches
       for (const key of this.cache.keys()) {
         if (key.startsWith(endpoint)) {
           this.cache.delete(key)
         }
       }
+      // Also clear from ResponseCache
+      this.responseCache.clear(endpoint)
     } else {
       // Clear all cache
       this.cache.clear()
+      this.responseCache.clear()
+    }
+    
+    if (import.meta.env.DEV) {
+      logger.info(`[Cache CLEARED] ${endpoint || 'ALL'}`)
     }
   }
 

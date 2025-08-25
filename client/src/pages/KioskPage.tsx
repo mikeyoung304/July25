@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useRestaurant } from '@/core';
 import { KioskErrorBoundary } from '@/components/kiosk/KioskErrorBoundary';
-import { KioskCartProvider, useKioskCart } from '@/components/kiosk/KioskCartProvider';
+import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
 import { KioskModeSelector, KioskMode } from '@/components/kiosk/KioskModeSelector';
 import { VoiceOrderingMode } from '@/components/kiosk/VoiceOrderingMode';
 import { KioskCheckoutPage } from '@/components/kiosk/KioskCheckoutPage';
@@ -10,7 +10,7 @@ const KioskPageContent: React.FC = () => {
   const [currentMode, setCurrentMode] = useState<KioskMode>('selection');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { setRestaurant } = useRestaurant();
-  const { cart } = useKioskCart();
+  const { cart } = useUnifiedCart();
   
   // Track voice checkout orchestrator for terminal integration
   const voiceCheckoutOrchestratorRef = useRef<any>(null);
@@ -86,9 +86,7 @@ const KioskPageContent: React.FC = () => {
 const KioskPage: React.FC = () => {
   return (
     <KioskErrorBoundary>
-      <KioskCartProvider>
-        <KioskPageContent />
-      </KioskCartProvider>
+      <KioskPageContent />
     </KioskErrorBoundary>
   );
 };

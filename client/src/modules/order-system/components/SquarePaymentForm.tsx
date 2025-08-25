@@ -28,6 +28,8 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
 
   // Load Square Web Payments SDK
   useEffect(() => {
+    let loadTimeout: NodeJS.Timeout;
+    
     const loadSquareSDK = async () => {
       // Check if Square is already loaded
       if (window.Square) {
@@ -35,16 +37,35 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
         return;
       }
 
+      // Set a timeout to detect if script is blocked
+      loadTimeout = setTimeout(() => {
+        if (!window.Square) {
+          console.error('Square SDK load timeout - likely blocked by browser extension');
+          setErrors({ 
+            general: 'Payment system blocked. Please disable ad blockers or use Terminal payment option.',
+            blocked: 'true'
+          });
+          setIsInitializing(false);
+        }
+      }, 5000);
+
       // Load Square SDK script
       const script = document.createElement('script');
       script.src = 'https://sandbox.web.squarecdn.com/v1/square.js';
       script.type = 'text/javascript';
+      script.async = true;
       script.onload = async () => {
+        clearTimeout(loadTimeout);
         await initializeSquare();
       };
       script.onerror = () => {
-        console.error('Failed to load Square SDK');
-        setErrors({ general: 'Payment system unavailable. Please try again later.' });
+        clearTimeout(loadTimeout);
+        console.error('Failed to load Square SDK - possibly blocked by browser extension');
+        setErrors({ 
+          general: 'Payment system blocked. Please disable ad blockers or use Terminal payment option.',
+          blocked: 'true'
+        });
+        setIsInitializing(false);
       };
       document.head.appendChild(script);
     };
@@ -80,6 +101,9 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
 
     // Cleanup
     return () => {
+      if (loadTimeout) {
+        clearTimeout(loadTimeout);
+      }
       if (card) {
         card.destroy();
       }

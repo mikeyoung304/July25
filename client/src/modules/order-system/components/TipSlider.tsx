@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { DollarSign } from 'lucide-react';
 
 interface TipSliderProps {
@@ -11,6 +11,7 @@ export const TipSlider: React.FC<TipSliderProps> = ({ subtotal, onTipChange, ini
   const [tipPercentage, setTipPercentage] = useState(18);
   const [customTip, setCustomTip] = useState<string>('');
   const [isCustom, setIsCustom] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const tipOptions = [
     { percentage: 15, label: '15%' },
@@ -24,7 +25,7 @@ export const TipSlider: React.FC<TipSliderProps> = ({ subtotal, onTipChange, ini
   }, [subtotal]);
 
   useEffect(() => {
-    if (initialTip > 0) {
+    if (initialTip > 0 && subtotal > 0) {
       const percentage = Math.round((initialTip / subtotal) * 100);
       if (tipOptions.some(opt => opt.percentage === percentage)) {
         setTipPercentage(percentage);
@@ -34,21 +35,44 @@ export const TipSlider: React.FC<TipSliderProps> = ({ subtotal, onTipChange, ini
         setCustomTip(initialTip.toFixed(2));
       }
     }
-  }, [initialTip, subtotal, tipOptions]);
+  }, [initialTip, subtotal]);
 
   useEffect(() => {
-    if (!isCustom) {
-      onTipChange(calculateTip(tipPercentage));
+    if (!isCustom && subtotal > 0) {
+      // Debounce tip changes to prevent glitching
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      
+      debounceTimerRef.current = setTimeout(() => {
+        onTipChange(calculateTip(tipPercentage));
+      }, 100);
     }
+    
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipPercentage, subtotal, isCustom]);
 
   const handleCustomTipChange = (value: string) => {
     setCustomTip(value);
     const numValue = parseFloat(value);
-    if (!isNaN(numValue) && numValue >= 0) {
-      onTipChange(Math.round(numValue * 100) / 100);
+    
+    // Debounce custom tip changes
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
+    
+    debounceTimerRef.current = setTimeout(() => {
+      if (!isNaN(numValue) && numValue >= 0) {
+        onTipChange(Math.round(numValue * 100) / 100);
+      } else if (value === '' || numValue === 0) {
+        onTipChange(0);
+      }
+    }, 300);
   };
 
   const handlePresetClick = (percentage: number) => {

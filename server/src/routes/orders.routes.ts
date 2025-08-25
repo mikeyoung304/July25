@@ -4,6 +4,8 @@ import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { OrdersService } from '../services/orders.service';
 import { BadRequest, NotFound } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
+import { ai } from '../ai';
+import { MenuService } from '../services/menu.service';
 import type { OrderStatus, OrderType } from '@rebuild/shared';
 
 const router = Router();
@@ -62,16 +64,46 @@ router.post('/voice', authenticate, requireRole(['admin', 'manager', 'user', 'ki
 
     routeLogger.info('Processing voice order', { restaurantId, transcription });
 
-    // For now, create a simple parsed order structure
-    // TODO: Implement proper voice order parsing with AI service
-    const parsedOrder = {
-      items: [{
-        name: 'Soul Bowl',
-        quantity: 1,
-        price: 12.99
-      }],
-      confidence: 0.85
-    };
+    // Parse the voice order using AI
+    let parsedOrder;
+    try {
+      // Get menu items for context
+      const menuItems = await MenuService.getItems(restaurantId);
+      
+      // Use AI to parse the order
+      const aiResult = await ai.parseOrder({
+        restaurantId,
+        text: transcription
+      });
+      
+      // Map AI result to our format
+      parsedOrder = {
+        items: aiResult.items.map((item: any) => {
+          // Find the menu item to get the price
+          const menuItem = menuItems.find((m: any) => 
+            m.id === item.menu_item_id || 
+            m.name.toLowerCase() === item.name?.toLowerCase()
+          );
+          
+          return {
+            name: item.name || menuItem?.name || 'Unknown Item',
+            quantity: item.quantity || 1,
+            price: menuItem?.price || 0,
+            modifications: item.modifications || [],
+            specialInstructions: item.special_instructions
+          };
+        }),
+        confidence: aiResult.items.length > 0 ? 0.85 : 0.3
+      };
+    } catch (error) {
+      routeLogger.error('AI order parsing failed', { error });
+      
+      // Fallback to a simple response
+      parsedOrder = {
+        items: [],
+        confidence: 0
+      };
+    }
 
     if (!parsedOrder || parsedOrder.items.length === 0) {
       return res.json({
