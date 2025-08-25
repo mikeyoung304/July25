@@ -39,7 +39,7 @@ export default defineConfig({
     
     coverage: {
       enabled: process.env.VITEST_COVERAGE !== 'false', // Allow disabling for memory
-      reporter: ['text', 'html'],
+      reporter: ['text', 'html', 'json-summary', 'lcov'],
       provider: 'v8', // More memory efficient
       exclude: [
         'node_modules/',
@@ -51,6 +51,12 @@ export default defineConfig({
         'src/main.tsx',
         'src/vite-env.d.ts',
       ],
+      thresholds: {
+        statements: 60,
+        branches: 50,
+        functions: 60,
+        lines: 60
+      }
     },
   },
 });
