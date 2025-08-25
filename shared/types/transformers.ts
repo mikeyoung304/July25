@@ -181,7 +181,6 @@ export const transformClientOrderToShared = (order: ClientOrder): SharedOrder =>
       id: validateString(order.id, 'id'),
       order_number: validateString(order.orderNumber, 'orderNumber'),
       restaurant_id: validateString(order.restaurantId, 'restaurantId'),
-      customer_id: order.customerId || null,
       table_number: order.tableNumber || null,
       status: order.status,
       type: order.type,
@@ -365,7 +364,6 @@ export const transformClientTableToShared = (table: ClientTable): SharedTable =>
         y: validateNumber(table.y, 'y')
       },
       shape: typeToShapeMap[table.type],
-      z_index: validateNumber(table.zIndex, 'zIndex'),
       created_at: table.createdAt.toISOString(),
       updated_at: table.updatedAt.toISOString()
     };

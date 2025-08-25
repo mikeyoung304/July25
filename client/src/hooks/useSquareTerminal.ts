@@ -33,6 +33,27 @@ export interface TerminalPayment {
   receiptUrl?: string;
 }
 
+// API Response types
+interface TerminalDevicesResponse {
+  success: boolean;
+  devices?: TerminalDevice[];
+  error?: string;
+}
+
+interface TerminalCheckoutResponse {
+  success: boolean;
+  checkout?: TerminalCheckout;
+  payment?: any;
+  order?: any;
+  error?: string;
+}
+
+interface TerminalCreateCheckoutResponse {
+  success: boolean;
+  checkout?: TerminalCheckout;
+  error?: string;
+}
+
 export interface UseSquareTerminalOptions {
   onSuccess?: (orderData: any, paymentData: TerminalPayment) => void;
   onError?: (error: string) => void;
@@ -131,7 +152,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
         console.log('[useSquareTerminal] Loading terminal devices...');
       }
 
-      const response = await api.get('/api/v1/terminal/devices');
+      const response = await api.get('/api/v1/terminal/devices') as TerminalDevicesResponse;
       
       if (!response || !response.success) {
         throw new Error('Failed to load terminal devices');
@@ -161,7 +182,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
     try {
       if (isUnmountedRef.current) return;
 
-      const response = await api.get(`/api/v1/terminal/checkout/${checkoutId}`);
+      const response = await api.get(`/api/v1/terminal/checkout/${checkoutId}`) as TerminalCheckoutResponse;
       
       if (!response || !response.success) {
         throw new Error('Failed to get checkout status');
@@ -255,7 +276,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
       const response = await api.post('/api/v1/terminal/checkout', {
         orderId,
         deviceId
-      });
+      }) as TerminalCreateCheckoutResponse;
 
       if (!response || !response.success) {
         throw new Error(response?.error || 'Failed to create terminal checkout');
@@ -322,7 +343,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
         console.log('[useSquareTerminal] Cancelling checkout:', currentCheckout.id);
       }
 
-      const response = await api.post(`/api/v1/terminal/checkout/${currentCheckout.id}/cancel`);
+      const response = await api.post(`/api/v1/terminal/checkout/${currentCheckout.id}/cancel`) as TerminalCheckoutResponse;
       
       if (response && response.success) {
         setCurrentCheckout(response.checkout);

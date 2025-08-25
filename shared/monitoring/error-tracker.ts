@@ -1,3 +1,4 @@
+/* global window, navigator, localStorage, ErrorEvent, PromiseRejectionEvent */
 /**
  * Error Tracking and Reporting
  * Captures and reports application errors for monitoring
@@ -51,8 +52,12 @@ class ErrorTracker {
   }
 
   private initializeErrorHandlers() {
+    // Only set up browser handlers if we're in a browser environment
+    if (typeof window === 'undefined') return;
+    
     // Global error handler for unhandled errors
-    window.addEventListener('error', (event) => {
+    // eslint-disable-next-line no-undef
+    window.addEventListener('error', (event: ErrorEvent) => {
       this.captureError(new Error(event.message), {
         filename: event.filename,
         lineno: event.lineno,
@@ -62,7 +67,7 @@ class ErrorTracker {
     });
 
     // Global handler for unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
       this.captureError(
         event.reason instanceof Error ? event.reason : new Error(String(event.reason)),
         { type: 'unhandled_promise_rejection' }
@@ -128,8 +133,8 @@ class ErrorTracker {
       level,
       message: error.message,
       stack: error.stack,
-      url: window.location.href,
-      userAgent: navigator.userAgent,
+      url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
       sessionId: this.sessionId,
       userId: this.userId,
       context: { ...this.context, ...context },
@@ -156,8 +161,8 @@ class ErrorTracker {
       timestamp: Date.now(),
       level,
       message,
-      url: window.location.href,
-      userAgent: navigator.userAgent,
+      url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
       sessionId: this.sessionId,
       userId: this.userId,
       context: { ...this.context, ...context },
@@ -267,10 +272,12 @@ if (typeof window !== 'undefined') {
   // Retry pending errors from previous sessions
   errorTracker.retryPendingErrors();
   
-  // Track page navigation
-  window.addEventListener('popstate', () => {
-    errorTracker.addBreadcrumb('navigation', 'info', `Navigated to ${window.location.href}`);
-  });
+  // Track page navigation (only in browser)
+  if (typeof window !== 'undefined') {
+    window.addEventListener('popstate', () => {
+      errorTracker.addBreadcrumb('navigation', 'info', `Navigated to ${window.location.href}`);
+    });
+  }
   
   // Track focus/blur for user activity
   window.addEventListener('focus', () => {

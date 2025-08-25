@@ -157,18 +157,20 @@ export const useAudioAlerts = (): UseAudioAlertsReturn => {
       }
     })
 
-    const unsubscribeConnectionLost = webSocketService.on('connectionStateChange', (state: string) => {
+    const handleConnectionChange = (state: string) => {
       if (state === 'disconnected' || state === 'error') {
         playAlert('connection_lost')
       } else if (state === 'connected') {
         playAlert('connection_restored')
       }
-    })
+    }
+    
+    webSocketService.on('connectionStateChange', handleConnectionChange)
 
     return () => {
       unsubscribeNewOrder()
       unsubscribeOrderUpdate()
-      unsubscribeConnectionLost()
+      webSocketService.off('connectionStateChange', handleConnectionChange)
     }
   }, [playAlert])
 
