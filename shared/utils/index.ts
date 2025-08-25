@@ -9,7 +9,8 @@ export * from './cleanup-manager';
 // Memory monitoring and leak detection - renamed export to avoid conflict
 export { 
   MemoryMonitor,
-  type MemoryStats,
+  type MemorySnapshot,
   type MemoryTrend,
-  type LeakReport
+  type ComponentMemoryProfile,
+  type ServiceMemoryProfile
 } from './memory-monitoring';

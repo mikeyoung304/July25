@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 export interface UnifiedCartItem extends CartItem {
   modifications?: string[];
   specialInstructions?: string;
+  menuItem?: MenuItem; // Add for KioskCartItem compatibility
 }
 
 // Unified cart interface

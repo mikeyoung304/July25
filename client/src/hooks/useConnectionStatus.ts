@@ -41,13 +41,15 @@ export const useConnectionStatus = (): UseConnectionStatusReturn => {
       }
     }
 
-    const unsubscribe = webSocketService.on('connectionStateChange', handleConnectionChange)
+    webSocketService.on('connectionStateChange', handleConnectionChange)
     
     // Get initial state from service
     const currentState = webSocketService.isConnected() ? 'connected' : 'disconnected'
     setConnectionState(currentState)
 
-    return unsubscribe
+    return () => {
+      webSocketService.off('connectionStateChange', handleConnectionChange)
+    }
   }, [])
 
   return {

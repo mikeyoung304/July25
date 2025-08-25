@@ -6,8 +6,14 @@ export * from './types/table.types';
 export * from './types/websocket.types';
 export * from './types/transformers';
 export * from './types/validation';
+// Export utils but avoid conflicts with runtime
 export * from './utils';
-export * from './runtime';              // new runtime helpers (above)
+
+// Selectively export from runtime to avoid conflicts
+export { 
+  RuntimeMemoryMonitor
+  // CleanupManager and ManagedService are already exported from utils
+} from './runtime';
 export * from './src/voice-types';      // voice websocket types
 export * from './cart';                 // cart utilities
 
