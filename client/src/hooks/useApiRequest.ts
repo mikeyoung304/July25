@@ -69,7 +69,7 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
             headers.set('Authorization', `Bearer ${session.access_token}`);
           } else {
             // Fall back to demo token
-            const demoToken = getDemoToken();
+            const demoToken = await getDemoToken();
             if (demoToken) {
               headers.set('Authorization', `Bearer ${demoToken}`);
             } else if (import.meta.env.DEV) {
@@ -78,7 +78,7 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
           }
         } else {
           // No supabase available, use demo token
-          const demoToken = getDemoToken();
+          const demoToken = await getDemoToken();
           if (demoToken) {
             headers.set('Authorization', `Bearer ${demoToken}`);
           } else if (import.meta.env.DEV) {

@@ -1,8 +1,7 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { VoiceControlWebRTC } from '@/modules/voice/components/VoiceControlWebRTC';
+import React, { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser';
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
-import { useKioskCart } from './KioskCartProvider';
+import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
 import { useKioskOrderSubmission } from '@/hooks/kiosk/useKioskOrderSubmission';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useToast } from '@/hooks/useToast';
@@ -12,6 +11,9 @@ import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BrandHeader } from '@/components/layout/BrandHeader';
 import { ShoppingCart, Mic, MicOff, Volume2, Trash2 } from 'lucide-react';
+
+// Lazy load the heavy VoiceControlWebRTC component
+const VoiceControlWebRTC = lazy(() => import('@/modules/voice/components/VoiceControlWebRTC').then(m => ({ default: m.VoiceControlWebRTC })));
 
 interface VoiceOrderingModeProps {
   onBack: () => void;
@@ -24,7 +26,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   onCheckout,
   onOrchestratorReady
 }) => {
-  const { cart, addItem, removeFromCart, clearCart } = useKioskCart();
+  const { cart, addItem, removeFromCart, clearCart } = useUnifiedCart();
   const { items: menuItems, loading } = useMenuItems();
   const { submitOrderAndNavigate, isSubmitting } = useKioskOrderSubmission();
   const apiClient = useApiRequest();
@@ -114,7 +116,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
     const newItems: string[] = [];
     parsedItems.forEach(parsed => {
       if (parsed.menuItem && parsed.action === 'add') {
-        const modifications = parsed.modifications ? parsed.modifications.map(mod => mod.name) : [];
+        const modifications = parsed.modifications ? parsed.modifications.map(mod => typeof mod === 'string' ? mod : mod.name) : [];
         addItem(parsed.menuItem, parsed.quantity, modifications);
         newItems.push(parsed.menuItem.name);
       }
@@ -149,6 +151,12 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
       const addedItems: string[] = [];
       
       orderData.items.forEach((item: any) => {
+        // Skip invalid items
+        if (!item || !item.name) {
+          console.warn('[VoiceOrderingMode] Skipping item with missing name:', item);
+          return;
+        }
+        
         // Enhanced fuzzy matching for menu items
         const menuItem = menuItems.find(m => {
           const itemNameLower = item.name.toLowerCase();
@@ -228,7 +236,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
       orderData.items.forEach((item: any) => {
         const menuItem = menuItems.find(m => m.id === item.menuItemId);
         if (menuItem) {
-          const modifications = item.modifications ? item.modifications.map((mod: any) => mod.name || mod) : [];
+          const modifications = item.modifications ? item.modifications.map((mod: any) => typeof mod === 'string' ? mod : (mod?.name || mod)) : [];
           addItem(
             menuItem,
             item.quantity || 1,
@@ -295,11 +303,17 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
           <div className="space-y-8">
             {/* Main Voice Control */}
             <Card className="p-12 text-center bg-white/90 backdrop-blur-sm border-2 border-orange-200 hover:border-orange-300 transition-colors">
-              <VoiceControlWebRTC
-                onTranscript={handleVoiceTranscript}
-                onOrderDetected={handleOrderData}
-                debug={false}
-              />
+              <Suspense fallback={
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+                </div>
+              }>
+                <VoiceControlWebRTC
+                  onTranscript={handleVoiceTranscript}
+                  onOrderDetected={handleOrderData}
+                  debug={false}
+                />
+              </Suspense>
               <div className="mt-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center">
                   {isListening ? (
@@ -388,7 +402,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                             {item.quantity}×
                           </span>
                           <span className="text-lg font-medium text-gray-900">
-                            {item.menuItem.name}
+                            {item.name}
                           </span>
                         </div>
                         {item.modifications && item.modifications.length > 0 && (
@@ -399,14 +413,14 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                       </div>
                       <div className="flex items-center space-x-4">
                         <span className="text-lg font-bold text-gray-900">
-                          ${(item.menuItem.price * item.quantity).toFixed(2)}
+                          ${(item.price * item.quantity).toFixed(2)}
                         </span>
                         <ActionButton
                           onClick={() => removeFromCart(item.id)}
                           variant="ghost"
                           size="small"
                           className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                          aria-label={`Remove ${item.menuItem.name} from cart`}
+                          aria-label={`Remove ${item.name} from cart`}
                         >
                           <Trash2 className="w-5 h-5" />
                         </ActionButton>

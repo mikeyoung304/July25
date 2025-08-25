@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from 'react'
+import React, { useState, useContext, useCallback, useEffect } from 'react'
 import { ArrowLeft, LayoutGrid, BarChart3 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,8 @@ import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
 import { spacing } from '@/lib/typography'
 import { RoleGuard } from '@/components/auth/RoleGuard'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
+import { setCurrentRestaurantId } from '@/services/http/httpClient'
+import { logger } from '@/services/logger'
 
 interface AdminDashboardCardProps {
   title: string
@@ -61,8 +63,16 @@ function AdminDashboard() {
   
   const { restaurant } = context
 
+  // Ensure restaurant ID is set for HTTP client
+  useEffect(() => {
+    if (restaurant?.id) {
+      setCurrentRestaurantId(restaurant.id)
+      logger.info('[AdminDashboard] Restaurant context set:', restaurant.id)
+    }
+  }, [restaurant?.id])
+
   const handleSaveFloorPlan = useCallback((tables: Table[]) => {
-    // Floor plan saved
+    logger.info('[AdminDashboard] Floor plan saved with tables:', tables.length)
   }, [restaurant?.id])
   
   if (!restaurant) {

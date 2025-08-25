@@ -62,7 +62,6 @@
     "@babel/preset-env": "^7.28.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@compodoc/compodoc": "^1.1.26",
     "@eslint/js": "^9.31.0",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/instrumentation-express": "^0.52.0",
@@ -70,30 +69,23 @@
     "@opentelemetry/sdk-node": "^0.203.0",
     "@playwright/experimental-ct-react": "^1.54.2",
     "@playwright/test": "^1.54.2",
-    "@types/jest": "^30.0.0",
     "@types/node": "^20.19.10",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
-    "babel-jest": "^30.0.4",
     "concurrently": "8.2.2",
-    "conventional-changelog-cli": "^5.0.0",
     "cross-env": "^10.0.0",
     "dotenv": "^16.3.1",
     "eslint": "^9.31.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "husky": "^9.1.7",
-    "jsdoc": "^4.0.4",
     "lint-staged": "^16.1.5",
     "npm-run-all": "^4.1.5",
     "playwright-lighthouse": "^4.0.0",
     "terser": "^5.43.1",
     "tsx": "^4.7.0",
-    "typedoc": "^0.28.10",
-    "vite-bundle-analyzer": "^1.2.1",
     "wait-on": "^8.0.4",
-    "web-vitals": "^5.1.0",
-    "webpack-bundle-analyzer": "^4.10.2"
+    "web-vitals": "^5.1.0"
   },
   "keywords": [
     "restaurant",
@@ -108,9 +100,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@types/react-window": "^1.8.8",
-    "openai": "^5.12.2",
-    "react-window": "^1.8.11",
     "zod": "^3.25.76"
   }
 }

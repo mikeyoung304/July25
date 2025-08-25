@@ -50,15 +50,46 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           // CRITICAL: Manual chunks prevent memory explosion
-          manualChunks: {
-            // React ecosystem
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          manualChunks: (id) => {
+            // node_modules chunks
+            if (id.includes('node_modules')) {
+              // React core
+              if (id.includes('react') && !id.includes('react-hot-toast')) {
+                return 'react-vendor';
+              }
+              // Supabase
+              if (id.includes('supabase')) {
+                return 'supabase';
+              }
+              // Square payments
+              if (id.includes('square')) {
+                return 'square-vendor';
+              }
+              // UI libraries
+              if (id.includes('react-hot-toast') || id.includes('framer-motion')) {
+                return 'ui-vendor';
+              }
+              // Date/time utilities
+              if (id.includes('date-fns') || id.includes('dayjs')) {
+                return 'date-vendor';
+              }
+              // All other vendor code
+              return 'vendor';
+            }
             
-            // Supabase and auth
-            'supabase': ['@supabase/supabase-js'],
-            
-            // Utilities (only installed packages)
-            'utils': ['clsx'],
+            // Split large components into separate chunks
+            if (id.includes('WebRTCVoiceClient')) {
+              return 'voice-client';
+            }
+            if (id.includes('FloorPlanEditor')) {
+              return 'floor-plan';
+            }
+            if (id.includes('modules/order-system')) {
+              return 'order-system';
+            }
+            if (id.includes('modules/voice')) {
+              return 'voice-module';
+            }
           },
           
           // Optimize chunk size

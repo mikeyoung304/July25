@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useKioskCart } from './KioskCartProvider';
+import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
 import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
 import { useApiRequest } from '@/hooks/useApiRequest';
@@ -21,7 +21,7 @@ type PaymentMethod = 'card' | 'terminal' | 'mobile' | 'cash';
 
 const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, voiceCheckoutOrchestrator }) => {
   const navigate = useNavigate();
-  const { cart, updateTip, clearCart } = useKioskCart();
+  const { cart, updateTip, clearCart } = useUnifiedCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('card');
   const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
@@ -154,11 +154,11 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'kiosk',
         items: cart.items.map(item => ({
-          menu_item_id: item.menuItem.id,
-          name: item.menuItem.name,
+          menu_item_id: item.menuItemId || item.menuItem?.id,
+          name: item.name || item.menuItem?.name,
           quantity: item.quantity,
-          price: item.menuItem.price,
-          modifiers: item.modifications || [],
+          price: item.price || item.menuItem?.price,
+          modifiers: item.modifications || item.modifiers || [],
           specialInstructions: item.specialInstructions || '',
         })),
         customerName: form.values.customerName,
@@ -416,7 +416,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
                           {item.quantity}×
                         </span>
                         <span className="text-lg font-medium text-gray-900">
-                          {item.menuItem.name}
+                          {item.name || item.menuItem?.name}
                         </span>
                       </div>
                       {item.modifications && item.modifications.length > 0 && (
@@ -426,7 +426,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
                       )}
                     </div>
                     <span className="text-lg font-bold text-gray-900">
-                      ${(item.menuItem.price * item.quantity).toFixed(2)}
+                      ${((item.price || item.menuItem?.price || 0) * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 ))}

@@ -317,12 +317,14 @@ export const batchUpdateTables = asyncHandler(async (req, res) => {
   }
   
   // Transform database columns back to frontend properties
-  const data = results.map(r => r.data).map(table => ({
+  const data = results.map(r => r.data).filter(Boolean).map(table => ({
     ...table,
     x: table.x_pos,
     y: table.y_pos,
     type: table.shape
   }));
+  
+  logger.info(`✅ Batch update response: ${data.length} tables transformed and returned`);
   
   return res.json(data);
 });

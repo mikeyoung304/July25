@@ -375,14 +375,31 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
     const loadTables = async () => {
       try {
         setIsLoading(true)
+        logger.info('[FloorPlanEditor] Loading tables for restaurant:', restaurantId)
+        
         const { tables } = await tableService.getTables()
+        logger.info('[FloorPlanEditor] Loaded tables from API:', {
+          count: tables?.length || 0,
+          sample: tables?.[0] || null
+        })
+        
         setTables(tables || [])
+        
         if (tables?.length > 0) {
           toast.success(`Loaded ${tables.length} tables`)
+        } else {
+          logger.info('[FloorPlanEditor] No tables found, starting with empty floor plan')
         }
       } catch (error) {
+        logger.error('[FloorPlanEditor] Failed to load tables:', {
+          error: error.message,
+          restaurantId,
+          stack: error.stack
+        })
         console.error('Failed to load tables:', error)
-        toast.error('Failed to load floor plan')
+        toast.error('Failed to load floor plan. Please check your connection.')
+        // Set empty tables array on error so user can still create new tables
+        setTables([])
       } finally {
         setIsLoading(false)
       }
@@ -600,13 +617,42 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
       logger.info(`✅ Save successful, total tables: ${savedTables.length}`)
       toast.success(`Floor plan saved! (${savedTables.length} tables)`)
       onSave?.(savedTables)
+      
+      // Force reload tables to ensure consistency
+      setTimeout(async () => {
+        try {
+          logger.info('[FloorPlanEditor] Reloading tables after save to ensure consistency')
+          const { tables: refreshedTables } = await tableService.getTables()
+          setTables(refreshedTables || [])
+          logger.info('[FloorPlanEditor] Tables refreshed after save:', refreshedTables?.length || 0)
+        } catch (refreshError) {
+          logger.error('[FloorPlanEditor] Failed to refresh tables after save:', refreshError)
+        }
+      }, 500)
     } catch (error) {
+      logger.error('[FloorPlanEditor] Save failed:', {
+        error: error.message,
+        status: error.status,
+        details: error.details,
+        restaurantId,
+        tableCount: tables.length
+      })
       console.error('❌ Save failed with error:', error)
       console.error('❌ Error type:', error.constructor.name)
       console.error('❌ Error message:', error.message)
       console.error('❌ Error status:', error.status)
       console.error('❌ Error details:', error.details)
-      toast.error('Failed to save floor plan')
+      
+      // More specific error messages
+      if (error.status === 401) {
+        toast.error('Authentication failed. Please sign in again.')
+      } else if (error.status === 403) {
+        toast.error('You do not have permission to save the floor plan.')
+      } else if (error.status === 400) {
+        toast.error(`Invalid data: ${error.message || 'Please check table names and positions.'}`)
+      } else {
+        toast.error(`Failed to save floor plan: ${error.message || 'Unknown error'}`)
+      }
     } finally {
       setIsSaving(false)
     }

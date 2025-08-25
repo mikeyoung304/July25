@@ -504,7 +504,7 @@ export class WebRTCVoiceClient extends EventEmitter {
                 type: 'response.create',
                 response: {
                   modalities: ['text', 'audio'],
-                  instructions: 'Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences. English only.',
+                  instructions: 'You MUST respond in English only. Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences. Speak English only, never Spanish or any other language.',
                 }
               });
               console.log(`${logPrefix} Manual response.create sent`);
@@ -620,9 +620,18 @@ export class WebRTCVoiceClient extends EventEmitter {
           const args = JSON.parse(event.arguments);
           
           if (event.name === 'add_to_order') {
+            // Validate and filter items with names
+            const validItems = (args.items || []).filter((item: any) => {
+              if (!item?.name) {
+                console.warn(`${logPrefix} Skipping item without name:`, item);
+                return false;
+              }
+              return true;
+            });
+            
             // Emit structured order event with items
             const orderEvent: OrderEvent = {
-              items: args.items || [],
+              items: validItems,
               confidence: 0.95,
               timestamp: Date.now(),
             };
@@ -707,7 +716,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     }
     
     // Build instructions with menu context
-    let instructions = `You are Grow Restaurant's friendly, fast, and accurate customer service agent. English only.
+    let instructions = `You are Grow Restaurant's friendly, fast, and accurate customer service agent. You MUST speak in English only. Never respond in any other language.
 
 🎯 YOUR JOB:
 - Help guests choose items and take complete, correct orders
@@ -761,7 +770,13 @@ ENTRÉES → Ask:
 
 🚫 REDIRECT NON-FOOD TOPICS:
 - "I can only help with food orders. What would you like to order?"
-- "Let me help you with our menu. Any starters today?"`;
+- "Let me help you with our menu. Any starters today?"
+
+⚠️ LANGUAGE REQUIREMENT:
+- You MUST speak English ONLY
+- If you hear Spanish or any other language, respond in English: "I can help you in English. What would you like to order?"
+- Never respond in Spanish, French, Chinese, or any language other than English
+- All responses, greetings, and confirmations MUST be in English`;
     
     // Add menu context if available
     if (this.menuContext) {
@@ -774,103 +789,108 @@ ENTRÉES → Ask:
     const tools = [
       {
         type: 'function',
-        function: {
-          name: 'add_to_order',
-          description: 'Add items to the customer\'s order when they request specific menu items',
-          parameters: {
-            type: 'object',
-            properties: {
+        name: 'add_to_order',
+        description: 'Add items to the customer\'s order when they request specific menu items',
+        parameters: {
+          type: 'object',
+          properties: {
+            items: {
+              type: 'array',
+              description: 'Array of items to add to the order',
               items: {
-                type: 'array',
-                description: 'Array of items to add to the order',
-                items: {
-                  type: 'object',
-                  properties: {
-                    name: { 
-                      type: 'string',
-                      description: 'The menu item name (e.g., "Soul Bowl", "Greek Salad")'
-                    },
-                    quantity: { 
-                      type: 'integer',
-                      minimum: 1,
-                      default: 1,
-                      description: 'Number of this item'
-                    },
-                    modifications: { 
-                      type: 'array', 
-                      items: { type: 'string' },
-                      description: 'Modifications like "no onions", "extra cheese", "add chicken"'
-                    },
-                    specialInstructions: {
-                      type: 'string',
-                      description: 'Any special preparation instructions'
-                    }
+                type: 'object',
+                properties: {
+                  name: { 
+                    type: 'string',
+                    description: 'The menu item name (e.g., "Soul Bowl", "Greek Salad")'
                   },
-                  required: ['name', 'quantity']
-                }
+                  quantity: { 
+                    type: 'integer',
+                    minimum: 1,
+                    default: 1,
+                    description: 'Number of this item'
+                  },
+                  modifications: { 
+                    type: 'array', 
+                    items: { type: 'string' },
+                    description: 'Modifications like "no onions", "extra cheese", "add chicken"'
+                  },
+                  specialInstructions: {
+                    type: 'string',
+                    description: 'Any special preparation instructions'
+                  }
+                },
+                required: ['name', 'quantity'],
+                additionalProperties: false
               }
-            },
-            required: ['items']
-          }
+            }
+          },
+          required: ['items'],
+          additionalProperties: false
         }
       },
       {
         type: 'function',
-        function: {
-          name: 'confirm_order',
-          description: 'Confirm the order and proceed with checkout when customer is ready',
-          parameters: {
-            type: 'object',
-            properties: {
-              action: { 
-                type: 'string',
-                enum: ['checkout', 'review', 'cancel'],
-                description: 'Action to take with the order'
-              }
-            },
-            required: ['action']
-          }
+        name: 'confirm_order',
+        description: 'Confirm the order and proceed with checkout when customer is ready',
+        parameters: {
+          type: 'object',
+          properties: {
+            action: { 
+              type: 'string',
+              enum: ['checkout', 'review', 'cancel'],
+              description: 'Action to take with the order'
+            }
+          },
+          required: ['action'],
+          additionalProperties: false
         }
       },
       {
         type: 'function',
-        function: {
-          name: 'remove_from_order',
-          description: 'Remove items from the order when customer changes their mind',
-          parameters: {
-            type: 'object',
-            properties: {
-              itemName: {
-                type: 'string',
-                description: 'Name of the item to remove'
-              },
-              quantity: {
-                type: 'integer',
-                description: 'Number to remove (optional, removes all if not specified)'
-              }
+        name: 'remove_from_order',
+        description: 'Remove items from the order when customer changes their mind',
+        parameters: {
+          type: 'object',
+          properties: {
+            itemName: {
+              type: 'string',
+              description: 'Name of the item to remove'
             },
-            required: ['itemName']
-          }
+            quantity: {
+              type: 'integer',
+              description: 'Number to remove (optional, removes all if not specified)'
+            }
+          },
+          required: ['itemName'],
+          additionalProperties: false
         }
       }
     ];
     
+    const sessionConfig: any = {
+      modalities: ['text', 'audio'],
+      instructions,
+      voice: 'alloy',
+      input_audio_format: 'pcm16',
+      output_audio_format: 'pcm16',
+      input_audio_transcription: {
+        model: 'whisper-1',
+        language: 'en'  // Force English transcription
+      },
+      turn_detection: turnDetection,
+      temperature: 0.6, // Minimum temperature for Realtime API
+      max_response_output_tokens: 500 // Sufficient for complete responses
+    };
+    
+    // Only add tools if they exist and are non-empty
+    if (tools && tools.length > 0) {
+      sessionConfig.tools = tools;
+    }
+    
     const sessionUpdate = {
       type: 'session.update',
-      session: {
-        modalities: ['text', 'audio'],
-        instructions,
-        voice: 'alloy',
-        input_audio_format: 'pcm16',
-        output_audio_format: 'pcm16',
-        input_audio_transcription: {
-          model: 'whisper-1'
-        },
-        turn_detection: turnDetection,
-        temperature: 0.6, // Minimum temperature for Realtime API
-        max_response_output_tokens: 500, // Sufficient for complete responses
-        tools: tools // Add function calling tools
-      }
+      session: sessionConfig
     };
     
     this.sendEvent(sessionUpdate);
@@ -880,7 +900,7 @@ ENTRÉES → Ask:
       type: 'input_audio_buffer.clear'
     });
     
-    console.log(`${logPrefix} Session configured with function calling for order extraction`);
+    console.log(`${logPrefix} Session configured (tools temporarily disabled to fix connection)`);
   }
 
   /**

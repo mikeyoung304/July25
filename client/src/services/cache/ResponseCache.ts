@@ -150,6 +150,13 @@ export class ResponseCache {
   }
 
   /**
+   * Clear cache - alias for invalidate for compatibility
+   */
+  clear(pattern?: string): number {
+    return this.invalidate(pattern);
+  }
+
+  /**
    * Check if entry is expired
    */
   private isExpired(entry: CacheEntry<any>): boolean {
