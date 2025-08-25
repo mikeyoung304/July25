@@ -1,14 +1,4 @@
-import { describe, it } from 'vitest'
-
-// Skip WebSocket tests due to timing issues causing test suite to hang
-describe.skip('WebSocketService', () => {
-  it('should be skipped', () => {
-    // Tests temporarily disabled to fix hanging test suite
-  })
-})
-
-// Original test code preserved below but not executed
-/*
+import { describe, it, test, beforeEach, afterEach, vi, expect } from 'vitest'
 import { WebSocketService } from './WebSocketService'
 import { vi } from 'vitest';
 import { supabase } from '@/core/supabase'
@@ -63,17 +53,24 @@ vi.mock('@/core/supabase', () => ({
   }
 }))
 
-// Mock global WebSocket
-// @ts-expect-error - Mock WebSocket for testing
-global.WebSocket = MockWebSocket
+// We'll set up the mock in beforeEach instead
 
-describe('WebSocketService', () => {
+// Mock fetch for demo auth
+global.fetch = vi.fn()
+
+describe('WebSocketService', { timeout: 10000 }, () => {
   let service: WebSocketService
   let mockWebSocket: MockWebSocket
   
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.useFakeTimers()
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    
+    // Mock fetch to prevent actual network calls
+    ;(global.fetch as any).mockResolvedValue({
+      ok: true,
+      json: async () => ({ token: 'demo-token' })
+    })
     
     // Set up auth mock
     ;(supabase.auth.getSession as vi.Mock).mockResolvedValue({
@@ -90,28 +87,29 @@ describe('WebSocketService', () => {
     // Set restaurant ID
     setCurrentRestaurantId('test-restaurant')
     
+    // Create mock WebSocket instance
+    mockWebSocket = new MockWebSocket()
+    
     // Mock WebSocket constructor
     // @ts-expect-error - Mock WebSocket for testing
-    global.WebSocket = vi.fn().mockImplementation(() => {
-      mockWebSocket = new MockWebSocket()
-      return mockWebSocket
-    })
+    global.WebSocket = vi.fn().mockImplementation(() => mockWebSocket)
     
     service = new WebSocketService()
   })
   
-  afterEach(() => {
-    vi.useRealTimers()
+  afterEach(async () => {
     service.disconnect()
+    await vi.runAllTimersAsync()
+    vi.useRealTimers()
+    vi.clearAllTimers()
   })
   
   describe('connect', () => {
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should establish WebSocket connection with auth params', async () => {
+    test('should establish WebSocket connection with auth params', async () => {
       const connectPromise = service.connect()
       
       // Wait for auth to be resolved
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       
       const wsCall = (global.WebSocket as unknown as vi.Mock).mock.calls[0]
       const url = new URL(wsCall[0])
@@ -125,8 +123,7 @@ describe('WebSocketService', () => {
       expect(service.isConnected()).toBe(true)
     })
     
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should handle missing auth session', async () => {
+    test('should handle missing auth session', async () => {
       ;(supabase.auth.getSession as vi.Mock).mockResolvedValue({
         data: { session: null },
         error: null
@@ -137,8 +134,7 @@ describe('WebSocketService', () => {
       expect(service.getConnectionState()).toBe('error')
     })
     
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should handle missing restaurant ID', async () => {
+    test('should handle missing restaurant ID', async () => {
       setCurrentRestaurantId(null)
       
       await service.connect()
@@ -146,11 +142,10 @@ describe('WebSocketService', () => {
       expect(service.getConnectionState()).toBe('error')
     })
     
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should not connect if already connected', async () => {
+    test('should not connect if already connected', async () => {
       // First connection
       const firstConnect = service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       await firstConnect
@@ -165,10 +160,9 @@ describe('WebSocketService', () => {
   })
   
   describe('disconnect', () => {
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should close WebSocket connection', async () => {
+    test('should close WebSocket connection', async () => {
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
@@ -180,10 +174,9 @@ describe('WebSocketService', () => {
   })
   
   describe('send', () => {
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should send messages when connected', async () => {
+    test('should send messages when connected', async () => {
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
@@ -196,23 +189,21 @@ describe('WebSocketService', () => {
       expect(sentData.payload).toEqual(toSnakeCase(payload))
     })
     
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should queue messages when not connected', () => {
+    test('should queue messages when not connected', () => {
       const payload = { test: 'data' }
       service.send('test-message', payload)
       
       expect(mockWebSocket).toBeUndefined()
     })
     
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should flush queued messages after connection', async () => {
+    test('should flush queued messages after connection', async () => {
       // Queue messages before connection
       service.send('message1', { data: 1 })
       service.send('message2', { data: 2 })
       
       // Connect
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
@@ -222,10 +213,9 @@ describe('WebSocketService', () => {
   })
   
   describe('subscribe', () => {
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should handle incoming messages', async () => {
+    test('should handle incoming messages', async () => {
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
@@ -242,10 +232,9 @@ describe('WebSocketService', () => {
       expect(callback).toHaveBeenCalledWith(toCamelCase(payload))
     })
     
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should return unsubscribe function', async () => {
+    test('should return unsubscribe function', async () => {
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
@@ -275,10 +264,9 @@ describe('WebSocketService', () => {
   })
   
   describe('reconnection', () => {
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should attempt reconnection on unexpected close', async () => {
+    test('should attempt reconnection on unexpected close', async () => {
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
@@ -293,10 +281,9 @@ describe('WebSocketService', () => {
       expect(global.WebSocket).toHaveBeenCalledTimes(1)
     })
     
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should not reconnect on intentional close', async () => {
+    test('should not reconnect on intentional close', async () => {
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
@@ -310,13 +297,12 @@ describe('WebSocketService', () => {
       expect(global.WebSocket).not.toHaveBeenCalled()
     })
     
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should stop reconnecting after max attempts', async () => {
+    test('should stop reconnecting after max attempts', async () => {
       const maxAttempts = 10
       service = new WebSocketService({ maxReconnectAttempts: maxAttempts })
       
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       
       // Simulate multiple failed connections
@@ -332,12 +318,11 @@ describe('WebSocketService', () => {
   })
   
   describe('heartbeat', () => {
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should send ping messages periodically', async () => {
+    test('should send ping messages periodically', async () => {
       service = new WebSocketService()
       
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
@@ -353,10 +338,9 @@ describe('WebSocketService', () => {
   })
   
   describe('error handling', () => {
-    // TODO(luis): enable when Playwright pipeline runs
-    test.skip('should emit error on invalid message format', async () => {
+    test('should emit error on invalid message format', async () => {
       await service.connect()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       mockWebSocket.simulateOpen()
       
@@ -371,4 +355,4 @@ describe('WebSocketService', () => {
       expect(errorCallback).toHaveBeenCalled()
     })
   })
-})*/
+})
