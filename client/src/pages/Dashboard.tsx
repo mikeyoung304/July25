@@ -94,23 +94,23 @@ export function Dashboard() {
                 title="Analytics"
                 icon={<BarChart3 className="h-12 w-12 text-emerald-500" />}
                 iconBg="bg-emerald-500/10"
-                href="/analytics"
+                href="/performance"
                 delay={3}
               />
               
               <DashboardCard
-                title="Staff"
+                title="Server"
                 icon={<Users className="h-12 w-12 text-blue-500" />}
                 iconBg="bg-blue-500/10"
-                href="/staff"
+                href="/server"
                 delay={4}
               />
               
               <DashboardCard
-                title="Settings"
+                title="Admin"
                 icon={<Settings className="h-12 w-12 text-gray-500" />}
                 iconBg="bg-gray-500/10"
-                href="/settings"
+                href="/admin"
                 delay={5}
               />
             </div>

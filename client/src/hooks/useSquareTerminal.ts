@@ -206,13 +206,13 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
           // Complete the order
           const completionResponse = await api.post(`/api/v1/terminal/checkout/${checkoutId}/complete`);
           
-          if (completionResponse && completionResponse.success) {
+          if (completionResponse && (completionResponse as any).success) {
             const paymentData: TerminalPayment = {
-              ...completionResponse.payment,
+              ...(completionResponse as any).payment,
               status: 'completed'
             };
 
-            onSuccess?.(completionResponse.order, paymentData);
+            onSuccess?.((completionResponse as any).order, paymentData);
             
             toast.success('Payment completed successfully!');
 
