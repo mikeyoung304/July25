@@ -1,8 +1,8 @@
 {
-  "name": "grow-fresh-local-food",
+  "name": "restaurant-os",
   "private": true,
-  "version": "1.0.0",
-  "description": "Grow Fresh Local Food Restaurant Operating System",
+  "version": "6.0.2",
+  "description": "Restaurant OS - Intelligent Restaurant Management System",
   "workspaces": [
     "client",
     "server",

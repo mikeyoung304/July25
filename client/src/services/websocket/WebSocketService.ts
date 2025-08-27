@@ -8,7 +8,7 @@ import { EventEmitter } from '@/services/utils/EventEmitter'
 import { logger } from '@/services/logger'
 import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
-import { toSnakeCase, toCamelCase } from '@/services/utils/caseTransform'
+import { toSnakeCase } from '@/services/utils/caseTransform'
 import { env } from '@/utils/env'
 
 export interface WebSocketConfig {
@@ -141,14 +141,25 @@ export class WebSocketService extends EventEmitter {
   disconnect(): void {
     this.isIntentionallyClosed = true
     this.stopHeartbeat()
-    this.cleanup()
+    
+    // Clear reconnect timer first to prevent reconnection
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = null
+    }
     
     if (this.ws) {
-      this.ws.close()
+      // Close with proper code and reason
+      if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
+        this.ws.close(1000, 'Client disconnect')
+      }
       this.ws = null
     }
     
     this.setConnectionState('disconnected')
+    
+    // Clean up after setting state and closing connection
+    this.cleanup()
   }
 
   /**
@@ -365,7 +376,12 @@ export class WebSocketService extends EventEmitter {
   private startHeartbeat(): void {
     this.stopHeartbeat()
     
-    this.heartbeatTimer = setInterval(() => {
+    // Use setTimeout recursively instead of setInterval for better test compatibility
+    const runHeartbeat = () => {
+      if (!this.isConnected()) {
+        return
+      }
+      
       const now = Date.now()
       
       // Check if we haven't received any data recently
@@ -381,7 +397,15 @@ export class WebSocketService extends EventEmitter {
       if (this.isConnected()) {
         this.send('ping', { timestamp: now })
       }
-    }, this.heartbeatInterval)
+      
+      // Schedule next heartbeat
+      if (this.isConnected()) {
+        this.heartbeatTimer = setTimeout(runHeartbeat, this.heartbeatInterval)
+      }
+    }
+    
+    // Start the first heartbeat
+    this.heartbeatTimer = setTimeout(runHeartbeat, this.heartbeatInterval)
   }
 
   /**
@@ -389,7 +413,7 @@ export class WebSocketService extends EventEmitter {
    */
   private stopHeartbeat(): void {
     if (this.heartbeatTimer) {
-      clearInterval(this.heartbeatTimer)
+      clearTimeout(this.heartbeatTimer)
       this.heartbeatTimer = null
     }
   }
