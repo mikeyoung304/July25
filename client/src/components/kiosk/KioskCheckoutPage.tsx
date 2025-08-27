@@ -348,7 +348,8 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       default:
         return {
           ...baseProps,
-          // SquarePaymentForm handles its own button
+          text: `Pay $${cart.total.toFixed(2)} with Card`,
+          onClick: () => {}, // SquarePaymentForm handles its own submission
         };
     }
   };
