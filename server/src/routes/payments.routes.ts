@@ -79,8 +79,26 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
         ...(req.body.verificationToken && { verificationToken: req.body.verificationToken }),
       };
 
-      // Process payment with Square
-      const { result: paymentResult } = await paymentsApi.createPayment(paymentRequest as any);
+      // Check if we're in demo mode (no Square credentials)
+      let paymentResult: any;
+      
+      if (!process.env.SQUARE_ACCESS_TOKEN || process.env.SQUARE_ACCESS_TOKEN === 'demo' || process.env.NODE_ENV === 'development') {
+        // Mock successful payment in demo/development mode
+        routeLogger.info('Demo mode: Mocking successful payment');
+        paymentResult = {
+          payment: {
+            id: `demo-payment-${randomUUID()}`,
+            status: 'COMPLETED',
+            amountMoney: paymentRequest.amountMoney,
+            referenceId: orderId,
+            createdAt: new Date().toISOString(),
+          }
+        };
+      } else {
+        // Process real payment with Square
+        const response = await paymentsApi.createPayment(paymentRequest as any);
+        paymentResult = response.result;
+      }
 
       if (paymentResult.payment?.status !== 'COMPLETED') {
         routeLogger.warn('Payment not completed', { 

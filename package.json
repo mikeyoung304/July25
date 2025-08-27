@@ -63,7 +63,12 @@
     "@babel/preset-env": "^7.28.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@cyanheads/git-mcp-server": "^2.3.2",
     "@eslint/js": "^9.31.0",
+    "@modelcontextprotocol/server-filesystem": "^2025.8.21",
+    "@modelcontextprotocol/server-memory": "^2025.8.4",
+    "@modelcontextprotocol/server-puppeteer": "^2025.5.12",
+    "@modelcontextprotocol/server-sequential-thinking": "^2025.7.1",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/instrumentation-express": "^0.52.0",
     "@opentelemetry/instrumentation-http": "^0.203.0",
@@ -83,6 +88,7 @@
     "lint-staged": "^16.1.5",
     "npm-run-all": "^4.1.5",
     "playwright-lighthouse": "^4.0.0",
+    "supabase-mcp": "^1.5.0",
     "terser": "^5.43.1",
     "tsx": "^4.7.0",
     "wait-on": "^8.0.4",
@@ -101,6 +107,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@radix-ui/react-tooltip": "^1.2.8",
     "zod": "^3.25.76"
   }
 }

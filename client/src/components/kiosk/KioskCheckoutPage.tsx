@@ -31,8 +31,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   // Square Terminal integration
   const terminal = useSquareTerminal({
     onSuccess: (orderData, paymentData) => {
-      // Clear cart and navigate to confirmation
-      clearCart();
+      // Navigate to confirmation (cart already cleared after order creation)
       navigate('/order-confirmation', {
         state: {
           orderId: orderData.id,
@@ -178,6 +177,10 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       const order = orderResponse as { id: string; order_number: string };
       setCreatedOrderId(order.id);
       
+      // Clear cart immediately after order creation
+      // Order has been sent to kitchen, regardless of payment status
+      clearCart();
+      
       return order;
 
     } catch (error) {
@@ -229,8 +232,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
 
       const payment = paymentResponse as { id?: string; paymentId?: string };
 
-      // Clear cart and navigate to confirmation
-      clearCart();
+      // Navigate to confirmation (cart already cleared after order creation)
       navigate('/order-confirmation', { 
         state: { 
           orderId: order.id,
@@ -282,7 +284,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
         // For cash payments, just create the order and navigate
         const order = await createOrder();
         if (order) {
-          clearCart();
+          // Cart already cleared after order creation
           navigate('/order-confirmation', {
             state: {
               orderId: order.id,

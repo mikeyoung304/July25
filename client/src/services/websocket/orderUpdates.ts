@@ -150,11 +150,17 @@ export class OrderUpdatesHandler {
       order: order  // Order data in snake_case format as expected
     })
 
-    // Show notification for new orders
-    toast.success(`New order #${order.order_number} received!`, {
-      duration: 5000,
-      position: 'top-right'
-    })
+    // Only show notification on kitchen-related pages, not on customer/kiosk pages
+    const isKitchenPage = window.location.pathname.includes('/kitchen') || 
+                         window.location.pathname.includes('/expo') ||
+                         window.location.pathname.includes('/admin');
+    
+    if (isKitchenPage) {
+      toast.success(`New order #${order.order_number} received!`, {
+        duration: 5000,
+        position: 'top-right'
+      })
+    }
   }
 
   /**
