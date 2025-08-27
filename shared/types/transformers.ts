@@ -9,16 +9,22 @@
  * - Structured error handling
  */
 
-import type {
-  Order as SharedOrder,
-  OrderItem as SharedOrderItem,
-  MenuItem as SharedMenuItem,
-  Table as SharedTable,
-  Customer as SharedCustomer,
-  Restaurant,
-  OrderType,
-  UIOrderType
-} from './index';
+import type { Order as SharedOrder, OrderItem as SharedOrderItem, OrderType, UIOrderType } from './order.types';
+import type { MenuItem as SharedMenuItem } from './menu.types';
+import type { Table as SharedTable } from './table.types';
+import type { Customer as SharedCustomer } from './customer.types';
+
+export interface Restaurant {
+  id: string;
+  name: string;
+  logo_url?: string;
+  timezone: string;
+  currency: string;
+  tax_rate: number;
+  default_tip_percentages?: number[];
+  created_at: string;
+  updated_at: string;
+}
 
 // Validation error types
 export class TypeTransformationError extends Error {

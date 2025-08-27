@@ -20,8 +20,7 @@ export { StatusActionButton } from './buttons/StatusActionButton';
 // Controls
 export { SoundControl } from './controls/SoundControl';
 
-// Display
-// export { OrderIdentifiers } from './display/OrderIdentifiers';
+// Display components available but not currently exported
 
 // Errors
 export { ErrorBoundary } from './errors/ErrorBoundary';

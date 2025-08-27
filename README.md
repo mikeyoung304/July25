@@ -320,4 +320,4 @@ Special thanks to:
 
 ---
 
-**Version**: 6.0.0 | **Last Updated**: August 2024 | **Status**: Production Ready
+**Version**: 6.0.1 | **Last Updated**: August 2025 | **Status**: Production Ready

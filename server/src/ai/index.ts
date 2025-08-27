@@ -65,9 +65,13 @@ try {
   aiLogger.error('Failed to initialize OpenAI adapters, falling back to stubs:', error);
   
   // Fallback to stubs if OpenAI initialization fails
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { TranscriberStub } = require('./stubs/transcriber.stub');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { TTSStub } = require('./stubs/tts.stub');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ChatStub } = require('./stubs/chat.stub');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { OrderNLPStub } = require('./stubs/order-nlp.stub');
   
   transcriber = new TranscriberStub();

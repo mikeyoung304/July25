@@ -60,8 +60,6 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       }
     },
     onStatusChange: (status) => {
-      console.log('Terminal status changed:', status);
-      
       // Provide voice feedback for status changes
       if (voiceCheckoutOrchestrator) {
         let feedbackText = '';
@@ -280,7 +278,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       case 'terminal':
         await handleTerminalPayment();
         break;
-      case 'cash':
+      case 'cash': {
         // For cash payments, just create the order and navigate
         const order = await createOrder();
         if (order) {
@@ -304,6 +302,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
           }
         }
         break;
+      }
       case 'mobile':
         // Placeholder for mobile payments (Apple Pay, Google Pay, etc.)
         form.setFieldError('general' as keyof typeof form.values, 'Mobile payments not yet supported');

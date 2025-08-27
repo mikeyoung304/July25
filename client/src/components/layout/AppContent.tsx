@@ -1,4 +1,3 @@
-import React from 'react'
 import { Toaster } from 'react-hot-toast'
 import { useLocation } from 'react-router-dom'
 import { SkipNavigation } from '@/components/shared/accessibility/SkipNavigation'

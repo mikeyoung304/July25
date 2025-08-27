@@ -4,6 +4,15 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { OrderCard } from '../OrderCard/OrderCard'
 import { OrderItem } from '@/modules/orders/types'
 
+// Mock react-router-dom
+vi.mock('react-router-dom', () => ({
+  useNavigate: vi.fn(() => vi.fn()),
+  useLocation: vi.fn(() => ({ pathname: '/' })),
+  useParams: vi.fn(() => ({})),
+  Link: vi.fn(({ children, to }) => <a href={to}>{children}</a>),
+  NavLink: vi.fn(({ children, to }) => <a href={to}>{children}</a>),
+}))
+
 describe('OrderCard', () => {
   const defaultProps = {
     orderId: '1',

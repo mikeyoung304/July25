@@ -1,4 +1,3 @@
-import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Circle, Square, RectangleHorizontal, Save, Maximize2, ArrowLeft } from 'lucide-react'
 import { Table } from '../types'

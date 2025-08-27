@@ -144,8 +144,6 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   }, [orderParser, processParsedItems]);
 
   const handleOrderData = useCallback((orderData: any) => {
-    console.log('[VoiceOrderingMode] Received order data:', orderData);
-    
     // Handle function call format from WebRTC: { items: [{ name, quantity, modifications }] }
     if (orderData?.items?.length > 0) {
       const addedItems: string[] = [];
@@ -190,7 +188,6 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
           // Handle modifications from function call
           const modifications = item.modifications || item.modifiers || [];
           
-          console.log(`[VoiceOrderingMode] Adding ${item.quantity}x ${menuItem.name} with modifications:`, modifications);
           
           addItem(
             menuItem,
@@ -200,8 +197,6 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
           );
           
           addedItems.push(`${item.quantity || 1}x ${menuItem.name}`);
-        } else {
-          console.warn(`[VoiceOrderingMode] Could not find menu item for: ${item.name}`);
         }
       });
       
@@ -214,7 +209,6 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
     
     // Handle order confirmation events via VoiceCheckoutOrchestrator
     else if (orderData?.action) {
-      console.log('[VoiceOrderingMode] Order action:', orderData.action);
       
       if (checkoutOrchestratorRef.current) {
         checkoutOrchestratorRef.current.handleOrderConfirmation({
