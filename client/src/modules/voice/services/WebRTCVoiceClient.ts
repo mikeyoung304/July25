@@ -1,3 +1,4 @@
+/* eslint-env browser */
 import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { getAuthToken } from '../../../services/auth';
 
@@ -668,7 +669,7 @@ export class WebRTCVoiceClient extends EventEmitter {
         }
         break;
         
-      case 'error':
+      case 'error': {
         console.error('[WebRTCVoice] API error:', JSON.stringify(event.error, null, 2));
         console.error('[WebRTCVoice] Full error event:', JSON.stringify(event, null, 2));
         const errorMessage = event.error?.message || event.error?.error?.message || 'OpenAI API error';
@@ -684,6 +685,7 @@ export class WebRTCVoiceClient extends EventEmitter {
           this.handleSessionExpired();
         }
         break;
+      }
         
         
       default:

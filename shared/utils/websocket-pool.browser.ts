@@ -100,8 +100,8 @@ export class WebSocketPool extends ManagedService {
   private connections = new Map<string, PooledWebSocketConnection>();
   private subscriptions = new Map<string, MessageSubscription>();
   private loadBalancingIndex = 0;
-  private heartbeatTimer?: NodeJS.Timeout;
-  private healthCheckTimer?: NodeJS.Timeout;
+  private heartbeatTimer: NodeJS.Timeout | undefined = undefined;
+  private healthCheckTimer: NodeJS.Timeout | undefined = undefined;
   private messageId = 0;
 
   constructor(config: Partial<WebSocketPoolConfig> = {}) {
@@ -395,7 +395,7 @@ export class WebSocketPool extends ManagedService {
       id: `sub-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       pattern,
       callback,
-      connectionPreference
+      ...(connectionPreference && { connectionPreference })
     };
 
     this.subscriptions.set(subscription.id, subscription);

@@ -3,9 +3,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { 
-  Clock, User, Users, ChefHat, CheckCircle, 
-  AlertCircle, Package, ArrowRight, Timer,
-  TrendingUp
+  Clock, User, CheckCircle, 
+  AlertCircle, Timer
 } from 'lucide-react'
 import { cn } from '@/utils'
 import type { Order } from '@rebuild/shared'

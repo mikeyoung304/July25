@@ -7,6 +7,7 @@
 let React: any;
 if (typeof window !== 'undefined') {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     React = require('react');
   } catch (e) {
     console.warn('React not available in shared utils react-performance');
@@ -49,6 +50,7 @@ export function memoWithProfiling<P extends object>(
     if (typeof window !== 'undefined') {
       // Only run memory profiling in browser
       try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { useMemoryProfile } = require('./memory-monitoring');
         useMemoryProfile(componentName);
       } catch (e) {
@@ -84,6 +86,7 @@ export function withPerformanceTracking<P extends object>(
     // Profile component memory (browser only)
     if (typeof window !== 'undefined') {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { useMemoryProfile } = require('./memory-monitoring');
         useMemoryProfile(componentName);
       } catch (e) {

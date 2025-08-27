@@ -49,7 +49,7 @@ export function useVoiceOrderWebRTC() {
               modifications: parsed.modifications
             })
             break
-          case 'remove':
+          case 'remove': {
             // Handle remove in the parent component
             const itemToRemove = orderItems.find(item => 
               item.menuItemId === parsed.menuItem?.id
@@ -58,7 +58,8 @@ export function useVoiceOrderWebRTC() {
               setOrderItems(prev => prev.filter(item => item.id !== itemToRemove.id))
             }
             break
-          case 'update':
+          }
+          case 'update': {
             // Handle update in the parent component
             const itemToUpdate = orderItems.find(item => 
               item.menuItemId === parsed.menuItem?.id
@@ -71,6 +72,7 @@ export function useVoiceOrderWebRTC() {
               ))
             }
             break
+          }
         }
       }
     })

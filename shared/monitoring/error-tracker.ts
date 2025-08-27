@@ -56,7 +56,7 @@ class ErrorTracker {
     if (typeof window === 'undefined') return;
     
     // Global error handler for unhandled errors
-    // eslint-disable-next-line no-undef
+     
     window.addEventListener('error', (event: ErrorEvent) => {
       this.captureError(new Error(event.message), {
         filename: event.filename,

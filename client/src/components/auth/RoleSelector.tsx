@@ -5,7 +5,6 @@
  * IMPORTANT: This is optional and non-blocking - users can bypass role selection
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import { Users, ChefHat, Settings, ShoppingCart, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'

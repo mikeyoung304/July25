@@ -89,13 +89,14 @@ function KitchenDisplayOptimized() {
       case 'ready':
         filtered = readyOrders
         break
-      case 'urgent':
+      case 'urgent': {
         const now = Date.now()
         filtered = orders.filter(order => {
           const age = (now - new Date(order.created_at).getTime()) / 60000
           return age >= 15 && !['completed', 'cancelled'].includes(order.status)
         })
         break
+      }
       default:
         filtered = orders.filter(o => !['completed', 'cancelled'].includes(o.status))
     }

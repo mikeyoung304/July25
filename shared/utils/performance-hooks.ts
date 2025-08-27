@@ -12,6 +12,8 @@ export const useStableObject = <T extends Record<string, any>>(obj: T): T => {
   
   // In browser, use actual React implementation if available
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useMemo, useRef } = React;
     
@@ -26,6 +28,8 @@ export const useStableArray = <T>(arr: T[]): T[] => {
   if (!isBrowser) return arr;
   
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useMemo } = React;
     return useMemo(() => arr, [arr.length, ...arr]);
@@ -41,6 +45,7 @@ export const useStableCallback = <T extends (...args: any[]) => any>(
   if (!isBrowser) return callback;
   
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useCallback } = React;
     return useCallback(callback, _deps);
@@ -57,6 +62,7 @@ export const useExpensiveMemo = <T>(
   if (!isBrowser) return factory();
   
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useMemo } = React;
     return useMemo(factory, _deps);
@@ -79,6 +85,7 @@ export const useDebouncedState = <T>(
   }
   
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useState, useEffect } = React;
     
@@ -109,6 +116,7 @@ export const useIntersectionObserver = (
   if (!isBrowser) return false;
   
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useState, useEffect } = React;
     
@@ -147,6 +155,7 @@ export const useBatchedState = <T>(
   }
   
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useState, useRef, useCallback } = React;
     
@@ -192,6 +201,7 @@ export const useBatchedState = <T>(
 // Export React reference for convenience (server-safe)
 export const React = isBrowser ? (() => {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require('react');
   } catch (e) {
     return null;
