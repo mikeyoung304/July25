@@ -364,20 +364,20 @@ export class OrdersService {
         throw new Error('Order not found');
       }
 
-      // Prepare payment update
-      const update: any = {
-        payment_status: paymentStatus,
-        updated_at: new Date().toISOString(),
+      // Store payment info in metadata since payment_status column doesn't exist
+      const metadata = (currentOrder as any).metadata || {};
+      metadata.payment = {
+        status: paymentStatus,
+        method: paymentMethod,
+        paymentId: paymentId,
+        updatedAt: new Date().toISOString()
       };
 
-      // Commented out - payment_method column doesn't exist in database
-      // if (paymentMethod) {
-      //   update.payment_method = paymentMethod;
-      // }
-
-      if (paymentId) {
-        update.payment_id = paymentId;
-      }
+      // Prepare update object
+      const update: any = {
+        metadata: metadata,
+        updated_at: new Date().toISOString(),
+      };
 
       // If payment is successful, update order status to confirmed
       if (paymentStatus === 'paid' && currentOrder.status === 'pending') {

@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-08-26T02:07:47.792Z",
+  "projectStats": {
+    "totalFiles": 2087,
+    "totalLines": 1205675,
+    "languages": {
+      "ts": {
+        "files": 1297,
+        "lines": 345509
+      },
+      "tsx": {
+        "files": 155,
+        "lines": 21237
+      },
+      "js": {
+        "files": 635,
+        "lines": 838929
+      }
+    }
+  },
+  "lintResults": {
+    "errors": 171,
+    "warnings": 756
+  },
+  "dependencies": {
+    "total": 36,
+    "outdated": 46
+  }
+}

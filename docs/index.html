@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant OS Documentation</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+        }
+        
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: 2px solid #34495e;
+            padding-bottom: 10px;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 8px;
+        }
+        
+        .sidebar a {
+            color: #ecf0f1;
+            text-decoration: none;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background: #34495e;
+        }
+        
+        .sidebar .active {
+            background: #3498db;
+        }
+        
+        .sidebar .section-title {
+            font-weight: bold;
+            color: #3498db;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        
+        .content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 40px;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        .content h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 36px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .content h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        
+        .content h3 {
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+        
+        .content code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .content pre {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        .content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .content th,
+        .content td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .content th {
+            background: #3498db;
+            color: white;
+        }
+        
+        .content tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #34495e;
+            border-radius: 4px;
+            background: #34495e;
+            color: white;
+        }
+        
+        .search-box input::placeholder {
+            color: #7f8c8d;
+        }
+        
+        .api-tester {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .api-tester h3 {
+            margin-top: 0;
+        }
+        
+        .api-tester input,
+        .api-tester select,
+        .api-tester textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        
+        .api-tester button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .api-tester button:hover {
+            background: #2980b9;
+        }
+        
+        .api-response {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>📚 Restaurant OS</h2>
+            
+            <div class="search-box">
+                <input type="text" id="search" placeholder="Search documentation..." />
+            </div>
+            
+            <div class="section-title">Getting Started</div>
+            <ul>
+                <li><a href="#" data-page="01-getting-started/installation.md">Installation</a></li>
+                <li><a href="#" data-page="01-getting-started/first-order.md">First Order</a></li>
+                <li><a href="#" data-page="01-getting-started/configuration.md">Configuration</a></li>
+            </ul>
+            
+            <div class="section-title">Architecture</div>
+            <ul>
+                <li><a href="#" data-page="02-architecture/overview.md">Overview</a></li>
+                <li><a href="#" data-page="02-architecture/decisions.md">Decisions</a></li>
+                <li><a href="#" data-page="02-architecture/diagrams.md">Diagrams</a></li>
+            </ul>
+            
+            <div class="section-title">Features</div>
+            <ul>
+                <li><a href="#" data-page="03-features/voice-ordering.md">Voice Ordering</a></li>
+                <li><a href="#" data-page="03-features/kitchen-display.md">Kitchen Display</a></li>
+                <li><a href="#" data-page="03-features/payments.md">Payments</a></li>
+                <li><a href="#" data-page="03-features/analytics.md">Analytics</a></li>
+            </ul>
+            
+            <div class="section-title">API Reference</div>
+            <ul>
+                <li><a href="#" data-page="04-api/rest/README.md">REST API</a></li>
+                <li><a href="#" data-page="04-api/websocket.md">WebSocket</a></li>
+                <li><a href="#" data-page="04-api/examples.md">Examples</a></li>
+            </ul>
+            
+            <div class="section-title">Operations</div>
+            <ul>
+                <li><a href="#" data-page="05-operations/deployment.md">Deployment</a></li>
+                <li><a href="#" data-page="05-operations/monitoring.md">Monitoring</a></li>
+                <li><a href="#" data-page="05-operations/troubleshooting.md">Troubleshooting</a></li>
+            </ul>
+            
+            <div class="section-title">Development</div>
+            <ul>
+                <li><a href="#" data-page="06-development/setup.md">Setup</a></li>
+                <li><a href="#" data-page="06-development/testing.md">Testing</a></li>
+                <li><a href="#" data-page="06-development/contributing.md">Contributing</a></li>
+                <li><a href="#" data-page="06-development/patterns.md">Patterns</a></li>
+            </ul>
+        </nav>
+        
+        <main class="content">
+            <div id="doc-content">
+                <h1>Welcome to Restaurant OS Documentation</h1>
+                
+                <p>Restaurant OS is a comprehensive Point of Sale and management system for restaurants, featuring AI-powered voice ordering, real-time order tracking, and integrated payments.</p>
+                
+                <h2>Quick Start</h2>
+                <pre><code class="language-bash"># Install and run
+npm install
+npm run dev
+
+# Access points
+Frontend: http://localhost:5173
+Backend: http://localhost:3001</code></pre>
+                
+                <h2>Key Features</h2>
+                <ul>
+                    <li>🎤 <strong>Voice Ordering</strong> - Natural language order processing</li>
+                    <li>🍳 <strong>Kitchen Display</strong> - Real-time order management</li>
+                    <li>💳 <strong>Payment Processing</strong> - Square Terminal integration</li>
+                    <li>📊 <strong>Analytics</strong> - Business insights dashboard</li>
+                    <li>🏪 <strong>Multi-tenant</strong> - Support multiple locations</li>
+                </ul>
+                
+                <h2>API Tester</h2>
+                <div class="api-tester">
+                    <h3>Try API Endpoint</h3>
+                    <select id="method">
+                        <option>GET</option>
+                        <option>POST</option>
+                        <option>PUT</option>
+                        <option>DELETE</option>
+                    </select>
+                    <input type="text" id="endpoint" placeholder="/api/v1/health" value="/api/v1/health" />
+                    <textarea id="body" placeholder="Request body (JSON)" rows="4"></textarea>
+                    <button onclick="testAPI()">Send Request</button>
+                    <div id="response" class="api-response" style="display:none;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Documentation loader
+        async function loadDoc(path) {
+            try {
+                const response = await fetch(path);
+                if (!response.ok) {
+                    return `# Page Not Found\n\nThe requested page \`${path}\` could not be found.`;
+                }
+                const text = await response.text();
+                return text;
+            } catch (error) {
+                return `# Error Loading Documentation\n\nFailed to load: ${path}\n\nError: ${error.message}`;
+            }
+        }
+        
+        // Render markdown
+        function renderMarkdown(markdown) {
+            const html = marked.parse(markdown);
+            document.getElementById('doc-content').innerHTML = html;
+            
+            // Highlight code blocks
+            document.querySelectorAll('pre code').forEach((block) => {
+                Prism.highlightElement(block);
+            });
+        }
+        
+        // Navigation
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const page = e.target.dataset.page;
+                
+                // Update active state
+                document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Load and render page
+                const markdown = await loadDoc(page);
+                renderMarkdown(markdown);
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
+            });
+        });
+        
+        // Search functionality
+        document.getElementById('search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.sidebar li').forEach(li => {
+                const text = li.textContent.toLowerCase();
+                li.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        });
+        
+        // API Tester
+        async function testAPI() {
+            const method = document.getElementById('method').value;
+            const endpoint = document.getElementById('endpoint').value;
+            const body = document.getElementById('body').value;
+            const responseDiv = document.getElementById('response');
+            
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-restaurant-id': '11111111-1111-1111-1111-111111111111'
+                    }
+                };
+                
+                if (body && method !== 'GET') {
+                    options.body = body;
+                }
+                
+                const response = await fetch(`http://localhost:3001${endpoint}`, options);
+                const data = await response.json();
+                
+                responseDiv.style.display = 'block';
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.style.display = 'block';
+                responseDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        // Load default page
+        window.addEventListener('DOMContentLoaded', () => {
+            const firstLink = document.querySelector('.sidebar a[data-page]');
+            if (firstLink) {
+                firstLink.click();
+            }
+        });
+    </script>
+</body>
+</html>
