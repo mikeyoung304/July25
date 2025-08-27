@@ -238,7 +238,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
     const attraction = 0.005
     const damping = 0.85
 
-    let nodes = tables.map(table => ({
+    const nodes = tables.map(table => ({
       ...table,
       vx: 0,
       vy: 0
