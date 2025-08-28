@@ -226,8 +226,6 @@ export const useUnifiedCart = () => {
   return context;
 };
 
-// Compatibility exports for gradual migration
+// Re-export the hook with common aliases for consistency
 export const useCart = useUnifiedCart;
 export const useKioskCart = useUnifiedCart;
-export const CartProvider = UnifiedCartProvider;
-export const KioskCartProvider = UnifiedCartProvider;

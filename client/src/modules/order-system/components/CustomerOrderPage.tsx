@@ -9,14 +9,14 @@ import { DietaryFilters } from './DietaryFilters';
 import { SortOptions } from './SortOptions';
 import { MenuItem } from '../../menu/types';
 import { useRestaurant } from '@/core';
-import { useCart } from '../context/cartContext.hooks';
+import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
 import { CartItem } from '@rebuild/shared';
 import { useRestaurantData } from '../hooks/useRestaurantData';
 
 export const CustomerOrderPage: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const { setRestaurant } = useRestaurant();
-  const { cart, addToCart, setIsCartOpen } = useCart();
+  const { cart, addToCart, setIsCartOpen } = useUnifiedCart();
   const { restaurant: restaurantData } = useRestaurantData(restaurantId);
   
   const [activeSection, setActiveSection] = useState<string | undefined>();
