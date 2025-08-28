@@ -177,8 +177,18 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 - Shared types in `shared/` directory
 - Error boundaries for React components
 - Proper WebSocket cleanup in useEffect hooks
-- UnifiedCartContext for all cart operations
+- **UnifiedCartContext for ALL cart operations** (single source of truth)
 - Code splitting with React.lazy() for routes
 - WebSocket event handlers use `on`/`off` pattern (not subscribe return)
 - Browser API checks: `typeof window !== 'undefined'`
 - API responses cast with `as` (not generic parameters)
+
+## Critical Architecture Decisions (2025-08-28)
+
+### Cart System Unification
+- **ONLY use UnifiedCartContext** - no separate cart providers
+- Import from `@/contexts/UnifiedCartContext` directly
+- Use `useUnifiedCart()` hook (or aliases `useCart()`, `useKioskCart()`)
+- **DO NOT create adapter contexts** - they add complexity
+- **DO NOT duplicate cart logic** - violates DRY principle
+- When refactoring/unifying systems, update ALL usages, not just wrap old ones
