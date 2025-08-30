@@ -36,7 +36,7 @@ export interface UseWebRTCVoiceReturn {
  * React hook for WebRTC voice integration with OpenAI Realtime API
  */
 export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVoiceReturn {
-  const { autoConnect = true, debug = false, onTranscript, onOrderDetected, onError } = options;
+  const { autoConnect: _autoConnect = true, debug = false, onTranscript, onOrderDetected, onError } = options;
   
   // Get restaurant ID from environment or use default
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';

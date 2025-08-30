@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+ 
 /**
  * Enterprise Memory Monitoring System
  * Provides comprehensive memory leak detection, monitoring, and reporting

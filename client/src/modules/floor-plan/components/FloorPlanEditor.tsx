@@ -23,6 +23,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
   const [canvasSize, setCanvasSize] = useState({ width: 1200, height: 900 })
   const [zoomLevel, setZoomLevel] = useState(1)
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
+  // Grid functionality
   const [showGrid, setShowGrid] = useState(true)
   const [snapToGrid, setSnapToGrid] = useState(true)
   const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null)
@@ -521,12 +522,9 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
 
   // Smart save with create/update logic
   const handleSave = useCallback(async () => {
-    console.log('🔧 Save button clicked!')
-    console.log('🔧 Current tables:', tables)
     
     if (tables.length === 0) {
       toast.error('No tables to save')
-      console.log('❌ No tables to save')
       return
     }
 
@@ -538,11 +536,11 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
     
     if (duplicates.length > 0) {
       toast.error(`Duplicate table names found. Please rename tables.`)
-      console.log('❌ Duplicate names found:', duplicates)
+      logger.warn('Duplicate names found:', duplicates)
       return
     }
 
-    console.log('✅ Starting save process...')
+    logger.info('Starting save process...')
     setIsSaving(true)
     try {
       // Separate new tables (with generated IDs) from existing tables (with UUID IDs)
@@ -560,7 +558,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
       // 1. Create new tables first
       if (newTables.length > 0) {
         logger.info(`🆕 Creating ${newTables.length} new tables...`)
-        console.log('🆕 Creating new tables:', newTables)
+        logger.info('Creating new tables:', newTables)
         for (const table of newTables) {
           const cleanNewTable = {
             label: table.label.trim(),
@@ -577,9 +575,9 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
             z_index: table.z_index || 1
           }
           
-          console.log('📤 Calling tableService.createTable with:', cleanNewTable)
+          logger.debug('Calling tableService.createTable with:', cleanNewTable)
           const createdTable = await tableService.createTable(cleanNewTable)
-          console.log('📥 Received created table:', createdTable)
+          logger.debug('Received created table:', createdTable)
           savedTables.push(createdTable)
           logger.info('✅ Created table:', createdTable.id)
         }
@@ -588,7 +586,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
       // 2. Update existing tables
       if (existingTables.length > 0) {
         logger.info(`🔄 Updating ${existingTables.length} existing tables...`)
-        console.log('🔄 Updating existing tables:', existingTables)
+        logger.info('Updating existing tables:', existingTables)
         const cleanExistingTables = existingTables.map(table => ({
           id: table.id,
           label: table.label.trim(),
@@ -605,9 +603,9 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
           z_index: table.z_index || 1
         }))
 
-        console.log('📤 Calling tableService.batchUpdateTables with:', cleanExistingTables)
+        logger.debug('Calling tableService.batchUpdateTables with:', cleanExistingTables)
         const updatedTables = await tableService.batchUpdateTables(cleanExistingTables)
-        console.log('📥 Received updated tables:', updatedTables)
+        logger.debug('Received updated tables:', updatedTables)
         savedTables.push(...updatedTables)
       }
 
