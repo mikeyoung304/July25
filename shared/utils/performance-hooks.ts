@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * Performance Optimization Hooks - Server Safe
  * Provides no-op implementations for server environment
@@ -12,7 +13,7 @@ export const useStableObject = <T extends Record<string, any>>(obj: T): T => {
   
   // In browser, use actual React implementation if available
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+     
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useMemo, useRef } = React;
@@ -28,7 +29,7 @@ export const useStableArray = <T>(arr: T[]): T[] => {
   if (!isBrowser) return arr;
   
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+     
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useMemo } = React;

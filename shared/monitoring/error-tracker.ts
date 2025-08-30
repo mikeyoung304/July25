@@ -1,4 +1,4 @@
-/* global window, navigator, localStorage, ErrorEvent, PromiseRejectionEvent */
+/* global ErrorEvent, PromiseRejectionEvent */
 /**
  * Error Tracking and Reporting
  * Captures and reports application errors for monitoring

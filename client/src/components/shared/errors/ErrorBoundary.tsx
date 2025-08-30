@@ -44,12 +44,11 @@ export class ErrorBoundary extends Component<Props, State> {
     
     // Log error in development with full context
     if (env.DEV) {
-      console.group('🔍 [ErrorBoundary] Error Analysis')
+      console.error('🔍 [ErrorBoundary] Error Analysis')
       console.error('Original Error:', error)
       console.error('Error Info:', errorInfo)
       console.error('Component Stack:', errorInfo.componentStack)
       console.error('Error Stack:', error.stack)
-      console.groupEnd()
     }
     
     this.props.onError?.(error, errorInfo)

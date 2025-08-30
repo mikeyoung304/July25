@@ -18,7 +18,7 @@ interface VirtualizedOrderListProps {
 
 export const VirtualizedOrderList = memo(function VirtualizedOrderList({
   orders,
-  onOrderClick,
+  onOrderClick: _onOrderClick,
   onStatusChange,
   containerHeight = 600,
   className = '',

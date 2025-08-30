@@ -65,8 +65,8 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   const generateSrcSet = (baseSrc: string) => {
     if (!baseSrc || baseSrc.includes('http')) return undefined;
     
-    const ext = baseSrc.substring(baseSrc.lastIndexOf('.'));
-    const base = baseSrc.substring(0, baseSrc.lastIndexOf('.'));
+    const _ext = baseSrc.substring(baseSrc.lastIndexOf('.'));
+    const _base = baseSrc.substring(0, baseSrc.lastIndexOf('.'));
     
     // For now, use the same image for all sizes (until we have resize service)
     return `${baseSrc} 400w, ${baseSrc} 800w`;

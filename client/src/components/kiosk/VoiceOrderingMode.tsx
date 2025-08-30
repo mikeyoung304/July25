@@ -93,7 +93,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         checkoutOrchestratorRef.current = null;
       }
     };
-  }, [apiClient, toast, navigate]);
+  }, [apiClient, toast, navigate, onOrchestratorReady]);
 
   // Update orchestrator when cart changes
   useEffect(() => {
@@ -220,7 +220,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         if (orderData.action === 'checkout' && cart.items.length > 0) {
           onCheckout();
         } else if (orderData.action === 'review') {
-          console.log('Order review requested, current cart:', cart.items);
+          // Order review requested - cart is already visible in UI
         }
       }
     }
