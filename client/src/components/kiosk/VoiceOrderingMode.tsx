@@ -11,6 +11,8 @@ import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BrandHeader } from '@/components/layout/BrandHeader';
 import { ShoppingCart, Mic, MicOff, Volume2, Trash2 } from 'lucide-react';
+import { MenuItem as SharedMenuItem } from '@rebuild/shared';
+import { MenuItem as ApiMenuItem } from '@rebuild/shared/api-types';
 
 // Lazy load the heavy VoiceControlWebRTC component
 const VoiceControlWebRTC = lazy(() => import('@/modules/voice/components/VoiceControlWebRTC').then(m => ({ default: m.VoiceControlWebRTC })));
@@ -20,6 +22,26 @@ interface VoiceOrderingModeProps {
   onCheckout: () => void;
   onOrchestratorReady?: (orchestrator: VoiceCheckoutOrchestrator) => void;
 }
+
+// Convert ApiMenuItem to SharedMenuItem for cart compatibility
+const convertApiMenuItemToShared = (apiItem: ApiMenuItem): SharedMenuItem => {
+  return {
+    id: apiItem.id,
+    restaurant_id: apiItem.restaurantId,
+    category_id: apiItem.categoryId,
+    name: apiItem.name,
+    description: apiItem.description,
+    price: apiItem.price,
+    image_url: apiItem.imageUrl,
+    is_available: apiItem.isAvailable,
+    is_featured: apiItem.isFeatured,
+    dietary_flags: apiItem.dietaryFlags,
+    preparation_time: apiItem.preparationTime,
+    display_order: apiItem.displayOrder,
+    created_at: apiItem.createdAt || new Date().toISOString(),
+    updated_at: apiItem.updatedAt || new Date().toISOString()
+  };
+};
 
 export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   onBack,
@@ -117,7 +139,9 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
     parsedItems.forEach(parsed => {
       if (parsed.menuItem && parsed.action === 'add') {
         const modifications = parsed.modifications ? parsed.modifications.map(mod => typeof mod === 'string' ? mod : mod.name) : [];
-        addItem(parsed.menuItem, parsed.quantity, modifications);
+        // Convert ApiMenuItem to SharedMenuItem before adding to cart
+        const sharedMenuItem = convertApiMenuItemToShared(parsed.menuItem as ApiMenuItem);
+        addItem(sharedMenuItem, parsed.quantity, modifications);
         newItems.push(parsed.menuItem.name);
       }
     });
@@ -189,8 +213,10 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
           const modifications = item.modifications || item.modifiers || [];
           
           
+          // Convert ApiMenuItem to SharedMenuItem before adding to cart
+          const sharedMenuItem = convertApiMenuItemToShared(menuItem as ApiMenuItem);
           addItem(
-            menuItem,
+            sharedMenuItem,
             item.quantity || 1,
             modifications,
             item.specialInstructions
@@ -231,8 +257,10 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         const menuItem = menuItems.find(m => m.id === item.menuItemId);
         if (menuItem) {
           const modifications = item.modifications ? item.modifications.map((mod: any) => typeof mod === 'string' ? mod : (mod?.name || mod)) : [];
+          // Convert ApiMenuItem to SharedMenuItem before adding to cart
+          const sharedMenuItem = convertApiMenuItemToShared(menuItem as ApiMenuItem);
           addItem(
-            menuItem,
+            sharedMenuItem,
             item.quantity || 1,
             modifications
           );

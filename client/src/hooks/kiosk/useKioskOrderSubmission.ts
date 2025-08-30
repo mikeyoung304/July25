@@ -1,7 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useNavigate } from 'react-router-dom';
-import type { KioskOrderItem } from '@/components/kiosk/KioskCartProvider';
+import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
+
+// Type alias for compatibility
+type KioskOrderItem = UnifiedCartItem;
 
 interface OrderSubmissionResult {
   success: boolean;

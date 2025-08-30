@@ -4,6 +4,7 @@ export * from './types/menu.types';
 export * from './types/customer.types';
 export * from './types/table.types';
 export * from './types/websocket.types';
+export * from './types/events.types';    // event types
 export * from './types/transformers';
 export * from './types/validation';
 // Export utils but avoid conflicts with runtime
@@ -43,6 +44,12 @@ export interface ApiResponse<T = unknown> {
   };
 }
 
+export interface RestaurantSettings {
+  orderPrefix?: string;
+  autoAcceptOrders?: boolean;
+  kitchenDisplayMode?: 'grid' | 'list';
+}
+
 export interface Restaurant {
   id: string;
   name: string;
@@ -51,6 +58,23 @@ export interface Restaurant {
   currency: string;
   tax_rate: number;
   default_tip_percentages?: number[];
+  settings?: RestaurantSettings;
   created_at: string;
   updated_at: string;
+}
+
+export interface CreateRestaurantDTO {
+  name: string;
+  timezone: string;
+  currency: string;
+  tax_rate: number;
+  settings?: RestaurantSettings;
+}
+
+export interface UpdateRestaurantDTO {
+  name?: string;
+  timezone?: string;
+  currency?: string;
+  tax_rate?: number;
+  settings?: RestaurantSettings;
 }
