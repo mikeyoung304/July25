@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { logger } from '@/services/logger'
+import { performanceMonitor } from '@/services/monitoring/performance'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { RestaurantProvider } from '@/core'
 import { RestaurantIdProvider } from '@/services/http'
+import { AuthProvider } from '@/contexts/AuthContext'
 import { RoleProvider } from '@/contexts/RoleContext'
 import { UnifiedCartProvider } from '@/contexts/UnifiedCartContext'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
+import { GlobalErrorBoundary } from '@/components/errors/GlobalErrorBoundary'
 import { AppContent } from '@/components/layout/AppContent'
 import { SplashScreen } from '@/pages/SplashScreen'
 import { SetupRequiredScreen } from '@/pages/SetupRequiredScreen'
@@ -21,6 +24,9 @@ function App() {
 
   const handleAnimationComplete = () => {
     setShowSplash(false)
+    // Mark app ready for performance tracking
+    performanceMonitor.mark('app-ready')
+    performanceMonitor.measure('app-init', 'navigationStart', 'app-ready')
   }
   
   // Initialize WebSocket connection when authenticated
@@ -101,26 +107,38 @@ function App() {
   }
   
   return (
-    <ErrorBoundary 
-      level="page"
+    <GlobalErrorBoundary
       onError={(error, errorInfo) => {
-        // Log to error tracking service in production
-        console.error('App Error:', error, errorInfo)
+        logger.error('Global error boundary triggered', {
+          error: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack
+        });
       }}
     >
-      <Router>
-        <MockDataBanner />
-        <RoleProvider>
-          <RestaurantProvider>
-            <RestaurantIdProvider>
-              <UnifiedCartProvider>
-                <AppContent isDevelopment={isDevelopment} />
-              </UnifiedCartProvider>
-            </RestaurantIdProvider>
-          </RestaurantProvider>
-        </RoleProvider>
-      </Router>
-    </ErrorBoundary>
+      <ErrorBoundary 
+        level="page"
+        onError={(error, errorInfo) => {
+          // Log to error tracking service in production
+          logger.error('App Error:', { error, errorInfo })
+        }}
+      >
+        <Router>
+          <MockDataBanner />
+          <AuthProvider>
+            <RoleProvider>
+              <RestaurantProvider>
+                <RestaurantIdProvider>
+                  <UnifiedCartProvider>
+                    <AppContent isDevelopment={isDevelopment} />
+                  </UnifiedCartProvider>
+                </RestaurantIdProvider>
+              </RestaurantProvider>
+            </RoleProvider>
+          </AuthProvider>
+        </Router>
+      </ErrorBoundary>
+    </GlobalErrorBoundary>
   )
 }
 
