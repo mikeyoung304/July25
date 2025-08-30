@@ -1,8 +1,9 @@
-/* global ErrorEvent, PromiseRejectionEvent */
 /**
  * Error Tracking and Reporting
  * Captures and reports application errors for monitoring
  */
+
+// Browser type definitions for shared code
 
 export interface ErrorReport {
   id: string;
@@ -14,7 +15,7 @@ export interface ErrorReport {
   userAgent: string;
   sessionId: string;
   userId?: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   breadcrumbs?: Array<{
     timestamp: number;
     category: string;
@@ -57,7 +58,7 @@ class ErrorTracker {
     
     // Global error handler for unhandled errors
      
-    window.addEventListener('error', (event: ErrorEvent) => {
+    (window as any).addEventListener('error', (event: any) => {
       this.captureError(new Error(event.message), {
         filename: event.filename,
         lineno: event.lineno,
@@ -67,7 +68,7 @@ class ErrorTracker {
     });
 
     // Global handler for unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+    (window as any).addEventListener('unhandledrejection', (event: any) => {
       this.captureError(
         event.reason instanceof Error ? event.reason : new Error(String(event.reason)),
         { type: 'unhandled_promise_rejection' }

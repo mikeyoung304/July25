@@ -5,6 +5,7 @@ import { OrderModification } from '@/modules/voice/contexts/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import type { Table } from '@/modules/floor-plan/types'
 import { getDemoToken } from '@/services/auth/demoAuth'
+import { logger } from '@/services/monitoring/logger'
 
 // Helper to resolve absolute API URLs for production
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -89,7 +90,7 @@ export function useVoiceOrderWebRTC() {
     const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text
     const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal
     
-    console.log('[useVoiceOrderWebRTC] Voice transcript:', text, 'final:', isFinal)
+    logger.info('[useVoiceOrderWebRTC] Voice transcript', { text, isFinal })
     
     if (isFinal) {
       setCurrentTranscript('')
@@ -125,7 +126,7 @@ export function useVoiceOrderWebRTC() {
 
   // Handle order data from server (if server-side parsing is enabled)
   const handleOrderData = useCallback((orderData: any) => {
-    console.log('[useVoiceOrderWebRTC] Order data from server:', orderData)
+    logger.info('[useVoiceOrderWebRTC] Order data from server', { orderData })
     
     if (orderData?.success && orderData?.items?.length > 0) {
       const newItems: OrderItem[] = orderData.items.map((item: any) => {

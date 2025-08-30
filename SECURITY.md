@@ -12,12 +12,36 @@ Restaurant OS implements multiple layers of security to protect customer data, p
 - **Format**: `Bearer <jwt-token>`
 - **Expiration**: 1 hour (refreshable)
 - **Validation**: Every API request
+- **Signing**: RS256 algorithm
 
 ```javascript
 // Token validation middleware
 const token = req.headers.authorization?.replace('Bearer ', '');
 const { data: user, error } = await supabase.auth.getUser(token);
 ```
+
+### PIN Authentication (Staff)
+
+- **Hashing**: bcrypt with 12 rounds + application pepper
+- **Storage**: Hashed PIN in database, pepper in environment
+- **Lockout**: 5 failed attempts → 15 minute lockout
+- **Session**: 12 hours for service staff
+
+```javascript
+// PIN hashing with pepper
+const pepper = process.env.PIN_PEPPER;
+const pepperedPin = pin + pepper;
+const hashedPin = await bcrypt.hash(pepperedPin, 12);
+```
+
+### Session Management
+
+| Role | Session Duration | Refresh Policy |
+|------|-----------------|----------------|
+| Owner/Manager | 8 hours | Auto-refresh on activity |
+| Server/Cashier | 12 hours | Manual refresh required |
+| Kitchen/Expo | 24 hours | Device-bound, no refresh |
+| Customer | Session-based | Expires on browser close |
 
 ### CSRF Protection
 
@@ -35,6 +59,25 @@ if (req.method !== 'GET') {
     throw new ForbiddenError('CSRF validation failed');
   }
 }
+```
+
+### Role-Based API Scopes
+
+- **Owner**: Full system access
+- **Manager**: Restaurant operations, reports, staff management
+- **Server**: `orders:create`, `payment:process`, `tables:manage`
+- **Cashier**: `payment:process`, `orders:view`
+- **Kitchen**: `orders:update_status`, `orders:view`
+- **Expo**: `orders:complete`, `orders:view`
+
+```javascript
+// Role validation middleware
+const requireScope = (scope) => async (req, res, next) => {
+  const userRole = req.user.role;
+  const hasScope = roleScopes[userRole]?.includes(scope);
+  if (!hasScope) throw new ForbiddenError('Insufficient permissions');
+  next();
+};
 ```
 
 ### Restaurant Context Validation
@@ -157,9 +200,28 @@ STRIPE_SECRET_KEY=***      # Server only
    ```
 
 2. **Audit Trail**
-   - User actions logged
-   - IP addresses recorded
-   - Timestamp all events
+   - All authentication events logged (login, logout, failed attempts)
+   - User ID and restaurant ID tracked for all operations
+   - Payment events with amount and status
+   - IP addresses and user agents recorded
+   - Timestamp all events with ISO-8601 format
+   
+3. **Auth Event Logging**
+   ```javascript
+   // Comprehensive auth event logging
+   auditLog.create({
+     event_type: 'auth.login',
+     user_id: user.id,
+     restaurant_id: restaurantId,
+     ip_address: req.ip,
+     user_agent: req.headers['user-agent'],
+     metadata: {
+       auth_method: 'pin', // or 'email', 'station'
+       session_duration: '12h',
+       mfa_used: false
+     }
+   });
+   ```
 
 ## Security Headers
 
@@ -327,6 +389,6 @@ We offer rewards for responsibly disclosed vulnerabilities:
 
 ---
 
-**Last Updated**: January 30, 2025  
-**Version**: 6.0.2  
+**Last Updated**: February 1, 2025  
+**Version**: 6.0.3  
 **Security Contact**: security@restaurant-os.com

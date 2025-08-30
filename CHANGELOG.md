@@ -5,6 +5,60 @@ All notable changes to Restaurant OS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.3] - 2025-02-01
+
+### 🚀 Authentication & RBAC MVP Complete
+
+### ✨ Added
+- **Complete Authentication System**:
+  - JWT token infrastructure via Supabase with RS256 signing
+  - Email/password login with MFA support for managers
+  - PIN-based authentication for servers/cashiers (bcrypt + pepper)
+  - Station login for kitchen/expo staff (device-bound tokens)
+  - Protected route wrapper components with role validation
+  - Role context provider (Owner, Manager, Server, Cashier, Kitchen, Expo)
+  - Session management (8-hour for managers, 12-hour for staff)
+  - Comprehensive logout functionality across all auth methods
+
+- **Role-Based Access Control (RBAC)**:
+  - Granular API scopes (payment:process, payment:refund, orders:create, etc.)
+  - Role-based permission enforcement at endpoint level
+  - Dynamic UI elements based on user permissions
+  - Restaurant-scoped access validation
+
+- **Security Enhancements**:
+  - Rate limiting with progressive lockouts (5 attempts → 15 min lockout)
+  - PIN hashing with bcrypt (12 rounds) + application-level pepper
+  - Comprehensive audit logging with user_id and restaurant_id tracking
+  - Auth event logging (login, logout, failed attempts, lockouts)
+  - CSRF protection with httpOnly cookies and X-CSRF-Token headers
+
+### 🎨 Improved
+- **Backend Services**:
+  - Centralized auth middleware with Supabase JWT validation
+  - Session management service with configurable durations
+  - Audit service with structured event logging
+  - Payment service with user tracking and role validation
+
+- **Client Components**:
+  - Login page with email/password and remember me
+  - PIN pad interface for quick staff access
+  - Station login for shared devices
+  - Auth context with automatic token refresh
+  - Protected route HOC with role validation
+
+### 📚 Documentation
+- Updated PRODUCTION_DEPLOYMENT_STATUS.md (Security score: 3/10 → 7/10)
+- Updated ROADMAP.md with Week 1 auth tasks marked complete
+- Enhanced SECURITY.md with PIN hashing details and session policies
+- Created comprehensive auth documentation in docs/AUTH_ROADMAP.md
+
+### 🔐 Security Fixes
+- Fixed authentication bypass vulnerability in development mode
+- Implemented proper session expiration and refresh logic
+- Added request signing for critical operations
+- Enhanced input validation on all auth endpoints
+
 ## [6.0.2] - 2025-01-30
 
 ### 🎯 TypeScript & Documentation Overhaul
@@ -135,7 +189,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Status | Key Changes |
 |---------|------|--------|-------------|
-| 6.0.2 | 2025-01-30 | Current | TypeScript fixes, documentation |
+| 6.0.3 | 2025-02-01 | Current | Authentication & RBAC complete |
+| 6.0.2 | 2025-01-30 | Stable | TypeScript fixes, documentation |
 | 6.0.1 | 2025-01-27 | Stable | Order flow stability |
 | 6.0.0 | 2025-01-26 | Major | Complete rebuild |
 | 5.x | 2024 | Legacy | Multi-server architecture |
