@@ -3,6 +3,7 @@ import { useApiRequest } from '@/hooks/useApiRequest';
 import { useToast } from '@/hooks/useToast';
 import { useNavigate } from 'react-router-dom';
 import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
+import { logger } from '@/services/monitoring/logger';
 
 // Type alias for compatibility
 type KioskCartItem = UnifiedCartItem;
@@ -93,7 +94,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.currentTotals = { ...totals };
     
     if (this.config.debug) {
-      console.log('[VoiceCheckoutOrchestrator] Cart updated:', {
+      logger.info('[VoiceCheckoutOrchestrator] Cart updated', {
         itemCount: items.length,
         total: totals.total
       });

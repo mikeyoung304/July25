@@ -57,6 +57,7 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
       }
     };
 
+    // eslint-disable-next-line no-console
     console.log = (...args) => {
       originalLog(...args);
       addLog('LOG', ...args);
@@ -73,6 +74,7 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
     };
 
     return () => {
+      // eslint-disable-next-line no-console
       console.log = originalLog;
       console.error = originalError;
       console.warn = originalWarn;
