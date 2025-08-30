@@ -12,37 +12,52 @@ export interface IMenuService {
 export class MenuService implements IMenuService {
   private categoriesCache: Map<string, MenuCategory> = new Map()
 
-  // Transform shared MenuItem to client MenuItem
+  // Transform backend API response to client MenuItem format
   private transformMenuItem(item: any, categories?: MenuCategory[]): MenuItem {
     // Handle both SharedMenuItem format and API response format
-    let category = 'Uncategorized'
+    let category: any = undefined
     
     if (item.category?.name) {
-      category = item.category.name
+      category = item.category
+    } else if (item.categoryId && categories) {
+      const cat = categories.find(c => c.id === item.categoryId)
+      category = cat ? { name: cat.name, id: cat.id } : undefined
     } else if (item.category_id && categories) {
       const cat = categories.find(c => c.id === item.category_id)
-      category = cat?.name || 'Uncategorized'
+      category = cat ? { name: cat.name, id: cat.id } : undefined
+    } else if (item.categoryId && this.categoriesCache.has(item.categoryId)) {
+      const cat = this.categoriesCache.get(item.categoryId)!
+      category = { name: cat.name, id: cat.id }
     } else if (item.category_id && this.categoriesCache.has(item.category_id)) {
-      category = this.categoriesCache.get(item.category_id)!.name
+      const cat = this.categoriesCache.get(item.category_id)!
+      category = { name: cat.name, id: cat.id }
     }
 
     return {
       id: item.id,
+      menuItemId: item.menuItemId || item.id,
+      restaurantId: item.restaurant_id || item.restaurantId,
+      categoryId: item.categoryId || item.category_id,
+      category,
       name: item.name,
       description: item.description,
       price: item.price,
-      category,
-      is_available: item.is_available !== undefined ? item.is_available : item.available,
-      image_url: item.imageUrl || item.image_url,
-      restaurant_id: item.restaurant_id,
-      calories: item.calories,
-      modifiers: item.modifier_groups?.flatMap((group: any) => 
-        group.options.map((opt: any) => ({
-          id: opt.id,
-          name: opt.name,
-          price: opt.price_adjustment || opt.price || 0
-        }))
-      ) || item.modifiers || []
+      imageUrl: item.imageUrl || item.image_url,
+      isAvailable: item.isAvailable !== undefined ? item.isAvailable : (item.is_available !== undefined ? item.is_available : item.available),
+      isFeatured: item.isFeatured || item.is_featured,
+      dietaryFlags: item.dietaryFlags || item.dietary_flags || [],
+      preparationTime: item.preparationTime || item.preparation_time || item.prepTimeMinutes,
+      modifiers: item.modifiers?.map((mod: any) => ({
+        id: mod.id,
+        name: mod.name,
+        price: mod.price
+      })) || [],
+      // Compatibility fields
+      available: item.available,
+      active: item.active,
+      prepTimeMinutes: item.prepTimeMinutes || item.preparation_time,
+      aliases: item.aliases || [],
+      calories: item.calories
     }
   }
 

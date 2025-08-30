@@ -1,9 +1,8 @@
-import { describe, it, test, beforeEach, afterEach, vi, expect } from 'vitest'
+import { describe, test, beforeEach, afterEach, vi, expect } from 'vitest'
 import { WebSocketService } from './WebSocketService'
-import { vi } from 'vitest';
 import { supabase } from '@/core/supabase'
 import { setCurrentRestaurantId } from '@/services/http/httpClient'
-import { toSnakeCase, toCamelCase } from '@/services/utils/caseTransform'
+import { toSnakeCase } from '@/services/utils/caseTransform'
 
 // Mock WebSocket
 class MockWebSocket {

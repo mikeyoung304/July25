@@ -51,28 +51,56 @@ export default defineConfig(({ mode }) => {
         output: {
           // CRITICAL: Manual chunks prevent memory explosion
           manualChunks: (id) => {
-            // node_modules chunks
+            // node_modules chunks - more aggressive splitting
             if (id.includes('node_modules')) {
-              // React core
+              // Split React into smaller chunks
+              if (id.includes('react-dom')) {
+                return 'react-dom'; // Separate react-dom (largest part)
+              }
+              if (id.includes('react-router')) {
+                return 'react-router'; // Separate router
+              }
+              if (id.includes('react/jsx-runtime') || id.includes('react/index')) {
+                return 'react-core'; // Core React only
+              }
               if (id.includes('react') && !id.includes('react-hot-toast')) {
-                return 'react-vendor';
+                return 'react-libs'; // Other React libraries
               }
-              // Supabase
+              
+              // Supabase split into auth and client
+              if (id.includes('@supabase/auth')) {
+                return 'supabase-auth';
+              }
               if (id.includes('supabase')) {
-                return 'supabase';
+                return 'supabase-client';
               }
+              
               // Square payments
               if (id.includes('square')) {
                 return 'square-vendor';
               }
-              // UI libraries
-              if (id.includes('react-hot-toast') || id.includes('framer-motion')) {
-                return 'ui-vendor';
+              
+              // UI libraries split
+              if (id.includes('react-hot-toast')) {
+                return 'ui-toast';
               }
+              if (id.includes('framer-motion')) {
+                return 'ui-animation';
+              }
+              if (id.includes('@headlessui') || id.includes('clsx')) {
+                return 'ui-core';
+              }
+              
               // Date/time utilities
               if (id.includes('date-fns') || id.includes('dayjs')) {
                 return 'date-vendor';
               }
+              
+              // Form libraries
+              if (id.includes('react-hook-form') || id.includes('yup') || id.includes('joi')) {
+                return 'form-vendor';
+              }
+              
               // All other vendor code
               return 'vendor';
             }

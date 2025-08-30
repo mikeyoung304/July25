@@ -6,6 +6,7 @@ import { logger } from '../utils/logger';
 import { SquareClient, SquareEnvironment } from 'square';
 import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
+import { PaymentService } from '../services/payment.service';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'payments' });
@@ -35,41 +36,44 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
     if (!token) {
       throw BadRequest('Payment token is required');
     }
-    if (!amount || amount <= 0) {
-      throw BadRequest('Valid amount is required');
-    }
 
-    // Generate idempotency key if not provided
-    const finalIdempotencyKey = idempotencyKey || randomUUID();
-
-    routeLogger.info('Processing payment', { 
+    routeLogger.info('Processing payment request', { 
       restaurantId, 
-      orderId, 
-      amount,
-      idempotencyKey: finalIdempotencyKey 
+      orderId,
+      clientProvidedAmount: amount,
+      clientProvidedIdempotency: idempotencyKey
     });
 
     try {
-      // Get order to verify it exists and belongs to restaurant
+      // SECURITY: Server-side payment validation
+      // Never trust client-provided amounts
+      const validation = await PaymentService.validatePaymentRequest(
+        orderId,
+        restaurantId,
+        amount,
+        idempotencyKey
+      );
+
+      // Use server-calculated amount and idempotency key
+      const serverAmount = validation.amount;
+      const serverIdempotencyKey = validation.idempotencyKey;
+
+      routeLogger.info('Payment validated', {
+        orderId,
+        serverAmount: validation.orderTotal,
+        tax: validation.tax,
+        subtotal: validation.subtotal
+      });
+
+      // Get order for reference
       const order = await OrdersService.getOrder(restaurantId, orderId);
-      if (!order) {
-        throw BadRequest('Order not found');
-      }
-
-      // Verify amount matches order total
-      const expectedAmount = Math.round((order as any).total_amount * 100); // Convert to cents
-      const providedAmount = Math.round(amount * 100);
       
-      if (providedAmount !== expectedAmount) {
-        throw BadRequest(`Amount mismatch. Expected: $${(order as any).total_amount}, provided: $${amount}`);
-      }
-
-      // Create payment request
+      // Create payment request with server-validated amount
       const paymentRequest = {
         sourceId: token,
-        idempotencyKey: finalIdempotencyKey,
+        idempotencyKey: serverIdempotencyKey, // Use server-generated key
         amountMoney: {
-          amount: BigInt(expectedAmount),
+          amount: BigInt(serverAmount), // Use server-calculated amount
           currency: 'USD',
         },
         locationId: process.env.SQUARE_LOCATION_ID,
@@ -123,10 +127,18 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
         paymentResult.payment.id
       );
 
+      // Log successful payment for audit trail
+      await PaymentService.logPaymentAttempt(
+        orderId,
+        validation.orderTotal,
+        'success',
+        paymentResult.payment.id
+      );
+
       routeLogger.info('Payment successful', { 
         orderId, 
         paymentId: paymentResult.payment.id,
-        amount: expectedAmount 
+        amount: validation.orderTotal 
       });
 
       res.json({

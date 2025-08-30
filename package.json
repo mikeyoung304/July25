@@ -108,6 +108,7 @@
   },
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
+    "node-fetch": "^3.3.2",
     "zod": "^3.25.76"
   }
 }

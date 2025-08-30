@@ -34,13 +34,17 @@ export async function authenticate(
     const token = authHeader.substring(7);
     
     // For local development only, allow a test token
-    // NEVER allow test tokens in production, staging, or any deployed environment
-    const isDevelopment = config.nodeEnv === 'development';
-    const isLocalhost = !process.env.RENDER && !process.env.VERCEL && !process.env.RAILWAY_ENVIRONMENT;
+    // SECURITY: This bypass is ONLY for local development
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const isLocalhost = !process.env.RENDER && !process.env.VERCEL && !process.env.RAILWAY_ENVIRONMENT && !process.env.PRODUCTION;
+    const isTestEnvironment = process.env.NODE_ENV === 'test';
     const isTestToken = token === 'test-token';
     
-    if (isDevelopment && isLocalhost && isTestToken) {
-      logger.warn('Using test token in local development only');
+    // Extra safety: explicitly check we're not in production
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.PRODUCTION === 'true';
+    
+    if (!isProduction && (isDevelopment || isTestEnvironment) && isLocalhost && isTestToken) {
+      logger.warn('⚠️ SECURITY: Using test token - this should NEVER appear in production logs');
       req.user = {
         id: 'test-user-id',
         email: 'test@example.com',
