@@ -151,7 +151,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       client.removeAllListeners();
       clientRef.current = null;
     };
-  }, []); // Empty dependency array - client should only be created once
+  }, [debug, onError, onOrderDetected, onTranscript, restaurantId]); // Include all dependencies
   
   // Connect to service
   const connect = useCallback(async () => {

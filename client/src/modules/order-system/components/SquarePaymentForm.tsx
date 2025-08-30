@@ -108,7 +108,7 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
         card.destroy();
       }
     };
-  }, []);
+  }, [card]);
 
   const handleSquarePayment = useCallback(async () => {
     if (!card || !squarePayments) {
