@@ -654,7 +654,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
     } finally {
       setIsSaving(false)
     }
-  }, [tables, onSave])
+  }, [tables, onSave, restaurantId])
 
   // Table position updates
   const handleTableMove = useCallback((tableId: string, x: number, y: number) => {
