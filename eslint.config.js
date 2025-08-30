@@ -81,7 +81,10 @@ export default [
       
       // TypeScript
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': ['warn', { 
+        'fixToUnknown': false,
+        'ignoreRestArgs': true
+      }],
       '@typescript-eslint/no-unused-vars': ['warn', { 
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',
@@ -100,7 +103,9 @@ export default [
       
       // General
       'no-console': ['warn', { allow: ['warn', 'error'] }],
-      'no-debugger': 'warn',
+      'no-debugger': 'error',
+      'prefer-const': 'warn',
+      'no-var': 'error',
       'no-unused-vars': 'off', // Use TypeScript's no-unused-vars instead
     },
     settings: {

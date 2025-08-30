@@ -35,7 +35,7 @@ export const TipSlider: React.FC<TipSliderProps> = ({ subtotal, onTipChange, ini
         setCustomTip(initialTip.toFixed(2));
       }
     }
-  }, [initialTip, subtotal]);
+  }, [initialTip, subtotal, tipOptions]);
 
   useEffect(() => {
     if (!isCustom && subtotal > 0) {

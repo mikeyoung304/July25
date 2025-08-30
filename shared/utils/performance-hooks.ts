@@ -33,7 +33,7 @@ export const useStableArray = <T>(arr: T[]): T[] => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
     const { useMemo } = React;
-    return useMemo(() => arr, [arr.length, ...arr]);
+    return useMemo(() => arr, [arr]);
   } catch (e) {
     return arr;
   }

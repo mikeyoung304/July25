@@ -80,7 +80,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     this.config = config;
     
     // Log API base once at initialization
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    // const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'; // Not currently used
     // Debug: `[RT] WebRTC Voice Client initialized - API: ${apiBase}`
     
     if (this.config.debug) {
@@ -910,7 +910,7 @@ ENTRÉES → Ask:
    * Kept for backward compatibility but no longer used
    * @deprecated Use function calling instead
    */
-  private detectOrderIntent(text: string): void {
+  private detectOrderIntent(_text: string): void {
     // Order detection is now handled via OpenAI function calling
     // The AI will automatically call add_to_order when it detects menu items
     // This provides much more accurate extraction with proper quantities and modifications
@@ -1155,7 +1155,7 @@ ENTRÉES → Ask:
     if (this.dc) {
       try {
         this.dc.close();
-      } catch (e) {
+      } catch (_e) {
         // Ignore errors during cleanup
       }
       this.dc = null;
@@ -1187,7 +1187,7 @@ ENTRÉES → Ask:
       this.mediaStream.getTracks().forEach(track => {
         try {
           track.stop();
-        } catch (e) {
+        } catch (_e) {
           // Ignore errors during cleanup
         }
       });

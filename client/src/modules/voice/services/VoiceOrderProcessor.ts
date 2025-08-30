@@ -49,7 +49,7 @@ export class VoiceOrderProcessor {
     
     // Check each menu item
     for (const menuItem of this.menuItems) {
-      const itemNameLower = menuItem.name.toLowerCase();
+      // const itemNameLower = menuItem.name.toLowerCase(); // Not currently used
       
       // Handle common transcription errors
       const variations = this.getItemVariations(menuItem.name);

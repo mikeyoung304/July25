@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Order } from '@/services/types'
-import { orderService } from '@/services'
+// import { orderService } from '@/services' // Not currently used
 import { orderSubscription, OrderEvent } from '@/services/realtime/orderSubscription'
 import { useRestaurant } from '@/core'
 
@@ -15,7 +15,7 @@ export const useOrderSubscription = (options: UseOrderSubscriptionOptions): void
   const { restaurant } = useRestaurant()
   
   useEffect(() => {
-    const restaurantId = restaurant?.id || 'rest-1'
+    // const restaurantId = restaurant?.id || 'rest-1' // Not currently used
     
     // Create a unique subscription ID
     const subscriptionId = `order-subscription-${Date.now()}`

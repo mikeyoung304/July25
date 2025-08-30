@@ -73,7 +73,7 @@ function AdminDashboard() {
 
   const handleSaveFloorPlan = useCallback((tables: Table[]) => {
     logger.info('[AdminDashboard] Floor plan saved with tables:', tables.length)
-  }, [restaurant?.id])
+  }, [])
   
   if (!restaurant) {
     return (

@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { logger } from '../utils/logger';
 import { OrdersService } from './orders.service';
 import { BadRequest } from '../middleware/errorHandler';
+import { supabase } from '../config/database';
 import type { Order } from '@rebuild/shared';
 
 export interface PaymentValidationResult {
@@ -10,6 +11,22 @@ export interface PaymentValidationResult {
   orderTotal: number;
   tax: number;
   subtotal: number;
+}
+
+export interface PaymentAuditLogEntry {
+  orderId: string;
+  amount: number;
+  status: 'initiated' | 'processing' | 'success' | 'failed' | 'refunded';
+  userId?: string;
+  restaurantId?: string;
+  paymentMethod?: 'card' | 'cash' | 'other';
+  paymentId?: string;
+  errorCode?: string;
+  errorDetail?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  idempotencyKey?: string;
+  metadata?: Record<string, any>;
 }
 
 export class PaymentService {
@@ -136,29 +153,51 @@ export class PaymentService {
   }
 
   /**
-   * Create payment audit log entry
+   * Create payment audit log entry with full context
    */
-  static async logPaymentAttempt(
-    orderId: string,
-    amount: number,
-    status: 'success' | 'failed',
-    paymentId?: string,
-    error?: string
-  ): Promise<void> {
-    const logEntry = {
-      timestamp: new Date().toISOString(),
-      orderId,
-      amount,
-      status,
-      paymentId,
-      error,
-      environment: process.env.NODE_ENV
+  static async logPaymentAttempt(entry: PaymentAuditLogEntry): Promise<void> {
+    const auditLog = {
+      order_id: entry.orderId,
+      user_id: entry.userId,
+      restaurant_id: entry.restaurantId,
+      amount: entry.amount * 100, // Store in cents
+      payment_method: entry.paymentMethod || 'card',
+      payment_id: entry.paymentId,
+      status: entry.status,
+      error_code: entry.errorCode,
+      error_detail: entry.errorDetail,
+      ip_address: entry.ipAddress,
+      user_agent: entry.userAgent,
+      idempotency_key: entry.idempotencyKey,
+      metadata: entry.metadata || {},
+      created_at: new Date().toISOString()
     };
 
-    logger.info('Payment attempt', logEntry);
+    logger.info('Payment audit log', {
+      ...auditLog,
+      environment: process.env.NODE_ENV
+    });
 
-    // TODO: Store in database audit table
-    // await db.paymentAudits.create(logEntry);
+    // Store in database audit table
+    try {
+      const { error } = await supabase
+        .from('payment_audit_logs')
+        .insert(auditLog);
+
+      if (error) {
+        logger.error('Failed to store payment audit log', { error, auditLog });
+        // Don't throw - audit logging failure shouldn't stop payment processing
+        // But alert monitoring system
+        logger.error('CRITICAL: Payment audit log failed - compliance risk', {
+          orderId: entry.orderId,
+          paymentId: entry.paymentId,
+          error: error.message
+        });
+      }
+    } catch (dbError) {
+      logger.error('Database error storing payment audit', { dbError, auditLog });
+      // Same as above - log but don't fail the payment
+    }
   }
 
   /**

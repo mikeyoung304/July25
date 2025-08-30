@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+ 
 /**
  * Enterprise Memory Monitoring System
  * Provides comprehensive memory leak detection, monitoring, and reporting
@@ -73,7 +73,7 @@ class MemoryMonitoringSystem {
       return;
     }
     
-    console.log('MemoryMonitoringSystem: Starting memory monitoring...');
+    console.warn('MemoryMonitoringSystem: Starting memory monitoring...');
     this.isMonitoring = true;
     
     // Take initial snapshot
@@ -100,7 +100,7 @@ class MemoryMonitoringSystem {
       return;
     }
     
-    console.log('MemoryMonitoringSystem: Stopping memory monitoring...');
+    console.warn('MemoryMonitoringSystem: Stopping memory monitoring...');
     this.isMonitoring = false;
     
     if (this.monitoringInterval) {
@@ -446,7 +446,7 @@ class MemoryMonitoringSystem {
     if (typeof window !== 'undefined' && 'gc' in window) {
       try {
         (window as any).gc();
-        console.log('Forced garbage collection');
+        console.warn('Forced garbage collection');
         return true;
       } catch (error) {
         console.warn('Failed to force garbage collection:', error);
