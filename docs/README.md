@@ -46,6 +46,6 @@ docs/
 
 ## Version
 
-Current Version: 6.0.0
+Current Version: 6.0.2
 
-Last Updated: January 2025
+Last Updated: January 30, 2025

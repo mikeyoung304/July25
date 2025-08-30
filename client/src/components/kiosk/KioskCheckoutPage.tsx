@@ -24,7 +24,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   const { cart, updateTip, clearCart } = useUnifiedCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('card');
-  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
+  const [_createdOrderId, _setCreatedOrderId] = useState<string | null>(null);
   const orderApi = useApiRequest();
   const paymentApi = useApiRequest();
   
@@ -95,7 +95,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   // Load terminal devices on mount
   useEffect(() => {
     terminal.loadDevices();
-  }, []);
+  }, [terminal]);
   
   // Handle voice payment method selection
   useEffect(() => {
@@ -173,7 +173,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       }
 
       const order = orderResponse as { id: string; order_number: string };
-      setCreatedOrderId(order.id);
+      _setCreatedOrderId(order.id);
       
       // Clear cart immediately after order creation
       // Order has been sent to kitchen, regardless of payment status

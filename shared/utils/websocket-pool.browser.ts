@@ -13,12 +13,8 @@ declare const globalThis: typeof global & {
 import { ManagedService, CleanupManager } from './cleanup-manager';
 
 // Import MemoryMonitor safely
-let MemoryMonitor: any;
-try {
-  MemoryMonitor = require('./memory-monitoring').MemoryMonitor;
-} catch (e) {
-  MemoryMonitor = { forceGarbageCollection: () => {}, getMemoryStatus: () => ({ current: null }) };
-}
+let MemoryMonitor: any = { forceGarbageCollection: () => {}, getMemoryStatus: () => ({ current: null }) };
+// Dynamic import not needed in browser context
 
 export interface WebSocketPoolConfig {
   urls: string[];

@@ -50,6 +50,12 @@ export type {
 } from '@rebuild/shared/api-types'
 
 // Local-only types (if any) that don't exist in shared
+export interface PaginationParams {
+  page?: number
+  limit?: number
+  offset?: number
+}
+
 export interface DateRangeParams {
   startDate?: Date
   endDate?: Date

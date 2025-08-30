@@ -61,7 +61,7 @@ export interface UnifiedOrder {
   // Additional info
   notes?: string;
   source: 'online' | 'voice' | 'kiosk' | 'server' | 'phone';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Converters for legacy formats
@@ -108,7 +108,7 @@ export function normalizeOrderStatus(status: string): UnifiedOrderStatus {
 }
 
 // Helper to ensure modifiers are in object format
-export function normalizeModifiers(modifiers: any): UnifiedModifier[] | undefined {
+export function normalizeModifiers(modifiers: unknown): UnifiedModifier[] | undefined {
   if (!modifiers || !Array.isArray(modifiers)) return undefined;
   
   return modifiers.map((mod, index) => {
@@ -125,7 +125,7 @@ export function normalizeModifiers(modifiers: any): UnifiedModifier[] | undefine
 }
 
 // Convert any order format to unified format
-export function toUnifiedOrder(order: any, source: UnifiedOrder['source']): UnifiedOrder {
+export function toUnifiedOrder(order: Record<string, unknown>, source: UnifiedOrder['source']): UnifiedOrder {
   return {
     id: order.id || '',
     restaurant_id: order.restaurant_id || order.restaurantId || '',
@@ -133,7 +133,7 @@ export function toUnifiedOrder(order: any, source: UnifiedOrder['source']): Unif
     
     type: normalizeOrderType(order.type || order.type || 'takeout'),
     status: normalizeOrderStatus(order.status || 'new'),
-    items: (order.items || []).map((item: any) => ({
+    items: ((order.items as unknown[]) || []).map((item: Record<string, unknown>) => ({
       id: item.id || '',
       menu_item_id: item.menu_item_id || item.menu_item_id || item.id || '',
       name: item.name || '',

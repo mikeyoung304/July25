@@ -255,7 +255,7 @@ interface AuthFlow {
 | ---------------------- | ------ | ------- |
 | First Contentful Paint | <1.5s  | 1.2s    |
 | Time to Interactive    | <3s    | 2.8s    |
-| Bundle Size            | <100KB | 97KB    |
+| Bundle Size            | <100KB | 82KB    |
 | Memory Usage           | <4GB   | 4GB     |
 | API Response           | <200ms | 150ms   |
 

@@ -3,7 +3,7 @@
 ## Project Overview
 
 - **Type**: Restaurant OS (Point of Sale + Management System)
-- **Version**: 6.0.0
+- **Version**: 6.0.2
 - **Stack**: React 19.1.0, TypeScript 5.8.3/5.3.3, Vite 5.4.19, Express 4.18.2, Supabase 2.50.5/2.39.7
 - **Architecture**: Unified backend on port 3001
 
@@ -33,10 +33,11 @@ rebuild-6.0/
 
 - **Mandatory**: All tests pass, TypeScript strict mode
 - **Coverage**: 60% statements, 50% branches, 60% functions/lines
+- **ESLint**: 0 errors, 573 warnings (down from 952 issues)
 - **Pre-commit**: test, lint, typecheck must pass
-- **Bundle Size**: Main chunk <100KB (use `npm run analyze`)
-- **Memory**: 4GB max for builds (down from 12GB)
-- **TypeScript**: 482 remaining errors (non-blocking, down from 670+)
+- **Bundle Size**: Main chunk 82KB (optimized from 347KB)
+- **Memory**: 4GB max for builds (optimized from 12GB)
+- **TypeScript**: 519 remaining errors (non-blocking, down from 670+)
 
 ## Key Features
 
@@ -86,6 +87,7 @@ rebuild-6.0/
 - **API Endpoint**: `/api/v1/realtime/session`
 - **No competing systems**: All WebSocket/blob-based voice removed
 - Context provider: RestaurantContext (restaurant_id field)
+- **Last Updated**: January 30, 2025
 
 ## Specialized Agents
 

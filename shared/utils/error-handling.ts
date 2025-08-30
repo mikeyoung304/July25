@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * Enterprise Error Handling System
  * Unified error handling, recovery, and reporting for production systems

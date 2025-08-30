@@ -5,7 +5,7 @@ import { logger } from '@/services/logger'
  * Provides a simple event emitter for WebSocket service
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 type EventHandler = (...args: any[]) => void
 
 // Maximum number of listeners per event before warning
@@ -50,7 +50,7 @@ export class EventEmitter {
     return this
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   emit(event: string, ...args: any[]): boolean {
     const handlers = this.events.get(event)
     

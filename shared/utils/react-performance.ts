@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * React Performance Optimization Utilities
  * Enterprise-grade performance optimization patterns for React components

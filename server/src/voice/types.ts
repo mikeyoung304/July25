@@ -147,6 +147,23 @@ export type TranscriptResult = z.infer<typeof TranscriptResultSchema>;
 export type OrderDetectionResult = z.infer<typeof OrderDetectionResultSchema>;
 export type VoiceSessionMetrics = z.infer<typeof VoiceSessionMetricsSchema>;
 
+// Define missing types
+export interface ClientEvent {
+  type: string;
+  data?: unknown;
+}
+
+export interface ServerEvent {
+  type: string;
+  data?: unknown;
+}
+
+export interface VoiceError {
+  code: string;
+  message: string;
+  details?: unknown;
+}
+
 // Utility types for WebSocket message handling
 export type VoiceWebSocketMessage = 
   | { type: 'client_event'; data: ClientEvent }
