@@ -2,7 +2,10 @@ import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useToast } from '@/hooks/useToast';
 import { useNavigate } from 'react-router-dom';
-import type { KioskCartItem } from '@/components/kiosk/KioskCartProvider';
+import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
+
+// Type alias for compatibility
+type KioskCartItem = UnifiedCartItem;
 
 export interface VoiceCheckoutConfig {
   restaurantId: string;
@@ -25,7 +28,7 @@ export interface CheckoutInitiatedEvent {
 }
 
 export interface PaymentMethodSelectedEvent {
-  method: 'card' | 'mobile' | 'cash';
+  method: 'card' | 'mobile' | 'cash' | 'terminal';
   timestamp: number;
 }
 
