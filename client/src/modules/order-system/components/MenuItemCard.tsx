@@ -9,7 +9,7 @@ interface MenuItemCardProps {
   onClick?: () => void; // Make optional since we're not using it
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => {
+export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onClick }) => {
   const { cart, addToCart } = useUnifiedCart();
   const [localQuantity, setLocalQuantity] = useState(0);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
