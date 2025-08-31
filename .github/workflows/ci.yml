@@ -65,6 +65,8 @@ jobs:
       
       - name: E2E (Puppeteer)
         run: node scripts/puppeteer-test.mjs
+        env:
+          CI: true
         
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v3

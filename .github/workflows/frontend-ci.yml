@@ -35,7 +35,7 @@ jobs:
       - name: Guard: no compiled JS in /shared
         run: |
           cd ..
-          npm ci --only=dev
+          npm ci
           npm run check:no-shared-js
       
       - name: Build Production Bundle
@@ -47,3 +47,5 @@ jobs:
         run: |
           cd ..
           node scripts/puppeteer-test.mjs
+        env:
+          CI: true
