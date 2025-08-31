@@ -4,7 +4,7 @@
     "module": "commonjs",
     "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDirs": ["./src", "../shared"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -34,7 +34,8 @@
     }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "../shared/**/*"
   ],
   "exclude": [
     "node_modules",
@@ -47,6 +48,10 @@
     "../shared/utils/browser-only.ts",
     "../shared/utils/websocket-pool.browser.ts",
     "../shared/utils/react-performance.ts",
-    "../shared/utils/performance-hooks.ts"
+    "../shared/utils/performance-hooks.ts",
+    "../shared/utils/cleanup-manager.ts",
+    "../shared/utils/memory-monitoring.ts",
+    "../shared/utils/websocket-pool.browser.ts",
+    "../shared/utils/websocket-pool.ts"
   ]
 }

@@ -217,6 +217,7 @@ class PerformanceMonitor {
     
     const originalOpen = XMLHttpRequest.prototype.open;
     const originalSend = XMLHttpRequest.prototype.send;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const monitor = this;
     
     XMLHttpRequest.prototype.open = function(method: string, url: string | URL, ...args: any[]) {

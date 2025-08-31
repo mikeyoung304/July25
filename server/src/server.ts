@@ -230,10 +230,10 @@ async function gracefulShutdown(signal: string) {
   
   // Clean up AI connections
   try {
-    const { buildPanelServiceInstance } = await import('./services/buildpanel.service');
-    if (buildPanelServiceInstance?.cleanup) {
-      buildPanelServiceInstance.cleanup();
-    }
+    // const { buildPanelServiceInstance } = await import('./services/buildpanel.service');
+    // if (buildPanelServiceInstance?.cleanup) {
+    //   buildPanelServiceInstance.cleanup();
+    // }
   } catch (error) {
     logger.debug('AI cleanup not needed:', error instanceof Error ? error.message : String(error));
   }
