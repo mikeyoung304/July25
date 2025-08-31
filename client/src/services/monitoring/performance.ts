@@ -100,7 +100,7 @@ class PerformanceMonitor {
   /**
    * Helper to observe specific metric types
    */
-  private observeMetric(type: string, callback: (entries: PerformanceEntry[]) => void) {
+  private observeMetric(type: string, callback: (entries: any[]) => void) {
     try {
       const observer = new PerformanceObserver((list) => {
         callback(list.getEntries());

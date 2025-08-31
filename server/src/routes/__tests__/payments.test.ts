@@ -37,7 +37,7 @@ describe('Payment Routes', () => {
   let app: express.Application;
   let authToken: string;
   
-  beforeEach(() => {
+  beforeEach(async () => {
     // Create test app
     app = express();
     app.use(express.json());
@@ -57,7 +57,7 @@ describe('Payment Routes', () => {
     });
     
     // Load payment routes
-    const paymentsRouter = require('../payments.routes').default;
+    const { paymentRoutes: paymentsRouter } = await import('../payments.routes');
     app.use('/api/v1/payments', paymentsRouter);
     
     // Create test token
@@ -200,7 +200,7 @@ describe('Payment Routes', () => {
         next();
       });
       
-      const paymentsRouter = require('../payments.routes').default;
+      const { paymentRoutes: paymentsRouter } = await import('../payments.routes');
       app.use('/api/v1/payments', paymentsRouter);
 
       const response = await request(app)
@@ -243,7 +243,7 @@ describe('Payment Routes', () => {
         next();
       });
       
-      const paymentsRouter = require('../payments.routes').default;
+      const { paymentRoutes: paymentsRouter } = await import('../payments.routes');
       app.use('/api/v1/payments', paymentsRouter);
 
       const response = await request(app)
@@ -269,7 +269,7 @@ describe('Payment Routes', () => {
         next();
       });
       
-      const paymentsRouter = require('../payments.routes').default;
+      const { paymentRoutes: paymentsRouter } = await import('../payments.routes');
       app.use('/api/v1/payments', paymentsRouter);
 
       vi.mocked(PaymentService.processRefund).mockResolvedValue({

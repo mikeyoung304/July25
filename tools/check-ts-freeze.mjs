@@ -9,9 +9,13 @@
  * 2. Error count for any file increases
  */
 
-const fs = require('fs');
-const { execSync } = require('child_process');
-const path = require('path');
+import fs from 'fs';
+import { execSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const ALLOWLIST_PATH = path.join(__dirname, 'ts-error-allowlist.json');
 const TEMP_OUTPUT = path.join(__dirname, 'current-errors.txt');
