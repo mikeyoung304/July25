@@ -35,13 +35,13 @@ export async function authenticate(
     
     // For local development only, allow a test token
     // SECURITY: This bypass is ONLY for local development
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    const isLocalhost = !process.env.RENDER && !process.env.VERCEL && !process.env.RAILWAY_ENVIRONMENT && !process.env.PRODUCTION;
-    const isTestEnvironment = process.env.NODE_ENV === 'test';
+    const isDevelopment = process.env['NODE_ENV'] === 'development';
+    const isLocalhost = !process.env['RENDER'] && !process.env['VERCEL'] && !process.env['RAILWAY_ENVIRONMENT'] && !process.env['PRODUCTION'];
+    const isTestEnvironment = process.env['NODE_ENV'] === 'test';
     const isTestToken = token === 'test-token';
     
     // Extra safety: explicitly check we're not in production
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.PRODUCTION === 'true';
+    const isProduction = process.env['NODE_ENV'] === 'production' || process.env['PRODUCTION'] === 'true';
     
     if (!isProduction && (isDevelopment || isTestEnvironment) && isLocalhost && isTestToken) {
       logger.warn('⚠️ SECURITY: Using test token - this should NEVER appear in production logs');
@@ -59,7 +59,7 @@ export async function authenticate(
     let decoded: any;
     try {
       // Try kiosk JWT secret first (for demo tokens)
-      const kioskSecret = process.env.KIOSK_JWT_SECRET;
+      const kioskSecret = process.env['KIOSK_JWT_SECRET'];
       
       if (kioskSecret) {
         try {
@@ -75,7 +75,7 @@ export async function authenticate(
         decoded = jwt.verify(token, secret) as any;
       }
     } catch (error) {
-      logger.error('Token verification failed:', error.message);
+      logger.error('Token verification failed:', error instanceof Error ? error.message : String(error));
       if (error instanceof jwt.TokenExpiredError) {
         throw Unauthorized('Token expired');
       } else if (error instanceof jwt.JsonWebTokenError) {
@@ -144,7 +144,7 @@ export async function verifyWebSocketAuth(
     // For local development only, allow test token
     // NEVER allow test tokens in production, staging, or any deployed environment
     const isDevelopment = config.nodeEnv === 'development';
-    const isLocalhost = !process.env.RENDER && !process.env.VERCEL && !process.env.RAILWAY_ENVIRONMENT;
+    const isLocalhost = !process.env['RENDER'] && !process.env['VERCEL'] && !process.env['RAILWAY_ENVIRONMENT'];
     const isTestToken = token === 'test-token';
     
     if (isDevelopment && isLocalhost && isTestToken) {
@@ -165,7 +165,7 @@ export async function verifyWebSocketAuth(
       // Check if this is a demo/kiosk token (sub starts with 'demo:')
       if (unverified?.sub?.startsWith('demo:')) {
         // This is a demo token - verify with KIOSK_JWT_SECRET
-        const kioskSecret = process.env.KIOSK_JWT_SECRET;
+        const kioskSecret = process.env['KIOSK_JWT_SECRET'];
         if (!kioskSecret) {
           logger.error('KIOSK_JWT_SECRET not configured for demo token verification');
           return null;

@@ -1,13 +1,12 @@
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 import { supabase } from '../../config/database';
 import { logger } from '../../utils/logger';
-import { BadRequest, Unauthorized } from '../../middleware/errorHandler';
+import { BadRequest } from '../../middleware/errorHandler';
 
 const pinLogger = logger.child({ module: 'pin-auth' });
 
 // Configuration
-const PIN_PEPPER = process.env.PIN_PEPPER || 'default-pepper-change-in-production';
+const PIN_PEPPER = process.env['PIN_PEPPER'] || 'default-pepper-change-in-production';
 const MAX_PIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MINUTES = 15;
 const PIN_LENGTH_MIN = 4;
@@ -236,7 +235,7 @@ export async function validatePin(
         return {
           isValid: true,
           userId: record.user_id,
-          userEmail: record.users.email,
+          userEmail: (record as any).users?.email,
           role: userRole?.role,
           restaurantId
         };

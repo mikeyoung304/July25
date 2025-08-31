@@ -1,9 +1,8 @@
 import { randomUUID } from 'crypto';
 import { logger } from '../utils/logger';
-import { OrdersService } from './orders.service';
+import { OrdersService, type Order } from './orders.service';
 import { BadRequest } from '../middleware/errorHandler';
 import { supabase } from '../config/database';
-import type { Order } from '@rebuild/shared';
 
 export interface PaymentValidationResult {
   amount: number;
@@ -18,7 +17,7 @@ export interface PaymentAuditLogEntry {
   amount: number;
   status: 'initiated' | 'processing' | 'success' | 'failed' | 'refunded';
   userId?: string;
-  restaurantId?: string;
+  restaurantId: string;  // Made required - always provided in our usage
   paymentMethod?: 'card' | 'cash' | 'other';
   paymentId?: string;
   errorCode?: string;
@@ -118,7 +117,7 @@ export class PaymentService {
     }
 
     // Calculate server-side total
-    const validation = await this.calculateOrderTotal(order as Order);
+    const validation = await this.calculateOrderTotal(order);
 
     // If client provided amount, validate it matches
     if (clientAmount !== undefined) {
@@ -175,7 +174,7 @@ export class PaymentService {
 
     logger.info('Payment audit log', {
       ...auditLog,
-      environment: process.env.NODE_ENV
+      environment: process.env['NODE_ENV']
     });
 
     // Store in database audit table
