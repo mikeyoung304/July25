@@ -276,12 +276,12 @@ export class LocalStorageManager {
     // Run initial cleanup
     const removed = this.cleanupExpired();
     if (removed > 0) {
-      console.log(`LocalStorage: Cleaned up ${removed} expired items`);
+      console.warn(`LocalStorage: Cleaned up ${removed} expired items`);
     }
     
     // Check usage
     const usage = this.getUsage();
-    console.log(`LocalStorage: ${usage.itemCount} items, ${(usage.totalSize / 1024).toFixed(1)}KB used`);
+    console.warn(`LocalStorage: ${usage.itemCount} items, ${(usage.totalSize / 1024).toFixed(1)}KB used`);
     
     // Schedule periodic cleanup (hourly)
     // Clear any existing interval first

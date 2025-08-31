@@ -10,6 +10,7 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
 import express, { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import { logger } from './utils/logger';
@@ -27,6 +28,7 @@ import { aiRoutes } from './routes/ai.routes';
 import { realtimeRoutes } from './routes/realtime.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
+import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
 
 // Validate required environment variables
 validateEnvironment();
@@ -112,8 +114,18 @@ app.use(cors({
   exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset', 'x-order-data', 'x-transcript', 'x-response-text'],
   maxAge: 86400, // 24 hours
 }));
+
+// Cookie parser for CSRF
+app.use(cookieParser());
+
+// Body parsing middleware
 app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// CSRF protection (after cookie parser, before routes)
+app.use(csrfMiddleware());
+
+// Request logging
 app.use(requestLogger);
 
 // Metrics middleware for tracking (not serving metrics)
@@ -150,6 +162,9 @@ app.get('/health', (_req, res) => {
     environment: process.env.NODE_ENV,
   });
 });
+
+// CSRF error handler (before general error handler)
+app.use(csrfErrorHandler);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
@@ -215,10 +230,10 @@ async function gracefulShutdown(signal: string) {
   
   // Clean up AI connections
   try {
-    const { buildPanelServiceInstance } = await import('./services/buildpanel.service');
-    if (buildPanelServiceInstance?.cleanup) {
-      buildPanelServiceInstance.cleanup();
-    }
+    // const { buildPanelServiceInstance } = await import('./services/buildpanel.service');
+    // if (buildPanelServiceInstance?.cleanup) {
+    //   buildPanelServiceInstance.cleanup();
+    // }
   } catch (error) {
     logger.debug('AI cleanup not needed:', error instanceof Error ? error.message : String(error));
   }

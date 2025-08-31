@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MenuItem } from '../../menu/types';
 import { Minus, Plus } from 'lucide-react';
-import { useCart } from '../context/cartContext.hooks';
+import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
 import { OptimizedImage } from '@/components/shared/OptimizedImage';
 
 interface MenuItemCardProps {
@@ -9,8 +9,8 @@ interface MenuItemCardProps {
   onClick?: () => void; // Make optional since we're not using it
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => {
-  const { cart, addToCart } = useCart();
+export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onClick }) => {
+  const { cart, addToCart } = useUnifiedCart();
   const [localQuantity, setLocalQuantity] = useState(0);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
   const [showAddedFeedback, setShowAddedFeedback] = useState(false);

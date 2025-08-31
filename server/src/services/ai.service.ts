@@ -18,9 +18,15 @@ interface TranscriptionResult {
   duration?: number;
 }
 
+interface APIError extends Error {
+  status?: number;
+  error?: string;
+  suggestions?: string[];
+}
+
 export class AIService {
   private connections: Map<string, ConnectionState>;
-  private menuData: any = null;
+  private menuData: { menu?: Array<{ id: string; name: string; price: number; category: string; description?: string }> } | null = null;
 
   constructor() {
     this.connections = new Map();
@@ -139,18 +145,24 @@ export class AIService {
       
       // Check if it's a timeout or provider unavailable error
       if (this.isTimeoutError(error)) {
-        const timeoutError = new Error('provider_unavailable') as any;
-        timeoutError.status = 503;
-        timeoutError.error = 'provider_unavailable';
+        const timeoutError: APIError = Object.assign(new Error('provider_unavailable'), {
+          status: 503,
+          error: 'provider_unavailable'
+        });
         throw timeoutError;
       }
       
       // Check if it's a 422 error with suggestions
-      if ((error as any).status === 422) {
-        const matchError = new Error((error as any).error || 'unknown_item') as any;
-        matchError.status = 422;
-        matchError.error = (error as any).error || 'unknown_item';
-        matchError.suggestions = (error as any).suggestions || [];
+      if ((error as APIError).status === 422) {
+        const apiError = error as APIError;
+        const matchError: APIError = Object.assign(
+          new Error(apiError.error || 'unknown_item'),
+          {
+            status: 422,
+            error: apiError.error || 'unknown_item',
+            suggestions: apiError.suggestions || []
+          }
+        );
         throw matchError;
       }
       
@@ -161,22 +173,23 @@ export class AIService {
   /**
    * Check if error is a timeout or provider unavailability
    */
-  private isTimeoutError(error: any): boolean {
+  private isTimeoutError(error: unknown): boolean {
+    const err = error as { code?: string; message?: string; status?: number };
     return (
-      error?.code === 'ECONNRESET' ||
-      error?.code === 'ETIMEDOUT' ||
-      error?.message?.includes('timeout') ||
-      error?.message?.includes('network') ||
-      error?.status === 503 ||
-      error?.status === 502 ||
-      error?.status === 504
+      err.code === 'ECONNRESET' ||
+      err.code === 'ETIMEDOUT' ||
+      err.message?.includes('timeout') ||
+      err.message?.includes('network') ||
+      err.status === 503 ||
+      err.status === 502 ||
+      err.status === 504
     );
   }
 
   /**
    * Update menu data for order parsing
    */
-  updateMenu(menuData: any): void {
+  updateMenu(menuData: { menu?: Array<{ id: string; name: string; price: number; category: string; description?: string }> }): void {
     this.menuData = menuData;
     aiLogger.info(`Menu updated: ${menuData.menu?.length || 0} items`);
   }
@@ -184,7 +197,7 @@ export class AIService {
   /**
    * Get menu data
    */
-  getMenu(): any {
+  getMenu(): { menu?: Array<{ id: string; name: string; price: number; category: string; description?: string }> } | null {
     return this.menuData;
   }
 
@@ -209,9 +222,10 @@ export class AIService {
       aiLogger.error('OpenAI file transcription error:', error);
       
       if (this.isTimeoutError(error)) {
-        const timeoutError = new Error('provider_unavailable') as any;
-        timeoutError.status = 503;
-        timeoutError.error = 'provider_unavailable';
+        const timeoutError: APIError = Object.assign(new Error('provider_unavailable'), {
+          status: 503,
+          error: 'provider_unavailable'
+        });
         throw timeoutError;
       }
       
@@ -261,9 +275,10 @@ export class AIService {
       aiLogger.error('OpenAI voice processing error:', error);
       
       if (this.isTimeoutError(error)) {
-        const timeoutError = new Error('provider_unavailable') as any;
-        timeoutError.status = 503;
-        timeoutError.error = 'provider_unavailable';
+        const timeoutError: APIError = Object.assign(new Error('provider_unavailable'), {
+          status: 503,
+          error: 'provider_unavailable'
+        });
         throw timeoutError;
       }
       
@@ -312,9 +327,10 @@ export class AIService {
       aiLogger.error('OpenAI chat error:', error);
       
       if (this.isTimeoutError(error)) {
-        const timeoutError = new Error('provider_unavailable') as any;
-        timeoutError.status = 503;
-        timeoutError.error = 'provider_unavailable';
+        const timeoutError: APIError = Object.assign(new Error('provider_unavailable'), {
+          status: 503,
+          error: 'provider_unavailable'
+        });
         throw timeoutError;
       }
       

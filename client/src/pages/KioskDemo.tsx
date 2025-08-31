@@ -7,6 +7,7 @@ import { ShoppingCart, Mic, CheckCircle } from 'lucide-react'
 import { parseVoiceOrder, submitVoiceOrder } from '@/modules/voice/services/orderIntegration'
 import { useToast } from '@/hooks/useToast'
 import { OrderSuccessAnimation } from '@/modules/voice/components/OrderSuccessAnimation'
+import { Order } from '@rebuild/shared'
 
 interface ParsedOrder {
   items: Array<{
@@ -56,11 +57,11 @@ const KioskDemo: React.FC = () => {
       
       const result = await submitVoiceOrder(voiceOrder)
       
-      const orderResult = result as any as { order: { order_number: string } };
-      if (orderResult.order) {
-        toast.success(`Order #${orderResult.order.order_number} submitted to kitchen!`)
+      const order = result as unknown as Order;
+      if (order && order.order_number) {
+        toast.success(`Order #${order.order_number} submitted to kitchen!`)
         setOrderSubmitted(true)
-        setSuccessOrderNumber(orderResult.order.order_number)
+        setSuccessOrderNumber(order.order_number)
         
         // Reset after 3 seconds
         setTimeout(() => {

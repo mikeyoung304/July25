@@ -5,6 +5,8 @@
  * Tests functionality of both Expo and Kitchen pages
  */
 
+/* eslint-env browser */
+
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');

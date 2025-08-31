@@ -10,6 +10,16 @@
  * - Graceful shutdown patterns
  */
 
+// Type declarations for environments where DOM types may not be available
+declare global {
+  interface WebSocket {
+    readonly readyState: number;
+    close(code?: number, reason?: string): void;
+    addEventListener(type: string, listener: EventListener, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListener): void;
+  }
+}
+
 export interface CleanupResource {
   id: string;
   name: string;
@@ -86,7 +96,7 @@ class CleanupManagerImpl {
    */
   registerWebSocket(
     id: string,
-    websocket: WebSocket,
+    websocket: any, // Using any to avoid DOM dependency issues
     options: { 
       closeCode?: number;
       closeReason?: string;
@@ -99,26 +109,37 @@ class CleanupManagerImpl {
       id: `websocket-${id}`,
       name: `WebSocket: ${id}`,
       cleanup: async () => {
-        if (websocket.readyState === WebSocket.OPEN || websocket.readyState === WebSocket.CONNECTING) {
-          websocket.close(closeCode, closeReason);
+        if (websocket && typeof websocket.close === 'function') {
+          const CONNECTING = 0;
+          const OPEN = 1;
+          const CLOSED = 3;
           
-          // Wait for close with timeout
-          await new Promise<void>((resolve) => {
-            const timeoutId = setTimeout(resolve, timeout);
+          if (websocket.readyState === OPEN || websocket.readyState === CONNECTING) {
+            websocket.close(closeCode, closeReason);
             
-            const onClose = () => {
-              clearTimeout(timeoutId);
-              websocket.removeEventListener('close', onClose);
-              resolve();
-            };
-            
-            if (websocket.readyState === WebSocket.CLOSED) {
-              clearTimeout(timeoutId);
-              resolve();
-            } else {
-              websocket.addEventListener('close', onClose, { once: true });
-            }
-          });
+            // Wait for close with timeout
+            await new Promise<void>((resolve) => {
+              const timeoutId = setTimeout(resolve, timeout);
+              
+              const onClose = () => {
+                clearTimeout(timeoutId);
+                if (websocket.removeEventListener) {
+                  websocket.removeEventListener('close', onClose);
+                }
+                resolve();
+              };
+              
+              if (websocket.readyState === CLOSED) {
+                clearTimeout(timeoutId);
+                resolve();
+              } else if (websocket.addEventListener) {
+                websocket.addEventListener('close', onClose, { once: true });
+              } else {
+                // Fallback if addEventListener not available
+                resolve();
+              }
+            });
+          }
         }
       },
       priority: 'critical',
@@ -167,13 +188,17 @@ class CleanupManagerImpl {
     id: string,
     target: T,
     event: string,
-    listener: EventListener,
+    listener: any, // Using any to avoid DOM dependency issues
     name?: string
   ): () => void {
     return this.register({
       id: `listener-${id}`,
       name: name || `Listener: ${id}`,
-      cleanup: () => target.removeEventListener(event, listener),
+      cleanup: () => {
+        if (target && typeof target.removeEventListener === 'function') {
+          target.removeEventListener(event, listener);
+        }
+      },
       priority: 'medium',
       category: 'listener'
     });
@@ -184,16 +209,23 @@ class CleanupManagerImpl {
    */
   registerMediaStream(
     id: string,
-    stream: MediaStream,
+    stream: any, // Using any to avoid DOM dependency issues
     name?: string
   ): () => void {
     return this.register({
       id: `media-${id}`,
       name: name || `MediaStream: ${id}`,
       cleanup: () => {
-        stream.getTracks().forEach(track => {
-          track.stop();
-        });
+        if (stream && typeof stream.getTracks === 'function') {
+          const tracks = stream.getTracks();
+          if (Array.isArray(tracks)) {
+            tracks.forEach((track: any) => {
+              if (track && typeof track.stop === 'function') {
+                track.stop();
+              }
+            });
+          }
+        }
       },
       priority: 'critical',
       category: 'media'
@@ -234,7 +266,7 @@ class CleanupManagerImpl {
   }
   
   private async performShutdown(): Promise<void> {
-    console.log('CleanupManager: Starting graceful shutdown...');
+    console.warn('CleanupManager: Starting graceful shutdown...');
     
     const resourcesByPriority = this.groupResourcesByPriority();
     
@@ -242,14 +274,14 @@ class CleanupManagerImpl {
       const resources = resourcesByPriority[priority] || [];
       
       if (resources.length > 0) {
-        console.log(`CleanupManager: Cleaning up ${resources.length} ${priority} priority resources...`);
+        console.warn(`CleanupManager: Cleaning up ${resources.length} ${priority} priority resources...`);
         
         // Cleanup resources in parallel within the same priority level
         await Promise.allSettled(
           resources.map(async (resource) => {
             try {
               await resource.cleanup();
-              console.log(`✓ Cleaned up: ${resource.name}`);
+              console.warn(`✓ Cleaned up: ${resource.name}`);
             } catch (error) {
               console.error(`✗ Failed to cleanup ${resource.name}:`, error);
             }
@@ -274,7 +306,7 @@ class CleanupManagerImpl {
     this.resources.clear();
     this.services.clear();
     
-    console.log('CleanupManager: Graceful shutdown completed');
+    console.warn('CleanupManager: Graceful shutdown completed');
   }
   
   private groupResourcesByPriority(): Record<string, CleanupResource[]> {
@@ -286,7 +318,9 @@ class CleanupManagerImpl {
     };
     
     for (const resource of this.resources.values()) {
-      groups[resource.priority].push(resource);
+      if (groups[resource.priority]) {
+        groups[resource.priority].push(resource);
+      }
     }
     
     return groups;
@@ -319,8 +353,12 @@ class CleanupManagerImpl {
     };
     
     for (const resource of this.resources.values()) {
-      resourcesByPriority[resource.priority]++;
-      resourcesByCategory[resource.category]++;
+      if (resourcesByPriority[resource.priority] !== undefined) {
+        resourcesByPriority[resource.priority]++;
+      }
+      if (resourcesByCategory[resource.category] !== undefined) {
+        resourcesByCategory[resource.category]++;
+      }
     }
     
     const services = Array.from(this.services.entries()).map(([name, service]) => ({
@@ -343,56 +381,61 @@ class CleanupManagerImpl {
    */
   private setupGlobalCleanup(): void {
     // Browser environment
-    if (typeof window !== 'undefined') {
+    if (typeof globalThis !== 'undefined' && 'window' in globalThis) {
+      const win = globalThis as any;
       // Handle page unload
-      window.addEventListener('beforeunload', () => {
-        // Synchronous cleanup only
-        const criticalResources = Array.from(this.resources.values())
-          .filter(r => r.priority === 'critical');
-        
-        criticalResources.forEach(resource => {
-          try {
-            const result = resource.cleanup();
-            // If it returns a promise, we can't wait for it in beforeunload
-            if (result instanceof Promise) {
-              console.warn(`Critical resource ${resource.name} cleanup is async and may not complete`);
+      if (win.window && win.window.addEventListener) {
+        win.window.addEventListener('beforeunload', () => {
+          // Synchronous cleanup only
+          const criticalResources = Array.from(this.resources.values())
+            .filter(r => r.priority === 'critical');
+          
+          criticalResources.forEach(resource => {
+            try {
+              const result = resource.cleanup();
+              // If it returns a promise, we can't wait for it in beforeunload
+              if (result instanceof Promise) {
+                console.warn(`Critical resource ${resource.name} cleanup is async and may not complete`);
+              }
+            } catch (error) {
+              console.error(`Emergency cleanup failed for ${resource.name}:`, error);
             }
-          } catch (error) {
-            console.error(`Emergency cleanup failed for ${resource.name}:`, error);
-          }
+          });
         });
-      });
-      
-      // Handle page hide (more reliable than beforeunload)
-      window.addEventListener('pagehide', () => {
-        this.shutdownAll().catch(error => {
-          console.error('Emergency shutdown failed:', error);
+        
+        // Handle page hide (more reliable than beforeunload)
+        win.window.addEventListener('pagehide', () => {
+          this.shutdownAll().catch(error => {
+            console.error('Emergency shutdown failed:', error);
+          });
         });
-      });
+      }
       
       // Handle visibility change (app backgrounded)
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-          // Cleanup non-critical resources when app is backgrounded
-          const nonCriticalResources = Array.from(this.resources.values())
-            .filter(r => r.priority === 'low' || r.priority === 'medium');
-          
-          nonCriticalResources.forEach(resource => {
-            this.cleanup(resource.id).catch(error => {
-              console.error(`Background cleanup failed for ${resource.name}:`, error);
+      if (win.document && win.document.addEventListener) {
+        win.document.addEventListener('visibilitychange', () => {
+          if (win.document.visibilityState === 'hidden') {
+            // Cleanup non-critical resources when app is backgrounded
+            const nonCriticalResources = Array.from(this.resources.values())
+              .filter(r => r.priority === 'low' || r.priority === 'medium');
+            
+            nonCriticalResources.forEach(resource => {
+              this.cleanup(resource.id).catch(error => {
+                console.error(`Background cleanup failed for ${resource.name}:`, error);
+              });
             });
-          });
-        }
-      });
+          }
+        });
+      }
     }
     
     // Node.js environment
     if (typeof process !== 'undefined') {
       const gracefulShutdown = (signal: string) => {
-        console.log(`Received ${signal}, starting graceful shutdown...`);
+        console.warn(`Received ${signal}, starting graceful shutdown...`);
         this.shutdownAll()
           .then(() => {
-            console.log('Graceful shutdown completed');
+            console.warn('Graceful shutdown completed');
             process.exit(0);
           })
           .catch((error) => {
@@ -436,7 +479,7 @@ export abstract class ManagedService implements ServiceLifecycle {
     this.cleanupRegistry.push(cleanup);
   }
   
-  protected registerWebSocket(id: string, ws: WebSocket): () => void {
+  protected registerWebSocket(id: string, ws: any): () => void {
     const unregister = CleanupManager.registerWebSocket(`${this.serviceName}-${id}`, ws);
     this.registerCleanup(unregister);
     return unregister;

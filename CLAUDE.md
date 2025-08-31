@@ -3,7 +3,7 @@
 ## Project Overview
 
 - **Type**: Restaurant OS (Point of Sale + Management System)
-- **Version**: 6.0.0
+- **Version**: 6.0.2
 - **Stack**: React 19.1.0, TypeScript 5.8.3/5.3.3, Vite 5.4.19, Express 4.18.2, Supabase 2.50.5/2.39.7
 - **Architecture**: Unified backend on port 3001
 
@@ -33,10 +33,11 @@ rebuild-6.0/
 
 - **Mandatory**: All tests pass, TypeScript strict mode
 - **Coverage**: 60% statements, 50% branches, 60% functions/lines
+- **ESLint**: 0 errors, 573 warnings (down from 952 issues)
 - **Pre-commit**: test, lint, typecheck must pass
-- **Bundle Size**: Main chunk <100KB (use `npm run analyze`)
-- **Memory**: 4GB max for builds (down from 12GB)
-- **TypeScript**: 482 remaining errors (non-blocking, down from 670+)
+- **Bundle Size**: Main chunk 82KB (optimized from 347KB)
+- **Memory**: 4GB max for builds (optimized from 12GB)
+- **TypeScript**: 519 remaining errors (non-blocking, down from 670+)
 
 ## Key Features
 
@@ -86,6 +87,7 @@ rebuild-6.0/
 - **API Endpoint**: `/api/v1/realtime/session`
 - **No competing systems**: All WebSocket/blob-based voice removed
 - Context provider: RestaurantContext (restaurant_id field)
+- **Last Updated**: January 30, 2025
 
 ## Specialized Agents
 
@@ -177,8 +179,49 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 - Shared types in `shared/` directory
 - Error boundaries for React components
 - Proper WebSocket cleanup in useEffect hooks
-- UnifiedCartContext for all cart operations
+- **UnifiedCartContext for ALL cart operations** (single source of truth)
 - Code splitting with React.lazy() for routes
 - WebSocket event handlers use `on`/`off` pattern (not subscribe return)
 - Browser API checks: `typeof window !== 'undefined'`
 - API responses cast with `as` (not generic parameters)
+
+## Critical Architecture Decisions (2025-08-28)
+
+### Cart System Unification
+- **ONLY use UnifiedCartContext** - no separate cart providers
+- Import from `@/contexts/UnifiedCartContext` directly
+- Use `useUnifiedCart()` hook (or aliases `useCart()`, `useKioskCart()`)
+- **DO NOT create adapter contexts** - they add complexity
+- **DO NOT duplicate cart logic** - violates DRY principle
+- When refactoring/unifying systems, update ALL usages, not just wrap old ones
+
+## Authentication Architecture (2025-01-30)
+
+### User Roles & Access Levels
+- **Owner**: Full system access, financial reports, multi-location
+- **Manager**: Restaurant operations, reports, staff management  
+- **Server**: Order creation, payment processing, table management
+- **Cashier**: Payment processing, limited order access
+- **Kitchen**: Kitchen display only, order status updates
+- **Expo**: Expo display, order completion
+- **Customer**: Self-service ordering (kiosk/online/QR)
+
+### Authentication Methods
+- **Email/Password**: Managers and above (with optional MFA)
+- **PIN Code**: Service staff (4-6 digits, restaurant-scoped)
+- **Station Login**: Kitchen/Expo (shared device authentication)
+- **Anonymous**: Customers (session-based, no auth required)
+
+### Implementation Priority
+1. JWT token infrastructure (RS256 signed)
+2. Login page with email/password
+3. PIN pad for service staff
+4. Protected route wrapper
+5. Role-based permission gates
+
+### Security Requirements
+- 8-hour sessions for managers, 12-hour for staff
+- HttpOnly, Secure, SameSite cookies
+- Rate limiting on auth endpoints
+- Audit logging for all auth events
+- CSRF protection (already implemented)

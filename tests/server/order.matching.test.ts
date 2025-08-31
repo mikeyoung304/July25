@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, fail } from "vitest";
 import { OrderMatchingService } from "../src/services/OrderMatchingService";
 import { ParsedOrderSchema } from "../../shared/types/orders";
 

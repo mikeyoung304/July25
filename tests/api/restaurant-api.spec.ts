@@ -144,7 +144,7 @@ test.describe('Restaurant API Tests', () => {
   test('CORS headers are properly set', async ({ request }) => {
     // Test with HEAD request instead of OPTIONS (Playwright doesn't support options)
     const response = await request.head(`${API_BASE}/api/v1/health`);
-    const headers = response.headers();
+    const _headers = response.headers();
     
     // Check that CORS headers exist (may vary by server config)
     expect(response.ok() || response.status() === 405).toBeTruthy(); // HEAD or OPTIONS should work

@@ -1,4 +1,3 @@
-import React from 'react'
 import { Table } from '../types'
 import { Circle, Square, RectangleHorizontal } from 'lucide-react'
 

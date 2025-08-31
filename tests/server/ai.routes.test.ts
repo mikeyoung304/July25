@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
-import { vi, describe, it, expect, beforeEach, afterEach, test } from 'vitest';
-import { ai } from '../src/ai';
+import { vi, describe, expect, beforeEach, afterEach, test } from 'vitest';
+import { ai, checkAIHealth } from '../src/ai';
 
 // Mock OpenAI client
 vi.mock('../src/ai', () => ({
@@ -37,13 +37,14 @@ vi.mock('../src/services/menu.service', () => ({
 describe('AI Routes', () => {
   let app: express.Application;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Create minimal Express app with AI routes
     app = express();
     app.use(express.json());
     
     // Import routes after mocks are set up
-    const aiRoutes = require('../src/routes/ai.routes').default;
+    const aiRoutesModule = await import('../src/routes/ai.routes');
+    const aiRoutes = aiRoutesModule.default;
     app.use('/api/v1/ai', aiRoutes);
   });
 

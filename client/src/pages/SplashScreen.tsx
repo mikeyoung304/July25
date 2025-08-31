@@ -73,7 +73,7 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
                 height: 'auto',
                 // Visual enhancements to smooth out imperfections
                 filter: 'contrast(1.05) brightness(1.02) saturate(1.1)',
-                imageRendering: 'optimizeQuality',
+                imageRendering: 'optimizeQuality' as any,
                 willChange: 'transform',
                 backfaceVisibility: 'hidden',
                 perspective: '1000px',

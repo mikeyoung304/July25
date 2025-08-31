@@ -11,6 +11,8 @@ import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BrandHeader } from '@/components/layout/BrandHeader';
 import { ShoppingCart, Mic, MicOff, Volume2, Trash2 } from 'lucide-react';
+import { MenuItem as SharedMenuItem } from '@rebuild/shared';
+import { MenuItem as ApiMenuItem } from '@rebuild/shared/api-types';
 
 // Lazy load the heavy VoiceControlWebRTC component
 const VoiceControlWebRTC = lazy(() => import('@/modules/voice/components/VoiceControlWebRTC').then(m => ({ default: m.VoiceControlWebRTC })));
@@ -20,6 +22,26 @@ interface VoiceOrderingModeProps {
   onCheckout: () => void;
   onOrchestratorReady?: (orchestrator: VoiceCheckoutOrchestrator) => void;
 }
+
+// Convert ApiMenuItem to SharedMenuItem for cart compatibility
+const convertApiMenuItemToShared = (apiItem: ApiMenuItem): SharedMenuItem => {
+  return {
+    id: apiItem.id,
+    restaurant_id: apiItem.restaurantId,
+    category_id: apiItem.categoryId,
+    name: apiItem.name,
+    description: apiItem.description,
+    price: apiItem.price,
+    image_url: apiItem.imageUrl,
+    is_available: apiItem.isAvailable,
+    is_featured: apiItem.isFeatured,
+    dietary_flags: apiItem.dietaryFlags,
+    preparation_time: apiItem.preparationTime,
+    display_order: apiItem.displayOrder,
+    created_at: apiItem.createdAt || new Date().toISOString(),
+    updated_at: apiItem.updatedAt || new Date().toISOString()
+  };
+};
 
 export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   onBack,
@@ -93,7 +115,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         checkoutOrchestratorRef.current = null;
       }
     };
-  }, [apiClient, toast, navigate]);
+  }, [apiClient, toast, navigate, onOrchestratorReady]);
 
   // Update orchestrator when cart changes
   useEffect(() => {
@@ -117,7 +139,9 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
     parsedItems.forEach(parsed => {
       if (parsed.menuItem && parsed.action === 'add') {
         const modifications = parsed.modifications ? parsed.modifications.map(mod => typeof mod === 'string' ? mod : mod.name) : [];
-        addItem(parsed.menuItem, parsed.quantity, modifications);
+        // Convert ApiMenuItem to SharedMenuItem before adding to cart
+        const sharedMenuItem = convertApiMenuItemToShared(parsed.menuItem as ApiMenuItem);
+        addItem(sharedMenuItem, parsed.quantity, modifications);
         newItems.push(parsed.menuItem.name);
       }
     });
@@ -144,8 +168,6 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   }, [orderParser, processParsedItems]);
 
   const handleOrderData = useCallback((orderData: any) => {
-    console.log('[VoiceOrderingMode] Received order data:', orderData);
-    
     // Handle function call format from WebRTC: { items: [{ name, quantity, modifications }] }
     if (orderData?.items?.length > 0) {
       const addedItems: string[] = [];
@@ -190,18 +212,17 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
           // Handle modifications from function call
           const modifications = item.modifications || item.modifiers || [];
           
-          console.log(`[VoiceOrderingMode] Adding ${item.quantity}x ${menuItem.name} with modifications:`, modifications);
           
+          // Convert ApiMenuItem to SharedMenuItem before adding to cart
+          const sharedMenuItem = convertApiMenuItemToShared(menuItem as ApiMenuItem);
           addItem(
-            menuItem,
+            sharedMenuItem,
             item.quantity || 1,
             modifications,
             item.specialInstructions
           );
           
           addedItems.push(`${item.quantity || 1}x ${menuItem.name}`);
-        } else {
-          console.warn(`[VoiceOrderingMode] Could not find menu item for: ${item.name}`);
         }
       });
       
@@ -214,7 +235,6 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
     
     // Handle order confirmation events via VoiceCheckoutOrchestrator
     else if (orderData?.action) {
-      console.log('[VoiceOrderingMode] Order action:', orderData.action);
       
       if (checkoutOrchestratorRef.current) {
         checkoutOrchestratorRef.current.handleOrderConfirmation({
@@ -226,7 +246,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         if (orderData.action === 'checkout' && cart.items.length > 0) {
           onCheckout();
         } else if (orderData.action === 'review') {
-          console.log('Order review requested, current cart:', cart.items);
+          // Order review requested - cart is already visible in UI
         }
       }
     }
@@ -237,8 +257,10 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         const menuItem = menuItems.find(m => m.id === item.menuItemId);
         if (menuItem) {
           const modifications = item.modifications ? item.modifications.map((mod: any) => typeof mod === 'string' ? mod : (mod?.name || mod)) : [];
+          // Convert ApiMenuItem to SharedMenuItem before adding to cart
+          const sharedMenuItem = convertApiMenuItemToShared(menuItem as ApiMenuItem);
           addItem(
-            menuItem,
+            sharedMenuItem,
             item.quantity || 1,
             modifications
           );

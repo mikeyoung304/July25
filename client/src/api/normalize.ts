@@ -43,28 +43,28 @@ export function toWireOrder(c: ClientOrder): WireOrder {
 }
 
 // Additional normalizers for common patterns
-export function snakeToCamel(obj: any): any {
+export function snakeToCamel(obj: unknown): unknown {
   if (Array.isArray(obj)) {
     return obj.map(snakeToCamel);
   } else if (obj !== null && typeof obj === 'object') {
-    return Object.keys(obj).reduce((result, key) => {
+    return Object.keys(obj as Record<string, unknown>).reduce((result, key) => {
       const camelKey = key.replace(/_([a-z])/g, (_: string, letter: string) => letter.toUpperCase());
-      result[camelKey] = snakeToCamel(obj[key]);
+      result[camelKey] = snakeToCamel((obj as Record<string, unknown>)[key]);
       return result;
-    }, {} as any);
+    }, {} as Record<string, unknown>);
   }
   return obj;
 }
 
-export function camelToSnake(obj: any): any {
+export function camelToSnake(obj: unknown): unknown {
   if (Array.isArray(obj)) {
     return obj.map(camelToSnake);
   } else if (obj !== null && typeof obj === 'object') {
-    return Object.keys(obj).reduce((result, key) => {
+    return Object.keys(obj as Record<string, unknown>).reduce((result, key) => {
       const snakeKey = key.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
-      result[snakeKey] = camelToSnake(obj[key]);
+      result[snakeKey] = camelToSnake((obj as Record<string, unknown>)[key]);
       return result;
-    }, {} as any);
+    }, {} as Record<string, unknown>);
   }
   return obj;
 }

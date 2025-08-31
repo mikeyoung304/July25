@@ -63,12 +63,21 @@ If asked about menu items, you can reference general categories but specific ite
         replyLength: reply.length
       });
 
+      const metadata: any = {
+        model: result.model
+      };
+      
+      if (result.usage) {
+        metadata.usage = {
+          promptTokens: result.usage.prompt_tokens,
+          completionTokens: result.usage.completion_tokens,
+          totalTokens: result.usage.total_tokens
+        };
+      }
+      
       return {
         message: reply,
-        metadata: {
-          model: result.model,
-          usage: result.usage
-        }
+        metadata
       };
     } catch (error) {
       chatLogger.error('Chat completion failed', {
@@ -103,9 +112,14 @@ If asked about menu items, you can reference general categories but specific ite
 
   async completeMessages(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResult> {
     const response = await this.respond(messages, options);
-    return {
-      message: response.message,
-      usage: response.metadata?.usage
+    const result: ChatResult = {
+      message: response.message
     };
+    
+    if (response.metadata?.usage) {
+      result.usage = response.metadata.usage;
+    }
+    
+    return result;
   }
 }

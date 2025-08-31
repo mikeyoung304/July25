@@ -1,29 +1,33 @@
 import { Router } from 'express';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
+import { requireScopes, ApiScope } from '../middleware/rbac';
 import { BadRequest } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { SquareClient, SquareEnvironment } from 'square';
 import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
+import { PaymentService } from '../services/payment.service';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'payments' });
 
 // Initialize Square client
 const client = new SquareClient({
-  environment: process.env.SQUARE_ENVIRONMENT === 'production' 
+  environment: process.env['SQUARE_ENVIRONMENT'] === 'production' 
     ? SquareEnvironment.Production 
     : SquareEnvironment.Sandbox,
-  bearerAuthCredentials: {
-    accessToken: process.env.SQUARE_ACCESS_TOKEN!
-  }
-});
+  accessToken: process.env['SQUARE_ACCESS_TOKEN']!
+} as any);
 
 const paymentsApi = client.payments;
 
 // POST /api/v1/payments/create - Process payment
-router.post('/create', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.post('/create', 
+  authenticate, 
+  validateRestaurantAccess, 
+  requireScopes(ApiScope.PAYMENTS_PROCESS),
+  async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
     const restaurantId = req.restaurantId!;
     const { orderId, token, amount, idempotencyKey } = req.body;
@@ -35,52 +39,73 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
     if (!token) {
       throw BadRequest('Payment token is required');
     }
-    if (!amount || amount <= 0) {
-      throw BadRequest('Valid amount is required');
-    }
 
-    // Generate idempotency key if not provided
-    const finalIdempotencyKey = idempotencyKey || randomUUID();
-
-    routeLogger.info('Processing payment', { 
+    routeLogger.info('Processing payment request', { 
       restaurantId, 
-      orderId, 
-      amount,
-      idempotencyKey: finalIdempotencyKey 
+      orderId,
+      clientProvidedAmount: amount,
+      clientProvidedIdempotency: idempotencyKey
     });
 
     try {
-      // Get order to verify it exists and belongs to restaurant
+      // SECURITY: Server-side payment validation
+      // Never trust client-provided amounts
+      const validation = await PaymentService.validatePaymentRequest(
+        orderId,
+        restaurantId,
+        amount,
+        idempotencyKey
+      );
+
+      // Use server-calculated amount and idempotency key
+      const serverAmount = validation.amount;
+      const serverIdempotencyKey = validation.idempotencyKey;
+
+      routeLogger.info('Payment validated', {
+        orderId,
+        serverAmount: validation.orderTotal,
+        tax: validation.tax,
+        subtotal: validation.subtotal
+      });
+
+      // Get order for reference
       const order = await OrdersService.getOrder(restaurantId, orderId);
-      if (!order) {
-        throw BadRequest('Order not found');
-      }
-
-      // Verify amount matches order total
-      const expectedAmount = Math.round((order as any).total_amount * 100); // Convert to cents
-      const providedAmount = Math.round(amount * 100);
       
-      if (providedAmount !== expectedAmount) {
-        throw BadRequest(`Amount mismatch. Expected: $${(order as any).total_amount}, provided: $${amount}`);
-      }
-
-      // Create payment request
+      // Create payment request with server-validated amount
       const paymentRequest = {
         sourceId: token,
-        idempotencyKey: finalIdempotencyKey,
+        idempotencyKey: serverIdempotencyKey, // Use server-generated key
         amountMoney: {
-          amount: BigInt(expectedAmount),
+          amount: BigInt(serverAmount), // Use server-calculated amount
           currency: 'USD',
         },
-        locationId: process.env.SQUARE_LOCATION_ID,
+        locationId: process.env['SQUARE_LOCATION_ID'],
         referenceId: orderId,
         note: `Payment for order #${(order as any).order_number}`,
         // Enable verification token for 3D Secure if provided
         ...(req.body.verificationToken && { verificationToken: req.body.verificationToken }),
       };
 
-      // Process payment with Square
-      const { result: paymentResult } = await paymentsApi.createPayment(paymentRequest as any);
+      // Check if we're in demo mode (no Square credentials)
+      let paymentResult: any;
+      
+      if (!process.env['SQUARE_ACCESS_TOKEN'] || process.env['SQUARE_ACCESS_TOKEN'] === 'demo' || process.env['NODE_ENV'] === 'development') {
+        // Mock successful payment in demo/development mode
+        routeLogger.info('Demo mode: Mocking successful payment');
+        paymentResult = {
+          payment: {
+            id: `demo-payment-${randomUUID()}`,
+            status: 'COMPLETED',
+            amountMoney: paymentRequest.amountMoney,
+            referenceId: orderId,
+            createdAt: new Date().toISOString(),
+          }
+        };
+      } else {
+        // Process real payment with Square
+        const response = await (paymentsApi as any).createPayment(paymentRequest as any);
+        paymentResult = response.result;
+      }
 
       if (paymentResult.payment?.status !== 'COMPLETED') {
         routeLogger.warn('Payment not completed', { 
@@ -105,10 +130,28 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
         paymentResult.payment.id
       );
 
+      // Log successful payment for audit trail with user context
+      await PaymentService.logPaymentAttempt({
+        orderId,
+        amount: validation.orderTotal,
+        status: 'success',
+        restaurantId: restaurantId,
+        paymentMethod: 'card',
+        paymentId: paymentResult.payment.id,
+        userAgent: req.headers['user-agent'] as string,
+        idempotencyKey: serverIdempotencyKey,
+        metadata: {
+          orderNumber: (order as any).order_number,
+          userRole: req.user?.role
+        },
+        ...(req.user?.id && { userId: req.user.id }),
+        ...(req.ip && { ipAddress: req.ip })
+      });
+
       routeLogger.info('Payment successful', { 
         orderId, 
         paymentId: paymentResult.payment.id,
-        amount: expectedAmount 
+        amount: validation.orderTotal 
       });
 
       res.json({
@@ -127,8 +170,27 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
           errors: errors.map((e: any) => ({ category: e.category, code: e.code, detail: e.detail }))
         });
 
-        // Handle specific Square error types
+        // Log failed payment attempt
         const firstError = errors[0];
+        await PaymentService.logPaymentAttempt({
+          orderId,
+          amount: req.body.amount || 0,
+          status: 'failed',
+          restaurantId: restaurantId,
+          paymentMethod: 'card',
+          userAgent: req.headers['user-agent'] as string,
+          idempotencyKey: idempotencyKey || randomUUID(),
+          metadata: {
+            userRole: req.user?.role,
+            errorCategory: firstError?.category
+          },
+          ...(req.user?.id && { userId: req.user.id }),
+          ...(firstError?.code && { errorCode: firstError.code }),
+          ...(firstError?.detail && { errorDetail: firstError.detail }),
+          ...(req.ip && { ipAddress: req.ip })
+        });
+
+        // Handle specific Square error types
         if (firstError?.code === 'CVV_FAILURE' || firstError?.code === 'ADDRESS_VERIFICATION_FAILURE') {
           return res.status(400).json({
             success: false,
@@ -178,13 +240,17 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
 });
 
 // GET /api/v1/payments/:paymentId - Get payment details
-router.get('/:paymentId', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.get('/:paymentId', 
+  authenticate, 
+  validateRestaurantAccess, 
+  requireScopes(ApiScope.PAYMENTS_READ),
+  async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
     const { paymentId } = req.params;
 
     routeLogger.info('Retrieving payment details', { paymentId });
 
-    const { result } = await paymentsApi.getPayment(paymentId);
+    const { result } = await (paymentsApi as any).getPayment(paymentId);
 
     res.json({
       success: true,
@@ -194,7 +260,7 @@ router.get('/:paymentId', authenticate, validateRestaurantAccess, async (req: Au
   } catch (error: any) {
     if (error.isError && error.errors) {
       routeLogger.error('Square API error retrieving payment', { 
-        paymentId: req.params.paymentId,
+        paymentId: req.params['paymentId'],
         errors: error.errors 
       });
       
@@ -209,7 +275,11 @@ router.get('/:paymentId', authenticate, validateRestaurantAccess, async (req: Au
 });
 
 // POST /api/v1/payments/:paymentId/refund - Refund payment
-router.post('/:paymentId/refund', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.post('/:paymentId/refund', 
+  authenticate, 
+  validateRestaurantAccess, 
+  requireScopes(ApiScope.PAYMENTS_REFUND),
+  async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
     const { paymentId } = req.params;
     const { amount, reason } = req.body;
@@ -217,7 +287,7 @@ router.post('/:paymentId/refund', authenticate, validateRestaurantAccess, async 
     routeLogger.info('Processing refund', { paymentId, amount, reason });
 
     // Get payment details first
-    const { result: paymentResult } = await paymentsApi.getPayment(paymentId as any);
+    const { result: paymentResult } = await (paymentsApi as any).getPayment(paymentId as any);
     const payment = paymentResult.payment;
 
     if (!payment) {
@@ -238,7 +308,28 @@ router.post('/:paymentId/refund', authenticate, validateRestaurantAccess, async 
       reason: reason || 'Restaurant initiated refund',
     };
 
-    const { result: refundResult } = await client.refunds.refundPayment(refundRequest as any);
+    const refundResponse = await client.refunds.refundPayment(refundRequest as any);
+    const refundResult = (refundResponse as any).result;
+
+    // Log refund for audit trail
+    await PaymentService.logPaymentAttempt({
+      orderId: payment.referenceId || paymentId,
+      amount: Number(refundResult.refund?.amountMoney?.amount || 0) / 100, // Convert from cents
+      status: 'refunded',
+      restaurantId: req.restaurantId!,
+      paymentMethod: 'card',
+      userAgent: req.headers['user-agent'] as string,
+      idempotencyKey: refundRequest.idempotencyKey,
+      metadata: {
+        refundId: refundResult.refund?.id,
+        refundReason: reason,
+        userRole: req.user?.role,
+        originalPaymentId: paymentId
+      },
+      ...(req.user?.id && { userId: req.user.id }),
+      ...(paymentId && { paymentId }),
+      ...(req.ip && { ipAddress: req.ip })
+    });
 
     routeLogger.info('Refund processed', { 
       paymentId, 
@@ -254,7 +345,7 @@ router.post('/:paymentId/refund', authenticate, validateRestaurantAccess, async 
   } catch (error: any) {
     if (error.isError && error.errors) {
       routeLogger.error('Square API error processing refund', { 
-        paymentId: req.params.paymentId,
+        paymentId: req.params['paymentId'],
         errors: error.errors 
       });
       

@@ -36,7 +36,7 @@ export interface UseWebRTCVoiceReturn {
  * React hook for WebRTC voice integration with OpenAI Realtime API
  */
 export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVoiceReturn {
-  const { autoConnect = true, debug = false, onTranscript, onOrderDetected, onError } = options;
+  const { autoConnect: _autoConnect = true, debug = false, onTranscript, onOrderDetected, onError } = options;
   
   // Get restaurant ID from environment or use default
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
@@ -67,9 +67,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
         setResponseText('');
         setTranscript('');
       }
-      if (debug) {
-        console.log('[useWebRTCVoice] Connection state changed:', state);
-      }
+      // Connection state changed
     });
     
     client.on('transcript', (event: TranscriptEvent) => {
@@ -77,17 +75,13 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       setLastTranscript(event);
       setIsProcessing(false);
       
-      if (debug) {
-        console.log('[useWebRTCVoice] Transcript:', event.text);
-      }
+      // Transcript received
       
       onTranscript?.(event);
     });
     
     client.on('order.detected', (event: OrderEvent) => {
-      if (debug) {
-        console.log('[useWebRTCVoice] Order detected:', event);
-      }
+      // Order detected
       onOrderDetected?.(event);
     });
     
@@ -111,7 +105,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       setTranscript(''); // Clear previous transcript
       setResponseText(''); // Clear previous response
       if (debug) {
-        console.log('[useWebRTCVoice] Speech started');
+        // Speech started
       }
     });
     
@@ -119,7 +113,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       // User stopped speaking, processing will continue
       setIsListening(false);
       if (debug) {
-        console.log('[useWebRTCVoice] Speech stopped');
+        // Speech stopped
       }
     });
     
@@ -143,13 +137,13 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     
     clientRef.current = client;
     
-    // Auto-connect if enabled (but don't auto-connect for WebRTC - user must click button)
-    if (autoConnect && false) {  // Disabled auto-connect for WebRTC
-      client.connect().catch(err => {
-        console.error('[useWebRTCVoice] Auto-connect failed:', err);
-        setError(err);
-      });
-    }
+    // Auto-connect is disabled for WebRTC - user must click button
+    // if (autoConnect) {
+    //   client.connect().catch(err => {
+    //     console.error('[useWebRTCVoice] Auto-connect failed:', err);
+    //     setError(err);
+    //   });
+    // }
     
     // Cleanup
     return () => {
@@ -157,7 +151,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       client.removeAllListeners();
       clientRef.current = null;
     };
-  }, []); // Empty dependency array - client should only be created once
+  }, [debug, onError, onOrderDetected, onTranscript, restaurantId]); // Include all dependencies
   
   // Connect to service
   const connect = useCallback(async () => {

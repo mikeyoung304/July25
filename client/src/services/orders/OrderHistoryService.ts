@@ -83,7 +83,7 @@ export class OrderHistoryService implements IOrderHistoryService {
     
     // Pagination
     const page = params?.page || 1
-    const pageSize = params?.pageSize || 20
+    const pageSize = params?.limit || 20
     const startIndex = (page - 1) * pageSize
     const endIndex = startIndex + pageSize
     

@@ -187,7 +187,7 @@ export class OrderService implements IOrderService {
       return false
     }
 
-    logger.info('[OrderService] Checking', orderData.items.length, 'items...')
+    logger.info(`[OrderService] Checking ${orderData.items.length} items...`)
     
     for (let i = 0; i < orderData.items.length; i++) {
       const item = orderData.items[i]

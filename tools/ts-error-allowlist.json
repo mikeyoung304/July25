@@ -1,0 +1,3140 @@
+[
+  {
+    "file": "client/src/hooks/useSquareTerminal.ts",
+    "line": 326,
+    "column": 90,
+    "code": "TS2448"
+  },
+  {
+    "file": "client/src/modules/order-system/hooks/useRestaurantData.ts",
+    "line": 36,
+    "column": 79,
+    "code": "TS2339"
+  },
+  {
+    "file": "client/src/modules/order-system/hooks/useRestaurantData.ts",
+    "line": 37,
+    "column": 34,
+    "code": "TS2339"
+  },
+  {
+    "file": "client/src/services/http/httpClient.ts",
+    "line": 275,
+    "column": 55,
+    "code": "TS2559"
+  },
+  {
+    "file": "client/src/services/http/httpClient.ts",
+    "line": 293,
+    "column": 41,
+    "code": "TS2345"
+  },
+  {
+    "file": "client/src/services/http/httpClient.ts",
+    "line": 297,
+    "column": 34,
+    "code": "TS2322"
+  },
+  {
+    "file": "client/src/services/http/httpClient.ts",
+    "line": 300,
+    "column": 46,
+    "code": "TS2559"
+  },
+  {
+    "file": "client/src/services/menu/MenuService.ts",
+    "line": 145,
+    "column": 11,
+    "code": "TS2322"
+  },
+  {
+    "file": "client/src/services/menu/MenuService.ts",
+    "line": 162,
+    "column": 11,
+    "code": "TS2322"
+  },
+  {
+    "file": "client/src/services/menu/MenuService.ts",
+    "line": 180,
+    "column": 11,
+    "code": "TS2353"
+  },
+  {
+    "file": "client/src/services/menu/MenuService.ts",
+    "line": 186,
+    "column": 11,
+    "code": "TS2353"
+  },
+  {
+    "file": "client/src/services/mockData.ts",
+    "line": 126,
+    "column": 7,
+    "code": "TS2352"
+  },
+  {
+    "file": "client/src/services/mockData.ts",
+    "line": 135,
+    "column": 122,
+    "code": "TS2352"
+  },
+  {
+    "file": "client/src/services/orders/OrderHistoryService.ts",
+    "line": 86,
+    "column": 30,
+    "code": "TS2339"
+  },
+  {
+    "file": "client/src/services/orders/OrderService.ts",
+    "line": 190,
+    "column": 68,
+    "code": "TS2554"
+  },
+  {
+    "file": "client/src/services/performance/performanceMonitor.ts",
+    "line": 300,
+    "column": 48,
+    "code": "TS2352"
+  },
+  {
+    "file": "client/src/services/statistics/OrderStatisticsService.ts",
+    "line": 24,
+    "column": 93,
+    "code": "TS2365"
+  },
+  {
+    "file": "client/src/services/types/index.ts",
+    "line": 37,
+    "column": 3,
+    "code": "TS2484"
+  },
+  {
+    "file": "client/src/services/websocket/orderUpdates.ts",
+    "line": 44,
+    "column": 39,
+    "code": "TS2345"
+  },
+  {
+    "file": "client/src/services/websocket/orderUpdates.ts",
+    "line": 46,
+    "column": 38,
+    "code": "TS2345"
+  },
+  {
+    "file": "client/src/services/websocket/orderUpdates.ts",
+    "line": 299,
+    "column": 41,
+    "code": "TS2345"
+  },
+  {
+    "file": "client/src/services/websocket/orderUpdates.ts",
+    "line": 301,
+    "column": 40,
+    "code": "TS2345"
+  },
+  {
+    "file": "client/src/types/unified-order.ts",
+    "line": 153,
+    "column": 5,
+    "code": "TS2561"
+  },
+  {
+    "file": "client/src/utils/orderStatusValidation.ts",
+    "line": 53,
+    "column": 40,
+    "code": "TS2345"
+  },
+  {
+    "file": "server/src/ai/adapters/openai/openai-chat.ts",
+    "line": 70,
+    "column": 11,
+    "code": "TS2412"
+  },
+  {
+    "file": "server/src/ai/adapters/openai/openai-chat.ts",
+    "line": 106,
+    "column": 5,
+    "code": "TS2375"
+  },
+  {
+    "file": "server/src/ai/adapters/openai/openai-order-nlp.ts",
+    "line": 16,
+    "column": 6,
+    "code": "TS6196"
+  },
+  {
+    "file": "server/src/ai/adapters/openai/openai-order-nlp.ts",
+    "line": 47,
+    "column": 73,
+    "code": "TS2379"
+  },
+  {
+    "file": "server/src/ai/adapters/openai/openai-order-nlp.ts",
+    "line": 56,
+    "column": 34,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/ai/functions/realtime-menu-tools.ts",
+    "line": 57,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/ai/functions/realtime-menu-tools.ts",
+    "line": 58,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/ai/functions/realtime-menu-tools.ts",
+    "line": 210,
+    "column": 17,
+    "code": "TS2532"
+  },
+  {
+    "file": "server/src/ai/functions/realtime-menu-tools.ts",
+    "line": 216,
+    "column": 50,
+    "code": "TS2538"
+  },
+  {
+    "file": "server/src/ai/functions/realtime-menu-tools.ts",
+    "line": 437,
+    "column": 31,
+    "code": "TS18048"
+  },
+  {
+    "file": "server/src/ai/functions/realtime-menu-tools.ts",
+    "line": 455,
+    "column": 21,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/ai/functions/realtime-menu-tools.ts",
+    "line": 495,
+    "column": 21,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/ai/functions/realtime-menu-tools.ts",
+    "line": 532,
+    "column": 21,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/ai/functions/realtime-menu-tools.ts",
+    "line": 578,
+    "column": 21,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 2,
+    "column": 1,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 5,
+    "column": 10,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 5,
+    "column": 22,
+    "code": "TS2305"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 6,
+    "column": 34,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 11,
+    "column": 14,
+    "code": "TS2415"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 17,
+    "column": 35,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 48,
+    "column": 23,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 57,
+    "column": 19,
+    "code": "TS4114"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 72,
+    "column": 28,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 91,
+    "column": 10,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 95,
+    "column": 25,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 157,
+    "column": 40,
+    "code": "TS2345"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 229,
+    "column": 33,
+    "code": "TS18048"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 231,
+    "column": 22,
+    "code": "TS18048"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 241,
+    "column": 23,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 246,
+    "column": 10,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 249,
+    "column": 10,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 250,
+    "column": 10,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 275,
+    "column": 9,
+    "code": "TS4114"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 275,
+    "column": 38,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 296,
+    "column": 13,
+    "code": "TS4114"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 318,
+    "column": 16,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 331,
+    "column": 17,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 347,
+    "column": 23,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 353,
+    "column": 20,
+    "code": "TS7053"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 360,
+    "column": 25,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 361,
+    "column": 28,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 365,
+    "column": 12,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 375,
+    "column": 12,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 385,
+    "column": 12,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 392,
+    "column": 22,
+    "code": "TS18046"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 422,
+    "column": 14,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 443,
+    "column": 9,
+    "code": "TS4114"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 446,
+    "column": 23,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 452,
+    "column": 7,
+    "code": "TS2412"
+  },
+  {
+    "file": "server/src/ai/voice/EnhancedOpenAIAdapter.ts",
+    "line": 453,
+    "column": 7,
+    "code": "TS2412"
+  },
+  {
+    "file": "server/src/config/environment.ts",
+    "line": 79,
+    "column": 5,
+    "code": "TS2375"
+  },
+  {
+    "file": "server/src/mappers/cart.mapper.ts",
+    "line": 6,
+    "column": 10,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/mappers/cart.mapper.ts",
+    "line": 68,
+    "column": 3,
+    "code": "TS2375"
+  },
+  {
+    "file": "server/src/mappers/cart.mapper.ts",
+    "line": 84,
+    "column": 3,
+    "code": "TS2375"
+  },
+  {
+    "file": "server/src/mappers/menu.mapper.ts",
+    "line": 64,
+    "column": 3,
+    "code": "TS2375"
+  },
+  {
+    "file": "server/src/mappers/menu.mapper.ts",
+    "line": 85,
+    "column": 3,
+    "code": "TS2375"
+  },
+  {
+    "file": "server/src/middleware/__tests__/auth.test.ts",
+    "line": 38,
+    "column": 5,
+    "code": "TS2322"
+  },
+  {
+    "file": "server/src/middleware/__tests__/auth.test.ts",
+    "line": 41,
+    "column": 17,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/__tests__/auth.test.ts",
+    "line": 42,
+    "column": 17,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/__tests__/auth.test.ts",
+    "line": 128,
+    "column": 19,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/__tests__/auth.test.ts",
+    "line": 147,
+    "column": 19,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/__tests__/auth.test.ts",
+    "line": 148,
+    "column": 19,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/__tests__/restaurantAccess.test.ts",
+    "line": 20,
+    "column": 5,
+    "code": "TS2375"
+  },
+  {
+    "file": "server/src/middleware/__tests__/restaurantAccess.test.ts",
+    "line": 187,
+    "column": 7,
+    "code": "TS2412"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 38,
+    "column": 39,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 39,
+    "column": 38,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 39,
+    "column": 61,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 39,
+    "column": 84,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 39,
+    "column": 120,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 40,
+    "column": 43,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 44,
+    "column": 38,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 44,
+    "column": 79,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 62,
+    "column": 39,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 78,
+    "column": 50,
+    "code": "TS18046"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 147,
+    "column": 38,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 147,
+    "column": 61,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 147,
+    "column": 84,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/auth.ts",
+    "line": 168,
+    "column": 41,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/csrf.ts",
+    "line": 1,
+    "column": 18,
+    "code": "TS7016"
+  },
+  {
+    "file": "server/src/middleware/csrf.ts",
+    "line": 9,
+    "column": 25,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/csrf.ts",
+    "line": 18,
+    "column": 21,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/csrf.ts",
+    "line": 41,
+    "column": 29,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/middleware/csrf.ts",
+    "line": 41,
+    "column": 45,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/middleware/errorHandler.ts",
+    "line": 19,
+    "column": 5,
+    "code": "TS2412"
+  },
+  {
+    "file": "server/src/middleware/metrics.ts",
+    "line": 50,
+    "column": 8,
+    "code": "TS7017"
+  },
+  {
+    "file": "server/src/middleware/rateLimiter.ts",
+    "line": 6,
+    "column": 35,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/rateLimiter.ts",
+    "line": 6,
+    "column": 77,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/middleware/rateLimiter.ts",
+    "line": 19,
+    "column": 10,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/middleware/rateLimiter.ts",
+    "line": 33,
+    "column": 10,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/middleware/rateLimiter.ts",
+    "line": 68,
+    "column": 10,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/middleware/rateLimiter.ts",
+    "line": 90,
+    "column": 10,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/middleware/rbac.ts",
+    "line": 1,
+    "column": 10,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/middleware/rbac.ts",
+    "line": 167,
+    "column": 5,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/middleware/rbac.ts",
+    "line": 265,
+    "column": 5,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 4,
+    "column": 1,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 46,
+    "column": 24,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 99,
+    "column": 51,
+    "code": "TS2554"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 193,
+    "column": 26,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 217,
+    "column": 32,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 237,
+    "column": 26,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 262,
+    "column": 26,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 275,
+    "column": 32,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 323,
+    "column": 32,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 324,
+    "column": 32,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 332,
+    "column": 29,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/__tests__/payments.test.ts",
+    "line": 339,
+    "column": 32,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/__tests__/security.test.ts",
+    "line": 52,
+    "column": 32,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/__tests__/security.test.ts",
+    "line": 124,
+    "column": 39,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/__tests__/security.test.ts",
+    "line": 125,
+    "column": 19,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/__tests__/security.test.ts",
+    "line": 133,
+    "column": 19,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/__tests__/security.test.ts",
+    "line": 145,
+    "column": 21,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/__tests__/security.test.ts",
+    "line": 154,
+    "column": 21,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/__tests__/security.test.ts",
+    "line": 275,
+    "column": 21,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/ai.routes.ts",
+    "line": 329,
+    "column": 40,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/ai.routes.ts",
+    "line": 480,
+    "column": 36,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/ai.routes.ts",
+    "line": 603,
+    "column": 24,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/auth.routes.ts",
+    "line": 8,
+    "column": 30,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/auth.routes.ts",
+    "line": 13,
+    "column": 7,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/auth.routes.ts",
+    "line": 40,
+    "column": 35,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/auth.routes.ts",
+    "line": 41,
+    "column": 34,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/auth.routes.ts",
+    "line": 42,
+    "column": 35,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/auth.routes.ts",
+    "line": 188,
+    "column": 35,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/auth.routes.ts",
+    "line": 189,
+    "column": 34,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/auth.routes.ts",
+    "line": 322,
+    "column": 35,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/auth.routes.ts",
+    "line": 329,
+    "column": 36,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/health.routes.ts",
+    "line": 103,
+    "column": 30,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/health.routes.ts",
+    "line": 117,
+    "column": 11,
+    "code": "TS2375"
+  },
+  {
+    "file": "server/src/routes/health.routes.ts",
+    "line": 121,
+    "column": 32,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/health.routes.ts",
+    "line": 122,
+    "column": 28,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/health.routes.ts",
+    "line": 194,
+    "column": 26,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/metrics.ts",
+    "line": 40,
+    "column": 26,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/metrics.ts",
+    "line": 76,
+    "column": 17,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/orders.routes.ts",
+    "line": 19,
+    "column": 25,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/orders.routes.ts",
+    "line": 20,
+    "column": 23,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/orders.routes.ts",
+    "line": 21,
+    "column": 28,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/orders.routes.ts",
+    "line": 22,
+    "column": 26,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/orders.routes.ts",
+    "line": 23,
+    "column": 33,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/orders.routes.ts",
+    "line": 24,
+    "column": 34,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/orders.routes.ts",
+    "line": 29,
+    "column": 64,
+    "code": "TS2379"
+  },
+  {
+    "file": "server/src/routes/orders.routes.ts",
+    "line": 74,
+    "column": 33,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 17,
+    "column": 28,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 20,
+    "column": 3,
+    "code": "TS2353"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 21,
+    "column": 30,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 32,
+    "column": 3,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 84,
+    "column": 33,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 94,
+    "column": 24,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 94,
+    "column": 59,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 94,
+    "column": 105,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 108,
+    "column": 44,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 136,
+    "column": 46,
+    "code": "TS2379"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 177,
+    "column": 48,
+    "code": "TS2379"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 179,
+    "column": 19,
+    "code": "TS2304"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 188,
+    "column": 27,
+    "code": "TS2552"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 249,
+    "column": 3,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 255,
+    "column": 42,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 265,
+    "column": 31,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 284,
+    "column": 3,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 292,
+    "column": 57,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 313,
+    "column": 13,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 316,
+    "column": 44,
+    "code": "TS2379"
+  },
+  {
+    "file": "server/src/routes/payments.routes.ts",
+    "line": 349,
+    "column": 31,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 32,
+    "column": 26,
+    "code": "TS2551"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 40,
+    "column": 11,
+    "code": "TS2532"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 49,
+    "column": 15,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 113,
+    "column": 48,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 117,
+    "column": 28,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 139,
+    "column": 7,
+    "code": "TS2698"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 146,
+    "column": 18,
+    "code": "TS18046"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 168,
+    "column": 39,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 169,
+    "column": 41,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/realtime.routes.ts",
+    "line": 176,
+    "column": 26,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 11,
+    "column": 12,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 26,
+    "column": 33,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 26,
+    "column": 38,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 26,
+    "column": 43,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 54,
+    "column": 32,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 54,
+    "column": 37,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 54,
+    "column": 42,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 78,
+    "column": 35,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 78,
+    "column": 40,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 78,
+    "column": 45,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 118,
+    "column": 35,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 118,
+    "column": 40,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 118,
+    "column": 45,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 172,
+    "column": 35,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 172,
+    "column": 40,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 172,
+    "column": 45,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 197,
+    "column": 41,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 197,
+    "column": 46,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 197,
+    "column": 51,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 230,
+    "column": 41,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 230,
+    "column": 46,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 230,
+    "column": 51,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 332,
+    "column": 16,
+    "code": "TS18046"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 333,
+    "column": 16,
+    "code": "TS18046"
+  },
+  {
+    "file": "server/src/routes/tables.routes.ts",
+    "line": 339,
+    "column": 18,
+    "code": "TS18046"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 15,
+    "column": 28,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 18,
+    "column": 3,
+    "code": "TS2353"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 19,
+    "column": 30,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 26,
+    "column": 66,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 85,
+    "column": 44,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 134,
+    "column": 77,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 141,
+    "column": 44,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 155,
+    "column": 67,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 200,
+    "column": 85,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 207,
+    "column": 44,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 256,
+    "column": 42,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 313,
+    "column": 64,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 313,
+    "column": 71,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 318,
+    "column": 44,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 319,
+    "column": 33,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/routes/terminal.routes.ts",
+    "line": 330,
+    "column": 30,
+    "code": "TS7006"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 13,
+    "column": 26,
+    "code": "TS7016"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 51,
+    "column": 38,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 75,
+    "column": 37,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 76,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 162,
+    "column": 30,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 177,
+    "column": 26,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 186,
+    "column": 40,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 198,
+    "column": 50,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 199,
+    "column": 51,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/server.ts",
+    "line": 233,
+    "column": 56,
+    "code": "TS2307"
+  },
+  {
+    "file": "server/src/services/ai.service.ts",
+    "line": 3,
+    "column": 14,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/ai.service.ts",
+    "line": 83,
+    "column": 45,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/ai.service.ts",
+    "line": 195,
+    "column": 68,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/ai.service.ts",
+    "line": 241,
+    "column": 42,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/services/ai.service.ts",
+    "line": 304,
+    "column": 38,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/services/auth/pinAuth.ts",
+    "line": 1,
+    "column": 20,
+    "code": "TS2307"
+  },
+  {
+    "file": "server/src/services/auth/pinAuth.ts",
+    "line": 2,
+    "column": 1,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/auth/pinAuth.ts",
+    "line": 5,
+    "column": 22,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/auth/pinAuth.ts",
+    "line": 10,
+    "column": 32,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/services/auth/pinAuth.ts",
+    "line": 239,
+    "column": 35,
+    "code": "TS2339"
+  },
+  {
+    "file": "server/src/services/auth/stationAuth.ts",
+    "line": 5,
+    "column": 22,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/auth/stationAuth.ts",
+    "line": 10,
+    "column": 42,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/services/auth/stationAuth.ts",
+    "line": 10,
+    "column": 78,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/services/auth/stationAuth.ts",
+    "line": 12,
+    "column": 45,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/services/auth/stationAuth.ts",
+    "line": 55,
+    "column": 10,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/menu.service.ts",
+    "line": 6,
+    "column": 23,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/OrderMatchingService.ts",
+    "line": 19,
+    "column": 14,
+    "code": "TS2322"
+  },
+  {
+    "file": "server/src/services/orderStateMachine.ts",
+    "line": 70,
+    "column": 11,
+    "code": "TS2375"
+  },
+  {
+    "file": "server/src/services/orderStateMachine.ts",
+    "line": 131,
+    "column": 18,
+    "code": "TS18046"
+  },
+  {
+    "file": "server/src/services/orderStateMachine.ts",
+    "line": 241,
+    "column": 55,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/orderStateMachine.ts",
+    "line": 246,
+    "column": 51,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/orderStateMachine.ts",
+    "line": 251,
+    "column": 55,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/services/payment.service.ts",
+    "line": 121,
+    "column": 55,
+    "code": "TS2352"
+  },
+  {
+    "file": "server/src/services/payment.service.ts",
+    "line": 178,
+    "column": 32,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/test-utils/index.ts",
+    "line": 148,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/test-utils/index.ts",
+    "line": 149,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/test-utils/index.ts",
+    "line": 150,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/test-utils/index.ts",
+    "line": 151,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/test-utils/index.ts",
+    "line": 152,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/test-utils/index.ts",
+    "line": 153,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/utils/websocket.ts",
+    "line": 50,
+    "column": 7,
+    "code": "TS2412"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 3,
+    "column": 1,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 4,
+    "column": 1,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 5,
+    "column": 1,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 36,
+    "column": 41,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 395,
+    "column": 44,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 406,
+    "column": 43,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 413,
+    "column": 47,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 429,
+    "column": 45,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 440,
+    "column": 42,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 451,
+    "column": 47,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 458,
+    "column": 21,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 471,
+    "column": 18,
+    "code": "TS18046"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 494,
+    "column": 42,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 506,
+    "column": 48,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 526,
+    "column": 51,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 528,
+    "column": 53,
+    "code": "TS2345"
+  },
+  {
+    "file": "server/src/voice/debug-dashboard.ts",
+    "line": 611,
+    "column": 19,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 35,
+    "column": 11,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 54,
+    "column": 32,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 60,
+    "column": 31,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 222,
+    "column": 30,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 238,
+    "column": 15,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 239,
+    "column": 38,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 256,
+    "column": 34,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 266,
+    "column": 22,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 268,
+    "column": 22,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/openai-adapter.ts",
+    "line": 408,
+    "column": 7,
+    "code": "TS2412"
+  },
+  {
+    "file": "server/src/voice/twilio-bridge.ts",
+    "line": 88,
+    "column": 33,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/twilio-bridge.ts",
+    "line": 137,
+    "column": 32,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/twilio-bridge.ts",
+    "line": 148,
+    "column": 34,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/twilio-bridge.ts",
+    "line": 177,
+    "column": 36,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/twilio-bridge.ts",
+    "line": 196,
+    "column": 49,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/twilio-bridge.ts",
+    "line": 197,
+    "column": 61,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/twilio-bridge.ts",
+    "line": 232,
+    "column": 21,
+    "code": "TS2341"
+  },
+  {
+    "file": "server/src/voice/types.ts",
+    "line": 6,
+    "column": 3,
+    "code": "TS2484"
+  },
+  {
+    "file": "server/src/voice/types.ts",
+    "line": 7,
+    "column": 3,
+    "code": "TS2484"
+  },
+  {
+    "file": "server/src/voice/types.ts",
+    "line": 21,
+    "column": 3,
+    "code": "TS2484"
+  },
+  {
+    "file": "server/src/voice/types.ts",
+    "line": 169,
+    "column": 35,
+    "code": "TS4081"
+  },
+  {
+    "file": "server/src/voice/types.ts",
+    "line": 170,
+    "column": 35,
+    "code": "TS4081"
+  },
+  {
+    "file": "server/src/voice/types.ts",
+    "line": 171,
+    "column": 28,
+    "code": "TS4081"
+  },
+  {
+    "file": "server/src/voice/voice-routes.ts",
+    "line": 22,
+    "column": 18,
+    "code": "TS6133"
+  },
+  {
+    "file": "server/src/voice/voice-routes.ts",
+    "line": 86,
+    "column": 29,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/voice/voice-routes.ts",
+    "line": 127,
+    "column": 49,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/voice/voice-routes.ts",
+    "line": 138,
+    "column": 44,
+    "code": "TS2345"
+  },
+  {
+    "file": "server/src/voice/voice-routes.ts",
+    "line": 156,
+    "column": 31,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/voice/voice-routes.ts",
+    "line": 158,
+    "column": 29,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/voice-routes.ts",
+    "line": 159,
+    "column": 30,
+    "code": "TS4111"
+  },
+  {
+    "file": "server/src/voice/voice-routes.ts",
+    "line": 241,
+    "column": 33,
+    "code": "TS7030"
+  },
+  {
+    "file": "server/src/voice/websocket-server.test.ts",
+    "line": 38,
+    "column": 7,
+    "code": "TS2322"
+  },
+  {
+    "file": "server/src/voice/websocket-server.ts",
+    "line": 43,
+    "column": 82,
+    "code": "TS2345"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 44,
+    "column": 5,
+    "code": "TS2412"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 57,
+    "column": 16,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 61,
+    "column": 6,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 71,
+    "column": 6,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 118,
+    "column": 5,
+    "code": "TS2532"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 118,
+    "column": 27,
+    "code": "TS2379"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 121,
+    "column": 9,
+    "code": "TS2532"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 122,
+    "column": 26,
+    "code": "TS2532"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 131,
+    "column": 11,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 137,
+    "column": 19,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 137,
+    "column": 44,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 138,
+    "column": 25,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 138,
+    "column": 53,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 142,
+    "column": 24,
+    "code": "TS2488"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 144,
+    "column": 34,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 145,
+    "column": 30,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 160,
+    "column": 11,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 165,
+    "column": 19,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 165,
+    "column": 44,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 166,
+    "column": 25,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 166,
+    "column": 53,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 172,
+    "column": 34,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 173,
+    "column": 30,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 198,
+    "column": 23,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 215,
+    "column": 22,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 224,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 232,
+    "column": 22,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 246,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 272,
+    "column": 12,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 277,
+    "column": 14,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 278,
+    "column": 5,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 279,
+    "column": 72,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 284,
+    "column": 3,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/error-tracker.ts",
+    "line": 288,
+    "column": 3,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 65,
+    "column": 34,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 67,
+    "column": 31,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 67,
+    "column": 52,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 83,
+    "column": 36,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 83,
+    "column": 57,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 86,
+    "column": 48,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 109,
+    "column": 23,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 109,
+    "column": 44,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 111,
+    "column": 12,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 114,
+    "column": 33,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 114,
+    "column": 66,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 115,
+    "column": 27,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 115,
+    "column": 50,
+    "code": "TS2551"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 116,
+    "column": 26,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 116,
+    "column": 50,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 117,
+    "column": 27,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 117,
+    "column": 46,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 118,
+    "column": 31,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 118,
+    "column": 51,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 119,
+    "column": 30,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 119,
+    "column": 50,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 120,
+    "column": 29,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 121,
+    "column": 28,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 122,
+    "column": 28,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 129,
+    "column": 39,
+    "code": "TS2552"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 155,
+    "column": 27,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 157,
+    "column": 5,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 157,
+    "column": 34,
+    "code": "TS2552"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 174,
+    "column": 15,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 209,
+    "column": 26,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 210,
+    "column": 26,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 212,
+    "column": 5,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 221,
+    "column": 5,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 257,
+    "column": 11,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 264,
+    "column": 12,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 314,
+    "column": 23,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 413,
+    "column": 12,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/performance-monitor.ts",
+    "line": 414,
+    "column": 3,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 6,
+    "column": 24,
+    "code": "TS2305"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 78,
+    "column": 12,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 82,
+    "column": 18,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 86,
+    "column": 25,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 86,
+    "column": 39,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 87,
+    "column": 21,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 117,
+    "column": 22,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 126,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 134,
+    "column": 22,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 156,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 178,
+    "column": 12,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/monitoring/web-vitals.ts",
+    "line": 183,
+    "column": 3,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/types/transformers.ts",
+    "line": 15,
+    "column": 1,
+    "code": "TS6133"
+  },
+  {
+    "file": "shared/types/transformers.ts",
+    "line": 151,
+    "column": 5,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/types/transformers.ts",
+    "line": 190,
+    "column": 7,
+    "code": "TS2322"
+  },
+  {
+    "file": "shared/types/transformers.ts",
+    "line": 196,
+    "column": 7,
+    "code": "TS2322"
+  },
+  {
+    "file": "shared/types/transformers.ts",
+    "line": 220,
+    "column": 5,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/types/transformers.ts",
+    "line": 247,
+    "column": 5,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/types/transformers.ts",
+    "line": 276,
+    "column": 5,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/types/transformers.ts",
+    "line": 362,
+    "column": 5,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/utils/browser-only.ts",
+    "line": 50,
+    "column": 26,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/browser-only.ts",
+    "line": 50,
+    "column": 59,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 89,
+    "column": 16,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 102,
+    "column": 38,
+    "code": "TS2552"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 102,
+    "column": 81,
+    "code": "TS2552"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 115,
+    "column": 42,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 170,
+    "column": 15,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 187,
+    "column": 13,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 194,
+    "column": 36,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 289,
+    "column": 7,
+    "code": "TS2532"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 322,
+    "column": 7,
+    "code": "TS2532"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 323,
+    "column": 7,
+    "code": "TS2532"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 346,
+    "column": 16,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 348,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 367,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 374,
+    "column": 7,
+    "code": "TS2584"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 375,
+    "column": 13,
+    "code": "TS2584"
+  },
+  {
+    "file": "shared/utils/cleanup-manager.ts",
+    "line": 439,
+    "column": 47,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 224,
+    "column": 16,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 226,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 226,
+    "column": 41,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 240,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 240,
+    "column": 54,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 252,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 256,
+    "column": 7,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 335,
+    "column": 11,
+    "code": "TS2375"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 363,
+    "column": 29,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 364,
+    "column": 10,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 365,
+    "column": 25,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 365,
+    "column": 53,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 366,
+    "column": 19,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 366,
+    "column": 44,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 523,
+    "column": 20,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 524,
+    "column": 11,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 529,
+    "column": 20,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 529,
+    "column": 61,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 530,
+    "column": 11,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 530,
+    "column": 48,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 536,
+    "column": 20,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 537,
+    "column": 11,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 538,
+    "column": 11,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 539,
+    "column": 11,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 673,
+    "column": 18,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 674,
+    "column": 9,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 714,
+    "column": 16,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 715,
+    "column": 14,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 794,
+    "column": 14,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 804,
+    "column": 12,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 818,
+    "column": 17,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 819,
+    "column": 70,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/error-handling.ts",
+    "line": 822,
+    "column": 20,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 65,
+    "column": 20,
+    "code": "TS6133"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 90,
+    "column": 16,
+    "code": "TS2584"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 91,
+    "column": 7,
+    "code": "TS2584"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 111,
+    "column": 16,
+    "code": "TS2584"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 112,
+    "column": 7,
+    "code": "TS2584"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 171,
+    "column": 29,
+    "code": "TS18048"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 174,
+    "column": 7,
+    "code": "TS2322"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 186,
+    "column": 44,
+    "code": "TS18048"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 389,
+    "column": 9,
+    "code": "TS2584"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 446,
+    "column": 16,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 446,
+    "column": 50,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 448,
+    "column": 10,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 540,
+    "column": 14,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 562,
+    "column": 23,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 565,
+    "column": 34,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 573,
+    "column": 38,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 573,
+    "column": 54,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 575,
+    "column": 16,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/memory-monitoring.ts",
+    "line": 575,
+    "column": 31,
+    "code": "TS4111"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 8,
+    "column": 26,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 19,
+    "column": 11,
+    "code": "TS6198"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 93,
+    "column": 31,
+    "code": "TS2347"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 94,
+    "column": 49,
+    "code": "TS2347"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 128,
+    "column": 23,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 130,
+    "column": 28,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 131,
+    "column": 11,
+    "code": "TS7031"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 163,
+    "column": 31,
+    "code": "TS2347"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 164,
+    "column": 25,
+    "code": "TS2347"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 165,
+    "column": 25,
+    "code": "TS2347"
+  },
+  {
+    "file": "shared/utils/performance-hooks.ts",
+    "line": 177,
+    "column": 41,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/utils/react-performance.ts",
+    "line": 9,
+    "column": 12,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/react-performance.ts",
+    "line": 51,
+    "column": 16,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/react-performance.ts",
+    "line": 69,
+    "column": 40,
+    "code": "TS6133"
+  },
+  {
+    "file": "shared/utils/react-performance.ts",
+    "line": 88,
+    "column": 16,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 8,
+    "column": 22,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 9,
+    "column": 19,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 10,
+    "column": 33,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 16,
+    "column": 5,
+    "code": "TS6133"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 94,
+    "column": 14,
+    "code": "TS2415"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 94,
+    "column": 14,
+    "code": "TS2515"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 124,
+    "column": 29,
+    "code": "TS2345"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 125,
+    "column": 34,
+    "code": "TS2339"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 164,
+    "column": 19,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 190,
+    "column": 52,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 203,
+    "column": 52,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 215,
+    "column": 50,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 220,
+    "column": 50,
+    "code": "TS7006"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 275,
+    "column": 13,
+    "code": "TS6133"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 330,
+    "column": 28,
+    "code": "TS6133"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 354,
+    "column": 5,
+    "code": "TS2322"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 532,
+    "column": 19,
+    "code": "TS4114"
+  },
+  {
+    "file": "shared/utils/websocket-pool.browser.ts",
+    "line": 547,
+    "column": 46,
+    "code": "TS2304"
+  },
+  {
+    "file": "shared/utils/websocket-pool.ts",
+    "line": 53,
+    "column": 29,
+    "code": "TS2304"
+  }
+]

@@ -1,1 +1,48 @@
-npx lint-staged
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-commit checks..."
+
+# Run tests
+echo "📝 Running tests..."
+npm test -- --run --silent
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed. Please fix before committing."
+  exit 1
+fi
+
+# Run linter
+echo "🔍 Running ESLint..."
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "❌ Linting failed. Please fix before committing."
+  echo "💡 Tip: Run 'npm run lint:fix' to auto-fix some issues"
+  exit 1
+fi
+
+# Run TypeScript check
+echo "📘 Running TypeScript check..."
+npm run typecheck
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript errors found. Please fix before committing."
+  exit 1
+fi
+
+# Check for console.log statements (except in test/debug files)
+echo "🔎 Checking for console.log statements..."
+files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '(test|spec|debug|mock)' | xargs grep -l 'console\.log' 2>/dev/null)
+if [ ! -z "$files" ]; then
+  echo "⚠️  Warning: console.log statements found in:"
+  echo "$files"
+  echo "Consider using the logger service instead."
+fi
+
+# Check for 'any' types in new code
+echo "🔎 Checking for 'any' types in staged files..."
+any_count=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' | xargs grep -c ': any' 2>/dev/null | awk -F: '{sum+=$2} END {print sum}')
+if [ "$any_count" -gt "0" ]; then
+  echo "⚠️  Warning: $any_count 'any' types found in staged files"
+  echo "Consider using proper types for better type safety"
+fi
+
+echo "✅ All pre-commit checks passed!"

@@ -31,15 +31,15 @@ interface AudioData {
 
 export class OpenAIAdapter extends EventEmitter {
   private ws?: WebSocket;
-  private sessionId: string;
-  private restaurantId: string;
+  protected sessionId: string;
+  protected restaurantId: string;
   private isConnected = false;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 3;
   private reconnectDelay = 1000;
   private heartbeatInterval?: NodeJS.Timeout;
-  private responseBuffer: string[] = [];
-  private audioChunkCount = 0;
+  protected responseBuffer: string[] = [];
+  protected audioChunkCount = 0;
   private lastCommitTime = Date.now();
   private readonly COMMIT_INTERVAL_MS = 100; // Commit every 100ms
   private readonly COMMIT_CHUNK_THRESHOLD = 4; // Or every 4 chunks (100ms at 25ms/chunk)
@@ -134,7 +134,7 @@ export class OpenAIAdapter extends EventEmitter {
     });
   }
 
-  private async initializeSession(): Promise<void> {
+  protected async initializeSession(): Promise<void> {
     // Configure the session for restaurant voice ordering
     const sessionConfig = {
       type: 'session.update',
@@ -168,7 +168,7 @@ export class OpenAIAdapter extends EventEmitter {
     }, 30000);
   }
 
-  private handleOpenAIMessage(data: any): void {
+  protected handleOpenAIMessage(data: any): void {
     try {
       const dataStr = Buffer.isBuffer(data) ? data.toString() : String(data);
       const event: OpenAIRealtimeEvent = JSON.parse(dataStr);
@@ -240,7 +240,7 @@ export class OpenAIAdapter extends EventEmitter {
     }
   }
 
-  private flushAudioBuffer(): void {
+  protected flushAudioBuffer(): void {
     if (this.responseBuffer.length > 0) {
       const combinedAudio = this.responseBuffer.join('');
       this.responseBuffer = [];
@@ -332,7 +332,7 @@ export class OpenAIAdapter extends EventEmitter {
     this.emit('error', error);
   }
 
-  private sendToOpenAI(event: any): void {
+  protected sendToOpenAI(event: any): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(event));
     } else {

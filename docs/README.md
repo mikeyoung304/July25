@@ -1,60 +1,51 @@
-# Documentation Index
+# Restaurant OS Documentation
 
-> **Last Updated:** August 20, 2025  
-> **Purpose:** Central hub for all project documentation
+## Quick Links
 
-## 🚀 Getting Started
+- [Getting Started](./01-getting-started/installation.md) - 5 minute setup
+- [Architecture Overview](./02-architecture/overview.md) - System design
+- [API Reference](./04-api/rest/README.md) - Endpoint documentation
+- [Developer Guide](./06-development/setup.md) - Development workflow
 
-- [**QUICKSTART.md**](./QUICKSTART.md) - Get up and running in 5 minutes
-- [**development.md**](./development.md) - Development environment setup
-- [**deployment.md**](./deployment.md) - Production deployment guide
+## Project Overview
 
-## 🏗️ Architecture & Design
+Restaurant OS is a comprehensive Point of Sale and management system for restaurants, featuring:
 
-- [**SYSTEM_ARCHITECTURE_OVERVIEW.md**](./SYSTEM_ARCHITECTURE_OVERVIEW.md) - High-level system design
-- [**FRONTEND_ARCHITECTURE.md**](./FRONTEND_ARCHITECTURE.md) - React/TypeScript architecture
-- [**BACKEND_SERVICES.md**](./BACKEND_SERVICES.md) - Express/Node.js services
-- [**DATA_FLOW_INTEGRATION.md**](./DATA_FLOW_INTEGRATION.md) - Data flow patterns
+- **Multi-tenant** architecture supporting multiple restaurant locations
+- **Real-time** order management with WebSocket updates
+- **AI-powered** voice ordering using OpenAI Realtime API
+- **Kitchen Display System** (KDS) with real-time order tracking
+- **Payment Integration** with Square Terminal support
+- **Analytics Dashboard** for business insights
 
-## 🎯 Features
+## Documentation Structure
 
-- [**FEATURES.md**](./FEATURES.md) - Complete feature list
-- [**KITCHEN_DISPLAY.md**](./KITCHEN_DISPLAY.md) - Kitchen Display System (KDS)
-- [**VOICE_ORDERING.md**](./VOICE_ORDERING.md) - Voice ordering system
-- [**AUTHENTICATION.md**](./AUTHENTICATION.md) - Auth system documentation
+```
+docs/
+├── 01-getting-started/    # Quick setup and configuration
+├── 02-architecture/       # System design and decisions
+├── 03-features/          # Feature documentation
+├── 04-api/              # API reference (auto-generated)
+├── 05-operations/       # Deployment and monitoring
+└── 06-development/      # Development guidelines
+```
 
-## 🔊 Voice System
+## Tech Stack
 
-- [**voice/ARCHITECTURE.md**](./voice/ARCHITECTURE.md) - Voice system architecture
-- [**voice/WEBRTC_IMPLEMENTATION.md**](./voice/WEBRTC_IMPLEMENTATION.md) - WebRTC real-time voice
-- [**voice/KNOWN_ISSUES.md**](./voice/KNOWN_ISSUES.md) - Current voice issues
-- [**voice/TROUBLESHOOTING.md**](./voice/TROUBLESHOOTING.md) - Voice debugging guide
+- **Frontend**: React 19.1.0, TypeScript 5.8.3, Vite 5.4.19
+- **Backend**: Express 4.18.2, Node.js, TypeScript 5.3.3
+- **Database**: Supabase (PostgreSQL)
+- **Real-time**: WebSockets, OpenAI Realtime API
+- **Payments**: Square SDK
 
-## 🐛 Issues & Debt
+## Getting Help
 
-- [**TECHNICAL_DEBT.md**](./TECHNICAL_DEBT.md) - Technical debt tracker
-- [**TROUBLESHOOTING.md**](./TROUBLESHOOTING.md) - Common issues and solutions
-- [**RUNBOOK.md**](./RUNBOOK.md) - Operational procedures
+- Check [Troubleshooting Guide](./05-operations/troubleshooting.md)
+- Review [Known Issues](./06-development/known-issues.md)
+- See [CLAUDE.md](/CLAUDE.md) for AI assistant guidelines
 
-## 📚 API & Testing
+## Version
 
-- [**API.md**](./API.md) - API documentation
-- [**api/endpoints.md**](./api/endpoints.md) - Endpoint reference
-- [**testing/architecture.md**](./testing/architecture.md) - Testing strategy
+Current Version: 6.0.2
 
-## 🔒 Security & Operations
-
-- [**SECURITY_AUDIT_SUMMARY.md**](./SECURITY_AUDIT_SUMMARY.md) - Security overview
-- [**OPERATIONS_INFRASTRUCTURE.md**](./OPERATIONS_INFRASTRUCTURE.md) - Infrastructure guide
-
-## 📁 Archive
-
-Older documentation has been moved to [`archive/`](./archive/) to keep the main docs clean and current.
-
-## 📝 Documentation Standards
-
-- Keep documentation close to the code it describes
-- Update docs when making code changes
-- Archive outdated docs rather than deleting them
-- Use clear, concise language
-- Include code examples where helpful
+Last Updated: January 30, 2025

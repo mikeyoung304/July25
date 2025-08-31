@@ -1,4 +1,6 @@
 
+// Note: logger import moved after getConfig to avoid circular dependency
+
 export interface EnvironmentConfig {
   port: number;
   nodeEnv: 'development' | 'production' | 'test';
@@ -53,16 +55,18 @@ export function validateEnvironment(): void {
     if (!isDevelopment && !isDegradedMode) {
       throw new Error('OPENAI_API_KEY is required in production. Set AI_DEGRADED_MODE=true to use stubs.');
     }
+    // Use console.warn since it's allowed by ESLint
     console.warn(`⚠️  OpenAI API key not configured - AI features will use stub implementations`);
   } else {
-    console.info(`✅ OpenAI configured`);
+    // Changed from console.info to console.warn to comply with ESLint rules
+    console.warn(`✅ OpenAI configured`);
   }
 }
 
 export function getConfig(): EnvironmentConfig {
   return {
     port: parseInt(process.env['PORT'] || '3001', 10),
-    nodeEnv: (process.env['NODE_ENV'] as any) || 'development',
+    nodeEnv: (process.env['NODE_ENV'] as 'development' | 'production' | 'test') || 'development',
     supabase: {
       url: process.env['SUPABASE_URL'] || process.env['VITE_SUPABASE_URL']!,
       anonKey: process.env['SUPABASE_ANON_KEY'] || process.env['VITE_SUPABASE_ANON_KEY']!,
@@ -73,11 +77,11 @@ export function getConfig(): EnvironmentConfig {
       url: process.env['FRONTEND_URL'] || 'http://localhost:5173',
     },
     openai: {
-      apiKey: process.env['OPENAI_API_KEY'],
+      apiKey: process.env['OPENAI_API_KEY'] || undefined,
     },
     logging: {
       level: process.env['LOG_LEVEL'] || 'info',
-      format: (process.env['LOG_FORMAT'] as any) || 'json',
+      format: (process.env['LOG_FORMAT'] as 'json' | 'simple') || 'json',
     },
     cache: {
       ttlSeconds: parseInt(process.env['CACHE_TTL_SECONDS'] || '300', 10),

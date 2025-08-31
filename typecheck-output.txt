@@ -1,0 +1,648 @@
+
+> restaurant-os@6.0.2 typecheck
+> tsc --build tsconfig.all.json
+
+client/src/hooks/useSquareTerminal.ts(326,90): error TS2448: Block-scoped variable 'cancelCheckout' used before its declaration.
+client/src/modules/order-system/hooks/useRestaurantData.ts(36,79): error TS2339: Property 'data' does not exist on type 'RestaurantData & Record<"success", unknown>'.
+client/src/modules/order-system/hooks/useRestaurantData.ts(37,34): error TS2339: Property 'data' does not exist on type 'RestaurantData & Record<"success", unknown>'.
+client/src/pages/HomePage.tsx(32,15): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'className' does not exist in type 'Partial<unknown> & Attributes'.
+client/src/pages/ServerView.tsx(109,15): error TS2741: Property 'capacity' is missing in type 'import("/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/floor-plan/types/index").Table' but required in type 'import("/Users/mikeyoung/CODING/rebuild-6.0/client/src/types/table").Table'.
+client/src/pages/SplashScreen.tsx(76,17): error TS2322: Type '"optimizeQuality"' is not assignable to type 'MotionValueHelper<ImageRendering>'.
+client/src/services/http/httpClient.ts(275,55): error TS2559: Type 'number' has no properties in common with type '{ ttl?: number; etag?: string; }'.
+client/src/services/http/httpClient.ts(293,41): error TS2345: Argument of type 'Promise<T>' is not assignable to parameter of type 'Promise<JsonValue>'.
+  Type 'T' is not assignable to type 'JsonValue'.
+    Type 'T' is not assignable to type 'JsonArray'.
+client/src/services/http/httpClient.ts(297,34): error TS2322: Type 'T' is not assignable to type 'JsonValue'.
+  Type 'T' is not assignable to type 'JsonArray'.
+client/src/services/http/httpClient.ts(300,46): error TS2559: Type 'number' has no properties in common with type '{ ttl?: number; etag?: string; }'.
+client/src/services/menu/MenuService.ts(145,11): error TS2322: Type 'string' is not assignable to type 'ApiMenuCategory'.
+client/src/services/menu/MenuService.ts(162,11): error TS2322: Type 'string' is not assignable to type 'ApiMenuCategory'.
+client/src/services/menu/MenuService.ts(180,11): error TS2353: Object literal may only specify known properties, and 'sort_order' does not exist in type 'MenuCategory'.
+client/src/services/menu/MenuService.ts(186,11): error TS2353: Object literal may only specify known properties, and 'sort_order' does not exist in type 'MenuCategory'.
+client/src/services/mockData.ts(126,7): error TS2352: Conversion of type '({ id: string; restaurantId: string; orderNumber: string; tableNumber: string; items: ({ id: string; menuItemId: string; quantity: number; unitPrice: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[]; } | { ...; })[]; ... 8 more ...; type: "dine-in"; } | ... 4 more ... | { ...; })[]' to type 'ClientOrder[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; restaurantId: string; orderNumber: string; tableNumber: string; items: ({ id: string; menuItemId: string; quantity: number; unitPrice: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[]; } | { ...; })[]; ... 8 more ...; type: "dine-in"; } | ... 4 more ... | { ...; }' is not comparable to type 'ClientOrder'.
+    Object literal may only specify known properties, and 'notes' does not exist in type 'ClientOrder'.
+client/src/services/mockData.ts(135,122): error TS2352: Conversion of type '({ id: string; restaurantId: string; tableNumber: string; type: "square"; x: number; y: number; width: number; height: number; capacity: number; seats: number; label: string; rotation: number; status: "available"; zIndex: number; createdAt: Date; updatedAt: Date; } | { ...; } | { ...; } | { ...; } | { ...; })[]' to type 'ClientTable[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; restaurantId: string; tableNumber: string; type: "square"; x: number; y: number; width: number; height: number; capacity: number; seats: number; label: string; rotation: number; status: "available"; zIndex: number; createdAt: Date; updatedAt: Date; } | { ...; } | { ...; } | { ...; } | { ...; }' is not comparable to type 'ClientTable'.
+    Object literal may only specify known properties, and 'capacity' does not exist in type 'ClientTable'.
+client/src/services/orders/OrderHistoryService.ts(86,30): error TS2339: Property 'pageSize' does not exist on type 'OrderHistoryParams'.
+client/src/services/orders/OrderService.ts(190,68): error TS2554: Expected 1-2 arguments, but got 3.
+client/src/services/performance/performanceMonitor.ts(300,48): error TS2352: Conversion of type '{ trackRender: () => void; trackAPICall: () => void; trackMemory: () => void; getMetrics: () => { renders: any[]; apiCalls: any[]; memory: any[]; }; getStatistics: () => { renders: {}; apiCalls: {}; memory: any; }; getSlowRenders: () => any[]; getSlowAPICalls: () => any[]; clear: () => void; exportMetrics: () => str...' to type 'PerformanceMonitorService' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ trackRender: () => void; trackAPICall: () => void; trackMemory: () => void; getMetrics: () => { renders: any[]; apiCalls: any[]; memory: any[]; }; getStatistics: () => { renders: {}; apiCalls: {}; memory: any; }; getSlowRenders: () => any[]; getSlowAPICalls: () => any[]; clear: () => void; exportMetrics: () => str...' is missing the following properties from type 'PerformanceMonitorService': metrics, MAX_METRICS, SLOW_RENDER_THRESHOLD, SLOW_API_THRESHOLD, calculateMemoryStats
+client/src/services/statistics/OrderStatisticsService.ts(24,93): error TS2365: Operator '+' cannot be applied to types 'number' and 'string | number'.
+client/src/services/types/index.ts(37,3): error TS2484: Export declaration conflicts with exported declaration of 'PaginationParams'.
+client/src/services/websocket/orderUpdates.ts(44,39): error TS2345: Argument of type 'unknown' is not assignable to parameter of type '{ orderId: string; status: string; previousStatus: string; updatedBy?: string; }'.
+  Type '{}' is missing the following properties from type '{ orderId: string; status: string; previousStatus: string; updatedBy?: string; }': orderId, status, previousStatus
+client/src/services/websocket/orderUpdates.ts(46,38): error TS2345: Argument of type 'unknown' is not assignable to parameter of type '{ orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string; }'.
+  Type '{}' is missing the following properties from type '{ orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string; }': orderId, itemId, status, previousStatus
+client/src/services/websocket/orderUpdates.ts(299,41): error TS2345: Argument of type 'unknown' is not assignable to parameter of type '{ orderId: string; status: string; previousStatus: string; updatedBy?: string; }'.
+  Type '{}' is missing the following properties from type '{ orderId: string; status: string; previousStatus: string; updatedBy?: string; }': orderId, status, previousStatus
+client/src/services/websocket/orderUpdates.ts(301,40): error TS2345: Argument of type 'unknown' is not assignable to parameter of type '{ orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string; }'.
+  Type '{}' is missing the following properties from type '{ orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string; }': orderId, itemId, status, previousStatus
+client/src/types/unified-order.ts(153,5): error TS2561: Object literal may only specify known properties, but 'table_number' does not exist in type 'UnifiedOrder'. Did you mean to write 'tableNumber'?
+client/src/utils/orderStatusValidation.ts(53,40): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+server/src/ai/adapters/openai/openai-chat.ts(70,11): error TS2412: Type 'CompletionUsage | undefined' is not assignable to type '{ promptTokens: number; completionTokens: number; totalTokens: number; } | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+server/src/ai/adapters/openai/openai-chat.ts(106,5): error TS2375: Type '{ message: string; usage: { promptTokens: number; completionTokens: number; totalTokens: number; } | undefined; }' is not assignable to type 'ChatResult' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'usage' are incompatible.
+    Type '{ promptTokens: number; completionTokens: number; totalTokens: number; } | undefined' is not assignable to type '{ promptTokens: number; completionTokens: number; totalTokens: number; }'.
+      Type 'undefined' is not assignable to type '{ promptTokens: number; completionTokens: number; totalTokens: number; }'.
+server/src/ai/adapters/openai/openai-order-nlp.ts(16,6): error TS6196: 'DraftOrder' is declared but never used.
+server/src/ai/adapters/openai/openai-order-nlp.ts(47,73): error TS2379: Argument of type '{ items: { name: string; quantity: number; modifications?: string[] | undefined; specialInstructions?: string | undefined; }[]; notes?: string | undefined; }' is not assignable to parameter of type 'DraftOrder' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'items' are incompatible.
+    Type '{ name: string; quantity: number; modifications?: string[] | undefined; specialInstructions?: string | undefined; }[]' is not assignable to type 'DraftItem[]'.
+      Type '{ name: string; quantity: number; modifications?: string[] | undefined; specialInstructions?: string | undefined; }' is not assignable to type 'DraftItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+        Types of property 'modifications' are incompatible.
+          Type 'string[] | undefined' is not assignable to type 'string[]'.
+            Type 'undefined' is not assignable to type 'string[]'.
+server/src/ai/adapters/openai/openai-order-nlp.ts(56,34): error TS6133: 'menu' is declared but its value is never read.
+server/src/ai/functions/realtime-menu-tools.ts(57,15): error TS4111: Property 'SUPABASE_URL' comes from an index signature, so it must be accessed with ['SUPABASE_URL'].
+server/src/ai/functions/realtime-menu-tools.ts(58,15): error TS4111: Property 'SUPABASE_SERVICE_KEY' comes from an index signature, so it must be accessed with ['SUPABASE_SERVICE_KEY'].
+server/src/ai/functions/realtime-menu-tools.ts(210,17): error TS2532: Object is possibly 'undefined'.
+server/src/ai/functions/realtime-menu-tools.ts(216,50): error TS2538: Type 'undefined' cannot be used as an index type.
+server/src/ai/functions/realtime-menu-tools.ts(437,31): error TS18048: 'removed' is possibly 'undefined'.
+server/src/ai/functions/realtime-menu-tools.ts(455,21): error TS6133: 'args' is declared but its value is never read.
+server/src/ai/functions/realtime-menu-tools.ts(495,21): error TS6133: 'args' is declared but its value is never read.
+server/src/ai/functions/realtime-menu-tools.ts(532,21): error TS6133: 'args' is declared but its value is never read.
+server/src/ai/functions/realtime-menu-tools.ts(578,21): error TS6133: 'args' is declared but its value is never read.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(2,1): error TS6133: 'EventEmitter' is declared but its value is never read.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(5,10): error TS6133: 'VoiceError' is declared but its value is never read.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(5,22): error TS2305: Module '"../../voice/types"' has no exported member 'AudioFormat'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(6,34): error TS6133: 'MenuToolResult' is declared but its value is never read.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(11,14): error TS2415: Class 'EnhancedOpenAIAdapter' incorrectly extends base class 'OpenAIAdapter'.
+  Property 'initializeSession' is private in type 'OpenAIAdapter' but not in type 'EnhancedOpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(17,35): error TS4111: Property 'VOICE_DEBUG' comes from an index signature, so it must be accessed with ['VOICE_DEBUG'].
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(48,23): error TS2341: Property 'sessionId' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(57,19): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(72,28): error TS4111: Property 'VOICE_PERSONALITY' comes from an index signature, so it must be accessed with ['VOICE_PERSONALITY'].
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(91,10): error TS2341: Property 'sendToOpenAI' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(95,25): error TS2341: Property 'sessionId' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(157,40): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(229,33): error TS18048: 'exponent' is possibly 'undefined'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(231,22): error TS18048: 'exponent' is possibly 'undefined'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(241,23): error TS2341: Property 'sessionId' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(246,10): error TS2341: Property 'sendToOpenAI' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(249,10): error TS2341: Property 'responseBuffer' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(250,10): error TS2341: Property 'audioChunkCount' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(275,9): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(275,38): error TS6133: 'sampleRate' is declared but its value is never read.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(296,13): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(318,16): error TS2341: Property 'flushAudioBuffer' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(331,17): error TS2341: Property 'handleOpenAIMessage' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(347,23): error TS2341: Property 'sessionId' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(353,20): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ find_menu_items: { description: string; parameters: { type: string; properties: { query: { type: string; description: string; }; category: { type: string; description: string; }; max_price: { type: string; description: string; }; dietary: { ...; }; suggest_alternatives: { ...; }; }; }; handler: (args: any, context...'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(360,25): error TS2341: Property 'sessionId' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(361,28): error TS2341: Property 'restaurantId' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(365,12): error TS2341: Property 'sendToOpenAI' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(375,12): error TS2341: Property 'sendToOpenAI' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(385,12): error TS2341: Property 'sendToOpenAI' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(392,22): error TS18046: 'error' is of type 'unknown'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(422,14): error TS2341: Property 'responseBuffer' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(443,9): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(446,23): error TS2341: Property 'sessionId' is private and only accessible within class 'OpenAIAdapter'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(452,7): error TS2412: Type 'undefined' is not assignable to type 'WebSocket' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(453,7): error TS2412: Type 'undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+server/src/config/environment.ts(79,5): error TS2375: Type '{ apiKey: string | undefined; }' is not assignable to type '{ apiKey?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'apiKey' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/mappers/cart.mapper.ts(6,10): error TS6133: 'camelizeKeys' is declared but its value is never read.
+server/src/mappers/cart.mapper.ts(68,3): error TS2375: Type '{ id: string; menuItemId: string; name: string; price: number; quantity: number; modifiers: any[]; specialInstructions: string | undefined; imageUrl: string | undefined; }' is not assignable to type 'ApiCartItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'specialInstructions' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/mappers/cart.mapper.ts(84,3): error TS2375: Type '{ id: string; orderNumber: string; restaurantId: string; tableNumber: number | undefined; customerName: string | undefined; customerEmail: string | undefined; customerPhone: string | undefined; ... 5 more ...; totalAmount: number; }' is not assignable to type 'ApiOrder' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'tableNumber' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+server/src/mappers/menu.mapper.ts(64,3): error TS2375: Type '{ id: string; menuItemId: string; categoryId: string | undefined; name: string; description: string | undefined; price: number; active: boolean; available: boolean; dietaryFlags: string[]; modifiers: any[]; aliases: string[]; prepTimeMinutes: number; imageUrl: string | undefined; }' is not assignable to type 'ApiMenuItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'categoryId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/mappers/menu.mapper.ts(85,3): error TS2375: Type '{ id: string; name: string; slug: string; description: string | undefined; displayOrder: number; active: boolean; }' is not assignable to type 'ApiMenuCategory' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/middleware/__tests__/auth.test.ts(38,5): error TS2322: Type 'Mock<[deferToNext: "route"], void>' is not assignable to type 'NextFunction'.
+  Types of parameters 'deferToNext' and 'deferToNext' are incompatible.
+    Type '"router"' is not assignable to type '"route"'.
+server/src/middleware/__tests__/auth.test.ts(41,17): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/__tests__/auth.test.ts(42,17): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/middleware/__tests__/auth.test.ts(128,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/__tests__/auth.test.ts(147,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/__tests__/auth.test.ts(148,19): error TS4111: Property 'PRODUCTION' comes from an index signature, so it must be accessed with ['PRODUCTION'].
+server/src/middleware/__tests__/restaurantAccess.test.ts(20,5): error TS2375: Type '{ headers: {}; user: undefined; restaurantId: undefined; }' is not assignable to type 'Partial<AuthenticatedRequest>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'user' are incompatible.
+    Type 'undefined' is not assignable to type '{ id: string; email?: string; role?: string; scopes?: string[]; restaurant_id?: string; }'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(187,7): error TS2412: Type 'undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+server/src/middleware/auth.ts(38,39): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/auth.ts(39,38): error TS4111: Property 'RENDER' comes from an index signature, so it must be accessed with ['RENDER'].
+server/src/middleware/auth.ts(39,61): error TS4111: Property 'VERCEL' comes from an index signature, so it must be accessed with ['VERCEL'].
+server/src/middleware/auth.ts(39,84): error TS4111: Property 'RAILWAY_ENVIRONMENT' comes from an index signature, so it must be accessed with ['RAILWAY_ENVIRONMENT'].
+server/src/middleware/auth.ts(39,120): error TS4111: Property 'PRODUCTION' comes from an index signature, so it must be accessed with ['PRODUCTION'].
+server/src/middleware/auth.ts(40,43): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/auth.ts(44,38): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/auth.ts(44,79): error TS4111: Property 'PRODUCTION' comes from an index signature, so it must be accessed with ['PRODUCTION'].
+server/src/middleware/auth.ts(62,39): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/middleware/auth.ts(78,50): error TS18046: 'error' is of type 'unknown'.
+server/src/middleware/auth.ts(147,38): error TS4111: Property 'RENDER' comes from an index signature, so it must be accessed with ['RENDER'].
+server/src/middleware/auth.ts(147,61): error TS4111: Property 'VERCEL' comes from an index signature, so it must be accessed with ['VERCEL'].
+server/src/middleware/auth.ts(147,84): error TS4111: Property 'RAILWAY_ENVIRONMENT' comes from an index signature, so it must be accessed with ['RAILWAY_ENVIRONMENT'].
+server/src/middleware/auth.ts(168,41): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/middleware/csrf.ts(1,18): error TS7016: Could not find a declaration file for module 'csurf'. '/Users/mikeyoung/CODING/rebuild-6.0/node_modules/csurf/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/csurf` if it exists or add a new declaration (.d.ts) file containing `declare module 'csurf';`
+server/src/middleware/csrf.ts(9,25): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/csrf.ts(18,21): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/csrf.ts(41,29): error TS2339: Property 'csrfToken' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+server/src/middleware/csrf.ts(41,45): error TS2339: Property 'csrfToken' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+server/src/middleware/errorHandler.ts(19,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/middleware/metrics.ts(50,8): error TS7017: Element implicitly has an 'any' type because type 'typeof globalThis' has no index signature.
+server/src/middleware/rateLimiter.ts(6,35): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/rateLimiter.ts(6,77): error TS4111: Property 'RENDER' comes from an index signature, so it must be accessed with ['RENDER'].
+server/src/middleware/rateLimiter.ts(19,10): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/rateLimiter.ts(33,10): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/rateLimiter.ts(68,10): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/rateLimiter.ts(90,10): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/rbac.ts(1,10): error TS6133: 'Request' is declared but its value is never read.
+server/src/middleware/rbac.ts(167,5): error TS6133: 'res' is declared but its value is never read.
+server/src/middleware/rbac.ts(265,5): error TS6133: 'res' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(4,1): error TS6133: 'jwt' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(46,24): error TS6133: 'res' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(99,51): error TS2554: Expected 1 arguments, but got 0.
+server/src/routes/__tests__/payments.test.ts(193,26): error TS6133: 'res' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(217,32): error TS2339: Property 'getPaymentDetails' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(237,26): error TS6133: 'res' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(262,26): error TS6133: 'res' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(275,32): error TS2339: Property 'processRefund' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(323,32): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(324,32): error TS2339: Property 'processWebhook' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(332,29): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(339,32): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/security.test.ts(52,32): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/__tests__/security.test.ts(124,39): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/__tests__/security.test.ts(125,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/__tests__/security.test.ts(133,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/__tests__/security.test.ts(145,21): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/__tests__/security.test.ts(154,21): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/__tests__/security.test.ts(275,21): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/ai.routes.ts(329,40): error TS2339: Property 'respond' does not exist on type 'Chat'.
+server/src/routes/ai.routes.ts(480,36): error TS2339: Property 'respond' does not exist on type 'Chat'.
+server/src/routes/ai.routes.ts(603,24): error TS2339: Property 'duration' does not exist on type 'TranscriptionResult'.
+server/src/routes/auth.routes.ts(8,30): error TS6133: 'validateStationToken' is declared but its value is never read.
+server/src/routes/auth.routes.ts(13,7): error TS6133: 'config' is declared but its value is never read.
+server/src/routes/auth.routes.ts(40,35): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/routes/auth.routes.ts(41,34): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/auth.routes.ts(42,35): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/auth.routes.ts(188,35): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/routes/auth.routes.ts(189,34): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/auth.routes.ts(322,35): error TS6133: 'profileError' is declared but its value is never read.
+server/src/routes/auth.routes.ts(329,36): error TS6133: 'roleError' is declared but its value is never read.
+server/src/routes/health.routes.ts(103,30): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/health.routes.ts(117,11): error TS2375: Type '{ status: "healthy"; timestamp: string; uptime: number; environment: string; version: string | undefined; services: { database: { status: "connected" | "disconnected" | "error"; latency?: number; error?: string; }; cache: { ...; }; ai: { ...; }; }; }' is not assignable to type 'HealthStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'version' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/routes/health.routes.ts(121,32): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/health.routes.ts(122,28): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
+server/src/routes/health.routes.ts(194,26): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
+server/src/routes/metrics.ts(40,26): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
+server/src/routes/metrics.ts(76,17): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/orders.routes.ts(19,25): error TS4111: Property 'status' comes from an index signature, so it must be accessed with ['status'].
+server/src/routes/orders.routes.ts(20,23): error TS4111: Property 'type' comes from an index signature, so it must be accessed with ['type'].
+server/src/routes/orders.routes.ts(21,28): error TS4111: Property 'startDate' comes from an index signature, so it must be accessed with ['startDate'].
+server/src/routes/orders.routes.ts(22,26): error TS4111: Property 'endDate' comes from an index signature, so it must be accessed with ['endDate'].
+server/src/routes/orders.routes.ts(23,33): error TS4111: Property 'limit' comes from an index signature, so it must be accessed with ['limit'].
+server/src/routes/orders.routes.ts(24,34): error TS4111: Property 'offset' comes from an index signature, so it must be accessed with ['offset'].
+server/src/routes/orders.routes.ts(29,64): error TS2379: Argument of type '{ status: OrderStatus | undefined; type: OrderType | undefined; startDate: string; endDate: string; limit: number; offset: number; }' is not assignable to parameter of type 'OrderFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'type' are incompatible.
+    Type 'OrderType | undefined' is not assignable to type 'OrderType | OrderType[]'.
+      Type 'undefined' is not assignable to type 'OrderType | OrderType[]'.
+server/src/routes/orders.routes.ts(74,33): error TS2339: Property 'parseOrder' does not exist on type '{ transcriber: Transcriber; tts: TTS; chat: Chat; orderNLP: OrderNLP; }'.
+server/src/routes/payments.routes.ts(17,28): error TS4111: Property 'SQUARE_ENVIRONMENT' comes from an index signature, so it must be accessed with ['SQUARE_ENVIRONMENT'].
+server/src/routes/payments.routes.ts(20,3): error TS2353: Object literal may only specify known properties, and 'bearerAuthCredentials' does not exist in type 'Options'.
+server/src/routes/payments.routes.ts(21,30): error TS4111: Property 'SQUARE_ACCESS_TOKEN' comes from an index signature, so it must be accessed with ['SQUARE_ACCESS_TOKEN'].
+server/src/routes/payments.routes.ts(32,3): error TS7030: Not all code paths return a value.
+server/src/routes/payments.routes.ts(84,33): error TS4111: Property 'SQUARE_LOCATION_ID' comes from an index signature, so it must be accessed with ['SQUARE_LOCATION_ID'].
+server/src/routes/payments.routes.ts(94,24): error TS4111: Property 'SQUARE_ACCESS_TOKEN' comes from an index signature, so it must be accessed with ['SQUARE_ACCESS_TOKEN'].
+server/src/routes/payments.routes.ts(94,59): error TS4111: Property 'SQUARE_ACCESS_TOKEN' comes from an index signature, so it must be accessed with ['SQUARE_ACCESS_TOKEN'].
+server/src/routes/payments.routes.ts(94,105): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/payments.routes.ts(108,44): error TS2339: Property 'createPayment' does not exist on type 'Payments'.
+server/src/routes/payments.routes.ts(136,46): error TS2379: Argument of type '{ orderId: any; amount: number; status: "success"; userId: string | undefined; restaurantId: string; paymentMethod: "card"; paymentId: any; ipAddress: string | undefined; userAgent: string; idempotencyKey: string; metadata: { ...; }; }' is not assignable to parameter of type 'PaymentAuditLogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/routes/payments.routes.ts(177,48): error TS2379: Argument of type '{ orderId: any; amount: any; status: "failed"; userId: string | undefined; restaurantId: string; paymentMethod: "card"; errorCode: any; errorDetail: any; ipAddress: string | undefined; userAgent: string; idempotencyKey: any; metadata: { ...; }; }' is not assignable to parameter of type 'PaymentAuditLogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/routes/payments.routes.ts(179,19): error TS2304: Cannot find name 'validation'.
+server/src/routes/payments.routes.ts(188,27): error TS2552: Cannot find name 'serverIdempotencyKey'. Did you mean 'idempotencyKey'?
+server/src/routes/payments.routes.ts(249,3): error TS7030: Not all code paths return a value.
+server/src/routes/payments.routes.ts(255,42): error TS2339: Property 'getPayment' does not exist on type 'Payments'.
+server/src/routes/payments.routes.ts(265,31): error TS4111: Property 'paymentId' comes from an index signature, so it must be accessed with ['paymentId'].
+server/src/routes/payments.routes.ts(284,3): error TS7030: Not all code paths return a value.
+server/src/routes/payments.routes.ts(292,57): error TS2339: Property 'getPayment' does not exist on type 'Payments'.
+server/src/routes/payments.routes.ts(313,13): error TS2339: Property 'result' does not exist on type 'RefundPaymentResponse'.
+server/src/routes/payments.routes.ts(316,44): error TS2379: Argument of type '{ orderId: any; amount: number; status: "refunded"; userId: string | undefined; restaurantId: string; paymentMethod: "card"; paymentId: string | undefined; ipAddress: string | undefined; userAgent: string; idempotencyKey: `${string}-${string}-${string}-${string}-${string}`; metadata: { ...; }; }' is not assignable to parameter of type 'PaymentAuditLogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/routes/payments.routes.ts(349,31): error TS4111: Property 'paymentId' comes from an index signature, so it must be accessed with ['paymentId'].
+server/src/routes/realtime.routes.ts(32,26): error TS2551: Property 'category' does not exist on type 'MenuItem'. Did you mean 'categoryId'?
+server/src/routes/realtime.routes.ts(40,11): error TS2532: Object is possibly 'undefined'.
+server/src/routes/realtime.routes.ts(49,15): error TS6133: 'allergenNotes' is declared but its value is never read.
+server/src/routes/realtime.routes.ts(113,48): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/routes/realtime.routes.ts(117,28): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/routes/realtime.routes.ts(139,7): error TS2698: Spread types may only be created from object types.
+server/src/routes/realtime.routes.ts(146,18): error TS18046: 'data' is of type 'unknown'.
+server/src/routes/realtime.routes.ts(168,39): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/routes/realtime.routes.ts(169,41): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/routes/realtime.routes.ts(176,26): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/routes/tables.routes.ts(11,12): error TS2339: Property 'environment' does not exist on type 'EnvironmentConfig'.
+server/src/routes/tables.routes.ts(26,33): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(26,38): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(26,43): error TS7006: Parameter 'next' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(54,32): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(54,37): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(54,42): error TS7006: Parameter 'next' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(78,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(78,40): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(78,45): error TS7006: Parameter 'next' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(118,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(118,40): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(118,45): error TS7006: Parameter 'next' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(172,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(172,40): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(172,45): error TS7006: Parameter 'next' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(197,41): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(197,46): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(197,51): error TS7006: Parameter 'next' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(230,41): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(230,46): error TS7006: Parameter 'res' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(230,51): error TS7006: Parameter 'next' implicitly has an 'any' type.
+server/src/routes/tables.routes.ts(332,16): error TS18046: 'error' is of type 'unknown'.
+server/src/routes/tables.routes.ts(333,16): error TS18046: 'error' is of type 'unknown'.
+server/src/routes/tables.routes.ts(339,18): error TS18046: 'error' is of type 'unknown'.
+server/src/routes/terminal.routes.ts(15,28): error TS4111: Property 'SQUARE_ENVIRONMENT' comes from an index signature, so it must be accessed with ['SQUARE_ENVIRONMENT'].
+server/src/routes/terminal.routes.ts(18,3): error TS2353: Object literal may only specify known properties, and 'bearerAuthCredentials' does not exist in type 'Options'.
+server/src/routes/terminal.routes.ts(19,30): error TS4111: Property 'SQUARE_ACCESS_TOKEN' comes from an index signature, so it must be accessed with ['SQUARE_ACCESS_TOKEN'].
+server/src/routes/terminal.routes.ts(26,66): error TS7030: Not all code paths return a value.
+server/src/routes/terminal.routes.ts(85,44): error TS2339: Property 'createTerminalCheckout' does not exist on type 'Terminal'.
+server/src/routes/terminal.routes.ts(134,77): error TS7030: Not all code paths return a value.
+server/src/routes/terminal.routes.ts(141,44): error TS2339: Property 'getTerminalCheckout' does not exist on type 'Terminal'.
+server/src/routes/terminal.routes.ts(155,67): error TS2339: Property 'getPayment' does not exist on type 'Payments'.
+server/src/routes/terminal.routes.ts(200,85): error TS7030: Not all code paths return a value.
+server/src/routes/terminal.routes.ts(207,44): error TS2339: Property 'cancelTerminalCheckout' does not exist on type 'Terminal'.
+server/src/routes/terminal.routes.ts(256,42): error TS2339: Property 'getTerminalCheckout' does not exist on type 'Terminal'.
+server/src/routes/terminal.routes.ts(313,64): error TS7030: Not all code paths return a value.
+server/src/routes/terminal.routes.ts(313,71): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/terminal.routes.ts(318,44): error TS2339: Property 'listDeviceCodes' does not exist on type 'Terminal'.
+server/src/routes/terminal.routes.ts(319,33): error TS4111: Property 'SQUARE_LOCATION_ID' comes from an index signature, so it must be accessed with ['SQUARE_LOCATION_ID'].
+server/src/routes/terminal.routes.ts(330,30): error TS7006: Parameter 'device' implicitly has an 'any' type.
+server/src/server.ts(13,26): error TS7016: Could not find a declaration file for module 'cookie-parser'. '/Users/mikeyoung/CODING/rebuild-6.0/node_modules/cookie-parser/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/cookie-parser` if it exists or add a new declaration (.d.ts) file containing `declare module 'cookie-parser';`
+server/src/server.ts(51,38): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/server.ts(75,37): error TS4111: Property 'ALLOWED_ORIGINS' comes from an index signature, so it must be accessed with ['ALLOWED_ORIGINS'].
+server/src/server.ts(76,15): error TS4111: Property 'FRONTEND_URL' comes from an index signature, so it must be accessed with ['FRONTEND_URL'].
+server/src/server.ts(162,30): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/server.ts(177,26): error TS4111: Property 'PORT' comes from an index signature, so it must be accessed with ['PORT'].
+server/src/server.ts(186,40): error TS4111: Property 'DEFAULT_RESTAURANT_ID' comes from an index signature, so it must be accessed with ['DEFAULT_RESTAURANT_ID'].
+server/src/server.ts(198,50): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/server.ts(199,51): error TS4111: Property 'FRONTEND_URL' comes from an index signature, so it must be accessed with ['FRONTEND_URL'].
+server/src/server.ts(233,56): error TS2307: Cannot find module './services/buildpanel.service' or its corresponding type declarations.
+server/src/services/ai.service.ts(3,14): error TS6133: 'checkAIHealth' is declared but its value is never read.
+server/src/services/ai.service.ts(83,45): error TS6133: 'restaurantId' is declared but its value is never read.
+server/src/services/ai.service.ts(195,68): error TS6133: 'restaurantId' is declared but its value is never read.
+server/src/services/ai.service.ts(241,42): error TS2339: Property 'respond' does not exist on type 'Chat'.
+server/src/services/ai.service.ts(304,38): error TS2339: Property 'respond' does not exist on type 'Chat'.
+server/src/services/auth/pinAuth.ts(1,20): error TS2307: Cannot find module 'bcryptjs' or its corresponding type declarations.
+server/src/services/auth/pinAuth.ts(2,1): error TS6133: 'crypto' is declared but its value is never read.
+server/src/services/auth/pinAuth.ts(5,22): error TS6133: 'Unauthorized' is declared but its value is never read.
+server/src/services/auth/pinAuth.ts(10,32): error TS4111: Property 'PIN_PEPPER' comes from an index signature, so it must be accessed with ['PIN_PEPPER'].
+server/src/services/auth/pinAuth.ts(239,35): error TS2339: Property 'email' does not exist on type '{ id: any; email: any; }[]'.
+server/src/services/auth/stationAuth.ts(5,22): error TS6133: 'Unauthorized' is declared but its value is never read.
+server/src/services/auth/stationAuth.ts(10,42): error TS4111: Property 'STATION_TOKEN_SECRET' comes from an index signature, so it must be accessed with ['STATION_TOKEN_SECRET'].
+server/src/services/auth/stationAuth.ts(10,78): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/services/auth/stationAuth.ts(12,45): error TS4111: Property 'DEVICE_FINGERPRINT_SALT' comes from an index signature, so it must be accessed with ['DEVICE_FINGERPRINT_SALT'].
+server/src/services/auth/stationAuth.ts(55,10): error TS6133: 'generateSecureToken' is declared but its value is never read.
+server/src/services/menu.service.ts(6,23): error TS6133: 'mapMenuCategory' is declared but its value is never read.
+server/src/services/OrderMatchingService.ts(19,14): error TS2322: Type '{ draftName: string; quantity: number; modifications: string[] | undefined; specialInstructions: string | undefined; candidates: { menuItemId: string; name: string; score: number; }[]; }[]' is not assignable to type 'Candidate[]'.
+  Type '{ draftName: string; quantity: number; modifications: string[] | undefined; specialInstructions: string | undefined; candidates: { menuItemId: string; name: string; score: number; }[]; }' is not assignable to type 'Candidate' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'modifications' are incompatible.
+      Type 'string[] | undefined' is not assignable to type 'string[]'.
+        Type 'undefined' is not assignable to type 'string[]'.
+server/src/services/orderStateMachine.ts(70,11): error TS2375: Type '{ from: OrderStatus; to: OrderStatus; timestamp: Date; userId: string | undefined; reason: string | undefined; }' is not assignable to type 'StateTransition' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/services/orderStateMachine.ts(131,18): error TS18046: 'error' is of type 'unknown'.
+server/src/services/orderStateMachine.ts(241,55): error TS6133: 'transition' is declared but its value is never read.
+server/src/services/orderStateMachine.ts(246,51): error TS6133: 'transition' is declared but its value is never read.
+server/src/services/orderStateMachine.ts(251,55): error TS6133: 'transition' is declared but its value is never read.
+server/src/services/payment.service.ts(121,55): error TS2352: Conversion of type 'import("/Users/mikeyoung/CODING/rebuild-6.0/server/src/services/orders.service").Order' to type 'import("/Users/mikeyoung/CODING/rebuild-6.0/shared/types/order.types").Order' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Order' is missing the following properties from type 'Order': order_number, total, payment_status, created_at, updated_at
+server/src/services/payment.service.ts(178,32): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/test-utils/index.ts(148,15): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/test-utils/index.ts(149,15): error TS4111: Property 'SUPABASE_URL' comes from an index signature, so it must be accessed with ['SUPABASE_URL'].
+server/src/test-utils/index.ts(150,15): error TS4111: Property 'SUPABASE_ANON_KEY' comes from an index signature, so it must be accessed with ['SUPABASE_ANON_KEY'].
+server/src/test-utils/index.ts(151,15): error TS4111: Property 'SUPABASE_SERVICE_KEY' comes from an index signature, so it must be accessed with ['SUPABASE_SERVICE_KEY'].
+server/src/test-utils/index.ts(152,15): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/test-utils/index.ts(153,15): error TS4111: Property 'DEFAULT_RESTAURANT_ID' comes from an index signature, so it must be accessed with ['DEFAULT_RESTAURANT_ID'].
+server/src/utils/websocket.ts(50,7): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/voice/debug-dashboard.ts(3,1): error TS6133: 'logger' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(4,1): error TS6133: 'fs' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(5,1): error TS6133: 'path' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(36,41): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(395,44): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(406,43): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(413,47): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(429,45): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(440,42): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(451,47): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(458,21): error TS4111: Property 'RESTAURANT_ID' comes from an index signature, so it must be accessed with ['RESTAURANT_ID'].
+server/src/voice/debug-dashboard.ts(471,18): error TS18046: 'error' is of type 'unknown'.
+server/src/voice/debug-dashboard.ts(494,42): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(506,48): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(526,51): error TS7030: Not all code paths return a value.
+server/src/voice/debug-dashboard.ts(528,53): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/voice/debug-dashboard.ts(611,19): error TS4111: Property 'VOICE_RECORD_AUDIO' comes from an index signature, so it must be accessed with ['VOICE_RECORD_AUDIO'].
+server/src/voice/openai-adapter.ts(35,11): error TS6133: 'restaurantId' is declared but its value is never read.
+server/src/voice/openai-adapter.ts(54,32): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/voice/openai-adapter.ts(60,31): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/voice/openai-adapter.ts(222,30): error TS4111: Property 'transcript' comes from an index signature, so it must be accessed with ['transcript'].
+server/src/voice/openai-adapter.ts(238,15): error TS4111: Property 'delta' comes from an index signature, so it must be accessed with ['delta'].
+server/src/voice/openai-adapter.ts(239,38): error TS4111: Property 'delta' comes from an index signature, so it must be accessed with ['delta'].
+server/src/voice/openai-adapter.ts(256,34): error TS6133: 'event' is declared but its value is never read.
+server/src/voice/openai-adapter.ts(266,22): error TS4111: Property 'error' comes from an index signature, so it must be accessed with ['error'].
+server/src/voice/openai-adapter.ts(268,22): error TS4111: Property 'error' comes from an index signature, so it must be accessed with ['error'].
+server/src/voice/openai-adapter.ts(408,7): error TS2412: Type 'undefined' is not assignable to type 'WebSocket' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+server/src/voice/twilio-bridge.ts(88,33): error TS4111: Property 'RESTAURANT_ID' comes from an index signature, so it must be accessed with ['RESTAURANT_ID'].
+server/src/voice/twilio-bridge.ts(137,32): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/twilio-bridge.ts(148,34): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/twilio-bridge.ts(177,36): error TS4111: Property 'RESTAURANT_ID' comes from an index signature, so it must be accessed with ['RESTAURANT_ID'].
+server/src/voice/twilio-bridge.ts(196,49): error TS4111: Property 'restaurantId' comes from an index signature, so it must be accessed with ['restaurantId'].
+server/src/voice/twilio-bridge.ts(197,61): error TS4111: Property 'restaurantId' comes from an index signature, so it must be accessed with ['restaurantId'].
+server/src/voice/twilio-bridge.ts(232,21): error TS2341: Property 'sendToOpenAI' is private and only accessible within class 'OpenAIAdapter'.
+server/src/voice/types.ts(6,3): error TS2484: Export declaration conflicts with exported declaration of 'ClientEvent'.
+server/src/voice/types.ts(7,3): error TS2484: Export declaration conflicts with exported declaration of 'ServerEvent'.
+server/src/voice/types.ts(21,3): error TS2484: Export declaration conflicts with exported declaration of 'VoiceError'.
+server/src/voice/types.ts(169,35): error TS4081: Exported type alias 'VoiceWebSocketMessage' has or is using private name 'ClientEvent'.
+server/src/voice/types.ts(170,35): error TS4081: Exported type alias 'VoiceWebSocketMessage' has or is using private name 'ServerEvent'.
+server/src/voice/types.ts(171,28): error TS4081: Exported type alias 'VoiceWebSocketMessage' has or is using private name 'VoiceError'.
+server/src/voice/voice-routes.ts(22,18): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/voice-routes.ts(86,29): error TS7030: Not all code paths return a value.
+server/src/voice/voice-routes.ts(127,49): error TS7030: Not all code paths return a value.
+server/src/voice/voice-routes.ts(138,44): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/voice/voice-routes.ts(156,31): error TS7030: Not all code paths return a value.
+server/src/voice/voice-routes.ts(158,29): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/voice/voice-routes.ts(159,30): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/voice/voice-routes.ts(241,33): error TS7030: Not all code paths return a value.
+server/src/voice/websocket-server.test.ts(38,7): error TS2322: Type 'Mock<[data: BufferLike, options: { mask?: boolean | undefined; binary?: boolean | undefined; compress?: boolean | undefined; fin?: boolean | undefined; }, cb?: ((err?: Error | undefined) => void) | undefined], void>' is not assignable to type '{ (data: BufferLike, cb?: ((err?: Error | undefined) => void) | undefined): void; (data: BufferLike, options: { mask?: boolean | undefined; binary?: boolean | undefined; compress?: boolean | undefined; fin?: boolean | undefined; }, cb?: ((err?: Error | undefined) => void) | undefined): void; }'.
+  Types of parameters 'options' and 'cb' are incompatible.
+    Type '((err?: Error | undefined) => void) | undefined' is not assignable to type '{ mask?: boolean | undefined; binary?: boolean | undefined; compress?: boolean | undefined; fin?: boolean | undefined; }'.
+      Type 'undefined' is not assignable to type '{ mask?: boolean | undefined; binary?: boolean | undefined; compress?: boolean | undefined; fin?: boolean | undefined; }'.
+server/src/voice/websocket-server.ts(43,82): error TS2345: Argument of type 'RawData' is not assignable to parameter of type 'string | ArrayBuffer | ArrayBufferView | SharedArrayBuffer'.
+  Type 'Buffer[]' is not assignable to type 'string | ArrayBuffer | ArrayBufferView | SharedArrayBuffer'.
+    Type 'Buffer[]' is missing the following properties from type 'Float64Array<ArrayBufferLike>': BYTES_PER_ELEMENT, buffer, byteLength, byteOffset, and 3 more.
+shared/monitoring/error-tracker.ts(44,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+shared/monitoring/error-tracker.ts(57,16): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(61,6): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(71,6): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(118,5): error TS2532: Object is possibly 'undefined'.
+shared/monitoring/error-tracker.ts(118,27): error TS2379: Argument of type '{ timestamp: number; category: string; message: string; level: "error" | "warning" | "info"; data: Record<string, any> | undefined; }' is not assignable to parameter of type '{ timestamp: number; category: string; message: string; level: string; data?: Record<string, any>; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'data' are incompatible.
+    Type 'Record<string, any> | undefined' is not assignable to type 'Record<string, any>'.
+      Type 'undefined' is not assignable to type 'Record<string, any>'.
+shared/monitoring/error-tracker.ts(121,9): error TS2532: Object is possibly 'undefined'.
+shared/monitoring/error-tracker.ts(122,26): error TS2532: Object is possibly 'undefined'.
+shared/monitoring/error-tracker.ts(131,11): error TS2375: Type '{ id: string; timestamp: number; level: "error" | "warning" | "info"; message: string; stack: string | undefined; url: any; userAgent: any; sessionId: string; userId: string | undefined; context: { ...; }; breadcrumbs: any[]; tags: { ...; }; }' is not assignable to type 'ErrorReport' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'stack' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/monitoring/error-tracker.ts(137,19): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(137,44): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(138,25): error TS2304: Cannot find name 'navigator'.
+shared/monitoring/error-tracker.ts(138,53): error TS2304: Cannot find name 'navigator'.
+shared/monitoring/error-tracker.ts(142,24): error TS2488: Type '{ timestamp: number; category: string; message: string; level: string; data?: Record<string, any>; }[] | undefined' must have a '[Symbol.iterator]()' method that returns an iterator.
+shared/monitoring/error-tracker.ts(144,34): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+shared/monitoring/error-tracker.ts(145,30): error TS4111: Property 'APP_VERSION' comes from an index signature, so it must be accessed with ['APP_VERSION'].
+shared/monitoring/error-tracker.ts(160,11): error TS2375: Type '{ id: string; timestamp: number; level: "error" | "warning" | "info"; message: string; url: any; userAgent: any; sessionId: string; userId: string | undefined; context: { [x: string]: any; }; breadcrumbs: any[]; tags: { ...; }; }' is not assignable to type 'ErrorReport' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/monitoring/error-tracker.ts(165,19): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(165,44): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(166,25): error TS2304: Cannot find name 'navigator'.
+shared/monitoring/error-tracker.ts(166,53): error TS2304: Cannot find name 'navigator'.
+shared/monitoring/error-tracker.ts(172,34): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+shared/monitoring/error-tracker.ts(173,30): error TS4111: Property 'APP_VERSION' comes from an index signature, so it must be accessed with ['APP_VERSION'].
+shared/monitoring/error-tracker.ts(198,23): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+shared/monitoring/error-tracker.ts(215,22): error TS2304: Cannot find name 'localStorage'.
+shared/monitoring/error-tracker.ts(224,7): error TS2304: Cannot find name 'localStorage'.
+shared/monitoring/error-tracker.ts(232,22): error TS2304: Cannot find name 'localStorage'.
+shared/monitoring/error-tracker.ts(246,7): error TS2304: Cannot find name 'localStorage'.
+shared/monitoring/error-tracker.ts(272,12): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(277,14): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(278,5): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(279,72): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(284,3): error TS2304: Cannot find name 'window'.
+shared/monitoring/error-tracker.ts(288,3): error TS2304: Cannot find name 'window'.
+shared/monitoring/performance-monitor.ts(65,34): error TS2304: Cannot find name 'window'.
+shared/monitoring/performance-monitor.ts(67,31): error TS2304: Cannot find name 'PerformanceObserver'.
+shared/monitoring/performance-monitor.ts(67,52): error TS7006: Parameter 'list' implicitly has an 'any' type.
+shared/monitoring/performance-monitor.ts(83,36): error TS2304: Cannot find name 'PerformanceObserver'.
+shared/monitoring/performance-monitor.ts(83,57): error TS7006: Parameter 'list' implicitly has an 'any' type.
+shared/monitoring/performance-monitor.ts(86,48): error TS2304: Cannot find name 'PerformanceResourceTiming'.
+shared/monitoring/performance-monitor.ts(109,23): error TS2339: Property 'loadEventEnd' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(109,44): error TS2339: Property 'loadEventStart' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(111,12): error TS2304: Cannot find name 'window'.
+shared/monitoring/performance-monitor.ts(114,33): error TS2339: Property 'domContentLoadedEventEnd' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(114,66): error TS2339: Property 'domContentLoadedEventStart' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(115,27): error TS2339: Property 'loadEventStart' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(115,50): error TS2551: Property 'navigationStart' does not exist on type 'PerformanceNavigationTiming'. Did you mean 'activationStart'?
+shared/monitoring/performance-monitor.ts(116,26): error TS2339: Property 'domainLookupEnd' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(116,50): error TS2339: Property 'domainLookupStart' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(117,27): error TS2339: Property 'connectEnd' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(117,46): error TS2339: Property 'connectStart' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(118,31): error TS2339: Property 'responseEnd' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(118,51): error TS2339: Property 'requestStart' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(119,30): error TS2339: Property 'domComplete' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(119,50): error TS2339: Property 'domLoading' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(120,29): error TS2339: Property 'transferSize' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(121,28): error TS2339: Property 'encodedBodySize' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(122,28): error TS2339: Property 'decodedBodySize' does not exist on type 'PerformanceNavigationTiming'.
+shared/monitoring/performance-monitor.ts(129,39): error TS2552: Cannot find name 'PerformanceResourceTiming'. Did you mean 'PerformanceEventTiming'?
+shared/monitoring/performance-monitor.ts(155,27): error TS2304: Cannot find name 'window'.
+shared/monitoring/performance-monitor.ts(157,5): error TS2304: Cannot find name 'window'.
+shared/monitoring/performance-monitor.ts(157,34): error TS2552: Cannot find name 'RequestInfo'. Did you mean 'RequestInit'?
+shared/monitoring/performance-monitor.ts(174,15): error TS2375: Type '{ id: string; timestamp: number; type: "api_request"; name: string; duration: number; sessionId: string; url: any; method: string; endpoint: any; status: "success" | "error"; statusCode: number | undefined; errorMessage: string | undefined; metadata: { ...; }; }' is not assignable to type 'APIPerformanceMetric' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'statusCode' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+shared/monitoring/performance-monitor.ts(209,26): error TS2304: Cannot find name 'XMLHttpRequest'.
+shared/monitoring/performance-monitor.ts(210,26): error TS2304: Cannot find name 'XMLHttpRequest'.
+shared/monitoring/performance-monitor.ts(212,5): error TS2304: Cannot find name 'XMLHttpRequest'.
+shared/monitoring/performance-monitor.ts(221,5): error TS2304: Cannot find name 'XMLHttpRequest'.
+shared/monitoring/performance-monitor.ts(257,11): error TS2375: Type '{ id: string; timestamp: number; type: "user_interaction"; name: string; duration: number; sessionId: string; url: any; status: "success"; metadata: Record<string, any> | undefined; }' is not assignable to type 'PerformanceMetric' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'metadata' are incompatible.
+    Type 'Record<string, any> | undefined' is not assignable to type 'Record<string, any>'.
+      Type 'undefined' is not assignable to type 'Record<string, any>'.
+shared/monitoring/performance-monitor.ts(264,12): error TS2304: Cannot find name 'window'.
+shared/monitoring/performance-monitor.ts(314,23): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+shared/monitoring/performance-monitor.ts(413,12): error TS2304: Cannot find name 'window'.
+shared/monitoring/performance-monitor.ts(414,3): error TS2304: Cannot find name 'window'.
+shared/monitoring/web-vitals.ts(6,24): error TS2305: Module '"web-vitals"' has no exported member 'onFID'.
+shared/monitoring/web-vitals.ts(78,12): error TS2304: Cannot find name 'window'.
+shared/monitoring/web-vitals.ts(82,18): error TS2304: Cannot find name 'navigator'.
+shared/monitoring/web-vitals.ts(86,25): error TS2304: Cannot find name 'navigator'.
+shared/monitoring/web-vitals.ts(86,39): error TS2304: Cannot find name 'navigator'.
+shared/monitoring/web-vitals.ts(87,21): error TS2304: Cannot find name 'navigator'.
+shared/monitoring/web-vitals.ts(117,22): error TS2304: Cannot find name 'localStorage'.
+shared/monitoring/web-vitals.ts(126,7): error TS2304: Cannot find name 'localStorage'.
+shared/monitoring/web-vitals.ts(134,22): error TS2304: Cannot find name 'localStorage'.
+shared/monitoring/web-vitals.ts(156,7): error TS2304: Cannot find name 'localStorage'.
+shared/monitoring/web-vitals.ts(178,12): error TS2304: Cannot find name 'window'.
+shared/monitoring/web-vitals.ts(183,3): error TS2304: Cannot find name 'window'.
+shared/types/transformers.ts(15,1): error TS6133: 'SharedCustomer' is declared but its value is never read.
+shared/types/transformers.ts(151,5): error TS2375: Type '{ id: string; orderNumber: string; restaurantId: string; customerId: string | undefined; tableNumber: string | undefined; status: OrderStatus; type: OrderType; ... 11 more ...; updatedAt: Date; }' is not assignable to type 'ClientOrder' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'customerId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/types/transformers.ts(190,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+shared/types/transformers.ts(196,7): error TS2322: Type 'number | null' is not assignable to type 'number'.
+  Type 'null' is not assignable to type 'number'.
+shared/types/transformers.ts(220,5): error TS2375: Type '{ id: string; menuItemId: string; quantity: number; unitPrice: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[] | undefined; specialInstructions: string | undefined; }' is not assignable to type 'ClientOrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'modifiers' are incompatible.
+    Type '{ id: string; name: string; price: number; }[] | undefined' is not assignable to type 'ClientModifier[]'.
+      Type 'undefined' is not assignable to type 'ClientModifier[]'.
+shared/types/transformers.ts(247,5): error TS2375: Type '{ id: string; menu_item_id: string; name: string; quantity: number; price: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[] | undefined; special_instructions: string | undefined; }' is not assignable to type 'OrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'modifiers' are incompatible.
+    Type '{ id: string; name: string; price: number; }[] | undefined' is not assignable to type 'OrderItemModifier[]'.
+      Type 'undefined' is not assignable to type 'OrderItemModifier[]'.
+shared/types/transformers.ts(276,5): error TS2375: Type '{ id: string; restaurantId: string; name: string; description: string | undefined; price: number; category: string; available: boolean; imageUrl: string | undefined; prepTimeMinutes: number | undefined; createdAt: Date; updatedAt: Date; }' is not assignable to type 'ClientMenuItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/types/transformers.ts(362,5): error TS2375: Type '{ id: string; restaurant_id: string; table_number: string; capacity: number; status: TableStatus; position: { x: number; y: number; }; shape: "rectangle" | "square" | "round" | undefined; created_at: string; updated_at: string; }' is not assignable to type 'Table' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'shape' are incompatible.
+    Type '"rectangle" | "square" | "round" | undefined' is not assignable to type '"rectangle" | "square" | "round"'.
+      Type 'undefined' is not assignable to type '"rectangle" | "square" | "round"'.
+shared/utils/browser-only.ts(50,26): error TS2304: Cannot find name 'window'.
+shared/utils/browser-only.ts(50,59): error TS2304: Cannot find name 'WebSocket'.
+shared/utils/cleanup-manager.ts(89,16): error TS2304: Cannot find name 'WebSocket'.
+shared/utils/cleanup-manager.ts(102,38): error TS2552: Cannot find name 'WebSocket'. Did you mean 'websocket'?
+shared/utils/cleanup-manager.ts(102,81): error TS2552: Cannot find name 'WebSocket'. Did you mean 'websocket'?
+shared/utils/cleanup-manager.ts(115,42): error TS2304: Cannot find name 'WebSocket'.
+shared/utils/cleanup-manager.ts(170,15): error TS2304: Cannot find name 'EventListener'.
+shared/utils/cleanup-manager.ts(187,13): error TS2304: Cannot find name 'MediaStream'.
+shared/utils/cleanup-manager.ts(194,36): error TS7006: Parameter 'track' implicitly has an 'any' type.
+shared/utils/cleanup-manager.ts(289,7): error TS2532: Object is possibly 'undefined'.
+shared/utils/cleanup-manager.ts(322,7): error TS2532: Object is possibly 'undefined'.
+shared/utils/cleanup-manager.ts(323,7): error TS2532: Object is possibly 'undefined'.
+shared/utils/cleanup-manager.ts(346,16): error TS2304: Cannot find name 'window'.
+shared/utils/cleanup-manager.ts(348,7): error TS2304: Cannot find name 'window'.
+shared/utils/cleanup-manager.ts(367,7): error TS2304: Cannot find name 'window'.
+shared/utils/cleanup-manager.ts(374,7): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+shared/utils/cleanup-manager.ts(375,13): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+shared/utils/cleanup-manager.ts(439,47): error TS2304: Cannot find name 'WebSocket'.
+shared/utils/error-handling.ts(224,16): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(226,7): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(226,41): error TS7006: Parameter 'event' implicitly has an 'any' type.
+shared/utils/error-handling.ts(240,7): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(240,54): error TS7006: Parameter 'event' implicitly has an 'any' type.
+shared/utils/error-handling.ts(252,7): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(256,7): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(335,11): error TS2375: Type '{ id: string; type: ErrorType; severity: ErrorSeverity; message: string; originalError: Error; timestamp: string; stack: string | undefined; cause: string | undefined; ... 14 more ...; url: any; }' is not assignable to type 'EnterpriseError' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'component' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/utils/error-handling.ts(363,29): error TS2304: Cannot find name 'navigator'.
+shared/utils/error-handling.ts(364,10): error TS2304: Cannot find name 'navigator'.
+shared/utils/error-handling.ts(365,25): error TS2304: Cannot find name 'navigator'.
+shared/utils/error-handling.ts(365,53): error TS2304: Cannot find name 'navigator'.
+shared/utils/error-handling.ts(366,19): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(366,44): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(523,20): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(524,11): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(529,20): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(529,61): error TS4111: Property 'redirectUrl' comes from an index signature, so it must be accessed with ['redirectUrl'].
+shared/utils/error-handling.ts(530,11): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(530,48): error TS4111: Property 'redirectUrl' comes from an index signature, so it must be accessed with ['redirectUrl'].
+shared/utils/error-handling.ts(536,20): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(537,11): error TS2304: Cannot find name 'localStorage'.
+shared/utils/error-handling.ts(538,11): error TS2304: Cannot find name 'sessionStorage'.
+shared/utils/error-handling.ts(539,11): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(673,18): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(674,9): error TS2304: Cannot find name 'alert'.
+shared/utils/error-handling.ts(714,16): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(715,14): error TS2304: Cannot find name 'sessionStorage'.
+shared/utils/error-handling.ts(794,14): error TS2304: Cannot find name 'window'.
+shared/utils/error-handling.ts(804,12): error TS4111: Property 'state' comes from an index signature, so it must be accessed with ['state'].
+shared/utils/error-handling.ts(818,17): error TS4111: Property 'state' comes from an index signature, so it must be accessed with ['state'].
+shared/utils/error-handling.ts(819,70): error TS4111: Property 'state' comes from an index signature, so it must be accessed with ['state'].
+shared/utils/error-handling.ts(822,20): error TS4111: Property 'props' comes from an index signature, so it must be accessed with ['props'].
+shared/utils/memory-monitoring.ts(65,20): error TS6133: 'leakThreshold' is declared but its value is never read.
+shared/utils/memory-monitoring.ts(90,16): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+shared/utils/memory-monitoring.ts(91,7): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+shared/utils/memory-monitoring.ts(111,16): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+shared/utils/memory-monitoring.ts(112,7): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+shared/utils/memory-monitoring.ts(171,29): error TS18048: 'current' is possibly 'undefined'.
+shared/utils/memory-monitoring.ts(174,7): error TS2322: Type 'MemorySnapshot | undefined' is not assignable to type 'MemorySnapshot'.
+  Type 'undefined' is not assignable to type 'MemorySnapshot'.
+shared/utils/memory-monitoring.ts(186,44): error TS18048: 'current' is possibly 'undefined'.
+shared/utils/memory-monitoring.ts(389,9): error TS2584: Cannot find name 'document'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+shared/utils/memory-monitoring.ts(446,16): error TS2304: Cannot find name 'window'.
+shared/utils/memory-monitoring.ts(446,50): error TS2304: Cannot find name 'window'.
+shared/utils/memory-monitoring.ts(448,10): error TS2304: Cannot find name 'window'.
+shared/utils/memory-monitoring.ts(540,14): error TS2304: Cannot find name 'window'.
+shared/utils/memory-monitoring.ts(562,23): error TS4111: Property 'getMemoryMetrics' comes from an index signature, so it must be accessed with ['getMemoryMetrics'].
+shared/utils/memory-monitoring.ts(565,34): error TS4111: Property 'getMemoryMetrics' comes from an index signature, so it must be accessed with ['getMemoryMetrics'].
+shared/utils/memory-monitoring.ts(573,38): error TS4111: Property 'destroy' comes from an index signature, so it must be accessed with ['destroy'].
+shared/utils/memory-monitoring.ts(573,54): error TS4111: Property 'cleanup' comes from an index signature, so it must be accessed with ['cleanup'].
+shared/utils/memory-monitoring.ts(575,16): error TS4111: Property 'destroy' comes from an index signature, so it must be accessed with ['destroy'].
+shared/utils/memory-monitoring.ts(575,31): error TS4111: Property 'cleanup' comes from an index signature, so it must be accessed with ['cleanup'].
+shared/utils/performance-hooks.ts(8,26): error TS2304: Cannot find name 'window'.
+shared/utils/performance-hooks.ts(19,11): error TS6198: All destructured elements are unused.
+shared/utils/performance-hooks.ts(93,31): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(94,49): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(128,23): error TS2304: Cannot find name 'window'.
+shared/utils/performance-hooks.ts(130,28): error TS2304: Cannot find name 'IntersectionObserver'.
+shared/utils/performance-hooks.ts(131,11): error TS7031: Binding element 'entry' implicitly has an 'any' type.
+shared/utils/performance-hooks.ts(163,31): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(164,25): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(165,25): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(177,41): error TS7006: Parameter 'update' implicitly has an 'any' type.
+shared/utils/react-performance.ts(9,12): error TS2304: Cannot find name 'window'.
+shared/utils/react-performance.ts(51,16): error TS2304: Cannot find name 'window'.
+shared/utils/react-performance.ts(69,40): error TS6133: 'P' is declared but its value is never read.
+shared/utils/react-performance.ts(88,16): error TS2304: Cannot find name 'window'.
+shared/utils/websocket-pool.browser.ts(8,22): error TS2304: Cannot find name 'WebSocket'.
+shared/utils/websocket-pool.browser.ts(9,19): error TS2304: Cannot find name 'window'.
+shared/utils/websocket-pool.browser.ts(10,33): error TS2304: Cannot find name 'IntersectionObserver'.
+shared/utils/websocket-pool.browser.ts(16,5): error TS6133: 'MemoryMonitor' is declared but its value is never read.
+shared/utils/websocket-pool.browser.ts(94,14): error TS2415: Class 'WebSocketPool' incorrectly extends base class 'ManagedService'.
+  Property 'cleanup' is protected in type 'WebSocketPool' but public in type 'ManagedService'.
+shared/utils/websocket-pool.browser.ts(94,14): error TS2515: Non-abstract class 'WebSocketPool' does not implement inherited abstract member initialize from class 'ManagedService'.
+shared/utils/websocket-pool.browser.ts(124,29): error TS2345: Argument of type '{ id: string; cleanup: () => Promise<void>; priority: "high"; }' is not assignable to parameter of type 'CleanupResource'.
+  Type '{ id: string; cleanup: () => Promise<void>; priority: "high"; }' is missing the following properties from type 'CleanupResource': name, category
+shared/utils/websocket-pool.browser.ts(125,34): error TS2339: Property 'id' does not exist on type 'WebSocketPool'.
+shared/utils/websocket-pool.browser.ts(164,19): error TS2304: Cannot find name 'WebSocket'.
+shared/utils/websocket-pool.browser.ts(190,52): error TS7006: Parameter 'error' implicitly has an 'any' type.
+shared/utils/websocket-pool.browser.ts(203,52): error TS7006: Parameter 'event' implicitly has an 'any' type.
+shared/utils/websocket-pool.browser.ts(215,50): error TS7006: Parameter 'event' implicitly has an 'any' type.
+shared/utils/websocket-pool.browser.ts(220,50): error TS7006: Parameter 'error' implicitly has an 'any' type.
+shared/utils/websocket-pool.browser.ts(275,13): error TS6133: 'newConnection' is declared but its value is never read.
+shared/utils/websocket-pool.browser.ts(330,28): error TS6133: 'message' is declared but its value is never read.
+shared/utils/websocket-pool.browser.ts(354,5): error TS2322: Type 'PooledWebSocketConnection | undefined' is not assignable to type 'PooledWebSocketConnection'.
+  Type 'undefined' is not assignable to type 'PooledWebSocketConnection'.
+shared/utils/websocket-pool.browser.ts(532,19): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ManagedService'.
+shared/utils/websocket-pool.browser.ts(547,46): error TS2304: Cannot find name 'WebSocket'.
+shared/utils/websocket-pool.ts(53,29): error TS2304: Cannot find name 'window'.

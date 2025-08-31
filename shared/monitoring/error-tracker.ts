@@ -1,8 +1,9 @@
-/* global window, navigator, localStorage, ErrorEvent, PromiseRejectionEvent */
 /**
  * Error Tracking and Reporting
  * Captures and reports application errors for monitoring
  */
+
+// Browser type definitions for shared code
 
 export interface ErrorReport {
   id: string;
@@ -14,7 +15,7 @@ export interface ErrorReport {
   userAgent: string;
   sessionId: string;
   userId?: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   breadcrumbs?: Array<{
     timestamp: number;
     category: string;
@@ -56,8 +57,8 @@ class ErrorTracker {
     if (typeof window === 'undefined') return;
     
     // Global error handler for unhandled errors
-    // eslint-disable-next-line no-undef
-    window.addEventListener('error', (event: ErrorEvent) => {
+     
+    (window as any).addEventListener('error', (event: any) => {
       this.captureError(new Error(event.message), {
         filename: event.filename,
         lineno: event.lineno,
@@ -67,7 +68,7 @@ class ErrorTracker {
     });
 
     // Global handler for unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+    (window as any).addEventListener('unhandledrejection', (event: any) => {
       this.captureError(
         event.reason instanceof Error ? event.reason : new Error(String(event.reason)),
         { type: 'unhandled_promise_rejection' }
@@ -140,8 +141,8 @@ class ErrorTracker {
       context: { ...this.context, ...context },
       breadcrumbs: [...this.breadcrumbs],
       tags: {
-        environment: process.env.NODE_ENV || 'development',
-        version: process.env.APP_VERSION || 'unknown'
+        environment: process.env['NODE_ENV'] || 'development',
+        version: process.env['APP_VERSION'] || 'unknown'
       }
     };
 
@@ -168,8 +169,8 @@ class ErrorTracker {
       context: { ...this.context, ...context },
       breadcrumbs: [...this.breadcrumbs],
       tags: {
-        environment: process.env.NODE_ENV || 'development',
-        version: process.env.APP_VERSION || 'unknown'
+        environment: process.env['NODE_ENV'] || 'development',
+        version: process.env['APP_VERSION'] || 'unknown'
       }
     };
 
@@ -194,7 +195,7 @@ class ErrorTracker {
         keepalive: true,
       });
 
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         console.log('🐛 Error reported:', {
           id: report.id,
           level: report.level,
@@ -210,6 +211,9 @@ class ErrorTracker {
   }
 
   private storeErrorForRetry(report: ErrorReport) {
+    // Only use localStorage in browser environment
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
+    
     try {
       const stored = localStorage.getItem('errors_pending');
       const pending = stored ? JSON.parse(stored) : [];
@@ -227,6 +231,9 @@ class ErrorTracker {
   }
 
   public async retryPendingErrors() {
+    // Only use localStorage in browser environment
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
+    
     try {
       const stored = localStorage.getItem('errors_pending');
       if (!stored) return;

@@ -44,7 +44,7 @@ export class MemoryMonitor {
   logMemoryUsage(label: string): void {
     const snapshot = this.snapshot(label);
     if (snapshot) {
-      console.log(`[MEMORY] ${label}:`, {
+      console.warn(`[MEMORY] ${label}:`, {
         rss: `${snapshot.rss} MB`,
         heapUsed: `${snapshot.heapUsed} MB`,
         heapTotal: `${snapshot.heapTotal} MB`,
@@ -97,7 +97,7 @@ export class MemoryMonitor {
       return true;
     }
 
-    console.log(`[MEMORY] Clean - heap change: ${heapGrowth > 0 ? '+' : ''}${heapGrowth}MB`);
+    console.warn(`[MEMORY] Clean - heap change: ${heapGrowth > 0 ? '+' : ''}${heapGrowth}MB`);
     return false;
   }
 
@@ -121,7 +121,7 @@ export class MemoryMonitor {
   forceGC(): void {
     if (global.gc) {
       global.gc();
-      console.log('[MEMORY] Forced garbage collection');
+      console.warn('[MEMORY] Forced garbage collection');
     } else {
       console.warn('[MEMORY] GC not available - run with --expose-gc');
     }
