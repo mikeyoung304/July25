@@ -46,3 +46,8 @@ client/checkpoint/
 CLAUDE.local.md
 *.jsonl
 ~/.claude.backup*
+
+# Prevent accidental CJS breaking dev
+/shared/**/*.js
+/shared/**/*.cjs
+/shared/**/*.mjs
