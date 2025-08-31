@@ -513,12 +513,27 @@ export const menuFunctionTools = {
           return { success: false, error: 'Store information not found' };
         }
 
+        // Calculate if store is open based on hours
+        const now = new Date();
+        const currentTime = now.getHours() * 100 + now.getMinutes();
+        const dayOfWeek = now.getDay();
+        
+        let isOpen = true; // Default to open if hours not specified
+        if (data.hours && typeof data.hours === 'object') {
+          const todayHours = data.hours[dayOfWeek];
+          if (todayHours && todayHours.open && todayHours.close) {
+            const openTime = parseInt(todayHours.open.replace(':', ''));
+            const closeTime = parseInt(todayHours.close.replace(':', ''));
+            isOpen = currentTime >= openTime && currentTime <= closeTime;
+          }
+        }
+        
         return { 
           success: true, 
           data: {
             ...data,
-            current_time: new Date().toLocaleTimeString(),
-            is_open: true // TODO: Calculate based on hours
+            current_time: now.toLocaleTimeString(),
+            is_open: isOpen
           }
         };
       } catch (error) {
