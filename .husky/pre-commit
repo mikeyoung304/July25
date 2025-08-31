@@ -1,26 +1,17 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo "🚀 Running pre-commit checks..."
+echo "🚀 Running pre-commit checks (fast mode)..."
 
-# Run tests
-echo "📝 Running tests..."
-npm test -- --run --silent
+# Guard against compiled JS in /shared
+echo "🛡️  Checking for compiled JS in /shared..."
+npm run check:no-shared-js
 if [ $? -ne 0 ]; then
-  echo "❌ Tests failed. Please fix before committing."
+  echo "❌ Compiled JS detected in /shared. Please fix before committing."
   exit 1
 fi
 
-# Run linter
-echo "🔍 Running ESLint..."
-npm run lint
-if [ $? -ne 0 ]; then
-  echo "❌ Linting failed. Please fix before committing."
-  echo "💡 Tip: Run 'npm run lint:fix' to auto-fix some issues"
-  exit 1
-fi
-
-# Run TypeScript check
+# Run TypeScript check (fast, no emit)
 echo "📘 Running TypeScript check..."
 npm run typecheck
 if [ $? -ne 0 ]; then
@@ -45,4 +36,4 @@ if [ "$any_count" -gt "0" ]; then
   echo "Consider using proper types for better type safety"
 fi
 
-echo "✅ All pre-commit checks passed!"
+echo "✅ Pre-commit checks passed! (Full tests run in CI)"

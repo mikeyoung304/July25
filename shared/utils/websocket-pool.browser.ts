@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 /**
  * Browser-only WebSocket Pool Implementation
  * Moved from websocket-pool.ts to separate browser concerns from server compilation

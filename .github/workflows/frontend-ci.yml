@@ -32,6 +32,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Guard: no compiled JS in /shared
+        run: |
+          cd ..
+          npm run check:no-shared-js
+      
       - name: Build Production Bundle
         run: npm run build
         env:
