@@ -42,3 +42,8 @@ jobs:
         run: npm run build
         env:
           CI: true
+      
+      - name: E2E (Puppeteer)
+        run: |
+          cd ..
+          node scripts/puppeteer-test.mjs
