@@ -2,14 +2,14 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { supabase } from '../../config/database';
 import { logger } from '../../utils/logger';
-import { BadRequest, Unauthorized } from '../../middleware/errorHandler';
+import { BadRequest } from '../../middleware/errorHandler';
 
 const stationLogger = logger.child({ module: 'station-auth' });
 
 // Configuration
-const STATION_TOKEN_SECRET = process.env.STATION_TOKEN_SECRET || process.env.KIOSK_JWT_SECRET || 'station-secret-change-in-production';
+const STATION_TOKEN_SECRET = process.env['STATION_TOKEN_SECRET'] || process.env['KIOSK_JWT_SECRET'] || 'station-secret-change-in-production';
 const STATION_TOKEN_EXPIRY_HOURS = 4;
-const DEVICE_FINGERPRINT_SALT = process.env.DEVICE_FINGERPRINT_SALT || 'device-salt-change-in-production';
+const DEVICE_FINGERPRINT_SALT = process.env['DEVICE_FINGERPRINT_SALT'] || 'device-salt-change-in-production';
 
 export type StationType = 'kitchen' | 'expo' | 'bar' | 'prep';
 
@@ -49,12 +49,10 @@ function generateDeviceFingerprint(ipAddress: string, userAgent: string): string
   return crypto.createHash('sha256').update(data).digest('hex');
 }
 
-/**
- * Generate a secure random token
- */
-function generateSecureToken(): string {
-  return crypto.randomBytes(32).toString('hex');
-}
+// Unused - left for potential future use
+// function _generateSecureToken(): string {
+//   return crypto.randomBytes(32).toString('hex');
+// }
 
 /**
  * Create a new station token

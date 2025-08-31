@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from './auth';
 import { Forbidden, Unauthorized } from './errorHandler';
 import { logger } from '../utils/logger';
@@ -164,7 +164,7 @@ export function hasScope(
 export function requireScopes(...requiredScopes: ApiScope[]) {
   return async (
     req: AuthenticatedRequest,
-    res: Response,
+    _res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
@@ -262,7 +262,7 @@ export function requireScopes(...requiredScopes: ApiScope[]) {
 export function requireAuth() {
   return (
     req: AuthenticatedRequest,
-    res: Response,
+    _res: Response,
     next: NextFunction
   ): void => {
     if (!req.user) {
