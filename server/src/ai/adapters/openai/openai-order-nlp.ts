@@ -4,6 +4,10 @@ import { OrderNLP } from "../../core/order-nlp";
 import { OrderMatchingService } from "../../../services/OrderMatchingService";
 import { withTimeout, retry } from "./utils";
 
+// Match the types from OrderMatchingService
+type DraftItem = { name: string; quantity: number; modifications?: string[]; specialInstructions?: string };
+type DraftOrder = { items: DraftItem[]; notes?: string };
+
 const DraftSchema = z.object({
   items: z.array(z.object({
     name: z.string().min(1),
@@ -13,7 +17,6 @@ const DraftSchema = z.object({
   })).min(1),
   notes: z.string().optional(),
 });
-type DraftOrder = z.infer<typeof DraftSchema>;
 
 export class OpenAIOrderNLP implements OrderNLP {
   constructor(private client: OpenAI, private match: OrderMatchingService) {}
@@ -33,18 +36,21 @@ export class OpenAIOrderNLP implements OrderNLP {
       
       // Parse and fix the draft to ensure it matches the schema
       const parsed = JSON.parse(content);
-      const draft = {
-        items: (parsed.items || []).map((item: any) => ({
-          name: item.name,
-          quantity: item.quantity || 1,
-          modifications: item.modifications || [],
-          specialInstructions: item.specialInstructions
-        })),
-        notes: parsed.notes
+      const draft: DraftOrder = {
+        items: (parsed.items || []).map((item: any) => {
+          const draftItem: DraftItem = {
+            name: item.name || '',
+            quantity: item.quantity || 1
+          };
+          if (item.modifications) draftItem.modifications = item.modifications;
+          if (item.specialInstructions) draftItem.specialInstructions = item.specialInstructions;
+          return draftItem;
+        })
       };
+      if (parsed.notes) draft.notes = parsed.notes;
       
       const validated = DraftSchema.parse(draft);
-      const candidates = await this.match.findMenuMatches(restaurantId, validated);
+      const candidates = await this.match.findMenuMatches(restaurantId, validated as DraftOrder);
       return this.match.toCanonicalIds(restaurantId, candidates);
     };
 

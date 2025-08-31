@@ -129,7 +129,7 @@ export const menuFunctionTools = {
         }
       }
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         // Check cache first
         const cacheKey = `menu_${context.restaurantId}_${JSON.stringify(args)}`;
@@ -215,11 +215,13 @@ export const menuFunctionTools = {
               const categories = Object.keys(byCategory);
               for (let i = 0; i < Math.min(3, categories.length); i++) {
                 const category = categories[i];
-                const categoryItems = byCategory[category];
-                if (categoryItems && categoryItems.length > 0) {
-                  // Pick a random item from this category
-                  const randomIndex = Math.floor(Math.random() * categoryItems.length);
-                  suggestions.push(categoryItems[randomIndex]);
+                if (category) {
+                  const categoryItems = byCategory[category];
+                  if (categoryItems && categoryItems.length > 0) {
+                    // Pick a random item from this category
+                    const randomIndex = Math.floor(Math.random() * categoryItems.length);
+                    suggestions.push(categoryItems[randomIndex]);
+                  }
                 }
               }
               
@@ -277,7 +279,7 @@ export const menuFunctionTools = {
       },
       required: ['id']
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const { data, error } = await supabase
           .from('menu_items')
@@ -327,7 +329,7 @@ export const menuFunctionTools = {
       },
       required: ['id', 'quantity']
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         // Get menu item details
         const { data: menuItem, error } = await supabase
@@ -413,7 +415,7 @@ export const menuFunctionTools = {
       },
       required: ['item_id']
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const cart = getCart(context.sessionId, context.restaurantId);
         
@@ -423,6 +425,10 @@ export const menuFunctionTools = {
         }
 
         const removed = cart.items.splice(itemIndex, 1)[0];
+        if (!removed) {
+          return { success: false, error: 'Failed to remove item from cart' };
+        }
+        
         updateCartTotals(cart);
 
         return {
@@ -454,7 +460,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const cart = getCart(context.sessionId, context.restaurantId);
 
@@ -494,7 +500,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const { data, error } = await supabase
           .from('restaurants')
@@ -531,7 +537,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const { data, error } = await supabase
           .from('menu_specials')
@@ -577,7 +583,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const cart = getCart(context.sessionId, context.restaurantId);
         cart.items = [];
