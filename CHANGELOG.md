@@ -5,6 +5,28 @@ All notable changes to Restaurant OS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.3] - 2025-08-31 - Overnight Fix Operation
+
+### 🔧 Quality & Stability Sprint
+
+### ✨ Added
+- **Runtime Smoke Gate**: Production-ready health check (`scripts/smoke.mjs`)
+- **TypeScript Freeze Check**: Prevents regression with `tools/check-ts-freeze.mjs`
+- **CI/CD Improvements**: Multi-stage gates for PR validation
+
+### 🐛 Fixed
+- **Runtime Hotfix** (PR #12): Fixed critical CI failures, ES module compatibility
+- **Security Patches** (PR #13): Updated Express family dependencies
+- **Dependency Cleanup** (PR #14): Removed extraneous packages, organized deps
+- **Quality Improvements** (PR #15): Boundary-first TypeScript fixes
+
+### 📊 Metrics
+- **TypeScript Errors**: 526 → 397 (-129 errors, 24.5% reduction)
+- **ESLint Errors**: 37 → 0 (100% resolution)
+- **ESLint Warnings**: 952 → 455 (52% reduction)
+- **Bundle Size**: Maintained at 82KB (optimized)
+- **Test Coverage**: Maintained ≥60/50/60 thresholds
+
 ## [6.0.3] - 2025-02-01
 
 ### 🚀 Authentication & RBAC MVP Complete

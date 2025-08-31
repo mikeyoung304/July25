@@ -139,19 +139,27 @@ const hasAccess = await validateRestaurantAccess(user.id, restaurantId);
 - TLS for all payment APIs
 - Audit logging
 
-### Payment Flow Security
+### Payment Flow Security (Square)
 
 ```mermaid
 graph LR
-    A[Client] -->|1. Payment Intent| B[Server]
-    B -->|2. Create Intent| C[Stripe]
-    C -->|3. Client Secret| B
-    B -->|4. Client Secret| A
-    A -->|5. Card Details| D[Stripe.js]
-    D -->|6. Token| C
-    C -->|7. Webhook| B
-    B -->|8. Order Update| E[Database]
+    A[Client] -->|1. Payment Request| B[Server]
+    B -->|2. Create Payment| C[Square API]
+    C -->|3. Payment ID| B
+    B -->|4. Payment Result| A
+    A -->|5. Card Details| D[Square Web SDK]
+    D -->|6. Nonce| B
+    B -->|7. Process Payment| C
+    C -->|8. Webhook| B
+    B -->|9. Order Update| E[Database]
 ```
+
+### Square Terminal Integration
+
+- **Device Pairing**: OAuth 2.0 flow
+- **Payment Processing**: Server-initiated via Square Terminal API
+- **Tokenization**: Square handles all card data
+- **Compliance**: PCI DSS Level 1 via Square
 
 ## WebSocket Security
 
