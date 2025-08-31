@@ -61,6 +61,9 @@ class PerformanceMonitor {
   }
 
   private initializeObservers() {
+    // Only initialize in browser environment
+    if (typeof window === 'undefined') return;
+    
     // Observe navigation timing
     if ('PerformanceObserver' in window) {
       // Navigation timing
@@ -108,15 +111,15 @@ class PerformanceMonitor {
       name: 'page_load',
       duration: entry.loadEventEnd - entry.loadEventStart,
       sessionId: this.sessionId,
-      url: window.location.href,
+      url: typeof window !== 'undefined' ? window.location.href : undefined,
       status: 'success',
       metadata: {
         domContentLoaded: entry.domContentLoadedEventEnd - entry.domContentLoadedEventStart,
-        firstPaint: entry.loadEventStart - entry.navigationStart,
+        firstPaint: entry.loadEventStart - entry.fetchStart,
         dnsLookup: entry.domainLookupEnd - entry.domainLookupStart,
         tcpConnect: entry.connectEnd - entry.connectStart,
         serverResponse: entry.responseEnd - entry.requestStart,
-        domProcessing: entry.domComplete - entry.domLoading,
+        domProcessing: entry.domComplete - entry.domInteractive,
         transferSize: entry.transferSize,
         encodedSize: entry.encodedBodySize,
         decodedSize: entry.decodedBodySize,
@@ -152,6 +155,9 @@ class PerformanceMonitor {
   }
 
   private interceptFetch() {
+    // Only intercept in browser environment
+    if (typeof window === 'undefined' || !window.fetch) return;
+    
     const originalFetch = window.fetch;
     
     window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -206,8 +212,12 @@ class PerformanceMonitor {
   }
 
   private interceptXHR() {
+    // Only intercept in browser environment
+    if (typeof window === 'undefined' || typeof XMLHttpRequest === 'undefined') return;
+    
     const originalOpen = XMLHttpRequest.prototype.open;
     const originalSend = XMLHttpRequest.prototype.send;
+    const monitor = this;
     
     XMLHttpRequest.prototype.open = function(method: string, url: string | URL, ...args: any[]) {
       (this as any)._perfMonitor = {
@@ -228,12 +238,12 @@ class PerformanceMonitor {
           const duration = endTime - perfData.startTime;
           
           const metric: APIPerformanceMetric = {
-            id: this.generateMetricId(),
+            id: monitor.generateMetricId(),
             timestamp: Date.now(),
             type: 'api_request',
-            name: this.getAPIName(perfData.url),
+            name: monitor.getAPIName(perfData.url),
             duration,
-            sessionId: this.sessionId,
+            sessionId: monitor.sessionId,
             url: perfData.url,
             method: perfData.method,
             endpoint: perfData.url,
@@ -245,7 +255,7 @@ class PerformanceMonitor {
             }
           };
           
-          this.addMetric(metric);
+          monitor.addMetric(metric);
         });
       }
       
@@ -261,7 +271,7 @@ class PerformanceMonitor {
       name,
       duration,
       sessionId: this.sessionId,
-      url: window.location.href,
+      url: typeof window !== 'undefined' ? window.location.href : undefined,
       status: 'success',
       metadata
     };
@@ -311,7 +321,7 @@ class PerformanceMonitor {
         keepalive: true,
       });
 
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         console.log(`📊 Sent ${metricsToSend.length} performance metrics`);
       }
     } catch (error) {
@@ -414,4 +424,13 @@ if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', () => {
     performanceMonitor.flush();
   });
+  
+  // Also handle page visibility changes for better cleanup
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        performanceMonitor.flush();
+      }
+    });
+  }
 }

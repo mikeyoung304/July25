@@ -3,7 +3,7 @@
  * Transforms snake_case DB records to camelCase API responses
  */
 
-import { camelizeKeys, snakeizeKeys } from '../utils/case';
+import { snakeizeKeys } from '../utils/case';
 
 // Database types (snake_case)
 interface DbCartItem {

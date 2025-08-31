@@ -272,7 +272,7 @@ export class HttpClient extends SecureAPIClient {
           logger.info(`[Cache HIT] ${endpoint} (age: ${Math.round(age/1000)}s)`)
         }
         // Also store in ResponseCache for next time
-        this.responseCache.set(cacheKey, cached.data, ttl)
+        this.responseCache.set(cacheKey, cached.data, { ttl })
         return cached.data as T
       }
     }
@@ -290,14 +290,14 @@ export class HttpClient extends SecureAPIClient {
     const requestPromise = this.request<T>(endpoint, { ...options, method: 'GET' })
     
     // Track in-flight request
-    this.inFlightRequests.set(cacheKey, requestPromise)
+    this.inFlightRequests.set(cacheKey, requestPromise as Promise<any>)
     
     // Cache the result
     requestPromise.then(data => {
-      this.cache.set(cacheKey, { data, timestamp: Date.now() })
+      this.cache.set(cacheKey, { data: data as any, timestamp: Date.now() })
       // Also store in ResponseCache with TTL
       const ttl = this.getCacheTTL(endpoint)
-      this.responseCache.set(cacheKey, data, ttl)
+      this.responseCache.set(cacheKey, data as any, { ttl })
       this.inFlightRequests.delete(cacheKey)
       if (import.meta.env.DEV) {
         logger.info(`[Cache SET] ${endpoint}`)

@@ -1,20 +1,19 @@
 import { WebSocket } from 'ws';
-import { EventEmitter } from 'events';
 import { logger } from '../../utils/logger';
 import { OpenAIAdapter } from '../../voice/openai-adapter';
-import { VoiceError, AudioFormat, VoiceSessionConfig } from '../../voice/types';
-import { menuFunctionTools, type MenuToolResult } from '../functions/realtime-menu-tools';
+import { AudioFormat, VoiceSessionConfig } from '../../voice/types';
+import { menuFunctionTools } from '../functions/realtime-menu-tools';
 
 /**
  * Enhanced OpenAI Adapter with Twilio support, audio conversion, and function calling
  */
 export class EnhancedOpenAIAdapter extends OpenAIAdapter {
-  private twilioWS?: WebSocket;
-  private streamSid?: string;
+  private twilioWS?: WebSocket | undefined;
+  private streamSid?: string | undefined;
   private isSpeaking = false;
   private audioFormat: AudioFormat = 'pcm16';
   private functionTools = menuFunctionTools;
-  private debugMode = process.env.VOICE_DEBUG === 'true';
+  private debugMode = process.env['VOICE_DEBUG'] === 'true';
   private metrics = {
     audioChunksReceived: 0,
     audioChunksSent: 0,
@@ -54,7 +53,7 @@ export class EnhancedOpenAIAdapter extends OpenAIAdapter {
   /**
    * Override initialization to include function tools
    */
-  protected async initializeSession(): Promise<void> {
+  protected override async initializeSession(): Promise<void> {
     const tools = Object.entries(this.functionTools).map(([name, config]) => ({
       type: 'function' as const,
       function: {
@@ -69,7 +68,7 @@ export class EnhancedOpenAIAdapter extends OpenAIAdapter {
       session: {
         modalities: ['text', 'audio'],
         instructions: this.getSystemPrompt(),
-        voice: process.env.VOICE_PERSONALITY || 'alloy',
+        voice: process.env['VOICE_PERSONALITY'] || 'alloy',
         input_audio_format: this.audioFormat,
         output_audio_format: this.audioFormat,
         input_audio_transcription: {
@@ -153,7 +152,7 @@ IMPORTANT:
       // G.711 μ-law to PCM16 conversion
       const pcm16Buffer = Buffer.alloc(buffer.length * 2);
       for (let i = 0; i < buffer.length; i++) {
-        const ulaw = buffer[i];
+        const ulaw = buffer[i] ?? 0;
         const pcm16 = this.ulawToPcm16(ulaw);
         pcm16Buffer.writeInt16LE(pcm16, i * 2);
       }
@@ -184,13 +183,13 @@ IMPORTANT:
     const BIAS = 0x84;
     const CLIP = 32635;
     
-    ulaw = ~ulaw;
-    const sign = (ulaw & 0x80) ? -1 : 1;
-    const exponent = (ulaw >> 4) & 0x07;
-    const mantissa = ulaw & 0x0F;
+    const processedUlaw = ~ulaw;
+    const sign = (processedUlaw & 0x80) ? -1 : 1;
+    const exponent = (processedUlaw >> 4) & 0x07;
+    const mantissa = processedUlaw & 0x0F;
     
-    let sample = mantissa << (exponent + 3);
-    sample += BIAS << (exponent + 2);
+    let sample = mantissa << ((exponent ?? 0) + 3);
+    sample += BIAS << ((exponent ?? 0) + 2);
     sample *= sign;
     
     return Math.max(-CLIP, Math.min(CLIP, sample));
@@ -225,10 +224,10 @@ IMPORTANT:
     pcm16 = Math.min(pcm16, CLIP);
     pcm16 += BIAS;
     
-    const exponent = exp_lut[(pcm16 >> 7) & 0xFF];
-    const mantissa = (pcm16 >> (exponent + 3)) & 0x0F;
+    const exponent = exp_lut[(pcm16 >> 7) & 0xFF] ?? 0;
+    const mantissa = (pcm16 >> ((exponent ?? 0) + 3)) & 0x0F;
     
-    return ~(sign | (exponent << 4) | mantissa);
+    return ~(sign | ((exponent ?? 0) << 4) | mantissa);
   }
 
   /**
@@ -272,7 +271,7 @@ IMPORTANT:
   /**
    * Override audio sending to handle format conversion
    */
-  async sendAudio(audioData: string, sampleRate?: number): Promise<void> {
+  override async sendAudio(audioData: string, _sampleRate?: number): Promise<void> {
     this.metrics.audioChunksReceived++;
     
     // Convert to PCM16 if coming from Twilio (G.711)
@@ -293,7 +292,7 @@ IMPORTANT:
   /**
    * Override message handling to add function calling
    */
-  protected handleOpenAIMessage(data: any): void {
+  protected override handleOpenAIMessage(data: any): void {
     try {
       const dataStr = Buffer.isBuffer(data) ? data.toString() : String(data);
       const event = JSON.parse(dataStr);
@@ -350,7 +349,7 @@ IMPORTANT:
     });
     
     try {
-      const tool = this.functionTools[name];
+      const tool = this.functionTools[name as keyof typeof this.functionTools];
       if (!tool) {
         throw new Error(`Unknown function: ${name}`);
       }
@@ -389,7 +388,7 @@ IMPORTANT:
           call_id,
           output: JSON.stringify({ 
             error: 'Function call failed',
-            message: error.message 
+            message: (error as Error).message 
           })
         }
       });
@@ -440,7 +439,7 @@ IMPORTANT:
   /**
    * Enhanced disconnect with cleanup
    */
-  async disconnect(): Promise<void> {
+  override async disconnect(): Promise<void> {
     // Log final metrics
     logger.info('[EnhancedAdapter] Session metrics', {
       sessionId: this.sessionId,

@@ -50,7 +50,7 @@ export function isStatusInGroup(
   status: Order['status'], 
   group: keyof typeof STATUS_GROUPS
 ): boolean {
-  return STATUS_GROUPS[group].includes(status as any)
+  return (STATUS_GROUPS[group] as readonly string[]).includes(status)
 }
 
 /**

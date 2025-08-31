@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import { vi, describe, it, expect, beforeEach, afterEach, test } from 'vitest';
+import { vi, describe, expect, beforeEach, afterEach, test } from 'vitest';
 import { ai, checkAIHealth } from '../src/ai';
 
 // Mock OpenAI client

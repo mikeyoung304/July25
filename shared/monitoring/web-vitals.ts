@@ -3,7 +3,7 @@
  * Collects and reports Core Web Vitals metrics
  */
 
-import { onCLS, onFCP, onFID, onLCP, onTTFB, type Metric } from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
 
 export interface WebVitalsMetrics {
   url: string;
@@ -12,7 +12,7 @@ export interface WebVitalsMetrics {
   metrics: {
     CLS?: number;    // Cumulative Layout Shift
     FCP?: number;    // First Contentful Paint
-    FID?: number;    // First Input Delay
+    INP?: number;    // Interaction to Next Paint
     LCP?: number;    // Largest Contentful Paint
     TTFB?: number;   // Time to First Byte
   };
@@ -56,7 +56,7 @@ class WebVitalsReporter {
     // Register all Web Vitals observers
     onCLS(handleMetric);
     onFCP(handleMetric);
-    onFID(handleMetric);
+    onINP(handleMetric);
     onLCP(handleMetric);
     onTTFB(handleMetric);
   }

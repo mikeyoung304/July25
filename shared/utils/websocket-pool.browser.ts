@@ -3,6 +3,21 @@
  * Moved from websocket-pool.ts to separate browser concerns from server compilation
  */
 
+// DOM event type declarations for browser environment
+interface BrowserEvent {
+  readonly type: string;
+  readonly target: EventTarget | null;
+}
+
+interface BrowserMessageEvent extends BrowserEvent {
+  readonly data: unknown;
+}
+
+interface BrowserCloseEvent extends BrowserEvent {
+  readonly code: number;
+  readonly reason: string;
+}
+
 // Browser environment check and type declarations
 declare const globalThis: typeof global & {
   WebSocket?: typeof WebSocket;
@@ -10,10 +25,19 @@ declare const globalThis: typeof global & {
   IntersectionObserver?: typeof IntersectionObserver;
 };
 
+// Type guards for browser APIs
+function isWebSocketSupported(): boolean {
+  return typeof globalThis !== 'undefined' && 'WebSocket' in globalThis;
+}
+
+function isWindowSupported(): boolean {
+  return typeof window !== 'undefined';
+}
+
 import { ManagedService, CleanupManager } from './cleanup-manager';
 
-// Import MemoryMonitor safely
-let MemoryMonitor: any = { forceGarbageCollection: () => {}, getMemoryStatus: () => ({ current: null }) };
+// Import MemoryMonitor safely - not used in this implementation
+const _MemoryMonitor = { forceGarbageCollection: () => {}, getMemoryStatus: () => ({ current: null }) };
 // Dynamic import not needed in browser context
 
 export interface WebSocketPoolConfig {
@@ -32,7 +56,7 @@ export interface WebSocketPoolConfig {
 export interface PooledWebSocketConnection {
   id: string;
   url: string;
-  socket: any; // WebSocket type, but browser-safe
+  socket: WebSocket; // WebSocket type, browser-safe in this context
   state: 'connecting' | 'connected' | 'disconnected' | 'failed';
   lastActivity: number;
   messagesSent: number;
@@ -46,7 +70,7 @@ export interface PooledWebSocketConnection {
 export interface WebSocketMessage {
   id: string;
   type: string;
-  data: any;
+  data: unknown;
   timestamp: number;
   priority: 'low' | 'normal' | 'high';
   maxRetries?: number;
@@ -92,6 +116,7 @@ export interface PoolStatistics {
  * Browser-only implementation with automatic failover and load balancing
  */
 export class WebSocketPool extends ManagedService {
+  public readonly id: string; // Required by CleanupManager
   private config: WebSocketPoolConfig;
   private connections = new Map<string, PooledWebSocketConnection>();
   private subscriptions = new Map<string, MessageSubscription>();
@@ -102,6 +127,8 @@ export class WebSocketPool extends ManagedService {
 
   constructor(config: Partial<WebSocketPoolConfig> = {}) {
     super('WebSocketPool');
+    
+    this.id = `websocket-pool-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     this.config = {
       urls: [],
@@ -122,10 +149,31 @@ export class WebSocketPool extends ManagedService {
 
   private setupResourceCleanup(): void {
     CleanupManager.register({
-      id: `websocket-pool-${this.id}`,
+      id: this.id,
+      name: `WebSocket Pool: ${this.id}`,
       cleanup: () => this.cleanup(),
-      priority: 'high'
+      priority: 'high',
+      category: 'service'
     });
+  }
+
+  /**
+   * Initialize the WebSocket pool (required by ManagedService)
+   */
+  public override async initialize(): Promise<void> {
+    if (!isWebSocketSupported()) {
+      throw new Error('WebSocket not supported in this environment');
+    }
+    
+    this.status = 'initializing';
+    
+    try {
+      await this.connect();
+      this.status = 'ready';
+    } catch (error) {
+      this.status = 'destroyed';
+      throw error;
+    }
   }
 
   /**
@@ -158,10 +206,14 @@ export class WebSocketPool extends ManagedService {
    * Create a single WebSocket connection
    */
   private async createConnection(url: string): Promise<PooledWebSocketConnection> {
+    if (!isWebSocketSupported()) {
+      throw new Error('WebSocket not supported in this environment');
+    }
+    
     const connection: PooledWebSocketConnection = {
       id: `ws-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       url,
-      socket: new WebSocket(url),
+      socket: new (globalThis.WebSocket!)(url),
       state: 'connecting',
       lastActivity: Date.now(),
       messagesSent: 0,
@@ -187,10 +239,10 @@ export class WebSocketPool extends ManagedService {
         resolve(connection);
       });
 
-      connection.socket.addEventListener('error', (error) => {
+      connection.socket.addEventListener('error', (error: BrowserEvent) => {
         clearTimeout(timeout);
         connection.state = 'failed';
-        connection.lastError = new Error(`WebSocket error: ${error}`);
+        connection.lastError = new Error(`WebSocket error: ${error.type}`);
         reject(connection.lastError);
       });
     });
@@ -200,26 +252,26 @@ export class WebSocketPool extends ManagedService {
    * Setup event handlers for a connection
    */
   private setupConnectionEventHandlers(connection: PooledWebSocketConnection): void {
-    connection.socket.addEventListener('message', (event) => {
+    connection.socket.addEventListener('message', (event: BrowserMessageEvent) => {
       connection.lastActivity = Date.now();
       connection.messagesReceived++;
       
       try {
-        const message: WebSocketMessage = JSON.parse(event.data);
+        const message: WebSocketMessage = JSON.parse(event.data as string);
         this.handleIncomingMessage(message, connection.id);
       } catch (error) {
         console.warn('Invalid WebSocket message format:', event.data);
       }
     });
 
-    connection.socket.addEventListener('close', (event) => {
+    connection.socket.addEventListener('close', (event: BrowserCloseEvent) => {
       connection.state = 'disconnected';
       this.handleConnectionClose(connection, event.code, event.reason);
     });
 
-    connection.socket.addEventListener('error', (error) => {
+    connection.socket.addEventListener('error', (error: BrowserEvent) => {
       connection.state = 'failed';
-      connection.lastError = new Error(`Connection error: ${error}`);
+      connection.lastError = new Error(`Connection error: ${error.type}`);
       connection.health = Math.max(0, connection.health - 0.2);
     });
   }
@@ -228,7 +280,9 @@ export class WebSocketPool extends ManagedService {
    * Handle incoming messages and route to subscriptions
    */
   private handleIncomingMessage(message: WebSocketMessage, connectionId: string): void {
-    for (const subscription of this.subscriptions.values()) {
+    // Convert Map.values() iterator to array for compatibility
+    const subscriptions = Array.from(this.subscriptions.values());
+    for (const subscription of subscriptions) {
       if (this.matchesPattern(message, subscription.pattern)) {
         try {
           subscription.callback(message, connectionId);
@@ -272,9 +326,9 @@ export class WebSocketPool extends ManagedService {
     connection.reconnectAttempts++;
     
     try {
-      const newConnection = await this.createConnection(connection.url);
+      const _newConnection = await this.createConnection(connection.url);
       this.connections.delete(connection.id);
-      console.log(`WebSocket reconnected: ${connection.url}`);
+      console.warn(`WebSocket reconnected: ${connection.url}`);
     } catch (error) {
       console.warn(`WebSocket reconnection failed: ${connection.url}`, error);
       connection.health = Math.max(0, connection.health - 0.3);
@@ -284,9 +338,9 @@ export class WebSocketPool extends ManagedService {
   /**
    * Send message through the pool
    */
-  send(message: Omit<WebSocketMessage, 'id' | 'timestamp'>): boolean {
+  send(_message: Omit<WebSocketMessage, 'id' | 'timestamp'>): boolean {
     const fullMessage: WebSocketMessage = {
-      ...message,
+      ..._message,
       id: `msg-${++this.messageId}`,
       timestamp: Date.now()
     };
@@ -412,6 +466,11 @@ export class WebSocketPool extends ManagedService {
    * Start health monitoring
    */
   private startHealthMonitoring(): void {
+    if (!isWindowSupported()) {
+      console.warn('Window not available, skipping health monitoring setup');
+      return;
+    }
+    
     this.healthCheckTimer = setInterval(() => {
       this.performHealthCheck();
     }, this.config.healthCheckInterval);
@@ -425,7 +484,9 @@ export class WebSocketPool extends ManagedService {
    * Perform health check on all connections
    */
   private performHealthCheck(): void {
-    for (const connection of this.connections.values()) {
+    // Convert Map.values() iterator to array for compatibility
+    const connections = Array.from(this.connections.values());
+    for (const connection of connections) {
       // Decrease health if connection is inactive
       const inactiveTime = Date.now() - connection.lastActivity;
       if (inactiveTime > this.config.heartbeatInterval * 2) {
@@ -495,9 +556,19 @@ export class WebSocketPool extends ManagedService {
    */
   getStatistics(): PoolStatistics {
     const health = this.getHealthStatus();
-    const connections: Record<string, any> = {};
+    const connections: Record<string, {
+      url: string;
+      state: string;
+      health: number;
+      messagesSent: number;
+      messagesReceived: number;
+      lastActivity: number;
+      reconnectAttempts: number;
+    }> = {};
 
-    for (const [id, conn] of this.connections.entries()) {
+    // Convert Map.entries() iterator to array for compatibility
+    const connectionEntries = Array.from(this.connections.entries());
+    for (const [id, conn] of connectionEntries) {
       connections[id] = {
         url: conn.url,
         state: conn.state,
@@ -529,7 +600,7 @@ export class WebSocketPool extends ManagedService {
   /**
    * Cleanup all resources
    */
-  protected async cleanup(): Promise<void> {
+  public override async cleanup(): Promise<void> {
     // Clear timers
     if (this.healthCheckTimer) {
       clearInterval(this.healthCheckTimer);
@@ -542,9 +613,10 @@ export class WebSocketPool extends ManagedService {
     }
 
     // Close all connections
-    for (const connection of this.connections.values()) {
+    const connections = Array.from(this.connections.values());
+    for (const connection of connections) {
       try {
-        if (connection.socket.readyState === WebSocket.OPEN) {
+        if (isWebSocketSupported() && connection.socket.readyState === 1) { // WebSocket.OPEN = 1
           connection.socket.close();
         }
       } catch (error) {
@@ -556,7 +628,7 @@ export class WebSocketPool extends ManagedService {
     this.connections.clear();
     this.subscriptions.clear();
 
-    console.log('WebSocketPool cleanup completed');
+    console.warn('WebSocketPool cleanup completed');
   }
 }
 

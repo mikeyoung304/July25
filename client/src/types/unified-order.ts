@@ -150,11 +150,11 @@ export function toUnifiedOrder(order: Record<string, unknown>, source: UnifiedOr
     customerName: (order.customerName as string) || (order.customer_name as string),
     customerPhone: (order.customerPhone as string) || (order.customer_phone as string),
     customerEmail: (order.customerEmail as string) || (order.customer_email as string),
-    table_number: (order.table_number as string) || (order.tableNumber as string),
+    tableNumber: (order.table_number as string) || (order.tableNumber as string),
     
     created_at: (order.created_at as string | Date) || (order.createdAt as string | Date) || new Date(),
     prepTimeMinutes: (order.prepTimeMinutes as number) || (order.prep_time_minutes as number) || (order.prepTime as number),
-    completed_at: (order.completed_at as string | Date) || (order.completedAt as string | Date),
+    completedTime: (order.completed_at as string | Date) || (order.completedAt as string | Date),
     
     subtotal: (order.subtotal as number) || 0,
     tax: (order.tax as number) || 0,

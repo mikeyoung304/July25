@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useKitchenOrdersRealtime } from './useKitchenOrdersRealtime'
-import type { Order } from '@rebuild/shared'
+import type { Order as _Order } from '@rebuild/shared'
 
 export interface ConnectionState {
   isConnected: boolean

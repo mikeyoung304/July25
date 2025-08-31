@@ -3,8 +3,6 @@ import { z } from 'zod';
 // Re-export types from shared module for server-side use
 export {
   BaseEvent,
-  ClientEvent,
-  ServerEvent,
   ClientAudioEvent,
   ClientStartEvent,
   ClientStopEvent,
@@ -18,7 +16,6 @@ export {
   ConnectionState,
   SessionState,
   VoiceMetrics,
-  VoiceError,
   ClientEventSchema,
   ServerEventSchema,
   SessionStateSchema,
@@ -148,6 +145,8 @@ export type OrderDetectionResult = z.infer<typeof OrderDetectionResultSchema>;
 export type VoiceSessionMetrics = z.infer<typeof VoiceSessionMetricsSchema>;
 
 // Define missing types
+export type AudioFormat = 'pcm16' | 'g711_ulaw' | 'g711_alaw';
+
 export interface ClientEvent {
   type: string;
   data?: unknown;

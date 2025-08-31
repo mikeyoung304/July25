@@ -41,7 +41,7 @@ export const mockData = {
       tax: 1.50,
       totalAmount: 18.50,
       paymentStatus: 'completed' as const,
-      type: 'drive-thru' as const,
+      type: 'pickup' as const,
       notes: 'Customer waiting in car'
     },
     {
@@ -82,7 +82,7 @@ export const mockData = {
       tax: 3.00,
       totalAmount: 34.50,
       paymentStatus: 'completed' as const,
-      type: 'drive-thru' as const
+      type: 'pickup' as const
     },
     {
       id: '5',
@@ -122,17 +122,17 @@ export const mockData = {
       tax: 3.00,
       totalAmount: 38.25,
       paymentStatus: 'completed' as const,
-      type: 'drive-thru' as const,
-      notes: 'No ice in drinks'
+      type: 'pickup' as const,
+      specialInstructions: 'No ice in drinks'
     }
   ] as ClientOrder[],
 
   tables: [
-    { id: '1', restaurantId: 'rest-1', tableNumber: '1', type: 'square' as const, x: 100, y: 100, width: 80, height: 80, capacity: 2, seats: 2, label: '1', rotation: 0, status: 'available' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
-    { id: '2', restaurantId: 'rest-1', tableNumber: '2', type: 'square' as const, x: 200, y: 100, width: 80, height: 80, capacity: 4, seats: 4, label: '2', rotation: 0, status: 'occupied' as const, zIndex: 1, currentOrderId: '1', createdAt: new Date(), updatedAt: new Date() },
-    { id: '3', restaurantId: 'rest-1', tableNumber: '3', type: 'rectangle' as const, x: 300, y: 100, width: 120, height: 80, capacity: 6, seats: 6, label: '3', rotation: 0, status: 'available' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
-    { id: '4', restaurantId: 'rest-1', tableNumber: '4', type: 'square' as const, x: 100, y: 200, width: 80, height: 80, capacity: 4, seats: 4, label: '4', rotation: 0, status: 'reserved' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
-    { id: '5', restaurantId: 'rest-1', tableNumber: '5', type: 'circle' as const, x: 200, y: 200, width: 80, height: 80, capacity: 2, seats: 2, label: '5', rotation: 0, status: 'occupied' as const, zIndex: 1, currentOrderId: '2', createdAt: new Date(), updatedAt: new Date() },
+    { id: '1', restaurantId: 'rest-1', tableNumber: '1', type: 'square' as const, x: 100, y: 100, width: 80, height: 80, seats: 2, status: 'available' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
+    { id: '2', restaurantId: 'rest-1', tableNumber: '2', type: 'square' as const, x: 200, y: 100, width: 80, height: 80, seats: 4, status: 'occupied' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
+    { id: '3', restaurantId: 'rest-1', tableNumber: '3', type: 'rectangle' as const, x: 300, y: 100, width: 120, height: 80, seats: 6, status: 'available' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
+    { id: '4', restaurantId: 'rest-1', tableNumber: '4', type: 'square' as const, x: 100, y: 200, width: 80, height: 80, seats: 4, status: 'reserved' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
+    { id: '5', restaurantId: 'rest-1', tableNumber: '5', type: 'circle' as const, x: 200, y: 200, width: 80, height: 80, seats: 2, status: 'occupied' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
   ] as ClientTable[],
 
   menuItems: [

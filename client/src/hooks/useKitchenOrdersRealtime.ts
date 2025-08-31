@@ -59,7 +59,7 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
       }
       
       return success
-    } catch (err) {
+    } catch (_err) {
       // Error already handled by useOrderActions hook
       return false
     }

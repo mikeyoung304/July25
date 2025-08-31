@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { DollarSign } from 'lucide-react';
 
 interface TipSliderProps {
@@ -13,12 +13,12 @@ export const TipSlider: React.FC<TipSliderProps> = ({ subtotal, onTipChange, ini
   const [isCustom, setIsCustom] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const tipOptions = [
+  const tipOptions = useMemo(() => [
     { percentage: 15, label: '15%' },
     { percentage: 18, label: '18%' },
     { percentage: 20, label: '20%' },
     { percentage: 25, label: '25%' }
-  ];
+  ], []);
 
   const calculateTip = useCallback((percentage: number) => {
     return Math.round(subtotal * (percentage / 100) * 100) / 100;

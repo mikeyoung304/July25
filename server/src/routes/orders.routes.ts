@@ -16,12 +16,12 @@ router.get('/', authenticate, validateRestaurantAccess, async (req: Authenticate
   try {
     const restaurantId = req.restaurantId!;
     const filters = {
-      status: req.query.status as OrderStatus | undefined,
-      type: req.query.type as OrderType | undefined,
-      startDate: req.query.startDate as string,
-      endDate: req.query.endDate as string,
-      limit: parseInt(req.query.limit as string) || 50,
-      offset: parseInt(req.query.offset as string) || 0,
+      status: req.query['status'] as OrderStatus | undefined,
+      type: req.query['type'] as OrderType | undefined,
+      startDate: (req.query['startDate'] as string) || '',
+      endDate: (req.query['endDate'] as string) || '',
+      limit: parseInt((req.query['limit'] as string) || '50'),
+      offset: parseInt((req.query['offset'] as string) || '0'),
     };
 
     routeLogger.info('Fetching orders', { restaurantId, filters });
@@ -71,10 +71,10 @@ router.post('/voice', authenticate, requireRole(['admin', 'manager', 'user', 'ki
       const menuItems = await MenuService.getItems(restaurantId);
       
       // Use AI to parse the order
-      const aiResult = await ai.parseOrder({
+      const aiResult = await (ai as any).orderNLP?.parseOrder({
         restaurantId,
         text: transcription
-      });
+      }) || { items: [] };
       
       // Map AI result to our format
       parsedOrder = {

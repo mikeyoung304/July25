@@ -121,7 +121,7 @@ class MemoryMonitoringSystem {
       return null;
     }
     
-    const memory = (performance as any).memory;
+    const memory = (performance as { memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
     const snapshot: MemorySnapshot = {
       timestamp: Date.now(),
       used: memory.usedJSHeapSize,
@@ -445,7 +445,7 @@ class MemoryMonitoringSystem {
   forceGarbageCollection(): boolean {
     if (typeof window !== 'undefined' && 'gc' in window) {
       try {
-        (window as any).gc();
+        (window as { gc?: () => void }).gc?.();
         console.warn('Forced garbage collection');
         return true;
       } catch (error) {

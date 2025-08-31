@@ -30,7 +30,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
     
     const result = await orderService.getOrders(serviceFilters)
     return result
-  }, [filters, restaurant?.id])
+  }, [filters])
   
   const refetch = useCallback(async () => {
     try {
@@ -69,7 +69,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
       }
       throw error
     }
-  }, [data, setData, refetch, restaurant?.id, toast])
+  }, [data, setData, refetch, toast])
   
   useEffect(() => {
     refetch()

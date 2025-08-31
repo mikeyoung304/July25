@@ -106,7 +106,7 @@ export function ServerView() {
 
             <VoiceOrderModal
               show={voiceOrder.showVoiceOrder && !!selectedTable}
-              table={selectedTable}
+              table={selectedTable as any}
               seat={selectedSeat}
               voiceOrder={voiceOrder}
               onSubmit={handleSubmitOrder}

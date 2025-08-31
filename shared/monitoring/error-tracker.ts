@@ -141,8 +141,8 @@ class ErrorTracker {
       context: { ...this.context, ...context },
       breadcrumbs: [...this.breadcrumbs],
       tags: {
-        environment: process.env.NODE_ENV || 'development',
-        version: process.env.APP_VERSION || 'unknown'
+        environment: process.env['NODE_ENV'] || 'development',
+        version: process.env['APP_VERSION'] || 'unknown'
       }
     };
 
@@ -169,8 +169,8 @@ class ErrorTracker {
       context: { ...this.context, ...context },
       breadcrumbs: [...this.breadcrumbs],
       tags: {
-        environment: process.env.NODE_ENV || 'development',
-        version: process.env.APP_VERSION || 'unknown'
+        environment: process.env['NODE_ENV'] || 'development',
+        version: process.env['APP_VERSION'] || 'unknown'
       }
     };
 
@@ -195,7 +195,7 @@ class ErrorTracker {
         keepalive: true,
       });
 
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         console.log('🐛 Error reported:', {
           id: report.id,
           level: report.level,
@@ -211,6 +211,9 @@ class ErrorTracker {
   }
 
   private storeErrorForRetry(report: ErrorReport) {
+    // Only use localStorage in browser environment
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
+    
     try {
       const stored = localStorage.getItem('errors_pending');
       const pending = stored ? JSON.parse(stored) : [];
@@ -228,6 +231,9 @@ class ErrorTracker {
   }
 
   public async retryPendingErrors() {
+    // Only use localStorage in browser environment
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
+    
     try {
       const stored = localStorage.getItem('errors_pending');
       if (!stored) return;

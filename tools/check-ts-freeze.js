@@ -56,7 +56,7 @@ function getCurrentErrors() {
 function loadAllowlist() {
   if (!fs.existsSync(ALLOWLIST_PATH)) {
     console.error(`${RED}Error: Allowlist not found at ${ALLOWLIST_PATH}${RESET}`);
-    console.log('Run "npm run typecheck:baseline" to create it.');
+    console.warn('Run "npm run typecheck:baseline" to create it.');
     process.exit(1);
   }
   
@@ -121,34 +121,34 @@ function compareErrors(current, allowed) {
 }
 
 function main() {
-  console.log('🔍 Checking TypeScript error freeze...\n');
+  console.warn('🔍 Checking TypeScript error freeze...\n');
   
   const currentErrors = getCurrentErrors();
   const allowedErrors = loadAllowlist();
   const { newErrors, fixedErrors, fileChanges } = compareErrors(currentErrors, allowedErrors);
   
   // Report statistics
-  console.log(`📊 Error Statistics:`);
-  console.log(`   Allowed: ${allowedErrors.length}`);
-  console.log(`   Current: ${currentErrors.length}`);
-  console.log(`   Net Change: ${currentErrors.length - allowedErrors.length}\n`);
+  console.warn(`📊 Error Statistics:`);
+  console.warn(`   Allowed: ${allowedErrors.length}`);
+  console.warn(`   Current: ${currentErrors.length}`);
+  console.warn(`   Net Change: ${currentErrors.length - allowedErrors.length}\n`);
   
   // Report fixed errors (good news!)
   if (fixedErrors.length > 0) {
-    console.log(`${GREEN}✅ Fixed ${fixedErrors.length} errors!${RESET}`);
+    console.warn(`${GREEN}✅ Fixed ${fixedErrors.length} errors!${RESET}`);
     const fixedByFile = {};
     for (const error of fixedErrors) {
       fixedByFile[error.file] = (fixedByFile[error.file] || 0) + 1;
     }
     for (const [file, count] of Object.entries(fixedByFile)) {
-      console.log(`   ${file}: -${count}`);
+      console.warn(`   ${file}: -${count}`);
     }
-    console.log();
+    console.warn();
   }
   
   // Report new errors (bad news!)
   if (newErrors.length > 0) {
-    console.log(`${RED}❌ Found ${newErrors.length} NEW TypeScript errors!${RESET}\n`);
+    console.warn(`${RED}❌ Found ${newErrors.length} NEW TypeScript errors!${RESET}\n`);
     
     // Group by file for better readability
     const errorsByFile = {};

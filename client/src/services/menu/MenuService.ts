@@ -139,37 +139,29 @@ export class MenuService implements IMenuService {
       items: [
         {
           id: '1',
+          restaurantId: 'rest-1',
+          categoryId: '2',
           name: 'Classic Burger',
           description: 'Juicy beef patty with lettuce, tomato, and cheese',
           price: 12.99,
-          category: 'Main Course',
-          is_available: true,
-          image_url: '/images/menu/Gemini_Generated_Image_5m93ul5m93ul5m93.jpeg',
-          preparation_time: 15,
-          allergens: ['dairy', 'gluten'],
-          nutritional_info: {
-            calories: 650,
-            protein: 25,
-            carbs: 45,
-            fat: 35
-          }
+          category: 'Main Course' as any,
+          isAvailable: true,
+          imageUrl: '/images/menu/Gemini_Generated_Image_5m93ul5m93ul5m93.jpeg',
+          preparationTime: 15,
+          dietaryFlags: ['dairy', 'gluten']
         },
         {
           id: '2',
+          restaurantId: 'rest-1',
+          categoryId: '1',
           name: 'Caesar Salad',
           description: 'Fresh romaine lettuce with Caesar dressing',
           price: 8.99,
-          category: 'Appetizers',
-          is_available: true,
-          image_url: '/images/menu/greek-salad.jpeg',
-          preparation_time: 8,
-          allergens: ['dairy', 'eggs'],
-          nutritional_info: {
-            calories: 320,
-            protein: 8,
-            carbs: 12,
-            fat: 28
-          }
+          category: 'Appetizers' as any,
+          isAvailable: true,
+          imageUrl: '/images/menu/greek-salad.jpeg',
+          preparationTime: 8,
+          dietaryFlags: ['dairy', 'eggs']
         }
       ],
       categories: [
@@ -177,13 +169,15 @@ export class MenuService implements IMenuService {
           id: '1',
           name: 'Appetizers',
           description: 'Start your meal right',
-          sort_order: 1
+          display_order: 1,
+          is_active: true
         },
         {
           id: '2',
           name: 'Main Course',
           description: 'Our signature dishes',
-          sort_order: 2
+          display_order: 2,
+          is_active: true
         }
       ]
     }

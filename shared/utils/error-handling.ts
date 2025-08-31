@@ -90,7 +90,7 @@ export interface EnterpriseError {
   // Technical details
   stack?: string;
   cause?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   
   // Recovery information
   recoveryStrategy: RecoveryStrategy;
@@ -118,8 +118,8 @@ export interface ErrorRecoveryConfig {
   retryDelay: number;
   backoffMultiplier: number;
   maxRetryDelay: number;
-  fallbackValue?: any;
-  fallbackFunction?: () => any;
+  fallbackValue?: unknown;
+  fallbackFunction?: () => unknown;
   onRetry?: (error: EnterpriseError, attempt: number) => void;
   onMaxRetriesReached?: (error: EnterpriseError) => void;
 }
@@ -223,27 +223,27 @@ export class EnterpriseErrorHandler {
     // Browser environment
     if (typeof window !== 'undefined') {
       // Unhandled JavaScript errors
-      window.addEventListener('error', (event) => {
-        this.handleError(event.error || new Error(event.message), {
+      window.addEventListener('error', (event: ErrorEvent) => {
+        this.handleError(event.error || new Error(event.message || 'Unknown error'), {
           type: ErrorType.SYSTEM_ERROR,
           severity: ErrorSeverity.HIGH,
           component: 'Global',
           details: {
-            filename: event.filename,
-            lineno: event.lineno,
-            colno: event.colno
+            filename: event.filename || undefined,
+            lineno: event.lineno || undefined,
+            colno: event.colno || undefined
           }
         });
       });
       
       // Unhandled promise rejections
-      window.addEventListener('unhandledrejection', (event) => {
+      window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
         this.handleError(event.reason, {
           type: ErrorType.SYSTEM_ERROR,
           severity: ErrorSeverity.HIGH,
           component: 'Promise',
           details: {
-            promise: event.promise
+            promise: '[Promise]' // Don't include actual promise object for serialization
           }
         });
       });
@@ -263,8 +263,8 @@ export class EnterpriseErrorHandler {
     }
     
     // Node.js environment
-    if (typeof process !== 'undefined') {
-      process.on('uncaughtException', (error) => {
+    if (typeof process !== 'undefined' && process.on) {
+      process.on('uncaughtException', (error: Error) => {
         this.handleError(error, {
           type: ErrorType.SYSTEM_ERROR,
           severity: ErrorSeverity.CRITICAL,
@@ -272,8 +272,8 @@ export class EnterpriseErrorHandler {
         });
       });
       
-      process.on('unhandledRejection', (reason) => {
-        this.handleError(reason as Error, {
+      process.on('unhandledRejection', (reason: unknown) => {
+        this.handleError(reason instanceof Error ? reason : new Error(String(reason)), {
           type: ErrorType.SYSTEM_ERROR,
           severity: ErrorSeverity.HIGH,
           component: 'Promise'
@@ -286,7 +286,7 @@ export class EnterpriseErrorHandler {
    * Main error handling method
    */
   handleError(
-    error: Error | string | any,
+    error: Error | string | unknown,
     context: Partial<EnterpriseError> = {}
   ): EnterpriseError {
     const enterpriseError = this.createEnterpriseError(error, context);
@@ -323,7 +323,7 @@ export class EnterpriseErrorHandler {
    * Create standardized enterprise error
    */
   private createEnterpriseError(
-    error: Error | string | any,
+    error: Error | string | unknown,
     context: Partial<EnterpriseError>
   ): EnterpriseError {
     const originalError = error instanceof Error ? error : new Error(String(error));
@@ -340,7 +340,7 @@ export class EnterpriseErrorHandler {
       originalError,
       timestamp: new Date().toISOString(),
       stack: originalError.stack,
-      cause: originalError.cause?.toString(),
+      cause: (originalError as unknown as { cause?: unknown }).cause?.toString(),
       details: {
         ...context.details,
         originalType: originalError.constructor.name
@@ -360,10 +360,10 @@ export class EnterpriseErrorHandler {
       
       // System context
       memoryUsage: memoryInfo.current?.percentage,
-      networkStatus: typeof navigator !== 'undefined' ? 
+      networkStatus: typeof navigator !== 'undefined' && 'onLine' in navigator ? 
         (navigator.onLine ? 'online' : 'offline') : 'unknown',
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
-      url: typeof window !== 'undefined' ? window.location.href : undefined
+      userAgent: typeof navigator !== 'undefined' && 'userAgent' in navigator ? navigator.userAgent : undefined,
+      url: typeof window !== 'undefined' && 'location' in window ? window.location.href : undefined
     };
     
     // Determine recovery strategy
@@ -520,13 +520,13 @@ export class EnterpriseErrorHandler {
         return this.useFallback(error, config);
       
       case RecoveryStrategy.REFRESH:
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && 'location' in window && typeof window.location.reload === 'function') {
           window.location.reload();
         }
         return null;
       
       case RecoveryStrategy.REDIRECT:
-        if (typeof window !== 'undefined' && error.details?.redirectUrl) {
+        if (typeof window !== 'undefined' && 'location' in window && error.details?.redirectUrl) {
           window.location.href = error.details.redirectUrl;
         }
         return null;
@@ -534,9 +534,15 @@ export class EnterpriseErrorHandler {
       case RecoveryStrategy.LOGOUT:
         // Trigger logout logic
         if (typeof window !== 'undefined') {
-          localStorage.clear();
-          sessionStorage.clear();
-          window.location.href = '/login';
+          if (typeof localStorage !== 'undefined') {
+            localStorage.clear();
+          }
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.clear();
+          }
+          if ('location' in window) {
+            window.location.href = '/login';
+          }
         }
         return null;
       
@@ -610,7 +616,8 @@ export class EnterpriseErrorHandler {
     const logLevel = this.getLogLevel(error.severity);
     const logMessage = `[${error.severity.toUpperCase()}] ${error.type}: ${error.message}`;
     
-    console[logLevel](logMessage, {
+    const logMethod = console[logLevel] as (...args: unknown[]) => void;
+    logMethod(logMessage, {
       id: error.id,
       component: error.component,
       service: error.service,
@@ -645,6 +652,12 @@ export class EnterpriseErrorHandler {
       return;
     }
     
+    // Check if fetch is available
+    if (typeof fetch === 'undefined') {
+      console.warn('fetch API not available for error reporting');
+      return;
+    }
+    
     try {
       const sanitizedError = this.reportingConfig.filterSensitiveData?.(error) || error;
       
@@ -670,7 +683,7 @@ export class EnterpriseErrorHandler {
       // Default user notification
       const userMessage = this.getUserFriendlyMessage(error);
       
-      if (typeof window !== 'undefined' && error.severity === ErrorSeverity.CRITICAL) {
+      if (typeof window !== 'undefined' && 'alert' in window && error.severity === ErrorSeverity.CRITICAL) {
         alert(userMessage);
       } else {
         console.warn('User notification:', userMessage);
@@ -704,14 +717,14 @@ export class EnterpriseErrorHandler {
    * Generate unique error ID
    */
   private generateErrorId(): string {
-    return `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `err_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
   
   /**
    * Get session ID (implement based on your session management)
    */
   private getSessionId(): string {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
       return sessionStorage.getItem('sessionId') || 'no-session';
     }
     return 'server-session';
@@ -770,7 +783,7 @@ export class EnterpriseErrorHandler {
 export const errorHandler = EnterpriseErrorHandler.getInstance();
 
 // Convenience functions for common error handling patterns
-export const handleError = (error: Error | string, context?: Partial<EnterpriseError>) => 
+export const handleError = (error: Error | string | unknown, context?: Partial<EnterpriseError>): EnterpriseError => 
   errorHandler.handleError(error, context);
 
 export const withErrorRecovery = async <T>(
@@ -787,19 +800,19 @@ export const withErrorRecovery = async <T>(
 
 // React error boundary helper
 export const createErrorBoundary = (
-  fallbackComponent: any,
+  fallbackComponent: React.ComponentType<{ error: Error }>,
   errorContext?: Partial<EnterpriseError>
 ) => {
   // Only create React components if React is available
-  if (typeof window === 'undefined' || !(globalThis as any).React) {
+  if (typeof window === 'undefined' || typeof (globalThis as { React?: unknown }).React === 'undefined') {
     return null;
   }
   
   // Dynamic React import for browser environment only
-  const React = (globalThis as any).React;
+  const React = (globalThis as { React: typeof import('react') }).React;
   
   return class ErrorBoundary extends React.Component {
-    constructor(props: any) {
+    constructor(props: { children: React.ReactNode }) {
       super(props);
       this.state = { error: null };
     }
@@ -815,11 +828,11 @@ export const createErrorBoundary = (
     }
     
     render() {
-      if ((this.state as any).error) {
-        return React.createElement(fallbackComponent, { error: (this.state as any).error });
+      if ((this.state as { error: EnterpriseError | null }).error) {
+        return React.createElement(fallbackComponent, { error: (this.state as { error: EnterpriseError }).error });
       }
       
-      return (this.props as any).children;
+      return (this.props as { children: React.ReactNode }).children;
     }
   };
 };

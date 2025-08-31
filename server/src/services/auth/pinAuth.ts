@@ -235,14 +235,14 @@ export async function validatePin(
         return {
           isValid: true,
           userId: record.user_id,
-          userEmail: (record as any).users?.email,
+          userEmail: (record as { users?: { email: string } }).users?.email,
           role: userRole?.role,
           restaurantId
         };
       } else {
         // Increment failed attempts
         const newAttempts = (record.attempts || 0) + 1;
-        const updates: any = {
+        const updates: Record<string, unknown> = {
           attempts: newAttempts,
           last_attempt_at: new Date().toISOString()
         };
@@ -346,7 +346,7 @@ async function logAuthEvent(
   userId: string,
   restaurantId: string,
   eventType: string,
-  metadata?: any
+  metadata?: Record<string, unknown>
 ): Promise<void> {
   try {
     await supabase

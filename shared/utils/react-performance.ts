@@ -5,7 +5,7 @@
  */
 
 // Conditional React import for browser environment only
-let React: any;
+let React: typeof import('react') | undefined;
 if (typeof window !== 'undefined') {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -21,7 +21,7 @@ export * from './performance-hooks';
 // Type definitions for components (no actual JSX)
 export interface VirtualizedListProps<T> {
   items: T[];
-  renderItem: (item: T, index: number) => any;
+  renderItem: (item: T, index: number) => React.ReactNode;
   keyExtractor: (item: T, index: number) => string | number;
   estimatedItemSize?: number;
   overscan?: number;
@@ -30,7 +30,7 @@ export interface VirtualizedListProps<T> {
 
 export interface PerformanceProfilerProps {
   id: string;
-  children: any;
+  children: React.ReactNode;
   onRender?: (id: string, phase: 'mount' | 'update', actualDuration: number) => void;
 }
 
@@ -38,9 +38,9 @@ export interface PerformanceProfilerProps {
  * Enhanced React.memo with performance profiling
  */
 export function memoWithProfiling<P extends object>(
-  Component: any,
+  Component: React.ComponentType<P>,
   propsAreEqual?: (prevProps: P, nextProps: P) => boolean
-): any {
+): React.ForwardRefExoticComponent<P & React.RefAttributes<any>> {
   const componentName = Component.displayName || Component.name || 'Anonymous';
   
   const MemoizedComponent = React.memo(Component, propsAreEqual);
