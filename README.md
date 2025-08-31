@@ -1,4 +1,4 @@
-# Restaurant OS v6.0.2
+# Restaurant OS v6.0.3
 
 A modern, production-ready restaurant management system with AI-powered voice ordering, real-time kitchen display, and comprehensive POS capabilities.
 
@@ -106,11 +106,12 @@ rebuild-6.0/
 
 ## 🔐 Security Features
 
-### Authentication
-- Supabase JWT authentication
-- CSRF protection (cookie-based)
-- Rate limiting per endpoint
-- Restaurant context validation
+### Authentication ✅ Complete
+- **User Roles**: Owner, Manager, Server, Cashier, Kitchen, Expo, Customer
+- **Methods**: Email/Password (with MFA), PIN codes, Station login, Anonymous
+- **JWT Tokens**: RS256 signed, HttpOnly cookies
+- **Security**: Rate limiting, audit logging, CSRF protection
+- **Sessions**: 8h (managers), 12h (staff), role-based permissions
 
 ### API Security
 ```javascript
@@ -149,7 +150,7 @@ NODE_ENV=development
 |---------|-------------|
 | `npm run dev` | Start development servers |
 | `npm test` | Run test suite |
-| `npm run lint` | Run ESLint (0 errors, 573 warnings) |
+| `npm run lint` | Run ESLint (0 errors, 449 warnings) |
 | `npm run lint:fix` | Auto-fix linting issues |
 | `npm run typecheck` | TypeScript validation |
 | `npm run build` | Production build |
@@ -175,8 +176,8 @@ NODE_ENV=development
 
 ### Code Quality Standards
 
-- **TypeScript**: Strict mode enabled
-- **ESLint**: 0 errors required
+- **TypeScript**: Strict mode enabled - 0 errors ✅
+- **ESLint**: 0 errors required - 449 warnings (down from 573)
 - **Test Coverage**: 60% statements, 50% branches
 - **Bundle Size**: Main chunk <100KB (currently 82KB)
 - **Memory Usage**: Max 4GB for builds
@@ -198,14 +199,14 @@ npm run build
 
 ```bash
 # Build Docker image
-docker build -t restaurant-os:6.0.2 .
+docker build -t restaurant-os:6.0.3 .
 
 # Run container
 docker run -p 3001:3001 \
   -e NODE_ENV=production \
   -e SUPABASE_URL=... \
   -e SUPABASE_SERVICE_KEY=... \
-  restaurant-os:6.0.2
+  restaurant-os:6.0.3
 ```
 
 ### Environment-Specific Configs
@@ -299,6 +300,6 @@ This project is proprietary software. All rights reserved.
 
 ---
 
-**Version**: 6.0.2  
-**Last Updated**: January 30, 2025  
-**Status**: Production Ready (7/10)
+**Version**: 6.0.3  
+**Last Updated**: February 1, 2025  
+**Status**: Production Ready (8/10) - Authentication Complete ✅
