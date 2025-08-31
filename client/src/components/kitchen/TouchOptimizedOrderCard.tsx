@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Clock, Package, User, ArrowRight } from 'lucide-react'
+import { Clock, Package, User, ArrowRight, Truck, ShoppingBag, Car, Utensils } from 'lucide-react'
 import { cn } from '@/utils'
 import type { Order } from '@rebuild/shared'
 
@@ -11,8 +11,68 @@ export interface TouchOptimizedOrderCardProps {
   className?: string
 }
 
+// Prominent Table Badge Component
+const TableBadge = ({ tableNumber, orderType }: { tableNumber?: string; orderType: string }) => {
+  const getOrderTypeIcon = (type: string) => {
+    switch(type) {
+      case 'dine-in':
+      case 'online': // Map online to dine-in for now
+        return <Utensils className="w-6 h-6" />
+      case 'pickup':
+      case 'takeout':
+        return <ShoppingBag className="w-6 h-6" />
+      case 'delivery':
+        return <Truck className="w-6 h-6" />
+      case 'drive-thru':
+        return <Car className="w-6 h-6" />
+      default:
+        return <Package className="w-6 h-6" />
+    }
+  }
+
+  const getGradientClass = (type: string) => {
+    switch(type) {
+      case 'dine-in':
+      case 'online':
+        return 'bg-gradient-to-br from-blue-500 to-blue-700'
+      case 'pickup':
+      case 'takeout':
+        return 'bg-gradient-to-br from-orange-500 to-orange-700'
+      case 'delivery':
+        return 'bg-gradient-to-br from-green-500 to-green-700'
+      case 'drive-thru':
+        return 'bg-gradient-to-br from-purple-500 to-purple-700'
+      default:
+        return 'bg-gradient-to-br from-gray-500 to-gray-700'
+    }
+  }
+
+  return (
+    <div className={cn(
+      "absolute -top-3 -left-3 z-20 transform hover:scale-110 transition-transform",
+      "shadow-2xl ring-2 ring-white dark:ring-gray-800"
+    )}>
+      <div className={cn(
+        "rounded-full w-16 h-16 flex items-center justify-center font-black text-2xl text-white",
+        getGradientClass(orderType)
+      )}>
+        {tableNumber ? `T${tableNumber}` : getOrderTypeIcon(orderType)}
+      </div>
+    </div>
+  )
+}
+
 export const TouchOptimizedOrderCard = React.memo<TouchOptimizedOrderCardProps>(
   ({ order, onStatusChange, className }) => {
+    const orderTypeDisplay = useMemo(() => {
+      const typeMap = {
+        'online': 'Dine-In',
+        'pickup': 'Takeout',
+        'delivery': 'Delivery'
+      } as const
+      return typeMap[order.type as keyof typeof typeMap] || order.type
+    }, [order.type])
+
     const { elapsedMinutes, urgencyColor, cardColor, pulseAnimation } = useMemo(() => {
       const created = new Date(order.created_at)
       const now = new Date()
@@ -22,6 +82,7 @@ export const TouchOptimizedOrderCard = React.memo<TouchOptimizedOrderCardProps>(
       let bg = 'bg-white border-gray-200 shadow-sm'
       let shouldPulse = false
       
+      // Urgency-based styling takes priority
       if (elapsed >= 20) {
         color = 'text-red-600'
         bg = 'bg-red-50 border-red-400 shadow-red-200 shadow-lg'
@@ -33,6 +94,22 @@ export const TouchOptimizedOrderCard = React.memo<TouchOptimizedOrderCardProps>(
       } else if (elapsed >= 10) {
         color = 'text-yellow-600'
         bg = 'bg-yellow-50 border-yellow-300 shadow-yellow-100 shadow-md'
+      } else {
+        // Apply subtle tinted backgrounds based on order type when not urgent
+        const orderTypeForStyling = orderTypeDisplay.toLowerCase()
+        switch(orderTypeForStyling) {
+          case 'dine-in':
+            bg = 'bg-blue-50/30 border-blue-200 shadow-blue-100/50 shadow-md'
+            break
+          case 'takeout':
+            bg = 'bg-orange-50/30 border-orange-200 shadow-orange-100/50 shadow-md'
+            break
+          case 'delivery':
+            bg = 'bg-green-50/30 border-green-200 shadow-green-100/50 shadow-md'
+            break
+          default:
+            bg = 'bg-white border-gray-200 shadow-sm'
+        }
       }
       
       return { 
@@ -41,16 +118,7 @@ export const TouchOptimizedOrderCard = React.memo<TouchOptimizedOrderCardProps>(
         cardColor: bg,
         pulseAnimation: shouldPulse
       }
-    }, [order.created_at])
-
-    const orderTypeDisplay = useMemo(() => {
-      const typeMap = {
-        'online': 'Dine-In',
-        'pickup': 'Takeout',
-        'delivery': 'Delivery'
-      } as const
-      return typeMap[order.type as keyof typeof typeMap] || order.type
-    }, [order.type])
+    }, [order.created_at, orderTypeDisplay])
 
     const statusColor = useMemo(() => {
       const colorMap = {
@@ -81,9 +149,12 @@ export const TouchOptimizedOrderCard = React.memo<TouchOptimizedOrderCardProps>(
         pulseAnimation && 'animate-pulse',
         className
       )}>
+        {/* Prominent Table Badge */}
+        <TableBadge tableNumber={order.table_number} orderType={orderTypeDisplay.toLowerCase()} />
+        
         <CardContent className="p-4 h-full flex flex-col">
-          {/* Header Row */}
-          <div className="flex justify-between items-start mb-3">
+          {/* Header Row - adjusted padding for badge */}
+          <div className="flex justify-between items-start mb-3 ml-10">
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-bold truncate">
                 Order #{order.order_number}
@@ -109,14 +180,11 @@ export const TouchOptimizedOrderCard = React.memo<TouchOptimizedOrderCardProps>(
             </div>
           </div>
 
-          {/* Customer Info */}
+          {/* Customer Info - Table number removed as it's now prominent in badge */}
           {order.customer_name && (
             <div className="flex items-center gap-1 text-sm text-gray-700 mb-3 px-2 py-1 bg-gray-50 rounded">
               <User className="w-3 h-3 flex-shrink-0" />
               <span className="truncate font-medium">{order.customer_name}</span>
-              {order.table_number && (
-                <span className="flex-shrink-0 text-gray-500">• Table {order.table_number}</span>
-              )}
             </div>
           )}
 

@@ -59,7 +59,7 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
       }
       
       return success
-    } catch (err) {
+    } catch (_err) {
       // Error already handled by useOrderActions hook
       return false
     }
@@ -77,9 +77,8 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
     if (restaurantLoading || restaurantError) return
 
     // Connect to WebSocket first
-    console.log('🔌 [KDS] Attempting WebSocket connection...')
     webSocketService.connect().then(() => {
-      console.log('✅ [KDS] WebSocket connected successfully')
+      // WebSocket connected successfully
     }).catch((error) => {
       console.error('❌ [KDS] WebSocket connection failed:', error)
     })

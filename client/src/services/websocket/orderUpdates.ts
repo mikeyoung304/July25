@@ -41,9 +41,9 @@ export class OrderUpdatesHandler {
       webSocketService.subscribe('order:deleted', (payload) => 
         this.handleOrderDeleted(payload)),
       webSocketService.subscribe('order:status_changed', (payload) => 
-        this.handleOrderStatusChanged(payload)),
+        this.handleOrderStatusChanged(payload as { orderId: string; status: string; previousStatus: string; updatedBy?: string })),
       webSocketService.subscribe('order:item_status_changed', (payload) => 
-        this.handleItemStatusChanged(payload))
+        this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string }))
     )
 
     // Handle connection state changes
@@ -150,11 +150,17 @@ export class OrderUpdatesHandler {
       order: order  // Order data in snake_case format as expected
     })
 
-    // Show notification for new orders
-    toast.success(`New order #${order.order_number} received!`, {
-      duration: 5000,
-      position: 'top-right'
-    })
+    // Only show notification on kitchen-related pages, not on customer/kiosk pages
+    const isKitchenPage = window.location.pathname.includes('/kitchen') || 
+                         window.location.pathname.includes('/expo') ||
+                         window.location.pathname.includes('/admin');
+    
+    if (isKitchenPage) {
+      toast.success(`New order #${order.order_number} received!`, {
+        duration: 5000,
+        position: 'top-right'
+      })
+    }
   }
 
   /**
@@ -290,9 +296,9 @@ export class OrderUpdatesHandler {
         webSocketService.subscribe('order:deleted', (payload) => 
           this.handleOrderDeleted(payload)),
         webSocketService.subscribe('order:status_changed', (payload) => 
-          this.handleOrderStatusChanged(payload)),
+          this.handleOrderStatusChanged(payload as { orderId: string; status: string; previousStatus: string; updatedBy?: string })),
         webSocketService.subscribe('order:item_status_changed', (payload) => 
-          this.handleItemStatusChanged(payload))
+          this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string }))
       )
       
       logger.info('[OrderUpdates] Subscriptions reinitialized:', this.subscriptions.length)

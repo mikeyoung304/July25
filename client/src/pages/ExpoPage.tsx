@@ -55,7 +55,7 @@ function ReadyOrderCard({ order, onFulfillmentComplete }: ReadyOrderCardProps) {
         <div className="flex justify-between items-start mb-2">
           <div>
             <h3 className="font-bold text-lg">
-              Order #{order.orderNumber || order.id.slice(-4)}
+              Order #{order.order_number || order.id.slice(-4)}
             </h3>
             <span className="inline-block px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
               READY FOR PICKUP

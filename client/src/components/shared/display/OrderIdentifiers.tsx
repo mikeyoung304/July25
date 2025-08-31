@@ -1,4 +1,3 @@
-import React from 'react'
 import { cn, escapeHtml } from '@/utils'
 
 // Consolidated order and table display components

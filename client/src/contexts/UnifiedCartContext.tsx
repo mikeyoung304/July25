@@ -38,7 +38,7 @@ interface UnifiedCartContextType {
 const UnifiedCartContext = createContext<UnifiedCartContextType | undefined>(undefined);
 
 const DEFAULT_RESTAURANT_ID = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
-const TAX_RATE = 0.0875; // 8.75% tax rate
+const _TAX_RATE = 0.0875; // 8.75% tax rate - reserved for future use
 
 interface UnifiedCartProviderProps {
   children: React.ReactNode;
@@ -60,16 +60,16 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
         const parsed = JSON.parse(savedCart);
         if (parsed.restaurantId === restaurantId) {
           // Validate and migrate cart items to ensure compatibility
-          const validatedItems = (parsed.items || []).map((item: any) => {
+          const validatedItems = (parsed.items || []).map((item: { id: string; name?: string; price?: number; quantity?: number; menuItem?: { name: string; price: number } }) => {
             // Handle both old (with menuItem) and new (flat) structures
             const migratedItem: UnifiedCartItem = {
               id: item.id,
-              name: item.name || item.menuItem?.name || 'Unknown Item',
-              price: item.price || item.menuItem?.price || 0,
+              name: item.name || (item as any).menuItem?.name || 'Unknown Item',
+              price: item.price || (item as any).menuItem?.price || 0,
               quantity: item.quantity || 1,
-              menuItemId: item.menuItemId || item.menuItem?.id || item.menu_item_id,
-              modifications: item.modifications || item.modifiers || [],
-              specialInstructions: item.specialInstructions || ''
+              menuItemId: (item as any).menuItemId || (item as any).menuItem?.id || (item as any).menu_item_id,
+              modifications: (item as any).modifications || (item as any).modifiers || [],
+              specialInstructions: (item as any).specialInstructions || ''
             };
             
             // Only return items that have essential fields
@@ -125,7 +125,7 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
           setItems([]);
           setTip(0);
         }
-      } catch (e) {
+      } catch (_e) {
         // Ignore parse errors
       }
     }
@@ -226,8 +226,6 @@ export const useUnifiedCart = () => {
   return context;
 };
 
-// Compatibility exports for gradual migration
+// Re-export the hook with common aliases for consistency
 export const useCart = useUnifiedCart;
 export const useKioskCart = useUnifiedCart;
-export const CartProvider = UnifiedCartProvider;
-export const KioskCartProvider = UnifiedCartProvider;

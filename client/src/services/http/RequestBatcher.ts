@@ -9,9 +9,9 @@ interface BatchRequest {
   id: string;
   method: string;
   url: string;
-  params?: any;
-  resolve: (value: any) => void;
-  reject: (error: any) => void;
+  params?: unknown;
+  resolve: (value: unknown) => void;
+  reject: (error: unknown) => void;
 }
 
 interface BatchConfig {
@@ -39,7 +39,7 @@ export class RequestBatcher {
   async batch<T>(
     method: string,
     url: string,
-    params?: any
+    params?: unknown
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       const request: BatchRequest = {
@@ -152,7 +152,7 @@ export class RequestBatcher {
       // Map responses back to requests
       requests.forEach(request => {
         const result = batchResponse.responses?.find(
-          (r: any) => r.id === request.id
+          (r: { id: string; error?: string; data?: unknown }) => r.id === request.id
         );
         
         if (result?.error) {
@@ -174,7 +174,7 @@ export class RequestBatcher {
   /**
    * Send a single request (fallback when batching isn't available)
    */
-  private async sendSingleRequest(request: BatchRequest): Promise<any> {
+  private async sendSingleRequest(request: BatchRequest): Promise<unknown> {
     const response = await fetch(request.url, {
       method: request.method,
       headers: {
@@ -213,10 +213,10 @@ export class RequestBatcher {
 export const requestBatcher = new RequestBatcher();
 
 // Convenience functions for common operations
-export const batchedGet = <T>(url: string, params?: any): Promise<T> => 
+export const batchedGet = <T>(url: string, params?: unknown): Promise<T> => 
   requestBatcher.batch<T>('GET', url, params);
 
-export const batchedPost = <T>(url: string, data?: any): Promise<T> => 
+export const batchedPost = <T>(url: string, data?: unknown): Promise<T> => 
   requestBatcher.batch<T>('POST', url, data);
 
 // Auto-flush on page unload

@@ -15,6 +15,7 @@ import { env } from '@/utils/env'
 import { getDemoToken } from '@/services/auth/demoAuth'
 import { RequestBatcher } from './RequestBatcher'
 import { ResponseCache } from '../cache/ResponseCache'
+import type { JsonValue } from '@/../../shared/types/api.types'
 
 // Global variable to store the current restaurant ID
 // This will be set by the RestaurantContext provider
@@ -51,9 +52,9 @@ const CACHE_TTL = {
 
 export class HttpClient extends SecureAPIClient {
   // Simple in-memory cache for GET requests
-  private cache = new Map<string, CacheEntry<any>>()
+  private cache = new Map<string, CacheEntry<JsonValue>>()
   // Track in-flight requests to prevent duplicates
-  private inFlightRequests = new Map<string, Promise<any>>()
+  private inFlightRequests = new Map<string, Promise<JsonValue>>()
   // Request batcher for reducing network overhead
   private batcher: RequestBatcher
   // Response cache with LRU eviction
@@ -188,7 +189,7 @@ export class HttpClient extends SecureAPIClient {
     }
 
     // 3. Use request body as-is (server handles transformations)
-    let body = requestOptions.body
+    const body = requestOptions.body
 
     // 4. Pass query params as-is
     let url = endpoint
@@ -271,7 +272,7 @@ export class HttpClient extends SecureAPIClient {
           logger.info(`[Cache HIT] ${endpoint} (age: ${Math.round(age/1000)}s)`)
         }
         // Also store in ResponseCache for next time
-        this.responseCache.set(cacheKey, cached.data, ttl)
+        this.responseCache.set(cacheKey, cached.data, { ttl })
         return cached.data as T
       }
     }
@@ -289,14 +290,14 @@ export class HttpClient extends SecureAPIClient {
     const requestPromise = this.request<T>(endpoint, { ...options, method: 'GET' })
     
     // Track in-flight request
-    this.inFlightRequests.set(cacheKey, requestPromise)
+    this.inFlightRequests.set(cacheKey, requestPromise as Promise<any>)
     
     // Cache the result
     requestPromise.then(data => {
-      this.cache.set(cacheKey, { data, timestamp: Date.now() })
+      this.cache.set(cacheKey, { data: data as any, timestamp: Date.now() })
       // Also store in ResponseCache with TTL
       const ttl = this.getCacheTTL(endpoint)
-      this.responseCache.set(cacheKey, data, ttl)
+      this.responseCache.set(cacheKey, data as any, { ttl })
       this.inFlightRequests.delete(cacheKey)
       if (import.meta.env.DEV) {
         logger.info(`[Cache SET] ${endpoint}`)

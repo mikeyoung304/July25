@@ -24,15 +24,14 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   const { cart, updateTip, clearCart } = useUnifiedCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('card');
-  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
+  const [_createdOrderId, _setCreatedOrderId] = useState<string | null>(null);
   const orderApi = useApiRequest();
   const paymentApi = useApiRequest();
   
   // Square Terminal integration
   const terminal = useSquareTerminal({
     onSuccess: (orderData, paymentData) => {
-      // Clear cart and navigate to confirmation
-      clearCart();
+      // Navigate to confirmation (cart already cleared after order creation)
       navigate('/order-confirmation', {
         state: {
           orderId: orderData.id,
@@ -61,8 +60,6 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       }
     },
     onStatusChange: (status) => {
-      console.log('Terminal status changed:', status);
-      
       // Provide voice feedback for status changes
       if (voiceCheckoutOrchestrator) {
         let feedbackText = '';
@@ -98,7 +95,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   // Load terminal devices on mount
   useEffect(() => {
     terminal.loadDevices();
-  }, []);
+  }, [terminal]);
   
   // Handle voice payment method selection
   useEffect(() => {
@@ -176,7 +173,11 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       }
 
       const order = orderResponse as { id: string; order_number: string };
-      setCreatedOrderId(order.id);
+      _setCreatedOrderId(order.id);
+      
+      // Clear cart immediately after order creation
+      // Order has been sent to kitchen, regardless of payment status
+      clearCart();
       
       return order;
 
@@ -229,8 +230,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
 
       const payment = paymentResponse as { id?: string; paymentId?: string };
 
-      // Clear cart and navigate to confirmation
-      clearCart();
+      // Navigate to confirmation (cart already cleared after order creation)
       navigate('/order-confirmation', { 
         state: { 
           orderId: order.id,
@@ -278,11 +278,11 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       case 'terminal':
         await handleTerminalPayment();
         break;
-      case 'cash':
+      case 'cash': {
         // For cash payments, just create the order and navigate
         const order = await createOrder();
         if (order) {
-          clearCart();
+          // Cart already cleared after order creation
           navigate('/order-confirmation', {
             state: {
               orderId: order.id,
@@ -302,6 +302,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
           }
         }
         break;
+      }
       case 'mobile':
         // Placeholder for mobile payments (Apple Pay, Google Pay, etc.)
         form.setFieldError('general' as keyof typeof form.values, 'Mobile payments not yet supported');
@@ -347,7 +348,8 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       default:
         return {
           ...baseProps,
-          // SquarePaymentForm handles its own button
+          text: `Pay $${cart.total.toFixed(2)} with Card`,
+          onClick: () => {}, // SquarePaymentForm handles its own submission
         };
     }
   };

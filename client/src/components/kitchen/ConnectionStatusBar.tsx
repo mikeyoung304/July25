@@ -1,4 +1,3 @@
-import React from 'react'
 import { Wifi, WifiOff, AlertCircle, RefreshCw } from 'lucide-react'
 import { cn } from '@/utils'
 import { useConnectionStatus } from '@/hooks/useConnectionStatus'

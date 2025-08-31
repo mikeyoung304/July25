@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Diagnostic Test</title>
+    <style>
+        body { font-family: monospace; margin: 20px; background: #f5f5f5; }
+        .test { margin: 10px 0; padding: 10px; background: white; border-radius: 5px; }
+        .success { border-left: 4px solid #4CAF50; }
+        .error { border-left: 4px solid #f44336; }
+        .warning { border-left: 4px solid #FF9800; }
+        .info { border-left: 4px solid #2196F3; }
+        button { padding: 10px 20px; margin: 10px; background: #2196F3; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #1976D2; }
+        #results { margin-top: 20px; }
+        pre { background: #f8f8f8; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Restaurant OS Frontend Diagnostic</h1>
+    <p>This test diagnoses why the frontend might not be displaying real menu data.</p>
+    
+    <button onclick="runDiagnostics()">🚀 Run Diagnostics</button>
+    <button onclick="testMenuAPI()">📋 Test Menu API</button>
+    <button onclick="checkLocalStorage()">💾 Check localStorage</button>
+    <button onclick="clearLocalStorage()">🗑️ Clear localStorage</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+        const RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message.replace(/<[^>]*>/g, '')}`);
+        }
+
+        function clear() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function runDiagnostics() {
+            clear();
+            log('<h3>🔍 Running Complete Diagnostics...</h3>');
+            
+            // Test 1: Environment Variables
+            log('<h4>1. Environment Variables</h4>');
+            
+            // In a real React app, these would be available via import.meta.env
+            // For this test, we'll simulate checking them
+            log('⚠️ <strong>Note:</strong> This test runs outside React, so environment variables may differ', 'warning');
+            log(`Current origin: ${window.location.origin}`, 'info');
+            log(`Expected frontend URL: http://localhost:5173`, 'info');
+            
+            if (window.location.origin !== 'http://localhost:5173') {
+                log('⚠️ <strong>Warning:</strong> Not running from expected frontend URL. Environment variables might not be loaded correctly.', 'warning');
+            }
+            
+            // Test 2: localStorage
+            checkLocalStorageInternal();
+            
+            // Test 3: Network connectivity
+            await testNetworkConnectivity();
+            
+            // Test 4: Menu API
+            await testMenuAPIInternal();
+            
+            // Test 5: Browser support
+            testBrowserSupport();
+            
+            log('<h4>🎯 Recommendations</h4>');
+            log('1. Open browser DevTools (F12)', 'info');
+            log('2. Navigate to http://localhost:5173/kiosk', 'info');
+            log('3. Click "Browse Menu" button', 'info');
+            log('4. Check Network tab for API requests', 'info');
+            log('5. Check Console tab for errors', 'info');
+        }
+        
+        function checkLocalStorageInternal() {
+            log('<h4>2. localStorage Check</h4>');
+            
+            const mockDataSetting = localStorage.getItem('VITE_USE_MOCK_DATA');
+            if (mockDataSetting) {
+                log(`Found localStorage override: VITE_USE_MOCK_DATA = "${mockDataSetting}"`, 'warning');
+                if (mockDataSetting === 'true') {
+                    log('❌ <strong>ISSUE FOUND:</strong> localStorage is forcing mock data!', 'error');
+                    log('💡 <strong>Solution:</strong> Click "Clear localStorage" button or run: localStorage.removeItem("VITE_USE_MOCK_DATA")', 'warning');
+                }
+            } else {
+                log('✅ No localStorage override found for VITE_USE_MOCK_DATA', 'success');
+            }
+            
+            // Check for other relevant localStorage items
+            const relevantKeys = Object.keys(localStorage).filter(key => 
+                key.includes('VITE') || key.includes('menu') || key.includes('mock')
+            );
+            
+            if (relevantKeys.length > 0) {
+                log(`Other relevant localStorage keys: ${relevantKeys.join(', ')}`, 'info');
+                relevantKeys.forEach(key => {
+                    log(`  ${key}: "${localStorage.getItem(key)}"`, 'info');
+                });
+            } else {
+                log('No other relevant localStorage keys found', 'info');
+            }
+        }
+        
+        async function testNetworkConnectivity() {
+            log('<h4>3. Network Connectivity</h4>');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`, {
+                    headers: {
+                        'Origin': window.location.origin
+                    }
+                });
+                
+                if (response.ok) {
+                    log('✅ Backend is reachable', 'success');
+                } else {
+                    log(`⚠️ Backend responded with status: ${response.status}`, 'warning');
+                }
+            } catch (error) {
+                log(`❌ Cannot reach backend: ${error.message}`, 'error');
+                log('💡 Make sure backend is running on http://localhost:3001', 'warning');
+            }
+        }
+        
+        async function testMenuAPIInternal() {
+            log('<h4>4. Menu API Test</h4>');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/v1/menu/items`, {
+                    headers: {
+                        'x-restaurant-id': RESTAURANT_ID,
+                        'Origin': window.location.origin,
+                        'Authorization': 'Bearer test-token'
+                    }
+                });
+                
+                if (!response.ok) {
+                    log(`❌ API request failed: ${response.status} ${response.statusText}`, 'error');
+                    const errorText = await response.text();
+                    log(`Error details: ${errorText}`, 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                log(`✅ API request successful: ${data.length} items loaded`, 'success');
+                
+                // Check for expected real items
+                const expectedItems = ['Black Eyed Peas', 'BLT Sandwich', 'Chicken Fajita Keto'];
+                const foundItems = expectedItems.filter(name => 
+                    data.some(item => item.name === name)
+                );
+                
+                if (foundItems.length === expectedItems.length) {
+                    log(`✅ Real data confirmed: Found all expected items (${foundItems.join(', ')})`, 'success');
+                } else {
+                    log(`⚠️ Missing expected items. Found: ${foundItems.join(', ')}`, 'warning');
+                }
+                
+                // Check for mock data indicators
+                const mockItems = ['Classic Burger', 'Caesar Salad'];
+                const foundMockItems = mockItems.filter(name => 
+                    data.some(item => item.name === name)
+                );
+                
+                if (foundMockItems.length > 0) {
+                    log(`❌ Mock data detected: ${foundMockItems.join(', ')}`, 'error');
+                } else {
+                    log(`✅ No mock data indicators found`, 'success');
+                }
+                
+                // Show sample data
+                log('<strong>Sample menu items:</strong>', 'info');
+                data.slice(0, 5).forEach((item, i) => {
+                    log(`  ${i + 1}. ${item.name} - $${item.price}`, 'info');
+                });
+                
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        function testBrowserSupport() {
+            log('<h4>5. Browser Support</h4>');
+            
+            const features = {
+                'Fetch API': typeof fetch !== 'undefined',
+                'localStorage': typeof localStorage !== 'undefined',
+                'ES6 Modules': typeof import !== 'undefined' || typeof require !== 'undefined',
+                'Promises': typeof Promise !== 'undefined'
+            };
+            
+            Object.entries(features).forEach(([feature, supported]) => {
+                if (supported) {
+                    log(`✅ ${feature} supported`, 'success');
+                } else {
+                    log(`❌ ${feature} not supported`, 'error');
+                }
+            });
+        }
+        
+        async function testMenuAPI() {
+            clear();
+            log('<h3>📋 Testing Menu API...</h3>');
+            await testMenuAPIInternal();
+        }
+        
+        function checkLocalStorage() {
+            clear();
+            log('<h3>💾 Checking localStorage...</h3>');
+            checkLocalStorageInternal();
+        }
+        
+        function clearLocalStorage() {
+            const keysToRemove = Object.keys(localStorage).filter(key => 
+                key.includes('VITE') || key.includes('menu') || key.includes('mock')
+            );
+            
+            if (keysToRemove.length > 0) {
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                log(`🗑️ Cleared ${keysToRemove.length} localStorage keys: ${keysToRemove.join(', ')}`, 'success');
+            } else {
+                log('No relevant localStorage keys to clear', 'info');
+            }
+            
+            // Also clear all localStorage for thorough testing
+            const totalKeys = localStorage.length;
+            localStorage.clear();
+            log(`🗑️ Cleared all localStorage (${totalKeys} total keys)`, 'success');
+            log('💡 Refresh the frontend page to test with clean localStorage', 'info');
+        }
+    </script>
+</body>
+</html>

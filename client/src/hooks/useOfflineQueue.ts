@@ -88,7 +88,7 @@ export const useOfflineQueue = (
     processingRef.current = true
     setIsProcessingQueue(true)
 
-    console.log('🔄 Processing offline queue:', queuedActions.length, 'actions')
+    // Processing offline queue
 
     const actionsToProcess = [...queuedActions].sort((a, b) => a.timestamp - b.timestamp)
     const processedActions: string[] = []
@@ -96,15 +96,15 @@ export const useOfflineQueue = (
 
     for (const action of actionsToProcess) {
       try {
-        console.log(`📤 Processing queued action: ${action.orderId} → ${action.status}`)
+        // Processing queued action
         
         const success = await updateOrderStatus(action.orderId, action.status)
         
         if (success) {
-          console.log(`✅ Successfully processed: ${action.orderId} → ${action.status}`)
+          // Action processed successfully
           processedActions.push(action.id)
         } else {
-          console.log(`❌ Failed to process: ${action.orderId} → ${action.status}`)
+          // Action failed to process
           
           if (action.retryCount < MAX_RETRY_ATTEMPTS) {
             failedActions.push({
@@ -144,11 +144,11 @@ export const useOfflineQueue = (
     setIsProcessingQueue(false)
 
     if (processedActions.length > 0) {
-      console.log(`✅ Processed ${processedActions.length} queued actions`)
+      // Processed queued actions successfully
     }
     
     if (failedActions.length > 0) {
-      console.log(`⏳ ${failedActions.length} actions will be retried`)
+      // Some actions will be retried
     }
   }, [queuedActions, updateOrderStatus])
 
@@ -156,7 +156,7 @@ export const useOfflineQueue = (
   useEffect(() => {
     const handleOnline = () => {
       if (queuedActions.length > 0) {
-        console.log('📶 Back online, processing queued actions...')
+        // Back online, processing queued actions
         setTimeout(processQueue, 1000) // Small delay to ensure connection is stable
       }
     }

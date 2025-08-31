@@ -20,7 +20,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
   const { toast } = useToast()
   
   const fetchOrders = useCallback(async () => {
-    const restaurantId = restaurant?.id || 'rest-1'
+    // const restaurantId = restaurant?.id || 'rest-1' // Not currently used
     
     // Transform complex filters to simple service filters
     const serviceFilters = filters ? {
@@ -30,7 +30,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
     
     const result = await orderService.getOrders(serviceFilters)
     return result
-  }, [filters, restaurant?.id])
+  }, [filters])
   
   const refetch = useCallback(async () => {
     try {
@@ -43,7 +43,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
   }, [execute, fetchOrders, toast])
   
   const updateOrderStatus = useCallback(async (orderId: string, status: Order['status']) => {
-    const restaurantId = restaurant?.id || 'rest-1'
+    // const restaurantId = restaurant?.id || 'rest-1' // Not currently used
     
     // Optimistic update - update immediately
     if (data && Array.isArray(data)) {
@@ -69,7 +69,7 @@ export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
       }
       throw error
     }
-  }, [data, setData, refetch, restaurant?.id, toast])
+  }, [data, setData, refetch, toast])
   
   useEffect(() => {
     refetch()

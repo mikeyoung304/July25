@@ -148,9 +148,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
       setIsLoading(true);
       setError(null);
 
-      if (debug) {
-        console.log('[useSquareTerminal] Loading terminal devices...');
-      }
+      // Loading terminal devices...
 
       const response = await api.get('/api/v1/terminal/devices') as TerminalDevicesResponse;
       
@@ -160,9 +158,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
 
       setAvailableDevices(response.devices || []);
 
-      if (debug) {
-        console.log('[useSquareTerminal] Loaded devices:', response.devices?.length || 0);
-      }
+      // Loaded devices successfully
 
     } catch (err: any) {
       const errorMessage = err?.message || 'Failed to load terminal devices';
@@ -191,7 +187,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
       const checkout = response.checkout as TerminalCheckout;
       
       if (debug) {
-        console.log('[useSquareTerminal] Checkout status:', checkout.status);
+        // Checkout status updated
       }
 
       setCurrentCheckout(checkout);
@@ -206,18 +202,18 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
           // Complete the order
           const completionResponse = await api.post(`/api/v1/terminal/checkout/${checkoutId}/complete`);
           
-          if (completionResponse && completionResponse.success) {
+          if (completionResponse && (completionResponse as any).success) {
             const paymentData: TerminalPayment = {
-              ...completionResponse.payment,
+              ...(completionResponse as any).payment,
               status: 'completed'
             };
 
-            onSuccess?.(completionResponse.order, paymentData);
+            onSuccess?.((completionResponse as any).order, paymentData);
             
             toast.success('Payment completed successfully!');
 
             if (debug) {
-              console.log('[useSquareTerminal] Payment completed:', paymentData);
+              // Payment completed successfully
             }
           } else {
             throw new Error('Failed to complete order after payment');
@@ -270,7 +266,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
       cleanup(); // Clean up any existing polling
 
       if (debug) {
-        console.log('[useSquareTerminal] Starting checkout:', { orderId, deviceId });
+        // Starting checkout process
       }
 
       const response = await api.post('/api/v1/terminal/checkout', {
@@ -286,7 +282,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
       setCurrentCheckout(checkout);
 
       if (debug) {
-        console.log('[useSquareTerminal] Checkout created:', checkout.id);
+        // Checkout created successfully
       }
 
       // Start polling for status updates
@@ -340,7 +336,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
       cleanup();
 
       if (debug) {
-        console.log('[useSquareTerminal] Cancelling checkout:', currentCheckout.id);
+        // Cancelling checkout
       }
 
       const response = await api.post(`/api/v1/terminal/checkout/${currentCheckout.id}/cancel`) as TerminalCheckoutResponse;
@@ -374,7 +370,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
     setIsLoading(false);
     
     if (debug) {
-      console.log('[useSquareTerminal] State reset');
+      // State reset successfully
     }
   }, [cleanup, debug]);
 

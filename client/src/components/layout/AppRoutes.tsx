@@ -1,11 +1,17 @@
 import React, { Profiler, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
+import { ManagerRoute, KitchenRoute } from '@/components/auth/ProtectedRoute'
 import { env } from '@/utils/env'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
 // Eager load critical/common pages
 import { HomePage } from '@/pages/HomePage'
+
+// Lazy load auth pages
+const Login = lazy(() => import('@/pages/Login'))
+const PinLogin = lazy(() => import('@/pages/PinLogin'))
+const StationLogin = lazy(() => import('@/pages/StationLogin'))
 
 // Lazy load all other routes for code splitting
 const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })))
@@ -45,30 +51,54 @@ export function AppRoutes() {
       <ErrorBoundary level="section">
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/dashboard" element={
+            <Route path="/home" element={<HomePage />} />
+            
+            {/* Auth Routes (Public) */}
+            <Route path="/login" element={
               <Suspense fallback={<RouteLoader />}>
-                <Dashboard />
+                <Login />
               </Suspense>
             } />
-            <Route path="/home" element={<HomePage />} />
+            <Route path="/pin-login" element={
+              <Suspense fallback={<RouteLoader />}>
+                <PinLogin />
+              </Suspense>
+            } />
+            <Route path="/station-login" element={
+              <Suspense fallback={<RouteLoader />}>
+                <StationLogin />
+              </Suspense>
+            } />
+            
+            {/* Protected Routes - Manager/Owner Access */}
+            <Route path="/dashboard" element={
+              <ManagerRoute>
+                <Suspense fallback={<RouteLoader />}>
+                  <Dashboard />
+                </Suspense>
+              </ManagerRoute>
+            } />
             <Route path="/kitchen" element={
-              <ErrorBoundary 
-                level="section"
-                onError={(error, errorInfo) => {
-                  console.error('🚨 [AppRoutes] Kitchen route error:', {
-                    error: error.message,
-                    componentStack: errorInfo.componentStack,
-                    errorStack: error.stack
-                  })
-                }}
-              >
-                <Profiler id="KitchenDisplay" onRender={onRenderCallback}>
-                  <Suspense fallback={<RouteLoader />}>
-                    <KitchenDisplaySimple />
-                  </Suspense>
-                </Profiler>
-              </ErrorBoundary>
+              <KitchenRoute>
+                <ErrorBoundary 
+                  level="section"
+                  onError={(error, errorInfo) => {
+                    console.error('🚨 [AppRoutes] Kitchen route error:', {
+                      error: error.message,
+                      componentStack: errorInfo.componentStack,
+                      errorStack: error.stack
+                    })
+                  }}
+                >
+                  <Profiler id="KitchenDisplay" onRender={onRenderCallback}>
+                    <Suspense fallback={<RouteLoader />}>
+                      <KitchenDisplaySimple />
+                    </Suspense>
+                  </Profiler>
+                </ErrorBoundary>
+              </KitchenRoute>
             } />
             <Route path="/kiosk-demo" element={
               <ErrorBoundary level="section">

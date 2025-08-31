@@ -5,6 +5,7 @@ import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
 import { KioskModeSelector, KioskMode } from '@/components/kiosk/KioskModeSelector';
 import { VoiceOrderingMode } from '@/components/kiosk/VoiceOrderingMode';
 import { KioskCheckoutPage } from '@/components/kiosk/KioskCheckoutPage';
+import { BackToDashboard } from '@/components/navigation/BackToDashboard';
 
 const KioskPageContent: React.FC = () => {
   const [currentMode, setCurrentMode] = useState<KioskMode>('selection');
@@ -45,35 +46,50 @@ const KioskPageContent: React.FC = () => {
   // Checkout flow
   if (isCheckingOut) {
     return (
-      <KioskCheckoutPage 
-        onBack={handleBackFromCheckout} 
-        voiceCheckoutOrchestrator={voiceCheckoutOrchestratorRef.current}
-      />
+      <div className="relative min-h-screen">
+        <div className="fixed top-4 left-4 z-50">
+          <BackToDashboard />
+        </div>
+        <KioskCheckoutPage 
+          onBack={handleBackFromCheckout} 
+          voiceCheckoutOrchestrator={voiceCheckoutOrchestratorRef.current}
+        />
+      </div>
     );
   }
 
   // Mode selection
   if (currentMode === 'selection') {
     return (
-      <KioskModeSelector
-        onModeSelect={handleModeSelect}
-        cartItemCount={cart.itemCount}
-        cartTotal={cart.total}
-        onViewCart={cart.itemCount > 0 ? handleCheckout : undefined}
-      />
+      <div className="relative min-h-screen">
+        <div className="fixed top-4 left-4 z-50">
+          <BackToDashboard />
+        </div>
+        <KioskModeSelector
+          onModeSelect={handleModeSelect}
+          cartItemCount={cart.itemCount}
+          cartTotal={cart.total}
+          onViewCart={cart.itemCount > 0 ? handleCheckout : undefined}
+        />
+      </div>
     );
   }
 
   // Voice ordering mode
   if (currentMode === 'voice') {
     return (
-      <VoiceOrderingMode
-        onBack={handleBackToModeSelection}
-        onCheckout={handleCheckout}
-        onOrchestratorReady={(orchestrator) => {
-          voiceCheckoutOrchestratorRef.current = orchestrator;
-        }}
-      />
+      <div className="relative min-h-screen">
+        <div className="fixed top-4 left-4 z-50">
+          <BackToDashboard />
+        </div>
+        <VoiceOrderingMode
+          onBack={handleBackToModeSelection}
+          onCheckout={handleCheckout}
+          onOrchestratorReady={(orchestrator) => {
+            voiceCheckoutOrchestratorRef.current = orchestrator;
+          }}
+        />
+      </div>
     );
   }
 

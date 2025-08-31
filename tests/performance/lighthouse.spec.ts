@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { playAudit } from 'playwright-lighthouse';
 
+/* eslint-env browser */
+
 test.describe('Performance Tests', () => {
   test('lighthouse performance audit', async ({ page, browserName }) => {
     // Skip for non-Chromium browsers as Lighthouse only works with Chrome

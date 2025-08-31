@@ -1,3 +1,4 @@
+ 
 /**
  * Enterprise Memory Monitoring System
  * Provides comprehensive memory leak detection, monitoring, and reporting
@@ -72,7 +73,7 @@ class MemoryMonitoringSystem {
       return;
     }
     
-    console.log('MemoryMonitoringSystem: Starting memory monitoring...');
+    console.warn('MemoryMonitoringSystem: Starting memory monitoring...');
     this.isMonitoring = true;
     
     // Take initial snapshot
@@ -99,7 +100,7 @@ class MemoryMonitoringSystem {
       return;
     }
     
-    console.log('MemoryMonitoringSystem: Stopping memory monitoring...');
+    console.warn('MemoryMonitoringSystem: Stopping memory monitoring...');
     this.isMonitoring = false;
     
     if (this.monitoringInterval) {
@@ -120,7 +121,7 @@ class MemoryMonitoringSystem {
       return null;
     }
     
-    const memory = (performance as any).memory;
+    const memory = (performance as { memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
     const snapshot: MemorySnapshot = {
       timestamp: Date.now(),
       used: memory.usedJSHeapSize,
@@ -444,8 +445,8 @@ class MemoryMonitoringSystem {
   forceGarbageCollection(): boolean {
     if (typeof window !== 'undefined' && 'gc' in window) {
       try {
-        (window as any).gc();
-        console.log('Forced garbage collection');
+        (window as { gc?: () => void }).gc?.();
+        console.warn('Forced garbage collection');
         return true;
       } catch (error) {
         console.warn('Failed to force garbage collection:', error);

@@ -61,7 +61,7 @@ export interface UnifiedOrder {
   // Additional info
   notes?: string;
   source: 'online' | 'voice' | 'kiosk' | 'server' | 'phone';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Converters for legacy formats
@@ -108,7 +108,7 @@ export function normalizeOrderStatus(status: string): UnifiedOrderStatus {
 }
 
 // Helper to ensure modifiers are in object format
-export function normalizeModifiers(modifiers: any): UnifiedModifier[] | undefined {
+export function normalizeModifiers(modifiers: unknown): UnifiedModifier[] | undefined {
   if (!modifiers || !Array.isArray(modifiers)) return undefined;
   
   return modifiers.map((mod, index) => {
@@ -125,42 +125,45 @@ export function normalizeModifiers(modifiers: any): UnifiedModifier[] | undefine
 }
 
 // Convert any order format to unified format
-export function toUnifiedOrder(order: any, source: UnifiedOrder['source']): UnifiedOrder {
+export function toUnifiedOrder(order: Record<string, unknown>, source: UnifiedOrder['source']): UnifiedOrder {
   return {
-    id: order.id || '',
-    restaurant_id: order.restaurant_id || order.restaurantId || '',
-    order_number: order.order_number || order.order_number || '',
+    id: (order.id as string) || '',
+    restaurant_id: (order.restaurant_id as string) || (order.restaurantId as string) || '',
+    order_number: (order.order_number as string) || (order.orderNumber as string) || '',
     
-    type: normalizeOrderType(order.type || order.type || 'takeout'),
-    status: normalizeOrderStatus(order.status || 'new'),
-    items: (order.items || []).map((item: any) => ({
-      id: item.id || '',
-      menu_item_id: item.menu_item_id || item.menu_item_id || item.id || '',
-      name: item.name || '',
-      quantity: item.quantity || 1,
-      price: item.price || 0,
-      modifiers: normalizeModifiers(item.modifiers),
-      special_instructions: item.special_instructions || item.notes || item.special_instructions,
-      category: item.category
-    })),
+    type: normalizeOrderType((order.type as string) || (order.orderType as string) || 'takeout'),
+    status: normalizeOrderStatus((order.status as string) || 'new'),
+    items: ((order.items as unknown[]) || []).map((item: unknown) => {
+      const itemObj = item as Record<string, unknown>;
+      return {
+        id: (itemObj.id as string) || '',
+        menu_item_id: (itemObj.menu_item_id as string) || (itemObj.menuItemId as string) || (itemObj.id as string) || '',
+        name: (itemObj.name as string) || '',
+        quantity: (itemObj.quantity as number) || 1,
+        price: (itemObj.price as number) || 0,
+        modifiers: normalizeModifiers(itemObj.modifiers),
+        special_instructions: (itemObj.special_instructions as string) || (itemObj.notes as string) || (itemObj.specialInstructions as string),
+        category: itemObj.category as string
+      };
+    }),
     
-    customerName: order.customerName || order.customer_name,
-    customerPhone: order.customerPhone || order.customer_phone,
-    customerEmail: order.customerEmail || order.customer_email,
-    table_number: order.table_number || order.table_number,
+    customerName: (order.customerName as string) || (order.customer_name as string),
+    customerPhone: (order.customerPhone as string) || (order.customer_phone as string),
+    customerEmail: (order.customerEmail as string) || (order.customer_email as string),
+    tableNumber: (order.table_number as string) || (order.tableNumber as string),
     
-    created_at: order.created_at || order.created_at || new Date(),
-    prepTimeMinutes: order.prepTimeMinutes || order.prep_time_minutes || order.prepTime,
-    completed_at: order.completed_at || order.completed_at,
+    created_at: (order.created_at as string | Date) || (order.createdAt as string | Date) || new Date(),
+    prepTimeMinutes: (order.prepTimeMinutes as number) || (order.prep_time_minutes as number) || (order.prepTime as number),
+    completedTime: (order.completed_at as string | Date) || (order.completedAt as string | Date),
     
-    subtotal: order.subtotal || 0,
-    tax: order.tax || 0,
-    total: order.total || order.total_amount || 0,
-    payment_status: order.payment_status || order.payment_status || 'pending',
-    paymentMethod: order.paymentMethod || order.payment_method,
+    subtotal: (order.subtotal as number) || 0,
+    tax: (order.tax as number) || 0,
+    total: (order.total as number) || (order.total_amount as number) || 0,
+    payment_status: ((order.payment_status as string) || (order.paymentStatus as string) || 'pending') as 'pending' | 'paid' | 'refunded',
+    paymentMethod: ((order.paymentMethod as string) || (order.payment_method as string)) as 'online' | 'cash' | 'card',
     
-    notes: order.notes,
+    notes: order.notes as string,
     source,
-    metadata: order.metadata
+    metadata: order.metadata as Record<string, unknown>
   };
 }

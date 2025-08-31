@@ -54,8 +54,8 @@ export interface MenuToolResult {
 
 // Initialize Supabase client
 const supabase: SupabaseClient = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!,
+  process.env['SUPABASE_URL']!,
+  process.env['SUPABASE_SERVICE_KEY']!,
   { auth: { persistSession: false } }
 );
 
@@ -102,7 +102,7 @@ export const menuFunctionTools = {
    * Find menu items by query
    */
   find_menu_items: {
-    description: 'Search for menu items by name, category, or dietary restrictions',
+    description: 'Search for menu items by name, category, or dietary restrictions. Use this to verify if items exist on the menu.',
     parameters: {
       type: 'object',
       properties: {
@@ -122,6 +122,10 @@ export const menuFunctionTools = {
           type: 'array',
           items: { type: 'string' },
           description: 'Dietary restrictions (vegetarian, vegan, gluten_free)'
+        },
+        suggest_alternatives: {
+          type: 'boolean',
+          description: 'If true and no items found, suggest similar items from the menu'
         }
       }
     },
@@ -169,11 +173,88 @@ export const menuFunctionTools = {
         // Cache results
         menuCache.set(cacheKey, data);
 
+        // If no items found, provide helpful message and maybe suggestions
+        if (!data || data.length === 0) {
+          const suggestions: any[] = [];
+          
+          // If requested, try to find alternative suggestions
+          if (args.suggest_alternatives) {
+            // Instead of hardcoded mappings, intelligently suggest based on:
+            // 1. Popular items from the restaurant
+            // 2. Items from all categories if no category specified
+            // 3. Random sampling of available items
+            
+            // First try to get popular/featured items
+            let suggestionQuery = supabase
+              .from('menu_items')
+              .select('*')
+              .eq('restaurant_id', context.restaurantId)
+              .eq('available', true);
+            
+            // If they specified a category, get items from that category
+            if (args.category) {
+              suggestionQuery = suggestionQuery.eq('category', args.category);
+            }
+            
+            // Get up to 3 suggestions, prioritizing different categories
+            const { data: suggestionData } = await suggestionQuery
+              .limit(20); // Get more initially to allow for category diversity
+              
+            if (suggestionData && suggestionData.length > 0) {
+              // Group by category and take one from each (up to 3 total)
+              const byCategory: Record<string, any[]> = {};
+              suggestionData.forEach((item: any) => {
+                const category = item?.category || 'other';
+                if (!byCategory[category]) {
+                  byCategory[category] = [];
+                }
+                byCategory[category].push(item);
+              });
+              
+              // Take one item from each category, up to 3 items total
+              const categories = Object.keys(byCategory);
+              for (let i = 0; i < Math.min(3, categories.length); i++) {
+                const category = categories[i];
+                if (category) {
+                  const categoryItems = byCategory[category];
+                  if (categoryItems && categoryItems.length > 0) {
+                    // Pick a random item from this category
+                    const randomIndex = Math.floor(Math.random() * categoryItems.length);
+                    suggestions.push(categoryItems[randomIndex]);
+                  }
+                }
+              }
+              
+              // If we have fewer than 3 suggestions and more items available, fill up
+              if (suggestions.length < 3 && suggestionData.length > suggestions.length) {
+                const remaining = suggestionData.filter(item => 
+                  !suggestions.find(s => s.id === item.id)
+                );
+                suggestions.push(...remaining.slice(0, 3 - suggestions.length));
+              }
+            }
+          }
+          
+          return { 
+            success: true, 
+            data: { 
+              items: [],
+              count: 0,
+              not_found: true,
+              searched_for: args.query || args.category || 'items',
+              suggestions: suggestions.slice(0, 3) // Ensure max 3 suggestions
+            },
+            message: suggestions.length > 0 
+              ? `We don't have ${args.query || 'that item'} on our menu, but you might enjoy these options`
+              : `No items found matching "${args.query || args.category || 'your search'}"`
+          };
+        }
+
         return { 
           success: true, 
           data: { 
-            items: data || [],
-            count: data?.length || 0
+            items: data,
+            count: data.length
           }
         };
       } catch (error) {
@@ -344,6 +425,10 @@ export const menuFunctionTools = {
         }
 
         const removed = cart.items.splice(itemIndex, 1)[0];
+        if (!removed) {
+          return { success: false, error: 'Failed to remove item from cart' };
+        }
+        
         updateCartTotals(cart);
 
         return {

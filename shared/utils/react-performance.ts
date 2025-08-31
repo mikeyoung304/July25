@@ -1,12 +1,14 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * React Performance Optimization Utilities
  * Enterprise-grade performance optimization patterns for React components
  */
 
 // Conditional React import for browser environment only
-let React: any;
+let React: typeof import('react') | undefined;
 if (typeof window !== 'undefined') {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     React = require('react');
   } catch (e) {
     console.warn('React not available in shared utils react-performance');
@@ -19,7 +21,7 @@ export * from './performance-hooks';
 // Type definitions for components (no actual JSX)
 export interface VirtualizedListProps<T> {
   items: T[];
-  renderItem: (item: T, index: number) => any;
+  renderItem: (item: T, index: number) => React.ReactNode;
   keyExtractor: (item: T, index: number) => string | number;
   estimatedItemSize?: number;
   overscan?: number;
@@ -28,7 +30,7 @@ export interface VirtualizedListProps<T> {
 
 export interface PerformanceProfilerProps {
   id: string;
-  children: any;
+  children: React.ReactNode;
   onRender?: (id: string, phase: 'mount' | 'update', actualDuration: number) => void;
 }
 
@@ -36,9 +38,9 @@ export interface PerformanceProfilerProps {
  * Enhanced React.memo with performance profiling
  */
 export function memoWithProfiling<P extends object>(
-  Component: any,
+  Component: React.ComponentType<P>,
   propsAreEqual?: (prevProps: P, nextProps: P) => boolean
-): any {
+): React.ForwardRefExoticComponent<P & React.RefAttributes<any>> {
   const componentName = Component.displayName || Component.name || 'Anonymous';
   
   const MemoizedComponent = React.memo(Component, propsAreEqual);
@@ -49,6 +51,7 @@ export function memoWithProfiling<P extends object>(
     if (typeof window !== 'undefined') {
       // Only run memory profiling in browser
       try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { useMemoryProfile } = require('./memory-monitoring');
         useMemoryProfile(componentName);
       } catch (e) {
@@ -84,6 +87,7 @@ export function withPerformanceTracking<P extends object>(
     // Profile component memory (browser only)
     if (typeof window !== 'undefined') {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { useMemoryProfile } = require('./memory-monitoring');
         useMemoryProfile(componentName);
       } catch (e) {

@@ -3,13 +3,13 @@ import { logger } from '@/services/logger'
 import { RestaurantContext } from './restaurant-types'
 
 export function useRestaurant() {
-  logger.info('[useRestaurant] Accessing context with ID:', (RestaurantContext as any).__contextId)
+  logger.info('[useRestaurant] Accessing context with ID:', (RestaurantContext as { __contextId?: string }).__contextId)
   const context = useContext(RestaurantContext)
   logger.info('[useRestaurant] Got context value:', context ? 'defined' : 'undefined')
   
   if (context === undefined) {
     console.error('🚨 [useRestaurant] CONTEXT UNDEFINED! This is the root cause of the ErrorBoundary!', {
-      contextId: (RestaurantContext as any).__contextId,
+      contextId: (RestaurantContext as { __contextId?: string }).__contextId,
       error: 'RestaurantContext not found - this causes the Kitchen Display to show ErrorBoundary',
       componentStack: new Error().stack,
       suggestion: 'Check if RestaurantProvider is mounted before this component renders',

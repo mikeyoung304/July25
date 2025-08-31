@@ -13,7 +13,9 @@ export class ManagedService {
 
   async dispose() {
     for (const fn of this._disposers.splice(0)) {
-      try { fn(); } catch {}
+      try { fn(); } catch {
+        // Silently ignore cleanup errors
+      }
     }
     this.status = 'disposed';
   }
@@ -33,7 +35,9 @@ export class CleanupManager {
 
   run() {
     for (const fn of this._cleanups.splice(0)) {
-      try { fn(); } catch {}
+      try { fn(); } catch {
+        // Silently ignore cleanup errors
+      }
     }
   }
 }
@@ -62,7 +66,9 @@ export class RuntimeMemoryMonitor {
     const tick = () => {
       try { 
         callback(RuntimeMemoryMonitor.getMemoryTrend()); 
-      } catch {}
+      } catch {
+        // Ignore callback errors
+      }
     };
     const id = setInterval(tick, ms);
     return () => clearInterval(id);

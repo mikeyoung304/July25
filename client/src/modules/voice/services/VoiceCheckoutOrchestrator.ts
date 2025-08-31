@@ -2,7 +2,11 @@ import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useToast } from '@/hooks/useToast';
 import { useNavigate } from 'react-router-dom';
-import type { KioskCartItem } from '@/components/kiosk/KioskCartProvider';
+import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
+import { logger } from '@/services/monitoring/logger';
+
+// Type alias for compatibility
+type KioskCartItem = UnifiedCartItem;
 
 export interface VoiceCheckoutConfig {
   restaurantId: string;
@@ -25,7 +29,7 @@ export interface CheckoutInitiatedEvent {
 }
 
 export interface PaymentMethodSelectedEvent {
-  method: 'card' | 'mobile' | 'cash';
+  method: 'card' | 'mobile' | 'cash' | 'terminal';
   timestamp: number;
 }
 
@@ -60,7 +64,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.config = config;
     
     if (this.config.debug) {
-      console.log('[VoiceCheckoutOrchestrator] Initialized with config:', config);
+      // Debug: '[VoiceCheckoutOrchestrator] Initialized with config:', config
     }
   }
 
@@ -78,7 +82,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.navigate = navigate;
     
     if (this.config.debug) {
-      console.log('[VoiceCheckoutOrchestrator] Initialized with React dependencies');
+      // Debug: '[VoiceCheckoutOrchestrator] Initialized with React dependencies'
     }
   }
 
@@ -90,7 +94,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.currentTotals = { ...totals };
     
     if (this.config.debug) {
-      console.log('[VoiceCheckoutOrchestrator] Cart updated:', {
+      logger.info('[VoiceCheckoutOrchestrator] Cart updated', {
         itemCount: items.length,
         total: totals.total
       });
@@ -104,7 +108,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     const logPrefix = '[VoiceCheckoutOrchestrator]';
     
     if (this.config.debug) {
-      console.log(`${logPrefix} Received confirmation event:`, event);
+      // Debug: `${logPrefix} Received confirmation event:`, event
     }
 
     switch (event.action) {
@@ -174,7 +178,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.navigate('/kiosk-checkout');
 
     if (this.config.debug) {
-      console.log('[VoiceCheckoutOrchestrator] Navigated to checkout page');
+      // Debug: '[VoiceCheckoutOrchestrator] Navigated to checkout page'
     }
   }
 
@@ -251,7 +255,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.toast?.toast.success('Order cancelled');
 
     if (this.config.debug) {
-      console.log('[VoiceCheckoutOrchestrator] Order cancelled');
+      // Debug: '[VoiceCheckoutOrchestrator] Order cancelled'
     }
   }
 
@@ -286,7 +290,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.emit('payment.feedback', { text: feedbackText, timestamp: Date.now() });
 
     if (this.config.debug) {
-      console.log('[VoiceCheckoutOrchestrator] Payment method selected:', method);
+      // Debug: '[VoiceCheckoutOrchestrator] Payment method selected:', method
     }
   }
 
@@ -353,7 +357,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
       });
 
       if (this.config.debug) {
-        console.log(`[VoiceCheckoutOrchestrator] State: ${previousState} → ${state}`);
+        // Debug: `[VoiceCheckoutOrchestrator] State: ${previousState} → ${state}`
       }
     }
   }
@@ -374,7 +378,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.currentTotals = { subtotal: 0, tax: 0, total: 0 };
 
     if (this.config.debug) {
-      console.log('[VoiceCheckoutOrchestrator] Reset to idle state');
+      // Debug: '[VoiceCheckoutOrchestrator] Reset to idle state'
     }
   }
 
@@ -389,7 +393,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.navigate = null;
 
     if (this.config.debug) {
-      console.log('[VoiceCheckoutOrchestrator] Destroyed');
+      // Debug: '[VoiceCheckoutOrchestrator] Destroyed'
     }
   }
 }

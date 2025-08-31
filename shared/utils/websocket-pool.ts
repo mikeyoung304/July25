@@ -19,7 +19,7 @@ export interface WebSocketPoolConfig {
 export interface WebSocketMessage {
   id: string;
   type: string;
-  data: any;
+  data: unknown;
   timestamp: number;
   priority: 'low' | 'normal' | 'high';
   maxRetries?: number;
@@ -38,11 +38,28 @@ export interface PoolHealth {
 
 export interface PoolStatistics {
   health: PoolHealth;
-  connections: Record<string, any>;
+  connections: Record<string, {
+    url: string;
+    state: string;
+    health: number;
+    messagesSent: number;
+    messagesReceived: number;
+    lastActivity: number;
+    reconnectAttempts: number;
+  }>;
   loadBalancing: {
     strategy: string;
     currentSelection: string | null;
   };
+}
+
+// Type guards for environment detection
+function isBrowserEnvironment(): boolean {
+  return typeof window !== 'undefined' && typeof globalThis !== 'undefined' && 'WebSocket' in globalThis;
+}
+
+function isWebSocketAvailable(): boolean {
+  return typeof globalThis !== 'undefined' && 'WebSocket' in globalThis;
 }
 
 // Server-safe WebSocket Pool implementation
@@ -50,7 +67,7 @@ export class WebSocketPool {
   private isBrowser: boolean;
   
   constructor(_config?: Partial<WebSocketPoolConfig>) {
-    this.isBrowser = typeof window !== 'undefined' && typeof globalThis !== 'undefined' && 'WebSocket' in globalThis;
+    this.isBrowser = isBrowserEnvironment();
     
     if (!this.isBrowser) {
       console.warn('WebSocketPool: Server environment - WebSocket not available');
@@ -58,7 +75,7 @@ export class WebSocketPool {
   }
   
   async connect(): Promise<boolean> {
-    if (!this.isBrowser) {
+    if (!this.isBrowser || !isWebSocketAvailable()) {
       return false;
     }
     
@@ -66,7 +83,8 @@ export class WebSocketPool {
     try {
       const { WebSocketPool: BrowserWebSocketPool } = await import('./websocket-pool.browser');
       const instance = new BrowserWebSocketPool();
-      return instance.connect();
+      await instance.initialize(); // Use initialize instead of connect
+      return true;
     } catch (e) {
       console.warn('Failed to load browser WebSocket implementation:', e);
       return false;

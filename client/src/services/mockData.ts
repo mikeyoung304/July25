@@ -1,6 +1,6 @@
 // Centralized mock data storage
-import { Order, MenuItem } from './types'
-import { Table } from '../modules/floor-plan/types'
+import { MenuItem as ApiMenuItem } from '@rebuild/shared/api-types'
+import { ClientOrder, ClientTable } from '@rebuild/shared/types/transformers'
 
 export const mockData = {
   orders: [
@@ -10,13 +10,17 @@ export const mockData = {
       orderNumber: '001',
       tableNumber: '5',
       items: [
-        { id: '1', name: 'Georgia Soul Bowl', quantity: 2, modifiers: ['Extra collards', 'No pico'] },
-        { id: '2', name: 'Garden Salad', quantity: 1, modifiers: ['Ranch dressing'] },
-        { id: '3', name: 'Sweet Potato Fries', quantity: 1, notes: 'Customer allergic to nuts' }
+        { id: '1', menuItemId: '1', quantity: 2, unitPrice: 14.99, subtotal: 29.98, modifiers: [{id: 'm1', name: 'Extra collards', price: 2}, {id: 'm2', name: 'No pico', price: 0}] },
+        { id: '2', menuItemId: '2', quantity: 1, unitPrice: 7.99, subtotal: 7.99, modifiers: [{id: 'm3', name: 'Ranch dressing', price: 0}] },
+        { id: '3', menuItemId: '3', quantity: 1, unitPrice: 4.99, subtotal: 4.99, specialInstructions: 'Customer allergic to nuts' }
       ],
       status: 'new' as const,
-      createdAt: new Date(Date.now() - 2 * 60000), // 2 minutes ago
-      total: 32.50,
+      orderTime: new Date(Date.now() - 2 * 60000), // 2 minutes ago
+      createdAt: new Date(Date.now() - 2 * 60000),
+      updatedAt: new Date(Date.now() - 2 * 60000),
+      subtotal: 28.50,
+      tax: 2.50,
+      totalAmount: 32.50,
       paymentStatus: 'pending' as const,
       type: 'dine-in' as const
     },
@@ -26,14 +30,18 @@ export const mockData = {
       orderNumber: '002',
       tableNumber: 'DT-1',
       items: [
-        { id: '4', name: 'Monte Cristo Sandwich', quantity: 1, modifiers: ['Extra jam', 'Side salad'] },
-        { id: '5', name: 'Sweet Tea', quantity: 2 }
+        { id: '4', menuItemId: '4', quantity: 1, unitPrice: 12.99, subtotal: 12.99, modifiers: [{id: 'm4', name: 'Extra jam', price: 0}, {id: 'm5', name: 'Side salad', price: 2}] },
+        { id: '5', menuItemId: '5', quantity: 2, unitPrice: 2.99, subtotal: 5.98 }
       ],
       status: 'preparing' as const,
-      createdAt: new Date(Date.now() - 8 * 60000), // 8 minutes ago
-      total: 18.50,
-      paymentStatus: 'paid' as const,
-      type: 'drive-thru' as const,
+      orderTime: new Date(Date.now() - 8 * 60000), // 8 minutes ago
+      createdAt: new Date(Date.now() - 8 * 60000),
+      updatedAt: new Date(Date.now() - 8 * 60000),
+      subtotal: 17.00,
+      tax: 1.50,
+      totalAmount: 18.50,
+      paymentStatus: 'completed' as const,
+      type: 'pickup' as const,
       notes: 'Customer waiting in car'
     },
     {
@@ -42,13 +50,17 @@ export const mockData = {
       orderNumber: '003',
       tableNumber: '7',
       items: [
-        { id: '6', name: 'Teriyaki Chicken Bowl', quantity: 1, modifiers: ['Black rice', 'Extra broccoli'] },
-        { id: '7', name: 'Boiled Peanuts', quantity: 1 },
-        { id: '8', name: 'Lemonade', quantity: 2 }
+        { id: '6', menuItemId: '2', quantity: 1, unitPrice: 13.99, subtotal: 13.99, modifiers: [{id: 'm6', name: 'Black rice', price: 0}, {id: 'm7', name: 'Extra broccoli', price: 1}] },
+        { id: '7', menuItemId: '7', quantity: 1, unitPrice: 3.99, subtotal: 3.99 },
+        { id: '8', menuItemId: '8', quantity: 2, unitPrice: 2.99, subtotal: 5.98 }
       ],
       status: 'new' as const,
-      createdAt: new Date(Date.now() - 1 * 60000), // 1 minute ago
-      total: 28.75,
+      orderTime: new Date(Date.now() - 1 * 60000), // 1 minute ago
+      createdAt: new Date(Date.now() - 1 * 60000),
+      updatedAt: new Date(Date.now() - 1 * 60000),
+      subtotal: 26.50,
+      tax: 2.25,
+      totalAmount: 28.75,
       paymentStatus: 'pending' as const,
       type: 'dine-in' as const
     },
@@ -58,15 +70,19 @@ export const mockData = {
       orderNumber: '004',
       tableNumber: 'DT-2',
       items: [
-        { id: '9', name: 'Jerk Chicken Bowl', quantity: 2, modifiers: ['Yellow rice', 'Extra pineapple salsa'] },
-        { id: '10', name: 'Collard Greens', quantity: 1 },
-        { id: '11', name: 'Unsweet Tea', quantity: 2 }
+        { id: '9', menuItemId: '3', quantity: 2, unitPrice: 13.99, subtotal: 27.98, modifiers: [{id: 'm8', name: 'Yellow rice', price: 0}, {id: 'm9', name: 'Extra pineapple salsa', price: 1}] },
+        { id: '10', menuItemId: '10', quantity: 1, unitPrice: 3.99, subtotal: 3.99 },
+        { id: '11', menuItemId: '11', quantity: 2, unitPrice: 2.99, subtotal: 5.98 }
       ],
       status: 'ready' as const,
-      createdAt: new Date(Date.now() - 15 * 60000), // 15 minutes ago
-      total: 34.50,
-      paymentStatus: 'paid' as const,
-      type: 'drive-thru' as const
+      orderTime: new Date(Date.now() - 15 * 60000), // 15 minutes ago
+      createdAt: new Date(Date.now() - 15 * 60000),
+      updatedAt: new Date(Date.now() - 15 * 60000),
+      subtotal: 31.50,
+      tax: 3.00,
+      totalAmount: 34.50,
+      paymentStatus: 'completed' as const,
+      type: 'pickup' as const
     },
     {
       id: '5',
@@ -74,14 +90,18 @@ export const mockData = {
       orderNumber: '005',
       tableNumber: '9',
       items: [
-        { id: '12', name: 'Mama\'s Chicken Salad', quantity: 1, modifiers: ['Extra pecans', 'No grapes'], notes: 'Birthday celebration' },
-        { id: '13', name: 'Field Peas', quantity: 1 },
-        { id: '14', name: 'Fresh Juice', quantity: 1 }
+        { id: '12', menuItemId: '12', quantity: 1, unitPrice: 11.99, subtotal: 11.99, modifiers: [{id: 'm10', name: 'Extra pecans', price: 2}, {id: 'm11', name: 'No grapes', price: 0}], specialInstructions: 'Birthday celebration' },
+        { id: '13', menuItemId: '13', quantity: 1, unitPrice: 3.99, subtotal: 3.99 },
+        { id: '14', menuItemId: '14', quantity: 1, unitPrice: 4.99, subtotal: 4.99 }
       ],
       status: 'preparing' as const,
-      createdAt: new Date(Date.now() - 10 * 60000), // 10 minutes ago
-      total: 52.99,
-      paymentStatus: 'paid' as const,
+      orderTime: new Date(Date.now() - 10 * 60000), // 10 minutes ago
+      createdAt: new Date(Date.now() - 10 * 60000),
+      updatedAt: new Date(Date.now() - 10 * 60000),
+      subtotal: 48.99,
+      tax: 4.00,
+      totalAmount: 52.99,
+      paymentStatus: 'completed' as const,
       type: 'dine-in' as const
     },
     {
@@ -90,26 +110,30 @@ export const mockData = {
       orderNumber: '006',
       tableNumber: 'DT-3',
       items: [
-        { id: '15', name: 'Pear & Feta Salad', quantity: 3, modifiers: ['No cranberries'] },
-        { id: '16', name: 'Deviled Eggs', quantity: 1 },
-        { id: '17', name: 'Arnold Palmer', quantity: 2 }
+        { id: '15', menuItemId: '15', quantity: 3, unitPrice: 9.99, subtotal: 29.97, modifiers: [{id: 'm12', name: 'No cranberries', price: 0}] },
+        { id: '16', menuItemId: '16', quantity: 1, unitPrice: 5.99, subtotal: 5.99 },
+        { id: '17', menuItemId: '17', quantity: 2, unitPrice: 3.99, subtotal: 7.98 }
       ],
       status: 'new' as const,
-      createdAt: new Date(Date.now() - 3 * 60000), // 3 minutes ago
-      total: 38.25,
-      paymentStatus: 'paid' as const,
-      type: 'drive-thru' as const,
-      notes: 'No ice in drinks'
+      orderTime: new Date(Date.now() - 3 * 60000), // 3 minutes ago
+      createdAt: new Date(Date.now() - 3 * 60000),
+      updatedAt: new Date(Date.now() - 3 * 60000),
+      subtotal: 35.25,
+      tax: 3.00,
+      totalAmount: 38.25,
+      paymentStatus: 'completed' as const,
+      type: 'pickup' as const,
+      specialInstructions: 'No ice in drinks'
     }
-  ] as Order[],
+  ] as ClientOrder[],
 
   tables: [
-    { id: '1', restaurantId: 'rest-1', type: 'square' as const, x: 100, y: 100, width: 80, height: 80, seats: 2, label: '1', rotation: 0, status: 'available' as const, zIndex: 1 },
-    { id: '2', restaurantId: 'rest-1', type: 'square' as const, x: 200, y: 100, width: 80, height: 80, seats: 4, label: '2', rotation: 0, status: 'occupied' as const, zIndex: 1, currentOrderId: '1' },
-    { id: '3', restaurantId: 'rest-1', type: 'rectangle' as const, x: 300, y: 100, width: 120, height: 80, seats: 6, label: '3', rotation: 0, status: 'available' as const, zIndex: 1 },
-    { id: '4', restaurantId: 'rest-1', type: 'square' as const, x: 100, y: 200, width: 80, height: 80, seats: 4, label: '4', rotation: 0, status: 'reserved' as const, zIndex: 1 },
-    { id: '5', restaurantId: 'rest-1', type: 'circle' as const, x: 200, y: 200, width: 80, height: 80, seats: 2, label: '5', rotation: 0, status: 'occupied' as const, zIndex: 1, currentOrderId: '2' },
-  ] as Table[],
+    { id: '1', restaurantId: 'rest-1', tableNumber: '1', type: 'square' as const, x: 100, y: 100, width: 80, height: 80, seats: 2, status: 'available' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
+    { id: '2', restaurantId: 'rest-1', tableNumber: '2', type: 'square' as const, x: 200, y: 100, width: 80, height: 80, seats: 4, status: 'occupied' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
+    { id: '3', restaurantId: 'rest-1', tableNumber: '3', type: 'rectangle' as const, x: 300, y: 100, width: 120, height: 80, seats: 6, status: 'available' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
+    { id: '4', restaurantId: 'rest-1', tableNumber: '4', type: 'square' as const, x: 100, y: 200, width: 80, height: 80, seats: 4, status: 'reserved' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
+    { id: '5', restaurantId: 'rest-1', tableNumber: '5', type: 'circle' as const, x: 200, y: 200, width: 80, height: 80, seats: 2, status: 'occupied' as const, zIndex: 1, createdAt: new Date(), updatedAt: new Date() },
+  ] as ClientTable[],
 
   menuItems: [
     {
@@ -118,7 +142,7 @@ export const mockData = {
       name: 'Georgia Soul Bowl',
       description: 'Smoked sausage, field peas, collards, yellow rice, pico de gallo',
       price: 14.99,
-      category: 'Bowls',
+      categoryId: 'cat-1',
       isAvailable: true,
       modifiers: [
         { id: 'm1', name: 'Extra collards', price: 2.00 },
@@ -132,7 +156,7 @@ export const mockData = {
       name: 'Teriyaki Chicken Bowl',
       description: 'Chicken breast, sauteed vegetables, steamed broccoli, pineapple salsa, rice',
       price: 13.99,
-      category: 'Bowls',
+      categoryId: 'cat-1',
       isAvailable: true,
       modifiers: [
         { id: 'm4', name: 'Black rice', price: 0 },
@@ -146,7 +170,7 @@ export const mockData = {
       name: 'Jerk Chicken Bowl',
       description: 'Jerk chicken breast, cabbage, black beans, pineapple salsa, rice',
       price: 13.99,
-      category: 'Bowls',
+      categoryId: 'cat-1',
       isAvailable: true,
       modifiers: [
         { id: 'm7', name: 'Extra pineapple salsa', price: 1.00 },
@@ -160,7 +184,7 @@ export const mockData = {
       name: 'Mama\'s Chicken Salad',
       description: 'Chicken breast, mayo, celery, Georgia pecans, grapes, organic greens',
       price: 11.99,
-      category: 'Salads',
+      categoryId: 'cat-2',
       isAvailable: true,
       modifiers: [
         { id: 'm10', name: 'Extra pecans', price: 2.00 },
@@ -174,7 +198,7 @@ export const mockData = {
       name: 'Pear & Feta Salad',
       description: 'Pears, feta, toasted pecans, dried cranberries, organic greens',
       price: 10.99,
-      category: 'Salads',
+      categoryId: 'cat-2',
       isAvailable: true,
       modifiers: [
         { id: 'm13', name: 'Blue cheese instead', price: 0 },
@@ -188,7 +212,7 @@ export const mockData = {
       name: 'Monte Cristo Sandwich',
       description: 'Ham, turkey, swiss, raspberry jam, powdered sugar',
       price: 11.00,
-      category: 'Sandwiches',
+      categoryId: 'cat-4',
       isAvailable: true,
       modifiers: [
         { id: 'm16', name: 'Extra jam', price: 0 },
@@ -241,7 +265,7 @@ export const mockData = {
       category: 'Sides',
       isAvailable: true
     }
-  ] as MenuItem[]
+  ] as ApiMenuItem[]
 }
 
 // Create initial copies for reset

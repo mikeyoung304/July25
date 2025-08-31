@@ -31,10 +31,11 @@ export class OrderMatchingService {
     const items = cand.items.map(ci=>{
       const top=ci.candidates[0];
       if(!top || top.score<0.35){
-        const e=new Error(`unknown_item`) as any;
-        e.status=422; 
-        e.error="unknown_item";
-        e.suggestions=ci.candidates.map(c => ({ name: c.name, score: c.score })); 
+        const e = Object.assign(new Error(`unknown_item`), {
+          status: 422,
+          error: "unknown_item",
+          suggestions: ci.candidates.map(c => ({ name: c.name, score: c.score }))
+        }); 
         throw e;
       }
       return { menuItemId: top.menuItemId, quantity: ci.quantity,

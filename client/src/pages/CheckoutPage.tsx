@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BackToDashboard } from '@/components/navigation/BackToDashboard';
-import { useCart } from '@/modules/order-system/context/cartContext.hooks';
+import { useCart } from '@/modules/order-system/context/CartContext';
 import { CartItem } from '@/modules/order-system/components/CartItem';
 import { CartSummary } from '@/modules/order-system/components/CartSummary';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';

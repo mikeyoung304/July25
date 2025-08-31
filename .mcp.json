@@ -20,13 +20,13 @@
       "command": "npx",
       "args": ["@modelcontextprotocol/server-puppeteer"]
     },
-    "playwright": {
+    "supabase": {
       "command": "npx",
-      "args": ["@modelcontextprotocol/server-playwright"]
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["@context7/mcp-server"]
+      "args": ["supabase-mcp"],
+      "env": {
+        "SUPABASE_URL": "https://xiwfhcikfdoshxwbtjxt.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhpd2ZoY2lrZmRvc2h4d2J0anh0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjI0OTMwMiwiZXhwIjoyMDY3ODI1MzAyfQ.-dXq_uGiXmBQRKTz22LBWya2YBqVXLgZ41oLTdhnB5g"
+      }
     }
   }
 }
