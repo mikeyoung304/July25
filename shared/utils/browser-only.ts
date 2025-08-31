@@ -20,7 +20,7 @@ export interface WebSocketPoolConfig {
 export interface WebSocketMessage {
   id: string;
   type: string;
-  data: any;
+  data: unknown;
   timestamp: number;
   priority: 'low' | 'normal' | 'high';
   maxRetries?: number;
@@ -39,7 +39,7 @@ export interface PoolHealth {
 
 export interface PoolStatistics {
   health: PoolHealth;
-  connections: Record<string, any>;
+  connections: Record<string, unknown>;
   loadBalancing: {
     strategy: string;
     currentSelection: string | null;
@@ -71,7 +71,7 @@ export class WebSocketPool {
   
   disconnect(): void {}
   send(_message: Omit<WebSocketMessage, 'id' | 'timestamp'>): boolean { return false; }
-  subscribe(_pattern: string | RegExp, _callback: any, _connectionPreference?: string[]): () => void { return () => {}; }
+  subscribe(_pattern: string | RegExp, _callback: (data: unknown) => void, _connectionPreference?: string[]): () => void { return () => {}; }
   unsubscribe(_subscriptionId: string): void {}
   getHealthStatus(): PoolHealth | null { return null; }
   getStatistics(): PoolStatistics | null { return null; }
@@ -83,12 +83,12 @@ export const createWebSocketPool = (config?: Partial<WebSocketPoolConfig>) =>
 // React Performance Hooks - server-safe
 export const useStableObject = <T>(obj: T): T => obj;
 export const useStableArray = <T>(arr: T[]): T[] => arr;
-export const useStableCallback = <T extends (...args: any[]) => any>(callback: T, _deps: any[]): T => callback;
-export const useExpensiveMemo = <T>(factory: () => T, _deps: any[], _debugName?: string): T => factory();
+export const useStableCallback = <T extends (...args: unknown[]) => unknown>(callback: T, _deps: unknown[]): T => callback;
+export const useExpensiveMemo = <T>(factory: () => T, _deps: unknown[], _debugName?: string): T => factory();
 export const useContextValue = <T>(value: T): T => value;
-export const useDebouncedState = <T>(initialValue: T, _delay?: number): [T, T, any] => [initialValue, initialValue, () => {}];
-export const useIntersectionObserver = (_targetRef: any, _options?: any): boolean => false;
-export const useBatchedState = <T>(initialState: T): [T, (updates: any) => void] => [initialState, () => {}];
+export const useDebouncedState = <T>(initialValue: T, _delay?: number): [T, T, (value: T | ((prev: T) => T)) => void] => [initialValue, initialValue, () => {}];
+export const useIntersectionObserver = (_targetRef: React.RefObject<Element>, _options?: IntersectionObserverInit): boolean => false;
+export const useBatchedState = <T>(initialState: T): [T, (updates: Partial<T> | ((prev: T) => Partial<T>)) => void] => [initialState, () => {}];
 
 // Conditionally load browser implementations if available
 if (isBrowser) {

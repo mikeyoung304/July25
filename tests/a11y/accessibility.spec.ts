@@ -18,7 +18,7 @@ test.describe('Accessibility Tests', () => {
     
     // Test tab navigation
     await page.keyboard.press('Tab');
-    let focusedElement = await page.evaluate(() => document.activeElement?.tagName);
+    const focusedElement = await page.evaluate(() => document.activeElement?.tagName);
     expect(['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA']).toContain(focusedElement);
 
     // Test that focus is visible

@@ -418,7 +418,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }, refreshTime);
 
     return () => clearTimeout(timer);
-  }, [session?.expiresAt, session?.refreshToken]);
+  }, [session?.expiresAt, session?.refreshToken, refreshSession]);
 
   const value: AuthContextType = {
     user,

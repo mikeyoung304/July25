@@ -401,7 +401,7 @@ async function logAuthEvent(
   userId: string,
   restaurantId: string,
   eventType: string,
-  metadata?: any
+  metadata?: Record<string, unknown>
 ): Promise<void> {
   try {
     await supabase

@@ -21,7 +21,17 @@ export class OrderStatisticsService implements IOrderStatisticsService {
       cancelledOrders: orders.filter(o => o.status === 'cancelled').length,
       totalRevenue: orders.reduce((sum, o) => sum + o.total, 0),
       averageOrderValue: orders.length > 0 ? orders.reduce((sum, o) => sum + o.total, 0) / orders.length : 0,
-      averagePreparationTime: orders.filter(o => o.estimated_ready_time).reduce((sum, o) => sum + (o.estimated_ready_time || 0), 0) / orders.filter(o => o.estimated_ready_time).length,
+      averagePreparationTime: (() => {
+        const ordersWithEstimate = orders.filter(o => o.estimated_ready_time);
+        if (ordersWithEstimate.length === 0) return 0;
+        const totalMinutes = ordersWithEstimate.reduce((sum, o) => {
+          const estimatedTime = new Date(o.estimated_ready_time!).getTime();
+          const orderTime = new Date(o.created_at).getTime();
+          const diffMinutes = Math.max(0, (estimatedTime - orderTime) / (1000 * 60));
+          return sum + diffMinutes;
+        }, 0);
+        return totalMinutes / ordersWithEstimate.length;
+      })(),
       ordersByHour: Array.from({ length: 24 }, (_, hour) => ({
         hour,
         count: orders.filter(o => new Date(o.created_at).getHours() === hour).length

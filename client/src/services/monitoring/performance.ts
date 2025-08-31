@@ -52,8 +52,8 @@ class PerformanceMonitor {
         const lastEntry = entries[entries.length - 1];
         const value = lastEntry.startTime;
         this.recordMetric('LCP', value, 'ms', {
-          element: (lastEntry as any).element?.tagName,
-          url: (lastEntry as any).url,
+          element: (lastEntry as { element?: { tagName: string } }).element?.tagName,
+          url: (lastEntry as { url?: string }).url,
           good: value < this.thresholds.LCP
         });
       });
@@ -61,7 +61,7 @@ class PerformanceMonitor {
       // Track First Input Delay
       this.observeMetric('first-input', (entries) => {
         const entry = entries[0];
-        const value = (entry as any).processingStart - entry.startTime;
+        const value = ((entry as any).processingStart || entry.startTime) - entry.startTime;
         this.recordMetric('FID', value, 'ms', {
           eventType: entry.name,
           good: value < this.thresholds.FID
@@ -72,8 +72,8 @@ class PerformanceMonitor {
       let clsValue = 0;
       this.observeMetric('layout-shift', (entries) => {
         for (const entry of entries) {
-          if (!(entry as any).hadRecentInput) {
-            clsValue += (entry as any).value;
+          if (!(entry as { hadRecentInput?: boolean }).hadRecentInput) {
+            clsValue += (entry as any).value || 0;
           }
         }
         this.recordMetric('CLS', clsValue, 'score', {

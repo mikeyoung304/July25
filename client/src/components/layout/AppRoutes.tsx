@@ -1,7 +1,7 @@
 import React, { Profiler, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
-import { ProtectedRoute, PublicRoute, ManagerRoute, ServerRoute, KitchenRoute, AdminRoute } from '@/components/auth/ProtectedRoute'
+import { ManagerRoute, KitchenRoute } from '@/components/auth/ProtectedRoute'
 import { env } from '@/utils/env'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 

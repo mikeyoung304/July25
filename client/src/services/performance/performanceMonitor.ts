@@ -308,7 +308,7 @@ const noOpMonitor: PerformanceMonitorService = {
   clear: () => {},
   exportMetrics: () => '{}',
   startMemoryTracking: () => () => {}
-} as PerformanceMonitorService
+} as unknown as PerformanceMonitorService
 
 // Export singleton instance - use real implementation only if enabled
 export const performanceMonitor = perfEnabled ? new PerformanceMonitorService() : noOpMonitor

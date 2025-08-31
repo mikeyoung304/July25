@@ -41,9 +41,9 @@ export class OrderUpdatesHandler {
       webSocketService.subscribe('order:deleted', (payload) => 
         this.handleOrderDeleted(payload)),
       webSocketService.subscribe('order:status_changed', (payload) => 
-        this.handleOrderStatusChanged(payload)),
+        this.handleOrderStatusChanged(payload as { orderId: string; status: string; previousStatus: string; updatedBy?: string })),
       webSocketService.subscribe('order:item_status_changed', (payload) => 
-        this.handleItemStatusChanged(payload))
+        this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string }))
     )
 
     // Handle connection state changes
@@ -296,9 +296,9 @@ export class OrderUpdatesHandler {
         webSocketService.subscribe('order:deleted', (payload) => 
           this.handleOrderDeleted(payload)),
         webSocketService.subscribe('order:status_changed', (payload) => 
-          this.handleOrderStatusChanged(payload)),
+          this.handleOrderStatusChanged(payload as { orderId: string; status: string; previousStatus: string; updatedBy?: string })),
         webSocketService.subscribe('order:item_status_changed', (payload) => 
-          this.handleItemStatusChanged(payload))
+          this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string }))
       )
       
       logger.info('[OrderUpdates] Subscriptions reinitialized:', this.subscriptions.length)

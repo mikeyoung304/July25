@@ -77,7 +77,7 @@ export function getConfig(): EnvironmentConfig {
       url: process.env['FRONTEND_URL'] || 'http://localhost:5173',
     },
     openai: {
-      apiKey: process.env['OPENAI_API_KEY'],
+      apiKey: process.env['OPENAI_API_KEY'] || undefined,
     },
     logging: {
       level: process.env['LOG_LEVEL'] || 'info',

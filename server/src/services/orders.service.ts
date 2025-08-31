@@ -32,7 +32,7 @@ export interface CreateOrderRequest {
   tax?: number;
   tip?: number;
   total_amount?: number;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 // Extend shared Order type for service layer
@@ -41,7 +41,7 @@ export interface Order extends Omit<SharedOrder, 'order_number' | 'total' | 'pay
   orderNumber: string; // Maps to order_number
   type: OrderType | string; // Allow string for flexibility in service layer
   totalAmount: number; // Maps to total
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: string; // Maps to created_at
   updatedAt: string; // Maps to updated_at
   preparingAt?: string;
@@ -280,7 +280,7 @@ export class OrdersService {
       }
 
       // Prepare update
-      const update: any = {
+      const update: Record<string, unknown> = {
         status: newStatus,
         updated_at: new Date().toISOString(),
       };
@@ -365,7 +365,7 @@ export class OrdersService {
       }
 
       // Store payment info in metadata since payment_status column doesn't exist
-      const metadata = (currentOrder as any).metadata || {};
+      const metadata = (currentOrder as { metadata?: Record<string, unknown> }).metadata || {};
       metadata.payment = {
         status: paymentStatus,
         method: paymentMethod,
@@ -374,7 +374,7 @@ export class OrdersService {
       };
 
       // Prepare update object
-      const update: any = {
+      const update: Record<string, unknown> = {
         metadata: metadata,
         updated_at: new Date().toISOString(),
       };
@@ -422,7 +422,7 @@ export class OrdersService {
   static async processVoiceOrder(
     restaurantId: string,
     transcription: string,
-    parsedItems: any[],
+    parsedItems: Array<{ name: string; quantity: number; price?: number; notes?: string }>,
     confidence: number,
     audioUrl?: string
   ): Promise<Order> {

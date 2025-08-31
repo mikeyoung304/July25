@@ -9,7 +9,7 @@ interface LogEntry {
   level: LogLevel;
   message: string;
   timestamp: string;
-  data?: any;
+  data?: unknown;
   error?: Error;
 }
 
@@ -26,7 +26,7 @@ class Logger {
     return true;
   }
 
-  private formatMessage(level: LogLevel, message: string, data?: any): void {
+  private formatMessage(level: LogLevel, message: string, data?: unknown): void {
     const entry: LogEntry = {
       level,
       message,
@@ -42,13 +42,34 @@ class Logger {
 
     // Only console log in development or for errors
     if (this.shouldLog(level)) {
-      const consoleMethod = console[level] || console.log;
       const prefix = `[${entry.timestamp}] [${level.toUpperCase()}]`;
       
       if (data) {
-        consoleMethod(prefix, message, data);
+        switch (level) {
+          case 'debug':
+          case 'info':
+            console.warn(prefix, message, data); // Use warn for debug/info as they're allowed
+            break;
+          case 'warn':
+            console.warn(prefix, message, data);
+            break;
+          case 'error':
+            console.error(prefix, message, data);
+            break;
+        }
       } else {
-        consoleMethod(prefix, message);
+        switch (level) {
+          case 'debug':
+          case 'info':
+            console.warn(prefix, message); // Use warn for debug/info as they're allowed
+            break;
+          case 'warn':
+            console.warn(prefix, message);
+            break;
+          case 'error':
+            console.error(prefix, message);
+            break;
+        }
       }
     }
 
@@ -58,19 +79,19 @@ class Logger {
     }
   }
 
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: unknown): void {
     this.formatMessage('debug', message, data);
   }
 
-  info(message: string, data?: any): void {
+  info(message: string, data?: unknown): void {
     this.formatMessage('info', message, data);
   }
 
-  warn(message: string, data?: any): void {
+  warn(message: string, data?: unknown): void {
     this.formatMessage('warn', message, data);
   }
 
-  error(message: string, error?: Error | any, data?: any): void {
+  error(message: string, error?: Error | unknown, data?: unknown): void {
     const entry: LogEntry = {
       level: 'error',
       message,

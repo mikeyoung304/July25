@@ -40,7 +40,7 @@ voiceRoutes.get('/health', (_req: Request, res: Response) => {
   
   // Determine health status based on system state
   let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
-  let openaiStatus: 'connected' | 'disconnected' | 'error' = 'disconnected';
+  const openaiStatus: 'connected' | 'disconnected' | 'error' = 'disconnected';
   
   if (!server) {
     status = 'unhealthy';

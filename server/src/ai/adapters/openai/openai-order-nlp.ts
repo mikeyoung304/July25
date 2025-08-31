@@ -53,7 +53,7 @@ export class OpenAIOrderNLP implements OrderNLP {
   }
 
   // Legacy OrderNLP interface methods
-  async parseOrder(text: string, menu: any[]): Promise<any> {
+  async parseOrder(text: string, _menu: any[]): Promise<any> {
     // This is a simplified version for backward compatibility
     // It doesn't use the matching service but provides similar structure
     const sys = { role: "system" as const, content:

@@ -8,7 +8,7 @@
 const isBrowser = typeof window !== 'undefined';
 
 // Server-safe exports - provide no-ops for server environment
-export const useStableObject = <T extends Record<string, any>>(obj: T): T => {
+export const useStableObject = <T extends Record<string, unknown>>(obj: T): T => {
   if (!isBrowser) return obj;
   
   // In browser, use actual React implementation if available
@@ -39,9 +39,9 @@ export const useStableArray = <T>(arr: T[]): T[] => {
   }
 };
 
-export const useStableCallback = <T extends (...args: any[]) => any>(
+export const useStableCallback = <T extends (...args: unknown[]) => unknown>(
   callback: T,
-  _deps: any[]
+  _deps: unknown[]
 ): T => {
   if (!isBrowser) return callback;
   
@@ -57,7 +57,7 @@ export const useStableCallback = <T extends (...args: any[]) => any>(
 
 export const useExpensiveMemo = <T>(
   factory: () => T,
-  _deps: any[],
+  _deps: unknown[],
   _debugName?: string
 ): T => {
   if (!isBrowser) return factory();
@@ -72,14 +72,14 @@ export const useExpensiveMemo = <T>(
   }
 };
 
-export const useContextValue = <T extends Record<string, any>>(value: T): T => {
+export const useContextValue = <T extends Record<string, unknown>>(value: T): T => {
   return useStableObject(value);
 };
 
 export const useDebouncedState = <T>(
   initialValue: T,
   _delay: number = 300
-): [T, T, any] => {
+): [T, T, (value: T | ((prev: T) => T)) => void] => {
   if (!isBrowser) {
     const noop = () => {};
     return [initialValue, initialValue, noop];
@@ -111,8 +111,8 @@ export const useDebouncedState = <T>(
 };
 
 export const useIntersectionObserver = (
-  _targetRef: any,
-  _options: any = {}
+  _targetRef: React.RefObject<Element>,
+  _options: IntersectionObserverInit = {}
 ): boolean => {
   if (!isBrowser) return false;
   

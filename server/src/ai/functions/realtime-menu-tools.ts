@@ -54,8 +54,8 @@ export interface MenuToolResult {
 
 // Initialize Supabase client
 const supabase: SupabaseClient = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!,
+  process.env['SUPABASE_URL']!,
+  process.env['SUPABASE_SERVICE_KEY']!,
   { auth: { persistSession: false } }
 );
 
@@ -129,7 +129,7 @@ export const menuFunctionTools = {
         }
       }
     },
-    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         // Check cache first
         const cacheKey = `menu_${context.restaurantId}_${JSON.stringify(args)}`;
@@ -175,7 +175,7 @@ export const menuFunctionTools = {
 
         // If no items found, provide helpful message and maybe suggestions
         if (!data || data.length === 0) {
-          let suggestions = [];
+          const suggestions: any[] = [];
           
           // If requested, try to find alternative suggestions
           if (args.suggest_alternatives) {
@@ -203,18 +203,20 @@ export const menuFunctionTools = {
             if (suggestionData && suggestionData.length > 0) {
               // Group by category and take one from each (up to 3 total)
               const byCategory: Record<string, any[]> = {};
-              suggestionData.forEach(item => {
-                if (!byCategory[item.category]) {
-                  byCategory[item.category] = [];
+              suggestionData.forEach((item: any) => {
+                const category = item?.category || 'other';
+                if (!byCategory[category]) {
+                  byCategory[category] = [];
                 }
-                byCategory[item.category].push(item);
+                byCategory[category].push(item);
               });
               
               // Take one item from each category, up to 3 items total
               const categories = Object.keys(byCategory);
               for (let i = 0; i < Math.min(3, categories.length); i++) {
-                const categoryItems = byCategory[categories[i]];
-                if (categoryItems.length > 0) {
+                const category = categories[i];
+                const categoryItems = byCategory[category];
+                if (categoryItems && categoryItems.length > 0) {
                   // Pick a random item from this category
                   const randomIndex = Math.floor(Math.random() * categoryItems.length);
                   suggestions.push(categoryItems[randomIndex]);
@@ -275,7 +277,7 @@ export const menuFunctionTools = {
       },
       required: ['id']
     },
-    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const { data, error } = await supabase
           .from('menu_items')
@@ -325,7 +327,7 @@ export const menuFunctionTools = {
       },
       required: ['id', 'quantity']
     },
-    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         // Get menu item details
         const { data: menuItem, error } = await supabase
@@ -411,7 +413,7 @@ export const menuFunctionTools = {
       },
       required: ['item_id']
     },
-    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const cart = getCart(context.sessionId, context.restaurantId);
         
@@ -452,7 +454,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const cart = getCart(context.sessionId, context.restaurantId);
 
@@ -492,7 +494,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const { data, error } = await supabase
           .from('restaurants')
@@ -529,7 +531,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const { data, error } = await supabase
           .from('menu_specials')
@@ -575,7 +577,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const cart = getCart(context.sessionId, context.restaurantId);
         cart.items = [];

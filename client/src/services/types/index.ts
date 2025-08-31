@@ -34,11 +34,13 @@ export type {
   TableStatusChangedEvent,
   VoiceStreamData,
   VoiceTranscriptionResult,
-  PaginationParams,
   PaginatedResponse,
   ApiResponse,
   ApiError
 } from '@rebuild/shared'
+
+// Import PaginationParams directly from shared types
+export type { PaginationParams } from '@rebuild/shared/types'
 
 // Import and re-export API types with camelCase
 export type { 
@@ -50,18 +52,15 @@ export type {
 } from '@rebuild/shared/api-types'
 
 // Local-only types (if any) that don't exist in shared
-export interface PaginationParams {
-  page?: number
-  limit?: number
-  offset?: number
-}
 
 export interface DateRangeParams {
   startDate?: Date
   endDate?: Date
 }
 
-export interface OrderHistoryParams extends PaginationParams, DateRangeParams {
+export interface OrderHistoryParams extends DateRangeParams {
+  page?: number
+  limit?: number
   searchQuery?: string
 }
 

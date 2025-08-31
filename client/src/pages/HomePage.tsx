@@ -30,7 +30,7 @@ function NavigationCard({ title, icon, href, color, delay = 0 }: NavigationCardP
           <div className="relative z-10 flex flex-col items-center space-y-4 md:space-y-6">
             {React.cloneElement(icon as React.ReactElement, { 
               className: "h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24" 
-            })}
+            } as any)}
             <h3 className="text-white font-bold text-xl md:text-2xl lg:text-3xl">
               {title}
             </h3>

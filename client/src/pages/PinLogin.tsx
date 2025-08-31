@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
@@ -15,27 +15,7 @@ export default function PinLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPin, setShowPin] = useState(false);
 
-  const handlePinInput = (digit: string) => {
-    if (pin.length < 6) {
-      const newPin = pin + digit;
-      setPin(newPin);
-      
-      // Auto-submit when PIN reaches 4-6 digits (configurable)
-      if (newPin.length === 4) {
-        handleSubmit(newPin);
-      }
-    }
-  };
-
-  const handleBackspace = () => {
-    setPin(pin.slice(0, -1));
-  };
-
-  const handleClear = () => {
-    setPin('');
-  };
-
-  const handleSubmit = async (pinValue?: string) => {
+  const handleSubmit = useCallback(async (pinValue?: string) => {
     const pinToSubmit = pinValue || pin;
     
     if (pinToSubmit.length < 4) {
@@ -59,7 +39,27 @@ export default function PinLogin() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [pin, loginWithPin, restaurantId, navigate]);
+
+  const handlePinInput = useCallback((digit: string) => {
+    if (pin.length < 6) {
+      const newPin = pin + digit;
+      setPin(newPin);
+      
+      // Auto-submit when PIN reaches 4-6 digits (configurable)
+      if (newPin.length === 4) {
+        handleSubmit(newPin);
+      }
+    }
+  }, [pin, handleSubmit]);
+
+  const handleBackspace = useCallback(() => {
+    setPin(pin.slice(0, -1));
+  }, [pin]);
+
+  const handleClear = useCallback(() => {
+    setPin('');
+  }, []);
 
   // Keyboard support
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function PinLogin() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [pin, isLoading]);
+  }, [pin, isLoading, handlePinInput, handleBackspace, handleSubmit]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

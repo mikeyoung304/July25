@@ -1,29 +1,30 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger'
 import { supabase } from '../config/database';
-import { validateRestaurantAccess } from '../middleware/auth';
+import { validateRestaurantAccess, AuthenticatedRequest } from '../middleware/auth';
 import { getConfig } from '../config/environment';
+import { Table, TableStatus } from '../../../shared/types/table.types';
 
 const router = Router();
 const config = getConfig();
 
 // Apply restaurant validation to all routes (skip in development for testing)
-if (config.environment !== 'development') {
+if (config.nodeEnv !== 'development') {
   router.use(validateRestaurantAccess);
 } else {
   // Development middleware - just ensure restaurant ID is present
-  router.use((req, _res, next) => {
+  router.use((req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
     const restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
     if (!restaurantId) {
       return next(new Error('Restaurant ID is required'));
     }
-    (req as any).restaurantId = restaurantId;
+    req.restaurantId = restaurantId;
     next();
   });
 }
 
 // Get all tables for a restaurant
-export const getTables = async (req, res, next) => {
+export const getTables = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     
@@ -37,7 +38,7 @@ export const getTables = async (req, res, next) => {
     if (error) throw error;
     
     // Transform database columns to frontend properties
-    const transformedData = (data || []).map(table => ({
+    const transformedData = (data || []).map((table: any) => ({
       ...table,
       x: table.x_pos,
       y: table.y_pos,
@@ -51,7 +52,7 @@ export const getTables = async (req, res, next) => {
 };
 
 // Get single table
-export const getTable = async (req, res, next) => {
+export const getTable = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { id } = req.params;
@@ -74,14 +75,25 @@ export const getTable = async (req, res, next) => {
   }
 };
 
+interface CreateTableBody {
+  x?: number;
+  y?: number;
+  type?: string;
+  z_index?: number;
+  label?: string;
+  capacity?: number;
+  section?: string;
+  [key: string]: any;
+}
+
 // Create new table
-export const createTable = async (req, res, next) => {
+export const createTable = async (req: AuthenticatedRequest & { body: CreateTableBody }, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { x, y, type, z_index, ...otherData } = req.body;
     
     // Transform frontend properties to database columns
-    const tableData = {
+    const tableData: Record<string, any> = {
       ...otherData,
       x_pos: x || 0,
       y_pos: y || 0,
@@ -89,7 +101,7 @@ export const createTable = async (req, res, next) => {
       z_index: z_index || 0,
       restaurant_id: restaurantId,
       active: true,
-      status: 'available'
+      status: 'available' as TableStatus
     };
     
     const { data, error } = await supabase
@@ -103,9 +115,9 @@ export const createTable = async (req, res, next) => {
     // Transform database columns back to frontend properties
     const transformedData = {
       ...data,
-      x: data.x_pos,
-      y: data.y_pos,
-      type: data.shape
+      x: (data as any).x_pos,
+      y: (data as any).y_pos,
+      type: (data as any).shape
     };
     
     res.status(201).json(transformedData);
@@ -114,8 +126,18 @@ export const createTable = async (req, res, next) => {
   }
 };
 
+interface UpdateTableBody {
+  x?: number;
+  y?: number;
+  type?: string;
+  id?: string;
+  restaurant_id?: string;
+  created_at?: string;
+  [key: string]: any;
+}
+
 // Update table
-export const updateTable = async (req, res, next) => {
+export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTableBody }, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { id } = req.params;
@@ -127,7 +149,7 @@ export const updateTable = async (req, res, next) => {
     delete updates.created_at;
     
     // Transform frontend properties to database columns if present
-    const dbUpdates: any = { ...updates };
+    const dbUpdates: Record<string, any> = { ...updates };
     if ('x' in updates) {
       dbUpdates.x_pos = updates.x;
       delete dbUpdates.x;
@@ -157,9 +179,9 @@ export const updateTable = async (req, res, next) => {
     // Transform database columns back to frontend properties
     const transformedData = {
       ...data,
-      x: data.x_pos,
-      y: data.y_pos,
-      type: data.shape
+      x: (data as any).x_pos,
+      y: (data as any).y_pos,
+      type: (data as any).shape
     };
     
     return res.json(transformedData);
@@ -169,7 +191,7 @@ export const updateTable = async (req, res, next) => {
 };
 
 // Delete table (soft delete)
-export const deleteTable = async (req, res, next) => {
+export const deleteTable = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { id } = req.params;
@@ -193,14 +215,19 @@ export const deleteTable = async (req, res, next) => {
   }
 };
 
+interface UpdateTableStatusBody {
+  status: TableStatus;
+  orderId?: string;
+}
+
 // Update table status
-export const updateTableStatus = async (req, res, next) => {
+export const updateTableStatus = async (req: AuthenticatedRequest & { body: UpdateTableStatusBody }, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { id } = req.params;
     const { status, orderId } = req.body;
     
-    const updates: any = { status };
+    const updates: Record<string, any> = { status };
     if (status === 'occupied' && orderId) {
       updates.current_order_id = orderId;
     } else if (status === 'available') {
@@ -226,8 +253,20 @@ export const updateTableStatus = async (req, res, next) => {
   }
 };
 
+interface BatchUpdateTablesBody {
+  tables: Array<{
+    id: string;
+    x?: number;
+    y?: number;
+    type?: string;
+    restaurant_id?: string;
+    created_at?: string;
+    [key: string]: any;
+  }>;
+}
+
 // Batch update tables (for floor plan editor)
-export const batchUpdateTables = async (req, res, next) => {
+export const batchUpdateTables = async (req: AuthenticatedRequest & { body: BatchUpdateTablesBody }, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     
@@ -261,15 +300,15 @@ export const batchUpdateTables = async (req, res, next) => {
     });
     
     // Update each table
-    let results;
+    let results: any[];
     try {
-      const promises = tables.map((table, index) => {
+      const promises = tables.map((table: any, index: number) => {
         const { id, ...updates } = table;
         delete updates.restaurant_id;
         delete updates.created_at;
         
         // Transform frontend properties to database columns if present
-        const dbUpdates: any = { ...updates };
+        const dbUpdates: Record<string, any> = { ...updates };
         if ('x' in updates) {
           dbUpdates.x_pos = updates.x;
           delete dbUpdates.x;
@@ -341,7 +380,7 @@ export const batchUpdateTables = async (req, res, next) => {
     }
     
     // Transform database columns back to frontend properties
-    const data = results.map(r => r.data).filter(Boolean).map(table => ({
+    const data = results.map((r: any) => r.data).filter(Boolean).map((table: any) => ({
       ...table,
       x: table.x_pos,
       y: table.y_pos,
