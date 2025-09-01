@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - 'client/**'
+      - 'shared/**'
+      - 'package.json'
+      - 'tools/**'
+      - 'scripts/**'
       - '.github/workflows/frontend-ci.yml'
 jobs:
   client:
