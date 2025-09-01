@@ -29,6 +29,7 @@ import { realtimeRoutes } from './routes/realtime.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
+import { applySecurity, securityMonitor } from './middleware/security';
 
 // Validate required environment variables
 validateEnvironment();
@@ -46,30 +47,8 @@ export const wss = new WebSocketServer({
 OrdersService.setWebSocketServer(wss);
 
 // Global middleware
-// Configure helmet with appropriate CSP for each environment
-app.use(helmet({
-  contentSecurityPolicy: process.env.NODE_ENV === 'production' 
-    ? {
-      // Production: Strict CSP
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline needed for Tailwind
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:"],
-        connectSrc: ["'self'", "wss:"],
-        fontSrc: ["'self'"],
-        objectSrc: ["'none'"],
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"],
-      },
-    }
-    : false, // Development: Disable CSP to avoid conflicts with Vite
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true,
-  },
-}))
+// Apply comprehensive security middleware
+applySecurity(app)
 
 // CORS configuration with stricter settings
 const allowedOrigins = (process.env.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [
