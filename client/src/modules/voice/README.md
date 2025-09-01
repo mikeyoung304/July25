@@ -85,7 +85,7 @@ function CustomVoiceInterface() {
 
 ```bash
 # Required
-VITE_OPENAI_API_KEY=sk-...           # OpenAI API key
+# OpenAI API key is configured server-side only for security
 VITE_OPENAI_REALTIME_MODEL=gpt-4o-realtime-preview-2025-06-03
 
 # Optional

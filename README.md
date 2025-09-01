@@ -191,10 +191,10 @@ If the application gets stuck on the loading screen:
 
 ### Code Quality Standards
 
-- **TypeScript**: Strict mode enabled - 0 errors ✅
-- **ESLint**: 0 errors required - 449 warnings (down from 573)
+- **TypeScript**: Strict mode enabled - ~500 errors (non-blocking)
+- **ESLint**: 0 errors required - 573 warnings
 - **Test Coverage**: 60% statements, 50% branches
-- **Bundle Size**: Main chunk <100KB (currently 82KB)
+- **Bundle Size**: Main chunk target <100KB
 - **Memory Usage**: Max 4GB for builds
 
 ## 📦 Deployment
