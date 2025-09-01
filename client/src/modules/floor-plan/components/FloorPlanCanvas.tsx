@@ -143,14 +143,18 @@ export function FloorPlanCanvas({
 
     // Create gradient fills with better visual hierarchy
     let gradient: CanvasGradient
-    if (table.type === 'circle') {
+    if (table.type === 'circle' || table.type === 'chip_monkey') {
       gradient = ctx.createRadialGradient(0, -table.height/4, 0, 0, 0, table.width/2)
     } else {
       gradient = ctx.createLinearGradient(0, -table.height/2, 0, table.height/2)
     }
 
-    // Professional restaurant color palette with better contrast
-    if (table.status === 'occupied') {
+    // Special color for chip_monkey - brown tones
+    if (table.type === 'chip_monkey') {
+      gradient.addColorStop(0, '#FEF3E2') // Warm cream highlight
+      gradient.addColorStop(0.5, '#92400E') // Brown-700 main
+      gradient.addColorStop(1, '#78350F') // Brown-800 depth
+    } else if (table.status === 'occupied') {
       gradient.addColorStop(0, '#FEF3C7') // Amber-50 highlight
       gradient.addColorStop(0.5, '#F59E0B') // Amber-500 main
       gradient.addColorStop(1, '#D97706') // Amber-600 depth
@@ -181,44 +185,49 @@ export function FloorPlanCanvas({
       ctx.arc(0, 0, table.width / 2, 0, Math.PI * 2)
       ctx.fill()
     } else if (table.type === 'chip_monkey') {
-      // Draw chip monkey shape
-      const scale = table.width / 48 // Scale based on width
+      // Draw chip monkey shape - treat as circular for hit detection
+      const radius = table.width / 2
+      
+      // Main body as circle (for proper hit detection)
+      ctx.beginPath()
+      ctx.arc(0, 0, radius, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Add monkey features on top
       ctx.save()
+      const scale = table.width / 48
       ctx.scale(scale, scale)
       
-      // Head
+      // Darker brown for features
+      ctx.fillStyle = '#451A03' // Brown-950
+      
+      // Ears (smaller, on sides)
       ctx.beginPath()
-      ctx.arc(0, -8, 9, 0, Math.PI * 2)
+      ctx.arc(-12, -5, 4, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(12, -5, 4, 0, Math.PI * 2)
       ctx.fill()
       
-      // Ears
+      // Face detail
+      ctx.fillStyle = '#FED7AA' // Orange-200 for face
       ctx.beginPath()
-      ctx.arc(-10, -8, 5, 0, Math.PI * 2)
+      ctx.ellipse(0, 0, 6, 7, 0, 0, Math.PI * 2)
       ctx.fill()
-      ctx.beginPath()
-      ctx.arc(10, -8, 5, 0, Math.PI * 2)
-      ctx.fill()
-      
-      // Body
-      ctx.beginPath()
-      ctx.ellipse(0, 4, 7, 10, 0, 0, Math.PI * 2)
-      ctx.fill()
-      
-      // Tail
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'
-      ctx.lineWidth = 3
-      ctx.beginPath()
-      ctx.moveTo(6, 8)
-      ctx.quadraticCurveTo(16, 4, 14, -6)
-      ctx.stroke()
       
       // Eyes
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
+      ctx.fillStyle = '#1F2937' // Gray-800
       ctx.beginPath()
-      ctx.arc(-4, -8, 1, 0, Math.PI * 2)
+      ctx.arc(-3, -2, 1.5, 0, Math.PI * 2)
       ctx.fill()
       ctx.beginPath()
-      ctx.arc(4, -8, 1, 0, Math.PI * 2)
+      ctx.arc(3, -2, 1.5, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Nose/mouth
+      ctx.fillStyle = '#451A03' // Brown-950
+      ctx.beginPath()
+      ctx.arc(0, 2, 1, 0, Math.PI * 2)
       ctx.fill()
       
       ctx.restore()
