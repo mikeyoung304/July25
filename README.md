@@ -166,6 +166,21 @@ NODE_ENV=development
 4. **Performance**: Monitor bundle size (target: <100KB main chunk)
 5. **Memory**: Use NODE_OPTIONS="--max-old-space-size=4096" for builds
 
+### Troubleshooting
+
+#### App Stuck on "Loading..."
+If the application gets stuck on the loading screen:
+
+1. **Check for compiled JS in /shared**: Run `npm run check:no-shared-js`
+2. **Clear Vite cache**: `rm -rf node_modules/.vite`
+3. **Clean and rebuild**: 
+   ```bash
+   npm run clean
+   npm run dev
+   ```
+4. **Check browser console** for "exports is not defined" errors
+5. **Ensure no .js files exist in /shared directory** (only .ts files allowed)
+
 ### Naming Conventions
 
 | Layer | Convention | Example |

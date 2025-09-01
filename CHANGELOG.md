@@ -5,7 +5,7 @@ All notable changes to Restaurant OS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.0.3] - 2025-08-31 - Overnight Fix Operation
+## [6.0.3] - 2025-09-01 - Critical Loading Fix & Guard Systems
 
 ### 🔧 Quality & Stability Sprint
 
@@ -13,12 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Runtime Smoke Gate**: Production-ready health check (`scripts/smoke.mjs`)
 - **TypeScript Freeze Check**: Prevents regression with `tools/check-ts-freeze.mjs`
 - **CI/CD Improvements**: Multi-stage gates for PR validation
+- **Shared Directory Guard** (PR #17): Automated check to prevent compiled JS in /shared
+- **Puppeteer E2E Suite**: Comprehensive browser testing (10/10 tests passing)
 
 ### 🐛 Fixed
 - **Runtime Hotfix** (PR #12): Fixed critical CI failures, ES module compatibility
 - **Security Patches** (PR #13): Updated Express family dependencies
 - **Dependency Cleanup** (PR #14): Removed extraneous packages, organized deps
 - **Quality Improvements** (PR #15): Boundary-first TypeScript fixes
+- **Critical Loading Hang** (PR #17): Removed compiled JS from /shared breaking browser imports
+- **DOM Typings**: Fixed browser-only code type definitions
 
 ### 📊 Metrics
 - **TypeScript Errors**: 526 → 397 (-129 errors, 24.5% reduction)
@@ -26,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ESLint Warnings**: 952 → 455 (52% reduction)
 - **Bundle Size**: Maintained at 82KB (optimized)
 - **Test Coverage**: Maintained ≥60/50/60 thresholds
+- **Puppeteer Tests**: 10/10 passing (100% success rate)
 
 ## [6.0.3] - 2025-02-01
 
