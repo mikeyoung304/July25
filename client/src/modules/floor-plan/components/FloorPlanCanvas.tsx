@@ -180,6 +180,48 @@ export function FloorPlanCanvas({
       ctx.beginPath()
       ctx.arc(0, 0, table.width / 2, 0, Math.PI * 2)
       ctx.fill()
+    } else if (table.type === 'chip_monkey') {
+      // Draw chip monkey shape
+      const scale = table.width / 48 // Scale based on width
+      ctx.save()
+      ctx.scale(scale, scale)
+      
+      // Head
+      ctx.beginPath()
+      ctx.arc(0, -8, 9, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Ears
+      ctx.beginPath()
+      ctx.arc(-10, -8, 5, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(10, -8, 5, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Body
+      ctx.beginPath()
+      ctx.ellipse(0, 4, 7, 10, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Tail
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'
+      ctx.lineWidth = 3
+      ctx.beginPath()
+      ctx.moveTo(6, 8)
+      ctx.quadraticCurveTo(16, 4, 14, -6)
+      ctx.stroke()
+      
+      // Eyes
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
+      ctx.beginPath()
+      ctx.arc(-4, -8, 1, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(4, -8, 1, 0, Math.PI * 2)
+      ctx.fill()
+      
+      ctx.restore()
     } else {
       const radius = 8
       const halfWidth = table.width / 2
@@ -220,6 +262,11 @@ export function FloorPlanCanvas({
         ctx.lineWidth = strokeWidth
         
         if (table.type === 'circle') {
+          ctx.beginPath()
+          ctx.arc(0, 0, table.width / 2 + offset, 0, Math.PI * 2)
+          ctx.stroke()
+        } else if (table.type === 'chip_monkey') {
+          // Simple circular selection for chip_monkey
           ctx.beginPath()
           ctx.arc(0, 0, table.width / 2 + offset, 0, Math.PI * 2)
           ctx.stroke()
@@ -284,7 +331,7 @@ export function FloorPlanCanvas({
     const halfWidth = table.width / 2
     const halfHeight = table.height / 2
     
-    if (table.type === 'circle') {
+    if (table.type === 'circle' || table.type === 'chip_monkey') {
       return {
         n: { x: 0, y: -halfHeight, cursor: 'ns-resize' },
         e: { x: halfWidth, y: 0, cursor: 'ew-resize' },
@@ -559,7 +606,7 @@ export function FloorPlanCanvas({
     for (let i = tables.length - 1; i >= 0; i--) {
       const table = tables[i]
       
-      if (table.type === 'circle') {
+      if (table.type === 'circle' || table.type === 'chip_monkey') {
         const distance = Math.sqrt(Math.pow(worldX - table.x, 2) + Math.pow(worldY - table.y, 2))
         if (distance <= table.width / 2) {
           return table
@@ -678,9 +725,9 @@ export function FloorPlanCanvas({
       let newHeight = initialSizeRef.current.height
 
       const handle = resizeHandleRef.current
-      const minSize = 40
+      const minSize = table.type === 'chip_monkey' ? 24 : 40
       
-      if (table.type === 'circle') {
+      if (table.type === 'circle' || table.type === 'chip_monkey') {
         // For circles, maintain aspect ratio
         let delta = 0
         if (handle === 'n' || handle === 's') {
