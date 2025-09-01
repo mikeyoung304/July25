@@ -2,6 +2,7 @@
   "name": "restaurant-os",
   "private": true,
   "version": "6.0.2",
+  "type": "module",
   "description": "Restaurant OS - Intelligent Restaurant Management System",
   "workspaces": [
     "client",
@@ -34,6 +35,7 @@
     "check:integration": "tsx scripts/integration-check.ts",
     "lint": "eslint --ext .ts,.tsx .",
     "lint:fix": "eslint --ext .ts,.tsx . --fix",
+    "check:no-shared-js": "node tools/check-no-shared-js.js",
     "typecheck": "tsc --build tsconfig.all.json",
     "typecheck:staged": "tsc --noEmit",
     "typecheck:freeze": "node tools/check-ts-freeze.mjs",
@@ -60,7 +62,7 @@
     "memory:check": "ps aux | grep -E 'node|vite' | awk '{sum+=$6} END {printf \"Memory: %.0f MB\\n\", sum/1024}'",
     "clean:all": "rm -rf node_modules client/node_modules server/node_modules",
     "reset": "pkill -f vite 2>/dev/null || true; npm run clean",
-    "prepare": "husky install"
+    "prepare": "husky install || true"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.0.0",
@@ -93,6 +95,7 @@
     "lint-staged": "^16.1.5",
     "npm-run-all": "^4.1.5",
     "playwright-lighthouse": "^4.0.0",
+    "puppeteer": "^24.17.1",
     "supabase-mcp": "^1.5.0",
     "terser": "^5.43.1",
     "tsx": "^4.7.0",

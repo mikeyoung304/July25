@@ -3,36 +3,38 @@ on:
   pull_request:
     paths:
       - 'client/**'
+      - 'shared/**'
+      - 'package.json'
+      - 'tools/**'
+      - 'scripts/**'
       - '.github/workflows/frontend-ci.yml'
+
 jobs:
   client:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: client
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Environment Diagnostics (pre-setup)
-        run: |
-          echo "Current directory: $(pwd)"
-          ls -la
       
       - uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
-          cache-dependency-path: client/package-lock.json
       
-      - name: Environment Diagnostics (post-setup)
-        run: |
-          echo "Node version: $(node -v)"
-          echo "npm version: $(npm -v)"
-      
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci
       
+      - name: Install client dependencies
+        run: cd client && npm ci
+      
+      - name: Guard - no compiled JS in shared
+        run: npm run check:no-shared-js
+      
       - name: Build Production Bundle
-        run: npm run build
+        run: cd client && npm run build
+        env:
+          CI: true
+      
+      - name: E2E Puppeteer
+        run: node scripts/puppeteer-test.mjs
         env:
           CI: true

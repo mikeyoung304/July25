@@ -1,0 +1,62 @@
+{
+  "timestamp": "2025-08-31T20:44:24.225Z",
+  "tests": [
+    {
+      "name": "Homepage Load",
+      "status": "passed",
+      "duration": "749ms"
+    },
+    {
+      "name": "Login Page",
+      "status": "passed",
+      "duration": "663ms"
+    },
+    {
+      "name": "Order System",
+      "status": "failed",
+      "error": "page.$x is not a function",
+      "duration": "2769ms"
+    },
+    {
+      "name": "Kitchen Display System",
+      "status": "passed",
+      "duration": "2684ms"
+    },
+    {
+      "name": "Menu Management",
+      "status": "passed",
+      "duration": "2732ms"
+    },
+    {
+      "name": "Analytics Dashboard",
+      "status": "passed",
+      "duration": "2697ms"
+    },
+    {
+      "name": "Kiosk Mode",
+      "status": "passed",
+      "duration": "2712ms"
+    },
+    {
+      "name": "Payment Page",
+      "status": "passed",
+      "duration": "2720ms"
+    },
+    {
+      "name": "Voice Ordering",
+      "status": "failed",
+      "error": "page.$x is not a function",
+      "duration": "2726ms"
+    },
+    {
+      "name": "Mobile Responsiveness",
+      "status": "passed",
+      "duration": "1614ms"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 8,
+    "failed": 2
+  }
+}
