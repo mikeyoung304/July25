@@ -1,62 +1,60 @@
 {
-  "timestamp": "2025-08-31T20:44:24.225Z",
+  "timestamp": "2025-09-01T00:49:26.189Z",
   "tests": [
     {
       "name": "Homepage Load",
       "status": "passed",
-      "duration": "749ms"
+      "duration": "800ms"
     },
     {
       "name": "Login Page",
       "status": "passed",
-      "duration": "663ms"
+      "duration": "659ms"
     },
     {
       "name": "Order System",
-      "status": "failed",
-      "error": "page.$x is not a function",
-      "duration": "2769ms"
+      "status": "passed",
+      "duration": "2725ms"
     },
     {
       "name": "Kitchen Display System",
       "status": "passed",
-      "duration": "2684ms"
+      "duration": "2678ms"
     },
     {
       "name": "Menu Management",
       "status": "passed",
-      "duration": "2732ms"
+      "duration": "2726ms"
     },
     {
       "name": "Analytics Dashboard",
       "status": "passed",
-      "duration": "2697ms"
+      "duration": "2679ms"
     },
     {
       "name": "Kiosk Mode",
       "status": "passed",
-      "duration": "2712ms"
+      "duration": "2734ms"
     },
     {
       "name": "Payment Page",
       "status": "passed",
-      "duration": "2720ms"
+      "duration": "2680ms"
     },
     {
       "name": "Voice Ordering",
-      "status": "failed",
-      "error": "page.$x is not a function",
-      "duration": "2726ms"
+      "status": "passed",
+      "duration": "2734ms"
     },
     {
       "name": "Mobile Responsiveness",
       "status": "passed",
-      "duration": "1614ms"
+      "duration": "1607ms"
     }
   ],
   "summary": {
     "total": 10,
-    "passed": 8,
-    "failed": 2
+    "passed": 10,
+    "failed": 0
   }
 }
