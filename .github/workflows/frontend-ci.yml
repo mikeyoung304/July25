@@ -40,7 +40,7 @@ jobs:
       - name: Guard - no compiled JS in shared
         run: |
           cd ..
-          npm ci
+          npm ci --ignore-scripts
           npm run check:no-shared-js
       
       - name: Build Production Bundle
