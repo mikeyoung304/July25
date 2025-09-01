@@ -90,20 +90,32 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 
 ## Known Security Considerations
 
-### Current Implementation
+### Current Implementation (v6.0.3)
 
-- **Square Integration**: Currently in Sandbox mode
-- **WebSocket Auth**: Token passed in headers
+- **Square Integration**: Configurable via SQUARE_ENVIRONMENT (sandbox/production)
+- **WebSocket Auth**: Token passed in headers with validation
 - **CORS**: Configured for known origins only
-- **File Uploads**: Not currently implemented
+- **Security Headers**: Comprehensive Helmet configuration with CSP, HSTS, etc.
+- **Suspicious Activity Detection**: Automated detection of SQL injection, XSS, path traversal
+- **Security Monitoring**: Real-time event logging and statistics API
+- **Request Size Limiting**: 10MB default limit on all requests
+- **Enhanced CSP**: Nonce-based script execution in production
+
+### Security Monitoring Endpoints
+
+- `GET /api/v1/security/events` - View security events (admin only)
+- `GET /api/v1/security/stats` - Security statistics dashboard
+- `GET /api/v1/security/config` - Current security configuration
 
 ### Planned Improvements
 
 - [ ] Implement 2FA for manager accounts
 - [ ] Add API key rotation mechanism
-- [ ] Implement security headers middleware
+- [x] Implement security headers middleware ✅
 - [ ] Add penetration testing
 - [ ] Implement WAF rules
+- [ ] Add Redis-based session store
+- [ ] Implement session fingerprinting
 
 ## Compliance
 
