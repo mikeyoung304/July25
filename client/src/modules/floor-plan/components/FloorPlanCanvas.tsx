@@ -143,14 +143,18 @@ export function FloorPlanCanvas({
 
     // Create gradient fills with better visual hierarchy
     let gradient: CanvasGradient
-    if (table.type === 'circle') {
+    if (table.type === 'circle' || table.type === 'chip_monkey') {
       gradient = ctx.createRadialGradient(0, -table.height/4, 0, 0, 0, table.width/2)
     } else {
       gradient = ctx.createLinearGradient(0, -table.height/2, 0, table.height/2)
     }
 
-    // Professional restaurant color palette with better contrast
-    if (table.status === 'occupied') {
+    // Special color for chip_monkey - brown tones
+    if (table.type === 'chip_monkey') {
+      gradient.addColorStop(0, '#FEF3E2') // Warm cream highlight
+      gradient.addColorStop(0.5, '#92400E') // Brown-700 main
+      gradient.addColorStop(1, '#78350F') // Brown-800 depth
+    } else if (table.status === 'occupied') {
       gradient.addColorStop(0, '#FEF3C7') // Amber-50 highlight
       gradient.addColorStop(0.5, '#F59E0B') // Amber-500 main
       gradient.addColorStop(1, '#D97706') // Amber-600 depth
@@ -180,6 +184,53 @@ export function FloorPlanCanvas({
       ctx.beginPath()
       ctx.arc(0, 0, table.width / 2, 0, Math.PI * 2)
       ctx.fill()
+    } else if (table.type === 'chip_monkey') {
+      // Draw chip monkey shape - treat as circular for hit detection
+      const radius = table.width / 2
+      
+      // Main body as circle (for proper hit detection)
+      ctx.beginPath()
+      ctx.arc(0, 0, radius, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Add monkey features on top
+      ctx.save()
+      const scale = table.width / 48
+      ctx.scale(scale, scale)
+      
+      // Darker brown for features
+      ctx.fillStyle = '#451A03' // Brown-950
+      
+      // Ears (smaller, on sides)
+      ctx.beginPath()
+      ctx.arc(-12, -5, 4, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(12, -5, 4, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Face detail
+      ctx.fillStyle = '#FED7AA' // Orange-200 for face
+      ctx.beginPath()
+      ctx.ellipse(0, 0, 6, 7, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Eyes
+      ctx.fillStyle = '#1F2937' // Gray-800
+      ctx.beginPath()
+      ctx.arc(-3, -2, 1.5, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(3, -2, 1.5, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Nose/mouth
+      ctx.fillStyle = '#451A03' // Brown-950
+      ctx.beginPath()
+      ctx.arc(0, 2, 1, 0, Math.PI * 2)
+      ctx.fill()
+      
+      ctx.restore()
     } else {
       const radius = 8
       const halfWidth = table.width / 2
@@ -220,6 +271,11 @@ export function FloorPlanCanvas({
         ctx.lineWidth = strokeWidth
         
         if (table.type === 'circle') {
+          ctx.beginPath()
+          ctx.arc(0, 0, table.width / 2 + offset, 0, Math.PI * 2)
+          ctx.stroke()
+        } else if (table.type === 'chip_monkey') {
+          // Simple circular selection for chip_monkey
           ctx.beginPath()
           ctx.arc(0, 0, table.width / 2 + offset, 0, Math.PI * 2)
           ctx.stroke()
@@ -284,7 +340,7 @@ export function FloorPlanCanvas({
     const halfWidth = table.width / 2
     const halfHeight = table.height / 2
     
-    if (table.type === 'circle') {
+    if (table.type === 'circle' || table.type === 'chip_monkey') {
       return {
         n: { x: 0, y: -halfHeight, cursor: 'ns-resize' },
         e: { x: halfWidth, y: 0, cursor: 'ew-resize' },
@@ -559,7 +615,7 @@ export function FloorPlanCanvas({
     for (let i = tables.length - 1; i >= 0; i--) {
       const table = tables[i]
       
-      if (table.type === 'circle') {
+      if (table.type === 'circle' || table.type === 'chip_monkey') {
         const distance = Math.sqrt(Math.pow(worldX - table.x, 2) + Math.pow(worldY - table.y, 2))
         if (distance <= table.width / 2) {
           return table
@@ -678,9 +734,9 @@ export function FloorPlanCanvas({
       let newHeight = initialSizeRef.current.height
 
       const handle = resizeHandleRef.current
-      const minSize = 40
+      const minSize = table.type === 'chip_monkey' ? 24 : 40
       
-      if (table.type === 'circle') {
+      if (table.type === 'circle' || table.type === 'chip_monkey') {
         // For circles, maintain aspect ratio
         let delta = 0
         if (handle === 'n' || handle === 's') {

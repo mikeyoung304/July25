@@ -414,7 +414,8 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
     const typeLabels = {
       circle: 'Round Table',
       square: 'Square Table', 
-      rectangle: 'Long Table'
+      rectangle: 'Long Table',
+      chip_monkey: 'Chip Monkey'
     }
     
     const baseLabel = typeLabels[type]
@@ -448,7 +449,8 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
     const tableSizes = {
       circle: { width: 120, height: 120, seats: 4 },
       square: { width: 140, height: 140, seats: 4 },
-      rectangle: { width: 180, height: 100, seats: 6 }
+      rectangle: { width: 180, height: 100, seats: 6 },
+      chip_monkey: { width: 48, height: 48, seats: 1 }
     }
 
     const sizeConfig = tableSizes[type]
