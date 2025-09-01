@@ -62,7 +62,7 @@
     "memory:check": "ps aux | grep -E 'node|vite' | awk '{sum+=$6} END {printf \"Memory: %.0f MB\\n\", sum/1024}'",
     "clean:all": "rm -rf node_modules client/node_modules server/node_modules",
     "reset": "pkill -f vite 2>/dev/null || true; npm run clean",
-    "prepare": "husky install"
+    "prepare": "husky install || true"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.0.0",

@@ -35,15 +35,12 @@ jobs:
           echo "npm version: $(npm -v)"
       
       - name: Install dependencies
-        run: |
-          cd ..
-          HUSKY=0 npm ci
-          cd client
-          npm ci
+        run: npm ci
       
       - name: Guard - no compiled JS in shared
         run: |
           cd ..
+          npm ci
           npm run check:no-shared-js
       
       - name: Build Production Bundle
