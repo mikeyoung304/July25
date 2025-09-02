@@ -14,7 +14,7 @@ export interface OrderCardProps {
  * Minimal KDS Order Card
  * Single complete button, no multi-step workflow
  */
-export function OrderCard({ order, onStatusChange }: OrderCardProps) {
+function OrderCardComponent({ order, onStatusChange }: OrderCardProps) {
   // Calculate elapsed time and urgency color (industry standard: green → yellow → red)
   const { elapsedMinutes, urgencyColor, cardColor } = useMemo(() => {
     const created = new Date(order.created_at)
@@ -157,3 +157,11 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
     </Card>
   )
 }
+
+// Memoize to prevent unnecessary re-renders in large order lists
+export const OrderCard = React.memo(OrderCardComponent, (prevProps, nextProps) => {
+  // Only re-render if order data or status changes
+  return prevProps.order.id === nextProps.order.id &&
+         prevProps.order.status === nextProps.order.status &&
+         prevProps.order.updated_at === nextProps.order.updated_at
+})
