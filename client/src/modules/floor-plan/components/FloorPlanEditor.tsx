@@ -415,7 +415,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
       circle: 'Round Table',
       square: 'Square Table', 
       rectangle: 'Long Table',
-      chip_monkey: 'Chip Monkey'
+      chip_monkey: 'Monkey'
     }
     
     const baseLabel = typeLabels[type]
@@ -450,7 +450,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
       circle: { width: 120, height: 120, seats: 4 },
       square: { width: 140, height: 140, seats: 4 },
       rectangle: { width: 180, height: 100, seats: 6 },
-      chip_monkey: { width: 48, height: 48, seats: 1 }
+      chip_monkey: { width: 64, height: 64, seats: 1 }
     }
 
     const sizeConfig = tableSizes[type]
@@ -484,6 +484,38 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
       table.id === id ? { ...table, ...updates } : table
     ))
   }, [])
+
+  // Keyboard shortcuts for rotation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!selectedTable) return
+      
+      // Check if we're not in an input field
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
+      
+      // Rotation shortcuts
+      if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault()
+        const rotationStep = e.shiftKey ? 45 : 15
+        updateTable(selectedTable.id, { 
+          rotation: ((selectedTable.rotation || 0) + rotationStep) % 360 
+        })
+      } else if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault()
+        const rotationStep = e.shiftKey ? 45 : 15
+        updateTable(selectedTable.id, { 
+          rotation: ((selectedTable.rotation || 0) - rotationStep + 360) % 360 
+        })
+      } else if (e.key === '0' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        updateTable(selectedTable.id, { rotation: 0 })
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [selectedTable, updateTable])
 
   // Delete table
   const deleteTable = useCallback(() => {
@@ -665,6 +697,11 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
     updateTable(tableId, { x: finalX, y: finalY })
   }, [snapToGrid, updateTable])
 
+  // Table resize handler
+  const handleTableResize = useCallback((tableId: string, width: number, height: number) => {
+    updateTable(tableId, { width, height })
+  }, [updateTable])
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full bg-gray-50">
@@ -710,28 +747,145 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
               </Button>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Name</label>
-                <input
-                  type="text"
-                  value={selectedTable.label}
-                  onChange={(e) => updateTable(selectedTable.id, { label: e.target.value })}
-                  className="w-full mt-2 px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Seats</label>
-                <div className="relative mt-2">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Name</label>
                   <input
-                    type="number"
-                    min="1"
-                    max="12"
-                    value={selectedTable.seats}
-                    onChange={(e) => updateTable(selectedTable.id, { seats: parseInt(e.target.value) || 1 })}
-                    className="w-full pl-3 pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    type="text"
+                    value={selectedTable.label}
+                    onChange={(e) => updateTable(selectedTable.id, { label: e.target.value })}
+                    className="w-full mt-2 px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                   />
-                  <Users className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                </div>
+                {selectedTable.type === 'chip_monkey' ? (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Size</label>
+                    <input
+                      type="range"
+                      min="32"
+                      max="120"
+                      step="4"
+                      value={selectedTable.width}
+                      onChange={(e) => {
+                        const size = parseInt(e.target.value)
+                        updateTable(selectedTable.id, { width: size, height: size })
+                      }}
+                      className="w-full mt-2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    />
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm text-gray-600">{selectedTable.width}px</span>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => updateTable(selectedTable.id, { width: 40, height: 40 })}
+                          className="h-7 px-2 text-xs"
+                        >
+                          S
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => updateTable(selectedTable.id, { width: 64, height: 64 })}
+                          className="h-7 px-2 text-xs"
+                        >
+                          M
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => updateTable(selectedTable.id, { width: 88, height: 88 })}
+                          className="h-7 px-2 text-xs"
+                        >
+                          L
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => updateTable(selectedTable.id, { width: 112, height: 112 })}
+                          className="h-7 px-2 text-xs"
+                        >
+                          XL
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Seats</label>
+                    <div className="relative mt-2">
+                      <input
+                        type="number"
+                        min="1"
+                        max="12"
+                        value={selectedTable.seats}
+                        onChange={(e) => updateTable(selectedTable.id, { seats: parseInt(e.target.value) || 1 })}
+                        className="w-full pl-3 pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      />
+                      <Users className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Rotation</label>
+                <div className="mt-2 space-y-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="360"
+                    step="15"
+                    value={selectedTable.rotation || 0}
+                    onChange={(e) => updateTable(selectedTable.id, { rotation: parseInt(e.target.value) })}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">{selectedTable.rotation || 0}°</span>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => updateTable(selectedTable.id, { rotation: ((selectedTable.rotation || 0) - 45 + 360) % 360 })}
+                        className="h-7 px-2 text-xs"
+                      >
+                        -45°
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => updateTable(selectedTable.id, { rotation: ((selectedTable.rotation || 0) - 90 + 360) % 360 })}
+                        className="h-7 px-2 text-xs"
+                      >
+                        -90°
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => updateTable(selectedTable.id, { rotation: 0 })}
+                        className="h-7 px-2 text-xs"
+                      >
+                        Reset
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => updateTable(selectedTable.id, { rotation: ((selectedTable.rotation || 0) + 90) % 360 })}
+                        className="h-7 px-2 text-xs"
+                      >
+                        +90°
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => updateTable(selectedTable.id, { rotation: ((selectedTable.rotation || 0) + 45) % 360 })}
+                        className="h-7 px-2 text-xs"
+                      >
+                        +45°
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -754,6 +908,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
             panOffset={panOffset}
             onTableClick={setSelectedTableId}
             onTableMove={handleTableMove}
+            onTableResize={handleTableResize}
             onCanvasClick={() => setSelectedTableId(null)}
             onZoomChange={setZoomLevel}
             onPanChange={setPanOffset}
@@ -774,9 +929,10 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
 
         {/* Instructions in bottom-right */}
         <div className="absolute bottom-6 right-6 z-10">
-          <p className="text-xs text-gray-500 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg shadow-sm">
-            Click tables to select • Drag to move • Scroll to zoom • Shift+drag to pan
-          </p>
+          <div className="text-xs text-gray-500 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg shadow-sm space-y-1">
+            <p>Click tables to select • Drag to move • Scroll to zoom • Shift+drag to pan</p>
+            <p>R/E to rotate • Shift+R/E for 45° • Ctrl+0 to reset rotation</p>
+          </div>
         </div>
       </div>
     </div>
