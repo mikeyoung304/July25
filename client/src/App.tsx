@@ -13,7 +13,8 @@ import { AppContent } from '@/components/layout/AppContent'
 import { SplashScreen } from '@/pages/SplashScreen'
 import { SetupRequiredScreen } from '@/pages/SetupRequiredScreen'
 import { MockDataBanner } from '@/components/MockDataBanner'
-import { webSocketService, orderUpdatesHandler } from '@/services/websocket'
+import { orderUpdatesHandler } from '@/services/websocket'
+import { connectionManager } from '@/services/websocket/ConnectionManager'
 import { supabase } from '@/core/supabase'
 import { env } from '@/utils/env'
 import './App.css'
@@ -50,7 +51,7 @@ function App() {
           
           try {
             // CRITICAL FIX: Connect WebSocket FIRST, then initialize handlers
-            await webSocketService.connect()
+            await connectionManager.connect()
             logger.info('✅ WebSocket connected, now initializing order updates handler...')
             
             // Initialize order updates handler AFTER connection is established
@@ -75,7 +76,7 @@ function App() {
         // Disconnect and reconnect WebSocket on sign out to switch to demo mode
         isConnected = false
         orderUpdatesHandler.cleanup()
-        webSocketService.disconnect()
+        connectionManager.forceDisconnect()
         
         // Reinitialize for demo mode
         setTimeout(() => initializeWebSocket(), 1000)

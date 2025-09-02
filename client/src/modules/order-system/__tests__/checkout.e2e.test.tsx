@@ -24,8 +24,9 @@ const mockUseCart = {
   removeFromCart: vi.fn(),
 };
 
-vi.mock('@/modules/order-system/context/cartContext.hooks', () => ({
-  useCart: () => mockUseCart
+vi.mock('@/contexts/UnifiedCartContext', () => ({
+  useCart: () => mockUseCart,
+  useUnifiedCart: () => mockUseCart
 }));
 
 vi.mock('@/modules/order-system/context/CartContext', () => ({

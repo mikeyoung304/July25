@@ -10,6 +10,7 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
   const [videoLoaded, setVideoLoaded] = useState(false)
   const [videoError, setVideoError] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const videoEndTimerRef = useRef<NodeJS.Timeout | undefined>()
   
   useEffect(() => {
     // Preload video
@@ -30,12 +31,15 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
     return () => {
       clearTimeout(exitTimer)
       clearTimeout(completeTimer)
+      if (videoEndTimerRef.current) {
+        clearTimeout(videoEndTimerRef.current)
+      }
     }
   }, [onAnimationComplete])
 
   const handleVideoEnd = () => {
     setIsExiting(true)
-    setTimeout(onAnimationComplete, 700)
+    videoEndTimerRef.current = setTimeout(onAnimationComplete, 700)
   }
 
   const handleVideoError = () => {

@@ -158,6 +158,7 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 8. **Status Validation**: Test components with all possible status values
 9. **WebSocket Resilience**: Implement proper reconnection and error handling
 10. **USE DRY UTILITIES**: Always check for existing hooks/utilities before creating new ones
+11. **Token Caching**: Clear sessionStorage (`sessionStorage.removeItem('DEMO_AUTH_TOKEN')`) after updating auth scopes
 
 ## Environment
 
@@ -194,6 +195,23 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 - **DO NOT create adapter contexts** - they add complexity
 - **DO NOT duplicate cart logic** - violates DRY principle
 - When refactoring/unifying systems, update ALL usages, not just wrap old ones
+
+## Demo Mode Payment Requirements
+
+### Required Scopes for Demo/Kiosk Mode
+Demo tokens MUST include these scopes for full functionality:
+- `menu:read` - View menu items
+- `orders:create` - Create orders  
+- `ai.voice:chat` - Voice ordering
+- `payments:process` - **CRITICAL: Required for checkout/payment processing**
+
+### Known Issue: Token Caching
+When auth scopes are updated on the backend, browsers may cache old tokens causing 403 errors.
+**Solution**: Clear browser session storage after scope changes:
+```javascript
+sessionStorage.removeItem('DEMO_AUTH_TOKEN');
+```
+See `docs/PAYMENT_TOKEN_ISSUE.md` for detailed troubleshooting.
 
 ## Authentication Architecture (2025-01-30)
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { menuFunctionTools } from './realtime-menu-tools';
 
 // Mock Supabase
@@ -16,7 +16,7 @@ vi.mock('@supabase/supabase-js', () => ({
 
 describe('Menu Function Tools', () => {
   describe('get_store_info', () => {
-    const mockContext = {
+    const _mockContext = {
       sessionId: 'test-session',
       restaurantId: 'test-restaurant'
     };
@@ -27,7 +27,7 @@ describe('Menu Function Tools', () => {
       vi.setSystemTime(mockDate);
 
       // Mock store data with hours
-      const mockStoreData = {
+      const _mockStoreData = {
         name: 'Test Restaurant',
         hours: {
           1: { open: '09:00', close: '17:00' } // Monday 9am-5pm
@@ -42,7 +42,7 @@ describe('Menu Function Tools', () => {
     });
 
     it('should default to open when hours not specified', async () => {
-      const mockStoreData = {
+      const _mockStoreData = {
         name: 'Test Restaurant',
         hours: null
       };

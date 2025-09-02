@@ -124,10 +124,10 @@ class MemoryMonitoringSystem {
     const memory = (performance as { memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
     const snapshot: MemorySnapshot = {
       timestamp: Date.now(),
-      used: memory.usedJSHeapSize,
-      total: memory.totalJSHeapSize,
-      limit: memory.jsHeapSizeLimit,
-      percentage: (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100
+      used: memory?.usedJSHeapSize || 0,
+      total: memory?.totalJSHeapSize || 0,
+      limit: memory?.jsHeapSizeLimit || 0,
+      percentage: memory ? (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100 : 0
     };
     
     this.snapshots.push(snapshot);
@@ -559,10 +559,10 @@ export const withMemoryProfiling = <T extends new (...args: any[]) => any>(
       });
       
       // Profile periodically if service has monitoring methods
-      if (typeof this.getMemoryMetrics === 'function') {
+      if (typeof this['getMemoryMetrics'] === 'function') {
         const profileInterval = setInterval(() => {
           try {
-            const metrics = this.getMemoryMetrics();
+            const metrics = this['getMemoryMetrics']();
             MemoryMonitor.profileService(name, metrics);
           } catch (error) {
             console.warn(`Memory profiling failed for ${name}:`, error);
@@ -570,9 +570,9 @@ export const withMemoryProfiling = <T extends new (...args: any[]) => any>(
         }, 30000); // Every 30 seconds
         
         // Cleanup interval when service is destroyed
-        const originalDestroy = this.destroy || this.cleanup;
+        const originalDestroy = this['destroy'] || this['cleanup'];
         if (originalDestroy) {
-          this.destroy = this.cleanup = () => {
+          this['destroy'] = this['cleanup'] = () => {
             clearInterval(profileInterval);
             return originalDestroy.call(this);
           };
