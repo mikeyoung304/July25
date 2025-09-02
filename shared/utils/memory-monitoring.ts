@@ -124,10 +124,10 @@ class MemoryMonitoringSystem {
     const memory = (performance as { memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
     const snapshot: MemorySnapshot = {
       timestamp: Date.now(),
-      used: memory.usedJSHeapSize,
-      total: memory.totalJSHeapSize,
-      limit: memory.jsHeapSizeLimit,
-      percentage: (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100
+      used: memory?.usedJSHeapSize || 0,
+      total: memory?.totalJSHeapSize || 0,
+      limit: memory?.jsHeapSizeLimit || 0,
+      percentage: memory ? (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100 : 0
     };
     
     this.snapshots.push(snapshot);

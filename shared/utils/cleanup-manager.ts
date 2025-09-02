@@ -318,8 +318,9 @@ class CleanupManagerImpl {
     };
     
     for (const resource of this.resources.values()) {
-      if (groups[resource.priority]) {
-        groups[resource.priority].push(resource);
+      const priorityGroup = groups[resource.priority];
+      if (priorityGroup) {
+        priorityGroup.push(resource);
       }
     }
     
