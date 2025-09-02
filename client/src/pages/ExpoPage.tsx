@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react'
+import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
 import { Eye, Filter, Clock, CheckCircle, Package, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -249,4 +250,11 @@ function ExpoPage() {
   )
 }
 
-export default ExpoPage
+// Wrap with KDS error boundary for resilience
+const ExpoPageWithErrorBoundary = () => (
+  <KDSErrorBoundary stationName="Expo Station">
+    <ExpoPage />
+  </KDSErrorBoundary>
+)
+
+export default ExpoPageWithErrorBoundary
