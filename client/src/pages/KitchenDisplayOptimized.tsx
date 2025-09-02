@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
+import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { TouchOptimizedOrderCard } from '@/components/kitchen/TouchOptimizedOrderCard'
 import { VirtualizedOrderGrid } from '@/components/kitchen/VirtualizedOrderGrid'
@@ -343,4 +344,11 @@ function KitchenDisplayOptimized() {
   )
 }
 
-export default KitchenDisplayOptimized
+// Wrap with KDS error boundary for resilience
+const KitchenDisplayOptimizedWithErrorBoundary = () => (
+  <KDSErrorBoundary stationName="Kitchen Display">
+    <KitchenDisplayOptimized />
+  </KDSErrorBoundary>
+)
+
+export default KitchenDisplayOptimizedWithErrorBoundary
