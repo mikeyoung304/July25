@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { logger } from '@/services/logger';
+import { DemoAuthService } from '@/services/auth/demoAuth';
 
 interface Props {
   children: ReactNode;
@@ -12,6 +13,7 @@ interface State {
   error: Error | null;
   errorInfo: ErrorInfo | null;
   retryCount: number;
+  hasRefreshedToken: boolean;
 }
 
 /**
@@ -27,7 +29,8 @@ export class PaymentErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-      retryCount: 0
+      retryCount: 0,
+      hasRefreshedToken: false
     };
   }
 
@@ -39,12 +42,42 @@ export class PaymentErrorBoundary extends Component<Props, State> {
     };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  async componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Check if it's an auth error in demo mode
+    const isAuthError = error.message?.includes('401') || 
+                       error.message?.includes('403') || 
+                       error.message?.includes('Unauthorized');
+    const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN || 
+                      import.meta.env.VITE_SQUARE_ACCESS_TOKEN === 'demo' || 
+                      import.meta.env.DEV;
+    
+    // Auto-refresh token once for auth errors in demo mode
+    if (isAuthError && isDemoMode && !this.state.hasRefreshedToken) {
+      logger.info('Auth error in demo mode, refreshing token...');
+      try {
+        await DemoAuthService.refreshTokenIfNeeded();
+        this.setState({
+          hasError: false,
+          error: null,
+          errorInfo: null,
+          hasRefreshedToken: true
+        });
+        // Retry the operation
+        if (this.props.onRetry) {
+          this.props.onRetry();
+        }
+        return;
+      } catch (refreshError) {
+        logger.error('Failed to refresh demo token', refreshError);
+      }
+    }
+    
     // Log payment error for audit trail
     logger.error('Payment processing error caught by boundary', error, {
       errorInfo,
       timestamp: new Date().toISOString(),
       retryCount: this.state.retryCount,
+      hasRefreshedToken: this.state.hasRefreshedToken,
       // Include payment context if available
       paymentContext: {
         page: 'CheckoutPage',
@@ -95,13 +128,27 @@ export class PaymentErrorBoundary extends Component<Props, State> {
     }
   }
 
-  private handleRetry = () => {
+  private handleRetry = async () => {
     if (this.state.retryCount < this.MAX_RETRIES) {
+      // Refresh token before retry in demo mode
+      const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN || 
+                        import.meta.env.VITE_SQUARE_ACCESS_TOKEN === 'demo' || 
+                        import.meta.env.DEV;
+      
+      if (isDemoMode && !this.state.hasRefreshedToken) {
+        try {
+          await DemoAuthService.refreshTokenIfNeeded();
+        } catch (err) {
+          logger.error('Failed to refresh token on retry', err);
+        }
+      }
+      
       this.setState(prevState => ({
         hasError: false,
         error: null,
         errorInfo: null,
-        retryCount: prevState.retryCount + 1
+        retryCount: prevState.retryCount + 1,
+        hasRefreshedToken: true
       }));
 
       // Call parent retry handler if provided

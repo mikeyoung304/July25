@@ -1,7 +1,10 @@
 import { env } from '@/utils/env';
 import { logger } from '@/services/logger'
 
-const STORAGE_KEY = 'DEMO_AUTH_TOKEN';
+// Versioned storage key to force refresh when auth scopes change
+const STORAGE_KEY_V1 = 'DEMO_AUTH_TOKEN';
+const STORAGE_KEY_V2 = 'DEMO_AUTH_TOKEN_V2';
+const CURRENT_VERSION = 2;
 const RESTO_ID = '11111111-1111-1111-1111-111111111111';
 
 // In-memory token storage
@@ -21,6 +24,7 @@ export class DemoAuthService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-demo-token-version': String(CURRENT_VERSION),
       },
       body: JSON.stringify({
         restaurantId: RESTO_ID
@@ -57,19 +61,27 @@ export class DemoAuthService {
       return cachedToken;
     }
 
-    // Try to get from sessionStorage
-    const storedToken = sessionStorage.getItem(STORAGE_KEY);
+    // Migrate from V1 to V2 if needed
+    const oldToken = sessionStorage.getItem(STORAGE_KEY_V1);
+    if (oldToken) {
+      logger.info('🔄 Migrating demo token from V1 to V2');
+      sessionStorage.removeItem(STORAGE_KEY_V1);
+      // Force refresh with new version
+    }
+
+    // Try to get from versioned sessionStorage
+    const storedToken = sessionStorage.getItem(STORAGE_KEY_V2);
     if (storedToken) {
       try {
         const parsed = JSON.parse(storedToken);
-        if (parsed.token && parsed.expiresAt && parsed.expiresAt > Date.now()) {
+        if (parsed.token && parsed.expiresAt && parsed.expiresAt > Date.now() && parsed.version === CURRENT_VERSION) {
           cachedToken = parsed.token;
           tokenExpiresAt = parsed.expiresAt;
           return parsed.token;
         }
       } catch {
         // Invalid stored token, remove it
-        sessionStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(STORAGE_KEY_V2);
       }
     }
 
@@ -82,10 +94,11 @@ export class DemoAuthService {
       cachedToken = token;
       tokenExpiresAt = expiresAt;
       
-      // Store in sessionStorage
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      // Store in versioned sessionStorage
+      sessionStorage.setItem(STORAGE_KEY_V2, JSON.stringify({
         token,
-        expiresAt
+        expiresAt,
+        version: CURRENT_VERSION
       }));
 
       logger.info('🔑 Demo token refreshed');
@@ -99,7 +112,14 @@ export class DemoAuthService {
   static clearToken(): void {
     cachedToken = null;
     tokenExpiresAt = null;
-    sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY_V1);
+    sessionStorage.removeItem(STORAGE_KEY_V2);
+  }
+
+  static async refreshTokenIfNeeded(): Promise<string> {
+    // Force token refresh
+    this.clearToken();
+    return this.getDemoToken();
   }
 }
 
