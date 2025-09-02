@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser';
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
-import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
+import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { useKioskOrderSubmission } from '@/hooks/kiosk/useKioskOrderSubmission';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useToast } from '@/hooks/useToast';
@@ -66,6 +66,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
 
   // Initialize checkout orchestrator
   useEffect(() => {
+    const timeoutIds: NodeJS.Timeout[] = [];
     if (!checkoutOrchestratorRef.current) {
       checkoutOrchestratorRef.current = new VoiceCheckoutOrchestrator({
         restaurantId: import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'demo-restaurant',
@@ -87,29 +88,36 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
       orchestrator.on('checkout.confirmation.requested', (data) => {
         const feedbackText = `Proceeding to checkout with ${data.items.length} items totaling $${data.total.toFixed(2)}`;
         setVoiceFeedback(feedbackText);
-        setTimeout(() => setVoiceFeedback(''), 5000);
+        const timeoutId = setTimeout(() => setVoiceFeedback(''), 5000);
+        timeoutIds.push(timeoutId);
       });
 
       // Listen for summary requests
       orchestrator.on('summary.text', (data) => {
         setVoiceFeedback(data.text);
-        setTimeout(() => setVoiceFeedback(''), 10000);
+        const timeoutId = setTimeout(() => setVoiceFeedback(''), 10000);
+        timeoutIds.push(timeoutId);
       });
 
       // Listen for payment feedback
       orchestrator.on('payment.feedback', (data) => {
         setVoiceFeedback(data.text);
-        setTimeout(() => setVoiceFeedback(''), 5000);
+        const timeoutId = setTimeout(() => setVoiceFeedback(''), 5000);
+        timeoutIds.push(timeoutId);
       });
 
       // Listen for error feedback
       orchestrator.on('payment.error.feedback', (data) => {
         setVoiceFeedback(data.text);
-        setTimeout(() => setVoiceFeedback(''), 5000);
+        const timeoutId = setTimeout(() => setVoiceFeedback(''), 5000);
+        timeoutIds.push(timeoutId);
       });
     }
 
     return () => {
+      // Clear all timers
+      timeoutIds.forEach(id => clearTimeout(id));
+      
       if (checkoutOrchestratorRef.current) {
         checkoutOrchestratorRef.current.destroy();
         checkoutOrchestratorRef.current = null;

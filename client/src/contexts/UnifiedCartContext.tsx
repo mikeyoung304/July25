@@ -35,7 +35,7 @@ interface UnifiedCartContextType {
   restaurantId: string;
 }
 
-const UnifiedCartContext = createContext<UnifiedCartContextType | undefined>(undefined);
+export const UnifiedCartContext = createContext<UnifiedCartContextType | undefined>(undefined);
 
 const DEFAULT_RESTAURANT_ID = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
 const _TAX_RATE = 0.0875; // 8.75% tax rate - reserved for future use
@@ -125,7 +125,7 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
           setItems([]);
           setTip(0);
         }
-      } catch (_e) {
+      } catch {
         // Ignore parse errors
       }
     }
@@ -217,15 +217,4 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
   );
 };
 
-// Hook to use the unified cart
-export const useUnifiedCart = () => {
-  const context = useContext(UnifiedCartContext);
-  if (!context) {
-    throw new Error('useUnifiedCart must be used within UnifiedCartProvider');
-  }
-  return context;
-};
-
-// Re-export the hook with common aliases for consistency
-export const useCart = useUnifiedCart;
-export const useKioskCart = useUnifiedCart;
+// Hooks moved to cart.hooks.ts for better Fast Refresh compatibility

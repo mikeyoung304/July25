@@ -9,7 +9,7 @@ import { DietaryFilters } from './DietaryFilters';
 import { SortOptions } from './SortOptions';
 import { MenuItem } from '../../menu/types';
 import { useRestaurant } from '@/core';
-import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
+import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { CartItem } from '@rebuild/shared';
 import { useRestaurantData } from '../hooks/useRestaurantData';
 

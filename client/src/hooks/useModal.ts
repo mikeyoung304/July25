@@ -53,6 +53,7 @@ export function useModal(options: UseModalOptions = {}): UseModalReturn {
   const modalRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
+  const timeoutRefs = useRef<Set<NodeJS.Timeout>>(new Set());
 
   const open = useCallback(() => {
     if (restoreFocus) {
@@ -68,9 +69,11 @@ export function useModal(options: UseModalOptions = {}): UseModalReturn {
     
     // Restore focus to the trigger element
     if (restoreFocus && previousActiveElement.current) {
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         previousActiveElement.current?.focus();
+        timeoutRefs.current.delete(timeoutId);
       }, 0);
+      timeoutRefs.current.add(timeoutId);
     }
   }, [onClose, restoreFocus]);
 
@@ -110,10 +113,13 @@ export function useModal(options: UseModalOptions = {}): UseModalReturn {
     // Delay to avoid closing immediately on open
     const timeoutId = setTimeout(() => {
       document.addEventListener('mousedown', handleOutsideClick);
+      timeoutRefs.current.delete(timeoutId);
     }, 0);
+    timeoutRefs.current.add(timeoutId);
 
     return () => {
       clearTimeout(timeoutId);
+      timeoutRefs.current.delete(timeoutId);
       document.removeEventListener('mousedown', handleOutsideClick);
     };
   }, [isOpen, closeOnOutsideClick, close]);
@@ -159,8 +165,15 @@ export function useModal(options: UseModalOptions = {}): UseModalReturn {
     };
 
     // Use timeout to ensure DOM is ready
-    const timeoutId = setTimeout(focusModal, 0);
-    return () => clearTimeout(timeoutId);
+    const timeoutId = setTimeout(() => {
+      focusModal();
+      timeoutRefs.current.delete(timeoutId);
+    }, 0);
+    timeoutRefs.current.add(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutRefs.current.delete(timeoutId);
+    };
   }, [isOpen]);
 
   // Trap focus within modal
@@ -191,6 +204,14 @@ export function useModal(options: UseModalOptions = {}): UseModalReturn {
     document.addEventListener('keydown', handleTabKey);
     return () => document.removeEventListener('keydown', handleTabKey);
   }, [isOpen]);
+
+  // Clean up all timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timeoutRefs.current.forEach(id => clearTimeout(id));
+      timeoutRefs.current.clear();
+    };
+  }, []);
 
   return {
     isOpen,

@@ -93,7 +93,7 @@ export const CommonSchemas = {
   orderType: z.enum(['dine-in', 'takeout', 'delivery']),
   paymentStatus: z.enum(['pending', 'processing', 'completed', 'failed', 'refunded']),
   tableStatus: z.enum(['available', 'occupied', 'reserved', 'cleaning']),
-  tableShape: z.enum(['rectangle', 'square', 'round']),
+  tableShape: z.enum(['rectangle', 'square', 'round', 'circle', 'chip_monkey']),
   
   // Security-focused validators
   safeHtml: z.string().transform(str => 

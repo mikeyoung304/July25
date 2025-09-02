@@ -1,6 +1,8 @@
 # Architecture
 
-See [docs/02-architecture/overview.md](./docs/02-architecture/overview.md) for complete architecture documentation.
+See [docs/architecture/README.md](./docs/architecture/README.md) for complete architecture documentation.
+
+**Last Updated**: September 2, 2025
 
 ## Quick Reference
 
