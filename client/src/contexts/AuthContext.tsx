@@ -20,7 +20,7 @@ interface AuthSession {
   expiresAt?: number;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   session: AuthSession | null;
   isAuthenticated: boolean;
@@ -41,15 +41,9 @@ interface AuthContextType {
   canAccess: (requiredRoles: string[], requiredScopes?: string[]) => boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+// Hook moved to auth.hooks.ts for better Fast Refresh compatibility
 
 interface AuthProviderProps {
   children: ReactNode;

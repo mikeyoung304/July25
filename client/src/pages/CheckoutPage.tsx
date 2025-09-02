@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BackToDashboard } from '@/components/navigation/BackToDashboard';
-import { useUnifiedCart as useCart } from '@/contexts/UnifiedCartContext';
+import { useCart } from '@/contexts/cart.hooks';
 import { CartItem } from '@/modules/order-system/components/CartItem';
 import { CartSummary } from '@/modules/order-system/components/CartSummary';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
