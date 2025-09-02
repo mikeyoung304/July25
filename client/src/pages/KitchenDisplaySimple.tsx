@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { Button } from '@/components/ui/button'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
+import { MemoryMonitor } from '@rebuild/shared/utils/memory-monitoring'
 import type { Order } from '@rebuild/shared'
 
 /**
@@ -15,6 +16,26 @@ function KitchenDisplaySimple() {
   
   // Simple filtering - active or ready only
   const [statusFilter, setStatusFilter] = useState<'active' | 'ready'>('active')
+  
+  // Memory monitoring for long-running sessions
+  useEffect(() => {
+    const memoryMonitor = new MemoryMonitor({
+      interval: 60000, // Check every minute
+      threshold: 200 * 1024 * 1024, // Alert at 200MB
+      onThresholdExceeded: (snapshot) => {
+        console.warn('⚠️ Kitchen Display memory usage high:', {
+          used: `${Math.round(snapshot.used / 1024 / 1024)}MB`,
+          percentage: `${snapshot.percentage.toFixed(2)}%`
+        })
+      }
+    })
+    
+    memoryMonitor.start()
+    
+    return () => {
+      memoryMonitor.stop()
+    }
+  }, [])
 
   // Handle order status change - now uses shared hook
   const handleStatusChange = async (orderId: string, status: 'ready') => {

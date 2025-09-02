@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react'
+import React, { useMemo, useState, useCallback, useEffect } from 'react'
 import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
 import { Eye, Filter, Clock, CheckCircle, Package, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,7 @@ import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBo
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
 import { STATUS_GROUPS, isStatusInGroup, getSafeOrderStatus } from '@/utils/orderStatusValidation'
 import { cn } from '@/utils'
+import { MemoryMonitor } from '@rebuild/shared/utils/memory-monitoring'
 import type { Order } from '@rebuild/shared'
 
 // Ready Order Card Component for Expo - Includes "Mark as Picked Up" and "Mark as Sent" functionality
@@ -132,6 +133,26 @@ function ExpoPage() {
   // View modes for expo station
   const [viewMode, setViewMode] = useState<'split' | 'ready-only'>('split')
   const [showFilters, setShowFilters] = useState(false)
+  
+  // Memory monitoring for long-running sessions
+  useEffect(() => {
+    const memoryMonitor = new MemoryMonitor({
+      interval: 60000, // Check every minute
+      threshold: 200 * 1024 * 1024, // Alert at 200MB
+      onThresholdExceeded: (snapshot) => {
+        console.warn('⚠️ Expo Display memory usage high:', {
+          used: `${Math.round(snapshot.used / 1024 / 1024)}MB`,
+          percentage: `${snapshot.percentage.toFixed(2)}%`
+        })
+      }
+    })
+    
+    memoryMonitor.start()
+    
+    return () => {
+      memoryMonitor.stop()
+    }
+  }, [])
 
   // Handle marking kitchen orders as ready (left panel)
   const handleMarkReady = async (orderId: string, status: 'ready') => {
