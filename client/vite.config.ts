@@ -101,7 +101,19 @@ export default defineConfig(({ mode }) => {
                 return 'form-vendor';
               }
               
-              // All other vendor code
+              // Monitoring and analytics
+              if (id.includes('sentry') || id.includes('@sentry')) {
+                return 'monitoring';
+              }
+              
+              // All other vendor code - split into smaller chunks
+              if (id.includes('lodash')) {
+                return 'utils-lodash';
+              }
+              if (id.includes('axios') || id.includes('ky')) {
+                return 'http-client';
+              }
+              
               return 'vendor';
             }
             
@@ -117,6 +129,12 @@ export default defineConfig(({ mode }) => {
             }
             if (id.includes('modules/voice')) {
               return 'voice-module';
+            }
+            if (id.includes('modules/analytics')) {
+              return 'analytics';
+            }
+            if (id.includes('modules/payments')) {
+              return 'payments';
             }
           },
           

@@ -3,7 +3,7 @@ import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { Button } from '@/components/ui/button'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
-import { MemoryMonitor } from '@rebuild/shared/utils/memory-monitoring'
+import { MemoryMonitoringSystem } from '@rebuild/shared/utils/memory-monitoring'
 import type { Order } from '@rebuild/shared'
 
 /**
@@ -19,7 +19,8 @@ function KitchenDisplaySimple() {
   
   // Memory monitoring for long-running sessions
   useEffect(() => {
-    const memoryMonitor = new MemoryMonitor({
+    const memoryMonitor = MemoryMonitoringSystem.getInstance()
+    memoryMonitor.configure({
       interval: 60000, // Check every minute
       threshold: 200 * 1024 * 1024, // Alert at 200MB
       onThresholdExceeded: (snapshot) => {
