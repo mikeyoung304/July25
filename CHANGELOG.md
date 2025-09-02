@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 📚 Documentation
+- **Comprehensive Documentation Audit** (September 2, 2025)
+  - Unified scattered documentation into single sources of truth
+  - Created `/docs/api/` and `/docs/architecture/` unified directories
+  - Added Architecture Decision Records (ADRs) for key decisions:
+    - ADR-002: Unified Backend Architecture
+    - ADR-003: Cart System Unification  
+    - ADR-004: Voice System Consolidation
+  - Generated comprehensive documentation index at `/docs/DOCS_INDEX.md`
+  - Archived 15+ outdated documents to `/docs/archive/2025-09-02/`
+  - Updated all core documentation with current version (6.0.3) and dates
+  - Created executive audit summary at `/docs/DOCS_AUDIT_SUMMARY.md`
+
 ### ✨ Added
 - **Chip Monkey Floor Plan Element**: New selectable floor plan item type
   - Custom SVG icon rendering with monkey silhouette
