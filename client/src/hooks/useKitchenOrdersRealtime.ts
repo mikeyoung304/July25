@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRestaurant } from '@/core'
 import { webSocketService } from '@/services/websocket'
+import { connectionManager } from '@/services/websocket/ConnectionManager'
 import { api } from '@/services/api'
 import { useOrderActions } from '@/modules/orders/hooks/useOrderActions'
 import type { Order } from '@rebuild/shared'
@@ -76,10 +77,8 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
   useEffect(() => {
     if (restaurantLoading || restaurantError) return
 
-    // Connect to WebSocket first
-    webSocketService.connect().then(() => {
-      // WebSocket connected successfully
-    }).catch((error) => {
+    // Connect to WebSocket using connection manager
+    connectionManager.connect().catch((error) => {
       console.error('❌ [KDS] WebSocket connection failed:', error)
     })
 
@@ -123,6 +122,8 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
       unsubscribeUpdated()
       unsubscribeDeleted()
       unsubscribeStatusChanged()
+      // Disconnect from WebSocket when component unmounts
+      connectionManager.disconnect()
     }
   }, [restaurantLoading, restaurantError])
 
