@@ -1,6 +1,5 @@
 {
-  "transport": "mcp",
-  "server": "supabase",
+  "status": "✅ Available",
   "tools": [
     "mcp__supabase__list_tables",
     "mcp__supabase__list_extensions",
@@ -15,5 +14,6 @@
     "mcp__supabase__merge_branch",
     "mcp__supabase__reset_branch",
     "mcp__supabase__rebase_branch"
-  ]
+  ],
+  "verified": "2025-09-04T00:00:00Z"
 }

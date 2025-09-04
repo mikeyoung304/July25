@@ -6,9 +6,13 @@ import { logger } from '../utils/logger';
 import { SquareClient, SquareEnvironment } from 'square';
 import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
+import { attachUserClient, supabase } from '../config/database';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'terminal' });
+
+// Apply user-scoped client middleware
+router.use(attachUserClient);
 
 // Initialize Square client (reuse existing configuration)
 const client = new SquareClient({
@@ -43,7 +47,8 @@ router.post('/checkout', authenticate, validateRestaurantAccess, async (req: Aut
     });
 
     // Get order to verify it exists and get amount
-    const order = await OrdersService.getOrder(restaurantId, orderId);
+    const client = (req as any).userSupabase || supabase;
+    const order = await OrdersService.getOrder(client, restaurantId, orderId);
     if (!order) {
       throw BadRequest('Order not found');
     }
@@ -275,7 +280,9 @@ router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAc
     }
 
     // Update order payment status
+    const client = (req as any).userSupabase || supabase;
     await OrdersService.updateOrderPayment(
+      client,
       restaurantId,
       orderId,
       'paid',
@@ -284,7 +291,7 @@ router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAc
     );
 
     // Get updated order
-    const updatedOrder = await OrdersService.getOrder(restaurantId, orderId);
+    const updatedOrder = await OrdersService.getOrder(client, restaurantId, orderId);
 
     routeLogger.info('Order payment completed via terminal', { 
       orderId,

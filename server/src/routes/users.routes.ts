@@ -10,9 +10,13 @@ import { BadRequest, Unauthorized, Forbidden } from '../middleware/errorHandler'
 import { logger } from '../utils/logger';
 import userService from '../services/userService';
 import { ApiScope } from '../../../shared/types/api.types';
+import { attachUserClient } from '../config/database';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'users' });
+
+// Apply user-scoped client middleware
+router.use(attachUserClient);
 
 /**
  * POST /api/v1/users/register

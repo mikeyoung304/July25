@@ -1,0 +1,123 @@
+diff --git a/server/src/routes/payments.routes.ts b/server/src/routes/payments.routes.ts
+index 0443d94..bb90a15 100644
+--- a/server/src/routes/payments.routes.ts
++++ b/server/src/routes/payments.routes.ts
+@@ -8,10 +8,14 @@ import { SquareClient, SquareEnvironment } from 'square';
+ import { randomUUID } from 'crypto';
+ import { OrdersService } from '../services/orders.service';
+ import { PaymentService } from '../services/payment.service';
++import { attachUserClient, supabase } from '../config/database';
+ 
+ const router = Router();
+ const routeLogger = logger.child({ route: 'payments' });
+ 
++// Apply user-scoped client middleware
++router.use(attachUserClient);
++
+ // Validate Square configuration
+ if (process.env['SQUARE_ENVIRONMENT'] === 'production') {
+   if (!process.env['SQUARE_ACCESS_TOKEN']?.startsWith('EAAA')) {
+@@ -79,7 +83,8 @@ router.post('/create',
+       });
+ 
+       // Get order for reference
+-      const order = await OrdersService.getOrder(restaurantId, orderId);
++      const client = (req as any).userSupabase || supabase;
++      const order = await OrdersService.getOrder(client, restaurantId, orderId);
+       
+       // Create payment request with server-validated amount
+       const paymentRequest = {
+@@ -133,6 +138,7 @@ router.post('/create',
+ 
+       // Update order payment status
+       await OrdersService.updateOrderPayment(
++        client,
+         restaurantId,
+         orderId,
+         'paid',
+@@ -169,7 +175,7 @@ router.post('/create',
+         paymentId: paymentResult.payment.id,
+         status: paymentResult.payment.status,
+         receiptUrl: paymentResult.payment.receiptUrl,
+-        order: await OrdersService.getOrder(restaurantId, orderId), // Return updated order
++        order: await OrdersService.getOrder(client, restaurantId, orderId), // Return updated order
+       });
+ 
+     } catch (squareError: any) {
+@@ -234,7 +240,9 @@ router.post('/create',
+     // Update order payment status to failed
+     if (req.body.orderId) {
+       try {
++        const client = (req as any).userSupabase || supabase;
+         await OrdersService.updateOrderPayment(
++          client,
+           req.restaurantId!,
+           req.body.orderId,
+           'failed',
+diff --git a/server/src/routes/terminal.routes.ts b/server/src/routes/terminal.routes.ts
+index e66ddf7..a233153 100644
+--- a/server/src/routes/terminal.routes.ts
++++ b/server/src/routes/terminal.routes.ts
+@@ -6,10 +6,14 @@ import { logger } from '../utils/logger';
+ import { SquareClient, SquareEnvironment } from 'square';
+ import { randomUUID } from 'crypto';
+ import { OrdersService } from '../services/orders.service';
++import { attachUserClient, supabase } from '../config/database';
+ 
+ const router = Router();
+ const routeLogger = logger.child({ route: 'terminal' });
+ 
++// Apply user-scoped client middleware
++router.use(attachUserClient);
++
+ // Initialize Square client (reuse existing configuration)
+ const client = new SquareClient({
+   environment: process.env['SQUARE_ENVIRONMENT'] === 'production' 
+@@ -43,7 +47,8 @@ router.post('/checkout', authenticate, validateRestaurantAccess, async (req: Aut
+     });
+ 
+     // Get order to verify it exists and get amount
+-    const order = await OrdersService.getOrder(restaurantId, orderId);
++    const client = (req as any).userSupabase || supabase;
++    const order = await OrdersService.getOrder(client, restaurantId, orderId);
+     if (!order) {
+       throw BadRequest('Order not found');
+     }
+@@ -275,7 +280,9 @@ router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAc
+     }
+ 
+     // Update order payment status
++    const client = (req as any).userSupabase || supabase;
+     await OrdersService.updateOrderPayment(
++      client,
+       restaurantId,
+       orderId,
+       'paid',
+@@ -284,7 +291,7 @@ router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAc
+     );
+ 
+     // Get updated order
+-    const updatedOrder = await OrdersService.getOrder(restaurantId, orderId);
++    const updatedOrder = await OrdersService.getOrder(client, restaurantId, orderId);
+ 
+     routeLogger.info('Order payment completed via terminal', { 
+       orderId,
+diff --git a/server/src/routes/users.routes.ts b/server/src/routes/users.routes.ts
+index c32be5b..453d85f 100644
+--- a/server/src/routes/users.routes.ts
++++ b/server/src/routes/users.routes.ts
+@@ -10,10 +10,14 @@ import { BadRequest, Unauthorized, Forbidden } from '../middleware/errorHandler'
+ import { logger } from '../utils/logger';
+ import userService from '../services/userService';
+ import { ApiScope } from '../../../shared/types/api.types';
++import { attachUserClient } from '../config/database';
+ 
+ const router = Router();
+ const routeLogger = logger.child({ route: 'users' });
+ 
++// Apply user-scoped client middleware
++router.use(attachUserClient);
++
+ /**
+  * POST /api/v1/users/register
+  * Create a new user (managers/owners only)

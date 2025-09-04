@@ -8,9 +8,13 @@ import { SquareClient, SquareEnvironment } from 'square';
 import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
 import { PaymentService } from '../services/payment.service';
+import { attachUserClient, supabase } from '../config/database';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'payments' });
+
+// Apply user-scoped client middleware
+router.use(attachUserClient);
 
 // Validate Square configuration
 if (process.env['SQUARE_ENVIRONMENT'] === 'production') {
@@ -79,7 +83,8 @@ router.post('/create',
       });
 
       // Get order for reference
-      const order = await OrdersService.getOrder(restaurantId, orderId);
+      const client = (req as any).userSupabase || supabase;
+      const order = await OrdersService.getOrder(client, restaurantId, orderId);
       
       // Create payment request with server-validated amount
       const paymentRequest = {
@@ -133,6 +138,7 @@ router.post('/create',
 
       // Update order payment status
       await OrdersService.updateOrderPayment(
+        client,
         restaurantId,
         orderId,
         'paid',
@@ -169,7 +175,7 @@ router.post('/create',
         paymentId: paymentResult.payment.id,
         status: paymentResult.payment.status,
         receiptUrl: paymentResult.payment.receiptUrl,
-        order: await OrdersService.getOrder(restaurantId, orderId), // Return updated order
+        order: await OrdersService.getOrder(client, restaurantId, orderId), // Return updated order
       });
 
     } catch (squareError: any) {
@@ -234,7 +240,9 @@ router.post('/create',
     // Update order payment status to failed
     if (req.body.orderId) {
       try {
+        const client = (req as any).userSupabase || supabase;
         await OrdersService.updateOrderPayment(
+          client,
           req.restaurantId!,
           req.body.orderId,
           'failed',
