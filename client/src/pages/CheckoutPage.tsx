@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BackToDashboard } from '@/components/navigation/BackToDashboard';
-import { useCart } from '@/modules/order-system/context/CartContext';
+import { useCart } from '@/contexts/cart.hooks';
 import { CartItem } from '@/modules/order-system/components/CartItem';
 import { CartSummary } from '@/modules/order-system/components/CartSummary';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
@@ -9,6 +9,7 @@ import { SquarePaymentForm } from '@/modules/order-system/components/SquarePayme
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useFormValidation, validators } from '@/utils/validation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
+import { DemoAuthService } from '@/services/auth/demoAuth';
 
 const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +17,11 @@ const CheckoutPageContent: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const orderApi = useApiRequest();
   const paymentApi = useApiRequest();
+  
+  // Check if we're in demo mode
+  const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN || 
+                     import.meta.env.VITE_SQUARE_ACCESS_TOKEN === 'demo' || 
+                     import.meta.env.DEV;
   
   // Use form validation hook
   const form = useFormValidation({
@@ -31,6 +37,81 @@ const CheckoutPageContent: React.FC = () => {
       validateOnBlur: true,
     },
   });
+
+  const handleDemoPayment = async () => {
+    // Validate form
+    if (!form.validateForm()) {
+      return;
+    }
+    
+    setIsProcessing(true);
+    form.clearErrors();
+
+    try {
+      // Ensure we have a valid demo token
+      await DemoAuthService.getDemoToken();
+      
+      // Create the order
+      const orderResponse = await orderApi.post('/api/v1/orders', {
+        type: 'online',
+        items: cart.items.map(item => ({
+          menu_item_id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          modifiers: item.modifiers || [],
+          specialInstructions: item.specialInstructions || '',
+        })),
+        customerName: form.values.customerEmail.split('@')[0],
+        customerEmail: form.values.customerEmail,
+        customerPhone: form.values.customerPhone.replace(/\D/g, ''),
+        notes: 'Demo online order',
+        subtotal: cart.subtotal,
+        tax: cart.tax,
+        tip: cart.tip,
+        total_amount: cart.total,
+      });
+
+      if (!orderResponse) {
+        throw new Error('Failed to create order');
+      }
+
+      const order = orderResponse as { id: string; order_number: string };
+
+      // Process demo payment (will be mocked on server)
+      const paymentResponse = await paymentApi.post('/api/v1/payments/create', {
+        orderId: order.id,
+        token: 'demo-token',
+        amount: cart.total,
+        idempotencyKey: `demo-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      });
+
+      if (!paymentResponse) {
+        throw new Error('Demo payment processing failed');
+      }
+
+      const payment = paymentResponse as { id?: string; paymentId?: string };
+
+      // Clear cart and navigate to confirmation
+      clearCart();
+      navigate('/order-confirmation', { 
+        state: { 
+          orderId: order.id,
+          order_number: order.order_number,
+          estimatedTime: '15-20 minutes',
+          items: cart.items,
+          total: cart.total,
+          paymentId: payment.id || payment.paymentId,
+        } 
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Demo payment failed. Please try again.';
+      form.setFieldError('general' as keyof typeof form.values, errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handlePaymentNonce = async (token: string) => {
     // Validate form
@@ -225,16 +306,37 @@ const CheckoutPageContent: React.FC = () => {
             {/* Payment Form */}
             <div className="bg-white rounded-lg p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Method</h2>
+              
+              {/* Demo Mode Banner */}
+              {isDemoMode && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800 font-medium">
+                    🎮 Demo Mode – No cards will be charged
+                  </p>
+                </div>
+              )}
+              
               {form.errors.general && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   {form.errors.general}
                 </div>
               )}
-              <SquarePaymentForm
-                onPaymentNonce={handlePaymentNonce}
-                amount={cart.total}
-                isProcessing={isProcessing}
-              />
+              
+              {isDemoMode ? (
+                <button
+                  onClick={handleDemoPayment}
+                  disabled={isProcessing}
+                  className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors"
+                >
+                  {isProcessing ? 'Processing...' : 'Complete Order (Demo)'}
+                </button>
+              ) : (
+                <SquarePaymentForm
+                  onPaymentNonce={handlePaymentNonce}
+                  amount={cart.total}
+                  isProcessing={isProcessing}
+                />
+              )}
             </div>
           </div>
         </div>

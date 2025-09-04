@@ -1,0 +1,8 @@
+{
+  "status": "already_applied",
+  "version": "20250904121523",
+  "name": "20250903_100000_auth_core",
+  "applied_at": "2025-09-04T12:15:23Z",
+  "transport": "mcp",
+  "result": "Migration already exists in production"
+}

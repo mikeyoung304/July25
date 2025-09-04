@@ -1,0 +1,12 @@
+{
+  "transport": "mcp",
+  "required_tables": [
+    {"table_name": "api_scopes", "exists": true},
+    {"table_name": "role_scopes", "exists": true},
+    {"table_name": "station_tokens", "exists": true},
+    {"table_name": "user_pins", "exists": true},
+    {"table_name": "user_profiles", "exists": true},
+    {"table_name": "user_restaurants", "exists": true}
+  ],
+  "all_present": true
+}

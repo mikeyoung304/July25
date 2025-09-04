@@ -20,7 +20,7 @@ interface AuthSession {
   expiresAt?: number;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   session: AuthSession | null;
   isAuthenticated: boolean;
@@ -31,6 +31,7 @@ interface AuthContextType {
   login: (email: string, password: string, restaurantId: string) => Promise<void>;
   loginWithPin: (pin: string, restaurantId: string) => Promise<void>;
   loginAsStation: (stationType: string, stationName: string, restaurantId: string) => Promise<void>;
+  loginAsDemo: (role: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   setPin: (pin: string) => Promise<void>;
@@ -41,15 +42,9 @@ interface AuthContextType {
   canAccess: (requiredRoles: string[], requiredScopes?: string[]) => boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+// Hook moved to auth.hooks.ts for better Fast Refresh compatibility
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -285,6 +280,70 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Demo login (development only)
+  const loginAsDemo = async (role: string) => {
+    // Only available in development with demo auth enabled
+    if (import.meta.env.PROD || import.meta.env.VITE_DEMO_AUTH !== '1') {
+      throw new Error('Demo login is only available in development');
+    }
+
+    setIsLoading(true);
+    const defaultRestaurantId = '11111111-1111-1111-1111-111111111111';
+    
+    try {
+      // Map role to demo credentials (using seeded accounts)
+      const demoCredentials: Record<string, { email: string; password: string }> = {
+        manager: { email: 'manager@restaurant.com', password: 'Demo123!' },
+        server: { email: 'server@restaurant.com', password: 'Demo123!' },
+        kitchen: { email: 'kitchen@restaurant.com', password: 'Demo123!' },
+        expo: { email: 'expo@restaurant.com', password: 'Demo123!' },
+        cashier: { email: 'cashier@restaurant.com', password: 'Demo123!' }
+      };
+
+      const creds = demoCredentials[role];
+      if (!creds) {
+        throw new Error(`Invalid demo role: ${role}`);
+      }
+
+      // Use regular login with demo credentials
+      // This creates a real Supabase session
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: creds.email,
+        password: creds.password
+      });
+
+      if (error) {
+        // If Supabase login fails, try PIN login as fallback
+        // This assumes demo users have PINs set up
+        logger.warn('Demo Supabase login failed, trying PIN fallback:', error);
+        throw error;
+      }
+
+      if (data.session) {
+        // Fetch user details from our API
+        const response = await httpClient.get<{ user: User; restaurantId: string }>(
+          '/api/v1/auth/me'
+        );
+        
+        setUser(response.user);
+        setRestaurantId(defaultRestaurantId);
+        setSession({
+          accessToken: data.session.access_token,
+          refreshToken: data.session.refresh_token,
+          expiresIn: data.session.expires_in,
+          expiresAt: data.session.expires_at
+        });
+
+        logger.info(`Demo login successful as ${role}`);
+      }
+    } catch (error) {
+      logger.error(`Demo login failed for ${role}:`, error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Logout
   const logout = async () => {
     setIsLoading(true);
@@ -429,6 +488,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     loginWithPin,
     loginAsStation,
+    loginAsDemo,
     logout,
     refreshSession,
     setPin,

@@ -2,7 +2,7 @@ import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { CartProvider } from './CartContext';
-import { useCart } from './cartContext.hooks';
+import { useCart } from '@/contexts/UnifiedCartContext';
 import { CartItem } from '@rebuild/shared';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (

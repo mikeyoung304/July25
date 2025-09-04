@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Users, ChefHat, ShoppingCart, Settings, Globe, Package } from 'lucide-react'
+import { Users, ChefHat, ShoppingCart, Settings, Globe, Package, UserCheck } from 'lucide-react'
 
 interface NavigationCardProps {
   title: string
@@ -42,6 +42,8 @@ function NavigationCard({ title, icon, href, color, delay = 0 }: NavigationCardP
 }
 
 export function HomePage() {
+  const showDemoMode = import.meta.env.VITE_DEMO_AUTH === '1';
+  
   // Original color palette - solid, professional colors
   const navigationOptions = [
     {
@@ -115,6 +117,17 @@ export function HomePage() {
               delay={index}
             />
           ))}
+          
+          {/* Demo Mode Card - Only in development */}
+          {showDemoMode && (
+            <NavigationCard
+              title="Friends & Family"
+              icon={<UserCheck />}
+              href="/login"
+              color="#F97316"
+              delay={navigationOptions.length}
+            />
+          )}
         </div>
       </div>
     </div>

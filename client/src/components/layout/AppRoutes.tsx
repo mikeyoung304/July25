@@ -1,7 +1,7 @@
 import React, { Profiler, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
-import { ManagerRoute, KitchenRoute } from '@/components/auth/ProtectedRoute'
+import { ManagerRoute, KitchenRoute, ServerRoute, AdminRoute } from '@/components/auth/ProtectedRoute'
 import { env } from '@/utils/env'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
@@ -126,50 +126,62 @@ export function AppRoutes() {
               </ErrorBoundary>
             } />
             <Route path="/history" element={
-              <ErrorBoundary level="section">
-                <Suspense fallback={<RouteLoader />}>
-                  <OrderHistory />
-                </Suspense>
-              </ErrorBoundary>
+              <ServerRoute>
+                <ErrorBoundary level="section">
+                  <Suspense fallback={<RouteLoader />}>
+                    <OrderHistory />
+                  </Suspense>
+                </ErrorBoundary>
+              </ServerRoute>
             } />
             <Route path="/performance" element={
-              <ErrorBoundary level="section">
-                <Suspense fallback={<RouteLoader />}>
-                  <PerformanceDashboard />
-                </Suspense>
-              </ErrorBoundary>
+              <ManagerRoute>
+                <ErrorBoundary level="section">
+                  <Suspense fallback={<RouteLoader />}>
+                    <PerformanceDashboard />
+                  </Suspense>
+                </ErrorBoundary>
+              </ManagerRoute>
             } />
             <Route path="/server" element={
-              <ErrorBoundary level="section">
-                <Suspense fallback={<RouteLoader />}>
-                  <ServerView />
-                </Suspense>
-              </ErrorBoundary>
+              <ServerRoute>
+                <ErrorBoundary level="section">
+                  <Suspense fallback={<RouteLoader />}>
+                    <ServerView />
+                  </Suspense>
+                </ErrorBoundary>
+              </ServerRoute>
             } />
             <Route path="/admin" element={
-              <ErrorBoundary level="section">
-                <Suspense fallback={<RouteLoader />}>
-                  <AdminDashboard />
-                </Suspense>
-              </ErrorBoundary>
+              <AdminRoute>
+                <ErrorBoundary level="section">
+                  <Suspense fallback={<RouteLoader />}>
+                    <AdminDashboard />
+                  </Suspense>
+                </ErrorBoundary>
+              </AdminRoute>
             } />
             <Route path="/expo" element={
-              <ErrorBoundary level="section">
-                <Profiler id="ExpoPage" onRender={onRenderCallback}>
-                  <Suspense fallback={<RouteLoader />}>
-                    <ExpoPage />
-                  </Suspense>
-                </Profiler>
-              </ErrorBoundary>
+              <KitchenRoute>
+                <ErrorBoundary level="section">
+                  <Profiler id="ExpoPage" onRender={onRenderCallback}>
+                    <Suspense fallback={<RouteLoader />}>
+                      <ExpoPage />
+                    </Suspense>
+                  </Profiler>
+                </ErrorBoundary>
+              </KitchenRoute>
             } />
             <Route path="/expo-debug" element={
-              <ErrorBoundary level="section">
-                <Profiler id="ExpoPageDebug" onRender={onRenderCallback}>
-                  <Suspense fallback={<RouteLoader />}>
-                    <ExpoPageDebug />
-                  </Suspense>
-                </Profiler>
-              </ErrorBoundary>
+              <KitchenRoute>
+                <ErrorBoundary level="section">
+                  <Profiler id="ExpoPageDebug" onRender={onRenderCallback}>
+                    <Suspense fallback={<RouteLoader />}>
+                      <ExpoPageDebug />
+                    </Suspense>
+                  </Profiler>
+                </ErrorBoundary>
+              </KitchenRoute>
             } />
             {/* Default order redirect to Grow Fresh Local Food */}
             <Route 

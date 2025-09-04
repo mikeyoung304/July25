@@ -1,6 +1,6 @@
 export interface Table {
   id: string
-  type: 'circle' | 'rectangle' | 'square'
+  type: 'circle' | 'rectangle' | 'square' | 'chip_monkey'
   x: number
   y: number
   width: number

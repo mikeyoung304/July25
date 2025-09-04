@@ -98,6 +98,7 @@ rebuild-6.0/
 
 ### 4. Point of Sale (POS)
 - Table management with visual floor plan
+  - Square, Circle, Rectangle, and Chip Monkey shapes
 - Order creation and modification
 - Payment processing (card, cash, mobile, terminal)
 - Receipt printing

@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth.hooks';
 import { logger } from '@/services/logger';
 
-interface ProtectedRouteProps {
+export interface ProtectedRouteProps {
   children: ReactNode;
   requiredRoles?: string[];
   requiredScopes?: string[];
@@ -68,21 +68,7 @@ export function ProtectedRoute({
   return <>{children}</>;
 }
 
-/**
- * HOC version of ProtectedRoute for wrapping components
- */
-export function withProtectedRoute<P extends object>(
-  Component: React.ComponentType<P>,
-  options: Omit<ProtectedRouteProps, 'children'> = {}
-) {
-  return function ProtectedComponent(props: P) {
-    return (
-      <ProtectedRoute {...options}>
-        <Component {...props} />
-      </ProtectedRoute>
-    );
-  };
-}
+// HOC moved to withProtectedRoute.tsx for better Fast Refresh compatibility
 
 /**
  * Role-specific route guards for common use cases

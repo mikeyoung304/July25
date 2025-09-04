@@ -42,7 +42,7 @@ export const securityHeaders = () => {
         formAction: ["'self'"],
         frameAncestors: ["'none'"],
         baseUri: ["'self'"],
-        upgradeInsecureRequests: !isDevelopment ? [] : undefined,
+        ...(isDevelopment ? {} : { upgradeInsecureRequests: [] }),
       },
     },
     
@@ -194,10 +194,13 @@ export const securityMonitor = new SecurityMonitor();
 
 // IP extraction middleware
 export const extractIP = (req: Request, res: Response, next: NextFunction) => {
-  req.ip = req.headers['x-forwarded-for'] as string || 
-           req.connection.remoteAddress || 
-           req.socket.remoteAddress ||
-           '';
+  // Store IP in res.locals instead of trying to override req.ip
+  const clientIp = req.headers['x-forwarded-for'] as string || 
+                   req.connection.remoteAddress || 
+                   req.socket.remoteAddress ||
+                   req.ip ||
+                   '';
+  res.locals.clientIp = clientIp;
   next();
 };
 

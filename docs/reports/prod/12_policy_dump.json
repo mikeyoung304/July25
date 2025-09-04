@@ -1,0 +1,27 @@
+{
+  "transport": "mcp",
+  "policies": [
+    {"tablename": "menu_categories", "polname": "menu_categories_tenant_access", "polcmd": "ALL", "using_clause": "is_member_of_restaurant(restaurant_id)", "with_check": "is_member_of_restaurant(restaurant_id)"},
+    {"tablename": "menu_categories", "polname": "service_role_bypass_menu_categories", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "menu_items", "polname": "menu_items_tenant_access", "polcmd": "ALL", "using_clause": "is_member_of_restaurant(restaurant_id)", "with_check": "is_member_of_restaurant(restaurant_id)"},
+    {"tablename": "menu_items", "polname": "service_role_bypass_menu_items", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "order_status_history", "polname": "order_status_history_tenant_access", "polcmd": "ALL", "using_clause": "is_member_of_restaurant(restaurant_id)", "with_check": "is_member_of_restaurant(restaurant_id)"},
+    {"tablename": "order_status_history", "polname": "service_role_bypass_order_status_history", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "orders", "polname": "orders_tenant_access", "polcmd": "ALL", "using_clause": "is_member_of_restaurant(restaurant_id)", "with_check": "is_member_of_restaurant(restaurant_id)"},
+    {"tablename": "orders", "polname": "service_role_bypass_orders", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "restaurants", "polname": "restaurants_tenant_access", "polcmd": "ALL", "using_clause": "is_member_of_restaurant(id)", "with_check": "is_member_of_restaurant(id)"},
+    {"tablename": "restaurants", "polname": "service_role_bypass_restaurants", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "station_tokens", "polname": "service_role_bypass_station_tokens", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "station_tokens", "polname": "station_tokens_tenant_access", "polcmd": "ALL", "using_clause": "is_member_of_restaurant(restaurant_id)", "with_check": "is_member_of_restaurant(restaurant_id)"},
+    {"tablename": "tables", "polname": "service_role_bypass_tables", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "tables", "polname": "tables_tenant_access", "polcmd": "ALL", "using_clause": "is_member_of_restaurant(restaurant_id)", "with_check": "is_member_of_restaurant(restaurant_id)"},
+    {"tablename": "user_pins", "polname": "service_role_bypass_user_pins", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "user_pins", "polname": "user_pins_tenant_access", "polcmd": "ALL", "using_clause": "is_member_of_restaurant(restaurant_id)", "with_check": "is_member_of_restaurant(restaurant_id)"},
+    {"tablename": "user_profiles", "polname": "service_role_bypass_user_profiles", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "user_profiles", "polname": "user_profiles_self_select", "polcmd": "SELECT", "using_clause": "(auth.uid() = user_id)", "with_check": null},
+    {"tablename": "user_profiles", "polname": "user_profiles_self_update", "polcmd": "UPDATE", "using_clause": "(auth.uid() = user_id)", "with_check": "(auth.uid() = user_id)"},
+    {"tablename": "user_restaurants", "polname": "service_role_bypass_user_restaurants", "polcmd": "ALL", "using_clause": "is_service_role()", "with_check": null},
+    {"tablename": "user_restaurants", "polname": "user_restaurants_self_access", "polcmd": "SELECT", "using_clause": "(user_id = auth.uid())", "with_check": null},
+    {"tablename": "user_restaurants", "polname": "user_restaurants_self_select", "polcmd": "SELECT", "using_clause": "(user_id = auth.uid())", "with_check": null}
+  ]
+}
