@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth.hooks';
+import { DevAuthOverlay } from '@/components/auth/DevAuthOverlay';
 import { toast } from 'react-hot-toast';
 import { logger } from '@/services/logger';
 
@@ -205,6 +206,9 @@ export default function Login() {
             Back to Home
           </Link>
         </div>
+        
+        {/* Demo Auth Overlay - Only in development */}
+        <DevAuthOverlay />
       </div>
     </div>
   );

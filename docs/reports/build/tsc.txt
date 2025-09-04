@@ -1,0 +1,2 @@
+TypeScript check completed without errors.
+The loginAsDemo method has been properly added to AuthContext interface and implementation.
