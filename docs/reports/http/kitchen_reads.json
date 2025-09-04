@@ -1,0 +1,58 @@
+{
+  "role": "kitchen",
+  "operation": "list pending orders",
+  "success": true,
+  "count": 10,
+  "orders": [
+    {
+      "id": "be11dbd1-aa6a-48e6-addc-b19a0c4a066a",
+      "status": "pending",
+      "order_number": "WEB-844358"
+    },
+    {
+      "id": "52d20576-eb8f-4da1-b08c-c13c841dc2c1",
+      "status": "pending",
+      "order_number": "WEB-783731"
+    },
+    {
+      "id": "fe16ed08-d15f-49e5-972a-aa167ebb5f31",
+      "status": "pending",
+      "order_number": "WEB-872764"
+    },
+    {
+      "id": "8cea2345-aa2f-4387-a1f8-a5a841429dd6",
+      "status": "pending",
+      "order_number": "20250818-0001"
+    },
+    {
+      "id": "a12125f1-814a-4155-b647-d6ea8d3b6413",
+      "status": "pending",
+      "order_number": "20250818-0002"
+    },
+    {
+      "id": "5ddecd94-9c7c-4cd4-b9f9-a89604ab6e88",
+      "status": "pending",
+      "order_number": "20250818-0003"
+    },
+    {
+      "id": "10187ba9-cd54-47ef-82df-b2c9971adff5",
+      "status": "pending",
+      "order_number": "20250818-0004"
+    },
+    {
+      "id": "ea6c9d15-cc26-4885-acef-529bacbde75c",
+      "status": "pending",
+      "order_number": "20250818-0005"
+    },
+    {
+      "id": "a98df7a9-b207-4c2b-a9d4-03db4a03d47a",
+      "status": "pending",
+      "order_number": "20250818-0001"
+    },
+    {
+      "id": "29630e79-0410-47af-a789-42e469b22342",
+      "status": "pending",
+      "order_number": "20250818-0002"
+    }
+  ]
+}

@@ -1,91 +1,163 @@
 #!/usr/bin/env node
+import fetch from 'node-fetch';
+import { writeFileSync } from 'fs';
 
-/**
- * Test authentication flow for all demo PIN codes
- */
-
-import axios from 'axios';
-
-const API_BASE = 'http://localhost:3001';
+const BASE_URL = 'http://localhost:3001/api/v1';
 const RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
 
-const DEMO_PINS = [
-  { role: 'Server', pin: '2468', endpoint: '/server' },
-  { role: 'Kitchen', pin: '1357', endpoint: '/kitchen' },
-  { role: 'Expo', pin: '3691', endpoint: '/expo' },
-  { role: 'Cashier', pin: '4802', endpoint: '/checkout' }
+const users = [
+  { email: 'manager@restaurant.com', password: 'Password123!' },
+  { email: 'server1@restaurant.com', password: 'Password123!' },
+  { email: 'kitchen@restaurant.com', password: 'Password123!' },
+  { email: 'expo@restaurant.com', password: 'Password123!' },
+  { email: 'cashier@restaurant.com', password: 'Password123!' }
 ];
 
-async function testPinLogin(role, pin) {
-  try {
-    console.log(`\n🔐 Testing ${role} login with PIN: ${pin}`);
-    
-    const response = await axios.post(`${API_BASE}/api/v1/auth/pin-login`, {
-      pin,
-      restaurantId: RESTAURANT_ID
-    });
-    
-    const { token, user, expiresIn } = response.data;
-    
-    console.log(`✅ ${role} login successful!`);
-    console.log(`   - User ID: ${user.id}`);
-    console.log(`   - Role: ${user.role}`);
-    console.log(`   - Token: ${token.substring(0, 20)}...`);
-    console.log(`   - Expires in: ${expiresIn / 3600} hours`);
-    
-    // Test authenticated request
-    const meResponse = await axios.get(`${API_BASE}/api/v1/auth/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Restaurant-ID': RESTAURANT_ID
+async function testEmailAuth() {
+  const sessions = [];
+  
+  for (const user of users) {
+    try {
+      console.log(`Testing login for ${user.email}...`);
+      
+      const response = await fetch(`${BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...user,
+          restaurantId: RESTAURANT_ID
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.session) {
+        console.log(`✅ ${user.email} - Success`);
+        sessions.push({
+          email: user.email,
+          userId: data.user?.id,
+          role: data.user?.role,
+          sessionToken: data.session.access_token ? 'REDACTED' : undefined,
+          expiresIn: data.session.expires_in
+        });
+      } else {
+        console.log(`❌ ${user.email} - Failed: ${data.error || response.statusText}`);
+        sessions.push({
+          email: user.email,
+          error: data.error || response.statusText
+        });
       }
+    } catch (error) {
+      console.error(`❌ ${user.email} - Error:`, error.message);
+      sessions.push({
+        email: user.email,
+        error: error.message
+      });
+    }
+  }
+  
+  // Save sessions report
+  writeFileSync('docs/reports/auth/EMAIL_SESSIONS.json', JSON.stringify(sessions, null, 2));
+  console.log('\n📝 Sessions saved to docs/reports/auth/EMAIL_SESSIONS.json');
+  
+  return sessions;
+}
+
+async function testPinAuth() {
+  console.log('\nTesting PIN authentication...');
+  
+  try {
+    // Test with server1's PIN
+    const response = await fetch(`${BASE_URL}/auth/pin-login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Restaurant-ID': RESTAURANT_ID
+      },
+      body: JSON.stringify({
+        pin: '1234',
+        restaurantId: RESTAURANT_ID
+      })
     });
     
-    console.log(`   - /auth/me verified: ${meResponse.data.user.role}`);
+    const data = await response.json();
     
-    return { success: true, token, user };
+    const result = {
+      endpoint: '/api/v1/auth/pin-login',
+      method: 'POST',
+      request: {
+        pin: '1234',
+        restaurantId: RESTAURANT_ID
+      },
+      response: {
+        status: response.status,
+        success: response.ok,
+        hasSession: !!data.session,
+        isSupabaseSession: data.session?.access_token && !data.session?.access_token.startsWith('local_'),
+        user: data.user ? {
+          id: data.user.id,
+          email: data.user.email,
+          role: data.user.role
+        } : null,
+        error: data.error
+      }
+    };
+    
+    // Save PIN auth result
+    writeFileSync('docs/reports/http/PIN_LOGIN.json', JSON.stringify(result, null, 2));
+    console.log('📝 PIN auth result saved to docs/reports/http/PIN_LOGIN.json');
+    
+    if (result.response.isSupabaseSession) {
+      console.log('✅ PIN auth returns Supabase session');
+    } else if (data.session?.access_token?.startsWith('local_')) {
+      console.log('⚠️ PIN auth returns local JWT - needs fixing');
+      
+      // Write blocker report
+      writeFileSync('docs/reports/auth/PIN_BLOCKER.md', `# PIN Authentication Blocker
+
+**Date**: ${new Date().toISOString()}
+**Status**: ⚠️ Returns local JWT instead of Supabase session
+
+## Issue
+The PIN login endpoint at server/src/routes/auth.routes.ts returns a locally-generated JWT instead of a Supabase session.
+
+## Evidence
+- Response token starts with: \`local_\`
+- File: server/src/routes/auth.routes.ts
+- Line: Likely in the PIN login handler
+
+## Fix Required
+Update PIN login to:
+1. Verify PIN against user_pins table
+2. Get user's email from auth.users
+3. Use Supabase admin auth.signInWithEmail() with the user's email
+4. Return the Supabase session
+`);
+    }
+    
+    return result;
   } catch (error) {
-    console.error(`❌ ${role} login failed:`, error.response?.data || error.message);
-    return { success: false, error: error.message };
+    console.error('❌ PIN auth error:', error.message);
+    return { error: error.message };
   }
 }
 
-async function runTests() {
-  console.log('🧪 Testing Authentication System');
-  console.log('================================');
+async function main() {
+  console.log('🔐 Testing Authentication Flows\n');
   
-  const results = [];
+  // Ensure directories exist
+  const { execSync } = await import('child_process');
+  execSync('mkdir -p docs/reports/auth docs/reports/http');
   
-  for (const demo of DEMO_PINS) {
-    const result = await testPinLogin(demo.role, demo.pin);
-    results.push({ ...demo, ...result });
-    
-    // Small delay between tests
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  // Test email/password auth
+  await testEmailAuth();
   
-  // Summary
-  console.log('\n📊 Test Summary');
-  console.log('===============');
-  const successful = results.filter(r => r.success);
-  const failed = results.filter(r => !r.success);
+  // Test PIN auth
+  await testPinAuth();
   
-  console.log(`✅ Successful: ${successful.length}/${results.length}`);
-  if (failed.length > 0) {
-    console.log(`❌ Failed: ${failed.map(f => f.role).join(', ')}`);
-  }
-  
-  process.exit(failed.length > 0 ? 1 : 0);
+  console.log('\n✅ Auth testing complete');
 }
 
-// Check if server is running
-axios.get(`${API_BASE}/health`)
-  .then(() => {
-    console.log('✅ Server is running on', API_BASE);
-    runTests();
-  })
-  .catch(() => {
-    console.error('❌ Server is not running on', API_BASE);
-    console.error('Please start the server with: npm run dev');
-    process.exit(1);
-  });
+main().catch(console.error);

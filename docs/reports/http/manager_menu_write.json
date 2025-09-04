@@ -1,0 +1,9 @@
+{
+  "role": "manager",
+  "operation": "insert menu_item",
+  "success": true,
+  "data": {
+    "id": "898b2387-9fd4-4bcd-908f-ebb29b1351e9",
+    "name": "Test Item 1756994544684"
+  }
+}

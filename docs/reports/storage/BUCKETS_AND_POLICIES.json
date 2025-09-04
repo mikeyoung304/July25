@@ -1,0 +1,7 @@
+{
+  "timestamp": "2025-09-04T00:00:00Z",
+  "status": "NOT_IN_USE",
+  "buckets": [],
+  "policies": [],
+  "notes": "No Supabase Storage buckets configured. The application doesn't currently use Supabase Storage."
+}
