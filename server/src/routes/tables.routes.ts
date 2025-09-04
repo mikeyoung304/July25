@@ -1,12 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger'
-import { supabase } from '../config/database';
+import { supabase, attachUserClient } from '../config/database';
 import { validateRestaurantAccess, AuthenticatedRequest } from '../middleware/auth';
 import { getConfig } from '../config/environment';
 import { Table, TableStatus } from '../../../shared/types/table.types';
 
 const router = Router();
 const config = getConfig();
+
+// Attach user-scoped client for RLS enforcement
+router.use(attachUserClient);
 
 // Apply restaurant validation to all routes (skip in development for testing)
 if (config.nodeEnv !== 'development') {
@@ -27,8 +30,9 @@ if (config.nodeEnv !== 'development') {
 export const getTables = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
+    const client = (req as any).userSupabase || supabase;
     
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('tables')
       .select('*')
       .eq('restaurant_id', restaurantId)
@@ -56,8 +60,9 @@ export const getTable = async (req: AuthenticatedRequest, res: Response, next: N
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { id } = req.params;
+    const client = (req as any).userSupabase || supabase;
     
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('tables')
       .select('*')
       .eq('id', id)
@@ -91,6 +96,12 @@ export const createTable = async (req: AuthenticatedRequest & { body: CreateTabl
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { x, y, type, z_index, ...otherData } = req.body;
+    const client = (req as any).userSupabase || supabase;
+    
+    // Validate restaurant ID matches
+    if (restaurantId !== '11111111-1111-1111-1111-111111111111') {
+      logger.warn('Restaurant ID mismatch', { provided: restaurantId });
+    }
     
     // Transform frontend properties to database columns
     const tableData: Record<string, any> = {
@@ -104,7 +115,7 @@ export const createTable = async (req: AuthenticatedRequest & { body: CreateTabl
       status: 'available' as TableStatus
     };
     
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('tables')
       .insert([tableData])
       .select()
@@ -142,6 +153,7 @@ export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTabl
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { id } = req.params;
     const updates = req.body;
+    const client = (req as any).userSupabase || supabase;
     
     // Remove fields that shouldn't be updated
     delete updates.id;
@@ -163,7 +175,7 @@ export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTabl
       delete dbUpdates.type;
     }
     
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('tables')
       .update(dbUpdates)
       .eq('id', id)
@@ -195,8 +207,9 @@ export const deleteTable = async (req: AuthenticatedRequest, res: Response, next
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { id } = req.params;
+    const client = (req as any).userSupabase || supabase;
     
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('tables')
       .update({ active: false })
       .eq('id', id)
@@ -226,6 +239,7 @@ export const updateTableStatus = async (req: AuthenticatedRequest & { body: Upda
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { id } = req.params;
     const { status, orderId } = req.body;
+    const client = (req as any).userSupabase || supabase;
     
     const updates: Record<string, any> = { status };
     if (status === 'occupied' && orderId) {
@@ -234,7 +248,7 @@ export const updateTableStatus = async (req: AuthenticatedRequest & { body: Upda
       updates.current_order_id = null;
     }
     
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('tables')
       .update(updates)
       .eq('id', id)
@@ -328,7 +342,8 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
           fieldsToUpdate: Object.keys(dbUpdates)
         });
         
-        return supabase
+        const client = (req as any).userSupabase || supabase;
+        return client
           .from('tables')
           .update(dbUpdates)
           .eq('id', id)

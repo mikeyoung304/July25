@@ -64,9 +64,9 @@ export function mapMenuItem(dbItem: DbMenuItem): ApiMenuItem {
   return {
     id: dbItem.id,
     menuItemId: dbItem.menu_item_id || dbItem.id,
-    categoryId: dbItem.category_id,
+    categoryId: dbItem.category_id || undefined,
     name: dbItem.name,
-    description: dbItem.description,
+    description: dbItem.description || undefined,
     price: dbItem.price,
     active: dbItem.active,
     available: dbItem.available,
@@ -74,7 +74,7 @@ export function mapMenuItem(dbItem: DbMenuItem): ApiMenuItem {
     modifiers: dbItem.modifiers || [],
     aliases: dbItem.aliases || [],
     prepTimeMinutes: dbItem.prep_time_minutes || 10,
-    imageUrl: dbItem.image_url,
+    imageUrl: dbItem.image_url || undefined,
   };
 }
 
@@ -86,7 +86,7 @@ export function mapMenuCategory(dbCategory: DbMenuCategory): ApiMenuCategory {
     id: dbCategory.id,
     name: dbCategory.name,
     slug: dbCategory.slug,
-    description: dbCategory.description,
+    description: dbCategory.description || undefined,
     displayOrder: dbCategory.display_order,
     active: dbCategory.active,
   };

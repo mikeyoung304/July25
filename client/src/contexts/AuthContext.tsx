@@ -20,7 +20,7 @@ interface AuthSession {
   expiresAt?: number;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   session: AuthSession | null;
   isAuthenticated: boolean;
@@ -41,15 +41,9 @@ interface AuthContextType {
   canAccess: (requiredRoles: string[], requiredScopes?: string[]) => boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+// Hook moved to auth.hooks.ts for better Fast Refresh compatibility
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -225,6 +219,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         session: sessionData,
         restaurantId: response.restaurantId
       }));
+      
+      // Also store token separately for httpClient
+      localStorage.setItem('auth_token', response.token);
 
       logger.info('PIN login successful', { role: response.user.role });
     } catch (error) {
@@ -335,12 +332,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const expiresAt = Math.floor(Date.now() / 1000) + response.session.expires_in;
       
-      setSession({
+      const sessionData = {
         accessToken: response.session.access_token,
         refreshToken: response.session.refresh_token,
         expiresIn: response.session.expires_in,
         expiresAt
-      });
+      };
+      
+      setSession(sessionData);
+      
+      // Store auth session in localStorage for persistence
+      localStorage.setItem('auth_session', JSON.stringify({
+        user: response.user,
+        session: sessionData,
+        restaurantId: response.restaurantId
+      }));
+      
+      // Also store token separately for httpClient
+      localStorage.setItem('auth_token', response.session.access_token);
 
       logger.info('Session refreshed successfully');
     } catch (error) {

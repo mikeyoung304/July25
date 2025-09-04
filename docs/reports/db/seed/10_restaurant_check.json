@@ -1,0 +1,11 @@
+{
+  "transport": "mcp",
+  "query": "SELECT id, name, created_at FROM public.restaurants WHERE id = '11111111-1111-1111-1111-111111111111'",
+  "response": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "name": "Grow Fresh Local Food",
+      "created_at": "2025-07-11 18:52:44.266354+00"
+    }
+  ]
+}

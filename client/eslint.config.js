@@ -28,6 +28,19 @@ export default tseslint.config(
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_'
       }],
+      // Prevent importing from legacy CartContext
+      'no-restricted-imports': ['error', {
+        'paths': [
+          {
+            name: '@/modules/order-system/context/CartContext',
+            message: 'Use @/contexts/UnifiedCartContext instead of the legacy CartContext'
+          },
+          {
+            name: './cartContext.hooks',
+            message: 'Use useUnifiedCart from @/contexts/UnifiedCartContext instead'
+          }
+        ]
+      }],
     },
   },
   {

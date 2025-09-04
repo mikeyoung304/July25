@@ -118,6 +118,18 @@ describe('WebSocketService', { timeout: 10000 }, () => {
     // Properly disconnect and clean up the service
     service.disconnect()
     
+    // Clear all timers to prevent hanging tests
+    vi.clearAllTimers()
+    
+    // Clear all mocks
+    vi.clearAllMocks()
+    
+    // Reset WebSocket mock
+    if (mockWebSocket) {
+      mockWebSocket.close()
+      mockWebSocket = null as any
+    }
+    
     // Simulate the close event if WebSocket exists
     if (mockWebSocket && mockWebSocket.onclose) {
       mockWebSocket.simulateClose(1000, 'Test cleanup')

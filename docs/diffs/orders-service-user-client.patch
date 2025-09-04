@@ -1,0 +1,59 @@
+--- server/src/services/orders.service.ts.orig	2025-09-03
++++ server/src/services/orders.service.ts	2025-09-03 (proposed)
+@@ -1,4 +1,4 @@
+-import { supabase } from '../config/database';
++// Service refactored to accept client as parameter
+ import { logger } from '../utils/logger';
+ import { randomUUID } from 'crypto';
+ import { WebSocketServer } from 'ws';
+@@ -69,7 +69,8 @@
+    */
+   static async createOrder(
+     restaurantId: string,
+-    orderData: CreateOrderRequest
++    orderData: CreateOrderRequest,
++    dbClient: any // Pass user-scoped client from route
+   ): Promise<Order> {
+     try {
+       // Convert external IDs to UUIDs for items
+@@ -152,7 +153,7 @@
+         },
+       };
+ 
+-      const { data, error } = await supabase
++      const { data, error } = await dbClient
+         .from('orders')
+         .insert([newOrder])
+         .select()
+@@ -194,7 +195,8 @@
+    */
+   static async getOrders(
+     restaurantId: string,
+-    filters: OrderFilters = {}
++    filters: OrderFilters = {},
++    dbClient: any // Pass user-scoped client from route
+   ): Promise<Order[]> {
+     try {
+       // Build query
+@@ -202,7 +204,7 @@
+         `Fetching orders for restaurant ${restaurantId}`,
+         { filters }
+       );
+-      let query = supabase
++      let query = dbClient
+         .from('orders')
+         .select('*')
+         .eq('restaurant_id', restaurantId);
+
+Note: Similar changes needed for all methods in OrdersService:
+- getOrder() - add dbClient parameter
+- updateOrderStatus() - add dbClient parameter  
+- updateOrderPayment() - add dbClient parameter
+- cancelOrder() - add dbClient parameter
+- logVoiceOrder() - add dbClient parameter
+- logStatusChange() - add dbClient parameter
+
+Then update all route handlers to pass req.userSupabase:
+Example from orders.routes.ts:
+- const order = await OrdersService.createOrder(restaurantId, orderData);
++ const order = await OrdersService.createOrder(restaurantId, orderData, req.userSupabase);

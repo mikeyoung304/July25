@@ -1,0 +1,168 @@
+{
+  "timestamp": "2025-09-04T00:00:00Z",
+  "status": "✅ No JWT claims found",
+  "policies_count": 22,
+  "tables_checked": 10,
+  "policies": [
+    {
+      "table": "menu_categories",
+      "policies": [
+        {
+          "name": "menu_categories_tenant_access",
+          "type": "ALL",
+          "check": "is_member_of_restaurant(restaurant_id)"
+        },
+        {
+          "name": "service_role_bypass_menu_categories",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    },
+    {
+      "table": "menu_items",
+      "policies": [
+        {
+          "name": "menu_items_tenant_access",
+          "type": "ALL",
+          "check": "is_member_of_restaurant(restaurant_id)"
+        },
+        {
+          "name": "service_role_bypass_menu_items",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    },
+    {
+      "table": "order_status_history",
+      "policies": [
+        {
+          "name": "order_status_history_tenant_access",
+          "type": "ALL",
+          "check": "is_member_of_restaurant(restaurant_id)"
+        },
+        {
+          "name": "service_role_bypass_order_status_history",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    },
+    {
+      "table": "orders",
+      "policies": [
+        {
+          "name": "orders_tenant_access",
+          "type": "ALL",
+          "check": "is_member_of_restaurant(restaurant_id)"
+        },
+        {
+          "name": "service_role_bypass_orders",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    },
+    {
+      "table": "restaurants",
+      "policies": [
+        {
+          "name": "restaurants_tenant_access",
+          "type": "ALL",
+          "check": "is_member_of_restaurant(id)"
+        },
+        {
+          "name": "service_role_bypass_restaurants",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    },
+    {
+      "table": "station_tokens",
+      "policies": [
+        {
+          "name": "station_tokens_tenant_access",
+          "type": "ALL",
+          "check": "is_member_of_restaurant(restaurant_id)"
+        },
+        {
+          "name": "service_role_bypass_station_tokens",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    },
+    {
+      "table": "tables",
+      "policies": [
+        {
+          "name": "tables_tenant_access",
+          "type": "ALL",
+          "check": "is_member_of_restaurant(restaurant_id)"
+        },
+        {
+          "name": "service_role_bypass_tables",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    },
+    {
+      "table": "user_pins",
+      "policies": [
+        {
+          "name": "user_pins_tenant_access",
+          "type": "ALL",
+          "check": "is_member_of_restaurant(restaurant_id)"
+        },
+        {
+          "name": "service_role_bypass_user_pins",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    },
+    {
+      "table": "user_profiles",
+      "policies": [
+        {
+          "name": "user_profiles_self_select",
+          "type": "SELECT",
+          "check": "(auth.uid() = user_id)"
+        },
+        {
+          "name": "user_profiles_self_update",
+          "type": "UPDATE",
+          "check": "(auth.uid() = user_id)"
+        },
+        {
+          "name": "service_role_bypass_user_profiles",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    },
+    {
+      "table": "user_restaurants",
+      "policies": [
+        {
+          "name": "user_restaurants_self_access",
+          "type": "SELECT",
+          "check": "(user_id = auth.uid())"
+        },
+        {
+          "name": "user_restaurants_self_select",
+          "type": "SELECT",
+          "check": "(user_id = auth.uid())"
+        },
+        {
+          "name": "service_role_bypass_user_restaurants",
+          "type": "ALL",
+          "check": "is_service_role()"
+        }
+      ]
+    }
+  ]
+}

@@ -141,45 +141,230 @@ export function FloorPlanCanvas({
     ctx.shadowOffsetX = shadowOffset * 0.5  // Slight horizontal offset for depth
     ctx.shadowOffsetY = shadowOffset
 
-    // Create gradient fills with better visual hierarchy
-    let gradient: CanvasGradient
-    if (table.type === 'circle') {
-      gradient = ctx.createRadialGradient(0, -table.height/4, 0, 0, 0, table.width/2)
-    } else {
-      gradient = ctx.createLinearGradient(0, -table.height/2, 0, table.height/2)
-    }
+    // Create gradient fills with better visual hierarchy (skip for chip_monkey)
+    if (table.type !== 'chip_monkey') {
+      let gradient: CanvasGradient
+      if (table.type === 'circle') {
+        gradient = ctx.createRadialGradient(0, -table.height/4, 0, 0, 0, table.width/2)
+      } else {
+        gradient = ctx.createLinearGradient(0, -table.height/2, 0, table.height/2)
+      }
 
-    // Professional restaurant color palette with better contrast
-    if (table.status === 'occupied') {
-      gradient.addColorStop(0, '#FEF3C7') // Amber-50 highlight
-      gradient.addColorStop(0.5, '#F59E0B') // Amber-500 main
-      gradient.addColorStop(1, '#D97706') // Amber-600 depth
-    } else if (table.status === 'reserved') {
-      gradient.addColorStop(0, '#EFF6FF') // Blue-50 highlight
-      gradient.addColorStop(0.5, '#3B82F6') // Blue-500 main
-      gradient.addColorStop(1, '#1D4ED8') // Blue-700 depth
-    } else if (table.status === 'cleaning') {
-      gradient.addColorStop(0, '#F5F3FF') // Violet-50 highlight
-      gradient.addColorStop(0.5, '#8B5CF6') // Violet-500 main
-      gradient.addColorStop(1, '#7C3AED') // Violet-600 depth
-    } else if (table.status === 'unavailable') {
-      gradient.addColorStop(0, '#F3F4F6') // Gray-100 highlight
-      gradient.addColorStop(0.5, '#9CA3AF') // Gray-400 main
-      gradient.addColorStop(1, '#6B7280') // Gray-500 depth
-    } else {
-      // Available - fresh professional green
-      gradient.addColorStop(0, '#ECFDF5') // Emerald-50 highlight
-      gradient.addColorStop(0.5, '#10B981') // Emerald-500 main
-      gradient.addColorStop(1, '#059669') // Emerald-600 depth
-    }
+      if (table.status === 'occupied') {
+        gradient.addColorStop(0, '#FEF3C7') // Amber-50 highlight
+        gradient.addColorStop(0.5, '#F59E0B') // Amber-500 main
+        gradient.addColorStop(1, '#D97706') // Amber-600 depth
+      } else if (table.status === 'reserved') {
+        gradient.addColorStop(0, '#EFF6FF') // Blue-50 highlight
+        gradient.addColorStop(0.5, '#3B82F6') // Blue-500 main
+        gradient.addColorStop(1, '#1D4ED8') // Blue-700 depth
+      } else if (table.status === 'cleaning') {
+        gradient.addColorStop(0, '#F5F3FF') // Violet-50 highlight
+        gradient.addColorStop(0.5, '#8B5CF6') // Violet-500 main
+        gradient.addColorStop(1, '#7C3AED') // Violet-600 depth
+      } else if (table.status === 'unavailable') {
+        gradient.addColorStop(0, '#F3F4F6') // Gray-100 highlight
+        gradient.addColorStop(0.5, '#9CA3AF') // Gray-400 main
+        gradient.addColorStop(1, '#6B7280') // Gray-500 depth
+      } else {
+        // Available - fresh professional green
+        gradient.addColorStop(0, '#ECFDF5') // Emerald-50 highlight
+        gradient.addColorStop(0.5, '#10B981') // Emerald-500 main
+        gradient.addColorStop(1, '#059669') // Emerald-600 depth
+      }
 
-    ctx.fillStyle = gradient
+      ctx.fillStyle = gradient
+    }
 
     // Draw shape with rounded corners for rectangles
     if (table.type === 'circle') {
       ctx.beginPath()
       ctx.arc(0, 0, table.width / 2, 0, Math.PI * 2)
       ctx.fill()
+    } else if (table.type === 'chip_monkey') {
+      // Draw an actual monkey character
+      const size = table.width
+      const scale = size / 64 // Base size for proportions
+      
+      ctx.save()
+      ctx.scale(scale, scale)
+      
+      // Shadow for depth
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'
+      ctx.shadowBlur = 4
+      ctx.shadowOffsetX = 2
+      ctx.shadowOffsetY = 3
+      
+      // Tail (curved, drawn first so it appears behind body)
+      ctx.strokeStyle = '#8B4513'
+      ctx.lineWidth = 8
+      ctx.lineCap = 'round'
+      ctx.beginPath()
+      ctx.moveTo(12, 20)
+      ctx.quadraticCurveTo(28, 15, 25, 0)
+      ctx.quadraticCurveTo(23, -10, 28, -18)
+      ctx.stroke()
+      
+      // Body (oval shape)
+      ctx.fillStyle = '#8B4513' // Saddle brown for main fur
+      ctx.beginPath()
+      ctx.ellipse(0, 8, 18, 22, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Belly
+      ctx.fillStyle = '#D2B48C' // Tan for belly
+      ctx.beginPath()
+      ctx.ellipse(0, 10, 12, 16, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Arms
+      ctx.fillStyle = '#8B4513'
+      // Left arm
+      ctx.save()
+      ctx.rotate(-0.5)
+      ctx.beginPath()
+      ctx.ellipse(-15, 5, 6, 15, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+      
+      // Right arm
+      ctx.save()
+      ctx.rotate(0.5)
+      ctx.beginPath()
+      ctx.ellipse(15, 5, 6, 15, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+      
+      // Legs
+      // Left leg
+      ctx.beginPath()
+      ctx.ellipse(-8, 25, 7, 12, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Right leg
+      ctx.beginPath()
+      ctx.ellipse(8, 25, 7, 12, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Feet
+      ctx.fillStyle = '#654321' // Darker brown for feet
+      ctx.beginPath()
+      ctx.ellipse(-8, 32, 6, 4, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.ellipse(8, 32, 6, 4, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Hands
+      ctx.beginPath()
+      ctx.arc(-18, 15, 4, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(18, 15, 4, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Head (larger, more prominent)
+      ctx.fillStyle = '#8B4513'
+      ctx.beginPath()
+      ctx.ellipse(0, -12, 20, 18, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Face area (lighter color)
+      ctx.fillStyle = '#D2B48C' // Tan
+      ctx.beginPath()
+      ctx.ellipse(0, -10, 14, 13, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Ears (very prominent, monkey-like)
+      ctx.fillStyle = '#8B4513'
+      // Left ear
+      ctx.beginPath()
+      ctx.arc(-18, -12, 8, 0, Math.PI * 2)
+      ctx.fill()
+      // Right ear
+      ctx.beginPath()
+      ctx.arc(18, -12, 8, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Inner ears
+      ctx.fillStyle = '#FFB6C1' // Light pink
+      ctx.beginPath()
+      ctx.arc(-18, -12, 4, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(18, -12, 4, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Muzzle/snout area
+      ctx.fillStyle = '#FFDAB9' // Peach
+      ctx.beginPath()
+      ctx.ellipse(0, -5, 10, 8, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Eyes (larger, more expressive)
+      // Eye whites
+      ctx.fillStyle = '#FFFFFF'
+      ctx.beginPath()
+      ctx.ellipse(-6, -14, 5, 6, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.ellipse(6, -14, 5, 6, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Pupils
+      ctx.fillStyle = '#000000'
+      ctx.beginPath()
+      ctx.arc(-5, -13, 3, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(5, -13, 3, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Eye shine
+      ctx.fillStyle = '#FFFFFF'
+      ctx.beginPath()
+      ctx.arc(-4, -14, 1.2, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(6, -14, 1.2, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Eyebrows
+      ctx.strokeStyle = '#654321'
+      ctx.lineWidth = 1.5
+      ctx.lineCap = 'round'
+      ctx.beginPath()
+      ctx.moveTo(-10, -18)
+      ctx.lineTo(-3, -19)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(10, -18)
+      ctx.lineTo(3, -19)
+      ctx.stroke()
+      
+      // Nose
+      ctx.fillStyle = '#654321'
+      ctx.beginPath()
+      ctx.ellipse(0, -6, 2, 1.5, 0, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Nostrils
+      ctx.fillStyle = '#000000'
+      ctx.beginPath()
+      ctx.arc(-1, -6, 0.5, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(1, -6, 0.5, 0, Math.PI * 2)
+      ctx.fill()
+      
+      // Mouth (smile)
+      ctx.strokeStyle = '#654321'
+      ctx.lineWidth = 1.2
+      ctx.beginPath()
+      ctx.arc(0, -4, 5, 0.2 * Math.PI, 0.8 * Math.PI)
+      ctx.stroke()
+      
+      ctx.restore()
     } else {
       const radius = 8
       const halfWidth = table.width / 2
@@ -220,6 +405,11 @@ export function FloorPlanCanvas({
         ctx.lineWidth = strokeWidth
         
         if (table.type === 'circle') {
+          ctx.beginPath()
+          ctx.arc(0, 0, table.width / 2 + offset, 0, Math.PI * 2)
+          ctx.stroke()
+        } else if (table.type === 'chip_monkey') {
+          // Simple circular selection for chip_monkey
           ctx.beginPath()
           ctx.arc(0, 0, table.width / 2 + offset, 0, Math.PI * 2)
           ctx.stroke()
@@ -284,7 +474,7 @@ export function FloorPlanCanvas({
     const halfWidth = table.width / 2
     const halfHeight = table.height / 2
     
-    if (table.type === 'circle') {
+    if (table.type === 'circle' || table.type === 'chip_monkey') {
       return {
         n: { x: 0, y: -halfHeight, cursor: 'ns-resize' },
         e: { x: halfWidth, y: 0, cursor: 'ew-resize' },
@@ -559,7 +749,7 @@ export function FloorPlanCanvas({
     for (let i = tables.length - 1; i >= 0; i--) {
       const table = tables[i]
       
-      if (table.type === 'circle') {
+      if (table.type === 'circle' || table.type === 'chip_monkey') {
         const distance = Math.sqrt(Math.pow(worldX - table.x, 2) + Math.pow(worldY - table.y, 2))
         if (distance <= table.width / 2) {
           return table
@@ -678,9 +868,9 @@ export function FloorPlanCanvas({
       let newHeight = initialSizeRef.current.height
 
       const handle = resizeHandleRef.current
-      const minSize = 40
+      const minSize = table.type === 'chip_monkey' ? 24 : 40
       
-      if (table.type === 'circle') {
+      if (table.type === 'circle' || table.type === 'chip_monkey') {
         // For circles, maintain aspect ratio
         let delta = 0
         if (handle === 'n' || handle === 's') {

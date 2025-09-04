@@ -1,0 +1,36 @@
+{
+  "transport": "mcp",
+  "query": "SELECT email, id, created_at, email_confirmed_at FROM auth.users WHERE email IN (...)",
+  "response": [
+    {
+      "email": "cashier@restaurant.com",
+      "id": "8c39ae2c-c0fa-4684-b3a2-d52db00c33d6",
+      "created_at": "2025-09-03 03:23:36.766659+00",
+      "email_confirmed_at": "2025-09-03 03:23:36.771325+00"
+    },
+    {
+      "email": "expo@restaurant.com",
+      "id": "804ef712-2952-420d-b101-8a56383989f5",
+      "created_at": "2025-09-03 03:23:38.327778+00",
+      "email_confirmed_at": "2025-09-03 03:23:38.330392+00"
+    },
+    {
+      "email": "kitchen@restaurant.com",
+      "id": "425634bf-91cc-4918-8fb6-64680fa34779",
+      "created_at": "2025-09-03 03:23:37.458011+00",
+      "email_confirmed_at": "2025-09-03 03:23:37.460775+00"
+    },
+    {
+      "email": "manager@restaurant.com",
+      "id": "660dc0b2-3f5f-4a38-b3a5-266282c4b96f",
+      "created_at": "2025-09-03 03:23:34.688307+00",
+      "email_confirmed_at": "2025-09-03 03:23:34.692112+00"
+    },
+    {
+      "email": "server1@restaurant.com",
+      "id": "e64fd64d-68ac-4b8c-b6d7-481db1da2000",
+      "created_at": "2025-09-03 03:23:35.330916+00",
+      "email_confirmed_at": "2025-09-03 03:23:35.334455+00"
+    }
+  ]
+}

@@ -5,6 +5,31 @@ All notable changes to Restaurant OS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 📚 Documentation
+- **Comprehensive Documentation Audit** (September 2, 2025)
+  - Unified scattered documentation into single sources of truth
+  - Created `/docs/api/` and `/docs/architecture/` unified directories
+  - Added Architecture Decision Records (ADRs) for key decisions:
+    - ADR-002: Unified Backend Architecture
+    - ADR-003: Cart System Unification  
+    - ADR-004: Voice System Consolidation
+  - Generated comprehensive documentation index at `/docs/DOCS_INDEX.md`
+  - Archived 15+ outdated documents to `/docs/archive/2025-09-02/`
+  - Updated all core documentation with current version (6.0.3) and dates
+  - Created executive audit summary at `/docs/DOCS_AUDIT_SUMMARY.md`
+
+### ✨ Added
+- **Chip Monkey Floor Plan Element**: New selectable floor plan item type
+  - Custom SVG icon rendering with monkey silhouette
+  - Full support for drag, rotate, resize, duplicate, delete operations
+  - Snap-to-grid functionality
+  - Z-order management
+  - Keyboard shortcuts support
+  - Persists across save/reload for multi-tenant restaurants
+  - Smallest default size (48x48) with 1 seat capacity
+
 ## [6.0.3] - 2025-09-01 - Critical Loading Fix & Guard Systems
 
 ### 🔧 Quality & Stability Sprint

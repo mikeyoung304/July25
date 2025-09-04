@@ -1,7 +1,7 @@
 import React, { Profiler, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
-import { ManagerRoute, KitchenRoute } from '@/components/auth/ProtectedRoute'
+import { ManagerRoute, KitchenRoute, ServerRoute, AdminRoute } from '@/components/auth/ProtectedRoute'
 import { env } from '@/utils/env'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
@@ -12,6 +12,7 @@ import { HomePage } from '@/pages/HomePage'
 const Login = lazy(() => import('@/pages/Login'))
 const PinLogin = lazy(() => import('@/pages/PinLogin'))
 const StationLogin = lazy(() => import('@/pages/StationLogin'))
+const SignInPage = lazy(() => import('@/pages/SignInPage'))
 
 // Lazy load all other routes for code splitting
 const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })))
@@ -52,8 +53,13 @@ export function AppRoutes() {
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/home" element={<HomePage />} />
+            <Route path="/" element={<Navigate to="/signin" replace />} />
+            <Route path="/home" element={<Navigate to="/signin" replace />} />
+            <Route path="/signin" element={
+              <Suspense fallback={<RouteLoader />}>
+                <SignInPage />
+              </Suspense>
+            } />
             
             {/* Auth Routes (Public) */}
             <Route path="/login" element={
@@ -140,27 +146,33 @@ export function AppRoutes() {
               </ErrorBoundary>
             } />
             <Route path="/server" element={
-              <ErrorBoundary level="section">
-                <Suspense fallback={<RouteLoader />}>
-                  <ServerView />
-                </Suspense>
-              </ErrorBoundary>
+              <ServerRoute>
+                <ErrorBoundary level="section">
+                  <Suspense fallback={<RouteLoader />}>
+                    <ServerView />
+                  </Suspense>
+                </ErrorBoundary>
+              </ServerRoute>
             } />
             <Route path="/admin" element={
-              <ErrorBoundary level="section">
-                <Suspense fallback={<RouteLoader />}>
-                  <AdminDashboard />
-                </Suspense>
-              </ErrorBoundary>
+              <AdminRoute>
+                <ErrorBoundary level="section">
+                  <Suspense fallback={<RouteLoader />}>
+                    <AdminDashboard />
+                  </Suspense>
+                </ErrorBoundary>
+              </AdminRoute>
             } />
             <Route path="/expo" element={
-              <ErrorBoundary level="section">
-                <Profiler id="ExpoPage" onRender={onRenderCallback}>
-                  <Suspense fallback={<RouteLoader />}>
-                    <ExpoPage />
-                  </Suspense>
-                </Profiler>
-              </ErrorBoundary>
+              <KitchenRoute>
+                <ErrorBoundary level="section">
+                  <Profiler id="ExpoPage" onRender={onRenderCallback}>
+                    <Suspense fallback={<RouteLoader />}>
+                      <ExpoPage />
+                    </Suspense>
+                  </Profiler>
+                </ErrorBoundary>
+              </KitchenRoute>
             } />
             <Route path="/expo-debug" element={
               <ErrorBoundary level="section">
