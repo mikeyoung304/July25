@@ -1,0 +1,83 @@
+{
+  "environment": "PRODUCTION",
+  "timestamp": "2025-09-04T00:00:00Z",
+  "summary": {
+    "total_tables": 10,
+    "rls_enabled": 10,
+    "force_rls_enabled": 10,
+    "jwt_claims_policies": 0,
+    "membership_based_policies": 22
+  },
+  "matrix": [
+    {
+      "table": "menu_categories",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "is_member_of_restaurant(restaurant_id)",
+      "service_bypass": "✅"
+    },
+    {
+      "table": "menu_items",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "is_member_of_restaurant(restaurant_id)",
+      "service_bypass": "✅"
+    },
+    {
+      "table": "order_status_history",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "is_member_of_restaurant(restaurant_id)",
+      "service_bypass": "✅"
+    },
+    {
+      "table": "orders",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "is_member_of_restaurant(restaurant_id)",
+      "service_bypass": "✅"
+    },
+    {
+      "table": "restaurants",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "is_member_of_restaurant(id)",
+      "service_bypass": "✅"
+    },
+    {
+      "table": "station_tokens",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "is_member_of_restaurant(restaurant_id)",
+      "service_bypass": "✅"
+    },
+    {
+      "table": "tables",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "is_member_of_restaurant(restaurant_id)",
+      "service_bypass": "✅"
+    },
+    {
+      "table": "user_pins",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "is_member_of_restaurant(restaurant_id)",
+      "service_bypass": "✅"
+    },
+    {
+      "table": "user_profiles",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "self-access via auth.uid()",
+      "service_bypass": "✅"
+    },
+    {
+      "table": "user_restaurants",
+      "rls": "✅",
+      "force_rls": "✅",
+      "tenant_isolation": "self-access via auth.uid()",
+      "service_bypass": "✅"
+    }
+  ]
+}
