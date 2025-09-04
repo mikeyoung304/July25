@@ -1,0 +1,81 @@
+--- server/src/routes/tables.routes.ts.orig	2025-09-03
++++ server/src/routes/tables.routes.ts	2025-09-03 (proposed)
+@@ -1,12 +1,14 @@
+ import { Router, Request, Response, NextFunction } from 'express';
+ import { logger } from '../utils/logger'
+-import { supabase } from '../config/database';
++import { attachUserClient } from '../config/database';
+ import { validateRestaurantAccess, AuthenticatedRequest } from '../middleware/auth';
+ import { getConfig } from '../config/environment';
+ import { Table, TableStatus } from '../../../shared/types/table.types';
+ 
+ const router = Router();
+ const config = getConfig();
++
++router.use(attachUserClient); // Apply user-scoped client middleware
+ 
+ // Apply restaurant validation to all routes (skip in development for testing)
+ if (config.nodeEnv !== 'development') {
+@@ -28,7 +30,7 @@
+   try {
+     const restaurantId = req.headers['x-restaurant-id'] as string;
+     
+-    const { data, error } = await supabase
++    const { data, error } = await req.userSupabase
+       .from('tables')
+       .select('*')
+       .eq('restaurant_id', restaurantId)
+@@ -57,7 +59,7 @@
+     const restaurantId = req.headers['x-restaurant-id'] as string;
+     const { id } = req.params;
+     
+-    const { data, error } = await supabase
++    const { data, error } = await req.userSupabase
+       .from('tables')
+       .select('*')
+       .eq('id', id)
+@@ -104,7 +106,7 @@
+       status: 'available' as TableStatus
+     };
+     
+-    const { data, error } = await supabase
++    const { data, error } = await req.userSupabase
+       .from('tables')
+       .insert([tableData])
+       .select()
+@@ -163,7 +165,7 @@
+       delete dbUpdates.type;
+     }
+     
+-    const { data, error } = await supabase
++    const { data, error } = await req.userSupabase
+       .from('tables')
+       .update(dbUpdates)
+       .eq('id', id)
+@@ -196,7 +198,7 @@
+     const restaurantId = req.headers['x-restaurant-id'] as string;
+     const { id } = req.params;
+     
+-    const { data, error } = await supabase
++    const { data, error } = await req.userSupabase
+       .from('tables')
+       .update({ active: false })
+       .eq('id', id)
+@@ -234,7 +236,7 @@
+       updates.current_order_id = null;
+     }
+     
+-    const { data, error } = await supabase
++    const { data, error } = await req.userSupabase
+       .from('tables')
+       .update(updates)
+       .eq('id', id)
+@@ -328,7 +330,7 @@
+           fieldsToUpdate: Object.keys(dbUpdates)
+         });
+         
+-        return supabase
++        return req.userSupabase
+           .from('tables')
+           .update(dbUpdates)
+           .eq('id', id)

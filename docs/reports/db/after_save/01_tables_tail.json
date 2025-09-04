@@ -1,0 +1,25 @@
+[
+  {
+    "id": "1dc104f5-b653-40ac-b713-13c48dfe17cc",
+    "label": "Test-A1",
+    "seats": 4,
+    "restaurant_id": "11111111-1111-1111-1111-111111111111",
+    "created_at": "2025-09-04 13:39:59.063224+00",
+    "created_by": "server1@restaurant.com",
+    "verification": "✅ Successfully created via user-scoped client with RLS"
+  },
+  {
+    "id": "eeea15c4-a54e-443c-a692-1aa2fb253d26",
+    "label": "Test Table 1",
+    "seats": 4,
+    "restaurant_id": "11111111-1111-1111-1111-111111111111",
+    "created_at": "2025-08-06 12:48:55.57704+00"
+  },
+  {
+    "id": "125cd15e-cec9-4e97-87f5-fbe707d8e149",
+    "label": "Test Table Updated",
+    "seats": 4,
+    "restaurant_id": "11111111-1111-1111-1111-111111111111",
+    "created_at": "2025-07-12 14:50:30.413338+00"
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "transport": "mcp",
+  "query": "INSERT INTO public.user_restaurants ... ON CONFLICT ... DO UPDATE SET role = EXCLUDED.role",
+  "response": [
+    {
+      "user_id": "660dc0b2-3f5f-4a38-b3a5-266282c4b96f",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111",
+      "role": "manager"
+    },
+    {
+      "user_id": "e64fd64d-68ac-4b8c-b6d7-481db1da2000",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111",
+      "role": "server"
+    },
+    {
+      "user_id": "425634bf-91cc-4918-8fb6-64680fa34779",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111",
+      "role": "kitchen"
+    },
+    {
+      "user_id": "804ef712-2952-420d-b101-8a56383989f5",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111",
+      "role": "expo"
+    },
+    {
+      "user_id": "8c39ae2c-c0fa-4684-b3a2-d52db00c33d6",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111",
+      "role": "cashier"
+    }
+  ]
+}

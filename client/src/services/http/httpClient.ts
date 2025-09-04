@@ -126,46 +126,36 @@ export class HttpClient extends SecureAPIClient {
     // Build headers
     const headers = new Headers(requestOptions.headers)
 
-    // 1. Add Supabase JWT authentication (per Luis's spec)
+    // 1. Add authentication header (simplified approach)
     if (!skipAuth) {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.access_token) {
-          headers.set('Authorization', `Bearer ${session.access_token}`)
-          if (import.meta.env.DEV) {
-            logger.info('🔐 Using Supabase session token for API request')
-          }
-        } else {
-          // Use demo token for kiosk mode
-          try {
-            const demoToken = await getDemoToken()
-            headers.set('Authorization', `Bearer ${demoToken}`)
-            logger.info('🔑 Using demo/kiosk token for API request')
-          } catch (demoError) {
-            console.error('Failed to get demo token:', demoError)
-            // Fallback to test token in development only
-            if (import.meta.env.DEV) {
-              headers.set('Authorization', 'Bearer test-token')
-              logger.info('🔧 Using test token fallback (development only)')
-            } else {
-              console.warn('❌ No authentication available for API request')
+      // First check localStorage for auth token (from PIN/email login)
+      const storedToken = localStorage.getItem('auth_token');
+      
+      if (storedToken) {
+        headers.set('Authorization', `Bearer ${storedToken}`)
+        logger.info('🔐 Using stored auth token')
+      } else {
+        // Fallback to Supabase session
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session?.access_token) {
+            headers.set('Authorization', `Bearer ${session.access_token}`)
+            logger.info('🔐 Using Supabase session token')
+          } else {
+            // Try demo token for public endpoints
+            try {
+              const demoToken = await getDemoToken()
+              headers.set('Authorization', `Bearer ${demoToken}`)
+              logger.info('🔑 Using demo token')
+            } catch {
+              if (import.meta.env.DEV) {
+                headers.set('Authorization', 'Bearer test-token')
+                logger.info('🔧 Using test token (dev mode)')
+              }
             }
           }
-        }
-      } catch (error) {
-        console.error('Failed to get auth session:', error)
-        // Try demo token as fallback
-        try {
-          const demoToken = await getDemoToken()
-          headers.set('Authorization', `Bearer ${demoToken}`)
-          logger.info('🔑 Using demo token (auth session failed)')
-        } catch (demoError) {
-          console.error('All auth methods failed:', demoError)
-          // Final fallback to test token in development
-          if (import.meta.env.DEV) {
-            headers.set('Authorization', 'Bearer test-token')
-            logger.info('🔧 Using test token (all auth failed, dev mode)')
-          }
+        } catch (error) {
+          console.error('Auth failed:', error)
         }
       }
     }

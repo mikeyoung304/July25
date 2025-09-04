@@ -1,0 +1,8 @@
+{
+  "migration": "020_service_role_bypass",
+  "status": "success",
+  "timestamp": "2025-09-03T03:14:00Z",
+  "description": "Added service role bypass policies for all tables",
+  "tables_affected": 13,
+  "policies_created": 13
+}

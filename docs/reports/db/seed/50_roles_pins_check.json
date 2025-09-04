@@ -1,0 +1,36 @@
+{
+  "transport": "mcp",
+  "query": "SELECT u.email, ur.role, up.pin ... LEFT JOINs verification",
+  "response": [
+    {
+      "email": "cashier@restaurant.com",
+      "role": "cashier",
+      "pin": "3728",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111"
+    },
+    {
+      "email": "expo@restaurant.com",
+      "role": "expo",
+      "pin": "9154",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111"
+    },
+    {
+      "email": "kitchen@restaurant.com",
+      "role": "kitchen",
+      "pin": "2605",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111"
+    },
+    {
+      "email": "manager@restaurant.com",
+      "role": "manager",
+      "pin": "7419",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111"
+    },
+    {
+      "email": "server1@restaurant.com",
+      "role": "server",
+      "pin": "4831",
+      "restaurant_id": "11111111-1111-1111-1111-111111111111"
+    }
+  ]
+}

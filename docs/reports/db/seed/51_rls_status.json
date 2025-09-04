@@ -1,0 +1,36 @@
+{
+  "transport": "mcp",
+  "query": "SELECT ... RLS status check for key tables",
+  "response": [
+    {
+      "schema": "public",
+      "table_name": "menu_items",
+      "rls_enabled": true
+    },
+    {
+      "schema": "public",
+      "table_name": "orders",
+      "rls_enabled": true
+    },
+    {
+      "schema": "public",
+      "table_name": "restaurants",
+      "rls_enabled": true
+    },
+    {
+      "schema": "public",
+      "table_name": "tables",
+      "rls_enabled": true
+    },
+    {
+      "schema": "public",
+      "table_name": "user_pins",
+      "rls_enabled": true
+    },
+    {
+      "schema": "public",
+      "table_name": "user_restaurants",
+      "rls_enabled": true
+    }
+  ]
+}

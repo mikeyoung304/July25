@@ -1,0 +1,35 @@
+MCP Discovery Results - 2025-09-03
+=====================================
+
+Current MCP Servers Available:
+- filesystem ✓
+- sequential-thinking ✓
+- memory ✓
+- git ✓
+- puppeteer ✓
+- supabase ✗ (configured but not responding)
+
+Supabase MCP Status:
+- Listed in .mcp.json: YES
+- Responding to queries: NO
+- Resources available: []
+- Tools available: Unknown (server not responding)
+
+Current Problematic Configuration:
+{
+  "supabase": {
+    "command": "npx",
+    "args": ["supabase-mcp"],  // WRONG PACKAGE
+    "env": {
+      "SUPABASE_URL": "https://xiwfhcikfdoshxwbtjxt.supabase.co",
+      "SUPABASE_SERVICE_ROLE_KEY": "[EXPOSED]"  // SECURITY ISSUE
+    }
+  }
+}
+
+Issues Identified:
+1. Wrong package name (supabase-mcp vs @supabase/mcp-server-supabase)
+2. Service key exposed in config file
+3. No --project-ref argument
+4. No --features specified
+5. No read-only mode flag

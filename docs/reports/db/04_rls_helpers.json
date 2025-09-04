@@ -1,0 +1,35 @@
+{
+  "transport": "mcp",
+  "query": "supabase/sql/verify/04_rls_helpers.sql",
+  "response": {
+    "table_owners": [
+      {"schema": "public", "table_name": "api_scopes", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "menu_categories", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "menu_items", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "order_status_history", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "orders", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "restaurants", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "role_scopes", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "station_tokens", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "tables", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "user_pins", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "user_profiles", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "user_restaurants", "owner": "postgres", "rls_enabled": true},
+      {"schema": "public", "table_name": "voice_order_logs", "owner": "postgres", "rls_enabled": true}
+    ],
+    "privileges_sample": [
+      {"table_schema": "public", "table_name": "api_scopes", "privilege_type": "SELECT", "grantee": "anon"},
+      {"table_schema": "public", "table_name": "api_scopes", "privilege_type": "SELECT", "grantee": "authenticated"},
+      {"table_schema": "public", "table_name": "role_scopes", "privilege_type": "SELECT", "grantee": "anon"},
+      {"table_schema": "public", "table_name": "role_scopes", "privilege_type": "SELECT", "grantee": "authenticated"},
+      {"table_schema": "public", "table_name": "user_profiles", "privilege_type": "SELECT", "grantee": "authenticated"},
+      {"table_schema": "public", "table_name": "user_profiles", "privilege_type": "INSERT", "grantee": "authenticated"},
+      {"table_schema": "public", "table_name": "user_profiles", "privilege_type": "UPDATE", "grantee": "authenticated"},
+      {"table_schema": "public", "table_name": "user_profiles", "privilege_type": "DELETE", "grantee": "authenticated"},
+      {"table_schema": "public", "table_name": "user_restaurants", "privilege_type": "SELECT", "grantee": "authenticated"},
+      {"table_schema": "public", "table_name": "user_restaurants", "privilege_type": "INSERT", "grantee": "authenticated"},
+      {"table_schema": "public", "table_name": "user_restaurants", "privilege_type": "UPDATE", "grantee": "authenticated"},
+      {"table_schema": "public", "table_name": "user_restaurants", "privilege_type": "DELETE", "grantee": "authenticated"}
+    ]
+  }
+}

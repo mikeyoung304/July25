@@ -1,0 +1,25 @@
+{
+  "status": 201,
+  "statusText": "Created",
+  "data": {
+    "id": "1dc104f5-b653-40ac-b713-13c48dfe17cc",
+    "restaurant_id": "11111111-1111-1111-1111-111111111111",
+    "created_at": "2025-09-04T13:39:59.063224+00:00",
+    "updated_at": null,
+    "label": "Test-A1",
+    "seats": 4,
+    "x_pos": 100,
+    "y_pos": 100,
+    "width": 50,
+    "height": 50,
+    "rotation": 0,
+    "shape": "rectangle",
+    "status": "available",
+    "current_order_id": null,
+    "active": true,
+    "z_index": 0,
+    "x": 100,
+    "y": 100,
+    "type": "rectangle"
+  }
+}

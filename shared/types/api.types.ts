@@ -29,6 +29,19 @@ export interface PaginatedResponse<T> {
   hasMore: boolean;
 }
 
+// API Scopes for RBAC
+export enum ApiScope {
+  STAFF_MANAGE = 'staff:manage',
+  USERS_READ = 'users:read',
+  USERS_WRITE = 'users:write',
+  TABLES_WRITE = 'tables:write',
+  MENU_WRITE = 'menu:write',
+  ORDERS_READ = 'orders:read',
+  ORDERS_WRITE = 'orders:write',
+  PAYMENTS_PROCESS = 'payments:process',
+  AI_VOICE_CHAT = 'ai.voice:chat'
+}
+
 // Common request types
 export interface ApiRequestOptions {
   headers?: Record<string, string>;

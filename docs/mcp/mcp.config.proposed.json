@@ -1,0 +1,68 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem", "/Users/mikeyoung/CODING/rebuild-6.0"]
+    },
+    "sequential-thinking": {
+      "command": "npx", 
+      "args": ["@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-memory"]
+    },
+    "git": {
+      "command": "npx",
+      "args": ["@cyanheads/git-mcp-server"]
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-puppeteer"]
+    },
+    "supabase_readonly": {
+      "_comment": "READ-ONLY MODE - Start with this configuration",
+      "command": "npx",
+      "args": [
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref=xiwfhcikfdoshxwbtjxt",
+        "--features=database,branching,debugging",
+        "--read-only"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+      }
+    },
+    "supabase_writeable": {
+      "_comment": "WRITE MODE - Only enable after APPROVE: ENABLE MCP WRITES",
+      "_disabled": true,
+      "command": "npx",
+      "args": [
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref=xiwfhcikfdoshxwbtjxt",
+        "--features=database,branching,debugging"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+      }
+    }
+  },
+  "_instructions": {
+    "setup": [
+      "1. Get your Supabase Access Token from: https://supabase.com/dashboard/account/tokens",
+      "2. Add to your environment: export SUPABASE_ACCESS_TOKEN='your-token-here'",
+      "3. Remove the old 'supabase' entry from .mcp.json",
+      "4. Copy the 'supabase_readonly' entry to .mcp.json",
+      "5. Restart Claude Desktop/Code",
+      "6. Test with MCP discovery commands"
+    ],
+    "enable_writes": [
+      "1. After approval gate APPROVE: ENABLE MCP WRITES",
+      "2. Rename 'supabase_readonly' to 'supabase_readonly_backup'",
+      "3. Rename 'supabase_writeable' to 'supabase'",
+      "4. Remove '_disabled' flag",
+      "5. Remove '--read-only' from args",
+      "6. Restart Claude Desktop/Code"
+    ]
+  }
+}

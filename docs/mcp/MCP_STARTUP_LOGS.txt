@@ -1,0 +1,18 @@
+Supabase MCP Server Logs - Retrieved at 2025-01-04T00:00:00Z
+Service: postgres
+
+Recent Log Entries:
+1. [LOG] connection received: host=::1 port=63505
+   Timestamp: 1756944796664000
+   ID: 77e098f6-dcde-4eb7-b7a8-c09311af6871
+
+2. [LOG] connection authenticated: user="supabase_admin" method=trust (/etc/postgresql/pg_hba.conf:85)
+   Timestamp: 1756944796664000
+   ID: 1643141c-6957-43f1-bb77-773228ccc358
+
+3. [LOG] connection authorized: user=supabase_admin database=postgres application_name=postgres_exporter
+   Timestamp: 1756944796664000
+   ID: 05b6dbb3-76c2-4ce9-8d05-277584c18184
+
+Status: No read-only flags or permission restrictions detected in logs.
+User visible: supabase_admin (with full privileges)

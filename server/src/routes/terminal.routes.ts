@@ -315,10 +315,12 @@ router.get('/devices', authenticate, validateRestaurantAccess, async (req: Authe
     routeLogger.info('Retrieving terminal devices');
 
     try {
-      const { result } = await terminalApi.listDeviceCodes({
+      // listDeviceCodes is on the devices API, not terminal API
+      const devicesApi = client.devices;
+      const { result } = await devicesApi.listDeviceCodes({
         locationId: process.env.SQUARE_LOCATION_ID,
         productType: 'TERMINAL_API',
-        status: 'PAIRED',
+        status: ['PAIRED'],
       });
 
       const devices = result.deviceCodes || [];

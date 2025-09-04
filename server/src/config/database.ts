@@ -24,6 +24,63 @@ export const supabase = createClient(
   }
 );
 
+// Admin client for system operations (bypasses RLS)
+export const supabaseAdmin = createClient(
+  config.supabase.url,
+  config.supabase.serviceKey,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+    db: {
+      schema: 'public',
+    },
+  }
+);
+
+/**
+ * Create a user-scoped Supabase client that respects RLS
+ * Use this for operations that should be scoped to the authenticated user
+ * @param accessToken - The user's Supabase access token
+ */
+export function createUserClient(accessToken: string) {
+  return createClient(
+    config.supabase.url,
+    config.supabase.anonKey, // Use anon key for user clients
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+      db: {
+        schema: 'public',
+      },
+      global: {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    }
+  );
+}
+
+/**
+ * Middleware to attach user-scoped client to request
+ * Use after authentication middleware
+ */
+export function attachUserClient(req: any, _res: any, next: any) {
+  // If user has a Supabase token, create a user-scoped client
+  if (req.headers.authorization) {
+    const token = req.headers.authorization.replace('Bearer ', '');
+    req.userSupabase = createUserClient(token);
+  } else {
+    // Fallback to admin client for system operations
+    req.userSupabase = supabaseAdmin;
+  }
+  next();
+}
+
 // Test database connection
 export async function initializeDatabase(): Promise<void> {
   try {

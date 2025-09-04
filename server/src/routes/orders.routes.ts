@@ -6,10 +6,14 @@ import { BadRequest, NotFound } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { ai } from '../ai';
 import { MenuService } from '../services/menu.service';
+import { attachUserClient, supabase } from '../config/database';
 import type { OrderStatus, OrderType } from '@rebuild/shared';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'orders' });
+
+// Attach user-scoped client for RLS enforcement
+router.use(attachUserClient);
 
 // GET /api/v1/orders - List orders with filters
 router.get('/', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
@@ -26,7 +30,8 @@ router.get('/', authenticate, validateRestaurantAccess, async (req: Authenticate
 
     routeLogger.info('Fetching orders', { restaurantId, filters });
     
-    const orders = await OrdersService.getOrders(restaurantId, filters);
+    const client = (req as any).userSupabase || supabase;
+    const orders = await OrdersService.getOrders(client, restaurantId, filters);
     res.json(orders);
   } catch (error) {
     next(error);
@@ -45,7 +50,8 @@ router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_d
 
     routeLogger.info('Creating order', { restaurantId, itemCount: orderData.items.length });
     
-    const order = await OrdersService.createOrder(restaurantId, orderData);
+    const client = (req as any).userSupabase || supabase;
+    const order = await OrdersService.createOrder(client, restaurantId, orderData);
     res.status(201).json(order);
   } catch (error) {
     next(error);
@@ -122,7 +128,9 @@ router.post('/voice', authenticate, requireRole(['admin', 'manager', 'user', 'ki
     const confidence = parsedOrder.items.length > 0 ? 0.85 : 0.3;
 
     // Create order from parsed voice data
+    const client = (req as any).userSupabase || supabase;
     const order = await OrdersService.processVoiceOrder(
+      client,
       restaurantId,
       transcription,
       parsedOrder.items,
@@ -163,7 +171,8 @@ router.get('/:id', authenticate, validateRestaurantAccess, async (req: Authentic
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
 
-    const order = await OrdersService.getOrder(restaurantId, id!);
+    const client = (req as any).userSupabase || supabase;
+    const order = await OrdersService.getOrder(client, restaurantId, id!);
     
     if (!order) {
       throw NotFound('Order not found');
@@ -193,7 +202,8 @@ router.patch('/:id/status', authenticate, validateRestaurantAccess, async (req: 
 
     routeLogger.info('Updating order status', { restaurantId, orderId: id, status });
 
-    const order = await OrdersService.updateOrderStatus(restaurantId, id!, status, notes);
+    const client = (req as any).userSupabase || supabase;
+    const order = await OrdersService.updateOrderStatus(client, restaurantId, id!, status, notes);
     res.json(order);
   } catch (error) {
     next(error);
@@ -209,7 +219,9 @@ router.delete('/:id', authenticate, validateRestaurantAccess, async (req: Authen
 
     routeLogger.info('Cancelling order', { restaurantId, orderId: id, reason });
 
+    const client = (req as any).userSupabase || supabase;
     const order = await OrdersService.updateOrderStatus(
+      client,
       restaurantId, 
       id!, 
       'cancelled', 

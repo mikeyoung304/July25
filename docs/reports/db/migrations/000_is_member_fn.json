@@ -1,0 +1,7 @@
+{
+  "migration": "000_is_member_fn",
+  "status": "success",
+  "timestamp": "2025-09-03T03:12:00Z",
+  "description": "Created membership helper function is_member_of_restaurant()",
+  "sql": "create or replace function public.is_member_of_restaurant(p_restaurant_id uuid)"
+}

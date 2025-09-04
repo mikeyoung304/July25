@@ -1,0 +1,47 @@
+[
+  {
+    "email": "manager@restaurant.com",
+    "role": "manager",
+    "status": "success",
+    "userId": "660dc0b2-3f5f-4a38-b3a5-266282c4b96f",
+    "tokenLength": 733,
+    "expiresAt": 1756996718,
+    "tokenPreview": "eyJhbGciOiJIUzI1NiIs...3n3iCQBk6k"
+  },
+  {
+    "email": "server1@restaurant.com",
+    "role": "server",
+    "status": "success",
+    "userId": "e64fd64d-68ac-4b8c-b6d7-481db1da2000",
+    "tokenLength": 733,
+    "expiresAt": 1756996719,
+    "tokenPreview": "eyJhbGciOiJIUzI1NiIs...kFkzD5ybrY"
+  },
+  {
+    "email": "kitchen@restaurant.com",
+    "role": "kitchen",
+    "status": "success",
+    "userId": "425634bf-91cc-4918-8fb6-64680fa34779",
+    "tokenLength": 733,
+    "expiresAt": 1756996719,
+    "tokenPreview": "eyJhbGciOiJIUzI1NiIs...lnxrklGr1c"
+  },
+  {
+    "email": "expo@restaurant.com",
+    "role": "expo",
+    "status": "success",
+    "userId": "804ef712-2952-420d-b101-8a56383989f5",
+    "tokenLength": 729,
+    "expiresAt": 1756996719,
+    "tokenPreview": "eyJhbGciOiJIUzI1NiIs...hvff6cwcA8"
+  },
+  {
+    "email": "cashier@restaurant.com",
+    "role": "cashier",
+    "status": "success",
+    "userId": "8c39ae2c-c0fa-4684-b3a2-d52db00c33d6",
+    "tokenLength": 733,
+    "expiresAt": 1756996720,
+    "tokenPreview": "eyJhbGciOiJIUzI1NiIs...e1z8fNB65Q"
+  }
+]

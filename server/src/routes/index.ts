@@ -11,6 +11,7 @@ import { authRoutes } from './auth.routes';
 import { realtimeRoutes } from './realtime.routes';
 import metricsRoutes from './metrics';
 import securityRoutes from './security.routes';
+import userRoutes from './users.routes';
 
 export function setupRoutes(): Router {
   const router = Router();
@@ -23,6 +24,9 @@ export function setupRoutes(): Router {
 
   // Authentication routes
   router.use('/auth', authRoutes);
+
+  // User management routes
+  router.use('/users', userRoutes);
 
   // Security monitoring routes (admin only)
   router.use('/security', securityRoutes);

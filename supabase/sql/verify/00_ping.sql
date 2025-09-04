@@ -1,0 +1,1 @@
+SELECT now() AS db_time, current_user, version();

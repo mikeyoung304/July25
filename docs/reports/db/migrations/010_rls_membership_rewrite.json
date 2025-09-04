@@ -1,0 +1,20 @@
+{
+  "migration": "010_rls_membership_rewrite",
+  "status": "success",
+  "timestamp": "2025-09-03T03:13:00Z",
+  "description": "Replaced JWT claim-based RLS policies with membership-based checks",
+  "tables_affected": [
+    "tables",
+    "orders",
+    "menu_items",
+    "menu_categories",
+    "restaurants",
+    "order_status_history",
+    "voice_order_logs",
+    "station_tokens",
+    "user_pins",
+    "user_restaurants"
+  ],
+  "policies_dropped": 18,
+  "policies_created": 10
+}

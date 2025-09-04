@@ -1,0 +1,112 @@
+{
+  "tables_and_rls": [
+    {
+      "nspname": "public",
+      "table": "menu_categories",
+      "rls_enabled": true
+    },
+    {
+      "nspname": "public",
+      "table": "menu_items",
+      "rls_enabled": true
+    },
+    {
+      "nspname": "public",
+      "table": "order_status_history",
+      "rls_enabled": true
+    },
+    {
+      "nspname": "public",
+      "table": "orders",
+      "rls_enabled": true
+    },
+    {
+      "nspname": "public",
+      "table": "restaurants",
+      "rls_enabled": true
+    },
+    {
+      "nspname": "public",
+      "table": "tables",
+      "rls_enabled": true
+    },
+    {
+      "nspname": "public",
+      "table": "voice_order_logs",
+      "rls_enabled": true
+    }
+  ],
+  "policies": [
+    {
+      "polname": "mc_modify_same_restaurant",
+      "table_name": "menu_categories",
+      "polcmd": "*",
+      "using_expr": "((restaurant_id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))",
+      "with_check": "((restaurant_id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))"
+    },
+    {
+      "polname": "mc_select_same_restaurant",
+      "table_name": "menu_categories",
+      "polcmd": "r",
+      "using_expr": "((restaurant_id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))",
+      "with_check": null
+    },
+    {
+      "polname": "mi_modify_same_restaurant",
+      "table_name": "menu_items",
+      "polcmd": "*",
+      "using_expr": "((restaurant_id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))",
+      "with_check": "((restaurant_id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))"
+    },
+    {
+      "polname": "mi_select_same_restaurant",
+      "table_name": "menu_items",
+      "polcmd": "r",
+      "using_expr": "((restaurant_id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))",
+      "with_check": null
+    },
+    {
+      "polname": "Users can view their restaurant order history",
+      "table_name": "order_status_history",
+      "polcmd": "r",
+      "using_expr": "(restaurant_id = (COALESCE(((current_setting('request.jwt.claims'::text, true))::json ->> 'restaurant_id'::text), ((current_setting('request.headers'::text, true))::json ->> 'x-restaurant-id'::text)))::uuid)",
+      "with_check": null
+    },
+    {
+      "polname": "Users can manage their restaurant orders",
+      "table_name": "orders",
+      "polcmd": "*",
+      "using_expr": "(restaurant_id = (COALESCE(((current_setting('request.jwt.claims'::text, true))::json ->> 'restaurant_id'::text), ((current_setting('request.headers'::text, true))::json ->> 'x-restaurant-id'::text)))::uuid)",
+      "with_check": null
+    },
+    {
+      "polname": "restaurants_select_own",
+      "table_name": "restaurants",
+      "polcmd": "r",
+      "using_expr": "((id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))",
+      "with_check": null
+    },
+    {
+      "polname": "restaurants_update_own",
+      "table_name": "restaurants",
+      "polcmd": "w",
+      "using_expr": "((id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))",
+      "with_check": "((id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))"
+    },
+    {
+      "polname": "tables_manage_same_restaurant",
+      "table_name": "tables",
+      "polcmd": "*",
+      "using_expr": "((restaurant_id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))",
+      "with_check": "((restaurant_id)::text = ((current_setting('request.jwt.claims'::text, true))::jsonb ->> 'restaurant_id'::text))"
+    },
+    {
+      "polname": "Users can manage their restaurant voice logs",
+      "table_name": "voice_order_logs",
+      "polcmd": "*",
+      "using_expr": "(restaurant_id = (COALESCE(((current_setting('request.jwt.claims'::text, true))::json ->> 'restaurant_id'::text), ((current_setting('request.headers'::text, true))::json ->> 'x-restaurant-id'::text)))::uuid)",
+      "with_check": null
+    }
+  ],
+  "auth_tables": []
+}
