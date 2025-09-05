@@ -60,32 +60,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Dev mode: Check for force logout flag
-        if (import.meta.env.DEV) {
-          const forceLogout = new URLSearchParams(window.location.search).get('force_logout');
-          if (forceLogout === 'true') {
-            console.log('🔴 Force logout requested - clearing all sessions');
-            await supabase.auth.signOut();
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = '/login';
-            return;
-          }
-        }
 
         // Check for existing Supabase session
         const { data: { session: supabaseSession } } = await supabase.auth.getSession();
         
-        console.log('🔍 AUTH INIT: Checking for existing sessions...', {
-          hasSupabaseSession: !!supabaseSession,
-          hasLocalStorage: !!localStorage.getItem('auth_session'),
-          supabaseUser: supabaseSession?.user?.email || null
-        });
-        
         if (supabaseSession) {
-          console.log('⚠️ Found Supabase session - auto-authenticating!', supabaseSession.user?.email);
-          
-          // In strict auth mode, validate the session is still valid
+          // Validate the session is still valid with our backend
           try {
             const response = await httpClient.get<{ user: User; restaurantId: string }>(
               '/api/v1/auth/me'
@@ -100,7 +80,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
               expiresAt: supabaseSession.expires_at
             });
           } catch (error) {
-            console.error('⛔ Supabase session invalid, clearing...', error);
+            // Session invalid, clear it
+            logger.error('Supabase session invalid, clearing...', error);
             await supabase.auth.signOut();
             // Don't set any state, let the user log in
           }
@@ -108,16 +89,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
           // Check for PIN/station session in localStorage
           const savedSession = localStorage.getItem('auth_session');
           if (savedSession) {
-            console.log('⚠️ Found localStorage session - checking validity...');
             try {
               const parsed = JSON.parse(savedSession);
               if (parsed.expiresAt && parsed.expiresAt > Date.now() / 1000) {
-                console.log('📌 localStorage session valid, restoring as:', parsed.user?.displayName);
+                // Session still valid, restore it
                 setUser(parsed.user);
                 setSession(parsed.session);
                 setRestaurantId(parsed.restaurantId);
               } else {
-                console.log('⏰ localStorage session expired, clearing...');
                 // Session expired, clear it
                 localStorage.removeItem('auth_session');
               }
@@ -125,8 +104,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
               logger.error('Failed to parse saved session:', error);
               localStorage.removeItem('auth_session');
             }
-          } else {
-            console.log('✅ No existing sessions found - user needs to log in');
           }
         }
       } catch (error) {

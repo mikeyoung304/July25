@@ -42,12 +42,6 @@ function NavigationCard({ title, icon, href, color, delay = 0 }: NavigationCardP
 }
 
 export function HomePage() {
-  const showDemoMode = import.meta.env.VITE_DEMO_AUTH === '1';
-  console.log('🔍 Demo mode check:', { 
-    VITE_DEMO_AUTH: import.meta.env.VITE_DEMO_AUTH,
-    showDemoMode,
-    type: typeof import.meta.env.VITE_DEMO_AUTH 
-  });
   
   // Original color palette - solid, professional colors
   const navigationOptions = [
@@ -122,17 +116,6 @@ export function HomePage() {
               delay={index}
             />
           ))}
-          
-          {/* Demo Mode Card - Only in development */}
-          {showDemoMode && (
-            <NavigationCard
-              title="Friends & Family"
-              icon={<UserCheck />}
-              href="/login"
-              color="#F97316"
-              delay={navigationOptions.length}
-            />
-          )}
         </div>
       </div>
     </div>
