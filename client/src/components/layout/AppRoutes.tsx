@@ -1,7 +1,7 @@
 import React, { Profiler, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
-import { ManagerRoute, KitchenRoute, ServerRoute, AdminRoute } from '@/components/auth/ProtectedRoute'
+import { ProtectedRoute, ManagerRoute, KitchenRoute, ServerRoute, AdminRoute } from '@/components/auth/ProtectedRoute'
 import { env } from '@/utils/env'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
@@ -51,9 +51,17 @@ export function AppRoutes() {
       <ErrorBoundary level="section">
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/home" element={<HomePage />} />
+            {/* Public Routes - NOW PROTECTED */}
+            <Route path="/" element={
+              <ProtectedRoute requireAuth={true} fallbackPath="/login">
+                <HomePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/home" element={
+              <ProtectedRoute requireAuth={true} fallbackPath="/login">
+                <HomePage />
+              </ProtectedRoute>
+            } />
             
             {/* Auth Routes (Public) */}
             <Route path="/login" element={
