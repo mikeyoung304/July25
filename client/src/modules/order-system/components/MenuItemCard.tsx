@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MenuItem } from '../../menu/types';
 import { Minus, Plus } from 'lucide-react';
-import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
+import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { OptimizedImage } from '@/components/shared/OptimizedImage';
 
 interface MenuItemCardProps {

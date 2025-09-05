@@ -1,0 +1,9 @@
+{
+  "error": "Could not access auth.users or users table",
+  "details": {
+    "code": "42P01",
+    "details": null,
+    "hint": null,
+    "message": "relation \"public.auth.users\" does not exist"
+  }
+}

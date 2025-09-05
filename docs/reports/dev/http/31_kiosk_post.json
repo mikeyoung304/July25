@@ -1,0 +1,5 @@
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vOnJjcWtybDI4MGtxIiwicm9sZSI6Imtpb3NrX2RlbW8iLCJyZXN0YXVyYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwic2NvcGUiOlsibWVudTpyZWFkIiwib3JkZXJzOmNyZWF0ZSIsImFpLnZvaWNlOmNoYXQiLCJwYXltZW50czpwcm9jZXNzIl0sImlhdCI6MTc1NzAwOTA0NCwiZXhwIjoxNzU3MDEyNjQ0fQ.ri_ZjCSyuf8zy48L9E1esfiHsVpv4XUByKg312joYRI",
+  "expiresIn": 3600,
+  "status": "SUCCESS - Demo token issued with all required scopes"
+}

@@ -1,0 +1,111 @@
+{
+  "bundles": [
+    {
+      "name": "Main Bundle",
+      "path": "./client/dist/assets/index*.js",
+      "maxSize": "80KB",
+      "compression": "gzip",
+      "severity": "error"
+    },
+    {
+      "name": "React Core",
+      "path": "./client/dist/js/react-core*.js",
+      "maxSize": "45KB",
+      "compression": "gzip",
+      "severity": "warning"
+    },
+    {
+      "name": "Vendor Bundle",
+      "path": "./client/dist/js/vendor*.js",
+      "maxSize": "50KB",
+      "compression": "gzip",
+      "severity": "warning"
+    },
+    {
+      "name": "Order System",
+      "path": "./client/dist/js/order-system*.js",
+      "maxSize": "80KB",
+      "compression": "gzip",
+      "severity": "warning"
+    },
+    {
+      "name": "Voice Module",
+      "path": "./client/dist/js/voice-module*.js",
+      "maxSize": "50KB",
+      "compression": "gzip",
+      "severity": "info"
+    },
+    {
+      "name": "CSS Bundle",
+      "path": "./client/dist/assets/*.css",
+      "maxSize": "30KB",
+      "compression": "gzip",
+      "severity": "warning"
+    },
+    {
+      "name": "Total JavaScript",
+      "path": "./client/dist/**/*.js",
+      "maxSize": "500KB",
+      "compression": "gzip",
+      "severity": "error"
+    }
+  ],
+  "metrics": {
+    "lighthouse": {
+      "performance": {
+        "min": 90,
+        "severity": "error"
+      },
+      "accessibility": {
+        "min": 95,
+        "severity": "warning"
+      },
+      "bestPractices": {
+        "min": 90,
+        "severity": "warning"
+      },
+      "seo": {
+        "min": 90,
+        "severity": "info"
+      }
+    },
+    "webVitals": {
+      "LCP": {
+        "max": 2500,
+        "unit": "ms",
+        "severity": "error"
+      },
+      "FID": {
+        "max": 100,
+        "unit": "ms",
+        "severity": "error"
+      },
+      "CLS": {
+        "max": 0.1,
+        "severity": "error"
+      },
+      "FCP": {
+        "max": 1800,
+        "unit": "ms",
+        "severity": "warning"
+      },
+      "TTFB": {
+        "max": 600,
+        "unit": "ms",
+        "severity": "warning"
+      }
+    }
+  },
+  "thresholds": {
+    "coverage": {
+      "statements": 70,
+      "branches": 60,
+      "functions": 70,
+      "lines": 70
+    },
+    "complexity": {
+      "max": 10,
+      "severity": "warning"
+    }
+  }
+}

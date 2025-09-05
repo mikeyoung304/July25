@@ -33,18 +33,19 @@ export async function authenticate(
 
     const token = authHeader.substring(7);
     
-    // For local development only, allow a test token
-    // SECURITY: This bypass is ONLY for local development
-    const isDevelopment = process.env['NODE_ENV'] === 'development';
-    const isLocalhost = !process.env['RENDER'] && !process.env['VERCEL'] && !process.env['RAILWAY_ENVIRONMENT'] && !process.env['PRODUCTION'];
-    const isTestEnvironment = process.env['NODE_ENV'] === 'test';
-    const isTestToken = token === 'test-token';
+    // STRICT_AUTH mode - no bypasses allowed
+    const strictAuth = process.env['STRICT_AUTH'] === 'true';
     
-    // Extra safety: explicitly check we're not in production
-    const isProduction = process.env['NODE_ENV'] === 'production' || process.env['PRODUCTION'] === 'true';
+    // In strict auth mode, never allow test tokens
+    if (strictAuth && token === 'test-token') {
+      logger.error('⛔ STRICT_AUTH enabled - test token rejected');
+      throw Unauthorized('Test tokens not allowed in strict auth mode');
+    }
     
-    if (!isProduction && (isDevelopment || isTestEnvironment) && isLocalhost && isTestToken) {
-      logger.warn('⚠️ SECURITY: Using test token - this should NEVER appear in production logs');
+    // Legacy test token support (will be removed)
+    // Only for backwards compatibility during migration
+    if (process.env['NODE_ENV'] === 'test' && token === 'test-token' && !strictAuth) {
+      logger.warn('⚠️ DEPRECATED: test-token usage detected. This will be removed soon.');
       req.user = {
         id: 'test-user-id',
         email: 'test@example.com',
@@ -138,17 +139,29 @@ export async function verifyWebSocketAuth(
     const token = url.searchParams.get('token');
 
     if (!token) {
+      // In development, allow anonymous connections with warning
+      if (config.nodeEnv === 'development') {
+        logger.warn('⚠️ WebSocket: Anonymous connection (no token) - dev mode only');
+        return {
+          userId: 'anonymous',
+          restaurantId: config.restaurant.defaultId,
+        };
+      }
       return null;
     }
 
-    // For local development only, allow test token
-    // NEVER allow test tokens in production, staging, or any deployed environment
-    const isDevelopment = config.nodeEnv === 'development';
-    const isLocalhost = !process.env['RENDER'] && !process.env['VERCEL'] && !process.env['RAILWAY_ENVIRONMENT'];
-    const isTestToken = token === 'test-token';
+    // STRICT_AUTH mode - no bypasses allowed
+    const strictAuth = process.env['STRICT_AUTH'] === 'true';
     
-    if (isDevelopment && isLocalhost && isTestToken) {
-      logger.warn('Using test token in WebSocket (local development only)');
+    // In strict auth mode, never allow test tokens
+    if (strictAuth && token === 'test-token') {
+      logger.error('⛔ WebSocket: STRICT_AUTH enabled - test token rejected');
+      return null;
+    }
+    
+    // Legacy test token support for tests only
+    if (process.env['NODE_ENV'] === 'test' && token === 'test-token' && !strictAuth) {
+      logger.warn('⚠️ WebSocket: DEPRECATED test-token usage');
       return {
         userId: 'test-user-id',
         restaurantId: config.restaurant.defaultId,

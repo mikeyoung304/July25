@@ -1,0 +1,8 @@
+{
+  "status": "already_applied",
+  "version": "20250904121834",
+  "name": "20250903_100003_verification_bookmarks",
+  "applied_at": "2025-09-04T12:18:34Z",
+  "transport": "mcp",
+  "result": "Migration already exists in production"
+}

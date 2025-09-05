@@ -89,21 +89,14 @@ export class WebSocketService extends EventEmitter {
         token = session.access_token
         logger.info('🔐 Using Supabase session for WebSocket')
       } else {
-        // No Supabase session - try to get demo token for friends & family
-        try {
-          const { getDemoToken } = await import('@/services/auth/demoAuth')
-          token = await getDemoToken()
-          logger.info('🔑 Using demo token for WebSocket')
-        } catch (demoError) {
-          console.warn('Failed to get demo token:', demoError)
-          // In development, fall back to test token
-          if (import.meta.env.DEV) {
-            token = 'test-token'
-            logger.info('🔧 Using test token for WebSocket (dev mode only)')
-          } else {
-            console.error('No authentication available for WebSocket')
-            // Don't set token - let the connection fail properly
-          }
+        // In development, allow connection without auth but warn
+        if (import.meta.env.DEV) {
+          logger.warn('⚠️ WebSocket connecting without authentication (dev mode)')
+          // Don't set token - connection will be anonymous
+        } else {
+          logger.error('❌ No authentication available for WebSocket connection')
+          this.setConnectionState('error')
+          throw new Error('Authentication required for WebSocket connection')
         }
       }
 

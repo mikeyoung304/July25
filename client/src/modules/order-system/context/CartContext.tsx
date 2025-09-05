@@ -1,5 +1,11 @@
+/**
+ * @deprecated This CartContext is deprecated. Use UnifiedCartContext instead.
+ * Import from '@/contexts/UnifiedCartContext'
+ * This file is kept for backwards compatibility during migration.
+ */
 import React, { useState, useEffect, useCallback, useMemo, createContext, useContext } from 'react';
-import { Cart, CartItem, calculateCartTotals } from '@rebuild/shared';
+import { Cart, CartItem } from '@rebuild/shared';
+import { calculateCartTotals } from '@rebuild/shared/cart';
 import { useParams } from 'react-router-dom';
 
 interface CartContextType {

@@ -72,8 +72,8 @@ export function mapCartItem(dbItem: DbCartItem): ApiCartItem {
     price: dbItem.price,
     quantity: dbItem.quantity,
     modifiers: dbItem.modifiers || [],
-    specialInstructions: dbItem.special_instructions,
-    imageUrl: dbItem.image_url,
+    specialInstructions: dbItem.special_instructions || undefined,
+    imageUrl: dbItem.image_url || undefined,
   };
 }
 
@@ -85,10 +85,10 @@ export function mapOrder(dbOrder: DbOrder): ApiOrder {
     id: dbOrder.id,
     orderNumber: dbOrder.order_number,
     restaurantId: dbOrder.restaurant_id,
-    tableNumber: dbOrder.table_number,
-    customerName: dbOrder.customer_name,
-    customerEmail: dbOrder.customer_email,
-    customerPhone: dbOrder.customer_phone,
+    tableNumber: dbOrder.table_number || undefined,
+    customerName: dbOrder.customer_name || undefined,
+    customerEmail: dbOrder.customer_email || undefined,
+    customerPhone: dbOrder.customer_phone || undefined,
     status: dbOrder.status,
     type: dbOrder.type,
     createdAt: dbOrder.created_at,

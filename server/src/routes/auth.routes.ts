@@ -14,7 +14,7 @@ const config = getConfig();
 
 // Constants for demo auth
 const DEMO_ROLE = 'kiosk_demo';
-const DEMO_SCOPES = ['menu:read', 'orders:create', 'ai.voice:chat'];
+const DEMO_SCOPES = ['menu:read', 'orders:create', 'ai.voice:chat', 'payments:process'];
 const ALLOWED_DEMO_RESTAURANTS = [
   '11111111-1111-1111-1111-111111111111' // Default demo restaurant
 ];

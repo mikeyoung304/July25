@@ -104,7 +104,7 @@ export interface ClientTable {
   y: number;
   width: number;
   height: number;
-  type: 'circle' | 'rectangle' | 'square';
+  type: 'circle' | 'rectangle' | 'square' | 'chip_monkey';
   zIndex: number;
   createdAt: Date;
   updatedAt: Date;
@@ -307,10 +307,12 @@ export const transformSharedTableToClient = (table: SharedTable): ClientTable =>
     const y = validateNumber(position.y, 'position.y');
     
     // Map shape to type with validation
-    const shapeToTypeMap: Record<NonNullable<SharedTable['shape']>, ClientTable['type']> = {
+    const shapeToTypeMap: Record<string, ClientTable['type']> = {
       'rectangle': 'rectangle',
       'square': 'square',
-      'round': 'circle'
+      'round': 'circle',
+      'circle': 'circle',
+      'chip_monkey': 'chip_monkey'
     };
     
     const shape = table.shape || 'rectangle';
@@ -353,10 +355,11 @@ export const transformSharedTableToClient = (table: SharedTable): ClientTable =>
 export const transformClientTableToShared = (table: ClientTable): SharedTable => {
   try {
     // Map type back to shape
-    const typeToShapeMap: Record<ClientTable['type'], SharedTable['shape']> = {
+    const typeToShapeMap: Record<string, SharedTable['shape']> = {
       'rectangle': 'rectangle',
       'square': 'square',
-      'circle': 'round'
+      'circle': 'round',
+      'chip_monkey': 'chip_monkey'
     };
 
     return {
