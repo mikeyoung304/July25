@@ -43,6 +43,11 @@ function NavigationCard({ title, icon, href, color, delay = 0 }: NavigationCardP
 
 export function HomePage() {
   const showDemoMode = import.meta.env.VITE_DEMO_AUTH === '1';
+  console.log('🔍 Demo mode check:', { 
+    VITE_DEMO_AUTH: import.meta.env.VITE_DEMO_AUTH,
+    showDemoMode,
+    type: typeof import.meta.env.VITE_DEMO_AUTH 
+  });
   
   // Original color palette - solid, professional colors
   const navigationOptions = [

@@ -1,0 +1,20 @@
+diff --git a/client/src/contexts/AuthContext.tsx b/client/src/contexts/AuthContext.tsx
+index 27bf910..1334291 100644
+--- a/client/src/contexts/AuthContext.tsx
++++ b/client/src/contexts/AuthContext.tsx
+@@ -280,11 +280,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
+     }
+   };
+ 
+-  // Demo login (development only)
++  // Demo login (development only with explicit panel flag)
+   const loginAsDemo = async (role: string) => {
+-    // Only available in development with demo auth enabled
+-    if (import.meta.env.PROD || import.meta.env.VITE_DEMO_AUTH !== '1') {
+-      throw new Error('Demo login is only available in development');
++    // Only available in development with demo panel explicitly enabled
++    if (import.meta.env.PROD || import.meta.env.VITE_DEMO_PANEL !== '1') {
++      throw new Error('Demo login requires VITE_DEMO_PANEL=1 in development');
+     }
+ 
+     setIsLoading(true);

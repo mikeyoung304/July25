@@ -60,34 +60,64 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Dev mode: Check for force logout flag
+        if (import.meta.env.DEV) {
+          const forceLogout = new URLSearchParams(window.location.search).get('force_logout');
+          if (forceLogout === 'true') {
+            console.log('🔴 Force logout requested - clearing all sessions');
+            await supabase.auth.signOut();
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/login';
+            return;
+          }
+        }
+
         // Check for existing Supabase session
         const { data: { session: supabaseSession } } = await supabase.auth.getSession();
         
+        console.log('🔍 AUTH INIT: Checking for existing sessions...', {
+          hasSupabaseSession: !!supabaseSession,
+          hasLocalStorage: !!localStorage.getItem('auth_session'),
+          supabaseUser: supabaseSession?.user?.email || null
+        });
+        
         if (supabaseSession) {
-          // Get user details from our API
-          const response = await httpClient.get<{ user: User; restaurantId: string }>(
-            '/api/v1/auth/me'
-          );
+          console.log('⚠️ Found Supabase session - auto-authenticating!', supabaseSession.user?.email);
           
-          setUser(response.user);
-          setRestaurantId(response.restaurantId);
-          setSession({
-            accessToken: supabaseSession.access_token,
-            refreshToken: supabaseSession.refresh_token,
-            expiresIn: supabaseSession.expires_in,
-            expiresAt: supabaseSession.expires_at
-          });
+          // In strict auth mode, validate the session is still valid
+          try {
+            const response = await httpClient.get<{ user: User; restaurantId: string }>(
+              '/api/v1/auth/me'
+            );
+            
+            setUser(response.user);
+            setRestaurantId(response.restaurantId);
+            setSession({
+              accessToken: supabaseSession.access_token,
+              refreshToken: supabaseSession.refresh_token,
+              expiresIn: supabaseSession.expires_in,
+              expiresAt: supabaseSession.expires_at
+            });
+          } catch (error) {
+            console.error('⛔ Supabase session invalid, clearing...', error);
+            await supabase.auth.signOut();
+            // Don't set any state, let the user log in
+          }
         } else {
           // Check for PIN/station session in localStorage
           const savedSession = localStorage.getItem('auth_session');
           if (savedSession) {
+            console.log('⚠️ Found localStorage session - checking validity...');
             try {
               const parsed = JSON.parse(savedSession);
               if (parsed.expiresAt && parsed.expiresAt > Date.now() / 1000) {
+                console.log('📌 localStorage session valid, restoring as:', parsed.user?.displayName);
                 setUser(parsed.user);
                 setSession(parsed.session);
                 setRestaurantId(parsed.restaurantId);
               } else {
+                console.log('⏰ localStorage session expired, clearing...');
                 // Session expired, clear it
                 localStorage.removeItem('auth_session');
               }
@@ -95,6 +125,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
               logger.error('Failed to parse saved session:', error);
               localStorage.removeItem('auth_session');
             }
+          } else {
+            console.log('✅ No existing sessions found - user needs to log in');
           }
         }
       } catch (error) {
@@ -280,11 +312,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Demo login (development only)
+  // Demo login (development only with explicit panel flag)
   const loginAsDemo = async (role: string) => {
-    // Only available in development with demo auth enabled
-    if (import.meta.env.PROD || import.meta.env.VITE_DEMO_AUTH !== '1') {
-      throw new Error('Demo login is only available in development');
+    // Only available in development with demo panel explicitly enabled
+    if (import.meta.env.PROD || import.meta.env.VITE_DEMO_PANEL !== '1') {
+      throw new Error('Demo login requires VITE_DEMO_PANEL=1 in development');
     }
 
     setIsLoading(true);
