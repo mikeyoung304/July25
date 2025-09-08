@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase } from '@/core/supabase';
 import { httpClient } from '@/services/http/httpClient';
 import { logger } from '@/services/logger';
+import { setAuthContextSession } from '@/services/auth';
 
 interface User {
   id: string;
@@ -31,7 +32,6 @@ export interface AuthContextType {
   login: (email: string, password: string, restaurantId: string) => Promise<void>;
   loginWithPin: (pin: string, restaurantId: string) => Promise<void>;
   loginAsStation: (stationType: string, stationName: string, restaurantId: string) => Promise<void>;
-  loginAsDemo: (role: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   setPin: (pin: string) => Promise<void>;
@@ -73,12 +73,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
             
             setUser(response.user);
             setRestaurantId(response.restaurantId);
-            setSession({
+            
+            // Set session and immediately sync to bridge
+            const sessionData = {
               accessToken: supabaseSession.access_token,
               refreshToken: supabaseSession.refresh_token,
               expiresIn: supabaseSession.expires_in,
               expiresAt: supabaseSession.expires_at
-            });
+            };
+            setSession(sessionData);
+            
+            // CRITICAL: Immediately sync to auth bridge for voice/WebSocket
+            setAuthContextSession(sessionData);
+            logger.info('[AuthContext] Restored Supabase session and synced to bridge');
           } catch (error) {
             // Session invalid, clear it
             logger.error('Supabase session invalid, clearing...', error);
@@ -96,6 +103,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 setUser(parsed.user);
                 setSession(parsed.session);
                 setRestaurantId(parsed.restaurantId);
+                
+                // CRITICAL: Immediately sync to auth bridge for voice/WebSocket
+                setAuthContextSession(parsed.session);
+                logger.info('[AuthContext] Restored localStorage session and synced to bridge');
               } else {
                 // Session expired, clear it
                 localStorage.removeItem('auth_session');
@@ -125,12 +136,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
           );
           setUser(response.user);
           setRestaurantId(response.restaurantId);
-          setSession({
+          
+          const sessionData = {
             accessToken: session.access_token,
             refreshToken: session.refresh_token,
             expiresIn: session.expires_in,
             expiresAt: session.expires_at
-          });
+          };
+          setSession(sessionData);
+          
+          // CRITICAL: Immediately sync to auth bridge
+          setAuthContextSession(sessionData);
+          logger.info('[AuthContext] Auth state change: SIGNED_IN - synced to bridge');
         } catch (error) {
           logger.error('Failed to fetch user details:', error);
         }
@@ -139,13 +156,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setSession(null);
         setRestaurantId(null);
         localStorage.removeItem('auth_session');
+        
+        // CRITICAL: Clear auth bridge on signout
+        setAuthContextSession(null);
+        logger.info('[AuthContext] Auth state change: SIGNED_OUT - cleared bridge');
       } else if (event === 'TOKEN_REFRESHED' && session) {
-        setSession({
+        const sessionData = {
           accessToken: session.access_token,
           refreshToken: session.refresh_token,
           expiresIn: session.expires_in,
           expiresAt: session.expires_at
-        });
+        };
+        setSession(sessionData);
+        
+        // CRITICAL: Immediately sync refreshed token to auth bridge
+        setAuthContextSession(sessionData);
+        logger.info('[AuthContext] Auth state change: TOKEN_REFRESHED - synced to bridge');
       }
     });
 
@@ -180,15 +206,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
           ? Math.floor(Date.now() / 1000) + response.session.expires_in
           : undefined;
         
-        setSession({
+        const sessionData = {
           accessToken: response.session.access_token,
           refreshToken: response.session.refresh_token,
           expiresIn: response.session.expires_in,
           expiresAt
+        };
+        
+        setSession(sessionData);
+        
+        // CRITICAL: Immediately sync to auth bridge for voice/WebSocket
+        setAuthContextSession(sessionData);
+        logger.info('[AuthContext] Login successful - synced to bridge', { 
+          email, 
+          role: response.user.role,
+          tokenPreview: sessionData.accessToken?.substring(0, 10) + '...'
         });
       }
-
-      logger.info('Login successful', { email, role: response.user.role });
     } catch (error) {
       logger.error('Login failed:', error);
       throw error;
@@ -223,6 +257,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       setSession(sessionData);
       
+      // CRITICAL: Immediately sync to auth bridge for voice/WebSocket
+      setAuthContextSession(sessionData);
+      
       // Save PIN session to localStorage
       localStorage.setItem('auth_session', JSON.stringify({
         user: response.user,
@@ -230,7 +267,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         restaurantId: response.restaurantId
       }));
 
-      logger.info('PIN login successful', { role: response.user.role });
+      logger.info('[AuthContext] PIN login successful - synced to bridge', { 
+        role: response.user.role,
+        tokenPreview: sessionData.accessToken?.substring(0, 10) + '...'
+      });
     } catch (error) {
       logger.error('PIN login failed:', error);
       throw error;
@@ -273,6 +313,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       setSession(sessionData);
       
+      // CRITICAL: Immediately sync to auth bridge for voice/WebSocket
+      setAuthContextSession(sessionData);
+      
       // Save station session to localStorage
       localStorage.setItem('auth_session', JSON.stringify({
         user: stationUser,
@@ -280,73 +323,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         restaurantId: response.restaurantId
       }));
 
-      logger.info('Station login successful', { stationType, stationName });
+      logger.info('[AuthContext] Station login successful - synced to bridge', { 
+        stationType, 
+        stationName,
+        tokenPreview: sessionData.accessToken?.substring(0, 10) + '...'
+      });
     } catch (error) {
       logger.error('Station login failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Demo login (development only with explicit panel flag)
-  const loginAsDemo = async (role: string) => {
-    // Only available in development with demo panel explicitly enabled
-    if (import.meta.env.PROD || import.meta.env.VITE_DEMO_PANEL !== '1') {
-      throw new Error('Demo login requires VITE_DEMO_PANEL=1 in development');
-    }
-
-    setIsLoading(true);
-    const defaultRestaurantId = '11111111-1111-1111-1111-111111111111';
-    
-    try {
-      // Map role to demo credentials (using seeded accounts)
-      const demoCredentials: Record<string, { email: string; password: string }> = {
-        manager: { email: 'manager@restaurant.com', password: 'Demo123!' },
-        server: { email: 'server@restaurant.com', password: 'Demo123!' },
-        kitchen: { email: 'kitchen@restaurant.com', password: 'Demo123!' },
-        expo: { email: 'expo@restaurant.com', password: 'Demo123!' },
-        cashier: { email: 'cashier@restaurant.com', password: 'Demo123!' }
-      };
-
-      const creds = demoCredentials[role];
-      if (!creds) {
-        throw new Error(`Invalid demo role: ${role}`);
-      }
-
-      // Use regular login with demo credentials
-      // This creates a real Supabase session
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: creds.email,
-        password: creds.password
-      });
-
-      if (error) {
-        // If Supabase login fails, try PIN login as fallback
-        // This assumes demo users have PINs set up
-        logger.warn('Demo Supabase login failed, trying PIN fallback:', error);
-        throw error;
-      }
-
-      if (data.session) {
-        // Fetch user details from our API
-        const response = await httpClient.get<{ user: User; restaurantId: string }>(
-          '/api/v1/auth/me'
-        );
-        
-        setUser(response.user);
-        setRestaurantId(defaultRestaurantId);
-        setSession({
-          accessToken: data.session.access_token,
-          refreshToken: data.session.refresh_token,
-          expiresIn: data.session.expires_in,
-          expiresAt: data.session.expires_at
-        });
-
-        logger.info(`Demo login successful as ${role}`);
-      }
-    } catch (error) {
-      logger.error(`Demo login failed for ${role}:`, error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -365,19 +348,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setSession(null);
       setRestaurantId(null);
       
+      // CRITICAL: Clear auth bridge on logout
+      setAuthContextSession(null);
+      
       // Clear localStorage
       localStorage.removeItem('auth_session');
       
       // Sign out from Supabase
       await supabase.auth.signOut();
       
-      logger.info('Logout successful');
+      logger.info('[AuthContext] Logout successful - bridge cleared');
     } catch (error) {
       logger.error('Logout failed:', error);
       // Clear state even if logout fails
       setUser(null);
       setSession(null);
       setRestaurantId(null);
+      setAuthContextSession(null);
       localStorage.removeItem('auth_session');
     } finally {
       setIsLoading(false);
@@ -488,6 +475,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => clearTimeout(timer);
   }, [session?.expiresAt, session?.refreshToken, refreshSession]);
 
+  // Sync session with auth service bridge for non-React services (voice, WebSocket)
+  useEffect(() => {
+    setAuthContextSession(session);
+    logger.info('[AuthContext] Session synced to auth bridge:', session ? 'present' : 'cleared');
+    
+    // Trigger WebSocket reconnection when authentication changes
+    if (session) {
+      // Session established - reconnect WebSocket with authentication
+      import('@/services/websocket/ConnectionManager').then(({ connectionManager }) => {
+        logger.info('[AuthContext] Triggering WebSocket reconnection with new auth');
+        // Force disconnect to clear old connection
+        connectionManager.forceDisconnect();
+        // Reconnect with new authentication
+        setTimeout(() => {
+          connectionManager.connect().catch(error => {
+            logger.error('[AuthContext] Failed to reconnect WebSocket:', error);
+          });
+        }, 100); // Small delay to ensure clean disconnect
+      });
+    }
+  }, [session]);
+
   const value: AuthContextType = {
     user,
     session,
@@ -497,7 +506,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     loginWithPin,
     loginAsStation,
-    loginAsDemo,
     logout,
     refreshSession,
     setPin,
