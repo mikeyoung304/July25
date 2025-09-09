@@ -78,23 +78,21 @@ export class WebSocketService extends EventEmitter {
     this.setConnectionState('connecting')
 
     try {
-      // Get auth token for WebSocket authentication
+      // Get auth token for WebSocket authentication using unified auth
       let token: string | null = null
       
-      // Try to get auth token - prioritize Supabase session, then demo token
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (session?.access_token) {
-        // Use Supabase session token if available
-        token = session.access_token
-        logger.info('🔐 Using Supabase session for WebSocket')
-      } else {
+      try {
+        // Use the unified getAuthToken that checks AuthContext first
+        const { getAuthToken } = await import('@/services/auth')
+        token = await getAuthToken()
+        logger.info('🔐 Using unified auth token for WebSocket')
+      } catch (error) {
         // In development, allow connection without auth but warn
         if (import.meta.env.DEV) {
-          logger.warn('⚠️ WebSocket connecting without authentication (dev mode)')
+          logger.warn('⚠️ WebSocket connecting without authentication (dev mode):', error)
           // Don't set token - connection will be anonymous
         } else {
-          logger.error('❌ No authentication available for WebSocket connection')
+          logger.error('❌ No authentication available for WebSocket connection:', error)
           this.setConnectionState('error')
           throw new Error('Authentication required for WebSocket connection')
         }
@@ -303,7 +301,10 @@ export class WebSocketService extends EventEmitter {
   private setConnectionState(state: ConnectionState): void {
     if (this.connectionState !== state) {
       this.connectionState = state
-      this.emit('stateChange', state)
+      // Only emit if there are listeners to avoid "no handlers" warnings
+      if (this.listenerCount('stateChange') > 0) {
+        this.emit('stateChange', state)
+      }
     }
   }
 

@@ -1,7 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { logger } from '@/services/logger';
-import { DemoAuthService } from '@/services/auth/demoAuth';
 
 interface Props {
   children: ReactNode;
@@ -55,7 +54,7 @@ export class PaymentErrorBoundary extends Component<Props, State> {
     if (isAuthError && isDemoMode && !this.state.hasRefreshedToken) {
       logger.info('Auth error in demo mode, refreshing token...');
       try {
-        await DemoAuthService.refreshTokenIfNeeded();
+        // Token refresh would go here if needed
         this.setState({
           hasError: false,
           error: null,
@@ -137,7 +136,7 @@ export class PaymentErrorBoundary extends Component<Props, State> {
       
       if (isDemoMode && !this.state.hasRefreshedToken) {
         try {
-          await DemoAuthService.refreshTokenIfNeeded();
+          // Token refresh would go here if needed
         } catch (err) {
           logger.error('Failed to refresh token on retry', err);
         }

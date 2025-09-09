@@ -51,9 +51,7 @@ export default function StationLogin() {
   
   const [selectedStation, setSelectedStation] = useState<StationType | null>(null);
   const [stationName, setStationName] = useState('');
-  const [restaurantId] = useState(
-    import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
-  );
+  const [restaurantId, setRestaurantId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStationSelect = (station: StationOption) => {
@@ -66,6 +64,11 @@ export default function StationLogin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!restaurantId) {
+      toast.error('Please enter restaurant ID');
+      return;
+    }
     
     if (!selectedStation) {
       toast.error('Please select a station type');
@@ -108,6 +111,31 @@ export default function StationLogin() {
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          {/* Restaurant ID Input */}
+          <div>
+            <label htmlFor="restaurant-id" className="block text-sm font-medium text-gray-700">
+              Restaurant ID
+            </label>
+            <div className="mt-1">
+              <input
+                id="restaurant-id"
+                name="restaurantId"
+                type="text"
+                required
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Enter restaurant ID"
+                value={restaurantId}
+                onChange={(e) => setRestaurantId(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            {import.meta.env.DEV && (
+              <p className="mt-1 text-xs text-gray-500">
+                Dev: Use '11111111-1111-1111-1111-111111111111' for testing
+              </p>
+            )}
+          </div>
+
           {/* Station Type Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">

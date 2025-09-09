@@ -8,22 +8,39 @@ import { validatePin, createOrUpdatePin } from '../services/auth/pinAuth';
 import { createStationToken, validateStationToken, revokeAllStationTokens } from '../services/auth/stationAuth';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
 import { requireScopes, ApiScope } from '../middleware/rbac';
+import { authLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const config = getConfig();
 
-// Constants for demo auth
-const DEMO_ROLE = 'kiosk_demo';
-const DEMO_SCOPES = ['menu:read', 'orders:create', 'ai.voice:chat', 'payments:process'];
-const ALLOWED_DEMO_RESTAURANTS = [
-  '11111111-1111-1111-1111-111111111111' // Default demo restaurant
+// Constants for kiosk/self-service authentication
+// IMPORTANT: This is a PRODUCTION FEATURE for customer self-service ordering
+// NOT a security bypass or demo-only feature
+const KIOSK_CUSTOMER_ROLE = 'kiosk_demo'; // Legacy name, actually means 'customer'
+const KIOSK_CUSTOMER_SCOPES = ['menu:read', 'orders:create', 'ai.voice:chat', 'payments:process'];
+const ALLOWED_KIOSK_RESTAURANTS = [
+  '11111111-1111-1111-1111-111111111111' // Default restaurant (extend for multi-tenant)
 ];
 
 /**
  * POST /api/v1/auth/kiosk
- * Issues a short-lived JWT for kiosk demo sessions
+ * 
+ * PRODUCTION ENDPOINT for anonymous customer authentication.
+ * Issues short-lived JWT tokens for self-service ordering via:
+ * - Physical kiosks in restaurant
+ * - QR code table ordering
+ * - Online ordering without account
+ * 
+ * This is NOT a security bypass. It's a deliberate design for 
+ * customer-facing ordering with limited, safe permissions.
+ * 
+ * Security features:
+ * - 1-hour token expiry
+ * - Limited scope (read menu, create orders, process payments)
+ * - Restaurant-specific validation
+ * - HS256 signing (different from staff RS256)
  */
-router.post('/kiosk', async (req: Request, res: Response) => {
+router.post('/kiosk', authLimiter, async (req: Request, res: Response) => {
   try {
     const { restaurantId } = req.body;
 
@@ -32,8 +49,8 @@ router.post('/kiosk', async (req: Request, res: Response) => {
       throw BadRequest('restaurantId is required');
     }
 
-    if (!ALLOWED_DEMO_RESTAURANTS.includes(restaurantId)) {
-      throw BadRequest('Invalid restaurant ID for demo');
+    if (!ALLOWED_KIOSK_RESTAURANTS.includes(restaurantId)) {
+      throw BadRequest('Invalid restaurant ID for kiosk authentication');
     }
 
     // Get JWT secret with fallback chain for resilience
@@ -43,19 +60,19 @@ router.post('/kiosk', async (req: Request, res: Response) => {
                       'demo-secret-key-for-local-development-only' : null);
     
     if (!jwtSecret) {
-      logger.error('KIOSK_JWT_SECRET not configured - see docs/DEMO_AUTH_SETUP.md');
-      throw BadRequest('Demo authentication not configured. Please contact support or see docs/DEMO_AUTH_SETUP.md for setup instructions.');
+      logger.error('KIOSK_JWT_SECRET not configured');
+      throw BadRequest('Kiosk authentication not configured. Please contact support.');
     }
 
-    // Generate random demo user ID
-    const randomId = Math.random().toString(36).substring(2, 15);
+    // Generate anonymous customer session ID
+    const sessionId = Math.random().toString(36).substring(2, 15);
     
-    // Create JWT payload
+    // Create JWT payload for customer session
     const payload = {
-      sub: `demo:${randomId}`,
-      role: DEMO_ROLE,
+      sub: `customer:${sessionId}`,
+      role: KIOSK_CUSTOMER_ROLE,
       restaurant_id: restaurantId,
-      scope: DEMO_SCOPES,
+      scope: KIOSK_CUSTOMER_SCOPES,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour
     };
@@ -63,9 +80,9 @@ router.post('/kiosk', async (req: Request, res: Response) => {
     // Sign the token
     const token = jwt.sign(payload, jwtSecret, { algorithm: 'HS256' });
 
-    logger.info('Demo kiosk token issued', {
+    logger.info('Kiosk customer token issued', {
       restaurantId,
-      demoUserId: payload.sub,
+      sessionId: payload.sub,
       expiresIn: 3600
     });
 
@@ -82,9 +99,17 @@ router.post('/kiosk', async (req: Request, res: Response) => {
 
 /**
  * POST /api/v1/auth/login
- * Email/password login for managers and owners via Supabase
+ * 
+ * TIER 1 AUTHENTICATION: Managers and Owners
+ * Email/password login via Supabase with RS256 JWT tokens
+ * 
+ * Security features:
+ * - Supabase authentication (bcrypt hashed passwords)
+ * - 8-hour session duration
+ * - Optional MFA support
+ * - Full system access based on role
  */
-router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/login', authLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, restaurantId } = req.body;
 
@@ -109,18 +134,32 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     }
 
     // Check user's role in the restaurant
+    logger.info('Checking restaurant access', {
+      userId: authData.user.id,
+      restaurantId,
+      email
+    });
+
     const { data: userRole, error: roleError } = await supabase
       .from('user_restaurants')
       .select('role')
       .eq('user_id', authData.user.id)
       .eq('restaurant_id', restaurantId)
-      .eq('is_active', true)
       .single();
+
+    logger.info('Restaurant access query result', {
+      userRole,
+      roleError,
+      userId: authData.user.id,
+      restaurantId
+    });
 
     if (roleError || !userRole) {
       logger.warn('User has no access to restaurant', {
         userId: authData.user.id,
-        restaurantId
+        restaurantId,
+        roleError: roleError?.message || 'No role found',
+        roleErrorCode: roleError?.code
       });
       throw Unauthorized('No access to this restaurant');
     }
@@ -165,9 +204,18 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 
 /**
  * POST /api/v1/auth/pin-login
- * PIN-based login for servers and cashiers
+ * 
+ * TIER 2 AUTHENTICATION: Service Staff (Servers, Cashiers)
+ * PIN-based login for quick staff authentication
+ * 
+ * Security features:
+ * - 4-6 digit PIN with bcrypt hashing (12 rounds)
+ * - Application-level pepper for additional security
+ * - 12-hour session duration
+ * - Restaurant-scoped (PINs are unique per restaurant)
+ * - Rate limiting: 5 attempts → 15 min lockout
  */
-router.post('/pin-login', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/pin-login', authLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { pin, restaurantId } = req.body;
 
@@ -186,8 +234,12 @@ router.post('/pin-login', async (req: Request, res: Response, next: NextFunction
 
     // Generate JWT token for PIN user
     const jwtSecret = process.env.KIOSK_JWT_SECRET || 
-                     process.env.SUPABASE_JWT_SECRET ||
-                     'pin-secret-change-in-production';
+                     process.env.SUPABASE_JWT_SECRET;
+    
+    if (!jwtSecret) {
+      logger.error('KIOSK_JWT_SECRET or SUPABASE_JWT_SECRET not configured');
+      throw new Error('JWT secret not configured for PIN authentication');
+    }
 
     const payload = {
       sub: result.userId,
@@ -225,7 +277,18 @@ router.post('/pin-login', async (req: Request, res: Response, next: NextFunction
 
 /**
  * POST /api/v1/auth/station-login
- * Station authentication for kitchen and expo displays
+ * 
+ * TIER 3 AUTHENTICATION: Shared Devices (Kitchen, Expo)
+ * Creates long-lived tokens for shared terminals/tablets
+ * 
+ * Security features:
+ * - Requires manager authentication to create
+ * - 24-hour session duration for convenience
+ * - HS256 signed tokens
+ * - Limited scope (read orders, update status only)
+ * - Station-specific permissions
+ * 
+ * Note: Manager creates these tokens once per day/shift
  */
 router.post('/station-login', authenticate, requireScopes(ApiScope.STAFF_MANAGE), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {

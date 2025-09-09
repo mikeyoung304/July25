@@ -1,4 +1,4 @@
-# Restaurant OS Architecture v6.0.3
+# Restaurant OS Architecture v6.0.4
 
 **Last Updated**: September 2, 2025
 

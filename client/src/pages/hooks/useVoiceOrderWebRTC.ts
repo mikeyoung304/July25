@@ -4,8 +4,8 @@ import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderPar
 import { OrderModification } from '@/modules/voice/contexts/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import type { Table } from '@/modules/floor-plan/types'
-import { getDemoToken } from '@/services/auth/demoAuth'
 import { logger } from '@/services/monitoring/logger'
+import { useAuth } from '@/contexts/auth.hooks'
 
 // Helper to resolve absolute API URLs for production
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -22,6 +22,7 @@ interface OrderItem {
 export function useVoiceOrderWebRTC() {
   const { toast } = useToast()
   const { items: menuItems } = useMenuItems()
+  const { session, restaurantId } = useAuth()
   const [showVoiceOrder, setShowVoiceOrder] = useState(false)
   const [currentTranscript, setCurrentTranscript] = useState('')
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
@@ -152,19 +153,18 @@ export function useVoiceOrderWebRTC() {
 
   // Submit order to backend
   const submitOrder = useCallback(async (selectedTable: Table | null, selectedSeat: number | null) => {
-    if (orderItems.length === 0 || !selectedTable || !selectedSeat) {
-      toast.error('No order items to submit')
+    if (orderItems.length === 0 || !selectedTable || !selectedSeat || !session?.accessToken) {
+      toast.error('No order items to submit or user not authenticated')
       return false
     }
     
     try {
-      const demoToken = await getDemoToken()
       const response = await fetch(apiUrl('/api/v1/orders'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${demoToken}`,
-          'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111'
+          'Authorization': `Bearer ${session.accessToken}`,
+          'X-Restaurant-ID': restaurantId || import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
         },
         body: JSON.stringify({
           table_number: selectedTable.label,
@@ -199,7 +199,7 @@ export function useVoiceOrderWebRTC() {
       toast.error('Failed to submit order. Please try again.')
       return false
     }
-  }, [orderItems, menuItems, toast])
+  }, [orderItems, menuItems, toast, session?.accessToken, restaurantId])
 
   // Reset voice order state
   const resetVoiceOrder = useCallback(() => {

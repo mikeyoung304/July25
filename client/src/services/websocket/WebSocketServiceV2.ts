@@ -184,31 +184,16 @@ export class WebSocketServiceV2 extends EventEmitter {
    * Get authentication token
    */
   private async getAuthToken(): Promise<string | null> {
-    // Try Supabase session first
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (session?.access_token) {
-      logger.info('🔐 Using Supabase session for WebSocket')
-      return session.access_token
-    }
-    
-    // Try demo token for friends & family
+    // Use the unified getAuthToken that checks AuthContext first
     try {
-      const { getDemoToken } = await import('@/services/auth/demoAuth')
-      const token = await getDemoToken()
-      logger.info('🔑 Using demo token for WebSocket')
+      const { getAuthToken } = await import('@/services/auth')
+      const token = await getAuthToken()
+      logger.info('🔐 Using unified auth token for WebSocket')
       return token
-    } catch (demoError) {
-      console.warn('Failed to get demo token:', demoError)
+    } catch (error) {
+      logger.warn('⚠️ No authentication token for WebSocket:', error)
+      return null
     }
-    
-    // Development fallback
-    if (import.meta.env.DEV) {
-      logger.info('🔧 Using test token for WebSocket (dev mode only)')
-      return 'test-token'
-    }
-    
-    return null
   }
 
   /**
@@ -388,7 +373,10 @@ export class WebSocketServiceV2 extends EventEmitter {
   private setConnectionState(state: ConnectionState): void {
     if (this.connectionState !== state) {
       this.connectionState = state
-      this.emit('connectionStateChange', state)
+      // Only emit if there are listeners to avoid "no handlers" warnings
+      if (this.listenerCount('connectionStateChange') > 0) {
+        this.emit('connectionStateChange', state)
+      }
     }
   }
 

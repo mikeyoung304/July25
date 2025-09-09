@@ -33,47 +33,80 @@ export async function authenticate(
 
     const token = authHeader.substring(7);
     
-    // STRICT_AUTH mode - no bypasses allowed
-    const strictAuth = process.env['STRICT_AUTH'] === 'true';
-    
-    // In strict auth mode, never allow test tokens
-    if (strictAuth && token === 'test-token') {
-      logger.error('⛔ STRICT_AUTH enabled - test token rejected');
-      throw Unauthorized('Test tokens not allowed in strict auth mode');
-    }
-    
-    // Legacy test token support (will be removed)
-    // Only for backwards compatibility during migration
-    if (process.env['NODE_ENV'] === 'test' && token === 'test-token' && !strictAuth) {
-      logger.warn('⚠️ DEPRECATED: test-token usage detected. This will be removed soon.');
-      req.user = {
-        id: 'test-user-id',
-        email: 'test@example.com',
-        role: 'admin',
-        scopes: ['orders:create', 'orders:read', 'orders:write', 'payments:write', 'payments:read'],
-      };
-      req.restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
-      return next();
+    // NEVER accept test tokens - authentication is required
+    if (token === 'test-token') {
+      logger.error('⛔ Test token rejected - authentication required');
+      throw Unauthorized('Test tokens are not allowed. Please use proper authentication.');
     }
 
-    // Verify JWT with proper signature validation
+    // Decode token to check issuer and algorithm
     let decoded: any;
     try {
-      // Try kiosk JWT secret first (for demo tokens)
-      const kioskSecret = process.env['KIOSK_JWT_SECRET'];
+      // First decode the token without verification to check the issuer
+      const decodedToken = jwt.decode(token, { complete: true }) as any;
       
-      if (kioskSecret) {
-        try {
-          decoded = jwt.verify(token, kioskSecret) as any;
-        } catch (kioskError) {
-          // If kiosk JWT fails, try Supabase JWT
-          const secret = config.supabase.jwtSecret || config.supabase.anonKey;
-          decoded = jwt.verify(token, secret) as any;
+      if (!decodedToken) {
+        throw new Error('Unable to decode token');
+      }
+
+      const payload = decodedToken.payload;
+      const algorithm = decodedToken.header?.alg;
+      const issuer = payload?.iss;
+      
+      logger.info('Token analysis:', { 
+        algorithm, 
+        issuer,
+        role: payload?.role,
+        sub: payload?.sub?.substring(0, 20) // Log first 20 chars of subject
+      });
+
+      // Identify token type by issuer, not algorithm
+      // Supabase tokens have issuer like "https://[project-ref].supabase.co/auth/v1"
+      if (issuer?.includes('supabase.co') || issuer === 'supabase') {
+        // This is a Supabase token - use the anon key as the secret
+        // Supabase signs all tokens (anon, service, user) with the same secret
+        // The anon key itself is a JWT signed with this secret
+        const supabaseSecret = config.supabase.jwtSecret || config.supabase.anonKey;
+        
+        if (!supabaseSecret) {
+          logger.error('Supabase secret not configured');
+          throw new Error('Supabase authentication not configured');
         }
+        
+        try {
+          // For now, try both secrets - the configured JWT secret and the anon key
+          // Supabase might be using the anon key itself as the signing secret
+          if (config.supabase.jwtSecret) {
+            try {
+              decoded = jwt.verify(token, config.supabase.jwtSecret) as any;
+              logger.info('Supabase token verified with JWT secret');
+            } catch (e) {
+              // JWT verification failed - do not accept unverified tokens
+              logger.error('Supabase JWT secret verification failed:', e);
+              throw Unauthorized('Token verification failed');
+            }
+          } else {
+            // No JWT secret configured - cannot verify tokens
+            logger.error('SUPABASE_JWT_SECRET not configured - cannot verify tokens');
+            throw Unauthorized('Token verification not configured');
+          }
+        } catch (verifyError) {
+          logger.error('Supabase token verification failed:', verifyError);
+          throw verifyError;
+        }
+      } else if (payload?.sub?.startsWith('customer:') || payload?.sub?.startsWith('demo:')) {
+        // This is a kiosk/demo token - verify with KIOSK_JWT_SECRET
+        const kioskSecret = process.env['KIOSK_JWT_SECRET'];
+        if (!kioskSecret) {
+          logger.error('KIOSK_JWT_SECRET not configured for kiosk token');
+          throw new Error('Kiosk authentication not configured');
+        }
+        decoded = jwt.verify(token, kioskSecret) as any;
+        logger.info('Kiosk/Demo token verified successfully');
       } else {
-        // No kiosk secret, use Supabase JWT
-        const secret = config.supabase.jwtSecret || config.supabase.anonKey;
-        decoded = jwt.verify(token, secret) as any;
+        // Unknown token type - log details for debugging
+        logger.error('Unknown token type', { issuer, algorithm, role: payload?.role });
+        throw new Error('Unknown token type');
       }
     } catch (error) {
       logger.error('Token verification failed:', error instanceof Error ? error.message : String(error));
@@ -139,73 +172,94 @@ export async function verifyWebSocketAuth(
     const token = url.searchParams.get('token');
 
     if (!token) {
-      // In development, allow anonymous connections with warning
-      if (config.nodeEnv === 'development') {
-        logger.warn('⚠️ WebSocket: Anonymous connection (no token) - dev mode only');
-        return {
-          userId: 'anonymous',
-          restaurantId: config.restaurant.defaultId,
-        };
-      }
+      // No token provided - authentication required
+      logger.warn('WebSocket: No authentication token provided');
       return null;
     }
 
-    // STRICT_AUTH mode - no bypasses allowed
-    const strictAuth = process.env['STRICT_AUTH'] === 'true';
-    
-    // In strict auth mode, never allow test tokens
-    if (strictAuth && token === 'test-token') {
-      logger.error('⛔ WebSocket: STRICT_AUTH enabled - test token rejected');
+    // NEVER accept test tokens - authentication is required
+    if (token === 'test-token') {
+      logger.error('⛔ WebSocket: Test token rejected - authentication required');
       return null;
     }
-    
-    // Legacy test token support for tests only
-    if (process.env['NODE_ENV'] === 'test' && token === 'test-token' && !strictAuth) {
-      logger.warn('⚠️ WebSocket: DEPRECATED test-token usage');
-      return {
-        userId: 'test-user-id',
-        restaurantId: config.restaurant.defaultId,
-      };
-    }
 
-    // Verify JWT with proper signature validation
+    // Decode token to check issuer and algorithm
     let decoded: any;
-    
-    // First, try to decode without verification to check token type
     try {
-      const unverified = jwt.decode(token) as any;
+      // First decode the token without verification to check the issuer
+      const decodedToken = jwt.decode(token, { complete: true }) as any;
       
-      // Check if this is a demo/kiosk token (sub starts with 'demo:')
-      if (unverified?.sub?.startsWith('demo:')) {
-        // This is a demo token - verify with KIOSK_JWT_SECRET
-        const kioskSecret = process.env['KIOSK_JWT_SECRET'];
-        if (!kioskSecret) {
-          logger.error('KIOSK_JWT_SECRET not configured for demo token verification');
+      if (!decodedToken) {
+        logger.error('Unable to decode WebSocket token');
+        return null;
+      }
+
+      const payload = decodedToken.payload;
+      const algorithm = decodedToken.header?.alg;
+      const issuer = payload?.iss;
+      
+      logger.info('WebSocket token analysis:', { 
+        algorithm, 
+        issuer,
+        role: payload?.role,
+        sub: payload?.sub?.substring(0, 20) // Log first 20 chars of subject
+      });
+
+      // Identify token type by issuer, not algorithm
+      // Supabase tokens have issuer like "https://[project-ref].supabase.co/auth/v1"
+      if (issuer?.includes('supabase.co') || issuer === 'supabase') {
+        // This is a Supabase token
+        const supabaseSecret = config.supabase.jwtSecret || config.supabase.anonKey;
+        
+        if (!supabaseSecret) {
+          logger.error('Supabase secret not configured for WebSocket');
           return null;
         }
         
         try {
+          // For WebSocket, we'll be more lenient during development
+          if (config.supabase.jwtSecret) {
+            try {
+              decoded = jwt.verify(token, config.supabase.jwtSecret) as any;
+              logger.info('Supabase token verified for WebSocket with JWT secret');
+            } catch (e) {
+              // Never accept unverified tokens, even in development
+              logger.error('WebSocket: Supabase token verification failed');
+              return null;
+            }
+          } else {
+            // No JWT secret configured - cannot verify tokens
+            logger.error('WebSocket: SUPABASE_JWT_SECRET not configured - cannot verify tokens');
+            return null;
+          }
+        } catch (verifyError) {
+          logger.error('WebSocket Supabase token verification failed:', verifyError);
+          return null;
+        }
+      } else if (payload?.sub?.startsWith('customer:') || payload?.sub?.startsWith('demo:')) {
+        // This is a kiosk/demo token - verify with KIOSK_JWT_SECRET
+        const kioskSecret = process.env['KIOSK_JWT_SECRET'];
+        if (!kioskSecret) {
+          logger.error('KIOSK_JWT_SECRET not configured for WebSocket kiosk token');
+          return null;
+        }
+        try {
           decoded = jwt.verify(token, kioskSecret) as any;
-          logger.info('Demo token verified for WebSocket connection', { 
+          logger.info('Kiosk/Demo token verified for WebSocket connection', { 
             userId: decoded.sub,
             restaurantId: decoded.restaurant_id 
           });
         } catch (kioskError) {
-          logger.error('Demo token verification failed:', kioskError);
+          logger.error('WebSocket kiosk token verification failed:', kioskError);
           return null;
         }
       } else {
-        // Regular Supabase token - verify with Supabase secret
-        const secret = config.supabase.jwtSecret || config.supabase.anonKey;
-        try {
-          decoded = jwt.verify(token, secret) as any;
-        } catch (supabaseError) {
-          logger.error('Supabase JWT verification failed:', supabaseError);
-          return null;
-        }
+        // Unknown token type
+        logger.error('Unknown WebSocket token type', { issuer, algorithm, role: payload?.role });
+        return null;
       }
     } catch (decodeError) {
-      logger.error('Failed to decode JWT token:', decodeError);
+      logger.error('Failed to decode WebSocket JWT token:', decodeError);
       return null;
     }
 

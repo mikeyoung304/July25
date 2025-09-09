@@ -86,7 +86,7 @@ export function DevAuthOverlay() {
   const handleRoleSelect = async (role: DemoRole, usePin: boolean = false) => {
     setIsLoading(true);
     setSelectedRole(role.id);
-    const restaurantId = '11111111-1111-1111-1111-111111111111';
+    const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
     
     try {
       if (usePin && role.pin) {

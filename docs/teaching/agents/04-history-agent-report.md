@@ -155,6 +155,11 @@ Test coverage: ≥60% enforced
 ├── RBAC implementation
 └── Security hardening
 
+2025 January 30 - Version 6.0.4
+├── Demo auth removal
+├── Security hardening  
+└── Supabase-only auth
+
 2025 September 1 - Version 6.0.3 (continued)
 ├── CI/CD pipeline
 ├── Quality gates

@@ -50,47 +50,52 @@ OrdersService.setWebSocketServer(wss);
 // Apply comprehensive security middleware
 applySecurity(app)
 
-// CORS configuration with stricter settings
-const allowedOrigins = (process.env.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [
-  process.env.FRONTEND_URL || 'http://localhost:5173',
-  'https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
-  'https://grow-ir056u92z-mikeyoung304-gmailcoms-projects.vercel.app',
-  'https://growfreshlocalfood.com',
-  'https://www.growfreshlocalfood.com'
-]);
+// CORS configuration - use environment variables only
+const allowedOrigins: string[] = [];
 
-// Add July25 Vercel deployments
-const july25Origins = [
-  'https://july25-client.vercel.app',
-  'https://july25-client-git-feat-r-b7c846-mikeyoung304-gmailcoms-projects.vercel.app'
-];
-allowedOrigins.push(...july25Origins);
+// Add frontend URL (development or production)
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+} else if (process.env.NODE_ENV === 'development') {
+  allowedOrigins.push('http://localhost:5173');
+}
+
+// Add additional allowed origins from environment
+if (process.env.ALLOWED_ORIGINS) {
+  const additionalOrigins = process.env.ALLOWED_ORIGINS
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(origin => origin.length > 0);
+  allowedOrigins.push(...additionalOrigins);
+}
+
+// Ensure we have at least one origin in development
+if (allowedOrigins.length === 0 && process.env.NODE_ENV === 'development') {
+  allowedOrigins.push('http://localhost:5173');
+}
 
 logger.info('🔧 CORS allowed origins:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
+    // Allow requests with no origin (mobile apps, Postman, server-to-server)
+    if (!origin) {
+      return callback(null, true);
+    }
     
-    // Check exact matches first
+    // Check if origin is in allowed list
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
-    } 
-    // Allow any Vercel preview deployment for July25
-    else if (origin.includes('july25-client') && origin.endsWith('.vercel.app')) {
-      logger.info(`✅ Allowing Vercel preview deployment: ${origin}`);
-      callback(null, true);
     } else {
-      console.error(`❌ CORS blocked origin: "${origin}"`);
-      console.error(`   Allowed origins:`, allowedOrigins);
+      logger.warn(`⚠️ CORS blocked origin: "${origin}"`);
+      logger.debug(`   Allowed origins:`, allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id', 'x-request-id', 'X-CSRF-Token', 'X-Restaurant-ID'],
-  exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset', 'x-order-data', 'x-transcript', 'x-response-text'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id', 'x-request-id', 'X-CSRF-Token'],
+  exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset'],
   maxAge: 86400, // 24 hours
 }));
 

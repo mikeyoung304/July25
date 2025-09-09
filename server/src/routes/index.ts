@@ -5,6 +5,7 @@ import { orderRoutes } from './orders.routes';
 import { paymentRoutes } from './payments.routes';
 import { terminalRoutes } from './terminal.routes';
 import { tableRoutes } from './tables.routes';
+import { tablePaymentRoutes } from './table-payment.routes';
 import { aiRoutes } from './ai.routes';
 import { restaurantRoutes } from './restaurants.routes';
 import { authRoutes } from './auth.routes';
@@ -41,6 +42,10 @@ export function setupRoutes(): Router {
 
   // Table management routes
   router.use('/tables', tableRoutes);
+  
+  // Table payment routes
+  router.use('/tables', tablePaymentRoutes);
+  router.use('/payments', tablePaymentRoutes);
 
   // AI service routes
   router.use('/ai', aiRoutes);

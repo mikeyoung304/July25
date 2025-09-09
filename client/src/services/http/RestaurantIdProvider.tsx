@@ -11,10 +11,11 @@ export function RestaurantIdProvider({ children }: { children: React.ReactNode }
   const { restaurant } = useRestaurant()
 
   useEffect(() => {
-    // Set default restaurant ID immediately for demo/friends & family mode
+    // Set default restaurant ID from environment
     // This ensures API calls work even before RestaurantContext loads
     if (!restaurant?.id) {
-      setCurrentRestaurantId('11111111-1111-1111-1111-111111111111')
+      const defaultId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+      setCurrentRestaurantId(defaultId)
     } else {
       // Update the HTTP client when the actual restaurant loads
       setCurrentRestaurantId(restaurant.id)

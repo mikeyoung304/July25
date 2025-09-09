@@ -9,7 +9,6 @@ import { SquarePaymentForm } from '@/modules/order-system/components/SquarePayme
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useFormValidation, validators } from '@/utils/validation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
-import { DemoAuthService } from '@/services/auth/demoAuth';
 
 const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
@@ -48,9 +47,6 @@ const CheckoutPageContent: React.FC = () => {
     form.clearErrors();
 
     try {
-      // Ensure we have a valid demo token
-      await DemoAuthService.getDemoToken();
-      
       // Create the order
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',

@@ -4,6 +4,22 @@
 
 The client application is a modern React-based restaurant management system featuring a revolutionary Kitchen Display System (KDS), Point of Sale (POS), and Expo station with advanced table consolidation.
 
+## Authentication
+
+The client uses **Supabase authentication exclusively** - test tokens and demo authentication have been completely removed for security.
+
+### Authentication Methods
+- **Email/Password**: For managers and owners
+- **PIN Authentication**: For service staff (4-6 digit PINs)
+- **Station Login**: For kitchen and expo stations
+- **Anonymous Sessions**: For customer kiosks
+
+### Important Notes
+- Test tokens (`test-token`) are no longer accepted
+- Restaurant ID must be explicitly provided during login
+- All API calls require valid Supabase JWT tokens
+- WebSocket connections require authentication
+
 ## Architecture
 
 ```
@@ -125,6 +141,81 @@ VITE_API_BASE_URL=http://localhost:3001
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_key
 VITE_WEBSOCKET_URL=ws://localhost:3001
+VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
+```
+
+## Authentication
+
+The client uses a unified authentication system powered by Supabase with multiple authentication methods:
+
+### Authentication Methods
+
+1. **Email/Password Authentication** - For managers and administrative users
+2. **PIN Code Authentication** - For service staff (4-6 digits, restaurant-scoped)
+3. **Station Authentication** - For Kitchen/Expo stations (shared device authentication)
+
+### User Roles & Access Levels
+
+- **Owner**: Full system access, financial reports, multi-location management
+- **Manager**: Restaurant operations, reports, staff management  
+- **Server**: Order creation, payment processing, table management
+- **Cashier**: Payment processing, limited order access
+- **Kitchen**: Kitchen display only, order status updates
+- **Expo**: Expo display, order completion
+- **Customer**: Self-service ordering (kiosk/online/QR)
+
+### Implementation
+
+The authentication system is implemented through:
+
+- **AuthContext** (`/src/contexts/AuthContext.tsx`) - Main authentication provider
+- **useAuth Hook** (`/src/contexts/auth.hooks.ts`) - Hook for accessing auth state
+- **JWT Tokens** - RS256 signed tokens with proper expiration handling
+- **Auto-refresh** - Automatic token refresh 5 minutes before expiry
+
+### Usage Example
+
+```typescript
+import { useAuth } from '@/contexts/auth.hooks'
+
+function MyComponent() {
+  const { user, isAuthenticated, hasScope, login, logout } = useAuth()
+  
+  // Check authentication
+  if (!isAuthenticated) {
+    return <LoginForm />
+  }
+  
+  // Check permissions
+  if (!hasScope('orders:create')) {
+    return <AccessDenied />
+  }
+  
+  return <OrderForm />
+}
+```
+
+### Security Features
+
+- **Session Management**: 8-hour sessions for managers, 12-hour for staff
+- **Secure Cookies**: HttpOnly, Secure, SameSite cookies
+- **Rate Limiting**: Protection on all auth endpoints
+- **Audit Logging**: All authentication events are logged
+- **CSRF Protection**: Built-in CSRF token validation
+
+### Migration from Demo Authentication
+
+**IMPORTANT**: Demo authentication tokens are no longer supported. The system now exclusively uses Supabase-based authentication.
+
+- ❌ **Removed**: `getDemoToken()` function calls
+- ❌ **Removed**: Test token generation and validation
+- ✅ **Current**: Proper Supabase authentication with JWT tokens
+- ✅ **Current**: Role-based access control with scopes
+
+If you encounter 403 errors, clear your browser session storage:
+```javascript
+sessionStorage.removeItem('DEMO_AUTH_TOKEN')
+localStorage.clear()
 ```
 
 ## Testing

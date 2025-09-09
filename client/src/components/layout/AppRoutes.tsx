@@ -9,7 +9,7 @@ import { performanceMonitor } from '@/services/performance/performanceMonitor'
 import { HomePage } from '@/pages/HomePage'
 
 // Lazy load auth pages
-const Login = lazy(() => import('@/pages/Login'))
+const Login = lazy(() => import('@/pages/LoginV2'))
 const PinLogin = lazy(() => import('@/pages/PinLogin'))
 const StationLogin = lazy(() => import('@/pages/StationLogin'))
 
@@ -51,14 +51,16 @@ export function AppRoutes() {
       <ErrorBoundary level="section">
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
-            {/* Public Routes - NOW PROTECTED */}
+            {/* Landing page - protected HomePage that redirects to login if not authenticated */}
             <Route path="/" element={
-              <ProtectedRoute requireAuth={true} fallbackPath="/login">
+              <ProtectedRoute fallbackPath="/login">
                 <HomePage />
               </ProtectedRoute>
             } />
+            
+            {/* Alias for home page */}
             <Route path="/home" element={
-              <ProtectedRoute requireAuth={true} fallbackPath="/login">
+              <ProtectedRoute>
                 <HomePage />
               </ProtectedRoute>
             } />

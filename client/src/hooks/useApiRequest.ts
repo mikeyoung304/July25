@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { useRestaurant } from '@/core/restaurant-hooks';
 import { useAsyncState } from './useAsyncState';
 import { supabase } from '@/core/supabase';
-import { getDemoToken } from '@/services/auth/demoAuth';
 
 export interface ApiRequestOptions extends RequestInit {
   skipAuth?: boolean;
@@ -51,39 +50,21 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
     // Add restaurant ID if available
     if (restaurant?.id) {
       headers.set('x-restaurant-id', restaurant.id);
-    } else {
-      // Fallback to environment variable if no restaurant context
-      const defaultRestaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID;
-      if (defaultRestaurantId) {
-        headers.set('x-restaurant-id', defaultRestaurantId);
-      }
     }
     
     // Add authentication unless explicitly skipped
     if (!options?.skipAuth) {
       try {
-        // Try Supabase auth first (if supabase is available)
+        // Try Supabase auth (required for API access)
         if (supabase) {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
             headers.set('Authorization', `Bearer ${session.access_token}`);
           } else {
-            // Fall back to demo token
-            const demoToken = await getDemoToken();
-            if (demoToken) {
-              headers.set('Authorization', `Bearer ${demoToken}`);
-            } else if (import.meta.env.DEV) {
-              headers.set('Authorization', 'Bearer test-token');
-            }
+            console.warn('No authentication session available');
           }
         } else {
-          // No supabase available, use demo token
-          const demoToken = await getDemoToken();
-          if (demoToken) {
-            headers.set('Authorization', `Bearer ${demoToken}`);
-          } else if (import.meta.env.DEV) {
-            headers.set('Authorization', 'Bearer test-token');
-          }
+          console.warn('Supabase client not initialized');
         }
       } catch (err) {
         console.error('Failed to get auth token:', err);

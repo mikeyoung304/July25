@@ -10,7 +10,8 @@ import { SeatSelectionModal } from './components/SeatSelectionModal'
 import { VoiceOrderModal } from './components/VoiceOrderModal'
 import { ServerStats } from './components/ServerStats'
 import { ServerHeader } from './components/ServerHeader'
-import { Info } from 'lucide-react'
+import { TableCheckPresenter } from '@/modules/payment/components/TableCheckPresenter'
+import { Info, CreditCard } from 'lucide-react'
 
 export function ServerView() {
   const {
@@ -27,6 +28,8 @@ export function ServerView() {
   const voiceOrder = useVoiceOrderWebRTC()
   const [showSeatSelection, setShowSeatSelection] = useState(false)
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null)
+  const [showPaymentFlow, setShowPaymentFlow] = useState(false)
+  const [paymentTableId, setPaymentTableId] = useState<string | null>(null)
 
   const handleTableSelection = useCallback((tableId: string) => {
     handleTableClick(tableId)
@@ -56,6 +59,18 @@ export function ServerView() {
     setShowSeatSelection(false)
     voiceOrder.resetVoiceOrder()
   }, [setSelectedTableId, voiceOrder])
+
+  const handleProcessPayment = useCallback((tableId: string) => {
+    setPaymentTableId(tableId)
+    setShowPaymentFlow(true)
+  }, [])
+
+  const handlePaymentComplete = useCallback(() => {
+    setShowPaymentFlow(false)
+    setPaymentTableId(null)
+    // Refresh tables to show updated status
+    window.location.reload()
+  }, [])
 
   return (
     <RoleGuard suggestedRoles={['server', 'admin']} pageTitle="Server View - Dining Room">
@@ -115,6 +130,31 @@ export function ServerView() {
 
             <ServerStats stats={stats} />
 
+            {/* Table Actions for Occupied Tables */}
+            {tables.filter(t => t.status === 'occupied').length > 0 && (
+              <Card className="mt-6 p-6">
+                <h3 className="font-semibold text-lg mb-4">Occupied Tables</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {tables
+                    .filter(t => t.status === 'occupied' && t.current_order_id)
+                    .map(table => (
+                      <div key={table.id} className="border rounded-lg p-4">
+                        <div className="font-semibold text-lg mb-2">
+                          Table {table.label}
+                        </div>
+                        <button
+                          onClick={() => handleProcessPayment(table.id)}
+                          className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+                        >
+                          <CreditCard className="w-4 h-4" />
+                          Process Payment
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              </Card>
+            )}
+
             <Card className="mt-6 p-6 bg-blue-50 border-blue-200">
               <div className="flex items-start gap-3">
                 <Info className="h-5 w-5 text-blue-600 mt-0.5" />
@@ -125,6 +165,7 @@ export function ServerView() {
                     <li>Choose a seat number for the order</li>
                     <li>Use voice commands to add items to the order</li>
                     <li>Review and submit the order when complete</li>
+                    <li>For occupied tables, click "Process Payment" to handle checkout</li>
                   </ol>
                 </div>
               </div>
@@ -132,6 +173,20 @@ export function ServerView() {
           </motion.div>
         </div>
       </div>
+
+      {/* Payment Flow Modal */}
+      {showPaymentFlow && paymentTableId && (
+        <div className="fixed inset-0 z-50 bg-white">
+          <TableCheckPresenter
+            tableId={paymentTableId}
+            onComplete={handlePaymentComplete}
+            onCancel={() => {
+              setShowPaymentFlow(false)
+              setPaymentTableId(null)
+            }}
+          />
+        </div>
+      )}
     </RoleGuard>
   )
 }

@@ -3,9 +3,10 @@
 ## Project Overview
 
 - **Type**: Restaurant OS (Point of Sale + Management System)
-- **Version**: 6.0.3
+- **Version**: 6.0.4
 - **Stack**: React 19.1.0, TypeScript 5.8.3/5.3.3, Vite 5.4.19, Express 4.18.2, Supabase 2.50.5/2.39.7
 - **Architecture**: Unified backend on port 3001
+- **Last Updated**: January 30, 2025
 
 ## Directory Structure
 
@@ -44,9 +45,11 @@ rebuild-6.0/
 - Multi-tenant restaurant management
 - AI-powered voice ordering (WebSocket + OpenAI Realtime)
 - Real-time POS system
+- iPad-based tableside payment system
 - Menu management with QR codes
 - Kitchen display system (KDS)
 - Analytics dashboard
+- Split payment functionality
 
 ## Kitchen Display System (KDS) Critical Requirements
 
@@ -158,7 +161,7 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 8. **Status Validation**: Test components with all possible status values
 9. **WebSocket Resilience**: Implement proper reconnection and error handling
 10. **USE DRY UTILITIES**: Always check for existing hooks/utilities before creating new ones
-11. **Token Caching**: Clear sessionStorage (`sessionStorage.removeItem('DEMO_AUTH_TOKEN')`) after updating auth scopes
+11. **Authentication**: All authentication flows use Supabase JWT tokens with proper role-based access control
 
 ## Environment
 
@@ -196,23 +199,6 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 - **DO NOT duplicate cart logic** - violates DRY principle
 - When refactoring/unifying systems, update ALL usages, not just wrap old ones
 
-## Demo Mode Payment Requirements
-
-### Required Scopes for Demo/Kiosk Mode
-Demo tokens MUST include these scopes for full functionality:
-- `menu:read` - View menu items
-- `orders:create` - Create orders  
-- `ai.voice:chat` - Voice ordering
-- `payments:process` - **CRITICAL: Required for checkout/payment processing**
-
-### Known Issue: Token Caching
-When auth scopes are updated on the backend, browsers may cache old tokens causing 403 errors.
-**Solution**: Clear browser session storage after scope changes:
-```javascript
-sessionStorage.removeItem('DEMO_AUTH_TOKEN');
-```
-See `docs/PAYMENT_TOKEN_ISSUE.md` for detailed troubleshooting.
-
 ## Authentication Architecture (2025-01-30)
 
 ### User Roles & Access Levels
@@ -225,10 +211,20 @@ See `docs/PAYMENT_TOKEN_ISSUE.md` for detailed troubleshooting.
 - **Customer**: Self-service ordering (kiosk/online/QR)
 
 ### Authentication Methods
-- **Email/Password**: Managers and above (with optional MFA)
-- **PIN Code**: Service staff (4-6 digits, restaurant-scoped)
-- **Station Login**: Kitchen/Expo (shared device authentication)
-- **Anonymous**: Customers (session-based, no auth required)
+- **Email/Password**: Managers and above (with optional MFA) via Supabase
+- **PIN Code**: Service staff (4-6 digits, restaurant-scoped) with bcrypt hashing
+- **Station Login**: Kitchen/Expo (shared device authentication) with JWT tokens
+- **Kiosk/Anonymous**: Customers (JWT tokens with limited scope, HS256 signing)
+  - Endpoint: `/api/v1/auth/kiosk`
+  - Production feature for self-service ordering
+  - 1-hour session tokens with customer role
+
+### Token Management
+- Staff tokens: JWT-based via Supabase (RS256 signing)
+- Kiosk tokens: JWT with HS256 signing (limited scope)
+- Restaurant ID validation required for all authenticated requests
+- Automatic token refresh and session management
+- Role-based scope validation at API endpoints
 
 ### Implementation Priority
 1. JWT token infrastructure (RS256 signed)
@@ -240,6 +236,8 @@ See `docs/PAYMENT_TOKEN_ISSUE.md` for detailed troubleshooting.
 ### Security Requirements
 - 8-hour sessions for managers, 12-hour for staff
 - HttpOnly, Secure, SameSite cookies
-- Rate limiting on auth endpoints
-- Audit logging for all auth events
-- CSRF protection (already implemented)
+- Rate limiting on auth endpoints (5 attempts → 15 min lockout)
+- Comprehensive audit logging for all auth events
+- CSRF protection with X-CSRF-Token headers
+- PIN hashing with bcrypt (12 rounds) + application-level pepper
+- Row-level security in Supabase database

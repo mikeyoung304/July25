@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔒 Security
+- **Critical Authentication Security Improvements** (January 30, 2025)
+  - Applied rate limiting to all authentication endpoints (5 attempts/15 minutes)
+  - Removed all hardcoded secret fallbacks from codebase
+  - Enforced strict JWT token verification (no unverified tokens accepted)
+  - Enhanced production environment configuration template
+  - Fixed token verification in WebSocket connections
+  - Added runtime validation for required environment variables
+  - Result: Risk level reduced from CRITICAL to MEDIUM
+
 ### 📚 Documentation
 - **Comprehensive Documentation Audit** (September 2, 2025)
   - Unified scattered documentation into single sources of truth
@@ -110,6 +120,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented proper session expiration and refresh logic
 - Added request signing for critical operations
 - Enhanced input validation on all auth endpoints
+
+## [6.0.4] - 2025-01-30 - Authentication Security Hardening
+
+### 🔐 Security Enhancement
+- **Removed All Demo/Test Authentication Bypasses**: Complete removal of DemoAuthService and test token systems
+  - All authentication now flows through Supabase JWT tokens only
+  - Restaurant ID validation required for all authenticated requests
+  - No more `getDemoToken()` or `DEMO_AUTH_TOKEN` session storage
+  - Breaking change: Test tokens and demo mode authentication no longer supported
+  - Enhanced security posture by eliminating authentication bypass mechanisms
+
+### ⚠️ Breaking Changes
+- Demo/test authentication tokens no longer work - all auth must use Supabase
+- Restaurant ID is now required in all authenticated API requests
+- Session storage keys for demo tokens have been removed
 
 ## [6.0.2] - 2025-01-30
 
@@ -241,7 +266,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Status | Key Changes |
 |---------|------|--------|-------------|
-| 6.0.3 | 2025-02-01 | Current | Authentication & RBAC complete |
+| 6.0.4 | 2025-01-30 | Current | Demo auth removal, security hardening |
+| 6.0.3 | 2025-02-01 | Stable | Authentication & RBAC complete |
 | 6.0.2 | 2025-01-30 | Stable | TypeScript fixes, documentation |
 | 6.0.1 | 2025-01-27 | Stable | Order flow stability |
 | 6.0.0 | 2025-01-26 | Major | Complete rebuild |

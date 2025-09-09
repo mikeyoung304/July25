@@ -135,6 +135,13 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       onError?.(err);
     });
     
+    // Add handler for session.created to avoid warning
+    client.on('session.created', (session: any) => {
+      if (debug) {
+        console.log('[useWebRTCVoice] Session created:', session);
+      }
+    });
+    
     clientRef.current = client;
     
     // Auto-connect is disabled for WebRTC - user must click button

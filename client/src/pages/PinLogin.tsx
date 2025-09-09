@@ -9,14 +9,17 @@ export default function PinLogin() {
   const { loginWithPin } = useAuth();
   
   const [pin, setPin] = useState('');
-  const [restaurantId] = useState(
-    import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
-  );
+  const [restaurantId, setRestaurantId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPin, setShowPin] = useState(false);
 
   const handleSubmit = useCallback(async (pinValue?: string) => {
     const pinToSubmit = pinValue || pin;
+    
+    if (!restaurantId) {
+      toast.error('Please enter restaurant ID');
+      return;
+    }
     
     if (pinToSubmit.length < 4) {
       toast.error('PIN must be at least 4 digits');
@@ -94,6 +97,27 @@ export default function PinLogin() {
         </div>
 
         <div className="mt-8 space-y-6">
+          {/* Restaurant ID Input */}
+          <div className="max-w-xs mx-auto">
+            <label htmlFor="restaurant-id" className="block text-sm font-medium text-gray-700 mb-2">
+              Restaurant ID
+            </label>
+            <input
+              id="restaurant-id"
+              type="text"
+              value={restaurantId}
+              onChange={(e) => setRestaurantId(e.target.value)}
+              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+              placeholder="Enter restaurant ID"
+              disabled={isLoading}
+            />
+            {import.meta.env.DEV && (
+              <p className="mt-1 text-xs text-gray-500">
+                Dev: Use '11111111-1111-1111-1111-111111111111' for testing
+              </p>
+            )}
+          </div>
+
           {/* PIN Display */}
           <div className="flex justify-center">
             <div className="relative">

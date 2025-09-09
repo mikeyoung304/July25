@@ -94,21 +94,23 @@ export class WebRTCVoiceClient extends EventEmitter {
   async connect(): Promise<void> {
     // Prevent duplicate connections
     if (this.isConnecting || this.connectionState === 'connected') {
-      // Debug: '[WebRTCVoice] Already connecting or connected, skipping...'
+      console.log('[WebRTCVoice] Already connecting or connected, skipping...');
       return;
     }
     
     this.isConnecting = true;
     
     try {
-      // Debug: '[WebRTCVoice] Starting connection...'
+      console.log('[WebRTCVoice] Starting connection...');
       this.setConnectionState('connecting');
       
       // Step 1: Get ephemeral token from our server
-      // Debug: '[WebRTCVoice] Fetching ephemeral token...'
+      console.log('[WebRTCVoice] Step 1: Fetching ephemeral token...');
       await this.fetchEphemeralToken();
+      console.log('[WebRTCVoice] Step 1: Token received');
       
       // Step 2: Create RTCPeerConnection
+      console.log('[WebRTCVoice] Step 2: Creating RTCPeerConnection...');
       this.pc = new RTCPeerConnection({
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
@@ -119,32 +121,36 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.setupPeerConnectionHandlers();
       
       // Step 3: Set up audio output handler
+      console.log('[WebRTCVoice] Step 3: Setting up audio output...');
       this.audioElement = document.createElement('audio');
       this.audioElement.autoplay = true;
       this.audioElement.style.display = 'none';
       document.body.appendChild(this.audioElement);
       
       this.pc.ontrack = (event) => {
-        if (this.config.debug) {
-          // Debug: '[WebRTCVoice] Received remote audio track:', event.streams
-        }
+        console.log('[WebRTCVoice] Received remote audio track:', event.streams);
         if (this.audioElement && event.streams[0]) {
           this.audioElement.srcObject = event.streams[0];
         }
       };
       
       // Step 4: Set up microphone and add track (creates first m-line)
+      console.log('[WebRTCVoice] Step 4: Setting up microphone...');
       await this.setupMicrophone();
+      console.log('[WebRTCVoice] Step 4: Microphone setup complete');
       
       // Step 5: Create data channel (creates second m-line)
+      console.log('[WebRTCVoice] Step 5: Creating data channel...');
       this.dc = this.pc.createDataChannel('oai-events', {
         ordered: true,
       });
       this.setupDataChannel();
       
-      // Step 7: Create offer and establish connection
+      // Step 6: Create offer and establish connection
+      console.log('[WebRTCVoice] Step 6: Creating offer...');
       const offer = await this.pc.createOffer();
       await this.pc.setLocalDescription(offer);
+      console.log('[WebRTCVoice] Step 6: Local description set');
       
       if (this.config.debug) {
         // Log the m-lines in the offer to debug ordering
@@ -153,7 +159,11 @@ export class WebRTCVoiceClient extends EventEmitter {
       }
       
       // Step 7: Send SDP to OpenAI
+      console.log('[WebRTCVoice] Step 7: Sending SDP to OpenAI...');
       const model = import.meta.env.VITE_OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03';
+      console.log('[WebRTCVoice] Using model:', model);
+      console.log('[WebRTCVoice] Token exists:', !!this.ephemeralToken);
+      
       const sdpResponse = await fetch(
         `https://api.openai.com/v1/realtime?model=${model}`,
         {
@@ -166,8 +176,12 @@ export class WebRTCVoiceClient extends EventEmitter {
         }
       );
       
+      console.log('[WebRTCVoice] Step 7: OpenAI response status:', sdpResponse.status);
+      
       if (!sdpResponse.ok) {
-        throw new Error(`OpenAI SDP exchange failed: ${sdpResponse.status}`);
+        const errorText = await sdpResponse.text();
+        console.error('[WebRTCVoice] OpenAI SDP exchange failed:', errorText);
+        throw new Error(`OpenAI SDP exchange failed: ${sdpResponse.status} - ${errorText}`);
       }
       
       // Step 8: Set remote description
@@ -229,7 +243,19 @@ export class WebRTCVoiceClient extends EventEmitter {
    * Fetch ephemeral token from our backend
    */
   private async fetchEphemeralToken(): Promise<void> {
-    const authToken = await getAuthToken();
+    // Get auth token - this will throw if no auth is available
+    let authToken: string;
+    try {
+      authToken = await getAuthToken();
+      if (!authToken) {
+        throw new Error('No authentication token available. Please log in first.');
+      }
+    } catch (error) {
+      console.error('[WebRTCVoice] Failed to get auth token:', error);
+      // Re-throw with a user-friendly message
+      throw new Error('Authentication required. Please log in to use voice ordering.');
+    }
+    
     const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
     
     if (this.config.debug) {
@@ -1075,7 +1101,10 @@ ENTRÉES → Ask:
   private setConnectionState(state: ConnectionState): void {
     if (this.connectionState !== state) {
       this.connectionState = state;
-      this.emit('connection.change', state);
+      // Only emit if there are listeners to avoid "no handlers" warnings
+      if (this.listenerCount('connection.change') > 0) {
+        this.emit('connection.change', state);
+      }
     }
   }
 

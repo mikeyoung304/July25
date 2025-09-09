@@ -217,6 +217,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // CRITICAL: Immediately sync to auth bridge for voice/WebSocket
         setAuthContextSession(sessionData);
+        
+        // Also set Supabase session for consistency (so getAuthToken fallback works)
+        if (response.session.access_token && response.session.refresh_token) {
+          try {
+            await supabase.auth.setSession({
+              access_token: response.session.access_token,
+              refresh_token: response.session.refresh_token
+            });
+            logger.info('[AuthContext] Supabase session synchronized');
+          } catch (error) {
+            logger.warn('[AuthContext] Failed to sync Supabase session:', error);
+            // Non-critical, continue anyway
+          }
+        }
+        
         logger.info('[AuthContext] Login successful - synced to bridge', { 
           email, 
           role: response.user.role,

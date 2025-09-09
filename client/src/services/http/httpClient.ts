@@ -10,6 +10,7 @@
 import { SecureAPIClient, APIError } from '@/services/secureApi'
 import { logger } from '@/services/logger'
 import { supabase } from '@/core/supabase'
+import { getAuthToken } from '@/services/auth'
 // Removed case transformation - server handles this
 import { env } from '@/utils/env'
 import { RequestBatcher } from './RequestBatcher'
@@ -125,40 +126,33 @@ export class HttpClient extends SecureAPIClient {
     // Build headers
     const headers = new Headers(requestOptions.headers)
 
-    // 1. Add Supabase JWT authentication (per Luis's spec)
+    // 1. Add authentication using auth bridge (supports all auth methods)
     if (!skipAuth) {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.access_token) {
-          headers.set('Authorization', `Bearer ${session.access_token}`)
+        // Use auth bridge which supports email/PIN/station/kiosk authentication
+        const token = await getAuthToken()
+        if (token) {
+          headers.set('Authorization', `Bearer ${token}`)
           if (import.meta.env.DEV) {
-            logger.info('🔐 Using Supabase session token for API request')
+            logger.info('🔐 Using auth bridge token for API request')
           }
-        } else if (import.meta.env.DEV) {
-          // Development-only test token fallback
-          headers.set('Authorization', 'Bearer test-token')
-          logger.info('🔧 Using test token (development only)')
         } else {
           console.warn('❌ No authentication available for API request')
         }
       } catch (error) {
-        console.error('Failed to get auth session:', error)
-        // Development fallback only
-        if (import.meta.env.DEV) {
-          headers.set('Authorization', 'Bearer test-token')
-          logger.info('🔧 Using test token (auth session failed, dev mode)')
-        }
+        console.error('Failed to get auth token:', error)
+        // No fallback - authentication is required
       }
     }
 
     // 2. Add x-restaurant-id header (per Luis's spec)
     if (!skipRestaurantId) {
-      let restaurantId = getCurrentRestaurantId()
+      const restaurantId = getCurrentRestaurantId()
       
-      // Fallback to demo restaurant ID if not set (for friends & family/demo mode)
+      // Restaurant ID is required for multi-tenant operations
       if (!restaurantId) {
-        restaurantId = '11111111-1111-1111-1111-111111111111'
-        logger.info('🏢 Using demo restaurant ID for API request')
+        logger.warn('⚠️ No restaurant ID available for API request')
+        throw new Error('Restaurant context is required for API requests')
       }
       
       headers.set('x-restaurant-id', restaurantId)

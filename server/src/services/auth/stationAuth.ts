@@ -7,9 +7,15 @@ import { BadRequest } from '../../middleware/errorHandler';
 const stationLogger = logger.child({ module: 'station-auth' });
 
 // Configuration
-const STATION_TOKEN_SECRET = process.env['STATION_TOKEN_SECRET'] || process.env['KIOSK_JWT_SECRET'] || 'station-secret-change-in-production';
+const STATION_TOKEN_SECRET = process.env['STATION_TOKEN_SECRET'] || process.env['KIOSK_JWT_SECRET'];
+if (!STATION_TOKEN_SECRET) {
+  throw new Error('STATION_TOKEN_SECRET or KIOSK_JWT_SECRET environment variable is required');
+}
 const STATION_TOKEN_EXPIRY_HOURS = 4;
-const DEVICE_FINGERPRINT_SALT = process.env['DEVICE_FINGERPRINT_SALT'] || 'device-salt-change-in-production';
+const DEVICE_FINGERPRINT_SALT = process.env['DEVICE_FINGERPRINT_SALT'];
+if (!DEVICE_FINGERPRINT_SALT) {
+  throw new Error('DEVICE_FINGERPRINT_SALT environment variable is required');
+}
 
 export type StationType = 'kitchen' | 'expo' | 'bar' | 'prep';
 

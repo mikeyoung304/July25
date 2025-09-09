@@ -1,0 +1,199 @@
+{
+  "timestamp": "2025-09-08T18:40:19.489Z",
+  "summary": {
+    "totalErrors": 0,
+    "totalConsoleMessages": 223,
+    "totalNetworkRequests": 9,
+    "totalWebRTCEvents": 0
+  },
+  "errors": [],
+  "webrtcEvents": [],
+  "networkFailures": [
+    {
+      "type": "failed",
+      "url": "http://localhost:5173/assets/mikeyoung304-1.mp4",
+      "method": "GET",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "apiResponses": [
+    {
+      "type": "response",
+      "url": "http://localhost:5173/src/services/auth/index.ts",
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "public, max-age=3600",
+        "connection": "keep-alive",
+        "content-length": "7542",
+        "content-type": "text/javascript",
+        "date": "Mon, 08 Sep 2025 18:40:12 GMT",
+        "etag": "W/\"773-fA0gLOVvDXNrD0Acmn9fLRO90cw\"",
+        "keep-alive": "timeout=5"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:5173/src/components/auth/UserMenu.tsx",
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "public, max-age=3600",
+        "connection": "keep-alive",
+        "content-length": "37097",
+        "content-type": "text/javascript",
+        "date": "Mon, 08 Sep 2025 18:40:12 GMT",
+        "etag": "W/\"463e-6GM60juRtSnRNcPQLFVxXPcCZQ4\"",
+        "keep-alive": "timeout=5"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:5173/src/contexts/auth.hooks.ts",
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "public, max-age=3600",
+        "connection": "keep-alive",
+        "content-length": "1173",
+        "content-type": "text/javascript",
+        "date": "Mon, 08 Sep 2025 18:40:12 GMT",
+        "etag": "W/\"182-8kBymRGjyXxLdE70p+HNTGKfcEU\"",
+        "keep-alive": "timeout=5"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:5173/src/components/auth/ProtectedRoute.tsx",
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "public, max-age=3600",
+        "connection": "keep-alive",
+        "content-length": "14078",
+        "content-type": "text/javascript",
+        "date": "Mon, 08 Sep 2025 18:40:12 GMT",
+        "etag": "W/\"1827-D9kav0Bxi8dmVaZf6a5q2D6xzvw\"",
+        "keep-alive": "timeout=5"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:5173/src/services/auth/index.ts",
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "public, max-age=3600",
+        "keep-alive": "timeout=5",
+        "content-length": "7542",
+        "etag": "W/\"773-fA0gLOVvDXNrD0Acmn9fLRO90cw\"",
+        "date": "Mon, 08 Sep 2025 18:40:12 GMT",
+        "content-type": "text/javascript",
+        "connection": "keep-alive"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:5173/src/components/auth/UserMenu.tsx",
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "public, max-age=3600",
+        "keep-alive": "timeout=5",
+        "content-length": "37097",
+        "etag": "W/\"463e-6GM60juRtSnRNcPQLFVxXPcCZQ4\"",
+        "date": "Mon, 08 Sep 2025 18:40:12 GMT",
+        "content-type": "text/javascript",
+        "connection": "keep-alive"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:5173/src/contexts/auth.hooks.ts",
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "public, max-age=3600",
+        "keep-alive": "timeout=5",
+        "content-length": "1173",
+        "etag": "W/\"182-8kBymRGjyXxLdE70p+HNTGKfcEU\"",
+        "date": "Mon, 08 Sep 2025 18:40:12 GMT",
+        "content-type": "text/javascript",
+        "connection": "keep-alive"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:5173/src/components/auth/ProtectedRoute.tsx",
+      "status": 200,
+      "statusText": "OK",
+      "headers": {
+        "cache-control": "public, max-age=3600",
+        "keep-alive": "timeout=5",
+        "content-length": "14078",
+        "etag": "W/\"1827-D9kav0Bxi8dmVaZf6a5q2D6xzvw\"",
+        "date": "Mon, 08 Sep 2025 18:40:12 GMT",
+        "content-type": "text/javascript",
+        "connection": "keep-alive"
+      }
+    }
+  ],
+  "criticalLogs": [
+    {
+      "type": "error",
+      "text": "[2025-09-08T18:40:12.785Z] [ERROR] [Auth] No authentication found in AuthContext or Supabase  ",
+      "location": {
+        "url": "http://localhost:5173/src/services/logger.ts",
+        "lineNumber": 76,
+        "columnNumber": 12
+      },
+      "args": [
+        "[2025-09-08T18:40:12.785Z] [ERROR]",
+        "[Auth] No authentication found in AuthContext or Supabase",
+        null,
+        null
+      ]
+    },
+    {
+      "type": "error",
+      "text": "[Auth] Error getting auth token: JSHandle@error",
+      "location": {
+        "url": "http://localhost:5173/src/services/auth/index.ts",
+        "lineNumber": 34,
+        "columnNumber": 12
+      },
+      "args": [
+        "[Auth] Error getting auth token:",
+        {}
+      ]
+    },
+    {
+      "type": "error",
+      "text": "[2025-09-08T18:40:13.693Z] [ERROR] [Auth] No authentication found in AuthContext or Supabase  ",
+      "location": {
+        "url": "http://localhost:5173/src/services/logger.ts",
+        "lineNumber": 76,
+        "columnNumber": 12
+      },
+      "args": [
+        "[2025-09-08T18:40:13.693Z] [ERROR]",
+        "[Auth] No authentication found in AuthContext or Supabase",
+        null,
+        null
+      ]
+    },
+    {
+      "type": "error",
+      "text": "[Auth] Error getting auth token: JSHandle@error",
+      "location": {
+        "url": "http://localhost:5173/src/services/auth/index.ts",
+        "lineNumber": 34,
+        "columnNumber": 12
+      },
+      "args": [
+        "[Auth] Error getting auth token:",
+        {}
+      ]
+    }
+  ]
+}

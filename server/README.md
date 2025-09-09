@@ -18,8 +18,8 @@ npm install
 # See root directory README for .env configuration
 # IMPORTANT: Set OPENAI_API_KEY in .env
 
-# 3. Upload menu data for AI context
-npm run upload:menu
+# 3. Initialize menu data for AI context
+npm run init:menu
 
 # 5. (Optional) Seed test data
 npm run seed:tables
@@ -96,9 +96,15 @@ src/
 - `GET /api/v1/status` - Detailed service status
 
 ### Authentication
-- `GET /api/v1/auth/demo` - Demo JWT token (dev only)
-- `GET /api/v1/auth/kiosk` - Kiosk authentication
-- `POST /api/v1/auth/login` - User authentication
+- `POST /api/v1/auth/kiosk` - Kiosk authentication (demo mode)
+- `POST /api/v1/auth/login` - Email/password authentication
+- `POST /api/v1/auth/pin-login` - PIN-based authentication for staff
+- `POST /api/v1/auth/station-login` - Station authentication for kitchen/expo
+- `POST /api/v1/auth/logout` - Logout and session cleanup
+- `GET /api/v1/auth/me` - Get current user information
+- `POST /api/v1/auth/refresh` - Refresh authentication token
+- `POST /api/v1/auth/set-pin` - Set or update user's PIN
+- `POST /api/v1/auth/revoke-stations` - Revoke all station tokens
 
 ### Menu Management
 - `GET /api/v1/menu` - Full menu with categories
@@ -215,23 +221,17 @@ SUPABASE_SERVICE_KEY=your_key      # Service role key
 DATABASE_URL=postgresql://...       # Direct PostgreSQL connection
 
 # Authentication
-JWT_SECRET=your_jwt_secret          # JWT signing secret
-JWT_EXPIRY=24h                      # Token expiry time
+KIOSK_JWT_SECRET=your_kiosk_jwt_secret  # JWT signing secret for kiosk/demo auth (REQUIRED)
 
 # External Services
-OPENAI_API_KEY=your_openai_key     # OpenAI API key (REQUIRED for AI features)
-SQUARE_ACCESS_TOKEN=your_token      # Square payment token
-SQUARE_ENVIRONMENT=sandbox          # Square environment (sandbox/production)
+OPENAI_API_KEY=your_openai_key          # OpenAI API key (REQUIRED for AI features)
 
 # CORS & Security
-FRONTEND_URL=http://localhost:5173  # Frontend URL for CORS
+FRONTEND_URL=http://localhost:5173      # Frontend URL for CORS
 ALLOWED_ORIGINS=http://localhost:5173,https://your-domain.com
 
 # Restaurant Context
 DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
-
-# Optional Services
-REDIS_URL=redis://localhost:6379    # Redis for caching (optional)
 AI_DEGRADED_MODE=false              # Fallback when OpenAI unavailable
 ```
 
@@ -257,11 +257,23 @@ npm run test:voice
 
 ### Database Management
 ```bash
-# Pull latest schema from cloud Supabase
-npx supabase db pull
+# Run database migrations
+npm run db:migrate
+
+# Check migration status
+npm run db:check
+
+# Seed menu data
+npm run seed:menu
+
+# Seed table data
+npm run seed:tables
 
 # Check integration with database
 npm run check:integration
+
+# Pull latest schema from cloud Supabase
+npx supabase db pull
 ```
 
 ## 🐛 Troubleshooting

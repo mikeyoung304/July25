@@ -13,7 +13,6 @@
 
 import { supabase } from '@/core/supabase';
 import { logger } from '@/services/logger';
-import { getDemoToken } from '@/services/auth/demoAuth';
 
 // Global restaurant context (set by RestaurantContext provider)
 let currentRestaurantId: string | null = null;
@@ -99,16 +98,15 @@ class UnifiedApiClient {
     if (skipAuth) return null;
 
     try {
-      // Try Supabase session first
+      // Require Supabase session for API access
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.access_token) return session.access_token;
-
-      // Fall back to demo token
-      return await getDemoToken();
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        return 'test-token'; // Development fallback
+      if (session?.access_token) {
+        return session.access_token;
       }
+      
+      logger.warn('No authentication session available');
+      return null;
+    } catch (error) {
       logger.error('Auth failed:', error);
       return null;
     }
