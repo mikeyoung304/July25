@@ -381,6 +381,15 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
     const userId = req.user!.id;
     const restaurantId = req.restaurantId;
 
+    logger.info('/auth/me request', {
+      userId,
+      restaurantId,
+      jwtRole: req.user!.role,
+      headers: {
+        'x-restaurant-id': req.headers['x-restaurant-id']
+      }
+    });
+
     // Get user profile
     const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
@@ -388,14 +397,35 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
       .eq('user_id', userId)
       .single();
 
+    if (profileError) {
+      logger.debug('Profile lookup error (non-critical):', profileError);
+    }
+
     // Get user's role in current restaurant
     const { data: userRole, error: roleError } = await supabase
       .from('user_restaurants')
       .select('role')
       .eq('user_id', userId)
       .eq('restaurant_id', restaurantId)
-      .eq('is_active', true)
       .single();
+
+    if (roleError) {
+      logger.warn('/auth/me role lookup failed', {
+        userId,
+        restaurantId,
+        error: roleError.message,
+        code: roleError.code,
+        details: roleError.details
+      });
+    } else {
+      logger.info('/auth/me role lookup successful', {
+        userId,
+        restaurantId,
+        role: userRole?.role
+      });
+    }
+
+    const finalRole = userRole?.role || req.user!.role;
 
     res.json({
       user: {
@@ -404,7 +434,7 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
         displayName: profile?.display_name,
         phone: profile?.phone,
         employeeId: profile?.employee_id,
-        role: userRole?.role || req.user!.role,
+        role: finalRole,
         scopes: req.user!.scopes
       },
       restaurantId

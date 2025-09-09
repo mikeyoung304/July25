@@ -180,8 +180,15 @@ export class WebRTCVoiceClient extends EventEmitter {
       
       if (!sdpResponse.ok) {
         const errorText = await sdpResponse.text();
-        console.error('[WebRTCVoice] OpenAI SDP exchange failed:', errorText);
-        throw new Error(`OpenAI SDP exchange failed: ${sdpResponse.status} - ${errorText}`);
+        console.error('[WebRTCVoice] OpenAI SDP exchange failed:', sdpResponse.status, errorText);
+        
+        if (sdpResponse.status === 401) {
+          throw new Error('OpenAI authentication failed. Token may be expired.');
+        } else if (sdpResponse.status === 429) {
+          throw new Error('Rate limited. Please wait a moment before trying again.');
+        } else {
+          throw new Error(`Voice service unavailable (${sdpResponse.status}). Please try again.`);
+        }
       }
       
       // Step 8: Set remote description
@@ -246,10 +253,13 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Get auth token - this will throw if no auth is available
     let authToken: string;
     try {
+      console.log('[WebRTCVoice] Attempting to get auth token...');
       authToken = await getAuthToken();
       if (!authToken) {
+        console.error('[WebRTCVoice] Auth token is null/undefined');
         throw new Error('No authentication token available. Please log in first.');
       }
+      console.log('[WebRTCVoice] Auth token obtained successfully');
     } catch (error) {
       console.error('[WebRTCVoice] Failed to get auth token:', error);
       // Re-throw with a user-friendly message
@@ -262,6 +272,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       // Debug: '[RT] Fetching ephemeral token from:', `${apiBase}/api/v1/realtime/session`
     }
     
+    console.log('[WebRTCVoice] Requesting ephemeral token from:', `${apiBase}/api/v1/realtime/session`);
     const response = await fetch(`${apiBase}/api/v1/realtime/session`, {
       method: 'POST',
       headers: {
@@ -272,17 +283,28 @@ export class WebRTCVoiceClient extends EventEmitter {
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to get ephemeral token: ${response.status}`);
+      const errorText = await response.text();
+      console.error('[WebRTCVoice] Ephemeral token request failed:', response.status, errorText);
+      
+      if (response.status === 401) {
+        throw new Error('Authentication failed. Please log in again.');
+      } else if (response.status === 403) {
+        throw new Error('Permission denied. Voice ordering may not be available for your role.');
+      } else {
+        throw new Error(`Failed to get voice session: ${response.status} - ${errorText}`);
+      }
     }
     
     const data = await response.json();
     this.ephemeralToken = data.client_secret.value;
     this.tokenExpiresAt = data.expires_at || Date.now() + 60000;
     
+    console.log('[WebRTCVoice] Ephemeral token received successfully');
+    
     // Store menu context if provided
     if (data.menu_context) {
       this.menuContext = data.menu_context;
-      // Debug: '[RT] Menu context loaded:', this.menuContext.split('\n').length, 'lines'
+      console.log('[WebRTCVoice] Menu context loaded:', this.menuContext.split('\n').length, 'lines');
     }
     
     // Schedule token refresh 10 seconds before expiry

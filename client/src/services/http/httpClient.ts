@@ -149,17 +149,31 @@ export class HttpClient extends SecureAPIClient {
     if (!skipRestaurantId) {
       const restaurantId = getCurrentRestaurantId()
       
-      // Restaurant ID is required for multi-tenant operations
-      if (!restaurantId) {
-        logger.warn('⚠️ No restaurant ID available for API request')
-        throw new Error('Restaurant context is required for API requests')
+      // For auth endpoints, try to get restaurant ID from localStorage if not set
+      let finalRestaurantId = restaurantId
+      if (!finalRestaurantId && endpoint.includes('/auth/')) {
+        const cachedData = localStorage.getItem('auth_user_data')
+        if (cachedData) {
+          try {
+            const parsed = JSON.parse(cachedData)
+            finalRestaurantId = parsed.restaurantId
+            logger.info('[HttpClient] Using cached restaurant ID for auth endpoint:', finalRestaurantId)
+          } catch (e) {
+            // Ignore parse error
+          }
+        }
       }
       
-      headers.set('x-restaurant-id', restaurantId)
+      // Use default if still no restaurant ID
+      if (!finalRestaurantId) {
+        finalRestaurantId = '11111111-1111-1111-1111-111111111111'
+        logger.warn('⚠️ Using default restaurant ID for API request:', endpoint)
+      }
       
-      const debugVoice = import.meta.env.VITE_DEBUG_VOICE === 'true';
-      if (import.meta.env.DEV && debugVoice) {
-        logger.info(`[HttpClient] X-Restaurant-ID: ${restaurantId} → ${endpoint}`);
+      headers.set('x-restaurant-id', finalRestaurantId)
+      
+      if (import.meta.env.DEV && endpoint.includes('/auth/')) {
+        logger.info(`[HttpClient] Auth request: ${endpoint} with X-Restaurant-ID: ${finalRestaurantId}`);
       }
     }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useWebRTCVoice } from '../hooks/useWebRTCVoice';
 // ConnectionIndicator removed - using inline status
 import { HoldToRecordButton } from './HoldToRecordButton';
@@ -26,6 +26,15 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   const [showDebug, setShowDebug] = useState(debug);
   const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied'>('prompt');
   
+  // Stabilize callbacks to prevent hook re-initialization
+  const handleTranscript = useCallback((event: any) => {
+    onTranscript?.(event.text);
+  }, [onTranscript]);
+  
+  const handleOrderDetected = useCallback((order: any) => {
+    onOrderDetected?.(order);
+  }, [onOrderDetected]);
+  
   const {
     connect,
     disconnect,
@@ -42,10 +51,8 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   } = useWebRTCVoice({
     autoConnect: false, // We'll connect after permission check
     debug,
-    onTranscript: (event) => {
-      onTranscript?.(event.text);
-    },
-    onOrderDetected,
+    onTranscript: handleTranscript,
+    onOrderDetected: handleOrderDetected,
   });
   
   // Check microphone permission
@@ -59,9 +66,10 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
           setPermissionState(result.state as 'prompt' | 'granted' | 'denied');
         });
         
-        // Auto-connect if permission already granted
+        // REMOVED AUTO-CONNECT: User must explicitly click "Connect Voice"
+        // This prevents race conditions and gives user control over connection
         if (result.state === 'granted') {
-          connect().catch(console.error);
+          console.log('[VoiceControlWebRTC] Microphone permission granted - ready to connect');
         }
       })
       .catch((err) => {
@@ -77,7 +85,8 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop()); // Stop immediately after getting permission
       setPermissionState('granted');
-      await connect();
+      // Don't auto-connect after permission - let user click Connect Voice
+      console.log('[VoiceControlWebRTC] Microphone permission granted - user can now connect');
     } catch (err) {
       console.error('Microphone permission denied:', err);
       setPermissionState('denied');
@@ -141,19 +150,25 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     );
   }
   
-  return (
-    <div className={`voice-control-webrtc space-y-4 ${className}`}>
-      {/* Connection Status */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${
-            connectionState === 'connected' ? 'bg-green-500' :
-            connectionState === 'connecting' ? 'bg-yellow-500 animate-pulse' :
-            connectionState === 'error' ? 'bg-red-500' :
-            'bg-gray-400'
-          }`} />
-          <span className="text-xs text-gray-600 capitalize">{connectionState}</span>
-        </div>
+  // Show main interface when permission is granted OR connected
+  if (permissionState === 'granted' || isConnected) {
+    return (
+      <div className={`voice-control-webrtc space-y-4 ${className}`}>
+        {/* Connection Status */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${
+              connectionState === 'connected' ? 'bg-green-500' :
+              connectionState === 'connecting' ? 'bg-yellow-500 animate-pulse' :
+              connectionState === 'error' ? 'bg-red-500' :
+              'bg-gray-400'
+            }`} />
+            <span className="text-xs text-gray-600 capitalize">
+              {connectionState === 'disconnected' && permissionState === 'granted' 
+                ? 'Ready to connect' 
+                : connectionState}
+            </span>
+          </div>
         
         {/* Debug Toggle */}
         {debug && (
@@ -172,10 +187,23 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
           <div className="flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-red-800">Connection Error</p>
-              <p className="text-xs text-red-600 mt-1">{error.message}</p>
+              <p className="text-sm font-medium text-red-800">Voice Connection Failed</p>
+              <p className="text-xs text-red-600 mt-1">
+                {error.message.includes('Authentication') 
+                  ? 'Authentication issue - Please ensure you are logged in'
+                  : error.message.includes('token')
+                  ? 'Session expired - Please refresh the page and log in again'
+                  : error.message}
+              </p>
               <button
-                onClick={() => connect()}
+                onClick={async () => {
+                  console.log('[VoiceControlWebRTC] Retrying connection after error');
+                  try {
+                    await connect();
+                  } catch (err) {
+                    console.error('[VoiceControlWebRTC] Retry failed:', err);
+                  }
+                }}
                 className="text-xs text-red-700 underline mt-2 hover:text-red-800"
               >
                 Try reconnecting
@@ -244,7 +272,16 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
       <div className="flex gap-2">
         {!isConnected && connectionState !== 'connecting' && (
           <button
-            onClick={connect}
+            onClick={async () => {
+              console.log('[VoiceControlWebRTC] User clicked Connect Voice button');
+              try {
+                await connect();
+                console.log('[VoiceControlWebRTC] Connection initiated successfully');
+              } catch (err) {
+                console.error('[VoiceControlWebRTC] Connection failed:', err);
+                // Error will be displayed via the error state above
+              }
+            }}
             className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           >
             Connect Voice
@@ -272,4 +309,8 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
       )}
     </div>
   );
+  }
+  
+  // Fallback - should not normally reach here
+  return null;
 };

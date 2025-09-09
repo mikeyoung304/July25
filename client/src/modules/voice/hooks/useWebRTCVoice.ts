@@ -51,6 +51,18 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   const [error, setError] = useState<Error | null>(null);
   const [isListening, setIsListening] = useState(false);
   
+  // Store callbacks in refs to prevent re-initialization
+  const onTranscriptRef = useRef(onTranscript);
+  const onOrderDetectedRef = useRef(onOrderDetected);
+  const onErrorRef = useRef(onError);
+  
+  // Update refs when callbacks change
+  useEffect(() => {
+    onTranscriptRef.current = onTranscript;
+    onOrderDetectedRef.current = onOrderDetected;
+    onErrorRef.current = onError;
+  }, [onTranscript, onOrderDetected, onError]);
+  
   // Initialize client
   useEffect(() => {
     const client = new WebRTCVoiceClient({
@@ -61,6 +73,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     
     // Set up event listeners
     client.on('connection.change', (state: ConnectionState) => {
+      console.log('[useWebRTCVoice] Connection state changed:', state);
       setConnectionState(state);
       // Clear any stale text when connection changes
       if (state === 'connected' || state === 'disconnected') {
@@ -77,12 +90,14 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       
       // Transcript received
       
-      onTranscript?.(event);
+      // Use ref to call callback
+      onTranscriptRef.current?.(event);
     });
     
     client.on('order.detected', (event: OrderEvent) => {
       // Order detected
-      onOrderDetected?.(event);
+      // Use ref to call callback
+      onOrderDetectedRef.current?.(event);
     });
     
     client.on('response.text', (text: string) => {
@@ -132,7 +147,8 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       console.error('[useWebRTCVoice] Error:', err);
       setError(err);
       setIsProcessing(false);
-      onError?.(err);
+      // Use ref to call callback
+      onErrorRef.current?.(err);
     });
     
     // Add handler for session.created to avoid warning
@@ -154,11 +170,12 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     
     // Cleanup
     return () => {
+      console.log('[useWebRTCVoice] Cleaning up WebRTC client');
       client.disconnect();
       client.removeAllListeners();
       clientRef.current = null;
     };
-  }, [debug, onError, onOrderDetected, onTranscript, restaurantId]); // Include all dependencies
+  }, [debug, restaurantId]); // Only stable dependencies - callbacks are handled via refs
   
   // Connect to service
   const connect = useCallback(async () => {
@@ -195,11 +212,19 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     clientRef.current?.stopRecording();
   }, []);
   
+  // Compute isConnected and log changes for debugging
+  const isConnected = connectionState === 'connected';
+  
+  // Debug log when isConnected changes
+  useEffect(() => {
+    console.log('[useWebRTCVoice] isConnected changed:', isConnected, 'connectionState:', connectionState);
+  }, [isConnected, connectionState]);
+  
   return {
     // Connection
     connect,
     disconnect,
-    isConnected: connectionState === 'connected',
+    isConnected,
     connectionState,
     
     // Recording

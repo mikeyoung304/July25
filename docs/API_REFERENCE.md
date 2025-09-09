@@ -1,4 +1,4 @@
-# API Reference - Restaurant OS v6.0.3
+# API Reference - Restaurant OS v6.0.4
 
 ## Base URL
 - Development: `http://localhost:3001/api/v1`
@@ -9,6 +9,8 @@ All endpoints except public ones require JWT authentication via Authorization he
 ```
 Authorization: Bearer <token>
 ```
+
+**Role Hierarchy (v6.0.4)**: Higher roles automatically inherit permissions from lower roles. See [AUTHENTICATION_MASTER.md](./AUTHENTICATION_MASTER.md) for complete authentication documentation including the role hierarchy system.
 
 ## API Endpoints
 

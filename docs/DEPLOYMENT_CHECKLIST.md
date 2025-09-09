@@ -49,10 +49,12 @@ SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_KEY=your-service-key
 DATABASE_URL=postgresql://username:password@host:port/database
 
-# Authentication
-JWT_SECRET=your-super-secure-jwt-secret-key
-JWT_EXPIRES_IN=8h
-REFRESH_TOKEN_SECRET=your-refresh-token-secret
+# Authentication (v6.0.4 - NO DEFAULTS ALLOWED)
+SUPABASE_JWT_SECRET=your-supabase-jwt-secret  # From Supabase dashboard
+PIN_PEPPER=generate-64-char-random-string      # Required for PIN auth
+STATION_TOKEN_SECRET=generate-64-char-random   # Required for station auth
+DEVICE_FINGERPRINT_SALT=generate-64-char-random # Required for device auth
+KIOSK_JWT_SECRET=generate-64-char-random       # Required for kiosk auth
 
 # External Services
 OPENAI_API_KEY=your-openai-api-key
@@ -97,9 +99,12 @@ const envSchema = z.object({
   SUPABASE_SERVICE_KEY: z.string(),
   DATABASE_URL: z.string().url(),
   
-  // Authentication
-  JWT_SECRET: z.string().min(32),
-  JWT_EXPIRES_IN: z.string(),
+  // Authentication (v6.0.4)
+  SUPABASE_JWT_SECRET: z.string().min(32),
+  PIN_PEPPER: z.string().min(64),
+  STATION_TOKEN_SECRET: z.string().min(64),
+  DEVICE_FINGERPRINT_SALT: z.string().min(64),
+  KIOSK_JWT_SECRET: z.string().min(64),
   
   // External Services
   OPENAI_API_KEY: z.string().startsWith('sk-'),

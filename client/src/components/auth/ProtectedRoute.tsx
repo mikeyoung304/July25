@@ -83,7 +83,7 @@ export function ManagerRoute({ children }: { children: ReactNode }) {
 
 export function ServerRoute({ children }: { children: ReactNode }) {
   return (
-    <ProtectedRoute requiredRoles={['owner', 'manager', 'server']}>
+    <ProtectedRoute requiredRoles={['owner', 'manager', 'server', 'kitchen', 'expo']}>
       {children}
     </ProtectedRoute>
   );
@@ -97,13 +97,16 @@ export function KitchenRoute({ children }: { children: ReactNode }) {
   );
 }
 
-export function AdminRoute({ children }: { children: ReactNode }) {
+export function OwnerRoute({ children }: { children: ReactNode }) {
   return (
     <ProtectedRoute requiredRoles={['owner']}>
       {children}
     </ProtectedRoute>
   );
 }
+
+// Alias for backward compatibility
+export const AdminRoute = OwnerRoute;
 
 /**
  * Public route that doesn't require authentication

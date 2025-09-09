@@ -1,8 +1,34 @@
 # Role-Based Access Control (RBAC) Guide
 
+**Version**: 6.0.4  
+**Last Updated**: January 30, 2025
+
+➡️ **For complete authentication documentation, see [AUTHENTICATION_MASTER.md](./AUTHENTICATION_MASTER.md)**
+
 ## Overview
 
-Restaurant OS implements a comprehensive RBAC system with 7 distinct user roles, each with specific permissions and access levels. This guide covers implementation details, permission management, and best practices.
+Restaurant OS implements a hierarchical RBAC system with 7 distinct user roles. Higher-level roles automatically inherit all permissions from lower-level roles. This guide covers implementation details, permission management, and best practices.
+
+## Role Hierarchy System (NEW in v6.0.4)
+
+The system uses a hierarchical permission model where roles have numeric levels:
+
+```typescript
+const ROLE_HIERARCHY = {
+  owner: 100,     // Inherits all permissions
+  manager: 80,    // Inherits server, cashier, kitchen, expo
+  server: 60,     // Inherits cashier permissions
+  cashier: 50,    // Payment processing
+  kitchen: 40,    // Kitchen display access
+  expo: 30,       // Expo display access
+  customer: 10,   // Self-service only
+}
+```
+
+**Key Concept**: A user with a higher role level can access everything that lower roles can access. For example:
+- An **owner** (level 100) can access all features
+- A **manager** (level 80) can access server, cashier, kitchen, and expo features
+- A **server** (level 60) can access cashier features
 
 ## User Roles
 

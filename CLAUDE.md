@@ -189,6 +189,42 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 - Browser API checks: `typeof window !== 'undefined'`
 - API responses cast with `as` (not generic parameters)
 
+## React Hooks Pitfalls (CRITICAL for WebRTC/Real-time)
+
+### The Problem (Fixed 2025-09-09)
+React hooks with unstable dependencies can cause WebRTC clients and WebSocket connections to be destroyed and recreated on every render, breaking real-time functionality even when the connection succeeds.
+
+### Solution Pattern
+```typescript
+// ❌ BAD: Callbacks in dependencies cause re-initialization
+useEffect(() => {
+  client.on('event', onEvent);
+}, [onEvent]); // onEvent changes every render!
+
+// ✅ GOOD: Store callbacks in refs
+const onEventRef = useRef(onEvent);
+useEffect(() => {
+  onEventRef.current = onEvent;
+}, [onEvent]);
+
+useEffect(() => {
+  client.on('event', (data) => onEventRef.current?.(data));
+}, []); // Stable dependencies only!
+```
+
+### Key Rules
+1. **Minimize useEffect dependencies** - Only include truly stable values
+2. **Use refs for callbacks** - Prevents triggering re-initialization
+3. **Wrap handlers with useCallback** - Stabilizes function references
+4. **Monitor for cleanup messages** - Frequent cleanup = component recreation
+
+### Voice System Specific
+- WebRTC connections are expensive to create/destroy
+- Connection may succeed but UI won't update if component recreates
+- Check console for `[useWebRTCVoice] Cleaning up` messages
+- Look for "No handlers for event" warnings indicating stale listeners
+- See `/docs/voice/TROUBLESHOOTING.md` for debugging steps
+
 ## Critical Architecture Decisions (2025-08-28)
 
 ### Cart System Unification

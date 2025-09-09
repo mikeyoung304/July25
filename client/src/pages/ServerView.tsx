@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { RoleGuard } from '@/components/auth/RoleGuard'
 import { Card } from '@/components/ui/card'
+import { useAuth } from '@/contexts/auth.hooks'
 import { useServerView } from './hooks/useServerView'
 import { useTableInteraction } from './hooks/useTableInteraction'
 import { useVoiceOrderWebRTC } from './hooks/useVoiceOrderWebRTC'
@@ -11,9 +12,12 @@ import { VoiceOrderModal } from './components/VoiceOrderModal'
 import { ServerStats } from './components/ServerStats'
 import { ServerHeader } from './components/ServerHeader'
 import { TableCheckPresenter } from '@/modules/payment/components/TableCheckPresenter'
-import { Info, CreditCard } from 'lucide-react'
+import { Info, CreditCard, Eye } from 'lucide-react'
 
 export function ServerView() {
+  const { user } = useAuth()
+  const isReadOnlyRole = user?.role === 'kitchen' || user?.role === 'expo'
+  
   const {
     tables,
     isLoading,
@@ -32,9 +36,12 @@ export function ServerView() {
   const [paymentTableId, setPaymentTableId] = useState<string | null>(null)
 
   const handleTableSelection = useCallback((tableId: string) => {
+    // Kitchen/expo staff can only view, not create orders
+    if (isReadOnlyRole) return
+    
     handleTableClick(tableId)
     setShowSeatSelection(true)
-  }, [handleTableClick])
+  }, [handleTableClick, isReadOnlyRole])
 
   const handleStartVoiceOrder = useCallback(() => {
     if (selectedTableId && selectedSeat) {
@@ -73,7 +80,7 @@ export function ServerView() {
   }, [])
 
   return (
-    <RoleGuard suggestedRoles={['server', 'admin']} pageTitle="Server View - Dining Room">
+    <RoleGuard suggestedRoles={['server', 'admin', 'kitchen', 'expo']} pageTitle="Server View - Dining Room">
       <div className="min-h-screen bg-macon-background">
         <ServerHeader restaurant={restaurant ? {
           ...restaurant,
@@ -130,8 +137,8 @@ export function ServerView() {
 
             <ServerStats stats={stats} />
 
-            {/* Table Actions for Occupied Tables */}
-            {tables.filter(t => t.status === 'occupied').length > 0 && (
+            {/* Table Actions for Occupied Tables - Hide for kitchen/expo */}
+            {!isReadOnlyRole && tables.filter(t => t.status === 'occupied').length > 0 && (
               <Card className="mt-6 p-6">
                 <h3 className="font-semibold text-lg mb-4">Occupied Tables</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -155,18 +162,45 @@ export function ServerView() {
               </Card>
             )}
 
+            {/* Read-only indicator for kitchen/expo staff */}
+            {isReadOnlyRole && (
+              <Card className="mt-6 p-6 bg-amber-50 border-amber-200">
+                <div className="flex items-start gap-3">
+                  <Eye className="h-5 w-5 text-amber-600 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-amber-900 mb-2">View-Only Mode</h3>
+                    <p className="text-sm text-amber-800">
+                      You are viewing the dining room status as {user?.role} staff. 
+                      You can see table occupancy and order status but cannot create new orders or process payments.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             <Card className="mt-6 p-6 bg-blue-50 border-blue-200">
               <div className="flex items-start gap-3">
                 <Info className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-blue-900 mb-2">How to Use Server View</h3>
-                  <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                    <li>Click on any available table (green) to select it</li>
-                    <li>Choose a seat number for the order</li>
-                    <li>Use voice commands to add items to the order</li>
-                    <li>Review and submit the order when complete</li>
-                    <li>For occupied tables, click "Process Payment" to handle checkout</li>
-                  </ol>
+                  <h3 className="font-semibold text-blue-900 mb-2">
+                    {isReadOnlyRole ? 'Dining Room Status' : 'How to Use Server View'}
+                  </h3>
+                  {isReadOnlyRole ? (
+                    <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                      <li>Green tables are available for seating</li>
+                      <li>Red tables are occupied with active orders</li>
+                      <li>Yellow tables are reserved or being cleaned</li>
+                      <li>View real-time dining room capacity and table status</li>
+                    </ul>
+                  ) : (
+                    <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                      <li>Click on any available table (green) to select it</li>
+                      <li>Choose a seat number for the order</li>
+                      <li>Use voice commands to add items to the order</li>
+                      <li>Review and submit the order when complete</li>
+                      <li>For occupied tables, click "Process Payment" to handle checkout</li>
+                    </ol>
+                  )}
                 </div>
               </div>
             </Card>

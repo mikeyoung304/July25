@@ -60,38 +60,108 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        logger.info('[AuthContext] Starting auth initialization');
 
         // Check for existing Supabase session
         const { data: { session: supabaseSession } } = await supabase.auth.getSession();
         
         if (supabaseSession) {
-          // Validate the session is still valid with our backend
-          try {
-            const response = await httpClient.get<{ user: User; restaurantId: string }>(
-              '/api/v1/auth/me'
-            );
-            
-            setUser(response.user);
-            setRestaurantId(response.restaurantId);
-            
-            // Set session and immediately sync to bridge
-            const sessionData = {
-              accessToken: supabaseSession.access_token,
-              refreshToken: supabaseSession.refresh_token,
-              expiresIn: supabaseSession.expires_in,
-              expiresAt: supabaseSession.expires_at
-            };
-            setSession(sessionData);
-            
-            // CRITICAL: Immediately sync to auth bridge for voice/WebSocket
-            setAuthContextSession(sessionData);
-            logger.info('[AuthContext] Restored Supabase session and synced to bridge');
-          } catch (error) {
-            // Session invalid, clear it
-            logger.error('Supabase session invalid, clearing...', error);
-            await supabase.auth.signOut();
-            // Don't set any state, let the user log in
+          logger.info('[AuthContext] Found Supabase session, checking for cached user data');
+          
+          // First check if we have cached user data with custom role
+          const cachedUserData = localStorage.getItem('auth_user_data');
+          if (cachedUserData) {
+            try {
+              const parsed = JSON.parse(cachedUserData);
+              // Use cached data if it's less than 1 hour old
+              if (parsed.timestamp && (Date.now() - parsed.timestamp) < 3600000) {
+                setUser(parsed.user);
+                setRestaurantId(parsed.restaurantId);
+                logger.info('[AuthContext] ✅ Restored user data from cache', {
+                  role: parsed.user.role,
+                  email: parsed.user.email,
+                  restaurantId: parsed.restaurantId
+                });
+              } else {
+                logger.info('[AuthContext] Cached data expired, will fetch fresh data');
+              }
+            } catch (error) {
+              logger.error('[AuthContext] Failed to parse cached user data:', error);
+              localStorage.removeItem('auth_user_data');
+            }
+          } else {
+            logger.info('[AuthContext] No cached user data found');
           }
+          
+          // If no cached data, validate the session with our backend
+          const needsFreshData = !user;
+          if (needsFreshData) {
+            logger.info('[AuthContext] Need to fetch fresh user data from /me endpoint');
+            try {
+              // Try to get restaurant ID from cached data or use default
+              let restaurantIdForRequest = restaurantId;
+              const cachedData = localStorage.getItem('auth_user_data');
+              if (cachedData) {
+                try {
+                  const parsed = JSON.parse(cachedData);
+                  restaurantIdForRequest = parsed.restaurantId;
+                  logger.info('[AuthContext] Using restaurant ID from cache:', restaurantIdForRequest);
+                } catch (e) {
+                  logger.warn('[AuthContext] Failed to parse cached data for restaurant ID');
+                }
+              }
+              
+              // If still no restaurant ID, use default
+              if (!restaurantIdForRequest) {
+                restaurantIdForRequest = '11111111-1111-1111-1111-111111111111';
+                logger.info('[AuthContext] Using default restaurant ID:', restaurantIdForRequest);
+              }
+              
+              // Set the restaurant ID in httpClient before making the request
+              const { setCurrentRestaurantId } = await import('@/services/http/httpClient');
+              setCurrentRestaurantId(restaurantIdForRequest);
+              logger.info('[AuthContext] Set restaurant ID in httpClient:', restaurantIdForRequest);
+              
+              const response = await httpClient.get<{ user: User; restaurantId: string }>(
+                '/api/v1/auth/me'
+              );
+              
+              setUser(response.user);
+              setRestaurantId(response.restaurantId);
+              
+              // Cache the user data for future use
+              localStorage.setItem('auth_user_data', JSON.stringify({
+                user: response.user,
+                restaurantId: response.restaurantId,
+                timestamp: Date.now()
+              }));
+              
+              logger.info('[AuthContext] ✅ Fetched and cached user from /me endpoint', {
+                role: response.user.role,
+                email: response.user.email,
+                restaurantId: response.restaurantId
+              });
+            } catch (error) {
+              // Session invalid, clear it
+              logger.error('[AuthContext] Failed to fetch user data, clearing session:', error);
+              await supabase.auth.signOut();
+              localStorage.removeItem('auth_user_data');
+              // Don't set any state, let the user log in
+            }
+          }
+          
+          // Set session and immediately sync to bridge
+          const sessionData = {
+            accessToken: supabaseSession.access_token,
+            refreshToken: supabaseSession.refresh_token,
+            expiresIn: supabaseSession.expires_in,
+            expiresAt: supabaseSession.expires_at
+          };
+          setSession(sessionData);
+          
+          // CRITICAL: Immediately sync to auth bridge for voice/WebSocket
+          setAuthContextSession(sessionData);
+          logger.info('[AuthContext] Restored Supabase session and synced to bridge');
         } else {
           // Check for PIN/station session in localStorage
           const savedSession = localStorage.getItem('auth_session');
@@ -128,14 +198,80 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Subscribe to auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      logger.info('[AuthContext] Auth state change event:', event);
+      
       if (event === 'SIGNED_IN' && session) {
+        logger.info('[AuthContext] Processing SIGNED_IN event');
+        
+        // Check if we already have user data cached from login
+        const cachedUserData = localStorage.getItem('auth_user_data');
+        if (cachedUserData) {
+          try {
+            const parsed = JSON.parse(cachedUserData);
+            // If cache is fresh (less than 5 seconds old), use it instead of fetching
+            if (parsed.timestamp && (Date.now() - parsed.timestamp) < 5000) {
+              logger.info('[AuthContext] Using fresh cached data from recent login', {
+                role: parsed.user.role,
+                email: parsed.user.email,
+                restaurantId: parsed.restaurantId
+              });
+              
+              setUser(parsed.user);
+              setRestaurantId(parsed.restaurantId);
+              
+              const sessionData = {
+                accessToken: session.access_token,
+                refreshToken: session.refresh_token,
+                expiresIn: session.expires_in,
+                expiresAt: session.expires_at
+              };
+              setSession(sessionData);
+              
+              // CRITICAL: Immediately sync to auth bridge
+              setAuthContextSession(sessionData);
+              
+              return; // Skip fetching /me since we have fresh data
+            }
+          } catch (e) {
+            logger.warn('[AuthContext] Failed to parse cached data in auth state change');
+          }
+        }
+        
         // Fetch user details when signed in
         try {
+          // Try to get restaurant ID from cached data
+          let restaurantIdForRequest = '11111111-1111-1111-1111-111111111111'; // Default
+          const cachedData = localStorage.getItem('auth_user_data');
+          if (cachedData) {
+            try {
+              const parsed = JSON.parse(cachedData);
+              if (parsed.restaurantId) {
+                restaurantIdForRequest = parsed.restaurantId;
+                logger.info('[AuthContext] Using cached restaurant ID for /me:', restaurantIdForRequest);
+              }
+            } catch (e) {
+              logger.warn('[AuthContext] Failed to get restaurant ID from cache');
+            }
+          }
+          
+          // Set the restaurant ID in httpClient before making the request
+          const { setCurrentRestaurantId } = await import('@/services/http/httpClient');
+          setCurrentRestaurantId(restaurantIdForRequest);
+          
+          logger.info('[AuthContext] Fetching user data from /me with restaurant ID:', restaurantIdForRequest);
           const response = await httpClient.get<{ user: User; restaurantId: string }>(
             '/api/v1/auth/me'
           );
+          
           setUser(response.user);
           setRestaurantId(response.restaurantId);
+          
+          // Cache the user data with custom role for future use
+          localStorage.setItem('auth_user_data', JSON.stringify({
+            user: response.user,
+            restaurantId: response.restaurantId,
+            timestamp: Date.now()
+          }));
           
           const sessionData = {
             accessToken: session.access_token,
@@ -147,19 +283,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
           
           // CRITICAL: Immediately sync to auth bridge
           setAuthContextSession(sessionData);
-          logger.info('[AuthContext] Auth state change: SIGNED_IN - synced to bridge');
+          logger.info('[AuthContext] ✅ Auth state change: SIGNED_IN - fetched and cached user', {
+            role: response.user.role,
+            email: response.user.email,
+            restaurantId: response.restaurantId
+          });
         } catch (error) {
-          logger.error('Failed to fetch user details:', error);
+          logger.error('[AuthContext] Failed to fetch user details on SIGNED_IN:', error);
         }
       } else if (event === 'SIGNED_OUT') {
+        logger.info('[AuthContext] Processing SIGNED_OUT event');
         setUser(null);
         setSession(null);
         setRestaurantId(null);
         localStorage.removeItem('auth_session');
+        localStorage.removeItem('auth_user_data');
         
         // CRITICAL: Clear auth bridge on signout
         setAuthContextSession(null);
-        logger.info('[AuthContext] Auth state change: SIGNED_OUT - cleared bridge');
+        logger.info('[AuthContext] Auth state change: SIGNED_OUT - cleared all data');
       } else if (event === 'TOKEN_REFRESHED' && session) {
         const sessionData = {
           accessToken: session.access_token,
@@ -178,7 +320,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []);
+  }, []); // Empty deps is intentional - we only want to set up the listener once
 
   // Email/password login
   const login = async (email: string, password: string, restaurantId: string) => {
@@ -217,6 +359,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // CRITICAL: Immediately sync to auth bridge for voice/WebSocket
         setAuthContextSession(sessionData);
+        
+        // Store user data with custom role in localStorage for session restoration
+        // This ensures the custom role persists across page refreshes
+        localStorage.setItem('auth_user_data', JSON.stringify({
+          user: response.user,
+          restaurantId: response.restaurantId,
+          timestamp: Date.now()
+        }));
         
         // Also set Supabase session for consistency (so getAuthToken fallback works)
         if (response.session.access_token && response.session.refresh_token) {
@@ -368,6 +518,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // Clear localStorage
       localStorage.removeItem('auth_session');
+      localStorage.removeItem('auth_user_data');
       
       // Sign out from Supabase
       await supabase.auth.signOut();
@@ -381,6 +532,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setRestaurantId(null);
       setAuthContextSession(null);
       localStorage.removeItem('auth_session');
+      localStorage.removeItem('auth_user_data');
     } finally {
       setIsLoading(false);
     }
@@ -438,9 +590,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Role hierarchy definition - higher roles inherit permissions from lower roles
+  const ROLE_HIERARCHY: Record<string, number> = {
+    owner: 100,     // Full system access
+    manager: 80,    // Restaurant operations
+    server: 60,     // Order and payment management
+    cashier: 50,    // Payment processing only
+    kitchen: 40,    // Kitchen display access
+    expo: 30,       // Expo display access
+    customer: 10,   // Self-service only
+  };
+
   // Check if user has a specific role
   const hasRole = (role: string): boolean => {
     return user?.role === role;
+  };
+
+  // Check if user's role is at least as high as required role
+  const hasRoleOrHigher = (requiredRole: string): boolean => {
+    if (!user?.role) return false;
+    
+    const userLevel = ROLE_HIERARCHY[user.role] || 0;
+    const requiredLevel = ROLE_HIERARCHY[requiredRole] || 999;
+    
+    return userLevel >= requiredLevel;
   };
 
   // Check if user has a specific scope
@@ -452,14 +625,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const canAccess = (requiredRoles: string[], requiredScopes?: string[]): boolean => {
     if (!user) return false;
     
-    // Check role requirement
+    // Check role requirement - user needs to have at least one of the required roles (or higher)
     const hasRequiredRole = requiredRoles.length === 0 || 
-                           requiredRoles.includes(user.role || '');
+                           requiredRoles.some(role => hasRoleOrHigher(role));
     
     // Check scope requirement
     const hasRequiredScope = !requiredScopes || 
                             requiredScopes.length === 0 ||
                             requiredScopes.some(scope => hasScope(scope));
+    
+    logger.info('[AuthContext] Access check:', {
+      userRole: user.role,
+      requiredRoles,
+      hasRequiredRole,
+      requiredScopes,
+      hasRequiredScope,
+      result: hasRequiredRole && hasRequiredScope
+    });
     
     return hasRequiredRole && hasRequiredScope;
   };
