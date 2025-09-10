@@ -9,6 +9,7 @@ import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
 import { useTableGrouping, sortTableGroups, getTableGroupStats } from '@/hooks/useTableGrouping'
 import { cn } from '@/utils'
+import { logger } from '@/services/monitoring/logger'
 import type { Order } from '@rebuild/shared'
 
 type ViewMode = 'tables' | 'orders' | 'hybrid'
@@ -62,7 +63,7 @@ function ExpoConsolidated() {
     await Promise.all(updatePromises)
     
     // TODO: Add success toast notification
-    console.log(`Table ${tableNumber} completed successfully`)
+    logger.info('Table completed successfully', { tableNumber })
   }, [groupedOrders.tables, updateOrderStatus])
   
   // Handle individual order status change

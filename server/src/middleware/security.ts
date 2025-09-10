@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import crypto from 'crypto';
+import { logger } from '../utils/logger';
 
 /**
  * Comprehensive security middleware for Restaurant OS
@@ -148,9 +149,9 @@ class SecurityMonitor {
       this.events = this.events.slice(-this.maxEvents);
     }
     
-    // Log to console in development
+    // Log security events in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('[SECURITY]', fullEvent);
+      logger.info('[SECURITY] Security event logged', fullEvent);
     }
     
     // TODO: Send to logging service (Datadog, Sentry, etc.)

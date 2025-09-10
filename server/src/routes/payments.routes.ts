@@ -17,9 +17,9 @@ if (process.env['SQUARE_ENVIRONMENT'] === 'production') {
   if (!process.env['SQUARE_ACCESS_TOKEN']?.startsWith('EAAA')) {
     console.warn('⚠️ Square production mode enabled but using sandbox token!');
   }
-  console.log('💳 Square Payment Processing: PRODUCTION MODE');
+  routeLogger.info('💳 Square Payment Processing: PRODUCTION MODE');
 } else {
-  console.log('💳 Square Payment Processing: SANDBOX MODE');
+  routeLogger.info('💳 Square Payment Processing: SANDBOX MODE');
 }
 
 // Initialize Square client

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { WebRTCVoiceClient, ConnectionState, TranscriptEvent, OrderEvent } from '../services/WebRTCVoiceClient';
+import { logger } from '../../../services/monitoring/logger';
 
 export interface UseWebRTCVoiceOptions {
   autoConnect?: boolean;
@@ -73,7 +74,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     
     // Set up event listeners
     client.on('connection.change', (state: ConnectionState) => {
-      console.log('[useWebRTCVoice] Connection state changed:', state);
+      logger.info('[useWebRTCVoice] Connection state changed:', { state });
       setConnectionState(state);
       // Clear any stale text when connection changes
       if (state === 'connected' || state === 'disconnected') {
@@ -154,7 +155,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     // Add handler for session.created to avoid warning
     client.on('session.created', (session: any) => {
       if (debug) {
-        console.log('[useWebRTCVoice] Session created:', session);
+        logger.info('[useWebRTCVoice] Session created:', { session });
       }
     });
     
@@ -170,7 +171,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     
     // Cleanup
     return () => {
-      console.log('[useWebRTCVoice] Cleaning up WebRTC client');
+      logger.info('[useWebRTCVoice] Cleaning up WebRTC client');
       client.disconnect();
       client.removeAllListeners();
       clientRef.current = null;
@@ -195,12 +196,12 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   // Start recording
   const startRecording = useCallback(() => {
     if (!clientRef.current) {
-      console.warn('[useWebRTCVoice] Cannot start recording: client not initialized');
+      logger.warn('[useWebRTCVoice] Cannot start recording: client not initialized');
       return;
     }
     
     if (connectionState !== 'connected') {
-      console.warn('[useWebRTCVoice] Cannot start recording: not connected');
+      logger.warn('[useWebRTCVoice] Cannot start recording: not connected');
       return;
     }
     
@@ -217,7 +218,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   
   // Debug log when isConnected changes
   useEffect(() => {
-    console.log('[useWebRTCVoice] isConnected changed:', isConnected, 'connectionState:', connectionState);
+    logger.info('[useWebRTCVoice] isConnected changed:', { isConnected, connectionState });
   }, [isConnected, connectionState]);
   
   return {

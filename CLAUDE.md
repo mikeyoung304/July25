@@ -33,12 +33,12 @@ rebuild-6.0/
 ## Quality Requirements
 
 - **Mandatory**: All tests pass, TypeScript strict mode
-- **Coverage**: 60% statements, 50% branches, 60% functions/lines
+- **Coverage**: 60% statements, 50% branches, 60% functions/lines (tests currently timeout - needs fix)
 - **ESLint**: 0 errors, 573 warnings (down from 952 issues)
 - **Pre-commit**: test, lint, typecheck must pass
 - **Bundle Size**: Main chunk target <100KB
 - **Memory**: 4GB max for builds (optimized from 12GB)
-- **TypeScript**: ~500 remaining errors (non-blocking, down from 670+)
+- **TypeScript**: 561 errors (mostly in tests - app still runs, down from 670+)
 
 ## Key Features
 
@@ -47,9 +47,9 @@ rebuild-6.0/
 - Real-time POS system
 - iPad-based tableside payment system
 - Menu management with QR codes
-- Kitchen display system (KDS)
+- Kitchen display system (KDS) - 3 duplicate implementations need consolidation
 - Analytics dashboard
-- Split payment functionality
+- Split payment functionality (backend only - frontend UI missing)
 
 ## Kitchen Display System (KDS) Critical Requirements
 

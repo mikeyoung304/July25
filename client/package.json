@@ -1,7 +1,7 @@
 {
   "name": "restaurant-os-client",
   "private": true,
-  "version": "6.0.3",
+  "version": "6.0.4",
   "scripts": {
     "dev": "vite",
     "dev:clean": "npx kill-port 5173 && vite",

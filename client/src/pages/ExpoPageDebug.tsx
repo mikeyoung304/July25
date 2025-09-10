@@ -6,6 +6,7 @@ import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBo
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
 import { STATUS_GROUPS, isStatusInGroup, getSafeOrderStatus } from '@/utils/orderStatusValidation'
 import { cn } from '@/utils'
+import { logger } from '@/services/monitoring/logger'
 import type { Order } from '@rebuild/shared'
 
 function ExpoPageDebug() {
@@ -18,19 +19,19 @@ function ExpoPageDebug() {
 
   // Enhanced order completion for expo station
   const handleCompleteOrder = useCallback(async (orderId: string, status: 'ready') => {
-    console.log('🎯 [Expo Debug] Completing order:', orderId)
+    logger.info('🎯 [Expo Debug] Completing order:', { orderId })
     // For expo, we want to complete orders, not just mark as ready
     const success = await updateOrderStatus(orderId, 'completed')
     if (!success) {
       console.error('❌ [Expo Debug] Failed to complete order:', orderId)
     } else {
-      console.log('✅ [Expo Debug] Order completed successfully:', orderId)
+      logger.info('✅ [Expo Debug] Order completed successfully:', { orderId })
     }
   }, [updateOrderStatus])
   
   // Mark order as ready from kitchen overview
   const handleMarkReady = useCallback(async (orderId: string, status: 'ready') => {
-    console.log('📋 [Expo Debug] Marking order ready:', orderId)
+    logger.info('📋 [Expo Debug] Marking order ready:', { orderId })
     const success = await updateOrderStatus(orderId, status)
     if (!success) {
       console.error('❌ [Expo Debug] Failed to mark ready:', orderId)
@@ -39,7 +40,7 @@ function ExpoPageDebug() {
 
   // Filter orders for expo view using status validation utilities
   const { activeOrders, readyOrders } = useMemo(() => {
-    console.log('🔍 [Expo Debug] Processing orders:', orders.length)
+    logger.info('🔍 [Expo Debug] Processing orders:', { count: orders.length })
     
     // Ensure all orders have valid statuses
     const safeOrders = orders.map(order => ({
@@ -59,7 +60,7 @@ function ExpoPageDebug() {
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     )
     
-    console.log('📊 [Expo Debug] Active orders:', active.length, 'Ready orders:', ready.length)
+    logger.info('📊 [Expo Debug] Orders processed:', { activeCount: active.length, readyCount: ready.length })
     
     return { activeOrders: active, readyOrders: ready }
   }, [orders])
@@ -102,7 +103,7 @@ function ExpoPageDebug() {
   }
 
   if (isLoading) {
-    console.log('⏳ [Expo Debug] Loading state')
+    logger.info('⏳ [Expo Debug] Loading state')
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -114,7 +115,7 @@ function ExpoPageDebug() {
     )
   }
 
-  console.log('🎯 [Expo Debug] Rendering with stats:', stats)
+  logger.info('🎯 [Expo Debug] Rendering with stats:', { stats })
 
   return (
     <div className="min-h-screen bg-gray-50">

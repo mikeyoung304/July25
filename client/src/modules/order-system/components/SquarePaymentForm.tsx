@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { CreditCard, Lock } from 'lucide-react';
+import { logger } from '../../../services/monitoring/logger';
 
 interface SquarePaymentFormProps {
   onPaymentNonce: (nonce: string) => void;
@@ -38,7 +39,7 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
     
     // If in demo mode, skip Square SDK loading
     if (isDemoMode) {
-      console.log('Demo mode detected - skipping Square SDK loading');
+      logger.info('Demo mode detected - skipping Square SDK loading');
       setIsInitializing(false);
       setIsSquareLoaded(false); // Don't load Square in demo mode
       return;

@@ -1,6 +1,7 @@
 /* eslint-env browser */
 import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { getAuthToken } from '../../../services/auth';
+import { logger } from '../../../services/monitoring/logger';
 
 export interface WebRTCVoiceConfig {
   restaurantId: string;
@@ -94,23 +95,23 @@ export class WebRTCVoiceClient extends EventEmitter {
   async connect(): Promise<void> {
     // Prevent duplicate connections
     if (this.isConnecting || this.connectionState === 'connected') {
-      console.log('[WebRTCVoice] Already connecting or connected, skipping...');
+      logger.info('[WebRTCVoice] Already connecting or connected, skipping...');
       return;
     }
     
     this.isConnecting = true;
     
     try {
-      console.log('[WebRTCVoice] Starting connection...');
+      logger.info('[WebRTCVoice] Starting connection...');
       this.setConnectionState('connecting');
       
       // Step 1: Get ephemeral token from our server
-      console.log('[WebRTCVoice] Step 1: Fetching ephemeral token...');
+      logger.info('[WebRTCVoice] Step 1: Fetching ephemeral token...');
       await this.fetchEphemeralToken();
-      console.log('[WebRTCVoice] Step 1: Token received');
+      logger.info('[WebRTCVoice] Step 1: Token received');
       
       // Step 2: Create RTCPeerConnection
-      console.log('[WebRTCVoice] Step 2: Creating RTCPeerConnection...');
+      logger.info('[WebRTCVoice] Step 2: Creating RTCPeerConnection...');
       this.pc = new RTCPeerConnection({
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
@@ -121,36 +122,36 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.setupPeerConnectionHandlers();
       
       // Step 3: Set up audio output handler
-      console.log('[WebRTCVoice] Step 3: Setting up audio output...');
+      logger.info('[WebRTCVoice] Step 3: Setting up audio output...');
       this.audioElement = document.createElement('audio');
       this.audioElement.autoplay = true;
       this.audioElement.style.display = 'none';
       document.body.appendChild(this.audioElement);
       
       this.pc.ontrack = (event) => {
-        console.log('[WebRTCVoice] Received remote audio track:', event.streams);
+        logger.info('[WebRTCVoice] Received remote audio track:', { streams: event.streams.length });
         if (this.audioElement && event.streams[0]) {
           this.audioElement.srcObject = event.streams[0];
         }
       };
       
       // Step 4: Set up microphone and add track (creates first m-line)
-      console.log('[WebRTCVoice] Step 4: Setting up microphone...');
+      logger.info('[WebRTCVoice] Step 4: Setting up microphone...');
       await this.setupMicrophone();
-      console.log('[WebRTCVoice] Step 4: Microphone setup complete');
+      logger.info('[WebRTCVoice] Step 4: Microphone setup complete');
       
       // Step 5: Create data channel (creates second m-line)
-      console.log('[WebRTCVoice] Step 5: Creating data channel...');
+      logger.info('[WebRTCVoice] Step 5: Creating data channel...');
       this.dc = this.pc.createDataChannel('oai-events', {
         ordered: true,
       });
       this.setupDataChannel();
       
       // Step 6: Create offer and establish connection
-      console.log('[WebRTCVoice] Step 6: Creating offer...');
+      logger.info('[WebRTCVoice] Step 6: Creating offer...');
       const offer = await this.pc.createOffer();
       await this.pc.setLocalDescription(offer);
-      console.log('[WebRTCVoice] Step 6: Local description set');
+      logger.info('[WebRTCVoice] Step 6: Local description set');
       
       if (this.config.debug) {
         // Log the m-lines in the offer to debug ordering
@@ -159,10 +160,10 @@ export class WebRTCVoiceClient extends EventEmitter {
       }
       
       // Step 7: Send SDP to OpenAI
-      console.log('[WebRTCVoice] Step 7: Sending SDP to OpenAI...');
+      logger.info('[WebRTCVoice] Step 7: Sending SDP to OpenAI...');
       const model = import.meta.env.VITE_OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03';
-      console.log('[WebRTCVoice] Using model:', model);
-      console.log('[WebRTCVoice] Token exists:', !!this.ephemeralToken);
+      logger.info('[WebRTCVoice] Using model:', { model });
+      logger.info('[WebRTCVoice] Token exists:', { hasToken: !!this.ephemeralToken });
       
       const sdpResponse = await fetch(
         `https://api.openai.com/v1/realtime?model=${model}`,
@@ -176,7 +177,7 @@ export class WebRTCVoiceClient extends EventEmitter {
         }
       );
       
-      console.log('[WebRTCVoice] Step 7: OpenAI response status:', sdpResponse.status);
+      logger.info('[WebRTCVoice] Step 7: OpenAI response status:', { status: sdpResponse.status });
       
       if (!sdpResponse.ok) {
         const errorText = await sdpResponse.text();
@@ -253,13 +254,13 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Get auth token - this will throw if no auth is available
     let authToken: string;
     try {
-      console.log('[WebRTCVoice] Attempting to get auth token...');
+      logger.info('[WebRTCVoice] Attempting to get auth token...');
       authToken = await getAuthToken();
       if (!authToken) {
         console.error('[WebRTCVoice] Auth token is null/undefined');
         throw new Error('No authentication token available. Please log in first.');
       }
-      console.log('[WebRTCVoice] Auth token obtained successfully');
+      logger.info('[WebRTCVoice] Auth token obtained successfully');
     } catch (error) {
       console.error('[WebRTCVoice] Failed to get auth token:', error);
       // Re-throw with a user-friendly message
@@ -272,7 +273,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       // Debug: '[RT] Fetching ephemeral token from:', `${apiBase}/api/v1/realtime/session`
     }
     
-    console.log('[WebRTCVoice] Requesting ephemeral token from:', `${apiBase}/api/v1/realtime/session`);
+    logger.info('[WebRTCVoice] Requesting ephemeral token from:', { endpoint: `${apiBase}/api/v1/realtime/session` });
     const response = await fetch(`${apiBase}/api/v1/realtime/session`, {
       method: 'POST',
       headers: {
@@ -299,12 +300,12 @@ export class WebRTCVoiceClient extends EventEmitter {
     this.ephemeralToken = data.client_secret.value;
     this.tokenExpiresAt = data.expires_at || Date.now() + 60000;
     
-    console.log('[WebRTCVoice] Ephemeral token received successfully');
+    logger.info('[WebRTCVoice] Ephemeral token received successfully');
     
     // Store menu context if provided
     if (data.menu_context) {
       this.menuContext = data.menu_context;
-      console.log('[WebRTCVoice] Menu context loaded:', this.menuContext.split('\n').length, 'lines');
+      logger.info('[WebRTCVoice] Menu context loaded:', { lines: this.menuContext.split('\n').length });
     }
     
     // Schedule token refresh 10 seconds before expiry
@@ -992,7 +993,7 @@ ENTRÉES → Ask:
   startRecording(): void {
     // State machine guard: only allow from idle state
     if (this.turnState !== 'idle') {
-      console.warn(`[RT] Cannot start recording in state: ${this.turnState}`);
+      logger.warn(`[RT] Cannot start recording in state: ${this.turnState}`);
       return;
     }
     
@@ -1044,7 +1045,7 @@ ENTRÉES → Ask:
   stopRecording(): void {
     // State machine guard: only allow from recording state
     if (this.turnState !== 'recording') {
-      console.warn(`[RT] Cannot stop recording in state: ${this.turnState}`);
+      logger.warn(`[RT] Cannot stop recording in state: ${this.turnState}`);
       return;
     }
     
@@ -1056,7 +1057,7 @@ ENTRÉES → Ask:
     // Debounce protection
     const now = Date.now();
     if (now - this.lastCommitTime < 250) {
-      console.warn('[RT] Ignoring rapid stop - debouncing');
+      logger.warn('[RT] Ignoring rapid stop - debouncing');
       return;
     }
     
@@ -1228,7 +1229,7 @@ ENTRÉES → Ask:
           this.pc.close();
         }
       } catch (e) {
-        console.warn('[WebRTCVoice] Error cleaning up peer connection:', e);
+        logger.warn('[WebRTCVoice] Error cleaning up peer connection:', { error: e });
       }
       this.pc = null;
     }
@@ -1266,7 +1267,7 @@ ENTRÉES → Ask:
           this.audioElement.parentNode.removeChild(this.audioElement);
         }
       } catch (e) {
-        console.warn('[WebRTCVoice] Error cleaning up audio element:', e);
+        logger.warn('[WebRTCVoice] Error cleaning up audio element:', { error: e });
       }
       this.audioElement = null;
     }

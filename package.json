@@ -1,7 +1,7 @@
 {
   "name": "restaurant-os",
   "private": true,
-  "version": "6.0.3",
+  "version": "6.0.4",
   "type": "module",
   "description": "Restaurant OS - Intelligent Restaurant Management System",
   "workspaces": [
@@ -65,17 +65,9 @@
     "prepare": "husky install || true"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "^12.0.0",
     "@axe-core/playwright": "^4.10.2",
     "@babel/preset-env": "^7.28.0",
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
-    "@cyanheads/git-mcp-server": "^2.3.2",
     "@eslint/js": "^9.31.0",
-    "@modelcontextprotocol/server-filesystem": "^2025.8.21",
-    "@modelcontextprotocol/server-memory": "^2025.8.4",
-    "@modelcontextprotocol/server-puppeteer": "^2025.5.12",
-    "@modelcontextprotocol/server-sequential-thinking": "^2025.7.1",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/instrumentation-express": "^0.52.0",
     "@opentelemetry/instrumentation-http": "^0.203.0",
@@ -86,21 +78,16 @@
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
     "concurrently": "8.2.2",
-    "cross-env": "^10.0.0",
     "dotenv": "^16.3.1",
     "eslint": "^9.31.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "husky": "^8.0.0",
     "lint-staged": "^16.1.5",
-    "npm-run-all": "^4.1.5",
     "playwright-lighthouse": "^4.0.0",
     "puppeteer": "^24.17.1",
-    "supabase-mcp": "^1.5.0",
     "terser": "^5.43.1",
-    "tsx": "^4.7.0",
-    "wait-on": "^8.0.4",
-    "web-vitals": "^5.1.0"
+    "tsx": "^4.7.0"
   },
   "keywords": [
     "restaurant",
