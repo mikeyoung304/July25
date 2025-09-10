@@ -1,4 +1,4 @@
-# Restaurant OS v6.0.3
+# Restaurant OS v6.0.4
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Frontend CI](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml)
@@ -195,9 +195,9 @@ If the application gets stuck on the loading screen:
 
 ### Code Quality Standards
 
-- **TypeScript**: Strict mode enabled - ~500 errors (non-blocking)
-- **ESLint**: 0 errors required - 573 warnings
-- **Test Coverage**: 60% statements, 50% branches
+- **TypeScript**: Strict mode enabled - 560 errors (non-blocking)
+- **ESLint**: 0 errors required - 449 warnings
+- **Tests**: Some tests failing (3 failed in last run)
 - **Bundle Size**: Main chunk target <100KB
 - **Memory Usage**: Max 4GB for builds
 
@@ -218,14 +218,14 @@ npm run build
 
 ```bash
 # Build Docker image
-docker build -t restaurant-os:6.0.3 .
+docker build -t restaurant-os:6.0.4 .
 
 # Run container
 docker run -p 3001:3001 \
   -e NODE_ENV=production \
   -e SUPABASE_URL=... \
   -e SUPABASE_SERVICE_KEY=... \
-  restaurant-os:6.0.3
+  restaurant-os:6.0.4
 ```
 
 ### Environment-Specific Configs
@@ -319,6 +319,6 @@ This project is proprietary software. All rights reserved.
 
 ---
 
-**Version**: 6.0.3  
-**Last Updated**: February 1, 2025  
-**Status**: Production Ready (8/10) - Authentication Complete ✅
+**Version**: 6.0.4  
+**Last Updated**: September 10, 2025  
+**Status**: Development Active - Authentication Complete ✅

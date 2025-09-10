@@ -2,7 +2,7 @@
 
 ## Overview
 
-Restaurant OS 6.0 is a modern, scalable restaurant management system built with a microservices-oriented architecture. The system consists of three main layers: Frontend (React), Backend (Express), and Database (Supabase).
+Restaurant OS 6.0 is a modern, scalable restaurant management system built with a unified backend architecture. The system consists of three main layers: Frontend (React), Unified Backend (Express), and Database (Supabase).
 
 ```mermaid
 graph TB
@@ -13,15 +13,12 @@ graph TB
         Expo[Expo Station]
     end
 
-    subgraph "API Layer"
-        API[REST API<br/>Express 4.18]
-        WS[WebSocket Server]
-        AI[AI Services<br/>OpenAI]
+    subgraph "Unified Backend Layer (Port 3001)"
+        API[REST API + WebSocket + AI<br/>Express 4.18]
     end
 
     subgraph "Data Layer"
         DB[(PostgreSQL<br/>Supabase)]
-        Cache[(Redis<br/>Optional)]
     end
 
     subgraph "External Services"
@@ -31,12 +28,10 @@ graph TB
 
     Web --> API
     Kiosk --> API
-    Kitchen --> WS
-    Expo --> WS
+    Kitchen --> API
+    Expo --> API
     API --> DB
-    API --> Cache
-    WS --> DB
-    AI --> OpenAI
+    API --> OpenAI
     API --> Square
 ```
 
@@ -65,7 +60,6 @@ graph TB
 
 - **Primary**: PostgreSQL (via Supabase)
 - **ORM**: Knex.js
-- **Caching**: Redis (optional)
 - **File Storage**: Supabase Storage
 
 ## Core Modules
@@ -245,7 +239,6 @@ interface AuthFlow {
 
 3. **Caching Strategy**
    - HTTP cache headers
-   - Redis for session data
    - Browser localStorage
    - Service Worker (PWA)
 
@@ -310,17 +303,17 @@ graph LR
 1. **Stateless Services**
    - No server-side sessions
    - JWT for authentication
-   - Redis for shared state
+   - Database for shared state
 
 2. **Load Balancing**
-   - Multiple API instances
+   - Multiple unified backend instances
    - WebSocket sticky sessions
    - Database connection pooling
 
-3. **Microservices Ready**
-   - Modular architecture
-   - Service boundaries defined
-   - API gateway pattern
+3. **Modular Architecture**
+   - Unified backend with clear module boundaries
+   - Service separation within single process
+   - Scalable monolith pattern
 
 ### Vertical Scaling
 
@@ -331,7 +324,6 @@ graph LR
 
 2. **Caching Layers**
    - CDN for static assets
-   - Redis for hot data
    - Browser caching
 
 ## Monitoring & Observability

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 📚 Documentation Cleanup (September 9-10, 2025)
+- **Major Documentation Cleanup**: Comprehensive audit and cleanup of project documentation
+  - Archived 50+ outdated documentation files to reduce confusion
+  - Removed obsolete reports, analysis files, and teaching materials
+  - Consolidated architecture decisions into ADR format
+  - Updated core documentation to reflect v6.0.4 reality
+  - Fixed version inconsistencies and outdated information
+  - Removed demo/test authentication documentation
+
 ### 🔒 Security
 - **Critical Authentication Security Improvements** (January 30, 2025)
   - Applied rate limiting to all authentication endpoints (5 attempts/15 minutes)
@@ -18,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Result: Risk level reduced from CRITICAL to MEDIUM
 
 ### 📚 Documentation
-- **Comprehensive Documentation Audit** (September 2, 2025)
+- **Comprehensive Documentation Audit** (September 2, 2025) - SUPERSEDED by September 9-10 cleanup
   - Unified scattered documentation into single sources of truth
   - Created `/docs/api/` and `/docs/architecture/` unified directories
   - Added Architecture Decision Records (ADRs) for key decisions:
@@ -40,7 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Persists across save/reload for multi-tenant restaurants
   - Smallest default size (48x48) with 1 seat capacity
 
-## [6.0.3] - 2025-09-01 - Critical Loading Fix & Guard Systems
+## [6.0.3] - 2025-09-01 - Critical Loading Fix & Guard Systems (Historical Reference)
 
 ### 🔧 Quality & Stability Sprint
 
@@ -67,9 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Test Coverage**: Maintained ≥60/50/60 thresholds
 - **Puppeteer Tests**: 10/10 passing (100% success rate)
 
-## [6.0.3] - 2025-02-01
-
-### 🚀 Authentication & RBAC MVP Complete
+## [6.0.3] - 2025-02-01 - Authentication & RBAC MVP Complete (Future Release)
 
 ### ✨ Added
 - **Complete Authentication System**:
@@ -121,7 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added request signing for critical operations
 - Enhanced input validation on all auth endpoints
 
-## [6.0.4] - 2025-01-30 - Authentication Security Hardening
+## [6.0.4] - 2025-01-30 - Authentication Security Hardening (Current Version)
 
 ### 🔐 Security Enhancement
 - **Removed All Demo/Test Authentication Bypasses**: Complete removal of DemoAuthService and test token systems

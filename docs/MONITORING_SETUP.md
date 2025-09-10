@@ -2,7 +2,15 @@
 
 ## Overview
 
-Comprehensive monitoring setup for Restaurant OS production environments, including error tracking, performance monitoring, real-time alerts, and business metrics.
+**⚠️ STATUS**: This is aspirational documentation. Most monitoring tools referenced here are **NOT currently implemented** in Restaurant OS v6.0.4.
+
+**Current Reality**:
+- No Sentry integration active
+- No production monitoring dashboards
+- Basic console logging only
+- No real-time alerts configured
+
+This guide covers the comprehensive monitoring setup planned for Restaurant OS production environments.
 
 ## Error Tracking with Sentry
 
@@ -20,8 +28,10 @@ import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
 
 export const initSentry = () => {
+  // NOTE: Sentry integration not currently active in v6.0.4
+  // TODO: Implement when production-ready
   Sentry.init({
-    dsn: process.env.VITE_SENTRY_DSN,
+    dsn: process.env.VITE_SENTRY_DSN, // Currently undefined
     environment: process.env.NODE_ENV,
     integrations: [
       new BrowserTracing({
@@ -471,6 +481,8 @@ export class BusinessMetrics {
 
 ```typescript
 // client/src/components/admin/MonitoringDashboard.tsx
+// NOTE: This component does not currently exist in v6.0.4
+// TODO: Implement monitoring dashboard
 export const MonitoringDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);

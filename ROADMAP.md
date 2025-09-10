@@ -1,20 +1,22 @@
 # Restaurant OS v6.0 - Production Roadmap
 
-## Current Status: Auth Complete, Payments Next ✅
-- **Version**: 6.0.3
-- **Stage**: Production Ready (with Square Sandbox)
-- **Production Readiness**: 8/10
-- **Code Quality**: 0 ESLint errors, 397 TypeScript errors (down from 526)
+## Current Status: Development Focus - Cleanup & Stabilization ⚠️
+- **Version**: 6.0.4 (current)
+- **Stage**: Development (needs stabilization before production)
+- **Production Readiness**: 6/10 (down from 8/10 due to test failures)
+- **Code Quality**: 0 ESLint errors, 560 TypeScript errors (up from 397)
+- **Tests**: ❌ BROKEN (timeout issues - critical blocker)
 - **Authentication**: ✅ COMPLETE (JWT + RBAC + PIN + Station)
-- **CI/CD**: ✅ Runtime Smoke Gate + TypeScript Freeze Check
-- **Last Updated**: August 31, 2025
+- **Split Payment UI**: ❌ MISSING (backend only implementation)
+- **KDS**: Single implementation (consolidated successfully)
+- **Last Updated**: September 9, 2025
 
 ---
 
 ## 🎯 Phase 1: MVP Production (2 weeks)
 **Goal**: Accept real orders and payments with proper authentication
 
-### Week 1: Authentication System ✅ **COMPLETE**
+### Week 1: Authentication System ✅ **COMPLETE** 
 - [x] JWT token generation/validation via Supabase
 - [x] Login page with email/password + MFA for managers  
 - [x] PIN-based login for servers/cashiers (bcrypt + pepper)
@@ -26,15 +28,15 @@
 - [x] Rate limiting with progressive lockouts
 - [x] Comprehensive audit logging with user_id tracking
 
-### Week 2: Payments & Testing 🚀 **CURRENT FOCUS**
+### Week 2: Test Recovery & Stabilization 🚨 **CRITICAL FOCUS**
+- [ ] **URGENT**: Fix test timeout issues (blocking production)
+- [ ] Restore test coverage reporting
+- [ ] Fix TypeScript errors (560 currently)
+- [ ] Complete split payment UI implementation
 - [ ] Square production credentials configuration
-- [x] Payment audit logging with user tracking (foundation ready)
-- [x] Role-based payment permissions (scopes implemented)
 - [ ] Critical path tests (order → payment → kitchen)
 - [ ] Load testing (100 concurrent users)
 - [ ] Integration tests for payment flows
-- [ ] Webhook handling verification
-- [ ] Idempotency key testing
 
 **Deliverable**: System ready for first restaurant pilot
 
@@ -137,32 +139,33 @@
 | Phase | Duration | Target Date | Status |
 |-------|----------|------------|--------|
 | Week 1 Auth | 1 week | Feb 1, 2025 | ✅ Complete |
-| Week 2 Payments | 1 week | Feb 8, 2025 | 🚀 In Progress |
-| Phase 2 | 2 weeks | Feb 22, 2025 | Not Started |
-| Phase 3 | 4 weeks | Mar 22, 2025 | Not Started |
-| Phase 4 | Ongoing | Apr 2025+ | Not Started |
+| Week 2 Stabilization | 2 weeks | Sep 23, 2025 | 🚨 Critical |
+| Phase 2 Production | 3 weeks | Oct 14, 2025 | Delayed |
+| Phase 3 Scale Ready | 4 weeks | Nov 11, 2025 | Delayed |
+| Phase 4 Innovation | Ongoing | Dec 2025+ | Future |
 
 ---
 
-## 🎯 Next 7 Days Priority
+## 🎯 Next 7 Days Priority (September 9-16, 2025)
 
-1. **Day 1-2**: Configure Square production credentials
-2. **Day 3-4**: Implement comprehensive payment tests
-3. **Day 5-6**: Load testing & performance optimization
-4. **Day 7**: Production environment setup
+1. **Day 1-2**: Fix test timeout issues (critical blocker)
+2. **Day 3-4**: Reduce TypeScript errors from 560 to <400
+3. **Day 5-6**: Implement split payment UI (backend exists)
+4. **Day 7**: Documentation cleanup completion
 
 ---
 
 ## 📝 Notes
 
-- **Current Status**: Auth/RBAC complete, ready for payments
-- **Current Blockers**: Need Square production credentials
-- **Main Achievement**: Full authentication & RBAC system operational
-- **Next Milestone**: Production payment processing
-- **Opportunity**: Voice ordering differentiator + robust auth
+- **Current Status**: Auth complete, tests broken, stabilization needed
+- **Current Blockers**: Test timeouts, 560 TypeScript errors, missing split payment UI
+- **Main Achievement**: Authentication & RBAC system + documentation cleanup
+- **Next Milestone**: Restore test stability and reduce technical debt
+- **Risk**: Production timeline delayed due to quality issues
+- **Opportunity**: Voice ordering differentiator + robust auth (once stabilized)
 - **Competition**: Square, Toast, Clover
 - **Target Market**: Small-medium restaurants
 
 ---
 
-*Last Updated: February 1, 2025*
+*Last Updated: September 9, 2025*

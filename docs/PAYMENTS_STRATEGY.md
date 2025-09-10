@@ -2,18 +2,24 @@
 
 ## Executive Summary
 
-This document outlines the comprehensive payment implementation strategy for Restaurant OS v6.0.3, building upon the completed authentication and RBAC system. Our goal is to deliver production-ready payment processing with Square integration, robust security measures, comprehensive audit logging, and proven load testing results.
+This document outlines the comprehensive payment implementation strategy for Restaurant OS v6.0.4, building upon the completed authentication and RBAC system. **Note: Split payment UI is missing and needs implementation.** Our goal is to deliver production-ready payment processing with Square integration, robust security measures, comprehensive audit logging, and proven load testing results.
 
 **Purpose**: Enable secure, scalable payment processing for restaurant operations while maintaining PCI compliance alignment and providing complete audit trails for financial reconciliation.
 
-## Current State (v6.0.2)
+## Current State (v6.0.4 - September 2025)
 
 ### What Exists Now
 - **Square Sandbox Integration**: Basic payment processing with sandbox credentials
 - **Server-side Validation**: Amount calculation and validation on server to prevent manipulation
-- **Basic Audit Logging**: Console-based logging of payment attempts
+- **Complete Audit Logging**: Database-based logging with user tracking
 - **Auth & RBAC System**: Complete JWT-based authentication with role-based access control
-- **API Scopes Defined**: PAYMENTS_PROCESS, PAYMENTS_REFUND, PAYMENTS_READ scopes implemented
+- **API Scopes Implemented**: PAYMENTS_PROCESS, PAYMENTS_REFUND, PAYMENTS_READ scopes fully functional
+- **Backend Split Payment**: Full backend implementation for split payments
+
+### What's Missing (Critical Gaps)
+- **Split Payment UI**: Backend exists but no frontend interface
+- **Production Square Credentials**: Still using sandbox environment
+- **Test Stability**: Payment tests currently timeout (blocking deployment)
 
 ### Infrastructure Ready
 - Supabase JWT authentication with RS256 signing
@@ -346,7 +352,15 @@ export default function() {
 - [ ] Monitor initial transactions
 - [ ] Enable for pilot restaurant
 
-### Step 6: Progressive Rollout (Week 2)
+### Step 6: Split Payment UI Implementation (Critical Gap)
+- [ ] **URGENT**: Design and implement split payment UI
+- [ ] Frontend forms for payment splitting
+- [ ] Integration with existing backend split payment logic
+- [ ] Testing with multiple payment methods
+- [ ] User experience for complex payment scenarios
+
+### Step 7: Progressive Rollout (Delayed)
+- [ ] Fix test stability issues first
 - [ ] Monitor pilot restaurant metrics
 - [ ] Fix any identified issues
 - [ ] Enable for additional restaurants

@@ -6,7 +6,7 @@
 - **Version**: 6.0.4
 - **Stack**: React 19.1.0, TypeScript 5.8.3/5.3.3, Vite 5.4.19, Express 4.18.2, Supabase 2.50.5/2.39.7
 - **Architecture**: Unified backend on port 3001
-- **Last Updated**: January 30, 2025
+- **Last Updated**: September 10, 2025
 
 ## Directory Structure
 
@@ -38,7 +38,7 @@ rebuild-6.0/
 - **Pre-commit**: test, lint, typecheck must pass
 - **Bundle Size**: Main chunk target <100KB
 - **Memory**: 4GB max for builds (optimized from 12GB)
-- **TypeScript**: 561 errors (mostly in tests - app still runs, down from 670+)
+- **TypeScript**: 560 errors (mostly in tests - app still runs, down from 670+)
 
 ## Key Features
 
@@ -47,7 +47,7 @@ rebuild-6.0/
 - Real-time POS system
 - iPad-based tableside payment system
 - Menu management with QR codes
-- Kitchen display system (KDS) - 3 duplicate implementations need consolidation
+- Kitchen display system (KDS) - Single optimized implementation (consolidated Sept 10)
 - Analytics dashboard
 - Split payment functionality (backend only - frontend UI missing)
 
@@ -90,7 +90,7 @@ rebuild-6.0/
 - **API Endpoint**: `/api/v1/realtime/session`
 - **No competing systems**: All WebSocket/blob-based voice removed
 - Context provider: RestaurantContext (restaurant_id field)
-- **Last Updated**: January 30, 2025
+- **Last Updated**: September 10, 2025
 
 ## Specialized Agents
 

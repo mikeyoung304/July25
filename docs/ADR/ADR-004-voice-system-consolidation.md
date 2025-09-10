@@ -1,8 +1,10 @@
 # ADR-004: Voice System Consolidation
 
-**Status**: Accepted  
+**Status**: Accepted ✅ **IMPLEMENTED & ACTIVE**  
 **Date**: September 2, 2025  
 **Deciders**: AI/Voice Team
+
+**Status Update (September 2025)**: WebRTC + OpenAI Realtime implementation is consolidated and operational as designed.
 
 ## Context
 

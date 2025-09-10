@@ -12,35 +12,52 @@ This guide covers the testing strategy, tools, and procedures for Restaurant OS 
 - **Mocking**: Vitest mocks
 - **E2E**: Playwright (planned)
 
-## Test Coverage Requirements
+## 🚨 CRITICAL: Test Suite Status
 
-| Metric     | Target | Current |
-| ---------- | ------ | ------- |
-| Statements | 60%    | 60%+    |
-| Branches   | 50%    | 50%+    |
-| Functions  | 60%    | 60%+    |
-| Lines      | 60%    | 60%+    |
+**⚠️ WARNING: Test suite is currently broken and cannot provide coverage metrics.**
+
+**Current Issues:**
+- Tests timeout after 2+ minutes
+- 3 failing tests in last run (WebSocketService, ErrorBoundary)
+- Cannot measure actual coverage due to test failures
+- WebSocket authentication mocking issues
+- ErrorBoundary test spy/mock configuration problems
+
+## Test Coverage Requirements (When Fixed)
+
+| Metric     | Target | Current Status |
+| ---------- | ------ | -------------- |
+| Statements | 60%    | **UNMEASURABLE** - Tests broken |
+| Branches   | 50%    | **UNMEASURABLE** - Tests broken |
+| Functions  | 60%    | **UNMEASURABLE** - Tests broken |
+| Lines      | 60%    | **UNMEASURABLE** - Tests broken |
 
 ## Running Tests
 
 ### Basic Commands
 
+**⚠️ WARNING: These commands will timeout or fail until test suite is fixed!**
+
 ```bash
-# Run all tests
+# Run all tests (CURRENTLY BROKEN - will timeout after 2+ minutes)
 npm test
 
-# Run with coverage
+# Run with coverage (BROKEN - cannot measure due to test failures)
 npm run test:coverage
 
-# Run in watch mode
+# Run in watch mode (BROKEN - tests will fail)
 npm run test:watch
 
-# Run specific test file
+# Run specific test file (May work for some files)
 npm test -- OrderCard.test.tsx
 
-# Run with memory monitoring
+# Run with memory monitoring (BROKEN)
 npm run test:memory
 ```
+
+**Known failing tests:**
+- `WebSocketService.test.ts` - Auth token mocking issues
+- `ErrorBoundary.test.tsx` - Console spy configuration problems
 
 ### Test Scripts
 

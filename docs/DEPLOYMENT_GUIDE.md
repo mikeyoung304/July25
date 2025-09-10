@@ -2,10 +2,21 @@
 
 ## Overview
 
-This guide covers deploying Restaurant OS 6.0 to production environments. We support multiple deployment platforms with automated CI/CD pipelines.
+**⚠️ IMPORTANT**: This guide is for future reference. Restaurant OS v6.0.4 is **NOT production ready** due to:
+- Test suite failures (timeout issues)
+- 560 TypeScript errors
+- Missing split payment UI
+- Performance issues need resolution
+
+This guide covers deploying Restaurant OS 6.0 to production environments once stabilization is complete.
 
 ## Prerequisites
 
+**Before attempting deployment, ensure:**
+- All tests pass (`npm test` - currently failing)
+- TypeScript errors resolved (<100 from current 560)
+- Split payment UI implemented
+- Performance benchmarks met
 - Node.js 18+ installed
 - Git repository access
 - Environment variables configured
@@ -525,15 +536,19 @@ pg_restore -d restaurant_os backup.sql
 
 ## Production Checklist
 
-### Pre-deployment
+### Pre-deployment (⚠️ Currently Failing)
 
-- [ ] All tests passing
+- [ ] **CRITICAL**: All tests passing (currently timeout)
+- [ ] **CRITICAL**: TypeScript errors <100 (currently 560)
+- [ ] **CRITICAL**: Split payment UI implemented
 - [ ] Environment variables configured
 - [ ] Database migrations ready
 - [ ] SSL certificates installed
 - [ ] Monitoring configured
 - [ ] Backup strategy in place
 - [ ] Load testing completed
+- [ ] Memory usage optimized (<4GB builds)
+- [ ] Bundle size under target (<100KB main chunk)
 
 ### Post-deployment
 

@@ -1,15 +1,31 @@
 # Known Issues & Workarounds
 
-Last Updated: August 27, 2025 | Version: 6.0.2
+Last Updated: September 10, 2025 | Version: 6.0.4
 
 ## 🔴 Critical Issues
 
-Currently, there are **no critical issues** affecting production use.
+### 1. Test Suite Completely Broken
+**Issue**: Tests timeout after 2+ minutes and have failing assertions  
+**Impact**: Cannot measure test coverage or validate code changes  
+**Status**: High priority - tests fail with WebSocket auth issues and ErrorBoundary mocking problems  
+**Evidence**: 3 failed tests in last run, including WebSocketService and ErrorBoundary tests
+
+### 2. TypeScript Errors (560 count)
+**Issue**: 560 TypeScript compilation errors throughout codebase  
+**Impact**: App still runs but type safety compromised  
+**Status**: Known issue - mostly in test files  
+**Workaround**: Use `// @ts-ignore` sparingly, focus on critical paths
+
+### 3. Split Payment UI Missing
+**Issue**: Backend split payment functionality exists but no UI implementation  
+**Impact**: Feature advertised but not usable by end users  
+**Status**: Backend complete, frontend UI needed  
+**Priority**: Medium - affects user experience claims
 
 ## 🟡 Minor Issues
 
 ### 1. ESLint Warnings
-**Issue**: 87 unused variable warnings in the codebase  
+**Issue**: 449 unused variable warnings in the codebase  
 **Impact**: None on functionality  
 **Workaround**: Run `npm run lint:fix` to auto-fix where possible  
 **Status**: Low priority cleanup task

@@ -2,6 +2,12 @@
 
 ## Overview
 
+**⚠️ CURRENT STATUS**: Restaurant OS v6.0.4 has several performance issues that need resolution:
+- Test suite timeouts (critical blocker)
+- Memory usage spikes during builds
+- Bundle size optimization needed
+- TypeScript compilation slowdowns
+
 Performance is critical for Restaurant OS, especially for kitchen displays, POS systems, and customer-facing interfaces. This guide covers optimization strategies, monitoring approaches, and performance targets.
 
 ## Performance Targets
@@ -20,10 +26,11 @@ Performance is critical for Restaurant OS, especially for kitchen displays, POS 
 - **First Input Delay (FID)**: <100ms
 
 ### Memory Targets
-- **Build memory**: <4GB (optimized from 12GB)
-- **Runtime heap**: <50MB sustained, <100MB peak
+- **Build memory**: <4GB (optimized from 12GB, but builds still spike)
+- **Runtime heap**: <50MB sustained, <100MB peak  
 - **WebSocket connections**: <5MB per connection
 - **Long-running pages**: No memory leaks over 24 hours
+- **Test memory**: Currently causing timeouts - needs investigation
 
 ### API Response Targets
 - **Database queries**: <100ms average
