@@ -46,6 +46,7 @@ sequenceDiagram
 - **Quantities**: "Two Greek Salads", "Three waters"
 - **Corrections**: "Actually, make that a BLT instead"
 - **Questions**: "What's in the Soul Bowl?"
+- **Confirmation**: "That's all, checkout please"
 
 ### Supported Contexts
 
@@ -121,6 +122,53 @@ You are taking orders for a restaurant with these items:
 `;
 ```
 
+## Order Confirmation Flow
+
+### How Voice Orders Reach the Kitchen
+
+The system handles order confirmation through OpenAI function calls:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant OpenAI
+    participant WebRTCClient
+    participant VoiceOrderingMode
+    participant OrderAPI
+    participant Kitchen
+
+    User->>OpenAI: "That's all, checkout please"
+    OpenAI->>WebRTCClient: confirm_order(action: 'checkout')
+    WebRTCClient->>WebRTCClient: Emit 'order.confirmation'
+    WebRTCClient->>VoiceOrderingMode: onOrderConfirmation callback
+    VoiceOrderingMode->>OrderAPI: POST /api/v1/orders
+    OrderAPI->>Kitchen: WebSocket broadcast
+    VoiceOrderingMode->>User: Navigate to confirmation
+```
+
+### Confirmation Actions
+
+The `confirm_order` function supports three actions:
+
+| Action | Trigger Phrases | Result |
+|--------|----------------|---------|
+| **checkout** | "That's all", "Checkout please", "I'm done" | Submits order to kitchen |
+| **review** | "What's in my order?", "Review my order" | Shows order summary |
+| **cancel** | "Cancel order", "Start over" | Clears cart |
+
+### Event Chain
+
+1. **Voice Input**: User speaks confirmation phrase
+2. **Function Call**: OpenAI calls `confirm_order` with appropriate action
+3. **Event Emission**: WebRTCVoiceClient emits `'order.confirmation'` event
+4. **Handler Chain**:
+   - `useWebRTCVoice` hook receives event
+   - `VoiceControlWebRTC` component passes to callback
+   - `VoiceOrderingMode` handles confirmation
+5. **Order Submission**: `submitOrderAndNavigate` sends to API
+6. **Kitchen Update**: WebSocket broadcasts to KDS
+7. **User Feedback**: Navigate to confirmation page
+
 ## Configuration
 
 ### Required Environment Variables
@@ -172,6 +220,8 @@ const { client_secret } = await fetch('/api/v1/realtime/session');
 | No transcription | OpenAI API issues | Check API key and quota |
 | Wrong items | Menu context outdated | Update menu prompt |
 | High latency | Poor connection | Check network speed |
+| Orders stall after confirmation | Missing event handler | Ensure order.confirmation listener exists |
+| Checkout not triggered | Broken event chain | Verify VoiceOrderingMode handles confirmation |
 
 ### Debug Mode
 

@@ -10,6 +10,7 @@ import { logger } from '../../../services/monitoring/logger';
 interface VoiceControlWebRTCProps {
   onTranscript?: (text: string) => void;
   onOrderDetected?: (order: any) => void;
+  onOrderConfirmation?: (confirmation: { action: string; timestamp: number }) => void;
   debug?: boolean;
   className?: string;
 }
@@ -21,6 +22,7 @@ interface VoiceControlWebRTCProps {
 export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   onTranscript,
   onOrderDetected,
+  onOrderConfirmation,
   debug = false,
   className = '',
 }) => {
@@ -35,6 +37,11 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   const handleOrderDetected = useCallback((order: any) => {
     onOrderDetected?.(order);
   }, [onOrderDetected]);
+  
+  const handleOrderConfirmation = useCallback((confirmation: { action: string; timestamp: number }) => {
+    logger.info('[VoiceControlWebRTC] Order confirmation received:', { action: confirmation.action });
+    onOrderConfirmation?.(confirmation);
+  }, [onOrderConfirmation]);
   
   const {
     connect,
@@ -54,6 +61,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     debug,
     onTranscript: handleTranscript,
     onOrderDetected: handleOrderDetected,
+    onOrderConfirmation: handleOrderConfirmation,
   });
   
   // Check microphone permission

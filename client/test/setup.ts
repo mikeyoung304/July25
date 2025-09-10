@@ -7,6 +7,9 @@ import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { afterEach, afterAll, beforeAll, vi } from 'vitest'
 
+// Jest compatibility layer for tests still using Jest syntax
+(global as any).jest = vi
+
 // Enable manual GC for tests
 beforeAll(() => {
   if (!global.gc) {

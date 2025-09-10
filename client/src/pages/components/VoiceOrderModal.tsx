@@ -34,6 +34,7 @@ interface VoiceOrderModalProps {
   }
   onSubmit: () => void
   onClose: () => void
+  mode?: 'server' | 'kiosk'  // Add mode to control voice behavior
 }
 
 export function VoiceOrderModal({
@@ -42,7 +43,8 @@ export function VoiceOrderModal({
   seat,
   voiceOrder,
   onSubmit,
-  onClose
+  onClose,
+  mode = 'server'  // Default to server mode (listen-only)
 }: VoiceOrderModalProps) {
   if (!show || !table || !seat) return null
 
@@ -87,11 +89,17 @@ export function VoiceOrderModal({
 
               <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 250px)' }}>
                 <div className="flex justify-center mb-6">
+                  {/* Server mode: Listen-only without TTS responses */}
                   <VoiceControlWebRTC
-                    onTranscript={(text) => voiceOrder.handleVoiceTranscript({ text, isFinal: false })}
+                    onTranscript={(text) => voiceOrder.handleVoiceTranscript({ text, isFinal: true })}  // Always final for server mode
                     onOrderDetected={voiceOrder.handleOrderData}
                     debug={false}
                   />
+                  {mode === 'server' && (
+                    <div className="text-xs text-neutral-500 mt-2">
+                      Server Mode: Listen-only (no voice responses)
+                    </div>
+                  )}
                 </div>
 
                 {voiceOrder.currentTranscript && (

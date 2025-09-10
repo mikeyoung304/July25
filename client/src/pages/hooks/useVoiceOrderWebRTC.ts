@@ -151,7 +151,7 @@ export function useVoiceOrderWebRTC() {
     setOrderItems(prev => prev.filter(item => item.id !== itemId))
   }, [])
 
-  // Submit order to backend
+  // Submit order to backend and initiate payment
   const submitOrder = useCallback(async (selectedTable: Table | null, selectedSeat: number | null) => {
     if (orderItems.length === 0 || !selectedTable || !selectedSeat || !session?.accessToken) {
       toast.error('No order items to submit or user not authenticated')
@@ -159,6 +159,7 @@ export function useVoiceOrderWebRTC() {
     }
     
     try {
+      // Step 1: Create the order
       const response = await fetch(apiUrl('/api/v1/orders'), {
         method: 'POST',
         headers: {
@@ -186,14 +187,66 @@ export function useVoiceOrderWebRTC() {
         })
       })
       
-      if (response.ok) {
-        toast.success(`Order submitted for ${selectedTable.label}, Seat ${selectedSeat}!`)
-        return true
-      } else {
+      if (!response.ok) {
         const errorText = await response.text()
         console.error('Order submission failed:', errorText)
         throw new Error('Failed to submit order')
       }
+
+      const orderData = await response.json()
+      logger.info('[useVoiceOrderWebRTC] Order created', { orderId: orderData.id, orderNumber: orderData.order_number })
+      
+      // Step 2: Initiate Square Terminal checkout if device is configured
+      const deviceId = localStorage.getItem('square_terminal_device_id') || import.meta.env.VITE_SQUARE_TERMINAL_DEVICE_ID
+      
+      if (deviceId) {
+        try {
+          const checkoutResponse = await fetch(apiUrl('/api/v1/terminal/checkout'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.accessToken}`,
+              'X-Restaurant-ID': restaurantId || import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+            },
+            body: JSON.stringify({
+              orderId: orderData.id,
+              deviceId: deviceId
+            })
+          })
+
+          if (checkoutResponse.ok) {
+            const checkoutData = await checkoutResponse.json()
+            logger.info('[useVoiceOrderWebRTC] Terminal checkout initiated', { checkoutId: checkoutData.checkout?.id })
+            toast.success(`Payment initiated on terminal for ${selectedTable.label}, Seat ${selectedSeat}`)
+            
+            // Step 3: Update order status to confirmed after payment initiation
+            await fetch(apiUrl(`/api/v1/orders/${orderData.id}/status`), {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.accessToken}`,
+                'X-Restaurant-ID': restaurantId || import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+              },
+              body: JSON.stringify({
+                status: 'confirmed',
+                notes: 'Payment processing via Square Terminal'
+              })
+            })
+          } else {
+            // Payment initiation failed but order exists
+            logger.warn('[useVoiceOrderWebRTC] Terminal checkout failed, order remains pending', { orderId: orderData.id })
+            toast.error(`Order created but payment pending for ${selectedTable.label}`)
+          }
+        } catch (paymentError) {
+          logger.error('[useVoiceOrderWebRTC] Payment processing error', { error: paymentError })
+          toast.error('Order created, please process payment manually')
+        }
+      } else {
+        // No terminal configured - order created but needs manual payment
+        toast.success(`Order created for ${selectedTable.label}, Seat ${selectedSeat}. Process payment at POS.`)
+      }
+      
+      return true
     } catch (error) {
       console.error('Error submitting order:', error)
       toast.error('Failed to submit order. Please try again.')

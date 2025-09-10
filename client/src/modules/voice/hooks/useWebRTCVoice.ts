@@ -7,6 +7,7 @@ export interface UseWebRTCVoiceOptions {
   debug?: boolean;
   onTranscript?: (transcript: TranscriptEvent) => void;
   onOrderDetected?: (order: OrderEvent) => void;
+  onOrderConfirmation?: (confirmation: { action: string; timestamp: number }) => void;
   onError?: (error: Error) => void;
 }
 
@@ -37,7 +38,7 @@ export interface UseWebRTCVoiceReturn {
  * React hook for WebRTC voice integration with OpenAI Realtime API
  */
 export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVoiceReturn {
-  const { autoConnect: _autoConnect = true, debug = false, onTranscript, onOrderDetected, onError } = options;
+  const { autoConnect: _autoConnect = true, debug = false, onTranscript, onOrderDetected, onOrderConfirmation, onError } = options;
   
   // Get restaurant ID from environment or use default
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
@@ -55,14 +56,16 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   // Store callbacks in refs to prevent re-initialization
   const onTranscriptRef = useRef(onTranscript);
   const onOrderDetectedRef = useRef(onOrderDetected);
+  const onOrderConfirmationRef = useRef(onOrderConfirmation);
   const onErrorRef = useRef(onError);
   
   // Update refs when callbacks change
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
     onOrderDetectedRef.current = onOrderDetected;
+    onOrderConfirmationRef.current = onOrderConfirmation;
     onErrorRef.current = onError;
-  }, [onTranscript, onOrderDetected, onError]);
+  }, [onTranscript, onOrderDetected, onOrderConfirmation, onError]);
   
   // Initialize client
   useEffect(() => {
@@ -99,6 +102,13 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       // Order detected
       // Use ref to call callback
       onOrderDetectedRef.current?.(event);
+    });
+    
+    client.on('order.confirmation', (event: { action: string; timestamp: number }) => {
+      // Order confirmation (checkout, review, cancel)
+      logger.info('[useWebRTCVoice] Order confirmation received:', { action: event.action });
+      // Use ref to call callback
+      onOrderConfirmationRef.current?.(event);
     });
     
     client.on('response.text', (text: string) => {

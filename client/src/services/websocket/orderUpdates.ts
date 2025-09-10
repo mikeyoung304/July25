@@ -57,7 +57,11 @@ export class OrderUpdatesHandler {
     
     this.connectionHandlers.disconnected = () => {
       console.warn('Order updates disconnected')
-      toast.error('Lost connection to order updates. Reconnecting...')
+      // Only show error toast if we were actually connected (i.e., authenticated)
+      // This prevents showing errors on unauthenticated pages like the landing page
+      if (webSocketService.isConnected() || this.isInitialized) {
+        toast.error('Lost connection to order updates. Reconnecting...')
+      }
     }
     
     this.connectionHandlers.error = (error) => {
