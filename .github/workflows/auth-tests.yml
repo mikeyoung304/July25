@@ -1,0 +1,110 @@
+name: Auth & Orders Test Suite
+
+on:
+  push:
+    branches: [ main, develop, 'stabilize/*' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-auth-orders:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: restaurant_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js 20
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Setup environment
+      run: |
+        cp .env.example .env.test
+        echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/restaurant_test" >> .env.test
+        echo "KIOSK_JWT_SECRET=test-secret-key-for-ci" >> .env.test
+        echo "SUPABASE_JWT_SECRET=test-supabase-secret" >> .env.test
+        echo "NODE_ENV=test" >> .env.test
+    
+    - name: Run database migrations
+      run: npm run db:migrate
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/restaurant_test
+    
+    - name: Run auth smoke tests
+      run: node scripts/auth-smoke.mjs
+      env:
+        NODE_ENV: test
+        API_BASE: http://localhost:3001
+    
+    - name: Run integration tests
+      run: npm run test:integration
+      env:
+        NODE_ENV: test
+    
+    - name: Check TypeScript
+      run: npm run typecheck
+    
+    - name: Run ESLint
+      run: npm run lint
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          coverage/
+          test-results/
+    
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const coverage = fs.existsSync('coverage/coverage-summary.json') 
+            ? JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'))
+            : null;
+          
+          let comment = '## 🧪 Auth & Orders Test Results\n\n';
+          
+          if (coverage) {
+            const total = coverage.total;
+            comment += '### Coverage\n';
+            comment += `- Statements: ${total.statements.pct}%\n`;
+            comment += `- Branches: ${total.branches.pct}%\n`;
+            comment += `- Functions: ${total.functions.pct}%\n`;
+            comment += `- Lines: ${total.lines.pct}%\n\n`;
+          }
+          
+          comment += '### Test Status\n';
+          comment += `- TypeScript: ${{ steps.typecheck.outcome }}\n`;
+          comment += `- ESLint: ${{ steps.lint.outcome }}\n`;
+          comment += `- Integration Tests: ${{ steps.integration.outcome }}\n`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
