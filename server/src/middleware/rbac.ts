@@ -3,122 +3,12 @@ import { AuthenticatedRequest } from './auth';
 import { Forbidden, Unauthorized } from './errorHandler';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/database';
+import { DatabaseRole, ApiScope, ROLE_SCOPES } from '@rebuild/shared/types/auth';
 
 const rbacLogger = logger.child({ module: 'rbac' });
 
-/**
- * API Scope Definitions
- */
-export enum ApiScope {
-  // Order Management
-  ORDERS_CREATE = 'orders:create',
-  ORDERS_READ = 'orders:read',
-  ORDERS_UPDATE = 'orders:update',
-  ORDERS_DELETE = 'orders:delete',
-  ORDERS_STATUS = 'orders:status',
-  
-  // Payment Processing
-  PAYMENTS_PROCESS = 'payments:process',
-  PAYMENTS_REFUND = 'payments:refund',
-  PAYMENTS_READ = 'payments:read',
-  
-  // Reporting & Analytics
-  REPORTS_VIEW = 'reports:view',
-  REPORTS_EXPORT = 'reports:export',
-  
-  // Staff Management
-  STAFF_MANAGE = 'staff:manage',
-  STAFF_SCHEDULE = 'staff:schedule',
-  
-  // System Administration
-  SYSTEM_CONFIG = 'system:config',
-  
-  // Menu Management
-  MENU_MANAGE = 'menu:manage',
-  
-  // Table Management
-  TABLES_MANAGE = 'tables:manage'
-}
-
-/**
- * Role to Scope Mappings
- * Define what each role can do
- */
-export const ROLE_SCOPES: Record<string, ApiScope[]> = {
-  owner: [
-    ApiScope.ORDERS_CREATE,
-    ApiScope.ORDERS_READ,
-    ApiScope.ORDERS_UPDATE,
-    ApiScope.ORDERS_DELETE,
-    ApiScope.ORDERS_STATUS,
-    ApiScope.PAYMENTS_PROCESS,
-    ApiScope.PAYMENTS_REFUND,
-    ApiScope.PAYMENTS_READ,
-    ApiScope.REPORTS_VIEW,
-    ApiScope.REPORTS_EXPORT,
-    ApiScope.STAFF_MANAGE,
-    ApiScope.STAFF_SCHEDULE,
-    ApiScope.SYSTEM_CONFIG,
-    ApiScope.MENU_MANAGE,
-    ApiScope.TABLES_MANAGE
-  ],
-  
-  manager: [
-    ApiScope.ORDERS_CREATE,
-    ApiScope.ORDERS_READ,
-    ApiScope.ORDERS_UPDATE,
-    ApiScope.ORDERS_DELETE,
-    ApiScope.ORDERS_STATUS,
-    ApiScope.PAYMENTS_PROCESS,
-    ApiScope.PAYMENTS_REFUND,
-    ApiScope.PAYMENTS_READ,
-    ApiScope.REPORTS_VIEW,
-    ApiScope.REPORTS_EXPORT,
-    ApiScope.STAFF_MANAGE,
-    ApiScope.STAFF_SCHEDULE,
-    ApiScope.MENU_MANAGE,
-    ApiScope.TABLES_MANAGE
-  ],
-  
-  server: [
-    ApiScope.ORDERS_CREATE,
-    ApiScope.ORDERS_READ,
-    ApiScope.ORDERS_UPDATE,
-    ApiScope.ORDERS_STATUS,
-    ApiScope.PAYMENTS_PROCESS,
-    ApiScope.PAYMENTS_READ,
-    ApiScope.TABLES_MANAGE
-  ],
-  
-  cashier: [
-    ApiScope.ORDERS_READ,
-    ApiScope.PAYMENTS_PROCESS,
-    ApiScope.PAYMENTS_READ
-  ],
-  
-  kitchen: [
-    ApiScope.ORDERS_READ,
-    ApiScope.ORDERS_STATUS
-  ],
-  
-  expo: [
-    ApiScope.ORDERS_READ,
-    ApiScope.ORDERS_STATUS
-  ],
-  
-  // Kiosk demo role for self-service
-  kiosk_demo: [
-    ApiScope.ORDERS_CREATE,
-    ApiScope.ORDERS_READ,
-    ApiScope.MENU_MANAGE // Read-only for menu viewing
-  ],
-  
-  // Supabase authenticated users - base permissions
-  // Actual permissions are determined by user_restaurants table
-  authenticated: [
-    // No default scopes - will be looked up from user_restaurants
-  ]
-};
+// Re-export from shared types for backward compatibility
+export { ApiScope, DatabaseRole, ROLE_SCOPES } from '@rebuild/shared/types/auth';
 
 /**
  * Get user's role for a specific restaurant
@@ -151,7 +41,17 @@ async function getUserRestaurantRole(
  * Get scopes for a given role
  */
 function getScopesForRole(role: string): ApiScope[] {
-  return ROLE_SCOPES[role] || [];
+  // Normalize the role to DatabaseRole enum value
+  const normalizedRole = Object.values(DatabaseRole).find(
+    r => r === role.toLowerCase()
+  );
+  
+  if (!normalizedRole) {
+    rbacLogger.warn('Unknown role requested', { role });
+    return [];
+  }
+  
+  return ROLE_SCOPES[normalizedRole] || [];
 }
 
 /**
@@ -185,27 +85,27 @@ export function requireScopes(...requiredScopes: ApiScope[]) {
         return next(Forbidden('Restaurant context required'));
       }
 
-      // For admin/super_admin, grant all scopes
-      if (req.user.role === 'admin' || req.user.role === 'super_admin') {
-        rbacLogger.debug('Admin user, granting all scopes', {
+      // Owner role has all permissions
+      if (req.user.role === DatabaseRole.OWNER) {
+        rbacLogger.debug('Owner user, granting all scopes', {
           userId: req.user.id,
           role: req.user.role
         });
         return next();
       }
 
-      // For kiosk_demo users, use predefined scopes
-      if (req.user.role === 'kiosk_demo') {
-        const kioskScopes = getScopesForRole('kiosk_demo');
+      // Customer role uses predefined scopes
+      if (req.user.role === DatabaseRole.CUSTOMER) {
+        const customerScopes = getScopesForRole(DatabaseRole.CUSTOMER);
         const hasRequiredScope = requiredScopes.some(scope => 
-          kioskScopes.includes(scope)
+          customerScopes.includes(scope)
         );
         
         if (!hasRequiredScope) {
-          rbacLogger.warn('Kiosk user lacks required scope', {
+          rbacLogger.warn('Customer lacks required scope', {
             userId: req.user.id,
             requiredScopes,
-            userScopes: kioskScopes
+            userScopes: customerScopes
           });
           return next(Forbidden(`Insufficient permissions. Required: ${requiredScopes.join(', ')}`));
         }
