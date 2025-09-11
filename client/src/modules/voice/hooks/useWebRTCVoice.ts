@@ -5,6 +5,7 @@ import { logger } from '../../../services/monitoring/logger';
 export interface UseWebRTCVoiceOptions {
   autoConnect?: boolean;
   debug?: boolean;
+  mode?: 'server' | 'customer';
   onTranscript?: (transcript: TranscriptEvent) => void;
   onOrderDetected?: (order: OrderEvent) => void;
   onOrderConfirmation?: (confirmation: { action: string; timestamp: number }) => void;
@@ -38,7 +39,7 @@ export interface UseWebRTCVoiceReturn {
  * React hook for WebRTC voice integration with OpenAI Realtime API
  */
 export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVoiceReturn {
-  const { autoConnect: _autoConnect = true, debug = false, onTranscript, onOrderDetected, onOrderConfirmation, onError } = options;
+  const { autoConnect: _autoConnect = true, debug = false, mode = 'customer', onTranscript, onOrderDetected, onOrderConfirmation, onError } = options;
   
   // Get restaurant ID from environment or use default
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
@@ -73,6 +74,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       restaurantId,
       userId: undefined, // Can be added later when auth is properly integrated
       debug,
+      mode,
     });
     
     // Set up event listeners
@@ -186,7 +188,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       client.removeAllListeners();
       clientRef.current = null;
     };
-  }, [debug, restaurantId]); // Only stable dependencies - callbacks are handled via refs
+  }, [debug, restaurantId, mode]); // Only stable dependencies - callbacks are handled via refs
   
   // Connect to service
   const connect = useCallback(async () => {

@@ -33,12 +33,40 @@ rebuild-6.0/
 ## Quality Requirements
 
 - **Mandatory**: All tests pass, TypeScript strict mode
-- **Coverage**: 60% statements, 50% branches, 60% functions/lines (tests currently timeout - needs fix)
+- **Coverage**: 60% statements, 50% branches, 60% functions/lines (**CRITICAL: Tests broken - Jest→Vitest migration incomplete**)
 - **ESLint**: 0 errors, 573 warnings (down from 952 issues)
 - **Pre-commit**: test, lint, typecheck must pass
-- **Bundle Size**: Main chunk target <100KB
+- **Bundle Size**: Main chunk target <100KB (currently ~95KB ✓)
 - **Memory**: 4GB max for builds (optimized from 12GB)
 - **TypeScript**: 560 errors (mostly in tests - app still runs, down from 670+)
+
+## Production Readiness Status (Sept 10, 2025)
+
+### 🔴 Critical Blockers
+1. **Test Suite Non-Functional**: Jest→Vitest migration incomplete. Cannot verify payment flows.
+   - **Fix**: Add Vitest compatibility shim in `client/test/setup.ts`
+2. **API Contract Mismatches**: Field name inconsistencies between client/server
+   - Client sends: `table_number`, `customer_name`, `order_type`
+   - Server expects: `tableNumber`, `customerName`, `type`
+3. **Split Payment UI Missing**: Backend complete, frontend not implemented
+
+### 🟡 Integration Issues
+- **Order Submission**: Missing required fields (`price`, `subtotal`, `tax`, `tip`)
+- **Server Role**: Not included in order endpoint permissions
+- **Kiosk Authentication**: Not connected (endpoint exists but never called)
+
+### ✅ Production Ready Components
+- Authentication system (multi-strategy)
+- Voice ordering (WebRTC + OpenAI Realtime)
+- Payment backend
+- Real-time WebSocket
+- Performance optimization
+
+### 📋 Phase 0 Immediate Actions (Week 1)
+1. Fix test infrastructure (add `global.jest = vi` to setup)
+2. Correct API field name mismatches
+3. Add integration tests for order flow
+4. See `docs/PRODUCTION_ROADMAP.md` for full plan
 
 ## Key Features
 
@@ -234,6 +262,49 @@ useEffect(() => {
 - **DO NOT create adapter contexts** - they add complexity
 - **DO NOT duplicate cart logic** - violates DRY principle
 - When refactoring/unifying systems, update ALL usages, not just wrap old ones
+
+## Critical Integration Points (Sept 10, 2025)
+
+### Order Submission API Contract
+**CRITICAL**: Field name mismatches are causing order submission failures.
+
+#### Client → Server Field Mapping
+```javascript
+// ❌ WRONG (what client was sending)
+{
+  table_number: "A1",        // → tableNumber
+  customer_name: "John",     // → customerName  
+  order_type: "dine-in",     // → type
+  menu_item_id: "123",       // → menuItemId
+  modifications: ["no ice"]  // → modifiers: [{name: "no ice", price: 0}]
+}
+
+// ✅ CORRECT (what server expects)
+{
+  tableNumber: "A1",
+  customerName: "John",
+  type: "dine-in",
+  items: [{
+    menuItemId: "123",
+    name: "Burger",
+    quantity: 1,
+    price: 12.99,           // REQUIRED
+    modifiers: [{name: "no ice", price: 0}]
+  }],
+  subtotal: 12.99,          // REQUIRED
+  tax: 1.04,                // REQUIRED
+  tip: 0,                   // REQUIRED
+  total: 14.03
+}
+```
+
+### Voice Order Processing Flow
+1. **Transcript** → Local parsing via `OrderParser`
+2. **Items** → Added to `UnifiedCartContext`
+3. **Display** → `orderItems` computed from `cart.items`
+4. **Submit** → Uses `cart.items` with proper field mapping
+
+**WARNING**: In server mode, disable `onOrderDetected` to prevent double addition.
 
 ## Authentication Architecture (2025-01-30)
 

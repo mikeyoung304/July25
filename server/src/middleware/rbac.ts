@@ -44,7 +44,7 @@ export enum ApiScope {
  * Role to Scope Mappings
  * Define what each role can do
  */
-const ROLE_SCOPES: Record<string, ApiScope[]> = {
+export const ROLE_SCOPES: Record<string, ApiScope[]> = {
   owner: [
     ApiScope.ORDERS_CREATE,
     ApiScope.ORDERS_READ,
@@ -111,6 +111,12 @@ const ROLE_SCOPES: Record<string, ApiScope[]> = {
     ApiScope.ORDERS_CREATE,
     ApiScope.ORDERS_READ,
     ApiScope.MENU_MANAGE // Read-only for menu viewing
+  ],
+  
+  // Supabase authenticated users - base permissions
+  // Actual permissions are determined by user_restaurants table
+  authenticated: [
+    // No default scopes - will be looked up from user_restaurants
   ]
 };
 

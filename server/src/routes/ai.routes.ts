@@ -3,7 +3,7 @@ import { aiService } from '../services/ai.service';
 import { ai, checkAIHealth } from '../ai';
 import { logger } from '../utils/logger';
 import { audioUpload } from '../middleware/fileValidation';
-import { AuthenticatedRequest, authenticate, requireRole, requireScope } from '../middleware/auth';
+import { AuthenticatedRequest, authenticate, requireRole } from '../middleware/auth';
 import { aiServiceLimiter, transcriptionLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validation';
 import { menuUploadSchema, parseOrderSchema } from '../validation/ai.validation';
@@ -247,7 +247,7 @@ router.post('/parse-order', aiServiceLimiter, trackAIMetrics('parse-order'), aut
  * Process voice audio and return response
  * Combines transcription and chat in one endpoint
  */
-router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_demo']), requireScope(['ai.voice:chat']), audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_demo']), audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.file) {
       res.set('Cache-Control', 'no-store');

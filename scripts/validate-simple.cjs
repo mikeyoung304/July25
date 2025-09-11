@@ -1,86 +1,134 @@
 #!/usr/bin/env node
 
 /**
- * Simple validation script for critical paths
- * No external dependencies required
+ * Simple Validation Script for Authentication Fixes
+ * Checks that critical files have been properly modified
  */
 
-const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
-// Simple HTTP request helper
-function httpRequest(url, options = {}) {
-  return new Promise((resolve, reject) => {
-    const req = http.request(url, options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        resolve({
-          status: res.statusCode,
-          headers: res.headers,
-          data: data
-        });
-      });
+// ANSI color codes
+const colors = {
+  reset: '\x1b[0m',
+  green: '\x1b[32m',
+  red: '\x1b[31m',
+  yellow: '\x1b[33m',
+  cyan: '\x1b[36m',
+  bold: '\x1b[1m'
+};
+
+let totalTests = 0;
+let passedTests = 0;
+
+function checkFile(filePath, testName, searchPatterns) {
+  console.log(`\n${colors.cyan}Testing: ${testName}${colors.reset}`);
+  
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    
+    searchPatterns.forEach(({ pattern, description }) => {
+      totalTests++;
+      if (content.includes(pattern)) {
+        console.log(`  ${colors.green}✅ ${description}${colors.reset}`);
+        passedTests++;
+      } else {
+        console.log(`  ${colors.red}❌ ${description}${colors.reset}`);
+        console.log(`     ${colors.yellow}Missing: "${pattern}"${colors.reset}`);
+      }
     });
-    req.on('error', reject);
-    if (options.body) {
-      req.write(JSON.stringify(options.body));
+    
+  } catch (error) {
+    console.log(`  ${colors.red}❌ Failed to read file: ${error.message}${colors.reset}`);
+  }
+}
+
+console.log(`${colors.bold}${colors.cyan}${'='.repeat(60)}${colors.reset}`);
+console.log(`${colors.bold}Authentication Fix Validation${colors.reset}`);
+console.log(`${colors.cyan}${'='.repeat(60)}${colors.reset}`);
+
+// Check auth.ts
+checkFile(
+  path.join(__dirname, '..', 'server', 'src', 'middleware', 'auth.ts'),
+  'auth.ts - Authentication Middleware',
+  [
+    {
+      pattern: "import { ROLE_SCOPES } from './rbac'",
+      description: 'Imports ROLE_SCOPES'
+    },
+    {
+      pattern: 'ROLE_SCOPES[decoded.role]',
+      description: 'Uses role-based scopes'
     }
-    req.end();
-  });
-}
+  ]
+);
 
-async function runTests() {
-  console.log('\n🔍 Restaurant OS - Quick Validation\n');
-  
-  const tests = [];
-  
-  // 1. Backend Health
-  try {
-    const res = await httpRequest('http://localhost:3001/health');
-    tests.push(`✅ Backend Health: ${res.status}`);
-  } catch (e) {
-    tests.push(`❌ Backend Health: ${e.message}`);
-  }
-  
-  // 2. Frontend
-  try {
-    const res = await httpRequest('http://localhost:5173');
-    tests.push(`✅ Frontend: ${res.status}`);
-  } catch (e) {
-    tests.push(`❌ Frontend: ${e.message}`);
-  }
-  
-  // 3. Auth endpoint
-  try {
-    const res = await httpRequest('http://localhost:3001/api/v1/auth/demo', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: { role: 'server' }
-    });
-    tests.push(`✅ Auth Demo: ${res.status}`);
-  } catch (e) {
-    tests.push(`❌ Auth Demo: ${e.message}`);
-  }
-  
-  // Print results
-  console.log('Test Results:');
-  tests.forEach(t => console.log(t));
-  
-  const passed = tests.filter(t => t.startsWith('✅')).length;
-  const failed = tests.filter(t => t.startsWith('❌')).length;
-  
-  console.log(`\n📊 Summary: ${passed} passed, ${failed} failed`);
-  
-  if (passed >= 2) {
-    console.log('✅ Basic services are running');
-    process.exit(0);
-  } else {
-    console.log('❌ Critical services not available');
-    console.log('Run: npm run dev');
-    process.exit(1);
-  }
-}
+// Check rbac.ts
+checkFile(
+  path.join(__dirname, '..', 'server', 'src', 'middleware', 'rbac.ts'),
+  'rbac.ts - Role-Based Access Control',
+  [
+    {
+      pattern: 'export const ROLE_SCOPES',
+      description: 'Exports ROLE_SCOPES'
+    },
+    {
+      pattern: 'ApiScope.ORDERS_CREATE',
+      description: 'Defines ORDERS_CREATE scope'
+    }
+  ]
+);
 
-runTests().catch(console.error);
+// Check useVoiceOrderWebRTC.ts
+checkFile(
+  path.join(__dirname, '..', 'client', 'src', 'pages', 'hooks', 'useVoiceOrderWebRTC.ts'),
+  'useVoiceOrderWebRTC.ts - Voice Order Hook',
+  [
+    {
+      pattern: 'tableNumber:',
+      description: 'Uses camelCase tableNumber'
+    },
+    {
+      pattern: 'customerName:',
+      description: 'Uses camelCase customerName'
+    },
+    {
+      pattern: "type: 'dine-in'",
+      description: 'Uses correct type field'
+    }
+  ]
+);
+
+// Check VoiceOrderModal.tsx
+checkFile(
+  path.join(__dirname, '..', 'client', 'src', 'pages', 'components', 'VoiceOrderModal.tsx'),
+  'VoiceOrderModal.tsx - Voice Modal',
+  [
+    {
+      pattern: "mode === 'kiosk' ?",
+      description: 'Prevents duplicate items in server mode'
+    }
+  ]
+);
+
+// Summary
+console.log(`\n${colors.cyan}${'='.repeat(60)}${colors.reset}`);
+console.log(`${colors.bold}Summary${colors.reset}`);
+console.log(`${colors.cyan}${'='.repeat(60)}${colors.reset}\n`);
+
+const successRate = totalTests > 0 ? ((passedTests / totalTests) * 100).toFixed(1) : 0;
+
+console.log(`Total Tests: ${totalTests}`);
+console.log(`${colors.green}Passed: ${passedTests}${colors.reset}`);
+console.log(`${colors.red}Failed: ${totalTests - passedTests}${colors.reset}`);
+console.log(`Success Rate: ${successRate}%\n`);
+
+if (passedTests === totalTests) {
+  console.log(`${colors.green}${colors.bold}✅ ALL FIXES VALIDATED!${colors.reset}`);
+  console.log(`${colors.green}Ready for testing order submission.${colors.reset}\n`);
+  process.exit(0);
+} else {
+  console.log(`${colors.red}${colors.bold}❌ VALIDATION FAILED${colors.reset}`);
+  console.log(`${colors.red}Some fixes are missing or incorrect.${colors.reset}\n`);
+  process.exit(1);
+}

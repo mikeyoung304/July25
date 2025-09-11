@@ -39,19 +39,25 @@ export function useKioskOrderSubmission() {
       const total = subtotal + tax;
 
       // Prepare order data in the format expected by the API
+      // Server expects camelCase fields and specific structure
       const orderData = {
         type: 'kiosk' as const,
         items: items.map(item => ({
-          menu_item_id: item.menuItem.id,
+          id: item.menuItem.id, // Server expects 'id' not 'menu_item_id'
           name: item.menuItem.name,
           quantity: item.quantity,
           price: item.menuItem.price,
-          modifiers: item.modifications || [],
-          specialInstructions: item.specialInstructions || '',
+          modifiers: (item.modifications || []).map(mod => 
+            typeof mod === 'string' 
+              ? { name: mod, price: 0 } // Convert string modifiers to objects
+              : mod
+          ),
+          notes: item.specialInstructions || '', // Server expects 'notes' not 'specialInstructions'
         })),
-        customerName: customerInfo?.name || 'Kiosk Customer',
-        customerEmail: customerInfo?.email || '',
-        customerPhone: customerInfo?.phone || '',
+        customerName: customerInfo?.name || 'Kiosk Customer', // Already camelCase ✓
+        customerEmail: customerInfo?.email || '', // Already camelCase ✓
+        customerPhone: customerInfo?.phone || '', // Already camelCase ✓
+        tableNumber: '', // Add if needed for dine-in orders
         notes: 'Self-service kiosk order',
         subtotal: subtotal,
         tax: tax,

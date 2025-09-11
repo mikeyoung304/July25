@@ -7,7 +7,7 @@ import { supabase } from '../config/database';
 import { validatePin, createOrUpdatePin } from '../services/auth/pinAuth';
 import { createStationToken, validateStationToken, revokeAllStationTokens } from '../services/auth/stationAuth';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
-import { requireScopes, ApiScope } from '../middleware/rbac';
+import { requireScopes, ApiScope, ROLE_SCOPES } from '../middleware/rbac';
 import { authLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
@@ -247,6 +247,7 @@ router.post('/pin-login', authLimiter, async (req: Request, res: Response, next:
       role: result.role,
       restaurant_id: restaurantId,
       auth_method: 'pin',
+      scope: ROLE_SCOPES[result.role] || [], // Add scope based on role
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60) // 12 hours for staff
     };

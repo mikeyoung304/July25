@@ -6,12 +6,16 @@ import { KioskModeSelector, KioskMode } from '@/components/kiosk/KioskModeSelect
 import { VoiceOrderingMode } from '@/components/kiosk/VoiceOrderingMode';
 import { KioskCheckoutPage } from '@/components/kiosk/KioskCheckoutPage';
 import { BackToDashboard } from '@/components/navigation/BackToDashboard';
+import { useKioskAuth } from '@/hooks/useKioskAuth';
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { Alert } from '@/components/ui/alert';
 
 const KioskPageContent: React.FC = () => {
   const [currentMode, setCurrentMode] = useState<KioskMode>('selection');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { setRestaurant } = useRestaurant();
   const { cart } = useUnifiedCart();
+  const { isAuthenticated, isLoading, error, authenticate } = useKioskAuth();
   
   // Track voice checkout orchestrator for terminal integration
   const voiceCheckoutOrchestratorRef = useRef<any>(null);
@@ -42,6 +46,60 @@ const KioskPageContent: React.FC = () => {
   const handleBackFromCheckout = () => {
     setIsCheckingOut(false);
   };
+
+  // Show loading state while authenticating
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <LoadingSpinner size="large" />
+          <p className="mt-4 text-gray-600">Initializing kiosk...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if authentication failed
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full">
+          <Alert variant="error">
+            <h3 className="font-semibold">Authentication Failed</h3>
+            <p className="mt-1">{error}</p>
+            <button
+              onClick={() => authenticate()}
+              className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Retry
+            </button>
+          </Alert>
+          <div className="mt-4">
+            <BackToDashboard />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Ensure authenticated before showing kiosk interface
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Alert variant="warning">
+            <p>Kiosk authentication required</p>
+            <button
+              onClick={() => authenticate()}
+              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Authenticate
+            </button>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   // Checkout flow
   if (isCheckingOut) {

@@ -2,24 +2,66 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { IncomingMessage } from 'http';
 import { getConfig } from '../config/environment';
-import { Unauthorized } from './errorHandler';
+import { Unauthorized, BadRequest } from './errorHandler';
 import { logger } from '../utils/logger';
+import { ROLE_SCOPES } from './rbac';
+import { authService, NormalizedUser } from '../services/auth/AuthenticationService';
 
 const config = getConfig();
 
 export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email?: string;
-    role?: string;
-    scopes?: string[];
-    restaurant_id?: string; // Add restaurant_id to user interface
-  };
+  user?: NormalizedUser;  // Now using the normalized user type
   restaurantId?: string;
 }
 
-// Verify JWT token from Supabase
+// Verify JWT token using unified AuthenticationService
 export async function authenticate(
+  req: AuthenticatedRequest,
+  _res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    // Get restaurant ID from headers, body, or query (in that order)
+    const restaurantId = req.headers['x-restaurant-id'] as string ||
+                        req.body?.restaurant_id ||
+                        req.query.restaurant_id as string;
+    
+    // For write operations (POST, PUT, PATCH, DELETE), restaurant context is mandatory
+    const isWriteOperation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
+    if (isWriteOperation && !restaurantId) {
+      logger.warn('Missing restaurant context for write operation', {
+        method: req.method,
+        path: req.path
+      });
+      return next(BadRequest('Restaurant context required (X-Restaurant-ID header)'));
+    }
+    
+    // Use AuthenticationService for unified token validation
+    // This returns a NormalizedUser with canonical roles
+    const user = await authService.validateToken(authHeader || '', restaurantId);
+    
+    // Set user and restaurant context on request
+    req.user = user;
+    req.restaurantId = user.restaurantId || restaurantId;
+    
+    logger.debug('Authentication successful', {
+      userId: user.id,
+      role: user.role,
+      tokenType: user.tokenType,
+      restaurantId: req.restaurantId
+    });
+    
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Legacy authenticate function for backward compatibility
+// Will be removed after full migration
+export async function authenticateLegacy(
   req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction
@@ -123,7 +165,7 @@ export async function authenticate(
       id: decoded.sub,
       email: decoded.email,
       role: decoded.role || 'user',
-      scopes: decoded.scope || [],
+      scopes: decoded.scope || ROLE_SCOPES[decoded.role] || [],  // Use role-based scopes if JWT doesn't have them
       restaurant_id: decoded.restaurant_id, // Add restaurant_id from token
     };
 
@@ -163,13 +205,14 @@ export async function optionalAuth(
   }
 }
 
-// Verify WebSocket authentication
+// Verify WebSocket authentication using unified AuthenticationService
 export async function verifyWebSocketAuth(
   request: IncomingMessage
 ): Promise<{ userId: string; restaurantId?: string } | null> {
   try {
     const url = new URL(request.url || '', `http://${request.headers.host}`);
     const token = url.searchParams.get('token');
+    const restaurantId = url.searchParams.get('restaurant_id') || undefined;
 
     if (!token) {
       // No token provided - authentication required
@@ -177,129 +220,55 @@ export async function verifyWebSocketAuth(
       return null;
     }
 
-    // NEVER accept test tokens - authentication is required
-    if (token === 'test-token') {
-      logger.error('⛔ WebSocket: Test token rejected - authentication required');
-      return null;
-    }
-
-    // Decode token to check issuer and algorithm
-    let decoded: any;
+    // Use AuthenticationService for unified token validation
     try {
-      // First decode the token without verification to check the issuer
-      const decodedToken = jwt.decode(token, { complete: true }) as any;
+      const user = await authService.validateToken(`Bearer ${token}`, restaurantId);
       
-      if (!decodedToken) {
-        logger.error('Unable to decode WebSocket token');
-        return null;
-      }
-
-      const payload = decodedToken.payload;
-      const algorithm = decodedToken.header?.alg;
-      const issuer = payload?.iss;
-      
-      logger.info('WebSocket token analysis:', { 
-        algorithm, 
-        issuer,
-        role: payload?.role,
-        sub: payload?.sub?.substring(0, 20) // Log first 20 chars of subject
+      logger.info('WebSocket authenticated via AuthenticationService', {
+        userId: user.id,
+        role: user.role,
+        restaurantId: user.restaurant_id
       });
-
-      // Identify token type by issuer, not algorithm
-      // Supabase tokens have issuer like "https://[project-ref].supabase.co/auth/v1"
-      if (issuer?.includes('supabase.co') || issuer === 'supabase') {
-        // This is a Supabase token
-        const supabaseSecret = config.supabase.jwtSecret || config.supabase.anonKey;
-        
-        if (!supabaseSecret) {
-          logger.error('Supabase secret not configured for WebSocket');
-          return null;
-        }
-        
-        try {
-          // For WebSocket, we'll be more lenient during development
-          if (config.supabase.jwtSecret) {
-            try {
-              decoded = jwt.verify(token, config.supabase.jwtSecret) as any;
-              logger.info('Supabase token verified for WebSocket with JWT secret');
-            } catch (e) {
-              // Never accept unverified tokens, even in development
-              logger.error('WebSocket: Supabase token verification failed');
-              return null;
-            }
-          } else {
-            // No JWT secret configured - cannot verify tokens
-            logger.error('WebSocket: SUPABASE_JWT_SECRET not configured - cannot verify tokens');
-            return null;
-          }
-        } catch (verifyError) {
-          logger.error('WebSocket Supabase token verification failed:', verifyError);
-          return null;
-        }
-      } else if (payload?.sub?.startsWith('customer:') || payload?.sub?.startsWith('demo:')) {
-        // This is a kiosk/demo token - verify with KIOSK_JWT_SECRET
-        const kioskSecret = process.env['KIOSK_JWT_SECRET'];
-        if (!kioskSecret) {
-          logger.error('KIOSK_JWT_SECRET not configured for WebSocket kiosk token');
-          return null;
-        }
-        try {
-          decoded = jwt.verify(token, kioskSecret) as any;
-          logger.info('Kiosk/Demo token verified for WebSocket connection', { 
-            userId: decoded.sub,
-            restaurantId: decoded.restaurant_id 
-          });
-        } catch (kioskError) {
-          logger.error('WebSocket kiosk token verification failed:', kioskError);
-          return null;
-        }
-      } else {
-        // Unknown token type
-        logger.error('Unknown WebSocket token type', { issuer, algorithm, role: payload?.role });
-        return null;
-      }
-    } catch (decodeError) {
-      logger.error('Failed to decode WebSocket JWT token:', decodeError);
+      
+      return {
+        userId: user.id,
+        restaurantId: user.restaurant_id
+      };
+    } catch (error) {
+      logger.error('WebSocket authentication failed:', error);
       return null;
     }
-
-    return {
-      userId: decoded.sub,
-      restaurantId: decoded.restaurant_id || config.restaurant.defaultId,
-    };
   } catch (error) {
     logger.error('WebSocket auth error:', error);
     return null;
   }
 }
 
-// Require specific role
+// Require specific role - thin wrapper that reads from normalized user
 export function requireRole(roles: string[]) {
   return (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
-    if (!req.user || !roles.includes(req.user.role || '')) {
-      next(Unauthorized('Insufficient permissions'));
-    } else {
-      next();
+    if (!req.user) {
+      return next(Unauthorized('Authentication required'));
     }
+    
+    // Use AuthenticationService to check roles
+    // The service handles role normalization internally
+    if (authService.hasRole(req.user, roles)) {
+      return next();
+    }
+    
+    logger.warn('Role check failed', {
+      userId: req.user.id,
+      userRole: req.user.role,
+      requiredRoles: roles
+    });
+    
+    next(Unauthorized('Insufficient permissions'));
   };
 }
 
-// Require specific scope
-export function requireScope(requiredScopes: string[]) {
-  return (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
-    if (!req.user || !req.user.scopes) {
-      next(Unauthorized('No scopes available'));
-      return;
-    }
-
-    const hasRequiredScope = requiredScopes.some(scope => req.user!.scopes!.includes(scope));
-    if (!hasRequiredScope) {
-      next(Unauthorized(`Required scope missing. Need one of: ${requiredScopes.join(', ')}`));
-    } else {
-      next();
-    }
-  };
-}
+// Note: requireScope functionality has been moved to requireScopes in rbac.ts
+// Use: import { requireScopes, ApiScope } from '../middleware/rbac';
 
 // Validate restaurant access middleware
 export function validateRestaurantAccess(

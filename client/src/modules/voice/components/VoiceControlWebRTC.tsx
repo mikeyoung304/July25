@@ -13,6 +13,7 @@ interface VoiceControlWebRTCProps {
   onOrderConfirmation?: (confirmation: { action: string; timestamp: number }) => void;
   debug?: boolean;
   className?: string;
+  mode?: 'server' | 'customer';
 }
 
 /**
@@ -25,6 +26,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   onOrderConfirmation,
   debug = false,
   className = '',
+  mode = 'customer',
 }) => {
   const [showDebug, setShowDebug] = useState(debug);
   const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied'>('prompt');
@@ -59,6 +61,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   } = useWebRTCVoice({
     autoConnect: false, // We'll connect after permission check
     debug,
+    mode,
     onTranscript: handleTranscript,
     onOrderDetected: handleOrderDetected,
     onOrderConfirmation: handleOrderConfirmation,

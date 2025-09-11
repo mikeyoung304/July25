@@ -14,9 +14,14 @@ const realtimeLogger = logger.child({ module: 'realtime-routes' });
 router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const restaurantId = req.restaurantId || req.headers['x-restaurant-id'] || 'default';
+    const { mode = 'customer' } = req.body; // Get mode from request body
+    
+    // Set mode for this session (will be used by EnhancedOpenAIAdapter)
+    process.env.VOICE_MODE = mode;
     
     realtimeLogger.info('Creating ephemeral token for real-time session', {
       userId: req.user?.id,
+      mode,
       restaurantId
     });
 

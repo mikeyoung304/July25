@@ -55,8 +55,21 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
     // Add authentication unless explicitly skipped
     if (!options?.skipAuth) {
       try {
-        // Try Supabase auth (required for API access)
-        if (supabase) {
+        // Check for kiosk token first (for self-service ordering)
+        const kioskToken = sessionStorage.getItem('kiosk_token');
+        if (kioskToken) {
+          // Verify token hasn't expired
+          const tokenExpiry = sessionStorage.getItem('kiosk_token_expiry');
+          if (tokenExpiry && parseInt(tokenExpiry, 10) > Date.now()) {
+            headers.set('Authorization', `Bearer ${kioskToken}`);
+          } else {
+            // Token expired, clear it
+            sessionStorage.removeItem('kiosk_token');
+            sessionStorage.removeItem('kiosk_token_expiry');
+            console.warn('Kiosk token expired');
+          }
+        } else if (supabase) {
+          // Try Supabase auth for staff/admin users
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
             headers.set('Authorization', `Bearer ${session.access_token}`);
@@ -64,7 +77,7 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
             console.warn('No authentication session available');
           }
         } else {
-          console.warn('Supabase client not initialized');
+          console.warn('No authentication available');
         }
       } catch (err) {
         console.error('Failed to get auth token:', err);

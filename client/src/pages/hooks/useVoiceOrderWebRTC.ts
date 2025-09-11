@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useMemo } from 'react'
 import { useToast } from '@/hooks/useToast'
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser'
 import { OrderModification } from '@/modules/voice/contexts/types'
@@ -6,6 +6,7 @@ import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import type { Table } from '@/modules/floor-plan/types'
 import { logger } from '@/services/monitoring/logger'
 import { useAuth } from '@/contexts/auth.hooks'
+import { useUnifiedCart } from '@/contexts/cart.hooks'
 
 // Helper to resolve absolute API URLs for production
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -23,55 +24,77 @@ export function useVoiceOrderWebRTC() {
   const { toast } = useToast()
   const { items: menuItems } = useMenuItems()
   const { session, restaurantId } = useAuth()
+  const { cart, addItem, clearCart, removeFromCart, updateItemQuantity } = useUnifiedCart()
   const [showVoiceOrder, setShowVoiceOrder] = useState(false)
   const [currentTranscript, setCurrentTranscript] = useState('')
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [isVoiceActive, setIsVoiceActive] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'completed' | 'failed'>('idle')
   const orderParserRef = useRef<OrderParser | null>(null)
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Convert cart items to the format expected by the voice UI
+  const orderItems = useMemo(() => {
+    return cart.items.map(item => ({
+      id: item.id,
+      menuItemId: item.menuItemId,
+      name: item.name,
+      quantity: item.quantity,
+      modifications: item.modifications?.map(mod => ({ 
+        name: mod, 
+        price: 0 
+      } as OrderModification)) || []
+    }))
+  }, [cart.items])
 
   // Initialize order parser when menu items are loaded
   if (menuItems.length > 0 && !orderParserRef.current) {
     orderParserRef.current = new OrderParser(menuItems)
   }
 
-  // Process parsed menu items and add to order
+  // Process parsed menu items and add to cart
   const processParsedItems = useCallback((parsedItems: ParsedOrderItem[]) => {
-    const newItems: OrderItem[] = []
+    let itemsAdded = 0
     
     parsedItems.forEach(parsed => {
       if (parsed.menuItem) {
         switch (parsed.action) {
           case 'add':
-            newItems.push({
-              id: `voice-${Date.now()}-${Math.random()}`,
-              menuItemId: parsed.menuItem.id,
-              name: parsed.menuItem.name,
-              quantity: parsed.quantity,
-              modifications: parsed.modifications
-            })
+            // Use UnifiedCart's addItem method - adapt ApiMenuItem to MenuItem
+            const fullMenuItem = {
+              ...parsed.menuItem,
+              restaurant_id: restaurantId || '',
+              category_id: parsed.menuItem.categoryId || '',
+              is_available: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            } as any
+            
+            addItem(
+              fullMenuItem,
+              parsed.quantity,
+              parsed.modifications?.map(mod => mod.name) || [],
+              undefined // specialInstructions
+            )
+            itemsAdded++
             break
           case 'remove': {
-            // Handle remove in the parent component
-            const itemToRemove = orderItems.find(item => 
+            // Find and remove item from cart
+            const itemToRemove = cart.items.find(item => 
               item.menuItemId === parsed.menuItem?.id
             )
             if (itemToRemove) {
-              setOrderItems(prev => prev.filter(item => item.id !== itemToRemove.id))
+              removeFromCart(itemToRemove.id)
             }
             break
           }
           case 'update': {
-            // Handle update in the parent component
-            const itemToUpdate = orderItems.find(item => 
+            // Find and update item quantity in cart
+            const itemToUpdate = cart.items.find(item => 
               item.menuItemId === parsed.menuItem?.id
             )
             if (itemToUpdate) {
-              setOrderItems(prev => prev.map(item => 
-                item.id === itemToUpdate.id 
-                  ? { ...item, quantity: parsed.quantity, modifications: parsed.modifications }
-                  : item
-              ))
+              updateItemQuantity(itemToUpdate.id, parsed.quantity)
             }
             break
           }
@@ -79,11 +102,10 @@ export function useVoiceOrderWebRTC() {
       }
     })
 
-    if (newItems.length > 0) {
-      setOrderItems(prev => [...prev, ...newItems])
-      toast.success(`Added ${newItems.length} item${newItems.length > 1 ? 's' : ''} to order`)
+    if (itemsAdded > 0) {
+      toast.success(`Added ${itemsAdded} item${itemsAdded > 1 ? 's' : ''} to order`)
     }
-  }, [orderItems, toast])
+  }, [cart.items, addItem, removeFromCart, updateItemQuantity, toast])
 
   // Handle transcript from WebRTC voice - accepts both string and event object
   const handleVoiceTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
@@ -102,22 +124,12 @@ export function useVoiceOrderWebRTC() {
         if (parsedItems.length > 0) {
           processParsedItems(parsedItems)
         } else {
-          // If no items parsed, add as raw text for manual processing
-          const rawItem: OrderItem = {
-            id: `voice-${Date.now()}-${Math.random()}`,
-            name: text,
-            quantity: 1
-          }
-          setOrderItems(prev => [...prev, rawItem])
+          // If no items parsed, show error instead of adding raw text
+          toast.error('Could not understand the order. Please try again.')
         }
       } else {
-        // No parser available, add as raw text
-        const rawItem: OrderItem = {
-          id: `voice-${Date.now()}-${Math.random()}`,
-          name: text,
-          quantity: 1
-        }
-        setOrderItems(prev => [...prev, rawItem])
+        // No parser available
+        toast.error('Menu items not loaded. Please wait and try again.')
       }
     } else {
       // Update current transcript for live display
@@ -130,70 +142,228 @@ export function useVoiceOrderWebRTC() {
     logger.info('[useVoiceOrderWebRTC] Order data from server', { orderData })
     
     if (orderData?.success && orderData?.items?.length > 0) {
-      const newItems: OrderItem[] = orderData.items.map((item: any) => {
+      // Add items to cart using UnifiedCart
+      orderData.items.forEach((item: any) => {
         const menuItem = menuItems.find(m => m.id === item.menuItemId)
-        return {
-          id: `voice-${Date.now()}-${Math.random()}`,
-          menuItemId: item.menuItemId,
-          name: menuItem?.name || item.name || 'Unknown Item',
-          quantity: item.quantity || 1,
-          modifications: item.modifications || []
+        if (menuItem) {
+          const fullMenuItem = {
+            ...menuItem,
+            restaurant_id: restaurantId || '',
+            category_id: menuItem.categoryId || '',
+            is_available: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          } as any
+          
+          addItem(
+            fullMenuItem,
+            item.quantity || 1,
+            item.modifications || [],
+            undefined
+          )
         }
       })
       
-      setOrderItems(prev => [...prev, ...newItems])
-      toast.success(`Added ${newItems.length} item${newItems.length > 1 ? 's' : ''} from server`)
+      toast.success(`Added ${orderData.items.length} item${orderData.items.length > 1 ? 's' : ''} from server`)
     }
   }, [menuItems, toast])
 
-  // Remove an item from the order
+  // Remove an item from the order (delegate to cart)
   const removeOrderItem = useCallback((itemId: string) => {
-    setOrderItems(prev => prev.filter(item => item.id !== itemId))
-  }, [])
+    removeFromCart(itemId)
+  }, [removeFromCart])
+  
+  // Poll payment status from Square Terminal
+  const pollPaymentStatus = useCallback(async (checkoutId: string) => {
+    let attempts = 0
+    const maxAttempts = 60 // Poll for up to 2 minutes (60 * 2 seconds)
+    
+    const poll = async () => {
+      if (attempts >= maxAttempts) {
+        logger.warn('[useVoiceOrderWebRTC] Payment polling timeout', { checkoutId })
+        setPaymentStatus('failed')
+        toast.error('Payment timeout. Please process manually.')
+        if (pollIntervalRef.current) {
+          clearInterval(pollIntervalRef.current)
+          pollIntervalRef.current = null
+        }
+        return
+      }
+      
+      try {
+        const response = await fetch(apiUrl(`/api/v1/terminal/checkout/${checkoutId}`), {
+          headers: {
+            'Authorization': `Bearer ${session?.accessToken}`,
+            'X-Restaurant-ID': restaurantId || import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+          }
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          const status = data.checkout?.status
+          
+          logger.info('[useVoiceOrderWebRTC] Payment status check', { checkoutId, status, attempt: attempts })
+          
+          if (status === 'COMPLETED') {
+            setPaymentStatus('completed')
+            toast.success('Payment completed successfully!')
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current)
+              pollIntervalRef.current = null
+            }
+          } else if (status === 'CANCELED' || status === 'FAILED') {
+            setPaymentStatus('failed')
+            toast.error('Payment failed or was cancelled')
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current)
+              pollIntervalRef.current = null
+            }
+          }
+          // Otherwise continue polling (status is IN_PROGRESS)
+        }
+      } catch (error) {
+        logger.error('[useVoiceOrderWebRTC] Payment status check error', { error })
+      }
+      
+      attempts++
+    }
+    
+    // Start polling immediately
+    poll()
+    
+    // Then poll every 2 seconds
+    pollIntervalRef.current = setInterval(poll, 2000)
+  }, [session?.accessToken, restaurantId, toast])
 
   // Submit order to backend and initiate payment
   const submitOrder = useCallback(async (selectedTable: Table | null, selectedSeat: number | null) => {
-    if (orderItems.length === 0 || !selectedTable || !selectedSeat || !session?.accessToken) {
-      toast.error('No order items to submit or user not authenticated')
+    console.log('[submitOrder] START - Debug state:', {
+      cartItemsLength: cart.items.length,
+      cartItems: cart.items,
+      cartTotal: cart.total,
+      selectedTable,
+      selectedSeat,
+      hasSession: !!session?.accessToken,
+      restaurantId,
+      timestamp: new Date().toISOString()
+    })
+    
+    // Validation checks with detailed logging
+    if (cart.items.length === 0) {
+      console.error('[submitOrder] VALIDATION FAILED: No items in cart')
+      toast.error('No items in cart to submit')
       return false
     }
     
+    if (!selectedTable) {
+      console.error('[submitOrder] VALIDATION FAILED: No table selected')
+      toast.error('No table selected')
+      return false
+    }
+    
+    if (!selectedSeat) {
+      console.error('[submitOrder] VALIDATION FAILED: No seat selected')
+      toast.error('No seat selected')
+      return false
+    }
+    
+    if (!session?.accessToken) {
+      console.error('[submitOrder] VALIDATION FAILED: User not authenticated')
+      toast.error('User not authenticated')
+      return false
+    }
+    
+    console.log('[submitOrder] All validations passed, preparing order data...')
+    
     try {
+      // Prepare the order payload matching server expectations
+      const orderPayload = {
+        // Server expects camelCase for these fields
+        tableNumber: selectedTable.label,  // Changed from table_number
+        customerName: `Table ${selectedTable.label} - Seat ${selectedSeat}`,  // Changed from customer_name
+        type: 'dine-in',  // Changed from order_type to type
+        items: cart.items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price || 0,  // Added price field
+          quantity: item.quantity,
+          modifiers: item.modifications?.map(mod => ({  // Changed from modifications to modifiers
+            name: mod,
+            price: 0
+          })) || [],
+          notes: ''  // Added notes field for items
+        })),
+        notes: `Voice order from ${selectedTable.label}, Seat ${selectedSeat}`,
+        subtotal: cart.subtotal,  // Added subtotal
+        tax: cart.tax,  // Added tax
+        tip: cart.tip || 0,  // Added tip
+        total_amount: cart.total,  // Keep total_amount for backward compatibility
+        metadata: {
+          seatNumber: selectedSeat,  // Store seat number in metadata
+          source: 'voice_server_view'
+        }
+      }
+      
+      console.log('[submitOrder] Order payload prepared:', orderPayload)
+      
+      const apiEndpoint = apiUrl('/api/v1/orders')
+      console.log('[submitOrder] Making API request to:', apiEndpoint)
+      
       // Step 1: Create the order
-      const response = await fetch(apiUrl('/api/v1/orders'), {
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.accessToken}`,
           'X-Restaurant-ID': restaurantId || import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
         },
-        body: JSON.stringify({
-          table_number: selectedTable.label,
-          seat_number: selectedSeat,
-          items: orderItems.map(item => ({
-            id: item.id,
-            menu_item_id: item.menuItemId,
-            name: item.name,
-            quantity: item.quantity,
-            modifications: item.modifications?.map(mod => mod.name) || []
-          })),
-          notes: `Voice order from ${selectedTable.label}, Seat ${selectedSeat}`,
-          total_amount: orderItems.reduce((sum, item) => {
-            const menuItem = menuItems.find(m => m.id === item.menuItemId)
-            return sum + (menuItem?.price || 12.99) * item.quantity
-          }, 0),
-          customer_name: `Table ${selectedTable.label} - Seat ${selectedSeat}`,
-          order_type: 'dine-in'
-        })
+        body: JSON.stringify(orderPayload)
+      })
+      
+      console.log('[submitOrder] Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
       })
       
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('Order submission failed:', errorText)
-        throw new Error('Failed to submit order')
+        console.error('[submitOrder] API ERROR:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorBody: errorText,
+          endpoint: apiEndpoint,
+          payload: orderPayload
+        })
+        
+        // Try to parse error message if it's JSON
+        let errorMessage = 'Failed to submit order'
+        try {
+          const errorJson = JSON.parse(errorText)
+          // Ensure we extract a string from the error response
+          if (typeof errorJson.message === 'string') {
+            errorMessage = errorJson.message
+          } else if (typeof errorJson.error === 'string') {
+            errorMessage = errorJson.error
+          } else if (typeof errorJson === 'string') {
+            errorMessage = errorJson
+          } else {
+            // If the error is an object, stringify it for debugging
+            errorMessage = `Failed to submit order: ${JSON.stringify(errorJson)}`
+          }
+        } catch (e) {
+          // If not JSON, use the text as is
+          if (errorText && typeof errorText === 'string') {
+            errorMessage = errorText
+          }
+        }
+        
+        toast.error(errorMessage)
+        throw new Error(errorMessage)
       }
 
       const orderData = await response.json()
+      console.log('[submitOrder] Order created successfully:', orderData)
       logger.info('[useVoiceOrderWebRTC] Order created', { orderId: orderData.id, orderNumber: orderData.order_number })
       
       // Step 2: Initiate Square Terminal checkout if device is configured
@@ -216,8 +386,15 @@ export function useVoiceOrderWebRTC() {
 
           if (checkoutResponse.ok) {
             const checkoutData = await checkoutResponse.json()
-            logger.info('[useVoiceOrderWebRTC] Terminal checkout initiated', { checkoutId: checkoutData.checkout?.id })
+            const checkoutId = checkoutData.checkout?.id
+            logger.info('[useVoiceOrderWebRTC] Terminal checkout initiated', { checkoutId })
             toast.success(`Payment initiated on terminal for ${selectedTable.label}, Seat ${selectedSeat}`)
+            
+            // Start polling for payment status
+            setPaymentStatus('processing')
+            if (checkoutId) {
+              pollPaymentStatus(checkoutId)
+            }
             
             // Step 3: Update order status to confirmed after payment initiation
             await fetch(apiUrl(`/api/v1/orders/${orderData.id}/status`), {
@@ -246,22 +423,42 @@ export function useVoiceOrderWebRTC() {
         toast.success(`Order created for ${selectedTable.label}, Seat ${selectedSeat}. Process payment at POS.`)
       }
       
+      // Clear cart after successful order submission
+      clearCart()
+      console.log('[submitOrder] SUCCESS - Order submitted and cart cleared')
       return true
     } catch (error) {
-      console.error('Error submitting order:', error)
-      toast.error('Failed to submit order. Please try again.')
+      console.error('[submitOrder] CATCH ERROR:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        cartItems: cart.items,
+        timestamp: new Date().toISOString()
+      })
+      
+      // Don't show duplicate error toast if we already showed one
+      if (error instanceof Error && !error.message.includes('Failed to submit order')) {
+        toast.error('Failed to submit order. Please try again.')
+      }
+      
       return false
     }
-  }, [orderItems, menuItems, toast, session?.accessToken, restaurantId])
+  }, [cart, toast, session?.accessToken, restaurantId, pollPaymentStatus, clearCart])
 
   // Reset voice order state
   const resetVoiceOrder = useCallback(() => {
     setShowVoiceOrder(false)
     setCurrentTranscript('')
-    setOrderItems([])
+    clearCart() // Clear the unified cart
     setIsVoiceActive(false)
     setIsProcessing(false)
-  }, [])
+    setPaymentStatus('idle')
+    // Clear any polling interval
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current)
+      pollIntervalRef.current = null
+    }
+  }, [clearCart])
 
   return {
     // State
@@ -269,10 +466,34 @@ export function useVoiceOrderWebRTC() {
     setShowVoiceOrder,
     currentTranscript,
     orderItems,
-    setOrderItems,
+    setOrderItems: (items: OrderItem[]) => {
+      // Clear cart and add new items
+      clearCart()
+      items.forEach(item => {
+        const menuItem = menuItems.find(m => m.id === item.menuItemId)
+        if (menuItem) {
+          const fullMenuItem = {
+            ...menuItem,
+            restaurant_id: restaurantId || '',
+            category_id: menuItem.categoryId || '',
+            is_available: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          } as any
+          
+          addItem(
+            fullMenuItem,
+            item.quantity,
+            item.modifications?.map(mod => mod.name) || [],
+            undefined
+          )
+        }
+      })
+    },
     isVoiceActive,
     isProcessing,
     setIsProcessing,
+    paymentStatus,
     
     // Handlers
     handleVoiceTranscript,
