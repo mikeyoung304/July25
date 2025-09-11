@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useNavigate } from 'react-router-dom';
+import { createHash } from 'crypto';
 import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
 
 // Type alias for compatibility
@@ -38,12 +39,19 @@ export function useKioskOrderSubmission() {
       const tax = subtotal * 0.08; // 8% tax rate
       const total = subtotal + tax;
 
-      // Prepare order data in the format expected by the API
-      // Server expects camelCase fields and specific structure
+      // Generate idempotency key from order data
+      const idempotencyPayload = JSON.stringify({
+        items: items.map(i => ({ id: i.menuItem.id, qty: i.quantity })),
+        customer: customerInfo?.name || 'kiosk',
+        timestamp: Math.floor(Date.now() / 3000) // 3-second window
+      });
+      const idempotencyKey = btoa(idempotencyPayload).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
+
+      // Prepare order data in camelCase format (DTO compliant)
       const orderData = {
         type: 'kiosk' as const,
         items: items.map(item => ({
-          id: item.menuItem.id, // Server expects 'id' not 'menu_item_id'
+          id: item.menuItem.id, // Correct: 'id' not 'menuItemId' or 'menu_item_id'
           name: item.menuItem.name,
           quantity: item.quantity,
           price: item.menuItem.price,
@@ -52,20 +60,25 @@ export function useKioskOrderSubmission() {
               ? { name: mod, price: 0 } // Convert string modifiers to objects
               : mod
           ),
-          notes: item.specialInstructions || '', // Server expects 'notes' not 'specialInstructions'
+          notes: item.specialInstructions || '' // Correct: 'notes' field
         })),
-        customerName: customerInfo?.name || 'Kiosk Customer', // Already camelCase ✓
-        customerEmail: customerInfo?.email || '', // Already camelCase ✓
-        customerPhone: customerInfo?.phone || '', // Already camelCase ✓
+        customerName: customerInfo?.name || 'Kiosk Customer', // camelCase ✓
+        customerEmail: customerInfo?.email || '', // camelCase ✓
+        customerPhone: customerInfo?.phone || '', // camelCase ✓
         tableNumber: '', // Add if needed for dine-in orders
         notes: 'Self-service kiosk order',
-        subtotal: subtotal,
-        tax: tax,
-        tip: 0,
-        total_amount: total,
+        subtotal: subtotal, // camelCase ✓
+        tax: tax, // camelCase ✓
+        tip: 0, // camelCase ✓
+        total: total // Changed from 'total_amount' to 'total' ✓
       };
 
-      const orderResponse = await orderApi.post('/api/v1/orders', orderData);
+      // Submit with idempotency key
+      const orderResponse = await orderApi.post('/api/v1/orders', orderData, {
+        headers: {
+          'X-Idempotency-Key': idempotencyKey
+        }
+      });
 
       if (!orderResponse) {
         throw new Error('Failed to create order');

@@ -32,6 +32,7 @@ export function useVoiceOrderWebRTC() {
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'completed' | 'failed'>('idle')
   const orderParserRef = useRef<OrderParser | null>(null)
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const recentItemsRef = useRef<Map<string, number>>(new Map()) // Track recent additions for deduplication
   
   // Convert cart items to the format expected by the voice UI
   const orderItems = useMemo(() => {
@@ -52,14 +53,41 @@ export function useVoiceOrderWebRTC() {
     orderParserRef.current = new OrderParser(menuItems)
   }
 
-  // Process parsed menu items and add to cart
+  // Process parsed menu items and add to cart with deduplication
   const processParsedItems = useCallback((parsedItems: ParsedOrderItem[]) => {
     let itemsAdded = 0
+    const now = Date.now()
+    
+    // Clean up old entries (older than 2 seconds)
+    for (const [key, timestamp] of recentItemsRef.current.entries()) {
+      if (now - timestamp > 2000) {
+        recentItemsRef.current.delete(key)
+      }
+    }
     
     parsedItems.forEach(parsed => {
       if (parsed.menuItem) {
         switch (parsed.action) {
-          case 'add':
+          case 'add': {
+            // Create deduplication key
+            const modifiersKey = (parsed.modifications || [])
+              .map(m => m.name)
+              .sort()
+              .join('|')
+            const dedupeKey = `${parsed.menuItem.id}:${parsed.quantity}:${modifiersKey}`
+            
+            // Check if this exact item was added in the last 2 seconds
+            if (recentItemsRef.current.has(dedupeKey)) {
+              logger.debug('Skipping duplicate item addition', { 
+                itemId: parsed.menuItem.id,
+                dedupeKey 
+              })
+              return
+            }
+            
+            // Mark as recently added
+            recentItemsRef.current.set(dedupeKey, now)
+            
             // Use UnifiedCart's addItem method - adapt ApiMenuItem to MenuItem
             const fullMenuItem = {
               ...parsed.menuItem,
@@ -77,7 +105,16 @@ export function useVoiceOrderWebRTC() {
               undefined // specialInstructions
             )
             itemsAdded++
+            
+            // Log structured event for tracking
+            logger.info('Voice order item added', {
+              source: 'voice',
+              itemId: parsed.menuItem.id,
+              modifiersHash: modifiersKey,
+              idempotencyKey: dedupeKey
+            })
             break
+          }
           case 'remove': {
             // Find and remove item from cart
             const itemToRemove = cart.items.find(item => 
