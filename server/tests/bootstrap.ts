@@ -1,7 +1,7 @@
 // Test Bootstrap Configuration
 // This file sets up the test environment for the server tests
 
-import { beforeAll, afterAll, afterEach } from 'vitest';
+import { beforeAll, afterAll, afterEach, vi } from 'vitest';
 
 // Configure test environment variables
 process.env.NODE_ENV = 'test';
