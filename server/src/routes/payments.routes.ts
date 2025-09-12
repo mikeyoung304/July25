@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
+import { requireScopes, ApiScope } from '../middleware/rbac';
 import { BadRequest } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { SquareClient, SquareEnvironment } from 'square';
@@ -24,7 +25,11 @@ const client = new SquareClient({
 const paymentsApi = client.payments;
 
 // POST /api/v1/payments/create - Process payment
-router.post('/create', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.post('/create', 
+  authenticate, 
+  validateRestaurantAccess, 
+  requireScopes(ApiScope.PAYMENTS_PROCESS),
+  async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { orderId, token, amount, idempotencyKey } = req.body;
@@ -127,13 +132,23 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
         paymentResult.payment.id
       );
 
-      // Log successful payment for audit trail
-      await PaymentService.logPaymentAttempt(
+      // Log successful payment for audit trail with user context
+      await PaymentService.logPaymentAttempt({
         orderId,
-        validation.orderTotal,
-        'success',
-        paymentResult.payment.id
-      );
+        amount: validation.orderTotal,
+        status: 'success',
+        userId: req.user?.id,
+        restaurantId: restaurantId,
+        paymentMethod: 'card',
+        paymentId: paymentResult.payment.id,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'] as string,
+        idempotencyKey: serverIdempotencyKey,
+        metadata: {
+          orderNumber: (order as any).order_number,
+          userRole: req.user?.role
+        }
+      });
 
       routeLogger.info('Payment successful', { 
         orderId, 
@@ -157,8 +172,27 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
           errors: errors.map((e: any) => ({ category: e.category, code: e.code, detail: e.detail }))
         });
 
-        // Handle specific Square error types
+        // Log failed payment attempt
         const firstError = errors[0];
+        await PaymentService.logPaymentAttempt({
+          orderId,
+          amount: validation.orderTotal,
+          status: 'failed',
+          userId: req.user?.id,
+          restaurantId: restaurantId,
+          paymentMethod: 'card',
+          errorCode: firstError?.code,
+          errorDetail: firstError?.detail,
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent'] as string,
+          idempotencyKey: serverIdempotencyKey,
+          metadata: {
+            userRole: req.user?.role,
+            errorCategory: firstError?.category
+          }
+        });
+
+        // Handle specific Square error types
         if (firstError?.code === 'CVV_FAILURE' || firstError?.code === 'ADDRESS_VERIFICATION_FAILURE') {
           return res.status(400).json({
             success: false,
@@ -208,7 +242,11 @@ router.post('/create', authenticate, validateRestaurantAccess, async (req: Authe
 });
 
 // GET /api/v1/payments/:paymentId - Get payment details
-router.get('/:paymentId', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.get('/:paymentId', 
+  authenticate, 
+  validateRestaurantAccess, 
+  requireScopes(ApiScope.PAYMENTS_READ),
+  async (req: AuthenticatedRequest, res, next) => {
   try {
     const { paymentId } = req.params;
 
@@ -239,7 +277,11 @@ router.get('/:paymentId', authenticate, validateRestaurantAccess, async (req: Au
 });
 
 // POST /api/v1/payments/:paymentId/refund - Refund payment
-router.post('/:paymentId/refund', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.post('/:paymentId/refund', 
+  authenticate, 
+  validateRestaurantAccess, 
+  requireScopes(ApiScope.PAYMENTS_REFUND),
+  async (req: AuthenticatedRequest, res, next) => {
   try {
     const { paymentId } = req.params;
     const { amount, reason } = req.body;
@@ -269,6 +311,26 @@ router.post('/:paymentId/refund', authenticate, validateRestaurantAccess, async 
     };
 
     const { result: refundResult } = await client.refunds.refundPayment(refundRequest as any);
+
+    // Log refund for audit trail
+    await PaymentService.logPaymentAttempt({
+      orderId: payment.referenceId || paymentId,
+      amount: Number(refundResult.refund?.amountMoney?.amount || 0) / 100, // Convert from cents
+      status: 'refunded',
+      userId: req.user?.id,
+      restaurantId: req.restaurantId!,
+      paymentMethod: 'card',
+      paymentId: paymentId,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'] as string,
+      idempotencyKey: refundRequest.idempotencyKey,
+      metadata: {
+        refundId: refundResult.refund?.id,
+        refundReason: reason,
+        userRole: req.user?.role,
+        originalPaymentId: paymentId
+      }
+    });
 
     routeLogger.info('Refund processed', { 
       paymentId, 

@@ -15,6 +15,7 @@ import { env } from '@/utils/env'
 import { getDemoToken } from '@/services/auth/demoAuth'
 import { RequestBatcher } from './RequestBatcher'
 import { ResponseCache } from '../cache/ResponseCache'
+import type { JsonValue } from '@/../../shared/types/api.types'
 
 // Global variable to store the current restaurant ID
 // This will be set by the RestaurantContext provider
@@ -51,9 +52,9 @@ const CACHE_TTL = {
 
 export class HttpClient extends SecureAPIClient {
   // Simple in-memory cache for GET requests
-  private cache = new Map<string, CacheEntry<any>>()
+  private cache = new Map<string, CacheEntry<JsonValue>>()
   // Track in-flight requests to prevent duplicates
-  private inFlightRequests = new Map<string, Promise<any>>()
+  private inFlightRequests = new Map<string, Promise<JsonValue>>()
   // Request batcher for reducing network overhead
   private batcher: RequestBatcher
   // Response cache with LRU eviction

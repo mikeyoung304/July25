@@ -234,7 +234,7 @@ class CleanupManagerImpl {
   }
   
   private async performShutdown(): Promise<void> {
-    console.log('CleanupManager: Starting graceful shutdown...');
+    console.warn('CleanupManager: Starting graceful shutdown...');
     
     const resourcesByPriority = this.groupResourcesByPriority();
     
@@ -242,14 +242,14 @@ class CleanupManagerImpl {
       const resources = resourcesByPriority[priority] || [];
       
       if (resources.length > 0) {
-        console.log(`CleanupManager: Cleaning up ${resources.length} ${priority} priority resources...`);
+        console.warn(`CleanupManager: Cleaning up ${resources.length} ${priority} priority resources...`);
         
         // Cleanup resources in parallel within the same priority level
         await Promise.allSettled(
           resources.map(async (resource) => {
             try {
               await resource.cleanup();
-              console.log(`✓ Cleaned up: ${resource.name}`);
+              console.warn(`✓ Cleaned up: ${resource.name}`);
             } catch (error) {
               console.error(`✗ Failed to cleanup ${resource.name}:`, error);
             }
@@ -274,7 +274,7 @@ class CleanupManagerImpl {
     this.resources.clear();
     this.services.clear();
     
-    console.log('CleanupManager: Graceful shutdown completed');
+    console.warn('CleanupManager: Graceful shutdown completed');
   }
   
   private groupResourcesByPriority(): Record<string, CleanupResource[]> {
@@ -389,10 +389,10 @@ class CleanupManagerImpl {
     // Node.js environment
     if (typeof process !== 'undefined') {
       const gracefulShutdown = (signal: string) => {
-        console.log(`Received ${signal}, starting graceful shutdown...`);
+        console.warn(`Received ${signal}, starting graceful shutdown...`);
         this.shutdownAll()
           .then(() => {
-            console.log('Graceful shutdown completed');
+            console.warn('Graceful shutdown completed');
             process.exit(0);
           })
           .catch((error) => {

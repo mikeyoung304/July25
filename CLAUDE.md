@@ -194,3 +194,34 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 - **DO NOT create adapter contexts** - they add complexity
 - **DO NOT duplicate cart logic** - violates DRY principle
 - When refactoring/unifying systems, update ALL usages, not just wrap old ones
+
+## Authentication Architecture (2025-01-30)
+
+### User Roles & Access Levels
+- **Owner**: Full system access, financial reports, multi-location
+- **Manager**: Restaurant operations, reports, staff management  
+- **Server**: Order creation, payment processing, table management
+- **Cashier**: Payment processing, limited order access
+- **Kitchen**: Kitchen display only, order status updates
+- **Expo**: Expo display, order completion
+- **Customer**: Self-service ordering (kiosk/online/QR)
+
+### Authentication Methods
+- **Email/Password**: Managers and above (with optional MFA)
+- **PIN Code**: Service staff (4-6 digits, restaurant-scoped)
+- **Station Login**: Kitchen/Expo (shared device authentication)
+- **Anonymous**: Customers (session-based, no auth required)
+
+### Implementation Priority
+1. JWT token infrastructure (RS256 signed)
+2. Login page with email/password
+3. PIN pad for service staff
+4. Protected route wrapper
+5. Role-based permission gates
+
+### Security Requirements
+- 8-hour sessions for managers, 12-hour for staff
+- HttpOnly, Secure, SameSite cookies
+- Rate limiting on auth endpoints
+- Audit logging for all auth events
+- CSRF protection (already implemented)
