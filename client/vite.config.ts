@@ -190,7 +190,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        '@rebuild/shared': path.resolve(__dirname, '../shared/index.ts'),
+        '@rebuild/shared': path.resolve(__dirname, '../shared'),
       },
     },
     

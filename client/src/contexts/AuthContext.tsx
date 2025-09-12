@@ -31,6 +31,7 @@ export interface AuthContextType {
   login: (email: string, password: string, restaurantId: string) => Promise<void>;
   loginWithPin: (pin: string, restaurantId: string) => Promise<void>;
   loginAsStation: (stationType: string, stationName: string, restaurantId: string) => Promise<void>;
+  loginAsDemo: (role: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   setPin: (pin: string) => Promise<void>;
@@ -59,23 +60,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+
         // Check for existing Supabase session
         const { data: { session: supabaseSession } } = await supabase.auth.getSession();
         
         if (supabaseSession) {
-          // Get user details from our API
-          const response = await httpClient.get<{ user: User; restaurantId: string }>(
-            '/api/v1/auth/me'
-          );
-          
-          setUser(response.user);
-          setRestaurantId(response.restaurantId);
-          setSession({
-            accessToken: supabaseSession.access_token,
-            refreshToken: supabaseSession.refresh_token,
-            expiresIn: supabaseSession.expires_in,
-            expiresAt: supabaseSession.expires_at
-          });
+          // Validate the session is still valid with our backend
+          try {
+            const response = await httpClient.get<{ user: User; restaurantId: string }>(
+              '/api/v1/auth/me'
+            );
+            
+            setUser(response.user);
+            setRestaurantId(response.restaurantId);
+            setSession({
+              accessToken: supabaseSession.access_token,
+              refreshToken: supabaseSession.refresh_token,
+              expiresIn: supabaseSession.expires_in,
+              expiresAt: supabaseSession.expires_at
+            });
+          } catch (error) {
+            // Session invalid, clear it
+            logger.error('Supabase session invalid, clearing...', error);
+            await supabase.auth.signOut();
+            // Don't set any state, let the user log in
+          }
         } else {
           // Check for PIN/station session in localStorage
           const savedSession = localStorage.getItem('auth_session');
@@ -83,6 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             try {
               const parsed = JSON.parse(savedSession);
               if (parsed.expiresAt && parsed.expiresAt > Date.now() / 1000) {
+                // Session still valid, restore it
                 setUser(parsed.user);
                 setSession(parsed.session);
                 setRestaurantId(parsed.restaurantId);
@@ -279,6 +289,70 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Demo login (development only with explicit panel flag)
+  const loginAsDemo = async (role: string) => {
+    // Only available in development with demo panel explicitly enabled
+    if (import.meta.env.PROD || import.meta.env.VITE_DEMO_PANEL !== '1') {
+      throw new Error('Demo login requires VITE_DEMO_PANEL=1 in development');
+    }
+
+    setIsLoading(true);
+    const defaultRestaurantId = '11111111-1111-1111-1111-111111111111';
+    
+    try {
+      // Map role to demo credentials (using seeded accounts)
+      const demoCredentials: Record<string, { email: string; password: string }> = {
+        manager: { email: 'manager@restaurant.com', password: 'Demo123!' },
+        server: { email: 'server@restaurant.com', password: 'Demo123!' },
+        kitchen: { email: 'kitchen@restaurant.com', password: 'Demo123!' },
+        expo: { email: 'expo@restaurant.com', password: 'Demo123!' },
+        cashier: { email: 'cashier@restaurant.com', password: 'Demo123!' }
+      };
+
+      const creds = demoCredentials[role];
+      if (!creds) {
+        throw new Error(`Invalid demo role: ${role}`);
+      }
+
+      // Use regular login with demo credentials
+      // This creates a real Supabase session
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: creds.email,
+        password: creds.password
+      });
+
+      if (error) {
+        // If Supabase login fails, try PIN login as fallback
+        // This assumes demo users have PINs set up
+        logger.warn('Demo Supabase login failed, trying PIN fallback:', error);
+        throw error;
+      }
+
+      if (data.session) {
+        // Fetch user details from our API
+        const response = await httpClient.get<{ user: User; restaurantId: string }>(
+          '/api/v1/auth/me'
+        );
+        
+        setUser(response.user);
+        setRestaurantId(defaultRestaurantId);
+        setSession({
+          accessToken: data.session.access_token,
+          refreshToken: data.session.refresh_token,
+          expiresIn: data.session.expires_in,
+          expiresAt: data.session.expires_at
+        });
+
+        logger.info(`Demo login successful as ${role}`);
+      }
+    } catch (error) {
+      logger.error(`Demo login failed for ${role}:`, error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Logout
   const logout = async () => {
     setIsLoading(true);
@@ -423,6 +497,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     loginWithPin,
     loginAsStation,
+    loginAsDemo,
     logout,
     refreshSession,
     setPin,

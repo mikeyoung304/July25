@@ -2,6 +2,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { MaconLogo } from '@/components/brand/MaconLogo'
 import { pageInfo } from './BrandHeaderPresets'
+import { UserMenu } from '@/components/auth/UserMenu'
+import { useAuth } from '@/contexts/auth.hooks'
 
 interface BrandHeaderProps {
   /**
@@ -30,6 +32,7 @@ export function BrandHeader({
 }: BrandHeaderProps) {
   const location = useLocation()
   const currentPath = location.pathname
+  const { isAuthenticated } = useAuth()
 
   // Get page info from presets or use provided props
   const currentPageInfo = pageInfo[currentPath] || { title: 'Dashboard', description: '' }
@@ -66,20 +69,26 @@ export function BrandHeader({
             )}
           </div>
 
-          {/* Back Button - Apple-style subtle but clear */}
-          <div className="flex items-center justify-end min-w-0 flex-shrink-0">
+          {/* Right Section - User Menu and Navigation */}
+          <div className="flex items-center justify-end gap-3 min-w-0 flex-shrink-0">
+            {/* Back Button - Show when not on home */}
             {showBackButton && currentPath !== "/" && (
               <Link
                 to={backTo}
-                className="group inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-full shadow-sm hover:bg-blue-600 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:ring-offset-2 active:scale-[0.98] transition-all duration-150 min-h-[44px] touch-manipulation"
+                className="group inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-150"
                 aria-label="Return to Dashboard"
               >
                 <ArrowLeft 
                   className="w-4 h-4 transition-transform duration-150 group-hover:-translate-x-0.5" 
                   aria-hidden="true" 
                 />
-                <span className="font-medium">Dashboard</span>
+                <span className="hidden sm:inline">Back</span>
               </Link>
+            )}
+            
+            {/* User Menu - Always show when authenticated */}
+            {isAuthenticated && (
+              <UserMenu position="header" showDetails={true} />
             )}
           </div>
         </div>
