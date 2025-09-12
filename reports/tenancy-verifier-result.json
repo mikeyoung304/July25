@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-09-12T15:46:53.044Z",
+  "api_base": "https://july25.onrender.com/api/v1",
+  "summary": {
+    "total": 4,
+    "passed": 1,
+    "failed": 3
+  },
+  "tests": [
+    {
+      "name": "Staff token WITHOUT restaurant context",
+      "pass": false,
+      "message": "Expected 400 RESTAURANT_CONTEXT_MISSING, got 500 unknown"
+    },
+    {
+      "name": "Staff token WITH no membership",
+      "pass": false,
+      "message": "Expected 403 RESTAURANT_ACCESS_DENIED, got 500 unknown"
+    },
+    {
+      "name": "Kiosk token WITHOUT header",
+      "pass": false,
+      "message": "Failed to get kiosk token: 500"
+    },
+    {
+      "name": "Header vs body spoof - header wins",
+      "pass": true,
+      "message": "Skipped - would verify header takes precedence over body",
+      "skipped": true
+    }
+  ]
+}
