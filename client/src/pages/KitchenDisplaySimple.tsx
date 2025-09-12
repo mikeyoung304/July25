@@ -3,7 +3,7 @@ import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { Button } from '@/components/ui/button'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
-import { MemoryMonitoringSystem } from '@rebuild/shared/utils/memory-monitoring'
+import { MemoryMonitorInstance } from '@rebuild/shared/utils/memory-monitoring'
 import type { Order } from '@rebuild/shared'
 
 /**
@@ -18,6 +18,7 @@ function KitchenDisplaySimple() {
   const [statusFilter, setStatusFilter] = useState<'active' | 'ready'>('active')
   
   // Memory monitoring for long-running sessions
+  const memoryMonitor = MemoryMonitorInstance
   useEffect(() => {
     const memoryMonitor = MemoryMonitoringSystem.getInstance()
     memoryMonitor.configure({

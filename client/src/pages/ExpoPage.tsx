@@ -11,7 +11,7 @@ import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBo
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
 import { STATUS_GROUPS, isStatusInGroup, getSafeOrderStatus } from '@/utils/orderStatusValidation'
 import { cn } from '@/utils'
-import { MemoryMonitoringSystem } from '@rebuild/shared/utils/memory-monitoring'
+import { MemoryMonitorInstance } from '@rebuild/shared/utils/memory-monitoring'
 import type { Order } from '@rebuild/shared'
 
 // Ready Order Card Component for Expo - Includes "Mark as Picked Up" and "Mark as Sent" functionality

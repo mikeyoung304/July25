@@ -54,7 +54,7 @@ class WebSocketConnectionManager {
       await webSocketService.connect();
       
       // Listen for disconnection to update state
-      webSocketService.once('disconnected', () => {
+      webSocketService.on('disconnected', () => {
         this.isConnected = false;
         this.connectionPromise = null;
         logger.info('WebSocket disconnected, state updated');

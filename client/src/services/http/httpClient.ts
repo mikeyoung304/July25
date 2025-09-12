@@ -12,7 +12,6 @@ import { logger } from '@/services/logger'
 import { supabase } from '@/core/supabase'
 // Removed case transformation - server handles this
 import { env } from '@/utils/env'
-import { getDemoToken } from '@/services/auth/demoAuth'
 import { RequestBatcher } from './RequestBatcher'
 import { ResponseCache } from '../cache/ResponseCache'
 import type { JsonValue } from '@/../../shared/types/api.types'
@@ -135,37 +134,19 @@ export class HttpClient extends SecureAPIClient {
           if (import.meta.env.DEV) {
             logger.info('🔐 Using Supabase session token for API request')
           }
+        } else if (import.meta.env.DEV) {
+          // Development-only test token fallback
+          headers.set('Authorization', 'Bearer test-token')
+          logger.info('🔧 Using test token (development only)')
         } else {
-          // Use demo token for kiosk mode
-          try {
-            const demoToken = await getDemoToken()
-            headers.set('Authorization', `Bearer ${demoToken}`)
-            logger.info('🔑 Using demo/kiosk token for API request')
-          } catch (demoError) {
-            console.error('Failed to get demo token:', demoError)
-            // Fallback to test token in development only
-            if (import.meta.env.DEV) {
-              headers.set('Authorization', 'Bearer test-token')
-              logger.info('🔧 Using test token fallback (development only)')
-            } else {
-              console.warn('❌ No authentication available for API request')
-            }
-          }
+          console.warn('❌ No authentication available for API request')
         }
       } catch (error) {
         console.error('Failed to get auth session:', error)
-        // Try demo token as fallback
-        try {
-          const demoToken = await getDemoToken()
-          headers.set('Authorization', `Bearer ${demoToken}`)
-          logger.info('🔑 Using demo token (auth session failed)')
-        } catch (demoError) {
-          console.error('All auth methods failed:', demoError)
-          // Final fallback to test token in development
-          if (import.meta.env.DEV) {
-            headers.set('Authorization', 'Bearer test-token')
-            logger.info('🔧 Using test token (all auth failed, dev mode)')
-          }
+        // Development fallback only
+        if (import.meta.env.DEV) {
+          headers.set('Authorization', 'Bearer test-token')
+          logger.info('🔧 Using test token (auth session failed, dev mode)')
         }
       }
     }
