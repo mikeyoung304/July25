@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
-import { validateRestaurantAccess } from '../middleware/restaurantAccess';
+import { authenticate, AuthenticatedRequest, validateRestaurantAccess } from '../middleware/auth';
 import { BadRequest } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { SquareClient, SquareEnvironment } from 'square';

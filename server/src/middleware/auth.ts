@@ -304,11 +304,11 @@ export function requireRole(roles: string[]) {
 // Use: import { requireScopes, ApiScope } from '../middleware/rbac';
 
 // Validate restaurant access middleware
-export function validateRestaurantAccess(
+export async function validateRestaurantAccess(
   req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   // Restaurant context must be set by authenticate() middleware
   if (!req.restaurantId) {
     logger.error('Restaurant context missing at validateRestaurantAccess', {
@@ -326,11 +326,26 @@ export function validateRestaurantAccess(
   
   // For staff tokens (supabase), verify membership via user_restaurants
   if (req.user.tokenType === 'supabase') {
-    // TODO: Check user_restaurants table for membership
-    // For now, we trust the restaurant context provided
-    logger.debug('Staff restaurant access validation', {
+    // Check user_restaurants table for membership
+    const roleData = await authService.getUserRestaurantRole(req.user.id, req.restaurantId);
+    
+    if (!roleData) {
+      logger.warn('Staff user lacks restaurant membership', {
+        userId: req.user.id,
+        restaurantId: req.restaurantId,
+        tokenType: 'supabase'
+      });
+      return next(Unauthorized('Restaurant access denied', 'RESTAURANT_ACCESS_DENIED'));
+    }
+    
+    // Update user's role and scopes with restaurant-specific data
+    req.user.role = roleData.role;
+    req.user.scopes = roleData.scopes;
+    
+    logger.debug('Staff restaurant access validated', {
       userId: req.user.id,
       restaurantId: req.restaurantId,
+      role: roleData.role,
       tokenType: 'supabase'
     });
   } else {

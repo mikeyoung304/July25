@@ -25,6 +25,8 @@ async function getKioskToken() {
 }
 
 // Create a mock staff token for testing (supabase type)
+// DEV ONLY: This fabricated token is for development testing only
+// In production, use real Supabase authentication
 function createStaffToken() {
   const secret = process.env.SUPABASE_JWT_SECRET || 'test-secret';
   return jwt.sign(

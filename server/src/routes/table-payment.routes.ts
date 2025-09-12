@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
-import { validateRestaurantAccess } from '../middleware/restaurantAccess';
+import { authenticate, AuthenticatedRequest, validateRestaurantAccess } from '../middleware/auth';
 import { requireScopes, ApiScope } from '../middleware/rbac';
 import { BadRequest } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
