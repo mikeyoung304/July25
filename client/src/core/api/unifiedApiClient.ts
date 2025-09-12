@@ -30,7 +30,7 @@ export class APIError extends Error {
   constructor(
     public status: number,
     message: string,
-    public data?: any
+    public data?: unknown
   ) {
     super(message);
     this.name = 'APIError';
@@ -43,7 +43,7 @@ interface CacheEntry<T> {
 }
 
 interface RequestOptions extends RequestInit {
-  params?: Record<string, any>;
+  params?: Record<string, string | number | boolean | undefined>;
   skipAuth?: boolean;
   skipRestaurantId?: boolean;
   retries?: number;
@@ -60,8 +60,8 @@ const DEFAULT_CACHE_TTL = {
 
 class UnifiedApiClient {
   private baseURL: string;
-  private cache = new Map<string, CacheEntry<any>>();
-  private inflightRequests = new Map<string, Promise<any>>();
+  private cache = new Map<string, CacheEntry<unknown>>();
+  private inflightRequests = new Map<string, Promise<unknown>>();
   
   constructor() {
     // Determine base URL
@@ -152,7 +152,7 @@ class UnifiedApiClient {
 
     // Execute request with retries
     const maxRetries = options.retries ?? 3;
-    let lastError: any;
+    let lastError: Error | unknown;
     
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
@@ -249,7 +249,7 @@ class UnifiedApiClient {
     return this.request<T>(endpoint, { ...options, method: 'GET' });
   }
 
-  post<T>(endpoint: string, data?: any, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> {
+  post<T>(endpoint: string, data?: unknown, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: 'POST',
@@ -257,7 +257,7 @@ class UnifiedApiClient {
     });
   }
 
-  put<T>(endpoint: string, data?: any, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> {
+  put<T>(endpoint: string, data?: unknown, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: 'PUT',
@@ -265,7 +265,7 @@ class UnifiedApiClient {
     });
   }
 
-  patch<T>(endpoint: string, data?: any, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> {
+  patch<T>(endpoint: string, data?: unknown, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: 'PATCH',

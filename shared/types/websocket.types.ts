@@ -17,7 +17,7 @@ export type WebSocketEventType =
   | 'notification'
   | 'error';
 
-export interface WebSocketMessage<T = any> {
+export interface WebSocketMessage<T = WebSocketPayload> {
   type: WebSocketEventType;
   payload: T;
   timestamp: string;
@@ -67,7 +67,7 @@ export interface NotificationPayload {
 export interface ErrorPayload {
   code: string;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 export type WebSocketPayload = 

@@ -323,7 +323,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
     } finally {
       setIsLoading(false);
     }
-  }, [api, onError, cleanup, pollCheckoutStatus, pollingInterval, timeout, toast, debug]);
+  }, [api, onError, cleanup, pollCheckoutStatus, pollingInterval, timeout, toast, debug, cancelCheckout]);
 
   // Cancel current checkout
   const cancelCheckout = useCallback(async () => {
