@@ -1,0 +1,26 @@
+============================================================
+RESTAURANT CONTEXT (RCTX) VERIFIER
+API: https://july25.onrender.com/api/v1
+============================================================
+⚠️  SUPABASE_JWT_SECRET not set - using placeholder token
+
+🧪 Staff token WITHOUT restaurant context
+   ❌ FAIL: Expected 400 RESTAURANT_CONTEXT_MISSING, got 500 unknown
+
+🧪 Staff token WITH no membership
+   ❌ FAIL: Expected 403 RESTAURANT_ACCESS_DENIED, got 500 unknown
+
+🧪 Kiosk token WITHOUT header
+   ❌ FAIL: Failed to get kiosk token: 500
+
+🧪 Header vs body spoof - header wins
+   ⚠️  Test requires POST endpoint accepting restaurant_id in body
+   ✅ PASS: Skipped - would verify header takes precedence over body
+
+============================================================
+RCTX-VERIFIER SUMMARY
+✅ Passed: 1
+❌ Failed: 3
+============================================================
+
+📊 Results written to reports/tenancy-verifier-result.json

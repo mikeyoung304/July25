@@ -1,0 +1,19 @@
+RLS STATUS CHECK
+============================================================
+Status: UNABLE TO VERIFY - Direct database connection not available
+
+Attempted to check RLS status for critical tables:
+- orders
+- order_status_history  
+- user_restaurants
+
+Error: Direct connection to db.xiwfhcikfdoshxwbtjxt.supabase.co failed
+- DNS resolution failed (ENOTFOUND)
+- The database host may only be accessible via Supabase API or from allowed IPs
+- Supabase CLI works through API gateway, not direct database connection
+
+RECOMMENDATION:
+RLS status should be verified through:
+1. Supabase Dashboard (Table Editor → RLS policies)
+2. Supabase CLI with proper project linking
+3. From a server/environment with database access

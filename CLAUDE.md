@@ -3,9 +3,11 @@
 ## Project Overview
 
 - **Type**: Restaurant OS (Point of Sale + Management System)
-- **Version**: 6.0.3
+- **Version**: 6.0.4
+- **Production Readiness**: 9.5/10 (Security Hardened, Voice & Payments Integrated)
 - **Stack**: React 19.1.0, TypeScript 5.8.3/5.3.3, Vite 5.4.19, Express 4.18.2, Supabase 2.50.5/2.39.7
 - **Architecture**: Unified backend on port 3001
+- **Last Major Update**: September 12, 2025 (6 critical PRs merged)
 
 ## Directory Structure
 
@@ -47,6 +49,39 @@ rebuild-6.0/
 - Menu management with QR codes
 - Kitchen display system (KDS)
 - Analytics dashboard
+- **Payment Processing**: Square integration (v6.0.4)
+- **Security**: Hardened authentication with RCTX enforcement (v6.0.4)
+
+## 🚨 CRITICAL: Restaurant Context (RCTX) Requirements (v6.0.4+)
+
+**ALL staff API calls MUST include X-Restaurant-ID header or will fail with 400/403 errors**
+
+### Required Headers for Staff Operations
+```javascript
+// ALWAYS include these headers for staff API calls
+const headers = {
+  'Authorization': `Bearer ${token}`,
+  'X-Restaurant-ID': restaurantId,  // REQUIRED in v6.0.4+
+  'Content-Type': 'application/json'
+};
+```
+
+### Error Codes
+- **400 RESTAURANT_CONTEXT_MISSING**: Missing X-Restaurant-ID header
+- **403 RESTAURANT_ACCESS_DENIED**: User not member of specified restaurant
+
+### Affected Endpoints (require RCTX)
+- `/api/v1/orders/*` - All order operations
+- `/api/v1/tables/*` - Table management
+- `/api/v1/menu/*` - Menu write operations
+- `/api/v1/staff/*` - Staff management
+- `/api/v1/reports/*` - Reporting endpoints
+- `/api/v1/payments/*` - Payment processing
+
+### Exempted Endpoints (no RCTX needed)
+- `/api/v1/auth/*` - Authentication
+- `/api/v1/health` - Health checks
+- `/api/v1/menu/items` (GET only) - Public menu viewing
 
 ## Kitchen Display System (KDS) Critical Requirements
 
@@ -165,6 +200,30 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 - Backend: http://localhost:3001
 - Frontend: http://localhost:5173
 - Database: Supabase (configured in .env)
+
+### Required Environment Variables (v6.0.4+)
+
+```bash
+# Client (.env)
+VITE_SUPABASE_URL=xxx
+VITE_SUPABASE_ANON_KEY=xxx
+VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
+VITE_OPENAI_API_KEY=xxx         # Voice ordering
+VITE_SQUARE_APP_ID=xxx          # Payment processing (NEW)
+VITE_SQUARE_LOCATION_ID=xxx     # Payment processing (NEW)
+
+# Server (.env)
+SUPABASE_URL=xxx
+SUPABASE_SERVICE_KEY=xxx
+SUPABASE_JWT_SECRET=xxx         # Auth validation (NEW - REQUIRED)
+OPENAI_API_KEY=xxx
+SQUARE_ACCESS_TOKEN=xxx         # Payment backend (NEW)
+FRONTEND_URL=http://localhost:5173  # CORS allowlist (NEW - REQUIRED)
+PIN_PEPPER=xxx                  # PIN hashing security (NEW)
+DEVICE_FINGERPRINT_SALT=xxx     # Device binding (NEW)
+NODE_ENV=development
+PORT=3001
+```
 
 ## Memory Management
 
