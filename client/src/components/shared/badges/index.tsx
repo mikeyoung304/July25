@@ -117,15 +117,18 @@ export const AnimatedStatusBadge: React.FC<AnimatedStatusBadgeProps> = ({
     if (previousStatus && previousStatus !== status) {
       setIsAnimating(true)
       
-      const timer = setTimeout(() => {
+      const timer1 = setTimeout(() => {
         setDisplayStatus(status)
-        
-        setTimeout(() => {
-          setIsAnimating(false)
-        }, 500)
       }, 150)
       
-      return () => clearTimeout(timer)
+      const timer2 = setTimeout(() => {
+        setIsAnimating(false)
+      }, 650) // 150ms + 500ms
+      
+      return () => {
+        clearTimeout(timer1)
+        clearTimeout(timer2)
+      }
     } else {
       setDisplayStatus(status)
     }

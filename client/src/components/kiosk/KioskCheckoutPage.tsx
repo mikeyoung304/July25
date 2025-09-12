@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
+import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
 import { useApiRequest } from '@/hooks/useApiRequest';

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Circle, Square, RectangleHorizontal, Save, Maximize2, ArrowLeft } from 'lucide-react'
 import { Table } from '../types'
+import { ChipMonkeyIcon } from './ChipMonkeyIcon'
 
 interface FloorPlanToolbarProps {
   onAddTable: (type: Table['type']) => void
@@ -59,6 +60,15 @@ export function FloorPlanToolbar({
           className="h-20 w-20 p-0 rounded-2xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 hover:shadow-lg transition-all duration-300 group bg-white shadow-sm hover:scale-105"
         >
           <RectangleHorizontal className="h-8 w-8 text-gray-600 group-hover:text-blue-600 transition-colors duration-300" />
+        </Button>
+        <Button
+          variant="outline"
+          size="default"
+          onClick={() => onAddTable('chip_monkey')}
+          className="h-20 w-20 p-0 rounded-2xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 hover:shadow-lg transition-all duration-300 group bg-white shadow-sm hover:scale-105"
+          title="Chip Monkey"
+        >
+          <ChipMonkeyIcon size={32} className="text-gray-600 group-hover:text-blue-600 transition-colors duration-300" />
         </Button>
         </div>
       </div>

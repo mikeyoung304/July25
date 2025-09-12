@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useRestaurant } from '@/core';
 import { KioskErrorBoundary } from '@/components/kiosk/KioskErrorBoundary';
-import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
+import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { KioskModeSelector, KioskMode } from '@/components/kiosk/KioskModeSelector';
 import { VoiceOrderingMode } from '@/components/kiosk/VoiceOrderingMode';
 import { KioskCheckoutPage } from '@/components/kiosk/KioskCheckoutPage';
