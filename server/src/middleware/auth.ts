@@ -23,34 +23,67 @@ export async function authenticate(
   try {
     const authHeader = req.headers.authorization;
     
-    // Get restaurant ID from headers, body, or query (in that order)
-    const restaurantId = req.headers['x-restaurant-id'] as string ||
-                        req.body?.restaurant_id ||
-                        req.query.restaurant_id as string;
+    // Strict restaurant context extraction
+    // Priority: header > query > body > token fallback (single-tenant only)
+    const headerId = (() => {
+      // Case-insensitive header lookup
+      const headers = req.headers;
+      for (const key in headers) {
+        if (key.toLowerCase() === 'x-restaurant-id') {
+          return headers[key] as string;
+        }
+      }
+      return undefined;
+    })();
     
-    // For write operations (POST, PUT, PATCH, DELETE), restaurant context is mandatory
-    const isWriteOperation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
-    if (isWriteOperation && !restaurantId) {
-      logger.warn('Missing restaurant context for write operation', {
-        method: req.method,
-        path: req.path
-      });
-      return next(BadRequest('Restaurant context required (X-Restaurant-ID header)'));
-    }
+    const qId = (req.query.restaurantId || req.query.restaurant_id) as string | undefined;
+    const bId = req.body?.restaurantId || req.body?.restaurant_id;
     
     // Use AuthenticationService for unified token validation
     // This returns a NormalizedUser with canonical roles
-    const user = await authService.validateToken(authHeader || '', restaurantId);
+    const user = await authService.validateToken(authHeader || '', undefined);
+    
+    // Token fallback ONLY for single-tenant tokens (kiosk/station/pin)
+    const tokenFallback = user.tokenType !== 'supabase' ? user.restaurantId : undefined;
+    
+    // Resolved restaurant context
+    const resolved = headerId || qId || bId || tokenFallback;
+    
+    // For write operations, enforce strict restaurant context
+    const isWriteOperation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
+    if (isWriteOperation) {
+      // Staff tokens (supabase) MUST provide explicit context
+      if (user.tokenType === 'supabase' && !headerId && !qId && !bId) {
+        logger.warn('Missing restaurant context for staff write operation', {
+          method: req.method,
+          path: req.path,
+          tokenType: user.tokenType,
+          userId: user.id
+        });
+        return next(BadRequest('Restaurant context required', 'RESTAURANT_CONTEXT_MISSING'));
+      }
+      
+      // All writes must have restaurant context
+      if (!resolved) {
+        logger.warn('No restaurant context available for write operation', {
+          method: req.method,
+          path: req.path,
+          tokenType: user.tokenType
+        });
+        return next(BadRequest('Restaurant context required', 'RESTAURANT_CONTEXT_MISSING'));
+      }
+    }
     
     // Set user and restaurant context on request
     req.user = user;
-    req.restaurantId = user.restaurantId || restaurantId;
+    req.restaurantId = resolved || undefined;
     
     logger.debug('Authentication successful', {
       userId: user.id,
       role: user.role,
       tokenType: user.tokenType,
-      restaurantId: req.restaurantId
+      restaurantId: req.restaurantId,
+      contextSource: headerId ? 'header' : qId ? 'query' : bId ? 'body' : tokenFallback ? 'token' : 'none'
     });
     
     next();
@@ -276,12 +309,42 @@ export function validateRestaurantAccess(
   _res: Response,
   next: NextFunction
 ): void {
-  const restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
-  
-  if (!restaurantId) {
-    return next(Unauthorized('Restaurant ID is required'));
+  // Restaurant context must be set by authenticate() middleware
+  if (!req.restaurantId) {
+    logger.error('Restaurant context missing at validateRestaurantAccess', {
+      method: req.method,
+      path: req.path,
+      userId: req.user?.id
+    });
+    return next(BadRequest('Restaurant context required', 'RESTAURANT_CONTEXT_MISSING'));
   }
   
-  req.restaurantId = restaurantId;
+  // Validate user has access to the restaurant
+  if (!req.user) {
+    return next(Unauthorized('Authentication required'));
+  }
+  
+  // For staff tokens (supabase), verify membership via user_restaurants
+  if (req.user.tokenType === 'supabase') {
+    // TODO: Check user_restaurants table for membership
+    // For now, we trust the restaurant context provided
+    logger.debug('Staff restaurant access validation', {
+      userId: req.user.id,
+      restaurantId: req.restaurantId,
+      tokenType: 'supabase'
+    });
+  } else {
+    // For single-tenant tokens (kiosk/station/pin), verify matches token-bound restaurant
+    if (req.user.restaurantId && req.user.restaurantId !== req.restaurantId) {
+      logger.warn('Restaurant ID mismatch for single-tenant token', {
+        userId: req.user.id,
+        tokenRestaurant: req.user.restaurantId,
+        requestRestaurant: req.restaurantId,
+        tokenType: req.user.tokenType
+      });
+      return next(Unauthorized('Restaurant access denied'));
+    }
+  }
+  
   next();
 }

@@ -1,8 +1,7 @@
 import { Router } from 'express';
-import { authenticate, AuthenticatedRequest, requireRole } from '../middleware/auth';
+import { authenticate, AuthenticatedRequest, requireRole, validateRestaurantAccess } from '../middleware/auth';
 import { requireScopes } from '../middleware/rbac';
 import { ApiScope, DatabaseRole } from '@rebuild/shared/types/auth';
-import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { OrdersService } from '../services/orders.service';
 import { BadRequest, NotFound } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
