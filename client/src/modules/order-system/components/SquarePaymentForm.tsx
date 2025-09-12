@@ -26,9 +26,23 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
   const cardContainerRef = useRef<HTMLDivElement>(null);
   const [useTestCard, setUseTestCard] = useState(false);
 
-  // Load Square Web Payments SDK
+  // Check if we should use demo mode
+  const isDemoMode = !import.meta.env.VITE_SQUARE_APP_ID || 
+                     import.meta.env.VITE_SQUARE_APP_ID === 'demo' ||
+                     !import.meta.env.VITE_SQUARE_LOCATION_ID ||
+                     import.meta.env.NODE_ENV === 'development';
+
+  // Load Square Web Payments SDK (skip in demo mode)
   useEffect(() => {
     let loadTimeout: NodeJS.Timeout;
+    
+    // If in demo mode, skip Square SDK loading
+    if (isDemoMode) {
+      console.log('Demo mode detected - skipping Square SDK loading');
+      setIsInitializing(false);
+      setIsSquareLoaded(false); // Don't load Square in demo mode
+      return;
+    }
     
     const loadSquareSDK = async () => {
       // Check if Square is already loaded
@@ -42,7 +56,7 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
         if (!window.Square) {
           console.error('Square SDK load timeout - likely blocked by browser extension');
           setErrors({ 
-            general: 'Payment system blocked. Please disable ad blockers or use Terminal payment option.',
+            general: 'Payment system blocked. Switching to demo mode.',
             blocked: 'true'
           });
           setIsInitializing(false);
@@ -60,9 +74,9 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
       };
       script.onerror = () => {
         clearTimeout(loadTimeout);
-        console.error('Failed to load Square SDK - possibly blocked by browser extension');
+        console.error('Failed to load Square SDK - switching to demo mode');
         setErrors({ 
-          general: 'Payment system blocked. Please disable ad blockers or use Terminal payment option.',
+          general: 'Payment system unavailable. Using demo mode.',
           blocked: 'true'
         });
         setIsInitializing(false);
@@ -108,7 +122,7 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
         card.destroy();
       }
     };
-  }, [card]);
+  }, [card, isDemoMode]);
 
   const handleSquarePayment = useCallback(async () => {
     if (!card || !squarePayments) {
@@ -138,17 +152,29 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
     onPaymentNonce('cnon:card-nonce-ok');
   }, [onPaymentNonce]);
 
+  const handleDemoPayment = useCallback(() => {
+    // Use demo nonce for demo mode
+    onPaymentNonce('demo-nonce-' + Date.now());
+  }, [onPaymentNonce]);
+
   return (
     <div className="space-y-4">
       {/* Environment indicator */}
-      {import.meta.env.VITE_SQUARE_ENVIRONMENT === 'sandbox' && (
+      {isDemoMode ? (
+        <div className="bg-green-50 p-4 rounded-lg mb-4">
+          <p className="text-sm text-green-800 flex items-center">
+            <Lock className="w-4 h-4 mr-2" />
+            Demo Mode - Payment will be simulated for testing
+          </p>
+        </div>
+      ) : import.meta.env.VITE_SQUARE_ENVIRONMENT === 'sandbox' ? (
         <div className="bg-blue-50 p-4 rounded-lg mb-4">
           <p className="text-sm text-blue-800 flex items-center">
             <Lock className="w-4 h-4 mr-2" />
             Sandbox environment - Use test card 4111 1111 1111 1111
           </p>
         </div>
-      )}
+      ) : null}
 
       {/* Error Display */}
       {errors.general && (
@@ -158,7 +184,7 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
       )}
 
       {/* Test Card Toggle for Sandbox */}
-      {import.meta.env.VITE_SQUARE_ENVIRONMENT === 'sandbox' && (
+      {!isDemoMode && import.meta.env.VITE_SQUARE_ENVIRONMENT === 'sandbox' && (
         <div className="mb-4">
           <label className="flex items-center">
             <input
@@ -172,7 +198,27 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
         </div>
       )}
 
-      {useTestCard ? (
+      {isDemoMode ? (
+        /* Demo Payment Button */
+        <button
+          type="button"
+          onClick={handleDemoPayment}
+          disabled={isProcessing}
+          className="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {isProcessing ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </span>
+          ) : (
+            `Complete Order - ${amount.toFixed(2)} (Demo)`
+          )}
+        </button>
+      ) : useTestCard ? (
         /* Test Card Button */
         <button
           type="button"
