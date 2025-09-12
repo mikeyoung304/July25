@@ -1,0 +1,100 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.2.0 /Users/mikeyoung/CODING/rebuild-6.0/server
+
+stdout | tests/bootstrap.ts:33:9
+Test bootstrap loaded
+
+ ❯ tests/middleware/validateRestaurantAccess.spec.ts  (5 tests | 4 failed) 3ms
+   ❯ tests/middleware/validateRestaurantAccess.spec.ts > validateRestaurantAccess middleware > should return 400 RESTAURANT_CONTEXT_MISSING when staff token missing context
+     → expected undefined to be an instance of BadRequest
+   ❯ tests/middleware/validateRestaurantAccess.spec.ts > validateRestaurantAccess middleware > should return 403 RESTAURANT_ACCESS_DENIED when staff lacks membership
+     → expected undefined to be an instance of Forbidden
+   ❯ tests/middleware/validateRestaurantAccess.spec.ts > validateRestaurantAccess middleware > should call next() without error when membership exists
+     → expected "spy" to be called with arguments: [ 'staff-user', 'restaurant-123' ]
+
+Received: 
+
+
+
+Number of calls: 0
+
+   ❯ tests/middleware/validateRestaurantAccess.spec.ts > validateRestaurantAccess middleware > should prioritize header restaurant ID over body
+     → expected "spy" to be called with arguments: [ 'staff-user', 'header-restaurant' ]
+
+Received: 
+
+
+
+Number of calls: 0
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/middleware/validateRestaurantAccess.spec.ts > validateRestaurantAccess middleware > should return 400 RESTAURANT_CONTEXT_MISSING when staff token missing context
+AssertionError: expected undefined to be an instance of BadRequest
+ ❯ tests/middleware/validateRestaurantAccess.spec.ts:63:19
+     61|     expect(next).toHaveBeenCalledOnce();
+     62|     const error = (next as any).mock.calls[0][0];
+     63|     expect(error).toBeInstanceOf(BadRequest);
+       |                   ^
+     64|     expect(error.message).toContain('Restaurant context missing');
+     65|     expect(error.code).toBe('RESTAURANT_CONTEXT_MISSING');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/middleware/validateRestaurantAccess.spec.ts > validateRestaurantAccess middleware > should return 403 RESTAURANT_ACCESS_DENIED when staff lacks membership
+AssertionError: expected undefined to be an instance of Forbidden
+ ❯ tests/middleware/validateRestaurantAccess.spec.ts:86:19
+     84|     expect(next).toHaveBeenCalledOnce();
+     85|     const error = (next as any).mock.calls[0][0];
+     86|     expect(error).toBeInstanceOf(Forbidden);
+       |                   ^
+     87|     expect(error.message).toContain('You do not have access to this re…
+     88|     expect(error.code).toBe('RESTAURANT_ACCESS_DENIED');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/middleware/validateRestaurantAccess.spec.ts > validateRestaurantAccess middleware > should call next() without error when membership exists
+AssertionError: expected "spy" to be called with arguments: [ 'staff-user', 'restaurant-123' ]
+
+Received: 
+
+
+
+Number of calls: 0
+
+ ❯ tests/middleware/validateRestaurantAccess.spec.ts:109:57
+    107|     expect(next).toHaveBeenCalledOnce();
+    108|     expect(next).toHaveBeenCalledWith();
+    109|     expect(AuthenticationService.getUserRestaurantRole).toHaveBeenCall…
+       |                                                         ^
+    110|   });
+    111| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/middleware/validateRestaurantAccess.spec.ts > validateRestaurantAccess middleware > should prioritize header restaurant ID over body
+AssertionError: expected "spy" to be called with arguments: [ 'staff-user', 'header-restaurant' ]
+
+Received: 
+
+
+
+Number of calls: 0
+
+ ❯ tests/middleware/validateRestaurantAccess.spec.ts:151:57
+    149|     
+    150|     // Assert: used header restaurant ID
+    151|     expect(AuthenticationService.getUserRestaurantRole).toHaveBeenCall…
+       |                                                         ^
+    152|     expect(next).toHaveBeenCalledWith();
+    153|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  11:35:55
+   Duration  178ms (transform 27ms, setup 9ms, collect 44ms, tests 3ms, environment 0ms, prepare 25ms)
+
