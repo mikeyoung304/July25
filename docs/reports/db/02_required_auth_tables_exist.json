@@ -1,0 +1,12 @@
+{
+  "transport": "mcp",
+  "query": "supabase/sql/verify/02_required_auth_tables_exist.sql",
+  "response": [
+    {"expected_table": "api_scopes", "exists": true},
+    {"expected_table": "role_scopes", "exists": true},
+    {"expected_table": "station_tokens", "exists": true},
+    {"expected_table": "user_pins", "exists": true},
+    {"expected_table": "user_profiles", "exists": true},
+    {"expected_table": "user_restaurants", "exists": true}
+  ]
+}

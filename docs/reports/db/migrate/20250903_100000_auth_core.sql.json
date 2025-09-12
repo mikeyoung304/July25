@@ -1,0 +1,6 @@
+{
+  "transport": "mcp",
+  "migration": "supabase/migrations/20250903_100000_auth_core.sql",
+  "status": "ok",
+  "error": null
+}

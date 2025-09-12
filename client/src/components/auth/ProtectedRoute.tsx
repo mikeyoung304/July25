@@ -83,7 +83,7 @@ export function ManagerRoute({ children }: { children: ReactNode }) {
 
 export function ServerRoute({ children }: { children: ReactNode }) {
   return (
-    <ProtectedRoute requiredRoles={['owner', 'manager', 'server']}>
+    <ProtectedRoute requiredRoles={['owner', 'manager', 'server', 'cashier']}>
       {children}
     </ProtectedRoute>
   );
@@ -99,7 +99,23 @@ export function KitchenRoute({ children }: { children: ReactNode }) {
 
 export function AdminRoute({ children }: { children: ReactNode }) {
   return (
-    <ProtectedRoute requiredRoles={['owner']}>
+    <ProtectedRoute requiredRoles={['owner', 'manager']}>
+      {children}
+    </ProtectedRoute>
+  );
+}
+
+export function CashierRoute({ children }: { children: ReactNode }) {
+  return (
+    <ProtectedRoute requiredRoles={['owner', 'manager', 'cashier']}>
+      {children}
+    </ProtectedRoute>
+  );
+}
+
+export function ExpoRoute({ children }: { children: ReactNode }) {
+  return (
+    <ProtectedRoute requiredRoles={['owner', 'manager', 'expo', 'kitchen']}>
       {children}
     </ProtectedRoute>
   );

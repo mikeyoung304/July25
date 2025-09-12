@@ -219,6 +219,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         session: sessionData,
         restaurantId: response.restaurantId
       }));
+      
+      // Also store token separately for httpClient
+      localStorage.setItem('auth_token', response.token);
 
       logger.info('PIN login successful', { role: response.user.role });
     } catch (error) {
@@ -329,12 +332,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const expiresAt = Math.floor(Date.now() / 1000) + response.session.expires_in;
       
-      setSession({
+      const sessionData = {
         accessToken: response.session.access_token,
         refreshToken: response.session.refresh_token,
         expiresIn: response.session.expires_in,
         expiresAt
-      });
+      };
+      
+      setSession(sessionData);
+      
+      // Store auth session in localStorage for persistence
+      localStorage.setItem('auth_session', JSON.stringify({
+        user: response.user,
+        session: sessionData,
+        restaurantId: response.restaurantId
+      }));
+      
+      // Also store token separately for httpClient
+      localStorage.setItem('auth_token', response.session.access_token);
 
       logger.info('Session refreshed successfully');
     } catch (error) {

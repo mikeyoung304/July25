@@ -66,6 +66,8 @@ function validatePinFormat(pin: string): void {
     throw BadRequest('PIN must contain only digits');
   }
   
+  // No special demo PINs - all PINs must meet security requirements
+  
   // Check for simple patterns
   if (/^(\d)\1+$/.test(pin)) {
     throw BadRequest('PIN cannot be all the same digit');
@@ -160,6 +162,8 @@ export async function validatePin(
         error: 'PIN and restaurant ID required'
       };
     }
+
+    // All PIN authentication goes through Supabase - no hardcoded demo users
     
     // Find users with this restaurant access
     const { data: pinRecords, error: pinError } = await supabase

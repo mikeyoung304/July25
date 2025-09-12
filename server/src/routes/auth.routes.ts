@@ -109,7 +109,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     }
 
     // Check user's role in the restaurant
-    const { data: userRole, error: roleError } = await supabase
+    let { data: userRole, error: roleError } = await supabase
       .from('user_restaurants')
       .select('role')
       .eq('user_id', authData.user.id)
@@ -117,7 +117,27 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
       .eq('is_active', true)
       .single();
 
-    if (roleError || !userRole) {
+    // For demo admin, create access if it doesn't exist
+    if ((roleError || !userRole) && email === 'admin@demo.com') {
+      // Create restaurant access for demo admin
+      const { error: insertError } = await supabase
+        .from('user_restaurants')
+        .upsert({
+          user_id: authData.user.id,
+          restaurant_id: restaurantId,
+          role: 'owner',
+          is_active: true
+        }, {
+          onConflict: 'user_id,restaurant_id'
+        });
+      
+      if (!insertError) {
+        logger.info('Created restaurant access for demo admin');
+      }
+      
+      // Set role for response
+      userRole = { role: 'owner' };
+    } else if (roleError || !userRole) {
       logger.warn('User has no access to restaurant', {
         userId: authData.user.id,
         restaurantId
@@ -166,6 +186,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 /**
  * POST /api/v1/auth/pin-login
  * PIN-based login for servers and cashiers
+ * Now uses proper Supabase authentication for all PIN users
  */
 router.post('/pin-login', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -176,45 +197,39 @@ router.post('/pin-login', async (req: Request, res: Response, next: NextFunction
       throw BadRequest('PIN and restaurant ID are required');
     }
 
-    // Validate PIN
-    const result = await validatePin(pin, restaurantId);
+    // Import userService for PIN authentication
+    const userService = (await import('../services/userService')).default;
 
-    if (!result.isValid) {
-      logger.warn('PIN login failed', { restaurantId, error: result.error });
-      throw Unauthorized(result.error || 'Invalid PIN');
+    // Authenticate with PIN using Supabase
+    const result = await userService.authenticateWithPin(pin, restaurantId);
+
+    if (!result) {
+      logger.warn('PIN login failed', { restaurantId });
+      throw Unauthorized('Invalid PIN');
     }
 
-    // Generate JWT token for PIN user
-    const jwtSecret = process.env.KIOSK_JWT_SECRET || 
-                     process.env.SUPABASE_JWT_SECRET ||
-                     'pin-secret-change-in-production';
-
-    const payload = {
-      sub: result.userId,
-      email: result.userEmail,
-      role: result.role,
-      restaurant_id: restaurantId,
-      auth_method: 'pin',
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60) // 12 hours for staff
-    };
-
-    const token = jwt.sign(payload, jwtSecret, { algorithm: 'HS256' });
-
+    // Log successful authentication
     logger.info('PIN login successful', {
-      userId: result.userId,
-      role: result.role,
+      userId: result.user.id,
+      email: result.user.email,
+      role: result.user.role,
       restaurantId
     });
 
+    // Return the Supabase session
     res.json({
       user: {
-        id: result.userId,
-        email: result.userEmail,
-        role: result.role
+        id: result.user.id,
+        email: result.user.email,
+        role: result.user.role
       },
-      token,
-      expiresIn: 12 * 60 * 60,
+      token: result.session.access_token,
+      session: {
+        access_token: result.session.access_token,
+        refresh_token: result.session.refresh_token,
+        expires_in: result.session.expires_in
+      },
+      expiresIn: result.session.expires_in || 12 * 60 * 60,
       restaurantId
     });
 

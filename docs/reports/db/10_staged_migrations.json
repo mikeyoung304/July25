@@ -1,0 +1,34 @@
+{
+  "transport": "mcp",
+  "timestamp": "2025-09-03T19:15:00Z",
+  "existing_migrations": [
+    {"version": "20250713130722", "name": "remote_schema"},
+    {"version": "20250730094240", "name": "fix_null_restaurant_constraints"},
+    {"version": "20250730094254", "name": "add_performance_indexes"},
+    {"version": "20250730094313", "name": "cleanup_rls_policies"},
+    {"version": "20250730094329", "name": "add_jsonb_validation"}
+  ],
+  "staged_migrations": [
+    {
+      "file": "20250903_100000_auth_core.sql",
+      "purpose": "Create core authentication and RBAC tables",
+      "status": "staged_not_applied"
+    },
+    {
+      "file": "20250903_100001_auth_core_rls.sql",
+      "purpose": "Enable RLS and create tenant isolation policies",
+      "status": "staged_not_applied"
+    },
+    {
+      "file": "20250903_100002_auth_core_grants.sql",
+      "purpose": "Configure role-based grants for anon and authenticated",
+      "status": "staged_not_applied"
+    },
+    {
+      "file": "20250903_100003_verification_bookmarks.sql",
+      "purpose": "Create verification views for monitoring",
+      "status": "staged_not_applied"
+    }
+  ],
+  "rollback_file": "__revert_scratch.sql"
+}

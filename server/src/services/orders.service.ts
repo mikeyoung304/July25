@@ -1,4 +1,5 @@
 import { supabase } from '../config/database';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { logger } from '../utils/logger';
 import { randomUUID } from 'crypto';
 import { WebSocketServer } from 'ws';
@@ -69,6 +70,7 @@ export class OrdersService {
    * Create a new order
    */
   static async createOrder(
+    client: SupabaseClient,
     restaurantId: string,
     orderData: CreateOrderRequest
   ): Promise<Order> {
@@ -102,7 +104,7 @@ export class OrdersService {
       const totalAmount = orderData.total_amount !== undefined ? orderData.total_amount : (subtotal + tax + tip);
 
       // Generate order number
-      const orderNumber = await this.generateOrderNumber(restaurantId);
+      const orderNumber = await this.generateOrderNumber(client, restaurantId);
 
       // Map UI order types to database-valid types
       // Database only accepts: 'online', 'pickup', 'delivery'
@@ -152,7 +154,7 @@ export class OrdersService {
         },
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('orders')
         .insert([newOrder])
         .select()
@@ -175,7 +177,7 @@ export class OrdersService {
       }
 
       // Log order status change
-      await this.logStatusChange(data.id, restaurantId, null, 'pending');
+      await this.logStatusChange(client, data.id, restaurantId, null, 'pending');
 
       ordersLogger.info('Order created', { 
         orderId: data.id, 
@@ -194,11 +196,12 @@ export class OrdersService {
    * Get orders with filters
    */
   static async getOrders(
+    client: SupabaseClient,
     restaurantId: string,
     filters: OrderFilters = {}
   ): Promise<Order[]> {
     try {
-      let query = supabase
+      let query = client
         .from('orders')
         .select('*')
         .eq('restaurant_id', restaurantId)
@@ -242,9 +245,9 @@ export class OrdersService {
   /**
    * Get single order
    */
-  static async getOrder(restaurantId: string, orderId: string): Promise<Order | null> {
+  static async getOrder(client: SupabaseClient, restaurantId: string, orderId: string): Promise<Order | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('orders')
         .select('*')
         .eq('restaurant_id', restaurantId)
@@ -267,6 +270,7 @@ export class OrdersService {
    * Update order status
    */
   static async updateOrderStatus(
+    client: SupabaseClient,
     restaurantId: string,
     orderId: string,
     newStatus: Order['status'],
@@ -274,7 +278,7 @@ export class OrdersService {
   ): Promise<Order> {
     try {
       // Get current order
-      const currentOrder = await this.getOrder(restaurantId, orderId);
+      const currentOrder = await this.getOrder(client, restaurantId, orderId);
       if (!currentOrder) {
         throw new Error('Order not found');
       }
@@ -301,7 +305,7 @@ export class OrdersService {
           break;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('orders')
         .update(update)
         .eq('id', orderId)
@@ -320,6 +324,7 @@ export class OrdersService {
 
       // Log status change
       await this.logStatusChange(
+        client,
         orderId,
         restaurantId,
         currentOrder.status,
@@ -351,6 +356,7 @@ export class OrdersService {
    * Update order payment information
    */
   static async updateOrderPayment(
+    client: SupabaseClient,
     restaurantId: string,
     orderId: string,
     paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded',
@@ -359,7 +365,7 @@ export class OrdersService {
   ): Promise<Order> {
     try {
       // Get current order
-      const currentOrder = await this.getOrder(restaurantId, orderId);
+      const currentOrder = await this.getOrder(client, restaurantId, orderId);
       if (!currentOrder) {
         throw new Error('Order not found');
       }
@@ -384,7 +390,7 @@ export class OrdersService {
         update.status = 'confirmed';
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('orders')
         .update(update)
         .eq('id', orderId)
@@ -420,6 +426,7 @@ export class OrdersService {
    * Process voice order
    */
   static async processVoiceOrder(
+    client: SupabaseClient,
     restaurantId: string,
     transcription: string,
     parsedItems: Array<{ name: string; quantity: number; price?: number; notes?: string }>,
@@ -453,7 +460,7 @@ export class OrdersService {
         notes: item.notes,
       }));
 
-      const order = await this.createOrder(restaurantId, {
+      const order = await this.createOrder(client, restaurantId, {
         type: 'voice',
         items: orderItems,
         metadata: {
@@ -465,7 +472,7 @@ export class OrdersService {
 
       // Update voice log with order ID
       if (!logError) {
-        await supabase
+        await client
           .from('voice_order_logs')
           .update({ order_id: order.id })
           .eq('restaurant_id', restaurantId)
@@ -476,7 +483,7 @@ export class OrdersService {
       return order;
     } catch (error) {
       // Log failed voice order
-      await supabase
+      await client
         .from('voice_order_logs')
         .insert([{
           restaurant_id: restaurantId,
@@ -495,7 +502,7 @@ export class OrdersService {
   /**
    * Generate unique order number
    */
-  private static async generateOrderNumber(restaurantId: string): Promise<string> {
+  private static async generateOrderNumber(client: SupabaseClient, restaurantId: string): Promise<string> {
     const date = new Date();
     const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
     
@@ -503,7 +510,7 @@ export class OrdersService {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
     
-    const { count, error } = await supabase
+    const { count, error } = await client
       .from('orders')
       .select('*', { count: 'exact', head: true })
       .eq('restaurant_id', restaurantId)
@@ -521,6 +528,7 @@ export class OrdersService {
    * Log status change for analytics
    */
   private static async logStatusChange(
+    client: SupabaseClient,
     orderId: string,
     restaurantId: string,
     fromStatus: string | null,
@@ -528,7 +536,7 @@ export class OrdersService {
     notes?: string
   ): Promise<void> {
     try {
-      await supabase
+      await client
         .from('order_status_history')
         .insert([{
           order_id: orderId,

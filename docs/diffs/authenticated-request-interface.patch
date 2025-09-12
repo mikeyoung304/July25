@@ -1,0 +1,15 @@
+--- server/src/middleware/auth.ts.orig	2025-09-03
++++ server/src/middleware/auth.ts	2025-09-03 (proposed)
+@@ -1,5 +1,6 @@
+ import { Request, Response, NextFunction } from 'express';
+ import jwt from 'jsonwebtoken';
++import { SupabaseClient } from '@supabase/supabase-js';
+ import { IncomingMessage } from 'http';
+ import { getConfig } from '../config/environment';
+ import { Unauthorized } from './errorHandler';
+@@ -16,6 +17,7 @@
+     restaurant_id?: string; // Add restaurant_id to user interface
+   };
+   restaurantId?: string;
++  userSupabase?: SupabaseClient; // Add user-scoped Supabase client
+ }

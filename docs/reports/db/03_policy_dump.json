@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-09-03T03:15:00Z",
+  "summary": "All JWT claim dependencies removed, now using membership-based policies",
+  "policy_counts": {
+    "total": 39,
+    "membership_based": 9,
+    "service_role": 26,
+    "self_access": 4,
+    "jwt_claim_based": 0
+  },
+  "tables_with_membership": [
+    "tables",
+    "orders", 
+    "menu_items",
+    "menu_categories",
+    "restaurants",
+    "order_status_history",
+    "voice_order_logs",
+    "station_tokens",
+    "user_pins"
+  ],
+  "verification": "No policies reference request.jwt.claims.restaurant_id anymore"
+}

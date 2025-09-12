@@ -1,0 +1,9 @@
+{
+  "role": "server",
+  "operation": "create order",
+  "success": true,
+  "data": {
+    "id": "b7fb19b8-0433-403c-857d-3ec38ebe4fd0",
+    "order_number": "TEST-1756994544950"
+  }
+}

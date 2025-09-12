@@ -1,0 +1,6 @@
+{
+  "transport": "mcp",
+  "migration": "supabase/migrations/20250903_100003_verification_bookmarks.sql",
+  "status": "ok",
+  "error": null
+}
