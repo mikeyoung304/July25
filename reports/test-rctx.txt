@@ -1,0 +1,41 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.2.0 /Users/mikeyoung/CODING/rebuild-6.0/server
+
+stdout | tests/bootstrap.ts:33:9
+Test bootstrap loaded
+
+ ❯ tests/guards/routes.spec.ts  (3 tests | 1 failed) 3ms
+   ❯ tests/guards/routes.spec.ts > Route Guard Consistency > should not import from legacy ../middleware/restaurantAccess
+     → Files with legacy restaurantAccess imports: orders.routes.ts, payments.routes.ts, terminal.routes.ts: expected [ 'orders.routes.ts', …(2) ] to have a length of +0 but got 3
+stdout | tests/bootstrap.ts:33:9
+Test bootstrap loaded
+
+ ✓ tests/middleware/validateRestaurantAccess.spec.ts  (3 tests) 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/guards/routes.spec.ts > Route Guard Consistency > should not import from legacy ../middleware/restaurantAccess
+AssertionError: Files with legacy restaurantAccess imports: orders.routes.ts, payments.routes.ts, terminal.routes.ts: expected [ 'orders.routes.ts', …(2) ] to have a length of +0 but got 3
+
+- Expected
++ Received
+
+- 0
++ 3
+
+ ❯ tests/guards/routes.spec.ts:24:102
+     22|     }
+     23|     
+     24|     expect(legacyImports, `Files with legacy restaurantAccess imports:…
+       |                                                                                                      ^
+     25|   });
+     26| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 5 passed (6)
+   Start at  11:36:53
+   Duration  183ms (transform 28ms, setup 10ms, collect 44ms, tests 4ms, environment 0ms, prepare 24ms)
+
