@@ -132,7 +132,7 @@ export const menuFunctionTools = {
     handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         // Check cache first
-        const cacheKey = `menu_${context.restaurantId}_${JSON.stringify(args)}`;
+        const cacheKey = `menu_${context.restaurantId}_${JSON.stringify(_args)}`;
         const cached = menuCache.get<MenuItem[]>(cacheKey);
         if (cached) {
           return { success: true, data: { items: cached } };
@@ -146,17 +146,17 @@ export const menuFunctionTools = {
           .eq('available', true);
 
         // Apply filters
-        if (args.query) {
-          query = query.ilike('name', `%${args.query}%`);
+        if (_args.query) {
+          query = query.ilike('name', `%${_args.query}%`);
         }
-        if (args.category) {
-          query = query.eq('category', args.category);
+        if (_args.category) {
+          query = query.eq('category', _args.category);
         }
-        if (args.max_price !== undefined) {
-          query = query.lte('price', args.max_price);
+        if (_args.max_price !== undefined) {
+          query = query.lte('price', _args.max_price);
         }
-        if (args.dietary && args.dietary.length > 0) {
-          for (const diet of args.dietary) {
+        if (_args.dietary && _args.dietary.length > 0) {
+          for (const diet of _args.dietary) {
             if (diet === 'vegetarian') query = query.eq('is_vegetarian', true);
             if (diet === 'vegan') query = query.eq('is_vegan', true);
             if (diet === 'gluten_free') query = query.eq('is_gluten_free', true);
@@ -178,7 +178,7 @@ export const menuFunctionTools = {
           const suggestions: any[] = [];
           
           // If requested, try to find alternative suggestions
-          if (args.suggest_alternatives) {
+          if (_args.suggest_alternatives) {
             // Instead of hardcoded mappings, intelligently suggest based on:
             // 1. Popular items from the restaurant
             // 2. Items from all categories if no category specified
@@ -192,8 +192,8 @@ export const menuFunctionTools = {
               .eq('available', true);
             
             // If they specified a category, get items from that category
-            if (args.category) {
-              suggestionQuery = suggestionQuery.eq('category', args.category);
+            if (_args.category) {
+              suggestionQuery = suggestionQuery.eq('category', _args.category);
             }
             
             // Get up to 3 suggestions, prioritizing different categories
@@ -241,12 +241,12 @@ export const menuFunctionTools = {
               items: [],
               count: 0,
               not_found: true,
-              searched_for: args.query || args.category || 'items',
+              searched_for: _args.query || _args.category || 'items',
               suggestions: suggestions.slice(0, 3) // Ensure max 3 suggestions
             },
             message: suggestions.length > 0 
-              ? `We don't have ${args.query || 'that item'} on our menu, but you might enjoy these options`
-              : `No items found matching "${args.query || args.category || 'your search'}"`
+              ? `We don't have ${_args.query || 'that item'} on our menu, but you might enjoy these options`
+              : `No items found matching "${_args.query || _args.category || 'your search'}"`
           };
         }
 
@@ -284,7 +284,7 @@ export const menuFunctionTools = {
         const { data, error } = await supabase
           .from('menu_items')
           .select('*')
-          .eq('id', args.id)
+          .eq('id', _args.id)
           .eq('restaurant_id', context.restaurantId)
           .single();
 
@@ -335,7 +335,7 @@ export const menuFunctionTools = {
         const { data: menuItem, error } = await supabase
           .from('menu_items')
           .select('*')
-          .eq('id', args.id)
+          .eq('id', _args.id)
           .eq('restaurant_id', context.restaurantId)
           .single();
 
@@ -352,23 +352,23 @@ export const menuFunctionTools = {
 
         // Check if item already in cart
         const existingItem = cart.items.find(item => 
-          item.menu_item_id === args.id && 
-          JSON.stringify(item.modifiers) === JSON.stringify(args.modifiers || [])
+          item.menu_item_id === _args.id && 
+          JSON.stringify(item.modifiers) === JSON.stringify(_args.modifiers || [])
         );
 
         if (existingItem) {
           // Update quantity
-          existingItem.quantity += args.quantity;
+          existingItem.quantity += _args.quantity;
         } else {
           // Add new item
           cart.items.push({
             id: `${Date.now()}_${Math.random()}`,
-            menu_item_id: args.id,
+            menu_item_id: _args.id,
             name: menuItem.name,
-            quantity: args.quantity,
+            quantity: _args.quantity,
             price: menuItem.price,
-            modifiers: args.modifiers || [],
-            notes: args.notes
+            modifiers: _args.modifiers || [],
+            notes: _args.notes
           });
         }
 
@@ -387,11 +387,11 @@ export const menuFunctionTools = {
             },
             added: {
               name: menuItem.name,
-              quantity: args.quantity,
+              quantity: _args.quantity,
               price: menuItem.price
             }
           },
-          message: `Added ${args.quantity} ${menuItem.name} to your order`
+          message: `Added ${_args.quantity} ${menuItem.name} to your order`
         };
       } catch (error) {
         logger.error('[MenuTools] Add to order exception', error);
@@ -419,7 +419,7 @@ export const menuFunctionTools = {
       try {
         const cart = getCart(context.sessionId, context.restaurantId);
         
-        const itemIndex = cart.items.findIndex(item => item.id === args.item_id);
+        const itemIndex = cart.items.findIndex(item => item.id === _args.item_id);
         if (itemIndex === -1) {
           return { success: false, error: 'Item not found in cart' };
         }

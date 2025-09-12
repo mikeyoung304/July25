@@ -1,0 +1,14 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.2.0 /Users/mikeyoung/CODING/rebuild-6.0/server
+
+stdout | tests/bootstrap.ts:33:9
+Test bootstrap loaded
+
+ ✓ src/ai/functions/tests/realtime-menu-tools.spec.ts  (2 tests) 1ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  11:31:46
+   Duration  136ms (transform 12ms, setup 10ms, collect 2ms, tests 1ms, environment 0ms, prepare 27ms)
+
