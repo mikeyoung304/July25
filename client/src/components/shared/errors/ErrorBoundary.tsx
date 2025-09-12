@@ -74,7 +74,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <div className="mt-4 text-left">
                 <h3 className="font-semibold mb-2">Error Details</h3>
                 <pre className="text-xs bg-muted p-2 rounded overflow-auto">
-                  {error.toString()}
+                  {typeof error === 'string' ? error : error.message || error.toString()}
                 </pre>
               </div>
             )}

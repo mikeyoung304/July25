@@ -69,6 +69,39 @@ graph LR
    })
    ```
 
+### Voice Order Creation Flow
+
+Voice orders follow a unique path through the system:
+
+1. **Voice Input Processing**
+   ```typescript
+   // User speaks: "I'll have a burger and fries"
+   OpenAI → add_to_order({ items: [...] })
+   WebRTCVoiceClient → emit('order.detected', orderEvent)
+   VoiceOrderingMode → addItem(menuItem, quantity)
+   ```
+
+2. **Order Confirmation**
+   ```typescript
+   // User speaks: "That's all, checkout please"
+   OpenAI → confirm_order({ action: 'checkout' })
+   WebRTCVoiceClient → emit('order.confirmation', { action })
+   VoiceOrderingMode → handleOrderConfirmation()
+   ```
+
+3. **Order Submission**
+   ```typescript
+   // Automated submission after confirmation
+   VoiceOrderingMode → submitOrderAndNavigate(cart.items)
+   useKioskOrderSubmission → POST /api/v1/orders
+   Navigate → /order-confirmation
+   ```
+
+4. **WebSocket Events for Voice Orders**
+   - `order.detected`: Items detected from speech
+   - `order.confirmation`: Confirmation action received
+   - `order:created`: Standard order creation broadcast
+
 ### Kitchen Display System (KDS)
 
 **Location**: `/kitchen`

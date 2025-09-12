@@ -14,32 +14,41 @@ export function useOrderSubmission() {
 
     setIsSubmitting(true)
     try {
-      const total = items.reduce((sum, item) => 
+      // Calculate totals
+      const subtotal = items.reduce((sum, item) => 
         sum + (item.menuItem.price * item.quantity), 0
       )
+      const tax = subtotal * 0.08 // 8% tax
+      const total = subtotal + tax
+      
+      // Generate idempotency key
+      const idempotencyPayload = JSON.stringify({
+        items: items.map(i => ({ id: i.menuItem.id, qty: i.quantity })),
+        timestamp: Math.floor(Date.now() / 3000) // 3-second window
+      })
+      const idempotencyKey = btoa(idempotencyPayload).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)
 
+      // Use camelCase fields per DTO contract
       const orderData = {
         type: 'kiosk' as const,
         items: items.map(item => ({
-          menu_item_id: item.menuItem.id,
+          id: item.menuItem.id, // Changed from menu_item_id
           name: item.menuItem.name,
           quantity: item.quantity,
           price: item.menuItem.price,
-          modifications: item.modifications || [],
-          special_instructions: ''
+          modifiers: (item.modifications || []).map(mod =>
+            typeof mod === 'string' ? { name: mod, price: 0 } : mod
+          ),
+          notes: '' // Changed from special_instructions
         })),
-        total: total,
-        paymentMethod: 'kiosk',
-        customerInfo: {
-          name: 'Kiosk Customer',
-          phone: '',
-          email: ''
-        },
+        customerName: 'Kiosk Customer', // Changed from nested customerInfo
+        customerEmail: '',
+        customerPhone: '',
         notes: 'Self-service kiosk order',
-        metadata: {
-          source: 'kiosk',
-          timestamp: new Date().toISOString()
-        }
+        subtotal: subtotal,
+        tax: tax,
+        tip: 0,
+        total: total // Changed from just total field
       }
 
       const response = await fetch('/api/v1/orders', {
@@ -47,7 +56,8 @@ export function useOrderSubmission() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer kiosk-token',
-          'X-Restaurant-ID': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+          'X-Restaurant-ID': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
+          'X-Idempotency-Key': idempotencyKey
         },
         body: JSON.stringify(orderData)
       })

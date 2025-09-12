@@ -8,6 +8,7 @@ export interface WebRTCVoiceConfig {
   userId?: string;
   debug?: boolean;
   enableVAD?: boolean; // Optional: enable server VAD mode
+  mode?: 'server' | 'customer'; // Mode for system prompt differentiation
 }
 
 export interface TranscriptEvent {
@@ -281,6 +282,9 @@ export class WebRTCVoiceClient extends EventEmitter {
         'Content-Type': 'application/json',
         'x-restaurant-id': this.config.restaurantId,
       },
+      body: JSON.stringify({
+        mode: this.config.mode || 'customer' // Pass mode to backend
+      })
     });
     
     if (!response.ok) {

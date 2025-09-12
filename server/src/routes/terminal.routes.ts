@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
-import { validateRestaurantAccess } from '../middleware/restaurantAccess';
+import { authenticate, AuthenticatedRequest, validateRestaurantAccess } from '../middleware/auth';
 import { BadRequest } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { SquareClient, SquareEnvironment } from 'square';
@@ -21,6 +20,71 @@ const client = new SquareClient({
 } as any);
 
 const terminalApi = client.terminal;
+const devicesApi = (client as any).devices;
+
+// GET /api/v1/terminal/devices - List available terminal devices
+router.get('/devices', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+  try {
+    const restaurantId = req.restaurantId!;
+    
+    routeLogger.info('Fetching terminal devices', { restaurantId });
+
+    // In sandbox/development, return demo devices
+    if (process.env['SQUARE_ENVIRONMENT'] !== 'production') {
+      return res.json({
+        success: true,
+        devices: [{
+          id: 'DEMO_DEVICE_001',
+          code: 'DEMO',
+          name: 'Demo Terminal',
+          status: 'ONLINE',
+          location_id: process.env['SQUARE_LOCATION_ID'] || 'demo'
+        }]
+      });
+    }
+
+    try {
+      // In production, fetch real devices
+      const { result } = await devicesApi.listDevices();
+      
+      const devices = (result.devices || []).map((device: any) => ({
+        id: device.id,
+        code: device.device_code?.code || 'N/A',
+        name: device.device_code?.name || 'Terminal',
+        status: device.status || 'UNKNOWN',
+        location_id: device.device_code?.location_id || process.env['SQUARE_LOCATION_ID']
+      }));
+
+      routeLogger.info('Terminal devices retrieved', { count: devices.length });
+
+      res.json({
+        success: true,
+        devices
+      });
+
+    } catch (squareError: any) {
+      routeLogger.error('Square API error fetching devices', { 
+        errors: squareError.errors 
+      });
+      
+      // Return demo device on error
+      return res.json({
+        success: true,
+        devices: [{
+          id: 'DEMO_DEVICE_001',
+          code: 'DEMO',
+          name: 'Demo Terminal (Fallback)',
+          status: 'ONLINE',
+          location_id: 'demo'
+        }]
+      });
+    }
+
+  } catch (error: any) {
+    routeLogger.error('Failed to fetch terminal devices', { error });
+    next(error);
+  }
+});
 
 // POST /api/v1/terminal/checkout - Create terminal checkout
 router.post('/checkout', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {

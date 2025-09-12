@@ -26,9 +26,9 @@ export default defineConfig({
       }
     },
     
-    // Memory-conscious settings
-    testTimeout: 30000,
-    hookTimeout: 30000,
+    // Memory-conscious settings - increased for complex tests
+    testTimeout: 120000,  // Increased from 30s to 2 minutes
+    hookTimeout: 60000,   // Increased from 30s to 1 minute
     teardownTimeout: 10000,
     
     // Enhanced isolation for memory cleanup

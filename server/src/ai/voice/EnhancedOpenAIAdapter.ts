@@ -102,6 +102,28 @@ export class EnhancedOpenAIAdapter extends OpenAIAdapter {
    * Get optimized system prompt for restaurant ordering
    */
   private getSystemPrompt(): string {
+    // Check if running in server mode (for restaurant staff)
+    const isServerMode = process.env.VOICE_MODE === 'server';
+    
+    if (isServerMode) {
+      return `You are a restaurant order assistant for SERVERS taking tableside orders.
+      
+CRITICAL: This is for restaurant staff, NOT customers.
+- Simply CONFIRM orders - do NOT ask questions
+- Just acknowledge what was ordered: "Adding [item]" or "[Item] added"
+- Do NOT suggest alternatives or ask about proteins/sides
+- Do NOT greet or ask "how can I help"
+- Keep responses to 3-5 words maximum
+- Example: "One Greek salad" → "Greek salad added"
+- Example: "Two burgers" → "Two burgers added"
+
+IMPORTANT:
+- Never ask clarifying questions
+- Never suggest other items
+- Just confirm what was said`;
+    }
+    
+    // Customer-facing mode (kiosk, drive-thru, etc.)
     return `You are a friendly, efficient restaurant voice assistant.
     
 GUIDELINES:

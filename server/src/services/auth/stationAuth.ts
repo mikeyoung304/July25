@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { supabase } from '../../config/database';
 import { logger } from '../../utils/logger';
 import { BadRequest } from '../../middleware/errorHandler';
+import { ROLE_SCOPES } from '../../middleware/rbac';
 
 const stationLogger = logger.child({ module: 'station-auth' });
 
@@ -26,6 +27,7 @@ interface StationTokenPayload {
   station_name: string;
   restaurant_id: string;
   device_fingerprint: string;
+  scope: string[]; // Add scope array
   iat: number;
   exp: number;
 }
@@ -85,6 +87,18 @@ export async function createStationToken(
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + STATION_TOKEN_EXPIRY_HOURS);
     
+    // Determine scopes based on station type
+    // Kitchen and expo have similar permissions
+    const stationRoleMap: Record<StationType, string> = {
+      'kitchen': 'kitchen',
+      'expo': 'expo', 
+      'bar': 'kitchen', // Bar uses kitchen permissions
+      'prep': 'kitchen' // Prep uses kitchen permissions
+    };
+    
+    const role = stationRoleMap[stationType];
+    const scopes = ROLE_SCOPES[role] || [];
+    
     // Create JWT payload
     const payload: StationTokenPayload = {
       sub: tokenId,
@@ -93,6 +107,7 @@ export async function createStationToken(
       station_name: stationName,
       restaurant_id: restaurantId,
       device_fingerprint: deviceFingerprint,
+      scope: scopes, // Add scope based on station type
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(expiresAt.getTime() / 1000)
     };

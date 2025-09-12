@@ -133,6 +133,7 @@ export function ServerView() {
               voiceOrder={voiceOrder}
               onSubmit={handleSubmitOrder}
               onClose={handleCloseModals}
+              mode="server"  // Server mode: listen-only, no TTS
             />
 
             <ServerStats stats={stats} />

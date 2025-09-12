@@ -26,6 +26,7 @@ interface VoiceOrderModalProps {
     orderItems: OrderItem[]
     isVoiceActive: boolean
     isProcessing: boolean
+    paymentStatus?: 'idle' | 'processing' | 'completed' | 'failed'
     handleVoiceTranscript: (event: { text: string; isFinal: boolean }) => void
     handleOrderData?: (orderData: any) => void
     removeOrderItem: (itemId: string) => void
@@ -34,6 +35,7 @@ interface VoiceOrderModalProps {
   }
   onSubmit: () => void
   onClose: () => void
+  mode?: 'server' | 'kiosk'  // Add mode to control voice behavior
 }
 
 export function VoiceOrderModal({
@@ -42,7 +44,8 @@ export function VoiceOrderModal({
   seat,
   voiceOrder,
   onSubmit,
-  onClose
+  onClose,
+  mode = 'server'  // Default to server mode (listen-only)
 }: VoiceOrderModalProps) {
   if (!show || !table || !seat) return null
 
@@ -87,11 +90,18 @@ export function VoiceOrderModal({
 
               <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 250px)' }}>
                 <div className="flex justify-center mb-6">
+                  {/* Server mode: Listen-only without TTS responses */}
                   <VoiceControlWebRTC
-                    onTranscript={(text) => voiceOrder.handleVoiceTranscript({ text, isFinal: false })}
-                    onOrderDetected={voiceOrder.handleOrderData}
+                    onTranscript={(text) => voiceOrder.handleVoiceTranscript({ text, isFinal: true })}  // Always final for server mode
+                    onOrderDetected={mode === 'kiosk' ? voiceOrder.handleOrderData : undefined}  // Only use server parsing in kiosk mode
                     debug={false}
+                    mode={mode}
                   />
+                  {mode === 'server' && (
+                    <div className="text-xs text-neutral-500 mt-2">
+                      Server Mode: Listen-only (no voice responses)
+                    </div>
+                  )}
                 </div>
 
                 {voiceOrder.currentTranscript && (
@@ -168,6 +178,33 @@ export function VoiceOrderModal({
                     </div>
                   </div>
                 )}
+                
+                {voiceOrder.paymentStatus === 'processing' && (
+                  <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <div className="flex items-center gap-2">
+                      <div className="animate-pulse h-4 w-4 bg-yellow-500 rounded-full" />
+                      <span className="text-sm text-yellow-700">Payment processing on terminal...</span>
+                    </div>
+                  </div>
+                )}
+                
+                {voiceOrder.paymentStatus === 'completed' && (
+                  <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 bg-green-500 rounded-full" />
+                      <span className="text-sm text-green-700">Payment completed successfully!</span>
+                    </div>
+                  </div>
+                )}
+                
+                {voiceOrder.paymentStatus === 'failed' && (
+                  <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 bg-red-500 rounded-full" />
+                      <span className="text-sm text-red-700">Payment failed. Please process manually.</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="p-6 border-t bg-neutral-50">
@@ -180,7 +217,14 @@ export function VoiceOrderModal({
                     Cancel
                   </Button>
                   <ActionButton
-                    onClick={onSubmit}
+                    onClick={() => {
+                      console.log('[VoiceOrderModal] Submit clicked:', {
+                        orderItemsLength: voiceOrder.orderItems.length,
+                        orderItems: voiceOrder.orderItems,
+                        isProcessing: voiceOrder.isProcessing
+                      })
+                      onSubmit()
+                    }}
                     disabled={voiceOrder.orderItems.length === 0 || voiceOrder.isProcessing}
                     color="#4CAF50"
                     size="medium"

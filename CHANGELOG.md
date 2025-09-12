@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔐 Authentication & Authorization Hardening (January 11, 2025)
+- **Unified Edge Normalization**: Single source of truth for authentication
+  - Introduced `NormalizedUser` type with canonical database roles only
+  - All role translation happens at authentication boundary
+  - Removed legacy roles (admin→owner, user→customer, kiosk_demo→customer)
+  - Supabase 'authenticated' role now resolved from user_restaurants table
+  - Added 5-minute role cache to reduce database lookups
+  
+- **Enhanced Security**:
+  - Restaurant context (X-Restaurant-ID) now mandatory for all write operations
+  - Thin middleware pattern - requireRole/requireScopes read from normalized user
+  - Structured error codes for auth failures (AUTH_ROLE_MISSING, etc.)
+  - WebSocket authentication unified with HTTP auth flow
+  
+- **Order System Improvements**:
+  - Zod-based DTO validation for all order endpoints
+  - CamelCase field enforcement with backward compatibility layer
+  - Idempotency support with 5-minute cache (X-Idempotency-Key header)
+  - Client-side voice order deduplication (2-second window)
+  - Fixed field mapping issues (menu_item_id→id, total_amount→total)
+  
+- **Testing & CI**:
+  - Comprehensive auth integration tests with role matrix
+  - Idempotency and DTO validation test coverage
+  - GitHub Actions workflow for automated testing
+  - WebSocket authentication test suite
+  
+- **Documentation**:
+  - ADR-007: Unified Authentication Normalization decision record
+  - Comprehensive troubleshooting guide with error codes
+  - Updated API documentation with correct field names
+
 ### 📚 Documentation Cleanup (September 9-10, 2025)
 - **Major Documentation Cleanup**: Comprehensive audit and cleanup of project documentation
   - Archived 50+ outdated documentation files to reduce confusion

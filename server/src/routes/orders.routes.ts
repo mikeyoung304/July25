@@ -1,11 +1,15 @@
 import { Router } from 'express';
-import { authenticate, AuthenticatedRequest, requireRole, requireScope } from '../middleware/auth';
-import { validateRestaurantAccess } from '../middleware/restaurantAccess';
+import { authenticate, AuthenticatedRequest, requireRole, validateRestaurantAccess } from '../middleware/auth';
+import { requireScopes } from '../middleware/rbac';
+import { ApiScope, DatabaseRole } from '@rebuild/shared/types/auth';
 import { OrdersService } from '../services/orders.service';
 import { BadRequest, NotFound } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { ai } from '../ai';
 import { MenuService } from '../services/menu.service';
+import { validateCreateOrderDTO, UpdateOrderStatusDTOSchema } from '../dto/order.dto';
+import { idempotencyService } from '../services/idempotency.service';
+import { ZodError } from 'zod';
 import type { OrderStatus, OrderType } from '@rebuild/shared';
 
 const router = Router();
@@ -34,26 +38,62 @@ router.get('/', authenticate, validateRestaurantAccess, async (req: Authenticate
 });
 
 // POST /api/v1/orders - Create new order
-router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_demo']), requireScope(['orders:create']), validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
-  try {
-    const restaurantId = req.restaurantId!;
-    const orderData = req.body;
+router.post('/', 
+  authenticate, 
+  requireRole([DatabaseRole.OWNER, DatabaseRole.MANAGER, DatabaseRole.SERVER, DatabaseRole.CUSTOMER]), 
+  requireScopes(ApiScope.ORDERS_CREATE), 
+  validateRestaurantAccess, 
+  async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const restaurantId = req.restaurantId!;
+      const idempotencyKey = req.headers['x-idempotency-key'] as string;
+      
+      // Check for duplicate request
+      const key = idempotencyService.generateKey(req.body, idempotencyKey);
+      if (idempotencyService.isDuplicate(key)) {
+        const cachedResult = idempotencyService.getCachedResult(key);
+        if (cachedResult) {
+          routeLogger.info('Returning cached order (idempotent)', { 
+            restaurantId, 
+            orderId: cachedResult.id 
+          });
+          return res.status(200).json(cachedResult);
+        }
+      }
+      
+      // Validate and transform DTO
+      let validatedData;
+      try {
+        validatedData = validateCreateOrderDTO(req.body);
+      } catch (error) {
+        if (error instanceof ZodError) {
+          const issues = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+          throw BadRequest(`Invalid order data: ${issues}`);
+        }
+        throw error;
+      }
 
-    if (!orderData.items || orderData.items.length === 0) {
-      throw BadRequest('Order must contain at least one item');
+      routeLogger.info('Creating order', { 
+        restaurantId, 
+        itemCount: validatedData.items.length,
+        idempotencyKey: key 
+      });
+      
+      // Create order with validated data
+      const order = await OrdersService.createOrder(restaurantId, validatedData);
+      
+      // Store result for idempotency
+      idempotencyService.storeResult(key, order);
+      
+      res.status(201).json(order);
+    } catch (error) {
+      next(error);
     }
-
-    routeLogger.info('Creating order', { restaurantId, itemCount: orderData.items.length });
-    
-    const order = await OrdersService.createOrder(restaurantId, orderData);
-    res.status(201).json(order);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // POST /api/v1/orders/voice - Process voice order
-router.post('/voice', authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_demo']), requireScope(['orders:create']), validateRestaurantAccess, async (req: AuthenticatedRequest, res, _next) => {
+router.post('/voice', authenticate, requireRole([DatabaseRole.OWNER, DatabaseRole.MANAGER, DatabaseRole.SERVER, DatabaseRole.CUSTOMER]), requireScopes(ApiScope.ORDERS_CREATE), validateRestaurantAccess, async (req: AuthenticatedRequest, res, _next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { transcription, audioUrl, metadata: _metadata } = req.body;
@@ -180,20 +220,31 @@ router.patch('/:id/status', authenticate, validateRestaurantAccess, async (req: 
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
-    const { status, notes } = req.body;
-
-    if (!status) {
-      throw BadRequest('Status is required');
+    
+    // Validate DTO
+    let validatedData;
+    try {
+      validatedData = UpdateOrderStatusDTOSchema.parse(req.body);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const issues = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+        throw BadRequest(`Invalid status update: ${issues}`);
+      }
+      throw error;
     }
 
-    const validStatuses: OrderStatus[] = ['new', 'pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'];
-    if (!validStatuses.includes(status as OrderStatus)) {
-      throw BadRequest(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
-    }
+    routeLogger.info('Updating order status', { 
+      restaurantId, 
+      orderId: id, 
+      status: validatedData.status 
+    });
 
-    routeLogger.info('Updating order status', { restaurantId, orderId: id, status });
-
-    const order = await OrdersService.updateOrderStatus(restaurantId, id!, status, notes);
+    const order = await OrdersService.updateOrderStatus(
+      restaurantId, 
+      id!, 
+      validatedData.status, 
+      validatedData.notes
+    );
     res.json(order);
   } catch (error) {
     next(error);

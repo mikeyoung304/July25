@@ -139,17 +139,43 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
     modifications?: string[], 
     specialInstructions?: string
   ) => {
-    const newItem: UnifiedCartItem = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name: menuItem.name,
-      price: menuItem.price,
-      quantity,
-      modifications,
-      specialInstructions,
-      menuItemId: menuItem.id
-    };
+    setItems(prev => {
+      // Check if an identical item already exists in the cart
+      const existingItemIndex = prev.findIndex(item => 
+        item.menuItemId === menuItem.id &&
+        // Check if modifications are the same (order doesn't matter)
+        ((!item.modifications && !modifications) || 
+         (item.modifications && modifications && 
+          item.modifications.length === modifications.length &&
+          item.modifications.every(mod => modifications.includes(mod)) &&
+          modifications.every(mod => item.modifications!.includes(mod)))) &&
+        // Check if special instructions are the same
+        item.specialInstructions === specialInstructions
+      );
+
+      if (existingItemIndex !== -1) {
+        // Item exists - update quantity instead of adding duplicate
+        return prev.map((item, index) => 
+          index === existingItemIndex 
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      } else {
+        // Item doesn't exist - add as new item
+        const newItem: UnifiedCartItem = {
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          name: menuItem.name,
+          price: menuItem.price,
+          quantity,
+          modifications,
+          specialInstructions,
+          menuItemId: menuItem.id
+        };
+        
+        return [...prev, newItem];
+      }
+    });
     
-    setItems(prev => [...prev, newItem]);
     setIsCartOpen(true); // Show cart after adding
   }, []);
 

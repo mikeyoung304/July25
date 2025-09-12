@@ -39,15 +39,15 @@ function App() {
 
     let isConnected = false // Track connection state to prevent duplicates
 
-    // Initialize WebSocket for ALL users (including demo/friends & family)
-    const initializeWebSocket = async () => {
-      if (!isConnected) {
-        // Only connect in development mode or when we have a real backend
-        const shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
+    // Initialize WebSocket only for authenticated users
+    const initializeWebSocket = async (session: any) => {
+      if (!isConnected && session) {
+        // Only connect when authenticated and we have a real backend
+        const shouldConnect = (isDevelopment || !!env.VITE_API_BASE_URL) && session
         
         if (shouldConnect) {
           isConnected = true
-          logger.info('🔌 Initializing WebSocket connection for real-time updates...')
+          logger.info('🔌 Initializing WebSocket connection for authenticated user...')
           
           try {
             // CRITICAL FIX: Connect WebSocket FIRST, then initialize handlers
@@ -60,26 +60,35 @@ function App() {
           } catch (error) {
             console.warn('WebSocket connection failed:', error)
             isConnected = false // Reset on failure
-            // Try to initialize handler anyway for when connection is restored
-            orderUpdatesHandler.initialize()
+            // Don't initialize order updates handler without a connection
+            // This prevents error toasts on unauthenticated pages
           }
         }
       }
     }
 
-    // Always initialize WebSocket on app startup
-    initializeWebSocket()
+    // Check initial auth state before connecting
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        initializeWebSocket(session)
+      } else {
+        logger.info('No auth session found, skipping WebSocket initialization')
+      }
+    })
 
-    // Subscribe to auth state changes (for Supabase users)
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, _session) => {
-      if (event === 'SIGNED_OUT') {
-        // Disconnect and reconnect WebSocket on sign out to switch to demo mode
+    // Subscribe to auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // Connect WebSocket when user signs in
+        if (!isConnected) {
+          await initializeWebSocket(session)
+        }
+      } else if (event === 'SIGNED_OUT') {
+        // Disconnect WebSocket on sign out
         isConnected = false
         orderUpdatesHandler.cleanup()
         connectionManager.forceDisconnect()
-        
-        // Reinitialize for demo mode
-        setTimeout(() => initializeWebSocket(), 1000)
+        logger.info('WebSocket disconnected after sign out')
       }
     })
     

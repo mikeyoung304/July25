@@ -277,6 +277,45 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
     }
   }, [menuItems, addItem, cart.items, onCheckout]);
 
+  const handleOrderConfirmation = useCallback((confirmation: { action: string; timestamp: number }) => {
+    console.log('[VoiceOrderingMode] Order confirmation received:', confirmation);
+    
+    // If we have the checkout orchestrator, use it
+    if (checkoutOrchestratorRef.current) {
+      checkoutOrchestratorRef.current.handleOrderConfirmation(confirmation);
+    } else {
+      // Direct handling without orchestrator
+      switch (confirmation.action) {
+        case 'checkout':
+          if (cart.items.length > 0) {
+            console.log('[VoiceOrderingMode] Processing checkout via voice confirmation');
+            setVoiceFeedback('Processing your order...');
+            // Submit the order and navigate to confirmation
+            submitOrderAndNavigate(cart.items).then(result => {
+              if (result.success) {
+                setVoiceFeedback('Order submitted successfully!');
+                // Navigation is handled by submitOrderAndNavigate
+              } else {
+                setVoiceFeedback('Failed to submit order. Please try again.');
+              }
+            });
+          } else {
+            setVoiceFeedback('No items in cart to checkout');
+          }
+          break;
+        case 'review':
+          setVoiceFeedback(`You have ${cart.itemCount} items totaling $${cart.total.toFixed(2)}`);
+          break;
+        case 'cancel':
+          clearCart();
+          setVoiceFeedback('Order cancelled');
+          break;
+        default:
+          console.warn('[VoiceOrderingMode] Unknown confirmation action:', confirmation.action);
+      }
+    }
+  }, [cart.items, cart.itemCount, cart.total, submitOrderAndNavigate, clearCart]);
+
   const handleQuickOrder = useCallback(async () => {
     const result = await submitOrderAndNavigate(cart.items);
     if (result.success) {
@@ -341,6 +380,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                 <VoiceControlWebRTC
                   onTranscript={handleVoiceTranscript}
                   onOrderDetected={handleOrderData}
+                  onOrderConfirmation={handleOrderConfirmation}
                   debug={false}
                 />
               </Suspense>

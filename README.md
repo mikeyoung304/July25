@@ -203,9 +203,44 @@ If the application gets stuck on the loading screen:
 
 ## 📦 Deployment
 
+### ⚠️ Production Readiness Checklist
+
+Before deploying to production, ensure:
+
+1. **Critical Fixes Applied** (See [PRODUCTION_ROADMAP.md](./docs/PRODUCTION_ROADMAP.md))
+   - [ ] Test suite functional (Vitest migration fix)
+   - [ ] API field names corrected (camelCase)
+   - [ ] Server role added to order endpoints
+   - [ ] Integration tests passing
+
+2. **Environment Variables Set**
+   ```bash
+   # Required for production
+   NODE_ENV=production
+   SUPABASE_URL=<your-supabase-url>
+   SUPABASE_SERVICE_KEY=<your-service-key>
+   SUPABASE_JWT_SECRET=<your-jwt-secret>
+   OPENAI_API_KEY=<your-openai-key>
+   SQUARE_ACCESS_TOKEN=<your-square-token>
+   SQUARE_ENVIRONMENT=production  # or sandbox
+   PIN_PEPPER=<random-32-char-string>
+   DEVICE_FINGERPRINT_SALT=<random-16-char-string>
+   ```
+
+3. **Database Migrations Run**
+   ```bash
+   npm run migrate:production
+   ```
+
 ### Production Build
 
 ```bash
+# Fix test suite first (CRITICAL)
+echo "import { vi } from 'vitest'; global.jest = vi;" >> client/test/setup.ts
+
+# Run tests to verify
+npm test
+
 # Build all packages
 npm run build
 
@@ -220,25 +255,97 @@ npm run build
 # Build Docker image
 docker build -t restaurant-os:6.0.4 .
 
-# Run container
+# Run container with full environment
 docker run -p 3001:3001 \
   -e NODE_ENV=production \
   -e SUPABASE_URL=... \
   -e SUPABASE_SERVICE_KEY=... \
+  -e SUPABASE_JWT_SECRET=... \
+  -e OPENAI_API_KEY=... \
+  -e SQUARE_ACCESS_TOKEN=... \
+  -e PIN_PEPPER=... \
   restaurant-os:6.0.4
+```
+
+### Deployment Strategies
+
+#### Option 1: Soft Launch (Recommended)
+1. Deploy to single pilot restaurant
+2. Monitor for 1 week
+3. Fix any critical issues
+4. Gradual rollout to additional locations
+
+#### Option 2: Blue-Green Deployment
+```bash
+# Deploy to green environment
+kubectl apply -f k8s/green-deployment.yaml
+
+# Test green environment
+curl https://green.restaurant-os.com/api/v1/health
+
+# Switch traffic to green
+kubectl patch service restaurant-os -p '{"spec":{"selector":{"version":"green"}}}'
+
+# Keep blue as rollback option
+```
+
+#### Option 3: Feature Flags
+```javascript
+// Enable features gradually
+const FEATURES = {
+  splitPayment: process.env.FEATURE_SPLIT_PAYMENT === 'true',
+  voiceOrdering: process.env.FEATURE_VOICE === 'true',
+  advancedAnalytics: false  // Coming soon
+};
 ```
 
 ### Environment-Specific Configs
 
 - **Development**: Hot reload, verbose logging, mock data support
-- **Staging**: Production build, test data, debug enabled
-- **Production**: Optimized build, real data, minimal logging
+- **Staging**: Production build, test data, debug enabled, monitoring active
+- **Production**: Optimized build, real data, minimal logging, full monitoring
+
+### Production Monitoring
+
+Set up monitoring for:
+- **Uptime**: Target 99.9%
+- **Response Time**: <2s for all operations
+- **Error Rate**: <0.1%
+- **Order Success Rate**: >99.5%
+- **Payment Success Rate**: >98%
+
+### Rollback Procedure
+
+If issues occur in production:
+
+```bash
+# Immediate rollback (feature flags)
+curl -X POST https://api.restaurant-os.com/admin/feature-flags \
+  -d '{"voiceOrdering": false}'
+
+# Version rollback (Docker)
+docker run -p 3001:3001 restaurant-os:6.0.3-stable
+
+# Database rollback (if needed)
+npm run migrate:rollback --to=20250901
+```
 
 ## 🧪 Testing
+
+### ⚠️ CRITICAL: Test Suite Fix Required
+
+**Current Issue**: Jest→Vitest migration incomplete, tests timeout  
+**Fix Required**:
+```bash
+# Add this to client/test/setup.ts
+echo "import { vi } from 'vitest'; global.jest = vi;" >> client/test/setup.ts
+```
 
 ### Test Structure
 
 ```bash
+# After applying fix above:
+
 # Run all tests
 npm test
 
@@ -259,6 +366,14 @@ npm run test:watch
 - **Branches**: 50% minimum  
 - **Functions**: 60% minimum
 - **Lines**: 60% minimum
+
+### Integration Testing
+
+See [INTEGRATION_TESTING.md](./docs/INTEGRATION_TESTING.md) for:
+- API contract testing
+- End-to-end order flow tests
+- Authentication flow verification
+- Voice ordering integration tests
 
 ## 📊 Performance Metrics
 
