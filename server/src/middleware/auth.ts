@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { IncomingMessage } from 'http';
 import { getConfig } from '../config/environment';
-import { Unauthorized, BadRequest } from './errorHandler';
+import { Unauthorized, BadRequest, Forbidden } from './errorHandler';
 import { logger } from '../utils/logger';
 import { ROLE_SCOPES } from './rbac';
 import { authService, NormalizedUser } from '../services/auth/AuthenticationService';
@@ -335,7 +335,7 @@ export async function validateRestaurantAccess(
         restaurantId: req.restaurantId,
         tokenType: 'supabase'
       });
-      return next(Unauthorized('Restaurant access denied', 'RESTAURANT_ACCESS_DENIED'));
+      return next(Forbidden('Restaurant access denied', 'RESTAURANT_ACCESS_DENIED'));
     }
     
     // Update user's role and scopes with restaurant-specific data

@@ -36,4 +36,11 @@ if [ "$any_count" -gt "0" ]; then
   echo "Consider using proper types for better type safety"
 fi
 
+echo "🎯 Running scoped auth-orders checks..."
+npm run precommit:auth-orders
+if [ $? -ne 0 ]; then
+  echo "❌ Auth-orders checks failed. Please fix before committing."
+  exit 1
+fi
+
 echo "✅ Pre-commit checks passed! (Full tests run in CI)"
