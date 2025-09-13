@@ -1,5 +1,6 @@
 
 // Note: logger import moved after getConfig to avoid circular dependency
+import { config, validateConfig } from '../../../shared/config';
 
 export interface EnvironmentConfig {
   port: number;
@@ -30,54 +31,60 @@ export interface EnvironmentConfig {
   restaurant: {
     defaultId: string;
   };
+  auth: {
+    kioskJwtSecret: string;
+    stationTokenSecret: string;
+    pinPepper: string;
+    deviceFingerprintSalt: string;
+  };
+  square: {
+    accessToken: string;
+    environment: 'sandbox' | 'production';
+    locationId: string;
+    appId: string;
+  };
 }
 
 export function validateEnvironment(): void {
-  const required = [
-    'SUPABASE_URL',
-    'SUPABASE_ANON_KEY',
-    'SUPABASE_SERVICE_KEY',
-  ];
-
-  // Check for both regular and VITE_ prefixed versions
-  const missing = required.filter(key => !process.env[key] && !process.env[`VITE_${key}`]);
-
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-  }
-
-  // OpenAI configuration policy
-  const isDevelopment = process.env['NODE_ENV'] === 'development';
-  const isDegradedMode = process.env['AI_DEGRADED_MODE'] === 'true';
-  const hasOpenAIKey = !!process.env['OPENAI_API_KEY'];
-  
-  if (!hasOpenAIKey) {
-    if (!isDevelopment && !isDegradedMode) {
+  try {
+    // Use centralized validation
+    validateConfig();
+    
+    // Additional server-specific validation
+    const cfg = config.get();
+    
+    if (!cfg.isDevelopment && !cfg.aiDegradedMode && !cfg.openaiApiKey) {
       throw new Error('OPENAI_API_KEY is required in production. Set AI_DEGRADED_MODE=true to use stubs.');
     }
-    // Use console.warn since it's allowed by ESLint
-    console.warn(`⚠️  OpenAI API key not configured - AI features will use stub implementations`);
-  } else {
-    // Changed from console.info to console.warn to comply with ESLint rules
-    console.warn(`✅ OpenAI configured`);
+    
+    if (!cfg.openaiApiKey) {
+      console.warn(`⚠️  OpenAI API key not configured - AI features will use stub implementations`);
+    } else {
+      console.warn(`✅ OpenAI configured`);
+    }
+  } catch (error) {
+    // Re-throw with more context
+    throw new Error(`Environment validation failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 export function getConfig(): EnvironmentConfig {
+  const cfg = config.get();
+  
   return {
-    port: parseInt(process.env['PORT'] || '3001', 10),
-    nodeEnv: (process.env['NODE_ENV'] as 'development' | 'production' | 'test') || 'development',
+    port: cfg.port,
+    nodeEnv: cfg.nodeEnv,
     supabase: {
-      url: process.env['SUPABASE_URL'] || process.env['VITE_SUPABASE_URL']!,
-      anonKey: process.env['SUPABASE_ANON_KEY'] || process.env['VITE_SUPABASE_ANON_KEY']!,
-      serviceKey: process.env['SUPABASE_SERVICE_KEY'] || process.env['VITE_SUPABASE_SERVICE_KEY']!,
-      jwtSecret: process.env['SUPABASE_JWT_SECRET'] || undefined,
+      url: cfg.supabaseUrl,
+      anonKey: cfg.supabaseAnonKey,
+      serviceKey: cfg.supabaseServiceKey,
+      jwtSecret: cfg.supabaseJwtSecret || undefined,
     },
     frontend: {
-      url: process.env['FRONTEND_URL'] || 'http://localhost:5173',
+      url: cfg.frontendUrl,
     },
     openai: {
-      apiKey: process.env['OPENAI_API_KEY'] || undefined,
+      apiKey: cfg.openaiApiKey,
     },
     logging: {
       level: process.env['LOG_LEVEL'] || 'info',
@@ -91,7 +98,19 @@ export function getConfig(): EnvironmentConfig {
       maxRequests: parseInt(process.env['RATE_LIMIT_MAX_REQUESTS'] || '100', 10),
     },
     restaurant: {
-      defaultId: process.env['DEFAULT_RESTAURANT_ID'] || '11111111-1111-1111-1111-111111111111',
+      defaultId: cfg.defaultRestaurantId,
+    },
+    auth: {
+      kioskJwtSecret: cfg.kioskJwtSecret,
+      stationTokenSecret: cfg.stationTokenSecret,
+      pinPepper: cfg.pinPepper,
+      deviceFingerprintSalt: cfg.deviceFingerprintSalt,
+    },
+    square: {
+      accessToken: cfg.squareAccessToken,
+      environment: cfg.squareEnvironment,
+      locationId: cfg.squareLocationId,
+      appId: cfg.squareAppId,
     },
   };
 }

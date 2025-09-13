@@ -14,6 +14,7 @@
 import { supabase } from '@/core/supabase';
 import { logger } from '@/services/logger';
 import { getDemoToken } from '@/services/auth/demoAuth';
+import { getApiUrl, getRestaurantId as getDefaultRestaurantId } from '@/config';
 
 // Global restaurant context (set by RestaurantContext provider)
 let currentRestaurantId: string | null = null;
@@ -23,7 +24,8 @@ export function setRestaurantId(id: string | null) {
 }
 
 export function getRestaurantId(): string {
-  return currentRestaurantId || '11111111-1111-1111-1111-111111111111'; // Demo fallback
+  // Use centralized config for default restaurant ID
+  return currentRestaurantId || getDefaultRestaurantId();
 }
 
 export class APIError extends Error {
@@ -64,12 +66,11 @@ class UnifiedApiClient {
   private inflightRequests = new Map<string, Promise<unknown>>();
   
   constructor() {
-    // Determine base URL
-    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    // Use centralized config for base URL
+    this.baseURL = getApiUrl();
     
     if (import.meta.env.PROD && this.baseURL.includes('localhost')) {
-      console.warn('⚠️ Production build using localhost API');
-      this.baseURL = 'https://july25.onrender.com'; // Production fallback
+      console.warn('⚠️ Production build using localhost API - please configure VITE_API_BASE_URL');
     }
   }
 

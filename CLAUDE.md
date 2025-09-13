@@ -3,12 +3,12 @@
 ## Project Overview
 
 - **Type**: Restaurant OS (Point of Sale + Management System)
-- **Version**: 6.0.5
-- **Production Readiness**: 7.0/10 (Critical Security Fixed, Sprint in Progress)
-- **Security Score**: 7.0/10 (All critical vulnerabilities patched)
+- **Version**: 6.0.6
+- **Production Readiness**: 6.5/10 (Configuration Phase Complete)
+- **Security Score**: 7.5/10 (Server-side API keys, auth tokens secured)
 - **Stack**: React 19.1.0, TypeScript 5.8.3/5.3.3, Vite 5.4.19, Express 4.18.2, Supabase 2.50.5/2.39.7
-- **Architecture**: Unified backend on port 3001
-- **Last Major Update**: September 12, 2025 (Critical security sprint - Day 2/14)
+- **Architecture**: Unified backend with centralized configuration
+- **Last Major Update**: September 13, 2025 (Production Sprint - Phase 1 Complete)
 
 ## Directory Structure
 
@@ -17,6 +17,7 @@ rebuild-6.0/
 ├── client/          # React frontend (Vite)
 ├── server/          # Express backend + AI services
 ├── shared/          # Shared types & utilities
+│   └── config/     # Centralized configuration service
 ├── docs/           # Documentation
 └── scripts/        # Build & deployment scripts
 ```
@@ -203,29 +204,33 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 - Frontend: http://localhost:5173
 - Database: Supabase (configured in .env)
 
-### Required Environment Variables (v6.0.4+)
+### Required Environment Variables (v6.0.6+)
 
 ```bash
 # Client (.env)
 VITE_SUPABASE_URL=xxx
 VITE_SUPABASE_ANON_KEY=xxx
 VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
-VITE_OPENAI_API_KEY=xxx         # Voice ordering
-VITE_SQUARE_APP_ID=xxx          # Payment processing (NEW)
-VITE_SQUARE_LOCATION_ID=xxx     # Payment processing (NEW)
+VITE_SQUARE_APP_ID=xxx          # Payment processing
+VITE_SQUARE_LOCATION_ID=xxx     # Payment processing
+# Note: OPENAI_API_KEY moved to server-only for security
 
 # Server (.env)
 SUPABASE_URL=xxx
 SUPABASE_SERVICE_KEY=xxx
-SUPABASE_JWT_SECRET=xxx         # Auth validation (NEW - REQUIRED)
-OPENAI_API_KEY=xxx
-SQUARE_ACCESS_TOKEN=xxx         # Payment backend (NEW)
-FRONTEND_URL=http://localhost:5173  # CORS allowlist (NEW - REQUIRED)
-PIN_PEPPER=xxx                  # PIN hashing security (NEW)
-DEVICE_FINGERPRINT_SALT=xxx     # Device binding (NEW)
+SUPABASE_JWT_SECRET=xxx         # Auth validation (REQUIRED)
+OPENAI_API_KEY=xxx              # Server-side only (v6.0.6+)
+SQUARE_ACCESS_TOKEN=xxx         # Payment backend
+FRONTEND_URL=http://localhost:5173  # CORS allowlist (REQUIRED)
+PIN_PEPPER=xxx                  # PIN hashing security
+DEVICE_FINGERPRINT_SALT=xxx     # Device binding
+STATION_TOKEN_SECRET=xxx        # Kitchen/expo auth (NEW v6.0.6)
+KIOSK_JWT_SECRET=xxx           # Demo mode auth
 NODE_ENV=development
 PORT=3001
 ```
+
+See `docs/ENVIRONMENT_VARIABLES.md` for complete documentation.
 
 ## Memory Management
 
