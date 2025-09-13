@@ -67,13 +67,17 @@ export async function authenticate(
           decoded = jwt.verify(token, kioskSecret) as any;
         } catch (kioskError) {
           // If kiosk JWT fails, try Supabase JWT
-          const secret = config.supabase.jwtSecret || config.supabase.anonKey;
-          decoded = jwt.verify(token, secret) as any;
+          if (!config.supabase.jwtSecret) {
+            throw new Error('JWT secret not configured - authentication cannot proceed');
+          }
+          decoded = jwt.verify(token, config.supabase.jwtSecret) as any;
         }
       } else {
         // No kiosk secret, use Supabase JWT
-        const secret = config.supabase.jwtSecret || config.supabase.anonKey;
-        decoded = jwt.verify(token, secret) as any;
+        if (!config.supabase.jwtSecret) {
+          throw new Error('JWT secret not configured - authentication cannot proceed');
+        }
+        decoded = jwt.verify(token, config.supabase.jwtSecret) as any;
       }
     } catch (error) {
       logger.error('Token verification failed:', error instanceof Error ? error.message : String(error));
@@ -196,9 +200,12 @@ export async function verifyWebSocketAuth(
         }
       } else {
         // Regular Supabase token - verify with Supabase secret
-        const secret = config.supabase.jwtSecret || config.supabase.anonKey;
+        if (!config.supabase.jwtSecret) {
+          logger.error('JWT secret not configured - cannot verify token');
+          return null;
+        }
         try {
-          decoded = jwt.verify(token, secret) as any;
+          decoded = jwt.verify(token, config.supabase.jwtSecret) as any;
         } catch (supabaseError) {
           logger.error('Supabase JWT verification failed:', supabaseError);
           return null;

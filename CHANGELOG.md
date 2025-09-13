@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.5] - 2025-09-12 - Critical Security Sprint
+
+### 🔒 Security Fixes (CRITICAL)
+- **Fixed JWT Authentication Bypass** (CVE-pending)
+  - Removed fallback to public `anonKey` in JWT verification
+  - Now requires proper `jwtSecret` configuration
+  - Affected files: `server/src/middleware/auth.ts`
+- **Fixed 11 XSS Vulnerabilities** 
+  - Added HTML escaping for all user inputs in voice debug dashboard
+  - Implemented `escapeHtml()` sanitization function
+  - Affected file: `server/src/voice/debug-dashboard.ts`
+- **Fixed CORS Wildcard Matching Exploit**
+  - Changed from substring matching to strict regex pattern
+  - Pattern: `/^https:\/\/july25-client-[a-z0-9]{1,20}\.vercel\.app$/`
+  - Prevents subdomain hijacking attacks
+
+### 🔧 Dependencies Updated
+- **vitest**: 1.2.0 → 1.6.1 (Fixed critical RCE vulnerability)
+- **@vitest/ui**: 1.2.0 → 1.6.1
+- **hono**: Updated to fix path confusion vulnerability
+- Reduced vulnerabilities from 6 (1 critical, 1 high) to 4 (2 low, 2 moderate)
+
+### ✅ Testing Improvements
+- **Added Comprehensive RCTX Tests**
+  - Created test suite for restaurant context enforcement
+  - Coverage for all 9 previously untested API routes
+  - Multi-tenant isolation validation
+  - Files: `orders.rctx.test.ts`, `rctx-comprehensive.test.ts`
+
+### 📋 Production Readiness Sprint Plan
+- **Week 1**: Security hardening (COMPLETE), critical testing (IN PROGRESS)
+- **Week 2**: Performance optimization, configuration extraction
+- **Week 3**: Staging deployment and production launch
+- **Target**: 7.5/10 minimum viable production readiness
+
+## [Unreleased] - In Progress
+
 ### 📚 Documentation
 - **Comprehensive Documentation Audit** (September 2, 2025)
   - Unified scattered documentation into single sources of truth

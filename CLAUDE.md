@@ -3,11 +3,12 @@
 ## Project Overview
 
 - **Type**: Restaurant OS (Point of Sale + Management System)
-- **Version**: 6.0.4
-- **Production Readiness**: 9.5/10 (Security Hardened, Voice & Payments Integrated)
+- **Version**: 6.0.5
+- **Production Readiness**: 7.0/10 (Critical Security Fixed, Sprint in Progress)
+- **Security Score**: 7.0/10 (All critical vulnerabilities patched)
 - **Stack**: React 19.1.0, TypeScript 5.8.3/5.3.3, Vite 5.4.19, Express 4.18.2, Supabase 2.50.5/2.39.7
 - **Architecture**: Unified backend on port 3001
-- **Last Major Update**: September 12, 2025 (6 critical PRs merged)
+- **Last Major Update**: September 12, 2025 (Critical security sprint - Day 2/14)
 
 ## Directory Structure
 
@@ -34,12 +35,13 @@ rebuild-6.0/
 ## Quality Requirements
 
 - **Mandatory**: All tests pass, TypeScript strict mode
-- **Coverage**: 60% statements, 50% branches, 60% functions/lines
-- **ESLint**: 0 errors, 573 warnings (down from 952 issues)
+- **Coverage**: Current 35%, Target 40% (critical paths only)
+- **ESLint**: 0 errors, 573 warnings (acceptable for now)
 - **Pre-commit**: test, lint, typecheck must pass
-- **Bundle Size**: Main chunk target <100KB
+- **Bundle Size**: Current 114KB, Target <100KB
 - **Memory**: 4GB max for builds (optimized from 12GB)
-- **TypeScript**: ~500 remaining errors (non-blocking, down from 670+)
+- **TypeScript**: ~500 remaining errors (acceptable for MVP)
+- **Security**: No critical vulnerabilities (achieved v6.0.5)
 
 ## Key Features
 
@@ -50,7 +52,7 @@ rebuild-6.0/
 - Kitchen display system (KDS)
 - Analytics dashboard
 - **Payment Processing**: Square integration (v6.0.4)
-- **Security**: Hardened authentication with RCTX enforcement (v6.0.4)
+- **Security**: Hardened authentication with RCTX enforcement (v6.0.5 - Fixed critical vulnerabilities)
 
 ## 🚨 CRITICAL: Restaurant Context (RCTX) Requirements (v6.0.4+)
 

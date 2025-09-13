@@ -77,8 +77,8 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } 
-    // Allow any Vercel preview deployment for July25
-    else if (origin.includes('july25-client') && origin.endsWith('.vercel.app')) {
+    // Allow specific Vercel preview deployments with strict pattern matching
+    else if (origin.match(/^https:\/\/july25-client-[a-z0-9]{1,20}\.vercel\.app$/)) {
       logger.info(`✅ Allowing Vercel preview deployment: ${origin}`);
       callback(null, true);
     } else {
