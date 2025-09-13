@@ -1,22 +1,28 @@
-# Restaurant OS v6.0.4
+# Restaurant OS v6.0.5
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Frontend CI](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml)
-[![Production Ready](https://img.shields.io/badge/Production%20Ready-9.5%2F10-brightgreen)](./CHANGELOG_v6.0.4.md)
-[![Security](https://img.shields.io/badge/Security-Hardened-blue)](./docs/AUTH_ENTERPRISE_PLAN.md)
+[![Production Ready](https://img.shields.io/badge/Production%20Ready-7.0%2F10-yellow)](./docs/PRODUCTION_SPRINT_PLAN.md)
+[![Security](https://img.shields.io/badge/Security-7.0%2F10-green)](./docs/SECURITY_FIXES_v6.0.5.md)
 
-A modern, production-ready restaurant management system with AI-powered voice ordering, real-time kitchen display, and comprehensive POS capabilities. **Now with enterprise-grade security and authentication.**
+A modern, production-ready restaurant management system with AI-powered voice ordering, real-time kitchen display, and comprehensive POS capabilities. **Critical security vulnerabilities fixed in v6.0.5.**
 
-## 🆕 What's New in v6.0.4
+## 🚨 Security Update v6.0.5 (September 12, 2025)
 
-- **🔐 Production Security**: Hardened authentication with RCTX enforcement
-- **🎙️ Voice Ordering**: WebRTC + OpenAI Realtime API integration
-- **💳 Payment Processing**: Square integration with PCI compliance
-- **🚨 Security Patches**: Fixed critical axios vulnerability (CVE)
-- **🏗️ Stability**: 6 critical PRs merged, 25% reduction in TypeScript errors
-- **📊 Production Ready**: Upgraded from 8/10 to **9.5/10** readiness score
+### Critical Security Fixes
+- **🔒 JWT Authentication**: Fixed authentication bypass vulnerability
+- **🛡️ XSS Protection**: Sanitized 11 HTML injection points
+- **🔐 CORS Security**: Fixed wildcard subdomain matching exploit
+- **📦 Dependencies**: Updated vitest (RCE fix), hono (path confusion fix)
 
-[See full changelog →](./CHANGELOG_v6.0.4.md)
+### Sprint Progress (Day 2 of 14)
+- ✅ **Security**: All critical vulnerabilities patched
+- ✅ **Testing**: RCTX enforcement tests added
+- 🔄 **In Progress**: Memory leak fixes, performance optimization
+- 📅 **Next**: Image optimization, bundle splitting, load testing
+
+[View Security Report →](./docs/SECURITY_FIXES_v6.0.5.md)  
+[View Sprint Plan →](./docs/PRODUCTION_SPRINT_PLAN.md)
 
 ## 🚀 Quick Start
 

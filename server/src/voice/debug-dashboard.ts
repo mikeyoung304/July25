@@ -225,6 +225,16 @@ export function createDebugDashboard(): Router {
       }
     }
 
+    // Helper function to escape HTML to prevent XSS
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function updateSessions(data) {
       const container = document.getElementById('sessions');
       if (data.sessions.length === 0) {
@@ -236,11 +246,11 @@ export function createDebugDashboard(): Router {
         <div class="session">
           <div class="metric">
             <span>Session ID:</span>
-            <span class="metric-value">\${session.sessionId.slice(0, 8)}...</span>
+            <span class="metric-value">\${escapeHtml(session.sessionId.slice(0, 8))}...</span>
           </div>
           <div class="metric">
             <span>Phone:</span>
-            <span>\${session.from || 'Web'}</span>
+            <span>\${escapeHtml(session.from || 'Web')}</span>
           </div>
           <div class="metric">
             <span>Duration:</span>
@@ -293,8 +303,8 @@ export function createDebugDashboard(): Router {
       
       container.innerHTML = data.transcripts.slice(0, 5).map(t => \`
         <div class="transcript">
-          <strong>\${t.role}:</strong> \${t.text}
-          <br><small>\${new Date(t.timestamp).toLocaleTimeString()}</small>
+          <strong>\${escapeHtml(t.role)}:</strong> \${escapeHtml(t.text)}
+          <br><small>\${escapeHtml(new Date(t.timestamp).toLocaleTimeString())}</small>
         </div>
       \`).join('');
     }
@@ -308,10 +318,10 @@ export function createDebugDashboard(): Router {
       
       container.innerHTML = data.functions.slice(0, 5).map(f => \`
         <div class="function-call">
-          <strong>\${f.name}</strong>
-          <br>Args: <code>\${JSON.stringify(f.args)}</code>
+          <strong>\${escapeHtml(f.name)}</strong>
+          <br>Args: <code>\${escapeHtml(JSON.stringify(f.args))}</code>
           <br>Result: \${f.success ? '✅' : '❌'}
-          <br><small>\${new Date(f.timestamp).toLocaleTimeString()}</small>
+          <br><small>\${escapeHtml(new Date(f.timestamp).toLocaleTimeString())}</small>
         </div>
       \`).join('');
     }
@@ -325,8 +335,8 @@ export function createDebugDashboard(): Router {
       
       container.innerHTML = data.errors.slice(0, 5).map(e => \`
         <div class="session error">
-          <strong>\${e.code}</strong>: \${e.message}
-          <br><small>\${new Date(e.timestamp).toLocaleTimeString()}</small>
+          <strong>\${escapeHtml(e.code)}</strong>: \${escapeHtml(e.message)}
+          <br><small>\${escapeHtml(new Date(e.timestamp).toLocaleTimeString())}</small>
         </div>
       \`).join('');
     }
@@ -338,9 +348,9 @@ export function createDebugDashboard(): Router {
       try {
         const res = await fetch('/api/voice/debug/test', { method: 'POST' });
         const data = await res.json();
-        output.innerHTML = \`<div class="session">Test result: \${data.success ? '✅ Success' : '❌ Failed'}<br>\${data.message}</div>\`;
+        output.innerHTML = \`<div class="session">Test result: \${data.success ? '✅ Success' : '❌ Failed'}<br>\${escapeHtml(data.message)}</div>\`;
       } catch (error) {
-        output.innerHTML = \`<div class="session error">Test failed: \${error.message}</div>\`;
+        output.innerHTML = \`<div class="session error">Test failed: \${escapeHtml(error.message)}</div>\`;
       }
     }
 
@@ -373,9 +383,9 @@ export function createDebugDashboard(): Router {
           })
         });
         const data = await res.json();
-        output.innerHTML = \`<div class="session">Audio injected: \${data.message}</div>\`;
+        output.innerHTML = \`<div class="session">Audio injected: \${escapeHtml(data.message)}</div>\`;
       } catch (error) {
-        output.innerHTML = \`<div class="session error">Injection failed: \${error.message}</div>\`;
+        output.innerHTML = \`<div class="session error">Injection failed: \${escapeHtml(error.message)}</div>\`;
       }
     }
 
