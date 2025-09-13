@@ -119,7 +119,9 @@
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
     "node-fetch": "^3.3.2",
+    "validator": "^13.15.15",
     "ws": "^8.18.3",
+    "xss": "^1.0.15",
     "zod": "^3.25.76"
   }
 }

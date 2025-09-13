@@ -30,6 +30,7 @@ import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
 import { applySecurity, securityMonitor } from './middleware/security';
+import { sanitizeRequest, strictSanitize } from './middleware/requestSanitizer';
 
 // Validate required environment variables
 try {
@@ -110,6 +111,9 @@ app.use(cookieParser());
 // Body parsing middleware
 app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Request sanitization (after body parsing, before other middleware)
+app.use(sanitizeRequest);
 
 // CSRF protection (after cookie parser, before routes)
 app.use(csrfMiddleware());
