@@ -321,16 +321,26 @@ export class WebSocketService extends EventEmitter {
     }
     
     this.reconnectAttempts++
-    // Exponential backoff with jitter
-    const baseDelay = this.config.reconnectInterval * Math.pow(2, this.reconnectAttempts - 1)
-    const jitter = Math.random() * 1000 // Add up to 1 second jitter
-    const delay = Math.min(baseDelay + jitter, 30000) // Max 30 seconds
     
-    console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts} in ${Math.round(delay)}ms (exponential backoff)`)
+    // Improved exponential backoff with jitter
+    // Start with 2 seconds, double each time, max 30 seconds
+    const baseDelay = Math.min(2000 * Math.pow(2, this.reconnectAttempts - 1), 30000)
+    
+    // Add 0-25% jitter to prevent thundering herd
+    const jitterPercent = Math.random() * 0.25
+    const jitter = baseDelay * jitterPercent
+    
+    const delay = Math.min(baseDelay + jitter, 30000) // Ensure max 30 seconds
+    
+    console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${Math.round(delay)}ms (exponential backoff with jitter)`)
     
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null // Clear reference after execution
-      this.connect()
+      
+      // Only reconnect if still disconnected
+      if (!this.isConnected() && !this.isIntentionallyClosed) {
+        this.connect()
+      }
     }, delay)
   }
 

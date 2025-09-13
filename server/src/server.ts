@@ -20,7 +20,7 @@ import { setupRoutes } from './routes';
 import { initializeDatabase } from './config/database';
 import { validateEnvironment } from './config/environment';
 import { aiService } from './services/ai.service';
-import { setupWebSocketHandlers } from './utils/websocket';
+import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocket';
 import { setupAIWebSocket } from './ai/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { OrdersService } from './services/orders.service';
@@ -196,7 +196,10 @@ async function gracefulShutdown(signal: string) {
   
   logger.info(`${signal} received, shutting down gracefully...`);
   
-  // Close WebSocket server first
+  // Clean up WebSocket heartbeat interval FIRST
+  cleanupWebSocketServer();
+  
+  // Close WebSocket server 
   wss.clients.forEach((ws) => {
     ws.close(1001, 'Server shutting down');
   });

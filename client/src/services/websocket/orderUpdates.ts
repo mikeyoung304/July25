@@ -22,29 +22,74 @@ export class OrderUpdatesHandler {
   private subscriptions: Array<() => void> = []
   private orderUpdateCallbacks: Array<(update: OrderUpdatePayload) => void> = []
   private connectionHandlers: { connected?: () => void; disconnected?: () => void; error?: (error: any) => void } = {}
+  private isInitialized = false
+  private subscriptionIds = new Set<string>()
 
   /**
    * Initialize order updates handler
    */
   initialize(): void {
+    // Prevent duplicate initialization
+    if (this.isInitialized) {
+      logger.warn('[OrderUpdates] Already initialized, skipping...')
+      return
+    }
+    
     logger.info('[OrderUpdates] Initializing order updates handler...')
     logger.info('[OrderUpdates] WebSocket connected?', webSocketService.isConnected())
     
-    // Subscribe to order-related WebSocket messages
-    this.subscriptions.push(
-      webSocketService.subscribe('order:created', (payload) => {
-        logger.info('[OrderUpdates] Raw order:created payload:', payload)
-        this.handleOrderCreated(payload)
-      }),
-      webSocketService.subscribe('order:updated', (payload) => 
-        this.handleOrderUpdated(payload)),
-      webSocketService.subscribe('order:deleted', (payload) => 
-        this.handleOrderDeleted(payload)),
-      webSocketService.subscribe('order:status_changed', (payload) => 
-        this.handleOrderStatusChanged(payload as { orderId: string; status: string; previousStatus: string; updatedBy?: string })),
-      webSocketService.subscribe('order:item_status_changed', (payload) => 
-        this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string }))
-    )
+    // Clear any existing subscriptions first
+    this.cleanup()
+    
+    // Subscribe to order-related WebSocket messages with unique IDs
+    const eventTypes = [
+      'order:created',
+      'order:updated', 
+      'order:deleted',
+      'order:status_changed',
+      'order:item_status_changed'
+    ]
+    
+    eventTypes.forEach(eventType => {
+      // Skip if already subscribed
+      if (this.subscriptionIds.has(eventType)) {
+        logger.warn(`[OrderUpdates] Already subscribed to ${eventType}, skipping`)
+        return
+      }
+      
+      this.subscriptionIds.add(eventType)
+      
+      let unsubscribe: () => void
+      
+      switch(eventType) {
+        case 'order:created':
+          unsubscribe = webSocketService.subscribe('order:created', (payload) => {
+            logger.info('[OrderUpdates] Raw order:created payload:', payload)
+            this.handleOrderCreated(payload)
+          })
+          break
+        case 'order:updated':
+          unsubscribe = webSocketService.subscribe('order:updated', (payload) => 
+            this.handleOrderUpdated(payload))
+          break
+        case 'order:deleted':
+          unsubscribe = webSocketService.subscribe('order:deleted', (payload) => 
+            this.handleOrderDeleted(payload))
+          break
+        case 'order:status_changed':
+          unsubscribe = webSocketService.subscribe('order:status_changed', (payload) => 
+            this.handleOrderStatusChanged(payload as { orderId: string; status: string; previousStatus: string; updatedBy?: string }))
+          break
+        case 'order:item_status_changed':
+          unsubscribe = webSocketService.subscribe('order:item_status_changed', (payload) => 
+            this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string }))
+          break
+        default:
+          return
+      }
+      
+      this.subscriptions.push(unsubscribe)
+    })
 
     // Handle connection state changes
     this.connectionHandlers.connected = () => {
@@ -68,6 +113,7 @@ export class OrderUpdatesHandler {
     webSocketService.on('disconnected', this.connectionHandlers.disconnected)
     webSocketService.on('error', this.connectionHandlers.error)
     
+    this.isInitialized = true
     logger.info('[OrderUpdates] Initialization complete, subscriptions:', this.subscriptions.length)
   }
 
@@ -76,8 +122,17 @@ export class OrderUpdatesHandler {
    */
   cleanup(): void {
     // Unsubscribe from all WebSocket events
-    this.subscriptions.forEach(unsubscribe => unsubscribe())
+    this.subscriptions.forEach(unsubscribe => {
+      if (typeof unsubscribe === 'function') {
+        try {
+          unsubscribe()
+        } catch (error) {
+          console.warn('[OrderUpdates] Error during unsubscribe:', error)
+        }
+      }
+    })
     this.subscriptions = []
+    this.subscriptionIds.clear()
     this.orderUpdateCallbacks = []
     
     // Remove connection event listeners
@@ -91,6 +146,7 @@ export class OrderUpdatesHandler {
       webSocketService.off('error', this.connectionHandlers.error)
     }
     this.connectionHandlers = {}
+    this.isInitialized = false
   }
 
   /**
@@ -268,41 +324,11 @@ export class OrderUpdatesHandler {
   private reinitializeSubscriptions(): void {
     logger.info('[OrderUpdates] Reinitializing subscriptions after reconnection...')
     
-    // CRITICAL FIX: Properly clear old subscriptions to prevent duplicates
-    if (this.subscriptions && this.subscriptions.length > 0) {
-      logger.info(`[OrderUpdates] Clearing ${this.subscriptions.length} old subscriptions`)
-      this.subscriptions.forEach(unsubscribe => {
-        if (typeof unsubscribe === 'function') {
-          try {
-            unsubscribe()
-          } catch (error) {
-            console.warn('[OrderUpdates] Error unsubscribing:', error)
-          }
-        }
-      })
-      this.subscriptions = []
-    }
+    // Reset initialization flag and re-initialize properly
+    this.isInitialized = false
+    this.initialize()
     
-    // Add a small delay to ensure old subscriptions are fully cleared
-    setTimeout(() => {
-      // Re-create subscriptions
-      this.subscriptions.push(
-        webSocketService.subscribe('order:created', (payload) => {
-          logger.info('[OrderUpdates] Raw order:created payload:', payload)
-          this.handleOrderCreated(payload)
-        }),
-        webSocketService.subscribe('order:updated', (payload) => 
-          this.handleOrderUpdated(payload)),
-        webSocketService.subscribe('order:deleted', (payload) => 
-          this.handleOrderDeleted(payload)),
-        webSocketService.subscribe('order:status_changed', (payload) => 
-          this.handleOrderStatusChanged(payload as { orderId: string; status: string; previousStatus: string; updatedBy?: string })),
-        webSocketService.subscribe('order:item_status_changed', (payload) => 
-          this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string }))
-      )
-      
-      logger.info('[OrderUpdates] Subscriptions reinitialized:', this.subscriptions.length)
-    }, 100)
+    logger.info('[OrderUpdates] Subscriptions reinitialized')
   }
   
   /**
