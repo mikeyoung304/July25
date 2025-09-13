@@ -1151,9 +1151,20 @@ ENTRÉES → Ask:
    * Clean up connection resources without changing state
    */
   private cleanupConnection(): void {
+    // Clear token refresh timer FIRST to prevent further operations
+    if (this.tokenRefreshTimer) {
+      clearTimeout(this.tokenRefreshTimer);
+      this.tokenRefreshTimer = null;
+    }
+    
     // Close data channel
     if (this.dc) {
       try {
+        // Remove event handlers before closing
+        this.dc.onopen = null;
+        this.dc.onmessage = null;
+        this.dc.onerror = null;
+        this.dc.onclose = null;
         this.dc.close();
       } catch (_e) {
         // Ignore errors during cleanup
@@ -1167,6 +1178,10 @@ ENTRÉES → Ask:
         // Remove all event handlers to prevent memory leaks
         this.pc.onicecandidate = null;
         this.pc.oniceconnectionstatechange = null;
+        this.pc.onconnectionstatechange = null;
+        this.pc.ontrack = null;
+        this.pc.onsignalingstatechange = null;
+        this.pc.ondatachannel = null;
         this.pc.onconnectionstatechange = null;
         this.pc.onsignalingstatechange = null;
         this.pc.ontrack = null;
@@ -1182,10 +1197,15 @@ ENTRÉES → Ask:
       this.pc = null;
     }
     
-    // Stop media stream
+    // Stop media stream tracks properly
     if (this.mediaStream) {
       this.mediaStream.getTracks().forEach(track => {
         try {
+          // Remove event listeners from track
+          track.onended = null;
+          track.onmute = null;
+          track.onunmute = null;
+          // Stop the track
           track.stop();
         } catch (_e) {
           // Ignore errors during cleanup
@@ -1209,6 +1229,11 @@ ENTRÉES → Ask:
         this.audioElement.onplay = null;
         this.audioElement.onpause = null;
         this.audioElement.onerror = null;
+        this.audioElement.onended = null;
+        this.audioElement.onseeking = null;
+        this.audioElement.onseeked = null;
+        this.audioElement.onpause = null;
+        this.audioElement.onerror = null;
         
         // Remove from DOM
         if (this.audioElement.parentNode) {
@@ -1225,14 +1250,31 @@ ENTRÉES → Ask:
    * Disconnect and clean up
    */
   disconnect(): void {
+    // Clear all state flags
     this.sessionActive = false;
     this.isRecording = false;
     this.isConnecting = false;
     this.activeResponseId = null;
     this.dcReady = false;
-    this.messageQueue = [];
+    this.currentUserItemId = null;
     
-    // Clear token refresh timer
+    // Clear data structures
+    this.messageQueue = [];
+    this.transcriptMap.clear();
+    this.seenEventIds.clear();
+    
+    // Clear text state
+    this.partialTranscript = '';
+    this.aiPartialTranscript = '';
+    
+    // Reset counters
+    this.reconnectAttempts = 0;
+    this.turnId = 0;
+    this.eventIndex = 0;
+    
+    // Clear token and timer
+    this.ephemeralToken = null;
+    this.tokenExpiresAt = 0;
     if (this.tokenRefreshTimer) {
       clearTimeout(this.tokenRefreshTimer);
       this.tokenRefreshTimer = null;

@@ -10,9 +10,18 @@ interface ExtendedWebSocket extends WebSocket {
 
 const wsLogger = logger.child({ module: 'websocket' });
 
+// Store interval at module level to ensure proper cleanup
+let heartbeatInterval: NodeJS.Timeout | null = null;
+
 export function setupWebSocketHandlers(wss: WebSocketServer): void {
+  // Clear any existing interval to prevent memory leaks
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
+    heartbeatInterval = null;
+  }
+
   // Heartbeat to detect broken connections
-  const interval = setInterval(() => {
+  heartbeatInterval = setInterval(() => {
     wss.clients.forEach((ws: ExtendedWebSocket) => {
       if (ws.isAlive === false) {
         wsLogger.info('Terminating dead connection');
@@ -82,8 +91,21 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
   });
 
   wss.on('close', () => {
-    clearInterval(interval);
+    if (heartbeatInterval) {
+      clearInterval(heartbeatInterval);
+      heartbeatInterval = null;
+      wsLogger.info('WebSocket server closed, heartbeat interval cleared');
+    }
   });
+}
+
+// Export cleanup function for graceful shutdown
+export function cleanupWebSocketServer(): void {
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
+    heartbeatInterval = null;
+    wsLogger.info('WebSocket heartbeat interval cleaned up');
+  }
 }
 
 function handleWebSocketMessage(

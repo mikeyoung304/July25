@@ -85,12 +85,25 @@ function App() {
     // Subscribe to auth state changes (for Supabase users)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, _session) => {
       if (event === 'SIGNED_OUT') {
-        // Disconnect and reconnect WebSocket on sign out to switch to demo mode
+        // Properly cleanup before reinitializing
+        logger.info('🔒 User signed out, cleaning up WebSocket connections...')
+        
+        // Set flag first to prevent race conditions
         isConnected = false
+        
+        // Cleanup in correct order
         orderUpdatesHandler.cleanup()
+        webSocketService.disconnect()
         connectionManager.forceDisconnect()
         
-        // Reinitialize for demo mode
+        // Wait longer to ensure cleanup completes
+        setTimeout(() => {
+          logger.info('🔌 Reinitializing WebSocket for demo mode...')
+          initializeWebSocket()
+        }, 2000)
+      } else if (event === 'SIGNED_IN' && !isConnected) {
+        // Handle sign in - reconnect with new auth
+        logger.info('🔓 User signed in, reinitializing WebSocket with auth...')
         setTimeout(() => initializeWebSocket(), 1000)
       }
     })
