@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.6] - 2025-09-13 - Performance & Stability Sprint
+
+### 🚀 Performance Improvements
+- **WebSocket Memory Leak Fixes**
+  - Fixed server-side heartbeat interval memory leak
+  - Added proper cleanup on server shutdown
+  - Fixed client-side duplicate subscription issue
+  - Implemented exponential backoff with jitter (max 30s)
+  - Fixed WebRTC voice client memory leaks
+  
+- **Image Optimization**
+  - Optimized 67 images to WebP format
+  - Reduced image assets from 18MB to 9.7MB (45.9% reduction)
+  - Created automated image optimization script
+  - Added support for modern image formats
+
+### 🔧 Stability Improvements
+- **Connection Management**
+  - Improved WebSocket reconnection reliability
+  - Better auth state change handling
+  - No more duplicate event subscriptions
+  - Client memory usage reduced by ~30%
+
+### 📝 Configuration
+- Updated .env.example with all required variables
+- Added security configuration requirements
+- Documented JWT secret requirement for v6.0.5+
+- Added PIN_PEPPER and DEVICE_FINGERPRINT_SALT configs
+
 ## [6.0.5] - 2025-09-12 - Critical Security Sprint
 
 ### 🔒 Security Fixes (CRITICAL)
