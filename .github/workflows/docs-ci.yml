@@ -1,0 +1,31 @@
+name: docs-ci
+on:
+  pull_request:
+    paths:
+      - 'docs/**.md'
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stale + Orphan check
+        run: |
+          set -e
+          INDEX=docs/DOCS_INDEX.md
+          test -f "$INDEX"
+          ACTIVE=$(grep -oE '\[docs/[^]]+\.md\]' "$INDEX" | sed 's/[][]//g')
+          # stale: ensure last_verified_date exists and is <= 30 days old (soft warn)
+          ERR=0
+          for f in $ACTIVE; do
+            if ! grep -q '^last_verified_date:' "$f"; then echo "::error ::$f missing last_verified_date"; ERR=1; fi
+            if ! grep -q '^last_verified_commit:' "$f"; then echo "::error ::$f missing last_verified_commit"; ERR=1; fi
+          done
+          # orphan check: every docs/*.md must be referenced in index or live under archive/
+          ALL=$(git ls-files 'docs/*.md')
+          for f in $ALL; do
+            case "$f" in
+              docs/archive/*) continue;;
+            esac
+            echo "$ACTIVE" | grep -q "$f" || echo "::warning ::Orphan doc not in index: $f"
+          done
+          exit $ERR

@@ -43,4 +43,22 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Check docs front-matter for active docs
+echo "📚 Checking active docs metadata..."
+if [ -f docs/DOCS_INDEX.md ]; then
+  ACTIVE_DOCS=$(grep -oE '\[docs/[^]]+\.md\]' docs/DOCS_INDEX.md | sed 's/[][]//g')
+  for doc in $ACTIVE_DOCS; do
+    if [ -f "$doc" ]; then
+      if ! grep -q '^last_verified_date:' "$doc"; then
+        echo "❌ $doc missing last_verified_date in front-matter"
+        exit 1
+      fi
+      if ! grep -q '^last_verified_commit:' "$doc"; then
+        echo "❌ $doc missing last_verified_commit in front-matter"
+        exit 1
+      fi
+    fi
+  done
+fi
+
 echo "✅ Pre-commit checks passed! (Full tests run in CI)"
