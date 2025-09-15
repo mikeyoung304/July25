@@ -1,0 +1,16 @@
+path,first_heading,word_count,class,reason
+ARCHITECTURE.md,Restaurant OS Architecture,450,active,Core system documentation
+CHANGELOG.md,Changelog,2800,active,Version history tracking
+CLAUDE.md,Restaurant OS - rebuild-6.0 Project Instructions,3200,active,Development guidelines and instructions
+CONTRIBUTING.md,Contributing to Restaurant OS,180,active,Contribution guidelines
+CRITICAL_AUDIT_FINDINGS.md,Critical Production Blockers,890,outdated,Old audit from different date
+ORDER_SUBMISSION_FAILURE_ANALYSIS.md,Order Submission Failure Analysis,1250,outdated,Specific issue analysis from past
+PRODUCTION_VERIFICATION_REPORT.md,Production Verification Report,2100,outdated,Old verification report
+PROJECT_STRUCTURE.md,Project Structure,320,active,Current project layout
+README.md,Restaurant OS,850,active,Main project readme
+ROADMAP.md,Restaurant OS Roadmap,420,active,Future development plans
+SECURITY.md,Security Policy,280,active,Security guidelines
+config/guardrails.md,Guardrails Configuration,150,active,Config documentation
+scripts/archive/2025-08-20/CLEANUP_SUMMARY.md,Cleanup Summary August 20 2025,450,archive-candidate,Old cleanup notes
+shared/README.md,Shared Types and Utilities,120,active,Shared module documentation
+supabase/MIGRATION_GUIDE.md,Supabase Migration Guide,680,active,Database migration instructions

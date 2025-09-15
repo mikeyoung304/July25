@@ -1,0 +1,119 @@
+{
+  "orderStatuses": {
+    "defined": [
+      "new",
+      "pending",
+      "confirmed",
+      "preparing",
+      "ready",
+      "completed",
+      "cancelled"
+    ],
+    "evidence": [
+      {
+        "file": "shared/types/order.types.ts",
+        "lines": "6-13",
+        "type": "TypeScript type definition"
+      },
+      {
+        "file": "server/src/services/orders.service.ts",
+        "lines": "269-330",
+        "type": "updateOrderStatus method"
+      }
+    ]
+  },
+  "paymentStatuses": {
+    "defined": [
+      "pending",
+      "paid",
+      "refunded",
+      "failed"
+    ],
+    "notEnforced": true,
+    "evidence": [
+      {
+        "file": "shared/types/order.types.ts",
+        "lines": "21",
+        "type": "Type definition exists"
+      },
+      {
+        "file": "docs/BASELINE_REALITY.md",
+        "lines": "51",
+        "note": "Payment states exist in types but not enforced in main flow"
+      }
+    ]
+  },
+  "orderTypes": {
+    "database": [
+      "online",
+      "pickup",
+      "delivery"
+    ],
+    "ui": [
+      "dine-in",
+      "takeout",
+      "delivery",
+      "online",
+      "drive-thru",
+      "kiosk",
+      "voice"
+    ],
+    "evidence": [
+      {
+        "file": "shared/types/order.types.ts",
+        "lines": "16-19",
+        "type": "Separate DB and UI types"
+      }
+    ]
+  },
+  "orderModes": {
+    "resolution": [
+      "employee",
+      "customer"
+    ],
+    "employeeRoles": [
+      "owner",
+      "admin",
+      "manager",
+      "server"
+    ],
+    "evidence": [
+      {
+        "file": "server/src/middleware/orderMode.ts",
+        "lines": "4-11",
+        "type": "Mode resolution based on role"
+      }
+    ]
+  },
+  "stateTransitions": {
+    "allowed": {
+      "new": ["pending", "cancelled"],
+      "pending": ["confirmed", "cancelled"],
+      "confirmed": ["preparing", "cancelled"],
+      "preparing": ["ready", "cancelled"],
+      "ready": ["completed", "cancelled"],
+      "completed": [],
+      "cancelled": []
+    },
+    "evidence": [
+      {
+        "file": "docs/ORDER_FLOW.md",
+        "lines": "32-43",
+        "type": "Documented state machine"
+      }
+    ]
+  },
+  "unknownStates": [],
+  "gaps": [
+    {
+      "issue": "Payment states defined but not enforced",
+      "impact": "Orders can complete without payment tracking",
+      "evidence": "No awaiting_payment enforcement found"
+    },
+    {
+      "issue": "Voice orders bypass payment gate",
+      "impact": "Customer voice orders reach kitchen without payment",
+      "evidence": "Payment middleware not applied to voice flow"
+    }
+  ]
+}

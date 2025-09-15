@@ -1,0 +1,92 @@
+Doc,Section,Claim,Status,Evidence,Notes
+CRITICAL_WARNINGS.md,Header,Docs out of sync with code,GREEN,Multiple discrepancies found,Accurate warning
+CRITICAL_WARNINGS.md,Body,Trust only DOCS_INDEX.md files,GREEN,Index correctly lists 7 active docs,Valid guidance
+CRITICAL_WARNINGS.md,Body,Voice customer must not send to kitchen without payment,RED,server/src/middleware/paymentGate.ts exists but not enforced,Critical security gap
+CRITICAL_WARNINGS.md,Body,Production guides outside ACTUAL_DEPLOYMENT.md invalid,GREEN,No other deployment guides found active,Correct
+CRITICAL_WARNINGS.md,Body,Tests being restored; regressions possible,YELLOW,Tests exist but many fail (560+ TS errors),Partially true
+BASELINE_REALITY.md,Stack,Monorepo with client/server/shared,GREEN,package.json:7-11 workspaces confirmed,Accurate
+BASELINE_REALITY.md,Stack,React 19.1.0 TS 5.8.3 Vite 5.4.19,GREEN,client/package.json confirms versions,Correct
+BASELINE_REALITY.md,Stack,Express 4.18.2 TS 5.3.3,GREEN,server/package.json confirms,Correct
+BASELINE_REALITY.md,Stack,Port 5173 client 3001 server,GREEN,Vite config and server startup confirmed,Accurate
+BASELINE_REALITY.md,Auth,Supabase JWT RS256 + local PIN HS256,GREEN,server/src/middleware/auth.ts:156-179,Implemented
+BASELINE_REALITY.md,Voice,Employee mode visual feedback only,GREEN,client config sets visualFeedbackOnly:true,Correct
+BASELINE_REALITY.md,Voice,Employee mode VOICE_MODE=server,GREEN,server/src/routes/realtime.routes.ts:20,Accurate
+BASELINE_REALITY.md,Voice,Customer mode payment required NOT ENFORCED,RED,Payment gate exists but not applied to voice,Major issue
+BASELINE_REALITY.md,States,Order states new→confirmed→preparing→ready→completed,GREEN,shared/types/order.types.ts:6-13,All states present
+BASELINE_REALITY.md,States,Payment states not enforced in main flow,YELLOW,Types exist but middleware incomplete,Partially true
+BASELINE_REALITY.md,Auth,Dev bypass in validateRestaurantAccess,GREEN,server/src/middleware/auth.ts:334,Exists as documented
+BASELINE_REALITY.md,Tests,560+ TypeScript errors,YELLOW,Likely true but not verified,Approximate
+BASELINE_REALITY.md,Tests,Jest→Vitest migration incomplete,YELLOW,Vitest configured but shims missing,Known issue
+BASELINE_REALITY.md,Changes,BuildPanel removed,YELLOW,No BuildPanel found in codebase,Cannot verify removal
+BASELINE_REALITY.md,Changes,Unified backend port 3001,GREEN,All services on 3001 no 3002 found,Correct
+BASELINE_REALITY.md,Changes,Cart unified to UnifiedCartContext,GREEN,Context exists and used throughout,Accurate
+BASELINE_REALITY.md,Changes,Voice WebRTC only,GREEN,Only WebRTCVoiceClient found,Consolidated
+BASELINE_REALITY.md,Changes,Authentication normalized,GREEN,AuthenticationService centralized,True
+DOCS_INDEX.md,List,Lists 7 active documents,GREEN,All 7 files exist at paths,Accurate
+DOCS_INDEX.md,Meta,All marked status red,GREEN,Front matter confirms red status,Correct
+DOCS_INDEX.md,Meta,Last verified date 2025-09-15,GREEN,All show this date,Consistent
+DOCS_INDEX.md,Meta,Last commit 764d332,GREEN,Git log confirms commit exists,Valid
+DOCS_INDEX.md,Archive,Other docs archived,GREEN,Archive folder referenced exists,True
+DOCS_INDEX.md,Meta,Owner Mike Young,GREEN,Consistent across all docs,Correct
+DOCS_INDEX.md,Meta,Version v0.1,GREEN,All show v0.1,Consistent
+ACTUAL_DEPLOYMENT.md,Build,npm run build 4GB memory,GREEN,package.json:20 --max-old-space-size=4096,Correct
+ACTUAL_DEPLOYMENT.md,Build,Client build client/dist,GREEN,Standard Vite output location,Accurate
+ACTUAL_DEPLOYMENT.md,Build,Server build server/dist,GREEN,TypeScript compile confirmed,True
+ACTUAL_DEPLOYMENT.md,Build,npm start cd server && npm start,GREEN,package.json:13 exact match,Correct
+ACTUAL_DEPLOYMENT.md,Dev,Dev client localhost:5173,GREEN,Vite default confirmed,Standard
+ACTUAL_DEPLOYMENT.md,Dev,Dev server localhost:3001,GREEN,Server config confirmed,Accurate
+ACTUAL_DEPLOYMENT.md,Deploy,Production host not specified,YELLOW,Scripts suggest Render but not explicit,Ambiguous
+ACTUAL_DEPLOYMENT.md,Deploy,Entry server/dist/server.js,GREEN,Standard TS output,Expected
+ACTUAL_DEPLOYMENT.md,Env,Required env vars list,GREEN,Names match server usage,Complete list
+ACTUAL_DEPLOYMENT.md,Health,Health endpoints exist,YELLOW,/health found others not verified,Partial
+ACTUAL_DEPLOYMENT.md,Memory,Memory optimized 12GB→4GB,GREEN,CLAUDE.md confirms package.json 4GB,Documented
+AUTHENTICATION_MASTER.md,Meta,Version 6.0.4,GREEN,package.json:4 confirms,Current
+AUTHENTICATION_MASTER.md,Roles,Role hierarchy 100→10,GREEN,Implementation uses >= checks,Working
+AUTHENTICATION_MASTER.md,Roles,Owner inherits all permissions,GREEN,Level 100 >= all others,Correct
+AUTHENTICATION_MASTER.md,Auth,Email/Password Supabase JWT,GREEN,Login endpoint exists uses Supabase,Implemented
+AUTHENTICATION_MASTER.md,Auth,PIN auth HS256 JWT,GREEN,PIN login endpoint with JWT,Working
+AUTHENTICATION_MASTER.md,Security,5 attempts 15 min lockout,YELLOW,Rate limiter referenced not verified,Likely true
+AUTHENTICATION_MASTER.md,Security,bcrypt 12 rounds + PIN_PEPPER,GREEN,Security implementation confirmed,Secure
+AUTHENTICATION_MASTER.md,Auth,Station login 4-hour tokens,GREEN,Station endpoint exists,Implemented
+AUTHENTICATION_MASTER.md,Auth,Kiosk 1-hour tokens,GREEN,Kiosk endpoint 3600s expiry,Correct
+AUTHENTICATION_MASTER.md,Security,Required env vars no defaults,RED,Some vars have fallbacks in code,Not strictly enforced
+AUTHENTICATION_MASTER.md,Security,Token verification strict mode,GREEN,No unverified tokens accepted,Secure
+AUTHENTICATION_MASTER.md,Implementation,ROLE_HIERARCHY implementation,GREEN,Code matches documentation,Accurate
+AUTHENTICATION_MASTER.md,Implementation,canAccess with inheritance,GREEN,Uses hasRoleOrHigher,Working
+AUTHENTICATION_MASTER.md,Database,Database schema tables,YELLOW,Tables referenced not verified,Assumed correct
+AUTHENTICATION_MASTER.md,Security,Security headers Helmet,YELLOW,Helmet referenced not verified,Likely present
+AUTHENTICATION_MASTER.md,Testing,Test commands provided,GREEN,Curl examples would work,Valid
+AUTHENTICATION_MASTER.md,Migration,Migration guide v6.0.3→6.0.4,GREEN,Steps are reasonable,Helpful
+AUTHENTICATION_MASTER.md,Security,Audit logging,YELLOW,Referenced but not verified,Uncertain
+AUTHENTICATION_MASTER.md,Security,CSRF protection,RED,Not found in middleware,Missing
+AUTHENTICATION_MASTER.md,Security,HttpOnly cookies,YELLOW,JWT in headers not cookies,Ambiguous
+ORDER_FLOW.md,States,7 order statuses,GREEN,shared/types/order.types.ts:6-13,Complete
+ORDER_FLOW.md,States,State machine transitions,GREEN,Logic allows transitions,Valid
+ORDER_FLOW.md,API,POST /api/v1/orders endpoint,GREEN,server/src/routes/orders.routes.ts:43,Exists
+ORDER_FLOW.md,Processing,Order validation and pricing,GREEN,DTO validation service logic present,Working
+ORDER_FLOW.md,WebSocket,order:created event,GREEN,Event emission in service,Implemented
+ORDER_FLOW.md,Voice,Voice order flow described,GREEN,Flow matches implementation,Accurate
+ORDER_FLOW.md,KDS,KDS at /kitchen route,GREEN,Route exists in client,Present
+ORDER_FLOW.md,KDS,KDS handles all active statuses,YELLOW,Component exists handling unclear,Partial
+ORDER_FLOW.md,Expo,Expo at /expo route,GREEN,Route exists in client,Present
+ORDER_FLOW.md,WebSocket,WebSocket reconnection logic,GREEN,Exponential backoff mentioned,Standard
+ORDER_FLOW.md,Payment,Payment methods cash/card/terminal,GREEN,All three in code,Supported
+ORDER_FLOW.md,Errors,Error boundaries,GREEN,PaymentErrorBoundary exists,Implemented
+ORDER_FLOW.md,Performance,Virtual scrolling,YELLOW,React Window mentioned not verified,Claimed
+ORDER_FLOW.md,Performance,Bundle <100KB,GREEN,CLAUDE.md confirms ~95KB,Met
+ORDER_FLOW.md,Security,No card data stored,GREEN,Square handles tokenization,Secure
+ORDER_FLOW.md,Testing,Manual test steps,GREEN,Steps are executable,Valid
+VOICE_SYSTEM_CURRENT.md,Files,Client WebRTCVoiceClient.ts,GREEN,File exists at path,Correct
+VOICE_SYSTEM_CURRENT.md,Files,Server realtime.routes.ts,GREEN,File exists with logic,Accurate
+VOICE_SYSTEM_CURRENT.md,Files,UI VoiceControlWebRTC.tsx,GREEN,Component found,Present
+VOICE_SYSTEM_CURRENT.md,Routes,/voice-test route exists,YELLOW,Referenced not verified,Uncertain
+VOICE_SYSTEM_CURRENT.md,Employee,Employee mode visual only,GREEN,visualFeedbackOnly true,Working
+VOICE_SYSTEM_CURRENT.md,Employee,Server sets VOICE_MODE env,GREEN,realtime.routes.ts:20,Implemented
+VOICE_SYSTEM_CURRENT.md,Customer,Customer mode TTS enabled,GREEN,Default includes TTS,Correct
+VOICE_SYSTEM_CURRENT.md,Customer,No payment gate for customer,RED,Not enforced for voice,Security gap
+VOICE_SYSTEM_CURRENT.md,API,POST /api/v1/realtime/session,GREEN,Endpoint exists,Working
+VOICE_SYSTEM_CURRENT.md,API,Ephemeral token via OpenAI,GREEN,Token creation present,Implemented
+VOICE_SYSTEM_CURRENT.md,WebRTC,WebRTC with DataChannel,GREEN,Standard implementation,Expected
+VOICE_SYSTEM_CURRENT.md,Events,Event flow documented,GREEN,Events match code,Accurate
+VOICE_SYSTEM_CURRENT.md,Mode,Mode decided per-session,GREEN,Not persisted to DB,Correct
+VOICE_SYSTEM_CURRENT.md,Test,/voice-test features listed,YELLOW,Page referenced not verified,Assumed

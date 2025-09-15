@@ -1,0 +1,32 @@
+context,file,fieldName,appears_as,normalized_to,notes
+client,client/src/services/orders/OrderService.ts,tableNumber,table_number,tableNumber,Client uses snake_case
+server,server/src/dto/order.dto.ts,tableNumber,tableNumber,tableNumber,Server expects camelCase
+transform,server/src/dto/order.dto.ts,tableNumber,table_number,tableNumber,Transform maps snake to camel
+client,client/src/services/orders/OrderService.ts,customerName,customer_name,customerName,Not shown in code sample
+server,server/src/dto/order.dto.ts,customerName,customerName,customerName,Server expects camelCase
+transform,server/src/dto/order.dto.ts,customerName,customer_name,customerName,Transform handles legacy
+client,client/src/services/orders/OrderService.ts,type,type,type,Client uses correct field
+server,server/src/dto/order.dto.ts,type,type,type,Server expects type
+transform,server/src/dto/order.dto.ts,type,order_type,type,Transform from order_type
+client,client/src/services/orders/OrderService.ts,restaurantId,restaurant_id,restaurant_id,Client uses snake_case
+server,server/src/dto/order.dto.ts,restaurantId,restaurant_id,restaurant_id,Both use snake for this
+client,client/src/services/orders/OrderService.ts,paymentStatus,payment_status,payment_status,Client uses snake_case
+server,server/src/dto/order.dto.ts,paymentStatus,payment_status,payment_status,Not in DTO schema
+client,client/src/services/orders/OrderService.ts,menuItemId,menu_item_id,id,Client uses snake_case
+server,server/src/dto/order.dto.ts,id,id,id,Server expects id not menu_item_id
+transform,server/src/dto/order.dto.ts,id,menu_item_id,id,Transform maps menu_item_id to id
+client,client/src/services/orders/OrderService.ts,modifiers,modifications,modifiers,Client may use modifications
+server,server/src/dto/order.dto.ts,modifiers,modifiers,modifiers,Server expects modifiers array
+transform,server/src/dto/order.dto.ts,modifiers,modifications,modifiers,Transform handles both
+client,client/src/services/orders/OrderService.ts,total,total,total,Both use total
+server,server/src/dto/order.dto.ts,total,total,total,Required field
+transform,server/src/dto/order.dto.ts,total,total_amount,total,Legacy total_amount mapped
+client,client/src/services/orders/OrderService.ts,subtotal,subtotal,subtotal,Required field
+server,server/src/dto/order.dto.ts,subtotal,subtotal,subtotal,Required field
+client,client/src/services/orders/OrderService.ts,tax,tax,tax,Required field
+server,server/src/dto/order.dto.ts,tax,tax,tax,Required field
+client,client/src/services/orders/OrderService.ts,tip,tip,tip,Optional default 0
+server,server/src/dto/order.dto.ts,tip,tip,tip,Optional default 0
+client,client/src/services/orders/OrderService.ts,notes,special_instructions,notes,Client may use legacy name
+server,server/src/dto/order.dto.ts,notes,notes,notes,Server expects notes
+transform,server/src/dto/order.dto.ts,notes,special_instructions,notes,Transform from special_instructions
