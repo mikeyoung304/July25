@@ -2,7 +2,7 @@
 
 See [docs/architecture/README.md](./docs/architecture/README.md) for complete architecture documentation.
 
-**Last Updated**: September 2, 2025
+**Last Updated**: September 14, 2025
 
 ## Quick Reference
 

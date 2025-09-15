@@ -1,15 +1,15 @@
 # Restaurant OS v6.0 - Production Roadmap
 
-## Current Status: Development Focus - Cleanup & Stabilization ⚠️
+## Current Status: Critical Issues ⚠️
 - **Version**: 6.0.4 (current)
-- **Stage**: Development (needs stabilization before production)
-- **Production Readiness**: 6/10 (down from 8/10 due to test failures)
-- **Code Quality**: 0 ESLint errors, 560 TypeScript errors (up from 397)
-- **Tests**: ❌ BROKEN (timeout issues - critical blocker)
-- **Authentication**: ✅ COMPLETE (JWT + RBAC + PIN + Station)
-- **Split Payment UI**: ❌ MISSING (backend only implementation)
-- **KDS**: Single implementation (consolidated successfully)
-- **Last Updated**: September 9, 2025
+- **Stage**: Stabilization Required
+- **Production Readiness**: 4/10 (regression from auth changes)
+- **Code Quality**: 0 ESLint errors, 100+ TypeScript errors ❌
+- **Tests**: ❌ BROKEN (2-minute timeout)
+- **Authentication**: ❌ BROKEN (401/403 errors on orders)
+- **Split Payment UI**: ❌ Backend only, no frontend
+- **KDS**: ✅ Single implementation (consolidated successfully)
+- **Last Updated**: September 14, 2025
 
 ---
 
@@ -28,17 +28,16 @@
 - [x] Rate limiting with progressive lockouts
 - [x] Comprehensive audit logging with user_id tracking
 
-### Week 2: Test Recovery & Stabilization 🚨 **CRITICAL FOCUS**
-- [ ] **URGENT**: Fix test timeout issues (blocking production)
-- [ ] Restore test coverage reporting
-- [ ] Fix TypeScript errors (560 currently)
+### Week 2: Stabilization 🚨 **CRITICAL**
+- [ ] Fix test suite timeout issues
+- [ ] Resolve 100+ TypeScript errors
+- [ ] Debug authentication failures (401/403)
 - [ ] Complete split payment UI implementation
 - [ ] Square production credentials configuration
-- [ ] Critical path tests (order → payment → kitchen)
 - [ ] Load testing (100 concurrent users)
-- [ ] Integration tests for payment flows
+- [ ] First restaurant pilot deployment
 
-**Deliverable**: System ready for first restaurant pilot
+**Deliverable**: System deployed to first restaurant
 
 ---
 
@@ -139,33 +138,33 @@
 | Phase | Duration | Target Date | Status |
 |-------|----------|------------|--------|
 | Week 1 Auth | 1 week | Feb 1, 2025 | ✅ Complete |
-| Week 2 Stabilization | 2 weeks | Sep 23, 2025 | 🚨 Critical |
-| Phase 2 Production | 3 weeks | Oct 14, 2025 | Delayed |
-| Phase 3 Scale Ready | 4 weeks | Nov 11, 2025 | Delayed |
-| Phase 4 Innovation | Ongoing | Dec 2025+ | Future |
+| Week 2 Stabilization | 2 weeks | Sep 28, 2025 | 🚨 In Progress |
+| Phase 2 Production | 2 weeks | Sep 28, 2025 | Ready to Start |
+| Phase 3 Scale Ready | 4 weeks | Oct 26, 2025 | Planned |
+| Phase 4 Innovation | Ongoing | Nov 2025+ | Future |
 
 ---
 
-## 🎯 Next 7 Days Priority (September 9-16, 2025)
+## 🎯 Next 7 Days Priority (September 14-21, 2025)
 
-1. **Day 1-2**: Fix test timeout issues (critical blocker)
-2. **Day 3-4**: Reduce TypeScript errors from 560 to <400
-3. **Day 5-6**: Implement split payment UI (backend exists)
-4. **Day 7**: Documentation cleanup completion
+1. **Day 1-2**: Deploy to staging environment
+2. **Day 3-4**: Complete split payment UI implementation
+3. **Day 5-6**: Load testing and performance validation
+4. **Day 7**: First restaurant pilot preparation
 
 ---
 
 ## 📝 Notes
 
-- **Current Status**: Auth complete, tests broken, stabilization needed
-- **Current Blockers**: Test timeouts, 560 TypeScript errors, missing split payment UI
-- **Main Achievement**: Authentication & RBAC system + documentation cleanup
-- **Next Milestone**: Restore test stability and reduce technical debt
-- **Risk**: Production timeline delayed due to quality issues
-- **Opportunity**: Voice ordering differentiator + robust auth (once stabilized)
+- **Current Status**: Critical failures - auth broken, tests broken, TypeScript errors
+- **Blocking Issues**: Test timeout, 100+ TS errors, auth middleware failures
+- **Main Problem**: Recent auth changes caused major regressions
+- **Next Milestone**: Fix critical bugs and stabilize system
+- **Risk**: HIGH - core functionality broken
+- **Required**: Immediate rollback or fixes to auth system
 - **Competition**: Square, Toast, Clover
 - **Target Market**: Small-medium restaurants
 
 ---
 
-*Last Updated: September 9, 2025*
+*Last Updated: September 14, 2025 (Multi-Agent Verification)*

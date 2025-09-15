@@ -166,7 +166,7 @@ export class AuthenticationService {
     const effectiveRestaurantId = decoded.restaurant_id || restaurantId;
     
     // Build normalized user
-    let normalizedUser: NormalizedUser = {
+    const normalizedUser: NormalizedUser = {
       id: decoded.sub,
       email: decoded.email,
       role: this.normalizeRole(decoded.role),

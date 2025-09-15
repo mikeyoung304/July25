@@ -1,5 +1,31 @@
 # Changelog - Restaurant OS
 
+## [6.0.4] - 2025-09-14
+
+### ⚠️ Breaking Changes & Regressions
+- Authentication middleware now blocking valid roles (401/403 errors)
+- Order creation broken for authenticated users
+- Test suite timing out after 2 minutes
+- 100+ TypeScript compilation errors introduced
+
+### Attempted Improvements (Currently Broken)
+- Enforced explicit restaurant context for staff writes (causing failures)
+- Added 403 status for staff membership denial (rejecting valid users)
+- Attempted strict authentication enforcement (blocking legitimate requests)
+- Added structured telemetry logging for auth events
+
+### Known Issues
+- Vitest migration incomplete (missing Jest compatibility shim)
+- Manager role cannot create orders despite having scope
+- requireRole() middleware rejecting valid roles
+- Mixed legacy/new auth code causing conflicts
+- Feature flags defined but not wired up
+
+### Documentation
+- Documentation incorrectly claims production readiness
+- Critical audit findings show "SHIP-BLOCK" status
+- Multiple contradictory reports about system state
+
 ## [6.0.3] - 2025-01-30
 
 ### Security

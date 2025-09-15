@@ -1,14 +1,15 @@
 # Test Suite Status & Priority
 
-**Last Updated**: September 10, 2025  
-**Status**: ⚠️ PARTIALLY BROKEN (Jest → Vitest migration incomplete)
+**Last Updated**: September 14, 2025
+**Status**: ❌ BROKEN (Vitest migration incomplete)
 
-## Current Issues
+## Current Status
 
-### Critical Problem
-- Tests written with Jest syntax (`jest.fn()`, `jest.mock()`)
-- Running with Vitest (uses `vi.fn()`, `vi.mock()`)
-- Result: ReferenceError: jest is not defined
+### Critical Problems
+- Tests timeout after 2 minutes
+- 50+ test failures in server tests
+- Missing Jest compatibility shim (`global.jest = vi`)
+- Multiple ReferenceError: jest is not defined
 
 ### Timeout Configuration ✅ FIXED
 - Increased from 30s to 120s for both client and server

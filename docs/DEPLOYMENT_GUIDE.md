@@ -2,21 +2,21 @@
 
 ## Overview
 
-**⚠️ IMPORTANT**: This guide is for future reference. Restaurant OS v6.0.4 is **NOT production ready** due to:
-- Test suite failures (timeout issues)
-- 560 TypeScript errors
-- Missing split payment UI
-- Performance issues need resolution
+**🚫 DO NOT DEPLOY**: Restaurant OS v6.0.4 has critical blockers:
+- Test suite broken (2-minute timeout)
+- 100+ TypeScript compilation errors
+- Authentication system failing (401/403 errors)
+- Core order creation broken
 
-This guide covers deploying Restaurant OS 6.0 to production environments once stabilization is complete.
+This guide is for future reference once stabilization is complete.
 
 ## Prerequisites
 
 **Before attempting deployment, ensure:**
-- All tests pass (`npm test` - currently failing)
-- TypeScript errors resolved (<100 from current 560)
-- Split payment UI implemented
-- Performance benchmarks met
+- All tests pass (`npm test` - currently timing out ❌)
+- TypeScript compilation clean (100+ errors ❌)
+- Authentication system working (currently broken ❌)
+- Order creation functional (401/403 errors ❌)
 - Node.js 18+ installed
 - Git repository access
 - Environment variables configured
