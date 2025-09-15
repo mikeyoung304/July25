@@ -1,8 +1,16 @@
-# Restaurant OS - Master Authentication Documentation
+---
+owner: Mike Young
+status: red
+last_verified_date: 2025-09-15
+last_verified_commit: 764d332991dd3a91ca870515b7f50cfa28208275
+version: v0.1
+---
 
-**Version**: 6.0.4  
-**Last Updated**: January 30, 2025  
-**Status**: Production Ready with Security Enhancements
+# Authentication Master
+
+**Version**: 6.0.4
+**Last Updated**: September 15, 2025
+**Status**: RED - Being Verified Against Code
 
 ## Table of Contents
 

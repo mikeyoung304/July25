@@ -1,8 +1,16 @@
-# Order Flow Documentation
+---
+owner: Mike Young
+status: red
+last_verified_date: 2025-09-15
+last_verified_commit: 764d332991dd3a91ca870515b7f50cfa28208275
+version: v0.1
+---
+
+# Order Flow
 
 ## Overview
 
-The Restaurant OS 6.0 order flow is designed to handle the complete lifecycle of an order from creation through fulfillment. This document outlines the technical implementation and data flow.
+The Restaurant OS 6.0 order flow handles the complete lifecycle from creation through fulfillment. This document reflects the actual implementation in code.
 
 ## Order Lifecycle States
 
