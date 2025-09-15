@@ -11,6 +11,8 @@ import { validateCreateOrderDTO, UpdateOrderStatusDTOSchema } from '../dto/order
 import { idempotencyService } from '../services/idempotency.service';
 import { ZodError } from 'zod';
 import type { OrderStatus, OrderType } from '@rebuild/shared';
+import { resolveOrderMode } from '../middleware/orderMode';
+import { requirePaymentIfCustomer } from '../middleware/paymentGate';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'orders' });
@@ -38,11 +40,13 @@ router.get('/', authenticate, validateRestaurantAccess, async (req: Authenticate
 });
 
 // POST /api/v1/orders - Create new order
-router.post('/', 
-  authenticate, 
-  requireRole([DatabaseRole.OWNER, DatabaseRole.MANAGER, DatabaseRole.SERVER, DatabaseRole.CUSTOMER]), 
-  requireScopes(ApiScope.ORDERS_CREATE), 
-  validateRestaurantAccess, 
+router.post('/',
+  authenticate,
+  requireRole([DatabaseRole.OWNER, DatabaseRole.MANAGER, DatabaseRole.SERVER, DatabaseRole.CUSTOMER]),
+  requireScopes(ApiScope.ORDERS_CREATE),
+  validateRestaurantAccess,
+  resolveOrderMode,
+  requirePaymentIfCustomer,
   async (req: AuthenticatedRequest, res, next) => {
     try {
       const restaurantId = req.restaurantId!;
@@ -93,7 +97,14 @@ router.post('/',
 );
 
 // POST /api/v1/orders/voice - Process voice order
-router.post('/voice', authenticate, requireRole([DatabaseRole.OWNER, DatabaseRole.MANAGER, DatabaseRole.SERVER, DatabaseRole.CUSTOMER]), requireScopes(ApiScope.ORDERS_CREATE), validateRestaurantAccess, async (req: AuthenticatedRequest, res, _next) => {
+router.post('/voice',
+  authenticate,
+  requireRole([DatabaseRole.OWNER, DatabaseRole.MANAGER, DatabaseRole.SERVER, DatabaseRole.CUSTOMER]),
+  requireScopes(ApiScope.ORDERS_CREATE),
+  validateRestaurantAccess,
+  resolveOrderMode,
+  requirePaymentIfCustomer,
+  async (req: AuthenticatedRequest, res, _next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { transcription, audioUrl, metadata: _metadata } = req.body;
