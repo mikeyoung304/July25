@@ -2,6 +2,8 @@
 import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { getAuthToken } from '../../../services/auth';
 import { logger } from '../../../services/monitoring/logger';
+import { getAgentConfigForMode, mergeMenuIntoConfig } from '../config/voice-agent-modes';
+import { safeParseEvent } from './RealtimeGuards';
 
 export interface WebRTCVoiceConfig {
   restaurantId: string;
@@ -420,12 +422,21 @@ export class WebRTCVoiceClient extends EventEmitter {
       // Wait for session.created before sending session.update
     };
     
-    this.dc.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        this.handleRealtimeEvent(data);
-      } catch (error) {
-        console.error('[WebRTCVoice] Failed to parse message:', error);
+    this.dc.onmessage = async (event) => {
+      if (this.config.debug) {
+        console.log('[WebRTC] DataChannel message received:', {
+          dataType: typeof event.data,
+          dataLength: event.data?.length
+        });
+      }
+
+      // Use safe parsing to prevent code execution
+      const parsedEvent = await safeParseEvent(event.data);
+
+      if (parsedEvent) {
+        this.handleRealtimeEvent(parsedEvent);
+      } else if (this.config.debug) {
+        console.warn('[WebRTC] Failed to parse or validate event');
       }
     };
     
@@ -447,6 +458,15 @@ export class WebRTCVoiceClient extends EventEmitter {
    * Handle events from OpenAI Realtime API
    */
   private handleRealtimeEvent(event: any): void {
+    // Debug logging for raw event payload
+    console.error('[DEBUG] handleRealtimeEvent called with:', {
+      type: event?.type,
+      hasEventId: !!event?.event_id,
+      eventKeys: event ? Object.keys(event) : [],
+      eventTypeOf: typeof event,
+      fullEvent: event
+    });
+
     // Deduplication check
     if (event.event_id && this.seenEventIds.has(event.event_id)) {
       if (this.config.debug) {
@@ -775,10 +795,7 @@ export class WebRTCVoiceClient extends EventEmitter {
   private configureSession(): void {
     const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
 
-    // Import agent configurations dynamically
-    const { getAgentConfigForMode, mergeMenuIntoConfig } = require('../config/voice-agent-modes');
-
-    // Get configuration for current mode
+    // Get configuration for current mode using imported functions
     const agentConfig = getAgentConfigForMode(this.config.mode || 'customer');
 
     // Merge menu context if available

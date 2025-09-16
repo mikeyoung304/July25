@@ -146,11 +146,16 @@ MENU KNOWLEDGE:
 /**
  * Get configuration based on agent mode
  */
-export function getAgentConfigForMode(mode: VoiceAgentMode) {
-  switch (mode) {
+export function getAgentConfigForMode(mode: VoiceAgentMode | 'employee' | 'customer') {
+  // Handle both enum and string values
+  const modeValue = typeof mode === 'string' ? mode : mode;
+
+  switch (modeValue) {
     case VoiceAgentMode.EMPLOYEE:
+    case 'employee':
       return EMPLOYEE_AGENT_CONFIG;
     case VoiceAgentMode.CUSTOMER:
+    case 'customer':
       return CUSTOMER_AGENT_CONFIG;
     default:
       // Default to customer for safety
