@@ -41,6 +41,37 @@ export default tseslint.config(
           }
         ]
       }],
+      // Prevent Node.js patterns in client code
+      'no-restricted-globals': ['error',
+        {
+          name: 'require',
+          message: 'Use ES6 imports instead of require() in client code'
+        },
+        {
+          name: 'module',
+          message: 'module is a Node.js global. Use ES6 modules in client code'
+        },
+        {
+          name: 'exports',
+          message: 'exports is a Node.js global. Use ES6 export syntax in client code'
+        },
+        {
+          name: '__dirname',
+          message: '__dirname is a Node.js global not available in browsers'
+        },
+        {
+          name: '__filename',
+          message: '__filename is a Node.js global not available in browsers'
+        },
+        {
+          name: 'process',
+          message: 'process is a Node.js global. Use import.meta.env or browser APIs in client code'
+        },
+        {
+          name: 'Buffer',
+          message: 'Buffer is a Node.js global. Use Uint8Array or browser APIs in client code'
+        }
+      ],
     },
   },
   {

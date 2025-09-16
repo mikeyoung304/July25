@@ -1,0 +1,116 @@
+name: Client Code Safety Guards
+
+on:
+  pull_request:
+    paths:
+      - 'client/src/**'
+      - '.github/workflows/client-safety.yml'
+  push:
+    paths:
+      - 'client/src/**'
+    branches: [main, develop]
+
+jobs:
+  client-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for require() in client code
+        run: |
+          echo "🔍 Checking for require() usage in client code..."
+
+          # Search for require() patterns in client/src (exclude test files and comments)
+          require_violations=$(grep -r -n "require\s*(" client/src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" 2>/dev/null | \
+            grep -v "__tests__" | \
+            grep -v "\.test\." | \
+            grep -v "\.spec\." | \
+            grep -v "// " | \
+            grep -v "/\*" | \
+            grep -v "\*/" || true)
+
+          if [ -n "$require_violations" ]; then
+            echo "❌ Found require() usage in client code:"
+            echo "$require_violations"
+            echo ""
+            echo "Use ES6 imports instead of require() in browser code."
+            echo "Example: import { something } from 'module' instead of const something = require('module')"
+            exit 1
+          else
+            echo "✅ No require() usage found in client code"
+          fi
+
+      - name: Check for Node.js globals in client code
+        run: |
+          echo "🔍 Checking for Node.js globals in client code..."
+
+          # Search for common Node.js globals that shouldn't be in client code
+          node_globals_found=false
+
+          # Check for __dirname usage
+          if grep -r "__dirname" client/src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" 2>/dev/null; then
+            echo "❌ Found __dirname usage in client code!"
+            node_globals_found=true
+          fi
+
+          # Check for __filename usage
+          if grep -r "__filename" client/src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" 2>/dev/null; then
+            echo "❌ Found __filename usage in client code!"
+            node_globals_found=true
+          fi
+
+          # Check for process.env (should use import.meta.env in Vite)
+          if grep -r "process\.env" client/src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" 2>/dev/null; then
+            echo "❌ Found process.env usage in client code!"
+            echo "Use import.meta.env instead of process.env in Vite client code."
+            node_globals_found=true
+          fi
+
+          # Check for Buffer usage
+          if grep -r "\bBuffer\b" client/src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" 2>/dev/null; then
+            echo "❌ Found Buffer usage in client code!"
+            echo "Use Uint8Array or browser APIs instead of Node.js Buffer in client code."
+            node_globals_found=true
+          fi
+
+          if [ "$node_globals_found" = true ]; then
+            echo "Node.js globals detected in client code. Use browser-compatible alternatives."
+            exit 1
+          else
+            echo "✅ No Node.js globals found in client code"
+          fi
+
+      - name: Verify voice system temperature compliance
+        run: |
+          echo "🔍 Checking voice system temperature configuration..."
+
+          # Check that temperature minimums are properly set
+          if ! grep -q "min: 0\.6" client/src/modules/voice/services/SessionConfigNormalizer.ts; then
+            echo "❌ Temperature minimum not set to 0.6 in SessionConfigNormalizer!"
+            echo "OpenAI Realtime API requires temperature >= 0.6"
+            exit 1
+          fi
+
+          # Check that employee default is >= 0.6
+          if ! grep -q "employeeDefault: 0\.[6-9]" client/src/modules/voice/services/SessionConfigNormalizer.ts; then
+            echo "❌ Employee default temperature should be >= 0.6!"
+            exit 1
+          fi
+
+          # Check that customer default is >= 0.6
+          if ! grep -q "customerDefault: 0\.[6-9]" client/src/modules/voice/services/SessionConfigNormalizer.ts; then
+            echo "❌ Customer default temperature should be >= 0.6!"
+            exit 1
+          fi
+
+          echo "✅ Voice system temperature configuration is compliant"
+
+      - name: Summary
+        run: |
+          echo "🎉 All client safety checks passed!"
+          echo "• No require() usage found"
+          echo "• No Node.js globals detected"
+          echo "• Voice system temperature configuration is valid"
