@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
-status: red
-last_verified_date: 2025-09-16
-last_verified_commit: 29babce
-version: v0.2
+status: green
+last_verified_date: 2025-09-15
+last_verified_commit: 257d71e
+version: v0.3
 ---
 
 # Baseline Reality
@@ -38,6 +38,7 @@ version: v0.2
 - **ESM Modules Only**: All client code must use import/export syntax
 - **Security Policy**: No eval() or dynamic code execution permitted
 - **Safe Event Parsing**: RealtimeGuards module provides secure message handling
+- **Session Normalization**: SessionConfigNormalizer ensures all parameters meet OpenAI Realtime API requirements (temperature ≥ 0.6)
 
 ## Authentication Posture
 

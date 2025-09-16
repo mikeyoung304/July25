@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
 status: green
-last_verified_date: 2025-09-16
-last_verified_commit: 29babce
-version: v0.4
+last_verified_date: 2025-09-15
+last_verified_commit: 257d71e
+version: v0.5
 ---
 
 # Voice System Current
@@ -34,6 +34,9 @@ version: v0.4
 - **No Dynamic Code Policy**: Browser environment restricts require() and eval() operations
 - **Event Whitelist Approach**: Only predefined OpenAI Realtime events are processed
 - **ESM-Safe Implementation**: All client-side voice code uses ES modules only
+- **SessionConfigNormalizer**: Clamps all session parameters to OpenAI Realtime API limits
+  - Temperature: 0.6-2.0 (employee default 0.7, customer default 0.85)
+  - Prevents "Invalid session.temperature" errors that block connections
 
 ## Customer Mode (As Implemented)
 
