@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
 status: red
-last_verified_date: 2025-01-15
-last_verified_commit: d912bd808deae3a11e5d9944031632097007a5f1
-version: v0.1
+last_verified_date: 2025-09-16
+last_verified_commit: 29babce
+version: v0.2
 ---
 
 # Baseline Reality
@@ -24,12 +24,20 @@ version: v0.1
 - **Server Behavior**: Sets `process.env.VOICE_MODE = 'server'` (realtime.routes.ts:59)
 - **No TTS**: `visualFeedbackOnly: true` in client config
 - **Direct to Kitchen**: Orders bypass payment gate if authenticated as staff role
+- **Browser Constraints**: ESM-safe code only, CommonJS require() not available
+- **Node-only Libraries**: Must remain server-side, cannot be bundled for browser
 
 ### Customer Mode
 - **Client Signal**: `mode: 'customer'` (default) in WebRTCVoiceConfig
 - **Server Behavior**: Sets `process.env.VOICE_MODE = 'customer'`
 - **Payment Required**: Orders require payment_token (**⚠️ ENFORCED server-side but client doesn't send tokens**)
 - **Full Voice**: TTS enabled for conversational ordering
+
+### Browser Runtime Limitations
+- **No Dynamic Imports**: require() function unavailable in browser context
+- **ESM Modules Only**: All client code must use import/export syntax
+- **Security Policy**: No eval() or dynamic code execution permitted
+- **Safe Event Parsing**: RealtimeGuards module provides secure message handling
 
 ## Authentication Posture
 

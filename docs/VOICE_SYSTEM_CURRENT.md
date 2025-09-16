@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
 status: green
-last_verified_date: 2025-01-15
-last_verified_commit: hardening/payments-lock-v1-20250115
-version: v0.3
+last_verified_date: 2025-09-16
+last_verified_commit: 29babce
+version: v0.4
 ---
 
 # Voice System Current
@@ -21,12 +21,19 @@ version: v0.3
 - Sets `mode: 'employee'` in WebRTCVoiceConfig
 - Sets `visualFeedbackOnly: true` (no TTS output)
 - UI shows visual transcript only
+- **Listen-only with safe parsing**: Uses RealtimeGuards module for secure event handling
 
 ### Server Side
 - Receives mode in session request body
 - Sets `process.env.VOICE_MODE = 'server'` (line 59 realtime.routes.ts)
 - No payment validation enforced
 - Orders go direct to kitchen if user has staff role
+
+### Security Architecture
+- **RealtimeGuards Module**: Provides safe event parsing without dynamic code execution
+- **No Dynamic Code Policy**: Browser environment restricts require() and eval() operations
+- **Event Whitelist Approach**: Only predefined OpenAI Realtime events are processed
+- **ESM-Safe Implementation**: All client-side voice code uses ES modules only
 
 ## Customer Mode (As Implemented)
 
