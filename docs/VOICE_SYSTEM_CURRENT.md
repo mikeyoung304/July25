@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
 status: green
-last_verified_date: 2025-09-15
-last_verified_commit: 257d71e
-version: v0.5
+last_verified_date: 2025-01-15
+last_verified_commit: 4e4549c
+version: v0.6
 ---
 
 # Voice System Current
@@ -37,6 +37,9 @@ version: v0.5
 - **SessionConfigNormalizer**: Clamps all session parameters to OpenAI Realtime API limits
   - Temperature: 0.6-2.0 (employee default 0.7, customer default 0.85)
   - Prevents "Invalid session.temperature" errors that block connections
+  - **Server-side normalizer**: Mirrors client validation on server
+  - **Environment overrides**: Supports VOICE_TEMPERATURE, VOICE_TOP_P, etc. (all clamped)
+  - **Restaurant overrides**: Per-venue customization via database settings
 
 ## Customer Mode (As Implemented)
 
@@ -103,3 +106,23 @@ The `/voice-test` page provides:
 - Transcript display
 - Connection status indicator
 - Manual push-to-talk option
+
+## Reliability Features (v0.6)
+
+### Reconnection & Error Handling
+- **Exponential backoff**: 200ms → 500ms → 1s → 2s → 5s (max 5 attempts)
+- **Mic permission errors**: Friendly UI with browser settings guidance
+- **Device change detection**: Auto-detect via navigator.mediaDevices.ondevicechange
+- **Network resilience**: Automatic reconnection on connection loss
+- **Provider errors**: 429/5xx handled with backoff and user notification
+
+### Observability
+- **Structured metrics**: voice.session.created/normalized/reconnect/fail events
+- **Latency tracking**: Connection establishment and time-to-first-transcript
+- **Session lifecycle**: Full tracking with unique session IDs
+- **PII-safe logging**: No sensitive data in metrics
+
+### CI Guards
+- **ESLint rules**: Ban require() and Node globals in client code
+- **Temperature validation**: Unit tests ensure defaults ≥ 0.6
+- **GitHub workflow**: Automated checks for client code safety

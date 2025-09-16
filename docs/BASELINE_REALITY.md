@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
 status: green
-last_verified_date: 2025-09-15
-last_verified_commit: 257d71e
-version: v0.3
+last_verified_date: 2025-01-15
+last_verified_commit: 4e4549c
+version: v0.4
 ---
 
 # Baseline Reality
@@ -39,6 +39,8 @@ version: v0.3
 - **Security Policy**: No eval() or dynamic code execution permitted
 - **Safe Event Parsing**: RealtimeGuards module provides secure message handling
 - **Session Normalization**: SessionConfigNormalizer ensures all parameters meet OpenAI Realtime API requirements (temperature ≥ 0.6)
+- **Server-side Normalizer**: Mirrors client-side validation, supports env/venue overrides
+- **CI Guards**: ESLint rules prevent require() in client, GitHub workflow validates
 
 ## Authentication Posture
 
@@ -83,3 +85,9 @@ The server includes transform logic to handle legacy snake_case fields:
 - Cart system unified to UnifiedCartContext (ADR-003)
 - Voice system consolidated to WebRTC only (ADR-004)
 - Authentication normalized (ADR-007)
+- Voice session hardening (2025-01-15):
+  - Server-side session normalizer with env/venue overrides
+  - Reconnection with exponential backoff
+  - Mic error handling with friendly UI
+  - Observability metrics for session lifecycle
+  - CI guards against require() in client code
