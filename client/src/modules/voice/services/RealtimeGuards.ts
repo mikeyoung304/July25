@@ -14,16 +14,24 @@ export const ALLOWED_TYPES = new Set([
   'response.output_text.delta',
   'response.function_call.arguments.delta',
   'response.function_call.completed',
+  'response.function_call_arguments.start',
+  'response.function_call_arguments.delta',
+  'response.function_call_arguments.done',
   'response.transcript.delta',
   'response.audio.delta',
   'response.audio.done',
   'response.audio_transcript.delta',
   'response.audio_transcript.done',
+  'response.output_item.added',
+  'response.output_item.done',
+  'response.content_part.added',
+  'response.content_part.done',
   'input_audio_buffer.speech_started',
   'input_audio_buffer.speech_stopped',
   'input_audio_buffer.committed',
   'input_audio_buffer.cleared',
   'conversation.item.created',
+  'conversation.item.input_audio_transcription.delta',
   'conversation.item.input_audio_transcription.completed',
   'conversation.item.input_audio_transcription.failed',
   'error',
@@ -43,6 +51,9 @@ export async function safeParseEvent(raw: any): Promise<any | null> {
       const text = await raw.text();
       msg = JSON.parse(text);
     } else if (raw instanceof ArrayBuffer) {
+      const text = new TextDecoder().decode(raw);
+      msg = JSON.parse(text);
+    } else if (raw instanceof Uint8Array) {
       const text = new TextDecoder().decode(raw);
       msg = JSON.parse(text);
     } else if (typeof raw === 'string') {
