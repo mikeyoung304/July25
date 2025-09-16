@@ -1,0 +1,16 @@
+Domain,Component,Test Coverage,Status,Priority,Notes
+Authentication,Login Flow,Partial,3 passing/1 failing,High,WebSocket auth token test failing
+Orders,OrderService,None,8/8 tests failing,Critical,All CRUD operations failing - API contract mismatch
+Orders,useOrderData Hook,33%,2 passing/4 failing,High,Data shape and filter mismatches
+Payment,PaymentMethodPicker,Unknown,Uses jest API,Medium,Needs jest->vi migration
+Payment,TipSelector,Unknown,Uses jest API,Medium,Needs jest->vi migration
+Payment,useTablePayment,Unknown,Uses jest API,Medium,Needs jest->vi migration
+Voice,HoldToRecordButton,0%,5/5 tests failing,Low,UI text and event handler issues
+Voice,RecordingIndicator,0%,Test file exists but component missing,High,Component deleted - remove test
+Voice,WebRTCVoiceClient,Partial,Build safety failing,Critical,Imports Node.js crypto module
+Kitchen,KDSOrderCard,0%,Component missing,High,Component moved/deleted - remove test
+UI Components,ElapsedTimer,0%,3/3 tests failing,Low,Timer format display issues
+Checkout,CheckoutPage Demo,0%,Missing demoAuth service,Medium,Demo file - consider removing
+Checkout,E2E Flow,0%,Component undefined error,High,Critical user flow broken
+Accessibility,Order System,0%,jest-axe not installed,Medium,Missing accessibility testing
+WebSocket,WebSocketService,93%,1/15 tests failing,Low,Auth token expectation issue

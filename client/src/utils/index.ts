@@ -7,6 +7,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// Exhaustiveness checking for switch statements
+export const assertNever = (x: never): never => {
+  throw new Error(`Unhandled case: ${JSON.stringify(x)}`)
+}
+
 // Validation utilities (simplified - only what's actually used)
 export const sanitizeInput = (input: string): string => {
   return input

@@ -1,0 +1,73 @@
+# Case Transformation Boundaries
+
+## CLIENT-SIDE BOUNDARIES
+
+### Primary Transform Utilities
+1. client/src/services/utils/caseTransform.ts
+   - toSnakeCase(): camelCase → snake_case (lines 24-58)
+   - toCamelCase(): snake_case → camelCase (lines 65-106)
+   - transformQueryParams(): Query param transformation (lines 124-135)
+
+2. client/src/services/websocket/WebSocketService.ts:174
+   - Outbound: toSnakeCase(message) before sending
+   - Inbound: No transformation (expects camelCase from server)
+
+## SERVER-SIDE BOUNDARIES
+
+### Primary Transform Utilities
+1. server/src/utils/case.ts
+   - toCamelCase(str): String transformation (line 9)
+   - toSnakeCase(str): String transformation (line 16)
+   - transformToCamelCase(obj): Object transformation (lines 40-67)
+
+2. server/src/dto/order.dto.ts
+   - transformLegacyOrderPayload(): Legacy field mapping (lines 51-116)
+   - validateCreateOrderDTO(): Transform then validate (lines 122-128)
+   - Field mappings defined at lines 55-64
+
+## TRANSFORMATION FLOW
+
+### REQUEST FLOW (Client → Server)
+1. Client prepares data in camelCase
+2. HttpClient/useApiRequest adds x-restaurant-id header
+3. WebSocket: toSnakeCase() applied
+4. HTTP: Sent as camelCase (expecting server to handle)
+5. Server DTO: transformLegacyOrderPayload() handles both formats
+6. Database: Stored as snake_case
+
+### RESPONSE FLOW (Server → Client)
+1. Database returns snake_case
+2. Server returns raw snake_case (no transformation)
+3. Client receives snake_case
+4. Client components expect snake_case (no transformation)
+
+## BOUNDARY VIOLATIONS (Ad-hoc transformations)
+
+1. client/src/services/orders/OrderService.ts:41
+   - Manual field mapping: `params.table_number = filters.tableNumber`
+
+2. client/src/services/orders/OrderService.ts:230-233
+   - Checking both formats: `item.id || item.menu_item_id`
+
+3. client/src/components/kitchen/OrderCard.tsx:102-106
+   - Direct snake_case field access: `order.customer_name`, `order.table_number`
+
+4. client/src/components/kitchen/TouchOptimizedOrderCard.tsx:153,184,187
+   - Direct snake_case field access without transformation
+
+5. client/src/contexts/UnifiedCartContext.tsx:71
+   - Triple fallback: `menuItemId || menuItem?.id || menu_item_id`
+
+## INCONSISTENCIES
+
+1. **Mixed Casing in Client**: Components use snake_case fields directly instead of transforming
+2. **No Server Response Transform**: Server returns snake_case, client expects snake_case
+3. **WebSocket vs HTTP**: WebSocket transforms, HTTP doesn't
+4. **Legacy Support**: Server accepts both formats but logs warnings
+
+## RECOMMENDATIONS
+
+1. **Single Transform Layer**: Apply transforms only at HTTP/WS boundaries
+2. **Consistent Internal Format**: Use camelCase internally in both client and server
+3. **Remove Ad-hoc Checks**: No field format guessing in business logic
+4. **Type Safety**: Use TypeScript discriminated unions for format variants

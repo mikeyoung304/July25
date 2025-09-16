@@ -1,0 +1,21 @@
+Component,Current Size,Load Strategy,Priority,Potential Savings,Notes
+FloorPlanCanvas,981 lines,Lazy on admin route,High,60KB,Only needed for restaurant layout editing
+FloorPlanEditor,939 lines,Lazy on admin route,High,60KB,Heavy component for floor management
+AuthContext,718 lines,Split auth flows,Medium,30KB,Could defer MFA and role management
+KioskCheckoutPage,678 lines,Already lazy,Low,0KB,Properly split already
+VoiceControlWebRTC,636 lines,On-demand activation,High,62KB,Load when voice button clicked
+VoiceOrderingMode,570 lines,Already lazy with kiosk,Low,0KB,Part of kiosk bundle
+ui-animation-chunk,77KB total,Defer animations,Medium,77KB,Load after TTI
+supabase-client,55KB,Split by feature,Medium,30KB,Only auth needed at start
+analytics-chunk,37KB,Defer tracking,Low,37KB,Load after user interaction
+SquarePaymentForm,308 lines,Load at checkout,High,20KB,Payment SDK heavy
+PaymentMethodPicker,295 lines,Load at checkout,Medium,15KB,Part of payment flow
+StationStatusBar,368 lines,With KDS route,Low,10KB,Already in lazy route
+TableGroupCard,342 lines,With KDS route,Low,10KB,Kitchen display component
+VoiceDebugPanel,269 lines,Dev only,High,15KB,Should not be in prod build
+MockDataBanner,Unknown,Dev only,High,5KB,Remove from production
+ErrorBoundary.test,269 lines,Test file,Critical,10KB,Should not be in bundle
+framer-motion,Full import,Tree-shake,High,40KB,Import only needed components
+lucide-react,Full import,Tree-shake,Medium,30KB,Import specific icons
+react-window,Virtualization,Already optimal,Low,0KB,Good for long lists
+web-vitals,Monitoring,Defer loading,Low,5KB,Load after main app

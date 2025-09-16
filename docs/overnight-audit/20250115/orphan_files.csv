@@ -1,0 +1,42 @@
+path,evidence,confidence,suggested_action
+client/src/api/normalize.ts,Not imported anywhere + exports unused,high,Delete - functionality likely moved to server/normalize
+client/src/components/auth/DevAuthOverlay.tsx,Not imported + export unused,high,Delete - dev tool no longer needed
+client/src/components/auth/withProtectedRoute.tsx,Not imported + export unused,high,Delete - replaced by ProtectedRoute component
+client/src/components/errors/AppErrorBoundary.tsx,Not imported + duplicate in UnifiedErrorBoundary,high,Delete - consolidated into UnifiedErrorBoundary
+client/src/components/errors/KitchenErrorBoundary.tsx,Not imported + duplicate in UnifiedErrorBoundary,high,Delete - consolidated into UnifiedErrorBoundary
+client/src/components/errors/WebSocketErrorBoundary.tsx,Not imported + export unused,high,Delete - error handling moved elsewhere
+client/src/components/kiosk/accessibility.ts,Not imported + all exports unused,high,Review - may be needed for ADA compliance
+client/src/components/layout/Navigation.tsx,Not imported anywhere,high,Delete - replaced by newer navigation components
+client/src/components/navigation/FloatingDashboardButton.tsx,Not imported anywhere,high,Delete - UI pattern not used
+client/src/components/settings/SquareTerminalConfig.tsx,Not imported anywhere,high,Review - may be needed for Square integration
+client/src/components/shared/display/OrderIdentifiers.tsx,Not imported anywhere,medium,Review - may be used by dynamic imports
+client/src/components/shared/lists/VirtualizedOrderList.tsx,Not imported anywhere,high,Delete - performance optimization not implemented
+client/src/components/ui/NavigationCard.tsx,Not imported anywhere,high,Delete - UI component not used
+client/src/components/ui/PageHeader.tsx,Not imported anywhere,high,Delete - replaced by page-specific headers
+client/src/components/ui/PageLayout.tsx,Not imported anywhere,high,Delete - layout handled differently
+client/src/components/ui/SkipNavigation.tsx,Not imported anywhere,medium,Keep - accessibility feature (may be needed)
+client/src/components/ui/Typography.helpers.ts,Not imported anywhere,high,Delete - typography utilities not used
+client/src/components/ui/label.tsx,Not imported anywhere,high,Delete - using different label component
+client/src/constants/stations.ts,Not imported anywhere,high,Delete - station config in types/station.ts
+client/src/contexts/auth.index.ts,Not imported anywhere,high,Delete - barrel export not used
+client/src/core/api/unifiedApiClient.ts,Not imported anywhere,high,Delete - replaced by hooks/useApiRequest
+client/src/hooks/kiosk/useOrderSubmission.ts,Not imported anywhere,high,Delete - kiosk uses different submission
+client/src/hooks/useAudioAlerts.ts,Not imported anywhere,medium,Review - may be needed for kitchen alerts
+client/src/hooks/useAuth.ts,Not imported anywhere,high,Delete - using auth.hooks.ts instead
+client/src/hooks/useErrorHandler.ts,Not imported anywhere,high,Delete - error handling in error boundaries
+client/src/hooks/useFocusManagement.ts,Not imported anywhere,medium,Review - accessibility feature
+client/src/hooks/useModal.ts,Not imported anywhere,medium,Review - mentioned in CLAUDE.md as DRY utility
+client/src/hooks/useOfflineQueue.ts,Not imported anywhere,medium,Keep - needed for offline support
+client/src/hooks/useOrderFilters.ts,Not imported anywhere,high,Delete - filtering handled in components
+client/src/modules/cart/components/CartItemList.tsx,Not imported anywhere,high,Review - may be lazy loaded
+client/src/modules/voice/components/VoiceActivityIndicator.tsx,Not imported anywhere,medium,Review - may be used in voice UI
+client/src/modules/voice/hooks/useVoiceCommands.ts,Not imported anywhere,high,Delete - voice uses WebRTC now
+client/src/services/auth/authAdapter.ts,Not imported anywhere,high,Delete - auth consolidated
+client/src/services/stationRouting.ts,Uses STATION_CONFIG but not imported,medium,Review - may be dynamically imported
+client/src/types/common.ts,Not directly imported,low,Keep - likely used via index exports
+client/src/types/filters.ts,Not directly imported,low,Keep - likely used via index exports
+client/src/utils/accessibility.ts,Not imported anywhere,medium,Review - ADA compliance utilities
+client/src/utils/orderValidation.ts,Not imported anywhere,high,Delete - validation in server
+server/src/services/auth/tokenManager.ts,Not imported anywhere,high,Review - may be used for JWT management
+server/src/services/cache/restaurantCache.ts,Not imported anywhere,high,Delete - caching handled differently
+shared/utils/cleanup-manager.ts,Not imported (mentioned in CLAUDE.md),medium,Review - memory management utility

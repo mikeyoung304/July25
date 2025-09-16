@@ -1,0 +1,85 @@
+# Cold Start Import Analysis
+# Critical Path Dependencies Loaded at Application Start
+
+## Main Entry Point (main.tsx)
+1. react - Core framework (required)
+2. react-dom/client - Rendering (required)
+3. @/services/logger - Logging utility (5KB)
+4. @/services/monitoring/localStorage-manager - Storage management (3KB)
+5. ./App.tsx - Main application component
+
+## App.tsx Critical Imports (Loaded Immediately)
+### Required Core
+1. react - Already loaded
+2. react-router-dom - Routing (31KB chunk)
+
+### Providers Loaded at Start (Could be deferred)
+3. @/core (RestaurantProvider) - Restaurant context
+4. @/services/http (RestaurantIdProvider) - HTTP context
+5. @/contexts/AuthContext - Authentication (57KB with Supabase)
+6. @/contexts/RoleContext - Role management
+7. @/contexts/UnifiedCartContext - Cart state
+
+### Services Loaded at Start (Heavy)
+8. @/services/monitoring/performance - Performance tracking (could defer)
+9. @/services/websocket - WebSocket service (included in main)
+10. @/services/websocket/ConnectionManager - Connection management
+11. @/core/supabase - Supabase client (55KB)
+
+### UI Components at Start
+12. @/components/shared/errors/ErrorBoundary - Error handling (required)
+13. @/components/errors/GlobalErrorBoundary - Global errors (required)
+14. @/components/layout/AppContent - Layout shell
+15. @/pages/SplashScreen - Splash screen (could inline)
+16. @/pages/SetupRequiredScreen - Setup screen (defer)
+17. @/components/MockDataBanner - Dev only (REMOVE from prod)
+
+## Heavy Dependencies Impact
+| Import | Size | Load Time | Deferrable |
+|--------|------|-----------|------------|
+| Supabase (auth + client) | 112KB | Blocking | After splash |
+| WebSocket services | ~40KB | Blocking | On first use |
+| Performance monitoring | ~10KB | Blocking | After TTI |
+| All Context Providers | ~30KB | Blocking | Some deferrable |
+| Error Boundaries | ~15KB | Required | No |
+| Dev Components | ~20KB | Blocking | Remove from prod |
+
+## Optimization Strategy
+
+### Phase 1: Quick Wins (Save ~50KB)
+1. Remove MockDataBanner from production build
+2. Remove test files from bundle (ErrorBoundary.test.tsx)
+3. Defer SetupRequiredScreen (lazy load)
+4. Move performance monitoring to web worker
+
+### Phase 2: Provider Optimization (Save ~40KB)
+1. Split AuthContext - basic auth vs. full features
+2. Lazy load role management for non-authenticated users
+3. Defer cart context until first product interaction
+4. Move restaurant context to route level
+
+### Phase 3: Service Workers (Save ~100KB)
+1. Move WebSocket to SharedWorker
+2. Background sync for order updates
+3. Defer Supabase real-time subscriptions
+4. Cache authentication state
+
+## Critical Path Optimized
+```
+main.tsx (5KB)
+  → React core (required)
+  → Minimal App shell (10KB)
+    → Router (lazy routes)
+    → Error boundaries only
+    → Splash screen (inline CSS)
+  → Progressive enhancement
+    → Auth (on demand)
+    → WebSocket (on first order)
+    → Monitoring (after interaction)
+```
+
+## Estimated Cold Start Improvement
+- Current: ~400KB blocking JS
+- Optimized: ~150KB blocking JS
+- Savings: 62% reduction in initial parse
+- TTI improvement: ~1.5 seconds on 3G

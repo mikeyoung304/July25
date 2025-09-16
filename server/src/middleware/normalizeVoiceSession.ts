@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
 import { normalizeSessionConfig, SessionConfig, PROVIDER_LIMITS } from '../voice/sessionLimits';
 import { RestaurantService } from '../services/restaurant.service';
-import { voiceMetrics, measureTimeAsync } from '../../shared/utils/voice-metrics';
+import { voiceMetrics, measureTimeAsync } from '../../../shared/utils/voice-metrics';
 
 export interface VoiceSessionRequest extends Request {
   voiceSessionConfig?: Required<SessionConfig>;

@@ -1,0 +1,31 @@
+dependency,type,confidence,notes
+@radix-ui/react-tooltip,production,high,UI component library tooltip - no imports found in codebase
+zod,production,high,Schema validation library - may be indirectly used via supabase
+@opentelemetry/api,dev,high,Observability - no imports found
+@opentelemetry/instrumentation-express,dev,high,Observability - no imports found
+@opentelemetry/instrumentation-http,dev,high,Observability - no imports found
+@opentelemetry/sdk-node,dev,high,Observability - no imports found
+lint-staged,dev,medium,Pre-commit hooks - may be used in husky config
+terser,dev,medium,JS minification - may be used by build process
+@apidevtools/json-schema-ref-parser,extraneous,high,OpenAPI tools - not in package.json
+@apidevtools/swagger-parser,extraneous,high,OpenAPI tools - not in package.json
+@commitlint/*,extraneous,high,21 packages - commit linting not configured
+@cyanheads/git-mcp-server,extraneous,high,MCP server - not in dependencies
+@modelcontextprotocol/*,extraneous,high,MCP packages - not in dependencies
+@hono/node-server,extraneous,high,Hono framework - not used
+hono,extraneous,high,Web framework - project uses Express
+tiktoken,extraneous,high,OpenAI tokenizer - not used
+openai,extraneous,medium,OpenAI SDK - may be used indirectly
+sharp,extraneous,medium,Image processing - may be used for blur placeholders
+sanitize-html,extraneous,high,HTML sanitizer - not imported
+xss,extraneous,high,XSS filter - not imported
+validator,extraneous,high,Validation library - not imported
+chrono-node,extraneous,high,Date parser - not imported
+dayjs,extraneous,medium,Date library - project uses date-fns
+deepmerge,extraneous,high,Object merging - not imported
+eventsource-parser,extraneous,high,SSE parser - not imported
+jose,extraneous,medium,JWT library - may be used for auth
+lodash.*,extraneous,high,6 lodash modules - project doesn't use lodash
+npm-run-all,extraneous,medium,Script runner - may be in scripts
+cross-env,extraneous,medium,Env vars - may be in scripts
+supabase-mcp,extraneous,high,Supabase MCP - not in dependencies

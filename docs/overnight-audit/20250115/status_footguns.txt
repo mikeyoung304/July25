@@ -1,0 +1,129 @@
+KDS STATUS HANDLING FOOTGUNS & DANGEROUS PATTERNS
+=================================================
+
+1. MISSING DEFAULT CASES (Runtime Errors)
+------------------------------------------
+PATTERN: switch(order.status) { /* cases */ }  // NO DEFAULT!
+DANGER: Any unexpected status value = unhandled case = potential crash
+FOUND IN:
+- StationStatusBar.tsx:137
+- useTableGrouping.tsx:87
+- useTableGrouping.tsx:248
+
+FIX:
+```
+switch(order.status) {
+  // ... cases
+  default:
+    console.error(`Unhandled status: ${order.status}`)
+    // safe fallback behavior
+}
+```
+
+2. VALIDATION SCHEMA MISMATCHES
+--------------------------------
+PATTERN: Different status lists in different validators
+DANGER: Orders valid in one part of system, invalid in another
+FOUND IN:
+- shared/types/validation.ts:92 - Missing 'new' in Zod
+- server/src/models/order.model.ts:45 - Missing 'new', 'confirmed' in Joi
+- server/src/dto/order.dto.ts:134 - Has all 7 (correct)
+
+FIX: Create single source of truth:
+```
+export const ORDER_STATUSES = [...] as const
+// Use everywhere: z.enum(ORDER_STATUSES)
+```
+
+3. SILENT FAILURES IN COUNTING/METRICS
+---------------------------------------
+PATTERN: Missing status cases in aggregation logic
+DANGER: Orders silently excluded from counts/metrics
+FOUND IN:
+- StationStatusBar.tsx - cancelled orders ignored
+- useTableGrouping.tsx - new/pending/cancelled not counted
+
+FIX: Always handle all statuses explicitly in metrics:
+```
+let unknownCount = 0
+switch(status) {
+  // all cases...
+  default:
+    unknownCount++
+    logger.warn('Unknown status in metrics')
+}
+```
+
+4. NORMALIZATION MASKING ISSUES
+--------------------------------
+PATTERN: normalizeOrderStatus() with aggressive defaults
+DANGER: Bad data gets normalized to 'new', hiding problems
+FOUND IN:
+- client/src/types/unified-order.ts:90
+
+BETTER APPROACH:
+```
+function normalizeOrderStatus(status: string): OrderStatus | null {
+  // normalize...
+  if (!isValid) {
+    logger.error(`Invalid status: ${status}`)
+    return null  // Force handling upstream
+  }
+}
+```
+
+5. INCOMPLETE STATE MACHINE TRANSITIONS
+----------------------------------------
+PATTERN: Not all statuses have defined next states
+DANGER: UI shows no actions for certain statuses
+FOUND IN:
+- OrderActionsBar.tsx - no actions for pending/confirmed
+
+FIX: Define complete transition map or explicitly handle "no action" states
+
+6. TYPE NARROWING ASSUMPTIONS
+------------------------------
+PATTERN: Assuming order.status is always valid OrderStatus
+DANGER: Runtime data might not match TypeScript types
+FOUND: Throughout codebase
+
+FIX: Runtime validation at API boundaries:
+```
+if (!isValidOrderStatus(order.status)) {
+  throw new Error(`Invalid status: ${order.status}`)
+}
+```
+
+7. MISSING CANCELLED HANDLING
+------------------------------
+PATTERN: Forgetting cancelled is a valid status
+DANGER: Cancelled orders stay visible/active
+FOUND IN: Multiple locations
+
+FIX: Always consider cancelled in:
+- Filters
+- Counts
+- Display logic
+- State transitions
+
+PREVENTION CHECKLIST
+====================
+□ Use exhaustive switch with default case
+□ Single source of truth for status enum
+□ Runtime validation at API boundaries
+□ Test with all 7 statuses explicitly
+□ Log/monitor unhandled cases
+□ Use TypeScript exhaustiveness checking:
+
+```typescript
+function assertNever(x: never): never {
+  throw new Error(`Unexpected: ${x}`)
+}
+
+switch(status) {
+  case 'new': //...
+  // all cases...
+  default:
+    assertNever(status) // TS error if case missing
+}
+```

@@ -1,0 +1,79 @@
+# Orphan Documentation Files
+# Files with no apparent inbound references from code or other docs
+# Generated: 2025-01-15
+
+## High Priority Orphans (Active docs with no references)
+docs/admin/chip-monkey-database-workaround.md
+docs/admin/floor-plan-chip-monkey.md
+docs/voice/METRICS.md
+docs/voice/RESTAURANT_VOICE_CONFIG_IMPLEMENTATION.md
+docs/voice/restaurant-voice-config.md
+docs/voice/VOICE_ORDER_FLOW_FIX.md
+docs/voice/VOICE_ORDERING_EXPLAINED.md
+docs/api/API-REFERENCE.md
+docs/api/README.md
+docs/architecture/README.md
+docs/analysis/* (entire directory appears unused)
+
+## Archive Orphans (Superseded/Outdated - Less Critical)
+docs/archive/2025-01-26/superseded/* (47 files)
+docs/archive/2025-01-26/outdated/* (14 files)
+docs/archive/2025-01-26/planning/* (5 files)
+docs/archive/2025-01-30/* (11 files)
+docs/archive/2025-09-10-cleanup/* (12 files)
+docs/archive/2025-09-10/2025-09-01-pre-cleanup/* (3 files)
+docs/archive/2025-09-10/2025-09-02/* (14 files)
+docs/archive/2025-09-10/2025-09-06-aspirational/* (1 file)
+docs/archive/2025-09-10/2025-09-09/* (3 files)
+docs/archive/2025-09-10/reports/* (multiple subdirectories, 30+ files)
+docs/archive/2025-09-10/teaching/agents/* (8 files)
+docs/archive/2025-09-15/* (42 files)
+docs/archive/2025-09-15/plan/* (1 file)
+docs/archive/2025-09-15/reports/* (1 file)
+docs/archive/2025-09-15/websockets/* (1 file)
+docs/archive/completed-features/* (2 files)
+
+## Potentially Referenced (Need Verification)
+docs/AUTHENTICATION_MASTER.md (likely referenced by auth code)
+docs/BASELINE_REALITY.md (may be referenced in CLAUDE.md)
+docs/CRITICAL_WARNINGS.md (may be system-critical)
+docs/DOCS_INDEX.md (meta-documentation)
+docs/ORDER_FLOW.md (likely referenced by order processing)
+docs/VOICE_SYSTEM_CURRENT.md (likely referenced by voice system)
+docs/ACTUAL_DEPLOYMENT.md (deployment reference)
+
+## ADR Files (Should be linked from architecture docs)
+docs/ADR/ADR-001-authentication.md
+docs/ADR/ADR-002-unified-backend.md
+docs/ADR/ADR-003-cart-unification.md
+docs/ADR/ADR-004-voice-system-consolidation.md
+docs/ADR/ADR-007-order-status-alignment.md
+docs/ADR/ADR-007-unified-auth-normalization.md (DUPLICATE NUMBER)
+
+## Recently Created (May not have references yet)
+docs/buglogs/voice-guard/20250915/*
+docs/buglogs/voice-session-config/20250915/*
+docs/buglogs/voice-require/*
+docs/reality-audit/2025-01-15/*
+
+## Module-Specific Orphans
+client/dist/ignition-animation/README.md
+client/public/ignition-animation/README.md
+server/src/routes/docs/reports/overnight/env_presence.md
+
+## Root-Level Orphans
+artifacts/aa-20250113-final/PRODUCTION_READINESS_FINAL.md
+
+## Summary Statistics
+- Total Orphan Files: ~250+
+- Active Orphans (non-archive): ~30
+- Archive Orphans: ~220+
+- Critical Orphans: ~10-15 (active documentation with no clear references)
+
+## Recommendations
+1. Archive directory consolidation - too many nested archive levels
+2. Remove duplicate ADR-007 files
+3. Link ADR files from main architecture docs
+4. Clean up superseded/outdated archives (>90 days old)
+5. Create index file linking to voice documentation
+6. Remove or link admin "chip-monkey" workaround docs

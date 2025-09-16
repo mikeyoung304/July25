@@ -1,0 +1,21 @@
+dependency,required_by,confidence,notes
+jsonwebtoken,tests/test-auth-flow.cjs,high,Used in test scripts but not in package.json
+jsonwebtoken,scripts/validate-auth-fixes.cjs,high,Used in validation scripts
+jsonwebtoken,scripts/verify-tenancy-and-cache.cjs,high,Used in verification scripts
+supertest,tests/server/ai.routes.test.ts,high,Used in server tests but not installed
+express,tests/server/ai.routes.test.ts,medium,May be installed as server dependency
+vitest,tests/server/*.test.ts,medium,Test runner - may be installed but version mismatch
+react,tests/e2e/*.test.tsx,low,Likely installed as client dependency
+@testing-library/react,tests/e2e/*.test.tsx,high,Test library not in dependencies
+@testing-library/user-event,tests/e2e/*.test.tsx,high,Test library not in dependencies
+react-router-dom,tests/e2e/*.test.tsx,low,Likely installed as client dependency
+react-hot-toast,tests/e2e/*.test.tsx,low,Likely installed as client dependency
+@supabase/supabase-js,scripts/*.ts,low,Likely installed in project
+webpack-bundle-analyzer,scripts/analyze-bundle.ts,high,Analysis tool not installed
+chalk,scripts/check-bundle-size.js,high,CLI color library not installed
+pg,scripts/check-rls-status.cjs,high,PostgreSQL driver not installed
+glob,scripts/cleanup-console-logs.ts,medium,May be installed globally
+sharp,scripts/generate-blur-placeholders.js,medium,Image processing library
+axios,scripts/validate-auth-fixes.cjs,medium,HTTP client library
+colors,scripts/validate-auth-fixes.cjs,high,CLI color library not installed
+k6,scripts/load-test/*.ts,high,Load testing framework not installed

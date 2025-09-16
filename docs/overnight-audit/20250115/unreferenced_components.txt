@@ -1,0 +1,92 @@
+# Unreferenced Components Report
+# Generated: 2025-01-15
+
+## Test Files for Deleted Components
+These test files reference components that no longer exist:
+
+1. tests/e2e/floor-plan-chip-monkey.e2e.test.tsx
+   - Component missing: Floor plan feature removed/renamed
+   - Action: Delete test file
+
+2. tests/e2e/floor-plan-management.e2e.test.tsx
+   - Component missing: Floor plan management not implemented
+   - Action: Delete test file
+
+3. tests/voice-control.e2e.test.ts
+   - Component outdated: Tests legacy voice implementation
+   - Action: Update to test WebRTCVoiceClient
+
+## Components Not Used Anywhere
+
+### Authentication/Security
+- client/src/components/auth/DevAuthOverlay.tsx
+- client/src/components/auth/withProtectedRoute.tsx
+- client/src/services/auth/authAdapter.ts
+
+### Error Handling (Duplicates)
+- client/src/components/errors/AppErrorBoundary.tsx
+- client/src/components/errors/KitchenErrorBoundary.tsx
+- client/src/components/errors/WebSocketErrorBoundary.tsx
+
+### UI Components
+- client/src/components/layout/Navigation.tsx
+- client/src/components/navigation/FloatingDashboardButton.tsx
+- client/src/components/ui/NavigationCard.tsx
+- client/src/components/ui/PageHeader.tsx
+- client/src/components/ui/PageLayout.tsx
+- client/src/components/ui/label.tsx
+
+### Kiosk Features
+- client/src/components/kiosk/accessibility.ts (entire module)
+- client/src/hooks/kiosk/useOrderSubmission.ts
+
+### Voice Features (Legacy)
+- client/src/modules/voice/hooks/useVoiceCommands.ts
+- client/src/modules/voice/services/voiceRecognition.ts (if exists)
+
+### Utilities
+- client/src/components/ui/Typography.helpers.ts
+- client/src/utils/orderValidation.ts
+- client/src/api/normalize.ts
+
+### Hooks
+- client/src/hooks/useAuth.ts (duplicate of auth.hooks.ts)
+- client/src/hooks/useErrorHandler.ts
+- client/src/hooks/useOrderFilters.ts
+
+## Components Referenced in CLAUDE.md but Not Found
+
+### DRY Utilities Mentioned
+✓ useApiRequest - EXISTS (client/src/hooks/useApiRequest.ts)
+✓ useFormValidation - EXISTS (client/src/utils/validation.ts)
+? useModal - EXISTS but UNUSED (client/src/hooks/useModal.ts)
+✓ PaymentErrorBoundary - EXISTS (client/src/components/errors/PaymentErrorBoundary.tsx)
+✓ UnifiedCartContext - EXISTS (client/src/contexts/UnifiedCartContext.tsx)
+? cleanup-manager - NOT FOUND in shared/utils/
+
+## Duplicate Implementations
+
+1. Error Boundaries (3 duplicates + 1 unified)
+   - Keep: UnifiedErrorBoundary
+   - Delete: AppErrorBoundary, KitchenErrorBoundary, WebSocketErrorBoundary
+
+2. Auth Hooks (2 versions)
+   - Keep: auth.hooks.ts
+   - Delete: useAuth.ts
+
+3. Station Configuration (2 locations)
+   - Keep: types/station.ts (has STATION_CONFIG)
+   - Delete: constants/stations.ts
+
+## Size Impact Estimate
+- Potential reduction: ~40 files
+- Estimated size savings: 150-200KB unminified
+- Build time improvement: 5-10% faster
+
+## Priority Actions
+1. Delete test files for non-existent components (3 files)
+2. Remove duplicate error boundaries (3 files)
+3. Delete unused kiosk accessibility module (1 file)
+4. Remove legacy voice components (2+ files)
+5. Clean up unused hooks (6 files)
+6. Delete orphaned UI components (6 files)

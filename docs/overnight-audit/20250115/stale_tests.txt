@@ -1,0 +1,26 @@
+# Stale Test Files
+# Tests for components that no longer exist or have been moved
+
+## Tests to Remove (Component Deleted)
+client/src/pages/__tests__/CheckoutPage.demo.test.tsx - imports non-existent @/services/auth/demoAuth
+client/src/modules/voice/components/RecordingIndicator.test.tsx - component file missing (only test exists)
+client/src/modules/kitchen/components/__tests__/KDSOrderCard.test.tsx - imports non-existent @/components/orders/KDSOrderCard
+client/src/modules/orders/components/__tests__/OrderCard.test.tsx - imports non-existent ../OrderCard/OrderCard
+
+## Tests Needing Dependency Updates
+client/src/modules/order-system/__tests__/accessibility.test.tsx - requires jest-axe package
+client/src/modules/voice/services/orderIntegration.integration.test.tsx - missing shared/utils/voice-metrics
+
+## Tests with Jest API Usage (Need Migration)
+client/src/modules/payment/components/__tests__/PaymentMethodPicker.test.tsx
+client/src/modules/payment/components/__tests__/TipSelector.test.tsx
+client/src/modules/payment/hooks/__tests__/useTablePayment.test.ts
+
+## Build Safety Violation
+client/src/hooks/kiosk/useKioskOrderSubmission.ts:4 - imports Node.js 'crypto' module (will break browser builds)
+
+## Summary
+- 4 test files should be deleted (testing non-existent components)
+- 2 test files need missing dependencies
+- 3 test files need jest->vi API migration
+- 1 source file has Node.js import that breaks client build

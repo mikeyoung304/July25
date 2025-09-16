@@ -1,0 +1,8 @@
+File,Line,Function/Component,Missing Statuses,Has Default,Severity
+client/src/components/kitchen/StationStatusBar.tsx,137-150,calculateStationStatuses,cancelled,NO,HIGH
+client/src/hooks/useTableGrouping.tsx,87-98,useTableGrouping (item status),"new, pending, cancelled",NO,HIGH
+client/src/hooks/useTableGrouping.tsx,248-261,useTableGrouping (group status),N/A (table group status),NO,MEDIUM
+client/src/modules/orders/components/OrderActions/OrderActionsBar.tsx,21-30,getNextStatus,"pending, confirmed, completed, cancelled (implicit)",YES,LOW
+shared/types/validation.ts,92,CommonSchemas.orderStatus,new,N/A,CRITICAL
+server/src/models/order.model.ts,45,orderSchema,"new, confirmed",N/A,CRITICAL
+client/src/pages/KitchenDisplayOptimized.tsx,86-99,statusFilter switch,N/A (filter not status),NO,LOW

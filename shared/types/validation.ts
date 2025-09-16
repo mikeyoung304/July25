@@ -89,7 +89,7 @@ export const CommonSchemas = {
   zIndex: z.number().int().min(0).max(9999),
   
   // Status enums
-  orderStatus: z.enum(['pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled']),
+  orderStatus: z.enum(['new', 'pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled']),
   orderType: z.enum(['dine-in', 'takeout', 'delivery']),
   paymentStatus: z.enum(['pending', 'processing', 'completed', 'failed', 'refunded']),
   tableStatus: z.enum(['available', 'occupied', 'reserved', 'cleaning']),

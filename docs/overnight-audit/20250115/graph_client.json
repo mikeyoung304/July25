@@ -1,0 +1,2727 @@
+{
+  "vite.config.ORIGINAL.ts": [
+    "external:vite",
+    "external:@vitejs/plugin-react",
+    "external:path",
+    "external:rollup-plugin-visualizer",
+    "external:vite",
+    "external:@vitejs/plugin-react",
+    "external:path",
+    "external:rollup-plugin-visualizer"
+  ],
+  "vite.config.backup.ts": [
+    "external:vite",
+    "external:@vitejs/plugin-react",
+    "external:path",
+    "external:rollup-plugin-visualizer",
+    "external:vite",
+    "external:@vitejs/plugin-react",
+    "external:path",
+    "external:rollup-plugin-visualizer"
+  ],
+  "vite.config.ts": [
+    "external:vite",
+    "external:@vitejs/plugin-react",
+    "external:path",
+    "external:rollup-plugin-visualizer",
+    "external:vite",
+    "external:@vitejs/plugin-react",
+    "external:path",
+    "external:rollup-plugin-visualizer"
+  ],
+  "vitest.config.ts": [
+    "external:vite",
+    "external:@vitejs/plugin-react",
+    "external:path",
+    "external:vite",
+    "external:@vitejs/plugin-react",
+    "external:path"
+  ],
+  "test/setup.ts": [
+    "external:@testing-library/jest-dom",
+    "external:@testing-library/react",
+    "external:vitest",
+    "external:@testing-library/react",
+    "external:vitest"
+  ],
+  "test/utils/memory-monitor.ts": [],
+  "test/utils/index.ts": [
+    "test/utils/memory-monitor"
+  ],
+  "src/vite-env.d.ts": [],
+  "src/types/filters.ts": [
+    "src/types/station",
+    "external:@rebuild/shared",
+    "src/types/station",
+    "external:@rebuild/shared"
+  ],
+  "src/types/table.ts": [],
+  "src/types/common.ts": [
+    "external:@rebuild/shared",
+    "external:@rebuild/shared",
+    "src/types/filters",
+    "src/types/station"
+  ],
+  "src/types/restaurant.ts": [],
+  "src/types/station.ts": [],
+  "src/types/unified-order.ts": [],
+  "src/contexts/cart.hooks.ts": [
+    "external:react",
+    "src/contexts/UnifiedCartContext",
+    "external:react",
+    "src/contexts/UnifiedCartContext"
+  ],
+  "src/contexts/auth.hooks.ts": [
+    "external:react",
+    "src/contexts/AuthContext",
+    "external:react",
+    "src/contexts/AuthContext"
+  ],
+  "src/contexts/auth.index.ts": [
+    "src/contexts/AuthContext",
+    "src/contexts/auth.hooks"
+  ],
+  "src/core/restaurant-hooks.ts": [
+    "external:react",
+    "src/services/logger",
+    "src/core/restaurant-types",
+    "external:react",
+    "src/services/logger",
+    "src/core/restaurant-types"
+  ],
+  "src/core/restaurant-types.ts": [
+    "external:react",
+    "src/services/logger",
+    "external:react",
+    "src/services/logger"
+  ],
+  "src/core/index.ts": [
+    "src/core/restaurant-types",
+    "src/core/RestaurantContext",
+    "src/core/restaurant-hooks"
+  ],
+  "src/core/supabase.ts": [
+    "external:@supabase/supabase-js",
+    "src/utils/env",
+    "external:@supabase/supabase-js",
+    "src/utils/env"
+  ],
+  "src/core/api/unifiedApiClient.ts": [
+    "src/core/supabase",
+    "src/services/logger",
+    "src/core/supabase",
+    "src/services/logger"
+  ],
+  "src/test/setup.ts": [
+    "external:@testing-library/jest-dom",
+    "external:vitest",
+    "external:util",
+    "external:vitest",
+    "external:util"
+  ],
+  "src/constants/stations.ts": [],
+  "src/utils/validation.ts": [
+    "external:react",
+    "external:react"
+  ],
+  "src/utils/orderStatusValidation.ts": [
+    "external:@rebuild/shared",
+    "external:@rebuild/shared"
+  ],
+  "src/utils/motion.ts": [
+    "external:framer-motion",
+    "external:framer-motion"
+  ],
+  "src/utils/logger.ts": [],
+  "src/utils/index.ts": [
+    "external:clsx",
+    "external:tailwind-merge",
+    "external:clsx",
+    "external:tailwind-merge"
+  ],
+  "src/utils/env.ts": [],
+  "src/components/ui/Typography.helpers.ts": [
+    "src/components/ui/Typography"
+  ],
+  "src/components/layout/BrandHeaderPresets.ts": [],
+  "src/components/shared/index.ts": [
+    "src/components/shared/LoadingSpinner",
+    "src/components/shared/LoadingSpinner",
+    "src/components/shared/EmptyState",
+    "src/components/shared/EmptyState",
+    "src/components/shared/ErrorDisplay",
+    "src/components/shared/ErrorDisplay",
+    "src/components/shared/IconButton",
+    "src/components/shared/IconButton",
+    "src/components/shared/badges",
+    "src/components/shared/buttons/StatusActionButton",
+    "src/components/shared/controls/SoundControl",
+    "src/components/shared/errors/ErrorBoundary",
+    "src/components/shared/filters/SortControl",
+    "src/components/shared/inputs/DateRangePicker",
+    "src/components/shared/lists/OrderItemRow",
+    "src/components/shared/timers/ElapsedTimer",
+    "src/components/shared/accessibility/SkipNavigation",
+    "src/components/shared/debug/PerformanceOverlay"
+  ],
+  "src/components/voice/index.ts": [],
+  "src/components/kiosk/accessibility.ts": [],
+  "src/components/orders/index.ts": [
+    "src/components/kitchen/OrderCard",
+    "src/components/kitchen/OrderCard"
+  ],
+  "src/hooks/useKitchenOrdersRealtime.ts": [
+    "external:react",
+    "src/core",
+    "src/services/websocket",
+    "src/services/websocket/ConnectionManager",
+    "src/services/api",
+    "src/modules/orders/hooks/useOrderActions",
+    "external:@rebuild/shared",
+    "external:react",
+    "src/core",
+    "src/services/websocket",
+    "src/services/websocket/ConnectionManager",
+    "src/services/api",
+    "src/modules/orders/hooks/useOrderActions",
+    "external:@rebuild/shared"
+  ],
+  "src/hooks/useSquareTerminal.ts": [
+    "external:react",
+    "src/hooks/useApiRequest",
+    "src/hooks/useToast",
+    "external:react",
+    "src/hooks/useApiRequest",
+    "src/hooks/useToast"
+  ],
+  "src/hooks/useApiRequest.ts": [
+    "external:react",
+    "src/core/restaurant-hooks",
+    "src/hooks/useAsyncState",
+    "src/core/supabase",
+    "external:react",
+    "src/core/restaurant-hooks",
+    "src/hooks/useAsyncState",
+    "src/core/supabase"
+  ],
+  "src/hooks/useToast.ts": [
+    "external:react-hot-toast",
+    "external:react-hot-toast"
+  ],
+  "src/hooks/useOfflineQueue.ts": [
+    "external:react",
+    "external:@rebuild/shared",
+    "external:react",
+    "external:@rebuild/shared"
+  ],
+  "src/hooks/useModal.ts": [
+    "external:react",
+    "external:react"
+  ],
+  "src/hooks/useAudioAlerts.ts": [
+    "external:react",
+    "src/services/websocket",
+    "external:react",
+    "src/services/websocket"
+  ],
+  "src/hooks/useConnectionStatus.ts": [
+    "external:react",
+    "src/services/websocket",
+    "external:react",
+    "src/services/websocket"
+  ],
+  "src/hooks/useFocusManagement.ts": [
+    "external:react",
+    "external:react"
+  ],
+  "src/hooks/useIntersectionObserver.ts": [
+    "external:react",
+    "external:react"
+  ],
+  "src/hooks/useVirtualization.ts": [
+    "external:react",
+    "external:react"
+  ],
+  "src/hooks/useAsyncState.ts": [
+    "external:react",
+    "external:react"
+  ],
+  "src/hooks/useOrderHistory.ts": [
+    "external:react",
+    "src/services/api",
+    "src/services/api",
+    "external:react",
+    "src/services/api",
+    "src/services/api"
+  ],
+  "src/hooks/useOrderFilters.ts": [
+    "src/modules/filters/hooks/useOrderFilters",
+    "external:react",
+    "src/types/common",
+    "src/types/station",
+    "src/modules/filters/hooks/useOrderFilters",
+    "external:react",
+    "src/types/common",
+    "src/types/station"
+  ],
+  "src/hooks/usePerformanceMonitor.ts": [
+    "external:react",
+    "src/services/performance/performanceMonitor",
+    "external:react",
+    "src/services/performance/performanceMonitor"
+  ],
+  "src/hooks/useTableGrouping.ts": [
+    "external:react",
+    "external:@rebuild/shared",
+    "external:react",
+    "external:@rebuild/shared"
+  ],
+  "src/hooks/useErrorHandler.ts": [
+    "external:react",
+    "src/hooks/useToast",
+    "src/utils/env",
+    "external:react",
+    "src/hooks/useToast",
+    "src/utils/env"
+  ],
+  "src/hooks/useAuth.ts": [
+    "external:react",
+    "src/contexts/AuthContext",
+    "external:react",
+    "src/contexts/AuthContext",
+    "src/contexts/AuthContext"
+  ],
+  "src/hooks/useKioskAuth.ts": [
+    "external:react",
+    "src/core",
+    "src/utils/logger",
+    "external:react",
+    "src/core",
+    "src/utils/logger"
+  ],
+  "src/hooks/useSoundNotifications.ts": [
+    "external:react",
+    "src/services/audio/soundEffects",
+    "external:react",
+    "src/services/audio/soundEffects"
+  ],
+  "src/hooks/useKitchenOrdersOptimized.ts": [
+    "external:react",
+    "src/hooks/useKitchenOrdersRealtime",
+    "external:@rebuild/shared",
+    "external:react",
+    "src/hooks/useKitchenOrdersRealtime",
+    "external:@rebuild/shared"
+  ],
+  "src/hooks/useDebounce.ts": [
+    "external:react",
+    "external:react"
+  ],
+  "src/hooks/useWebSocketConnection.ts": [
+    "external:react",
+    "src/services/websocket/ConnectionManager",
+    "src/services/logger",
+    "external:react",
+    "src/services/websocket/ConnectionManager",
+    "src/services/logger"
+  ],
+  "src/hooks/kiosk/useKioskOrderSubmission.ts": [
+    "external:react",
+    "src/hooks/useApiRequest",
+    "external:react-router-dom",
+    "external:crypto",
+    "src/contexts/UnifiedCartContext",
+    "external:react",
+    "src/hooks/useApiRequest",
+    "external:react-router-dom",
+    "external:crypto",
+    "src/contexts/UnifiedCartContext",
+    "external:total_amount"
+  ],
+  "src/hooks/kiosk/useOrderSubmission.ts": [
+    "external:react",
+    "src/hooks/useToast",
+    "src/modules/voice/contexts/types",
+    "external:react",
+    "src/hooks/useToast",
+    "src/modules/voice/contexts/types"
+  ],
+  "src/hooks/keyboard/index.ts": [
+    "src/hooks/keyboard/useAriaLive",
+    "src/hooks/keyboard/useKeyboardShortcut"
+  ],
+  "src/hooks/keyboard/useKeyboardShortcut.ts": [
+    "external:react",
+    "external:react"
+  ],
+  "src/hooks/keyboard/useAriaLive.ts": [
+    "external:react",
+    "external:react"
+  ],
+  "src/lib/typography.ts": [
+    "src/utils",
+    "src/utils"
+  ],
+  "src/api/normalize.ts": [
+    "external:zod",
+    "external:zod"
+  ],
+  "src/modules/filters/types/index.ts": [
+    "src/modules/filters/types/filter.types"
+  ],
+  "src/modules/filters/types/filter.types.ts": [
+    "src/types/filters",
+    "src/types/filters"
+  ],
+  "src/modules/filters/hooks/useOrderFilters.ts": [
+    "external:react",
+    "src/modules/filters/types",
+    "src/types/filters",
+    "external:react",
+    "src/modules/filters/types",
+    "src/types/filters"
+  ],
+  "src/modules/payment/types.ts": [],
+  "src/modules/payment/hooks/useTablePayment.ts": [
+    "external:react",
+    "src/hooks/useApiRequest",
+    "src/modules/payment/types",
+    "external:react-hot-toast",
+    "external:react",
+    "src/hooks/useApiRequest",
+    "src/modules/payment/types",
+    "external:react-hot-toast"
+  ],
+  "src/modules/voice/index.ts": [
+    "src/modules/voice/components/MicrophonePermission",
+    "src/modules/voice/components/TranscriptionDisplay",
+    "src/modules/voice/components/OrderSuccessAnimation",
+    "src/modules/voice/components/HoldToRecordButton",
+    "src/modules/voice/components/VoiceControlWebRTC",
+    "src/modules/voice/components/VoiceDebugPanel",
+    "src/modules/voice/components/RealtimeTranscription",
+    "src/modules/voice/services/orderIntegration",
+    "src/modules/voice/services/WebRTCVoiceClient",
+    "src/modules/voice/services/VoiceOrderProcessor",
+    "src/modules/voice/hooks/useWebRTCVoice",
+    "src/modules/voice/hooks/useVoiceOrder",
+    "src/modules/voice/contexts/VoiceOrderContext",
+    "src/modules/voice/contexts/types"
+  ],
+  "src/modules/voice/payments/VoicePaymentStrategy.ts": [
+    "src/utils/logger",
+    "src/utils/logger"
+  ],
+  "src/modules/voice/types/index.ts": [],
+  "src/modules/voice/contexts/context.ts": [
+    "external:react",
+    "src/modules/voice/contexts/types",
+    "external:react",
+    "src/modules/voice/contexts/types"
+  ],
+  "src/modules/voice/contexts/types.ts": [
+    "src/services/types",
+    "src/services/types"
+  ],
+  "src/modules/voice/config/voice-agent-modes.ts": [
+    "src/modules/voice/services/VoiceAgentModeDetector",
+    "src/modules/voice/services/VoiceAgentModeDetector"
+  ],
+  "src/modules/voice/config/fall-menu-agent.ts": [],
+  "src/modules/voice/hooks/useWebRTCVoice.ts": [
+    "external:react",
+    "src/modules/voice/services/WebRTCVoiceClient",
+    "src/services/monitoring/logger",
+    "external:react",
+    "src/modules/voice/services/WebRTCVoiceClient",
+    "src/services/monitoring/logger"
+  ],
+  "src/modules/voice/hooks/useVoiceMenuIntegration.ts": [
+    "external:react",
+    "src/core",
+    "src/contexts/UnifiedCartContext",
+    "src/modules/voice/services/MenuContextManager",
+    "src/modules/voice/services/WebRTCVoiceClient",
+    "src/modules/voice/config/fall-menu-agent",
+    "external:react",
+    "src/core",
+    "src/contexts/UnifiedCartContext",
+    "src/modules/voice/services/MenuContextManager",
+    "src/modules/voice/services/WebRTCVoiceClient",
+    "src/modules/voice/config/fall-menu-agent"
+  ],
+  "src/modules/voice/hooks/useVoiceOrder.ts": [
+    "external:react",
+    "src/modules/voice/contexts/context",
+    "external:react",
+    "src/modules/voice/contexts/context"
+  ],
+  "src/modules/voice/services/orderIntegration.ts": [
+    "src/services/api",
+    "external:@rebuild/shared",
+    "src/services/api",
+    "external:@rebuild/shared"
+  ],
+  "src/modules/voice/services/MenuContextManager.ts": [
+    "src/services",
+    "src/shared/types/menu.types",
+    "src/services",
+    "src/shared/types/menu.types"
+  ],
+  "src/modules/voice/services/WebRTCVoiceClient.ts": [
+    "src/services/utils/EventEmitter",
+    "src/services/auth",
+    "src/services/monitoring/logger",
+    "src/modules/voice/config/voice-agent-modes",
+    "src/modules/voice/services/RealtimeGuards",
+    "src/modules/voice/services/SessionConfigNormalizer",
+    "shared/utils/voice-metrics",
+    "src/services/utils/EventEmitter",
+    "src/services/auth",
+    "src/services/monitoring/logger",
+    "src/modules/voice/config/voice-agent-modes",
+    "src/modules/voice/services/RealtimeGuards",
+    "src/modules/voice/services/SessionConfigNormalizer",
+    "shared/utils/voice-metrics"
+  ],
+  "src/modules/voice/services/ConversationStateMachine.ts": [
+    "src/services/monitoring/logger",
+    "external:@rebuild/shared",
+    "src/services/monitoring/logger",
+    "external:@rebuild/shared"
+  ],
+  "src/modules/voice/services/RealtimeGuards.ts": [],
+  "src/modules/voice/services/VoiceOrderProcessor.ts": [
+    "src/services/api",
+    "src/services/logger",
+    "src/modules/menu/types",
+    "external:@rebuild/shared",
+    "src/services/api",
+    "src/services/logger",
+    "src/modules/menu/types",
+    "external:@rebuild/shared"
+  ],
+  "src/modules/voice/services/WebRTCVoiceClientEnhanced.ts": [
+    "src/services/utils/EventEmitter",
+    "src/services/monitoring/logger",
+    "src/services/utils/EventEmitter",
+    "src/services/monitoring/logger"
+  ],
+  "src/modules/voice/services/SessionConfigNormalizer.ts": [],
+  "src/modules/voice/services/VoiceAgentModeDetector.ts": [
+    "src/utils/logger",
+    "src/utils/logger"
+  ],
+  "src/modules/voice/services/VoiceCheckoutOrchestrator.ts": [
+    "src/services/utils/EventEmitter",
+    "src/hooks/useApiRequest",
+    "src/hooks/useToast",
+    "external:react-router-dom",
+    "src/contexts/UnifiedCartContext",
+    "src/services/monitoring/logger",
+    "src/services/utils/EventEmitter",
+    "src/hooks/useApiRequest",
+    "src/hooks/useToast",
+    "external:react-router-dom",
+    "src/contexts/UnifiedCartContext",
+    "src/services/monitoring/logger"
+  ],
+  "src/modules/menu/types.ts": [
+    "src/services/types"
+  ],
+  "src/modules/menu/hooks/useMenuItems.ts": [
+    "external:react",
+    "src/modules/menu/types",
+    "src/services",
+    "src/core",
+    "external:react",
+    "src/modules/menu/types",
+    "src/services",
+    "src/core"
+  ],
+  "src/modules/order-system/types/menu-sections.ts": [],
+  "src/modules/order-system/types/index.ts": [
+    "external:@rebuild/shared/cart",
+    "external:@rebuild/shared/cart"
+  ],
+  "src/modules/order-system/components/index.ts": [
+    "src/modules/order-system/components/CartDrawer",
+    "src/modules/order-system/components/CartItem",
+    "src/modules/order-system/components/CartSummary",
+    "src/modules/order-system/components/CategoryFilter",
+    "src/modules/order-system/components/CheckoutButton",
+    "src/modules/order-system/components/CustomerOrderPage",
+    "src/modules/order-system/components/HeroSection",
+    "src/modules/order-system/components/ItemDetailModal",
+    "src/modules/order-system/components/MenuGrid",
+    "src/modules/order-system/components/MenuItemCard",
+    "src/modules/order-system/components/MenuSearch",
+    "src/modules/order-system/components/MenuSection",
+    "src/modules/order-system/components/MenuSections",
+    "src/modules/order-system/components/ModifierSelector",
+    "src/modules/order-system/components/QuantitySelector",
+    "src/modules/order-system/components/SectionNavigation"
+  ],
+  "src/modules/order-system/hooks/useRestaurantData.ts": [
+    "external:react",
+    "src/services/http",
+    "external:react",
+    "src/services/http"
+  ],
+  "src/modules/orders/index.ts": [
+    "src/modules/orders/components",
+    "src/modules/orders/hooks",
+    "src/modules/orders/types",
+    "src/services"
+  ],
+  "src/modules/orders/types/index.ts": [
+    "src/services/types"
+  ],
+  "src/modules/orders/components/index.ts": [
+    "src/modules/orders/components/OrderList/OrderList",
+    "src/modules/orders/components/OrderActions/OrderActionsBar"
+  ],
+  "src/modules/orders/hooks/useOrderSubscription.ts": [
+    "external:react",
+    "src/services/types",
+    "src/services",
+    "src/services/realtime/orderSubscription",
+    "src/core",
+    "external:react",
+    "src/services/types",
+    "src/services",
+    "src/services/realtime/orderSubscription",
+    "src/core"
+  ],
+  "src/modules/orders/hooks/index.ts": [
+    "src/modules/orders/hooks/useOrderData",
+    "src/modules/orders/hooks/useOrderActions",
+    "src/modules/orders/hooks/useOrderSubscription"
+  ],
+  "src/modules/orders/hooks/useOrderActions.ts": [
+    "external:react",
+    "external:@rebuild/shared",
+    "src/services/orders/OrderService",
+    "src/hooks/useToast",
+    "external:react",
+    "external:@rebuild/shared",
+    "src/services/orders/OrderService",
+    "src/hooks/useToast"
+  ],
+  "src/modules/orders/hooks/useOrderData.ts": [
+    "external:react",
+    "src/services/types",
+    "src/types/filters",
+    "src/services",
+    "src/hooks/useAsyncState",
+    "src/core",
+    "src/hooks/useToast",
+    "external:react",
+    "src/services/types",
+    "src/types/filters",
+    "src/services",
+    "src/hooks/useAsyncState",
+    "src/core",
+    "src/hooks/useToast"
+  ],
+  "src/modules/orders/services/OrderParser.ts": [
+    "src/modules/orders/types",
+    "src/modules/voice/contexts/types",
+    "src/modules/orders/types",
+    "src/modules/voice/contexts/types"
+  ],
+  "src/modules/sound/hooks/useSoundEffects.ts": [
+    "external:react",
+    "src/services/audio/soundEffects",
+    "external:react",
+    "src/services/audio/soundEffects"
+  ],
+  "src/modules/floor-plan/types/index.ts": [],
+  "src/pages/hooks/useServerView.ts": [
+    "external:react",
+    "src/services/logger",
+    "src/core",
+    "src/services/tables/TableService",
+    "src/hooks/useToast",
+    "src/modules/floor-plan/types",
+    "external:react",
+    "src/services/logger",
+    "src/core",
+    "src/services/tables/TableService",
+    "src/hooks/useToast",
+    "src/modules/floor-plan/types"
+  ],
+  "src/pages/hooks/useTableInteraction.ts": [
+    "external:react",
+    "src/modules/floor-plan/types",
+    "external:react",
+    "src/modules/floor-plan/types"
+  ],
+  "src/pages/hooks/useVoiceOrderWebRTC.ts": [
+    "external:react",
+    "src/hooks/useToast",
+    "src/modules/orders/services/OrderParser",
+    "src/modules/voice/contexts/types",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/modules/floor-plan/types",
+    "src/services/monitoring/logger",
+    "src/contexts/auth.hooks",
+    "src/contexts/cart.hooks",
+    "external:react",
+    "src/hooks/useToast",
+    "src/modules/orders/services/OrderParser",
+    "src/modules/voice/contexts/types",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/modules/floor-plan/types",
+    "src/services/monitoring/logger",
+    "src/contexts/auth.hooks",
+    "src/contexts/cart.hooks"
+  ],
+  "src/services/stationRouting.ts": [
+    "src/services/api",
+    "src/types/station",
+    "src/services/api",
+    "src/types/station"
+  ],
+  "src/services/api.ts": [
+    "src/services/types",
+    "src/modules/floor-plan/types",
+    "src/services",
+    "src/services/types",
+    "src/services/types",
+    "src/modules/floor-plan/types"
+  ],
+  "src/services/logger.ts": [],
+  "src/services/secureApi.ts": [
+    "src/utils",
+    "src/utils/env",
+    "src/utils",
+    "src/utils/env"
+  ],
+  "src/services/index.ts": [
+    "src/services/orders/OrderService",
+    "src/services/orders/OrderHistoryService",
+    "src/services/tables/TableService",
+    "src/services/menu/MenuService",
+    "src/services/statistics/OrderStatisticsService",
+    "src/services/orders/OrderService",
+    "src/services/orders/OrderHistoryService",
+    "src/services/tables/TableService",
+    "src/services/menu/MenuService",
+    "src/services/statistics/OrderStatisticsService"
+  ],
+  "src/services/mockData.ts": [
+    "external:@rebuild/shared/api-types",
+    "external:@rebuild/shared/types/transformers",
+    "external:@rebuild/shared/api-types",
+    "external:@rebuild/shared/types/transformers"
+  ],
+  "src/services/statistics/OrderStatisticsService.ts": [
+    "src/services/types",
+    "src/services/orders/OrderHistoryService",
+    "src/services/types",
+    "src/services/orders/OrderHistoryService"
+  ],
+  "src/services/tables/TableService.ts": [
+    "src/modules/floor-plan/types",
+    "src/utils/env",
+    "src/services/http/httpClient",
+    "src/services/logger",
+    "src/modules/floor-plan/types",
+    "src/utils/env",
+    "src/services/http/httpClient",
+    "src/services/logger"
+  ],
+  "src/services/websocket/orderUpdates.ts": [
+    "src/services/websocket/WebSocketService",
+    "src/services/logger",
+    "external:@rebuild/shared",
+    "external:react-hot-toast",
+    "src/services/websocket/WebSocketService",
+    "src/services/logger",
+    "external:@rebuild/shared",
+    "external:react-hot-toast"
+  ],
+  "src/services/websocket/ConnectionManager.ts": [
+    "src/services/websocket/index",
+    "src/services/logger",
+    "src/services/websocket/index",
+    "src/services/logger"
+  ],
+  "src/services/websocket/WebSocketService.ts": [
+    "src/services/utils/EventEmitter",
+    "src/services/logger",
+    "src/services/http/httpClient",
+    "src/core/supabase",
+    "src/services/utils/caseTransform",
+    "src/utils/env",
+    "src/services/utils/EventEmitter",
+    "src/services/logger",
+    "src/services/http/httpClient",
+    "src/core/supabase",
+    "src/services/utils/caseTransform",
+    "src/utils/env"
+  ],
+  "src/services/websocket/index.ts": [
+    "src/services/websocket/WebSocketService",
+    "src/services/websocket/orderUpdates",
+    "src/services/websocket/WebSocketService",
+    "src/services/websocket/orderUpdates",
+    "src/services/websocket/WebSocketService",
+    "src/services/websocket/orderUpdates"
+  ],
+  "src/services/types/index.ts": [
+    "external:@rebuild/shared",
+    "external:@rebuild/shared/types",
+    "external:@rebuild/shared/api-types"
+  ],
+  "src/services/cache/ResponseCache.ts": [
+    "src/services/logger",
+    "src/services/logger"
+  ],
+  "src/services/auth/index.ts": [
+    "src/core/supabase",
+    "src/services/logger",
+    "src/core/supabase",
+    "src/services/logger"
+  ],
+  "src/services/utils/EventEmitter.ts": [
+    "src/services/logger",
+    "src/services/logger"
+  ],
+  "src/services/utils/NativeEventBus.ts": [
+    "src/services/logger",
+    "src/services/logger"
+  ],
+  "src/services/utils/caseTransform.ts": [],
+  "src/services/utils/index.ts": [
+    "src/services/utils/caseTransform"
+  ],
+  "src/services/realtime/orderSubscription.ts": [
+    "external:@rebuild/shared",
+    "external:@rebuild/shared"
+  ],
+  "src/services/audio/soundEffects.ts": [],
+  "src/services/http/RequestBatcher.ts": [
+    "src/services/logger",
+    "src/services/logger"
+  ],
+  "src/services/http/index.ts": [
+    "src/services/http/httpClient",
+    "src/services/http/httpClient",
+    "src/services/http/RestaurantIdProvider"
+  ],
+  "src/services/http/httpClient.ts": [
+    "src/services/secureApi",
+    "src/services/logger",
+    "src/core/supabase",
+    "src/services/auth",
+    "src/utils/env",
+    "src/services/http/RequestBatcher",
+    "src/services/cache/ResponseCache",
+    "src/../../shared/types/api.types",
+    "src/services/secureApi",
+    "src/services/logger",
+    "src/core/supabase",
+    "src/services/auth",
+    "src/utils/env",
+    "src/services/http/RequestBatcher",
+    "src/services/cache/ResponseCache",
+    "src/../../shared/types/api.types"
+  ],
+  "src/services/http/__mocks__/httpClient.ts": [
+    "external:vitest",
+    "external:vitest"
+  ],
+  "src/services/menu/MenuService.ts": [
+    "external:@rebuild/shared",
+    "src/services/http/httpClient",
+    "src/services/types",
+    "external:@rebuild/shared",
+    "src/services/http/httpClient",
+    "src/services/types"
+  ],
+  "src/services/orders/OrderHistoryService.ts": [
+    "src/services/types",
+    "src/services/realtime/orderSubscription",
+    "src/services/api",
+    "src/services/types",
+    "src/services/realtime/orderSubscription",
+    "src/services/api"
+  ],
+  "src/services/orders/OrderService.ts": [
+    "external:@rebuild/shared",
+    "src/services/logger",
+    "src/services/http/httpClient",
+    "src/modules/voice/payments/VoicePaymentStrategy",
+    "external:@rebuild/shared",
+    "src/services/logger",
+    "src/services/http/httpClient",
+    "src/modules/voice/payments/VoicePaymentStrategy"
+  ],
+  "src/services/monitoring/localStorage-manager.ts": [],
+  "src/services/monitoring/performance.ts": [
+    "src/services/monitoring/logger",
+    "src/services/monitoring/logger"
+  ],
+  "src/services/monitoring/logger.ts": [],
+  "src/services/monitoring/index.ts": [
+    "src/services/monitoring/logger",
+    "src/services/monitoring/logger"
+  ],
+  "src/services/performance/performanceMonitor.ts": [],
+  "src/App.tsx": [
+    "external:react",
+    "src/services/logger",
+    "src/services/monitoring/performance",
+    "external:react-router-dom",
+    "src/core",
+    "src/services/http",
+    "src/contexts/AuthContext",
+    "src/contexts/RoleContext",
+    "src/contexts/UnifiedCartContext",
+    "src/components/shared/errors/ErrorBoundary",
+    "src/components/errors/GlobalErrorBoundary",
+    "src/components/layout/AppContent",
+    "src/pages/SplashScreen",
+    "src/pages/SetupRequiredScreen",
+    "src/components/MockDataBanner",
+    "src/services/websocket",
+    "src/services/websocket/ConnectionManager",
+    "src/core/supabase",
+    "src/utils/env",
+    "src/App.css",
+    "external:react",
+    "src/services/logger",
+    "src/services/monitoring/performance",
+    "external:react-router-dom",
+    "src/core",
+    "src/services/http",
+    "src/contexts/AuthContext",
+    "src/contexts/RoleContext",
+    "src/contexts/UnifiedCartContext",
+    "src/components/shared/errors/ErrorBoundary",
+    "src/components/errors/GlobalErrorBoundary",
+    "src/components/layout/AppContent",
+    "src/pages/SplashScreen",
+    "src/pages/SetupRequiredScreen",
+    "src/components/MockDataBanner",
+    "src/services/websocket",
+    "src/services/websocket/ConnectionManager",
+    "src/core/supabase",
+    "src/utils/env"
+  ],
+  "src/main.tsx": [
+    "external:react",
+    "src/services/logger",
+    "external:react-dom/client",
+    "src/services/monitoring/localStorage-manager",
+    "src/index.css",
+    "src/App.tsx",
+    "external:react",
+    "src/services/logger",
+    "external:react-dom/client",
+    "src/services/monitoring/localStorage-manager",
+    "src/App.tsx"
+  ],
+  "src/main.performance.tsx": [
+    "external:react-dom/client",
+    "src/index.css",
+    "src/App.tsx",
+    "external:react-dom/client",
+    "src/App.tsx"
+  ],
+  "src/test-utils/index.tsx": [
+    "external:react",
+    "external:@testing-library/react",
+    "external:react-router-dom",
+    "src/core",
+    "src/modules/filters/contexts/FilterContext",
+    "src/modules/sound/contexts/SoundSettingsContext",
+    "src/contexts/ToastContext",
+    "external:@jest/globals",
+    "external:react",
+    "external:@testing-library/react",
+    "external:react-router-dom",
+    "src/core",
+    "src/modules/filters/contexts/FilterContext",
+    "src/modules/sound/contexts/SoundSettingsContext",
+    "src/contexts/ToastContext",
+    "external:@jest/globals",
+    "external:@testing-library/react"
+  ],
+  "src/test-utils/TestRestaurantProvider.tsx": [
+    "external:react",
+    "src/core",
+    "external:react",
+    "src/core"
+  ],
+  "src/contexts/RoleContext.tsx": [
+    "external:react",
+    "external:react"
+  ],
+  "src/contexts/AuthContext.tsx": [
+    "external:react",
+    "src/core/supabase",
+    "src/services/http/httpClient",
+    "src/services/logger",
+    "src/services/auth",
+    "external:react",
+    "src/core/supabase",
+    "src/services/http/httpClient",
+    "src/services/logger",
+    "src/services/auth"
+  ],
+  "src/contexts/UnifiedCartContext.tsx": [
+    "external:react",
+    "external:@rebuild/shared",
+    "external:@rebuild/shared/cart",
+    "external:react-router-dom",
+    "external:react",
+    "external:@rebuild/shared",
+    "external:@rebuild/shared/cart",
+    "external:react-router-dom"
+  ],
+  "src/core/RestaurantContext.tsx": [
+    "external:react",
+    "src/services/logger",
+    "src/hooks/useAsyncState",
+    "src/core/restaurant-types",
+    "src/utils/env",
+    "external:react",
+    "src/services/logger",
+    "src/hooks/useAsyncState",
+    "src/core/restaurant-types",
+    "src/utils/env"
+  ],
+  "src/components/MockDataBanner.tsx": [
+    "external:react",
+    "external:react"
+  ],
+  "src/components/ui/card.tsx": [
+    "external:react",
+    "src/utils",
+    "external:react",
+    "src/utils"
+  ],
+  "src/components/ui/slider.tsx": [
+    "external:react",
+    "src/utils",
+    "external:react",
+    "src/utils"
+  ],
+  "src/components/ui/popover.tsx": [
+    "external:react",
+    "src/utils",
+    "external:react",
+    "src/utils"
+  ],
+  "src/components/ui/SkipNavigation.tsx": [
+    "external:react",
+    "src/utils",
+    "external:react",
+    "src/utils"
+  ],
+  "src/components/ui/PageHeader.tsx": [
+    "external:react-router-dom",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/Typography",
+    "src/components/ui/button",
+    "src/lib/typography",
+    "external:react-router-dom",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/Typography",
+    "src/components/ui/button",
+    "src/lib/typography"
+  ],
+  "src/components/ui/PageLayout.tsx": [
+    "external:framer-motion",
+    "src/lib/typography",
+    "external:framer-motion",
+    "src/lib/typography"
+  ],
+  "src/components/ui/label.tsx": [
+    "external:react",
+    "src/utils",
+    "external:react",
+    "src/utils"
+  ],
+  "src/components/ui/Typography.tsx": [
+    "external:react",
+    "src/utils",
+    "src/lib/typography",
+    "external:react",
+    "src/utils",
+    "src/lib/typography"
+  ],
+  "src/components/ui/tooltip.tsx": [
+    "external:react",
+    "external:@radix-ui/react-tooltip",
+    "src/utils",
+    "external:react",
+    "external:@radix-ui/react-tooltip",
+    "src/utils"
+  ],
+  "src/components/ui/alert.tsx": [
+    "external:react",
+    "external:class-variance-authority",
+    "src/utils",
+    "external:react",
+    "external:class-variance-authority",
+    "src/utils"
+  ],
+  "src/components/ui/ActionButton.tsx": [
+    "external:framer-motion",
+    "src/utils",
+    "external:framer-motion",
+    "src/utils"
+  ],
+  "src/components/ui/NavigationCard.tsx": [
+    "external:react-router-dom",
+    "external:framer-motion",
+    "src/components/ui/Typography",
+    "external:react-router-dom",
+    "external:framer-motion",
+    "src/components/ui/Typography"
+  ],
+  "src/components/ui/badge.tsx": [
+    "external:react",
+    "external:class-variance-authority",
+    "src/utils",
+    "external:react",
+    "external:class-variance-authority",
+    "src/utils"
+  ],
+  "src/components/ui/button.tsx": [
+    "external:react",
+    "external:@radix-ui/react-slot",
+    "external:class-variance-authority",
+    "src/utils",
+    "external:react",
+    "external:@radix-ui/react-slot",
+    "external:class-variance-authority",
+    "src/utils"
+  ],
+  "src/components/ui/dropdown-menu.tsx": [
+    "external:react",
+    "src/utils",
+    "external:react",
+    "src/utils"
+  ],
+  "src/components/ui/select.tsx": [
+    "external:react",
+    "src/utils",
+    "external:react",
+    "src/utils"
+  ],
+  "src/components/ui/input.tsx": [
+    "external:react",
+    "src/utils",
+    "external:react",
+    "src/utils"
+  ],
+  "src/components/settings/SquareTerminalConfig.tsx": [
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/hooks/useToast",
+    "src/hooks/useApiRequest",
+    "external:lucide-react",
+    "src/services/monitoring/logger",
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/hooks/useToast",
+    "src/hooks/useApiRequest",
+    "external:lucide-react",
+    "src/services/monitoring/logger"
+  ],
+  "src/components/auth/RoleGuard.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/contexts/RoleContext",
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/contexts/RoleContext"
+  ],
+  "src/components/auth/ProtectedRoute.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "src/services/logger",
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "src/services/logger"
+  ],
+  "src/components/auth/UserMenu.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "src/services/logger",
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "external:lucide-react",
+    "src/services/logger"
+  ],
+  "src/components/auth/DevAuthOverlay.tsx": [
+    "external:react",
+    "src/contexts/auth.hooks",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "external:lucide-react",
+    "src/services/logger",
+    "external:react-hot-toast",
+    "external:react",
+    "src/contexts/auth.hooks",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "external:lucide-react",
+    "src/services/logger",
+    "external:react-hot-toast"
+  ],
+  "src/components/auth/withProtectedRoute.tsx": [
+    "external:react",
+    "src/components/auth/ProtectedRoute",
+    "external:react",
+    "src/components/auth/ProtectedRoute"
+  ],
+  "src/components/auth/RoleSelector.tsx": [
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/contexts/RoleContext",
+    "src/utils",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/contexts/RoleContext",
+    "src/utils"
+  ],
+  "src/components/layout/AppContent.tsx": [
+    "external:react-hot-toast",
+    "external:react-router-dom",
+    "src/components/shared/accessibility/SkipNavigation",
+    "src/components/shared/debug/PerformanceOverlay",
+    "src/hooks/useGlobalKeyboardShortcuts",
+    "src/components/layout/BrandHeader",
+    "src/components/layout/AppRoutes",
+    "external:react-hot-toast",
+    "external:react-router-dom",
+    "src/components/shared/accessibility/SkipNavigation",
+    "src/components/shared/debug/PerformanceOverlay",
+    "src/hooks/useGlobalKeyboardShortcuts",
+    "src/components/layout/BrandHeader",
+    "src/components/layout/AppRoutes"
+  ],
+  "src/components/layout/BrandHeader.tsx": [
+    "external:react-router-dom",
+    "external:lucide-react",
+    "src/components/brand/MaconLogo",
+    "src/components/layout/BrandHeaderPresets",
+    "src/components/auth/UserMenu",
+    "src/contexts/auth.hooks",
+    "external:react-router-dom",
+    "external:lucide-react",
+    "src/components/brand/MaconLogo",
+    "src/components/layout/BrandHeaderPresets",
+    "src/components/auth/UserMenu",
+    "src/contexts/auth.hooks"
+  ],
+  "src/components/layout/AppRoutes.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "src/components/shared/errors/ErrorBoundary",
+    "src/components/auth/ProtectedRoute",
+    "src/utils/env",
+    "src/services/performance/performanceMonitor",
+    "src/pages/HomePage",
+    "external:react",
+    "external:react-router-dom",
+    "src/components/shared/errors/ErrorBoundary",
+    "src/components/auth/ProtectedRoute",
+    "src/utils/env",
+    "src/services/performance/performanceMonitor",
+    "src/pages/HomePage"
+  ],
+  "src/components/layout/Navigation.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "external:lucide-react",
+    "src/components/brand/MaconLogo",
+    "src/contexts/RoleContext",
+    "src/components/auth/RoleSelector",
+    "src/components/ui/button",
+    "src/components/ui/badge",
+    "external:react",
+    "external:react-router-dom",
+    "external:lucide-react",
+    "src/components/brand/MaconLogo",
+    "src/contexts/RoleContext",
+    "src/components/auth/RoleSelector",
+    "src/components/ui/button",
+    "src/components/ui/badge"
+  ],
+  "src/components/brand/MaconLogo.tsx": [
+    "src/utils",
+    "src/utils"
+  ],
+  "src/components/navigation/FloatingDashboardButton.tsx": [
+    "external:react-router-dom",
+    "external:lucide-react",
+    "external:framer-motion",
+    "external:react-router-dom",
+    "external:lucide-react",
+    "external:framer-motion"
+  ],
+  "src/components/navigation/BackToDashboard.tsx": [
+    "external:react-router-dom",
+    "external:lucide-react",
+    "external:react-router-dom",
+    "external:lucide-react"
+  ],
+  "src/components/shared/ErrorDisplay.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/utils"
+  ],
+  "src/components/shared/LoadingSpinner.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/utils"
+  ],
+  "src/components/shared/IconButton.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/utils"
+  ],
+  "src/components/shared/EmptyState.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/utils"
+  ],
+  "src/components/shared/OptimizedImage.tsx": [
+    "external:react",
+    "src/hooks/useIntersectionObserver",
+    "external:react",
+    "src/hooks/useIntersectionObserver"
+  ],
+  "src/components/shared/filters/SortControl.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/types/filters",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/dropdown-menu",
+    "src/types/filters",
+    "src/utils"
+  ],
+  "src/components/shared/buttons/StatusActionButton.tsx": [
+    "external:react",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/utils",
+    "external:react",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/utils"
+  ],
+  "src/components/shared/lists/VirtualizedOrderList.tsx": [
+    "external:react",
+    "src/hooks/useVirtualization",
+    "src/components/kitchen/OrderCard",
+    "external:@rebuild/shared",
+    "external:react",
+    "src/hooks/useVirtualization",
+    "src/components/kitchen/OrderCard",
+    "external:@rebuild/shared"
+  ],
+  "src/components/shared/lists/OrderItemRow.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/shared/badges",
+    "src/types/station",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/components/shared/badges",
+    "src/types/station",
+    "src/utils"
+  ],
+  "src/components/shared/timers/ElapsedTimer.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/utils"
+  ],
+  "src/components/shared/controls/SoundControl.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/slider",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/slider",
+    "src/components/ui/popover",
+    "src/utils"
+  ],
+  "src/components/shared/display/OrderIdentifiers.tsx": [
+    "src/utils",
+    "src/utils"
+  ],
+  "src/components/shared/errors/ErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/alert",
+    "src/utils/env",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/alert",
+    "src/utils/env"
+  ],
+  "src/components/shared/accessibility/SkipNavigation.tsx": [
+    "external:react",
+    "external:react"
+  ],
+  "src/components/shared/badges/index.tsx": [
+    "external:react",
+    "src/components/ui/badge",
+    "src/types/station",
+    "src/utils",
+    "external:react",
+    "src/components/ui/badge",
+    "src/types/station",
+    "src/utils"
+  ],
+  "src/components/shared/inputs/DateRangePicker.tsx": [
+    "external:react",
+    "src/components/ui/button",
+    "src/utils",
+    "external:react",
+    "src/components/ui/button",
+    "src/utils"
+  ],
+  "src/components/shared/debug/PerformanceOverlay.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "src/hooks/usePerformanceMonitor",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "src/hooks/usePerformanceMonitor",
+    "src/utils"
+  ],
+  "src/components/kiosk/KioskCheckoutPage.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/cart.hooks",
+    "src/modules/order-system/components/SquarePaymentForm",
+    "src/modules/order-system/components/TipSlider",
+    "src/hooks/useApiRequest",
+    "src/hooks/useSquareTerminal",
+    "src/utils/validation",
+    "src/components/errors/PaymentErrorBoundary",
+    "src/components/ui/card",
+    "src/components/ui/ActionButton",
+    "src/components/layout/BrandHeader",
+    "external:lucide-react",
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/cart.hooks",
+    "src/modules/order-system/components/SquarePaymentForm",
+    "src/modules/order-system/components/TipSlider",
+    "src/hooks/useApiRequest",
+    "src/hooks/useSquareTerminal",
+    "src/utils/validation",
+    "src/components/errors/PaymentErrorBoundary",
+    "src/components/ui/card",
+    "src/components/ui/ActionButton",
+    "src/components/layout/BrandHeader",
+    "external:lucide-react"
+  ],
+  "src/components/kiosk/VoiceOrderingMode.tsx": [
+    "external:react",
+    "src/modules/orders/services/OrderParser",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/contexts/cart.hooks",
+    "src/hooks/kiosk/useKioskOrderSubmission",
+    "src/hooks/useApiRequest",
+    "src/hooks/useToast",
+    "external:react-router-dom",
+    "src/modules/voice/services/VoiceCheckoutOrchestrator",
+    "src/components/ui/card",
+    "src/components/ui/ActionButton",
+    "src/components/layout/BrandHeader",
+    "external:lucide-react",
+    "external:@rebuild/shared",
+    "external:@rebuild/shared/api-types",
+    "external:react",
+    "src/modules/orders/services/OrderParser",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/contexts/cart.hooks",
+    "src/hooks/kiosk/useKioskOrderSubmission",
+    "src/hooks/useApiRequest",
+    "src/hooks/useToast",
+    "external:react-router-dom",
+    "src/modules/voice/services/VoiceCheckoutOrchestrator",
+    "src/components/ui/card",
+    "src/components/ui/ActionButton",
+    "src/components/layout/BrandHeader",
+    "external:lucide-react",
+    "external:@rebuild/shared",
+    "external:@rebuild/shared/api-types"
+  ],
+  "src/components/kiosk/KioskModeSelector.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/ActionButton",
+    "external:react",
+    "external:react-router-dom",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/ActionButton"
+  ],
+  "src/components/kiosk/KioskErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger",
+    "src/services/monitoring",
+    "src/components/ui/ActionButton",
+    "src/components/ui/card",
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger",
+    "src/services/monitoring",
+    "src/components/ui/ActionButton",
+    "src/components/ui/card"
+  ],
+  "src/components/errors/PaymentErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger",
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger"
+  ],
+  "src/components/errors/AppErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger",
+    "src/services/monitoring",
+    "src/components/ui/button",
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger",
+    "src/services/monitoring",
+    "src/components/ui/button"
+  ],
+  "src/components/errors/WebSocketErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger",
+    "src/services/websocket/ConnectionManager",
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger",
+    "src/services/websocket/ConnectionManager"
+  ],
+  "src/components/errors/OrderStatusErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "external:react",
+    "external:lucide-react"
+  ],
+  "src/components/errors/GlobalErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/services/monitoring/logger",
+    "external:react",
+    "external:lucide-react",
+    "src/services/monitoring/logger"
+  ],
+  "src/components/errors/UnifiedErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger",
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger"
+  ],
+  "src/components/errors/KitchenErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button"
+  ],
+  "src/components/errors/KDSErrorBoundary.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger",
+    "external:react",
+    "external:lucide-react",
+    "src/services/logger"
+  ],
+  "src/components/kitchen/VirtualizedOrderGrid.tsx": [
+    "external:react",
+    "external:react-window",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "external:@rebuild/shared",
+    "external:react",
+    "external:react-window",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "external:@rebuild/shared"
+  ],
+  "src/components/kitchen/TableGroupCard.tsx": [
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/badge",
+    "src/utils",
+    "external:@rebuild/shared",
+    "src/hooks/useTableGrouping",
+    "src/components/kitchen/StationStatusBar",
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/badge",
+    "external:lucide-react",
+    "src/utils",
+    "external:@rebuild/shared",
+    "src/hooks/useTableGrouping",
+    "src/components/kitchen/StationStatusBar"
+  ],
+  "src/components/kitchen/StationStatusBar.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/utils",
+    "src/components/ui/tooltip",
+    "external:@rebuild/shared",
+    "external:react",
+    "external:lucide-react",
+    "src/utils",
+    "src/components/ui/tooltip",
+    "external:@rebuild/shared"
+  ],
+  "src/components/kitchen/TouchOptimizedOrderCard.tsx": [
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/utils",
+    "external:@rebuild/shared",
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/utils",
+    "external:@rebuild/shared"
+  ],
+  "src/components/kitchen/ConnectionStatusBar.tsx": [
+    "external:lucide-react",
+    "src/utils",
+    "src/hooks/useConnectionStatus",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/utils",
+    "src/hooks/useConnectionStatus",
+    "src/components/ui/button"
+  ],
+  "src/components/kitchen/OrderCard.tsx": [
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/utils",
+    "external:@rebuild/shared",
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/utils",
+    "external:@rebuild/shared"
+  ],
+  "src/hooks/useGlobalKeyboardShortcuts.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "src/hooks/useToast",
+    "src/hooks/keyboard/useKeyboardShortcut",
+    "external:react",
+    "external:react-router-dom",
+    "src/hooks/useToast",
+    "src/hooks/keyboard/useKeyboardShortcut"
+  ],
+  "src/modules/filters/components/StatusFilter.tsx": [
+    "external:react",
+    "src/components/ui/select",
+    "src/types/filters",
+    "src/modules/filters/types",
+    "external:react",
+    "src/components/ui/select",
+    "src/types/filters",
+    "src/modules/filters/types"
+  ],
+  "src/modules/filters/components/FilterBar.tsx": [
+    "external:react",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/modules/filters/components/StatusFilter",
+    "src/modules/filters/components/SearchFilter",
+    "src/modules/filters/types",
+    "src/types/filters",
+    "src/utils",
+    "external:react",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/modules/filters/components/StatusFilter",
+    "src/modules/filters/components/SearchFilter",
+    "src/modules/filters/types",
+    "src/types/filters",
+    "src/utils"
+  ],
+  "src/modules/filters/components/SearchFilter.tsx": [
+    "external:react",
+    "src/components/ui/input",
+    "external:lucide-react",
+    "src/hooks/useDebounce",
+    "external:react",
+    "src/components/ui/input",
+    "external:lucide-react",
+    "src/hooks/useDebounce"
+  ],
+  "src/modules/payment/components/PaymentMethodPicker.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react"
+  ],
+  "src/modules/payment/components/PaymentProcessing.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react"
+  ],
+  "src/modules/payment/components/TableCheckPresenter.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "src/modules/payment/components/CustomerCheckView",
+    "src/modules/payment/components/TipSelector",
+    "src/modules/payment/components/PaymentMethodPicker",
+    "src/modules/payment/components/PaymentProcessing",
+    "src/modules/payment/components/PaymentConfirmation",
+    "src/modules/payment/components/SplitCheckFlow",
+    "src/modules/payment/hooks/useTablePayment",
+    "src/modules/payment/types",
+    "external:react",
+    "external:framer-motion",
+    "src/modules/payment/components/CustomerCheckView",
+    "src/modules/payment/components/TipSelector",
+    "src/modules/payment/components/PaymentMethodPicker",
+    "src/modules/payment/components/PaymentProcessing",
+    "src/modules/payment/components/PaymentConfirmation",
+    "src/modules/payment/components/SplitCheckFlow",
+    "src/modules/payment/hooks/useTablePayment",
+    "src/modules/payment/types"
+  ],
+  "src/modules/payment/components/SplitCheckFlow.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react"
+  ],
+  "src/modules/payment/components/TipSelector.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:react",
+    "external:framer-motion"
+  ],
+  "src/modules/payment/components/PaymentConfirmation.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/modules/payment/types",
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/modules/payment/types"
+  ],
+  "src/modules/payment/components/CustomerCheckView.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "src/modules/payment/types",
+    "external:react",
+    "external:framer-motion",
+    "src/modules/payment/types"
+  ],
+  "src/modules/voice/contexts/VoiceOrderContext.tsx": [
+    "external:react",
+    "src/services/types",
+    "src/modules/voice/contexts/types",
+    "src/modules/voice/contexts/context",
+    "external:react",
+    "src/services/types",
+    "src/modules/voice/contexts/types",
+    "src/modules/voice/contexts/context"
+  ],
+  "src/modules/voice/components/VoiceDebugPanel.tsx": [
+    "external:react",
+    "src/utils",
+    "external:react",
+    "src/utils",
+    "external:lucide-react"
+  ],
+  "src/modules/voice/components/OrderSuccessAnimation.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "external:react",
+    "external:lucide-react"
+  ],
+  "src/modules/voice/components/TranscriptionDisplay.tsx": [
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "external:lucide-react",
+    "src/utils",
+    "external:react",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "external:lucide-react",
+    "src/utils"
+  ],
+  "src/modules/voice/components/MicrophonePermission.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/alert",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/alert"
+  ],
+  "src/modules/voice/components/VoiceControlWebRTC.tsx": [
+    "external:react",
+    "src/modules/voice/hooks/useWebRTCVoice",
+    "src/modules/voice/components/HoldToRecordButton",
+    "src/modules/voice/components/TranscriptionDisplay",
+    "src/modules/voice/components/VoiceDebugPanel",
+    "external:lucide-react",
+    "src/services/monitoring/logger",
+    "src/contexts/auth.hooks",
+    "src/modules/voice/services/VoiceAgentModeDetector",
+    "external:react",
+    "src/modules/voice/hooks/useWebRTCVoice",
+    "src/modules/voice/components/HoldToRecordButton",
+    "src/modules/voice/components/TranscriptionDisplay",
+    "src/modules/voice/components/VoiceDebugPanel",
+    "external:lucide-react",
+    "src/services/monitoring/logger",
+    "src/contexts/auth.hooks",
+    "src/modules/voice/services/VoiceAgentModeDetector"
+  ],
+  "src/modules/voice/components/HoldToRecordButton.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/utils"
+  ],
+  "src/modules/voice/components/RealtimeTranscription.tsx": [
+    "external:react",
+    "src/utils",
+    "external:lucide-react",
+    "external:react",
+    "src/utils",
+    "external:lucide-react"
+  ],
+  "src/modules/order-system/components/TipSlider.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "external:react",
+    "external:lucide-react"
+  ],
+  "src/modules/order-system/components/SectionNavigation.tsx": [
+    "external:react",
+    "src/modules/order-system/types/menu-sections",
+    "external:react",
+    "src/modules/order-system/types/menu-sections"
+  ],
+  "src/modules/order-system/components/MenuGrid.tsx": [
+    "external:react",
+    "src/modules/order-system/components/MenuItemCard",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/modules/menu/types",
+    "external:react",
+    "src/modules/order-system/components/MenuItemCard",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/modules/menu/types"
+  ],
+  "src/modules/order-system/components/SquarePaymentForm.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/services/monitoring/logger",
+    "external:react",
+    "external:lucide-react",
+    "src/services/monitoring/logger"
+  ],
+  "src/modules/order-system/components/SortOptions.tsx": [
+    "external:react",
+    "external:react"
+  ],
+  "src/modules/order-system/components/MenuItemCard.tsx": [
+    "external:react",
+    "src/modules/menu/types",
+    "external:lucide-react",
+    "src/contexts/cart.hooks",
+    "src/components/shared/OptimizedImage",
+    "external:react",
+    "src/modules/menu/types",
+    "external:lucide-react",
+    "src/contexts/cart.hooks",
+    "src/components/shared/OptimizedImage"
+  ],
+  "src/modules/order-system/components/QuantitySelector.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "external:react",
+    "external:lucide-react"
+  ],
+  "src/modules/order-system/components/CartItem.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/modules/order-system/types",
+    "external:react",
+    "external:lucide-react",
+    "src/modules/order-system/types"
+  ],
+  "src/modules/order-system/components/CartSummary.tsx": [
+    "external:react",
+    "external:react"
+  ],
+  "src/modules/order-system/components/CategoryFilter.tsx": [
+    "external:react",
+    "src/modules/menu/hooks/useMenuItems",
+    "external:react",
+    "src/modules/menu/hooks/useMenuItems"
+  ],
+  "src/modules/order-system/components/ItemDetailModal.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/modules/menu/types",
+    "src/modules/order-system/components/ModifierSelector",
+    "src/modules/order-system/components/QuantitySelector",
+    "src/modules/order-system/types",
+    "external:react",
+    "external:lucide-react",
+    "src/modules/menu/types",
+    "src/modules/order-system/components/ModifierSelector",
+    "src/modules/order-system/components/QuantitySelector",
+    "src/modules/order-system/types"
+  ],
+  "src/modules/order-system/components/DietaryFilters.tsx": [
+    "external:react",
+    "external:react"
+  ],
+  "src/modules/order-system/components/CartDrawer.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "external:react-router-dom",
+    "src/modules/order-system/components/CartItem",
+    "src/modules/order-system/components/CartSummary",
+    "src/modules/order-system/components/CheckoutButton",
+    "src/contexts/cart.hooks",
+    "external:react",
+    "external:lucide-react",
+    "external:react-router-dom",
+    "src/modules/order-system/components/CartItem",
+    "src/modules/order-system/components/CartSummary",
+    "src/modules/order-system/components/CheckoutButton",
+    "src/contexts/cart.hooks"
+  ],
+  "src/modules/order-system/components/MenuSearch.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "external:react",
+    "external:lucide-react"
+  ],
+  "src/modules/order-system/components/MenuSection.tsx": [
+    "external:react",
+    "src/modules/order-system/components/MenuItemCard",
+    "src/modules/menu/types",
+    "src/modules/order-system/types/menu-sections",
+    "src/components/ui/Typography",
+    "src/lib/typography",
+    "external:react",
+    "src/modules/order-system/components/MenuItemCard",
+    "src/modules/menu/types",
+    "src/modules/order-system/types/menu-sections",
+    "src/components/ui/Typography",
+    "src/lib/typography"
+  ],
+  "src/modules/order-system/components/HeroSection.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/modules/order-system/hooks/useRestaurantData",
+    "external:react",
+    "external:lucide-react",
+    "src/modules/order-system/hooks/useRestaurantData"
+  ],
+  "src/modules/order-system/components/ModifierSelector.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/modules/menu/types",
+    "src/modules/order-system/types",
+    "external:react",
+    "external:lucide-react",
+    "src/modules/menu/types",
+    "src/modules/order-system/types"
+  ],
+  "src/modules/order-system/components/MenuSections.tsx": [
+    "external:react",
+    "src/modules/menu/types",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/modules/order-system/components/MenuItemCard",
+    "external:react",
+    "src/modules/menu/types",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/modules/order-system/components/MenuItemCard"
+  ],
+  "src/modules/order-system/components/CheckoutButton.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "external:react",
+    "external:lucide-react"
+  ],
+  "src/modules/order-system/components/CustomerOrderPage.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "external:lucide-react",
+    "src/modules/order-system/components/MenuSections",
+    "src/modules/order-system/components/SectionNavigation",
+    "src/modules/order-system/components/CartDrawer",
+    "src/modules/order-system/components/ItemDetailModal",
+    "src/modules/order-system/components/DietaryFilters",
+    "src/modules/order-system/components/SortOptions",
+    "src/modules/menu/types",
+    "src/core",
+    "src/contexts/cart.hooks",
+    "external:@rebuild/shared",
+    "src/modules/order-system/hooks/useRestaurantData",
+    "external:react",
+    "external:react-router-dom",
+    "external:lucide-react",
+    "src/modules/order-system/components/MenuSections",
+    "src/modules/order-system/components/SectionNavigation",
+    "src/modules/order-system/components/CartDrawer",
+    "src/modules/order-system/components/ItemDetailModal",
+    "src/modules/order-system/components/DietaryFilters",
+    "src/modules/order-system/components/SortOptions",
+    "src/modules/menu/types",
+    "src/core",
+    "src/contexts/cart.hooks",
+    "external:@rebuild/shared",
+    "src/modules/order-system/hooks/useRestaurantData"
+  ],
+  "src/modules/orders/components/OrderActions/OrderActionsBar.tsx": [
+    "external:react",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/modules/orders/types",
+    "src/utils",
+    "external:react",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/modules/orders/types",
+    "src/utils"
+  ],
+  "src/modules/orders/components/OrderList/OrderList.tsx": [
+    "external:react",
+    "src/modules/orders/types",
+    "src/components/orders",
+    "src/utils",
+    "external:react",
+    "src/modules/orders/types",
+    "src/components/orders",
+    "src/utils"
+  ],
+  "src/modules/kitchen/components/StationFilter.tsx": [
+    "external:react",
+    "src/components/ui/button",
+    "src/components/shared/badges",
+    "src/types/station",
+    "src/services/stationRouting",
+    "external:react",
+    "src/components/ui/button",
+    "src/components/shared/badges",
+    "src/types/station",
+    "src/services/stationRouting"
+  ],
+  "src/modules/floor-plan/components/FloorPlanToolbar.tsx": [
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/modules/floor-plan/types",
+    "src/modules/floor-plan/components/ChipMonkeyIcon",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/modules/floor-plan/types",
+    "src/modules/floor-plan/components/ChipMonkeyIcon"
+  ],
+  "src/modules/floor-plan/components/FloorPlanCanvas.tsx": [
+    "external:react",
+    "src/modules/floor-plan/types",
+    "external:react",
+    "src/modules/floor-plan/types"
+  ],
+  "src/modules/floor-plan/components/ChipMonkeyIcon.tsx": [
+    "external:react",
+    "external:react"
+  ],
+  "src/modules/floor-plan/components/FloorPlanSidePanel.tsx": [
+    "src/modules/floor-plan/types",
+    "external:lucide-react",
+    "src/modules/floor-plan/types",
+    "external:lucide-react"
+  ],
+  "src/modules/floor-plan/components/FloorPlanEditor.tsx": [
+    "external:react",
+    "src/services/logger",
+    "src/modules/floor-plan/types",
+    "src/modules/floor-plan/components/FloorPlanCanvas",
+    "src/modules/floor-plan/components/FloorPlanToolbar",
+    "src/services/tables/TableService",
+    "external:react-hot-toast",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "external:react",
+    "src/services/logger",
+    "src/modules/floor-plan/types",
+    "src/modules/floor-plan/components/FloorPlanCanvas",
+    "src/modules/floor-plan/components/FloorPlanToolbar",
+    "src/services/tables/TableService",
+    "external:react-hot-toast",
+    "src/components/ui/button",
+    "external:lucide-react"
+  ],
+  "src/modules/analytics/components/OrderHistoryTable.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/badge",
+    "src/services/api",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/badge",
+    "src/services/api"
+  ],
+  "src/modules/analytics/components/ComponentMetricsTable.tsx": [
+    "external:react",
+    "src/components/ui/badge",
+    "src/services/performance/performanceMonitor",
+    "src/utils",
+    "external:react",
+    "src/components/ui/badge",
+    "src/services/performance/performanceMonitor",
+    "src/utils"
+  ],
+  "src/modules/analytics/components/OrderStatisticsCards.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/card"
+  ],
+  "src/modules/analytics/components/APIMetricsTable.tsx": [
+    "external:react",
+    "src/components/ui/badge",
+    "src/services/performance/performanceMonitor",
+    "src/utils",
+    "external:react",
+    "src/components/ui/badge",
+    "src/services/performance/performanceMonitor",
+    "src/utils"
+  ],
+  "src/modules/analytics/components/PerformanceChart.tsx": [
+    "external:react",
+    "src/services/performance/performanceMonitor",
+    "external:react",
+    "src/services/performance/performanceMonitor"
+  ],
+  "src/pages/CheckoutPage.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "src/components/navigation/BackToDashboard",
+    "src/contexts/cart.hooks",
+    "src/modules/order-system/components/CartItem",
+    "src/modules/order-system/components/CartSummary",
+    "src/modules/order-system/components/TipSlider",
+    "src/modules/order-system/components/SquarePaymentForm",
+    "src/hooks/useApiRequest",
+    "src/utils/validation",
+    "src/components/errors/PaymentErrorBoundary",
+    "external:react",
+    "external:react-router-dom",
+    "src/components/navigation/BackToDashboard",
+    "src/contexts/cart.hooks",
+    "src/modules/order-system/components/CartItem",
+    "src/modules/order-system/components/CartSummary",
+    "src/modules/order-system/components/TipSlider",
+    "src/modules/order-system/components/SquarePaymentForm",
+    "src/hooks/useApiRequest",
+    "src/utils/validation",
+    "src/components/errors/PaymentErrorBoundary"
+  ],
+  "src/pages/StationLogin.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "external:react-hot-toast",
+    "src/services/logger",
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "external:react-hot-toast",
+    "src/services/logger"
+  ],
+  "src/pages/PerformanceDashboard.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/badge",
+    "src/hooks/usePerformanceMonitor",
+    "src/modules/analytics/components/PerformanceChart",
+    "src/modules/analytics/components/ComponentMetricsTable",
+    "src/modules/analytics/components/APIMetricsTable",
+    "src/utils",
+    "src/components/navigation/BackToDashboard",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/badge",
+    "src/hooks/usePerformanceMonitor",
+    "src/modules/analytics/components/PerformanceChart",
+    "src/modules/analytics/components/ComponentMetricsTable",
+    "src/modules/analytics/components/APIMetricsTable",
+    "src/utils",
+    "src/components/navigation/BackToDashboard"
+  ],
+  "src/pages/ExpoConsolidated.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "src/components/kitchen/TableGroupCard",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "src/components/kitchen/ConnectionStatusBar",
+    "src/hooks/useKitchenOrdersOptimized",
+    "src/hooks/useTableGrouping",
+    "src/utils",
+    "src/services/monitoring/logger",
+    "external:@rebuild/shared",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "src/components/kitchen/TableGroupCard",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "src/components/kitchen/ConnectionStatusBar",
+    "src/hooks/useKitchenOrdersOptimized",
+    "src/hooks/useTableGrouping",
+    "src/utils",
+    "src/services/monitoring/logger",
+    "external:@rebuild/shared"
+  ],
+  "src/pages/DriveThruPage.tsx": [
+    "external:react",
+    "src/modules/voice/contexts/VoiceOrderContext",
+    "src/modules/voice/hooks/useVoiceOrder",
+    "src/modules/voice/components/VoiceControlWebRTC",
+    "src/modules/orders/services/OrderParser",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/components/ui/ActionButton",
+    "src/components/navigation/BackToDashboard",
+    "external:react",
+    "src/modules/voice/contexts/VoiceOrderContext",
+    "src/modules/voice/hooks/useVoiceOrder",
+    "src/modules/voice/components/VoiceControlWebRTC",
+    "src/modules/orders/services/OrderParser",
+    "src/modules/menu/hooks/useMenuItems",
+    "src/components/ui/ActionButton",
+    "src/components/navigation/BackToDashboard"
+  ],
+  "src/pages/SetupRequiredScreen.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "external:react",
+    "external:lucide-react"
+  ],
+  "src/pages/OrderConfirmationPage.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "external:lucide-react",
+    "external:react",
+    "external:react-router-dom",
+    "external:lucide-react"
+  ],
+  "src/pages/SplashScreen.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:react",
+    "external:framer-motion"
+  ],
+  "src/pages/Dashboard.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/Typography",
+    "src/lib/typography",
+    "external:react",
+    "external:react-router-dom",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/Typography",
+    "src/lib/typography"
+  ],
+  "src/pages/ExpoPageDebug.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/kitchen/OrderCard",
+    "src/components/errors/OrderStatusErrorBoundary",
+    "src/hooks/useKitchenOrdersRealtime",
+    "src/utils/orderStatusValidation",
+    "src/utils",
+    "src/services/monitoring/logger",
+    "external:@rebuild/shared",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/kitchen/OrderCard",
+    "src/components/errors/OrderStatusErrorBoundary",
+    "src/hooks/useKitchenOrdersRealtime",
+    "src/utils/orderStatusValidation",
+    "src/utils",
+    "src/services/monitoring/logger",
+    "external:@rebuild/shared"
+  ],
+  "src/pages/KitchenDisplayOptimized.tsx": [
+    "external:react",
+    "src/components/errors/KDSErrorBoundary",
+    "src/components/navigation/BackToDashboard",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "src/components/kitchen/VirtualizedOrderGrid",
+    "src/components/kitchen/ConnectionStatusBar",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/hooks/useKitchenOrdersOptimized",
+    "src/utils",
+    "external:@rebuild/shared",
+    "external:react",
+    "src/components/errors/KDSErrorBoundary",
+    "src/components/navigation/BackToDashboard",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "src/components/kitchen/VirtualizedOrderGrid",
+    "src/components/kitchen/ConnectionStatusBar",
+    "src/components/ui/button",
+    "external:lucide-react",
+    "src/hooks/useKitchenOrdersOptimized",
+    "src/utils",
+    "external:@rebuild/shared"
+  ],
+  "src/pages/VoiceAgentTest.tsx": [
+    "external:react",
+    "src/modules/voice/components/VoiceControlWebRTC",
+    "src/contexts/auth.hooks",
+    "external:react",
+    "src/modules/voice/components/VoiceControlWebRTC",
+    "src/contexts/auth.hooks"
+  ],
+  "src/pages/PinLogin.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "external:react-hot-toast",
+    "src/services/logger",
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "external:react-hot-toast",
+    "src/services/logger"
+  ],
+  "src/pages/KioskDemo.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "src/modules/voice/components/VoiceControlWebRTC",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "external:lucide-react",
+    "src/modules/voice/services/orderIntegration",
+    "src/hooks/useToast",
+    "src/modules/voice/components/OrderSuccessAnimation",
+    "external:@rebuild/shared",
+    "external:react",
+    "external:framer-motion",
+    "src/modules/voice/components/VoiceControlWebRTC",
+    "src/components/ui/card",
+    "src/components/ui/badge",
+    "external:lucide-react",
+    "src/modules/voice/services/orderIntegration",
+    "src/hooks/useToast",
+    "src/modules/voice/components/OrderSuccessAnimation",
+    "external:@rebuild/shared"
+  ],
+  "src/pages/UnauthorizedPage.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "src/components/ui/button",
+    "src/services/logger",
+    "external:react",
+    "external:react-router-dom",
+    "src/contexts/auth.hooks",
+    "src/components/ui/button",
+    "src/services/logger"
+  ],
+  "src/pages/ExpoPage.tsx": [
+    "external:react",
+    "src/components/errors/KDSErrorBoundary",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/components/kitchen/OrderCard",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "src/components/kitchen/VirtualizedOrderGrid",
+    "src/components/kitchen/ConnectionStatusBar",
+    "src/components/errors/OrderStatusErrorBoundary",
+    "src/hooks/useKitchenOrdersRealtime",
+    "src/utils/orderStatusValidation",
+    "src/utils",
+    "external:@rebuild/shared/utils/memory-monitoring",
+    "external:@rebuild/shared",
+    "external:react",
+    "src/components/errors/KDSErrorBoundary",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/components/kitchen/OrderCard",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "src/components/kitchen/VirtualizedOrderGrid",
+    "src/components/kitchen/ConnectionStatusBar",
+    "src/components/errors/OrderStatusErrorBoundary",
+    "src/hooks/useKitchenOrdersRealtime",
+    "src/utils/orderStatusValidation",
+    "src/utils",
+    "external:@rebuild/shared/utils/memory-monitoring",
+    "external:@rebuild/shared"
+  ],
+  "src/pages/ExpoPageOptimized.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "src/components/kitchen/VirtualizedOrderGrid",
+    "src/components/kitchen/ConnectionStatusBar",
+    "src/components/errors/OrderStatusErrorBoundary",
+    "src/hooks/useKitchenOrdersOptimized",
+    "src/utils/orderStatusValidation",
+    "src/utils",
+    "external:@rebuild/shared",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/button",
+    "src/components/kitchen/TouchOptimizedOrderCard",
+    "src/components/kitchen/VirtualizedOrderGrid",
+    "src/components/kitchen/ConnectionStatusBar",
+    "src/components/errors/OrderStatusErrorBoundary",
+    "src/hooks/useKitchenOrdersOptimized",
+    "src/utils/orderStatusValidation",
+    "src/utils",
+    "external:@rebuild/shared"
+  ],
+  "src/pages/LoginV2.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "external:framer-motion",
+    "src/contexts/auth.hooks",
+    "src/components/brand/MaconLogo",
+    "external:react-hot-toast",
+    "src/services/logger",
+    "external:react",
+    "external:react-router-dom",
+    "external:framer-motion",
+    "src/contexts/auth.hooks",
+    "src/components/brand/MaconLogo",
+    "external:react-hot-toast",
+    "src/services/logger",
+    "external:lucide-react"
+  ],
+  "src/pages/ServerView.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "src/components/auth/RoleGuard",
+    "src/components/ui/card",
+    "src/contexts/auth.hooks",
+    "src/pages/hooks/useServerView",
+    "src/pages/hooks/useTableInteraction",
+    "src/pages/hooks/useVoiceOrderWebRTC",
+    "src/pages/components/ServerFloorPlan",
+    "src/pages/components/SeatSelectionModal",
+    "src/pages/components/VoiceOrderModal",
+    "src/pages/components/ServerStats",
+    "src/pages/components/ServerHeader",
+    "src/modules/payment/components/TableCheckPresenter",
+    "external:lucide-react",
+    "external:react",
+    "external:framer-motion",
+    "src/components/auth/RoleGuard",
+    "src/components/ui/card",
+    "src/contexts/auth.hooks",
+    "src/pages/hooks/useServerView",
+    "src/pages/hooks/useTableInteraction",
+    "src/pages/hooks/useVoiceOrderWebRTC",
+    "src/pages/components/ServerFloorPlan",
+    "src/pages/components/SeatSelectionModal",
+    "src/pages/components/VoiceOrderModal",
+    "src/pages/components/ServerStats",
+    "src/pages/components/ServerHeader",
+    "src/modules/payment/components/TableCheckPresenter",
+    "external:lucide-react"
+  ],
+  "src/pages/KioskPage.tsx": [
+    "external:react",
+    "src/core",
+    "src/components/kiosk/KioskErrorBoundary",
+    "src/contexts/cart.hooks",
+    "src/components/kiosk/KioskModeSelector",
+    "src/components/kiosk/VoiceOrderingMode",
+    "src/components/kiosk/KioskCheckoutPage",
+    "src/components/navigation/BackToDashboard",
+    "src/hooks/useKioskAuth",
+    "src/components/shared/LoadingSpinner",
+    "src/components/ui/alert",
+    "external:react",
+    "src/core",
+    "src/components/kiosk/KioskErrorBoundary",
+    "src/contexts/cart.hooks",
+    "src/components/kiosk/KioskModeSelector",
+    "src/components/kiosk/VoiceOrderingMode",
+    "src/components/kiosk/KioskCheckoutPage",
+    "src/components/navigation/BackToDashboard",
+    "src/hooks/useKioskAuth",
+    "src/components/shared/LoadingSpinner",
+    "src/components/ui/alert"
+  ],
+  "src/pages/OrderHistory.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/input",
+    "src/hooks/useOrderHistory",
+    "src/modules/analytics/components/OrderHistoryTable",
+    "src/modules/analytics/components/OrderStatisticsCards",
+    "src/components/shared/inputs/DateRangePicker",
+    "src/utils",
+    "external:react",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/input",
+    "src/hooks/useOrderHistory",
+    "src/modules/analytics/components/OrderHistoryTable",
+    "src/modules/analytics/components/OrderStatisticsCards",
+    "src/components/shared/inputs/DateRangePicker",
+    "src/utils"
+  ],
+  "src/pages/AdminDashboard.tsx": [
+    "external:react",
+    "external:lucide-react",
+    "external:framer-motion",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/modules/floor-plan/components/FloorPlanEditor",
+    "src/core",
+    "src/modules/floor-plan/types",
+    "src/components/ui/Typography",
+    "src/lib/typography",
+    "src/components/auth/RoleGuard",
+    "src/components/navigation/BackToDashboard",
+    "src/services/http/httpClient",
+    "src/services/logger",
+    "external:react",
+    "external:lucide-react",
+    "external:framer-motion",
+    "src/components/ui/button",
+    "src/components/ui/card",
+    "src/modules/floor-plan/components/FloorPlanEditor",
+    "src/core",
+    "src/modules/floor-plan/types",
+    "src/components/ui/Typography",
+    "src/lib/typography",
+    "src/components/auth/RoleGuard",
+    "src/components/navigation/BackToDashboard",
+    "src/services/http/httpClient",
+    "src/services/logger"
+  ],
+  "src/pages/HomePage.tsx": [
+    "external:react",
+    "external:react-router-dom",
+    "external:framer-motion",
+    "external:lucide-react",
+    "external:react",
+    "external:react-router-dom",
+    "external:framer-motion",
+    "external:lucide-react"
+  ],
+  "src/pages/components/ServerHeader.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "external:react-router-dom",
+    "src/components/ui/button",
+    "src/types/restaurant",
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "external:react-router-dom",
+    "src/components/ui/button",
+    "src/types/restaurant"
+  ],
+  "src/pages/components/SeatSelectionModal.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/ActionButton",
+    "src/types/table",
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/ActionButton",
+    "src/types/table"
+  ],
+  "src/pages/components/VoiceOrderModal.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/ActionButton",
+    "src/components/ui/badge",
+    "src/modules/voice/components/VoiceControlWebRTC",
+    "src/modules/voice/contexts/types",
+    "src/types/table",
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "src/components/ui/button",
+    "src/components/ui/ActionButton",
+    "src/components/ui/badge",
+    "src/modules/voice/components/VoiceControlWebRTC",
+    "src/modules/voice/contexts/types",
+    "src/types/table"
+  ],
+  "src/pages/components/ServerStats.tsx": [
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/card",
+    "external:react",
+    "external:framer-motion",
+    "external:lucide-react",
+    "src/components/ui/card"
+  ],
+  "src/pages/components/ServerFloorPlan.tsx": [
+    "external:react",
+    "src/components/ui/card",
+    "src/components/shared/LoadingSpinner",
+    "src/modules/floor-plan/components/FloorPlanCanvas",
+    "src/modules/floor-plan/types",
+    "external:react",
+    "src/components/ui/card",
+    "src/components/shared/LoadingSpinner",
+    "src/modules/floor-plan/components/FloorPlanCanvas",
+    "src/modules/floor-plan/types"
+  ],
+  "src/routes/LazyRoutes.tsx": [
+    "external:react",
+    "src/components/shared/LoadingSpinner",
+    "external:react",
+    "src/components/shared/LoadingSpinner"
+  ],
+  "src/services/http/RestaurantIdProvider.tsx": [
+    "external:react",
+    "src/core",
+    "src/services/http/httpClient",
+    "external:react",
+    "src/core",
+    "src/services/http/httpClient"
+  ]
+}

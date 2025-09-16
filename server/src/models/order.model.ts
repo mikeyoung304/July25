@@ -36,13 +36,13 @@ export const orderSchemas = {
   
   updateStatus: Joi.object({
     status: Joi.string()
-      .valid('pending', 'preparing', 'ready', 'completed', 'cancelled')
+      .valid('new', 'pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled')
       .required(),
     notes: Joi.string().max(500).optional(),
   }),
 
   filters: Joi.object({
-    status: Joi.string().valid('pending', 'preparing', 'ready', 'completed', 'cancelled'),
+    status: Joi.string().valid('new', 'pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'),
     type: Joi.string().valid('kiosk', 'drive-thru', 'online', 'voice'),
     startDate: Joi.date().iso(),
     endDate: Joi.date().iso().greater(Joi.ref('startDate')),

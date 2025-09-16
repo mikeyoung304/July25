@@ -1,0 +1,81 @@
+# Unused Exports Report
+# Generated: 2025-01-15
+# Total unused exports found: 100+
+
+## High Priority (Definitely Unused)
+
+### API/Normalization
+client/src/api/normalize.ts: ClientItem, WireOrder, WireOrderSchema, camelToSnake, snakeToCamel, toClientOrder, toWireOrder
+- All exports unused - entire file can be deleted
+
+### Authentication Components
+client/src/components/auth/DevAuthOverlay.tsx: DevAuthOverlay
+client/src/components/auth/ProtectedRoute.tsx: OwnerRoute, ProtectedRouteProps, PublicRoute
+client/src/components/auth/UserMenu.tsx: LogoutButton
+client/src/components/auth/withProtectedRoute.tsx: withProtectedRoute
+
+### Error Boundaries (Duplicates)
+client/src/components/errors/AppErrorBoundary.tsx: AppErrorBoundary
+client/src/components/errors/KitchenErrorBoundary.tsx: KitchenErrorBoundary
+client/src/components/errors/OrderStatusErrorBoundary.tsx: withOrderStatusErrorBoundary
+client/src/components/errors/UnifiedErrorBoundary.tsx: AppErrorBoundary, KitchenErrorBoundary, UnifiedErrorBoundary
+client/src/components/errors/WebSocketErrorBoundary.tsx: WebSocketErrorBoundary
+
+### Kiosk Accessibility (Entire Module Unused)
+client/src/components/kiosk/accessibility.ts:
+- ARIA_DESCRIPTIONS, ARIA_LABELS, COLOR_CONTRAST
+- KEYBOARD_SHORTCUTS, KioskFocusManager, TOUCH_TARGET_MIN_SIZE
+- announceToScreenReader, isHighContrastMode, prefersReducedMotion, validateTouchTarget
+
+### Layout/UI Components
+client/src/components/layout/AppLayout.tsx: AppLayoutProps
+client/src/components/ui/Button.tsx: ButtonSize, ButtonVariant
+client/src/components/ui/NavigationMenu.tsx: NavigationMenuProps
+client/src/components/ui/SkipNavigation.tsx: SkipNavigationProps
+client/src/components/ui/Typography.helpers.ts: getTypographyClasses, typographyVariants
+
+### Hooks (Unused Utilities)
+client/src/hooks/useApiRequest.ts: ApiRequestOptions
+client/src/hooks/useErrorHandler.ts: ErrorHandlerOptions, useErrorHandler
+client/src/hooks/useFocusManagement.ts: FocusManagerOptions, useFocusManagement
+client/src/hooks/useModal.ts: ModalOptions, useModal
+client/src/hooks/useOfflineQueue.ts: OfflineQueueItem, useOfflineQueue
+
+### Voice Module (Legacy)
+client/src/modules/voice/hooks/useVoiceCommands.ts: VoiceCommand, useVoiceCommands
+client/src/modules/voice/services/voiceRecognition.ts: VoiceRecognitionService
+
+### Types/Constants
+client/src/types/restaurant.ts: RestaurantSettings
+client/src/types/station.ts: StationAssignment (may be used server-side)
+client/src/constants/stations.ts: STATION_ASSIGNMENTS, DEFAULT_STATIONS
+
+## Medium Priority (Possibly Used Dynamically)
+
+### Cart/Order Components
+client/src/modules/cart/components/CartItemList.tsx: CartItemListProps
+client/src/modules/kitchen/components/StationFilter.tsx: StationFilterProps
+
+### Services
+client/src/services/auth/authAdapter.ts: AuthAdapter, createAuthAdapter
+server/src/services/auth/tokenManager.ts: TokenManager, createTokenManager
+
+## Low Priority (Keep for Now)
+
+### Type Exports (May be used in type imports)
+shared/types/order.ts: OrderModifier, OrderNote
+shared/types/payment.ts: PaymentMethod, PaymentStatus
+client/src/types/common.ts: Nullable, Optional
+
+## Summary Statistics
+- Total files with unused exports: 45+
+- Total unused exports: 100+
+- Recommended deletions: 30 files
+- Recommended review: 15 files
+
+## Recommended Actions
+1. Delete entire files: normalize.ts, DevAuthOverlay.tsx, withProtectedRoute.tsx
+2. Consolidate error boundaries into UnifiedErrorBoundary only
+3. Remove kiosk accessibility module if kiosk not in use
+4. Review and remove unused hooks
+5. Clean up voice module legacy code

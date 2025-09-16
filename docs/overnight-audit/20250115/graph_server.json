@@ -1,0 +1,2494 @@
+{
+  "vitest.config.ts": [
+    "external:vitest/config",
+    "external:path",
+    "external:vitest/config",
+    "external:path"
+  ],
+  "dist/server/src/server.d.ts": [],
+  "dist/server/src/dto/order.dto.d.ts": [
+    "external:zod",
+    "external:zod"
+  ],
+  "dist/server/src/middleware/csrf.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/metrics.d.ts": [
+    "external:express",
+    "external:prom-client",
+    "external:express",
+    "external:prom-client"
+  ],
+  "dist/server/src/middleware/restaurantAccess.d.ts": [
+    "dist/server/src/middleware/auth"
+  ],
+  "dist/server/src/middleware/orderMode.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/rbac.d.ts": [
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "external:@rebuild/shared/types/auth",
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "external:@rebuild/shared/types/auth",
+    "external:@rebuild/shared/types/auth"
+  ],
+  "dist/server/src/middleware/errorHandler.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/security.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/normalizeVoiceSession.d.ts": [
+    "external:express",
+    "dist/server/src/voice/sessionLimits",
+    "external:express",
+    "dist/server/src/voice/sessionLimits"
+  ],
+  "dist/server/src/middleware/requestLogger.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/paymentGate.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/webhookSignature.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/rateLimiter.d.ts": [],
+  "dist/server/src/middleware/security-headers.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/fileValidation.d.ts": [
+    "external:multer",
+    "external:multer"
+  ],
+  "dist/server/src/middleware/asyncHandler.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/requestSanitizer.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/validation.d.ts": [
+    "external:express",
+    "external:joi",
+    "external:express",
+    "external:joi"
+  ],
+  "dist/server/src/middleware/auth-dev-fix.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/idempotency.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/middleware/auth.d.ts": [
+    "external:express",
+    "external:http",
+    "dist/server/src/services/auth/AuthenticationService",
+    "external:express",
+    "external:http",
+    "dist/server/src/services/auth/AuthenticationService"
+  ],
+  "dist/server/src/middleware/authRateLimiter.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/payments/square.adapter.d.ts": [],
+  "dist/server/src/test-utils/index.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/config/features.d.ts": [],
+  "dist/server/src/config/demo.d.ts": [],
+  "dist/server/src/config/database.d.ts": [],
+  "dist/server/src/config/environment.d.ts": [],
+  "dist/server/src/utils/websocket.d.ts": [
+    "external:ws",
+    "external:ws"
+  ],
+  "dist/server/src/utils/env.d.ts": [],
+  "dist/server/src/utils/logger.d.ts": [
+    "external:winston",
+    "external:winston"
+  ],
+  "dist/server/src/utils/supabase.d.ts": [
+    "dist/server/src/config/database"
+  ],
+  "dist/server/src/utils/case.d.ts": [],
+  "dist/server/src/models/order.model.d.ts": [
+    "external:joi",
+    "external:joi"
+  ],
+  "dist/server/src/voice/websocket-server.d.ts": [
+    "external:ws",
+    "dist/shared/src/voice-types",
+    "external:ws",
+    "dist/shared/src/voice-types"
+  ],
+  "dist/server/src/voice/twilio-bridge.d.ts": [
+    "external:express",
+    "external:ws",
+    "external:http",
+    "external:express",
+    "external:ws",
+    "external:http"
+  ],
+  "dist/server/src/voice/types.d.ts": [
+    "external:zod",
+    "external:zod",
+    "dist/shared/src/voice-types"
+  ],
+  "dist/server/src/voice/debug-dashboard.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/voice/voice-routes.d.ts": [
+    "dist/server/src/voice/websocket-server",
+    "dist/server/src/voice/websocket-server"
+  ],
+  "dist/server/src/voice/openai-adapter.d.ts": [
+    "external:events",
+    "external:events"
+  ],
+  "dist/server/src/voice/sessionLimits.d.ts": [],
+  "dist/server/src/ai/websocket.d.ts": [
+    "external:ws",
+    "external:ws"
+  ],
+  "dist/server/src/ai/index.d.ts": [
+    "dist/server/src/ai/core/transcriber",
+    "dist/server/src/ai/core/tts",
+    "dist/server/src/ai/core/chat",
+    "dist/server/src/ai/core/order-nlp",
+    "dist/server/src/ai/core/transcriber",
+    "dist/server/src/ai/core/tts",
+    "dist/server/src/ai/core/chat",
+    "dist/server/src/ai/core/order-nlp",
+    "dist/server/src/ai/core/transcriber",
+    "dist/server/src/ai/core/tts",
+    "dist/server/src/ai/core/chat",
+    "dist/server/src/ai/core/order-nlp"
+  ],
+  "dist/server/src/ai/stubs/transcriber.stub.d.ts": [
+    "dist/server/src/ai/core/transcriber",
+    "dist/server/src/ai/core/transcriber"
+  ],
+  "dist/server/src/ai/stubs/chat.stub.d.ts": [
+    "dist/server/src/ai/core/chat",
+    "dist/server/src/ai/core/chat"
+  ],
+  "dist/server/src/ai/stubs/tts.stub.d.ts": [
+    "dist/server/src/ai/core/tts",
+    "dist/server/src/ai/core/tts"
+  ],
+  "dist/server/src/ai/stubs/order-nlp.stub.d.ts": [
+    "dist/server/src/ai/core/order-nlp",
+    "dist/server/src/ai/core/order-nlp"
+  ],
+  "dist/server/src/ai/core/chat.d.ts": [],
+  "dist/server/src/ai/core/tts.d.ts": [],
+  "dist/server/src/ai/core/order-nlp.d.ts": [],
+  "dist/server/src/ai/core/transcriber.d.ts": [],
+  "dist/server/src/ai/adapters/openai/openai-transcriber.d.ts": [
+    "dist/server/src/ai/core/transcriber",
+    "dist/server/src/ai/core/transcriber"
+  ],
+  "dist/server/src/ai/adapters/openai/utils.d.ts": [
+    "external:fs",
+    "external:fs"
+  ],
+  "dist/server/src/ai/adapters/openai/openai-chat.d.ts": [
+    "dist/server/src/ai/core/chat",
+    "dist/server/src/ai/core/chat"
+  ],
+  "dist/server/src/ai/adapters/openai/openai-order-nlp.d.ts": [
+    "external:openai",
+    "dist/server/src/ai/core/order-nlp",
+    "dist/server/src/services/OrderMatchingService",
+    "external:openai",
+    "dist/server/src/ai/core/order-nlp",
+    "dist/server/src/services/OrderMatchingService"
+  ],
+  "dist/server/src/ai/adapters/openai/openai-tts.d.ts": [
+    "dist/server/src/ai/core/tts",
+    "dist/server/src/ai/core/tts"
+  ],
+  "dist/server/src/ai/voice/EnhancedOpenAIAdapter.d.ts": [
+    "external:ws",
+    "dist/server/src/voice/openai-adapter",
+    "dist/server/src/voice/types",
+    "external:ws",
+    "dist/server/src/voice/openai-adapter",
+    "dist/server/src/voice/types"
+  ],
+  "dist/server/src/ai/functions/realtime-menu-tools.d.ts": [],
+  "dist/server/src/api/routes/tables.d.ts": [],
+  "dist/server/src/mappers/cart.mapper.d.ts": [],
+  "dist/server/src/mappers/menu.mapper.d.ts": [],
+  "dist/server/src/routes/metrics.d.ts": [],
+  "dist/server/src/routes/security.routes.d.ts": [],
+  "dist/server/src/routes/users.routes.d.ts": [],
+  "dist/server/src/routes/payments.routes.d.ts": [],
+  "dist/server/src/routes/orders.routes.d.ts": [],
+  "dist/server/src/routes/menu.routes.d.ts": [],
+  "dist/server/src/routes/webhooks.routes.d.ts": [],
+  "dist/server/src/routes/realtime.routes.d.ts": [],
+  "dist/server/src/routes/tables.routes.d.ts": [
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "dist/shared/types/table.types",
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "dist/shared/types/table.types"
+  ],
+  "dist/server/src/routes/restaurants.routes.d.ts": [],
+  "dist/server/src/routes/index.d.ts": [
+    "external:express",
+    "external:express"
+  ],
+  "dist/server/src/routes/table-payment.routes.d.ts": [],
+  "dist/server/src/routes/ai.routes.d.ts": [],
+  "dist/server/src/routes/terminal.routes.d.ts": [],
+  "dist/server/src/routes/health.routes.d.ts": [],
+  "dist/server/src/routes/auth.routes.d.ts": [],
+  "dist/server/src/services/tip-calculation.service.d.ts": [],
+  "dist/server/src/services/payment-flow.service.d.ts": [],
+  "dist/server/src/services/orders.service.d.ts": [
+    "external:ws",
+    "external:@rebuild/shared",
+    "external:ws",
+    "external:@rebuild/shared"
+  ],
+  "dist/server/src/services/orderStateMachine.d.ts": [
+    "external:@rebuild/shared",
+    "external:@rebuild/shared"
+  ],
+  "dist/server/src/services/restaurant.service.d.ts": [
+    "dist/shared/types",
+    "dist/shared/types"
+  ],
+  "dist/server/src/services/menu.service.d.ts": [],
+  "dist/server/src/services/menu-ai-sync.service.d.ts": [],
+  "dist/server/src/services/logger.d.ts": [
+    "dist/server/src/services/logger",
+    "dist/server/src/services/logger"
+  ],
+  "dist/server/src/services/ai.service.d.ts": [
+    "external:ws",
+    "external:ws"
+  ],
+  "dist/server/src/services/menu-id-mapper.d.ts": [],
+  "dist/server/src/services/split-payment.service.d.ts": [
+    "dist/server/src/services/payment-flow.service",
+    "dist/server/src/services/payment-flow.service"
+  ],
+  "dist/server/src/services/userService.d.ts": [],
+  "dist/server/src/services/table-check.service.d.ts": [],
+  "dist/server/src/services/OrderMatchingService.d.ts": [
+    "dist/shared/types/orders",
+    "dist/shared/types/orders"
+  ],
+  "dist/server/src/services/payment.service.d.ts": [
+    "dist/server/src/services/orders.service",
+    "dist/server/src/services/orders.service"
+  ],
+  "dist/server/src/services/idempotency.service.d.ts": [],
+  "dist/server/src/services/auth/AuthenticationService.d.ts": [],
+  "dist/server/src/services/auth/pinAuth.d.ts": [],
+  "dist/server/src/services/auth/stationAuth.d.ts": [],
+  "dist/server/src/validation/ai.validation.d.ts": [
+    "external:joi",
+    "external:joi"
+  ],
+  "dist/shared/runtime.d.ts": [],
+  "dist/shared/cart.d.ts": [],
+  "dist/shared/api-types.d.ts": [],
+  "dist/shared/test-error-handling.d.ts": [
+    "dist/shared/utils/error-handling"
+  ],
+  "dist/shared/index.d.ts": [
+    "dist/shared/types/order.types",
+    "dist/shared/types/menu.types",
+    "dist/shared/types/customer.types",
+    "dist/shared/types/table.types",
+    "dist/shared/types/websocket.types",
+    "dist/shared/types/events.types",
+    "dist/shared/types/transformers",
+    "dist/shared/types/validation",
+    "dist/shared/utils",
+    "dist/shared/runtime",
+    "dist/shared/src/voice-types",
+    "dist/shared/cart"
+  ],
+  "dist/shared/types/customer.types.d.ts": [],
+  "dist/shared/types/transformers.d.ts": [
+    "dist/shared/types/order.types",
+    "dist/shared/types/menu.types",
+    "dist/shared/types/table.types",
+    "dist/shared/types/order.types",
+    "dist/shared/types/menu.types",
+    "dist/shared/types/table.types"
+  ],
+  "dist/shared/types/events.types.d.ts": [
+    "dist/shared/types/order.types",
+    "dist/shared/types/table.types",
+    "dist/shared/types/order.types",
+    "dist/shared/types/table.types"
+  ],
+  "dist/shared/types/orders.d.ts": [
+    "external:zod",
+    "external:zod"
+  ],
+  "dist/shared/types/table.types.d.ts": [],
+  "dist/shared/types/unified-order.types.d.ts": [],
+  "dist/shared/types/menu.types.d.ts": [],
+  "dist/shared/types/api.types.d.ts": [],
+  "dist/shared/types/websocket.types.d.ts": [
+    "dist/shared/types/order.types",
+    "dist/shared/types/table.types",
+    "dist/shared/types/order.types",
+    "dist/shared/types/table.types"
+  ],
+  "dist/shared/types/validation.d.ts": [
+    "external:zod",
+    "external:zod"
+  ],
+  "dist/shared/types/auth.d.ts": [],
+  "dist/shared/types/index.d.ts": [
+    "dist/shared/types/order.types",
+    "dist/shared/types/menu.types",
+    "dist/shared/types/customer.types",
+    "dist/shared/types/table.types",
+    "dist/shared/types/websocket.types",
+    "dist/shared/types/events.types",
+    "dist/shared/types/transformers",
+    "dist/shared/types/validation",
+    "dist/shared/utils"
+  ],
+  "dist/shared/types/order.types.d.ts": [],
+  "dist/shared/config/index.d.ts": [],
+  "dist/shared/utils/react-performance.d.ts": [
+    "dist/shared/utils/performance-hooks"
+  ],
+  "dist/shared/utils/websocket-pool.browser.d.ts": [
+    "dist/shared/utils/cleanup-manager",
+    "dist/shared/utils/cleanup-manager"
+  ],
+  "dist/shared/utils/browser-only.d.ts": [],
+  "dist/shared/utils/memory-monitoring.d.ts": [],
+  "dist/shared/utils/error-handling.d.ts": [],
+  "dist/shared/utils/performance-hooks.d.ts": [],
+  "dist/shared/utils/index.d.ts": [
+    "dist/shared/utils/cleanup-manager",
+    "dist/shared/utils/memory-monitoring"
+  ],
+  "dist/shared/utils/cleanup-manager.d.ts": [],
+  "dist/shared/utils/websocket-pool.d.ts": [],
+  "dist/shared/monitoring/error-tracker.d.ts": [],
+  "dist/shared/monitoring/performance-monitor.d.ts": [],
+  "dist/shared/monitoring/web-vitals.d.ts": [],
+  "dist/shared/src/voice-types.d.ts": [
+    "external:zod",
+    "external:zod"
+  ],
+  "tests/bootstrap.ts": [
+    "external:vitest",
+    "external:vitest"
+  ],
+  "scripts/integration-check.ts": [
+    "external:chalk",
+    "external:chalk"
+  ],
+  "scripts/voice-debug.ts": [
+    "external:@supabase/supabase-js",
+    "external:ws",
+    "external:chalk",
+    "external:dotenv",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:ws",
+    "external:chalk",
+    "external:dotenv",
+    "external:path"
+  ],
+  "scripts/migrate.ts": [
+    "external:@supabase/supabase-js",
+    "external:fs",
+    "external:path",
+    "external:dotenv",
+    "external:url",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:fs",
+    "external:path",
+    "external:dotenv",
+    "external:url",
+    "external:path"
+  ],
+  "scripts/seed-tables-simple.ts": [
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path"
+  ],
+  "scripts/seed-tables.ts": [
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path"
+  ],
+  "scripts/seed-minimal-restaurant.ts": [
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path"
+  ],
+  "scripts/seed-menu.ts": [
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:url",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:url",
+    "external:path"
+  ],
+  "scripts/seed-restaurants.ts": [
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path"
+  ],
+  "scripts/seed-menu-mapped.ts": [
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:url",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:url",
+    "external:path"
+  ],
+  "scripts/seed-basic-restaurant.ts": [
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path"
+  ],
+  "scripts/init-menu-context.ts": [
+    "external:dotenv",
+    "external:path",
+    "external:url",
+    "external:path",
+    "src/services/ai.service",
+    "external:dotenv",
+    "external:path",
+    "external:url",
+    "external:path",
+    "src/services/ai.service"
+  ],
+  "scripts/test-voice-websocket.ts": [
+    "external:ws",
+    "external:ws"
+  ],
+  "scripts/check-tables-schema.ts": [
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "external:dotenv",
+    "external:path"
+  ],
+  "scripts/reconcile-payments.ts": [
+    "external:square",
+    "src/utils/supabase",
+    "external:fs",
+    "external:date-fns",
+    "external:path",
+    "external:fs",
+    "external:square",
+    "src/utils/supabase",
+    "external:fs",
+    "external:date-fns",
+    "external:path",
+    "external:fs"
+  ],
+  "src/server.ts": [
+    "external:dotenv",
+    "external:path",
+    "external:express",
+    "external:cors",
+    "external:helmet",
+    "external:cookie-parser",
+    "external:http",
+    "external:ws",
+    "src/utils/logger",
+    "src/middleware/errorHandler",
+    "src/middleware/requestLogger",
+    "src/routes",
+    "src/config/database",
+    "src/config/environment",
+    "src/services/ai.service",
+    "src/utils/websocket",
+    "src/ai/websocket",
+    "src/middleware/rateLimiter",
+    "src/services/orders.service",
+    "src/routes/ai.routes",
+    "src/routes/realtime.routes",
+    "src/middleware/metrics",
+    "src/middleware/auth",
+    "src/middleware/csrf",
+    "src/middleware/security",
+    "external:dotenv",
+    "external:path",
+    "external:express",
+    "external:cors",
+    "external:helmet",
+    "external:cookie-parser",
+    "external:http",
+    "external:ws",
+    "src/utils/logger",
+    "src/middleware/errorHandler",
+    "src/middleware/requestLogger",
+    "src/routes",
+    "src/config/database",
+    "src/config/environment",
+    "src/services/ai.service",
+    "src/utils/websocket",
+    "src/ai/websocket",
+    "src/middleware/rateLimiter",
+    "src/services/orders.service",
+    "src/routes/ai.routes",
+    "src/routes/realtime.routes",
+    "src/middleware/metrics",
+    "src/middleware/auth",
+    "src/middleware/csrf",
+    "src/middleware/security"
+  ],
+  "src/dto/order.dto.ts": [
+    "external:zod",
+    "external:zod"
+  ],
+  "src/middleware/paymentGate.ts": [
+    "external:express",
+    "src/utils/logger",
+    "src/payments/square.adapter",
+    "external:express",
+    "src/utils/logger",
+    "src/payments/square.adapter"
+  ],
+  "src/middleware/validation.ts": [
+    "external:express",
+    "external:joi",
+    "src/middleware/errorHandler",
+    "external:express",
+    "external:joi",
+    "src/middleware/errorHandler"
+  ],
+  "src/middleware/webhookSignature.ts": [
+    "external:express",
+    "external:crypto",
+    "src/utils/logger",
+    "external:express",
+    "external:crypto",
+    "src/utils/logger"
+  ],
+  "src/middleware/rateLimiter.ts": [
+    "external:express-rate-limit",
+    "external:express",
+    "src/middleware/auth",
+    "external:express-rate-limit",
+    "external:express",
+    "src/middleware/auth"
+  ],
+  "src/middleware/errorHandler.ts": [
+    "external:express",
+    "src/utils/logger",
+    "external:express",
+    "src/utils/logger"
+  ],
+  "src/middleware/auth-dev-fix.ts": [
+    "external:express",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/middleware/rbac",
+    "src/services/auth/AuthenticationService",
+    "external:express",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/middleware/rbac",
+    "src/services/auth/AuthenticationService"
+  ],
+  "src/middleware/fileValidation.ts": [
+    "external:multer",
+    "external:express",
+    "external:multer",
+    "external:express"
+  ],
+  "src/middleware/orderMode.ts": [
+    "external:express",
+    "src/middleware/auth",
+    "external:express",
+    "src/middleware/auth"
+  ],
+  "src/middleware/requestLogger.ts": [
+    "external:express",
+    "src/utils/logger",
+    "external:crypto",
+    "external:express",
+    "src/utils/logger",
+    "external:crypto"
+  ],
+  "src/middleware/rbac.ts": [
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/config/database",
+    "external:@rebuild/shared/types/auth",
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/config/database",
+    "external:@rebuild/shared/types/auth",
+    "external:@rebuild/shared/types/auth"
+  ],
+  "src/middleware/restaurantAccess.ts": [
+    "src/middleware/auth"
+  ],
+  "src/middleware/security.ts": [
+    "external:express",
+    "external:helmet",
+    "external:crypto",
+    "src/utils/logger",
+    "external:express",
+    "external:helmet",
+    "external:crypto",
+    "src/utils/logger"
+  ],
+  "src/middleware/normalizeVoiceSession.ts": [
+    "external:express",
+    "src/utils/logger",
+    "src/voice/sessionLimits",
+    "src/services/restaurant.service",
+    "shared/utils/voice-metrics",
+    "external:express",
+    "src/utils/logger",
+    "src/voice/sessionLimits",
+    "src/services/restaurant.service",
+    "shared/utils/voice-metrics"
+  ],
+  "src/middleware/idempotency.ts": [
+    "external:express",
+    "external:crypto",
+    "src/utils/logger",
+    "src/utils/supabase",
+    "external:express",
+    "external:crypto",
+    "src/utils/logger",
+    "src/utils/supabase"
+  ],
+  "src/middleware/security-headers.ts": [
+    "external:express",
+    "external:crypto",
+    "external:express",
+    "external:crypto"
+  ],
+  "src/middleware/csrf.ts": [
+    "external:csurf",
+    "external:express",
+    "src/utils/logger",
+    "external:csurf",
+    "external:express",
+    "src/utils/logger"
+  ],
+  "src/middleware/metrics.ts": [
+    "external:express-prom-bundle",
+    "external:express",
+    "external:prom-client",
+    "external:express-prom-bundle",
+    "external:express",
+    "external:prom-client"
+  ],
+  "src/middleware/auth.ts": [
+    "external:express",
+    "external:jsonwebtoken",
+    "external:http",
+    "src/config/environment",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/middleware/rbac",
+    "src/services/auth/AuthenticationService",
+    "src/middleware/rbac",
+    "external:express",
+    "external:jsonwebtoken",
+    "external:http",
+    "src/config/environment",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/middleware/rbac",
+    "src/services/auth/AuthenticationService",
+    "src/middleware/rbac"
+  ],
+  "src/payments/square.adapter.ts": [
+    "external:square",
+    "external:crypto",
+    "src/utils/logger",
+    "src/utils/supabase",
+    "external:square",
+    "external:crypto",
+    "src/utils/logger",
+    "src/utils/supabase"
+  ],
+  "src/test-utils/index.ts": [
+    "external:express",
+    "external:vitest",
+    "src/types/supabase",
+    "external:express",
+    "external:vitest",
+    "src/types/supabase"
+  ],
+  "src/config/environment.ts": [],
+  "src/config/features.ts": [
+    "src/utils/logger",
+    "src/utils/logger"
+  ],
+  "src/config/database.ts": [
+    "external:@supabase/supabase-js",
+    "src/config/environment",
+    "src/utils/logger",
+    "external:dotenv",
+    "external:path",
+    "external:@supabase/supabase-js",
+    "src/config/environment",
+    "src/utils/logger",
+    "external:dotenv",
+    "external:path"
+  ],
+  "src/utils/websocket.ts": [
+    "external:ws",
+    "src/utils/logger",
+    "src/middleware/auth",
+    "external:ws",
+    "src/utils/logger",
+    "src/middleware/auth"
+  ],
+  "src/utils/case.ts": [],
+  "src/utils/logger.ts": [
+    "external:winston",
+    "src/config/environment",
+    "external:winston",
+    "src/config/environment"
+  ],
+  "src/utils/supabase.ts": [
+    "src/config/database"
+  ],
+  "src/utils/env.ts": [],
+  "src/models/order.model.ts": [
+    "external:joi",
+    "external:joi"
+  ],
+  "src/voice/openai-adapter.ts": [
+    "external:ws",
+    "external:events",
+    "src/utils/logger",
+    "external:ws",
+    "external:events",
+    "src/utils/logger"
+  ],
+  "src/voice/twilio-bridge.ts": [
+    "external:express",
+    "external:ws",
+    "external:http",
+    "src/ai/voice/EnhancedOpenAIAdapter",
+    "src/utils/logger",
+    "external:uuid",
+    "external:express",
+    "external:ws",
+    "external:http",
+    "src/ai/voice/EnhancedOpenAIAdapter",
+    "src/utils/logger",
+    "external:uuid"
+  ],
+  "src/voice/sessionLimits.ts": [],
+  "src/voice/types.ts": [
+    "external:zod",
+    "external:zod"
+  ],
+  "src/voice/voice-routes.ts": [
+    "external:express",
+    "src/voice/websocket-server",
+    "src/voice/types",
+    "external:ws",
+    "external:express",
+    "src/voice/websocket-server",
+    "src/voice/types",
+    "external:ws"
+  ],
+  "src/voice/websocket-server.ts": [
+    "external:ws",
+    "external:uuid",
+    "src/utils/logger",
+    "src/voice/openai-adapter",
+    "external:ws",
+    "external:uuid",
+    "src/utils/logger",
+    "src/voice/openai-adapter"
+  ],
+  "src/voice/debug-dashboard.ts": [
+    "external:express",
+    "src/voice/twilio-bridge",
+    "src/utils/logger",
+    "external:fs/promises",
+    "external:path",
+    "external:express",
+    "src/voice/twilio-bridge",
+    "src/utils/logger",
+    "external:fs/promises",
+    "external:path"
+  ],
+  "src/ai/websocket.ts": [
+    "external:ws",
+    "src/utils/logger",
+    "src/voice/voice-routes",
+    "external:ws",
+    "src/utils/logger",
+    "src/voice/voice-routes"
+  ],
+  "src/ai/index.ts": [
+    "external:openai",
+    "src/ai/core/transcriber",
+    "src/ai/core/tts",
+    "src/ai/core/chat",
+    "src/ai/core/order-nlp",
+    "src/ai/adapters/openai/openai-transcriber",
+    "src/ai/adapters/openai/openai-tts",
+    "src/ai/adapters/openai/openai-chat",
+    "src/ai/adapters/openai/openai-order-nlp",
+    "src/services/OrderMatchingService",
+    "src/services/menu.service",
+    "src/utils/logger",
+    "src/ai/stubs/transcriber.stub",
+    "src/ai/stubs/tts.stub",
+    "src/ai/stubs/chat.stub",
+    "src/ai/stubs/order-nlp.stub",
+    "external:openai",
+    "src/ai/core/transcriber",
+    "src/ai/core/tts",
+    "src/ai/core/chat",
+    "src/ai/core/order-nlp",
+    "src/ai/adapters/openai/openai-transcriber",
+    "src/ai/adapters/openai/openai-tts",
+    "src/ai/adapters/openai/openai-chat",
+    "src/ai/adapters/openai/openai-order-nlp",
+    "src/services/OrderMatchingService",
+    "src/services/menu.service",
+    "src/utils/logger",
+    "src/ai/core/transcriber",
+    "src/ai/core/tts",
+    "src/ai/core/chat",
+    "src/ai/core/order-nlp"
+  ],
+  "src/ai/stubs/transcriber.stub.ts": [
+    "src/ai/core/transcriber",
+    "src/ai/core/transcriber"
+  ],
+  "src/ai/stubs/tts.stub.ts": [
+    "src/ai/core/tts",
+    "src/ai/core/tts"
+  ],
+  "src/ai/stubs/chat.stub.ts": [
+    "src/ai/core/chat",
+    "src/ai/core/chat"
+  ],
+  "src/ai/stubs/order-nlp.stub.ts": [
+    "src/ai/core/order-nlp",
+    "src/ai/core/order-nlp"
+  ],
+  "src/ai/core/order-nlp.ts": [],
+  "src/ai/core/chat.ts": [],
+  "src/ai/core/tts.ts": [],
+  "src/ai/core/transcriber.ts": [],
+  "src/ai/adapters/openai/openai-tts.ts": [
+    "external:openai",
+    "src/ai/core/tts",
+    "src/ai/adapters/openai/utils",
+    "src/utils/logger",
+    "external:openai",
+    "src/ai/core/tts",
+    "src/ai/adapters/openai/utils",
+    "src/utils/logger"
+  ],
+  "src/ai/adapters/openai/utils.ts": [
+    "external:fs",
+    "external:path",
+    "external:os",
+    "external:fs",
+    "external:fs/promises",
+    "external:fs",
+    "external:path",
+    "external:os",
+    "external:fs",
+    "external:fs/promises"
+  ],
+  "src/ai/adapters/openai/openai-transcriber.ts": [
+    "external:openai",
+    "src/ai/core/transcriber",
+    "src/ai/adapters/openai/utils",
+    "external:fs/promises",
+    "external:fs",
+    "src/utils/logger",
+    "external:openai",
+    "src/ai/core/transcriber",
+    "src/ai/adapters/openai/utils",
+    "external:fs/promises",
+    "external:fs",
+    "src/utils/logger"
+  ],
+  "src/ai/adapters/openai/openai-order-nlp.ts": [
+    "external:openai",
+    "external:zod",
+    "src/ai/core/order-nlp",
+    "src/services/OrderMatchingService",
+    "src/ai/adapters/openai/utils",
+    "external:openai",
+    "external:zod",
+    "src/ai/core/order-nlp",
+    "src/services/OrderMatchingService",
+    "src/ai/adapters/openai/utils"
+  ],
+  "src/ai/adapters/openai/openai-chat.ts": [
+    "external:openai",
+    "src/ai/core/chat",
+    "src/ai/adapters/openai/utils",
+    "src/utils/logger",
+    "external:openai",
+    "src/ai/core/chat",
+    "src/ai/adapters/openai/utils",
+    "src/utils/logger"
+  ],
+  "src/ai/voice/EnhancedOpenAIAdapter.ts": [
+    "external:ws",
+    "src/utils/logger",
+    "src/voice/openai-adapter",
+    "src/voice/types",
+    "src/ai/functions/realtime-menu-tools",
+    "external:ws",
+    "src/utils/logger",
+    "src/voice/openai-adapter",
+    "src/voice/types",
+    "src/ai/functions/realtime-menu-tools"
+  ],
+  "src/ai/functions/realtime-menu-tools.ts": [
+    "external:@supabase/supabase-js",
+    "src/utils/logger",
+    "external:node-cache",
+    "external:@supabase/supabase-js",
+    "src/utils/logger",
+    "external:node-cache"
+  ],
+  "src/api/routes/tables.ts": [
+    "external:express",
+    "src/config/database",
+    "src/middleware/errorHandler",
+    "src/middleware/auth",
+    "external:express",
+    "src/config/database",
+    "src/middleware/errorHandler",
+    "src/middleware/auth"
+  ],
+  "src/mappers/cart.mapper.ts": [
+    "src/utils/case",
+    "src/utils/case"
+  ],
+  "src/mappers/menu.mapper.ts": [
+    "src/utils/case",
+    "src/utils/case"
+  ],
+  "src/routes/ai.routes.ts": [
+    "external:express",
+    "src/services/ai.service",
+    "src/ai",
+    "src/utils/logger",
+    "src/middleware/fileValidation",
+    "src/middleware/auth",
+    "src/middleware/rateLimiter",
+    "src/middleware/validation",
+    "src/validation/ai.validation",
+    "src/middleware/metrics",
+    "src/voice/voice-routes",
+    "src/services/menu.service",
+    "external:express",
+    "src/services/ai.service",
+    "src/ai",
+    "src/utils/logger",
+    "src/middleware/fileValidation",
+    "src/middleware/auth",
+    "src/middleware/rateLimiter",
+    "src/middleware/validation",
+    "src/validation/ai.validation",
+    "src/middleware/metrics",
+    "src/voice/voice-routes",
+    "src/services/menu.service"
+  ],
+  "src/routes/realtime.routes.ts": [
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/normalizeVoiceSession",
+    "src/utils/logger",
+    "external:node-fetch",
+    "src/services/menu.service",
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/normalizeVoiceSession",
+    "src/utils/logger",
+    "external:node-fetch",
+    "src/services/menu.service"
+  ],
+  "src/routes/tables.routes.ts": [
+    "external:express",
+    "src/utils/logger",
+    "src/config/database",
+    "src/middleware/auth",
+    "src/config/environment",
+    "external:express",
+    "src/utils/logger",
+    "src/config/database",
+    "src/middleware/auth",
+    "src/config/environment"
+  ],
+  "src/routes/table-payment.routes.ts": [
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/rbac",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/services/payment-flow.service",
+    "src/services/table-check.service",
+    "src/services/tip-calculation.service",
+    "src/services/split-payment.service",
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/rbac",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/services/payment-flow.service",
+    "src/services/table-check.service",
+    "src/services/tip-calculation.service",
+    "src/services/split-payment.service"
+  ],
+  "src/routes/restaurants.routes.ts": [
+    "external:express",
+    "src/config/database",
+    "src/middleware/auth",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "external:express",
+    "src/config/database",
+    "src/middleware/auth",
+    "src/middleware/errorHandler",
+    "src/utils/logger"
+  ],
+  "src/routes/security.routes.ts": [
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/security",
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/security"
+  ],
+  "src/routes/menu.routes.ts": [
+    "external:express",
+    "src/services/menu.service",
+    "src/middleware/auth",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "external:express",
+    "src/services/menu.service",
+    "src/middleware/auth",
+    "src/middleware/errorHandler",
+    "src/utils/logger"
+  ],
+  "src/routes/health.routes.ts": [
+    "external:express",
+    "src/config/database",
+    "src/utils/logger",
+    "src/ai",
+    "external:node-cache",
+    "external:express",
+    "src/config/database",
+    "src/utils/logger",
+    "src/ai",
+    "external:node-cache"
+  ],
+  "src/routes/terminal.routes.ts": [
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "external:square",
+    "external:crypto",
+    "src/services/orders.service",
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "external:square",
+    "external:crypto",
+    "src/services/orders.service"
+  ],
+  "src/routes/payments.routes.ts": [
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/rbac",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "external:square",
+    "external:crypto",
+    "src/services/orders.service",
+    "src/services/payment.service",
+    "src/payments/square.adapter",
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/rbac",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "external:square",
+    "external:crypto",
+    "src/services/orders.service",
+    "src/services/payment.service",
+    "src/payments/square.adapter"
+  ],
+  "src/routes/webhooks.routes.ts": [
+    "external:express",
+    "src/middleware/webhookSignature",
+    "src/utils/logger",
+    "src/payments/square.adapter",
+    "src/utils/supabase",
+    "external:express",
+    "src/middleware/webhookSignature",
+    "src/utils/logger",
+    "src/payments/square.adapter",
+    "src/utils/supabase"
+  ],
+  "src/routes/orders.routes.ts": [
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/rbac",
+    "external:@rebuild/shared/types/auth",
+    "src/services/orders.service",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/ai",
+    "src/services/menu.service",
+    "src/dto/order.dto",
+    "src/middleware/idempotency",
+    "external:zod",
+    "external:@rebuild/shared",
+    "src/middleware/orderMode",
+    "src/middleware/paymentGate",
+    "src/payments/square.adapter",
+    "external:express",
+    "src/middleware/auth",
+    "src/middleware/rbac",
+    "external:@rebuild/shared/types/auth",
+    "src/services/orders.service",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/ai",
+    "src/services/menu.service",
+    "src/dto/order.dto",
+    "src/middleware/idempotency",
+    "external:zod",
+    "external:@rebuild/shared",
+    "src/middleware/orderMode",
+    "src/middleware/paymentGate",
+    "src/payments/square.adapter"
+  ],
+  "src/routes/index.ts": [
+    "external:express",
+    "src/routes/health.routes",
+    "src/routes/menu.routes",
+    "src/routes/orders.routes",
+    "src/routes/payments.routes",
+    "src/routes/terminal.routes",
+    "src/routes/tables.routes",
+    "src/routes/table-payment.routes",
+    "src/routes/ai.routes",
+    "src/routes/restaurants.routes",
+    "src/routes/auth.routes",
+    "src/routes/realtime.routes",
+    "src/routes/metrics",
+    "src/routes/security.routes",
+    "src/routes/webhooks.routes",
+    "external:express",
+    "src/routes/health.routes",
+    "src/routes/menu.routes",
+    "src/routes/orders.routes",
+    "src/routes/payments.routes",
+    "src/routes/terminal.routes",
+    "src/routes/tables.routes",
+    "src/routes/table-payment.routes",
+    "src/routes/ai.routes",
+    "src/routes/restaurants.routes",
+    "src/routes/auth.routes",
+    "src/routes/realtime.routes",
+    "src/routes/metrics",
+    "src/routes/security.routes",
+    "src/routes/webhooks.routes"
+  ],
+  "src/routes/auth.routes.ts": [
+    "external:express",
+    "external:jsonwebtoken",
+    "src/config/environment",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/config/database",
+    "src/services/auth/pinAuth",
+    "src/services/auth/stationAuth",
+    "src/middleware/auth",
+    "src/middleware/rbac",
+    "src/middleware/rateLimiter",
+    "external:express",
+    "external:jsonwebtoken",
+    "src/config/environment",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/config/database",
+    "src/services/auth/pinAuth",
+    "src/services/auth/stationAuth",
+    "src/middleware/auth",
+    "src/middleware/rbac",
+    "src/middleware/rateLimiter"
+  ],
+  "src/routes/metrics.ts": [
+    "external:express",
+    "src/utils/logger",
+    "external:express",
+    "src/utils/logger"
+  ],
+  "src/services/tip-calculation.service.ts": [
+    "src/utils/logger",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/middleware/errorHandler"
+  ],
+  "src/services/ai.service.ts": [
+    "src/utils/logger",
+    "external:ws",
+    "src/ai",
+    "src/services/menu.service",
+    "src/utils/logger",
+    "external:ws",
+    "src/ai",
+    "src/services/menu.service"
+  ],
+  "src/services/menu-ai-sync.service.ts": [
+    "src/services/menu.service",
+    "src/utils/logger",
+    "external:openai",
+    "src/config/environment",
+    "src/services/menu.service",
+    "src/utils/logger",
+    "external:openai",
+    "src/config/environment"
+  ],
+  "src/services/menu-id-mapper.ts": [],
+  "src/services/payment.service.ts": [
+    "external:crypto",
+    "src/utils/logger",
+    "src/services/orders.service",
+    "src/middleware/errorHandler",
+    "src/config/database",
+    "external:crypto",
+    "src/utils/logger",
+    "src/services/orders.service",
+    "src/middleware/errorHandler",
+    "src/config/database"
+  ],
+  "src/services/table-check.service.ts": [
+    "src/utils/logger",
+    "src/config/database",
+    "src/middleware/errorHandler",
+    "external:crypto",
+    "src/utils/logger",
+    "src/config/database",
+    "src/middleware/errorHandler",
+    "external:crypto"
+  ],
+  "src/services/split-payment.service.ts": [
+    "src/utils/logger",
+    "src/config/database",
+    "src/middleware/errorHandler",
+    "external:crypto",
+    "external:square",
+    "src/services/payment-flow.service",
+    "src/services/tip-calculation.service",
+    "src/utils/logger",
+    "src/config/database",
+    "src/middleware/errorHandler",
+    "external:crypto",
+    "external:square",
+    "src/services/payment-flow.service",
+    "src/services/tip-calculation.service"
+  ],
+  "src/services/restaurant.service.ts": [
+    "external:node-cache",
+    "src/config/database",
+    "src/utils/logger",
+    "src/config/environment",
+    "external:node-cache",
+    "src/config/database",
+    "src/utils/logger",
+    "src/config/environment"
+  ],
+  "src/services/idempotency.service.ts": [
+    "external:crypto",
+    "src/utils/logger",
+    "external:crypto",
+    "src/utils/logger"
+  ],
+  "src/services/orderStateMachine.ts": [
+    "src/utils/logger",
+    "src/middleware/errorHandler",
+    "external:@rebuild/shared",
+    "src/utils/logger",
+    "src/middleware/errorHandler",
+    "external:@rebuild/shared",
+    "external:${currentStatus}"
+  ],
+  "src/services/payment-flow.service.ts": [
+    "src/utils/logger",
+    "src/config/database",
+    "external:square",
+    "external:crypto",
+    "src/services/payment.service",
+    "src/services/orders.service",
+    "src/middleware/errorHandler",
+    "src/utils/logger",
+    "src/config/database",
+    "external:square",
+    "external:crypto",
+    "src/services/payment.service",
+    "src/services/orders.service",
+    "src/middleware/errorHandler"
+  ],
+  "src/services/OrderMatchingService.ts": [],
+  "src/services/orders.service.ts": [
+    "src/config/database",
+    "src/utils/logger",
+    "external:crypto",
+    "external:ws",
+    "src/utils/websocket",
+    "src/services/menu-id-mapper",
+    "src/config/database",
+    "src/utils/logger",
+    "external:crypto",
+    "external:ws",
+    "src/utils/websocket",
+    "src/services/menu-id-mapper",
+    "external:@rebuild/shared"
+  ],
+  "src/services/menu.service.ts": [
+    "external:node-cache",
+    "src/config/database",
+    "src/utils/logger",
+    "src/config/environment",
+    "src/services/menu-id-mapper",
+    "src/mappers/menu.mapper",
+    "external:node-cache",
+    "src/config/database",
+    "src/utils/logger",
+    "src/config/environment",
+    "src/services/menu-id-mapper",
+    "src/mappers/menu.mapper"
+  ],
+  "src/services/auth/pinAuth.ts": [
+    "external:bcryptjs",
+    "src/config/database",
+    "src/utils/logger",
+    "src/middleware/errorHandler",
+    "external:bcryptjs",
+    "src/config/database",
+    "src/utils/logger",
+    "src/middleware/errorHandler"
+  ],
+  "src/services/auth/AuthenticationService.ts": [
+    "external:jsonwebtoken",
+    "src/config/database",
+    "src/utils/logger",
+    "src/config/environment",
+    "src/middleware/rbac",
+    "src/middleware/errorHandler",
+    "external:jsonwebtoken",
+    "src/config/database",
+    "src/utils/logger",
+    "src/config/environment",
+    "src/middleware/rbac",
+    "src/middleware/errorHandler"
+  ],
+  "src/services/auth/stationAuth.ts": [
+    "external:crypto",
+    "external:jsonwebtoken",
+    "src/config/database",
+    "src/utils/logger",
+    "src/middleware/errorHandler",
+    "src/middleware/rbac",
+    "external:crypto",
+    "external:jsonwebtoken",
+    "src/config/database",
+    "src/utils/logger",
+    "src/middleware/errorHandler",
+    "src/middleware/rbac"
+  ],
+  "src/validation/ai.validation.ts": [
+    "external:joi",
+    "external:joi"
+  ],
+  "dist/server.js": [
+    "external:dotenv",
+    "external:path",
+    "external:express",
+    "external:cors",
+    "external:helmet",
+    "external:cookie-parser",
+    "external:http",
+    "external:ws",
+    "dist/utils/logger",
+    "dist/middleware/errorHandler",
+    "dist/middleware/requestLogger",
+    "dist/routes",
+    "dist/config/database",
+    "dist/config/environment",
+    "dist/services/ai.service",
+    "dist/utils/websocket",
+    "dist/ai/websocket",
+    "dist/middleware/rateLimiter",
+    "dist/services/orders.service",
+    "dist/routes/ai.routes",
+    "dist/routes/realtime.routes",
+    "dist/middleware/metrics",
+    "dist/middleware/auth",
+    "dist/middleware/csrf",
+    "dist/services/buildpanel.service"
+  ],
+  "dist/middleware/restaurantAccess.js": [
+    "dist/middleware/errorHandler",
+    "dist/utils/logger",
+    "dist/config/database"
+  ],
+  "dist/middleware/rbac.js": [
+    "dist/middleware/errorHandler",
+    "dist/utils/logger",
+    "dist/config/database"
+  ],
+  "dist/middleware/metrics.js": [
+    "external:express-prom-bundle",
+    "external:prom-client"
+  ],
+  "dist/middleware/auth.js": [
+    "external:jsonwebtoken",
+    "dist/config/environment",
+    "dist/middleware/errorHandler",
+    "dist/utils/logger"
+  ],
+  "dist/middleware/csrf.js": [
+    "external:csurf",
+    "dist/utils/logger"
+  ],
+  "dist/middleware/errorHandler.js": [
+    "dist/utils/logger"
+  ],
+  "dist/middleware/validation.js": [
+    "dist/middleware/errorHandler"
+  ],
+  "dist/middleware/rateLimiter.js": [
+    "external:express-rate-limit"
+  ],
+  "dist/middleware/fileValidation.js": [
+    "external:multer"
+  ],
+  "dist/middleware/requestLogger.js": [
+    "dist/utils/logger",
+    "external:crypto"
+  ],
+  "dist/test-utils/index.js": [
+    "dist/types/supabase",
+    "external:vitest",
+    "dist/types/supabase"
+  ],
+  "dist/config/database.js": [
+    "external:@supabase/supabase-js",
+    "dist/config/environment",
+    "dist/utils/logger",
+    "external:dotenv",
+    "external:path"
+  ],
+  "dist/config/environment.js": [],
+  "dist/server/src/server.js": [
+    "external:dotenv",
+    "external:path",
+    "external:express",
+    "external:cors",
+    "external:cookie-parser",
+    "external:http",
+    "external:ws",
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/middleware/requestLogger",
+    "dist/server/src/routes",
+    "dist/server/src/config/database",
+    "dist/server/src/config/environment",
+    "dist/server/src/services/ai.service",
+    "dist/server/src/utils/websocket",
+    "dist/server/src/ai/websocket",
+    "dist/server/src/middleware/rateLimiter",
+    "dist/server/src/services/orders.service",
+    "dist/server/src/routes/ai.routes",
+    "dist/server/src/routes/realtime.routes",
+    "dist/server/src/middleware/metrics",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/csrf",
+    "dist/server/src/middleware/security"
+  ],
+  "dist/server/src/dto/order.dto.js": [
+    "external:zod"
+  ],
+  "dist/server/src/middleware/restaurantAccess.js": [
+    "dist/server/src/middleware/auth"
+  ],
+  "dist/server/src/middleware/security.js": [
+    "external:helmet",
+    "external:crypto",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/middleware/normalizeVoiceSession.js": [
+    "dist/server/src/utils/logger",
+    "dist/server/src/voice/sessionLimits",
+    "dist/server/src/services/restaurant.service"
+  ],
+  "dist/server/src/middleware/idempotency.js": [
+    "external:crypto",
+    "dist/server/src/utils/logger",
+    "dist/server/src/utils/supabase"
+  ],
+  "dist/server/src/middleware/security-headers.js": [
+    "external:crypto"
+  ],
+  "dist/server/src/middleware/rbac.js": [
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger",
+    "dist/server/src/config/database",
+    "external:@rebuild/shared/types/auth",
+    "external:@rebuild/shared/types/auth"
+  ],
+  "dist/server/src/middleware/metrics.js": [
+    "external:express-prom-bundle",
+    "external:prom-client"
+  ],
+  "dist/server/src/middleware/auth.js": [
+    "dist/server/src/middleware/rbac",
+    "external:jsonwebtoken",
+    "dist/server/src/config/environment",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/rbac",
+    "dist/server/src/services/auth/AuthenticationService",
+    "dist/server/src/middleware/rbac"
+  ],
+  "dist/server/src/middleware/csrf.js": [
+    "external:csurf",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/middleware/requestSanitizer.js": [
+    "external:xss",
+    "external:validator",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/middleware/asyncHandler.js": [],
+  "dist/server/src/middleware/errorHandler.js": [
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/middleware/auth-dev-fix.js": [
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/rbac",
+    "dist/server/src/services/auth/AuthenticationService"
+  ],
+  "dist/server/src/middleware/paymentGate.js": [
+    "dist/server/src/utils/logger",
+    "dist/server/src/payments/square.adapter"
+  ],
+  "dist/server/src/middleware/validation.js": [
+    "dist/server/src/middleware/errorHandler"
+  ],
+  "dist/server/src/middleware/webhookSignature.js": [
+    "external:crypto",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/middleware/rateLimiter.js": [
+    "external:express-rate-limit"
+  ],
+  "dist/server/src/middleware/fileValidation.js": [
+    "external:multer"
+  ],
+  "dist/server/src/middleware/authRateLimiter.js": [
+    "external:express-rate-limit",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/middleware/orderMode.js": [],
+  "dist/server/src/middleware/requestLogger.js": [
+    "dist/server/src/utils/logger",
+    "external:crypto"
+  ],
+  "dist/server/src/payments/square.adapter.js": [
+    "external:square",
+    "external:crypto",
+    "dist/server/src/utils/logger",
+    "dist/server/src/utils/supabase"
+  ],
+  "dist/server/src/test-utils/index.js": [
+    "dist/server/src/types/supabase",
+    "external:vitest",
+    "dist/server/src/types/supabase"
+  ],
+  "dist/server/src/config/database.js": [
+    "external:@supabase/supabase-js",
+    "dist/server/src/config/environment",
+    "dist/server/src/utils/logger",
+    "external:dotenv",
+    "external:path"
+  ],
+  "dist/server/src/config/features.js": [
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/config/demo.js": [
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/config/environment.js": [],
+  "dist/server/src/utils/logger.js": [
+    "external:winston",
+    "dist/server/src/config/environment"
+  ],
+  "dist/server/src/utils/supabase.js": [
+    "dist/server/src/config/database"
+  ],
+  "dist/server/src/utils/env.js": [],
+  "dist/server/src/utils/websocket.js": [
+    "external:ws",
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/auth"
+  ],
+  "dist/server/src/utils/case.js": [],
+  "dist/server/src/models/order.model.js": [
+    "external:joi"
+  ],
+  "dist/server/src/voice/voice-routes.js": [
+    "external:express",
+    "dist/server/src/voice/websocket-server",
+    "dist/server/src/voice/types",
+    "external:ws"
+  ],
+  "dist/server/src/voice/websocket-server.js": [
+    "external:ws",
+    "external:uuid",
+    "dist/server/src/utils/logger",
+    "dist/shared/src/voice-types",
+    "dist/server/src/voice/openai-adapter"
+  ],
+  "dist/server/src/voice/types.js": [
+    "external:zod",
+    "dist/shared/src/voice-types"
+  ],
+  "dist/server/src/voice/debug-dashboard.js": [
+    "external:express",
+    "dist/server/src/voice/twilio-bridge",
+    "dist/server/src/ai/voice/EnhancedOpenAIAdapter"
+  ],
+  "dist/server/src/voice/openai-adapter.js": [
+    "external:ws",
+    "external:events",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/voice/twilio-bridge.js": [
+    "external:express",
+    "external:ws",
+    "dist/server/src/ai/voice/EnhancedOpenAIAdapter",
+    "dist/server/src/utils/logger",
+    "external:uuid"
+  ],
+  "dist/server/src/voice/sessionLimits.js": [],
+  "dist/server/src/ai/index.js": [
+    "external:openai",
+    "dist/server/src/ai/adapters/openai/openai-transcriber",
+    "dist/server/src/ai/adapters/openai/openai-tts",
+    "dist/server/src/ai/adapters/openai/openai-chat",
+    "dist/server/src/ai/adapters/openai/openai-order-nlp",
+    "dist/server/src/services/OrderMatchingService",
+    "dist/server/src/services/menu.service",
+    "dist/server/src/utils/logger",
+    "dist/server/src/ai/core/transcriber",
+    "dist/server/src/ai/core/tts",
+    "dist/server/src/ai/core/chat",
+    "dist/server/src/ai/core/order-nlp",
+    "dist/server/src/ai/stubs/transcriber.stub",
+    "dist/server/src/ai/stubs/tts.stub",
+    "dist/server/src/ai/stubs/chat.stub",
+    "dist/server/src/ai/stubs/order-nlp.stub"
+  ],
+  "dist/server/src/ai/websocket.js": [
+    "dist/server/src/utils/logger",
+    "dist/server/src/voice/voice-routes"
+  ],
+  "dist/server/src/ai/stubs/chat.stub.js": [],
+  "dist/server/src/ai/stubs/transcriber.stub.js": [],
+  "dist/server/src/ai/stubs/tts.stub.js": [],
+  "dist/server/src/ai/stubs/order-nlp.stub.js": [],
+  "dist/server/src/ai/core/transcriber.js": [],
+  "dist/server/src/ai/core/tts.js": [],
+  "dist/server/src/ai/core/order-nlp.js": [],
+  "dist/server/src/ai/core/chat.js": [],
+  "dist/server/src/ai/adapters/openai/openai-transcriber.js": [
+    "external:openai",
+    "dist/server/src/ai/adapters/openai/utils",
+    "external:fs/promises",
+    "external:fs",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/ai/adapters/openai/openai-order-nlp.js": [
+    "external:zod",
+    "dist/server/src/ai/adapters/openai/utils"
+  ],
+  "dist/server/src/ai/adapters/openai/openai-chat.js": [
+    "external:openai",
+    "dist/server/src/ai/adapters/openai/utils",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/ai/adapters/openai/openai-tts.js": [
+    "external:openai",
+    "dist/server/src/ai/adapters/openai/utils",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/ai/adapters/openai/utils.js": [
+    "external:fs",
+    "external:path",
+    "external:os",
+    "external:fs",
+    "external:fs/promises"
+  ],
+  "dist/server/src/ai/voice/EnhancedOpenAIAdapter.js": [
+    "external:ws",
+    "dist/server/src/utils/logger",
+    "dist/server/src/voice/openai-adapter",
+    "dist/server/src/ai/functions/realtime-menu-tools"
+  ],
+  "dist/server/src/ai/functions/realtime-menu-tools.js": [
+    "external:@supabase/supabase-js",
+    "dist/server/src/utils/logger",
+    "external:node-cache"
+  ],
+  "dist/server/src/api/routes/tables.js": [
+    "external:express",
+    "dist/server/src/config/database",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/middleware/auth"
+  ],
+  "dist/server/src/mappers/menu.mapper.js": [
+    "dist/server/src/utils/case"
+  ],
+  "dist/server/src/mappers/cart.mapper.js": [
+    "dist/server/src/utils/case"
+  ],
+  "dist/server/src/routes/terminal.routes.js": [
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger",
+    "external:square",
+    "external:crypto",
+    "dist/server/src/services/orders.service"
+  ],
+  "dist/server/src/routes/payments.routes.js": [
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/rbac",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger",
+    "external:square",
+    "external:crypto",
+    "dist/server/src/services/orders.service",
+    "dist/server/src/services/payment.service",
+    "dist/server/src/payments/square.adapter"
+  ],
+  "dist/server/src/routes/webhooks.routes.js": [
+    "external:express",
+    "dist/server/src/middleware/webhookSignature",
+    "dist/server/src/utils/logger",
+    "dist/server/src/payments/square.adapter",
+    "dist/server/src/utils/supabase"
+  ],
+  "dist/server/src/routes/orders.routes.js": [
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/rbac",
+    "external:@rebuild/shared/types/auth",
+    "dist/server/src/services/orders.service",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger",
+    "dist/server/src/ai",
+    "dist/server/src/services/menu.service",
+    "dist/server/src/dto/order.dto",
+    "dist/server/src/middleware/idempotency",
+    "external:zod",
+    "dist/server/src/middleware/orderMode",
+    "dist/server/src/middleware/paymentGate",
+    "dist/server/src/payments/square.adapter"
+  ],
+  "dist/server/src/routes/menu.routes.js": [
+    "external:express",
+    "dist/server/src/services/menu.service",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/routes/health.routes.js": [
+    "external:express",
+    "dist/server/src/config/database",
+    "dist/server/src/utils/logger",
+    "dist/server/src/ai",
+    "external:node-cache"
+  ],
+  "dist/server/src/routes/auth.routes.js": [
+    "external:express",
+    "external:jsonwebtoken",
+    "dist/server/src/config/environment",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger",
+    "dist/server/src/config/database",
+    "dist/server/src/services/auth/pinAuth",
+    "dist/server/src/services/auth/stationAuth",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/rbac",
+    "dist/server/src/middleware/rateLimiter"
+  ],
+  "dist/server/src/routes/metrics.js": [
+    "external:express",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/routes/index.js": [
+    "external:express",
+    "dist/server/src/routes/health.routes",
+    "dist/server/src/routes/menu.routes",
+    "dist/server/src/routes/orders.routes",
+    "dist/server/src/routes/payments.routes",
+    "dist/server/src/routes/terminal.routes",
+    "dist/server/src/routes/tables.routes",
+    "dist/server/src/routes/table-payment.routes",
+    "dist/server/src/routes/ai.routes",
+    "dist/server/src/routes/restaurants.routes",
+    "dist/server/src/routes/auth.routes",
+    "dist/server/src/routes/realtime.routes",
+    "dist/server/src/routes/metrics",
+    "dist/server/src/routes/security.routes",
+    "dist/server/src/routes/webhooks.routes"
+  ],
+  "dist/server/src/routes/tables.routes.js": [
+    "external:express",
+    "dist/server/src/utils/logger",
+    "dist/server/src/config/database",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/config/environment"
+  ],
+  "dist/server/src/routes/table-payment.routes.js": [
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/rbac",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger",
+    "dist/server/src/services/payment-flow.service",
+    "dist/server/src/services/table-check.service",
+    "dist/server/src/services/tip-calculation.service",
+    "dist/server/src/services/split-payment.service"
+  ],
+  "dist/server/src/routes/realtime.routes.js": [
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/normalizeVoiceSession",
+    "dist/server/src/utils/logger",
+    "external:node-fetch",
+    "dist/server/src/services/menu.service"
+  ],
+  "dist/server/src/routes/ai.routes.js": [
+    "external:express",
+    "dist/server/src/services/ai.service",
+    "dist/server/src/ai",
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/fileValidation",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/rateLimiter",
+    "dist/server/src/middleware/validation",
+    "dist/server/src/validation/ai.validation",
+    "dist/server/src/middleware/metrics",
+    "dist/server/src/voice/voice-routes",
+    "dist/server/src/services/menu.service"
+  ],
+  "dist/server/src/routes/security.routes.js": [
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/security"
+  ],
+  "dist/server/src/routes/users.routes.js": [
+    "external:express",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/restaurantAccess",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger",
+    "dist/server/src/services/userService",
+    "dist/server/src/config/database"
+  ],
+  "dist/server/src/routes/restaurants.routes.js": [
+    "external:express",
+    "dist/server/src/config/database",
+    "dist/server/src/middleware/auth",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/services/orderStateMachine.js": [
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/errorHandler",
+    "external:${currentStatus}"
+  ],
+  "dist/server/src/services/userService.js": [
+    "external:bcryptjs",
+    "dist/server/src/config/database",
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/config/environment"
+  ],
+  "dist/server/src/services/payment-flow.service.js": [
+    "dist/server/src/utils/logger",
+    "dist/server/src/config/database",
+    "external:square",
+    "external:crypto",
+    "dist/server/src/services/payment.service",
+    "dist/server/src/services/orders.service",
+    "dist/server/src/middleware/errorHandler"
+  ],
+  "dist/server/src/services/restaurant.service.js": [
+    "external:node-cache",
+    "dist/server/src/config/database",
+    "dist/server/src/utils/logger",
+    "dist/server/src/config/environment"
+  ],
+  "dist/server/src/services/logger.js": [
+    "dist/server/src/services/logger"
+  ],
+  "dist/server/src/services/idempotency.service.js": [
+    "external:crypto",
+    "dist/server/src/utils/logger"
+  ],
+  "dist/server/src/services/OrderMatchingService.js": [
+    "dist/shared/types/orders"
+  ],
+  "dist/server/src/services/orders.service.js": [
+    "dist/server/src/config/database",
+    "dist/server/src/utils/logger",
+    "external:crypto",
+    "dist/server/src/utils/websocket"
+  ],
+  "dist/server/src/services/menu.service.js": [
+    "external:node-cache",
+    "dist/server/src/config/database",
+    "dist/server/src/utils/logger",
+    "dist/server/src/config/environment",
+    "dist/server/src/services/menu-id-mapper",
+    "dist/server/src/mappers/menu.mapper",
+    "dist/server/src/services/menu-ai-sync.service"
+  ],
+  "dist/server/src/services/ai.service.js": [
+    "dist/server/src/utils/logger",
+    "dist/server/src/ai",
+    "dist/server/src/services/menu.service"
+  ],
+  "dist/server/src/services/tip-calculation.service.js": [
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/errorHandler"
+  ],
+  "dist/server/src/services/menu-id-mapper.js": [],
+  "dist/server/src/services/payment.service.js": [
+    "external:crypto",
+    "dist/server/src/utils/logger",
+    "dist/server/src/services/orders.service",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/config/database"
+  ],
+  "dist/server/src/services/table-check.service.js": [
+    "dist/server/src/utils/logger",
+    "dist/server/src/config/database",
+    "dist/server/src/middleware/errorHandler",
+    "external:crypto"
+  ],
+  "dist/server/src/services/split-payment.service.js": [
+    "dist/server/src/utils/logger",
+    "dist/server/src/config/database",
+    "dist/server/src/middleware/errorHandler",
+    "external:crypto",
+    "external:square"
+  ],
+  "dist/server/src/services/menu-ai-sync.service.js": [
+    "dist/server/src/services/menu.service",
+    "dist/server/src/utils/logger",
+    "external:openai",
+    "dist/server/src/config/environment"
+  ],
+  "dist/server/src/services/auth/stationAuth.js": [
+    "external:crypto",
+    "external:jsonwebtoken",
+    "dist/server/src/config/database",
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/errorHandler",
+    "dist/server/src/middleware/rbac"
+  ],
+  "dist/server/src/services/auth/pinAuth.js": [
+    "external:bcryptjs",
+    "dist/server/src/config/database",
+    "dist/server/src/utils/logger",
+    "dist/server/src/middleware/errorHandler"
+  ],
+  "dist/server/src/services/auth/AuthenticationService.js": [
+    "external:jsonwebtoken",
+    "dist/server/src/config/database",
+    "dist/server/src/utils/logger",
+    "dist/server/src/config/environment",
+    "dist/server/src/middleware/rbac",
+    "dist/server/src/middleware/errorHandler"
+  ],
+  "dist/server/src/validation/ai.validation.js": [
+    "external:joi"
+  ],
+  "dist/utils/logger.js": [
+    "external:winston",
+    "dist/config/environment"
+  ],
+  "dist/utils/env.js": [],
+  "dist/utils/websocket.js": [
+    "external:ws",
+    "dist/utils/logger",
+    "dist/middleware/auth"
+  ],
+  "dist/utils/case.js": [],
+  "dist/shared/test-error-handling.js": [
+    "dist/shared/utils/error-handling"
+  ],
+  "dist/shared/runtime.js": [],
+  "dist/shared/cart.js": [],
+  "dist/shared/index.js": [
+    "dist/shared/types/order.types",
+    "dist/shared/types/menu.types",
+    "dist/shared/types/customer.types",
+    "dist/shared/types/table.types",
+    "dist/shared/types/websocket.types",
+    "dist/shared/types/events.types",
+    "dist/shared/types/transformers",
+    "dist/shared/types/validation",
+    "dist/shared/utils",
+    "dist/shared/runtime",
+    "dist/shared/src/voice-types",
+    "dist/shared/cart"
+  ],
+  "dist/shared/api-types.js": [],
+  "dist/shared/types/unified-order.types.js": [],
+  "dist/shared/types/orders.js": [
+    "external:zod"
+  ],
+  "dist/shared/types/auth.js": [],
+  "dist/shared/types/events.types.js": [],
+  "dist/shared/types/order.types.js": [],
+  "dist/shared/types/transformers.js": [],
+  "dist/shared/types/table.types.js": [],
+  "dist/shared/types/index.js": [
+    "dist/shared/types/order.types",
+    "dist/shared/types/menu.types",
+    "dist/shared/types/customer.types",
+    "dist/shared/types/table.types",
+    "dist/shared/types/websocket.types",
+    "dist/shared/types/events.types",
+    "dist/shared/types/transformers",
+    "dist/shared/types/validation",
+    "dist/shared/utils"
+  ],
+  "dist/shared/types/websocket.types.js": [],
+  "dist/shared/types/api.types.js": [],
+  "dist/shared/types/validation.js": [
+    "external:zod"
+  ],
+  "dist/shared/types/menu.types.js": [],
+  "dist/shared/types/customer.types.js": [],
+  "dist/shared/config/index.js": [],
+  "dist/shared/utils/performance-hooks.js": [
+    "external:react",
+    "external:react",
+    "external:react",
+    "external:react",
+    "external:react",
+    "external:react",
+    "external:react",
+    "external:react"
+  ],
+  "dist/shared/utils/browser-only.js": [
+    "dist/shared/utils/websocket-pool.browser",
+    "dist/shared/utils/performance-hooks"
+  ],
+  "dist/shared/utils/error-handling.js": [
+    "dist/shared/utils/memory-monitoring"
+  ],
+  "dist/shared/utils/index.js": [
+    "dist/shared/utils/cleanup-manager",
+    "dist/shared/utils/memory-monitoring"
+  ],
+  "dist/shared/utils/websocket-pool.browser.js": [
+    "dist/shared/utils/cleanup-manager"
+  ],
+  "dist/shared/utils/memory-monitoring.js": [],
+  "dist/shared/utils/react-performance.js": [
+    "external:react",
+    "dist/shared/utils/performance-hooks",
+    "dist/shared/utils/memory-monitoring",
+    "dist/shared/utils/memory-monitoring"
+  ],
+  "dist/shared/utils/cleanup-manager.js": [],
+  "dist/shared/utils/websocket-pool.js": [
+    "dist/shared/utils/websocket-pool.browser"
+  ],
+  "dist/shared/monitoring/error-tracker.js": [],
+  "dist/shared/monitoring/performance-monitor.js": [],
+  "dist/shared/monitoring/web-vitals.js": [
+    "external:web-vitals"
+  ],
+  "dist/shared/src/voice-types.js": [
+    "external:zod"
+  ],
+  "dist/models/order.model.js": [
+    "external:joi"
+  ],
+  "dist/voice/voice-routes.js": [
+    "external:express",
+    "dist/voice/websocket-server",
+    "dist/voice/types",
+    "external:ws"
+  ],
+  "dist/voice/websocket-server.js": [
+    "external:ws",
+    "external:uuid",
+    "dist/utils/logger",
+    "dist/voice/openai-adapter"
+  ],
+  "dist/voice/types.js": [
+    "external:zod"
+  ],
+  "dist/voice/debug-dashboard.js": [
+    "external:express",
+    "dist/voice/twilio-bridge",
+    "dist/ai/voice/EnhancedOpenAIAdapter"
+  ],
+  "dist/voice/openai-adapter.js": [
+    "external:ws",
+    "external:events",
+    "dist/utils/logger"
+  ],
+  "dist/voice/twilio-bridge.js": [
+    "external:express",
+    "external:ws",
+    "dist/ai/voice/EnhancedOpenAIAdapter",
+    "dist/utils/logger",
+    "external:uuid"
+  ],
+  "dist/ai/index.js": [
+    "external:openai",
+    "dist/ai/adapters/openai/openai-transcriber",
+    "dist/ai/adapters/openai/openai-tts",
+    "dist/ai/adapters/openai/openai-chat",
+    "dist/ai/adapters/openai/openai-order-nlp",
+    "dist/services/OrderMatchingService",
+    "dist/services/menu.service",
+    "dist/utils/logger",
+    "dist/ai/core/transcriber",
+    "dist/ai/core/tts",
+    "dist/ai/core/chat",
+    "dist/ai/core/order-nlp",
+    "dist/ai/stubs/transcriber.stub",
+    "dist/ai/stubs/tts.stub",
+    "dist/ai/stubs/chat.stub",
+    "dist/ai/stubs/order-nlp.stub"
+  ],
+  "dist/ai/websocket.js": [
+    "dist/utils/logger",
+    "dist/voice/voice-routes"
+  ],
+  "dist/ai/stubs/chat.stub.js": [],
+  "dist/ai/stubs/transcriber.stub.js": [],
+  "dist/ai/stubs/tts.stub.js": [],
+  "dist/ai/stubs/order-nlp.stub.js": [],
+  "dist/ai/core/transcriber.js": [],
+  "dist/ai/core/tts.js": [],
+  "dist/ai/core/order-nlp.js": [],
+  "dist/ai/core/chat.js": [],
+  "dist/ai/adapters/openai/openai-transcriber.js": [
+    "external:openai",
+    "dist/ai/adapters/openai/utils",
+    "external:fs/promises",
+    "external:fs",
+    "dist/utils/logger"
+  ],
+  "dist/ai/adapters/openai/openai-order-nlp.js": [
+    "external:zod",
+    "dist/ai/adapters/openai/utils"
+  ],
+  "dist/ai/adapters/openai/openai-chat.js": [
+    "external:openai",
+    "dist/ai/adapters/openai/utils",
+    "dist/utils/logger"
+  ],
+  "dist/ai/adapters/openai/openai-tts.js": [
+    "external:openai",
+    "dist/ai/adapters/openai/utils",
+    "dist/utils/logger"
+  ],
+  "dist/ai/adapters/openai/utils.js": [
+    "external:fs",
+    "external:path",
+    "external:os",
+    "external:fs",
+    "external:fs/promises"
+  ],
+  "dist/ai/voice/EnhancedOpenAIAdapter.js": [
+    "external:ws",
+    "dist/utils/logger",
+    "dist/voice/openai-adapter",
+    "dist/ai/functions/realtime-menu-tools"
+  ],
+  "dist/ai/functions/realtime-menu-tools.js": [
+    "external:@supabase/supabase-js",
+    "dist/utils/logger",
+    "external:node-cache"
+  ],
+  "dist/api/routes/tables.js": [
+    "external:express",
+    "dist/config/database",
+    "dist/middleware/errorHandler",
+    "dist/middleware/auth"
+  ],
+  "dist/mappers/menu.mapper.js": [
+    "dist/utils/case"
+  ],
+  "dist/mappers/cart.mapper.js": [
+    "dist/utils/case"
+  ],
+  "dist/routes/terminal.routes.js": [
+    "external:express",
+    "dist/middleware/auth",
+    "dist/middleware/restaurantAccess",
+    "dist/middleware/errorHandler",
+    "dist/utils/logger",
+    "external:square",
+    "external:crypto",
+    "dist/services/orders.service"
+  ],
+  "dist/routes/payments.routes.js": [
+    "external:express",
+    "dist/middleware/auth",
+    "dist/middleware/restaurantAccess",
+    "dist/middleware/rbac",
+    "dist/middleware/errorHandler",
+    "dist/utils/logger",
+    "external:square",
+    "external:crypto",
+    "dist/services/orders.service",
+    "dist/services/payment.service"
+  ],
+  "dist/routes/orders.routes.js": [
+    "external:express",
+    "dist/middleware/auth",
+    "dist/middleware/restaurantAccess",
+    "dist/services/orders.service",
+    "dist/middleware/errorHandler",
+    "dist/utils/logger",
+    "dist/ai",
+    "dist/services/menu.service"
+  ],
+  "dist/routes/menu.routes.js": [
+    "external:express",
+    "dist/services/menu.service",
+    "dist/middleware/auth",
+    "dist/middleware/errorHandler",
+    "dist/utils/logger"
+  ],
+  "dist/routes/health.routes.js": [
+    "external:express",
+    "dist/config/database",
+    "dist/utils/logger",
+    "dist/ai",
+    "external:node-cache"
+  ],
+  "dist/routes/auth.routes.js": [
+    "external:express",
+    "external:jsonwebtoken",
+    "dist/config/environment",
+    "dist/middleware/errorHandler",
+    "dist/utils/logger",
+    "dist/config/database",
+    "dist/services/auth/pinAuth",
+    "dist/services/auth/stationAuth",
+    "dist/middleware/auth",
+    "dist/middleware/rbac",
+    "dist/middleware/rateLimiter"
+  ],
+  "dist/routes/metrics.js": [
+    "external:express",
+    "dist/utils/logger"
+  ],
+  "dist/routes/index.js": [
+    "external:express",
+    "dist/routes/health.routes",
+    "dist/routes/menu.routes",
+    "dist/routes/orders.routes",
+    "dist/routes/payments.routes",
+    "dist/routes/terminal.routes",
+    "dist/routes/tables.routes",
+    "dist/routes/ai.routes",
+    "dist/routes/restaurants.routes",
+    "dist/routes/auth.routes",
+    "dist/routes/realtime.routes",
+    "dist/routes/metrics"
+  ],
+  "dist/routes/tables.routes.js": [
+    "external:express",
+    "dist/utils/logger",
+    "dist/config/database",
+    "dist/middleware/auth",
+    "dist/config/environment"
+  ],
+  "dist/routes/realtime.routes.js": [
+    "external:express",
+    "dist/middleware/auth",
+    "dist/utils/logger",
+    "external:node-fetch",
+    "dist/services/menu.service"
+  ],
+  "dist/routes/ai.routes.js": [
+    "external:express",
+    "dist/services/ai.service",
+    "dist/ai",
+    "dist/utils/logger",
+    "dist/middleware/fileValidation",
+    "dist/middleware/auth",
+    "dist/middleware/rateLimiter",
+    "dist/middleware/validation",
+    "dist/validation/ai.validation",
+    "dist/middleware/metrics",
+    "dist/voice/voice-routes",
+    "dist/services/menu.service"
+  ],
+  "dist/routes/restaurants.routes.js": [
+    "external:express",
+    "dist/config/database",
+    "dist/middleware/auth",
+    "dist/middleware/errorHandler",
+    "dist/utils/logger"
+  ],
+  "dist/services/orderStateMachine.js": [
+    "dist/utils/logger",
+    "dist/middleware/errorHandler",
+    "external:${currentStatus}"
+  ],
+  "dist/services/OrderMatchingService.js": [],
+  "dist/services/orders.service.js": [
+    "dist/config/database",
+    "dist/utils/logger",
+    "external:crypto",
+    "dist/utils/websocket"
+  ],
+  "dist/services/menu.service.js": [
+    "external:node-cache",
+    "dist/config/database",
+    "dist/utils/logger",
+    "dist/config/environment",
+    "dist/services/menu-id-mapper",
+    "dist/mappers/menu.mapper"
+  ],
+  "dist/services/ai.service.js": [
+    "dist/utils/logger",
+    "dist/ai",
+    "dist/services/menu.service"
+  ],
+  "dist/services/menu-id-mapper.js": [],
+  "dist/services/payment.service.js": [
+    "external:crypto",
+    "dist/utils/logger",
+    "dist/services/orders.service",
+    "dist/middleware/errorHandler",
+    "dist/config/database"
+  ],
+  "dist/services/auth/stationAuth.js": [
+    "external:crypto",
+    "external:jsonwebtoken",
+    "dist/config/database",
+    "dist/utils/logger",
+    "dist/middleware/errorHandler"
+  ],
+  "dist/services/auth/pinAuth.js": [
+    "external:bcryptjs",
+    "dist/config/database",
+    "dist/utils/logger",
+    "dist/middleware/errorHandler"
+  ],
+  "dist/validation/ai.validation.js": [
+    "external:joi"
+  ],
+  "tests/payment-gate-verification.js": [
+    "external:node-fetch"
+  ],
+  "scripts/inspect-schema.js": [
+    "external:path",
+    "external:dotenv",
+    "external:@supabase/supabase-js"
+  ],
+  "scripts/create-indexes-via-supabase.js": [
+    "external:path",
+    "external:dotenv",
+    "external:@supabase/supabase-js",
+    "external:fs"
+  ],
+  "scripts/run-migrations.js": [
+    "external:@supabase/supabase-js",
+    "external:fs",
+    "external:path",
+    "external:dotenv"
+  ],
+  "coverage/block-navigation.js": [],
+  "coverage/prettify.js": [],
+  "coverage/sorter.js": []
+}
