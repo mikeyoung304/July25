@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
+import { VoiceSessionRequest, normalizeVoiceSession } from '../middleware/normalizeVoiceSession';
 import { logger } from '../utils/logger';
 import fetch from 'node-fetch';
 import { MenuService } from '../services/menu.service';
@@ -11,7 +12,7 @@ const realtimeLogger = logger.child({ module: 'realtime-routes' });
  * Create ephemeral token for WebRTC real-time voice connection
  * This token expires after 1 minute and should only be used by the requesting client
  */
-router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/session', authenticate, normalizeVoiceSession, async (req: AuthenticatedRequest & VoiceSessionRequest, res: Response) => {
   try {
     const restaurantId = req.restaurantId || req.headers['x-restaurant-id'] || 'default';
     const { mode = 'customer' } = req.body; // Get mode from request body
@@ -139,17 +140,20 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
 
     const data = await response.json();
     
-    // Add restaurant and menu context to the response
+    // Add restaurant, menu context, and normalized session config to the response
     const sessionData = {
       ...data,
       restaurant_id: restaurantId,
       menu_context: menuContext, // Pass menu context to client
+      session_config: req.voiceSessionConfig, // Pass normalized session config to client
       expires_at: Date.now() + 60000, // Token expires in 1 minute
     };
 
     realtimeLogger.info('Ephemeral token created successfully', {
       sessionId: data.id,
-      restaurantId
+      restaurantId,
+      mode,
+      sessionConfig: req.voiceSessionConfig
     });
     
     // Don't cache ephemeral tokens
