@@ -85,9 +85,18 @@ rebuild-6.0/
 - **Technology**: WebRTC + OpenAI Realtime API
 - **Location**: `client/src/modules/voice/services/WebRTCVoiceClient.ts`
 - **Features**:
-  - Real-time speech recognition
+  - Real-time speech recognition with < 200ms latency
   - Natural language order processing
   - Voice-guided checkout flow
+  - **Session Reliability** (v0.6):
+    - Automatic reconnection with exponential backoff
+    - Microphone permission error handling
+    - Device change detection and recovery
+    - Server-side parameter validation
+  - **Configuration**:
+    - Temperature normalization (0.6-2.0 range)
+    - Per-restaurant voice customization
+    - Environment variable overrides
 
 ### 3. Kitchen Display System (KDS)
 - **Critical**: Must handle ALL 7 order statuses
@@ -225,6 +234,11 @@ Before deploying to production, ensure:
    SQUARE_ENVIRONMENT=production  # or sandbox
    PIN_PEPPER=<random-32-char-string>
    DEVICE_FINGERPRINT_SALT=<random-16-char-string>
+
+   # Optional voice configuration overrides (all clamped to safe ranges)
+   VOICE_TEMPERATURE=0.8        # 0.6-2.0, default: 0.7 (employee), 0.85 (customer)
+   VOICE_TOP_P=0.95             # 0.0-1.0, default: 1.0
+   VOICE_MAX_TOKENS=300         # 1-4096, default: 50 (employee), 500 (customer)
    ```
 
 3. **Database Migrations Run**

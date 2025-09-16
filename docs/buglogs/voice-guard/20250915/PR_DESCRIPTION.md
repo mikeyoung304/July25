@@ -126,5 +126,5 @@ N/A - Backend and reliability improvements
 
 ## References
 - [OpenAI Realtime API Docs](https://platform.openai.com/docs/guides/realtime)
-- [Final Report](/docs/buglogs/voice-guard/20250115/final-report.md)
-- [Manual Verification Guide](/docs/buglogs/voice-guard/20250115/verify/manual-verification.md)
+- [Final Report](/docs/buglogs/voice-guard/20250915/final-report.md)
+- [Manual Verification Guide](/docs/buglogs/voice-guard/20250915/verify/manual-verification.md)

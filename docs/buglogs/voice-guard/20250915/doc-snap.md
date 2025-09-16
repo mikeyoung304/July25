@@ -1,6 +1,6 @@
 # Voice System Documentation Snapshot
-**Date**: 2025-01-15
-**Branch**: hardening/voice-session-guard-20250115
+**Date**: 2025-09-15
+**Branch**: hardening/voice-session-guard-20250915
 
 ## 1. VOICE_SYSTEM_CURRENT.md (v0.5, last verified: 2025-09-15)
 

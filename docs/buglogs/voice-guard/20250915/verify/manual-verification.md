@@ -1,6 +1,6 @@
 # Voice System Manual Verification Guide
-**Date**: 2025-01-15
-**Branch**: hardening/voice-session-guard-20250115
+**Date**: 2025-09-15
+**Branch**: hardening/voice-session-guard-20250915
 
 ## Verification Steps
 
@@ -137,4 +137,4 @@ window.__webrtcClient?.disconnect()
 4. Screenshot of connectivity details panel
 5. Network tab showing session creation with normalized config
 
-Save all artifacts to: `docs/buglogs/voice-guard/20250115/verify/`
+Save all artifacts to: `docs/buglogs/voice-guard/20250915/verify/`

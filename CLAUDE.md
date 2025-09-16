@@ -6,7 +6,7 @@
 - **Version**: 6.0.4
 - **Stack**: React 19.1.0, TypeScript 5.8.3/5.3.3, Vite 5.4.19, Express 4.18.2, Supabase 2.50.5/2.39.7
 - **Architecture**: Unified backend on port 3001
-- **Last Updated**: September 10, 2025
+- **Last Updated**: September 15, 2025
 
 ## Directory Structure
 

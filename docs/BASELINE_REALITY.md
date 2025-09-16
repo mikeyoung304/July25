@@ -1,8 +1,8 @@
 ---
 owner: Mike Young
 status: green
-last_verified_date: 2025-01-15
-last_verified_commit: 4e4549c
+last_verified_date: 2025-09-15
+last_verified_commit: ab234e6
 version: v0.4
 ---
 
@@ -85,7 +85,7 @@ The server includes transform logic to handle legacy snake_case fields:
 - Cart system unified to UnifiedCartContext (ADR-003)
 - Voice system consolidated to WebRTC only (ADR-004)
 - Authentication normalized (ADR-007)
-- Voice session hardening (2025-01-15):
+- Voice session hardening (2025-09-15):
   - Server-side session normalizer with env/venue overrides
   - Reconnection with exponential backoff
   - Mic error handling with friendly UI
