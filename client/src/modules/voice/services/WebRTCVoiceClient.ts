@@ -33,7 +33,23 @@ export interface OrderEvent {
   timestamp: number;
 }
 
-export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
+export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error' | 'reconnecting';
+
+export type ErrorType =
+  | 'permission_denied'
+  | 'device_error'
+  | 'network_error'
+  | 'auth_error'
+  | 'rate_limit'
+  | 'server_error'
+  | 'unknown';
+
+export interface VoiceError extends Error {
+  type: ErrorType;
+  code?: string;
+  retryable: boolean;
+  userFriendlyMessage: string;
+}
 
 export type TurnState = 
   | 'idle'
@@ -200,11 +216,13 @@ export class WebRTCVoiceClient extends EventEmitter {
         console.error('[WebRTCVoice] OpenAI SDP exchange failed:', sdpResponse.status, errorText);
         
         if (sdpResponse.status === 401) {
-          throw new Error('OpenAI authentication failed. Token may be expired.');
+          throw new Error('AUTH_FAILED:OpenAI authentication failed. Token may be expired.');
         } else if (sdpResponse.status === 429) {
-          throw new Error('Rate limited. Please wait a moment before trying again.');
+          throw new Error('RATE_LIMIT:Rate limited. Please wait a moment before trying again.');
+        } else if (sdpResponse.status >= 500) {
+          throw new Error('SERVER_ERROR:Voice service temporarily unavailable. Please try again.');
         } else {
-          throw new Error(`Voice service unavailable (${sdpResponse.status}). Please try again.`);
+          throw new Error(`NETWORK_ERROR:Voice service unavailable (${sdpResponse.status}). Please try again.`);
         }
       }
       
@@ -307,11 +325,15 @@ export class WebRTCVoiceClient extends EventEmitter {
       console.error('[WebRTCVoice] Ephemeral token request failed:', response.status, errorText);
       
       if (response.status === 401) {
-        throw new Error('Authentication failed. Please log in again.');
+        throw new Error('AUTH_FAILED:Authentication failed. Please log in again.');
       } else if (response.status === 403) {
-        throw new Error('Permission denied. Voice ordering may not be available for your role.');
+        throw new Error('AUTH_FAILED:Permission denied. Voice ordering may not be available for your role.');
+      } else if (response.status === 429) {
+        throw new Error('RATE_LIMIT:Too many requests. Please wait a moment before trying again.');
+      } else if (response.status >= 500) {
+        throw new Error('SERVER_ERROR:Voice service temporarily unavailable. Please try again.');
       } else {
-        throw new Error(`Failed to get voice session: ${response.status} - ${errorText}`);
+        throw new Error(`NETWORK_ERROR:Failed to get voice session: ${response.status} - ${errorText}`);
       }
     }
     
@@ -1230,15 +1252,22 @@ ENTRÉES → Ask:
    * Handle disconnection
    */
   private handleDisconnection(): void {
-    this.setConnectionState('disconnected');
     this.sessionActive = false;
-    
+
     // Clear accumulated transcripts to prevent memory leaks
     this.partialTranscript = '';
     this.aiPartialTranscript = '';
-    
+
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnect();
+      this.setConnectionState('reconnecting');
+      this.scheduleReconnection();
+    } else {
+      this.setConnectionState('disconnected');
+      this.emit('voice.session.fail', {
+        reason: 'connection_lost',
+        lastError: this.lastError,
+        attempts: this.reconnectAttempts
+      });
     }
   }
 
@@ -1344,18 +1373,26 @@ ENTRÉES → Ask:
     this.activeResponseId = null;
     this.dcReady = false;
     this.messageQueue = [];
-    
-    // Clear token refresh timer
+
+    // Clear timers
     if (this.tokenRefreshTimer) {
       clearTimeout(this.tokenRefreshTimer);
       this.tokenRefreshTimer = null;
     }
-    
+
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
+    // Clean up device monitoring
+    this.cleanupDeviceMonitoring();
+
     // Use cleanup method
     this.cleanupConnection();
-    
+
     this.setConnectionState('disconnected');
-    
+
     if (this.config.debug) {
       // Debug: '[WebRTCVoice] Disconnected'
     }
@@ -1373,5 +1410,205 @@ ENTRÉES → Ask:
    */
   isCurrentlyRecording(): boolean {
     return this.isRecording;
+  }
+
+  /**
+   * Get last error information
+   */
+  getLastError(): VoiceError | null {
+    return this.lastError;
+  }
+
+  /**
+   * Get connectivity details for debugging
+   */
+  getConnectivityDetails(): any {
+    return {
+      connectionState: this.connectionState,
+      reconnectAttempts: this.reconnectAttempts,
+      maxReconnectAttempts: this.maxReconnectAttempts,
+      lastError: this.lastError,
+      deviceCount: this.deviceList.length,
+      sessionActive: this.sessionActive,
+      dcReady: this.dcReady,
+      queueSize: this.messageQueue.length,
+      isRecording: this.isRecording,
+      hasMediaStream: !!this.mediaStream
+    };
+  }
+
+  /**
+   * Refresh device list (for when user plugs/unplugs devices)
+   */
+  async refreshDevices(): Promise<void> {
+    try {
+      await this.updateDeviceList();
+      this.emit('devices.refreshed', this.deviceList);
+    } catch (error) {
+      console.error('[WebRTCVoice] Failed to refresh devices:', error);
+      this.emit('error', this.categorizeError(error as Error));
+    }
+  }
+
+  /**
+   * Setup device change monitoring
+   */
+  private setupDeviceChangeMonitoring(): void {
+    if (typeof navigator !== 'undefined' && navigator.mediaDevices) {
+      this.deviceChangeHandler = async () => {
+        logger.info('[WebRTCVoice] Media devices changed');
+        try {
+          await this.updateDeviceList();
+          this.emit('devices.changed', this.deviceList);
+        } catch (error) {
+          console.warn('[WebRTCVoice] Failed to update device list on change:', error);
+        }
+      };
+
+      navigator.mediaDevices.addEventListener('devicechange', this.deviceChangeHandler);
+    }
+  }
+
+  /**
+   * Cleanup device monitoring
+   */
+  private cleanupDeviceMonitoring(): void {
+    if (this.deviceChangeHandler && typeof navigator !== 'undefined' && navigator.mediaDevices) {
+      navigator.mediaDevices.removeEventListener('devicechange', this.deviceChangeHandler);
+      this.deviceChangeHandler = null;
+    }
+  }
+
+  /**
+   * Update device list
+   */
+  private async updateDeviceList(): Promise<void> {
+    if (typeof navigator !== 'undefined' && navigator.mediaDevices) {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        this.deviceList = devices.filter(device => device.kind === 'audioinput');
+      } catch (error) {
+        console.warn('[WebRTCVoice] Failed to enumerate devices:', error);
+        this.deviceList = [];
+      }
+    }
+  }
+
+  /**
+   * Schedule reconnection with exponential backoff
+   */
+  private scheduleReconnection(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+    }
+
+    this.reconnectAttempts++;
+
+    // Exponential backoff: 200ms, 500ms, 1s, 2s, 5s (capped)
+    const backoffDelays = [200, 500, 1000, 2000, 5000];
+    const delay = backoffDelays[Math.min(this.reconnectAttempts - 1, backoffDelays.length - 1)];
+
+    logger.info(`[WebRTCVoice] Scheduling reconnection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+
+    this.emit('voice.session.reconnect', {
+      attempt: this.reconnectAttempts,
+      maxAttempts: this.maxReconnectAttempts,
+      delayMs: delay,
+      reason: this.lastError?.type || 'unknown'
+    });
+
+    this.reconnectTimer = setTimeout(async () => {
+      try {
+        await this.connect();
+      } catch (error) {
+        // Error will be handled by connect() method
+        console.error('[WebRTCVoice] Reconnection attempt failed:', error);
+      }
+    }, delay);
+  }
+
+  /**
+   * Create a properly formatted VoiceError
+   */
+  private createVoiceError(type: ErrorType, message: string, retryable: boolean, userFriendlyMessage: string, code?: string): VoiceError {
+    const voiceError = new Error(message) as VoiceError;
+    voiceError.type = type;
+    voiceError.retryable = retryable;
+    voiceError.userFriendlyMessage = userFriendlyMessage;
+    voiceError.name = 'VoiceError';
+    if (code) voiceError.code = code;
+    return voiceError;
+  }
+
+  /**
+   * Categorize errors for better user experience
+   */
+  private categorizeError(error: Error): VoiceError {
+    const message = error.message.toLowerCase();
+
+    // Check for prefixed error types
+    if (error.message.includes(':')) {
+      const [prefix, userMessage] = error.message.split(':', 2);
+      switch (prefix) {
+        case 'AUTH_FAILED':
+          return this.createVoiceError('auth_error', error.message, false, userMessage.trim());
+        case 'RATE_LIMIT':
+          return this.createVoiceError('rate_limit', error.message, true, userMessage.trim());
+        case 'SERVER_ERROR':
+          return this.createVoiceError('server_error', error.message, true, userMessage.trim());
+        case 'NETWORK_ERROR':
+          return this.createVoiceError('network_error', error.message, true, userMessage.trim());
+      }
+    }
+
+    // Legacy error categorization
+    if (message.includes('permission') || message.includes('denied')) {
+      return this.createVoiceError('permission_denied', error.message, false, 'Microphone access was denied. Please enable microphone permissions and try again.');
+    }
+
+    if (message.includes('notfound') || message.includes('device')) {
+      return this.createVoiceError('device_error', error.message, false, 'No microphone found. Please connect a microphone and try again.');
+    }
+
+    if (message.includes('network') || message.includes('fetch') || message.includes('connection')) {
+      return this.createVoiceError('network_error', error.message, true, 'Network connection failed. Please check your internet connection and try again.');
+    }
+
+    if (message.includes('auth') || message.includes('unauthorized') || message.includes('token')) {
+      return this.createVoiceError('auth_error', error.message, false, 'Authentication failed. Please log in again.');
+    }
+
+    if (message.includes('rate limit') || message.includes('429')) {
+      return this.createVoiceError('rate_limit', error.message, true, 'Too many requests. Please wait a moment and try again.');
+    }
+
+    // Default case
+    return this.createVoiceError('unknown', error.message, true, 'Something went wrong. Please try again.');
+  }
+
+  /**
+   * Categorize microphone-specific errors
+   */
+  private categorizeMicrophoneError(error: Error): VoiceError {
+    const errorName = (error as any).name || '';
+
+    if (errorName === 'NotAllowedError') {
+      return this.createVoiceError('permission_denied', error.message, false, 'Microphone access was denied. Please enable microphone permissions in your browser settings and refresh the page.');
+    }
+
+    if (errorName === 'NotFoundError') {
+      return this.createVoiceError('device_error', error.message, false, 'No microphone was found. Please connect a microphone and try again.');
+    }
+
+    if (errorName === 'NotReadableError') {
+      return this.createVoiceError('device_error', error.message, true, 'Microphone is being used by another application. Please close other applications and try again.');
+    }
+
+    if (errorName === 'OverconstrainedError') {
+      return this.createVoiceError('device_error', error.message, true, 'Microphone does not meet the required specifications. Please try a different microphone.');
+    }
+
+    // Fallback for unknown microphone errors
+    return this.createVoiceError('device_error', error.message, false, 'Failed to access microphone. Please check your microphone and try again.');
   }
 }

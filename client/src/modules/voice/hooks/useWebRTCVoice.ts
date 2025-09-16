@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { WebRTCVoiceClient, ConnectionState, TranscriptEvent, OrderEvent } from '../services/WebRTCVoiceClient';
+import { WebRTCVoiceClient, ConnectionState, TranscriptEvent, OrderEvent, VoiceError } from '../services/WebRTCVoiceClient';
 import { logger } from '../../../services/monitoring/logger';
 
 export interface UseWebRTCVoiceOptions {
@@ -35,7 +35,11 @@ export interface UseWebRTCVoiceReturn {
   
   // State
   isProcessing: boolean;
-  error: Error | null;
+  error: VoiceError | null;
+
+  // Device management
+  refreshDevices: () => Promise<void>;
+  getConnectivityDetails: () => any;
 }
 
 /**
@@ -65,7 +69,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   const [lastTranscript, setLastTranscript] = useState<TranscriptEvent | null>(null);
   const [responseText, setResponseText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<VoiceError | null>(null);
   const [isListening, setIsListening] = useState(false);
   
   // Store callbacks in refs to prevent re-initialization
@@ -180,12 +184,29 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       setIsRecording(false);
     });
     
-    client.on('error', (err: Error) => {
+    client.on('error', (err: VoiceError) => {
       console.error('[useWebRTCVoice] Error:', err);
       setError(err);
       setIsProcessing(false);
       // Use ref to call callback
       onErrorRef.current?.(err);
+    });
+
+    // Handle new events
+    client.on('voice.session.reconnect', (data: any) => {
+      logger.info('[useWebRTCVoice] Reconnecting:', data);
+    });
+
+    client.on('voice.session.fail', (data: any) => {
+      logger.error('[useWebRTCVoice] Session failed:', data);
+    });
+
+    client.on('devices.changed', (devices: MediaDeviceInfo[]) => {
+      logger.info('[useWebRTCVoice] Devices changed:', { deviceCount: devices.length });
+    });
+
+    client.on('devices.refreshed', (devices: MediaDeviceInfo[]) => {
+      logger.info('[useWebRTCVoice] Devices refreshed:', { deviceCount: devices.length });
     });
     
     // Add handler for session.created to avoid warning
@@ -248,7 +269,18 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   const stopRecording = useCallback(() => {
     clientRef.current?.stopRecording();
   }, []);
-  
+
+  // Device management functions
+  const refreshDevices = useCallback(async () => {
+    if (clientRef.current) {
+      await clientRef.current.refreshDevices();
+    }
+  }, []);
+
+  const getConnectivityDetails = useCallback(() => {
+    return clientRef.current?.getConnectivityDetails() || {};
+  }, []);
+
   // Compute isConnected and log changes for debugging
   const isConnected = connectionState === 'connected';
   
@@ -278,5 +310,9 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     // State
     isProcessing,
     error,
+
+    // Device management
+    refreshDevices,
+    getConnectivityDetails,
   };
 }
