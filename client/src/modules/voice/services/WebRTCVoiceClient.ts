@@ -5,6 +5,7 @@ import { logger } from '../../../services/monitoring/logger';
 import { getAgentConfigForMode, mergeMenuIntoConfig } from '../config/voice-agent-modes';
 import { safeParseEvent } from './RealtimeGuards';
 import { normalizeSessionConfig } from './SessionConfigNormalizer';
+import { voiceMetrics } from '../../../../shared/utils/voice-metrics';
 
 export interface WebRTCVoiceConfig {
   restaurantId: string;
@@ -98,14 +99,25 @@ export class WebRTCVoiceClient extends EventEmitter {
   // Menu context
   private menuContext = '';
 
+  // Metrics tracking
+  private sessionId: string = '';
+  private connectStartTime: number = 0;
+  private connectionSteps: { [key: string]: number } = {};
+  private recordingStartTime: number = 0;
+  private firstTranscriptReceived: boolean = false;
+  private lastError: VoiceError | null = null;
+
   constructor(config: WebRTCVoiceConfig) {
     super();
     this.config = config;
-    
+
+    // Generate unique session ID for metrics tracking
+    this.sessionId = voiceMetrics.generateSessionId();
+
     // Log API base once at initialization
     // const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'; // Not currently used
     // Debug: `[RT] WebRTC Voice Client initialized - API: ${apiBase}`
-    
+
     if (this.config.debug) {
       // Debug: '[RT] Debug mode enabled, config:', config
     }
@@ -120,28 +132,37 @@ export class WebRTCVoiceClient extends EventEmitter {
       logger.info('[WebRTCVoice] Already connecting or connected, skipping...');
       return;
     }
-    
+
     this.isConnecting = true;
-    
+
+    // Start metrics tracking
+    this.connectStartTime = Date.now();
+    this.connectionSteps = {};
+    this.firstTranscriptReceived = false;
+
     try {
       logger.info('[WebRTCVoice] Starting connection...');
       this.setConnectionState('connecting');
-      
+
       // Step 1: Get ephemeral token from our server
       logger.info('[WebRTCVoice] Step 1: Fetching ephemeral token...');
+      const tokenStartTime = Date.now();
       await this.fetchEphemeralToken();
+      this.connectionSteps.tokenFetch = Date.now() - tokenStartTime;
       logger.info('[WebRTCVoice] Step 1: Token received');
       
       // Step 2: Create RTCPeerConnection
       logger.info('[WebRTCVoice] Step 2: Creating RTCPeerConnection...');
+      const peerConnectionStartTime = Date.now();
       this.pc = new RTCPeerConnection({
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
         ],
         bundlePolicy: 'max-bundle',
       });
-      
+
       this.setupPeerConnectionHandlers();
+      this.connectionSteps.peerConnectionSetup = Date.now() - peerConnectionStartTime;
       
       // Step 3: Set up audio output handler (skip for employee mode)
       const shouldEnableAudio = this.config.enableAudioOutput !== false &&
@@ -193,10 +214,11 @@ export class WebRTCVoiceClient extends EventEmitter {
       
       // Step 7: Send SDP to OpenAI
       logger.info('[WebRTCVoice] Step 7: Sending SDP to OpenAI...');
+      const sdpStartTime = Date.now();
       const model = import.meta.env.VITE_OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03';
       logger.info('[WebRTCVoice] Using model:', { model });
       logger.info('[WebRTCVoice] Token exists:', { hasToken: !!this.ephemeralToken });
-      
+
       const sdpResponse = await fetch(
         `https://api.openai.com/v1/realtime?model=${model}`,
         {
@@ -208,7 +230,8 @@ export class WebRTCVoiceClient extends EventEmitter {
           },
         }
       );
-      
+
+      this.connectionSteps.sdpExchange = Date.now() - sdpStartTime;
       logger.info('[WebRTCVoice] Step 7: OpenAI response status:', { status: sdpResponse.status });
       
       if (!sdpResponse.ok) {
@@ -251,7 +274,17 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.sessionActive = true;
       this.reconnectAttempts = 0;
       this.isConnecting = false;
-      
+
+      // Emit session creation metrics
+      voiceMetrics.sessionCreated({
+        sessionId: this.sessionId,
+        restaurantId: this.config.restaurantId,
+        userId: this.config.userId,
+        mode: this.config.mode || 'customer',
+        hasMenuContext: !!this.menuContext,
+        connectStartTime: this.connectStartTime
+      });
+
       if (this.config.debug) {
         // Debug: '[WebRTCVoice] WebRTC connection established'
       }
@@ -260,11 +293,14 @@ export class WebRTCVoiceClient extends EventEmitter {
       console.error('[WebRTCVoice] Connection failed:', error);
       this.isConnecting = false;
       this.setConnectionState('error');
-      this.emit('error', error);
-      
+
+      // Categorize and track the error
+      this.lastError = this.categorizeError(error as Error);
+      this.emit('error', this.lastError);
+
       // Clean up failed connection
       this.cleanupConnection();
-      
+
       // Attempt reconnection with proper delay
       this.reconnectAttempts++;
       if (this.reconnectAttempts < this.maxReconnectAttempts) {
@@ -277,6 +313,18 @@ export class WebRTCVoiceClient extends EventEmitter {
         }, delay);
       } else {
         console.error('[WebRTCVoice] Max reconnection attempts reached. Please refresh the page.');
+
+        // Emit session failure metrics
+        voiceMetrics.sessionFail({
+          sessionId: this.sessionId,
+          reason: this.lastError?.type === 'auth_error' ? 'auth_failed' :
+                  this.lastError?.type === 'rate_limit' ? 'rate_limit' :
+                  this.lastError?.type === 'server_error' ? 'server_error' :
+                  this.lastError?.type === 'network_error' ? 'connection_lost' : 'unknown',
+          lastError: this.lastError?.message,
+          attempts: this.reconnectAttempts,
+          totalDurationMs: this.connectStartTime > 0 ? Date.now() - this.connectStartTime : undefined
+        });
       }
     }
   }
@@ -430,10 +478,20 @@ export class WebRTCVoiceClient extends EventEmitter {
       if (this.config.debug) {
         // Debug: '[WebRTCVoice] Data channel opened'
       }
-      
+
       this.dcReady = true;
+      this.connectionSteps.dataChannelReady = Date.now() - this.connectStartTime;
       this.setConnectionState('connected');
-      
+
+      // Emit connection latency metrics
+      voiceMetrics.connectLatency({
+        sessionId: this.sessionId,
+        connectStartTime: this.connectStartTime,
+        connectEndTime: Date.now(),
+        latencyMs: Date.now() - this.connectStartTime,
+        steps: this.connectionSteps
+      });
+
       // Flush any queued messages
       if (this.messageQueue.length > 0) {
         // Debug: `[WebRTCVoice] Flushing ${this.messageQueue.length} queued messages`
@@ -572,7 +630,19 @@ export class WebRTCVoiceClient extends EventEmitter {
           if (entry && entry.role === 'user') {
             entry.text += event.delta;
             // Debug: `${logPrefix} User transcript delta (len=${event.delta.length})`
-            
+
+            // Track time to first transcript if this is the first partial transcript
+            if (!this.firstTranscriptReceived && this.recordingStartTime > 0) {
+              this.firstTranscriptReceived = true;
+              voiceMetrics.timeToFirstTranscript({
+                sessionId: this.sessionId,
+                recordingStartTime: this.recordingStartTime,
+                firstTranscriptTime: Date.now(),
+                ttfMs: Date.now() - this.recordingStartTime,
+                isFinalTranscript: false
+              });
+            }
+
             // Emit partial transcript
             const partialTranscript: TranscriptEvent = {
               text: entry.text,
@@ -1088,12 +1158,16 @@ ENTRÉES → Ask:
     const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
     // Debug: `${logPrefix} Turn state: idle → recording`
     this.turnState = 'recording';
-    
+
+    // Track recording start time for metrics
+    this.recordingStartTime = Date.now();
+    this.firstTranscriptReceived = false;
+
     // Clear transcript map for new turn
     this.transcriptMap.clear();
     this.currentUserItemId = null;
     this.activeResponseId = null;
-    
+
     // Clear any partial transcripts
     this.partialTranscript = '';
     this.aiPartialTranscript = '';
@@ -1263,6 +1337,16 @@ ENTRÉES → Ask:
       this.scheduleReconnection();
     } else {
       this.setConnectionState('disconnected');
+
+      // Emit session failure metrics
+      voiceMetrics.sessionFail({
+        sessionId: this.sessionId,
+        reason: 'connection_lost',
+        lastError: this.lastError?.message,
+        attempts: this.reconnectAttempts,
+        totalDurationMs: this.connectStartTime > 0 ? Date.now() - this.connectStartTime : undefined
+      });
+
       this.emit('voice.session.fail', {
         reason: 'connection_lost',
         lastError: this.lastError,
@@ -1509,6 +1593,16 @@ ENTRÉES → Ask:
     const delay = backoffDelays[Math.min(this.reconnectAttempts - 1, backoffDelays.length - 1)];
 
     logger.info(`[WebRTCVoice] Scheduling reconnection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+
+    // Emit reconnection metrics
+    voiceMetrics.sessionReconnect({
+      sessionId: this.sessionId,
+      attempt: this.reconnectAttempts,
+      maxAttempts: this.maxReconnectAttempts,
+      delayMs: delay,
+      reason: this.lastError?.type || 'unknown',
+      lastError: this.lastError?.message
+    });
 
     this.emit('voice.session.reconnect', {
       attempt: this.reconnectAttempts,

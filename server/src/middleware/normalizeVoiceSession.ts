@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
 import { normalizeSessionConfig, SessionConfig, PROVIDER_LIMITS } from '../voice/sessionLimits';
 import { RestaurantService } from '../services/restaurant.service';
+import { voiceMetrics, measureTimeAsync } from '../../shared/utils/voice-metrics';
 
 export interface VoiceSessionRequest extends Request {
   voiceSessionConfig?: Required<SessionConfig>;
@@ -19,12 +20,18 @@ export async function normalizeVoiceSession(
   _res: Response,
   next: NextFunction
 ): Promise<void> {
+  const startTime = Date.now();
+  let sessionId: string | undefined;
+
   try {
     // Extract mode from request body, default to 'customer'
     const mode: 'employee' | 'customer' = req.body?.mode === 'employee' ? 'employee' : 'customer';
 
     // Get restaurant ID from the request (should be set by auth middleware)
     const restaurantId = (req as any).restaurantId;
+
+    // Generate session ID for tracking
+    sessionId = voiceMetrics.generateSessionId();
 
     // Fetch restaurant voice settings if restaurant ID is available
     let restaurantVoiceSettings: SessionConfig = {};
@@ -242,6 +249,18 @@ export async function normalizeVoiceSession(
     // Attach normalized config to request
     req.voiceSessionConfig = normalizedConfig;
 
+    // Emit session normalization metrics
+    if (sessionId) {
+      voiceMetrics.sessionNormalized({
+        sessionId,
+        restaurantId: restaurantId || 'unknown',
+        mode,
+        configSource: configSources,
+        changes: changed,
+        normalizationTimeMs: Date.now() - startTime
+      });
+    }
+
     next();
   } catch (error) {
     voiceLogger.error('Error normalizing voice session config', {
@@ -254,6 +273,21 @@ export async function normalizeVoiceSession(
     // Fallback to default config for the mode
     const mode: 'employee' | 'customer' = req.body?.mode === 'employee' ? 'employee' : 'customer';
     req.voiceSessionConfig = normalizeSessionConfig({}, mode);
+
+    // Emit error metrics if we have a session ID
+    if (sessionId) {
+      voiceMetrics.sessionNormalized({
+        sessionId,
+        restaurantId: (req as any).restaurantId || 'unknown',
+        mode,
+        configSource: {
+          temperature: 'default',
+          maxTokens: 'default'
+        },
+        changes: {},
+        normalizationTimeMs: Date.now() - startTime
+      });
+    }
 
     next();
   }
