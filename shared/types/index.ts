@@ -56,10 +56,22 @@ export interface ApiResponse<T = unknown> {
   };
 }
 
+export interface VoiceSettings {
+  temperature?: number;
+  topP?: number;
+  presencePenalty?: number;
+  frequencyPenalty?: number;
+  max_response_output_tokens?: number;
+}
+
 export interface RestaurantSettings {
   orderPrefix?: string;
   autoAcceptOrders?: boolean;
   kitchenDisplayMode?: 'grid' | 'list';
+  voice?: {
+    employee?: VoiceSettings;
+    customer?: VoiceSettings;
+  };
 }
 
 export interface Restaurant {

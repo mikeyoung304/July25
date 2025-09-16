@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
 import { normalizeSessionConfig, SessionConfig, PROVIDER_LIMITS } from '../voice/sessionLimits';
+import { RestaurantService } from '../services/restaurant.service';
 
 export interface VoiceSessionRequest extends Request {
   voiceSessionConfig?: Required<SessionConfig>;
@@ -10,18 +11,50 @@ const voiceLogger = logger.child({ module: 'voice-session-normalizer' });
 
 /**
  * Middleware to normalize voice session configuration
- * Applies provider limits and environment variable overrides
+ * Applies fallback chain: restaurant settings → environment variables → defaults
+ * All values are still validated through the normalizer
  */
-export function normalizeVoiceSession(
+export async function normalizeVoiceSession(
   req: VoiceSessionRequest,
   _res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   try {
     // Extract mode from request body, default to 'customer'
     const mode: 'employee' | 'customer' = req.body?.mode === 'employee' ? 'employee' : 'customer';
 
-    // Build session config from request body and environment variables
+    // Get restaurant ID from the request (should be set by auth middleware)
+    const restaurantId = (req as any).restaurantId;
+
+    // Fetch restaurant voice settings if restaurant ID is available
+    let restaurantVoiceSettings: SessionConfig = {};
+    if (restaurantId) {
+      try {
+        const settings = await RestaurantService.getVoiceSettings(restaurantId, mode);
+        if (settings) {
+          restaurantVoiceSettings = settings;
+          voiceLogger.debug('Restaurant voice settings loaded', {
+            restaurantId,
+            mode,
+            settings
+          });
+        } else {
+          voiceLogger.debug('No restaurant voice settings found', {
+            restaurantId,
+            mode
+          });
+        }
+      } catch (error) {
+        voiceLogger.warn('Failed to load restaurant voice settings', {
+          restaurantId,
+          mode,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+        // Continue without restaurant settings
+      }
+    }
+
+    // Build session config from request body
     const inputConfig: SessionConfig = {
       temperature: req.body?.temperature,
       topP: req.body?.topP,
@@ -88,11 +121,23 @@ export function normalizeVoiceSession(
       }
     }
 
-    // Merge input config with environment overrides
+    // Apply fallback chain: input → restaurant settings → environment → defaults
+    // The normalizer will handle final defaults and clamping
     const mergedConfig: SessionConfig = {
-      ...inputConfig,
-      ...envOverrides
+      ...restaurantVoiceSettings,  // Restaurant settings as base
+      ...envOverrides,             // Environment overrides
+      ...inputConfig               // Request input takes highest priority
     };
+
+    // Log the fallback chain for debugging
+    voiceLogger.debug('Voice config fallback chain applied', {
+      mode,
+      restaurantId,
+      inputConfig,
+      restaurantSettings: restaurantVoiceSettings,
+      envOverrides,
+      mergedConfig
+    });
 
     // Normalize the session config
     const normalizedConfig = normalizeSessionConfig(mergedConfig, mode);
@@ -104,6 +149,25 @@ export function normalizeVoiceSession(
       presencePenalty: mergedConfig.presencePenalty,
       frequencyPenalty: mergedConfig.frequencyPenalty,
       max_response_output_tokens: mergedConfig.max_response_output_tokens
+    };
+
+    // Track source of final values for logging
+    const configSources = {
+      temperature: inputConfig.temperature !== undefined ? 'request' :
+                  envOverrides.temperature !== undefined ? 'environment' :
+                  restaurantVoiceSettings.temperature !== undefined ? 'restaurant' : 'default',
+      topP: inputConfig.topP !== undefined ? 'request' :
+            envOverrides.topP !== undefined ? 'environment' :
+            restaurantVoiceSettings.topP !== undefined ? 'restaurant' : 'default',
+      presencePenalty: inputConfig.presencePenalty !== undefined ? 'request' :
+                      envOverrides.presencePenalty !== undefined ? 'environment' :
+                      restaurantVoiceSettings.presencePenalty !== undefined ? 'restaurant' : 'default',
+      frequencyPenalty: inputConfig.frequencyPenalty !== undefined ? 'request' :
+                       envOverrides.frequencyPenalty !== undefined ? 'environment' :
+                       restaurantVoiceSettings.frequencyPenalty !== undefined ? 'restaurant' : 'default',
+      max_response_output_tokens: inputConfig.max_response_output_tokens !== undefined ? 'request' :
+                                 envOverrides.max_response_output_tokens !== undefined ? 'environment' :
+                                 restaurantVoiceSettings.max_response_output_tokens !== undefined ? 'restaurant' : 'default'
     };
 
     const changed: Record<string, { from: number | undefined, to: number, reason: string }> = {};
@@ -161,6 +225,7 @@ export function normalizeVoiceSession(
         mode,
         userId: (req as any).user?.id,
         restaurantId: (req as any).restaurantId,
+        configSources,
         changes: changed,
         finalConfig: normalizedConfig
       });
@@ -169,6 +234,7 @@ export function normalizeVoiceSession(
         mode,
         userId: (req as any).user?.id,
         restaurantId: (req as any).restaurantId,
+        configSources,
         config: normalizedConfig
       });
     }
