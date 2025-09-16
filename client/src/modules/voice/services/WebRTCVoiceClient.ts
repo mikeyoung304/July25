@@ -4,6 +4,7 @@ import { getAuthToken } from '../../../services/auth';
 import { logger } from '../../../services/monitoring/logger';
 import { getAgentConfigForMode, mergeMenuIntoConfig } from '../config/voice-agent-modes';
 import { safeParseEvent } from './RealtimeGuards';
+import { normalizeSessionConfig } from './SessionConfigNormalizer';
 
 export interface WebRTCVoiceConfig {
   restaurantId: string;
@@ -971,7 +972,14 @@ ENTRÉES → Ask:
       }
     ];
     
-    // Use mode-specific configuration
+    // Normalize session configuration to ensure provider limits are respected
+    const currentMode = this.config.mode || 'customer';
+    const normalizedConfig = normalizeSessionConfig({
+      temperature: configWithMenu.temperature,
+      max_response_output_tokens: configWithMenu.max_response_output_tokens
+    }, currentMode);
+
+    // Use mode-specific configuration with normalized values
     const sessionConfig: any = {
       modalities: configWithMenu.modalities || ['text', 'audio'],
       instructions,
@@ -983,8 +991,8 @@ ENTRÉES → Ask:
         language: 'en'  // Force English transcription
       },
       turn_detection: turnDetection,
-      temperature: configWithMenu.temperature || 0.6,
-      max_response_output_tokens: configWithMenu.max_response_output_tokens || 500
+      temperature: normalizedConfig.temperature,
+      max_response_output_tokens: normalizedConfig.max_response_output_tokens
     };
     
     // Only add tools if they exist and are non-empty

@@ -57,7 +57,7 @@ MENU KNOWLEDGE:
     silence_duration_ms: 300  // Faster for employees
   },
 
-  temperature: 0.3,  // Lower temperature for consistency
+  temperature: 0.7,  // Professional consistency (OpenAI Realtime min is 0.6)
 
   max_response_output_tokens: 50,  // Very short responses
 
@@ -129,7 +129,7 @@ MENU KNOWLEDGE:
     silence_duration_ms: 500  // More patience for customers
   },
 
-  temperature: 0.7,  // Natural conversation
+  temperature: 0.85,  // Natural conversational tone
 
   max_response_output_tokens: 150,  // Full responses
 
