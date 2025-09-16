@@ -8,7 +8,9 @@ export interface WebRTCVoiceConfig {
   userId?: string;
   debug?: boolean;
   enableVAD?: boolean; // Optional: enable server VAD mode
-  mode?: 'server' | 'customer'; // Mode for system prompt differentiation
+  mode?: 'employee' | 'customer'; // Authentication-based mode
+  enableAudioOutput?: boolean; // Enable/disable voice output
+  visualFeedbackOnly?: boolean; // Visual confirmations only (for employees)
 }
 
 export interface TranscriptEvent {
@@ -122,19 +124,29 @@ export class WebRTCVoiceClient extends EventEmitter {
       
       this.setupPeerConnectionHandlers();
       
-      // Step 3: Set up audio output handler
-      logger.info('[WebRTCVoice] Step 3: Setting up audio output...');
-      this.audioElement = document.createElement('audio');
-      this.audioElement.autoplay = true;
-      this.audioElement.style.display = 'none';
-      document.body.appendChild(this.audioElement);
-      
-      this.pc.ontrack = (event) => {
-        logger.info('[WebRTCVoice] Received remote audio track:', { streams: event.streams.length });
-        if (this.audioElement && event.streams[0]) {
-          this.audioElement.srcObject = event.streams[0];
-        }
-      };
+      // Step 3: Set up audio output handler (skip for employee mode)
+      const shouldEnableAudio = this.config.enableAudioOutput !== false &&
+                                this.config.mode !== 'employee';
+
+      if (shouldEnableAudio) {
+        logger.info('[WebRTCVoice] Step 3: Setting up audio output...');
+        this.audioElement = document.createElement('audio');
+        this.audioElement.autoplay = true;
+        this.audioElement.style.display = 'none';
+        document.body.appendChild(this.audioElement);
+
+        this.pc.ontrack = (event) => {
+          logger.info('[WebRTCVoice] Received remote audio track:', { streams: event.streams.length });
+          if (this.audioElement && event.streams[0]) {
+            this.audioElement.srcObject = event.streams[0];
+          }
+        };
+      } else {
+        logger.info('[WebRTCVoice] Step 3: Skipping audio output (employee mode or disabled)');
+        this.pc.ontrack = (event) => {
+          logger.info('[WebRTCVoice] Ignoring remote audio track (audio output disabled)');
+        };
+      }
       
       // Step 4: Set up microphone and add track (creates first m-line)
       logger.info('[WebRTCVoice] Step 4: Setting up microphone...');
@@ -623,6 +635,14 @@ export class WebRTCVoiceClient extends EventEmitter {
       case 'response.text.delta':
         // Text-only response (if no audio)
         if (this.turnState === 'waiting_response') {
+          // For employee mode, emit visual feedback events
+          if (this.config.mode === 'employee' || this.config.visualFeedbackOnly) {
+            this.emit('visual-feedback', {
+              text: event.delta,
+              isFinal: false,
+              type: 'response'
+            });
+          }
           this.emit('response.text', event.delta);
         }
         break;
@@ -754,10 +774,21 @@ export class WebRTCVoiceClient extends EventEmitter {
    */
   private configureSession(): void {
     const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
-    
-    // Determine turn detection mode
-    let turnDetection: any = null; // Default: manual PTT
-    if (this.config.enableVAD) {
+
+    // Import agent configurations dynamically
+    const { getAgentConfigForMode, mergeMenuIntoConfig } = require('../config/voice-agent-modes');
+
+    // Get configuration for current mode
+    const agentConfig = getAgentConfigForMode(this.config.mode || 'customer');
+
+    // Merge menu context if available
+    const configWithMenu = this.menuContext
+      ? mergeMenuIntoConfig(agentConfig, this.menuContext)
+      : agentConfig;
+
+    // Use mode-specific turn detection or fallback to VAD setting
+    let turnDetection: any = configWithMenu.turn_detection;
+    if (!turnDetection && this.config.enableVAD) {
       turnDetection = {
         type: 'server_vad',
         threshold: 0.5,
@@ -766,12 +797,12 @@ export class WebRTCVoiceClient extends EventEmitter {
         create_response: false, // Still manually trigger responses
       };
       // Debug: `${logPrefix} Configuring session with VAD enabled (manual response trigger)`
-    } else {
+    } else if (!turnDetection) {
       // Debug: `${logPrefix} Configuring session with manual PTT control`
     }
-    
-    // Build instructions with menu context
-    let instructions = `You are Grow Restaurant's friendly, fast, and accurate customer service agent. You MUST speak in English only. Never respond in any other language.
+
+    // Use mode-specific instructions or build default
+    let instructions = configWithMenu.instructions || `You are Grow Restaurant's friendly, fast, and accurate customer service agent. You MUST speak in English only. Never respond in any other language.
 
 🎯 YOUR JOB:
 - Help guests choose items and take complete, correct orders
@@ -923,10 +954,11 @@ ENTRÉES → Ask:
       }
     ];
     
+    // Use mode-specific configuration
     const sessionConfig: any = {
-      modalities: ['text', 'audio'],
+      modalities: configWithMenu.modalities || ['text', 'audio'],
       instructions,
-      voice: 'alloy',
+      voice: configWithMenu.voice || 'alloy',
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
       input_audio_transcription: {
@@ -934,8 +966,8 @@ ENTRÉES → Ask:
         language: 'en'  // Force English transcription
       },
       turn_detection: turnDetection,
-      temperature: 0.6, // Minimum temperature for Realtime API
-      max_response_output_tokens: 500 // Sufficient for complete responses
+      temperature: configWithMenu.temperature || 0.6,
+      max_response_output_tokens: configWithMenu.max_response_output_tokens || 500
     };
     
     // Only add tools if they exist and are non-empty

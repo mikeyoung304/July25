@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useWebRTCVoice } from '../hooks/useWebRTCVoice';
 // ConnectionIndicator removed - using inline status
 import { HoldToRecordButton } from './HoldToRecordButton';
@@ -6,14 +6,17 @@ import { TranscriptionDisplay } from './TranscriptionDisplay';
 import { VoiceDebugPanel } from './VoiceDebugPanel';
 import { AlertCircle, Mic, MicOff } from 'lucide-react';
 import { logger } from '../../../services/monitoring/logger';
+import { useAuth } from '@/contexts/auth.hooks';
+import { detectVoiceAgentMode, getAgentModeConfig } from '../services/VoiceAgentModeDetector';
 
 interface VoiceControlWebRTCProps {
   onTranscript?: (text: string) => void;
   onOrderDetected?: (order: any) => void;
   onOrderConfirmation?: (confirmation: { action: string; timestamp: number }) => void;
+  onVisualFeedback?: (feedback: { text: string; isFinal: boolean }) => void;
   debug?: boolean;
   className?: string;
-  mode?: 'server' | 'customer';
+  overrideMode?: 'employee' | 'customer'; // Optional override for testing
 }
 
 /**
@@ -24,12 +27,35 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   onTranscript,
   onOrderDetected,
   onOrderConfirmation,
+  onVisualFeedback,
   debug = false,
   className = '',
-  mode = 'customer',
+  overrideMode,
 }) => {
   const [showDebug, setShowDebug] = useState(debug);
   const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied'>('prompt');
+  const [visualFeedback, setVisualFeedback] = useState<string>('');
+
+  // Get authentication context
+  const { user, isAuthenticated } = useAuth();
+
+  // Detect agent mode based on authentication
+  const detectedMode = useMemo(() => {
+    if (overrideMode) return overrideMode;
+    return detectVoiceAgentMode({ user, isAuthenticated });
+  }, [user, isAuthenticated, overrideMode]);
+
+  // Get configuration for the detected mode
+  const modeConfig = useMemo(() => {
+    return getAgentModeConfig(detectedMode);
+  }, [detectedMode]);
+
+  logger.info('[VoiceControlWebRTC] Agent mode detected:', {
+    mode: detectedMode,
+    isAuthenticated,
+    userRole: user?.role,
+    config: modeConfig
+  });
   
   // Stabilize callbacks to prevent hook re-initialization
   const handleTranscript = useCallback((event: any) => {
@@ -44,7 +70,12 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     logger.info('[VoiceControlWebRTC] Order confirmation received:', { action: confirmation.action });
     onOrderConfirmation?.(confirmation);
   }, [onOrderConfirmation]);
-  
+
+  const handleVisualFeedback = useCallback((feedback: { text: string; isFinal: boolean }) => {
+    setVisualFeedback(feedback.text);
+    onVisualFeedback?.(feedback);
+  }, [onVisualFeedback]);
+
   const {
     connect,
     disconnect,
@@ -61,10 +92,13 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   } = useWebRTCVoice({
     autoConnect: false, // We'll connect after permission check
     debug,
-    mode,
+    mode: detectedMode,
+    enableAudioOutput: modeConfig.enableVoiceOutput,
+    visualFeedbackOnly: modeConfig.confirmationStyle === 'visual',
     onTranscript: handleTranscript,
     onOrderDetected: handleOrderDetected,
     onOrderConfirmation: handleOrderConfirmation,
+    onVisualFeedback: handleVisualFeedback,
   });
   
   // Check microphone permission
@@ -166,20 +200,34 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   if (permissionState === 'granted' || isConnected) {
     return (
       <div className={`voice-control-webrtc space-y-4 ${className}`}>
-        {/* Connection Status */}
+        {/* Connection Status and Mode Indicator */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${
-              connectionState === 'connected' ? 'bg-green-500' :
-              connectionState === 'connecting' ? 'bg-yellow-500 animate-pulse' :
-              connectionState === 'error' ? 'bg-red-500' :
-              'bg-gray-400'
-            }`} />
-            <span className="text-xs text-gray-600 capitalize">
-              {connectionState === 'disconnected' && permissionState === 'granted' 
-                ? 'Ready to connect' 
-                : connectionState}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${
+                connectionState === 'connected' ? 'bg-green-500' :
+                connectionState === 'connecting' ? 'bg-yellow-500 animate-pulse' :
+                connectionState === 'error' ? 'bg-red-500' :
+                'bg-gray-400'
+              }`} />
+              <span className="text-xs text-gray-600 capitalize">
+                {connectionState === 'disconnected' && permissionState === 'granted'
+                  ? 'Ready to connect'
+                  : connectionState}
+              </span>
+            </div>
+
+            {/* Mode Indicator */}
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-500">Mode:</span>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                detectedMode === 'employee'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'bg-blue-100 text-blue-700'
+              }`}>
+                {detectedMode === 'employee' ? 'Employee' : 'Customer'}
+              </span>
+            </div>
           </div>
         
         {/* Debug Toggle */}
@@ -273,6 +321,16 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
                 <p className="text-xs text-gray-500 mb-1">Assistant:</p>
                 <div className="bg-blue-50 rounded-lg p-3">
                   <p className="text-sm text-blue-900">{responseText}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Visual feedback for employee mode */}
+            {detectedMode === 'employee' && visualFeedback && (
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Order Status:</p>
+                <div className="bg-green-50 rounded-lg p-3">
+                  <p className="text-sm text-green-900 font-medium">{visualFeedback}</p>
                 </div>
               </div>
             )}

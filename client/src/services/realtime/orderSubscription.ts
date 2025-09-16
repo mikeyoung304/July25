@@ -145,7 +145,7 @@ export const mockOrderGenerator = {
       id: `order-${Date.now()}`,
       restaurant_id: 'rest-1',
       order_number: String(Math.floor(Math.random() * 999) + 1).padStart(3, '0'),
-      table_number: tableNumber,
+      tableNumber: tableNumber, // Using camelCase for server compatibility
       items,
       status: 'new' as OrderStatus,
       type: (isDriveThru ? 'drive-thru' : 'dine-in') as OrderType,

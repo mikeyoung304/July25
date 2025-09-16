@@ -167,12 +167,12 @@ const extractSpecialRequests = (text: string): string | undefined => {
  * Submits a voice order to the KDS system
  */
 export const submitVoiceOrder = async (voiceOrder: VoiceOrder) => {
-  // Convert to API format
+  // Convert to API format (using camelCase for server compatibility)
   const orderData: Partial<Order> = {
-    table_number: 'K1', // K for Kiosk
+    tableNumber: 'K1', // K for Kiosk - using camelCase
     items: voiceOrder.items.map(item => ({
       id: `${Date.now()}-${Math.random()}`,
-      menu_item_id: item.id || `menu-${Date.now()}`,
+      menuItemId: item.id || `menu-${Date.now()}`, // Using camelCase
       name: item.name,
       quantity: item.quantity,
       price: calculateItemPrice(item.name),
@@ -182,7 +182,7 @@ export const submitVoiceOrder = async (voiceOrder: VoiceOrder) => {
         name: mod,
         price: 0
       })),
-      special_instructions: voiceOrder.specialRequests
+      specialInstructions: voiceOrder.specialRequests // Using camelCase
     })),
     total: calculateTotal(voiceOrder.items),
     type: (voiceOrder.type || 'voice') as OrderType

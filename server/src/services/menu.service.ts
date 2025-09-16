@@ -227,9 +227,11 @@ export class MenuService {
    */
   static async syncToAI(restaurantId: string): Promise<void> {
     try {
-      await this.getFullMenu(restaurantId);
-      
-      // AI service sync implementation pending
+      // Import dynamically to avoid circular dependency
+      const { MenuAISyncService } = await import('./menu-ai-sync.service');
+
+      // Delegate to AI sync service
+      await MenuAISyncService.syncToAI(restaurantId);
 
       this.logger.info('Menu synced to AI service', { restaurantId });
     } catch (error) {

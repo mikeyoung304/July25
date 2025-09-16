@@ -1,8 +1,8 @@
 ---
 owner: Mike Young
 status: red
-last_verified_date: 2025-09-15
-last_verified_commit: 764d332991dd3a91ca870515b7f50cfa28208275
+last_verified_date: 2025-01-15
+last_verified_commit: d912bd808deae3a11e5d9944031632097007a5f1
 version: v0.1
 ---
 
@@ -28,7 +28,7 @@ version: v0.1
 ### Customer Mode
 - **Client Signal**: `mode: 'customer'` (default) in WebRTCVoiceConfig
 - **Server Behavior**: Sets `process.env.VOICE_MODE = 'customer'`
-- **Payment Required**: Orders should require payment_token (NOT ENFORCED server-side currently)
+- **Payment Required**: Orders require payment_token (**⚠️ ENFORCED server-side but client doesn't send tokens**)
 - **Full Voice**: TTS enabled for conversational ordering
 
 ## Authentication Posture
@@ -57,6 +57,15 @@ Payment states (`awaiting_payment`, `paid`) exist in types but not enforced in m
 - **Coverage**: Target 60% statements (not met)
 - **TypeScript**: 560+ errors, mostly in tests (app runs)
 - **Known Issue**: Jest→Vitest migration incomplete, missing global shims
+
+## API Field Contract Status
+
+The server includes transform logic to handle legacy snake_case fields:
+- Server expects: `tableNumber`, `customerName`, `type`
+- Client was sending: `table_number`, `customer_name`, `order_type`
+- Transform layer: server/src/dto/order.dto.ts:56-78
+
+**UPDATE**: Client now using camelCase consistently (fixed 2025-01-15).
 
 ## Recent Changes
 

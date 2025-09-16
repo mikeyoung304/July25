@@ -7,9 +7,16 @@ import { SquareClient, SquareEnvironment } from 'square';
 import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
 import { PaymentService } from '../services/payment.service';
+import { SquareAdapter } from '../payments/square.adapter';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'payments' });
+
+// In-memory storage for development (replace with database in production)
+const paymentStore = new Map<string, any>();
+
+// Initialize payment adapter
+const squareAdapter = new SquareAdapter();
 
 // Validate Square configuration
 if (process.env['SQUARE_ENVIRONMENT'] === 'production') {
@@ -30,6 +37,125 @@ const client = new SquareClient({
 } as any);
 
 const paymentsApi = client.payments;
+
+// POST /api/v1/payments/intent - Create payment intent for voice/customer orders
+router.post('/intent',
+  authenticate,
+  validateRestaurantAccess,
+  async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const { amount, currency = 'USD', orderDraftId, mode = 'voice_customer' } = req.body;
+      const restaurantId = req.restaurantId!;
+
+      if (!amount || amount <= 0) {
+        throw BadRequest('Invalid amount');
+      }
+
+      routeLogger.info('Creating payment intent', {
+        amount,
+        currency,
+        orderDraftId,
+        mode,
+        restaurantId
+      });
+
+      // Create payment intent with Square
+      const intent = await squareAdapter.createIntent(amount, {
+        orderDraftId,
+        restaurantId,
+        mode
+      });
+
+      // Store payment record
+      const paymentRecord = {
+        id: intent.id,
+        provider: 'square',
+        amount,
+        currency,
+        status: intent.status,
+        orderDraftId,
+        restaurantId,
+        strategy: intent.strategy,
+        paymentLinkUrl: intent.paymentLinkUrl,
+        checkoutId: intent.checkoutId,
+        clientToken: intent.clientToken,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Store in memory for development
+      paymentStore.set(intent.id, paymentRecord);
+
+      // Return response based on strategy
+      const response: any = {
+        strategy: intent.strategy,
+        paymentId: intent.id
+      };
+
+      if (intent.strategy === 'link') {
+        response.paymentLinkUrl = intent.paymentLinkUrl;
+        response.checkoutId = intent.checkoutId;
+      } else if (intent.strategy === 'web') {
+        response.clientToken = intent.clientToken;
+      }
+
+      routeLogger.info('Payment intent created', {
+        paymentId: intent.id,
+        strategy: intent.strategy
+      });
+
+      res.status(201).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// GET /api/v1/payments/status/:id - Check payment status
+router.get('/status/:id',
+  authenticate,
+  validateRestaurantAccess,
+  async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const { id } = req.params;
+      const restaurantId = req.restaurantId!;
+
+      routeLogger.info('Checking payment status', { paymentId: id, restaurantId });
+
+      // Get payment record from memory store
+      let paymentRecord = paymentStore.get(id);
+
+      if (!paymentRecord) {
+        throw BadRequest('Payment not found');
+      }
+
+      // Check status with provider
+      try {
+        const currentStatus = await squareAdapter.statusById(id);
+
+        // Update status if changed
+        if (currentStatus.status !== paymentRecord.status) {
+          paymentRecord.status = currentStatus.status;
+          paymentRecord.updatedAt = new Date().toISOString();
+          paymentStore.set(id, paymentRecord);
+        }
+      } catch (providerError) {
+        logger.warn('Could not check provider status', {
+          paymentId: id,
+          error: providerError
+        });
+      }
+
+      res.json({
+        status: paymentRecord.status,
+        providerId: paymentRecord.checkoutId || id,
+        orderDraftId: paymentRecord.orderDraftId
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // POST /api/v1/payments/create - Process payment
 router.post('/create', 
@@ -366,6 +492,50 @@ router.post('/:paymentId/refund',
     }
 
     next(error);
+  }
+});
+
+// POST /api/v1/webhooks/payments - Handle payment webhooks
+router.post('/webhooks/payments', async (req, res, next) => {
+  try {
+    const signature = req.headers['x-square-hmacsha256-signature'] as string;
+    const body = JSON.stringify(req.body);
+
+    // TODO: Verify webhook signature in production
+    routeLogger.info('Payment webhook received', {
+      type: req.body.type,
+      data: req.body.data
+    });
+
+    // Handle different webhook events
+    if (req.body.type === 'payment.created' || req.body.type === 'payment.updated') {
+      const payment = req.body.data?.object?.payment;
+      if (payment) {
+        const orderId = payment.order_id;
+        const status = payment.status === 'COMPLETED' ? 'succeeded' :
+                       payment.status === 'FAILED' ? 'failed' : 'pending';
+
+        // Update payment status in memory store
+        for (const [id, record] of paymentStore.entries()) {
+          if (record.checkoutId === orderId) {
+            record.status = status;
+            record.updatedAt = new Date().toISOString();
+            paymentStore.set(id, record);
+            break;
+          }
+        }
+
+        routeLogger.info('Payment status updated via webhook', {
+          orderId,
+          status
+        });
+      }
+    }
+
+    res.status(200).json({ received: true });
+  } catch (error) {
+    logger.error('Webhook processing error', { error });
+    res.status(200).json({ received: true }); // Always return 200 to avoid retries
   }
 });
 

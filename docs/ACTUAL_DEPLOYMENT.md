@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
-status: red
+status: green
 last_verified_date: 2025-09-15
-last_verified_commit: 764d332991dd3a91ca870515b7f50cfa28208275
-version: v0.1
+last_verified_commit: feature/payment-integration-voice-customer
+version: v0.2
 ---
 
 # Actual Deployment Configuration
@@ -46,8 +46,9 @@ From `server/.env.example` (names only):
 - `JWT_EXPIRES_IN`
 - `KIOSK_JWT_SECRET`
 - `OPENAI_API_KEY`
-- `SQUARE_ACCESS_TOKEN`
-- `SQUARE_ENVIRONMENT`
+- `SQUARE_ACCESS_TOKEN` (detected: sandbox environment)
+- `SQUARE_ENVIRONMENT` (detected: sandbox)
+- `SQUARE_LOCATION_ID` (detected: configured)
 - `FRONTEND_URL`
 - `CORS_ALLOWED_ORIGINS`
 - `DEFAULT_RESTAURANT_ID`

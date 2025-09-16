@@ -29,6 +29,7 @@ const DriveThruPage = lazy(() => import('@/pages/DriveThruPage'))
 const CustomerOrderPage = lazy(() => import('@/modules/order-system/components').then(m => ({ default: m.CustomerOrderPage })))
 const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'))
 const OrderConfirmationPage = lazy(() => import('@/pages/OrderConfirmationPage').then(m => ({ default: m.OrderConfirmationPage })))
+const VoiceAgentTest = lazy(() => import('@/pages/VoiceAgentTest').then(m => ({ default: m.VoiceAgentTest })))
 
 // Loading component for Suspense fallback
 const RouteLoader = () => (
@@ -233,6 +234,15 @@ export function AppRoutes() {
                 </Profiler>
               </ErrorBoundary>
             } />
+
+            {/* Voice Agent Test Page - Development Only */}
+            {env.DEV && (
+              <Route path="/voice-test" element={
+                <Suspense fallback={<RouteLoader />}>
+                  <VoiceAgentTest />
+                </Suspense>
+              } />
+            )}
           </Routes>
         </Profiler>
       </ErrorBoundary>

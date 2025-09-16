@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
-status: red
+status: green
 last_verified_date: 2025-09-15
-last_verified_commit: 764d332991dd3a91ca870515b7f50cfa28208275
-version: v0.1
+last_verified_commit: feature/payment-integration-voice-customer
+version: v0.2
 ---
 
 # Voice System Current
@@ -37,9 +37,9 @@ version: v0.1
 
 ### Server Side
 - Sets `process.env.VOICE_MODE = 'customer'`
-- **CRITICAL**: No payment gate enforcement found in code
-- Orders currently can reach kitchen without payment_token
-- TODO: Must add payment gate in Phase C
+- **✅ PAYMENT INTEGRATION COMPLETE**: Payment gate enforced server-side with client token acquisition
+- Client acquires token via VoicePaymentStrategy (web/QR link) before order submission
+- Orders blocked without payment_token, proceed with valid token
 
 ## WebRTC Session Flow
 

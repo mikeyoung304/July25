@@ -51,7 +51,7 @@ const CheckoutPageContent: React.FC = () => {
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
-          menu_item_id: item.id,
+          menuItemId: item.id, // Using camelCase for server compatibility
           name: item.name,
           quantity: item.quantity,
           price: item.price,
@@ -65,7 +65,7 @@ const CheckoutPageContent: React.FC = () => {
         subtotal: cart.subtotal,
         tax: cart.tax,
         tip: cart.tip,
-        total_amount: cart.total,
+        totalAmount: cart.total, // Using camelCase
       });
 
       if (!orderResponse) {
@@ -123,7 +123,7 @@ const CheckoutPageContent: React.FC = () => {
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
-          menu_item_id: item.id,
+          menuItemId: item.id, // Using camelCase for server compatibility
           name: item.name,
           quantity: item.quantity,
           price: item.price,
@@ -137,7 +137,7 @@ const CheckoutPageContent: React.FC = () => {
         subtotal: cart.subtotal,
         tax: cart.tax,
         tip: cart.tip,
-        total_amount: cart.total,
+        totalAmount: cart.total, // Using camelCase
       });
 
       if (!orderResponse) {

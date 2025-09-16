@@ -6,6 +6,7 @@
 import { Order, OrderItem, OrderItemModifier, OrderStatus, OrderType } from '@rebuild/shared'
 import { logger } from '@/services/logger'
 import { httpClient } from '@/services/http/httpClient'
+import { VoicePaymentStrategy } from '@/modules/voice/payments/VoicePaymentStrategy'
 
 export interface IOrderService {
   getOrders(filters?: OrderFilters): Promise<Order[]>
@@ -131,15 +132,48 @@ export class OrderService implements IOrderService {
 
   async submitOrder(orderData: Partial<Order>): Promise<Order> {
     logger.info('[OrderService] submitOrder called with:', orderData)
-    
+
     // Validate order data
     if (!this.validateOrder(orderData)) {
       logger.error('[OrderService] Order validation failed, throwing error')
       throw new Error('Invalid order data - check console for details')
     }
 
+    // Check if this is a customer voice order that needs payment
+    const isCustomerVoiceOrder = orderData.type === 'voice' && !this.isEmployeeAuthenticated()
+
+    if (isCustomerVoiceOrder) {
+      logger.info('[OrderService] Customer voice order detected, acquiring payment token...')
+
+      try {
+        // Calculate total for payment
+        const total = orderData.total || this.calculateOrderTotal(orderData)
+        const restaurantId = orderData.restaurant_id || localStorage.getItem('restaurantId') || ''
+
+        // Acquire payment token using the appropriate strategy
+        const paymentToken = await VoicePaymentStrategy.acquireToken({
+          total,
+          restaurantId,
+          deviceKind: this.getDeviceKind(),
+          orderDraftId: orderData.id
+        })
+
+        logger.info('[OrderService] Payment token acquired:', paymentToken)
+
+        // Add payment token to order data
+        orderData = {
+          ...orderData,
+          payment_token: paymentToken,
+          paymentToken: paymentToken // Include both formats for compatibility
+        }
+      } catch (paymentError) {
+        logger.error('[OrderService] Failed to acquire payment token:', paymentError)
+        throw new Error('Payment required for customer orders')
+      }
+    }
+
     logger.info('[OrderService] Validation passed, sending to API...')
-    
+
     try {
       const response = await httpClient.post<any>('/api/v1/orders', orderData)
       logger.info('[OrderService] API response:', response)
@@ -272,6 +306,67 @@ export class OrderService implements IOrderService {
         payment_status: 'pending'
       }
     ]
+  }
+
+  /**
+   * Check if the current user is an authenticated employee
+   */
+  private isEmployeeAuthenticated(): boolean {
+    // Check for authentication token and user role
+    const authToken = localStorage.getItem('authToken')
+    const userRole = localStorage.getItem('userRole')
+
+    // Employee roles include: owner, manager, server, cashier, kitchen, expo
+    const employeeRoles = ['owner', 'manager', 'server', 'cashier', 'kitchen', 'expo']
+
+    return !!(authToken && userRole && employeeRoles.includes(userRole.toLowerCase()))
+  }
+
+  /**
+   * Determine the device kind based on current context
+   */
+  private getDeviceKind(): 'kiosk' | 'serverStation' | 'remote' {
+    // Check URL or local storage for device type
+    const deviceType = localStorage.getItem('deviceType')
+    const pathname = window.location.pathname
+
+    if (deviceType === 'kiosk' || pathname.includes('kiosk')) {
+      return 'kiosk'
+    }
+
+    if (deviceType === 'serverStation' || pathname.includes('server-station')) {
+      return 'serverStation'
+    }
+
+    // Default to remote for browser access
+    return 'remote'
+  }
+
+  /**
+   * Calculate order total from items
+   */
+  private calculateOrderTotal(orderData: Partial<Order>): number {
+    if (!orderData.items || orderData.items.length === 0) {
+      return 0
+    }
+
+    const subtotal = orderData.items.reduce((total, item) => {
+      const itemPrice = item.price || 0
+      const quantity = item.quantity || 1
+      let itemTotal = itemPrice * quantity
+
+      // Add modifier prices
+      if (item.modifiers) {
+        item.modifiers.forEach(modifier => {
+          itemTotal += (modifier.price || 0) * quantity
+        })
+      }
+
+      return total + itemTotal
+    }, 0)
+
+    const tax = subtotal * 0.08 // 8% tax rate
+    return subtotal + tax
   }
 }
 

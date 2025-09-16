@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
-status: red
+status: green
 last_verified_date: 2025-09-15
-last_verified_commit: 764d332991dd3a91ca870515b7f50cfa28208275
-version: v0.1
+last_verified_commit: feature/payment-integration-voice-customer
+version: v0.2
 ---
 
 # Order Flow
@@ -99,7 +99,14 @@ Voice orders follow a unique path through the system:
 
 3. **Order Submission**
    ```typescript
-   // Automated submission after confirmation
+   // Customer mode: Payment required
+   if (mode === 'customer') {
+     VoicePaymentStrategy → acquireToken(total, restaurantId)
+     // Shows QR or card form based on device
+     orderData.payment_token = paymentToken
+   }
+
+   // Submit with or without token based on mode
    VoiceOrderingMode → submitOrderAndNavigate(cart.items)
    useKioskOrderSubmission → POST /api/v1/orders
    Navigate → /order-confirmation

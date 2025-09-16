@@ -5,10 +5,13 @@ import { logger } from '../../../services/monitoring/logger';
 export interface UseWebRTCVoiceOptions {
   autoConnect?: boolean;
   debug?: boolean;
-  mode?: 'server' | 'customer';
+  mode?: 'employee' | 'customer';
+  enableAudioOutput?: boolean;
+  visualFeedbackOnly?: boolean;
   onTranscript?: (transcript: TranscriptEvent) => void;
   onOrderDetected?: (order: OrderEvent) => void;
   onOrderConfirmation?: (confirmation: { action: string; timestamp: number }) => void;
+  onVisualFeedback?: (feedback: { text: string; isFinal: boolean }) => void;
   onError?: (error: Error) => void;
 }
 
@@ -39,7 +42,18 @@ export interface UseWebRTCVoiceReturn {
  * React hook for WebRTC voice integration with OpenAI Realtime API
  */
 export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVoiceReturn {
-  const { autoConnect: _autoConnect = true, debug = false, mode = 'customer', onTranscript, onOrderDetected, onOrderConfirmation, onError } = options;
+  const {
+    autoConnect: _autoConnect = true,
+    debug = false,
+    mode = 'customer',
+    enableAudioOutput,
+    visualFeedbackOnly = false,
+    onTranscript,
+    onOrderDetected,
+    onOrderConfirmation,
+    onVisualFeedback,
+    onError
+  } = options;
   
   // Get restaurant ID from environment or use default
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
@@ -58,15 +72,17 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   const onTranscriptRef = useRef(onTranscript);
   const onOrderDetectedRef = useRef(onOrderDetected);
   const onOrderConfirmationRef = useRef(onOrderConfirmation);
+  const onVisualFeedbackRef = useRef(onVisualFeedback);
   const onErrorRef = useRef(onError);
-  
+
   // Update refs when callbacks change
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
     onOrderDetectedRef.current = onOrderDetected;
     onOrderConfirmationRef.current = onOrderConfirmation;
+    onVisualFeedbackRef.current = onVisualFeedback;
     onErrorRef.current = onError;
-  }, [onTranscript, onOrderDetected, onOrderConfirmation, onError]);
+  }, [onTranscript, onOrderDetected, onOrderConfirmation, onVisualFeedback, onError]);
   
   // Initialize client
   useEffect(() => {
@@ -75,6 +91,8 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       userId: undefined, // Can be added later when auth is properly integrated
       debug,
       mode,
+      enableAudioOutput,
+      visualFeedbackOnly,
     });
     
     // Set up event listeners
@@ -121,6 +139,12 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
         // For actual text, replace (not accumulate) to show current state
         setResponseText(text);
       }
+    });
+
+    // Handle visual feedback events for employee mode
+    client.on('visual-feedback', (feedback: { text: string; isFinal: boolean }) => {
+      logger.info('[useWebRTCVoice] Visual feedback received:', feedback);
+      onVisualFeedbackRef.current?.(feedback);
     });
     
     client.on('response.complete', () => {
