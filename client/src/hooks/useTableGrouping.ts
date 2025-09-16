@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { Order, OrderItem } from '@rebuild/shared'
+import { assertNever } from '@/utils'
 
 export interface TableGroup {
   tableNumber: string
@@ -95,6 +96,15 @@ export const useTableGrouping = (orders: Order[]) => {
             case 'completed':
               tableGroup.completedItems++
               break
+            case 'new':
+            case 'pending':
+              // New and pending items are counted in totalItems but not in any specific status count
+              break
+            case 'cancelled':
+              // Cancelled items are not counted in any category
+              break
+            default:
+              assertNever(order.status)
           }
         })
         

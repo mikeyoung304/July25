@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { ChefHat, Flame, Salad, Package, Coffee, IceCream, CheckCircle, Clock, AlertCircle } from 'lucide-react'
-import { cn } from '@/utils'
+import { cn, assertNever } from '@/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Order, OrderItem } from '@rebuild/shared'
 
@@ -147,6 +147,11 @@ const calculateStationStatus = (
         case 'pending':
           status.pendingCount += item.quantity
           break
+        case 'cancelled':
+          // Cancelled orders are not counted in any category
+          break
+        default:
+          assertNever(order.status)
       }
     })
   })
