@@ -12,6 +12,7 @@ import { authRoutes } from './auth.routes';
 import { realtimeRoutes } from './realtime.routes';
 import metricsRoutes from './metrics';
 import securityRoutes from './security.routes';
+import webhooksRoutes from './webhooks.routes';
 
 export function setupRoutes(): Router {
   const router = Router();
@@ -55,6 +56,9 @@ export function setupRoutes(): Router {
 
   // Real-time voice ordering routes
   router.use('/realtime', realtimeRoutes);
+
+  // Webhook routes (no auth required - verified by signature)
+  router.use('/webhooks', webhooksRoutes);
 
   return router;
 }

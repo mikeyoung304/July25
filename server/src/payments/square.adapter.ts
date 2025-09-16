@@ -1,12 +1,13 @@
 import { SquareClient, SquareEnvironment, ApiError } from 'square';
 import { randomUUID } from 'crypto';
 import { logger } from '../utils/logger';
+import { supabase } from '../utils/supabase';
 
 interface PaymentIntent {
   id: string;
   amount: number;
   currency: string;
-  status: 'pending' | 'succeeded' | 'failed';
+  status: 'pending' | 'succeeded' | 'failed' | 'canceled';
   strategy: 'link' | 'web';
   paymentLinkUrl?: string;
   checkoutId?: string;
@@ -18,6 +19,22 @@ interface IntentMetadata {
   orderDraftId?: string;
   restaurantId: string;
   mode: string;
+}
+
+interface DBPaymentIntent {
+  id: string;
+  provider: 'square' | 'stripe';
+  provider_payment_id: string | null;
+  order_draft_id: string | null;
+  restaurant_id: string;
+  amount_cents: number;
+  currency: string;
+  status: 'pending' | 'succeeded' | 'failed' | 'canceled';
+  used_at: string | null;
+  used_by_order_id: string | null;
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
 }
 
 export class SquareAdapter {
@@ -100,6 +117,9 @@ export class SquareAdapter {
         url: intent.paymentLinkUrl
       });
 
+      // Persist payment intent to database
+      await this.persistIntent(intent, metadata);
+
       return intent;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -123,7 +143,7 @@ export class SquareAdapter {
       }
 
       // Check if order exists and get payment status
-      let status: 'pending' | 'succeeded' | 'failed' = 'pending';
+      let status: 'pending' | 'succeeded' | 'failed' | 'canceled' = 'pending';
 
       if (linkResult.paymentLink.orderId) {
         try {
@@ -134,12 +154,15 @@ export class SquareAdapter {
           if (orderResult.order?.state === 'COMPLETED') {
             status = 'succeeded';
           } else if (orderResult.order?.state === 'CANCELED') {
-            status = 'failed';
+            status = 'canceled';
           }
         } catch (orderError) {
           logger.debug('Could not retrieve order status', { orderId: linkResult.paymentLink.orderId });
         }
       }
+
+      // Update status in database if changed
+      await this.updateIntentStatus(id, status);
 
       return {
         id: linkResult.paymentLink.id || id,
@@ -190,6 +213,118 @@ export class SquareAdapter {
       const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
       return decoded.locationId === this.locationId;
     } catch {
+      return false;
+    }
+  }
+
+  private async persistIntent(intent: PaymentIntent, metadata: IntentMetadata): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('payment_intents')
+        .insert({
+          provider: 'square',
+          provider_payment_id: intent.id,
+          order_draft_id: metadata.orderDraftId || null,
+          restaurant_id: metadata.restaurantId,
+          amount_cents: intent.amount,
+          currency: intent.currency,
+          status: intent.status,
+          metadata: {
+            ...intent.metadata,
+            strategy: intent.strategy,
+            mode: metadata.mode
+          }
+        });
+
+      if (error) {
+        logger.error('Failed to persist payment intent', { error, intentId: intent.id });
+        // Don't throw - continue with payment flow even if persistence fails
+      } else {
+        logger.info('Payment intent persisted', { intentId: intent.id });
+      }
+    } catch (error) {
+      logger.error('Error persisting payment intent', { error, intentId: intent.id });
+      // Don't throw - continue with payment flow
+    }
+  }
+
+  async updateIntentStatus(providerId: string, status: 'succeeded' | 'failed' | 'canceled'): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('payment_intents')
+        .update({
+          status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('provider_payment_id', providerId);
+
+      if (error) {
+        logger.error('Failed to update payment intent status', { error, providerId, status });
+      } else {
+        logger.info('Payment intent status updated', { providerId, status });
+      }
+    } catch (error) {
+      logger.error('Error updating payment intent status', { error, providerId, status });
+    }
+  }
+
+  async validateToken(token: string, restaurantId: string, amountCents: number): Promise<boolean> {
+    try {
+      const { data, error } = await supabase
+        .from('payment_intents')
+        .select('*')
+        .eq('provider_payment_id', token)
+        .eq('restaurant_id', restaurantId)
+        .eq('status', 'succeeded')
+        .is('used_at', null)
+        .single();
+
+      if (error || !data) {
+        logger.warn('Payment token validation failed', { token, restaurantId, error });
+        return false;
+      }
+
+      // Verify amount matches
+      if (data.amount_cents !== amountCents) {
+        logger.warn('Payment amount mismatch', {
+          token,
+          expected: amountCents,
+          actual: data.amount_cents
+        });
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      logger.error('Error validating payment token', { error, token });
+      return false;
+    }
+  }
+
+  async consumeToken(token: string, orderId: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase
+        .from('payment_intents')
+        .update({
+          used_at: new Date().toISOString(),
+          used_by_order_id: orderId,
+          updated_at: new Date().toISOString()
+        })
+        .eq('provider_payment_id', token)
+        .eq('status', 'succeeded')
+        .is('used_at', null)
+        .select()
+        .single();
+
+      if (error || !data) {
+        logger.error('Failed to consume payment token', { error, token, orderId });
+        return false;
+      }
+
+      logger.info('Payment token consumed', { token, orderId });
+      return true;
+    } catch (error) {
+      logger.error('Error consuming payment token', { error, token, orderId });
       return false;
     }
   }

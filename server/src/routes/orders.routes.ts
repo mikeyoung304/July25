@@ -8,14 +8,16 @@ import { logger } from '../utils/logger';
 import { ai } from '../ai';
 import { MenuService } from '../services/menu.service';
 import { validateCreateOrderDTO, UpdateOrderStatusDTOSchema } from '../dto/order.dto';
-import { idempotencyService } from '../services/idempotency.service';
+import { requireIdempotencyKey, idempotencyMiddleware } from '../middleware/idempotency';
 import { ZodError } from 'zod';
 import type { OrderStatus, OrderType } from '@rebuild/shared';
 import { resolveOrderMode } from '../middleware/orderMode';
 import { requirePaymentIfCustomer } from '../middleware/paymentGate';
+import { SquareAdapter } from '../payments/square.adapter';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'orders' });
+const squareAdapter = new SquareAdapter();
 
 // GET /api/v1/orders - List orders with filters
 router.get('/', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
@@ -46,25 +48,13 @@ router.post('/',
   requireScopes(ApiScope.ORDERS_CREATE),
   validateRestaurantAccess,
   resolveOrderMode,
+  requireIdempotencyKey,
+  idempotencyMiddleware,
   requirePaymentIfCustomer,
   async (req: AuthenticatedRequest, res, next) => {
     try {
       const restaurantId = req.restaurantId!;
-      const idempotencyKey = req.headers['x-idempotency-key'] as string;
-      
-      // Check for duplicate request
-      const key = idempotencyService.generateKey(req.body, idempotencyKey);
-      if (idempotencyService.isDuplicate(key)) {
-        const cachedResult = idempotencyService.getCachedResult(key);
-        if (cachedResult) {
-          routeLogger.info('Returning cached order (idempotent)', { 
-            restaurantId, 
-            orderId: cachedResult.id 
-          });
-          return res.status(200).json(cachedResult);
-        }
-      }
-      
+
       // Validate and transform DTO
       let validatedData;
       try {
@@ -77,18 +67,35 @@ router.post('/',
         throw error;
       }
 
-      routeLogger.info('Creating order', { 
-        restaurantId, 
+      routeLogger.info('Creating order', {
+        restaurantId,
         itemCount: validatedData.items.length,
-        idempotencyKey: key 
+        mode: (req as any).orderMode
       });
-      
+
       // Create order with validated data
       const order = await OrdersService.createOrder(restaurantId, validatedData);
-      
-      // Store result for idempotency
-      idempotencyService.storeResult(key, order);
-      
+
+      // Consume payment token if customer order
+      if ((req as any).orderMode === 'customer' && (req as any).paymentToken) {
+        const consumed = await squareAdapter.consumeToken(
+          (req as any).paymentToken,
+          order.id
+        );
+
+        if (!consumed) {
+          routeLogger.error('Failed to consume payment token after order creation', {
+            orderId: order.id,
+            paymentToken: (req as any).paymentToken
+          });
+          // Consider whether to rollback the order here
+        } else {
+          routeLogger.info('Payment token consumed successfully', {
+            orderId: order.id
+          });
+        }
+      }
+
       res.status(201).json(order);
     } catch (error) {
       next(error);

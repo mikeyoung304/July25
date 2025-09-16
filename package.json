@@ -55,6 +55,7 @@
     "db:reset": "supabase db reset",
     "db:migration:new": "supabase migration new",
     "db:status": "cd server && npm run db:check",
+    "reconcile:payments": "cd server && ts-node scripts/reconcile-payments.ts",
     "analyze": "tsx scripts/gen-code-analysis.ts",
     "analyze:bundle": "tsx scripts/analyze-bundle.ts",
     "docs:generate": "tsx scripts/generate-docs.ts",

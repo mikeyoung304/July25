@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
 status: green
-last_verified_date: 2025-09-15
-last_verified_commit: feature/payment-integration-voice-customer
-version: v0.2
+last_verified_date: 2025-01-15
+last_verified_commit: hardening/payments-lock-v1-20250115
+version: v0.3
 ---
 
 # Order Flow
@@ -105,6 +105,9 @@ Voice orders follow a unique path through the system:
      // Shows QR or card form based on device
      orderData.payment_token = paymentToken
    }
+
+   // Submit with Idempotency-Key header (REQUIRED)
+   headers['Idempotency-Key'] = generateUniqueKey()
 
    // Submit with or without token based on mode
    VoiceOrderingMode → submitOrderAndNavigate(cart.items)
@@ -233,6 +236,62 @@ const handlePaymentSubmit = async () => {
   }
 }
 ```
+
+## Payment Hardening & Security (v0.3)
+
+### One-Time Token Usage
+
+All customer payment tokens are **single-use only**:
+
+1. **Token Validation** - Performed before order creation
+   - Verifies token exists and status is 'succeeded'
+   - Confirms restaurant_id matches
+   - Validates amount_cents matches order total
+   - Checks token hasn't been used (used_at is null)
+
+2. **Token Consumption** - Atomic operation after order creation
+   - Marks token as used with timestamp
+   - Records consuming order_id
+   - Prevents replay attacks
+
+### Idempotency Protection
+
+All order submissions **MUST** include an `Idempotency-Key` header:
+
+```typescript
+headers: {
+  'Idempotency-Key': 'unique-key-123',
+  'Content-Type': 'application/json'
+}
+```
+
+- Duplicate requests with same key return 409 Conflict
+- Keys are stored for 24 hours
+- Response includes original result for retry scenarios
+
+### Webhook Security
+
+Square webhook endpoints use signature verification:
+
+1. **Signature Validation** - HMAC-SHA256 with base64 encoding
+2. **Event Idempotency** - Duplicate events automatically ignored
+3. **Payment Status Sync** - Updates local payment_intents table
+
+### Payment Reconciliation
+
+Daily reconciliation available via:
+
+```bash
+npm run reconcile:payments [start-date] [end-date]
+```
+
+Generates CSV report with:
+- Payment ID mapping (local ↔ provider)
+- Status discrepancies
+- Amount mismatches
+- Missing payments (either side)
+
+Report location: `docs/reports/payments/recon-YYYYMMDD.csv`
 
 ## Error Handling
 

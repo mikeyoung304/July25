@@ -1,7 +1,14 @@
 import type { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
+import { SquareAdapter } from '../payments/square.adapter';
 
-export function requirePaymentIfCustomer(req: Request, res: Response, next: NextFunction) {
+const squareAdapter = new SquareAdapter();
+
+export async function requirePaymentIfCustomer(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   const mode = (req as any).orderMode;
 
   // Employee orders bypass payment requirement
@@ -34,11 +41,49 @@ export function requirePaymentIfCustomer(req: Request, res: Response, next: Next
       });
     }
 
-    // TODO: Validate payment token with payment provider
-    // For now, just check it exists
-    logger.debug('Customer order with payment token', {
+    // Calculate order total from items
+    const items = req.body.items || [];
+    const subtotal = items.reduce((sum: number, item: any) => {
+      const itemTotal = item.price * item.quantity;
+      const modifiersTotal = (item.modifiers || []).reduce(
+        (mSum: number, mod: any) => mSum + (mod.price || 0),
+        0
+      );
+      return sum + itemTotal + modifiersTotal;
+    }, 0);
+
+    const tax = req.body.tax || 0;
+    const tip = req.body.tip || 0;
+    const totalCents = Math.round((subtotal + tax + tip) * 100);
+
+    // Validate payment token
+    const restaurantId = (req as any).restaurantId;
+    const isValid = await squareAdapter.validateToken(
+      paymentToken,
+      restaurantId,
+      totalCents
+    );
+
+    if (!isValid) {
+      logger.warn('Customer order rejected - invalid payment token', {
+        path: req.path,
+        paymentToken,
+        restaurantId,
+        totalCents
+      });
+      return res.status(402).json({
+        error: 'INVALID_PAYMENT_TOKEN',
+        message: 'Payment token is invalid, already used, or amount mismatch'
+      });
+    }
+
+    // Store token for consumption after successful order creation
+    (req as any).paymentToken = paymentToken;
+
+    logger.debug('Customer order with valid payment token', {
       path: req.path,
-      hasToken: true
+      restaurantId,
+      totalCents
     });
   }
 

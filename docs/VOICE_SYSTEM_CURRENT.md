@@ -1,9 +1,9 @@
 ---
 owner: Mike Young
 status: green
-last_verified_date: 2025-09-15
-last_verified_commit: feature/payment-integration-voice-customer
-version: v0.2
+last_verified_date: 2025-01-15
+last_verified_commit: hardening/payments-lock-v1-20250115
+version: v0.3
 ---
 
 # Voice System Current
@@ -40,6 +40,13 @@ version: v0.2
 - **✅ PAYMENT INTEGRATION COMPLETE**: Payment gate enforced server-side with client token acquisition
 - Client acquires token via VoicePaymentStrategy (web/QR link) before order submission
 - Orders blocked without payment_token, proceed with valid token
+
+### Payment Token Security (v0.3)
+- **One-Time Use**: Each payment token can only be used once
+- **Amount Validation**: Token amount must match order total exactly
+- **Restaurant Scoped**: Token must be for the correct restaurant
+- **Atomic Consumption**: Token marked as used immediately after order creation
+- **Replay Protection**: Used tokens return 402 Payment Required
 
 ## WebRTC Session Flow
 
