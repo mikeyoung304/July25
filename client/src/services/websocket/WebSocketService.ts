@@ -10,6 +10,7 @@ import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
 import { toSnakeCase } from '@/services/utils/caseTransform'
 import { env } from '@/utils/env'
+import { CleanupManager } from '@rebuild/shared/utils/cleanup-manager'
 
 export interface WebSocketConfig {
   url?: string
@@ -36,10 +37,11 @@ export class WebSocketService extends EventEmitter {
   private lastHeartbeat: number = 0
   private heartbeatTimer: NodeJS.Timeout | null = null
   private heartbeatInterval = 30000 // 30 seconds
+  private cleanupUnregister: (() => void) | null = null
 
   constructor(config: WebSocketConfig = {}) {
     super()
-    
+
     // Set default configuration with enhanced resilience settings
     this.config = {
       url: config.url || this.buildWebSocketUrl(),
@@ -112,7 +114,17 @@ export class WebSocketService extends EventEmitter {
 
       // Create WebSocket connection
       this.ws = new WebSocket(wsUrl.toString())
-      
+
+      // Register with cleanup manager
+      if (this.cleanupUnregister) {
+        this.cleanupUnregister()
+      }
+      this.cleanupUnregister = CleanupManager.registerWebSocket('order-updates', this.ws, {
+        closeCode: 1000,
+        closeReason: 'WebSocket service cleanup',
+        timeout: 5000
+      })
+
       // Set up event handlers
       this.ws.onopen = this.handleOpen.bind(this)
       this.ws.onmessage = this.handleMessage.bind(this)
@@ -132,13 +144,19 @@ export class WebSocketService extends EventEmitter {
   disconnect(): void {
     this.isIntentionallyClosed = true
     this.stopHeartbeat()
-    
+
+    // Unregister from cleanup manager
+    if (this.cleanupUnregister) {
+      this.cleanupUnregister()
+      this.cleanupUnregister = null
+    }
+
     // Clear reconnect timer first to prevent reconnection
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
-    
+
     if (this.ws) {
       // Close with proper code and reason
       if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
@@ -146,7 +164,7 @@ export class WebSocketService extends EventEmitter {
       }
       this.ws = null
     }
-    
+
     this.setConnectionState('disconnected')
     
     // Clean up after setting state and closing connection
