@@ -1,7 +1,7 @@
 {
   "name": "restaurant-os",
   "private": true,
-  "version": "6.0.3",
+  "version": "6.1.0",
   "type": "module",
   "description": "Restaurant OS - Intelligent Restaurant Management System",
   "workspaces": [

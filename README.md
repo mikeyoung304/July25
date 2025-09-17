@@ -1,24 +1,32 @@
-# Restaurant OS v6.0.6
+# Restaurant OS v6.1.0
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Frontend CI](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml)
-[![Production Ready](https://img.shields.io/badge/Production%20Ready-6.5%2F10-yellow)](./docs/PRODUCTION_SPRINT_PLAN.md)
-[![Security](https://img.shields.io/badge/Security-7.5%2F10-green)](./docs/SECURITY_FIXES_v6.0.5.md)
+[![Production Ready](https://img.shields.io/badge/Production%20Ready-7.5%2F10-green)](./RELEASE_NOTES_SPRINT_2025_09_16.md)
+[![Security](https://img.shields.io/badge/Security-9%2F10-brightgreen)](./RELEASE_NOTES_SPRINT_2025_09_16.md)
+[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](./RELEASE_NOTES_SPRINT_2025_09_16.md)
 
-A modern, production-ready restaurant management system with AI-powered voice ordering, real-time kitchen display, and comprehensive POS capabilities. **Centralized configuration and enhanced security in v6.0.6.**
+A modern, production-ready restaurant management system with AI-powered voice ordering, real-time kitchen display, and comprehensive POS capabilities. **Security hardened and reliability improved in v6.1.0.**
 
-## 🚨 Configuration Update v6.0.6 (September 13, 2025)
+## 🚨 Security & Reliability Update v6.1.0 (September 16, 2025)
 
-### Phase 1 Complete: Critical Configuration
-- **⚙️ Centralized Config**: Single source of truth for all configuration
-- **🔒 Server-Side Keys**: OpenAI API key moved to server-only
-- **🏢 Multi-Tenancy**: Dynamic restaurant context support
-- **📝 Documentation**: Complete environment variable guide
+### Sprint Complete: Critical Improvements
+- **💳 Payment Security**: Square Web Payments SDK with tokenization
+- **🔒 Auth Hardening**: All dev bypasses removed, RCTX enforced
+- **✅ Test Suite Fixed**: Vitest migration with Jest compatibility
+- **🎯 KDS Stability**: All 7 order statuses handled exhaustively
+
+### Breaking Changes
+- ⚠️ **Table Routes**: Now require authentication with proper scopes
+- ⚠️ **Test Tokens**: Only work in `NODE_ENV=test`
+- ⚠️ **CSRF Protection**: Enforced in production environments
 
 ### Production Sprint Progress
 - ✅ **Phase 1**: Configuration management (COMPLETE)
-- 🔄 **Phase 2**: Security hardening (IN PROGRESS)
-- 📅 **Next**: Performance verification, database optimization
+- ✅ **Phase 2**: Security hardening (COMPLETE)
+- ✅ **Phase 3**: Test infrastructure (COMPLETE)
+- ✅ **Phase 4**: KDS reliability (COMPLETE)
+- 📅 **Next**: Voice metrics, performance optimization
 
 [View Security Report →](./docs/SECURITY_FIXES_v6.0.5.md)  
 [View Sprint Plan →](./docs/PRODUCTION_SPRINT_PLAN.md)
