@@ -64,3 +64,5 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// Add missing export for useRestaurantContext
+export { useRestaurantContext } from './restaurant-types'
