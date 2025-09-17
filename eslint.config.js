@@ -100,7 +100,29 @@ export default [
         'ts-expect-error': 'allow-with-description',
       }],
       '@typescript-eslint/no-namespace': 'off',
-      
+
+      // Naming Conventions - Enforce camelCase
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          // Enforce camelCase for all properties
+          selector: 'property',
+          format: ['camelCase', 'PascalCase', 'UPPER_CASE'],
+          leadingUnderscore: 'allow',
+          filter: {
+            // Allow specific exceptions (database fields, external APIs)
+            regex: '^(created_at|updated_at|__typename|_id|_rev)$',
+            match: false,
+          },
+        },
+        {
+          // Allow snake_case in destructuring from external sources
+          selector: 'variable',
+          modifiers: ['destructured'],
+          format: null,
+        },
+      ],
+
       // React
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
@@ -374,6 +396,19 @@ export default [
         test: 'readonly',
         page: 'readonly',
       },
+    },
+  },
+  {
+    // Allow snake_case in database layer files only
+    files: [
+      'server/src/db/**/*.{js,ts}',
+      'server/src/repositories/**/*.{js,ts}',
+      'server/src/lib/casing.ts',
+      'server/src/middleware/normalize-casing.ts',
+      'shared/types/order.types.canonical.ts', // Contains DB types
+    ],
+    rules: {
+      '@typescript-eslint/naming-convention': 'off', // Snake_case allowed here
     },
   },
 ];

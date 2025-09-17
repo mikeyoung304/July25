@@ -1,0 +1,50 @@
+client/vite.config.ORIGINAL.ts:          // TODO: Re-enable after verifying all dependencies are installed
+client/node_modules/vitest/dist/execute.d.ts:// TODO: improve Node.js strict mode support in #2854
+client/node_modules/vitest/dist/chunks/index.X0nbfr6-.js:	  if (key.name === 'pageup') return 'prevPage'; // TODO create home() in prompt types (e.g. TextPrompt)
+client/node_modules/vitest/dist/chunks/index.X0nbfr6-.js:	  if (key.name === 'home') return 'home'; // TODO create end() in prompt types (e.g. TextPrompt)
+client/node_modules/vitest/dist/chunks/index.X0nbfr6-.js:	  // Day // TODO
+client/node_modules/vitest/dist/chunks/index.X0nbfr6-.js:	  // AM/PM // TODO (special)
+client/node_modules/vitest/dist/chunks/index.X0nbfr6-.js:	  // TODO create home() in prompt types (e.g. TextPrompt)
+client/node_modules/vitest/dist/chunks/index.X0nbfr6-.js:	  // TODO create end() in prompt types (e.g. TextPrompt)
+client/node_modules/vitest/dist/chunks/index.X0nbfr6-.js:	  2: (opts) => new Day(opts), // Day // TODO
+client/node_modules/vitest/dist/chunks/index.X0nbfr6-.js:	  5: (opts) => new Meridiem(opts), // AM/PM // TODO (special)
+client/node_modules/vitest/dist/chunks/vm.BThCzidc.js:		// TODO: technically module should be parsed to find static exports, implement for strict mode in #2854
+client/node_modules/vitest/dist/chunks/vm.BThCzidc.js:	// TODO: use this in strict mode, when available in #2854
+client/node_modules/vitest/dist/chunks/vm.BThCzidc.js:		// TODO: should we wrap module to rethrow context errors?
+client/node_modules/vitest/dist/chunks/vm.BThCzidc.js:		// TODO: should not be allowed in strict mode, implement in #2854
+client/node_modules/vitest/dist/chunks/vm.BThCzidc.js:// TODO: improve Node.js strict mode support in #2854
+client/node_modules/vitest/dist/chunks/vm.BThCzidc.js:	// TODO: don't hardcode setImmediate in fake timers defaults
+client/node_modules/vitest/dist/chunks/creator.GK6I-cL4.js:			// TODO: Can we modify the config ourselves?
+client/node_modules/vitest/dist/chunks/creator.GK6I-cL4.js:	// TODO: can we do this ourselves?
+client/node_modules/vitest/dist/chunks/index.VByaPkjc.js:		else if (task.mode === "todo") return " # TODO";
+client/node_modules/vitest/dist/chunks/index.CdQS2e2Q.js:// TODO: deprecate <reference types="vitest" /> in favor of `<reference types="vitest/config" />`
+client/node_modules/vitest/dist/chunks/index.CmSc2RE5.js:		// TODO: browser doesn't expose Buffer, but a lot of dependencies use it
+client/node_modules/vitest/dist/chunks/index.CmSc2RE5.js:		// TODO: browser doesn't expose Buffer, but a lot of dependencies use it
+client/node_modules/vitest/dist/chunks/coverage.DL5VHqXY.js:        // TODO: Remove in next major version?
+client/node_modules/vitest/dist/chunks/cli-api.BkDphVBG.js:			// TODO: somehow it fails to load the package after installation, remove this when it's fixed
+client/node_modules/vitest/dist/chunks/cli-api.BkDphVBG.js:		// TODO: serialize the config _once_ or when needed
+client/node_modules/vitest/dist/chunks/cli-api.BkDphVBG.js:		// TODO: what is the order or reports here?
+client/node_modules/vitest/dist/chunks/cli-api.BkDphVBG.js:		// TODO: error handling - what happens if custom reporter throws an error?
+client/node_modules/vitest/dist/chunks/cli-api.BkDphVBG.js:				// TODO: wait for coverage only if `onFinished` is defined
+client/node_modules/vitest/dist/chunks/cli-api.BkDphVBG.js:			// TODO: reevaluate || project.browser?.moduleGraph.getModulesByFile(id)?.size
+client/node_modules/vitest/dist/chunks/config.d.D2ROskhv.d.ts:	// TODO: make optional
+client/node_modules/vitest/dist/workers/forks.js:		// TODO: don't rely on reassigning process.exit
+client/node_modules/vitest/dist/index.d.ts:	// TODO: Remove in v4
+client/node_modules/vitest/node_modules/vite/dist/node/chunks/dep-M_KD0XSK.js:		* XXX DO NOT USE. This is a temporary stub function.
+client/node_modules/vitest/node_modules/vite/dist/node/chunks/dep-M_KD0XSK.js:		* XXX It WILL be removed in the next major release.
+client/node_modules/vitest/node_modules/vite/dist/node/chunks/dep-M_KD0XSK.js:	* XXX: It's lame that node doesn't expose this API out-of-the-box. It also
+client/node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:// TODO: better source map replacement
+client/node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:			// TODO: test is not called for static imports
+client/node_modules/vitest/node_modules/@vitest/mocker/dist/node.d.ts:// TODO: better source map replacement
+client/node_modules/devtools-protocol/types/protocol-mapping.d.ts:         * Requests that the node is sent to the caller given its path. // FIXME, use XPath
+client/node_modules/devtools-protocol/types/protocol-mapping.d.ts:         * TODO(https://crbug.com/1440085): Remove this once Puppeteer supports tab targets.
+client/node_modules/devtools-protocol/types/protocol-mapping.d.ts:         * TODO(crbug.com/337872319) Support IWA to meet the following specific
+client/node_modules/devtools-protocol/types/protocol-mapping.d.ts:         * TODO(crbug.com/339454034): Check the existences of the input files.
+client/node_modules/devtools-protocol/types/protocol-tests-proxy-api.d.ts:         * Requests that the node is sent to the caller given its path. // FIXME, use XPath
+client/node_modules/devtools-protocol/types/protocol-tests-proxy-api.d.ts:         * TODO(https://crbug.com/1440085): Remove this once Puppeteer supports tab targets.
+client/node_modules/devtools-protocol/types/protocol-tests-proxy-api.d.ts:         * TODO(crbug.com/337872319) Support IWA to meet the following specific
+client/node_modules/devtools-protocol/types/protocol-tests-proxy-api.d.ts:         * TODO(crbug.com/339454034): Check the existences of the input files.
+client/node_modules/devtools-protocol/types/protocol.d.ts:             * TODO(crbug.com/1231886): This field is non-standard and part of a Chrome
+client/node_modules/devtools-protocol/types/protocol.d.ts:             * TODO(https://crbug.com/1425354): Replace this property with structured error.
+client/node_modules/devtools-protocol/types/protocol.d.ts:         * TODO(https://crbug.com/1384419): revisit the list of PrefetchStatus and
+client/node_modules/devtools-protocol/types/protocol.d.ts:             * TODO(crbug.com/339453269): Setting this value on ChromeOS is not
