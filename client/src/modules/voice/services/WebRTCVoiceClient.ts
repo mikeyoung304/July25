@@ -73,6 +73,7 @@ export class WebRTCVoiceClient extends EventEmitter {
   private ephemeralToken: string | null = null;
   private tokenExpiresAt: number = 0;
   private tokenRefreshTimer: NodeJS.Timeout | null = null;
+  private reconnectTimer: NodeJS.Timeout | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 3;
   private partialTranscript = '';
@@ -106,6 +107,10 @@ export class WebRTCVoiceClient extends EventEmitter {
   private recordingStartTime: number = 0;
   private firstTranscriptReceived: boolean = false;
   private lastError: VoiceError | null = null;
+
+  // Device management
+  private deviceList: MediaDeviceInfo[] = [];
+  private deviceChangeHandler: (() => void) | null = null;
 
   constructor(config: WebRTCVoiceConfig) {
     super();
@@ -1590,7 +1595,10 @@ ENTRÉES → Ask:
 
     // Exponential backoff: 200ms, 500ms, 1s, 2s, 5s (capped)
     const backoffDelays = [200, 500, 1000, 2000, 5000];
-    const delay = backoffDelays[Math.min(this.reconnectAttempts - 1, backoffDelays.length - 1)];
+    const baseDelay = backoffDelays[Math.min(this.reconnectAttempts - 1, backoffDelays.length - 1)];
+    // Add jitter (±20%) to prevent thundering herd
+    const jitter = baseDelay * 0.2 * (Math.random() - 0.5) * 2;
+    const delay = Math.round(baseDelay + jitter);
 
     logger.info(`[WebRTCVoice] Scheduling reconnection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
 
