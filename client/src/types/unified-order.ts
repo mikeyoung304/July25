@@ -6,8 +6,8 @@
 // Consistent order types across all channels
 export type UnifiedOrderType = 'dine-in' | 'drive-thru' | 'takeout' | 'delivery';
 
-// Consistent order status values
-export type UnifiedOrderStatus = 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+// Consistent order status values - all 7 statuses
+export type UnifiedOrderStatus = 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 
 // Consistent modifier structure
 export interface UnifiedModifier {
@@ -89,8 +89,11 @@ export function normalizeOrderType(type: string): UnifiedOrderType {
 export function normalizeOrderStatus(status: string): UnifiedOrderStatus {
   switch (status.toLowerCase()) {
     case 'new':
-    case 'pending':
       return 'new';
+    case 'pending':
+      return 'pending';
+    case 'confirmed':
+      return 'confirmed';
     case 'preparing':
     case 'in-progress':
       return 'preparing';
@@ -103,6 +106,7 @@ export function normalizeOrderStatus(status: string): UnifiedOrderStatus {
     case 'canceled':
       return 'cancelled';
     default:
+      console.warn(`Unknown order status: ${status}, defaulting to 'new'`);
       return 'new';
   }
 }

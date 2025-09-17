@@ -20,12 +20,21 @@ export const OrderActionsBar = memo<OrderActionsBarProps>(({
   const getNextStatus = (): Order['status'] | null => {
     switch (status) {
       case 'new':
+        return 'pending'
+      case 'pending':
+        return 'confirmed'
+      case 'confirmed':
         return 'preparing'
       case 'preparing':
         return 'ready'
       case 'ready':
         return 'completed'
+      case 'completed':
+        return null // Final state
+      case 'cancelled':
+        return null // Final state
       default:
+        console.warn(`Unexpected order status in OrderActionsBar: ${status}`)
         return null
     }
   }
@@ -35,6 +44,16 @@ export const OrderActionsBar = memo<OrderActionsBarProps>(({
     if (!nextStatus) return null
 
     const buttonConfig = {
+      pending: {
+        label: 'Accept Order',
+        icon: Clock,
+        variant: 'default' as const
+      },
+      confirmed: {
+        label: 'Confirm Order',
+        icon: CheckCircle,
+        variant: 'default' as const
+      },
       preparing: {
         label: 'Start Preparing',
         icon: Clock,

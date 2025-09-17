@@ -83,7 +83,7 @@ export const useTableGrouping = (orders: Order[]) => {
         order.items.forEach((item: OrderItem) => {
           tableGroup.totalItems++
           
-          // Map order status to item status
+          // Map order status to item status (handle all 7 statuses)
           switch (order.status) {
             case 'ready':
               tableGroup.readyItems++
@@ -94,6 +94,19 @@ export const useTableGrouping = (orders: Order[]) => {
               break
             case 'completed':
               tableGroup.completedItems++
+              break
+            case 'new':
+            case 'pending':
+              // Count as preparing (not yet started)
+              tableGroup.preparingItems++
+              break
+            case 'cancelled':
+              // Don't count cancelled items
+              break
+            default:
+              // Safe fallback - count as preparing
+              tableGroup.preparingItems++
+              console.warn(`Unexpected order status in useTableGrouping: ${order.status}`)
               break
           }
         })
