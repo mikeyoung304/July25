@@ -13,6 +13,7 @@ export interface FeatureFlags {
   VOICE_DEDUPLICATION: boolean;
   REQUIRE_RESTAURANT_CONTEXT: boolean;
   CACHE_AUTH_ROLES: boolean;
+  VOICE_CUSTOMER: boolean;
 }
 
 /**
@@ -36,7 +37,10 @@ const defaultFlags: FeatureFlags = {
   REQUIRE_RESTAURANT_CONTEXT: process.env.FEATURE_REQUIRE_CONTEXT === 'true' || process.env.NODE_ENV === 'development',
   
   // Cache auth role lookups
-  CACHE_AUTH_ROLES: process.env.FEATURE_CACHE_ROLES === 'true' || true
+  CACHE_AUTH_ROLES: process.env.FEATURE_CACHE_ROLES === 'true' || true,
+
+  // Voice customer mode (requires payment token)
+  VOICE_CUSTOMER: process.env.FEATURE_VOICE_CUSTOMER === 'true' || false
 };
 
 /**
@@ -129,3 +133,4 @@ export const isIdempotencyEnabled = () => features.isEnabled('IDEMPOTENCY_ENABLE
 export const isVoiceDedupeEnabled = () => features.isEnabled('VOICE_DEDUPLICATION');
 export const isRestaurantContextRequired = () => features.isEnabled('REQUIRE_RESTAURANT_CONTEXT');
 export const isRoleCacheEnabled = () => features.isEnabled('CACHE_AUTH_ROLES');
+export const isVoiceCustomerEnabled = () => features.isEnabled('VOICE_CUSTOMER');
