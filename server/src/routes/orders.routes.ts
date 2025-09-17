@@ -14,6 +14,7 @@ import type { OrderStatus, OrderType } from '@rebuild/shared';
 import { resolveOrderMode } from '../middleware/orderMode';
 import { requirePaymentIfCustomer } from '../middleware/paymentGate';
 import { SquareAdapter } from '../payments/square.adapter';
+import { requireRestaurantId, requireRestaurantIdStrict } from '../middleware/requireRestaurantId';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'orders' });
@@ -46,6 +47,7 @@ router.post('/',
   authenticate,
   requireRole([DatabaseRole.OWNER, DatabaseRole.MANAGER, DatabaseRole.SERVER, DatabaseRole.CUSTOMER]),
   requireScopes(ApiScope.ORDERS_CREATE),
+  requireRestaurantIdStrict, // Critical write operation - require header
   validateRestaurantAccess,
   resolveOrderMode,
   requireIdempotencyKey,
@@ -108,6 +110,7 @@ router.post('/voice',
   authenticate,
   requireRole([DatabaseRole.OWNER, DatabaseRole.MANAGER, DatabaseRole.SERVER, DatabaseRole.CUSTOMER]),
   requireScopes(ApiScope.ORDERS_CREATE),
+  requireRestaurantIdStrict, // Critical write operation
   validateRestaurantAccess,
   resolveOrderMode,
   requirePaymentIfCustomer,
@@ -234,7 +237,7 @@ router.get('/:id', authenticate, validateRestaurantAccess, async (req: Authentic
 });
 
 // PATCH /api/v1/orders/:id/status - Update order status
-router.patch('/:id/status', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.patch('/:id/status', authenticate, requireRestaurantIdStrict, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
@@ -270,7 +273,7 @@ router.patch('/:id/status', authenticate, validateRestaurantAccess, async (req: 
 });
 
 // DELETE /api/v1/orders/:id - Cancel order
-router.delete('/:id', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.delete('/:id', authenticate, requireRestaurantIdStrict, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
