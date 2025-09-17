@@ -83,7 +83,7 @@ export const useTableGrouping = (orders: Order[]) => {
         order.items.forEach((item: OrderItem) => {
           tableGroup.totalItems++
           
-          // Map order status to item status
+          // Map order status to item status (handle all 7 statuses)
           switch (order.status) {
             case 'ready':
               tableGroup.readyItems++
@@ -94,6 +94,18 @@ export const useTableGrouping = (orders: Order[]) => {
               break
             case 'completed':
               tableGroup.completedItems++
+              break
+            case 'new':
+            case 'pending':
+              tableGroup.preparingItems++ // Count as preparing for table grouping
+              break
+            case 'cancelled':
+              // Cancelled items don't count towards table progress
+              break
+            default:
+              // Fallback for unknown status
+              console.warn(`Unknown order status in table grouping: ${order.status}`)
+              tableGroup.preparingItems++
               break
           }
         })
@@ -256,6 +268,15 @@ export const getTableGroupStats = (groups: Map<string, TableGroup>) => {
         stats.inProgressTables++
         break
       case 'pending':
+        stats.pendingTables++
+        break
+      case 'completed':
+        // Completed tables aren't typically shown in stats but counted as ready
+        stats.readyTables++
+        break
+      default:
+        // Unknown status - count as pending
+        console.warn(`Unknown table group status: ${group.status}`)
         stats.pendingTables++
         break
     }

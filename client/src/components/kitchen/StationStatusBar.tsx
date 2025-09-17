@@ -133,7 +133,7 @@ const calculateStationStatus = (
       
       status.itemCount += item.quantity
       
-      // Map order status to item status
+      // Map order status to item status (handle all 7 statuses)
       switch (order.status) {
         case 'completed':
         case 'ready':
@@ -145,6 +145,14 @@ const calculateStationStatus = (
           break
         case 'new':
         case 'pending':
+          status.pendingCount += item.quantity
+          break
+        case 'cancelled':
+          // Cancelled items don't count towards station progress
+          break
+        default:
+          // Fallback for any unknown status - treat as pending
+          console.warn(`Unknown order status: ${order.status}`)
           status.pendingCount += item.quantity
           break
       }
