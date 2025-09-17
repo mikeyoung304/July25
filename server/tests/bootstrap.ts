@@ -3,6 +3,9 @@
 
 import { beforeAll, afterAll, afterEach, vi } from 'vitest';
 
+// Jest compatibility shim for tests still using Jest syntax
+(globalThis as any).jest = vi;
+
 // Configure test environment variables
 process.env.NODE_ENV = 'test';
 process.env.PORT = '0'; // Use random port for tests

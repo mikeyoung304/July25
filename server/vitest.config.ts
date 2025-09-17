@@ -12,6 +12,7 @@ export default defineConfig({
     setupFiles: ['tests/bootstrap.ts'],
     watch: false,
     reporters: 'dot',
+    globals: true,  // Enable global test functions
     
     // CRITICAL: Memory-conscious test pooling for server tests
     pool: 'forks',
@@ -32,5 +33,26 @@ export default defineConfig({
     clearMocks: true,
     mockReset: true,
     restoreMocks: true,
+
+    // Coverage configuration
+    coverage: {
+      enabled: process.env.VITEST_COVERAGE !== 'false',
+      reporter: ['text', 'html', 'json-summary', 'lcov'],
+      provider: 'v8',
+      exclude: [
+        'node_modules/',
+        'tests/',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/mockData.*',
+        'dist/',
+      ],
+      thresholds: {
+        statements: 60,
+        branches: 50,
+        functions: 60,
+        lines: 60
+      }
+    },
   },
 });

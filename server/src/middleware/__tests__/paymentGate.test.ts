@@ -5,13 +5,16 @@ import { SquareAdapter } from '../../payments/square.adapter';
 import { logger } from '../../utils/logger';
 
 // Mock dependencies
-vi.mock('../../payments/square.adapter');
 vi.mock('../../utils/logger', () => ({
   logger: {
     debug: vi.fn(),
     warn: vi.fn(),
     error: vi.fn()
   }
+}));
+
+vi.mock('../../payments/square.adapter', () => ({
+  SquareAdapter: vi.fn()
 }));
 
 describe('paymentGate middleware', () => {
@@ -35,9 +38,9 @@ describe('paymentGate middleware', () => {
 
     // Setup mock for SquareAdapter
     mockValidateToken = vi.fn();
-    (SquareAdapter as any).mockImplementation(() => ({
+    vi.mocked(SquareAdapter).mockImplementation(() => ({
       validateToken: mockValidateToken
-    }));
+    }) as any);
   });
 
   afterEach(() => {

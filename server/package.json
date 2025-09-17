@@ -13,6 +13,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "test:ci": "NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' VITEST_COVERAGE=false vitest run",
     "test:integration": "bash scripts/test-integration.sh",
     "test:voice": "vitest run tests/voice-integration.test.ts",
     "seed": "tsx scripts/seed-menu.ts",
