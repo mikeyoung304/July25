@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { OrderType } from '@rebuild/shared/types/order.types.canonical';
 
 /**
  * Order item modifier schema (camelCase)

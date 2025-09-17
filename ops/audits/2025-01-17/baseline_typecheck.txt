@@ -1,0 +1,959 @@
+
+> restaurant-os@6.0.4 typecheck
+> tsc --build tsconfig.all.json
+
+client/src/hooks/kiosk/useOrderSubmission.ts(3,10): error TS2305: Module '"@/core/RestaurantContext"' has no exported member 'useRestaurantContext'.
+client/src/hooks/useKioskAuth.ts(152,5): error TS2322: Type '() => Promise<() => void>' is not assignable to type '() => Promise<void>'.
+  Type 'Promise<() => void>' is not assignable to type 'Promise<void>'.
+    Type '() => void' is not assignable to type 'void'.
+client/src/modules/order-system/components/SquarePaymentForm.tsx(13,5): error TS2687: All declarations of 'Square' must have identical modifiers.
+client/src/modules/payment/hooks/useTablePayment.ts(18,32): error TS2339: Property 'check' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(19,27): error TS2339: Property 'check' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(20,25): error TS2339: Property 'check' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(37,32): error TS2339: Property 'check' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(38,27): error TS2339: Property 'check' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(39,25): error TS2339: Property 'check' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(60,32): error TS2339: Property 'amount' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(65,27): error TS2339: Property 'amount' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(67,25): error TS2339: Property 'amount' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(87,32): error TS2339: Property 'payment' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(89,25): error TS2339: Property 'payment' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(111,32): error TS2339: Property 'session' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(112,25): error TS2339: Property 'session' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(138,32): error TS2339: Property 'payment' does not exist on type 'unknown'.
+client/src/modules/payment/hooks/useTablePayment.ts(140,25): error TS2339: Property 'payment' does not exist on type 'unknown'.
+client/src/modules/voice/hooks/useVoiceMenuIntegration.ts(9,10): error TS2724: '"@/contexts/UnifiedCartContext"' has no exported member named 'useUnifiedCart'. Did you mean 'UnifiedCart'?
+client/src/modules/voice/hooks/useVoiceMenuIntegration.ts(76,27): error TS2339: Property 'updateSession' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/payments/VoicePaymentStrategy.ts(282,5): error TS2687: All declarations of 'Square' must have identical modifiers.
+client/src/modules/voice/services/ConversationStateMachine.ts(142,12): error TS2339: Property 'debug' does not exist on type 'ClientLogger'.
+client/src/modules/voice/services/ConversationStateMachine.ts(189,17): error TS2339: Property 'confirmItem' does not exist on type 'ConversationStateMachine'.
+client/src/modules/voice/services/ConversationStateMachine.ts(213,17): error TS2339: Property 'confirmItem' does not exist on type 'ConversationStateMachine'.
+client/src/modules/voice/services/MenuContextManager.ts(8,26): error TS2307: Cannot find module '@/shared/types/menu.types' or its corresponding type declarations.
+client/src/modules/voice/services/MenuContextManager.ts(81,42): error TS2339: Property 'getFullMenu' does not exist on type 'MenuService'.
+client/src/modules/voice/services/orderIntegration.ts(173,5): error TS2322: Type '{ id: string; menuItemId: string; name: string; quantity: number; price: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[]; specialInstructions: string; }[]' is not assignable to type 'OrderItem[]'.
+  Property 'menu_item_id' is missing in type '{ id: string; menuItemId: string; name: string; quantity: number; price: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[]; specialInstructions: string; }' but required in type 'OrderItem'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(8,30): error TS2307: Cannot find module '../../../../shared/utils/voice-metrics' or its corresponding type declarations.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1467,14): error TS2339: Property 'reconnectTimer' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1468,25): error TS2339: Property 'reconnectTimer' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1469,12): error TS2339: Property 'reconnectTimer' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1515,25): error TS2339: Property 'deviceList' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1530,43): error TS2339: Property 'deviceList' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1542,12): error TS2339: Property 'deviceChangeHandler' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1546,45): error TS2339: Property 'deviceList' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1552,68): error TS2339: Property 'deviceChangeHandler' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1560,14): error TS2339: Property 'deviceChangeHandler' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1561,71): error TS2339: Property 'deviceChangeHandler' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1562,12): error TS2339: Property 'deviceChangeHandler' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1573,14): error TS2339: Property 'deviceList' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1576,14): error TS2339: Property 'deviceList' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1585,14): error TS2339: Property 'reconnectTimer' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1586,25): error TS2339: Property 'reconnectTimer' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClient.ts(1614,10): error TS2339: Property 'reconnectTimer' does not exist on type 'WebRTCVoiceClient'.
+client/src/modules/voice/services/WebRTCVoiceClientEnhanced.ts(454,14): error TS2339: Property 'debug' does not exist on type 'ClientLogger'.
+client/src/pages/components/VoiceOrderModal.tsx(98,21): error TS2322: Type '{ onTranscript: (text: string) => void; onOrderDetected: (orderData: any) => void; debug: false; mode: "server" | "kiosk"; }' is not assignable to type 'IntrinsicAttributes & VoiceControlWebRTCProps'.
+  Property 'mode' does not exist on type 'IntrinsicAttributes & VoiceControlWebRTCProps'.
+client/src/pages/ExpoPage.tsx(139,27): error TS2552: Cannot find name 'MemoryMonitoringSystem'. Did you mean 'MemoryMonitorInstance'?
+client/src/pages/hooks/useVoiceOrderWebRTC.ts(81,22): error TS2339: Property 'debug' does not exist on type 'ClientLogger'.
+client/src/pages/KioskPage.tsx(55,27): error TS2322: Type '"large"' is not assignable to type '"sm" | "lg" | "md" | "xl" | "xs"'.
+client/src/pages/KioskPage.tsx(67,18): error TS2322: Type '"error"' is not assignable to type '"default" | "destructive"'.
+client/src/pages/KioskPage.tsx(90,18): error TS2322: Type '"warning"' is not assignable to type '"default" | "destructive"'.
+client/src/pages/ServerView.tsx(83,63): error TS2322: Type '"expo"' is not assignable to type 'UserRole'.
+client/src/pages/SplashScreen.tsx(13,28): error TS2554: Expected 1 arguments, but got 0.
+client/src/pages/UnauthorizedPage.tsx(77,17): error TS2322: Type '"primary"' is not assignable to type '"link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | "teal" | "success"'.
+client/src/pages/VoiceAgentTest.tsx(30,32): error TS2554: Expected 3 arguments, but got 1.
+client/src/pages/VoiceAgentTest.tsx(40,32): error TS2554: Expected 3 arguments, but got 1.
+client/src/pages/VoiceAgentTest.tsx(127,11): error TS2322: Type '"employee" | "customer"' is not assignable to type 'VoiceAgentMode'.
+  Type '"employee"' is not assignable to type 'VoiceAgentMode'.
+client/src/services/orders/OrderService.ts(143,34): error TS2367: This comparison appears to be unintentional because the types 'OrderType' and '"voice"' have no overlap.
+client/src/services/orders/OrderService.ts(166,11): error TS2353: Object literal may only specify known properties, and 'payment_token' does not exist in type 'Partial<Order>'.
+client/src/services/realtime/orderSubscription.ts(148,7): error TS2561: Object literal may only specify known properties, but 'tableNumber' does not exist in type 'Order'. Did you mean to write 'table_number'?
+client/src/services/websocket/orderUpdates.ts(62,50): error TS2551: Property 'isInitialized' does not exist on type 'OrderUpdatesHandler'. Did you mean 'initialize'?
+shared/index.ts(18,1): error TS2308: Module './utils' has already exported a member named 'VoiceMetrics'. Consider explicitly re-exporting to resolve the ambiguity.
+server/src/ai/functions/realtime-menu-tools.test.ts(19,11): error TS6133: '_mockContext' is declared but its value is never read.
+server/src/ai/functions/realtime-menu-tools.test.ts(30,13): error TS6133: '_mockStoreData' is declared but its value is never read.
+server/src/ai/functions/realtime-menu-tools.test.ts(45,13): error TS6133: '_mockStoreData' is declared but its value is never read.
+server/src/ai/functions/realtime-menu-tools.ts(135,73): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(149,13): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(150,43): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(152,13): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(153,40): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(155,13): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(156,38): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(158,13): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(158,29): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(159,30): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(181,15): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(195,17): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(196,64): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(244,29): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(244,43): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(248,34): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(249,45): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(249,59): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(287,21): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(338,21): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(355,33): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(356,61): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(361,36): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(366,27): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(368,23): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(370,24): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(371,20): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(390,25): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(394,29): error TS2304: Cannot find name 'args'.
+server/src/ai/functions/realtime-menu-tools.ts(422,68): error TS2304: Cannot find name 'args'.
+server/src/ai/voice/EnhancedOpenAIAdapter.ts(106,38): error TS4111: Property 'VOICE_MODE' comes from an index signature, so it must be accessed with ['VOICE_MODE'].
+server/src/config/environment.ts(79,5): error TS2375: Type '{ apiKey: string | undefined; }' is not assignable to type '{ apiKey?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'apiKey' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/config/features.ts(24,24): error TS4111: Property 'FEATURE_AUTH_V2' comes from an index signature, so it must be accessed with ['FEATURE_AUTH_V2'].
+server/src/config/features.ts(24,66): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/config/features.ts(27,38): error TS4111: Property 'FEATURE_STRICT_DTO' comes from an index signature, so it must be accessed with ['FEATURE_STRICT_DTO'].
+server/src/config/features.ts(30,36): error TS4111: Property 'FEATURE_IDEMPOTENCY' comes from an index signature, so it must be accessed with ['FEATURE_IDEMPOTENCY'].
+server/src/config/features.ts(30,82): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/config/features.ts(33,36): error TS4111: Property 'FEATURE_VOICE_DEDUPE' comes from an index signature, so it must be accessed with ['FEATURE_VOICE_DEDUPE'].
+server/src/config/features.ts(36,43): error TS4111: Property 'FEATURE_REQUIRE_CONTEXT' comes from an index signature, so it must be accessed with ['FEATURE_REQUIRE_CONTEXT'].
+server/src/config/features.ts(36,93): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/config/features.ts(39,33): error TS4111: Property 'FEATURE_CACHE_ROLES' comes from an index signature, so it must be accessed with ['FEATURE_CACHE_ROLES'].
+server/src/dto/order.dto.ts(70,19): error TS2538: Type 'undefined' cannot be used as an index type.
+server/src/dto/order.dto.ts(74,23): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/lib/casing.ts(27,3): error TS2375: Type '{ id: string; restaurantId: string; orderNumber: string; customerName: string | undefined; customerPhone: string | undefined; customerEmail: string | undefined; type: OrderType; status: OrderStatus; ... 13 more ...; prepTimeMinutes: number | undefined; }' is not assignable to type 'Order' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'customerName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/lib/casing.ts(106,3): error TS2375: Type '{ id: string; menuItemId: string; name: string; quantity: number; price: number; specialInstructions: string | undefined; subtotal: number; modifiers: OrderItemModifier[] | undefined; }' is not assignable to type 'OrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'modifiers' are incompatible.
+    Type 'OrderItemModifier[] | undefined' is not assignable to type 'OrderItemModifier[]'.
+      Type 'undefined' is not assignable to type 'OrderItemModifier[]'.
+server/src/mappers/cart.mapper.ts(68,3): error TS2375: Type '{ id: string; menuItemId: string; name: string; price: number; quantity: number; modifiers: any[]; specialInstructions: string | undefined; imageUrl: string | undefined; }' is not assignable to type 'ApiCartItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'specialInstructions' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/mappers/cart.mapper.ts(84,3): error TS2375: Type '{ id: string; orderNumber: string; restaurantId: string; tableNumber: number | undefined; customerName: string | undefined; customerEmail: string | undefined; customerPhone: string | undefined; ... 5 more ...; totalAmount: number; }' is not assignable to type 'ApiOrder' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'tableNumber' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+server/src/mappers/menu.mapper.ts(64,3): error TS2375: Type '{ id: string; menuItemId: string; categoryId: string | undefined; name: string; description: string | undefined; price: number; active: boolean; available: boolean; dietaryFlags: string[]; modifiers: any[]; aliases: string[]; prepTimeMinutes: number; imageUrl: string | undefined; }' is not assignable to type 'ApiMenuItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'categoryId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/mappers/menu.mapper.ts(85,3): error TS2375: Type '{ id: string; name: string; slug: string; description: string | undefined; displayOrder: number; active: boolean; }' is not assignable to type 'ApiMenuCategory' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/middleware/__tests__/auth.test.ts(38,5): error TS2322: Type 'Mock<[deferToNext: "route"], void>' is not assignable to type 'NextFunction'.
+  Types of parameters 'deferToNext' and 'deferToNext' are incompatible.
+    Type '"router"' is not assignable to type '"route"'.
+server/src/middleware/__tests__/auth.test.ts(41,17): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/__tests__/auth.test.ts(42,17): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/middleware/__tests__/auth.test.ts(128,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/__tests__/auth.test.ts(147,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/__tests__/auth.test.ts(148,19): error TS4111: Property 'PRODUCTION' comes from an index signature, so it must be accessed with ['PRODUCTION'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(3,10): error TS6133: 'Request' is declared but its value is never read.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(7,1): error TS2708: Cannot use namespace 'jest' as a value.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(8,57): error TS2694: Namespace 'global.jest' has no exported member 'Mocked'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(11,1): error TS2708: Cannot use namespace 'jest' as a value.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(14,14): error TS2708: Cannot use namespace 'jest' as a value.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(15,13): error TS2708: Cannot use namespace 'jest' as a value.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(16,13): error TS2708: Cannot use namespace 'jest' as a value.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(17,14): error TS2708: Cannot use namespace 'jest' as a value.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(22,1): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(27,3): error TS2304: Cannot find name 'beforeEach'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(30,7): error TS2353: Object literal may only specify known properties, and 'restaurantId' does not exist in type 'Partial<VoiceSessionRequest>'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(33,12): error TS2708: Cannot use namespace 'jest' as a value.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(36,5): error TS2708: Cannot use namespace 'jest' as a value.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(39,24): error TS4111: Property 'VOICE_TEMPERATURE' comes from an index signature, so it must be accessed with ['VOICE_TEMPERATURE'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(40,24): error TS4111: Property 'VOICE_TOP_P' comes from an index signature, so it must be accessed with ['VOICE_TOP_P'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(41,24): error TS4111: Property 'VOICE_PRESENCE_PENALTY' comes from an index signature, so it must be accessed with ['VOICE_PRESENCE_PENALTY'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(42,24): error TS4111: Property 'VOICE_FREQUENCY_PENALTY' comes from an index signature, so it must be accessed with ['VOICE_FREQUENCY_PENALTY'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(43,24): error TS4111: Property 'VOICE_MAX_TOKENS' comes from an index signature, so it must be accessed with ['VOICE_MAX_TOKENS'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(46,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(47,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(55,19): error TS4111: Property 'VOICE_TEMPERATURE' comes from an index signature, so it must be accessed with ['VOICE_TEMPERATURE'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(56,19): error TS4111: Property 'VOICE_TOP_P' comes from an index signature, so it must be accessed with ['VOICE_TOP_P'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(67,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(68,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(69,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(72,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(80,19): error TS4111: Property 'VOICE_TEMPERATURE' comes from an index signature, so it must be accessed with ['VOICE_TEMPERATURE'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(81,19): error TS4111: Property 'VOICE_TOP_P' comes from an index signature, so it must be accessed with ['VOICE_TOP_P'].
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(87,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(88,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(89,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(92,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(104,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(105,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(106,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(107,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(110,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(118,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(119,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(120,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(124,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(125,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(135,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(136,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(137,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(140,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(150,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(151,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(152,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(156,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(157,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(164,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(165,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(168,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(169,11): error TS2339: Property 'restaurantId' does not exist on type 'Partial<VoiceSessionRequest>'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(174,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(175,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(176,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(180,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(181,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(192,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(193,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(194,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(197,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/middleware/__tests__/normalizeVoiceSession.test.ts(206,7): error TS2304: Cannot find name 'expect'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(3,36): error TS2305: Module '"../restaurantAccess"' has no exported member 'requireRestaurantRole'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(20,5): error TS2375: Type '{ headers: {}; user: undefined; restaurantId: undefined; }' is not assignable to type 'Partial<AuthenticatedRequest>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'user' are incompatible.
+    Type 'undefined' is not assignable to type 'NormalizedUser'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(49,7): error TS2739: Type '{ id: string; email: string; }' is missing the following properties from type 'NormalizedUser': role, scopes, tokenType
+server/src/middleware/__tests__/restaurantAccess.test.ts(66,69): error TS2322: Type '"admin"' is not assignable to type 'DatabaseRole'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(81,67): error TS2322: Type '"user"' is not assignable to type 'DatabaseRole'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(104,22): error TS2339: Property 'restaurantRole' does not exist on type 'Partial<AuthenticatedRequest>'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(109,67): error TS2322: Type '"user"' is not assignable to type 'DatabaseRole'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(137,69): error TS2322: Type '"admin"' is not assignable to type 'DatabaseRole'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(153,7): error TS2739: Type '{ id: string; }' is missing the following properties from type 'NormalizedUser': role, scopes, tokenType
+server/src/middleware/__tests__/restaurantAccess.test.ts(154,15): error TS2339: Property 'restaurantRole' does not exist on type 'Partial<AuthenticatedRequest>'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(167,7): error TS2739: Type '{ id: string; }' is missing the following properties from type 'NormalizedUser': role, scopes, tokenType
+server/src/middleware/__tests__/restaurantAccess.test.ts(168,15): error TS2339: Property 'restaurantRole' does not exist on type 'Partial<AuthenticatedRequest>'.
+server/src/middleware/__tests__/restaurantAccess.test.ts(186,7): error TS2739: Type '{ id: string; }' is missing the following properties from type 'NormalizedUser': role, scopes, tokenType
+server/src/middleware/__tests__/restaurantAccess.test.ts(187,15): error TS2339: Property 'restaurantRole' does not exist on type 'Partial<AuthenticatedRequest>'.
+server/src/middleware/auth-dev-fix.ts(53,23): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/auth-dev-fix.ts(53,65): error TS4111: Property 'BYPASS_RESTAURANT_MEMBERSHIP' comes from an index signature, so it must be accessed with ['BYPASS_RESTAURANT_MEMBERSHIP'].
+server/src/middleware/auth-dev-fix.ts(62,27): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<DatabaseRole, ApiScope[]>'.
+server/src/middleware/auth.ts(39,28): error TS4111: Property 'restaurantId' comes from an index signature, so it must be accessed with ['restaurantId'].
+server/src/middleware/auth.ts(39,54): error TS4111: Property 'restaurant_id' comes from an index signature, so it must be accessed with ['restaurant_id'].
+server/src/middleware/auth.ts(201,32): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<DatabaseRole, ApiScope[]>'.
+server/src/middleware/auth.ts(202,7): error TS2561: Object literal may only specify known properties, but 'restaurant_id' does not exist in type 'NormalizedUser'. Did you mean to write 'restaurantId'?
+server/src/middleware/auth.ts(263,28): error TS2551: Property 'restaurant_id' does not exist on type 'NormalizedUser'. Did you mean 'restaurantId'?
+server/src/middleware/auth.ts(268,28): error TS2551: Property 'restaurant_id' does not exist on type 'NormalizedUser'. Did you mean 'restaurantId'?
+server/src/middleware/auth.ts(334,23): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/auth.ts(334,65): error TS4111: Property 'BYPASS_RESTAURANT_MEMBERSHIP' comes from an index signature, so it must be accessed with ['BYPASS_RESTAURANT_MEMBERSHIP'].
+server/src/middleware/auth.ts(360,7): error TS2322: Type 'string' is not assignable to type 'DatabaseRole'.
+server/src/middleware/csrf.ts(1,18): error TS7016: Could not find a declaration file for module 'csurf'. '/Users/mikeyoung/CODING/rebuild-6.0/node_modules/csurf/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/csurf` if it exists or add a new declaration (.d.ts) file containing `declare module 'csurf';`
+server/src/middleware/csrf.ts(9,25): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/csrf.ts(18,21): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/csrf.ts(41,29): error TS2339: Property 'csrfToken' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+server/src/middleware/csrf.ts(41,45): error TS2339: Property 'csrfToken' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+server/src/middleware/errorHandler.ts(19,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/middleware/idempotency.ts(152,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/idempotency.ts(191,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/metrics.ts(50,8): error TS7017: Element implicitly has an 'any' type because type 'typeof globalThis' has no index signature.
+server/src/middleware/normalize-casing.ts(12,24): error TS2307: Cannot find module '../services/monitoring/logger' or its corresponding type declarations.
+server/src/middleware/normalize-casing.ts(62,7): error TS6133: 'hasSnakeCase' is declared but its value is never read.
+server/src/middleware/normalizeVoiceSession.ts(5,24): error TS6133: 'measureTimeAsync' is declared but its value is never read.
+server/src/middleware/normalizeVoiceSession.ts(5,48): error TS2307: Cannot find module '../../shared/utils/voice-metrics' or its corresponding type declarations.
+server/src/middleware/normalizeVoiceSession.ts(76,21): error TS4111: Property 'VOICE_TEMPERATURE' comes from an index signature, so it must be accessed with ['VOICE_TEMPERATURE'].
+server/src/middleware/normalizeVoiceSession.ts(77,43): error TS4111: Property 'VOICE_TEMPERATURE' comes from an index signature, so it must be accessed with ['VOICE_TEMPERATURE'].
+server/src/middleware/normalizeVoiceSession.ts(87,21): error TS4111: Property 'VOICE_TOP_P' comes from an index signature, so it must be accessed with ['VOICE_TOP_P'].
+server/src/middleware/normalizeVoiceSession.ts(88,43): error TS4111: Property 'VOICE_TOP_P' comes from an index signature, so it must be accessed with ['VOICE_TOP_P'].
+server/src/middleware/normalizeVoiceSession.ts(98,21): error TS4111: Property 'VOICE_PRESENCE_PENALTY' comes from an index signature, so it must be accessed with ['VOICE_PRESENCE_PENALTY'].
+server/src/middleware/normalizeVoiceSession.ts(99,46): error TS4111: Property 'VOICE_PRESENCE_PENALTY' comes from an index signature, so it must be accessed with ['VOICE_PRESENCE_PENALTY'].
+server/src/middleware/normalizeVoiceSession.ts(109,21): error TS4111: Property 'VOICE_FREQUENCY_PENALTY' comes from an index signature, so it must be accessed with ['VOICE_FREQUENCY_PENALTY'].
+server/src/middleware/normalizeVoiceSession.ts(110,46): error TS4111: Property 'VOICE_FREQUENCY_PENALTY' comes from an index signature, so it must be accessed with ['VOICE_FREQUENCY_PENALTY'].
+server/src/middleware/normalizeVoiceSession.ts(120,21): error TS4111: Property 'VOICE_MAX_TOKENS' comes from an index signature, so it must be accessed with ['VOICE_MAX_TOKENS'].
+server/src/middleware/normalizeVoiceSession.ts(121,46): error TS4111: Property 'VOICE_MAX_TOKENS' comes from an index signature, so it must be accessed with ['VOICE_MAX_TOKENS'].
+server/src/middleware/normalizeVoiceSession.ts(190,15): error TS4111: Property 'temperature' comes from an index signature, so it must be accessed with ['temperature'].
+server/src/middleware/normalizeVoiceSession.ts(198,15): error TS4111: Property 'topP' comes from an index signature, so it must be accessed with ['topP'].
+server/src/middleware/normalizeVoiceSession.ts(206,15): error TS4111: Property 'presencePenalty' comes from an index signature, so it must be accessed with ['presencePenalty'].
+server/src/middleware/normalizeVoiceSession.ts(214,15): error TS4111: Property 'frequencyPenalty' comes from an index signature, so it must be accessed with ['frequencyPenalty'].
+server/src/middleware/normalizeVoiceSession.ts(222,15): error TS4111: Property 'max_response_output_tokens' comes from an index signature, so it must be accessed with ['max_response_output_tokens'].
+server/src/middleware/paymentGate.ts(38,7): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/paymentGate.ts(74,7): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/rateLimiter.ts(6,35): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/rateLimiter.ts(6,77): error TS4111: Property 'RENDER' comes from an index signature, so it must be accessed with ['RENDER'].
+server/src/middleware/rateLimiter.ts(19,10): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/rateLimiter.ts(33,10): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/rateLimiter.ts(68,10): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/rateLimiter.ts(90,10): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/rbac.ts(146,7): error TS2322: Type 'string' is not assignable to type 'DatabaseRole'.
+server/src/middleware/security-headers.ts(26,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/security-headers.ts(57,19): error TS4111: Property 'VITE_API_BASE_URL' comes from an index signature, so it must be accessed with ['VITE_API_BASE_URL'].
+server/src/middleware/security-headers.ts(77,46): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/security-headers.ts(94,28): error TS4111: Property 'CSP_ENABLED' comes from an index signature, so it must be accessed with ['CSP_ENABLED'].
+server/src/middleware/security-headers.ts(94,66): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/security-headers.ts(95,29): error TS4111: Property 'HSTS_ENABLED' comes from an index signature, so it must be accessed with ['HSTS_ENABLED'].
+server/src/middleware/security-headers.ts(95,68): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/security-headers.ts(96,32): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/security-headers.ts(106,18): error TS4111: Property 'nonce' comes from an index signature, so it must be accessed with ['nonce'].
+server/src/middleware/security-headers.ts(111,41): error TS4111: Property 'CSP_DIRECTIVES' comes from an index signature, so it must be accessed with ['CSP_DIRECTIVES'].
+server/src/middleware/security-headers.ts(122,34): error TS4111: Property 'HSTS_MAX_AGE' comes from an index signature, so it must be accessed with ['HSTS_MAX_AGE'].
+server/src/middleware/security-headers.ts(178,17): error TS4111: Property 'CLIENT_URL' comes from an index signature, so it must be accessed with ['CLIENT_URL'].
+server/src/middleware/security-headers.ts(179,17): error TS4111: Property 'FRONTEND_URL' comes from an index signature, so it must be accessed with ['FRONTEND_URL'].
+server/src/middleware/security-headers.ts(191,23): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/security.ts(17,33): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/security.ts(18,14): error TS4111: Property 'nonce' comes from an index signature, so it must be accessed with ['nonce'].
+server/src/middleware/security.ts(24,37): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/security.ts(34,25): error TS6133: 'req' is declared but its value is never read.
+server/src/middleware/security.ts(91,10): error TS7030: Not all code paths return a value.
+server/src/middleware/security.ts(123,21): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/middleware/security.ts(153,21): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/security.ts(204,14): error TS4111: Property 'clientIp' comes from an index signature, so it must be accessed with ['clientIp'].
+server/src/middleware/security.ts(209,41): error TS7030: Not all code paths return a value.
+server/src/middleware/security.ts(253,21): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/middleware/webhookSignature.ts(16,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/webhookSignature.ts(27,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/webhookSignature.ts(46,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/webhookSignature.ts(71,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/webhookSignature.ts(81,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/webhookSignature.ts(95,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/middleware/webhookSignature.ts(97,23): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/middleware/webhookSignature.ts(106,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/webhookSignature.ts(124,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/middleware/webhookSignature.ts(144,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+server/src/payments/square.adapter.ts(1,43): error TS2305: Module '"square"' has no exported member 'ApiError'.
+server/src/payments/square.adapter.ts(24,11): error TS6196: 'DBPaymentIntent' is declared but never used.
+server/src/payments/square.adapter.ts(70,44): error TS2551: Property 'checkoutApi' does not exist on type 'SquareClient'. Did you mean 'checkout'?
+server/src/payments/square.adapter.ts(127,19): error TS18046: 'error' is of type 'unknown'.
+server/src/payments/square.adapter.ts(128,23): error TS18046: 'error' is of type 'unknown'.
+server/src/payments/square.adapter.ts(130,46): error TS18046: 'error' is of type 'unknown'.
+server/src/payments/square.adapter.ts(130,75): error TS18046: 'error' is of type 'unknown'.
+server/src/payments/square.adapter.ts(139,56): error TS2551: Property 'checkoutApi' does not exist on type 'SquareClient'. Did you mean 'checkout'?
+server/src/payments/square.adapter.ts(150,61): error TS2551: Property 'ordersApi' does not exist on type 'SquareClient'. Did you mean 'orders'?
+server/src/payments/square.adapter.ts(165,41): error TS2345: Argument of type '"pending" | "succeeded" | "canceled"' is not assignable to parameter of type '"failed" | "succeeded" | "canceled"'.
+  Type '"pending"' is not assignable to type '"failed" | "succeeded" | "canceled"'.
+server/src/payments/square.adapter.ts(185,19): error TS18046: 'error' is of type 'unknown'.
+server/src/payments/square.adapter.ts(188,13): error TS18046: 'error' is of type 'unknown'.
+server/src/routes/__tests__/payments.test.ts(4,1): error TS6133: 'jwt' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(46,24): error TS6133: 'res' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(99,51): error TS2554: Expected 1 arguments, but got 0.
+server/src/routes/__tests__/payments.test.ts(193,26): error TS6133: 'res' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(217,32): error TS2339: Property 'getPaymentDetails' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(237,26): error TS6133: 'res' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(262,26): error TS6133: 'res' is declared but its value is never read.
+server/src/routes/__tests__/payments.test.ts(275,32): error TS2339: Property 'processRefund' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(323,32): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(324,32): error TS2339: Property 'processWebhook' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(332,29): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/payments.test.ts(339,32): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
+server/src/routes/__tests__/security.test.ts(52,32): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/__tests__/security.test.ts(124,39): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/__tests__/security.test.ts(125,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/__tests__/security.test.ts(133,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/__tests__/security.test.ts(145,21): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/__tests__/security.test.ts(154,21): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/__tests__/security.test.ts(275,21): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/__tests__/table-payment.routes.test.ts(3,10): error TS2724: '"../table-payment.routes"' has no exported member named 'tablePaymentRouter'. Did you mean 'tablePaymentRoutes'?
+server/src/routes/__tests__/table-payment.routes.test.ts(5,22): error TS2307: Cannot find module '@jest/globals' or its corresponding type declarations.
+server/src/routes/__tests__/table-payment.routes.test.ts(10,1): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(13,3): error TS2304: Cannot find name 'beforeEach'.
+server/src/routes/__tests__/table-payment.routes.test.ts(20,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(21,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(31,27): error TS2551: Property 'presentTableCheck' does not exist on type 'typeof PaymentFlowService'. Did you mean 'presentCheck'?
+server/src/routes/__tests__/table-payment.routes.test.ts(38,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(39,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(42,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(43,27): error TS2551: Property 'presentTableCheck' does not exist on type 'typeof PaymentFlowService'. Did you mean 'presentCheck'?
+server/src/routes/__tests__/table-payment.routes.test.ts(52,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(53,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(56,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(61,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(62,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(66,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(67,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(81,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(82,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(85,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(99,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(100,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(103,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(109,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(110,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(114,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(115,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(135,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(136,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(139,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(160,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(161,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(164,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(176,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(177,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(181,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(182,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(192,27): error TS2339: Property 'createSplitSession' does not exist on type 'typeof PaymentFlowService'.
+server/src/routes/__tests__/table-payment.routes.test.ts(199,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(200,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(203,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(209,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(210,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(214,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(215,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(223,27): error TS2339: Property 'processSplitPayment' does not exist on type 'typeof PaymentFlowService'.
+server/src/routes/__tests__/table-payment.routes.test.ts(233,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(234,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(238,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(239,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(246,27): error TS2339: Property 'getTableCheck' does not exist on type 'typeof PaymentFlowService'.
+server/src/routes/__tests__/table-payment.routes.test.ts(252,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(253,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(257,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(258,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/routes/__tests__/table-payment.routes.test.ts(259,27): error TS2339: Property 'unlockCheck' does not exist on type 'typeof PaymentFlowService'.
+server/src/routes/__tests__/table-payment.routes.test.ts(268,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/__tests__/table-payment.routes.test.ts(269,7): error TS2304: Cannot find name 'expect'.
+server/src/routes/ai.routes.ts(68,40): error TS2339: Property 'restaurantId' does not exist on type '{ menu?: { id: string; name: string; price: number; category: string; description?: string; }[]; }'.
+server/src/routes/ai.routes.ts(329,40): error TS2339: Property 'respond' does not exist on type 'Chat'.
+server/src/routes/ai.routes.ts(480,36): error TS2339: Property 'respond' does not exist on type 'Chat'.
+server/src/routes/ai.routes.ts(603,24): error TS2339: Property 'duration' does not exist on type 'TranscriptionResult'.
+server/src/routes/auth.routes.ts(8,30): error TS6133: 'validateStationToken' is declared but its value is never read.
+server/src/routes/auth.routes.ts(14,7): error TS6133: 'config' is declared but its value is never read.
+server/src/routes/auth.routes.ts(57,35): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/routes/auth.routes.ts(58,34): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/auth.routes.ts(59,35): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/auth.routes.ts(236,35): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/routes/auth.routes.ts(237,34): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/routes/auth.routes.ts(250,26): error TS2538: Type 'undefined' cannot be used as an index type.
+server/src/routes/health.routes.ts(103,30): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/health.routes.ts(117,11): error TS2375: Type '{ status: "healthy"; timestamp: string; uptime: number; environment: string; version: string | undefined; services: { database: { status: "connected" | "disconnected" | "error"; latency?: number; error?: string; }; cache: { ...; }; ai: { ...; }; }; }' is not assignable to type 'HealthStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'version' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/routes/health.routes.ts(121,32): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/health.routes.ts(122,28): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
+server/src/routes/health.routes.ts(194,26): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
+server/src/routes/metrics.ts(40,26): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
+server/src/routes/metrics.ts(76,17): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/orders.routes.ts(37,64): error TS2379: Argument of type '{ status: OrderStatus | undefined; type: OrderType | undefined; startDate: string; endDate: string; limit: number; offset: number; }' is not assignable to parameter of type 'OrderFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'status' are incompatible.
+    Type 'OrderStatus | undefined' is not assignable to type 'OrderStatus | OrderStatus[]'.
+      Type 'undefined' is not assignable to type 'OrderStatus | OrderStatus[]'.
+server/src/routes/orders.routes.ts(77,67): error TS2379: Argument of type '{ tax: number; items: { id: string; name: string; price: number; quantity: number; modifiers: { name: string; price: number; }[]; notes?: string | undefined; }[]; total: number; subtotal: number; tip: number; ... 6 more ...; total_amount?: number | undefined; }' is not assignable to parameter of type 'CreateOrderRequest' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'type' are incompatible.
+    Type '"voice" | "kiosk" | "pickup" | "delivery" | "dine-in" | "takeout" | undefined' is not assignable to type '"voice" | "kiosk" | "online" | "drive-thru"'.
+      Type 'undefined' is not assignable to type '"voice" | "kiosk" | "online" | "drive-thru"'.
+server/src/routes/payments.routes.ts(126,44): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/payments.routes.ts(134,62): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/payments.routes.ts(140,28): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/payments.routes.ts(499,52): error TS6133: 'next' is declared but its value is never read.
+server/src/routes/payments.routes.ts(501,11): error TS6133: 'signature' is declared but its value is never read.
+server/src/routes/payments.routes.ts(502,11): error TS6133: 'body' is declared but its value is never read.
+server/src/routes/realtime.routes.ts(21,17): error TS4111: Property 'VOICE_MODE' comes from an index signature, so it must be accessed with ['VOICE_MODE'].
+server/src/routes/realtime.routes.ts(38,26): error TS2551: Property 'category' does not exist on type 'MenuItem'. Did you mean 'categoryId'?
+server/src/routes/realtime.routes.ts(46,11): error TS2532: Object is possibly 'undefined'.
+server/src/routes/realtime.routes.ts(55,15): error TS6133: 'allergenNotes' is declared but its value is never read.
+server/src/routes/realtime.routes.ts(119,48): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/routes/realtime.routes.ts(123,28): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/routes/realtime.routes.ts(145,7): error TS2698: Spread types may only be created from object types.
+server/src/routes/realtime.routes.ts(153,18): error TS18046: 'data' is of type 'unknown'.
+server/src/routes/realtime.routes.ts(177,39): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/routes/realtime.routes.ts(178,41): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/routes/realtime.routes.ts(185,26): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/routes/security.routes.ts(15,24): error TS2554: Expected 1 arguments, but got 2.
+server/src/routes/security.routes.ts(37,24): error TS2554: Expected 1 arguments, but got 2.
+server/src/routes/security.routes.ts(38,4): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/security.routes.ts(51,15): error TS2345: Argument of type 'string' is not assignable to parameter of type 'string[]'.
+server/src/routes/security.routes.ts(52,3): error TS7030: Not all code paths return a value.
+server/src/routes/security.routes.ts(53,21): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/security.routes.ts(83,15): error TS2345: Argument of type 'string' is not assignable to parameter of type 'string[]'.
+server/src/routes/security.routes.ts(84,4): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/security.routes.ts(86,32): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/routes/security.routes.ts(93,40): error TS4111: Property 'SQUARE_ENVIRONMENT' comes from an index signature, so it must be accessed with ['SQUARE_ENVIRONMENT'].
+server/src/routes/table-payment.routes.ts(25,59): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(33,83): error TS4111: Property 'tableId' comes from an index signature, so it must be accessed with ['tableId'].
+server/src/routes/table-payment.routes.ts(51,59): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(60,81): error TS4111: Property 'tableId' comes from an index signature, so it must be accessed with ['tableId'].
+server/src/routes/table-payment.routes.ts(86,80): error TS4111: Property 'tableId' comes from an index signature, so it must be accessed with ['tableId'].
+server/src/routes/table-payment.routes.ts(105,59): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(122,71): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(131,81): error TS4111: Property 'tableId' comes from an index signature, so it must be accessed with ['tableId'].
+server/src/routes/table-payment.routes.ts(157,9): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(175,29): error TS4111: Property 'tableId' comes from an index signature, so it must be accessed with ['tableId'].
+server/src/routes/table-payment.routes.ts(203,9): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(217,29): error TS4111: Property 'tableId' comes from an index signature, so it must be accessed with ['tableId'].
+server/src/routes/table-payment.routes.ts(235,65): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(245,31): error TS4111: Property 'sessionId' comes from an index signature, so it must be accessed with ['sessionId'].
+server/src/routes/table-payment.routes.ts(274,9): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(289,31): error TS4111: Property 'sessionId' comes from an index signature, so it must be accessed with ['sessionId'].
+server/src/routes/table-payment.routes.ts(290,29): error TS4111: Property 'splitId' comes from an index signature, so it must be accessed with ['splitId'].
+server/src/routes/table-payment.routes.ts(317,9): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(330,31): error TS4111: Property 'sessionId' comes from an index signature, so it must be accessed with ['sessionId'].
+server/src/routes/table-payment.routes.ts(348,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(358,31): error TS4111: Property 'sessionId' comes from an index signature, so it must be accessed with ['sessionId'].
+server/src/routes/table-payment.routes.ts(377,59): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/routes/table-payment.routes.ts(388,29): error TS4111: Property 'tableId' comes from an index signature, so it must be accessed with ['tableId'].
+server/src/routes/tables.routes.ts(1,18): error TS6133: 'Request' is declared but its value is never read.
+server/src/routes/tables.routes.ts(6,10): error TS6133: 'Table' is declared but its value is never read.
+server/src/routes/tables.routes.ts(154,17): error TS4111: Property 'x_pos' comes from an index signature, so it must be accessed with ['x_pos'].
+server/src/routes/tables.routes.ts(155,24): error TS4111: Property 'x' comes from an index signature, so it must be accessed with ['x'].
+server/src/routes/tables.routes.ts(158,17): error TS4111: Property 'y_pos' comes from an index signature, so it must be accessed with ['y_pos'].
+server/src/routes/tables.routes.ts(159,24): error TS4111: Property 'y' comes from an index signature, so it must be accessed with ['y'].
+server/src/routes/tables.routes.ts(162,17): error TS4111: Property 'shape' comes from an index signature, so it must be accessed with ['shape'].
+server/src/routes/tables.routes.ts(163,24): error TS4111: Property 'type' comes from an index signature, so it must be accessed with ['type'].
+server/src/routes/tables.routes.ts(232,15): error TS4111: Property 'current_order_id' comes from an index signature, so it must be accessed with ['current_order_id'].
+server/src/routes/tables.routes.ts(234,15): error TS4111: Property 'current_order_id' comes from an index signature, so it must be accessed with ['current_order_id'].
+server/src/routes/tables.routes.ts(313,21): error TS4111: Property 'x_pos' comes from an index signature, so it must be accessed with ['x_pos'].
+server/src/routes/tables.routes.ts(314,28): error TS4111: Property 'x' comes from an index signature, so it must be accessed with ['x'].
+server/src/routes/tables.routes.ts(317,21): error TS4111: Property 'y_pos' comes from an index signature, so it must be accessed with ['y_pos'].
+server/src/routes/tables.routes.ts(318,28): error TS4111: Property 'y' comes from an index signature, so it must be accessed with ['y'].
+server/src/routes/tables.routes.ts(321,21): error TS4111: Property 'shape' comes from an index signature, so it must be accessed with ['shape'].
+server/src/routes/tables.routes.ts(322,28): error TS4111: Property 'type' comes from an index signature, so it must be accessed with ['type'].
+server/src/routes/tables.routes.ts(371,16): error TS18046: 'error' is of type 'unknown'.
+server/src/routes/tables.routes.ts(372,16): error TS18046: 'error' is of type 'unknown'.
+server/src/routes/tables.routes.ts(378,18): error TS18046: 'error' is of type 'unknown'.
+server/src/routes/terminal.routes.ts(34,7): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+server/src/routes/terminal.routes.ts(71,7): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+server/src/routes/terminal.routes.ts(180,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+server/src/routes/terminal.routes.ts(208,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+server/src/routes/terminal.routes.ts(219,59): error TS2551: Property 'paymentsApi' does not exist on type 'SquareClient'. Did you mean 'payments'?
+server/src/routes/terminal.routes.ts(248,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+server/src/routes/terminal.routes.ts(295,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+server/src/routes/terminal.routes.ts(377,71): error TS6133: 'req' is declared but its value is never read.
+server/src/routes/terminal.routes.ts(382,44): error TS2339: Property 'listDeviceCodes' does not exist on type 'Terminal'.
+server/src/routes/terminal.routes.ts(383,33): error TS4111: Property 'SQUARE_LOCATION_ID' comes from an index signature, so it must be accessed with ['SQUARE_LOCATION_ID'].
+server/src/routes/terminal.routes.ts(394,30): error TS7006: Parameter 'device' implicitly has an 'any' type.
+server/src/routes/terminal.routes.ts(411,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+server/src/routes/webhooks.routes.ts(22,3): error TS7030: Not all code paths return a value.
+server/src/routes/webhooks.routes.ts(64,64): error TS2345: Argument of type '"pending" | "failed" | "succeeded" | "canceled"' is not assignable to parameter of type '"failed" | "succeeded" | "canceled"'.
+  Type '"pending"' is not assignable to type '"failed" | "succeeded" | "canceled"'.
+server/src/routes/webhooks.routes.ts(167,4): error TS6133: 'req' is declared but its value is never read.
+server/src/server.ts(12,1): error TS6133: 'helmet' is declared but its value is never read.
+server/src/server.ts(13,26): error TS7016: Could not find a declaration file for module 'cookie-parser'. '/Users/mikeyoung/CODING/rebuild-6.0/node_modules/cookie-parser/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/cookie-parser` if it exists or add a new declaration (.d.ts) file containing `declare module 'cookie-parser';`
+server/src/server.ts(32,25): error TS6133: 'securityMonitor' is declared but its value is never read.
+server/src/server.ts(57,17): error TS4111: Property 'FRONTEND_URL' comes from an index signature, so it must be accessed with ['FRONTEND_URL'].
+server/src/server.ts(58,35): error TS4111: Property 'FRONTEND_URL' comes from an index signature, so it must be accessed with ['FRONTEND_URL'].
+server/src/server.ts(59,24): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/server.ts(64,17): error TS4111: Property 'ALLOWED_ORIGINS' comes from an index signature, so it must be accessed with ['ALLOWED_ORIGINS'].
+server/src/server.ts(65,41): error TS4111: Property 'ALLOWED_ORIGINS' comes from an index signature, so it must be accessed with ['ALLOWED_ORIGINS'].
+server/src/server.ts(73,48): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/server.ts(149,30): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/server.ts(164,26): error TS4111: Property 'PORT' comes from an index signature, so it must be accessed with ['PORT'].
+server/src/server.ts(173,40): error TS4111: Property 'DEFAULT_RESTAURANT_ID' comes from an index signature, so it must be accessed with ['DEFAULT_RESTAURANT_ID'].
+server/src/server.ts(185,50): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/server.ts(186,51): error TS4111: Property 'FRONTEND_URL' comes from an index signature, so it must be accessed with ['FRONTEND_URL'].
+server/src/services/__tests__/payment-flow.service.test.ts(4,22): error TS2307: Cannot find module '@jest/globals' or its corresponding type declarations.
+server/src/services/__tests__/payment-flow.service.test.ts(11,1): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(12,3): error TS2304: Cannot find name 'beforeEach'.
+server/src/services/__tests__/payment-flow.service.test.ts(16,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(17,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(28,26): error TS2339: Property 'presentCheck' does not exist on type 'typeof TableCheckService'.
+server/src/services/__tests__/payment-flow.service.test.ts(30,47): error TS2551: Property 'presentTableCheck' does not exist on type 'typeof PaymentFlowService'. Did you mean 'presentCheck'?
+server/src/services/__tests__/payment-flow.service.test.ts(32,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(33,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(33,32): error TS2339: Property 'presentCheck' does not exist on type 'typeof TableCheckService'.
+server/src/services/__tests__/payment-flow.service.test.ts(36,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(37,26): error TS2339: Property 'presentCheck' does not exist on type 'typeof TableCheckService'.
+server/src/services/__tests__/payment-flow.service.test.ts(41,13): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(42,28): error TS2551: Property 'presentTableCheck' does not exist on type 'typeof PaymentFlowService'. Did you mean 'presentCheck'?
+server/src/services/__tests__/payment-flow.service.test.ts(47,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(48,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(55,30): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/payment-flow.service.test.ts(60,9): error TS2554: Expected 2 arguments, but got 4.
+server/src/services/__tests__/payment-flow.service.test.ts(64,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(65,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(65,36): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/payment-flow.service.test.ts(73,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(80,30): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/payment-flow.service.test.ts(85,9): error TS2554: Expected 2 arguments, but got 4.
+server/src/services/__tests__/payment-flow.service.test.ts(89,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(92,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(99,30): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/payment-flow.service.test.ts(104,9): error TS2554: Expected 2 arguments, but got 4.
+server/src/services/__tests__/payment-flow.service.test.ts(108,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(108,21): error TS2339: Property 'tipAmount' does not exist on type 'PaymentAmount'.
+server/src/services/__tests__/payment-flow.service.test.ts(109,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(113,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(114,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(137,9): error TS2554: Expected 2 arguments, but got 3.
+server/src/services/__tests__/payment-flow.service.test.ts(140,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(141,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(144,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(167,9): error TS2554: Expected 2 arguments, but got 3.
+server/src/services/__tests__/payment-flow.service.test.ts(170,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(171,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(174,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(185,13): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(186,74): error TS2554: Expected 2 arguments, but got 3.
+server/src/services/__tests__/payment-flow.service.test.ts(191,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(192,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(208,47): error TS2339: Property 'createSplitSession' does not exist on type 'typeof PaymentFlowService'.
+server/src/services/__tests__/payment-flow.service.test.ts(215,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(216,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(223,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/payment-flow.service.test.ts(231,13): error TS6133: 'mockProcessSplit' is declared but its value is never read.
+server/src/services/__tests__/payment-flow.service.test.ts(236,47): error TS2339: Property 'processSplitPayment' does not exist on type 'typeof PaymentFlowService'.
+server/src/services/__tests__/payment-flow.service.test.ts(244,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/payment-flow.service.test.ts(245,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(3,1): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(4,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(5,11): error TS6133: 'baseCheck' is declared but its value is never read.
+server/src/services/__tests__/tip-calculation.service.test.ts(11,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(12,50): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(20,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(21,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(22,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(25,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(26,50): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(34,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(35,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(36,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(39,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(40,50): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(48,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(49,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(50,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(53,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(54,50): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(61,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(62,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(63,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(66,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(67,50): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(74,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(75,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(76,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(79,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(81,50): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(89,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(90,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(93,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(94,13): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(95,31): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(99,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(100,13): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(101,31): error TS2339: Property 'calculateTip' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(106,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(107,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(108,45): error TS2339: Property 'getTipOptions' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(110,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(111,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(116,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(122,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(129,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(130,45): error TS2339: Property 'getTipOptions' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(132,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(133,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(134,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(138,3): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(139,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(145,44): error TS2339: Property 'distributeTipAcrossSplits' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(150,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(151,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(154,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(160,44): error TS2339: Property 'distributeTipAcrossSplits' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(165,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(166,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(169,5): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+server/src/services/__tests__/tip-calculation.service.test.ts(176,44): error TS2339: Property 'distributeTipAcrossSplits' does not exist on type 'typeof TipCalculationService'.
+server/src/services/__tests__/tip-calculation.service.test.ts(182,47): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+server/src/services/__tests__/tip-calculation.service.test.ts(182,52): error TS7006: Parameter 's' implicitly has an 'any' type.
+server/src/services/__tests__/tip-calculation.service.test.ts(183,7): error TS2304: Cannot find name 'expect'.
+server/src/services/__tests__/tip-calculation.service.test.ts(184,7): error TS2304: Cannot find name 'expect'.
+server/src/services/ai.service.ts(3,14): error TS6133: 'checkAIHealth' is declared but its value is never read.
+server/src/services/ai.service.ts(89,45): error TS6133: 'restaurantId' is declared but its value is never read.
+server/src/services/ai.service.ts(208,68): error TS6133: 'restaurantId' is declared but its value is never read.
+server/src/services/ai.service.ts(255,42): error TS2339: Property 'respond' does not exist on type 'Chat'.
+server/src/services/ai.service.ts(300,9): error TS2322: Type 'MenuItem[]' is not assignable to type '{ id: string; name: string; price: number; category: string; description?: string; }[]'.
+  Property 'category' is missing in type 'MenuItem' but required in type '{ id: string; name: string; price: number; category: string; description?: string; }'.
+server/src/services/ai.service.ts(319,38): error TS2339: Property 'respond' does not exist on type 'Chat'.
+server/src/services/auth/AuthenticationService.ts(63,29): error TS2339: Property 'jwtSecret' does not exist on type 'EnvironmentConfig'.
+server/src/services/auth/AuthenticationService.ts(63,54): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/services/auth/AuthenticationService.ts(64,42): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+server/src/services/auth/AuthenticationService.ts(169,11): error TS2375: Type '{ id: string; email: string | undefined; role: DatabaseRole; scopes: string[]; restaurantId: string | undefined; tokenType: TokenType; }' is not assignable to type 'NormalizedUser' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'email' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/services/auth/AuthenticationService.ts(223,5): error TS2375: Type '{ id: string; email: string | undefined; role: DatabaseRole; scopes: string[]; restaurant_id: string | undefined; auth_method: TokenType; }' is not assignable to type 'AuthUser' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'email' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/services/auth/AuthenticationService.ts(301,22): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<DatabaseRole, ApiScope[]>'.
+server/src/services/auth/AuthenticationService.ts(328,71): error TS2339: Property 'role' does not exist on type 'never'.
+server/src/services/auth/AuthenticationService.ts(346,71): error TS2339: Property 'role' does not exist on type 'never'.
+server/src/services/auth/pinAuth.test.ts(3,10): error TS2305: Module '"./pinAuth"' has no exported member 'PinAuthService'.
+server/src/services/auth/pinAuth.ts(238,9): error TS2375: Type '{ isValid: true; userId: any; userEmail: string | undefined; role: any; restaurantId: string; }' is not assignable to type 'PinValidationResult' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userEmail' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/services/auth/pinAuth.ts(241,23): error TS2352: Conversion of type '{ id: any; user_id: any; pin_hash: any; salt: any; attempts: any; locked_until: any; users: { id: any; email: any; }[]; }' to type '{ users?: { email: string; }; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'users' are incompatible.
+    Property 'email' is missing in type '{ id: any; email: any; }[]' but required in type '{ email: string; }'.
+server/src/services/auth/pinAuth.ts(257,19): error TS4111: Property 'locked_until' comes from an index signature, so it must be accessed with ['locked_until'].
+server/src/services/auth/stationAuth.ts(100,20): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Record<DatabaseRole, ApiScope[]>'.
+  No index signature with a parameter of type 'string' was found on type 'Record<DatabaseRole, ApiScope[]>'.
+server/src/services/auth/stationAuth.ts(116,37): error TS2769: No overload matches this call.
+  Overload 1 of 5, '(payload: string | object | Buffer, secretOrPrivateKey: null, options?: (SignOptions & { algorithm: "none"; }) | undefined): string', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'null'.
+      Type 'undefined' is not assignable to type 'null'.
+  Overload 2 of 5, '(payload: string | object | Buffer, secretOrPrivateKey: Secret, options?: SignOptions | undefined): string', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'Secret'.
+      Type 'undefined' is not assignable to type 'Secret'.
+  Overload 3 of 5, '(payload: string | object | Buffer, secretOrPrivateKey: Secret, callback: SignCallback): void', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'Secret'.
+      Type 'undefined' is not assignable to type 'Secret'.
+server/src/services/auth/stationAuth.ts(172,17): error TS2352: Conversion of type 'Jwt & JwtPayload & void' to type 'StationTokenPayload' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Jwt & JwtPayload & void' is missing the following properties from type 'StationTokenPayload': type, station_type, station_name, restaurant_id, and 2 more.
+server/src/services/auth/stationAuth.ts(172,35): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'Secret | GetPublicKeyOrSecret'.
+      Type 'undefined' is not assignable to type 'Secret | GetPublicKeyOrSecret'.
+server/src/services/menu-ai-sync.service.ts(146,26): error TS4111: Property 'restaurantId' comes from an index signature, so it must be accessed with ['restaurantId'].
+server/src/services/menu.service.ts(6,23): error TS6133: 'mapMenuCategory' is declared but its value is never read.
+server/src/services/OrderMatchingService.ts(19,14): error TS2322: Type '{ draftName: string; quantity: number; modifications: string[] | undefined; specialInstructions: string | undefined; candidates: { menuItemId: string; name: string; score: number; }[]; }[]' is not assignable to type 'Candidate[]'.
+  Type '{ draftName: string; quantity: number; modifications: string[] | undefined; specialInstructions: string | undefined; candidates: { menuItemId: string; name: string; score: number; }[]; }' is not assignable to type 'Candidate' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'modifications' are incompatible.
+      Type 'string[] | undefined' is not assignable to type 'string[]'.
+        Type 'undefined' is not assignable to type 'string[]'.
+server/src/services/orders.service.ts(291,18): error TS4111: Property 'preparing_at' comes from an index signature, so it must be accessed with ['preparing_at'].
+server/src/services/orders.service.ts(294,18): error TS4111: Property 'ready_at' comes from an index signature, so it must be accessed with ['ready_at'].
+server/src/services/orders.service.ts(297,18): error TS4111: Property 'completed_at' comes from an index signature, so it must be accessed with ['completed_at'].
+server/src/services/orders.service.ts(300,18): error TS4111: Property 'cancelled_at' comes from an index signature, so it must be accessed with ['cancelled_at'].
+server/src/services/orders.service.ts(369,16): error TS4111: Property 'payment' comes from an index signature, so it must be accessed with ['payment'].
+server/src/services/orders.service.ts(384,16): error TS4111: Property 'status' comes from an index signature, so it must be accessed with ['status'].
+server/src/services/orders.service.ts(447,13): error TS2322: Type '{ id: `${string}-${string}-${string}-${string}-${string}`; name: string; quantity: number; price: number; modifiers: any; notes: string | undefined; }[]' is not assignable to type 'OrderItem[]'.
+  Type '{ id: `${string}-${string}-${string}-${string}-${string}`; name: string; quantity: number; price: number; modifiers: any; notes: string | undefined; }' is not assignable to type 'OrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'notes' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+server/src/services/orders.service.ts(452,25): error TS2339: Property 'modifiers' does not exist on type '{ name: string; quantity: number; price?: number; notes?: string; }'.
+server/src/services/orderStateMachine.ts(70,11): error TS2375: Type '{ from: OrderStatus; to: OrderStatus; timestamp: Date; userId: string | undefined; reason: string | undefined; }' is not assignable to type 'StateTransition' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/src/services/orderStateMachine.ts(131,18): error TS18046: 'error' is of type 'unknown'.
+server/src/services/orderStateMachine.ts(241,55): error TS6133: 'transition' is declared but its value is never read.
+server/src/services/orderStateMachine.ts(246,51): error TS6133: 'transition' is declared but its value is never read.
+server/src/services/orderStateMachine.ts(251,55): error TS6133: 'transition' is declared but its value is never read.
+server/src/services/payment-flow.service.ts(60,27): error TS6133: 'PAYMENT_TIMEOUT_MS' is declared but its value is never read.
+server/src/services/payment-flow.service.ts(61,27): error TS6133: 'MAX_RETRY_ATTEMPTS' is declared but its value is never read.
+server/src/services/split-payment.service.ts(6,10): error TS6133: 'PaymentFlowService' is declared but its value is never read.
+server/src/services/split-payment.service.ts(7,1): error TS6133: 'TipCalculationService' is declared but its value is never read.
+server/src/services/split-payment.service.ts(163,11): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(168,7): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(169,7): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(170,7): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(170,21): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(183,15): error TS6133: 'tempCheckId' is declared but its value is never read.
+server/src/services/split-payment.service.ts(187,11): error TS2345: Argument of type 'SplitPayment | undefined' is not assignable to parameter of type 'SplitPayment'.
+  Type 'undefined' is not assignable to type 'SplitPayment'.
+server/src/services/split-payment.service.ts(193,9): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(194,9): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(194,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/services/split-payment.service.ts(195,9): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(196,9): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(200,9): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(201,9): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(202,9): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/split-payment.service.ts(202,23): error TS18048: 'split' is possibly 'undefined'.
+server/src/services/table-check.service.ts(357,9): error TS2532: Object is possibly 'undefined'.
+server/src/services/table-check.service.ts(359,26): error TS2532: Object is possibly 'undefined'.
+server/src/services/table-check.service.ts(366,9): error TS2532: Object is possibly 'undefined'.
+server/src/services/table-check.service.ts(367,9): error TS2532: Object is possibly 'undefined'.
+server/src/services/table-check.service.ts(368,9): error TS2532: Object is possibly 'undefined'.
+server/src/services/table-check.service.ts(369,9): error TS2532: Object is possibly 'undefined'.
+server/src/services/table-check.service.ts(456,25): error TS18047: 'splits' is possibly 'null'.
+server/src/services/tip-calculation.service.ts(263,10): error TS2532: Object is possibly 'undefined'.
+server/src/services/tip-calculation.service.ts(263,40): error TS2532: Object is possibly 'undefined'.
+server/src/services/tip-calculation.service.ts(268,22): error TS18048: 'median' is possibly 'undefined'.
+server/src/test-utils/index.ts(148,15): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+server/src/test-utils/index.ts(149,15): error TS4111: Property 'SUPABASE_URL' comes from an index signature, so it must be accessed with ['SUPABASE_URL'].
+server/src/test-utils/index.ts(150,15): error TS4111: Property 'SUPABASE_ANON_KEY' comes from an index signature, so it must be accessed with ['SUPABASE_ANON_KEY'].
+server/src/test-utils/index.ts(151,15): error TS4111: Property 'SUPABASE_SERVICE_KEY' comes from an index signature, so it must be accessed with ['SUPABASE_SERVICE_KEY'].
+server/src/test-utils/index.ts(152,15): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/test-utils/index.ts(153,15): error TS4111: Property 'DEFAULT_RESTAURANT_ID' comes from an index signature, so it must be accessed with ['DEFAULT_RESTAURANT_ID'].
+server/src/tests/auth.integration.test.ts(1,32): error TS6133: 'beforeAll' is declared but its value is never read.
+server/src/tests/auth.integration.test.ts(1,43): error TS6133: 'afterAll' is declared but its value is never read.
+server/src/tests/auth.integration.test.ts(3,21): error TS2307: Cannot find module '../app' or its corresponding type declarations.
+server/src/tests/auth.integration.test.ts(4,24): error TS6133: 'ApiScope' is declared but its value is never read.
+server/src/tests/auth.integration.test.ts(17,26): error TS2339: Property 'getScopesForRole' does not exist on type 'AuthenticationService'.
+server/src/tests/auth.integration.test.ts(23,17): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
+server/src/tests/auth.integration.test.ts(305,38): error TS2339: Property 'verifyWebSocketAuth' does not exist on type 'AuthenticationService'.
+server/src/tests/auth.integration.test.ts(320,38): error TS2339: Property 'verifyWebSocketAuth' does not exist on type 'AuthenticationService'.
+server/src/utils/websocket.ts(50,7): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/voice/debug-dashboard.ts(3,1): error TS6133: 'logger' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(4,1): error TS6133: 'fs' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(5,1): error TS6133: 'path' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(36,41): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(395,44): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(406,43): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(413,47): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(429,45): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(440,42): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(451,47): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(458,21): error TS4111: Property 'RESTAURANT_ID' comes from an index signature, so it must be accessed with ['RESTAURANT_ID'].
+server/src/voice/debug-dashboard.ts(471,18): error TS18046: 'error' is of type 'unknown'.
+server/src/voice/debug-dashboard.ts(494,42): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(506,48): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/debug-dashboard.ts(526,51): error TS7030: Not all code paths return a value.
+server/src/voice/debug-dashboard.ts(528,53): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/voice/debug-dashboard.ts(611,19): error TS4111: Property 'VOICE_RECORD_AUDIO' comes from an index signature, so it must be accessed with ['VOICE_RECORD_AUDIO'].
+server/src/voice/openai-adapter.ts(54,32): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/voice/openai-adapter.ts(60,31): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/voice/openai-adapter.ts(222,30): error TS4111: Property 'transcript' comes from an index signature, so it must be accessed with ['transcript'].
+server/src/voice/openai-adapter.ts(238,15): error TS4111: Property 'delta' comes from an index signature, so it must be accessed with ['delta'].
+server/src/voice/openai-adapter.ts(239,38): error TS4111: Property 'delta' comes from an index signature, so it must be accessed with ['delta'].
+server/src/voice/openai-adapter.ts(256,34): error TS6133: 'event' is declared but its value is never read.
+server/src/voice/openai-adapter.ts(266,22): error TS4111: Property 'error' comes from an index signature, so it must be accessed with ['error'].
+server/src/voice/openai-adapter.ts(268,22): error TS4111: Property 'error' comes from an index signature, so it must be accessed with ['error'].
+server/src/voice/openai-adapter.ts(408,7): error TS2412: Type 'undefined' is not assignable to type 'WebSocket' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+server/src/voice/twilio-bridge.ts(88,33): error TS4111: Property 'RESTAURANT_ID' comes from an index signature, so it must be accessed with ['RESTAURANT_ID'].
+server/src/voice/twilio-bridge.ts(137,32): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/twilio-bridge.ts(148,34): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/twilio-bridge.ts(177,36): error TS4111: Property 'RESTAURANT_ID' comes from an index signature, so it must be accessed with ['RESTAURANT_ID'].
+server/src/voice/twilio-bridge.ts(196,49): error TS4111: Property 'restaurantId' comes from an index signature, so it must be accessed with ['restaurantId'].
+server/src/voice/twilio-bridge.ts(197,61): error TS4111: Property 'restaurantId' comes from an index signature, so it must be accessed with ['restaurantId'].
+server/src/voice/twilio-bridge.ts(232,21): error TS2445: Property 'sendToOpenAI' is protected and only accessible within class 'OpenAIAdapter' and its subclasses.
+server/src/voice/voice-routes.ts(22,18): error TS6133: 'req' is declared but its value is never read.
+server/src/voice/voice-routes.ts(86,29): error TS7030: Not all code paths return a value.
+server/src/voice/voice-routes.ts(127,49): error TS7030: Not all code paths return a value.
+server/src/voice/voice-routes.ts(138,44): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/voice/voice-routes.ts(156,31): error TS7030: Not all code paths return a value.
+server/src/voice/voice-routes.ts(158,29): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
+server/src/voice/voice-routes.ts(159,30): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
+server/src/voice/voice-routes.ts(241,33): error TS7030: Not all code paths return a value.
+server/src/voice/websocket-server.test.ts(38,7): error TS2322: Type 'Mock<[data: BufferLike, options: { mask?: boolean | undefined; binary?: boolean | undefined; compress?: boolean | undefined; fin?: boolean | undefined; }, cb?: ((err?: Error | undefined) => void) | undefined], void>' is not assignable to type '{ (data: BufferLike, cb?: ((err?: Error | undefined) => void) | undefined): void; (data: BufferLike, options: { mask?: boolean | undefined; binary?: boolean | undefined; compress?: boolean | undefined; fin?: boolean | undefined; }, cb?: ((err?: Error | undefined) => void) | undefined): void; }'.
+  Types of parameters 'options' and 'cb' are incompatible.
+    Type '((err?: Error | undefined) => void) | undefined' is not assignable to type '{ mask?: boolean | undefined; binary?: boolean | undefined; compress?: boolean | undefined; fin?: boolean | undefined; }'.
+      Type 'undefined' is not assignable to type '{ mask?: boolean | undefined; binary?: boolean | undefined; compress?: boolean | undefined; fin?: boolean | undefined; }'.
+server/src/voice/websocket-server.ts(43,82): error TS2345: Argument of type 'RawData' is not assignable to parameter of type 'string | ArrayBuffer | SharedArrayBuffer | ArrayBufferView'.
+  Type 'Buffer[]' is not assignable to type 'string | ArrayBuffer | SharedArrayBuffer | ArrayBufferView'.
+    Type 'Buffer[]' is missing the following properties from type 'Float64Array<ArrayBufferLike>': BYTES_PER_ELEMENT, buffer, byteLength, byteOffset, and 3 more.
+shared/index.ts(18,1): error TS2308: Module './utils' has already exported a member named 'VoiceMetrics'. Consider explicitly re-exporting to resolve the ambiguity.
+shared/monitoring/error-tracker.ts(44,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+shared/monitoring/error-tracker.ts(118,5): error TS2532: Object is possibly 'undefined'.
+shared/monitoring/error-tracker.ts(118,27): error TS2379: Argument of type '{ timestamp: number; category: string; message: string; level: "error" | "info" | "warning"; data: Record<string, any> | undefined; }' is not assignable to parameter of type '{ timestamp: number; category: string; message: string; level: string; data?: Record<string, any>; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'data' are incompatible.
+    Type 'Record<string, any> | undefined' is not assignable to type 'Record<string, any>'.
+      Type 'undefined' is not assignable to type 'Record<string, any>'.
+shared/monitoring/error-tracker.ts(121,9): error TS2532: Object is possibly 'undefined'.
+shared/monitoring/error-tracker.ts(122,26): error TS2532: Object is possibly 'undefined'.
+shared/monitoring/error-tracker.ts(131,11): error TS2375: Type '{ id: string; timestamp: number; level: "error" | "info" | "warning"; message: string; stack: string | undefined; url: string; userAgent: string; sessionId: string; userId: string | undefined; context: { ...; }; breadcrumbs: any[]; tags: { ...; }; }' is not assignable to type 'ErrorReport' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'stack' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/monitoring/error-tracker.ts(142,24): error TS2488: Type '{ timestamp: number; category: string; message: string; level: string; data?: Record<string, any>; }[] | undefined' must have a '[Symbol.iterator]()' method that returns an iterator.
+shared/monitoring/error-tracker.ts(160,11): error TS2375: Type '{ id: string; timestamp: number; level: "error" | "info" | "warning"; message: string; url: string; userAgent: string; sessionId: string; userId: string | undefined; context: { [x: string]: any; }; breadcrumbs: any[]; tags: { ...; }; }' is not assignable to type 'ErrorReport' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/monitoring/performance-monitor.ts(107,11): error TS2375: Type '{ id: string; timestamp: number; type: "page_load"; name: string; duration: number; sessionId: string; url: string | undefined; status: "success"; metadata: { domContentLoaded: number; firstPaint: number; ... 6 more ...; decodedSize: number; }; }' is not assignable to type 'PerformanceMetric' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'url' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/monitoring/performance-monitor.ts(180,15): error TS2375: Type '{ id: string; timestamp: number; type: "api_request"; name: string; duration: number; sessionId: string; url: string; method: string; endpoint: string; status: "error" | "success"; statusCode: number | undefined; errorMessage: string | undefined; metadata: { ...; }; }' is not assignable to type 'APIPerformanceMetric' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'statusCode' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+shared/monitoring/performance-monitor.ts(229,39): error TS2345: Argument of type '[string, string | URL, ...any[]]' is not assignable to parameter of type '[method: string, url: string | URL, async: boolean, username?: string | null | undefined, password?: string | null | undefined]'.
+  Target requires 3 element(s) but source may have fewer.
+shared/monitoring/performance-monitor.ts(268,11): error TS2375: Type '{ id: string; timestamp: number; type: "user_interaction"; name: string; duration: number; sessionId: string; url: string | undefined; status: "success"; metadata: Record<string, any> | undefined; }' is not assignable to type 'PerformanceMetric' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'metadata' are incompatible.
+    Type 'Record<string, any> | undefined' is not assignable to type 'Record<string, any>'.
+      Type 'undefined' is not assignable to type 'Record<string, any>'.
+shared/types/transformers.ts(15,1): error TS6133: 'SharedCustomer' is declared but its value is never read.
+shared/types/transformers.ts(151,5): error TS2375: Type '{ id: string; orderNumber: string; restaurantId: string; customerId: string | undefined; tableNumber: string | undefined; status: OrderStatus; type: OrderType; ... 11 more ...; updatedAt: Date; }' is not assignable to type 'ClientOrder' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'customerId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/types/transformers.ts(190,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+shared/types/transformers.ts(196,7): error TS2322: Type 'number | null' is not assignable to type 'number'.
+  Type 'null' is not assignable to type 'number'.
+shared/types/transformers.ts(220,5): error TS2375: Type '{ id: string; menuItemId: string; quantity: number; unitPrice: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[] | undefined; specialInstructions: string | undefined; }' is not assignable to type 'ClientOrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'modifiers' are incompatible.
+    Type '{ id: string; name: string; price: number; }[] | undefined' is not assignable to type 'ClientModifier[]'.
+      Type 'undefined' is not assignable to type 'ClientModifier[]'.
+shared/types/transformers.ts(247,5): error TS2375: Type '{ id: string; menu_item_id: string; name: string; quantity: number; price: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[] | undefined; special_instructions: string | undefined; }' is not assignable to type 'OrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'modifiers' are incompatible.
+    Type '{ id: string; name: string; price: number; }[] | undefined' is not assignable to type 'OrderItemModifier[]'.
+      Type 'undefined' is not assignable to type 'OrderItemModifier[]'.
+shared/types/transformers.ts(276,5): error TS2375: Type '{ id: string; restaurantId: string; name: string; description: string | undefined; price: number; category: string; available: boolean; imageUrl: string | undefined; prepTimeMinutes: number | undefined; createdAt: Date; updatedAt: Date; }' is not assignable to type 'ClientMenuItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/types/transformers.ts(365,5): error TS2375: Type '{ id: string; restaurant_id: string; table_number: string; capacity: number; status: TableStatus; position: { x: number; y: number; }; shape: "rectangle" | "square" | "round" | "circle" | "chip_monkey" | undefined; created_at: string; updated_at: string; }' is not assignable to type 'Table' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'shape' are incompatible.
+    Type '"rectangle" | "square" | "round" | "circle" | "chip_monkey" | undefined' is not assignable to type '"rectangle" | "square" | "round" | "circle" | "chip_monkey"'.
+      Type 'undefined' is not assignable to type '"rectangle" | "square" | "round" | "circle" | "chip_monkey"'.
+shared/utils/__tests__/voice-metrics.test.ts(5,10): error TS6133: 'VoiceMetrics' is declared but its value is never read.
+shared/utils/__tests__/voice-metrics.test.ts(11,5): error TS2322: Type 'MockInstance<[message?: any, ...optionalParams: any[]], void>' is not assignable to type 'MockInstance<unknown[], unknown>'.
+  The types returned by 'withImplementation(...)' are incompatible between these types.
+    Type 'MockInstance<[message?: any, ...optionalParams: any[]], void> | Promise<MockInstance<[message?: any, ...optionalParams: any[]], void>>' is not assignable to type 'MockInstance<unknown[], unknown> | Promise<MockInstance<unknown[], unknown>>'.
+      Type 'MockInstance<[message?: any, ...optionalParams: any[]], void>' is not assignable to type 'MockInstance<unknown[], unknown> | Promise<MockInstance<unknown[], unknown>>'.
+shared/utils/__tests__/voice-metrics.test.ts(187,21): error TS2532: Object is possibly 'undefined'.
+shared/utils/__tests__/voice-metrics.test.ts(191,32): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+shared/utils/cleanup-manager.ts(358,9): error TS2532: Object is possibly 'undefined'.
+shared/utils/cleanup-manager.ts(361,9): error TS2532: Object is possibly 'undefined'.
+shared/utils/error-handling.ts(335,11): error TS2375: Type '{ id: string; type: ErrorType; severity: ErrorSeverity; message: string; originalError: Error; timestamp: string; stack: string | undefined; cause: string | undefined; ... 14 more ...; url: string | undefined; }' is not assignable to type 'EnterpriseError' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'component' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/utils/error-handling.ts(529,85): error TS4111: Property 'redirectUrl' comes from an index signature, so it must be accessed with ['redirectUrl'].
+shared/utils/error-handling.ts(530,11): error TS2322: Type '{}' is not assignable to type 'string'.
+shared/utils/error-handling.ts(530,48): error TS4111: Property 'redirectUrl' comes from an index signature, so it must be accessed with ['redirectUrl'].
+shared/utils/error-handling.ts(597,9): error TS2322: Type 'unknown' is not assignable to type 'T | null'.
+shared/utils/error-handling.ts(609,5): error TS2322: Type '{} | null' is not assignable to type 'T | null'.
+  Type '{}' is not assignable to type 'T'.
+    'T' could be instantiated with an arbitrary type which could be unrelated to '{}'.
+shared/utils/error-handling.ts(830,5): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'Component<{}, {}, any>'.
+shared/utils/error-handling.ts(832,57): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Property 'name' is missing in type 'EnterpriseError' but required in type 'Error'.
+shared/utils/memory-monitoring.ts(65,20): error TS6133: 'leakThreshold' is declared but its value is never read.
+shared/utils/memory-monitoring.ts(171,29): error TS18048: 'current' is possibly 'undefined'.
+shared/utils/memory-monitoring.ts(174,7): error TS2322: Type 'MemorySnapshot | undefined' is not assignable to type 'MemorySnapshot'.
+  Type 'undefined' is not assignable to type 'MemorySnapshot'.
+shared/utils/memory-monitoring.ts(186,44): error TS18048: 'current' is possibly 'undefined'.
+shared/utils/performance-hooks.ts(19,11): error TS6198: All destructured elements are unused.
+shared/utils/performance-hooks.ts(93,31): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(94,49): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(132,29): error TS18048: 'entry' is possibly 'undefined'.
+shared/utils/performance-hooks.ts(163,31): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(164,25): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(165,25): error TS2347: Untyped function calls may not accept type arguments.
+shared/utils/performance-hooks.ts(177,41): error TS7006: Parameter 'update' implicitly has an 'any' type.
+shared/utils/react-performance.ts(46,29): error TS18048: 'React' is possibly 'undefined'.
+shared/utils/react-performance.ts(49,3): error TS2322: Type 'ForwardRefExoticComponent<Omit<any, "ref"> & RefAttributes<any>> | undefined' is not assignable to type 'ForwardRefExoticComponent<P & RefAttributes<any>>'.
+  Type 'undefined' is not assignable to type 'ForwardRefExoticComponent<P & RefAttributes<any>>'.
+shared/utils/react-performance.ts(69,40): error TS6133: 'P' is declared but its value is never read.
+shared/utils/voice-metrics.ts(149,15): error TS2379: Argument of type '{ event: string; timestamp: number; sessionId: string; restaurantId: string; userId: string | undefined; mode: "employee" | "customer"; metadata: { hasMenuContext: boolean; connectStartTime: number; }; }' is not assignable to parameter of type 'VoiceMetricsEvent' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/utils/voice-metrics.ts(240,15): error TS2379: Argument of type '{ event: string; timestamp: number; sessionId: string; restaurantId: string | undefined; userId: string | undefined; mode: "employee" | "customer" | undefined; metadata: { reason: "unknown" | "rate_limit" | "connection_lost" | "auth_failed" | "server_error"; lastError: string | undefined; attempts: number; totalDura...' is not assignable to parameter of type 'VoiceMetricsEvent' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'restaurantId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+shared/utils/websocket-pool.browser.ts(42,7): error TS6133: '_MemoryMonitor' is declared but its value is never read.
+shared/utils/websocket-pool.browser.ts(331,13): error TS6133: '_newConnection' is declared but its value is never read.
+shared/utils/websocket-pool.browser.ts(386,28): error TS6133: 'message' is declared but its value is never read.
+shared/utils/websocket-pool.browser.ts(410,5): error TS2322: Type 'PooledWebSocketConnection | undefined' is not assignable to type 'PooledWebSocketConnection'.
+  Type 'undefined' is not assignable to type 'PooledWebSocketConnection'.

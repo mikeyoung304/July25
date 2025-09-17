@@ -1,0 +1,2 @@
+if (require.main === module) {
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:99:5)

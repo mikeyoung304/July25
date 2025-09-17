@@ -30,6 +30,7 @@ import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
 import { applySecurity, securityMonitor } from './middleware/security';
+import { normalizeCasing } from './middleware/normalize-casing';
 
 // Validate required environment variables
 validateEnvironment();
@@ -108,6 +109,9 @@ app.use(cookieParser());
 // Body parsing middleware
 app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Normalize casing middleware (after body parsing, before CSRF)
+app.use(normalizeCasing);
 
 // CSRF protection (after cookie parser, before routes)
 app.use(csrfMiddleware());
