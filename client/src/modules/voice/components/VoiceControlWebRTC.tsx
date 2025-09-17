@@ -8,12 +8,17 @@ import { AlertCircle, Mic, MicOff, RefreshCw, Settings, ChevronDown, ChevronUp, 
 import { logger } from '../../../services/monitoring/logger';
 import { useAuth } from '@/contexts/auth.hooks';
 import { detectVoiceAgentMode, getAgentModeConfig, VoiceAgentMode } from '../services/VoiceAgentModeDetector';
+import { PaymentSheet } from '../../payments/PaymentSheet';
+import { useRestaurantContext } from '@/core/RestaurantContext';
 
 interface VoiceControlWebRTCProps {
   onTranscript?: (text: string) => void;
   onOrderDetected?: (order: any) => void;
   onOrderConfirmation?: (confirmation: { action: string; timestamp: number }) => void;
   onVisualFeedback?: (feedback: { text: string; isFinal: boolean }) => void;
+  onPaymentRequired?: (amount: number) => void; // Callback when payment is needed
+  onOrderSubmit?: (paymentToken?: string) => void; // Callback when order is ready to submit
+  orderAmount?: number; // Total order amount for payment
   debug?: boolean;
   className?: string;
   overrideMode?: VoiceAgentMode; // Optional override for testing
@@ -28,6 +33,9 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   onOrderDetected,
   onOrderConfirmation,
   onVisualFeedback,
+  onPaymentRequired,
+  onOrderSubmit,
+  orderAmount = 0,
   debug = false,
   className = '',
   overrideMode,
@@ -38,9 +46,12 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   const [showConnectivityDetails, setShowConnectivityDetails] = useState(false);
   const [isRefreshingDevices, setIsRefreshingDevices] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'info' | 'warning' | 'error'; message: string } | null>(null);
+  const [showPaymentSheet, setShowPaymentSheet] = useState(false);
+  const [awaitingPaymentForOrder, setAwaitingPaymentForOrder] = useState(false);
 
-  // Get authentication context
+  // Get authentication and restaurant context
   const { user, isAuthenticated } = useAuth();
+  const { restaurant } = useRestaurantContext();
 
   // Detect agent mode based on authentication
   const detectedMode = useMemo(() => {
@@ -64,11 +75,32 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   const handleTranscript = useCallback((event: any) => {
     onTranscript?.(event.text);
   }, [onTranscript]);
-  
+
   const handleOrderDetected = useCallback((order: any) => {
-    onOrderDetected?.(order);
-  }, [onOrderDetected]);
-  
+    logger.info('[VoiceControlWebRTC] Order detected:', { order, mode: detectedMode });
+
+    // For customer mode, check if payment is needed before processing
+    if (detectedMode === VoiceAgentMode.CUSTOMER && modeConfig.requirePayment) {
+      logger.info('[VoiceControlWebRTC] Customer mode - payment required before order submission');
+      setAwaitingPaymentForOrder(true);
+
+      // Notify parent that payment is required
+      if (orderAmount > 0) {
+        onPaymentRequired?.(orderAmount);
+        setShowPaymentSheet(true);
+      } else {
+        logger.error('[VoiceControlWebRTC] No order amount provided for payment');
+        setToastMessage({
+          type: 'error',
+          message: 'Cannot process payment: order amount not available'
+        });
+      }
+    } else {
+      // Employee mode or payment not required - proceed with order
+      onOrderDetected?.(order);
+    }
+  }, [onOrderDetected, detectedMode, modeConfig.requirePayment, orderAmount, onPaymentRequired]);
+
   const handleOrderConfirmation = useCallback((confirmation: { action: string; timestamp: number }) => {
     logger.info('[VoiceControlWebRTC] Order confirmation received:', { action: confirmation.action });
     onOrderConfirmation?.(confirmation);
@@ -628,10 +660,41 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
           error={error}
         />
       )}
+
+      {/* Payment Sheet for Customer Mode */}
+      {showPaymentSheet && detectedMode === VoiceAgentMode.CUSTOMER && (
+        <PaymentSheet
+          amount={orderAmount}
+          restaurantId={restaurant?.id || ''}
+          onSuccess={(paymentToken, method) => {
+            logger.info('[VoiceControlWebRTC] Payment successful', { method, tokenLength: paymentToken.length });
+            setShowPaymentSheet(false);
+            setAwaitingPaymentForOrder(false);
+
+            // Now submit the order with payment token
+            onOrderSubmit?.(paymentToken);
+
+            setToastMessage({
+              type: 'success',
+              message: 'Payment successful! Submitting order...'
+            });
+          }}
+          onCancel={() => {
+            logger.info('[VoiceControlWebRTC] Payment cancelled by user');
+            setShowPaymentSheet(false);
+            setAwaitingPaymentForOrder(false);
+
+            setToastMessage({
+              type: 'warning',
+              message: 'Payment cancelled. Order not submitted.'
+            });
+          }}
+        />
+      )}
     </div>
   );
   }
-  
+
   // Fallback - should not normally reach here
   return null;
 };

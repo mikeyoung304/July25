@@ -30,7 +30,7 @@ export const CreateOrderDTOSchema = z.object({
   subtotal: z.number().positive(),
   tax: z.number().nonnegative(),
   total: z.number().positive(),
-  
+
   // Optional fields
   type: z.enum(['dine-in', 'takeout', 'delivery', 'pickup', 'kiosk', 'voice']).optional(),
   customerName: z.string().optional(),
@@ -39,7 +39,10 @@ export const CreateOrderDTOSchema = z.object({
   tableNumber: z.string().optional(),
   notes: z.string().optional(),
   tip: z.number().nonnegative().optional().default(0),
-  
+
+  // Payment token (required for customer mode, optional for employee mode)
+  paymentToken: z.string().optional(),
+
   // Legacy field mapping (will be transformed)
   total_amount: z.number().optional() // Map to 'total' if present
 });
@@ -60,7 +63,8 @@ export function transformLegacyOrderPayload(payload: any): any {
     order_type: 'type',
     total_amount: 'total',
     menu_item_id: 'id',
-    special_instructions: 'notes'
+    special_instructions: 'notes',
+    payment_token: 'paymentToken'
   };
   
   // Transform top-level fields
