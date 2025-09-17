@@ -43,12 +43,10 @@ router.post('/kiosk',
       throw BadRequest('Invalid restaurant ID for demo');
     }
 
-    // Get JWT secret with fallback chain for resilience
-    const jwtSecret = process.env.KIOSK_JWT_SECRET || 
-                     process.env.SUPABASE_JWT_SECRET ||
-                     (process.env.NODE_ENV === 'development' ? 
-                      'demo-secret-key-for-local-development-only' : null);
-    
+    // Get JWT secret - must be explicitly configured
+    const jwtSecret = process.env.KIOSK_JWT_SECRET ||
+                     process.env.SUPABASE_JWT_SECRET;
+
     if (!jwtSecret) {
       logger.error('KIOSK_JWT_SECRET not configured - see docs/DEMO_AUTH_SETUP.md');
       throw BadRequest('Demo authentication not configured. Please contact support or see docs/DEMO_AUTH_SETUP.md for setup instructions.');

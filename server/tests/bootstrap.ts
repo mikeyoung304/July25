@@ -8,6 +8,9 @@ process.env.NODE_ENV = 'test';
 process.env.PORT = '0'; // Use random port for tests
 process.env.SUPABASE_JWT_SECRET = 'test-jwt-secret-for-testing-only';
 process.env.KIOSK_JWT_SECRET = 'test-kiosk-jwt-secret';
+process.env.SUPABASE_URL = 'https://test.supabase.co';
+process.env.SUPABASE_SERVICE_KEY = 'test-service-key';
+process.env.RESTAURANT_ID = 'test-restaurant-id';
 
 // Clean up after each test
 afterEach(() => {

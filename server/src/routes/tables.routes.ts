@@ -1,7 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger'
 import { supabase } from '../config/database';
-import { validateRestaurantAccess, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, AuthenticatedRequest, requireScope } from '../middleware/auth';
+import { validateRestaurantAccess } from '../middleware/restaurantAccess';
+import { ApiScope } from '../config/permissions';
 import { getConfig } from '../config/environment';
 import { Table, TableStatus } from '../../../shared/types/table.types';
 
@@ -395,13 +397,13 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
   }
 };
 
-// Set up routes
-router.get('/', getTables);
-router.get('/:id', getTable);
-router.post('/', createTable);
-router.put('/batch', batchUpdateTables);
-router.put('/:id', updateTable);
-router.delete('/:id', deleteTable);
-router.patch('/:id/status', updateTableStatus);
+// Set up routes with proper authentication and restaurant validation
+router.get('/', authenticate, validateRestaurantAccess, getTables);
+router.get('/:id', authenticate, validateRestaurantAccess, getTable);
+router.post('/', authenticate, requireScope([ApiScope.TABLE_WRITE]), validateRestaurantAccess, createTable);
+router.put('/batch', authenticate, requireScope([ApiScope.TABLE_WRITE]), validateRestaurantAccess, batchUpdateTables);
+router.put('/:id', authenticate, requireScope([ApiScope.TABLE_WRITE]), validateRestaurantAccess, updateTable);
+router.delete('/:id', authenticate, requireScope([ApiScope.TABLE_WRITE]), validateRestaurantAccess, deleteTable);
+router.patch('/:id/status', authenticate, requireScope([ApiScope.TABLE_WRITE]), validateRestaurantAccess, updateTableStatus);
 
 export { router as tableRoutes };

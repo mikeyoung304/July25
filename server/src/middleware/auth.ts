@@ -33,19 +33,14 @@ export async function authenticate(
 
     const token = authHeader.substring(7);
     
-    // STRICT_AUTH mode - no bypasses allowed
-    const strictAuth = process.env['STRICT_AUTH'] === 'true';
-    
-    // In strict auth mode, never allow test tokens
-    if (strictAuth && token === 'test-token') {
-      logger.error('⛔ STRICT_AUTH enabled - test token rejected');
-      throw Unauthorized('Test tokens not allowed in strict auth mode');
-    }
-    
-    // Legacy test token support (will be removed)
-    // Only for backwards compatibility during migration
-    if (process.env['NODE_ENV'] === 'test' && token === 'test-token' && !strictAuth) {
-      logger.warn('⚠️ DEPRECATED: test-token usage detected. This will be removed soon.');
+    // No test token bypasses allowed in production
+    // Test tokens are ONLY allowed in NODE_ENV=test for unit tests
+    if (token === 'test-token') {
+      if (process.env['NODE_ENV'] !== 'test') {
+        logger.error('⛔ Test token rejected in non-test environment');
+        throw Unauthorized('Test tokens not allowed');
+      }
+      // Only allow in actual test environment
       req.user = {
         id: 'test-user-id',
         email: 'test@example.com',
@@ -154,18 +149,13 @@ export async function verifyWebSocketAuth(
       return null;
     }
 
-    // STRICT_AUTH mode - no bypasses allowed
-    const strictAuth = process.env['STRICT_AUTH'] === 'true';
-    
-    // In strict auth mode, never allow test tokens
-    if (strictAuth && token === 'test-token') {
-      logger.error('⛔ WebSocket: STRICT_AUTH enabled - test token rejected');
-      return null;
-    }
-    
-    // Legacy test token support for tests only
-    if (process.env['NODE_ENV'] === 'test' && token === 'test-token' && !strictAuth) {
-      logger.warn('⚠️ WebSocket: DEPRECATED test-token usage');
+    // No test token bypasses allowed in production
+    if (token === 'test-token') {
+      if (process.env['NODE_ENV'] !== 'test') {
+        logger.error('⛔ WebSocket: Test token rejected in non-test environment');
+        return null;
+      }
+      // Only allow in actual test environment
       return {
         userId: 'test-user-id',
         restaurantId: config.restaurant.defaultId,
