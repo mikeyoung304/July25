@@ -1,15 +1,22 @@
 import { useState, useCallback } from 'react'
 import { useToast } from '@/hooks/useToast'
+import { useRestaurantContext } from '@/core/RestaurantContext'
 import type { VoiceOrderItem } from '@/modules/voice/contexts/types'
 
 export function useOrderSubmission() {
   const { toast } = useToast()
+  const { restaurant } = useRestaurantContext()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const submitOrder = useCallback(async (items: VoiceOrderItem[]) => {
     if (items.length === 0) {
       toast.error('No items in cart to submit')
       return { success: false, error: 'Empty cart' }
+    }
+
+    if (!restaurant?.id) {
+      toast.error('Restaurant context not available')
+      return { success: false, error: 'Missing restaurant context' }
     }
 
     setIsSubmitting(true)
@@ -56,7 +63,7 @@ export function useOrderSubmission() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer kiosk-token',
-          'X-Restaurant-ID': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
+          'X-Restaurant-ID': restaurant.id, // Use context instead of env
           'X-Idempotency-Key': idempotencyKey
         },
         body: JSON.stringify(orderData)
@@ -90,7 +97,7 @@ export function useOrderSubmission() {
     } finally {
       setIsSubmitting(false)
     }
-  }, [toast])
+  }, [toast, restaurant?.id])
 
   return {
     submitOrder,
