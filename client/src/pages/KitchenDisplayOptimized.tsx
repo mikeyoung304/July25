@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Filter, Clock, ChefHat, AlertCircle, BarChart3, Zap } from 'lucide-react'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
 import { cn } from '@/utils'
+import { ACTIVE_ORDER_STATUSES, isActiveOrder } from '@/constants/orderStatuses'
 import type { Order } from '@rebuild/shared'
 
 type StatusFilter = 'all' | 'active' | 'ready' | 'urgent'
@@ -45,7 +46,8 @@ function KitchenDisplayOptimized() {
     
     const urgentOrders = orders.filter(order => {
       const age = (now - new Date(order.created_at).getTime()) / 60000
-      return age >= 15 && !['completed', 'cancelled'].includes(order.status)
+      // Handle all 7 statuses exhaustively
+      return age >= 15 && ACTIVE_ORDER_STATUSES.includes(order.status)
     })
 
     const statusCounts = orders.reduce((acc, order) => {
@@ -94,12 +96,14 @@ function KitchenDisplayOptimized() {
         const now = Date.now()
         filtered = orders.filter(order => {
           const age = (now - new Date(order.created_at).getTime()) / 60000
-          return age >= 15 && !['completed', 'cancelled'].includes(order.status)
+          // Handle all 7 statuses exhaustively: exclude only completed and cancelled
+          return age >= 15 && ACTIVE_ORDER_STATUSES.includes(order.status)
         })
         break
       }
       default:
-        filtered = orders.filter(o => !['completed', 'cancelled'].includes(o.status))
+        // Handle all 7 statuses exhaustively: show only active orders
+        filtered = orders.filter(o => ACTIVE_ORDER_STATUSES.includes(o.status))
     }
 
     // Apply sorting
@@ -240,7 +244,7 @@ function KitchenDisplayOptimized() {
                 size="sm"
                 onClick={() => setStatusFilter('all')}
               >
-                All ({orders.filter(o => !['completed', 'cancelled'].includes(o.status)).length})
+                All ({orders.filter(o => isActiveOrder(o.status)).length})
               </Button>
               <Button
                 variant={statusFilter === 'active' ? 'default' : 'outline'}

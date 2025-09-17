@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useKitchenOrdersRealtime } from './useKitchenOrdersRealtime'
+import { isActiveOrder } from '@/constants/orderStatuses'
 import type { Order as _Order } from '@rebuild/shared'
 
 export interface ConnectionState {
@@ -39,9 +40,7 @@ export const useKitchenOrdersOptimized = () => {
   
   // Active orders (excluding completed/cancelled)
   const activeOrders = useMemo(() => {
-    return orders.filter(order => 
-      !['completed', 'cancelled'].includes(order.status)
-    )
+    return orders.filter(order => isActiveOrder(order.status))
   }, [orders])
   
   // Ready orders
