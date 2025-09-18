@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useApiRequest } from '@/hooks/useApiRequest';
-import { CheckSummary } from '../types';
+import type { CheckSummary, PaymentMethod, PaymentResult, SplitSession } from '../types';
 import { toast } from 'react-hot-toast';
 
 export const useTablePayment = (tableId: string) => {
@@ -9,20 +9,74 @@ export const useTablePayment = (tableId: string) => {
   const [error, setError] = useState<string | null>(null);
   const api = useApiRequest();
 
+  const isRecord = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null;
+
+  const isCheckSummary = (value: unknown): value is CheckSummary =>
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.tableId === 'string' &&
+    typeof value.subtotal === 'number' &&
+    typeof value.tax === 'number' &&
+    typeof value.tip === 'number' &&
+    typeof value.total === 'number';
+
+  const isPaymentResult = (value: unknown): value is PaymentResult =>
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.status === 'string' &&
+    isRecord(value.amount) &&
+    typeof value.amount.total === 'number';
+
+  const isSplitSession = (value: unknown): value is SplitSession =>
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.tableId === 'string' &&
+    typeof value.totalAmount === 'number';
+
+  const extractMessage = (err: unknown, fallback: string): string => {
+    if (err instanceof Error && err.message) {
+      return err.message;
+    }
+    if (typeof err === 'string' && err.trim().length > 0) {
+      return err;
+    }
+    return fallback;
+  };
+
+  const isCheckResponse = (value: unknown): value is { check: CheckSummary } =>
+    isRecord(value) && isCheckSummary(value.check);
+
+  const isAmountResponse = (
+    value: unknown
+  ): value is { amount: { subtotal: number; tax: number; tip: number; total: number } } => {
+    if (!isRecord(value) || !isRecord(value.amount)) return false;
+    const amount = value.amount as Record<string, unknown>;
+    return ['subtotal', 'tax', 'tip', 'total'].every((key) => typeof amount[key] === 'number');
+  };
+
+  const isPaymentResponse = (value: unknown): value is { payment: PaymentResult } =>
+    isRecord(value) && isPaymentResult(value.payment);
+
+  const isSplitSessionResponse = (value: unknown): value is { session: SplitSession } =>
+    isRecord(value) && isSplitSession(value.session);
+
   const presentCheck = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
     try {
       const response = await api.post(`/api/v1/tables/${tableId}/present-check`, {});
-      if (response && response.check) {
+      if (isCheckResponse(response)) {
         setCheck(response.check);
         return response.check;
       }
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to present check';
+      throw new Error('Invalid response when presenting check');
+    } catch (err: unknown) {
+      const errorMessage = extractMessage(err, 'Failed to present check');
       setError(errorMessage);
       toast.error(errorMessage);
+      return undefined;
     } finally {
       setIsLoading(false);
     }
@@ -34,14 +88,16 @@ export const useTablePayment = (tableId: string) => {
     
     try {
       const response = await api.get(`/api/v1/tables/${tableId}/check`);
-      if (response && response.check) {
+      if (isCheckResponse(response)) {
         setCheck(response.check);
         return response.check;
       }
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to get check';
+      throw new Error('Invalid response when retrieving check');
+    } catch (err: unknown) {
+      const errorMessage = extractMessage(err, 'Failed to get check');
       setError(errorMessage);
       toast.error(errorMessage);
+      return undefined;
     } finally {
       setIsLoading(false);
     }
@@ -54,28 +110,33 @@ export const useTablePayment = (tableId: string) => {
     try {
       const response = await api.post(`/api/v1/payments/table/${tableId}/calculate-tip`, {
         tipAmount,
-        isPercentage: false
+        isPercentage: false,
       });
-      
-      if (response && response.amount) {
-        // Update local check with new tip
-        setCheck(prev => prev ? {
-          ...prev,
-          tip: tipAmount,
-          total: response.amount.total
-        } : null);
+
+      if (isAmountResponse(response)) {
+        setCheck((prev) =>
+          prev
+            ? {
+                ...prev,
+                tip: response.amount.tip,
+                total: response.amount.total,
+              }
+            : prev
+        );
         return response.amount;
       }
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to calculate tip';
+      throw new Error('Invalid response when calculating tip');
+    } catch (err: unknown) {
+      const errorMessage = extractMessage(err, 'Failed to calculate tip');
       setError(errorMessage);
       toast.error(errorMessage);
+      return undefined;
     } finally {
       setIsLoading(false);
     }
   }, [tableId, api]);
 
-  const processPayment = useCallback(async (paymentMethod: any) => {
+  const processPayment = useCallback(async (paymentMethod: PaymentMethod) => {
     setIsLoading(true);
     setError(null);
     
@@ -84,12 +145,13 @@ export const useTablePayment = (tableId: string) => {
         paymentMethod
       });
       
-      if (response && response.payment) {
+      if (isPaymentResponse(response)) {
         toast.success('Payment processed successfully!');
         return response.payment;
       }
-    } catch (err: any) {
-      const errorMessage = err.message || 'Payment processing failed';
+      throw new Error('Invalid response when processing payment');
+    } catch (err: unknown) {
+      const errorMessage = extractMessage(err, 'Payment processing failed');
       setError(errorMessage);
       toast.error(errorMessage);
       throw err;
@@ -108,13 +170,15 @@ export const useTablePayment = (tableId: string) => {
         strategy
       });
       
-      if (response && response.session) {
+      if (isSplitSessionResponse(response)) {
         return response.session;
       }
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to create split session';
+      throw new Error('Invalid response when creating split session');
+    } catch (err: unknown) {
+      const errorMessage = extractMessage(err, 'Failed to create split session');
       setError(errorMessage);
       toast.error(errorMessage);
+      return undefined;
     } finally {
       setIsLoading(false);
     }
@@ -123,7 +187,7 @@ export const useTablePayment = (tableId: string) => {
   const processSplitPayment = useCallback(async (
     sessionId: string,
     splitId: string,
-    paymentMethod: any,
+    paymentMethod: PaymentMethod,
     tipAmount: number = 0
   ) => {
     setIsLoading(true);
@@ -135,12 +199,13 @@ export const useTablePayment = (tableId: string) => {
         tipAmount
       });
       
-      if (response && response.payment) {
+      if (isPaymentResponse(response)) {
         toast.success('Split payment processed!');
         return response.payment;
       }
-    } catch (err: any) {
-      const errorMessage = err.message || 'Split payment failed';
+      throw new Error('Invalid response when processing split payment');
+    } catch (err: unknown) {
+      const errorMessage = extractMessage(err, 'Split payment failed');
       setError(errorMessage);
       toast.error(errorMessage);
       throw err;
@@ -170,3 +235,4 @@ export const useTablePayment = (tableId: string) => {
     unlockCheck
   };
 };
+

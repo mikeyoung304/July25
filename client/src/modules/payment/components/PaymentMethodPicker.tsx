@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Smartphone, Keyboard, DollarSign, Users } from 'lucide-react';
+import type { PaymentMethod } from '../types';
 
 interface PaymentMethodPickerProps {
-  total: number;
-  onMethodSelected: (method: any) => void;
+  total?: number;
+  totalAmount?: number; // Legacy prop during migration
+  onMethodSelected: (method: PaymentMethod) => void;
   onBack: () => void;
+  isProcessing?: boolean;
 }
 
-export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
-  total,
-  onMethodSelected,
-  onBack
-}) => {
+export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = (props) => {
+  const {
+    total: totalProp,
+    totalAmount,
+    onMethodSelected,
+    onBack,
+    isProcessing = false
+  } = props;
+
+  const total = typeof totalProp === 'number'
+    ? totalProp
+    : typeof totalAmount === 'number'
+      ? totalAmount
+      : 0;
+
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [cardDetails, setCardDetails] = useState({
     number: '',
@@ -25,6 +38,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   const supportsDigitalWallet = 'PaymentRequest' in window;
 
   const handleTerminalPayment = () => {
+    if (isProcessing) return;
     onMethodSelected({
       type: 'SQUARE_TERMINAL',
       deviceId: import.meta.env.VITE_SQUARE_TERMINAL_ID
@@ -32,6 +46,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   };
 
   const handleDigitalWallet = async () => {
+    if (isProcessing) return;
     // This would integrate with Apple Pay/Google Pay
     onMethodSelected({
       type: 'DIGITAL_WALLET'
@@ -39,6 +54,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   };
 
   const handleManualEntry = () => {
+    if (isProcessing) return;
     setShowManualEntry(true);
   };
 
@@ -54,12 +70,14 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
   };
 
   const handleCashPayment = () => {
+    if (isProcessing) return;
     onMethodSelected({
       type: 'CASH'
     });
   };
 
   const handleSplitPayment = () => {
+    if (isProcessing) return;
     onMethodSelected({
       type: 'SPLIT'
     });
@@ -70,7 +88,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
       <div className="min-h-screen bg-white flex flex-col">
         <div className="bg-primary text-white p-6 text-center">
           <h1 className="text-3xl font-bold">Enter Card Details</h1>
-          <p className="text-lg mt-2 opacity-90">Total: ${total.toFixed(2)}</p>
+          <p className="text-lg mt-2 opacity-90">Total Due: ${total.toFixed(2)}</p>
         </div>
 
         <div className="flex-1 p-6 max-w-2xl mx-auto w-full">
@@ -145,6 +163,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
           <div className="max-w-2xl mx-auto space-y-3">
             <button
               onClick={handleManualSubmit}
+              disabled={isProcessing}
               className="w-full py-5 bg-primary text-white text-xl font-semibold rounded-xl hover:bg-primary-dark transition-colors shadow-lg"
             >
               Pay ${total.toFixed(2)}
@@ -166,7 +185,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
       {/* Header */}
       <div className="bg-primary text-white p-6 text-center">
         <h1 className="text-3xl font-bold">Payment Method</h1>
-        <p className="text-2xl mt-2 font-semibold">Total: ${total.toFixed(2)}</p>
+        <p className="text-2xl mt-2 font-semibold">Total Due: ${total.toFixed(2)}</p>
       </div>
 
       {/* Payment Options */}
@@ -174,6 +193,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
         <div className="space-y-4">
           {hasSquareTerminal && (
             <motion.button
+              disabled={isProcessing}
               onClick={handleTerminalPayment}
               className="w-full p-6 bg-white border-2 border-gray-300 rounded-xl hover:border-primary hover:bg-primary/5 transition-all text-left group"
               whileTap={{ scale: 0.98 }}
@@ -196,6 +216,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
 
           {supportsDigitalWallet && (
             <motion.button
+              disabled={isProcessing}
               onClick={handleDigitalWallet}
               className="w-full p-6 bg-white border-2 border-gray-300 rounded-xl hover:border-primary hover:bg-primary/5 transition-all text-left group"
               whileTap={{ scale: 0.98 }}
@@ -217,6 +238,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
           )}
 
           <motion.button
+            disabled={isProcessing}
             onClick={handleManualEntry}
             className="w-full p-6 bg-white border-2 border-gray-300 rounded-xl hover:border-primary hover:bg-primary/5 transition-all text-left group"
             whileTap={{ scale: 0.98 }}
@@ -237,6 +259,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
           </motion.button>
 
           <motion.button
+            disabled={isProcessing}
             onClick={handleCashPayment}
             className="w-full p-6 bg-white border-2 border-gray-300 rounded-xl hover:border-primary hover:bg-primary/5 transition-all text-left group"
             whileTap={{ scale: 0.98 }}
@@ -258,6 +281,7 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = ({
 
           <div className="pt-4 border-t">
             <motion.button
+              disabled={isProcessing}
               onClick={handleSplitPayment}
               className="w-full p-6 bg-gray-50 border-2 border-gray-300 rounded-xl hover:border-primary hover:bg-primary/5 transition-all text-left group"
               whileTap={{ scale: 0.98 }}

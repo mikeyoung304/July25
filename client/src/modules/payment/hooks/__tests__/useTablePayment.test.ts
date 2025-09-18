@@ -195,9 +195,15 @@ describe('useTablePayment', () => {
     it('should process individual split payment', async () => {
       const mockPayment = {
         id: 'split-payment-1',
-        splitId: 'split-1',
-        amount: 35.00,
-        status: 'completed'
+        status: 'completed' as const,
+        amount: {
+          subtotal: 32.0,
+          tax: 2.0,
+          tip: 1.0,
+          total: 35.0,
+        },
+        method: { type: 'DIGITAL_WALLET' as const },
+        timestamp: new Date().toISOString(),
       };
 
       mockApi.post.mockResolvedValue({ payment: mockPayment });
