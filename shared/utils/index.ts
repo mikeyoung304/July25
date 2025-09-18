@@ -15,5 +15,16 @@ export {
   type ServiceMemoryProfile
 } from './memory-monitoring';
 
-// Voice metrics and observability
-export * from './voice-metrics';
+// Voice metrics and observability (avoid exporting class to prevent name clash)
+export {
+  voiceMetrics,
+  measureTime,
+  measureTimeAsync,
+  type VoiceMetricsEvent,
+  type SessionCreatedMetrics,
+  type SessionNormalizedMetrics,
+  type SessionReconnectMetrics,
+  type SessionFailMetrics,
+  type ConnectLatencyMetrics,
+  type TimeToFirstTranscriptMetrics,
+} from './voice-metrics';
