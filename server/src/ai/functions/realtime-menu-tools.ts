@@ -129,7 +129,8 @@ export const menuFunctionTools = {
         }
       }
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: any = {}, context: MenuToolContext): Promise<MenuToolResult> => {
+      const args = _args ?? {};
       try {
         // Check cache first
         const cacheKey = `menu_${context.restaurantId}_${JSON.stringify(args)}`;
