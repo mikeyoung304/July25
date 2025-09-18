@@ -2,19 +2,20 @@ import request from 'supertest';
 import express from 'express';
 import { tablePaymentRouter } from '../table-payment.routes';
 import { PaymentFlowService } from '../../services/payment-flow.service';
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 
 // Mock services
-jest.mock('../../services/payment-flow.service');
+vi.mock('../../services/payment-flow.service');
 
 describe('Table Payment Routes', () => {
   let app: express.Application;
+  const paymentFlowMock = vi.mocked(PaymentFlowService, true);
 
   beforeEach(() => {
     app = express();
     app.use(express.json());
     app.use('/api/v1', tablePaymentRouter);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('POST /api/v1/tables/:tableId/present-check', () => {
@@ -28,7 +29,7 @@ describe('Table Payment Routes', () => {
         status: 'presented'
       };
 
-      (PaymentFlowService.presentTableCheck as jest.Mock).mockResolvedValue(mockCheck);
+      paymentFlowMock.presentTableCheck.mockResolvedValue(mockCheck);
 
       const response = await request(app)
         .post('/api/v1/tables/table-1/present-check')
@@ -40,7 +41,7 @@ describe('Table Payment Routes', () => {
     });
 
     it('should return 404 for invalid table', async () => {
-      (PaymentFlowService.presentTableCheck as jest.Mock).mockRejectedValue(
+      paymentFlowMock.presentTableCheck.mockRejectedValue(
         new Error('Table not found')
       );
 
@@ -71,7 +72,7 @@ describe('Table Payment Routes', () => {
         total: 64.00
       };
 
-      (PaymentFlowService.calculateWithTip as jest.Mock).mockResolvedValue(mockCalculation);
+      paymentFlowMock.calculateWithTip.mockResolvedValue(mockCalculation);
 
       const response = await request(app)
         .post('/api/v1/payments/table/table-1/calculate-tip')
@@ -89,7 +90,7 @@ describe('Table Payment Routes', () => {
         total: 62.50
       };
 
-      (PaymentFlowService.calculateWithTip as jest.Mock).mockResolvedValue(mockCalculation);
+      paymentFlowMock.calculateWithTip.mockResolvedValue(mockCalculation);
 
       const response = await request(app)
         .post('/api/v1/payments/table/table-1/calculate-tip')
@@ -120,7 +121,7 @@ describe('Table Payment Routes', () => {
         method: { type: 'SQUARE_TERMINAL' }
       };
 
-      (PaymentFlowService.processTablePayment as jest.Mock).mockResolvedValue(mockPayment);
+      paymentFlowMock.processTablePayment.mockResolvedValue(mockPayment);
 
       const response = await request(app)
         .post('/api/v1/payments/table/table-1/process')
@@ -145,7 +146,7 @@ describe('Table Payment Routes', () => {
         changeAmount: 46.00
       };
 
-      (PaymentFlowService.processTablePayment as jest.Mock).mockResolvedValue(mockPayment);
+      paymentFlowMock.processTablePayment.mockResolvedValue(mockPayment);
 
       const response = await request(app)
         .post('/api/v1/payments/table/table-1/process')
@@ -162,7 +163,7 @@ describe('Table Payment Routes', () => {
     });
 
     it('should handle payment failures', async () => {
-      (PaymentFlowService.processTablePayment as jest.Mock).mockRejectedValue(
+      paymentFlowMock.processTablePayment.mockRejectedValue(
         new Error('Card declined')
       );
 
@@ -189,7 +190,7 @@ describe('Table Payment Routes', () => {
         ]
       };
 
-      (PaymentFlowService.createSplitSession as jest.Mock).mockResolvedValue(mockSession);
+      paymentFlowMock.createSplitSession.mockResolvedValue(mockSession);
 
       const response = await request(app)
         .post('/api/v1/payments/table/table-1/split')
@@ -220,7 +221,7 @@ describe('Table Payment Routes', () => {
         status: 'completed'
       };
 
-      (PaymentFlowService.processSplitPayment as jest.Mock).mockResolvedValue(mockPayment);
+      paymentFlowMock.processSplitPayment.mockResolvedValue(mockPayment);
 
       const response = await request(app)
         .post('/api/v1/payments/split/session-1/pay/split-1')
@@ -243,7 +244,7 @@ describe('Table Payment Routes', () => {
         status: 'open'
       };
 
-      (PaymentFlowService.getTableCheck as jest.Mock).mockResolvedValue(mockCheck);
+      paymentFlowMock.getTableCheck.mockResolvedValue(mockCheck);
 
       const response = await request(app)
         .get('/api/v1/tables/table-1/check')
@@ -256,7 +257,7 @@ describe('Table Payment Routes', () => {
 
   describe('POST /api/v1/tables/:tableId/unlock-check', () => {
     it('should unlock check', async () => {
-      (PaymentFlowService.unlockCheck as jest.Mock).mockResolvedValue({
+      paymentFlowMock.unlockCheck.mockResolvedValue({
         success: true
       });
 

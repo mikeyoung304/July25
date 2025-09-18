@@ -1,16 +1,19 @@
+import { vi } from 'vitest';
 import { PaymentFlowService } from '../payment-flow.service';
 import { TableCheckService } from '../table-check.service';
 import { TipCalculationService } from '../tip-calculation.service';
-import { jest } from '@jest/globals';
 
 // Mock dependencies
-jest.mock('../table-check.service');
-jest.mock('../tip-calculation.service');
-jest.mock('@supabase/supabase-js');
+vi.mock('../table-check.service');
+vi.mock('../tip-calculation.service');
+vi.mock('@supabase/supabase-js');
 
 describe('PaymentFlowService', () => {
+  const mockedTableCheck = vi.mocked(TableCheckService, true);
+  const mockedTipCalculation = vi.mocked(TipCalculationService, true);
+
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('presentTableCheck', () => {
@@ -25,7 +28,7 @@ describe('PaymentFlowService', () => {
         status: 'presented'
       };
 
-      (TableCheckService.presentCheck as jest.Mock).mockResolvedValue(mockCheck);
+      mockedTableCheck.presentCheck.mockResolvedValue(mockCheck);
 
       const result = await PaymentFlowService.presentTableCheck('table-1', 'rest-1');
       
@@ -34,7 +37,7 @@ describe('PaymentFlowService', () => {
     });
 
     it('should throw error for invalid table', async () => {
-      (TableCheckService.presentCheck as jest.Mock).mockRejectedValue(
+      mockedTableCheck.presentCheck.mockRejectedValue(
         new Error('Table not found')
       );
 
@@ -52,7 +55,7 @@ describe('PaymentFlowService', () => {
         total: 64.00
       };
 
-      (TipCalculationService.calculateTip as jest.Mock).mockResolvedValue(mockCalculation);
+      mockedTipCalculation.calculateTip.mockResolvedValue(mockCalculation);
 
       const result = await PaymentFlowService.calculateWithTip(
         'table-1',
@@ -77,7 +80,7 @@ describe('PaymentFlowService', () => {
         total: 62.50
       };
 
-      (TipCalculationService.calculateTip as jest.Mock).mockResolvedValue(mockCalculation);
+      mockedTipCalculation.calculateTip.mockResolvedValue(mockCalculation);
 
       const result = await PaymentFlowService.calculateWithTip(
         'table-1',
@@ -96,7 +99,7 @@ describe('PaymentFlowService', () => {
         total: 54.00
       };
 
-      (TipCalculationService.calculateTip as jest.Mock).mockResolvedValue(mockCalculation);
+      mockedTipCalculation.calculateTip.mockResolvedValue(mockCalculation);
 
       const result = await PaymentFlowService.calculateWithTip(
         'table-1',
@@ -126,7 +129,7 @@ describe('PaymentFlowService', () => {
       };
 
       // Mock internal methods
-      const mockProcessTerminal = jest.spyOn(
+      const mockProcessTerminal = vi.spyOn(
         PaymentFlowService as any,
         'processSquareTerminalPayment'
       ).mockResolvedValue(mockPayment);
@@ -156,7 +159,7 @@ describe('PaymentFlowService', () => {
         timestamp: new Date().toISOString()
       };
 
-      const mockProcessCash = jest.spyOn(
+      const mockProcessCash = vi.spyOn(
         PaymentFlowService as any,
         'processCashPayment'
       ).mockResolvedValue(mockPayment);
@@ -177,7 +180,7 @@ describe('PaymentFlowService', () => {
         deviceId: 'device-123'
       };
 
-      jest.spyOn(
+      vi.spyOn(
         PaymentFlowService as any,
         'processSquareTerminalPayment'
       ).mockRejectedValue(new Error('Card declined'));
@@ -200,7 +203,7 @@ describe('PaymentFlowService', () => {
         ]
       };
 
-      const mockCreateSplit = jest.spyOn(
+      const mockCreateSplit = vi.spyOn(
         TableCheckService,
         'splitCheck'
       ).mockResolvedValue(mockSession);
@@ -228,7 +231,7 @@ describe('PaymentFlowService', () => {
         status: 'completed'
       };
 
-      const mockProcessSplit = jest.spyOn(
+      const mockProcessSplit = vi.spyOn(
         PaymentFlowService as any,
         'processSplitPayment'
       ).mockResolvedValue(mockPayment);

@@ -1,22 +1,38 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import { useTablePayment } from '../useTablePayment';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import toast from 'react-hot-toast';
 
 // Mock dependencies
-jest.mock('@/hooks/useApiRequest');
-jest.mock('react-hot-toast');
+vi.mock('@/hooks/useApiRequest', () => ({
+  useApiRequest: vi.fn()
+}));
+vi.mock('react-hot-toast', () => {
+  const toastMock = {
+    success: vi.fn(),
+    error: vi.fn(),
+    loading: vi.fn(),
+    dismiss: vi.fn()
+  };
+  return {
+    __esModule: true,
+    default: toastMock,
+    toast: toastMock
+  };
+});
 
 describe('useTablePayment', () => {
   let mockApi: any;
+  const mockedUseApiRequest = vi.mocked(useApiRequest);
 
   beforeEach(() => {
     mockApi = {
-      get: jest.fn(),
-      post: jest.fn()
+      get: vi.fn(),
+      post: vi.fn()
     };
-    (useApiRequest as jest.Mock).mockReturnValue(mockApi);
-    jest.clearAllMocks();
+    mockedUseApiRequest.mockReturnValue(mockApi);
+    vi.clearAllMocks();
   });
 
   describe('presentCheck', () => {
@@ -71,20 +87,23 @@ describe('useTablePayment', () => {
         }
       };
 
-      mockApi.post.mockResolvedValue(mockResponse);
+      const initialCheck = {
+        id: 'check-1',
+        tableId: 'table-1',
+        subtotal: 50.0,
+        tax: 4.0,
+        tip: 0,
+        total: 54.0
+      };
+
+      mockApi.post
+        .mockResolvedValueOnce({ check: initialCheck })
+        .mockResolvedValueOnce(mockResponse);
 
       const { result } = renderHook(() => useTablePayment('table-1'));
 
-      // Set initial check
-      act(() => {
-        result.current.check = {
-          id: 'check-1',
-          tableId: 'table-1',
-          subtotal: 50.00,
-          tax: 4.00,
-          tip: 0,
-          total: 54.00
-        } as any;
+      await act(async () => {
+        await result.current.presentCheck();
       });
 
       await act(async () => {
@@ -133,11 +152,11 @@ describe('useTablePayment', () => {
 
       const { result } = renderHook(() => useTablePayment('table-1'));
 
-      await expect(
-        act(async () => {
-          await result.current.processPayment({ type: 'SQUARE_TERMINAL' });
-        })
-      ).rejects.toThrow('Card declined');
+      await act(async () => {
+        await expect(
+          result.current.processPayment({ type: 'SQUARE_TERMINAL' })
+        ).rejects.toThrow('Card declined');
+      });
 
       expect(result.current.error).toBe('Card declined');
       expect(toast.error).toHaveBeenCalledWith('Card declined');
@@ -220,7 +239,7 @@ describe('useTablePayment', () => {
     });
 
     it('should handle unlock errors silently', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockApi.post.mockRejectedValue(new Error('Network error'));
 
       const { result } = renderHook(() => useTablePayment('table-1'));

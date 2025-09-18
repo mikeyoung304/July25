@@ -9,6 +9,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    globals: true,
     setupFiles: ['tests/bootstrap.ts'],
     watch: false,
     reporters: 'dot',

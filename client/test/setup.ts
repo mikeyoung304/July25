@@ -7,11 +7,11 @@ import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { afterEach, afterAll, beforeAll, vi } from 'vitest'
 
-// Jest compatibility layer for tests still using Jest syntax
+// Vitest compatibility shim for tests still using Jest syntax
 // @ts-ignore - compatibility shim
-(globalThis as any).jest = vi;
+if (!(globalThis as any).jest) (globalThis as any).jest = vi;
 // @ts-ignore - compatibility shim
-(global as any).jest = vi;
+if (!(global as any).jest) (global as any).jest = vi;
 // Additional Jest compatibility properties
 // @ts-ignore - compatibility shim
 vi.Mock = vi.fn;
@@ -23,7 +23,7 @@ beforeAll(() => {
   }
 })
 
-// Comprehensive cleanup after each test
+// Prevent hanging tests: close sockets/timers if applicable
 afterEach(async () => {
   // React cleanup
   cleanup()

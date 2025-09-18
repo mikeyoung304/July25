@@ -2,19 +2,20 @@ import { normalizeVoiceSession, VoiceSessionRequest } from '../normalizeVoiceSes
 import { RestaurantService } from '../../services/restaurant.service';
 import { Request, Response, NextFunction } from 'express';
 import { PROVIDER_LIMITS } from '../../voice/sessionLimits';
+import { vi } from 'vitest';
 
 // Mock the restaurant service
-jest.mock('../../services/restaurant.service');
-const mockRestaurantService = RestaurantService as jest.Mocked<typeof RestaurantService>;
+vi.mock('../../services/restaurant.service');
+const mockRestaurantService = vi.mocked(RestaurantService, true);
 
 // Mock logger
-jest.mock('../../utils/logger', () => ({
+vi.mock('../../utils/logger', () => ({
   logger: {
     child: () => ({
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn()
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn()
     })
   }
 }));
@@ -30,10 +31,10 @@ describe('normalizeVoiceSession middleware', () => {
       restaurantId: 'test-restaurant'
     };
     res = {};
-    next = jest.fn();
+    next = vi.fn();
 
     // Clear mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Clear environment variables
     delete process.env.VOICE_TEMPERATURE;
