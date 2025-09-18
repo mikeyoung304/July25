@@ -1,4 +1,4 @@
-import { ParsedOrder, ParsedOrderSchema } from "../../../shared/types/orders";
+import { ParsedOrder, ParsedOrderSchema } from "@rebuild/shared/types/orders";
 
 type DraftItem = { name: string; quantity: number; modifications?: string[]; specialInstructions?: string };
 type DraftOrder = { items: DraftItem[]; notes?: string };

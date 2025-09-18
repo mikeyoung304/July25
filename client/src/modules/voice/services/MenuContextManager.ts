@@ -5,7 +5,7 @@
  */
 
 import { menuService } from '@/services';
-import { MenuItem } from '@/shared/types/menu.types';
+import { MenuItem } from '@rebuild/shared/types/menu.types';
 
 // Slot definition for required fields
 interface SlotDefinition {

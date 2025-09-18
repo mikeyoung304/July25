@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws';
 import { EventEmitter } from 'events';
 import { logger } from '../utils/logger';
-import { VoiceError } from '../../../shared/src/voice-types';
+import { VoiceError } from '@rebuild/shared/src/voice-types';
 
 interface OpenAIRealtimeEvent {
   type: string;

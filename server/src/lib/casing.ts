@@ -17,7 +17,7 @@ import type {
   OrderType,
   PaymentStatus,
   PaymentMethod
-} from '../../../shared/types/order.types.canonical';
+} from '@rebuild/shared/types/order.types.canonical';
 
 /**
  * Transform database row to application Order

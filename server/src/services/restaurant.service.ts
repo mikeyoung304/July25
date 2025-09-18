@@ -2,7 +2,7 @@ import NodeCache from 'node-cache';
 import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
 import { getConfig } from '../config/environment';
-import { Restaurant, RestaurantSettings, VoiceSettings } from '../../../shared/types';
+import { Restaurant, RestaurantSettings, VoiceSettings } from '@rebuild/shared/types';
 
 const config = getConfig();
 const restaurantCache = new NodeCache({ stdTTL: config.cache.ttlSeconds });
@@ -35,14 +35,7 @@ export class RestaurantService {
         .select(`
           id,
           name,
-          logo_url,
-          timezone,
-          currency,
-          tax_rate,
-          default_tip_percentages,
-          settings,
-          created_at,
-          updated_at
+          settings
         `)
         .eq('id', restaurantId)
         .single();
@@ -60,6 +53,60 @@ export class RestaurantService {
     } catch (error) {
       serviceLogger.error('Error fetching restaurant', {
         restaurantId,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      return null;
+    }
+  }
+
+  /**
+   * Get restaurant by name (case-insensitive)
+   */
+  static async getRestaurantByName(name: string): Promise<Restaurant | null> {
+    const cacheKey = `${CACHE_KEYS.RESTAURANT}name:${name.toLowerCase()}`;
+
+    // Check cache first
+    const cached = restaurantCache.get<Restaurant>(cacheKey);
+    if (cached) {
+      serviceLogger.debug('Restaurant name cache hit', { name });
+      return cached;
+    }
+
+    serviceLogger.info('Attempting to fetch restaurant by name', { name });
+
+    try {
+      const { data: restaurants, error } = await supabase
+        .from('restaurants')
+        .select(`
+          id,
+          name,
+          settings
+        `)
+        .ilike('name', name);
+
+      serviceLogger.info('Supabase query result', {
+        name,
+        error: error?.message,
+        count: restaurants?.length,
+        data: restaurants
+      });
+
+      if (error || !restaurants || restaurants.length === 0) {
+        serviceLogger.debug('Restaurant not found by name', { name, error: error?.message });
+        return null;
+      }
+
+      const restaurant = restaurants[0];
+
+      // Cache the result by both name and ID
+      restaurantCache.set(cacheKey, restaurant);
+      restaurantCache.set(`${CACHE_KEYS.RESTAURANT}${restaurant.id}`, restaurant);
+      serviceLogger.debug('Restaurant cached by name', { name, id: restaurant.id });
+
+      return restaurant;
+    } catch (error) {
+      serviceLogger.error('Error fetching restaurant by name', {
+        name,
         error: error instanceof Error ? error.message : 'Unknown error'
       });
       return null;

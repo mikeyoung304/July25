@@ -21,7 +21,7 @@ export {
   SessionStateSchema,
   VoiceMetricsSchema,
   VoiceErrorSchema,
-} from '../../../shared/src/voice-types';
+} from '@rebuild/shared/src/voice-types';
 
 // Server-specific types and schemas
 export const VoiceSessionConfigSchema = z.object({

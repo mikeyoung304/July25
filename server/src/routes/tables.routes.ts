@@ -3,7 +3,7 @@ import { logger } from '../utils/logger'
 import { supabase } from '../config/database';
 import { validateRestaurantAccess, AuthenticatedRequest } from '../middleware/auth';
 import { getConfig } from '../config/environment';
-import { Table, TableStatus } from '../../../shared/types/table.types';
+import { Table, TableStatus } from '@rebuild/shared/types/table.types';
 
 const router = Router();
 const config = getConfig();

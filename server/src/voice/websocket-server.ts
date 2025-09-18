@@ -7,7 +7,7 @@ import {
   SessionState, 
   VoiceMetrics,
   VoiceError 
-} from '../../../shared/src/voice-types';
+} from '@rebuild/shared/src/voice-types';
 import { OpenAIAdapter } from './openai-adapter';
 
 interface VoiceSession {
