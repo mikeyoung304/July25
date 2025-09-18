@@ -49,7 +49,10 @@ jobs:
         
       - name: Type check
         run: npm run typecheck
-        
+
+      - name: Verify RLS policies
+        run: npm run check:rls
+
       - name: Run tests
         run: npm test -- --runInBand --maxWorkers=2
         env:
