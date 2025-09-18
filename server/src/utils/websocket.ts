@@ -70,8 +70,26 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
       wsLogger.info(`WebSocket disconnected: ${ws.userId}`);
     });
 
-    ws.on('error', (error) => {
+    ws.on('error', async (error: any) => {
       wsLogger.error('WebSocket error:', error);
+
+      // Handle reconnection auth for connection reset errors
+      if (error && error.message && error.message.includes('ECONNRESET')) {
+        try {
+          const auth = await verifyWebSocketAuth(request);
+          if (!auth) {
+            wsLogger.warn('Reconnection auth failed, closing connection');
+            ws.close(1008, 'Unauthorized');
+            return;
+          }
+          ws.userId = auth.userId;
+          ws.restaurantId = auth.restaurantId;
+          wsLogger.info('WebSocket re-authenticated after reconnection');
+        } catch (authError) {
+          wsLogger.error('Reconnection auth error:', authError);
+          ws.close(1008, 'Authentication failed');
+        }
+      }
     });
 
     // Send welcome message
