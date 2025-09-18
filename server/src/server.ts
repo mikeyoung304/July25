@@ -8,8 +8,6 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 // Now import everything else
 import express, { Express } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
@@ -22,7 +20,7 @@ import { validateEnvironment } from './config/environment';
 import { aiService } from './services/ai.service';
 import { setupWebSocketHandlers } from './utils/websocket';
 import { setupAIWebSocket } from './ai/websocket';
-import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
+import { voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
 import { realtimeRoutes } from './routes/realtime.routes';
@@ -48,60 +46,8 @@ export const wss = new WebSocketServer({
 OrdersService.setWebSocketServer(wss);
 
 // Global middleware
-// Apply comprehensive security middleware
-applySecurity(app)
-
-// CORS configuration - use environment variables only
-const allowedOrigins: string[] = [];
-
-// Add frontend URL (development or production)
-if (process.env['FRONTEND_URL']) {
-  allowedOrigins.push(process.env['FRONTEND_URL']);
-} else if (process.env['NODE_ENV'] === 'development') {
-  allowedOrigins.push('http://localhost:5173');
-}
-
-// Add additional allowed origins from environment
-if (process.env['ALLOWED_ORIGINS']) {
-  const additionalOrigins = process.env['ALLOWED_ORIGINS']
-    .split(',')
-    .map(origin => origin.trim())
-    .filter(origin => origin.length > 0);
-  allowedOrigins.push(...additionalOrigins);
-}
-
-// Ensure we have at least one origin in development
-if (allowedOrigins.length === 0 && process.env['NODE_ENV'] === 'development') {
-  allowedOrigins.push('http://localhost:5173');
-}
-
-logger.info('🔧 CORS allowed origins:', allowedOrigins);
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, server-to-server)
-    if (!origin) {
-      return callback(null, true);
-    }
-    
-    // Check if origin is in allowed list
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      logger.warn(`⚠️ CORS blocked origin: "${origin}"`);
-      logger.debug(`   Allowed origins:`, allowedOrigins);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id', 'x-request-id', 'X-CSRF-Token'],
-  exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset'],
-  maxAge: 86400, // 24 hours
-}));
-
-// Handle preflight requests
-app.options('*', cors());
+// Apply comprehensive security middleware (helmet + CORS + API rate limiting)
+applySecurity(app);
 
 // Cookie parser for CSRF
 app.use(cookieParser());
@@ -130,8 +76,7 @@ app.get('/internal/metrics', authenticate, requireRole(['admin']), (_req, res) =
   });
 });
 
-// Rate limiting
-app.use('/api/', apiLimiter);
+// Additional rate limiting for sensitive surfaces
 app.use('/api/v1/orders/voice', voiceOrderLimiter);
 app.use('/health', healthCheckLimiter);
 

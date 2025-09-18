@@ -1,7 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Express, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import crypto from 'crypto';
 import { logger } from '../utils/logger';
+import cors, { CorsOptions } from 'cors';
+import { apiLimiter } from './rateLimiter';
 
 /**
  * Comprehensive security middleware for Restaurant OS
@@ -264,13 +266,65 @@ export const detectSuspiciousActivity = (req: Request, res: Response, next: Next
 };
 
 // Apply all security middleware
-export const applySecurity = (app: any) => {
-  // Apply in order
+const buildAllowedOrigins = (): string[] => {
+  const origins = new Set<string>();
+
+  const primary = process.env['FRONTEND_URL'];
+  if (primary) origins.add(primary);
+
+  const additional = process.env['ALLOWED_ORIGINS'];
+  if (additional) {
+    additional.split(',')
+      .map(origin => origin.trim())
+      .filter(Boolean)
+      .forEach(origin => origins.add(origin));
+  }
+
+  if (origins.size === 0 && process.env['NODE_ENV'] === 'development') {
+    origins.add('http://localhost:5173');
+  }
+
+  return Array.from(origins);
+};
+
+const createCorsMiddleware = () => {
+  const allowedOrigins = buildAllowedOrigins();
+  const options: CorsOptions = {
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      logger.warn('⚠️ CORS blocked origin', { origin });
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id', 'x-request-id', 'X-CSRF-Token'],
+    exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset'],
+    maxAge: 86400,
+  };
+
+  return { middleware: cors(options), allowedOrigins };
+};
+
+export const applySecurity = (app: Express) => {
+  const { middleware: corsMiddleware, allowedOrigins } = createCorsMiddleware();
+  logger.info('🔐 CORS allowed origins', { allowedOrigins });
+
+  app.use(corsMiddleware);
+  app.options('*', corsMiddleware);
+
   app.use(extractIP);
   app.use(nonceMiddleware);
   app.use(securityHeaders());
   app.use(requestSizeLimit('10mb'));
   app.use(detectSuspiciousActivity);
+  app.use('/api', apiLimiter);
 };
 
 // Export for use in routes
@@ -283,4 +337,5 @@ export default {
   requestSizeLimit,
   extractIP,
   detectSuspiciousActivity,
+  buildAllowedOrigins,
 };

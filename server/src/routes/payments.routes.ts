@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import { authenticate, AuthenticatedRequest, validateRestaurantAccess } from '../middleware/auth';
 import { requireScopes, ApiScope } from '../middleware/rbac';
 import { BadRequest } from '../middleware/errorHandler';
@@ -8,12 +9,42 @@ import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
 import { PaymentService } from '../services/payment.service';
 import { SquareAdapter } from '../payments/square.adapter';
+import { verifySquareWebhookSignature } from '../middleware/webhookSignature';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'payments' });
 
 // In-memory storage for development (replace with database in production)
 const paymentStore = new Map<string, any>();
+
+const createIntentSchema = z.object({
+  amount: z.coerce.number().positive(),
+  currency: z.string().min(1).optional().default('USD'),
+  orderDraftId: z.string().min(1).optional(),
+  mode: z.string().min(1).optional().default('voice_customer'),
+});
+
+const createPaymentSchema = z.object({
+  orderId: z.string().min(1),
+  token: z.string().min(1),
+  amount: z.coerce.number().positive().optional(),
+  idempotencyKey: z.string().min(1).optional(),
+  verificationToken: z.string().min(1).optional(),
+});
+
+const refundPaymentSchema = z.object({
+  amount: z.coerce.number().positive().optional(),
+  reason: z.string().trim().max(256).optional(),
+});
+
+const squareWebhookSchema = z.object({
+  type: z.string(),
+  data: z.object({
+    object: z.object({
+      payment: z.record(z.any()).optional(),
+    }).passthrough(),
+  }).passthrough(),
+}).passthrough();
 
 // Initialize payment adapter
 const squareAdapter = new SquareAdapter();
@@ -44,12 +75,8 @@ router.post('/intent',
   validateRestaurantAccess,
   async (req: AuthenticatedRequest, res, next) => {
     try {
-      const { amount, currency = 'USD', orderDraftId, mode = 'voice_customer' } = req.body;
+      const { amount, currency, orderDraftId, mode } = createIntentSchema.parse(req.body);
       const restaurantId = req.restaurantId!;
-
-      if (!amount || amount <= 0) {
-        throw BadRequest('Invalid amount');
-      }
 
       routeLogger.info('Creating payment intent', {
         amount,
@@ -123,7 +150,7 @@ router.get('/status/:id',
       routeLogger.info('Checking payment status', { paymentId: id, restaurantId });
 
       // Get payment record from memory store
-      let paymentRecord = paymentStore.get(id);
+      const paymentRecord = paymentStore.get(id);
 
       if (!paymentRecord) {
         throw BadRequest('Payment not found');
@@ -165,15 +192,8 @@ router.post('/create',
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
     const restaurantId = req.restaurantId!;
-    const { orderId, token, amount, idempotencyKey } = req.body;
-
-    // Validate required fields
-    if (!orderId) {
-      throw BadRequest('Order ID is required');
-    }
-    if (!token) {
-      throw BadRequest('Payment token is required');
-    }
+    const payload = createPaymentSchema.parse(req.body);
+    const { orderId, token, amount, idempotencyKey, verificationToken } = payload;
 
     routeLogger.info('Processing payment request', { 
       restaurantId, 
@@ -218,7 +238,7 @@ router.post('/create',
         referenceId: orderId,
         note: `Payment for order #${(order as any).order_number}`,
         // Enable verification token for 3D Secure if provided
-        ...(req.body.verificationToken && { verificationToken: req.body.verificationToken }),
+        ...(verificationToken && { verificationToken }),
       };
 
       // Check if we're in demo mode (no Square credentials)
@@ -309,7 +329,7 @@ router.post('/create',
         const firstError = errors[0];
         await PaymentService.logPaymentAttempt({
           orderId,
-          amount: req.body.amount || 0,
+        amount: amount || 0,
           status: 'failed',
           restaurantId: restaurantId,
           paymentMethod: 'card',
@@ -357,11 +377,11 @@ router.post('/create',
     routeLogger.error('Payment processing failed', { error });
     
     // Update order payment status to failed
-    if (req.body.orderId) {
+    if (orderId) {
       try {
         await OrdersService.updateOrderPayment(
           req.restaurantId!,
-          req.body.orderId,
+          orderId,
           'failed',
           'card'
         );
@@ -417,7 +437,7 @@ router.post('/:paymentId/refund',
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
     const { paymentId } = req.params;
-    const { amount, reason } = req.body;
+    const { amount, reason } = refundPaymentSchema.parse(req.body);
 
     routeLogger.info('Processing refund', { paymentId, amount, reason });
 
@@ -496,28 +516,31 @@ router.post('/:paymentId/refund',
 });
 
 // POST /api/v1/webhooks/payments - Handle payment webhooks
-router.post('/webhooks/payments', async (req, res, next) => {
+router.post('/webhooks/payments', verifySquareWebhookSignature, async (req, res, next) => {
   try {
-    const signature = req.headers['x-square-hmacsha256-signature'] as string;
-    const body = JSON.stringify(req.body);
+    const event = squareWebhookSchema.safeParse(req.body);
 
-    // TODO: Verify webhook signature in production
-    routeLogger.info('Payment webhook received', {
-      type: req.body.type,
-      data: req.body.data
-    });
+    if (!event.success) {
+      routeLogger.warn('Invalid webhook payload received', {
+        issues: event.error.issues,
+      });
+      return res.status(400).json({ error: 'Invalid webhook payload' });
+    }
 
-    // Handle different webhook events
-    if (req.body.type === 'payment.created' || req.body.type === 'payment.updated') {
-      const payment = req.body.data?.object?.payment;
+    routeLogger.info('Payment webhook received', { type: event.data.type });
+
+    if (event.data.type === 'payment.created' || event.data.type === 'payment.updated') {
+      const payment = event.data.data.object.payment;
       if (payment) {
-        const orderId = payment.order_id;
-        const status = payment.status === 'COMPLETED' ? 'succeeded' :
-                       payment.status === 'FAILED' ? 'failed' : 'pending';
+        const orderId = payment.order_id ?? payment.id;
+        const status = payment.status === 'COMPLETED'
+          ? 'succeeded'
+          : payment.status === 'FAILED'
+            ? 'failed'
+            : 'pending';
 
-        // Update payment status in memory store
         for (const [id, record] of paymentStore.entries()) {
-          if (record.checkoutId === orderId) {
+          if (record.checkoutId === orderId || record.id === orderId) {
             record.status = status;
             record.updatedAt = new Date().toISOString();
             paymentStore.set(id, record);
@@ -525,17 +548,14 @@ router.post('/webhooks/payments', async (req, res, next) => {
           }
         }
 
-        routeLogger.info('Payment status updated via webhook', {
-          orderId,
-          status
-        });
+        routeLogger.info('Payment status updated via webhook', { orderId, status });
       }
     }
 
     res.status(200).json({ received: true });
   } catch (error) {
     logger.error('Webhook processing error', { error });
-    res.status(200).json({ received: true }); // Always return 200 to avoid retries
+    res.status(200).json({ received: true });
   }
 });
 

@@ -13,6 +13,7 @@ import { realtimeRoutes } from './realtime.routes';
 import metricsRoutes from './metrics';
 import securityRoutes from './security.routes';
 import webhooksRoutes from './webhooks.routes';
+import { strictAuth } from '../middleware/strict-auth';
 
 export function setupRoutes(): Router {
   const router = Router();
@@ -26,39 +27,43 @@ export function setupRoutes(): Router {
   // Authentication routes
   router.use('/auth', authRoutes);
 
-  // Security monitoring routes (admin only)
-  router.use('/security', securityRoutes);
-
-  // Menu management routes
-  router.use('/menu', menuRoutes);
-
-  // Order processing routes
-  router.use('/orders', orderRoutes);
-
-  // Payment processing routes
-  router.use('/payments', paymentRoutes);
-
-  // Terminal payment routes
-  router.use('/terminal', terminalRoutes);
-
-  // Table management routes
-  router.use('/tables', tableRoutes);
-  
-  // Table payment routes
-  router.use('/tables', tablePaymentRoutes);
-  router.use('/payments', tablePaymentRoutes);
-
-  // AI service routes
-  router.use('/ai', aiRoutes);
-
-  // Restaurant management routes
-  router.use('/restaurants', restaurantRoutes);
-
-  // Real-time voice ordering routes
-  router.use('/realtime', realtimeRoutes);
-
   // Webhook routes (no auth required - verified by signature)
   router.use('/webhooks', webhooksRoutes);
+
+  // Secure routes require strict auth headers
+  const protectedRoutes = Router();
+  protectedRoutes.use(strictAuth());
+
+  // Security monitoring routes (admin only)
+  protectedRoutes.use('/security', securityRoutes);
+
+  // Menu management routes
+  protectedRoutes.use('/menu', menuRoutes);
+
+  // Order processing routes
+  protectedRoutes.use('/orders', orderRoutes);
+
+  // Payment processing routes
+  protectedRoutes.use('/payments', paymentRoutes);
+
+  // Terminal payment routes
+  protectedRoutes.use('/terminal', terminalRoutes);
+
+  // Table management routes (may share prefix)
+  protectedRoutes.use('/tables', tableRoutes);
+  protectedRoutes.use('/tables', tablePaymentRoutes);
+  protectedRoutes.use('/payments', tablePaymentRoutes);
+
+  // AI service routes
+  protectedRoutes.use('/ai', aiRoutes);
+
+  // Restaurant management routes
+  protectedRoutes.use('/restaurants', restaurantRoutes);
+
+  // Real-time voice ordering routes
+  protectedRoutes.use('/realtime', realtimeRoutes);
+
+  router.use('/', protectedRoutes);
 
   return router;
 }
