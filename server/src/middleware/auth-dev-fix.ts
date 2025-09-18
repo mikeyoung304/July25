@@ -50,7 +50,7 @@ export async function validateRestaurantAccessFixed(
 
     if (!roleData) {
       // DEVELOPMENT FIX: Allow access without membership in development mode
-      if (process.env.NODE_ENV === 'development' || process.env.BYPASS_RESTAURANT_MEMBERSHIP === 'true') {
+      if (process.env['NODE_ENV'] === 'development' || process.env['BYPASS_RESTAURANT_MEMBERSHIP'] === 'true') {
         logger.warn('⚠️ Development mode: Bypassing restaurant membership check', {
           userId: req.user.id,
           restaurantId: req.restaurantId,
@@ -111,7 +111,7 @@ export async function validateRestaurantAccessFixed(
 export const DEVELOPMENT_BYPASS_PATCH = `
     if (!roleData) {
       // DEVELOPMENT FIX: Allow access without membership in development mode
-      if (process.env.NODE_ENV === 'development' || process.env.BYPASS_RESTAURANT_MEMBERSHIP === 'true') {
+      if (process.env['NODE_ENV'] === 'development' || process.env['BYPASS_RESTAURANT_MEMBERSHIP'] === 'true') {
         logger.warn('⚠️ Development mode: Bypassing restaurant membership check', {
           userId: req.user.id,
           restaurantId: req.restaurantId,

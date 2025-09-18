@@ -60,8 +60,8 @@ export class AuthenticationService {
   private readonly supabaseJwtSecret: string;
 
   constructor() {
-    this.jwtSecret = config.jwtSecret || process.env.KIOSK_JWT_SECRET || '';
-    this.supabaseJwtSecret = process.env.SUPABASE_JWT_SECRET || '';
+    this.jwtSecret = config.jwtSecret || process.env['KIOSK_JWT_SECRET'] || '';
+    this.supabaseJwtSecret = process.env['SUPABASE_JWT_SECRET'] || '';
     
     if (!this.jwtSecret && !this.supabaseJwtSecret) {
       throw new Error('No JWT secrets configured');

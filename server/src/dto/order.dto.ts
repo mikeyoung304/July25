@@ -72,7 +72,7 @@ export function transformLegacyOrderPayload(payload: any): any {
       delete transformed[snakeKey];
 
       // Dev warning for legacy snake_case usage
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         console.warn(`⚠️ Client sent snake_case field '${snakeKey}' - should use '${camelKey}' instead`);
       }
     }

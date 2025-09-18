@@ -37,11 +37,11 @@ describe('normalizeVoiceSession middleware', () => {
     vi.clearAllMocks();
 
     // Clear environment variables
-    delete process.env.VOICE_TEMPERATURE;
-    delete process.env.VOICE_TOP_P;
-    delete process.env.VOICE_PRESENCE_PENALTY;
-    delete process.env.VOICE_FREQUENCY_PENALTY;
-    delete process.env.VOICE_MAX_TOKENS;
+    delete process.env['VOICE_TEMPERATURE'];
+    delete process.env['VOICE_TOP_P'];
+    delete process.env['VOICE_PRESENCE_PENALTY'];
+    delete process.env['VOICE_FREQUENCY_PENALTY'];
+    delete process.env['VOICE_MAX_TOKENS'];
   });
 
   describe('fallback chain priority', () => {
@@ -53,8 +53,8 @@ describe('normalizeVoiceSession middleware', () => {
       });
 
       // Setup environment overrides
-      process.env.VOICE_TEMPERATURE = '0.7';
-      process.env.VOICE_TOP_P = '0.8';
+      process.env['VOICE_TEMPERATURE'] = '0.7';
+      process.env['VOICE_TOP_P'] = '0.8';
 
       // Setup request parameters (highest priority)
       req.body = {
@@ -78,8 +78,8 @@ describe('normalizeVoiceSession middleware', () => {
       });
 
       // Setup environment overrides
-      process.env.VOICE_TEMPERATURE = '0.7';
-      process.env.VOICE_TOP_P = '0.8';
+      process.env['VOICE_TEMPERATURE'] = '0.7';
+      process.env['VOICE_TOP_P'] = '0.8';
 
       req.body = { mode: 'customer' };
 

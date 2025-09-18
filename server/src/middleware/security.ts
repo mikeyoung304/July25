@@ -21,7 +21,7 @@ export const nonceMiddleware = (req: Request, res: Response, next: NextFunction)
 
 // Enhanced security headers configuration
 export const securityHeaders = () => {
-  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const isDevelopment = process.env['NODE_ENV'] !== 'production';
   
   return helmet({
     // Content Security Policy
@@ -150,7 +150,7 @@ class SecurityMonitor {
     }
     
     // Log security events in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
       logger.info('[SECURITY] Security event logged', fullEvent);
     }
     
@@ -250,7 +250,7 @@ export const detectSuspiciousActivity = (req: Request, res: Response, next: Next
     });
     
     // In production, you might want to block these requests
-    if (process.env.NODE_ENV === 'production' && suspicious.length > 1) {
+    if (process.env['NODE_ENV'] === 'production' && suspicious.length > 1) {
       return res.status(400).json({
         error: {
           code: 'SUSPICIOUS_REQUEST',

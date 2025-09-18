@@ -21,22 +21,22 @@ export interface FeatureFlags {
  */
 const defaultFlags: FeatureFlags = {
   // Core auth v2 system - controls edge normalization
-  AUTH_V2: process.env.FEATURE_AUTH_V2 === 'true' || process.env.NODE_ENV === 'development',
+  AUTH_V2: process.env['FEATURE_AUTH_V2'] === 'true' || process.env['NODE_ENV'] === 'development',
   
   // Strict DTO validation - rejects snake_case when true
-  STRICT_DTO_VALIDATION: process.env.FEATURE_STRICT_DTO === 'true' || false,
+  STRICT_DTO_VALIDATION: process.env['FEATURE_STRICT_DTO'] === 'true' || false,
   
   // Idempotency for order creation
-  IDEMPOTENCY_ENABLED: process.env.FEATURE_IDEMPOTENCY === 'true' || process.env.NODE_ENV === 'development',
+  IDEMPOTENCY_ENABLED: process.env['FEATURE_IDEMPOTENCY'] === 'true' || process.env['NODE_ENV'] === 'development',
   
   // Voice order deduplication on client
-  VOICE_DEDUPLICATION: process.env.FEATURE_VOICE_DEDUPE === 'true' || true,
+  VOICE_DEDUPLICATION: process.env['FEATURE_VOICE_DEDUPE'] === 'true' || true,
   
   // Require restaurant context for writes
-  REQUIRE_RESTAURANT_CONTEXT: process.env.FEATURE_REQUIRE_CONTEXT === 'true' || process.env.NODE_ENV === 'development',
+  REQUIRE_RESTAURANT_CONTEXT: process.env['FEATURE_REQUIRE_CONTEXT'] === 'true' || process.env['NODE_ENV'] === 'development',
   
   // Cache auth role lookups
-  CACHE_AUTH_ROLES: process.env.FEATURE_CACHE_ROLES === 'true' || true
+  CACHE_AUTH_ROLES: process.env['FEATURE_CACHE_ROLES'] === 'true' || true
 };
 
 /**

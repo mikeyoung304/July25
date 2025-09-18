@@ -380,7 +380,7 @@ router.get('/devices', authenticate, validateRestaurantAccess, async (req: Authe
 
     try {
       const { result } = await terminalApi.listDeviceCodes({
-        locationId: process.env.SQUARE_LOCATION_ID,
+        locationId: process.env['SQUARE_LOCATION_ID'],
         productType: 'TERMINAL_API',
         status: 'PAIRED',
       });

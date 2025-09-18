@@ -85,7 +85,7 @@ export function createTwilioRoutes(): Router {
 
     // Custom parameters to pass to WebSocket
     const customParameters = {
-      restaurantId: process.env.RESTAURANT_ID || 'default',
+      restaurantId: process.env['RESTAURANT_ID'] || 'default',
       callSid: CallSid
     };
 
@@ -174,7 +174,7 @@ export function attachTwilioWebSocket(server: HTTPServer): void {
     const sessionId = uuidv4();
     let streamSid: string | null = null;
     let adapter: EnhancedOpenAIAdapter | null = null;
-    let restaurantId = process.env.RESTAURANT_ID || 'default';
+    let restaurantId = process.env['RESTAURANT_ID'] || 'default';
     let callSid: string | null = null;
 
     logger.info('[Twilio] WebSocket connection established', {

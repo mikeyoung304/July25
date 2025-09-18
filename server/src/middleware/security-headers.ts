@@ -23,7 +23,7 @@ export function getCSPDirectives(nonce?: string): string {
     'default-src': ["'self'"],
     'script-src': [
       "'self'",
-      process.env.NODE_ENV === 'development' ? "'unsafe-inline'" : `'nonce-${nonce}'`,
+      process.env['NODE_ENV'] === 'development' ? "'unsafe-inline'" : `'nonce-${nonce}'`,
       'https://js.stripe.com',
       'https://checkout.stripe.com',
       'https://*.sentry.io',
@@ -54,7 +54,7 @@ export function getCSPDirectives(nonce?: string): string {
       'https://*.stripe.com',
       'https://*.sentry.io',
       'wss://localhost:*', // Development WebSocket
-      process.env.VITE_API_BASE_URL || '',
+      process.env['VITE_API_BASE_URL'] || '',
     ],
     'media-src': [
       "'self'",
@@ -74,7 +74,7 @@ export function getCSPDirectives(nonce?: string): string {
       'blob:',
     ],
     'manifest-src': ["'self'"],
-    'upgrade-insecure-requests': process.env.NODE_ENV === 'production' ? [''] : [],
+    'upgrade-insecure-requests': process.env['NODE_ENV'] === 'production' ? [''] : [],
   };
 
   // Build CSP string
@@ -91,9 +91,9 @@ export function getCSPDirectives(nonce?: string): string {
 
 export function securityHeaders(config?: Partial<SecurityConfig>) {
   const settings: SecurityConfig = {
-    enableCSP: process.env.CSP_ENABLED === 'true' || process.env.NODE_ENV === 'production',
-    enableHSTS: process.env.HSTS_ENABLED === 'true' || process.env.NODE_ENV === 'production',
-    isDevelopment: process.env.NODE_ENV === 'development',
+    enableCSP: process.env['CSP_ENABLED'] === 'true' || process.env['NODE_ENV'] === 'production',
+    enableHSTS: process.env['HSTS_ENABLED'] === 'true' || process.env['NODE_ENV'] === 'production',
+    isDevelopment: process.env['NODE_ENV'] === 'development',
     ...config,
   };
 
@@ -108,7 +108,7 @@ export function securityHeaders(config?: Partial<SecurityConfig>) {
 
     // Content Security Policy
     if (settings.enableCSP) {
-      const cspDirectives = process.env.CSP_DIRECTIVES || getCSPDirectives(nonce);
+      const cspDirectives = process.env['CSP_DIRECTIVES'] || getCSPDirectives(nonce);
       res.setHeader('Content-Security-Policy', cspDirectives);
       
       // Report-only mode for development
@@ -119,7 +119,7 @@ export function securityHeaders(config?: Partial<SecurityConfig>) {
 
     // HTTP Strict Transport Security
     if (settings.enableHSTS && !settings.isDevelopment) {
-      const maxAge = process.env.HSTS_MAX_AGE || '31536000'; // 1 year
+      const maxAge = process.env['HSTS_MAX_AGE'] || '31536000'; // 1 year
       res.setHeader('Strict-Transport-Security', `max-age=${maxAge}; includeSubDomains; preload`);
     }
 
@@ -175,8 +175,8 @@ export function securityHeaders(config?: Partial<SecurityConfig>) {
 // CORS configuration for production
 export function getCORSOptions() {
   const allowedOrigins = [
-    process.env.CLIENT_URL,
-    process.env.FRONTEND_URL,
+    process.env['CLIENT_URL'],
+    process.env['FRONTEND_URL'],
     'https://checkout.stripe.com',
   ].filter(Boolean);
 
@@ -188,7 +188,7 @@ export function getCORSOptions() {
       }
 
       // Check if origin is allowed
-      if (process.env.NODE_ENV === 'development' || allowedOrigins.includes(origin)) {
+      if (process.env['NODE_ENV'] === 'development' || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));

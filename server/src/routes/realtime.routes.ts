@@ -18,7 +18,7 @@ router.post('/session', authenticate, normalizeVoiceSession, async (req: Authent
     const { mode = 'customer' } = req.body; // Get mode from request body
     
     // Set mode for this session (will be used by EnhancedOpenAIAdapter)
-    process.env.VOICE_MODE = mode;
+    process.env['VOICE_MODE'] = mode;
     
     realtimeLogger.info('Creating ephemeral token for real-time session', {
       userId: req.user?.id,
@@ -116,11 +116,11 @@ router.post('/session', authenticate, normalizeVoiceSession, async (req: Authent
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${process.env['OPENAI_API_KEY']}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03'
+        model: process.env['OPENAI_REALTIME_MODEL'] || 'gpt-4o-realtime-preview-2025-06-03'
         // DO NOT configure session parameters here - client will configure after connection
       }),
     });
@@ -174,15 +174,15 @@ router.post('/session', authenticate, normalizeVoiceSession, async (req: Authent
  * Health check for real-time service
  */
 router.get('/health', (_req, res: Response) => {
-  const apiKeyPresent = !!process.env.OPENAI_API_KEY;
-  const modelConfigured = !!process.env.OPENAI_REALTIME_MODEL;
+  const apiKeyPresent = !!process.env['OPENAI_API_KEY'];
+  const modelConfigured = !!process.env['OPENAI_REALTIME_MODEL'];
   
   const health = {
     status: apiKeyPresent && modelConfigured ? 'healthy' : 'unhealthy',
     checks: {
       api_key: apiKeyPresent,
       model_configured: modelConfigured,
-      model: process.env.OPENAI_REALTIME_MODEL || 'not-configured'
+      model: process.env['OPENAI_REALTIME_MODEL'] || 'not-configured'
     },
     timestamp: new Date().toISOString()
   };

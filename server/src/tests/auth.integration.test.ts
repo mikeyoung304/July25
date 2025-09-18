@@ -20,7 +20,7 @@ function createTestToken(role: DatabaseRole, userId: string = 'test-user-123'): 
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600
     },
-    process.env.KIOSK_JWT_SECRET || 'test-secret'
+    process.env['KIOSK_JWT_SECRET'] || 'test-secret'
   );
 }
 

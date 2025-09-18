@@ -455,7 +455,7 @@ export function createDebugDashboard(): Router {
       
       const adapter = new EnhancedOpenAIAdapter(
         testSessionId,
-        process.env.RESTAURANT_ID || 'default'
+        process.env['RESTAURANT_ID'] || 'default'
       );
       
       await adapter.connect();
@@ -608,7 +608,7 @@ export function updateMetrics(update: Partial<typeof debugData.metrics>): void {
  * Log audio buffer (only if recording is enabled)
  */
 export function logAudioBuffer(sessionId: string, buffer: Buffer): void {
-  if (process.env.VOICE_RECORD_AUDIO !== 'true') {
+  if (process.env['VOICE_RECORD_AUDIO'] !== 'true') {
     return;
   }
   

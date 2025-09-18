@@ -103,7 +103,7 @@ export class EnhancedOpenAIAdapter extends OpenAIAdapter {
    */
   private getSystemPrompt(): string {
     // Check if running in server mode (for restaurant staff)
-    const isServerMode = process.env.VOICE_MODE === 'server';
+    const isServerMode = process.env['VOICE_MODE'] === 'server';
     
     if (isServerMode) {
       return `You are a restaurant order assistant for SERVERS taking tableside orders.

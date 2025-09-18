@@ -73,7 +73,7 @@ router.get('/health/detailed', async (_req, res) => {
 /**
  * Test error endpoint (development only)
  */
-if (process.env.NODE_ENV === 'development') {
+if (process.env['NODE_ENV'] === 'development') {
   router.post('/test/error', (_req, _res) => {
     throw new Error('Test error for monitoring integration');
   });

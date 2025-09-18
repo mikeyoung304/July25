@@ -55,15 +55,15 @@ applySecurity(app)
 const allowedOrigins: string[] = [];
 
 // Add frontend URL (development or production)
-if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
-} else if (process.env.NODE_ENV === 'development') {
+if (process.env['FRONTEND_URL']) {
+  allowedOrigins.push(process.env['FRONTEND_URL']);
+} else if (process.env['NODE_ENV'] === 'development') {
   allowedOrigins.push('http://localhost:5173');
 }
 
 // Add additional allowed origins from environment
-if (process.env.ALLOWED_ORIGINS) {
-  const additionalOrigins = process.env.ALLOWED_ORIGINS
+if (process.env['ALLOWED_ORIGINS']) {
+  const additionalOrigins = process.env['ALLOWED_ORIGINS']
     .split(',')
     .map(origin => origin.trim())
     .filter(origin => origin.length > 0);
@@ -71,7 +71,7 @@ if (process.env.ALLOWED_ORIGINS) {
 }
 
 // Ensure we have at least one origin in development
-if (allowedOrigins.length === 0 && process.env.NODE_ENV === 'development') {
+if (allowedOrigins.length === 0 && process.env['NODE_ENV'] === 'development') {
   allowedOrigins.push('http://localhost:5173');
 }
 
@@ -150,7 +150,7 @@ app.get('/health', (_req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV,
+    environment: process.env['NODE_ENV'],
   });
 });
 
@@ -165,7 +165,7 @@ setupWebSocketHandlers(wss);
 setupAIWebSocket(wss);
 
 // Start server
-const PORT = process.env.PORT || 3001;
+const PORT = process.env['PORT'] || 3001;
 
 async function startServer() {
   try {
@@ -174,7 +174,7 @@ async function startServer() {
     
     // Initialize menu context for AI service
     try {
-      const restaurantId = process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
+      const restaurantId = process.env['DEFAULT_RESTAURANT_ID'] || '11111111-1111-1111-1111-111111111111';
       await aiService.syncMenuFromDatabase(restaurantId);
       logger.info('✅ Menu context initialized for AI service');
     } catch (error) {
@@ -186,8 +186,8 @@ async function startServer() {
       logger.info(`   - REST API: http://localhost:${PORT}/api/v1`);
       logger.info(`   - Voice AI: http://localhost:${PORT}/api/v1/ai`);
       logger.info(`   - WebSocket: ws://localhost:${PORT}`);
-      logger.info(`🌍 Environment: ${process.env.NODE_ENV}`);
-      logger.info(`🔗 Frontend URL: ${process.env.FRONTEND_URL}`);
+      logger.info(`🌍 Environment: ${process.env['NODE_ENV']}`);
+      logger.info(`🔗 Frontend URL: ${process.env['FRONTEND_URL']}`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);
