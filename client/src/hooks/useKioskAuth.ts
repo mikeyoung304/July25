@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRestaurant } from '@/core';
 import { logger } from '@/utils/logger';
+import { setAuthContextSession } from '@/services/auth';
 
 export interface KioskAuthState {
   token: string | null;
@@ -62,7 +63,14 @@ export function useKioskAuth(): KioskAuthState {
       // Store token for use in API requests
       setToken(data.token);
       sessionStorage.setItem('kiosk_token', data.token);
-      
+
+      // Bridge to auth context for unified authentication
+      const sessionData = {
+        accessToken: data.token,
+        expiresAt: Math.floor(Date.now() / 1000) + data.expiresIn
+      };
+      setAuthContextSession(sessionData);
+
       // Store expiry time for refresh logic
       const expiryTime = Date.now() + (data.expiresIn * 1000);
       sessionStorage.setItem('kiosk_token_expiry', expiryTime.toString());
