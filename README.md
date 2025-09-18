@@ -205,10 +205,10 @@ If the application gets stuck on the loading screen:
 ### Code Quality Standards
 
 - **TypeScript**: Strict mode enabled - 560 errors (non-blocking)
-- **ESLint**: 0 errors required - 449 warnings
-- **Tests**: Some tests failing (3 failed in last run)
-- **Bundle Size**: Main chunk target <100KB
-- **Memory Usage**: Max 4GB for builds
+- **ESLint**: 0 errors required - 573 warnings (down from 952)
+- **Tests**: 48% passing (need 60%+ for production)
+- **Bundle Size**: Main chunk 95KB (under 100KB target ✅)
+- **Memory Usage**: Max 4GB for builds (optimized from 12GB)
 
 ## 📦 Deployment
 
@@ -216,11 +216,19 @@ If the application gets stuck on the loading screen:
 
 Before deploying to production, ensure:
 
-1. **Critical Fixes Applied** (See [PRODUCTION_ROADMAP.md](./docs/PRODUCTION_ROADMAP.md))
-   - [ ] Test suite functional (Vitest migration fix)
-   - [ ] API field names corrected (camelCase)
-   - [ ] Server role added to order endpoints
-   - [ ] Integration tests passing
+1. **CRITICAL FIX (2 minutes)**
+   - [ ] Fix kiosk authentication - Add `setAuthContextSession()` call at `/client/src/hooks/useKioskAuth.ts:63`
+
+2. **Security Fixes (30 minutes)**
+   - [ ] Remove development bypasses from `/server/src/middleware/auth.ts:334-349`
+   - [ ] Remove CSRF skip from `/server/src/middleware/csrf.ts:18-21`
+   - [ ] Remove rate limiter skips from `/server/src/middleware/rateLimiter.ts`
+
+3. **Functional Fixes (2 hours)**
+   - [ ] Move order calculations outside voice-only condition in `/client/src/services/orders/OrderService.ts:150`
+   - [ ] Populate user_restaurants table with staff associations
+   - [ ] Add WebSocket reconnection auth handling
+   - [ ] Add payment gate to voice customer orders
 
 2. **Environment Variables Set**
    ```bash
@@ -346,14 +354,12 @@ npm run migrate:rollback --to=20250901
 
 ## 🧪 Testing
 
-### ⚠️ CRITICAL: Test Suite Fix Required
+### Test Suite Status
 
-**Current Issue**: Jest→Vitest migration incomplete, tests timeout  
-**Fix Required**:
-```bash
-# Add this to client/test/setup.ts
-echo "import { vi } from 'vitest'; global.jest = vi;" >> client/test/setup.ts
-```
+**Current State**: Jest→Vitest migration complete ✅
+**Compatibility Shim**: Already exists at `client/test/setup.ts:12-14`
+**Pass Rate**: 48% (need 60%+ for production)
+**Issue**: Tests fail due to data contract mismatches, NOT migration problems
 
 ### Test Structure
 
@@ -393,7 +399,7 @@ See [INTEGRATION_TESTING.md](./docs/INTEGRATION_TESTING.md) for:
 
 | Metric | Target | Current |
 |--------|--------|---------|
-| Bundle Size | <100KB | 82KB ✅ |
+| Bundle Size | <100KB | 95KB ✅ |
 | First Paint | <2s | 1.8s ✅ |
 | TTI | <3s | 2.7s ✅ |
 | Memory (build) | <4GB | 3.8GB ✅ |

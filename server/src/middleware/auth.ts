@@ -330,31 +330,12 @@ export async function validateRestaurantAccess(
     const roleData = await authService.getUserRestaurantRole(req.user.id, req.restaurantId);
     
     if (!roleData) {
-      // DEVELOPMENT FIX: Allow access without membership in development mode
-      if (process.env.NODE_ENV === 'development' || process.env.BYPASS_RESTAURANT_MEMBERSHIP === 'true') {
-        logger.warn('⚠️ Development mode: Bypassing restaurant membership check', {
-          userId: req.user.id,
-          restaurantId: req.restaurantId,
-          userRole: req.user.role
-        });
-
-        // Use the user's existing role and generate scopes
-        req.user.role = req.user.role || 'server';
-        req.user.scopes = ROLE_SCOPES[req.user.role] || [];
-
-        logger.info('✅ Development bypass applied', {
-          userId: req.user.id,
-          role: req.user.role,
-          scopes: req.user.scopes
-        });
-      } else {
-        logger.warn('Staff user lacks restaurant membership', {
-          userId: req.user.id,
-          restaurantId: req.restaurantId,
-          tokenType: 'supabase'
-        });
-        return next(Forbidden('Restaurant access denied', 'RESTAURANT_ACCESS_DENIED'));
-      }
+      logger.warn('Staff user lacks restaurant membership', {
+        userId: req.user.id,
+        restaurantId: req.restaurantId,
+        tokenType: 'supabase'
+      });
+      return next(Forbidden('Restaurant access denied', 'RESTAURANT_ACCESS_DENIED'));
     } else {
       // Update user's role and scopes with restaurant-specific data
       req.user.role = roleData.role;

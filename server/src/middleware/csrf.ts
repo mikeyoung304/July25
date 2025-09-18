@@ -14,12 +14,6 @@ const csrfProtection = csrf({
 // Middleware to conditionally apply CSRF based on environment
 export function csrfMiddleware() {
   return (req: Request, res: Response, next: NextFunction) => {
-    // Skip CSRF in development for easier testing
-    if (process.env.NODE_ENV === 'development') {
-      logger.debug('CSRF protection skipped in development mode');
-      return next();
-    }
-
     // Skip CSRF for certain paths
     const skipPaths = [
       '/api/v1/health',

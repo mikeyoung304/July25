@@ -9,7 +9,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '../services/monitoring/logger';
+import { logger } from '../utils/logger';
 
 // Track snake_case usage for deprecation monitoring
 const snakeCaseUsageCounter = new Map<string, number>();

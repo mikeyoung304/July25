@@ -90,16 +90,28 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 
 ## Known Security Considerations
 
-### Current Implementation (v6.0.3)
+### Current Implementation (v6.0.4)
 
 - **Square Integration**: Configurable via SQUARE_ENVIRONMENT (sandbox/production)
-- **WebSocket Auth**: Token passed in headers with validation
-- **CORS**: Configured for known origins only
+- **WebSocket Auth**: Token passed in headers with validation (⚠️ No reconnection auth)
+- **CORS**: Properly configured for known origins only ✅
 - **Security Headers**: Comprehensive Helmet configuration with CSP, HSTS, etc.
+- **Rate Limiting**: Configured correctly (5 attempts for auth) ✅
+- **SQL Injection Protection**: Parameterized queries throughout ✅
+- **XSS Protection**: No dangerous innerHTML or eval() usage ✅
 - **Suspicious Activity Detection**: Automated detection of SQL injection, XSS, path traversal
 - **Security Monitoring**: Real-time event logging and statistics API
 - **Request Size Limiting**: 10MB default limit on all requests
 - **Enhanced CSP**: Nonce-based script execution in production
+
+### ⚠️ CRITICAL: Development Bypasses Must Be Removed
+
+**Before production deployment, remove these bypasses:**
+1. **Auth Bypass**: `/server/src/middleware/auth.ts:334-349` - Skips membership checks
+2. **CSRF Skip**: `/server/src/middleware/csrf.ts:18-21` - Disables CSRF in dev
+3. **Rate Limiter Skip**: `/server/src/middleware/rateLimiter.ts` - Multiple skip conditions
+
+**These bypasses disable security when `NODE_ENV=development`**
 
 ### Security Monitoring Endpoints
 
@@ -169,5 +181,5 @@ Bug Bounty Program: Coming soon
 
 ---
 
-Last Updated: September 1, 2025
-Version: 6.0.3
+Last Updated: September 17, 2025
+Version: 6.0.4

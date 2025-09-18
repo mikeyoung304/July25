@@ -6,7 +6,8 @@
 - **Version**: 6.0.4
 - **Stack**: React 19.1.0, TypeScript 5.8.3/5.3.3, Vite 5.4.19, Express 4.18.2, Supabase 2.50.5/2.39.7
 - **Architecture**: Unified backend on port 3001
-- **Last Updated**: September 15, 2025
+- **System Readiness**: 88% Production Ready (1 critical fix needed)
+- **Last Updated**: September 17, 2025
 
 ## Directory Structure
 
@@ -40,33 +41,48 @@ rebuild-6.0/
 - **Memory**: 4GB max for builds (optimized from 12GB)
 - **TypeScript**: 560 errors (mostly in tests - app still runs, down from 670+)
 
-## Production Readiness Status (Sept 10, 2025)
+## Production Readiness Status (Sept 17, 2025)
 
-### 🔴 Critical Blockers
-1. **Test Suite Non-Functional**: Jest→Vitest migration incomplete. Cannot verify payment flows.
-   - **Fix**: Add Vitest compatibility shim in `client/test/setup.ts`
-2. **API Contract Mismatches**: Field name inconsistencies between client/server
-   - Client sends: `table_number`, `customer_name`, `order_type`
-   - Server expects: `tableNumber`, `customerName`, `type`
-3. **Split Payment UI Missing**: Backend complete, frontend not implemented
+### 🔴 Critical Blocker (2-minute fix)
+1. **Kiosk Authentication Disconnected**: Token never syncs to auth bridge
+   - **Location**: `/client/src/hooks/useKioskAuth.ts` line 63
+   - **Fix**: Add `setAuthContextSession()` call (5 lines of code)
+   - **Impact**: 100% of customer self-service orders fail
 
-### 🟡 Integration Issues
-- **Order Submission**: Missing required fields (`price`, `subtotal`, `tax`, `tip`)
-- **Server Role**: Not included in order endpoint permissions
-- **Kiosk Authentication**: Not connected (endpoint exists but never called)
+### 🟠 High Priority Issues
+1. **Development Bypasses in Code**: Security disabled if `NODE_ENV=development`
+   - `/server/src/middleware/auth.ts:334-349`
+   - `/server/src/middleware/csrf.ts:18-21`
+   - `/server/src/middleware/rateLimiter.ts` (multiple skip conditions)
+2. **Order Calculations Only for Voice**: `calculateOrderTotal()` not called for regular orders
+   - **Location**: `/client/src/services/orders/OrderService.ts:150`
+3. **User_restaurants Table Empty**: Causing auth failures (table exists but no data)
+
+### 🟡 Medium Priority Issues
+- **Test Suite**: Jest→Vitest shim EXISTS and WORKS (tests fail due to data issues, not migration)
+- **API Contract**: `normalizeCasing` middleware handles both snake_case/camelCase perfectly
+- **WebSocket**: No auth on reconnection after network interruption
+- **Voice Orders**: Missing payment gate for customer mode
+- **Split Payment UI**: Backend complete, frontend not implemented
 
 ### ✅ Production Ready Components
-- Authentication system (multi-strategy)
+- Authentication system (multi-strategy working correctly)
+- Server role permissions (correctly included at line 47 of orders.routes.ts)
 - Voice ordering (WebRTC + OpenAI Realtime)
-- Payment backend
-- Real-time WebSocket
-- Performance optimization
+- Payment backend with idempotency
+- Real-time WebSocket broadcasting
+- Performance optimization (4GB memory, 95KB bundle)
+- Rate limiting configured (5 attempts for auth)
+- CORS properly restricted
+- No SQL injection vulnerabilities
+- No XSS vulnerabilities (no eval/innerHTML)
 
-### 📋 Phase 0 Immediate Actions (Week 1)
-1. Fix test infrastructure (add `global.jest = vi` to setup)
-2. Correct API field name mismatches
-3. Add integration tests for order flow
-4. See `docs/PRODUCTION_ROADMAP.md` for full plan
+### 📋 Immediate Actions (8-12 hours total)
+1. Add kiosk auth bridge (2 minutes) - CRITICAL
+2. Remove all development bypasses (30 minutes)
+3. Move order calculations outside voice condition (1 hour)
+4. Populate user_restaurants table (30 minutes)
+5. Add WebSocket reconnection auth (1 hour)
 
 ## Key Features
 

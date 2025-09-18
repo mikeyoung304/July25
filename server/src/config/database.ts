@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { getConfig } from './environment';
 import { logger } from '../utils/logger';
 import dotenv from 'dotenv';
@@ -7,22 +7,41 @@ import path from 'path';
 // Ensure environment variables are loaded from root directory
 dotenv.config({ path: path.join(__dirname, '../../../.env') });
 
-const config = getConfig();
+// Lazy initialize Supabase client to ensure environment variables are loaded
+let _supabase: SupabaseClient | null = null;
 
-// Create Supabase client with service role key for backend operations
-export const supabase = createClient(
-  config.supabase.url,
-  config.supabase.serviceKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-    db: {
-      schema: 'public',
-    },
+export function getSupabaseClient(): SupabaseClient {
+  if (!_supabase) {
+    const config = getConfig();
+
+    if (!config.supabase.url || !config.supabase.serviceKey) {
+      throw new Error('Supabase configuration is missing. Please check your environment variables.');
+    }
+
+    _supabase = createClient(
+      config.supabase.url,
+      config.supabase.serviceKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+        db: {
+          schema: 'public',
+        },
+      }
+    );
   }
-);
+  return _supabase;
+}
+
+// Export a getter for backward compatibility
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(target, prop, receiver) {
+    const client = getSupabaseClient();
+    return Reflect.get(client, prop, receiver);
+  }
+});
 
 // Test database connection
 export async function initializeDatabase(): Promise<void> {
