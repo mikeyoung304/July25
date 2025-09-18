@@ -7,33 +7,22 @@ import path from 'path';
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 // Now import everything else
-import express, { Express } from 'express';
-import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import { logger } from './utils/logger';
-import { errorHandler } from './middleware/errorHandler';
-import { requestLogger } from './middleware/requestLogger';
-import { setupRoutes } from './routes';
 import { initializeDatabase } from './config/database';
 import { validateEnvironment } from './config/environment';
 import { aiService } from './services/ai.service';
 import { setupWebSocketHandlers } from './utils/websocket';
 import { setupAIWebSocket } from './ai/websocket';
-import { voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { OrdersService } from './services/orders.service';
-import { aiRoutes } from './routes/ai.routes';
-import { realtimeRoutes } from './routes/realtime.routes';
-import { metricsMiddleware, register } from './middleware/metrics';
-import { authenticate, requireRole } from './middleware/auth';
-import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
-import { applySecurity, securityMonitor } from './middleware/security';
-import { normalizeCasing } from './middleware/normalize-casing';
+import { securityMonitor } from './middleware/security';
+import createApp from './app';
 
 // Validate required environment variables
 validateEnvironment();
 
-const app: Express = express();
+const app = createApp();
 const httpServer = createServer(app);
 export const wss = new WebSocketServer({ 
   server: httpServer,
@@ -44,66 +33,6 @@ export const wss = new WebSocketServer({
 
 // Set WebSocket server for OrdersService
 OrdersService.setWebSocketServer(wss);
-
-// Global middleware
-// Apply comprehensive security middleware (helmet + CORS + API rate limiting)
-applySecurity(app);
-
-// Cookie parser for CSRF
-app.use(cookieParser());
-
-// Body parsing middleware
-app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
-app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-
-// Normalize casing middleware (after body parsing, before CSRF)
-app.use(normalizeCasing);
-
-// CSRF protection (after cookie parser, before routes)
-app.use(csrfMiddleware());
-
-// Request logging
-app.use(requestLogger);
-
-// Metrics middleware for tracking (not serving metrics)
-app.use(metricsMiddleware);
-
-// Protected metrics endpoint for internal monitoring
-app.get('/internal/metrics', authenticate, requireRole(['admin']), (_req, res) => {
-  res.set('Content-Type', register.contentType);
-  register.metrics().then(metrics => {
-    res.end(metrics);
-  });
-});
-
-// Additional rate limiting for sensitive surfaces
-app.use('/api/v1/orders/voice', voiceOrderLimiter);
-app.use('/health', healthCheckLimiter);
-
-// API routes
-app.use('/api/v1', setupRoutes());
-
-// AI routes (consolidated into main backend)
-app.use('/api/v1/ai', aiRoutes);
-
-// Real-time voice routes (WebRTC)
-app.use('/api/v1/realtime', realtimeRoutes);
-
-// Health check (outside API versioning for monitoring tools)
-app.get('/health', (_req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env['NODE_ENV'],
-  });
-});
-
-// CSRF error handler (before general error handler)
-app.use(csrfErrorHandler);
-
-// Error handling middleware (must be last)
-app.use(errorHandler);
 
 // WebSocket setup
 setupWebSocketHandlers(wss);
