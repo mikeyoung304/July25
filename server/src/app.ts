@@ -1,6 +1,6 @@
 import express, { Express } from 'express';
 import cookieParser from 'cookie-parser';
-import { applySecurity } from './middleware/security';
+import { installSecurity } from './middleware/security';
 import { voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { normalizeCasing } from './middleware/normalize-casing';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
@@ -13,7 +13,7 @@ import { setupRoutes } from './routes';
 export function createApp(): Express {
   const app = express();
 
-  applySecurity(app);
+  installSecurity(app);
 
   app.use(cookieParser());
   app.use(express.json({ limit: '1mb' }));

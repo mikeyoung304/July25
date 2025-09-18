@@ -1,6 +1,5 @@
 import type { Express, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
-import crypto from 'crypto';
 import { logger } from '../utils/logger';
 import cors, { CorsOptions } from 'cors';
 import { apiLimiter } from './rateLimiter';
@@ -10,80 +9,48 @@ import { apiLimiter } from './rateLimiter';
  * Implements defense-in-depth security strategy
  */
 
-// Generate nonce for CSP
-export const generateNonce = (): string => {
-  return crypto.randomBytes(16).toString('base64');
-};
-
-// Add nonce to response locals for CSP
-export const nonceMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  res.locals.nonce = generateNonce();
-  next();
-};
-
 // Enhanced security headers configuration
-export const securityHeaders = () => {
+export const securityHeaders = (allowedOrigins: string[]) => {
   const isDevelopment = process.env['NODE_ENV'] !== 'production';
-  
+  const connectSources = new Set(["'self'", 'https:', 'wss:', 'ws:']);
+  allowedOrigins
+    .filter(Boolean)
+    .forEach(origin => connectSources.add(origin));
+
+  const scriptSrc = isDevelopment
+    ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"]
+    : ["'self'"];
+
   return helmet({
-    // Content Security Policy
     contentSecurityPolicy: {
+      useDefaults: true,
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"], // Required for Tailwind
-        scriptSrc: isDevelopment 
-          ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] // Development needs eval for HMR
-          : ["'self'", (req, res) => `'nonce-${(res as any).locals.nonce}'`],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "wss:", "ws:", "https://api.openai.com"],
-        fontSrc: ["'self'", "data:"],
+        scriptSrc,
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        connectSrc: Array.from(connectSources),
+        imgSrc: ["'self'", 'data:', 'https:'],
+        fontSrc: ["'self'", 'data:', 'https:'],
         objectSrc: ["'none'"],
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"],
-        workerSrc: ["'self'", "blob:"],
-        childSrc: ["'self'", "blob:"],
-        formAction: ["'self'"],
         frameAncestors: ["'none'"],
-        baseUri: ["'self'"],
-        ...(isDevelopment ? {} : { upgradeInsecureRequests: [] }),
       },
     },
-    
-    // Strict Transport Security (HSTS)
     hsts: {
-      maxAge: 31536000, // 1 year
+      maxAge: 31536000,
       includeSubDomains: true,
       preload: true,
     },
-    
-    // Additional security headers
     crossOriginEmbedderPolicy: !isDevelopment,
-    crossOriginOpenerPolicy: { policy: "same-origin" },
-    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
+    crossOriginResourcePolicy: { policy: 'same-origin' },
     originAgentCluster: true,
-    
-    // DNS Prefetch Control
     dnsPrefetchControl: { allow: false },
-    
-    // Frame Options (clickjacking protection)
     frameguard: { action: 'deny' },
-    
-    // Hide powered by Express
     hidePoweredBy: true,
-    
-    // IE No Open
     ieNoOpen: true,
-    
-    // No Sniff
     noSniff: true,
-    
-    // Permitted Cross Domain Policies
     permittedCrossDomainPolicies: false,
-    
-    // Referrer Policy
-    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-    
-    // XSS Filter
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     xssFilter: true,
   });
 };
@@ -269,33 +236,40 @@ export const detectSuspiciousActivity = (req: Request, res: Response, next: Next
 const buildAllowedOrigins = (): string[] => {
   const origins = new Set<string>();
 
-  const primary = process.env['FRONTEND_URL'];
-  if (primary) origins.add(primary);
+  const addOrigin = (value?: string) => {
+    if (!value) return;
+    const trimmed = value.trim();
+    if (trimmed) origins.add(trimmed);
+  };
 
-  const additional = process.env['ALLOWED_ORIGINS'];
-  if (additional) {
-    additional.split(',')
-      .map(origin => origin.trim())
-      .filter(Boolean)
-      .forEach(origin => origins.add(origin));
+  const corsOrigins = process.env['CORS_ORIGINS'];
+  if (corsOrigins) {
+    corsOrigins.split(',').forEach(origin => addOrigin(origin));
   }
 
-  if (origins.size === 0 && process.env['NODE_ENV'] === 'development') {
-    origins.add('http://localhost:5173');
+  // Backwards compatibility with existing env vars
+  addOrigin(process.env['FRONTEND_URL']);
+  const legacyOrigins = process.env['ALLOWED_ORIGINS'];
+  if (legacyOrigins) {
+    legacyOrigins.split(',').forEach(origin => addOrigin(origin));
+  }
+
+  if (origins.size === 0 && process.env['NODE_ENV'] !== 'production') {
+    addOrigin('http://localhost:5173');
+    addOrigin('http://127.0.0.1:5173');
   }
 
   return Array.from(origins);
 };
 
-const createCorsMiddleware = () => {
-  const allowedOrigins = buildAllowedOrigins();
+const createCorsMiddleware = (allowedOrigins: string[]) => {
   const options: CorsOptions = {
     origin: (origin, callback) => {
       if (!origin) {
         return callback(null, true);
       }
 
-      if (allowedOrigins.includes(origin)) {
+      if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
@@ -304,35 +278,44 @@ const createCorsMiddleware = () => {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-restaurant-id', 'x-request-id', 'X-CSRF-Token'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Restaurant-ID',
+      'x-restaurant-id',
+      'x-request-id',
+      'X-CSRF-Token',
+    ],
     exposedHeaders: ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset'],
     maxAge: 86400,
   };
 
-  return { middleware: cors(options), allowedOrigins };
+  return cors(options);
 };
 
-export const applySecurity = (app: Express) => {
-  const { middleware: corsMiddleware, allowedOrigins } = createCorsMiddleware();
+export const installSecurity = (app: Express) => {
+  const allowedOrigins = buildAllowedOrigins();
+  const corsMiddleware = createCorsMiddleware(allowedOrigins);
+
   logger.info('🔐 CORS allowed origins', { allowedOrigins });
 
   app.use(corsMiddleware);
   app.options('*', corsMiddleware);
 
   app.use(extractIP);
-  app.use(nonceMiddleware);
-  app.use(securityHeaders());
+  app.use(securityHeaders(allowedOrigins));
   app.use(requestSizeLimit('10mb'));
   app.use(detectSuspiciousActivity);
   app.use('/api', apiLimiter);
 };
 
+export const applySecurity = installSecurity;
+
 // Export for use in routes
 export default {
+  installSecurity,
   applySecurity,
   securityMonitor,
-  generateNonce,
-  nonceMiddleware,
   securityHeaders,
   requestSizeLimit,
   extractIP,

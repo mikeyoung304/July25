@@ -7,16 +7,12 @@ const isDevelopment = process.env['NODE_ENV'] === 'development' && process.env['
 
 // General API rate limiter
 export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isDevelopment ? 10000 : 1000, // Very high limit in dev
-  keyGenerator: (req: Request) => {
-    const authReq = req as AuthenticatedRequest;
-    return authReq.restaurantId || authReq.ip || 'anonymous';
-  },
-  message: 'Too many requests from this restaurant/IP, please try again later.',
+  windowMs: 60 * 1000, // 1 minute window
+  max: 120, // 120 requests per IP per minute
+  keyGenerator: (req: Request) => req.ip || 'anonymous',
+  message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req: Request) => isDevelopment, // Skip rate limiting in development
 });
 
 // Stricter rate limiter for voice orders
