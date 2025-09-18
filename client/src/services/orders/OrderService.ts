@@ -139,6 +139,20 @@ export class OrderService implements IOrderService {
       throw new Error('Invalid order data - check console for details')
     }
 
+    // Ensure order totals are calculated for all orders
+    if (!orderData.subtotal || !orderData.tax || !orderData.total) {
+      const subtotal = this.calculateOrderTotal(orderData)
+      const tax = subtotal * 0.08 // Standard tax rate
+      orderData = {
+        ...orderData,
+        subtotal,
+        tax,
+        tip: orderData.tip || 0,
+        total: subtotal + tax + (orderData.tip || 0)
+      }
+      logger.info('[OrderService] Calculated order totals:', { subtotal, tax, total: orderData.total })
+    }
+
     // Check if this is a customer voice order that needs payment
     const isCustomerVoiceOrder = orderData.type === 'voice' && !this.isEmployeeAuthenticated()
 
@@ -146,8 +160,8 @@ export class OrderService implements IOrderService {
       logger.info('[OrderService] Customer voice order detected, acquiring payment token...')
 
       try {
-        // Calculate total for payment
-        const total = orderData.total || this.calculateOrderTotal(orderData)
+        // Use the already calculated total for payment
+        const total = orderData.total
         const restaurantId = orderData.restaurant_id || localStorage.getItem('restaurantId') || ''
 
         // Acquire payment token using the appropriate strategy
