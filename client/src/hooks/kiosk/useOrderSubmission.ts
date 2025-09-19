@@ -18,23 +18,28 @@ export function useOrderSubmission() {
         sum + (item.menuItem.price * item.quantity), 0
       )
 
+      const customer = {
+        name: 'Kiosk Customer',
+        email: '',
+        phone: '',
+      }
+
       const orderData = {
         type: 'kiosk' as const,
         items: items.map(item => ({
-          menu_item_id: item.menuItem.id,
+          id: item.menuItem.id,
+          menuItemId: item.menuItem.id,
           name: item.menuItem.name,
           quantity: item.quantity,
           price: item.menuItem.price,
           modifications: item.modifications || [],
-          special_instructions: ''
+          specialInstructions: ''
         })),
-        total: total,
+        total,
         paymentMethod: 'kiosk',
-        customerInfo: {
-          name: 'Kiosk Customer',
-          phone: '',
-          email: ''
-        },
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        customerEmail: customer.email,
         notes: 'Self-service kiosk order',
         metadata: {
           source: 'kiosk',

@@ -167,8 +167,8 @@ export function useVoiceOrderWebRTC() {
           'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111'
         },
         body: JSON.stringify({
-          table_number: selectedTable.label,
-          seat_number: selectedSeat,
+          tableNumber: selectedTable.label,
+          seatNumber: selectedSeat,
           items: orderItems.map(item => ({
             id: item.id,
             menu_item_id: item.menuItemId,
@@ -181,8 +181,8 @@ export function useVoiceOrderWebRTC() {
             const menuItem = menuItems.find(m => m.id === item.menuItemId)
             return sum + (menuItem?.price || 12.99) * item.quantity
           }, 0),
-          customer_name: `Table ${selectedTable.label} - Seat ${selectedSeat}`,
-          order_type: 'dine-in'
+          customerName: `Table ${selectedTable.label} - Seat ${selectedSeat}`,
+          type: 'dine-in'
         })
       })
       
