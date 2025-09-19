@@ -4,6 +4,47 @@ import { useAsyncState } from './useAsyncState';
 import { supabase } from '@/core/supabase';
 import { getDemoToken } from '@/services/auth/demoAuth';
 
+const PRESERVE_SNAKE_KEYS = new Set(['total_amount']);
+const OVERRIDE_KEYS: Record<string, string> = {
+  order_type: 'type',
+};
+
+const transformOrderPayload = (endpoint: string, body: unknown): unknown => {
+  if (!body || typeof body !== 'object') {
+    return body;
+  }
+
+  // Only transform live order endpoints
+  if (!endpoint.startsWith('/api/v1/orders')) {
+    return body;
+  }
+
+  const toCamel = (value: unknown): unknown => {
+    if (Array.isArray(value)) {
+      return value.map(toCamel);
+    }
+
+    if (value && typeof value === 'object') {
+      return Object.entries(value as Record<string, unknown>).reduce<Record<string, unknown>>((acc, [key, val]) => {
+        const override = OVERRIDE_KEYS[key];
+        const nextKey = override
+          || (PRESERVE_SNAKE_KEYS.has(key) ? key : key.replace(/_([a-z])/g, (_, char) => char.toUpperCase()));
+
+        // Avoid overwriting existing camelCase properties
+        if (!(nextKey in acc)) {
+          acc[nextKey] = toCamel(val);
+        }
+
+        return acc;
+      }, {});
+    }
+
+    return value;
+  };
+
+  return toCamel(body);
+};
+
 export interface ApiRequestOptions extends RequestInit {
   skipAuth?: boolean;
   customHeaders?: Record<string, string>;
@@ -148,26 +189,29 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
   }, [execute]);
 
   const post = useCallback((endpoint: string, body?: unknown, options?: ApiRequestOptions) => {
+    const normalizedBody = body ? transformOrderPayload(endpoint, body) : undefined;
     return execute(endpoint, {
       ...options,
       method: 'POST',
-      body: body ? JSON.stringify(body) : undefined,
+      body: normalizedBody ? JSON.stringify(normalizedBody) : undefined,
     });
   }, [execute]);
 
   const put = useCallback((endpoint: string, body?: unknown, options?: ApiRequestOptions) => {
+    const normalizedBody = body ? transformOrderPayload(endpoint, body) : undefined;
     return execute(endpoint, {
       ...options,
       method: 'PUT',
-      body: body ? JSON.stringify(body) : undefined,
+      body: normalizedBody ? JSON.stringify(normalizedBody) : undefined,
     });
   }, [execute]);
 
   const patch = useCallback((endpoint: string, body?: unknown, options?: ApiRequestOptions) => {
+    const normalizedBody = body ? transformOrderPayload(endpoint, body) : undefined;
     return execute(endpoint, {
       ...options,
       method: 'PATCH',
-      body: body ? JSON.stringify(body) : undefined,
+      body: normalizedBody ? JSON.stringify(normalizedBody) : undefined,
     });
   }, [execute]);
 

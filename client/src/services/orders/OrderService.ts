@@ -27,6 +27,56 @@ export interface OrderFilters {
 }
 
 export class OrderService implements IOrderService {
+  private normalizeOrderPayload(orderData: Partial<Order>): Record<string, any> {
+    const normalized: Record<string, any> = { ...orderData }
+
+    const syncKey = (target: string, ...aliases: string[]) => {
+      if (normalized[target] === undefined) {
+        for (const alias of aliases) {
+          if (normalized[alias] !== undefined) {
+            normalized[target] = normalized[alias]
+            break
+          }
+        }
+      }
+      aliases.forEach(alias => {
+        if (alias !== target) {
+          delete normalized[alias]
+        }
+      })
+    }
+
+    syncKey('tableNumber', 'table_number')
+    syncKey('customerName', 'customer_name')
+    syncKey('customerPhone', 'customer_phone')
+    syncKey('customerEmail', 'customer_email')
+    syncKey('type', 'order_type')
+
+    if (Array.isArray(normalized.items)) {
+      normalized.items = normalized.items.map(item => {
+        if (!item || typeof item !== 'object') {
+          return item
+        }
+        const nextItem: Record<string, unknown> = { ...item }
+        if (nextItem.id === undefined && nextItem.menu_item_id !== undefined) {
+          nextItem.id = nextItem.menu_item_id
+        }
+        if (nextItem.menu_item_id !== undefined) {
+          delete nextItem.menu_item_id
+        }
+        if (nextItem.specialInstructions === undefined && nextItem.special_instructions !== undefined) {
+          nextItem.specialInstructions = nextItem.special_instructions
+        }
+        if (nextItem.special_instructions !== undefined) {
+          delete nextItem.special_instructions
+        }
+        return nextItem
+      })
+    }
+
+    return normalized
+  }
+
   async getOrders(filters?: OrderFilters): Promise<Order[]> {
     try {
       const params: Record<string, unknown> = {}
@@ -37,7 +87,7 @@ export class OrderService implements IOrderService {
           : filters.status
       }
       if (filters?.tableNumber) {
-        params.table_number = filters.tableNumber
+        params.tableNumber = filters.tableNumber
       }
       if (filters?.orderType) {
         params.type = filters.orderType
@@ -140,8 +190,11 @@ export class OrderService implements IOrderService {
 
     logger.info('[OrderService] Validation passed, sending to API...')
     
+    const normalizedOrderData = this.normalizeOrderPayload(orderData) as Partial<Order> & Record<string, any>
+
     try {
-      const response = await httpClient.post<any>('/api/v1/orders', orderData)
+
+      const response = await httpClient.post<any>('/api/v1/orders', normalizedOrderData)
       logger.info('[OrderService] API response:', response)
       return {
         ...response,
@@ -161,17 +214,17 @@ export class OrderService implements IOrderService {
       // Create mock order
       const newOrder: Order = {
         id: `order-${Date.now()}`,
-        restaurant_id: orderData.restaurant_id || 'default',
+        restaurant_id: normalizedOrderData.restaurant_id || orderData.restaurant_id || 'default',
         order_number: `#${Math.floor(Math.random() * 10000)}`,
-        table_number: orderData.table_number || '1',
-        items: orderData.items || [],
+        table_number: normalizedOrderData.tableNumber || '1',
+        items: (normalizedOrderData.items as Order['items']) || orderData.items || [],
         status: 'new',
-        type: (orderData.type || 'dine-in') as OrderType,
+        type: (normalizedOrderData.type || orderData.type || 'dine-in') as OrderType,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        subtotal: orderData.subtotal || orderData.total || 0,
-        tax: orderData.tax || 0,
-        total: orderData.total || 0,
+        subtotal: (normalizedOrderData.subtotal as number) || orderData.subtotal || orderData.total || 0,
+        tax: (normalizedOrderData.tax as number) || orderData.tax || 0,
+        total: (normalizedOrderData.total as number) || orderData.total || 0,
         payment_status: 'pending'
       }
 
@@ -194,9 +247,9 @@ export class OrderService implements IOrderService {
       logger.info(`[OrderService] Validating item ${i}:`, item)
       
       // Check for either id or menu_item_id (support both formats)
-      const hasId = item.id || item.menu_item_id
+      const hasId = item.id || (item as any).menu_item_id || (item as any).menuItemId
       if (!hasId) {
-        logger.warn(`[OrderService] Item ${i} missing id or menu_item_id:`, { id: item.id, menu_item_id: item.menu_item_id })
+        logger.warn(`[OrderService] Item ${i} missing id or menu_item_id:`, { id: item.id, menu_item_id: (item as any).menu_item_id, menuItemId: (item as any).menuItemId })
         return false
       }
       
@@ -215,8 +268,9 @@ export class OrderService implements IOrderService {
         return false
       }
 
-      if (item.special_instructions && !this.validateNotes(item.special_instructions)) {
-        logger.warn(`[OrderService] Item ${i} has invalid special instructions:`, item.special_instructions)
+      const specialInstructions = (item as any).specialInstructions || (item as any).special_instructions
+      if (specialInstructions && !this.validateNotes(specialInstructions)) {
+        logger.warn(`[OrderService] Item ${i} has invalid special instructions:`, specialInstructions)
         return false
       }
     }
