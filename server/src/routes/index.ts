@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { strictAuthForWrites } from '../middleware/strict-auth';
 import { healthRoutes } from './health.routes';
 import { menuRoutes } from './menu.routes';
 import { orderRoutes } from './orders.routes';
@@ -13,10 +14,19 @@ import { realtimeRoutes } from './realtime.routes';
 import metricsRoutes from './metrics';
 import securityRoutes from './security.routes';
 import webhooksRoutes from './webhooks.routes';
-import { strictAuth } from '../middleware/strict-auth';
 
 export function setupRoutes(): Router {
   const router = Router();
+
+  // Enforce Bearer + X-Restaurant-ID headers for all mutating routes.
+  router.use(
+    strictAuthForWrites({
+      skip: (req) =>
+        req.path.startsWith('/webhooks') ||
+        req.path.startsWith('/health') ||
+        req.path.startsWith('/internal/metrics'),
+    })
+  );
 
   // Health and status routes
   router.use('/', healthRoutes);
@@ -32,8 +42,6 @@ export function setupRoutes(): Router {
 
   // Secure routes require strict auth headers
   const protectedRoutes = Router();
-  protectedRoutes.use(strictAuth());
-
   // Security monitoring routes (admin only)
   protectedRoutes.use('/security', securityRoutes);
 
