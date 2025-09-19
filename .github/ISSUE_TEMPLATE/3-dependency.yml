@@ -1,0 +1,16 @@
+name: Dependency Maintenance
+description: Weekly minor/patch updates and audit
+labels: ["codex:dependency"]
+body:
+
+type: textarea
+id: targets
+attributes: { label: Targets, description: "List packages" }
+
+type: textarea
+id: steps
+attributes: { label: Steps, description: "Bump, lockfile, run checks, summarize risk" }
+
+type: textarea
+id: acceptance
+attributes: { label: Acceptance, description: "No breaking changes; checks green" }

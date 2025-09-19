@@ -1,0 +1,4 @@
+
+@your-org/platform-owners
+docs/* @your-org/tech-writers
+.github/* @your-org/devxp

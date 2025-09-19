@@ -1,0 +1,25 @@
+model: gpt-5-codex
+fallback_models: [gpt-5]
+temperature: 0.2
+max_tokens: 8000
+allow_shell: true
+allowed_commands:
+  - bash
+  - git
+  - node
+  - npm
+  - rg
+  - tsc
+  - vite
+  - vitest
+  - eslint
+policies:
+  - no_secrets
+  - no_schema_changes
+  - small_prs_only
+  - feature_flag_risky_changes
+checks:
+  - "npm run typecheck --workspaces"
+  - "npm run lint --workspaces --silent"
+  - "CI=1 RUN_VISUAL=0 RUN_PERF=0 RUN_E2E=0 npm run test:quick --workspaces"
+  - "npm run build --workspace client && npm run build --workspace server"
