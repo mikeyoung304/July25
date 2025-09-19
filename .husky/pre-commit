@@ -1,6 +1,18 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+CHANGED="$(git diff --cached --name-only)"
+if [ -z "$CHANGED" ]; then
+  exit 0
+fi
+
+if echo "$CHANGED" | grep -Evq '^(AGENTS\.md|\.codex/|docs/|\.github/)' ; then
+  echo "[husky] code changes detected -> running full checks"
+else
+  echo "[husky] docs-only changes -> skipping heavy checks"
+  exit 0
+fi
+
 echo "🚀 Running pre-commit checks (fast mode)..."
 
 # Guard against compiled JS in /shared
