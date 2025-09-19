@@ -43,21 +43,24 @@ describe('Orders Routes - RCTX (Restaurant Context) Enforcement', () => {
   const otherRestaurantId = '22222222-2222-2222-2222-222222222222';
   const testUserId = 'test-user-123';
 
+  const createToken = (role: string, scopes: string[] = ['orders:read', 'orders:create', 'orders:update']) =>
+    jwt.sign(
+      {
+        sub: testUserId,
+        email: 'test@example.com',
+        role,
+        restaurant_id: testRestaurantId,
+        scopes,
+      },
+      'test-jwt-secret-for-testing-only'
+    );
+
   beforeEach(() => {
     app = express();
     app.use(express.json());
     
     // Create a valid JWT token
-    validToken = jwt.sign(
-      {
-        sub: testUserId,
-        email: 'test@example.com',
-        role: 'server',
-        restaurant_id: testRestaurantId,
-        scopes: ['orders:read', 'orders:create', 'orders:update']
-      },
-      'test-jwt-secret-for-testing-only'
-    );
+    validToken = createToken('server');
 
     // Apply middleware in correct order
     app.use(authenticate);
@@ -139,6 +142,30 @@ describe('Orders Routes - RCTX (Restaurant Context) Enforcement', () => {
 
       expect(response.body).toHaveProperty('id');
       expect(response.body).toHaveProperty('orderNumber');
+    });
+
+    it('should allow Server role token variant for order creation', async () => {
+      const serverToken = createToken('Server');
+      const response = await request(app)
+        .post('/api/v1/orders')
+        .set('Authorization', `Bearer ${serverToken}`)
+        .set('X-Restaurant-ID', testRestaurantId)
+        .send(validOrderData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('id');
+    });
+
+    it('should reject viewer role for order creation', async () => {
+      const viewerToken = createToken('viewer', ['orders:read']);
+      const response = await request(app)
+        .post('/api/v1/orders')
+        .set('Authorization', `Bearer ${viewerToken}`)
+        .set('X-Restaurant-ID', testRestaurantId)
+        .send(validOrderData)
+        .expect(401);
+
+      expect(response.body.error || response.body.message).toContain('Insufficient permissions');
     });
   });
 

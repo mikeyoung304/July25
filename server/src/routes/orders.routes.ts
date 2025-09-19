@@ -34,7 +34,7 @@ router.get('/', authenticate, validateRestaurantAccess, async (req: Authenticate
 });
 
 // POST /api/v1/orders - Create new order
-router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_demo']), requireScope(['orders:create']), validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'server', 'Server', 'kiosk_demo']), requireScope(['orders:create']), validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const orderData = req.body;
@@ -53,7 +53,7 @@ router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_d
 });
 
 // POST /api/v1/orders/voice - Process voice order
-router.post('/voice', authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_demo']), requireScope(['orders:create']), validateRestaurantAccess, async (req: AuthenticatedRequest, res, _next) => {
+router.post('/voice', authenticate, requireRole(['admin', 'manager', 'user', 'server', 'Server', 'kiosk_demo']), requireScope(['orders:create']), validateRestaurantAccess, async (req: AuthenticatedRequest, res, _next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { transcription, audioUrl, metadata: _metadata } = req.body;
