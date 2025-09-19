@@ -1,12 +1,34 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Smartphone, Keyboard, DollarSign, Users } from 'lucide-react';
-import type { PaymentMethod } from '../types';
+import type { PaymentMethod as PaymentMethodBase } from '../types';
+
+type CardDetails = {
+  last4?: string;
+  brand?: string;
+  [key: string]: unknown;
+};
+
+type PaymentMethod = PaymentMethodBase & {
+  cardDetails?: CardDetails | null;
+};
+
+const sanitizeCardNumber = (value: string): string => value.replace(/\D/g, '');
+
+const buildCardDetails = (number: string): CardDetails | null => {
+  const sanitized = sanitizeCardNumber(number);
+  if (!sanitized) {
+    return null;
+  }
+
+  const last4 = sanitized.slice(-4);
+  return last4 ? { last4 } : null;
+};
 
 interface PaymentMethodPickerProps {
   total?: number;
   totalAmount?: number; // Legacy prop during migration
-  onMethodSelected: (method: PaymentMethod) => void;
+  onMethodSelected: (method: PaymentMethodBase) => void;
   onBack: () => void;
   isProcessing?: boolean;
 }
@@ -59,14 +81,13 @@ export const PaymentMethodPicker: React.FC<PaymentMethodPickerProps> = (props) =
   };
 
   const handleManualSubmit = () => {
-    // In production, this would tokenize the card with Square Web SDK
-    onMethodSelected({
-      type: 'MANUAL_ENTRY',
+    const manualEntryMethod = {
+      type: 'MANUAL_ENTRY' as const,
       token: 'demo-token', // Would be real token from Square
-      cardDetails: {
-        last4: cardDetails.number.slice(-4)
-      }
-    });
+      cardDetails: buildCardDetails(cardDetails.number),
+    } satisfies PaymentMethod;
+
+    onMethodSelected(manualEntryMethod);
   };
 
   const handleCashPayment = () => {

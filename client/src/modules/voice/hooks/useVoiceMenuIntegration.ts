@@ -6,7 +6,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRestaurant } from '@/core';
-import { useUnifiedCart } from '@/contexts/UnifiedCartContext';
+import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { menuContextManager } from '../services/MenuContextManager';
 import { WebRTCVoiceClient } from '../services/WebRTCVoiceClient';
 import { generateSessionConfig } from '../config/fall-menu-agent';
@@ -19,9 +19,19 @@ interface VoiceMenuState {
   pendingItem: any | null;
 }
 
+type UpdateSessionCapable = {
+  updateSession: (payload: Record<string, unknown>) => Promise<unknown>;
+};
+
+const hasUpdateSession = (
+  client: WebRTCVoiceClient | null,
+): client is WebRTCVoiceClient & UpdateSessionCapable => {
+  return !!client && typeof (client as { updateSession?: unknown }).updateSession === 'function';
+};
+
 export function useVoiceMenuIntegration(voiceClient: WebRTCVoiceClient | null) {
   const { restaurant } = useRestaurant();
-  const { addItem } = useUnifiedCart();
+  const { addToCart } = useUnifiedCart();
   const [state, setState] = useState<VoiceMenuState>({
     isReady: false,
     isLoading: true,
@@ -64,8 +74,28 @@ export function useVoiceMenuIntegration(voiceClient: WebRTCVoiceClient | null) {
   /**
    * Update voice client session with menu context
    */
+  const updateSessionSafe = useCallback(
+    async (patch: Record<string, unknown>) => {
+      if (hasUpdateSession(voiceClient)) {
+        await voiceClient.updateSession(patch);
+        return;
+      }
+
+      try {
+        await fetch('/api/v1/ai/session/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(patch),
+        });
+      } catch {
+        // Silently swallow offline retries to keep kiosk resilient
+      }
+    },
+    [voiceClient],
+  );
+
   useEffect(() => {
-    if (!voiceClient || !state.isReady || sessionUpdatedRef.current) return;
+    if (!state.isReady || sessionUpdatedRef.current) return;
 
     const updateSession = async () => {
       try {
@@ -73,7 +103,7 @@ export function useVoiceMenuIntegration(voiceClient: WebRTCVoiceClient | null) {
         const sessionConfig = generateSessionConfig(menuContext);
 
         // Update the voice client session with menu data
-        await voiceClient.updateSession({
+        await updateSessionSafe({
           instructions: sessionConfig.instructions,
           tools: sessionConfig.tools
         });
@@ -86,7 +116,7 @@ export function useVoiceMenuIntegration(voiceClient: WebRTCVoiceClient | null) {
     };
 
     updateSession();
-  }, [voiceClient, state.isReady]);
+  }, [state.isReady, updateSessionSafe]);
 
   /**
    * Handle voice transcript processing
@@ -119,7 +149,8 @@ export function useVoiceMenuIntegration(voiceClient: WebRTCVoiceClient | null) {
     } else if (result.action === 'confirm' && result.item) {
       // Add to cart
       const cartItem = transformToCartItem(result.item);
-      addItem(cartItem);
+      const { id: _id, ...cartPayload } = cartItem;
+      addToCart(cartPayload);
 
       // Clear pending state
       setState(prev => ({
@@ -130,7 +161,7 @@ export function useVoiceMenuIntegration(voiceClient: WebRTCVoiceClient | null) {
     }
 
     return result;
-  }, [state.isReady, state.currentSlot, addItem]);
+  }, [state.isReady, state.currentSlot, addToCart]);
 
   /**
    * Transform order item to cart format
@@ -177,7 +208,8 @@ export function useVoiceMenuIntegration(voiceClient: WebRTCVoiceClient | null) {
             price: 0
           })) || []
         };
-        addItem(cartItem);
+        const { id: _id, ...cartPayload } = cartItem;
+        addToCart(cartPayload);
         return { success: true };
 
       case 'get_order_total':
@@ -191,7 +223,7 @@ export function useVoiceMenuIntegration(voiceClient: WebRTCVoiceClient | null) {
       default:
         return { error: 'Unknown function' };
     }
-  }, [addItem]);
+  }, [addToCart]);
 
   /**
    * Get current menu context
