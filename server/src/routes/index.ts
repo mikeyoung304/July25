@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { strictAuthForWrites } from '../middleware/strict-auth';
+import { squareWebhookGuard, twilioWebhookGuard } from '../middleware/webhookSignature';
 import { healthRoutes } from './health.routes';
 import { menuRoutes } from './menu.routes';
 import { orderRoutes } from './orders.routes';
@@ -36,6 +37,10 @@ export function setupRoutes(): Router {
 
   // Authentication routes
   router.use('/auth', authRoutes);
+
+  // Webhook signature guard stubs
+  router.use('/webhooks/square', squareWebhookGuard);
+  router.use('/webhooks/twilio', twilioWebhookGuard);
 
   // Webhook routes (no auth required - verified by signature)
   router.use('/webhooks', webhooksRoutes);

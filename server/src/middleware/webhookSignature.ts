@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { logger } from '../utils/logger';
 
 // Square webhook signature verification
@@ -87,7 +87,7 @@ export function verifyStripeWebhookSignature(
   // Parse Stripe signature header
   const elements = signature.split(',');
   let timestamp = '';
-  let signatures: string[] = [];
+  const signatures: string[] = [];
 
   for (const element of elements) {
     const [key, value] = element.split('=');
@@ -155,3 +155,85 @@ export function verifyStripeWebhookSignature(
 
   next();
 }
+
+type SupportedAlgorithms = 'sha1' | 'sha256';
+
+interface HmacGuardOptions {
+  secretEnv: string;
+  headerName: string;
+  algorithm?: SupportedAlgorithms;
+  prefix?: string;
+  timestampHeader?: string;
+  toleranceSeconds?: number;
+}
+
+export function createWebhookSignatureGuard(options: HmacGuardOptions) {
+  const {
+    secretEnv,
+    headerName,
+    algorithm = 'sha256',
+    prefix,
+    timestampHeader,
+    toleranceSeconds,
+  } = options;
+
+  return (req: Request, res: Response, next: NextFunction) => {
+    const secret = process.env[secretEnv];
+
+    if (!secret) {
+      logger.warn('Webhook secret is not configured', { secretEnv });
+      return res.status(400).json({ error: 'WEBHOOK_SECRET_MISSING' });
+    }
+
+    const signature = req.header(headerName);
+    if (!signature) {
+      logger.warn('Webhook signature header missing', { header: headerName });
+      return res.status(400).json({ error: 'WEBHOOK_SIGNATURE_MISSING' });
+    }
+
+    if (timestampHeader && toleranceSeconds) {
+      const timestampValue = Number(req.header(timestampHeader));
+      const now = Math.floor(Date.now() / 1000);
+      if (!Number.isFinite(timestampValue) || Math.abs(now - timestampValue) > toleranceSeconds) {
+        logger.warn('Webhook timestamp outside tolerance window', {
+          header: timestampHeader,
+          value: req.header(timestampHeader),
+        });
+        return res.status(400).json({ error: 'WEBHOOK_TIMESTAMP_INVALID' });
+      }
+    }
+
+    const rawBody = (req as any).rawBody as Buffer | undefined;
+    if (!rawBody || !Buffer.isBuffer(rawBody)) {
+      logger.warn('Webhook raw body not available for signature verification');
+      return res.status(400).json({ error: 'WEBHOOK_BODY_MISSING' });
+    }
+
+    const digest = createHmac(algorithm, secret).update(rawBody).digest('hex');
+    const expected = prefix ? `${prefix}${digest}` : digest;
+
+    const providedBuffer = Buffer.from(signature);
+    const expectedBuffer = Buffer.from(expected);
+
+    if (providedBuffer.length !== expectedBuffer.length || !timingSafeEqual(providedBuffer, expectedBuffer)) {
+      logger.warn('Webhook signature validation failed', { header: headerName });
+      return res.status(400).json({ error: 'WEBHOOK_SIGNATURE_INVALID' });
+    }
+
+    return next();
+  };
+}
+
+export const squareWebhookGuard = createWebhookSignatureGuard({
+  secretEnv: 'SQUARE_WEBHOOK_SECRET',
+  headerName: 'x-square-signature',
+  algorithm: 'sha256',
+  // TODO: incorporate Square-specific URL concatenation if needed
+});
+
+export const twilioWebhookGuard = createWebhookSignatureGuard({
+  secretEnv: 'TWILIO_WEBHOOK_SECRET',
+  headerName: 'x-twilio-signature',
+  algorithm: 'sha1',
+  // TODO: Twilio signatures also include the request URL and params
+});

@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { z } from 'zod';
 import { getConfig } from '../config/environment';
 import { BadRequest, Unauthorized } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
@@ -9,9 +10,22 @@ import { createStationToken, validateStationToken, revokeAllStationTokens } from
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
 import { requireScopes, ApiScope, ROLE_SCOPES } from '../middleware/rbac';
 import { authLimiter } from '../middleware/rateLimiter';
+import { validateBody } from '../middleware/validate';
 
 const router = Router();
 const config = getConfig();
+
+const kioskAuthSchema = z.object({
+  restaurantId: z.string().min(1, 'restaurantId is required'),
+});
+type KioskAuthPayload = z.infer<typeof kioskAuthSchema>;
+
+const loginSchema = z.object({
+  email: z.string().email('Valid email is required'),
+  password: z.string().min(1, 'Password is required'),
+  restaurantId: z.string().min(1, 'restaurantId is required'),
+});
+type LoginPayload = z.infer<typeof loginSchema>;
 
 // Constants for kiosk/self-service authentication
 // IMPORTANT: This is a PRODUCTION FEATURE for customer self-service ordering
@@ -40,9 +54,9 @@ const ALLOWED_KIOSK_RESTAURANTS = [
  * - Restaurant-specific validation
  * - HS256 signing (different from staff RS256)
  */
-router.post('/kiosk', authLimiter, async (req: Request, res: Response) => {
+router.post('/kiosk', authLimiter, validateBody(kioskAuthSchema), async (req: Request, res: Response) => {
   try {
-    const { restaurantId } = req.body;
+    const { restaurantId } = (req as any).parsedBody as KioskAuthPayload;
 
     // Validate restaurant ID
     if (!restaurantId) {
@@ -109,9 +123,9 @@ router.post('/kiosk', authLimiter, async (req: Request, res: Response) => {
  * - Optional MFA support
  * - Full system access based on role
  */
-router.post('/login', authLimiter, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/login', authLimiter, validateBody(loginSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password, restaurantId } = req.body;
+    const { email, password, restaurantId } = (req as any).parsedBody as LoginPayload;
 
     // Validate input
     if (!email || !password) {
