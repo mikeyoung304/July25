@@ -7,6 +7,9 @@ import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { afterEach, afterAll, beforeAll, vi } from 'vitest'
 
+// Provide Vitest's jest-compatible API for legacy tests
+;(globalThis as any).jest = vi as any
+
 // Enable manual GC for tests
 beforeAll(() => {
   if (!global.gc) {
