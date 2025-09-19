@@ -9,7 +9,7 @@ import { logger } from '@/services/logger'
 import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
 import { toSnakeCase } from '@/services/utils/caseTransform'
-import { env } from '@/utils/env'
+import { getWsUrl, getRestaurantId } from '@/config'
 
 export interface WebSocketConfig {
   url?: string
@@ -52,16 +52,8 @@ export class WebSocketService extends EventEmitter {
    * Build WebSocket URL based on API base URL
    */
   private buildWebSocketUrl(): string {
-    let apiBaseUrl = 'http://localhost:3001'
-    
-    // Get API base URL from environment
-    if (env.VITE_API_BASE_URL) {
-      apiBaseUrl = env.VITE_API_BASE_URL
-    }
-    
-    // Convert HTTP to WS protocol
-    const wsUrl = apiBaseUrl.replace(/^http/, 'ws')
-    return wsUrl // WebSocket server runs on root path, not /ws
+    // Use centralized config for WebSocket URL
+    return getWsUrl()
   }
 
   /**

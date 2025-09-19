@@ -1,25 +1,24 @@
-# Restaurant OS v6.0.5
+# Restaurant OS v6.0.6
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Frontend CI](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml)
-[![Production Ready](https://img.shields.io/badge/Production%20Ready-7.0%2F10-yellow)](./docs/PRODUCTION_SPRINT_PLAN.md)
-[![Security](https://img.shields.io/badge/Security-7.0%2F10-green)](./docs/SECURITY_FIXES_v6.0.5.md)
+[![Production Ready](https://img.shields.io/badge/Production%20Ready-6.5%2F10-yellow)](./docs/PRODUCTION_SPRINT_PLAN.md)
+[![Security](https://img.shields.io/badge/Security-7.5%2F10-green)](./docs/SECURITY_FIXES_v6.0.5.md)
 
-A modern, production-ready restaurant management system with AI-powered voice ordering, real-time kitchen display, and comprehensive POS capabilities. **Critical security vulnerabilities fixed in v6.0.5.**
+A modern, production-ready restaurant management system with AI-powered voice ordering, real-time kitchen display, and comprehensive POS capabilities. **Centralized configuration and enhanced security in v6.0.6.**
 
-## 🚨 Security Update v6.0.5 (September 12, 2025)
+## 🚨 Configuration Update v6.0.6 (September 13, 2025)
 
-### Critical Security Fixes
-- **🔒 JWT Authentication**: Fixed authentication bypass vulnerability
-- **🛡️ XSS Protection**: Sanitized 11 HTML injection points
-- **🔐 CORS Security**: Fixed wildcard subdomain matching exploit
-- **📦 Dependencies**: Updated vitest (RCE fix), hono (path confusion fix)
+### Phase 1 Complete: Critical Configuration
+- **⚙️ Centralized Config**: Single source of truth for all configuration
+- **🔒 Server-Side Keys**: OpenAI API key moved to server-only
+- **🏢 Multi-Tenancy**: Dynamic restaurant context support
+- **📝 Documentation**: Complete environment variable guide
 
-### Sprint Progress (Day 2 of 14)
-- ✅ **Security**: All critical vulnerabilities patched
-- ✅ **Testing**: RCTX enforcement tests added
-- 🔄 **In Progress**: Memory leak fixes, performance optimization
-- 📅 **Next**: Image optimization, bundle splitting, load testing
+### Production Sprint Progress
+- ✅ **Phase 1**: Configuration management (COMPLETE)
+- 🔄 **Phase 2**: Security hardening (IN PROGRESS)
+- 📅 **Next**: Performance verification, database optimization
 
 [View Security Report →](./docs/SECURITY_FIXES_v6.0.5.md)  
 [View Sprint Plan →](./docs/PRODUCTION_SPRINT_PLAN.md)
@@ -150,28 +149,17 @@ rebuild-6.0/
 
 ### Environment Variables
 
-Create `.env` files in both client and server directories:
+**v6.0.6**: Configuration is now centralized. See [ENVIRONMENT_VARIABLES.md](./docs/ENVIRONMENT_VARIABLES.md) for complete documentation.
 
 ```bash
-# Client (.env)
-VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
-VITE_OPENAI_API_KEY=your-openai-key  # For voice features
-VITE_SQUARE_APP_ID=your-square-app-id  # For payments
-VITE_SQUARE_LOCATION_ID=your-square-location
+# Key changes in v6.0.6:
+# - Added STATION_TOKEN_SECRET for kitchen/expo auth
+# - OpenAI API key moved to server-only for security
+# - Centralized configuration service in shared/config
 
-# Server (.env)
-SUPABASE_URL=your-supabase-url
-SUPABASE_SERVICE_KEY=your-service-key
-SUPABASE_JWT_SECRET=your-jwt-secret  # Required for auth
-OPENAI_API_KEY=your-openai-key
-SQUARE_ACCESS_TOKEN=your-square-token  # For payment processing
-FRONTEND_URL=http://localhost:5173  # For CORS
-PIN_PEPPER=development-pepper-secret  # For PIN hashing
-DEVICE_FINGERPRINT_SALT=development-salt  # For device binding
-PORT=3001
-NODE_ENV=development
+# Required variables (see docs for full list):
+cp .env.example .env
+# Edit .env with your values
 ```
 
 ### Available Scripts

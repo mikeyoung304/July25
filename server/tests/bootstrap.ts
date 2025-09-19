@@ -3,6 +3,9 @@
 
 import { beforeAll, afterAll, afterEach, vi } from 'vitest';
 
+// Provide Vitest's jest-compatible API for shared test utilities
+;(globalThis as any).jest = vi as any;
+
 // Configure test environment variables
 process.env.NODE_ENV = 'test';
 process.env.PORT = '0'; // Use random port for tests
