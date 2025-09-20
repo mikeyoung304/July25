@@ -7,6 +7,8 @@ import { logger } from '../utils/logger';
 import { ai } from '../ai';
 import { MenuService } from '../services/menu.service';
 import type { OrderStatus, OrderType } from '@rebuild/shared';
+import { OrderPayload } from 'shared/contracts/order';
+import { validateBody } from '../middleware/validate';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'orders' });
@@ -34,10 +36,10 @@ router.get('/', authenticate, validateRestaurantAccess, async (req: Authenticate
 });
 
 // POST /api/v1/orders - Create new order
-router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_demo']), requireScope(['orders:create']), validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
+router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_demo']), requireScope(['orders:create']), validateRestaurantAccess, validateBody(OrderPayload), async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
-    const orderData = req.body;
+    const orderData = (req as any).validated;
 
     if (!orderData.items || orderData.items.length === 0) {
       throw BadRequest('Order must contain at least one item');
