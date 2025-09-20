@@ -30,9 +30,17 @@ import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
 import { applySecurity, securityMonitor } from './middleware/security';
+import { sanitizeRequest, strictSanitize } from './middleware/requestSanitizer';
 
 // Validate required environment variables
-validateEnvironment();
+try {
+  validateEnvironment();
+  logger.info('✅ Environment validation passed');
+} catch (error) {
+  logger.error('❌ Environment validation failed:', error);
+  logger.error('Please check your .env file and ensure all required variables are set');
+  process.exit(1);
+}
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -104,6 +112,9 @@ app.use(cookieParser());
 app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
+// Request sanitization (after body parsing, before other middleware)
+app.use(sanitizeRequest);
+
 // CSRF protection (after cookie parser, before routes)
 app.use(csrfMiddleware());
 
@@ -165,7 +176,9 @@ async function startServer() {
     
     // Initialize menu context for AI service
     try {
-      const restaurantId = process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
+      const { getConfig } = require('./config/environment');
+      const config = getConfig();
+      const restaurantId = config.restaurant.defaultId;
       await aiService.syncMenuFromDatabase(restaurantId);
       logger.info('✅ Menu context initialized for AI service');
     } catch (error) {
@@ -173,12 +186,17 @@ async function startServer() {
     }
     
     httpServer.listen(PORT, () => {
+      const { getConfig } = require('./config/environment');
+      const config = getConfig();
+      const host = process.env.NODE_ENV === 'production' ? config.frontend.url.replace('http://', '').replace('https://', '').split(':')[0] : 'localhost';
+      
       logger.info(`🚀 Unified backend running on port ${PORT}`);
-      logger.info(`   - REST API: http://localhost:${PORT}/api/v1`);
-      logger.info(`   - Voice AI: http://localhost:${PORT}/api/v1/ai`);
-      logger.info(`   - WebSocket: ws://localhost:${PORT}`);
-      logger.info(`🌍 Environment: ${process.env.NODE_ENV}`);
-      logger.info(`🔗 Frontend URL: ${process.env.FRONTEND_URL}`);
+      logger.info(`   - REST API: http://${host}:${PORT}/api/v1`);
+      logger.info(`   - Voice AI: http://${host}:${PORT}/api/v1/ai`);
+      logger.info(`   - WebSocket: ws://${host}:${PORT}`);
+      logger.info(`🌍 Environment: ${config.nodeEnv}`);
+      logger.info(`🔗 Frontend URL: ${config.frontend.url}`);
+      logger.info(`🏢 Default Restaurant: ${config.restaurant.defaultId}`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);

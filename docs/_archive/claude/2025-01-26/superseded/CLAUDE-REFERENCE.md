@@ -1,3 +1,8 @@
+
+> **ARCHIVED (CLAUDE) — superseded**
+> Historical context only. Do NOT rely on it.
+> Canonical sources: AGENTS.md and docs/VERIFIED_TRUTH.md.
+
 # Claude Code System Reference
 
 ## Configuration Structure

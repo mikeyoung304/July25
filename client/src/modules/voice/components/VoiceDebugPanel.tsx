@@ -245,17 +245,11 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
         <div className="flex items-center justify-between">
           <span className="text-gray-400">OpenAI API:</span>
           <div className="flex items-center gap-2">
-            {import.meta.env.VITE_OPENAI_API_KEY ? (
-              <div className="flex items-center gap-1 text-green-400">
-                <CheckCircle className="w-3 h-3" />
-                <span>Key Present</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-yellow-400">
-                <AlertCircle className="w-3 h-3" />
-                <span>Check Server</span>
-              </div>
-            )}
+            {/* OpenAI key is now server-side only for security */}
+            <div className="flex items-center gap-1 text-blue-400">
+              <CheckCircle className="w-3 h-3" />
+              <span>Server-side</span>
+            </div>
           </div>
         </div>
         <div className="flex items-center justify-between mt-1">
