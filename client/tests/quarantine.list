@@ -1,0 +1,2 @@
+src/**/*.{test,spec}.{ts,tsx}
+**/__tests__/**/*.{ts,tsx}
