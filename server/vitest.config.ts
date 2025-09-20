@@ -23,8 +23,8 @@ export default defineConfig({
     },
     
     // Memory-conscious settings for server tests
-    testTimeout: 30000,
-    hookTimeout: 30000,
+    testTimeout: 15000,
+    hookTimeout: 15000,
     teardownTimeout: 10000,
     
     // Enhanced isolation

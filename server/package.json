@@ -21,13 +21,14 @@
     "migrate:run": "tsx scripts/migrate.ts",
     "lint": "cd .. && npm run lint:fix -- server/src",
     "lint:fix": "cd .. && npm run lint:fix -- server/src",
-    "typecheck": "cd .. && npm run typecheck",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "start:all": "./scripts/start-all.sh",
     "init:menu": "tsx scripts/init-menu-context.ts",
     "check:integration": "tsx scripts/integration-check.ts",
     "db:migrate": "node scripts/run-migrations.js",
     "db:check": "node scripts/run-migrations.js check",
-    "seed:tables": "tsx scripts/seed-tables-simple.ts"
+    "seed:tables": "tsx scripts/seed-tables-simple.ts",
+    "test:quick": "vitest run --bail=1 --reporter=dot --silent"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.39.7",
