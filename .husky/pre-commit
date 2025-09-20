@@ -1,4 +1,11 @@
 #!/usr/bin/env sh
+CHANGED="$(git diff --cached --name-only)"
+if [ -n "$CHANGED" ] && echo "$CHANGED" | grep -Evq '^(AGENTS\.md|\.codex/|docs/|\.github/)'; then
+  echo "[husky] code changes detected -> running full checks"
+else
+  echo "[husky] docs-only changes -> skipping heavy checks"
+  exit 0
+fi
 . "$(dirname -- "$0")/_/husky.sh"
 
 echo "🚀 Running pre-commit checks (fast mode)..."

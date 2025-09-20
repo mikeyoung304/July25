@@ -15,9 +15,10 @@
     "test:coverage": "vitest run --coverage",
     "test:memory": "NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' vitest run",
     "test:ci": "NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' VITEST_COVERAGE=false vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "analyze": "vite build --mode analyze"
+    "analyze": "vite build --mode analyze",
+    "test:quick": "vitest run --bail=1 --reporter=dot --silent"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

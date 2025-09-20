@@ -8,6 +8,10 @@ import { validatePin, createOrUpdatePin } from '../services/auth/pinAuth';
 import { createStationToken, validateStationToken, revokeAllStationTokens } from '../services/auth/stationAuth';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
 import { requireScopes, ApiScope } from '../middleware/rbac';
+import { 
+  authRateLimiters,
+  resetFailedAttempts 
+} from '../middleware/authRateLimiter';
 
 const router = Router();
 const config = getConfig();
@@ -23,7 +27,10 @@ const ALLOWED_DEMO_RESTAURANTS = [
  * POST /api/v1/auth/kiosk
  * Issues a short-lived JWT for kiosk demo sessions
  */
-router.post('/kiosk', async (req: Request, res: Response) => {
+router.post('/kiosk', 
+  authRateLimiters.checkSuspicious,
+  authRateLimiters.kiosk,
+  async (req: Request, res: Response) => {
   try {
     const { restaurantId } = req.body;
 
@@ -84,7 +91,10 @@ router.post('/kiosk', async (req: Request, res: Response) => {
  * POST /api/v1/auth/login
  * Email/password login for managers and owners via Supabase
  */
-router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/login', 
+  authRateLimiters.checkSuspicious,
+  authRateLimiters.login,
+  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, restaurantId } = req.body;
 
@@ -142,6 +152,9 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
       role: userRole.role,
       restaurantId
     });
+    
+    // Reset rate limiting on successful auth
+    resetFailedAttempts(req);
 
     // Return session data
     res.json({
@@ -167,7 +180,10 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
  * POST /api/v1/auth/pin-login
  * PIN-based login for servers and cashiers
  */
-router.post('/pin-login', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/pin-login', 
+  authRateLimiters.checkSuspicious,
+  authRateLimiters.pin,
+  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { pin, restaurantId } = req.body;
 
@@ -227,7 +243,12 @@ router.post('/pin-login', async (req: Request, res: Response, next: NextFunction
  * POST /api/v1/auth/station-login
  * Station authentication for kitchen and expo displays
  */
-router.post('/station-login', authenticate, requireScopes(ApiScope.STAFF_MANAGE), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.post('/station-login', 
+  authRateLimiters.checkSuspicious,
+  authRateLimiters.station,
+  authenticate, 
+  requireScopes(ApiScope.STAFF_MANAGE), 
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const { stationType, stationName, restaurantId } = req.body;
 
@@ -356,7 +377,9 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
  * POST /api/v1/auth/refresh
  * Refresh authentication token
  */
-router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/refresh', 
+  authRateLimiters.tokenRefresh,
+  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { refreshToken } = req.body;
 
