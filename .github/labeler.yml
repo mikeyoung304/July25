@@ -1,0 +1,7 @@
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'AGENTS.md'
+          - '.codex/**'
+          - 'docs/**'
+          - '.github/**'

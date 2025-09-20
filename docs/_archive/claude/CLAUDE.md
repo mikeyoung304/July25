@@ -1,3 +1,8 @@
+
+> **ARCHIVED (CLAUDE) — superseded**
+> Historical context only. Do NOT rely on it.
+> Canonical sources: AGENTS.md and docs/VERIFIED_TRUTH.md.
+
 # Restaurant OS - rebuild-6.0 Project Instructions
 
 ## Project Overview
