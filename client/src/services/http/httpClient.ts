@@ -10,8 +10,7 @@
 import { SecureAPIClient, APIError } from '@/services/secureApi'
 import { logger } from '@/services/logger'
 import { supabase } from '@/core/supabase'
-// Removed case transformation - server handles this
-import { env } from '@/utils/env'
+import { getApiUrl, getRestaurantId } from '@/config'
 import { RequestBatcher } from './RequestBatcher'
 import { ResponseCache } from '../cache/ResponseCache'
 import type { JsonValue } from '@/../../shared/types/api.types'
@@ -60,35 +59,17 @@ export class HttpClient extends SecureAPIClient {
   private responseCache: ResponseCache
   
   constructor() {
-    let baseURL = 'http://localhost:3001'
+    // Use centralized config for base URL
+    const baseURL = getApiUrl()
     
-    // Get base URL from environment
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-      // Use default URL in test environment
-      baseURL = 'http://localhost:3001'
-    } else {
-      try {
-        const viteUrl = env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL
-        logger.info('[httpClient] env.VITE_API_BASE_URL:', env.VITE_API_BASE_URL)
-        logger.info('[httpClient] import.meta.env.VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL)
-        if (viteUrl) {
-          baseURL = viteUrl
-        } else if (import.meta.env.PROD) {
-          // Default to production API if no env var set
-          baseURL = 'https://july25.onrender.com'
-          logger.info('[httpClient] Using default production API:', baseURL)
-        }
-        // In production without a configured backend, warn the user
-        if (import.meta.env.PROD && baseURL.includes('localhost')) {
-          console.error('⚠️ Production build is trying to connect to localhost backend!')
-          console.error('Using default production API instead: https://july25.onrender.com')
-          console.error('You need to deploy your backend and set VITE_API_BASE_URL to its URL')
-          console.error('env object:', env)
-          console.error('import.meta.env:', import.meta.env)
-        }
-      } catch {
-        // Fallback for environments without import.meta
-      }
+    if (import.meta.env.DEV) {
+      logger.info('[httpClient] Using API base URL from config:', baseURL)
+    }
+    
+    // Warn if production is misconfigured
+    if (import.meta.env.PROD && baseURL.includes('localhost')) {
+      console.error('⚠️ Production build is trying to connect to localhost backend!')
+      console.error('Please set VITE_API_BASE_URL to your production backend URL')
     }
     
     super(baseURL)
@@ -153,14 +134,8 @@ export class HttpClient extends SecureAPIClient {
 
     // 2. Add x-restaurant-id header (per Luis's spec)
     if (!skipRestaurantId) {
-      let restaurantId = getCurrentRestaurantId()
-      
-      // Fallback to demo restaurant ID if not set (for friends & family/demo mode)
-      if (!restaurantId) {
-        restaurantId = '11111111-1111-1111-1111-111111111111'
-        logger.info('🏢 Using demo restaurant ID for API request')
-      }
-      
+      // Use centralized restaurant ID getter (handles fallback to default)
+      const restaurantId = getCurrentRestaurantId() || getRestaurantId()
       headers.set('x-restaurant-id', restaurantId)
       
       const debugVoice = import.meta.env.VITE_DEBUG_VOICE === 'true';
