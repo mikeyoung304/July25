@@ -1,0 +1,23 @@
+name: Codex Plan
+description: Ask Codex to propose a concrete plan before changing code
+labels: ["codex:plan"]
+body:
+
+  - type: textarea
+    id: outcome
+    attributes: { label: Outcome, description: "Define success (e.g., 'tsc returns 0 in server/')" }
+    validations: { required: true }
+
+  - type: textarea
+    id: scope
+    attributes: { label: Scope, description: "Limit files/dirs, LOC, flags" }
+    validations: { required: true }
+
+  - type: textarea
+    id: acceptance
+    attributes: { label: Acceptance, description: "Commands & green signals" }
+    validations: { required: true }
+
+  - type: textarea
+    id: notes
+    attributes: { label: Notes, description: "Risks, constraints" }

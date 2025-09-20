@@ -8,7 +8,7 @@ import { logger } from '@/services/logger'
 import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
 import { toSnakeCase } from '@/services/utils/caseTransform'
-import { env } from '@/utils/env'
+import { getWsUrl } from '@/config'
 
 export interface WebSocketConfig {
   url?: string
@@ -52,8 +52,8 @@ export class WebSocketServiceV2 extends EventEmitter {
    * Build WebSocket URL based on API base URL
    */
   private buildWebSocketUrl(): string {
-    const apiBaseUrl = env.VITE_API_BASE_URL || 'http://localhost:3001'
-    return apiBaseUrl.replace(/^http/, 'ws')
+    // Use centralized config for WebSocket URL
+    return getWsUrl()
   }
 
   /**
