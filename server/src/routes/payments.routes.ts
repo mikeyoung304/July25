@@ -8,6 +8,8 @@ import { SquareClient, SquareEnvironment } from 'square';
 import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
 import { PaymentService } from '../services/payment.service';
+import { validateBody } from '../middleware/validate';
+import { PaymentPayload } from 'shared/contracts/payment';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'payments' });
@@ -33,10 +35,11 @@ const client = new SquareClient({
 const paymentsApi = client.payments;
 
 // POST /api/v1/payments/create - Process payment
-router.post('/create', 
-  authenticate, 
-  validateRestaurantAccess, 
+router.post('/create',
+  authenticate,
+  validateRestaurantAccess,
   requireScopes(ApiScope.PAYMENTS_PROCESS),
+  validateBody(PaymentPayload),
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
     const restaurantId = req.restaurantId!;
