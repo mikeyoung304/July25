@@ -5,8 +5,9 @@ import cookieParser from 'cookie-parser';
 import { csrfMiddleware, csrfErrorHandler } from '../../src/middleware/csrf';
 import { authenticate } from '../../src/middleware/auth';
 import jwt from 'jsonwebtoken';
+import { getCsrfPair, requestWithCsrf } from '../../../tests/utils/csrf';
 
-describe.skip('Security Proof: CSRF Protection', () => {
+describe('Security Proof: CSRF Protection', () => {
   let app: express.Application;
   let validToken: string;
 
@@ -111,18 +112,15 @@ describe.skip('Security Proof: CSRF Protection', () => {
     });
 
     it('should accept POST with valid CSRF token', async () => {
-      // First get a CSRF token
-      const tokenResponse = await request(app)
-        .get('/api/csrf-token')
-        .expect(200);
+      // First get a CSRF token pair
+      const { csrfCookie, token } = await getCsrfPair(app);
 
-      const csrfToken = tokenResponse.body.token;
-
-      // Use the token in a POST request
+      // Use the token and cookie in a POST request
       const response = await request(app)
         .post('/api/order')
         .set('Authorization', `Bearer ${validToken}`)
-        .set('X-CSRF-Token', csrfToken)
+        .set('Cookie', csrfCookie)
+        .set('X-CSRF-Token', token)
         .send({ item: 'test' })
         .expect(200);
 
