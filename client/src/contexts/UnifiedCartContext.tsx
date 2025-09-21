@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+import React, { createContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { MenuItem, Cart, CartItem } from '@rebuild/shared';
 import { calculateCartTotals } from '@rebuild/shared/cart';
 import { useParams } from 'react-router-dom';
@@ -39,7 +39,6 @@ interface UnifiedCartContextType {
 export const UnifiedCartContext = createContext<UnifiedCartContextType | undefined>(undefined);
 
 const DEFAULT_RESTAURANT_ID = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
-const _TAX_RATE = 0.0875; // 8.75% tax rate - reserved for future use
 
 interface UnifiedCartProviderProps {
   children: React.ReactNode;
@@ -72,7 +71,7 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
               modifications: (item as any).modifications || (item as any).modifiers || [],
               specialInstructions: (item as any).specialInstructions || ''
             };
-            
+
             // Only return items that have essential fields
             if (migratedItem.name && migratedItem.price >= 0 && migratedItem.quantity > 0) {
               return migratedItem;

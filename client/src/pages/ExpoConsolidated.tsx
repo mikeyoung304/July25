@@ -8,8 +8,6 @@ import { TouchOptimizedOrderCard } from '@/components/kitchen/TouchOptimizedOrde
 import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
 import { useTableGrouping, sortTableGroups, getTableGroupStats } from '@/hooks/useTableGrouping'
-import { cn } from '@/utils'
-import type { Order } from '@rebuild/shared'
 
 type ViewMode = 'tables' | 'orders' | 'hybrid'
 type SortBy = 'urgency' | 'completion' | 'table' | 'age'
@@ -19,14 +17,14 @@ type SortBy = 'urgency' | 'completion' | 'table' | 'age'
  * Transforms chaos into choreography with intelligent table grouping
  */
 function ExpoConsolidated() {
-  const { 
-    orders, 
-    isLoading, 
-    error, 
+  const {
+    orders,
+    isLoading,
+    error,
     updateOrderStatus,
     readyOrders,
     activeOrders,
-    connectionState
+    connectionState: _connectionState
   } = useKitchenOrdersOptimized()
   
   // Intelligent table grouping

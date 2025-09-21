@@ -1,13 +1,9 @@
 import React, { useMemo, useState, useCallback } from 'react'
 import { Eye, Filter, Clock, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { TouchOptimizedOrderCard } from '@/components/kitchen/TouchOptimizedOrderCard'
 import { VirtualizedOrderGrid } from '@/components/kitchen/VirtualizedOrderGrid'
 import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
-import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBoundary'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
-import { STATUS_GROUPS, isStatusInGroup, getSafeOrderStatus } from '@/utils/orderStatusValidation'
-import { cn } from '@/utils'
 import type { Order } from '@rebuild/shared'
 
 function ExpoPageOptimized() {
@@ -17,10 +13,10 @@ function ExpoPageOptimized() {
     isLoading, 
     error, 
     updateOrderStatus, 
-    prioritizedOrders,
+    _prioritizedOrders,
     activeOrders, 
     readyOrders,
-    connectionState 
+    _connectionState 
   } = useKitchenOrdersOptimized()
   
   // View modes for expo station
