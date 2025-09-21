@@ -194,7 +194,7 @@ export class ResponseCache {
    * Clean up expired entries
    */
   private cleanup(): void {
-    const now = Date.now();
+    const _now = Date.now();
     let removed = 0;
 
     for (const [key, entry] of this.cache.entries()) {

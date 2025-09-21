@@ -14,7 +14,7 @@ function ExpoPageDebug() {
   
   // View modes for expo station
   const [viewMode, setViewMode] = useState<'split' | 'ready-only'>('split')
-  const [showFilters, setShowFilters] = useState(false)
+  const [_showFilters, _setShowFilters] = useState(false)
 
   // Enhanced order completion for expo station
   const handleCompleteOrder = useCallback(async (orderId: string, status: 'ready') => {
