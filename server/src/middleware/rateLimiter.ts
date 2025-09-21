@@ -16,7 +16,7 @@ export const apiLimiter = rateLimit({
   message: 'Too many requests from this restaurant/IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req: Request) => isDevelopment, // Skip rate limiting in development
+  skip: () => isDevelopment, // Skip rate limiting in development
 });
 
 // Stricter rate limiter for voice orders
@@ -30,7 +30,7 @@ export const voiceOrderLimiter = rateLimit({
   message: 'Voice ordering rate limit exceeded. Please wait a moment before placing another order.',
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req: Request) => isDevelopment, // Skip in development
+  skip: () => isDevelopment, // Skip in development
 });
 
 // Even stricter rate limiter for auth endpoints
@@ -65,7 +65,7 @@ export const aiServiceLimiter = rateLimit({
   message: 'AI service rate limit exceeded. Please wait before making more requests.',
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req: Request) => isDevelopment, // Skip in development
+  skip: () => isDevelopment, // Skip in development
   handler: (req, res) => {
     // Log potential abuse for monitoring
     console.error(`[RATE_LIMIT] AI service limit exceeded for ${req.ip} at ${new Date().toISOString()}`);
@@ -87,7 +87,7 @@ export const transcriptionLimiter = rateLimit({
   message: 'Transcription rate limit exceeded. Please wait before transcribing more audio.',
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req: Request) => isDevelopment, // Skip in development
+  skip: () => isDevelopment, // Skip in development
   handler: (req, res) => {
     // Log potential abuse for monitoring
     console.error(`[RATE_LIMIT] Transcription limit exceeded for ${req.ip} at ${new Date().toISOString()}`);

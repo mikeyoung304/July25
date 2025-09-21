@@ -13,7 +13,7 @@ export const generateNonce = (): string => {
 };
 
 // Add nonce to response locals for CSP
-export const nonceMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const nonceMiddleware = (_req: Request, res: Response, next: NextFunction) => {
   res.locals['nonce'] = generateNonce();
   next();
 };
@@ -30,7 +30,7 @@ export const securityHeaders = () => {
         styleSrc: ["'self'", "'unsafe-inline'"], // Required for Tailwind
         scriptSrc: isDevelopment 
           ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] // Development needs eval for HMR
-          : ["'self'", (req, res) => `'nonce-${(res as any).locals.nonce}'`],
+          : ["'self'", (_req, res) => `'nonce-${(res as any).locals.nonce}'`],
         imgSrc: ["'self'", "data:", "https:"],
         connectSrc: ["'self'", "wss:", "ws:", "https://api.openai.com"],
         fontSrc: ["'self'", "data:"],

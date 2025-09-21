@@ -115,6 +115,10 @@ class ErrorTracker {
       data
     };
 
+    if (!this.breadcrumbs) {
+      this.breadcrumbs = [];
+    }
+
     this.breadcrumbs.push(breadcrumb);
 
     // Keep only the most recent breadcrumbs
@@ -139,7 +143,7 @@ class ErrorTracker {
       sessionId: this.sessionId,
       userId: this.userId,
       context: { ...this.context, ...context },
-      breadcrumbs: [...this.breadcrumbs],
+      breadcrumbs: this.breadcrumbs ? [...this.breadcrumbs] : [],
       tags: {
         environment: process.env['NODE_ENV'] || 'development',
         version: process.env['APP_VERSION'] || 'unknown'
@@ -167,7 +171,7 @@ class ErrorTracker {
       sessionId: this.sessionId,
       userId: this.userId,
       context: { ...this.context, ...context },
-      breadcrumbs: [...this.breadcrumbs],
+      breadcrumbs: this.breadcrumbs ? [...this.breadcrumbs] : [],
       tags: {
         environment: process.env['NODE_ENV'] || 'development',
         version: process.env['APP_VERSION'] || 'unknown'
@@ -256,7 +260,7 @@ class ErrorTracker {
   }
 
   public getBreadcrumbs(): ErrorReport['breadcrumbs'] {
-    return [...this.breadcrumbs];
+    return this.breadcrumbs ? [...this.breadcrumbs] : [];
   }
 
   public getSessionId(): string {

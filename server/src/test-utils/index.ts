@@ -145,12 +145,12 @@ export const testData = {
 
 // Environment setup for tests
 export const setupTestEnv = () => {
-  process.env.NODE_ENV = 'test';
-  process.env.SUPABASE_URL = 'http://localhost:54321';
-  process.env.SUPABASE_ANON_KEY = 'test-anon-key';
-  process.env.SUPABASE_SERVICE_KEY = 'test-service-key';
-  process.env.OPENAI_API_KEY = 'test-openai-key';
-  process.env.DEFAULT_RESTAURANT_ID = 'test-restaurant-id';
+  process.env['NODE_ENV'] = 'test';
+  process.env['SUPABASE_URL'] = 'http://localhost:54321';
+  process.env['SUPABASE_ANON_KEY'] = 'test-anon-key';
+  process.env['SUPABASE_SERVICE_KEY'] = 'test-service-key';
+  process.env['OPENAI_API_KEY'] = 'test-openai-key';
+  process.env['DEFAULT_RESTAURANT_ID'] = 'test-restaurant-id';
 };
 
 // Cleanup function

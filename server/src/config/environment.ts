@@ -9,7 +9,7 @@ export interface EnvironmentConfig {
     url: string;
     anonKey: string;
     serviceKey: string;
-    jwtSecret?: string | undefined;
+    jwtSecret?: string;
   };
   frontend: {
     url: string;

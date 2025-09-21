@@ -19,7 +19,7 @@ export function getVoiceServer(): VoiceWebSocketServer | undefined {
 export const voiceRoutes = Router();
 
 // Add basic middleware for all voice routes
-voiceRoutes.use((req, res, next) => {
+voiceRoutes.use((_req, res, next) => {
   // Add CORS headers for voice endpoints
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -155,8 +155,8 @@ voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response) =>
 // Handshake readiness endpoint
 voiceRoutes.get('/handshake', async (_req: Request, res: Response) => {
   const startTime = Date.now();
-  const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-10-01';
-  const apiKey = process.env.OPENAI_API_KEY;
+  const model = process.env['OPENAI_REALTIME_MODEL'] || 'gpt-4o-realtime-preview-2024-10-01';
+  const apiKey = process.env['OPENAI_API_KEY'];
   
   if (!apiKey) {
     return res.status(502).json({
@@ -232,7 +232,7 @@ voiceRoutes.get('/handshake', async (_req: Request, res: Response) => {
       model,
       code: error.code || 'HANDSHAKE_FAILED',
       message: error.message || 'Failed to connect to OpenAI Realtime',
-      hint
+      ...(hint && { hint })
     });
   }
 });

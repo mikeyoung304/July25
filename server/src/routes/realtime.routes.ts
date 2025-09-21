@@ -45,14 +45,7 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
         menuContext = `\n\n📋 FULL MENU (Summer Lunch Menu - prices may vary):\n`;
         menuContext += `=====================================\n`;
         
-        // Add special dietary notes
-        const allergenNotes: Record<string, string> = {
-          'Peanut Noodles': '⚠️ Contains peanuts',
-          'Jalapeño Pimento': '🌶️ Mild heat',
-          'Greek': '🧀 Contains dairy (feta, tzatziki)',
-          'Soul Bowl': '🥓 Contains pork',
-          'Vegan': '🌱 100% plant-based',
-        };
+        // Add special dietary notes (for future implementation)
         
         for (const [category, items] of Object.entries(menuByCategory)) {
           menuContext += `\n${category.toUpperCase()}:\n`;
@@ -96,11 +89,12 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
           categories: Object.keys(menuByCategory)
         });
       }
-    } catch (error: any) {
-      realtimeLogger.warn('Failed to load menu context', { 
-        error: error.message || 'Unknown error',
-        stack: error.stack,
-        restaurantId 
+    } catch (menuError) {
+      const err = menuError as any;
+      realtimeLogger.warn('Failed to load menu context', {
+        error: err.message || 'Unknown error',
+        stack: err.stack,
+        restaurantId
       });
       // Continue without menu context
     }

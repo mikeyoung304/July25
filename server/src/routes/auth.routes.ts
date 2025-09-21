@@ -5,7 +5,7 @@ import { BadRequest, Unauthorized } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/database';
 import { validatePin, createOrUpdatePin } from '../services/auth/pinAuth';
-import { createStationToken, validateStationToken, revokeAllStationTokens } from '../services/auth/stationAuth';
+import { createStationToken, revokeAllStationTokens } from '../services/auth/stationAuth';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
 import { requireScopes, ApiScope } from '../middleware/rbac';
 import { 
@@ -14,7 +14,6 @@ import {
 } from '../middleware/authRateLimiter';
 
 const router = Router();
-const config = getConfig();
 
 // Constants for demo auth
 const DEMO_ROLE = 'kiosk_demo';
@@ -340,14 +339,14 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
     const restaurantId = req.restaurantId;
 
     // Get user profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from('user_profiles')
       .select('display_name, phone, employee_id')
       .eq('user_id', userId)
       .single();
 
     // Get user's role in current restaurant
-    const { data: userRole, error: roleError } = await supabase
+    const { data: userRole } = await supabase
       .from('user_restaurants')
       .select('role')
       .eq('user_id', userId)

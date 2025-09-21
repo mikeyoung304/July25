@@ -41,12 +41,16 @@ export function memoWithProfiling<P extends object>(
   Component: React.ComponentType<P>,
   propsAreEqual?: (prevProps: P, nextProps: P) => boolean
 ): React.ForwardRefExoticComponent<P & React.RefAttributes<any>> {
+  if (!React) {
+    throw new Error('React is not available in memoWithProfiling');
+  }
+
   const componentName = Component.displayName || Component.name || 'Anonymous';
-  
+
   const MemoizedComponent = React.memo(Component, propsAreEqual);
   MemoizedComponent.displayName = `Memo(${componentName})`;
-  
-  return React?.forwardRef((props: any, ref: any) => {
+
+  return React.forwardRef((props: any, ref: any) => {
     // Profile component memory usage
     if (typeof window !== 'undefined') {
       // Only run memory profiling in browser
@@ -70,20 +74,24 @@ export function withPerformanceTracking<P extends object>(
   Component: any,
   trackingName?: string
 ): any {
+  if (!React) {
+    throw new Error('React is not available in withPerformanceTracking');
+  }
+
   const componentName = trackingName || Component.displayName || Component.name || 'Anonymous';
-  
-  return React?.forwardRef((props: any, ref: any) => {
-    const renderStartTime = React?.useRef(0);
-    const renderCount = React?.useRef(0);
+
+  return React.forwardRef((props: any, ref: any) => {
+    const renderStartTime = React.useRef(0);
+    const renderCount = React.useRef(0);
     
     // Track render start
-    if (renderStartTime?.current !== undefined) {
+    if (renderStartTime.current !== undefined) {
       renderStartTime.current = performance.now();
     }
-    if (renderCount?.current !== undefined) {
+    if (renderCount.current !== undefined) {
       renderCount.current++;
     }
-    
+
     // Profile component memory (browser only)
     if (typeof window !== 'undefined') {
       try {
@@ -94,11 +102,11 @@ export function withPerformanceTracking<P extends object>(
         // Memory monitoring not available
       }
     }
-    
-    React?.useEffect(() => {
-      if (renderStartTime?.current !== undefined && renderCount?.current !== undefined) {
+
+    React.useEffect(() => {
+      if (renderStartTime.current !== undefined && renderCount.current !== undefined) {
         const renderTime = performance.now() - renderStartTime.current;
-        
+
         if (renderTime > 16) { // > 1 frame at 60fps
           console.warn(
             `[Performance] ${componentName} render #${renderCount.current} took ${renderTime.toFixed(2)}ms`
@@ -106,8 +114,8 @@ export function withPerformanceTracking<P extends object>(
         }
       }
     });
-    
-    return React?.createElement(Component, { ...props, ref });
+
+    return React.createElement(Component, { ...props, ref });
   });
 }
 
@@ -156,10 +164,12 @@ export function withSmartMemo<P extends object>(
     return true;
   };
   
-  const MemoizedComponent = React?.memo(Component, arePropsEqual);
-  if (MemoizedComponent) {
-    MemoizedComponent.displayName = `SmartMemo(${componentName})`;
+  if (!React) {
+    throw new Error('React is not available in withSmartMemo');
   }
-  
+
+  const MemoizedComponent = React.memo(Component, arePropsEqual);
+  MemoizedComponent.displayName = `SmartMemo(${componentName})`;
+
   return MemoizedComponent;
 }

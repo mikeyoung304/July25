@@ -13,7 +13,7 @@ const router = Router();
 router.get('/events',
   authenticate,
   requireRole('owner', 'manager'),
-  (req, res) => {
+  (_req, res) => {
     const { type, userId, ip, limit = 100 } = req.query;
     
     const filter: any = {};
@@ -35,7 +35,7 @@ router.get('/events',
 router.get('/stats',
   authenticate,
   requireRole('owner', 'manager'),
-  (req, res) => {
+  (_req, res) => {
     const stats = securityMonitor.getStats();
     
     res.json({
@@ -49,7 +49,7 @@ router.get('/stats',
 router.post('/test',
   authenticate,
   requireRole('owner'),
-  (req, res) => {
+  (_req, res) => {
     if (process.env['NODE_ENV'] === 'production') {
       return res.status(403).json({
         error: {
@@ -81,7 +81,7 @@ router.post('/test',
 router.get('/config',
   authenticate,
   requireRole('owner'),
-  (req, res) => {
+  (_req, res) => {
     res.json({
       environment: process.env['NODE_ENV'],
       security: {
