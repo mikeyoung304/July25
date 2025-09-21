@@ -229,12 +229,12 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
       const restaurant2Token = createToken('manager', 'restaurant2');
 
       // Both managers can access manager endpoints
-      let response1 = await request(app)
+      const response1 = await request(app)
         .get('/api/manager')
         .set('Authorization', `Bearer ${restaurant1Token}`)
         .expect(200);
 
-      let response2 = await request(app)
+      const response2 = await request(app)
         .get('/api/manager')
         .set('Authorization', `Bearer ${restaurant2Token}`)
         .expect(200);

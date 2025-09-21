@@ -1,0 +1,23 @@
+=== Code Smell Inventory ===
+
+TODO/FIXME:
+./client/vite.config.backup.ts:1
+./client/vite.config.ORIGINAL.ts:1
+./client/src/components/kitchen/StationStatusBar.tsx:1
+./client/src/services/monitoring/performance.ts:1
+./client/src/hooks/useTableGrouping.ts:1
+./client/src/pages/DriveThruPage.tsx:1
+./client/src/pages/ExpoConsolidated.tsx:1
+./client/src/modules/voice/services/orderIntegration.integration.test.tsx:1
+./client/src/modules/order-system/components/MenuItemCard.tsx:1
+./docs/HORSEMAN_DRIFT.md:3
+./docs/HORSEMAN_BLOAT.md:5
+./docs/DOCS_AUDIT_SUMMARY.md:1
+./docs/PRODUCTION_SPRINT_PLAN.md:2
+./docs/HORSEMAN_DEBT.md:7
+./docs/FOUR_HORSEMEN_EXECUTIVE_SUMMARY.md:1
+./docs/archive/2025-01-26/outdated/WEBSOCKET_TEST_FIX.md:1
+./docs/archive/2025-01-26/outdated/REALITY_CHECK_FINAL.md:6
+./docs/audits/raw/smells.txt:1
+./server/src/services/orderStateMachine.ts:3
+./server/src/services/payment.service.ts:1

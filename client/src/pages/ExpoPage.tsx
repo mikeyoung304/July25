@@ -136,23 +136,9 @@ function ExpoPage() {
   
   // Memory monitoring for long-running sessions
   useEffect(() => {
-    const memoryMonitor = MemoryMonitoringSystem.getInstance()
-    memoryMonitor.configure({
-      interval: 60000, // Check every minute
-      threshold: 200 * 1024 * 1024, // Alert at 200MB
-      onThresholdExceeded: (snapshot) => {
-        console.warn('⚠️ Expo Display memory usage high:', {
-          used: `${Math.round(snapshot.used / 1024 / 1024)}MB`,
-          percentage: `${snapshot.percentage.toFixed(2)}%`
-        })
-      }
-    })
-    
-    memoryMonitor.start()
-    
-    return () => {
-      memoryMonitor.stop()
-    }
+    // TODO: Implement memory monitoring when MemoryMonitorInstance API is available
+    // const memoryMonitor = MemoryMonitorInstance
+    // memoryMonitor.configure({...})
   }, [])
 
   // Handle marking kitchen orders as ready (left panel)

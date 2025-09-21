@@ -527,7 +527,7 @@ export class EnterpriseErrorHandler {
       
       case RecoveryStrategy.REDIRECT:
         if (typeof window !== 'undefined' && 'location' in window && error.details?.redirectUrl) {
-          window.location.href = error.details.redirectUrl;
+          window.location.href = error.details.redirectUrl as string;
         }
         return null;
       
@@ -594,7 +594,7 @@ export class EnterpriseErrorHandler {
   private useFallback<T>(error: EnterpriseError, config: ErrorRecoveryConfig): T | null {
     if (config.fallbackFunction) {
       try {
-        return config.fallbackFunction();
+        return config.fallbackFunction() as T | null;
       } catch (fallbackError) {
         this.handleError(fallbackError, {
           type: ErrorType.SYSTEM_ERROR,
@@ -606,7 +606,7 @@ export class EnterpriseErrorHandler {
       }
     }
     
-    return config.fallbackValue || null;
+    return (config.fallbackValue ?? null) as T | null;
   }
   
   /**
@@ -827,9 +827,10 @@ export const createErrorBoundary = (
       return { error: enterpriseError };
     }
     
-    render() {
+    override render() {
       if ((this.state as { error: EnterpriseError | null }).error) {
-        return React.createElement(fallbackComponent, { error: (this.state as { error: EnterpriseError }).error });
+        const errorWithName = { ...(this.state as { error: EnterpriseError }).error, name: 'EnterpriseError' };
+        return React.createElement(fallbackComponent, { error: errorWithName });
       }
       
       return (this.props as { children: React.ReactNode }).children;
