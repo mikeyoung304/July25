@@ -35,6 +35,7 @@
     "check:integration": "tsx scripts/integration-check.ts",
     "lint": "eslint --ext .ts,.tsx .",
     "lint:fix": "eslint --ext .ts,.tsx . --fix",
+    "lint:freeze": "node scripts/eslint-freeze.cjs",
     "check:no-shared-js": "node tools/check-no-shared-js.js",
     "typecheck": "tsc --build tsconfig.all.json",
     "typecheck:staged": "tsc --noEmit",
