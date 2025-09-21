@@ -1,6 +1,6 @@
 import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
-import { ai, _checkAIHealth } from '../ai';
+import { ai, checkAIHealth as _checkAIHealth } from '../ai';
 import { MenuService } from './menu.service';
 
 const aiLogger = logger.child({ service: 'AIService' });

@@ -16,7 +16,7 @@ export class ApiError extends Error implements AppError {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
-    this.code = code || undefined;
+    this.code = code;
     Error.captureStackTrace(this, this.constructor);
   }
 }

@@ -14,7 +14,6 @@ import {
 } from '../middleware/authRateLimiter';
 
 const router = Router();
-const _config = getConfig();
 
 // Constants for demo auth
 const DEMO_ROLE = 'kiosk_demo';
