@@ -2,6 +2,7 @@
  * Unified Menu Types
  * Single source of truth for all menu-related types
  */
+export type MenuCategoryType = string;
 export interface MenuCategory {
     id: string;
     name: string;

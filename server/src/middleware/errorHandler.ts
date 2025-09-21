@@ -4,13 +4,13 @@ import { logger } from '../utils/logger';
 export interface AppError extends Error {
   statusCode?: number;
   isOperational?: boolean;
-  code?: string;
+  code?: string | undefined;
 }
 
 export class ApiError extends Error implements AppError {
   statusCode: number;
   isOperational: boolean;
-  code?: string;
+  code?: string | undefined;
 
   constructor(statusCode: number, message: string, code?: string) {
     super(message);

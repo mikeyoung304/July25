@@ -1,6 +1,6 @@
 import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
-import { ai, _checkAIHealth } from '../ai';
+import { ai } from '../ai';
 import { MenuService } from './menu.service';
 
 const aiLogger = logger.child({ service: 'AIService' });
@@ -197,7 +197,7 @@ export class AIService {
   /**
    * Get menu data
    */
-  getMenu(): { menu?: Array<{ id: string; name: string; price: number; category: string; description?: string }> } | null {
+  getMenu(): { menu?: Array<{ id: string; name: string; price: number; category: string; description?: string }>; restaurantId?: string } | null {
     return this.menuData;
   }
 
@@ -296,9 +296,18 @@ export class AIService {
       
       // Transform to format expected by AI processing
       this.menuData = {
-        restaurantId: restaurantId,
-        menu: fullMenu.items,
-        categories: fullMenu.categories
+        menu: fullMenu.items.map(item => {
+          const menuItem: { id: string; name: string; price: number; category: string; description?: string } = {
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            category: item.categoryId || 'Other'
+          };
+          if (item.description) {
+            menuItem.description = item.description;
+          }
+          return menuItem;
+        })
       };
       
       aiLogger.info(`Menu loaded from local database for restaurant ${restaurantId}`, {
@@ -319,7 +328,10 @@ export class AIService {
       const response = await ai.chat.respond([
         { role: 'user', content: message }
       ], {
-        context: { restaurantId, userId }
+        context: {
+          restaurantId,
+          ...(userId && { userId })
+        }
       });
 
       return response.message;

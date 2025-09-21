@@ -3,7 +3,8 @@
  * Single source of truth for all order-related types
  */
 export type OrderStatus = 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
-export type OrderType = 'dine-in' | 'takeout' | 'delivery' | 'online';
+export type OrderType = 'online' | 'pickup' | 'delivery';
+export type UIOrderType = 'dine-in' | 'takeout' | 'delivery' | 'online' | 'drive-thru' | 'kiosk' | 'voice';
 export type PaymentStatus = 'pending' | 'paid' | 'refunded' | 'failed';
 export type PaymentMethod = 'cash' | 'card' | 'online' | 'other';
 export interface OrderItemModifier {

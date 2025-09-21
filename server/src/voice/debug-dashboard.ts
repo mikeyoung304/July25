@@ -33,7 +33,7 @@ export function createDebugDashboard(): Router {
   /**
    * Main dashboard HTML page
    */
-  router.get('/api/voice/debug', async (req: Request, res: Response) => {
+  router.get('/api/voice/debug', async (_req: Request, res: Response) => {
     const html = `
 <!DOCTYPE html>
 <html>
@@ -402,7 +402,7 @@ export function createDebugDashboard(): Router {
   /**
    * Get active sessions
    */
-  router.get('/api/voice/debug/sessions', (req: Request, res: Response) => {
+  router.get('/api/voice/debug/sessions', (_req: Request, res: Response) => {
     const metrics = getSessionMetrics();
     res.json({
       sessions: metrics.sessions,
@@ -413,14 +413,14 @@ export function createDebugDashboard(): Router {
   /**
    * Get system metrics
    */
-  router.get('/api/voice/debug/metrics', (req: Request, res: Response) => {
+  router.get('/api/voice/debug/metrics', (_req: Request, res: Response) => {
     res.json(debugData.metrics);
   });
 
   /**
    * Get recent transcripts
    */
-  router.get('/api/voice/debug/transcripts', (req: Request, res: Response) => {
+  router.get('/api/voice/debug/transcripts', (_req: Request, res: Response) => {
     const allTranscripts = [];
     for (const transcripts of debugData.transcripts.values()) {
       allTranscripts.push(...transcripts);
@@ -436,7 +436,7 @@ export function createDebugDashboard(): Router {
   /**
    * Get recent function calls
    */
-  router.get('/api/voice/debug/functions', (req: Request, res: Response) => {
+  router.get('/api/voice/debug/functions', (_req: Request, res: Response) => {
     res.json({
       functions: debugData.functionCalls
         .sort((a, b) => b.timestamp - a.timestamp)
@@ -447,7 +447,7 @@ export function createDebugDashboard(): Router {
   /**
    * Get recent errors
    */
-  router.get('/api/voice/debug/errors', (req: Request, res: Response) => {
+  router.get('/api/voice/debug/errors', (_req: Request, res: Response) => {
     res.json({
       errors: debugData.errors
         .sort((a, b) => b.timestamp - a.timestamp)
@@ -458,7 +458,7 @@ export function createDebugDashboard(): Router {
   /**
    * Test OpenAI connection
    */
-  router.post('/api/voice/debug/test', async (req: Request, res: Response) => {
+  router.post('/api/voice/debug/test', async (_req: Request, res: Response) => {
     try {
       const testSessionId = 'test-' + Date.now();
       const { EnhancedOpenAIAdapter } = await import('../ai/voice/EnhancedOpenAIAdapter');
@@ -475,7 +475,7 @@ export function createDebugDashboard(): Router {
         success: true,
         message: 'OpenAI connection successful'
       });
-    } catch (error) {
+    } catch (error: any) {
       res.json({
         success: false,
         message: error.message
@@ -501,7 +501,7 @@ export function createDebugDashboard(): Router {
   /**
    * Clear debug logs
    */
-  router.post('/api/voice/debug/clear', (req: Request, res: Response) => {
+  router.post('/api/voice/debug/clear', (_req: Request, res: Response) => {
     debugData.transcripts.clear();
     debugData.audioBuffers.clear();
     debugData.errors = [];
@@ -513,7 +513,7 @@ export function createDebugDashboard(): Router {
   /**
    * Export logs
    */
-  router.get('/api/voice/debug/export', async (req: Request, res: Response) => {
+  router.get('/api/voice/debug/export', async (_req: Request, res: Response) => {
     const exportData = {
       timestamp: new Date().toISOString(),
       metrics: debugData.metrics,
@@ -535,6 +535,11 @@ export function createDebugDashboard(): Router {
    */
   router.get('/api/voice/debug/audio/:sessionId', (req: Request, res: Response) => {
     const { sessionId } = req.params;
+
+    if (!sessionId) {
+      return res.status(400).json({ error: 'Session ID is required' });
+    }
+
     const audioBuffers = debugData.audioBuffers.get(sessionId);
     
     if (!audioBuffers || audioBuffers.length === 0) {
@@ -546,6 +551,7 @@ export function createDebugDashboard(): Router {
     
     res.setHeader('Content-Type', 'audio/wav');
     res.send(combined);
+    return;
   });
 
   return router;
@@ -618,7 +624,7 @@ export function updateMetrics(update: Partial<typeof debugData.metrics>): void {
  * Log audio buffer (only if recording is enabled)
  */
 export function logAudioBuffer(sessionId: string, buffer: Buffer): void {
-  if (process.env.VOICE_RECORD_AUDIO !== 'true') {
+  if (process.env['VOICE_RECORD_AUDIO'] !== 'true') {
     return;
   }
   

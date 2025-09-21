@@ -52,4 +52,5 @@ export interface ChatResult {
 export interface Chat {
   completeMessages?(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResult>;
   completeText(prompt: string, options?: ChatOptions): Promise<string>;
+  respond(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse>;
 }

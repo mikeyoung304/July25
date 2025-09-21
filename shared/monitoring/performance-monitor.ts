@@ -188,8 +188,8 @@ class PerformanceMonitor {
           method,
           endpoint: url,
           status: error ? 'error' : 'success',
-          statusCode: error ? undefined : response!.status,
-          errorMessage: error?.message,
+          ...(error ? {} : { statusCode: response!.status }),
+          ...(error?.message ? { errorMessage: error.message } : {}),
           metadata: {
             requestSize: this.estimateRequestSize(init),
             cached: error ? false : response!.headers.get('cf-cache-status') !== null,
@@ -274,7 +274,7 @@ class PerformanceMonitor {
       sessionId: this.sessionId,
       ...(typeof window !== 'undefined' && { url: window.location.href }),
       status: 'success',
-      metadata
+      ...(metadata && { metadata })
     };
 
     this.addMetric(metric);

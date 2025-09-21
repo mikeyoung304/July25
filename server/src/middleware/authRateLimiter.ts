@@ -232,7 +232,6 @@ export const authRateLimiters = {
 
 // Cleanup old entries periodically (every hour)
 setInterval(() => {
-  const _oneHourAgo = Date.now() - 60 * 60 * 1000;
   
   // Clean up old suspicious IPs (reset counts after 1 hour of no activity)
   for (const [clientId, attempts] of suspiciousIPs.entries()) {

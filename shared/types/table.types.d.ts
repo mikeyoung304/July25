@@ -14,7 +14,7 @@ export interface Table {
         x: number;
         y: number;
     };
-    shape?: 'square' | 'round' | 'rectangle';
+    shape?: 'square' | 'round' | 'rectangle' | 'circle' | 'chip_monkey';
     current_order_id?: string;
     server_id?: string;
     created_at: string;
@@ -29,7 +29,7 @@ export interface CreateTableDTO {
         x: number;
         y: number;
     };
-    shape?: 'square' | 'round' | 'rectangle';
+    shape?: 'square' | 'round' | 'rectangle' | 'circle' | 'chip_monkey';
 }
 export interface UpdateTableDTO {
     capacity?: number;
@@ -39,7 +39,7 @@ export interface UpdateTableDTO {
         x: number;
         y: number;
     };
-    shape?: 'square' | 'round' | 'rectangle';
+    shape?: 'square' | 'round' | 'rectangle' | 'circle' | 'chip_monkey';
     server_id?: string;
 }
 //# sourceMappingURL=table.types.d.ts.map

@@ -14,11 +14,11 @@ const PIN_LENGTH_MAX = 6;
 
 interface PinValidationResult {
   isValid: boolean;
-  userId?: string;
-  userEmail?: string;
-  role?: string;
-  restaurantId?: string;
-  error?: string;
+  userId?: string | undefined;
+  userEmail?: string | undefined;
+  role?: string | undefined;
+  restaurantId?: string | undefined;
+  error?: string | undefined;
 }
 
 interface CreatePinParams {
@@ -235,7 +235,7 @@ export async function validatePin(
         return {
           isValid: true,
           userId: record.user_id,
-          userEmail: (record as { users?: { email: string } }).users?.email,
+          userEmail: (record as unknown as { users?: { email: string } }).users?.email,
           role: userRole?.role,
           restaurantId
         };
@@ -251,7 +251,7 @@ export async function validatePin(
         if (newAttempts >= MAX_PIN_ATTEMPTS) {
           const lockUntil = new Date();
           lockUntil.setMinutes(lockUntil.getMinutes() + LOCKOUT_DURATION_MINUTES);
-          updates.locked_until = lockUntil.toISOString();
+          updates['locked_until'] = lockUntil.toISOString();
           
           pinLogger.warn('Account locked due to failed PIN attempts', {
             userId: record.user_id,
