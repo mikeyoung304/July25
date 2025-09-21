@@ -44,9 +44,9 @@ router.post('/kiosk',
     }
 
     // Get JWT secret with fallback chain for resilience
-    const jwtSecret = process.env.KIOSK_JWT_SECRET || 
-                     process.env.SUPABASE_JWT_SECRET ||
-                     (process.env.NODE_ENV === 'development' ? 
+    const jwtSecret = process.env['KIOSK_JWT_SECRET'] || 
+                     process.env['SUPABASE_JWT_SECRET'] ||
+                     (process.env['NODE_ENV'] === 'development' ? 
                       'demo-secret-key-for-local-development-only' : null);
     
     if (!jwtSecret) {
@@ -201,8 +201,8 @@ router.post('/pin-login',
     }
 
     // Generate JWT token for PIN user
-    const jwtSecret = process.env.KIOSK_JWT_SECRET || 
-                     process.env.SUPABASE_JWT_SECRET ||
+    const jwtSecret = process.env['KIOSK_JWT_SECRET'] || 
+                     process.env['SUPABASE_JWT_SECRET'] ||
                      'pin-secret-change-in-production';
 
     const payload = {

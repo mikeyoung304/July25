@@ -178,7 +178,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
   }, [tables, containerRef, canvasSize])
 
   // Distribute tables evenly across canvas (INDUSTRY BEST PRACTICE)
-  const distributeTablesEvenly = useCallback(() => {
+  const _distributeTablesEvenly = useCallback(() => {
     if (tables.length === 0 || !containerRef) return
 
     const containerRect = containerRef.getBoundingClientRect()
@@ -204,7 +204,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
     // Calculate cell dimensions with proper spacing
     const cellWidth = usableWidth / cols
     const cellHeight = usableHeight / rows
-    const minSpacing = 80 // Restaurant-appropriate spacing for staff movement
+    const _minSpacing = 80 // Restaurant-appropriate spacing for staff movement
 
     // Distribute tables in a grid pattern
     const distributedTables = tables.map((table, index) => {
@@ -230,7 +230,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
   }, [tables, containerRef, panOffset, zoomLevel])
 
   // Force-directed layout for natural table distribution
-  const applyForceDirectedLayout = useCallback(() => {
+  const _applyForceDirectedLayout = useCallback(() => {
     if (tables.length === 0 || !containerRef) return
 
     // Force simulation parameters
@@ -525,7 +525,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
   }, [selectedTableId])
 
   // Duplicate table with smart naming
-  const duplicateTable = useCallback(() => {
+  const _duplicateTable = useCallback(() => {
     if (!selectedTable) return
     
     // Smart duplicate naming with auto-increment

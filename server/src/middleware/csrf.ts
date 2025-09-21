@@ -6,7 +6,7 @@ import { logger } from '../utils/logger';
 const csrfProtection = csrf({
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env['NODE_ENV'] === 'production',
     sameSite: 'strict'
   }
 });
@@ -15,7 +15,7 @@ const csrfProtection = csrf({
 export function csrfMiddleware() {
   return (req: Request, res: Response, next: NextFunction) => {
     // Skip CSRF in development for easier testing
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
       logger.debug('CSRF protection skipped in development mode');
       return next();
     }
@@ -37,7 +37,7 @@ export function csrfMiddleware() {
 }
 
 // Middleware to provide CSRF token to client
-export function csrfToken(req: Request, res: Response) {
+export function csrfToken(req: Request & { csrfToken?: () => string }, res: Response) {
   res.json({ csrfToken: req.csrfToken ? req.csrfToken() : null });
 }
 

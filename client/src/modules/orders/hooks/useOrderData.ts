@@ -16,7 +16,7 @@ export interface UseOrderDataReturn {
 
 export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
   const { data, loading, error, execute, setData } = useAsyncState<Order[]>([])
-  const { restaurant } = useRestaurant()
+  const { restaurant: _restaurant } = useRestaurant()
   const { toast } = useToast()
   
   const fetchOrders = useCallback(async () => {

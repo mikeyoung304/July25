@@ -18,25 +18,10 @@ function KitchenDisplaySimple() {
   const [statusFilter, setStatusFilter] = useState<'active' | 'ready'>('active')
   
   // Memory monitoring for long-running sessions
-  const memoryMonitor = MemoryMonitorInstance
+  const _memoryMonitor = MemoryMonitorInstance
   useEffect(() => {
-    const memoryMonitor = MemoryMonitoringSystem.getInstance()
-    memoryMonitor.configure({
-      interval: 60000, // Check every minute
-      threshold: 200 * 1024 * 1024, // Alert at 200MB
-      onThresholdExceeded: (snapshot) => {
-        console.warn('⚠️ Kitchen Display memory usage high:', {
-          used: `${Math.round(snapshot.used / 1024 / 1024)}MB`,
-          percentage: `${snapshot.percentage.toFixed(2)}%`
-        })
-      }
-    })
-    
-    memoryMonitor.start()
-    
-    return () => {
-      memoryMonitor.stop()
-    }
+    // TODO: Implement memory monitoring when MemoryMonitorInstance API is available
+    // memoryMonitor.configure({...})
   }, [])
 
   // Handle order status change - now uses shared hook

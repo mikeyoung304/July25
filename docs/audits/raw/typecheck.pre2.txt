@@ -14,81 +14,29 @@ src/config/environment.ts(86,5): error TS2375: Type '{ apiKey: string | undefine
   Types of property 'apiKey' are incompatible.
     Type 'string | undefined' is not assignable to type 'string'.
       Type 'undefined' is not assignable to type 'string'.
-src/mappers/cart.mapper.ts(68,3): error TS2375: Type '{ id: string; menuItemId: string; name: string; price: number; quantity: number; modifiers: any[]; specialInstructions: string | undefined; imageUrl: string | undefined; }' is not assignable to type 'ApiCartItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
-  Types of property 'specialInstructions' are incompatible.
-    Type 'string | undefined' is not assignable to type 'string'.
-      Type 'undefined' is not assignable to type 'string'.
-src/mappers/cart.mapper.ts(84,3): error TS2375: Type '{ id: string; orderNumber: string; restaurantId: string; tableNumber: number | undefined; customerName: string | undefined; customerEmail: string | undefined; customerPhone: string | undefined; ... 5 more ...; totalAmount: number; }' is not assignable to type 'ApiOrder' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
-  Types of property 'tableNumber' are incompatible.
-    Type 'number | undefined' is not assignable to type 'number'.
-      Type 'undefined' is not assignable to type 'number'.
-src/mappers/menu.mapper.ts(64,3): error TS2375: Type '{ id: string; menuItemId: string; categoryId: string | undefined; name: string; description: string | undefined; price: number; active: boolean; available: boolean; dietaryFlags: string[]; modifiers: any[]; aliases: string[]; prepTimeMinutes: number; imageUrl: string | undefined; }' is not assignable to type 'ApiMenuItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
-  Types of property 'categoryId' are incompatible.
-    Type 'string | undefined' is not assignable to type 'string'.
-      Type 'undefined' is not assignable to type 'string'.
-src/mappers/menu.mapper.ts(85,3): error TS2375: Type '{ id: string; name: string; slug: string; description: string | undefined; displayOrder: number; active: boolean; }' is not assignable to type 'ApiMenuCategory' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
-  Types of property 'description' are incompatible.
-    Type 'string | undefined' is not assignable to type 'string'.
-      Type 'undefined' is not assignable to type 'string'.
 src/middleware/__tests__/auth.test.ts(38,5): error TS2322: Type 'Mock<[deferToNext: "route"], void>' is not assignable to type 'NextFunction'.
   Types of parameters 'deferToNext' and 'deferToNext' are incompatible.
     Type '"router"' is not assignable to type '"route"'.
-src/middleware/__tests__/auth.test.ts(41,17): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/__tests__/auth.test.ts(42,17): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
-src/middleware/__tests__/auth.test.ts(128,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/__tests__/auth.test.ts(147,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/__tests__/auth.test.ts(148,19): error TS4111: Property 'PRODUCTION' comes from an index signature, so it must be accessed with ['PRODUCTION'].
 src/middleware/__tests__/restaurantAccess.test.ts(20,5): error TS2375: Type '{ headers: {}; user: undefined; restaurantId: undefined; }' is not assignable to type 'Partial<AuthenticatedRequest>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
   Types of property 'user' are incompatible.
     Type 'undefined' is not assignable to type '{ id: string; email?: string; role?: string; scopes?: string[]; restaurant_id?: string; }'.
 src/middleware/__tests__/restaurantAccess.test.ts(187,7): error TS2412: Type 'undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
 src/middleware/authRateLimiter.ts(235,9): error TS6133: 'oneHourAgo' is declared but its value is never read.
-src/middleware/csrf.ts(1,18): error TS7016: Could not find a declaration file for module 'csurf'. '/Users/mikeyoung/Projects/July25/node_modules/csurf/index.js' implicitly has an 'any' type.
-  Try `npm i --save-dev @types/csurf` if it exists or add a new declaration (.d.ts) file containing `declare module 'csurf';`
-src/middleware/csrf.ts(9,25): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/csrf.ts(18,21): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/csrf.ts(41,29): error TS2339: Property 'csrfToken' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
-src/middleware/csrf.ts(41,45): error TS2339: Property 'csrfToken' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
 src/middleware/errorHandler.ts(19,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
   Type 'undefined' is not assignable to type 'string'.
 src/middleware/metrics.ts(50,8): error TS7017: Element implicitly has an 'any' type because type 'typeof globalThis' has no index signature.
-src/middleware/rateLimiter.ts(6,35): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/rateLimiter.ts(6,77): error TS4111: Property 'RENDER' comes from an index signature, so it must be accessed with ['RENDER'].
 src/middleware/rateLimiter.ts(19,10): error TS6133: 'req' is declared but its value is never read.
 src/middleware/rateLimiter.ts(33,10): error TS6133: 'req' is declared but its value is never read.
 src/middleware/rateLimiter.ts(68,10): error TS6133: 'req' is declared but its value is never read.
 src/middleware/rateLimiter.ts(90,10): error TS6133: 'req' is declared but its value is never read.
-src/middleware/requestSanitizer.ts(9,23): error TS7016: Could not find a declaration file for module 'validator'. '/Users/mikeyoung/Projects/July25/node_modules/validator/index.js' implicitly has an 'any' type.
-  Try `npm i --save-dev @types/validator` if it exists or add a new declaration (.d.ts) file containing `declare module 'validator';`
-src/middleware/requestSanitizer.ts(88,42): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/requestSanitizer.ts(207,25): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/security-headers.ts(26,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/security-headers.ts(57,19): error TS4111: Property 'VITE_API_BASE_URL' comes from an index signature, so it must be accessed with ['VITE_API_BASE_URL'].
-src/middleware/security-headers.ts(77,46): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/security-headers.ts(94,28): error TS4111: Property 'CSP_ENABLED' comes from an index signature, so it must be accessed with ['CSP_ENABLED'].
-src/middleware/security-headers.ts(94,66): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/security-headers.ts(95,29): error TS4111: Property 'HSTS_ENABLED' comes from an index signature, so it must be accessed with ['HSTS_ENABLED'].
-src/middleware/security-headers.ts(95,68): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/security-headers.ts(96,32): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/security-headers.ts(106,18): error TS4111: Property 'nonce' comes from an index signature, so it must be accessed with ['nonce'].
-src/middleware/security-headers.ts(111,41): error TS4111: Property 'CSP_DIRECTIVES' comes from an index signature, so it must be accessed with ['CSP_DIRECTIVES'].
-src/middleware/security-headers.ts(122,34): error TS4111: Property 'HSTS_MAX_AGE' comes from an index signature, so it must be accessed with ['HSTS_MAX_AGE'].
-src/middleware/security-headers.ts(178,17): error TS4111: Property 'CLIENT_URL' comes from an index signature, so it must be accessed with ['CLIENT_URL'].
-src/middleware/security-headers.ts(179,17): error TS4111: Property 'FRONTEND_URL' comes from an index signature, so it must be accessed with ['FRONTEND_URL'].
-src/middleware/security-headers.ts(191,23): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
 src/middleware/security.ts(16,33): error TS6133: 'req' is declared but its value is never read.
-src/middleware/security.ts(17,14): error TS4111: Property 'nonce' comes from an index signature, so it must be accessed with ['nonce'].
-src/middleware/security.ts(23,37): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
 src/middleware/security.ts(33,25): error TS6133: 'req' is declared but its value is never read.
 src/middleware/security.ts(90,10): error TS7030: Not all code paths return a value.
 src/middleware/security.ts(122,21): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
-src/middleware/security.ts(152,21): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/middleware/security.ts(203,14): error TS4111: Property 'clientIp' comes from an index signature, so it must be accessed with ['clientIp'].
 src/middleware/security.ts(208,41): error TS7030: Not all code paths return a value.
-src/middleware/security.ts(252,21): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
 src/middleware/validate.ts(5,3): error TS7030: Not all code paths return a value.
-src/routes/__tests__/orders.rctx.test.ts(5,8): error TS1192: Module '"/Users/mikeyoung/Projects/July25/server/src/routes/orders.routes"' has no default export.
+src/routes/__tests__/orders.rctx.test.ts(5,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/orders.routes"' has no default export.
 src/routes/__tests__/orders.rctx.test.ts(8,1): error TS6133: 'rateLimiter' is declared but its value is never read.
 src/routes/__tests__/orders.rctx.test.ts(8,10): error TS2724: '"../../middleware/rateLimiter"' has no exported member named 'rateLimiter'. Did you mean 'authLimiter'?
 src/routes/__tests__/payments.test.ts(4,1): error TS6133: 'jwt' is declared but its value is never read.
@@ -103,12 +51,12 @@ src/routes/__tests__/payments.test.ts(323,32): error TS2339: Property 'verifyWeb
 src/routes/__tests__/payments.test.ts(324,32): error TS2339: Property 'processWebhook' does not exist on type 'typeof PaymentService'.
 src/routes/__tests__/payments.test.ts(332,29): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
 src/routes/__tests__/payments.test.ts(339,32): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
-src/routes/__tests__/rctx-comprehensive.test.ts(7,8): error TS1192: Module '"/Users/mikeyoung/Projects/July25/server/src/routes/menu.routes"' has no default export.
-src/routes/__tests__/rctx-comprehensive.test.ts(8,8): error TS1192: Module '"/Users/mikeyoung/Projects/July25/server/src/routes/tables.routes"' has no default export.
-src/routes/__tests__/rctx-comprehensive.test.ts(9,8): error TS1192: Module '"/Users/mikeyoung/Projects/July25/server/src/routes/restaurants.routes"' has no default export.
-src/routes/__tests__/rctx-comprehensive.test.ts(10,8): error TS1192: Module '"/Users/mikeyoung/Projects/July25/server/src/routes/auth.routes"' has no default export.
-src/routes/__tests__/rctx-comprehensive.test.ts(11,8): error TS1192: Module '"/Users/mikeyoung/Projects/July25/server/src/routes/realtime.routes"' has no default export.
-src/routes/__tests__/rctx-comprehensive.test.ts(12,8): error TS1192: Module '"/Users/mikeyoung/Projects/July25/server/src/routes/terminal.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(7,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/menu.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(8,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/tables.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(9,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/restaurants.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(10,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/auth.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(11,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/realtime.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(12,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/terminal.routes"' has no default export.
 src/routes/__tests__/security.test.ts(52,32): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
 src/routes/__tests__/security.test.ts(124,39): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
 src/routes/__tests__/security.test.ts(125,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
@@ -122,23 +70,12 @@ src/routes/ai.routes.ts(480,36): error TS2339: Property 'respond' does not exist
 src/routes/ai.routes.ts(603,24): error TS2339: Property 'duration' does not exist on type 'TranscriptionResult'.
 src/routes/auth.routes.ts(8,30): error TS6133: 'validateStationToken' is declared but its value is never read.
 src/routes/auth.routes.ts(17,7): error TS6133: 'config' is declared but its value is never read.
-src/routes/auth.routes.ts(47,35): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
-src/routes/auth.routes.ts(48,34): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
-src/routes/auth.routes.ts(49,35): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/routes/auth.routes.ts(204,35): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
-src/routes/auth.routes.ts(205,34): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
 src/routes/auth.routes.ts(343,35): error TS6133: 'profileError' is declared but its value is never read.
 src/routes/auth.routes.ts(350,36): error TS6133: 'roleError' is declared but its value is never read.
-src/routes/health.routes.ts(103,30): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
 src/routes/health.routes.ts(117,11): error TS2375: Type '{ status: "healthy"; timestamp: string; uptime: number; environment: string; version: string | undefined; services: { database: { status: "error" | "connected" | "disconnected"; latency?: number; error?: string; }; cache: { ...; }; ai: { ...; }; }; }' is not assignable to type 'HealthStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
   Types of property 'version' are incompatible.
     Type 'string | undefined' is not assignable to type 'string'.
       Type 'undefined' is not assignable to type 'string'.
-src/routes/health.routes.ts(121,32): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/routes/health.routes.ts(122,28): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
-src/routes/health.routes.ts(194,26): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
-src/routes/metrics.ts(40,26): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
-src/routes/metrics.ts(76,17): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
 src/routes/orders.routes.ts(10,30): error TS2307: Cannot find module 'shared/contracts/order' or its corresponding type declarations.
 src/routes/orders.routes.ts(31,64): error TS2379: Argument of type '{ status: OrderStatus | undefined; type: OrderType | undefined; startDate: string; endDate: string; limit: number; offset: number; }' is not assignable to parameter of type 'OrderFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
   Types of property 'type' are incompatible.
@@ -148,23 +85,15 @@ src/routes/payments.routes.ts(12,32): error TS2307: Cannot find module 'shared/c
 src/routes/realtime.routes.ts(32,26): error TS2551: Property 'category' does not exist on type 'MenuItem'. Did you mean 'categoryId'?
 src/routes/realtime.routes.ts(40,11): error TS2532: Object is possibly 'undefined'.
 src/routes/realtime.routes.ts(49,15): error TS6133: 'allergenNotes' is declared but its value is never read.
-src/routes/realtime.routes.ts(113,48): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
-src/routes/realtime.routes.ts(117,28): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
 src/routes/realtime.routes.ts(139,7): error TS2698: Spread types may only be created from object types.
 src/routes/realtime.routes.ts(146,18): error TS18046: 'data' is of type 'unknown'.
-src/routes/realtime.routes.ts(168,39): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
-src/routes/realtime.routes.ts(169,41): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
-src/routes/realtime.routes.ts(176,26): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
 src/routes/security.routes.ts(15,24): error TS2554: Expected 1 arguments, but got 2.
 src/routes/security.routes.ts(37,24): error TS2554: Expected 1 arguments, but got 2.
 src/routes/security.routes.ts(38,4): error TS6133: 'req' is declared but its value is never read.
 src/routes/security.routes.ts(51,15): error TS2345: Argument of type 'string' is not assignable to parameter of type 'string[]'.
 src/routes/security.routes.ts(52,3): error TS7030: Not all code paths return a value.
-src/routes/security.routes.ts(53,21): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
 src/routes/security.routes.ts(83,15): error TS2345: Argument of type 'string' is not assignable to parameter of type 'string[]'.
 src/routes/security.routes.ts(84,4): error TS6133: 'req' is declared but its value is never read.
-src/routes/security.routes.ts(86,32): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/routes/security.routes.ts(93,40): error TS4111: Property 'SQUARE_ENVIRONMENT' comes from an index signature, so it must be accessed with ['SQUARE_ENVIRONMENT'].
 src/routes/tables.routes.ts(1,18): error TS6133: 'Request' is declared but its value is never read.
 src/routes/tables.routes.ts(6,10): error TS6133: 'Table' is declared but its value is never read.
 src/routes/tables.routes.ts(154,17): error TS4111: Property 'x_pos' comes from an index signature, so it must be accessed with ['x_pos'].
@@ -191,19 +120,11 @@ src/routes/terminal.routes.ts(184,9): error TS2322: Type 'Response<any, Record<s
 src/routes/terminal.routes.ts(231,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
 src/routes/terminal.routes.ts(313,71): error TS6133: 'req' is declared but its value is never read.
 src/routes/terminal.routes.ts(318,44): error TS2339: Property 'listDeviceCodes' does not exist on type 'Terminal'.
-src/routes/terminal.routes.ts(319,33): error TS4111: Property 'SQUARE_LOCATION_ID' comes from an index signature, so it must be accessed with ['SQUARE_LOCATION_ID'].
 src/routes/terminal.routes.ts(330,30): error TS7006: Parameter 'device' implicitly has an 'any' type.
 src/routes/terminal.routes.ts(347,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
 src/server.ts(12,1): error TS6133: 'helmet' is declared but its value is never read.
-src/server.ts(13,26): error TS7016: Could not find a declaration file for module 'cookie-parser'. '/Users/mikeyoung/Projects/July25/node_modules/cookie-parser/index.js' implicitly has an 'any' type.
-  Try `npm i --save-dev @types/cookie-parser` if it exists or add a new declaration (.d.ts) file containing `declare module 'cookie-parser';`
 src/server.ts(32,25): error TS6133: 'securityMonitor' is declared but its value is never read.
 src/server.ts(33,27): error TS6133: 'strictSanitize' is declared but its value is never read.
-src/server.ts(62,37): error TS4111: Property 'ALLOWED_ORIGINS' comes from an index signature, so it must be accessed with ['ALLOWED_ORIGINS'].
-src/server.ts(63,15): error TS4111: Property 'FRONTEND_URL' comes from an index signature, so it must be accessed with ['FRONTEND_URL'].
-src/server.ts(155,30): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-src/server.ts(170,26): error TS4111: Property 'PORT' comes from an index signature, so it must be accessed with ['PORT'].
-src/server.ts(191,32): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
 src/services/ai.service.ts(3,14): error TS6133: 'checkAIHealth' is declared but its value is never read.
 src/services/ai.service.ts(89,45): error TS6133: 'restaurantId' is declared but its value is never read.
 src/services/ai.service.ts(208,68): error TS6133: 'restaurantId' is declared but its value is never read.
@@ -304,42 +225,10 @@ src/voice/websocket-server.test.ts(38,7): error TS2322: Type 'Mock<[data: Buffer
 src/voice/websocket-server.ts(43,82): error TS2345: Argument of type 'RawData' is not assignable to parameter of type 'string | ArrayBufferView | ArrayBuffer | SharedArrayBuffer'.
   Type 'Buffer[]' is not assignable to type 'string | ArrayBufferView | ArrayBuffer | SharedArrayBuffer'.
     Type 'Buffer[]' is missing the following properties from type 'Float64Array': BYTES_PER_ELEMENT, buffer, byteLength, byteOffset, and 3 more.
-../shared/config/index.ts(63,34): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-../shared/config/index.ts(65,5): error TS2375: Type '{ nodeEnv: "development" | "test" | "production"; isDevelopment: boolean; isProduction: boolean; isTest: boolean; apiBaseUrl: string; frontendUrl: string; port: number; databaseUrl: string; ... 17 more ...; useRealtimeVoice: boolean; }' is not assignable to type 'AppConfig' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+../shared/config/index.ts(65,11): error TS2375: Type '{ nodeEnv: "development" | "test" | "production"; isDevelopment: boolean; isProduction: boolean; isTest: boolean; apiBaseUrl: string; frontendUrl: string; port: number; databaseUrl: string; ... 17 more ...; useRealtimeVoice: boolean; }' is not assignable to type 'AppConfig' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
   Types of property 'openaiApiKey' are incompatible.
     Type 'string | undefined' is not assignable to type 'string'.
       Type 'undefined' is not assignable to type 'string'.
-../shared/config/index.ts(73,31): error TS4111: Property 'VITE_API_BASE_URL' comes from an index signature, so it must be accessed with ['VITE_API_BASE_URL'].
-../shared/config/index.ts(73,64): error TS4111: Property 'API_BASE_URL' comes from an index signature, so it must be accessed with ['API_BASE_URL'].
-../shared/config/index.ts(74,32): error TS4111: Property 'FRONTEND_URL' comes from an index signature, so it must be accessed with ['FRONTEND_URL'].
-../shared/config/index.ts(75,34): error TS4111: Property 'PORT' comes from an index signature, so it must be accessed with ['PORT'].
-../shared/config/index.ts(78,32): error TS4111: Property 'DATABASE_URL' comes from an index signature, so it must be accessed with ['DATABASE_URL'].
-../shared/config/index.ts(79,32): error TS4111: Property 'VITE_SUPABASE_URL' comes from an index signature, so it must be accessed with ['VITE_SUPABASE_URL'].
-../shared/config/index.ts(79,65): error TS4111: Property 'SUPABASE_URL' comes from an index signature, so it must be accessed with ['SUPABASE_URL'].
-../shared/config/index.ts(80,36): error TS4111: Property 'VITE_SUPABASE_ANON_KEY' comes from an index signature, so it must be accessed with ['VITE_SUPABASE_ANON_KEY'].
-../shared/config/index.ts(80,74): error TS4111: Property 'SUPABASE_ANON_KEY' comes from an index signature, so it must be accessed with ['SUPABASE_ANON_KEY'].
-../shared/config/index.ts(81,39): error TS4111: Property 'SUPABASE_SERVICE_KEY' comes from an index signature, so it must be accessed with ['SUPABASE_SERVICE_KEY'].
-../shared/config/index.ts(82,38): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
-../shared/config/index.ts(85,35): error TS4111: Property 'KIOSK_JWT_SECRET' comes from an index signature, so it must be accessed with ['KIOSK_JWT_SECRET'].
-../shared/config/index.ts(86,39): error TS4111: Property 'STATION_TOKEN_SECRET' comes from an index signature, so it must be accessed with ['STATION_TOKEN_SECRET'].
-../shared/config/index.ts(87,30): error TS4111: Property 'PIN_PEPPER' comes from an index signature, so it must be accessed with ['PIN_PEPPER'].
-../shared/config/index.ts(88,42): error TS4111: Property 'DEVICE_FINGERPRINT_SALT' comes from an index signature, so it must be accessed with ['DEVICE_FINGERPRINT_SALT'].
-../shared/config/index.ts(91,40): error TS4111: Property 'VITE_DEFAULT_RESTAURANT_ID' comes from an index signature, so it must be accessed with ['VITE_DEFAULT_RESTAURANT_ID'].
-../shared/config/index.ts(91,82): error TS4111: Property 'DEFAULT_RESTAURANT_ID' comes from an index signature, so it must be accessed with ['DEFAULT_RESTAURANT_ID'].
-../shared/config/index.ts(94,33): error TS4111: Property 'OPENAI_API_KEY' comes from an index signature, so it must be accessed with ['OPENAI_API_KEY'].
-../shared/config/index.ts(95,40): error TS4111: Property 'OPENAI_REALTIME_MODEL' comes from an index signature, so it must be accessed with ['OPENAI_REALTIME_MODEL'].
-../shared/config/index.ts(96,35): error TS4111: Property 'AI_DEGRADED_MODE' comes from an index signature, so it must be accessed with ['AI_DEGRADED_MODE'].
-../shared/config/index.ts(99,38): error TS4111: Property 'SQUARE_ACCESS_TOKEN' comes from an index signature, so it must be accessed with ['SQUARE_ACCESS_TOKEN'].
-../shared/config/index.ts(100,39): error TS4111: Property 'VITE_SQUARE_ENVIRONMENT' comes from an index signature, so it must be accessed with ['VITE_SQUARE_ENVIRONMENT'].
-../shared/config/index.ts(100,78): error TS4111: Property 'SQUARE_ENVIRONMENT' comes from an index signature, so it must be accessed with ['SQUARE_ENVIRONMENT'].
-../shared/config/index.ts(101,37): error TS4111: Property 'VITE_SQUARE_LOCATION_ID' comes from an index signature, so it must be accessed with ['VITE_SQUARE_LOCATION_ID'].
-../shared/config/index.ts(101,76): error TS4111: Property 'SQUARE_LOCATION_ID' comes from an index signature, so it must be accessed with ['SQUARE_LOCATION_ID'].
-../shared/config/index.ts(102,32): error TS4111: Property 'VITE_SQUARE_APP_ID' comes from an index signature, so it must be accessed with ['VITE_SQUARE_APP_ID'].
-../shared/config/index.ts(102,66): error TS4111: Property 'SQUARE_APP_ID' comes from an index signature, so it must be accessed with ['SQUARE_APP_ID'].
-../shared/config/index.ts(105,32): error TS4111: Property 'VITE_USE_MOCK_DATA' comes from an index signature, so it must be accessed with ['VITE_USE_MOCK_DATA'].
-../shared/config/index.ts(106,37): error TS4111: Property 'VITE_USE_REALTIME_VOICE' comes from an index signature, so it must be accessed with ['VITE_USE_REALTIME_VOICE'].
-../shared/config/index.ts(109,5): error TS2322: Type 'AppConfig | null' is not assignable to type 'AppConfig'.
-  Type 'null' is not assignable to type 'AppConfig'.
 ../shared/monitoring/error-tracker.ts(44,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
   Type 'undefined' is not assignable to type 'string'.
 ../shared/monitoring/error-tracker.ts(118,5): error TS2532: Object is possibly 'undefined'.
@@ -377,10 +266,10 @@ src/voice/websocket-server.ts(43,82): error TS2345: Argument of type 'RawData' i
   Types of property 'customerId' are incompatible.
     Type 'string | undefined' is not assignable to type 'string'.
       Type 'undefined' is not assignable to type 'string'.
-../shared/types/transformers.ts(190,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
-  Type 'null' is not assignable to type 'string'.
-../shared/types/transformers.ts(196,7): error TS2322: Type 'number | null' is not assignable to type 'number'.
-  Type 'null' is not assignable to type 'number'.
+../shared/types/transformers.ts(186,5): error TS2375: Type '{ id: string; order_number: string; restaurant_id: string; table_number: string | undefined; status: OrderStatus; type: OrderType; items: SharedOrderItem[]; ... 9 more ...; updated_at: string; }' is not assignable to type 'Order' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'tip' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
 ../shared/types/transformers.ts(220,5): error TS2375: Type '{ id: string; menuItemId: string; quantity: number; unitPrice: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[] | undefined; specialInstructions: string | undefined; }' is not assignable to type 'ClientOrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
   Types of property 'modifiers' are incompatible.
     Type '{ id: string; name: string; price: number; }[] | undefined' is not assignable to type 'ClientModifier[]'.
@@ -403,28 +292,14 @@ src/voice/websocket-server.ts(43,82): error TS2345: Argument of type 'RawData' i
     Type 'string | undefined' is not assignable to type 'string'.
       Type 'undefined' is not assignable to type 'string'.
 ../shared/utils/error-handling.ts(529,85): error TS4111: Property 'redirectUrl' comes from an index signature, so it must be accessed with ['redirectUrl'].
-../shared/utils/error-handling.ts(530,11): error TS2322: Type '{}' is not assignable to type 'string'.
 ../shared/utils/error-handling.ts(530,48): error TS4111: Property 'redirectUrl' comes from an index signature, so it must be accessed with ['redirectUrl'].
-../shared/utils/error-handling.ts(597,9): error TS2322: Type 'unknown' is not assignable to type 'T | null'.
-../shared/utils/error-handling.ts(609,5): error TS2322: Type '{} | null' is not assignable to type 'T | null'.
-  Type '{}' is not assignable to type 'T'.
-    'T' could be instantiated with an arbitrary type which could be unrelated to '{}'.
-../shared/utils/error-handling.ts(830,5): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'Component<{}, {}, any>'.
-../shared/utils/error-handling.ts(832,57): error TS2769: No overload matches this call.
-  The last overload gave the following error.
-    Property 'name' is missing in type 'EnterpriseError' but required in type 'Error'.
 ../shared/utils/memory-monitoring.ts(65,20): error TS6133: 'leakThreshold' is declared but its value is never read.
 ../shared/utils/memory-monitoring.ts(171,29): error TS18048: 'current' is possibly 'undefined'.
 ../shared/utils/memory-monitoring.ts(174,7): error TS2322: Type 'MemorySnapshot | undefined' is not assignable to type 'MemorySnapshot'.
   Type 'undefined' is not assignable to type 'MemorySnapshot'.
 ../shared/utils/memory-monitoring.ts(186,44): error TS18048: 'current' is possibly 'undefined'.
 ../shared/utils/performance-hooks.ts(19,11): error TS6198: All destructured elements are unused.
-../shared/utils/performance-hooks.ts(93,31): error TS2347: Untyped function calls may not accept type arguments.
-../shared/utils/performance-hooks.ts(94,49): error TS2347: Untyped function calls may not accept type arguments.
-../shared/utils/performance-hooks.ts(132,29): error TS18048: 'entry' is possibly 'undefined'.
-../shared/utils/performance-hooks.ts(163,31): error TS2347: Untyped function calls may not accept type arguments.
 ../shared/utils/performance-hooks.ts(164,25): error TS2347: Untyped function calls may not accept type arguments.
-../shared/utils/performance-hooks.ts(165,25): error TS2347: Untyped function calls may not accept type arguments.
 ../shared/utils/performance-hooks.ts(177,41): error TS7006: Parameter 'update' implicitly has an 'any' type.
 ../shared/utils/react-performance.ts(46,29): error TS18048: 'React' is possibly 'undefined'.
 ../shared/utils/react-performance.ts(49,3): error TS2322: Type 'ForwardRefExoticComponent<Omit<any, "ref"> & RefAttributes<any>> | undefined' is not assignable to type 'ForwardRefExoticComponent<P & RefAttributes<any>>'.
@@ -438,9 +313,9 @@ src/voice/websocket-server.ts(43,82): error TS2345: Argument of type 'RawData' i
   Type 'undefined' is not assignable to type 'PooledWebSocketConnection'.
 npm error Lifecycle script `typecheck` failed with error:
 npm error code 2
-npm error path /Users/mikeyoung/Projects/July25/server
+npm error path /Users/mikeyoung/CODING/rebuild-6.0/server
 npm error workspace restaurant-os-server@6.0.3
-npm error location /Users/mikeyoung/Projects/July25/server
+npm error location /Users/mikeyoung/CODING/rebuild-6.0/server
 npm error command failed
 npm error command sh -c tsc -p tsconfig.json --noEmit
 
@@ -454,31 +329,13 @@ monitoring/error-tracker.ts(122,26): error TS2532: Object is possibly 'undefined
 monitoring/error-tracker.ts(142,24): error TS2488: Type '{ timestamp: number; category: string; message: string; level: string; data?: Record<string, any> | undefined; }[] | undefined' must have a '[Symbol.iterator]()' method that returns an iterator.
 monitoring/performance-monitor.ts(229,39): error TS2345: Argument of type '[string, string | URL, ...any[]]' is not assignable to parameter of type '[method: string, url: string | URL, async: boolean, username?: string | null | undefined, password?: string | null | undefined]'.
   Target requires 3 element(s) but source may have fewer.
-types/transformers.ts(190,7): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
-  Type 'null' is not assignable to type 'string | undefined'.
-types/transformers.ts(196,7): error TS2322: Type 'number | null' is not assignable to type 'number | undefined'.
-  Type 'null' is not assignable to type 'number | undefined'.
 utils/cleanup-manager.ts(358,9): error TS2532: Object is possibly 'undefined'.
 utils/cleanup-manager.ts(361,9): error TS2532: Object is possibly 'undefined'.
-utils/error-handling.ts(530,11): error TS2322: Type '{}' is not assignable to type 'string'.
-utils/error-handling.ts(597,9): error TS2322: Type 'unknown' is not assignable to type 'T | null'.
-utils/error-handling.ts(609,5): error TS2322: Type '{} | null' is not assignable to type 'T | null'.
-  Type '{}' is not assignable to type 'T'.
-    'T' could be instantiated with an arbitrary type which could be unrelated to '{}'.
-utils/error-handling.ts(830,5): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'Component<{}, {}, any>'.
-utils/error-handling.ts(832,57): error TS2769: No overload matches this call.
-  The last overload gave the following error.
-    Property 'name' is missing in type 'EnterpriseError' but required in type 'Error'.
 utils/memory-monitoring.ts(171,29): error TS18048: 'current' is possibly 'undefined'.
 utils/memory-monitoring.ts(174,7): error TS2322: Type 'MemorySnapshot | undefined' is not assignable to type 'MemorySnapshot'.
   Type 'undefined' is not assignable to type 'MemorySnapshot'.
 utils/memory-monitoring.ts(186,44): error TS18048: 'current' is possibly 'undefined'.
-utils/performance-hooks.ts(93,31): error TS2347: Untyped function calls may not accept type arguments.
-utils/performance-hooks.ts(94,49): error TS2347: Untyped function calls may not accept type arguments.
-utils/performance-hooks.ts(132,29): error TS18048: 'entry' is possibly 'undefined'.
-utils/performance-hooks.ts(163,31): error TS2347: Untyped function calls may not accept type arguments.
 utils/performance-hooks.ts(164,25): error TS2347: Untyped function calls may not accept type arguments.
-utils/performance-hooks.ts(165,25): error TS2347: Untyped function calls may not accept type arguments.
 utils/performance-hooks.ts(177,41): error TS7006: Parameter 'update' implicitly has an 'any' type.
 utils/react-performance.ts(46,29): error TS18048: 'React' is possibly 'undefined'.
 utils/react-performance.ts(49,3): error TS2322: Type 'ForwardRefExoticComponent<Omit<any, "ref"> & RefAttributes<any>> | undefined' is not assignable to type 'ForwardRefExoticComponent<P & RefAttributes<any>>'.
@@ -487,8 +344,8 @@ utils/websocket-pool.browser.ts(410,5): error TS2322: Type 'PooledWebSocketConne
   Type 'undefined' is not assignable to type 'PooledWebSocketConnection'.
 npm error Lifecycle script `typecheck` failed with error:
 npm error code 2
-npm error path /Users/mikeyoung/Projects/July25/shared
+npm error path /Users/mikeyoung/CODING/rebuild-6.0/shared
 npm error workspace @rebuild/shared@1.0.0
-npm error location /Users/mikeyoung/Projects/July25/shared
+npm error location /Users/mikeyoung/CODING/rebuild-6.0/shared
 npm error command failed
 npm error command sh -c tsc --noEmit

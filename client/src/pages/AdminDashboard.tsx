@@ -9,7 +9,7 @@ import { Table } from '@/modules/floor-plan/types'
 import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
 import { spacing } from '@/lib/typography'
 import { RoleGuard } from '@/components/auth/RoleGuard'
-import { BackToDashboard } from '@/components/navigation/BackToDashboard'
+// import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { setCurrentRestaurantId } from '@/services/http/httpClient'
 import { logger } from '@/services/logger'
 

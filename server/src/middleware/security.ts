@@ -14,13 +14,13 @@ export const generateNonce = (): string => {
 
 // Add nonce to response locals for CSP
 export const nonceMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  res.locals.nonce = generateNonce();
+  res.locals['nonce'] = generateNonce();
   next();
 };
 
 // Enhanced security headers configuration
 export const securityHeaders = () => {
-  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const isDevelopment = process.env['NODE_ENV'] !== 'production';
   
   return helmet({
     // Content Security Policy
@@ -149,7 +149,7 @@ class SecurityMonitor {
     }
     
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
       console.log('[SECURITY]', fullEvent);
     }
     
@@ -200,7 +200,7 @@ export const extractIP = (req: Request, res: Response, next: NextFunction) => {
                    req.socket.remoteAddress ||
                    req.ip ||
                    '';
-  res.locals.clientIp = clientIp;
+  res.locals['clientIp'] = clientIp;
   next();
 };
 
@@ -249,7 +249,7 @@ export const detectSuspiciousActivity = (req: Request, res: Response, next: Next
     });
     
     // In production, you might want to block these requests
-    if (process.env.NODE_ENV === 'production' && suspicious.length > 1) {
+    if (process.env['NODE_ENV'] === 'production' && suspicious.length > 1) {
       return res.status(400).json({
         error: {
           code: 'SUSPICIOUS_REQUEST',

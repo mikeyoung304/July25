@@ -22,7 +22,7 @@ export class VoiceOrderProcessor {
   /**
    * Load menu items for matching
    */
-  async loadMenuItems(restaurantId: string): Promise<void> {
+  async loadMenuItems(_restaurantId: string): Promise<void> {
     try {
       this.menuItems = await api.getMenuItems();
       logger.info('[VoiceOrderProcessor] Loaded menu items:', this.menuItems.length);
