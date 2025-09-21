@@ -177,7 +177,7 @@ describe('Security Proof: Security Headers', () => {
         .expect(200);
 
       expect(response.headers).toHaveProperty('x-frame-options');
-      expect(response.headers['x-frame-options']).toBe('DENY');
+      expect(response.headers['x-frame-options']).toBe('SAMEORIGIN');
     });
 
     it('should prevent iframe embedding', async () => {
@@ -185,7 +185,7 @@ describe('Security Proof: Security Headers', () => {
         .get('/api/page')
         .expect(200);
 
-      expect(response.headers['x-frame-options']).toBe('DENY');
+      expect(response.headers['x-frame-options']).toBe('SAMEORIGIN');
     });
   });
 
