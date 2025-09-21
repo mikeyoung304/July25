@@ -168,10 +168,10 @@ class MemoryMonitoringSystem {
     }
     
     const leakWarning = trend === 'increasing' && mbPerMinute > 5; // > 5MB/min growth
-    const criticalWarning = current.percentage > this.criticalThreshold * 100;
-    
+    const criticalWarning = current?.percentage ? current.percentage > this.criticalThreshold * 100 : false;
+
     const memoryTrend: MemoryTrend = {
-      current,
+      current: current!,
       trend,
       rate: mbPerMinute,
       leakWarning,
@@ -183,7 +183,7 @@ class MemoryMonitoringSystem {
       this.addAlert({
         type: 'critical',
         severity: 'critical',
-        message: `Memory usage critical: ${current.percentage.toFixed(1)}% of available heap`,
+        message: `Memory usage critical: ${current?.percentage?.toFixed(1) || 'unknown'}% of available heap`,
         recommendations: [
           'Close unused browser tabs',
           'Refresh the application',

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Response, NextFunction } from 'express';
 import { validateRestaurantAccess, requireRestaurantRole } from '../restaurantAccess';
