@@ -4,7 +4,7 @@
  * Wraps the shared config service with Vite-specific environment variable handling
  */
 
-import { config as sharedConfig } from '../../../shared/config';
+import { config as sharedConfigSimple, configService as sharedConfig } from '../../../shared/config';
 
 // Override process.env with import.meta.env for Vite
 if (typeof window !== 'undefined' && import.meta.env) {
@@ -27,7 +27,7 @@ if (typeof window !== 'undefined' && import.meta.env) {
 
 // Re-export everything from shared config
 export * from '../../../shared/config';
-export { sharedConfig as config };
+export { sharedConfig, sharedConfigSimple as config };
 
 // Client-specific helpers
 export const isDemo = () => {

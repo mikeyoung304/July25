@@ -84,7 +84,7 @@ export function getConfig(): EnvironmentConfig {
       url: cfg.frontendUrl,
     },
     openai: {
-      apiKey: cfg.openaiApiKey || undefined,
+      ...(cfg.openaiApiKey ? { apiKey: cfg.openaiApiKey } : {}),
     },
     logging: {
       level: process.env['LOG_LEVEL'] || 'info',

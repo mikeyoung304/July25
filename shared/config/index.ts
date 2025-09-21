@@ -91,8 +91,8 @@ class ConfigService {
       defaultRestaurantId: process.env['VITE_DEFAULT_RESTAURANT_ID'] || process.env['DEFAULT_RESTAURANT_ID'] || '',
 
       // AI Services
-      openaiApiKey: process.env['OPENAI_API_KEY'],
-      openaiRealtimeModel: process.env['OPENAI_REALTIME_MODEL'],
+      openaiApiKey: process.env['OPENAI_API_KEY'] || '',
+      openaiRealtimeModel: process.env['OPENAI_REALTIME_MODEL'] || '',
       aiDegradedMode: process.env['AI_DEGRADED_MODE'] === 'true',
 
       // Payment Processing
