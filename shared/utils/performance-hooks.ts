@@ -161,7 +161,7 @@ export const useBatchedState = <T>(
     const { useState, useRef, useCallback } = React;
     
     const [state, setState] = useState(initialState);
-    const updateQueue = useRef<Array<Partial<T> | ((prev: T) => Partial<T>)>>([]);
+    const updateQueue = useRef([]) as React.MutableRefObject<Array<Partial<T> | ((prev: T) => Partial<T>)>>;
     const isScheduled = useRef(false);
     
     const batchedSetState = useCallback((updates: Partial<T> | ((prev: T) => Partial<T>)) => {
@@ -174,7 +174,7 @@ export const useBatchedState = <T>(
           setState((prevState: T) => {
             let newState = { ...prevState };
             
-            updateQueue.current.forEach(update => {
+            updateQueue.current.forEach((update: Partial<T> | ((prev: T) => Partial<T>)) => {
               if (typeof update === 'function') {
                 const partialUpdate = update(newState);
                 newState = { ...newState, ...partialUpdate };

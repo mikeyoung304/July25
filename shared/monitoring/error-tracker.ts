@@ -29,7 +29,7 @@ export interface ErrorReport {
 class ErrorTracker {
   private sessionId: string;
   private userId?: string;
-  private breadcrumbs: ErrorReport['breadcrumbs'] = [];
+  private breadcrumbs: NonNullable<ErrorReport['breadcrumbs']> = [];
   private reportEndpoint: string;
   private maxBreadcrumbs: number = 50;
   private context: Record<string, any> = {};
@@ -41,7 +41,7 @@ class ErrorTracker {
     maxBreadcrumbs?: number;
   } = {}) {
     this.sessionId = options.sessionId || this.generateSessionId();
-    this.userId = options.userId;
+    this.userId = options.userId || '';
     this.reportEndpoint = options.endpoint || '/api/v1/metrics/errors';
     this.maxBreadcrumbs = options.maxBreadcrumbs || 50;
     
