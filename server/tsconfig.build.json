@@ -1,39 +1,19 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDirs": ["./src", "../shared"],
-    "strict": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "declaration": false,
-    "declarationMap": false,
-    "sourceMap": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": false,
-    "noFallthroughCasesInSwitch": false,
-    "noUncheckedIndexedAccess": false,
-    "allowJs": false,
-    "noImplicitAny": false,
-    "noImplicitThis": false,
-    "exactOptionalPropertyTypes": false,
-    "noImplicitOverride": false,
-    "noPropertyAccessFromIndexSignature": false,
-    "preserveConstEnums": true,
-    "isolatedModules": false,
-    "noEmitOnError": false,
-    "paths": {
-      "@rebuild/shared": ["../shared/types"],
-      "@rebuild/shared/*": ["../shared/types/*"]
-    }
+    "noEmit": false
   },
-  "include": ["src/**/*", "../shared/**/*"],
-  "exclude": ["**/*.test.ts", "**/*.spec.ts", "tests/**", "**/__tests__/**"]
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.test.tsx",
+    "**/*.spec.tsx",
+    "tests/**",
+    "src/**/__tests__/**",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "node_modules",
+    "dist"
+  ]
 }
