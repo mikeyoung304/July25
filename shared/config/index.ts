@@ -60,52 +60,53 @@ class ConfigService {
       return this.config;
     }
     
-    const nodeEnv = (process.env.NODE_ENV || 'development') as AppConfig['nodeEnv'];
+    const nodeEnv = (process.env['NODE_ENV'] || 'development') as AppConfig['nodeEnv'];
     
-    this.config = {
+    const newConfig: AppConfig = {
       // Environment
       nodeEnv,
       isDevelopment: nodeEnv === 'development',
       isProduction: nodeEnv === 'production',
       isTest: nodeEnv === 'test',
-      
+
       // API Configuration
-      apiBaseUrl: process.env.VITE_API_BASE_URL || process.env.API_BASE_URL || 'http://localhost:3001',
-      frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
-      port: parseInt(process.env.PORT || '3001', 10),
-      
+      apiBaseUrl: process.env['VITE_API_BASE_URL'] || process.env['API_BASE_URL'] || 'http://localhost:3001',
+      frontendUrl: process.env['FRONTEND_URL'] || 'http://localhost:5173',
+      port: parseInt(process.env['PORT'] || '3001', 10),
+
       // Database
-      databaseUrl: process.env.DATABASE_URL || '',
-      supabaseUrl: process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '',
-      supabaseAnonKey: process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '',
-      supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY || '',
-      supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET || '',
-      
+      databaseUrl: process.env['DATABASE_URL'] || '',
+      supabaseUrl: process.env['VITE_SUPABASE_URL'] || process.env['SUPABASE_URL'] || '',
+      supabaseAnonKey: process.env['VITE_SUPABASE_ANON_KEY'] || process.env['SUPABASE_ANON_KEY'] || '',
+      supabaseServiceKey: process.env['SUPABASE_SERVICE_KEY'] || '',
+      supabaseJwtSecret: process.env['SUPABASE_JWT_SECRET'] || '',
+
       // Authentication
-      kioskJwtSecret: process.env.KIOSK_JWT_SECRET || '',
-      stationTokenSecret: process.env.STATION_TOKEN_SECRET || '',
-      pinPepper: process.env.PIN_PEPPER || '',
-      deviceFingerprintSalt: process.env.DEVICE_FINGERPRINT_SALT || '',
-      
+      kioskJwtSecret: process.env['KIOSK_JWT_SECRET'] || '',
+      stationTokenSecret: process.env['STATION_TOKEN_SECRET'] || '',
+      pinPepper: process.env['PIN_PEPPER'] || '',
+      deviceFingerprintSalt: process.env['DEVICE_FINGERPRINT_SALT'] || '',
+
       // Restaurant
-      defaultRestaurantId: process.env.VITE_DEFAULT_RESTAURANT_ID || process.env.DEFAULT_RESTAURANT_ID || '',
-      
+      defaultRestaurantId: process.env['VITE_DEFAULT_RESTAURANT_ID'] || process.env['DEFAULT_RESTAURANT_ID'] || '',
+
       // AI Services
-      openaiApiKey: process.env.OPENAI_API_KEY,
-      openaiRealtimeModel: process.env.OPENAI_REALTIME_MODEL,
-      aiDegradedMode: process.env.AI_DEGRADED_MODE === 'true',
-      
+      openaiApiKey: process.env['OPENAI_API_KEY'],
+      openaiRealtimeModel: process.env['OPENAI_REALTIME_MODEL'],
+      aiDegradedMode: process.env['AI_DEGRADED_MODE'] === 'true',
+
       // Payment Processing
-      squareAccessToken: process.env.SQUARE_ACCESS_TOKEN || 'demo',
-      squareEnvironment: (process.env.VITE_SQUARE_ENVIRONMENT || process.env.SQUARE_ENVIRONMENT || 'sandbox') as 'sandbox' | 'production',
-      squareLocationId: process.env.VITE_SQUARE_LOCATION_ID || process.env.SQUARE_LOCATION_ID || 'demo',
-      squareAppId: process.env.VITE_SQUARE_APP_ID || process.env.SQUARE_APP_ID || 'demo',
-      
+      squareAccessToken: process.env['SQUARE_ACCESS_TOKEN'] || 'demo',
+      squareEnvironment: (process.env['VITE_SQUARE_ENVIRONMENT'] || process.env['SQUARE_ENVIRONMENT'] || 'sandbox') as 'sandbox' | 'production',
+      squareLocationId: process.env['VITE_SQUARE_LOCATION_ID'] || process.env['SQUARE_LOCATION_ID'] || 'demo',
+      squareAppId: process.env['VITE_SQUARE_APP_ID'] || process.env['SQUARE_APP_ID'] || 'demo',
+
       // Feature Flags
-      useMockData: process.env.VITE_USE_MOCK_DATA === 'true',
-      useRealtimeVoice: process.env.VITE_USE_REALTIME_VOICE !== 'false',
+      useMockData: process.env['VITE_USE_MOCK_DATA'] === 'true',
+      useRealtimeVoice: process.env['VITE_USE_REALTIME_VOICE'] !== 'false',
     };
-    
+
+    this.config = newConfig;
     return this.config;
   }
   
