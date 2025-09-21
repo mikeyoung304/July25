@@ -1,0 +1,44 @@
+name: Quality Gates
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck --workspaces
+
+      - name: ESLint
+        run: npm run lint --workspaces --silent
+
+      - name: Tests (quick)
+        env:
+          CI: '1'
+          RUN_VISUAL: '0'
+          RUN_PERF: '0'
+          RUN_E2E: '0'
+          FORCE_COLOR: '0'
+        run: npm run test:quick --workspaces
+
+      - name: Build client
+        run: npm run build --workspace client
+
+      - name: Build server
+        run: npm run build --workspace server
+
+      - name: Bundle budget
+        run: node scripts/check-bundle-budget.mjs
