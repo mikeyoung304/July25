@@ -1,6 +1,6 @@
 import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
-import { ai, checkAIHealth } from '../ai';
+import { ai, _checkAIHealth } from '../ai';
 import { MenuService } from './menu.service';
 
 const aiLogger = logger.child({ service: 'AIService' });
@@ -86,7 +86,7 @@ export class AIService {
   /**
    * Stop recording and transcribe using OpenAI
    */
-  async stopRecording(connectionId: string, restaurantId: string = 'default'): Promise<TranscriptionResult> {
+  async stopRecording(connectionId: string, _restaurantId: string = 'default'): Promise<TranscriptionResult> {
     const state = this.connections.get(connectionId);
     if (!state || !state.isRecording) {
       return { success: false, error: 'Not recording' };
@@ -205,7 +205,7 @@ export class AIService {
    * Transcribe audio file using OpenAI (with metadata)
    * This method is used for the /transcribe-with-metadata endpoint
    */
-  async transcribeAudioFile(audioBuffer: Buffer, mimeType: string, restaurantId: string = 'default'): Promise<TranscriptionResult> {
+  async transcribeAudioFile(audioBuffer: Buffer, mimeType: string, _restaurantId: string = 'default'): Promise<TranscriptionResult> {
     try {
       const transcriptionResult = await ai.transcriber.transcribe(audioBuffer, {
         model: mimeType

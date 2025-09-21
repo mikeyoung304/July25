@@ -127,7 +127,7 @@ router.post('/login',
       .eq('is_active', true)
       .single();
 
-    if (roleError || !userRole) {
+    if (_roleError || !userRole) {
       logger.warn('User has no access to restaurant', {
         userId: authData.user.id,
         restaurantId

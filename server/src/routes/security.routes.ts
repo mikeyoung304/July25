@@ -49,7 +49,7 @@ router.get('/stats',
 router.post('/test',
   authenticate,
   requireRole('owner'),
-  (req, res) => {
+  (req, res): void => {
     if (process.env['NODE_ENV'] === 'production') {
       return res.status(403).json({
         error: {
@@ -81,7 +81,7 @@ router.post('/test',
 router.get('/config',
   authenticate,
   requireRole('owner'),
-  (req, res) => {
+  (_req, res): void => {
     res.json({
       environment: process.env['NODE_ENV'],
       security: {

@@ -9,7 +9,7 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
 // Now import everything else
 import express, { Express } from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
+import _helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
@@ -29,8 +29,8 @@ import { realtimeRoutes } from './routes/realtime.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
-import { applySecurity, securityMonitor } from './middleware/security';
-import { sanitizeRequest, strictSanitize } from './middleware/requestSanitizer';
+import { applySecurity, _securityMonitor } from './middleware/security';
+import { sanitizeRequest, _strictSanitize } from './middleware/requestSanitizer';
 
 // Validate required environment variables
 try {
