@@ -18,7 +18,7 @@ function KitchenDisplaySimple() {
   const [statusFilter, setStatusFilter] = useState<'active' | 'ready'>('active')
   
   // Memory monitoring for long-running sessions
-  const memoryMonitor = MemoryMonitorInstance
+  const _memoryMonitor = MemoryMonitorInstance
   useEffect(() => {
     // TODO: Implement memory monitoring when MemoryMonitorInstance API is available
     // memoryMonitor.configure({...})

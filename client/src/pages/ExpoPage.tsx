@@ -131,8 +131,8 @@ function ExpoPage() {
   } = useKitchenOrdersRealtime()
   
   // View modes for expo station
-  const [viewMode, setViewMode] = useState<'split' | 'ready-only'>('split')
-  const [showFilters, setShowFilters] = useState(false)
+  const [_viewMode, _setViewMode] = useState<'split' | 'ready-only'>('split')
+  const [_showFilters, _setShowFilters] = useState(false)
   
   // Memory monitoring for long-running sessions
   useEffect(() => {
