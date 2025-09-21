@@ -310,7 +310,7 @@ router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAc
 });
 
 // GET /api/v1/terminal/devices - List available terminal devices
-router.get('/devices', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+router.get('/devices', authenticate, validateRestaurantAccess, async (_req: AuthenticatedRequest, res, next): Promise<void> => {
   try {
     routeLogger.info('Retrieving terminal devices');
 

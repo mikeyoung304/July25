@@ -151,16 +151,16 @@ export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTabl
     // Transform frontend properties to database columns if present
     const dbUpdates: Record<string, any> = { ...updates };
     if ('x' in updates) {
-      dbUpdates.x_pos = updates.x;
-      delete dbUpdates.x;
+      dbUpdates['x_pos'] = updates['x'];
+      delete dbUpdates['x'];
     }
     if ('y' in updates) {
-      dbUpdates.y_pos = updates.y;
-      delete dbUpdates.y;
+      dbUpdates['y_pos'] = updates['y'];
+      delete dbUpdates['y'];
     }
     if ('type' in updates) {
-      dbUpdates.shape = updates.type;
-      delete dbUpdates.type;
+      dbUpdates['shape'] = updates['type'];
+      delete dbUpdates['type'];
     }
     
     const { data, error } = await supabase
@@ -229,9 +229,9 @@ export const updateTableStatus = async (req: AuthenticatedRequest & { body: Upda
     
     const updates: Record<string, any> = { status };
     if (status === 'occupied' && orderId) {
-      updates.current_order_id = orderId;
+      updates['current_order_id'] = orderId;
     } else if (status === 'available') {
-      updates.current_order_id = null;
+      updates['current_order_id'] = null;
     }
     
     const { data, error } = await supabase
@@ -310,16 +310,16 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
         // Transform frontend properties to database columns if present
         const dbUpdates: Record<string, any> = { ...updates };
         if ('x' in updates) {
-          dbUpdates.x_pos = updates.x;
-          delete dbUpdates.x;
+          dbUpdates['x_pos'] = updates['x'];
+          delete dbUpdates['x'];
         }
         if ('y' in updates) {
-          dbUpdates.y_pos = updates.y;
-          delete dbUpdates.y;
+          dbUpdates['y_pos'] = updates['y'];
+          delete dbUpdates['y'];
         }
         if ('type' in updates) {
-          dbUpdates.shape = updates.type;
-          delete dbUpdates.type;
+          dbUpdates['shape'] = updates['type'];
+          delete dbUpdates['type'];
         }
         
         logger.info(`🔄 Updating table ${index + 1}/${tables.length} (id: ${id}):`, {

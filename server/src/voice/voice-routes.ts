@@ -83,7 +83,7 @@ voiceRoutes.get('/health', (_req: Request, res: Response) => {
 });
 
 // Voice metrics endpoint
-voiceRoutes.get('/metrics', (_req: Request, res: Response) => {
+voiceRoutes.get('/metrics', (_req: Request, res: Response): void => {
   const server = getVoiceServer();
   
   if (!server) {
@@ -124,7 +124,7 @@ voiceRoutes.get('/metrics', (_req: Request, res: Response) => {
 });
 
 // Session-specific metrics
-voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response) => {
+voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response): void => {
   const server = getVoiceServer();
   const { sessionId } = req.params;
   
@@ -153,7 +153,7 @@ voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response) =>
 });
 
 // Handshake readiness endpoint
-voiceRoutes.get('/handshake', async (_req: Request, res: Response) => {
+voiceRoutes.get('/handshake', async (_req: Request, res: Response): Promise<void> => {
   const startTime = Date.now();
   const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-10-01';
   const apiKey = process.env.OPENAI_API_KEY;
@@ -238,7 +238,7 @@ voiceRoutes.get('/handshake', async (_req: Request, res: Response) => {
 });
 
 // WebSocket connection info endpoint
-voiceRoutes.get('/connections', (_req: Request, res: Response) => {
+voiceRoutes.get('/connections', (_req: Request, res: Response): void => {
   const server = getVoiceServer();
   
   if (!server) {
