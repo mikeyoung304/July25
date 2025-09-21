@@ -7,7 +7,7 @@ import { logger } from '../utils/logger';
 import { ai } from '../ai';
 import { MenuService } from '../services/menu.service';
 import type { OrderStatus, OrderType } from '@rebuild/shared';
-import { OrderPayload } from 'shared/contracts/order';
+import { OrderPayload } from '../../../shared/contracts/order';
 import { validateBody } from '../middleware/validate';
 
 const router = Router();

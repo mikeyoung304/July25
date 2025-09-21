@@ -3,7 +3,7 @@ import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
 import { getConfig } from '../config/environment';
 import { menuIdMapper } from './menu-id-mapper';
-import { mapMenuItem, _mapMenuCategory, mapMenuItems, mapMenuCategories } from '../mappers/menu.mapper';
+import { mapMenuItem, mapMenuCategory, mapMenuItems, mapMenuCategories } from '../mappers/menu.mapper';
 
 const config = getConfig();
 const menuCache = new NodeCache({ stdTTL: config.cache.ttlSeconds });

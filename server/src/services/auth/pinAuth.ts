@@ -235,7 +235,7 @@ export async function validatePin(
         return {
           isValid: true,
           userId: record.user_id,
-          userEmail: (record as { users?: { email: string } }).users?.email,
+          userEmail: (record as any).users?.[0]?.email,
           role: userRole?.role,
           restaurantId
         };

@@ -1,0 +1,33 @@
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/client/public/ignition-animation/animation.js
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/order-system/components/SquarePaymentForm.tsx
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/ExpoConsolidated.tsx
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/ExpoPageDebug.tsx
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/client/src/services/monitoring/logger.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/client/vite.config.ORIGINAL.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/client/vite.config.backup.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/client/vite.config.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/server/coverage/prettify.js
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/server/fix-index-signatures.js
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/security.ts
+Found skipped tests: /Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/__tests__/security.test.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/payments.routes.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/server/tests/bootstrap.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/server/tests/guards/routes.spec.ts
+Found skipped tests: /Users/mikeyoung/CODING/rebuild-6.0/server/tests/security/csrf.proof.test.ts
+Found skipped tests: /Users/mikeyoung/CODING/rebuild-6.0/server/tests/security/ratelimit.proof.test.ts
+Found skipped tests: /Users/mikeyoung/CODING/rebuild-6.0/server/tests/security/rbac.proof.test.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/shared/monitoring/error-tracker.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/shared/monitoring/performance-monitor.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/shared/monitoring/web-vitals.ts
+Found @ts-ignore: /Users/mikeyoung/CODING/rebuild-6.0/shared/runtime.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/shared/utils/error-handling.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/shared/utils/websocket-pool.browser.ts
+Found skipped tests: /Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/basic-routes.spec.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/debug-blank-page.spec.ts
+Found skipped tests: /Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/voice-control.e2e.test.ts
+Found @ts-ignore: /Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/websocket-service.e2e.test.ts
+Found console.log: /Users/mikeyoung/CODING/rebuild-6.0/tests/manual/test-optimizations.js
+Found skipped tests: /Users/mikeyoung/CODING/rebuild-6.0/tests/performance/lighthouse.spec.ts
+Found @ts-ignore: /Users/mikeyoung/CODING/rebuild-6.0/tests/performance/lighthouse.spec.ts
+
+❌ Found 31 forbidden pattern(s)

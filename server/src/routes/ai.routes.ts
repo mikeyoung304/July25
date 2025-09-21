@@ -65,7 +65,7 @@ router.get('/menu', aiServiceLimiter, authenticate, (req: AuthenticatedRequest, 
   res.set('Cache-Control', 'no-store');
   
   // Filter menu by restaurant context
-  if (menu && req.restaurantId && menu.restaurantId !== req.restaurantId) {
+  if (menu && req.restaurantId && (menu as any).restaurantId && (menu as any).restaurantId !== req.restaurantId) {
     return res.status(403).json({
       error: 'Access denied',
       message: 'Menu belongs to different restaurant'
@@ -326,7 +326,7 @@ You: "Perfect! That's $12 total."
 
 Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
 
-    const chatResponse = await ai.chat.respond([
+    const chatResponse = await (ai.chat as any).respond([
       { role: 'system', content: systemMessage },
       { role: 'user', content: transcriptionResult.text }
     ], {
@@ -477,7 +477,7 @@ You: "Perfect! That's $12 total."
 Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
 
     // Use ai.chat directly with menu context instead of aiService
-    const response = await ai.chat.respond([
+    const response = await (ai.chat as any).respond([
       { role: 'system', content: systemMessage },
       { role: 'user', content: message }
     ], {
@@ -600,7 +600,7 @@ router.post('/test-transcribe', audioUpload.single('audio'), async (req: Request
     return res.json({
       success: true,
       text: result.text,
-      duration: result.duration
+      duration: (result as any).duration || undefined
     });
   } catch (error) {
     aiLogger.error('Test transcribe failed:', error);

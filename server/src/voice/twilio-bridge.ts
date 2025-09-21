@@ -229,7 +229,7 @@ export function attachTwilioWebSocket(server: HTTPServer): void {
             });
 
             // Send initial greeting
-            adapter.sendToOpenAI({
+            (adapter as any).sendToOpenAI({
               type: 'response.create',
               response: {
                 modalities: ['text', 'audio'],

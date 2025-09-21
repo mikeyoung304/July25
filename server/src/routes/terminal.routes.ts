@@ -23,7 +23,7 @@ const client = new SquareClient({
 const terminalApi = client.terminal;
 
 // POST /api/v1/terminal/checkout - Create terminal checkout
-router.post('/checkout', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+router.post('/checkout', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { orderId, deviceId } = req.body;
@@ -131,7 +131,7 @@ router.post('/checkout', authenticate, validateRestaurantAccess, async (req: Aut
 });
 
 // GET /api/v1/terminal/checkout/:checkoutId - Get terminal checkout status
-router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const { checkoutId } = req.params;
 
@@ -152,7 +152,7 @@ router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, asyn
       if (result.checkout.status === 'COMPLETED' && result.checkout.paymentIds && result.checkout.paymentIds.length > 0) {
         try {
           const paymentId = result.checkout.paymentIds[0];
-          const { result: paymentResult } = await (client.paymentsApi as any).getPayment(paymentId);
+          const { result: paymentResult } = await (client.payments as any).getPayment(paymentId);
           paymentDetails = paymentResult.payment;
         } catch (paymentError) {
           routeLogger.warn('Could not retrieve payment details', { paymentError });
@@ -197,7 +197,7 @@ router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, asyn
 });
 
 // POST /api/v1/terminal/checkout/:checkoutId/cancel - Cancel terminal checkout
-router.post('/checkout/:checkoutId/cancel', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+router.post('/checkout/:checkoutId/cancel', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const { checkoutId } = req.params;
 
@@ -245,7 +245,7 @@ router.post('/checkout/:checkoutId/cancel', authenticate, validateRestaurantAcce
 });
 
 // POST /api/v1/terminal/checkout/:checkoutId/complete - Complete order after successful terminal payment
-router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { checkoutId } = req.params;
@@ -310,12 +310,12 @@ router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAc
 });
 
 // GET /api/v1/terminal/devices - List available terminal devices
-router.get('/devices', authenticate, validateRestaurantAccess, async (_req: AuthenticatedRequest, res, next): Promise<void> => {
+router.get('/devices', authenticate, validateRestaurantAccess, async (_req: AuthenticatedRequest, res, next) => {
   try {
     routeLogger.info('Retrieving terminal devices');
 
     try {
-      const { result } = await terminalApi.listDeviceCodes({
+      const { result } = await (terminalApi as any).listDeviceCodes({
         locationId: process.env['SQUARE_LOCATION_ID'],
         productType: 'TERMINAL_API',
         status: 'PAIRED',
