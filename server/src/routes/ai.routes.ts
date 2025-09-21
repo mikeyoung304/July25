@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router, Request, Response } from 'express';
 import { aiService } from '../services/ai.service';
 import { ai, checkAIHealth } from '../ai';

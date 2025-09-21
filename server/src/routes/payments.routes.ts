@@ -9,7 +9,7 @@ import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
 import { PaymentService } from '../services/payment.service';
 import { validateBody } from '../middleware/validate';
-import { PaymentPayload } from 'shared/contracts/payment';
+import { PaymentPayload } from '../../shared/contracts/payment';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'payments' });
