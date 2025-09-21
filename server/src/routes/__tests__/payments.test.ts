@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
-import jwt from 'jsonwebtoken';
+// import jwt from 'jsonwebtoken';
 import { PaymentService } from '../../services/payment.service';
 import { OrdersService } from '../../services/orders.service';
 

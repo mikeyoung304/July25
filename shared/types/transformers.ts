@@ -12,7 +12,7 @@
 import type { Order as SharedOrder, OrderItem as SharedOrderItem, OrderType, UIOrderType } from './order.types';
 import type { MenuItem as SharedMenuItem } from './menu.types';
 import type { Table as SharedTable } from './table.types';
-import type { Customer as SharedCustomer } from './customer.types';
+// import type { Customer as SharedCustomer } from './customer.types';
 
 export interface Restaurant {
   id: string;

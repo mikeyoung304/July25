@@ -220,7 +220,10 @@ export const menuFunctionTools = {
                   if (categoryItems && categoryItems.length > 0) {
                     // Pick a random item from this category
                     const randomIndex = Math.floor(Math.random() * categoryItems.length);
-                    suggestions.push(categoryItems[randomIndex]);
+                    const selectedItem = categoryItems[randomIndex];
+                    if (selectedItem) {
+                      suggestions.push(selectedItem);
+                    }
                   }
                 }
               }
