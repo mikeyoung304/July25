@@ -1,0 +1,199 @@
+
+> restaurant-os-client@6.0.3 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> restaurant-os-server@6.0.3 typecheck
+> tsc -p tsconfig.json --noEmit
+
+src/ai/functions/realtime-menu-tools.test.ts(19,11): error TS6133: '__mockContext' is declared but its value is never read.
+src/ai/functions/realtime-menu-tools.test.ts(30,13): error TS6133: '__mockStoreData' is declared but its value is never read.
+src/ai/functions/realtime-menu-tools.test.ts(45,13): error TS6133: '__mockStoreData' is declared but its value is never read.
+src/ai/functions/realtime-menu-tools.ts(211,17): error TS2532: Object is possibly 'undefined'.
+src/middleware/__tests__/auth.test.ts(38,5): error TS2322: Type 'Mock<[deferToNext: "route"], void>' is not assignable to type 'NextFunction'.
+  Types of parameters 'deferToNext' and 'deferToNext' are incompatible.
+    Type '"router"' is not assignable to type '"route"'.
+src/middleware/__tests__/restaurantAccess.test.ts(20,5): error TS2375: Type '{ headers: {}; user: undefined; restaurantId: undefined; }' is not assignable to type 'Partial<AuthenticatedRequest>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'user' are incompatible.
+    Type 'undefined' is not assignable to type '{ id: string; email?: string; role?: string; scopes?: string[]; restaurant_id?: string; }'.
+src/middleware/__tests__/restaurantAccess.test.ts(187,7): error TS2412: Type 'undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+src/middleware/authRateLimiter.ts(235,9): error TS6133: '_oneHourAgo' is declared but its value is never read.
+src/middleware/errorHandler.ts(19,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/middleware/metrics.ts(50,8): error TS7017: Element implicitly has an 'any' type because type 'typeof globalThis' has no index signature.
+src/middleware/security.ts(123,21): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/__tests__/orders.rctx.test.ts(5,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/orders.routes"' has no default export.
+src/routes/__tests__/payments.test.ts(4,1): error TS6133: 'jwt' is declared but its value is never read.
+src/routes/__tests__/payments.test.ts(46,24): error TS6133: 'res' is declared but its value is never read.
+src/routes/__tests__/payments.test.ts(99,51): error TS2554: Expected 1 arguments, but got 0.
+src/routes/__tests__/payments.test.ts(193,26): error TS6133: 'res' is declared but its value is never read.
+src/routes/__tests__/payments.test.ts(217,32): error TS2339: Property 'getPaymentDetails' does not exist on type 'typeof PaymentService'.
+src/routes/__tests__/payments.test.ts(237,26): error TS6133: 'res' is declared but its value is never read.
+src/routes/__tests__/payments.test.ts(262,26): error TS6133: 'res' is declared but its value is never read.
+src/routes/__tests__/payments.test.ts(275,32): error TS2339: Property 'processRefund' does not exist on type 'typeof PaymentService'.
+src/routes/__tests__/payments.test.ts(323,32): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
+src/routes/__tests__/payments.test.ts(324,32): error TS2339: Property 'processWebhook' does not exist on type 'typeof PaymentService'.
+src/routes/__tests__/payments.test.ts(332,29): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
+src/routes/__tests__/payments.test.ts(339,32): error TS2339: Property 'verifyWebhookSignature' does not exist on type 'typeof PaymentService'.
+src/routes/__tests__/rctx-comprehensive.test.ts(7,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/menu.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(8,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/tables.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(9,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/restaurants.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(10,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/auth.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(11,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/realtime.routes"' has no default export.
+src/routes/__tests__/rctx-comprehensive.test.ts(12,8): error TS1192: Module '"/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/terminal.routes"' has no default export.
+src/routes/__tests__/security.test.ts(52,32): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+src/routes/__tests__/security.test.ts(124,39): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+src/routes/__tests__/security.test.ts(125,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+src/routes/__tests__/security.test.ts(133,19): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
+src/routes/__tests__/security.test.ts(145,21): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+src/routes/__tests__/security.test.ts(154,21): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+src/routes/__tests__/security.test.ts(275,21): error TS4111: Property 'SUPABASE_JWT_SECRET' comes from an index signature, so it must be accessed with ['SUPABASE_JWT_SECRET'].
+src/routes/ai.routes.ts(68,40): error TS2339: Property 'restaurantId' does not exist on type '{ menu?: { id: string; name: string; price: number; category: string; description?: string; }[]; }'.
+src/routes/ai.routes.ts(329,40): error TS2339: Property 'respond' does not exist on type 'Chat'.
+src/routes/ai.routes.ts(480,36): error TS2339: Property 'respond' does not exist on type 'Chat'.
+src/routes/ai.routes.ts(603,24): error TS2339: Property 'duration' does not exist on type 'TranscriptionResult'.
+src/routes/auth.routes.ts(17,7): error TS6133: '_config' is declared but its value is never read.
+src/routes/health.routes.ts(117,11): error TS2375: Type '{ status: "healthy"; timestamp: string; uptime: number; environment: string; version: string | undefined; services: { database: { status: "error" | "connected" | "disconnected"; latency?: number; error?: string; }; cache: { ...; }; ai: { ...; }; }; }' is not assignable to type 'HealthStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'version' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/orders.routes.ts(10,30): error TS2307: Cannot find module 'shared/contracts/order' or its corresponding type declarations.
+src/routes/orders.routes.ts(31,64): error TS2379: Argument of type '{ status: OrderStatus | undefined; type: OrderType | undefined; startDate: string; endDate: string; limit: number; offset: number; }' is not assignable to parameter of type 'OrderFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'type' are incompatible.
+    Type 'OrderType | undefined' is not assignable to type 'OrderType | OrderType[]'.
+      Type 'undefined' is not assignable to type 'OrderType | OrderType[]'.
+src/routes/payments.routes.ts(12,32): error TS2307: Cannot find module 'shared/contracts/payment' or its corresponding type declarations.
+src/routes/realtime.routes.ts(32,26): error TS2551: Property 'category' does not exist on type 'MenuItem'. Did you mean 'categoryId'?
+src/routes/realtime.routes.ts(40,11): error TS2532: Object is possibly 'undefined'.
+src/routes/realtime.routes.ts(49,15): error TS6133: '_allergenNotes' is declared but its value is never read.
+src/routes/realtime.routes.ts(139,7): error TS2698: Spread types may only be created from object types.
+src/routes/realtime.routes.ts(146,18): error TS18046: 'data' is of type 'unknown'.
+src/routes/security.routes.ts(15,24): error TS2554: Expected 1 arguments, but got 2.
+src/routes/security.routes.ts(37,24): error TS2554: Expected 1 arguments, but got 2.
+src/routes/security.routes.ts(38,4): error TS6133: 'req' is declared but its value is never read.
+src/routes/security.routes.ts(51,15): error TS2345: Argument of type 'string' is not assignable to parameter of type 'string[]'.
+src/routes/security.routes.ts(54,7): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+src/routes/security.routes.ts(83,15): error TS2345: Argument of type 'string' is not assignable to parameter of type 'string[]'.
+src/routes/tables.routes.ts(1,18): error TS6133: 'Request' is declared but its value is never read.
+src/routes/tables.routes.ts(6,10): error TS6133: 'Table' is declared but its value is never read.
+src/routes/tables.routes.ts(371,16): error TS18046: 'error' is of type 'unknown'.
+src/routes/tables.routes.ts(372,16): error TS18046: 'error' is of type 'unknown'.
+src/routes/tables.routes.ts(378,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/terminal.routes.ts(116,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+src/routes/terminal.routes.ts(144,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+src/routes/terminal.routes.ts(155,59): error TS2551: Property 'paymentsApi' does not exist on type 'SquareClient'. Did you mean 'payments'?
+src/routes/terminal.routes.ts(184,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+src/routes/terminal.routes.ts(231,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+src/routes/terminal.routes.ts(318,44): error TS2339: Property 'listDeviceCodes' does not exist on type 'Terminal'.
+src/routes/terminal.routes.ts(330,30): error TS7006: Parameter 'device' implicitly has an 'any' type.
+src/routes/terminal.routes.ts(347,9): error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+src/server.ts(32,25): error TS2724: '"./middleware/security"' has no exported member named '_securityMonitor'. Did you mean 'securityMonitor'?
+src/server.ts(33,27): error TS2724: '"./middleware/requestSanitizer"' has no exported member named '_strictSanitize'. Did you mean 'strictSanitize'?
+src/services/ai.service.ts(3,14): error TS2724: '"../ai"' has no exported member named '_checkAIHealth'. Did you mean 'checkAIHealth'?
+src/services/ai.service.ts(255,42): error TS2339: Property 'respond' does not exist on type 'Chat'.
+src/services/ai.service.ts(300,9): error TS2322: Type 'MenuItem[]' is not assignable to type '{ id: string; name: string; price: number; category: string; description?: string; }[]'.
+  Property 'category' is missing in type 'MenuItem' but required in type '{ id: string; name: string; price: number; category: string; description?: string; }'.
+src/services/ai.service.ts(319,38): error TS2339: Property 'respond' does not exist on type 'Chat'.
+src/services/auth/pinAuth.test.ts(3,10): error TS2305: Module '"./pinAuth"' has no exported member 'PinAuthService'.
+src/services/auth/pinAuth.ts(235,9): error TS2375: Type '{ isValid: true; userId: any; userEmail: string | undefined; role: any; restaurantId: string; }' is not assignable to type 'PinValidationResult' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userEmail' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/auth/pinAuth.ts(238,23): error TS2352: Conversion of type '{ id: any; user_id: any; pin_hash: any; salt: any; attempts: any; locked_until: any; users: { id: any; email: any; }[]; }' to type '{ users?: { email: string; }; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'users' are incompatible.
+    Property 'email' is missing in type '{ id: any; email: any; }[]' but required in type '{ email: string; }'.
+src/services/auth/pinAuth.ts(254,19): error TS4111: Property 'locked_until' comes from an index signature, so it must be accessed with ['locked_until'].
+src/services/menu.service.ts(6,23): error TS2724: '"../mappers/menu.mapper"' has no exported member named '_mapMenuCategory'. Did you mean 'mapMenuCategory'?
+src/services/OrderMatchingService.ts(19,14): error TS2322: Type '{ draftName: string; quantity: number; modifications: string[] | undefined; specialInstructions: string | undefined; candidates: { menuItemId: string; name: string; score: number; }[]; }[]' is not assignable to type 'Candidate[]'.
+  Type '{ draftName: string; quantity: number; modifications: string[] | undefined; specialInstructions: string | undefined; candidates: { menuItemId: string; name: string; score: number; }[]; }' is not assignable to type 'Candidate' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'modifications' are incompatible.
+      Type 'string[] | undefined' is not assignable to type 'string[]'.
+        Type 'undefined' is not assignable to type 'string[]'.
+src/services/orders.service.ts(447,13): error TS2322: Type '{ id: `${string}-${string}-${string}-${string}-${string}`; name: string; quantity: number; price: number; modifiers: any; notes: string | undefined; }[]' is not assignable to type 'OrderItem[]'.
+  Type '{ id: `${string}-${string}-${string}-${string}-${string}`; name: string; quantity: number; price: number; modifiers: any; notes: string | undefined; }' is not assignable to type 'OrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'notes' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/services/orders.service.ts(452,25): error TS2339: Property 'modifiers' does not exist on type '{ name: string; quantity: number; price?: number; notes?: string; }'.
+src/services/orderStateMachine.ts(70,11): error TS2375: Type '{ from: OrderStatus; to: OrderStatus; timestamp: Date; userId: string | undefined; reason: string | undefined; }' is not assignable to type 'StateTransition' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/orderStateMachine.ts(131,18): error TS18046: 'error' is of type 'unknown'.
+src/utils/websocket.ts(59,7): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/voice/debug-dashboard.ts(36,41): error TS6133: 'req' is declared but its value is never read.
+src/voice/debug-dashboard.ts(405,44): error TS6133: 'req' is declared but its value is never read.
+src/voice/debug-dashboard.ts(416,43): error TS6133: 'req' is declared but its value is never read.
+src/voice/debug-dashboard.ts(423,47): error TS6133: 'req' is declared but its value is never read.
+src/voice/debug-dashboard.ts(439,45): error TS6133: 'req' is declared but its value is never read.
+src/voice/debug-dashboard.ts(450,42): error TS6133: 'req' is declared but its value is never read.
+src/voice/debug-dashboard.ts(461,47): error TS6133: 'req' is declared but its value is never read.
+src/voice/debug-dashboard.ts(481,18): error TS18046: 'error' is of type 'unknown'.
+src/voice/debug-dashboard.ts(504,42): error TS6133: 'req' is declared but its value is never read.
+src/voice/debug-dashboard.ts(516,48): error TS6133: 'req' is declared but its value is never read.
+src/voice/debug-dashboard.ts(536,51): error TS7030: Not all code paths return a value.
+src/voice/debug-dashboard.ts(538,53): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/voice/debug-dashboard.ts(621,19): error TS4111: Property 'VOICE_RECORD_AUDIO' comes from an index signature, so it must be accessed with ['VOICE_RECORD_AUDIO'].
+src/voice/openai-adapter.ts(222,30): error TS4111: Property 'transcript' comes from an index signature, so it must be accessed with ['transcript'].
+src/voice/openai-adapter.ts(256,34): error TS6133: 'event' is declared but its value is never read.
+src/voice/openai-adapter.ts(408,7): error TS2412: Type 'undefined' is not assignable to type 'WebSocket' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+src/voice/twilio-bridge.ts(137,32): error TS6133: 'req' is declared but its value is never read.
+src/voice/twilio-bridge.ts(148,34): error TS6133: 'req' is declared but its value is never read.
+src/voice/twilio-bridge.ts(196,49): error TS4111: Property 'restaurantId' comes from an index signature, so it must be accessed with ['restaurantId'].
+src/voice/twilio-bridge.ts(232,21): error TS2445: Property 'sendToOpenAI' is protected and only accessible within class 'OpenAIAdapter' and its subclasses.
+src/voice/voice-routes.ts(22,18): error TS6133: 'req' is declared but its value is never read.
+src/voice/voice-routes.ts(90,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+src/voice/voice-routes.ts(132,5): error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+src/voice/voice-routes.ts(138,44): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+../shared/monitoring/performance-monitor.ts(180,15): error TS2375: Type '{ id: string; timestamp: number; type: "api_request"; name: string; duration: number; sessionId: string; url: string; method: string; endpoint: string; status: "error" | "success"; statusCode: number | undefined; errorMessage: string | undefined; metadata: { ...; }; }' is not assignable to type 'APIPerformanceMetric' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'statusCode' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+../shared/monitoring/performance-monitor.ts(268,11): error TS2375: Type '{ status: "success"; metadata: Record<string, any> | undefined; url?: string; id: string; timestamp: number; type: "user_interaction"; name: string; duration: number; sessionId: string; }' is not assignable to type 'PerformanceMetric' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'metadata' are incompatible.
+    Type 'Record<string, any> | undefined' is not assignable to type 'Record<string, any>'.
+      Type 'undefined' is not assignable to type 'Record<string, any>'.
+../shared/types/transformers.ts(15,1): error TS6133: 'SharedCustomer' is declared but its value is never read.
+../shared/types/transformers.ts(186,5): error TS2375: Type '{ id: string; order_number: string; restaurant_id: string; table_number: string | undefined; status: OrderStatus; type: OrderType; items: SharedOrderItem[]; ... 9 more ...; updated_at: string; }' is not assignable to type 'Order' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'tip' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+../shared/types/transformers.ts(220,5): error TS2375: Type '{ id: string; menuItemId: string; quantity: number; unitPrice: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[]; specialInstructions: string | undefined; }' is not assignable to type 'ClientOrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'specialInstructions' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+../shared/types/transformers.ts(247,5): error TS2375: Type '{ id: string; menu_item_id: string; name: string; quantity: number; price: number; subtotal: number; modifiers: { id: string; name: string; price: number; }[]; special_instructions: string | undefined; }' is not assignable to type 'OrderItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'special_instructions' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+../shared/types/transformers.ts(276,5): error TS2375: Type '{ id: string; restaurantId: string; name: string; description: string; price: number; category: string; available: boolean; imageUrl: string | undefined; prepTimeMinutes: number | undefined; createdAt: Date; updatedAt: Date; }' is not assignable to type 'ClientMenuItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'imageUrl' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+../shared/utils/error-handling.ts(343,7): error TS2698: Spread types may only be created from object types.
+../shared/utils/memory-monitoring.ts(65,20): error TS6133: '_leakThreshold' is declared but its value is never read.
+../shared/utils/performance-hooks.ts(18,11): error TS6133: '_React' is declared but its value is never read.
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 2
+npm error path /Users/mikeyoung/CODING/rebuild-6.0/server
+npm error workspace restaurant-os-server@6.0.3
+npm error location /Users/mikeyoung/CODING/rebuild-6.0/server
+npm error command failed
+npm error command sh -c tsc -p tsconfig.json --noEmit
+
+
+> @rebuild/shared@1.0.0 typecheck
+> tsc --noEmit
+
+utils/error-handling.ts(343,7): error TS2698: Spread types may only be created from object types.
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 2
+npm error path /Users/mikeyoung/CODING/rebuild-6.0/shared
+npm error workspace @rebuild/shared@1.0.0
+npm error location /Users/mikeyoung/CODING/rebuild-6.0/shared
+npm error command failed
+npm error command sh -c tsc --noEmit

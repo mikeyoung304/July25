@@ -449,7 +449,7 @@ export class OrdersService {
         name: item.name,
         quantity: item.quantity || 1,
         price: item.price || 0,
-        modifiers: item.modifiers,
+        modifiers: (item as any).modifiers || [],
         notes: item.notes,
       }));
 

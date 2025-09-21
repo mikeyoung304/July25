@@ -29,8 +29,8 @@ import { realtimeRoutes } from './routes/realtime.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
-import { applySecurity, _securityMonitor } from './middleware/security';
-import { sanitizeRequest, _strictSanitize } from './middleware/requestSanitizer';
+import { applySecurity, securityMonitor } from './middleware/security';
+import { sanitizeRequest, strictSanitize } from './middleware/requestSanitizer';
 
 // Validate required environment variables
 try {

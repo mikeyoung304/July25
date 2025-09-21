@@ -83,7 +83,7 @@ voiceRoutes.get('/health', (_req: Request, res: Response) => {
 });
 
 // Voice metrics endpoint
-voiceRoutes.get('/metrics', (_req: Request, res: Response): void => {
+voiceRoutes.get('/metrics', (_req: Request, res: Response) => {
   const server = getVoiceServer();
   
   if (!server) {
@@ -124,7 +124,7 @@ voiceRoutes.get('/metrics', (_req: Request, res: Response): void => {
 });
 
 // Session-specific metrics
-voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response): void => {
+voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response) => {
   const server = getVoiceServer();
   const { sessionId } = req.params;
   

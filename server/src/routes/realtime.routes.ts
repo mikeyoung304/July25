@@ -29,7 +29,7 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
         const menuItems = menuData.map(item => ({
           name: item.name,
           price: item.price,
-          category: item.category || 'Other',
+          category: item.categoryId || 'Other',
           description: item.description || '',
           available: item.available !== false
         })).filter(item => item.available);
@@ -132,8 +132,8 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
       });
     }
 
-    const data = await response.json();
-    
+    const data = await response.json() as any;
+
     // Add restaurant and menu context to the response
     const sessionData = {
       ...data,
@@ -143,7 +143,7 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
     };
 
     realtimeLogger.info('Ephemeral token created successfully', {
-      sessionId: data.id,
+      sessionId: data?.id,
       restaurantId
     });
     

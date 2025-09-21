@@ -1,6 +1,6 @@
 import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
-import { ai, _checkAIHealth } from '../ai';
+import { ai, checkAIHealth } from '../ai';
 import { MenuService } from './menu.service';
 
 const aiLogger = logger.child({ service: 'AIService' });
@@ -252,7 +252,7 @@ export class AIService {
       }
 
       // Step 2: Generate chat response
-      const chatResponse = await ai.chat.respond([
+      const chatResponse = await (ai.chat as any).respond([
         { role: 'user', content: transcriptionResult.text }
       ], {
         context: { restaurantId }
@@ -296,9 +296,13 @@ export class AIService {
       
       // Transform to format expected by AI processing
       this.menuData = {
-        restaurantId: restaurantId,
-        menu: fullMenu.items,
-        categories: fullMenu.categories
+        menu: fullMenu.items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          category: item.categoryId || 'Other',
+          description: item.description
+        }))
       };
       
       aiLogger.info(`Menu loaded from local database for restaurant ${restaurantId}`, {
@@ -316,7 +320,7 @@ export class AIService {
    */
   async chat(message: string, restaurantId: string = 'default', userId?: string): Promise<string> {
     try {
-      const response = await ai.chat.respond([
+      const response = await (ai.chat as any).respond([
         { role: 'user', content: message }
       ], {
         context: { restaurantId, userId }
