@@ -406,8 +406,15 @@ export class WebSocketPool extends ManagedService {
    * Round-robin connection selection
    */
   private selectRoundRobin(connections: PooledWebSocketConnection[]): PooledWebSocketConnection {
+    if (connections.length === 0) {
+      throw new Error('No connections available for round-robin selection');
+    }
     this.loadBalancingIndex = (this.loadBalancingIndex + 1) % connections.length;
-    return connections[this.loadBalancingIndex];
+    const selectedConnection = connections[this.loadBalancingIndex];
+    if (!selectedConnection) {
+      throw new Error('Selected connection is undefined');
+    }
+    return selectedConnection;
   }
 
   /**

@@ -8,8 +8,8 @@ import { menuFunctionTools } from '../functions/realtime-menu-tools';
  * Enhanced OpenAI Adapter with Twilio support, audio conversion, and function calling
  */
 export class EnhancedOpenAIAdapter extends OpenAIAdapter {
-  private twilioWS?: WebSocket | undefined;
-  private streamSid?: string | undefined;
+  private twilioWS?: WebSocket;
+  private streamSid?: string;
   private isSpeaking = false;
   private audioFormat: AudioFormat = 'pcm16';
   private functionTools = menuFunctionTools;

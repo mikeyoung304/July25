@@ -220,13 +220,13 @@ class PerformanceMonitor {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const monitor = this;
     
-    XMLHttpRequest.prototype.open = function(method: string, url: string | URL, ...args: any[]) {
+    XMLHttpRequest.prototype.open = function(method: string, url: string | URL, async: boolean = true, username?: string | null, password?: string | null) {
       (this as any)._perfMonitor = {
         method,
         url: url.toString(),
         startTime: null,
       };
-      return originalOpen.apply(this, [method, url, ...args]);
+      return originalOpen.call(this, method, url, async, username, password);
     };
     
     XMLHttpRequest.prototype.send = function(body?: any) {

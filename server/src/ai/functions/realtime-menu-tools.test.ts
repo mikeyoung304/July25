@@ -16,23 +16,13 @@ vi.mock('@supabase/supabase-js', () => ({
 
 describe('Menu Function Tools', () => {
   describe('get_store_info', () => {
-    const _mockContext = {
-      sessionId: 'test-session',
-      restaurantId: 'test-restaurant'
-    };
 
     it('should calculate is_open based on store hours', async () => {
       // Mock current time to be 2pm on a Monday (day 1)
       const mockDate = new Date('2025-01-27T14:00:00');
       vi.setSystemTime(mockDate);
 
-      // Mock store data with hours
-      const _mockStoreData = {
-        name: 'Test Restaurant',
-        hours: {
-          1: { open: '09:00', close: '17:00' } // Monday 9am-5pm
-        }
-      };
+      // Mock store data with hours - would be used in actual implementation
 
       // This would need proper mocking of the supabase query
       // For now, just verify the function exists and has correct structure
@@ -42,11 +32,6 @@ describe('Menu Function Tools', () => {
     });
 
     it('should default to open when hours not specified', async () => {
-      const _mockStoreData = {
-        name: 'Test Restaurant',
-        hours: null
-      };
-
       // Verify the function handles missing hours gracefully
       expect(menuFunctionTools.get_store_info).toBeDefined();
     });

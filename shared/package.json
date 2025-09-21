@@ -4,6 +4,16 @@
   "description": "Shared types and utilities for Rebuild 6.0",
   "main": "types/index.ts",
   "types": "types/index.ts",
+  "exports": {
+    ".": "./types/index.ts",
+    "./contracts/order": "./contracts/order.ts",
+    "./contracts/payment": "./contracts/payment.ts",
+    "./config": "./config/index.ts",
+    "./config/simple": "./config/simple.ts",
+    "./monitoring/*": "./monitoring/*.ts",
+    "./types": "./types/index.ts",
+    "./utils": "./utils/index.ts"
+  },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",

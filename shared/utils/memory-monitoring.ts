@@ -147,11 +147,15 @@ class MemoryMonitoringSystem {
     if (this.snapshots.length < 10) {
       return null;
     }
-    
+
     const current = this.snapshots[this.snapshots.length - 1];
+    if (!current) {
+      return null;
+    }
+
     const recent = this.snapshots.slice(-60); // Last minute
     const older = this.snapshots.slice(-120, -60); // Previous minute
-    
+
     if (older.length === 0) {
       return null;
     }

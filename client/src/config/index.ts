@@ -31,8 +31,10 @@ export { sharedConfig as config };
 
 // Client-specific helpers
 export const isDemo = () => {
-  const cfg = sharedConfig.get();
-  return cfg.squareAccessToken === 'demo' || cfg.squareEnvironment === 'sandbox';
+  if (typeof window !== 'undefined' && import.meta.env) {
+    return import.meta.env.VITE_SQUARE_ENVIRONMENT === 'sandbox';
+  }
+  return false;
 };
 
 export const getRestaurantId = (): string => {
@@ -41,9 +43,9 @@ export const getRestaurantId = (): string => {
     const storedId = sessionStorage.getItem('currentRestaurantId');
     if (storedId) return storedId;
   }
-  
+
   // Fall back to default
-  return sharedConfig.get().defaultRestaurantId;
+  return sharedConfig.defaultRestaurantId;
 };
 
 export const setRestaurantId = (id: string): void => {

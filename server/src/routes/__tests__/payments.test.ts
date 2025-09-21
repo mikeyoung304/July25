@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import { PaymentService } from '../../services/payment.service';
 import { OrdersService } from '../../services/orders.service';
 
@@ -43,7 +42,7 @@ describe('Payment Routes', () => {
     app.use(express.json());
     
     // Mock authentication middleware
-    app.use((req: any, res, next) => {
+    app.use((req: any, _res, next) => {
       if (req.headers.authorization?.startsWith('Bearer ')) {
         req.user = {
           id: 'test-user-id',
@@ -190,7 +189,7 @@ describe('Payment Routes', () => {
       // Override auth middleware to remove scope
       app = express();
       app.use(express.json());
-      app.use((req: any, res, next) => {
+      app.use((req: any, _res, next) => {
         req.user = {
           id: 'test-user-id',
           role: 'kitchen',
@@ -234,7 +233,7 @@ describe('Payment Routes', () => {
     it('should require PAYMENTS_READ scope', async () => {
       app = express();
       app.use(express.json());
-      app.use((req: any, res, next) => {
+      app.use((req: any, _res, next) => {
         req.user = {
           id: 'test-user-id',
           role: 'kitchen',
@@ -259,7 +258,7 @@ describe('Payment Routes', () => {
       // Add refund scope
       app = express();
       app.use(express.json());
-      app.use((req: any, res, next) => {
+      app.use((req: any, _res, next) => {
         req.user = {
           id: 'test-user-id',
           role: 'manager',
