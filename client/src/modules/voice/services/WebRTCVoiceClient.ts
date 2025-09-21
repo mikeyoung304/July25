@@ -525,8 +525,8 @@ export class WebRTCVoiceClient extends EventEmitter {
           // Initialize assistant transcript entry
           if (event.response.output && event.response.output.length > 0) {
             const _itemId = event.response.output[0].id;
-            if (itemId) {
-              this.transcriptMap.set(itemId, { text: '', final: false, role: 'assistant' });
+            if (_itemId) {
+              this.transcriptMap.set(_itemId, { text: '', final: false, role: 'assistant' });
             }
           }
         }
@@ -624,7 +624,7 @@ export class WebRTCVoiceClient extends EventEmitter {
             // Validate and filter items with names
             const validItems = (args.items || []).filter((item: any) => {
               if (!item?.name) {
-                console.warn(`${logPrefix} Skipping item without name:`, item);
+                console.warn(`${_logPrefix} Skipping item without name:`, item);
                 return false;
               }
               return true;
@@ -664,7 +664,7 @@ export class WebRTCVoiceClient extends EventEmitter {
             });
           }
         } catch (error) {
-          console.error(`${logPrefix} Failed to parse function call arguments:`, error);
+          console.error(`${_logPrefix} Failed to parse function call arguments:`, error);
           console.error('Raw arguments:', event.arguments);
         }
         break;
@@ -1192,7 +1192,7 @@ ENTRÉES → Ask:
           this.pc.close();
         }
       } catch (_e) {
-        console.warn('[WebRTCVoice] Error cleaning up peer connection:', e);
+        console.warn('[WebRTCVoice] Error cleaning up peer connection:', _e);
       }
       this.pc = null;
     }
@@ -1240,7 +1240,7 @@ ENTRÉES → Ask:
           this.audioElement.parentNode.removeChild(this.audioElement);
         }
       } catch (_e) {
-        console.warn('[WebRTCVoice] Error cleaning up audio element:', e);
+        console.warn('[WebRTCVoice] Error cleaning up audio element:', _e);
       }
       this.audioElement = null;
     }

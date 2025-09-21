@@ -1,6 +1,6 @@
 
 // Note: logger import moved after getConfig to avoid circular dependency
-import { config, validateConfig } from '../../../shared/config';
+import { configService, validateConfig } from '../../../shared/config';
 
 export interface EnvironmentConfig {
   port: number;
@@ -51,7 +51,7 @@ export function validateEnvironment(): void {
     validateConfig();
     
     // Additional server-specific validation
-    const cfg = config.get();
+    const cfg = configService.get();
     
     if (!cfg.isDevelopment && !cfg.aiDegradedMode && !cfg.openaiApiKey) {
       throw new Error('OPENAI_API_KEY is required in production. Set AI_DEGRADED_MODE=true to use stubs.');
@@ -69,7 +69,7 @@ export function validateEnvironment(): void {
 }
 
 export function getConfig(): EnvironmentConfig {
-  const cfg = config.get();
+  const cfg = configService.get();
   
   return {
     port: cfg.port,
