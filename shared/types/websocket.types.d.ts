@@ -5,7 +5,7 @@
 import { Order, OrderStatus } from './order.types';
 import { Table, TableStatus } from './table.types';
 export type WebSocketEventType = 'order:created' | 'order:updated' | 'order:status_changed' | 'order:cancelled' | 'table:updated' | 'table:status_changed' | 'menu:updated' | 'notification' | 'error';
-export interface WebSocketMessage<T = any> {
+export interface WebSocketMessage<T = WebSocketPayload> {
     type: WebSocketEventType;
     payload: T;
     timestamp: string;
@@ -48,7 +48,7 @@ export interface NotificationPayload {
 export interface ErrorPayload {
     code: string;
     message: string;
-    details?: any;
+    details?: Record<string, unknown>;
 }
 export type WebSocketPayload = OrderCreatedPayload | OrderUpdatedPayload | OrderStatusChangedPayload | TableUpdatedPayload | TableStatusChangedPayload | NotificationPayload | ErrorPayload;
 //# sourceMappingURL=websocket.types.d.ts.map

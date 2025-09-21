@@ -29,7 +29,7 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
         const menuItems = menuData.map(item => ({
           name: item.name,
           price: item.price,
-          category: item.category || 'Other',
+          category: item.categoryId || 'Other',
           description: item.description || '',
           available: item.available !== false
         })).filter(item => item.available);
@@ -37,7 +37,7 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
         // Group by category (keep full item objects)
         const menuByCategory = menuItems.reduce((acc, item) => {
           if (!acc[item.category]) acc[item.category] = [];
-          acc[item.category].push(item);
+          acc[item.category]!.push(item);
           return acc;
         }, {} as Record<string, typeof menuItems>);
         
@@ -45,14 +45,14 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
         menuContext = `\n\n📋 FULL MENU (Summer Lunch Menu - prices may vary):\n`;
         menuContext += `=====================================\n`;
         
-        // Add special dietary notes
-        const _allergenNotes: Record<string, string> = {
-          'Peanut Noodles': '⚠️ Contains peanuts',
-          'Jalapeño Pimento': '🌶️ Mild heat',
-          'Greek': '🧀 Contains dairy (feta, tzatziki)',
-          'Soul Bowl': '🥓 Contains pork',
-          'Vegan': '🌱 100% plant-based',
-        };
+        // Add special dietary notes (currently unused but kept for future reference)
+        // const allergenNotes: Record<string, string> = {
+        //   'Peanut Noodles': '⚠️ Contains peanuts',
+        //   'Jalapeño Pimento': '🌶️ Mild heat',
+        //   'Greek': '🧀 Contains dairy (feta, tzatziki)',
+        //   'Soul Bowl': '🥓 Contains pork',
+        //   'Vegan': '🌱 100% plant-based',
+        // };
         
         for (const [category, items] of Object.entries(menuByCategory)) {
           menuContext += `\n${category.toUpperCase()}:\n`;
@@ -132,8 +132,8 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
       });
     }
 
-    const data = await response.json();
-    
+    const data = await response.json() as Record<string, any>;
+
     // Add restaurant and menu context to the response
     const sessionData = {
       ...data,
@@ -143,7 +143,7 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
     };
 
     realtimeLogger.info('Ephemeral token created successfully', {
-      sessionId: data.id,
+      sessionId: data['id'],
       restaurantId
     });
     

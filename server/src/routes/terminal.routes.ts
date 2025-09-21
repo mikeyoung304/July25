@@ -23,7 +23,7 @@ const client = new SquareClient({
 const terminalApi = client.terminal;
 
 // POST /api/v1/terminal/checkout - Create terminal checkout
-router.post('/checkout', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+router.post('/checkout', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { orderId, deviceId } = req.body;
@@ -103,6 +103,7 @@ router.post('/checkout', authenticate, validateRestaurantAccess, async (req: Aut
           updatedAt: result.checkout.updatedAt,
         },
       });
+      return;
 
     } catch (squareError: any) {
       if (squareError.isError && squareError.errors) {
@@ -127,11 +128,13 @@ router.post('/checkout', authenticate, validateRestaurantAccess, async (req: Aut
   } catch (error: any) {
     routeLogger.error('Terminal checkout creation failed', { error });
     next(error);
+    return;
+    return;
   }
 });
 
 // GET /api/v1/terminal/checkout/:checkoutId - Get terminal checkout status
-router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const { checkoutId } = req.params;
 
@@ -152,7 +155,7 @@ router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, asyn
       if (result.checkout.status === 'COMPLETED' && result.checkout.paymentIds && result.checkout.paymentIds.length > 0) {
         try {
           const paymentId = result.checkout.paymentIds[0];
-          const { result: paymentResult } = await (client.paymentsApi as any).getPayment(paymentId);
+          const { result: paymentResult } = await (client.payments as any).getPayment(paymentId);
           paymentDetails = paymentResult.payment;
         } catch (paymentError) {
           routeLogger.warn('Could not retrieve payment details', { paymentError });
@@ -173,6 +176,7 @@ router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, asyn
         },
         payment: paymentDetails,
       });
+      return;
 
     } catch (squareError: any) {
       if (squareError.isError && squareError.errors) {
@@ -193,11 +197,12 @@ router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, asyn
   } catch (error: any) {
     routeLogger.error('Failed to retrieve terminal checkout', { error });
     next(error);
+    return;
   }
 });
 
 // POST /api/v1/terminal/checkout/:checkoutId/cancel - Cancel terminal checkout
-router.post('/checkout/:checkoutId/cancel', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+router.post('/checkout/:checkoutId/cancel', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const { checkoutId } = req.params;
 
@@ -219,6 +224,7 @@ router.post('/checkout/:checkoutId/cancel', authenticate, validateRestaurantAcce
           updatedAt: result.checkout?.updatedAt,
         },
       });
+      return;
 
     } catch (squareError: any) {
       if (squareError.isError && squareError.errors) {
@@ -241,11 +247,12 @@ router.post('/checkout/:checkoutId/cancel', authenticate, validateRestaurantAcce
   } catch (error: any) {
     routeLogger.error('Failed to cancel terminal checkout', { error });
     next(error);
+    return;
   }
 });
 
 // POST /api/v1/terminal/checkout/:checkoutId/complete - Complete order after successful terminal payment
-router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next): Promise<void> => {
+router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { checkoutId } = req.params;
@@ -302,20 +309,22 @@ router.post('/checkout/:checkoutId/complete', authenticate, validateRestaurantAc
         status: 'completed',
       },
     });
+    return;
 
   } catch (error: any) {
     routeLogger.error('Failed to complete order after terminal payment', { error });
     next(error);
+    return;
   }
 });
 
 // GET /api/v1/terminal/devices - List available terminal devices
-router.get('/devices', authenticate, validateRestaurantAccess, async (_req: AuthenticatedRequest, res, next): Promise<void> => {
+router.get('/devices', authenticate, validateRestaurantAccess, async (_req: AuthenticatedRequest, res, next) => {
   try {
     routeLogger.info('Retrieving terminal devices');
 
     try {
-      const { result } = await terminalApi.listDeviceCodes({
+      const { result } = await (terminalApi as any).listDeviceCodes({
         locationId: process.env['SQUARE_LOCATION_ID'],
         productType: 'TERMINAL_API',
         status: 'PAIRED',
@@ -327,7 +336,7 @@ router.get('/devices', authenticate, validateRestaurantAccess, async (_req: Auth
 
       res.json({
         success: true,
-        devices: devices.map(device => ({
+        devices: devices.map((device: any) => ({
           id: device.id,
           name: device.name,
           code: device.code,
@@ -337,6 +346,7 @@ router.get('/devices', authenticate, validateRestaurantAccess, async (_req: Auth
           pairBy: device.pairBy,
         })),
       });
+      return;
 
     } catch (squareError: any) {
       if (squareError.isError && squareError.errors) {
@@ -357,6 +367,7 @@ router.get('/devices', authenticate, validateRestaurantAccess, async (_req: Auth
   } catch (error: any) {
     routeLogger.error('Failed to retrieve terminal devices', { error });
     next(error);
+    return;
   }
 });
 

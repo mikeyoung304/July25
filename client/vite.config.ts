@@ -196,6 +196,11 @@ export default defineConfig(({ mode }) => {
     
     // Load .env files from the root directory
     envDir: '..',
+
+    // Define global constants
+    define: {
+      'globalThis.process': JSON.stringify({ env: {} })
+    },
     
     server: {
       port: 5173,

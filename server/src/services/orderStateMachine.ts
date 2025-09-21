@@ -13,8 +13,8 @@ export interface StateTransition {
   from: OrderStatus;
   to: OrderStatus;
   timestamp: Date;
-  userId?: string;
-  reason?: string;
+  userId?: string | undefined;
+  reason?: string | undefined;
 }
 
 export interface TransitionHook {
@@ -124,7 +124,7 @@ export class OrderStateMachine {
     for (const hook of hooks) {
       try {
         await hook(transition, order);
-      } catch (error) {
+      } catch (error: any) {
         logger.error('Hook execution failed', {
           pattern,
           transition,

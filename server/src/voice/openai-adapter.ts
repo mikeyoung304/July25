@@ -30,7 +30,7 @@ interface AudioData {
 }
 
 export class OpenAIAdapter extends EventEmitter {
-  private ws?: WebSocket;
+  private ws: WebSocket | undefined;
   protected sessionId: string;
   protected restaurantId: string;
   private isConnected = false;
@@ -219,7 +219,7 @@ export class OpenAIAdapter extends EventEmitter {
   }
 
   private handleTranscript(event: OpenAIRealtimeEvent): void {
-    const transcript = event.transcript || '';
+    const transcript = event['transcript'] || '';
     const confidence = 0.9; // OpenAI doesn't provide confidence scores
 
     const transcriptData: TranscriptData = {
@@ -253,7 +253,7 @@ export class OpenAIAdapter extends EventEmitter {
     }
   }
 
-  private handleResponseComplete(event: OpenAIRealtimeEvent): void {
+  private handleResponseComplete(_event: OpenAIRealtimeEvent): void {
     logger.debug('OpenAI response complete');
     // Could emit metrics or other completion events here
   }

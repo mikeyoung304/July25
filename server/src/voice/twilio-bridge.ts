@@ -134,7 +134,7 @@ export function createTwilioRoutes(): Router {
   /**
    * Health check endpoint
    */
-  router.get('/voice/health', (req: Request, res: Response) => {
+  router.get('/voice/health', (_req: Request, res: Response) => {
     res.json({
       status: 'healthy',
       activeSessions: activeSessions.size,
@@ -145,7 +145,7 @@ export function createTwilioRoutes(): Router {
   /**
    * Get active sessions (for debugging)
    */
-  router.get('/voice/sessions', (req: Request, res: Response) => {
+  router.get('/voice/sessions', (_req: Request, res: Response) => {
     const sessions = Array.from(activeSessions.entries()).map(([streamSid, session]) => ({
       streamSid,
       sessionId: session.sessionId,
@@ -193,8 +193,8 @@ export function attachTwilioWebSocket(server: HTTPServer): void {
             callSid = message.start.callSid;
             
             // Get restaurant ID from custom parameters if provided
-            if (message.start.customParameters?.restaurantId) {
-              restaurantId = message.start['customParameters']['restaurantId'];
+            if (message.start.customParameters?.['restaurantId']) {
+              restaurantId = message.start.customParameters['restaurantId'];
             }
 
             logger.info('[Twilio] Stream started', {
@@ -228,14 +228,7 @@ export function attachTwilioWebSocket(server: HTTPServer): void {
               lastActivity: Date.now()
             });
 
-            // Send initial greeting
-            adapter.sendToOpenAI({
-              type: 'response.create',
-              response: {
-                modalities: ['text', 'audio'],
-                instructions: 'Greet the customer and ask how you can help them today.'
-              }
-            });
+            // Initial greeting will be handled by the adapter's session initialization
 
             break;
 

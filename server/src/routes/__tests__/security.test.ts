@@ -49,7 +49,7 @@ describe('Security Tests', () => {
     app.use(errorHandler);
 
     // Create test tokens
-    const secret = process.env.SUPABASE_JWT_SECRET || 'test-secret';
+    const secret = process.env['SUPABASE_JWT_SECRET'] || 'test-secret';
     validToken = jwt.sign(
       { 
         sub: 'test-user-id',
@@ -121,8 +121,8 @@ describe('Security Tests', () => {
     });
 
     test('should not allow test token in production', async () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      const originalEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'production';
 
       const response = await request(app)
         .get('/api/v1/orders')
@@ -130,7 +130,7 @@ describe('Security Tests', () => {
 
       expect(response.status).toBe(401);
       
-      process.env.NODE_ENV = originalEnv;
+      process.env['NODE_ENV'] = originalEnv;
     });
   });
 
@@ -142,7 +142,7 @@ describe('Security Tests', () => {
           restaurant_id: 'restaurant-1',
           exp: Math.floor(Date.now() / 1000) + 3600
         },
-        process.env.SUPABASE_JWT_SECRET || 'test-secret'
+        process.env['SUPABASE_JWT_SECRET'] || 'test-secret'
       );
 
       const restaurant2Token = jwt.sign(
@@ -151,7 +151,7 @@ describe('Security Tests', () => {
           restaurant_id: 'restaurant-2',
           exp: Math.floor(Date.now() / 1000) + 3600
         },
-        process.env.SUPABASE_JWT_SECRET || 'test-secret'
+        process.env['SUPABASE_JWT_SECRET'] || 'test-secret'
       );
 
       // Test that menu access is restricted
@@ -272,7 +272,7 @@ describe('Security Tests', () => {
           role: 'user', // Not admin
           exp: Math.floor(Date.now() / 1000) + 3600
         },
-        process.env.SUPABASE_JWT_SECRET || 'test-secret'
+        process.env['SUPABASE_JWT_SECRET'] || 'test-secret'
       );
 
       // Menu upload requires admin/manager role

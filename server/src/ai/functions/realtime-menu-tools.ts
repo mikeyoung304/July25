@@ -208,7 +208,7 @@ export const menuFunctionTools = {
                 if (!byCategory[category]) {
                   byCategory[category] = [];
                 }
-                byCategory[category].push(item);
+                byCategory[category]!.push(item);
               });
               
               // Take one item from each category, up to 3 items total

@@ -11,6 +11,7 @@ export interface TranscriptionResult {
   text: string;
   confidence?: number;
   language?: string;
+  duration?: number;
 }
 
 export interface Transcriber {
