@@ -17,7 +17,7 @@ import type { Order, OrderFilters } from './types'
 import type { Table } from '../modules/floor-plan/types'
 
 // Default restaurant ID for backward compatibility - use the actual UUID from .env
-const DEFAULT_RESTAURANT_ID = '11111111-1111-1111-1111-111111111111'
+const _DEFAULT_RESTAURANT_ID = '11111111-1111-1111-1111-111111111111'
 
 // Maintain backward compatibility with existing API structure
 export const api = {

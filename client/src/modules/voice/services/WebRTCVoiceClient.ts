@@ -148,7 +148,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       
       if (this.config.debug) {
         // Log the m-lines in the offer to debug ordering
-        const mLines = offer.sdp?.match(/m=.*/g);
+        const _mLines = offer.sdp?.match(/m=.*/g);
         // Debug: '[WebRTCVoice] SDP m-lines in offer:', mLines
       }
       
@@ -400,7 +400,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     
     // Instrumentation
     this.eventIndex++;
-    const logPrefix = `[RT] t=${this.turnId}#${String(this.eventIndex).padStart(2, '0')}`;
+    const _logPrefix = `[RT] t=${this.turnId}#${String(this.eventIndex).padStart(2, '0')}`;
     
     if (this.config.debug) {
       // Debug: `${logPrefix} ${event.type}`, event
@@ -524,7 +524,7 @@ export class WebRTCVoiceClient extends EventEmitter {
           // Debug: `${logPrefix} Response created: ${this.activeResponseId}`
           // Initialize assistant transcript entry
           if (event.response.output && event.response.output.length > 0) {
-            const itemId = event.response.output[0].id;
+            const _itemId = event.response.output[0].id;
             if (itemId) {
               this.transcriptMap.set(itemId, { text: '', final: false, role: 'assistant' });
             }
@@ -700,7 +700,7 @@ export class WebRTCVoiceClient extends EventEmitter {
    * Configure the OpenAI session with proper limits
    */
   private configureSession(): void {
-    const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
+    const _logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
     
     // Determine turn detection mode
     let turnDetection: any = null; // Default: manual PTT
@@ -925,7 +925,7 @@ ENTRÉES → Ask:
     if (this.dcReady && this.dc && this.dc.readyState === 'open') {
       this.dc.send(JSON.stringify(event));
       
-      const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
+      const _logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
       if (this.config.debug) {
         // Debug: `${logPrefix} Sent: ${event.type}`
       } else {
@@ -953,7 +953,7 @@ ENTRÉES → Ask:
       return;
     }
     
-    const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
+    const _logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
     // Debug: `${logPrefix} Turn state: idle → recording`
     this.turnState = 'recording';
     
@@ -1012,7 +1012,7 @@ ENTRÉES → Ask:
       return;
     }
     
-    const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
+    const _logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
     
     // IMMEDIATELY mute microphone to stop transmission
     const audioTrack = this.mediaStream.getAudioTracks()[0];
@@ -1191,7 +1191,7 @@ ENTRÉES → Ask:
         if (this.pc.signalingState !== 'closed') {
           this.pc.close();
         }
-      } catch (e) {
+      } catch (_e) {
         console.warn('[WebRTCVoice] Error cleaning up peer connection:', e);
       }
       this.pc = null;
@@ -1239,7 +1239,7 @@ ENTRÉES → Ask:
         if (this.audioElement.parentNode) {
           this.audioElement.parentNode.removeChild(this.audioElement);
         }
-      } catch (e) {
+      } catch (_e) {
         console.warn('[WebRTCVoice] Error cleaning up audio element:', e);
       }
       this.audioElement = null;

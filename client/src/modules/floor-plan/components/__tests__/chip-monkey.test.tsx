@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { FloorPlanToolbar } from '../FloorPlanToolbar'
-import { FloorPlanEditor } from '../FloorPlanEditor'
+// import { FloorPlanEditor } from '../FloorPlanEditor'
 import '@testing-library/jest-dom'
 
 describe('Chip Monkey Floor Plan Element', () => {
