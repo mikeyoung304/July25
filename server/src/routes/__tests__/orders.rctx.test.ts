@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import ordersRouter from '../orders.routes';
 import { authenticate } from '../../middleware/auth';
 import { validateRestaurantAccess } from '../../middleware/restaurantAccess';
-import { rateLimiter } from '../../middleware/rateLimiter';
+// import { rateLimiter } from '../../middleware/rateLimiter';
 
 // Mock dependencies
 vi.mock('../../services/supabase', () => ({

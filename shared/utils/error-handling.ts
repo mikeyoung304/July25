@@ -350,8 +350,8 @@ export class EnterpriseErrorHandler {
       canRecover: false,
 
       // Context from parameters
-      ...(context.component && { component: context.component }),
-      ...(context.service && { service: context.service }),
+      component: context.component || 'unknown',
+      service: context.service || 'unknown',
       ...(context.userId && { userId: context.userId }),
       sessionId: context.sessionId || this.getSessionId(),
       ...(context.correlationId && { correlationId: context.correlationId }),

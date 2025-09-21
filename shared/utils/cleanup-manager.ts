@@ -354,11 +354,11 @@ class CleanupManagerImpl {
     };
     
     for (const resource of this.resources.values()) {
-      if (resourcesByPriority[resource.priority] !== undefined) {
-        resourcesByPriority[resource.priority]++;
+      if (resource.priority in resourcesByPriority) {
+        resourcesByPriority[resource.priority] = (resourcesByPriority[resource.priority] || 0) + 1;
       }
-      if (resourcesByCategory[resource.category] !== undefined) {
-        resourcesByCategory[resource.category]++;
+      if (resource.category in resourcesByCategory) {
+        resourcesByCategory[resource.category] = (resourcesByCategory[resource.category] || 0) + 1;
       }
     }
     
