@@ -285,7 +285,7 @@ export class TypeValidator {
         if (!errorDetails[path]) {
           errorDetails[path] = [];
         }
-        errorDetails[path].push(err.message);
+        errorDetails[path]!.push(err.message);
       });
       
       return {

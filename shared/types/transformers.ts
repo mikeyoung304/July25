@@ -372,7 +372,7 @@ export const transformClientTableToShared = (table: ClientTable): SharedTable =>
         x: validateNumber(table.x, 'x'),
         y: validateNumber(table.y, 'y')
       },
-      shape: typeToShapeMap[table.type],
+      ...(typeToShapeMap[table.type] && { shape: typeToShapeMap[table.type] }),
       created_at: table.createdAt.toISOString(),
       updated_at: table.updatedAt.toISOString()
     };

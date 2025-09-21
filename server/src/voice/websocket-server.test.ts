@@ -35,7 +35,7 @@ describe('VoiceWebSocketServer', () => {
     // Create a mock WebSocket
     mockWebSocket = {
       readyState: WebSocket.OPEN,
-      send: vi.fn(),
+      send: vi.fn() as any,
       close: vi.fn(),
       ping: vi.fn(),
       on: vi.fn(),

@@ -40,7 +40,7 @@ export class VoiceWebSocketServer {
     
     // Set up connection handlers
     ws.on('message', (data) => {
-      logger.debug('[VoiceWebSocket] Message received, size:', Buffer.byteLength(data));
+      logger.debug('[VoiceWebSocket] Message received, size:', Buffer.byteLength(data as Buffer));
       this.handleMessage(ws, data);
     });
     ws.on('close', (code, reason) => this.handleClose(ws, code, reason));

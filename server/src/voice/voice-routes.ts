@@ -138,11 +138,12 @@ voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response): v
   const metrics = server.getSessionMetrics(sessionId);
   
   if (!metrics) {
-    return res.status(404).json({
+    res.status(404).json({
       error: 'Session not found',
       session_id: sessionId,
       timestamp: new Date().toISOString(),
     });
+    return;
   }
 
   res.json({
@@ -155,16 +156,17 @@ voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response): v
 // Handshake readiness endpoint
 voiceRoutes.get('/handshake', async (_req: Request, res: Response): Promise<void> => {
   const startTime = Date.now();
-  const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-10-01';
-  const apiKey = process.env.OPENAI_API_KEY;
-  
+  const model = process.env['OPENAI_REALTIME_MODEL'] || 'gpt-4o-realtime-preview-2024-10-01';
+  const apiKey = process.env['OPENAI_API_KEY'];
+
   if (!apiKey) {
-    return res.status(502).json({
+    res.status(502).json({
       ok: false,
       model,
       code: 'NO_API_KEY',
       message: 'OPENAI_API_KEY not configured'
     });
+    return;
   }
 
   let ws: WebSocket | null = null;
@@ -240,12 +242,13 @@ voiceRoutes.get('/handshake', async (_req: Request, res: Response): Promise<void
 // WebSocket connection info endpoint
 voiceRoutes.get('/connections', (_req: Request, res: Response): void => {
   const server = getVoiceServer();
-  
+
   if (!server) {
-    return res.status(503).json({
+    res.status(503).json({
       error: 'Voice server not initialized',
       timestamp: new Date().toISOString(),
     });
+    return;
   }
 
   res.json({

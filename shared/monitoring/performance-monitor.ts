@@ -111,7 +111,7 @@ class PerformanceMonitor {
       name: 'page_load',
       duration: entry.loadEventEnd - entry.loadEventStart,
       sessionId: this.sessionId,
-      url: typeof window !== 'undefined' ? window.location.href : undefined,
+      ...(typeof window !== 'undefined' && { url: window.location.href }),
       status: 'success',
       metadata: {
         domContentLoaded: entry.domContentLoadedEventEnd - entry.domContentLoadedEventStart,
@@ -272,7 +272,7 @@ class PerformanceMonitor {
       name,
       duration,
       sessionId: this.sessionId,
-      url: typeof window !== 'undefined' ? window.location.href : undefined,
+      ...(typeof window !== 'undefined' && { url: window.location.href }),
       status: 'success',
       metadata
     };
