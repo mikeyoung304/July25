@@ -28,7 +28,7 @@ export const securityHeaders = () => {
       directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"], // Required for Tailwind
-        scriptSrc: isDevelopment 
+        scriptSrc: isDevelopment
           ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] // Development needs eval for HMR
           : ["'self'", (_req, res) => `'nonce-${(res as any).locals.nonce}'`],
         imgSrc: ["'self'", "data:", "https:"],
@@ -87,19 +87,20 @@ export const securityHeaders = () => {
 
 // Request size limiting
 export const requestSizeLimit = (maxSize: string = '10mb') => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const contentLength = req.headers['content-length'];
     if (contentLength) {
       const bytes = parseInt(contentLength, 10);
       const maxBytes = parseSize(maxSize);
       
       if (bytes > maxBytes) {
-        return res.status(413).json({
+        res.status(413).json({
           error: {
             code: 'PAYLOAD_TOO_LARGE',
             message: `Request entity too large. Maximum size: ${maxSize}`,
           }
         });
+        return;
       }
     }
     next();
@@ -205,7 +206,7 @@ export const extractIP = (req: Request, res: Response, next: NextFunction) => {
 };
 
 // Suspicious activity detection
-export const detectSuspiciousActivity = (req: Request, res: Response, next: NextFunction) => {
+export const detectSuspiciousActivity = (req: Request, res: Response, next: NextFunction): void => {
   const suspicious = [];
   
   // Check for SQL injection patterns
@@ -250,12 +251,13 @@ export const detectSuspiciousActivity = (req: Request, res: Response, next: Next
     
     // In production, you might want to block these requests
     if (process.env['NODE_ENV'] === 'production' && suspicious.length > 1) {
-      return res.status(400).json({
+      res.status(400).json({
         error: {
           code: 'SUSPICIOUS_REQUEST',
           message: 'Request blocked due to suspicious patterns',
         }
       });
+      return;
     }
   }
   

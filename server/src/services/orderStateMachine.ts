@@ -238,17 +238,17 @@ export class OrderStateMachine {
 }
 
 // Register default hooks for common side effects
-OrderStateMachine.registerHook('*->confirmed', async (transition, order) => {
+OrderStateMachine.registerHook('*->confirmed', async (_transition, order) => {
   logger.info('Order confirmed, notifying kitchen', { orderId: order.id });
   // TODO: Send notification to kitchen display
 });
 
-OrderStateMachine.registerHook('*->ready', async (transition, order) => {
+OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
   logger.info('Order ready, notifying customer', { orderId: order.id });
   // TODO: Send notification to customer
 });
 
-OrderStateMachine.registerHook('*->cancelled', async (transition, order) => {
+OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
   logger.info('Order cancelled, processing refund', { orderId: order.id });
   // TODO: Process refund if payment was made
 });

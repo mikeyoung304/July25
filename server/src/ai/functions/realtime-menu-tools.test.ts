@@ -16,7 +16,7 @@ vi.mock('@supabase/supabase-js', () => ({
 
 describe('Menu Function Tools', () => {
   describe('get_store_info', () => {
-    const _mockContext = {
+    const __mockContext = {
       sessionId: 'test-session',
       restaurantId: 'test-restaurant'
     };
@@ -27,7 +27,7 @@ describe('Menu Function Tools', () => {
       vi.setSystemTime(mockDate);
 
       // Mock store data with hours
-      const _mockStoreData = {
+      const __mockStoreData = {
         name: 'Test Restaurant',
         hours: {
           1: { open: '09:00', close: '17:00' } // Monday 9am-5pm
@@ -42,7 +42,7 @@ describe('Menu Function Tools', () => {
     });
 
     it('should default to open when hours not specified', async () => {
-      const _mockStoreData = {
+      const __mockStoreData = {
         name: 'Test Restaurant',
         hours: null
       };

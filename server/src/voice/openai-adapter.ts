@@ -51,13 +51,13 @@ export class OpenAIAdapter extends EventEmitter {
   }
 
   async connect(): Promise<void> {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env['OPENAI_API_KEY'];
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY not found in environment');
     }
 
     // Model configurable via env with safe default
-    const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-10-01';
+    const model = process.env['OPENAI_REALTIME_MODEL'] || 'gpt-4o-realtime-preview-2024-10-01';
     logger.info(`[voice] realtime model: ${model}`);
     
     const url = `wss://api.openai.com/v1/realtime?model=${model}`;
@@ -235,8 +235,8 @@ export class OpenAIAdapter extends EventEmitter {
   }
 
   private handleAudioDelta(event: OpenAIRealtimeEvent): void {
-    if (event.delta) {
-      this.responseBuffer.push(event.delta);
+    if (event['delta']) {
+      this.responseBuffer.push(event['delta']);
     }
   }
 
@@ -263,9 +263,9 @@ export class OpenAIAdapter extends EventEmitter {
     
     this.handleError({
       code: 'OPENAI_CONNECTION_FAILED',
-      message: event.error?.message || 'OpenAI error',
+      message: event['error']?.message || 'OpenAI error',
       session_id: this.sessionId,
-      details: event.error,
+      details: event['error'],
     });
   }
 

@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { getSessionMetrics } from './twilio-bridge';
-import { logger } from '../utils/logger';
-import fs from 'fs/promises';
-import path from 'path';
+import { logger as _logger } from '../utils/logger';
+import _fs from 'fs/promises';
+import _path from 'path';
 
 // Debug data storage (in production, use Redis or similar)
 const debugData = {
@@ -465,7 +465,7 @@ export function createDebugDashboard(): Router {
       
       const adapter = new EnhancedOpenAIAdapter(
         testSessionId,
-        process.env.RESTAURANT_ID || 'default'
+        process.env['RESTAURANT_ID'] || 'default'
       );
       
       await adapter.connect();

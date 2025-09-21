@@ -46,7 +46,7 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
         menuContext += `=====================================\n`;
         
         // Add special dietary notes
-        const allergenNotes: Record<string, string> = {
+        const _allergenNotes: Record<string, string> = {
           'Peanut Noodles': '⚠️ Contains peanuts',
           'Jalapeño Pimento': '🌶️ Mild heat',
           'Greek': '🧀 Contains dairy (feta, tzatziki)',

@@ -288,16 +288,16 @@ export class OrdersService {
       // Set timestamp fields based on status
       switch (newStatus) {
         case 'preparing':
-          update.preparing_at = new Date().toISOString();
+          update['preparing_at'] = new Date().toISOString();
           break;
         case 'ready':
-          update.ready_at = new Date().toISOString();
+          update['ready_at'] = new Date().toISOString();
           break;
         case 'completed':
-          update.completed_at = new Date().toISOString();
+          update['completed_at'] = new Date().toISOString();
           break;
         case 'cancelled':
-          update.cancelled_at = new Date().toISOString();
+          update['cancelled_at'] = new Date().toISOString();
           break;
       }
 
@@ -366,7 +366,7 @@ export class OrdersService {
 
       // Store payment info in metadata since payment_status column doesn't exist
       const metadata = (currentOrder as { metadata?: Record<string, unknown> }).metadata || {};
-      metadata.payment = {
+      metadata['payment'] = {
         status: paymentStatus,
         method: paymentMethod,
         paymentId: paymentId,
@@ -381,7 +381,7 @@ export class OrdersService {
 
       // If payment is successful, update order status to confirmed
       if (paymentStatus === 'paid' && currentOrder.status === 'pending') {
-        update.status = 'confirmed';
+        update['status'] = 'confirmed';
       }
 
       const { data, error } = await supabase
