@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { getConfig } from '../config/environment';
 import { BadRequest, Unauthorized } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/database';
@@ -14,7 +13,6 @@ import {
 } from '../middleware/authRateLimiter';
 
 const router = Router();
-const _config = getConfig();
 
 // Constants for demo auth
 const DEMO_ROLE = 'kiosk_demo';

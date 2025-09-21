@@ -19,7 +19,7 @@ export function getVoiceServer(): VoiceWebSocketServer | undefined {
 export const voiceRoutes = Router();
 
 // Add basic middleware for all voice routes
-voiceRoutes.use((req, res, next) => {
+voiceRoutes.use((_req, res, next) => {
   // Add CORS headers for voice endpoints
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -83,9 +83,9 @@ voiceRoutes.get('/health', (_req: Request, res: Response) => {
 });
 
 // Voice metrics endpoint
-voiceRoutes.get('/metrics', (_req: Request, res: Response): void => {
+voiceRoutes.get('/metrics', (_req: Request, res: Response) => {
   const server = getVoiceServer();
-  
+
   if (!server) {
     return res.status(503).json({
       error: 'Voice server not initialized',
@@ -121,13 +121,21 @@ voiceRoutes.get('/metrics', (_req: Request, res: Response): void => {
   };
 
   res.json(metrics);
+  return;
 });
 
 // Session-specific metrics
-voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response): void => {
+voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response) => {
   const server = getVoiceServer();
   const { sessionId } = req.params;
-  
+
+  if (!sessionId) {
+    return res.status(400).json({
+      error: 'Session ID is required',
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   if (!server) {
     return res.status(503).json({
       error: 'Voice server not initialized',
@@ -151,6 +159,7 @@ voiceRoutes.get('/sessions/:sessionId/metrics', (req: Request, res: Response): v
     metrics,
     timestamp: new Date().toISOString(),
   });
+  return;
 });
 
 // Handshake readiness endpoint

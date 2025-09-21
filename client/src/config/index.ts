@@ -4,14 +4,16 @@
  * Wraps the shared config service with Vite-specific environment variable handling
  */
 
-import { config as sharedConfigSimple, configService as sharedConfig } from '../../../shared/config';
+import { config as sharedConfigSimple } from '../../../shared/config';
+import * as sharedConfigModule from '../../../shared/config';
+const sharedConfig = (sharedConfigModule as any).configService;
 
 // Override process.env with import.meta.env for Vite
 if (typeof window !== 'undefined' && import.meta.env) {
   // Map Vite env vars to process.env for shared config to work
-  (window as any).process = (window as any).process || {};
-  (window as any).process.env = {
-    ...((window as any).process?.env || {}),
+  (globalThis as any).process = (globalThis as any).process || {};
+  (globalThis as any).process.env = {
+    ...((globalThis as any).process?.env || {}),
     NODE_ENV: import.meta.env.MODE,
     VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
     VITE_DEFAULT_RESTAURANT_ID: import.meta.env.VITE_DEFAULT_RESTAURANT_ID,

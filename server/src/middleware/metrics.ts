@@ -47,7 +47,7 @@ register.registerMetric(aiRequestDuration);
 register.registerMetric(aiErrorsTotal);
 
 // Export metrics for use in WebSocket handler
-global.voiceMetrics = {
+(global as any)['voiceMetrics'] = {
   voiceChunksTotal,
   voiceOverrunTotal,
   voiceActiveConnections,

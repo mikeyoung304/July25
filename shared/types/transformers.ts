@@ -12,7 +12,6 @@
 import type { Order as SharedOrder, OrderItem as SharedOrderItem, OrderType, UIOrderType } from './order.types';
 import type { MenuItem as SharedMenuItem } from './menu.types';
 import type { Table as SharedTable } from './table.types';
-import type { Customer as SharedCustomer } from './customer.types';
 
 export interface Restaurant {
   id: string;
@@ -187,18 +186,18 @@ export const transformClientOrderToShared = (order: ClientOrder): SharedOrder =>
       id: validateString(order.id, 'id'),
       order_number: validateString(order.orderNumber, 'orderNumber'),
       restaurant_id: validateString(order.restaurantId, 'restaurantId'),
-      table_number: order.tableNumber ?? undefined,
+      ...(order.tableNumber && { table_number: order.tableNumber }),
       status: order.status,
       type: order.type,
       items: order.items.map(transformClientOrderItemToShared),
       subtotal: validateNumber(order.subtotal, 'subtotal'),
       tax: validateNumber(order.tax, 'tax'),
-      tip: order.tip ?? undefined,
+      ...(order.tip && { tip: order.tip }),
       total: validateNumber(order.totalAmount, 'totalAmount'),
       payment_status: order.paymentStatus === 'completed' ? 'paid' : order.paymentStatus as any,
-      notes: order.specialInstructions || undefined,
-      estimated_ready_time: order.preparationTimeMinutes ? new Date(Date.now() + order.preparationTimeMinutes * 60000).toISOString() : undefined,
-      completed_at: order.completedTime ? order.completedTime.toISOString() : undefined,
+      ...(order.specialInstructions && { notes: order.specialInstructions }),
+      ...(order.preparationTimeMinutes && { estimated_ready_time: new Date(Date.now() + order.preparationTimeMinutes * 60000).toISOString() }),
+      ...(order.completedTime && { completed_at: order.completedTime.toISOString() }),
       created_at: order.createdAt.toISOString(),
       updated_at: order.updatedAt.toISOString()
     };
@@ -228,7 +227,7 @@ export const transformSharedOrderItemToClient = (item: SharedOrderItem): ClientO
         name: validateString(mod.name, 'modifier.name'),
         price: validateNumber(mod.price, 'modifier.price')
       })) || [],
-      specialInstructions: item.special_instructions || undefined
+      ...(item.special_instructions && { specialInstructions: item.special_instructions })
     };
   } catch (error) {
     if (error instanceof TypeTransformationError) {
@@ -256,7 +255,7 @@ export const transformClientOrderItemToShared = (item: ClientOrderItem): SharedO
         name: validateString(mod.name, 'modifier.name'),
         price: validateNumber(mod.price, 'modifier.price')
       })) || [],
-      special_instructions: item.specialInstructions || undefined
+      ...(item.specialInstructions && { special_instructions: item.specialInstructions })
     };
   } catch (error) {
     if (error instanceof TypeTransformationError) {
@@ -281,8 +280,8 @@ export const transformSharedMenuItemToClient = (item: SharedMenuItem): ClientMen
       price: validateNumber(item.price, 'price'),
       category: validateString(item.category_id, 'category_id'), // Note: Using category_id as string
       available: item.is_available,
-      imageUrl: item.image_url || undefined,
-      prepTimeMinutes: item.preparation_time || undefined,
+      ...(item.image_url && { imageUrl: item.image_url }),
+      ...(item.preparation_time && { prepTimeMinutes: item.preparation_time }),
       createdAt: validateDate(item.created_at, 'created_at'),
       updatedAt: validateDate(item.updated_at, 'updated_at')
     };

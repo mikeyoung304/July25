@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import bcrypt from 'bcryptjs';
-import { PinAuthService } from './pinAuth';
+import { createOrUpdatePin, validatePin, resetPinAttempts, isPinLocked, generateRandomPin } from './pinAuth';
 
 // Mock Supabase client
 vi.mock('@supabase/supabase-js', () => ({

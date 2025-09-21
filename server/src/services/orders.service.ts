@@ -16,7 +16,7 @@ const ordersLogger = logger.child({ service: 'OrdersService' });
 
 // Extend shared OrderItem for service-specific needs
 export interface OrderItem extends Omit<SharedOrderItem, 'menu_item_id' | 'subtotal'> {
-  notes?: string;
+  notes?: string | undefined;
 }
 
 // Service-specific create order request
@@ -422,7 +422,7 @@ export class OrdersService {
   static async processVoiceOrder(
     restaurantId: string,
     transcription: string,
-    parsedItems: Array<{ name: string; quantity: number; price?: number; notes?: string }>,
+    parsedItems: Array<{ name: string; quantity: number; price?: number; notes?: string; modifiers?: any }>,
     confidence: number,
     audioUrl?: string
   ): Promise<Order> {

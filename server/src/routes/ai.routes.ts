@@ -330,7 +330,10 @@ Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
       { role: 'system', content: systemMessage },
       { role: 'user', content: transcriptionResult.text }
     ], {
-      context: { restaurantId, userId: req.user?.id }
+      context: {
+        restaurantId,
+        ...(req.user?.id && { userId: req.user.id })
+      }
     });
 
     aiLogger.info('Chat response generated', {
@@ -481,7 +484,10 @@ Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
       { role: 'system', content: systemMessage },
       { role: 'user', content: message }
     ], {
-      context: { restaurantId, userId: req.user?.id }
+      context: {
+        restaurantId,
+        ...(req.user?.id && { userId: req.user.id })
+      }
     });
     
     res.set('Cache-Control', 'no-store');

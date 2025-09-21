@@ -14,7 +14,7 @@ interface HealthStatus {
   timestamp: string;
   uptime: number;
   environment: string;
-  version?: string;
+  version?: string | undefined;
   services: {
     database: {
       status: 'connected' | 'disconnected' | 'error';
