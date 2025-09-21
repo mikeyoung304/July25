@@ -1,0 +1,21 @@
+name: quick-tests
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+concurrency:
+  group: quick-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: rm -rf node_modules package-lock.json
+      - run: npm install
+      - run: echo "CI=1" >> $GITHUB_ENV
+      - run: npm run test:quick --workspaces
