@@ -27,6 +27,8 @@
     "noImplicitOverride": false,
     "noPropertyAccessFromIndexSignature": false,
     "preserveConstEnums": true,
+    "isolatedModules": false,
+    "noEmitOnError": false,
     "paths": {
       "@rebuild/shared": ["../shared/types"],
       "@rebuild/shared/*": ["../shared/types/*"]
