@@ -131,22 +131,14 @@ function ExpoPage() {
   } = useKitchenOrdersRealtime()
   
   // View modes for expo station
-  const [viewMode, setViewMode] = useState<'split' | 'ready-only'>('split')
-  const [showFilters, setShowFilters] = useState(false)
+  const [_viewMode, _setViewMode] = useState<'split' | 'ready-only'>('split')
+  const [_showFilters, _setShowFilters] = useState(false)
   
   // Memory monitoring for long-running sessions
   useEffect(() => {
-    // TODO: Implement memory monitoring when API is available
-    /* memoryMonitor.configure({
-      interval: 60000, // Check every minute
-      threshold: 200 * 1024 * 1024, // Alert at 200MB
-      onThresholdExceeded: (snapshot) => {
-        console.warn('⚠️ Expo Display memory usage high:', {
-          used: `${Math.round(snapshot.used / 1024 / 1024)}MB`,
-          percentage: `${snapshot.percentage.toFixed(2)}%`
-        })
-      }
-    }) */
+    // TODO: Implement memory monitoring when MemoryMonitorInstance API is available
+    // const memoryMonitor = MemoryMonitorInstance
+    // memoryMonitor.configure({...})
   }, [])
 
   // Handle marking kitchen orders as ready (left panel)
