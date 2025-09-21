@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
-import { Eye, Filter, Clock, CheckCircle, Users, LayoutGrid, List, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Filter, Users, LayoutGrid, List, TrendingUp, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

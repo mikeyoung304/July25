@@ -47,7 +47,7 @@ const DriveThruPageContent: React.FC = () => {
     }
   }, [orderParser, processParsedItems]);
   
-  const handleOrderDetected = useCallback((order: any) => {
+  const handleOrderDetected = useCallback((_order: any) => {
     // Order detection is handled through transcript processing
   }, []);
 
