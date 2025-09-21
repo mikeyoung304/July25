@@ -200,7 +200,7 @@ export class WebSocketPool extends ManagedService {
 
       return this.getActiveConnections().length > 0;
     } catch (error) {
-      console.error('WebSocketPool connection failed:', error);
+      // Debug: WebSocketPool connection failed
       return false;
     }
   }
@@ -263,7 +263,7 @@ export class WebSocketPool extends ManagedService {
         const message: WebSocketMessage = JSON.parse(event.data as string);
         this.handleIncomingMessage(message, connection.id);
       } catch (error) {
-        console.warn('Invalid WebSocket message format:', event.data);
+        // Debug: Invalid WebSocket message format
       }
     });
 
@@ -290,7 +290,7 @@ export class WebSocketPool extends ManagedService {
         try {
           subscription.callback(message, connectionId);
         } catch (error) {
-          console.error('Subscription callback error:', error);
+          // Debug: Subscription callback error
         }
       }
     }
@@ -311,7 +311,7 @@ export class WebSocketPool extends ManagedService {
    * Handle connection close and attempt reconnection
    */
   private handleConnectionClose(connection: PooledWebSocketConnection, code: number, reason: string): void {
-    console.log(`WebSocket connection closed: ${connection.url} (${code}: ${reason})`);
+    // Debug: WebSocket connection closed
     
     if (this.config.enableFailover && connection.reconnectAttempts < this.config.maxReconnectAttempts) {
       setTimeout(() => {
@@ -331,9 +331,9 @@ export class WebSocketPool extends ManagedService {
     try {
       await this.createConnection(connection.url);
       this.connections.delete(connection.id);
-      console.warn(`WebSocket reconnected: ${connection.url}`);
+      // Debug: WebSocket reconnected
     } catch (error) {
-      console.warn(`WebSocket reconnection failed: ${connection.url}`, error);
+      // Debug: WebSocket reconnection failed
       connection.health = Math.max(0, connection.health - 0.3);
     }
   }
@@ -350,7 +350,7 @@ export class WebSocketPool extends ManagedService {
 
     const connection = this.selectConnection(fullMessage);
     if (!connection) {
-      console.warn('No available connections for message:', fullMessage.type);
+      // Debug: No available connections for message
       return false;
     }
 
@@ -375,7 +375,7 @@ export class WebSocketPool extends ManagedService {
       connection.messagesSent++;
       return true;
     } catch (error) {
-      console.error('Failed to send message:', error);
+      // Debug: Failed to send message
       connection.health = Math.max(0, connection.health - 0.1);
       return false;
     }
@@ -470,7 +470,7 @@ export class WebSocketPool extends ManagedService {
    */
   private startHealthMonitoring(): void {
     if (!isWindowSupported()) {
-      console.warn('Window not available, skipping health monitoring setup');
+      // Debug: Window not available, skipping health monitoring setup
       return;
     }
     
@@ -623,7 +623,7 @@ export class WebSocketPool extends ManagedService {
           connection.socket.close();
         }
       } catch (error) {
-        console.warn('Error closing WebSocket connection:', error);
+        // Debug: Error closing WebSocket connection
       }
     }
 
@@ -631,7 +631,7 @@ export class WebSocketPool extends ManagedService {
     this.connections.clear();
     this.subscriptions.clear();
 
-    console.warn('WebSocketPool cleanup completed');
+    // Debug: WebSocketPool cleanup completed
   }
 }
 

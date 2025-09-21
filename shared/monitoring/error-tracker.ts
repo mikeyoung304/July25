@@ -195,13 +195,7 @@ class ErrorTracker {
         keepalive: true,
       });
 
-      if (process.env['NODE_ENV'] === 'development') {
-        console.log('🐛 Error reported:', {
-          id: report.id,
-          level: report.level,
-          message: report.message,
-        });
-      }
+      // Debug: Error report sent to endpoint successfully
     } catch (error) {
       console.warn('⚠️ Failed to report error:', error);
       

@@ -51,7 +51,7 @@ type MemorySample = {
 export class RuntimeMemoryMonitor {
   // No-throw polling that works in browser or is a no-op in SSR.
   static getMemoryTrend(): MemorySample {
-    // @ts-ignore optional runtime
+    // @ts-expect-error - optional performance.memory API
     const pm = (globalThis as any)?.performance?.memory;
     const used = pm?.usedJSHeapSize ? Math.round(pm.usedJSHeapSize / (1024 * 1024)) : 0;
     
