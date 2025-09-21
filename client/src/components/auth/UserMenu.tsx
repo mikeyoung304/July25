@@ -18,10 +18,10 @@ interface UserMenuProps {
   showDetails?: boolean;
 }
 
-export function UserMenu({ 
-  className = '', 
-  position = 'header',
-  showDetails = true 
+export function UserMenu({
+  className = '',
+  position: _position = 'header',
+  showDetails = true
 }: UserMenuProps) {
   const { user, logout, isAuthenticated, restaurantId } = useAuth();
   const navigate = useNavigate();

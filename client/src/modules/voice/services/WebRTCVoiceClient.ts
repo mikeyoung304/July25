@@ -149,7 +149,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       if (this.config.debug) {
         // Log the m-lines in the offer to debug ordering
         const _mLines = offer.sdp?.match(/m=.*/g);
-        // Debug: '[WebRTCVoice] SDP m-lines in offer:', mLines
+        // Debug: '[WebRTCVoice] SDP m-lines in offer:', _mLines
       }
       
       // Step 7: Send SDP to OpenAI
@@ -524,9 +524,9 @@ export class WebRTCVoiceClient extends EventEmitter {
           // Debug: `${logPrefix} Response created: ${this.activeResponseId}`
           // Initialize assistant transcript entry
           if (event.response.output && event.response.output.length > 0) {
-            const _itemId = event.response.output[0].id;
-            if (_itemId) {
-              this.transcriptMap.set(_itemId, { text: '', final: false, role: 'assistant' });
+            const itemId = event.response.output[0].id;
+            if (itemId) {
+              this.transcriptMap.set(itemId, { text: '', final: false, role: 'assistant' });
             }
           }
         }
@@ -540,7 +540,7 @@ export class WebRTCVoiceClient extends EventEmitter {
             .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
           
           if (assistantItems.length > 0) {
-            const [itemId, entry] = assistantItems[assistantItems.length - 1];
+            const [_itemId, entry] = assistantItems[assistantItems.length - 1];
             entry.text += event.delta;
             // Debug: `${logPrefix} Assistant transcript delta (len=${event.delta.length})`
             
@@ -557,7 +557,7 @@ export class WebRTCVoiceClient extends EventEmitter {
             .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
           
           if (assistantItems.length > 0) {
-            const [itemId, entry] = assistantItems[assistantItems.length - 1];
+            const [_itemId, entry] = assistantItems[assistantItems.length - 1];
             entry.text = event.transcript;
             entry.final = true;
             // Debug: `${logPrefix} Assistant transcript done: "${event.transcript}"`
@@ -1166,7 +1166,7 @@ ENTRÉES → Ask:
         this.dc.onerror = null;
         this.dc.onclose = null;
         this.dc.close();
-      } catch (_e) {
+      } catch (e) {
         // Ignore errors during cleanup
       }
       this.dc = null;
@@ -1207,7 +1207,7 @@ ENTRÉES → Ask:
           track.onunmute = null;
           // Stop the track
           track.stop();
-        } catch (_e) {
+        } catch (e) {
           // Ignore errors during cleanup
         }
       });
