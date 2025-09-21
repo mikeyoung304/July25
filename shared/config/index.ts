@@ -190,11 +190,17 @@ class ConfigService {
   }
 }
 
-// Export singleton instance
-export const config = new ConfigService();
+// Create the service instance
+const configService = new ConfigService();
+
+// Export the simple config for build compatibility
+export { config } from './simple';
+
+// Export the service instance for runtime usage
+export { configService };
 
 // Export convenience functions
-export const getConfig = () => config.get();
-export const validateConfig = () => config.validate();
-export const getApiUrl = (path?: string) => config.getApiUrl(path);
-export const getWsUrl = (path?: string) => config.getWsUrl(path);
+export const getConfig = () => configService.get();
+export const validateConfig = () => configService.validate();
+export const getApiUrl = (path?: string) => configService.getApiUrl(path);
+export const getWsUrl = (path?: string) => configService.getWsUrl(path);
