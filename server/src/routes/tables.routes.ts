@@ -40,9 +40,9 @@ export const getTables = async (req: AuthenticatedRequest, res: Response, next: 
     // Transform database columns to frontend properties
     const transformedData = (data || []).map((table: any) => ({
       ...table,
-      x: table.x_pos,
-      y: table.y_pos,
-      type: table.shape
+      x: table['x_pos'],
+      y: table['y_pos'],
+      type: table['shape']
     }));
     
     return res.json(transformedData);
@@ -382,9 +382,9 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
     // Transform database columns back to frontend properties
     const data = results.map((r: any) => r.data).filter(Boolean).map((table: any) => ({
       ...table,
-      x: table.x_pos,
-      y: table.y_pos,
-      type: table.shape
+      x: table['x_pos'],
+      y: table['y_pos'],
+      type: table['shape']
     }));
     
     logger.info(`✅ Batch update response: ${data.length} tables transformed and returned`);

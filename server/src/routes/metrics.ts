@@ -37,7 +37,7 @@ router.get('/health', (_req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version || '1.0.0',
+    version: process.env['npm_package_version'] || '1.0.0',
     uptime: process.uptime(),
   });
 });
@@ -73,7 +73,7 @@ router.get('/health/detailed', async (_req, res) => {
 /**
  * Test error endpoint (development only)
  */
-if (process.env.NODE_ENV === 'development') {
+if (process.env['NODE_ENV'] === 'development') {
   router.post('/test/error', (_req, _res) => {
     throw new Error('Test error for monitoring integration');
   });
