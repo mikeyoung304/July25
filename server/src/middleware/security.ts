@@ -120,7 +120,7 @@ const parseSize = (size: string): number => {
   if (!match) return 10 * 1024 * 1024; // Default 10MB
   
   const [, num, unit = 'b'] = match;
-  return parseFloat(num) * (units[unit] || 1);
+  return parseFloat(num) * (units[unit as keyof typeof units] || 1);
 };
 
 // Security event logging
