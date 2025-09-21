@@ -90,8 +90,8 @@ export const useDebouncedState = <T>(
     const React = require('react');
     const { useState, useEffect } = React;
     
-    const [value, setValue] = useState<T>(initialValue);
-    const [debouncedValue, setDebouncedValue] = useState<T>(initialValue);
+    const [value, setValue] = useState(initialValue);
+    const [debouncedValue, setDebouncedValue] = useState(initialValue);
     
     useEffect(() => {
       const handler = setTimeout(() => {
@@ -129,7 +129,7 @@ export const useIntersectionObserver = (
       
       const observer = new IntersectionObserver(
         ([entry]) => {
-          setIsIntersecting(entry.isIntersecting);
+          setIsIntersecting(entry?.isIntersecting ?? false);
         },
         _options
       );
@@ -160,9 +160,9 @@ export const useBatchedState = <T>(
     const React = require('react');
     const { useState, useRef, useCallback } = React;
     
-    const [state, setState] = useState<T>(initialState);
+    const [state, setState] = useState(initialState);
     const updateQueue = useRef<Array<Partial<T> | ((prev: T) => Partial<T>)>>([]);
-    const isScheduled = useRef<boolean>(false);
+    const isScheduled = useRef(false);
     
     const batchedSetState = useCallback((updates: Partial<T> | ((prev: T) => Partial<T>)) => {
       updateQueue.current.push(updates);
