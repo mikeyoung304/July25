@@ -42,6 +42,7 @@
     "typecheck:baseline": "npm run typecheck 2>&1 | grep 'error TS' | sed 's/^\\([^(]*\\)(\\([0-9]*\\),\\([0-9]*\\)): error \\(TS[0-9]*\\): .*/\\{\"file\":\"\\1\",\"line\":\\2,\"column\":\\3,\"code\":\"\\4\"\\}/' | jq -s '.' > tools/ts-error-allowlist.json",
     "typecheck:update-allowlist": "npm run typecheck:baseline",
     "typecheck:strict": "tsc --build tsconfig.all.json --noEmit",
+    "ts:freeze": "node scripts/ts-freeze.cjs",
     "verify:ports": "! grep -r --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' --include='*.md' --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=build '3002\\|AI_GATEWAY' client/ server/ || (echo 'Error: Found forbidden port 3002 or AI_GATEWAY references!' && exit 1)",
     "diagram:render": "node scripts/diagram-ci.js",
     "db:push": "supabase db push",
