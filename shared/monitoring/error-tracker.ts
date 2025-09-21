@@ -112,7 +112,7 @@ class ErrorTracker {
       category,
       message,
       level,
-      data
+      ...(data && { data })
     };
 
     this.breadcrumbs.push(breadcrumb);
@@ -133,11 +133,11 @@ class ErrorTracker {
       timestamp: Date.now(),
       level,
       message: error.message,
-      stack: error.stack,
+      ...(error.stack && { stack: error.stack }),
       url: typeof window !== 'undefined' ? window.location.href : 'unknown',
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
       sessionId: this.sessionId,
-      userId: this.userId,
+      ...(this.userId && { userId: this.userId }),
       context: { ...this.context, ...context },
       breadcrumbs: [...this.breadcrumbs],
       tags: {
@@ -165,7 +165,7 @@ class ErrorTracker {
       url: typeof window !== 'undefined' ? window.location.href : 'unknown',
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
       sessionId: this.sessionId,
-      userId: this.userId,
+      ...(this.userId && { userId: this.userId }),
       context: { ...this.context, ...context },
       breadcrumbs: [...this.breadcrumbs],
       tags: {
