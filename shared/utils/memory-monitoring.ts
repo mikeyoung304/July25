@@ -62,7 +62,7 @@ class MemoryMonitoringSystem {
   private readonly maxSnapshots = 300; // 5 minutes at 1-second intervals
   private readonly maxAlerts = 100;
   private readonly criticalThreshold = 0.85; // 85% of available memory
-  private readonly leakThreshold = 0.15; // 15% growth trend
+  private readonly _leakThreshold = 0.15; // 15% growth trend - unused but kept for reference
   private readonly monitoringIntervalMs = 1000; // 1 second
   
   /**
@@ -147,29 +147,29 @@ class MemoryMonitoringSystem {
     if (this.snapshots.length < 10) {
       return null;
     }
-    
-    const current = this.snapshots[this.snapshots.length - 1];
+
+    const current = this.snapshots[this.snapshots.length - 1]!; // Safe: we checked length >= 10
     const recent = this.snapshots.slice(-60); // Last minute
     const older = this.snapshots.slice(-120, -60); // Previous minute
-    
+
     if (older.length === 0) {
       return null;
     }
-    
+
     const recentAvg = recent.reduce((sum, s) => sum + s.used, 0) / recent.length;
     const olderAvg = older.reduce((sum, s) => sum + s.used, 0) / older.length;
-    
+
     const bytesPerMinute = recentAvg - olderAvg;
     const mbPerMinute = bytesPerMinute / (1024 * 1024);
-    
+
     let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
     if (Math.abs(mbPerMinute) > 1) {
       trend = mbPerMinute > 0 ? 'increasing' : 'decreasing';
     }
-    
+
     const leakWarning = trend === 'increasing' && mbPerMinute > 5; // > 5MB/min growth
     const criticalWarning = current.percentage > this.criticalThreshold * 100;
-    
+
     const memoryTrend: MemoryTrend = {
       current,
       trend,
@@ -177,7 +177,7 @@ class MemoryMonitoringSystem {
       leakWarning,
       criticalWarning
     };
-    
+
     // Generate alerts if needed
     if (criticalWarning) {
       this.addAlert({

@@ -39,7 +39,8 @@ function isWindowSupported(): boolean {
 import { ManagedService, CleanupManager } from './cleanup-manager';
 
 // Import MemoryMonitor safely - not used in this implementation
-const _MemoryMonitor = { forceGarbageCollection: () => {}, getMemoryStatus: () => ({ current: null }) };
+// Unused - kept as placeholder for memory monitor
+// const _MemoryMonitor = { forceGarbageCollection: () => {}, getMemoryStatus: () => ({ current: null }) };
 // Dynamic import not needed in browser context
 
 export interface WebSocketPoolConfig {
@@ -328,7 +329,7 @@ export class WebSocketPool extends ManagedService {
     connection.reconnectAttempts++;
     
     try {
-      const _newConnection = await this.createConnection(connection.url);
+      await this.createConnection(connection.url);
       this.connections.delete(connection.id);
       console.warn(`WebSocket reconnected: ${connection.url}`);
     } catch (error) {
@@ -383,7 +384,7 @@ export class WebSocketPool extends ManagedService {
   /**
    * Select best connection for message using load balancing strategy
    */
-  private selectConnection(message: WebSocketMessage): PooledWebSocketConnection | null {
+  private selectConnection(_message: WebSocketMessage): PooledWebSocketConnection | null {
     const activeConnections = this.getActiveConnections();
     if (activeConnections.length === 0) {
       return null;
@@ -407,7 +408,7 @@ export class WebSocketPool extends ManagedService {
    */
   private selectRoundRobin(connections: PooledWebSocketConnection[]): PooledWebSocketConnection {
     this.loadBalancingIndex = (this.loadBalancingIndex + 1) % connections.length;
-    return connections[this.loadBalancingIndex];
+    return connections[this.loadBalancingIndex]!; // Safe: connections.length > 0 checked by caller
   }
 
   /**
