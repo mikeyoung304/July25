@@ -31,6 +31,7 @@
     "test:coverage": "NODE_OPTIONS='--max-old-space-size=4096' cd client && npm run test:coverage",
     "test:e2e": "concurrently -k \"NODE_ENV=test npm run dev\" \"wait-on tcp:3001 && npx playwright test tests/e2e/**\"",
     "test:affected": "nx affected:test",
+    "test:quick": "vitest --run --reporter=dot --passWithNoTests --no-color",
     "clean": "rm -rf node_modules/.vite client/dist server/dist",
     "check:integration": "tsx scripts/integration-check.ts",
     "lint": "eslint --ext .ts,.tsx .",

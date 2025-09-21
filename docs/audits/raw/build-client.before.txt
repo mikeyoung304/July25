@@ -1,0 +1,39 @@
+
+> restaurant-os-client@6.0.3 build
+> vite build
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+🔧 Building with VITE_API_BASE_URL: https://july25.onrender.com
+NODE_ENV=production is not supported in the .env file. Only NODE_ENV=development is supported to create a development build of your project. If you need to set process.env.NODE_ENV, you can set it in the Vite config instead.
+vite v5.4.19 building for production...
+transforming...
+✓ 2301 modules transformed.
+x Build failed in 977ms
+error during build:
+src/config/index.ts (10:4): "config" is not exported by "../shared/config/index.js", imported by "src/config/index.ts".
+file: /Users/mikeyoung/CODING/rebuild-6.0/client/src/config/index.ts:10:4
+
+ 8: 
+ 9: // Override process.env with import.meta.env for Vite
+10: if (typeof window !== 'undefined' && import.meta.env) {
+        ^
+11:   // Map Vite env vars to process.env for shared config to work
+12:   (window as any).process = (window as any).process || {};
+
+    at getRollupError (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at error (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/parseAst.js:397:42)
+    at Module.error (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/node-entry.js:16830:16)
+    at Module.traceVariable (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/node-entry.js:17279:29)
+    at ModuleScope.findVariable (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/node-entry.js:14925:39)
+    at ReturnValueScope.findVariable (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/node-entry.js:5620:38)
+    at FunctionBodyScope.findVariable (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/node-entry.js:5620:38)
+    at MemberExpression.bind (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/node-entry.js:7324:49)
+    at CallExpression.bind (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/node-entry.js:2785:23)
+    at CallExpression.bind (file:///Users/mikeyoung/CODING/rebuild-6.0/node_modules/rollup/dist/es/shared/node-entry.js:11986:15)
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path /Users/mikeyoung/CODING/rebuild-6.0/client
+npm error workspace restaurant-os-client@6.0.3
+npm error location /Users/mikeyoung/CODING/rebuild-6.0/client
+npm error command failed
+npm error command sh -c vite build
