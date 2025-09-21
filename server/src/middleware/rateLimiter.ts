@@ -3,7 +3,7 @@ import { Request } from 'express';
 import { AuthenticatedRequest } from './auth';
 
 // Only disable rate limiting in local development
-const isDevelopment = process.env.NODE_ENV === 'development' && process.env.RENDER !== 'true';
+const isDevelopment = process.env['NODE_ENV'] === 'development' && process.env['RENDER'] !== 'true';
 
 // General API rate limiter
 export const apiLimiter = rateLimit({

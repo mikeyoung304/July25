@@ -20,8 +20,8 @@ function KitchenDisplaySimple() {
   // Memory monitoring for long-running sessions
   const memoryMonitor = MemoryMonitorInstance
   useEffect(() => {
-    const memoryMonitor = MemoryMonitoringSystem.getInstance()
-    memoryMonitor.configure({
+    // TODO: Implement memory monitoring when API is available
+    /* memoryMonitor.configure({
       interval: 60000, // Check every minute
       threshold: 200 * 1024 * 1024, // Alert at 200MB
       onThresholdExceeded: (snapshot) => {
@@ -30,13 +30,7 @@ function KitchenDisplaySimple() {
           percentage: `${snapshot.percentage.toFixed(2)}%`
         })
       }
-    })
-    
-    memoryMonitor.start()
-    
-    return () => {
-      memoryMonitor.stop()
-    }
+    }) */
   }, [])
 
   // Handle order status change - now uses shared hook

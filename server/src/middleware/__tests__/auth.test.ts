@@ -38,8 +38,8 @@ describe('Auth Middleware', () => {
     next = vi.fn();
     
     // Reset environment variables
-    process.env.NODE_ENV = 'test';
-    process.env.KIOSK_JWT_SECRET = 'test-kiosk-secret';
+    process.env['NODE_ENV'] = 'test';
+    process.env['KIOSK_JWT_SECRET'] = 'test-kiosk-secret';
   });
 
   describe('JWT Authentication', () => {
@@ -125,7 +125,7 @@ describe('Auth Middleware', () => {
 
   describe('Development Mode', () => {
     it('should accept test token in development mode', async () => {
-      process.env.NODE_ENV = 'development';
+      process.env['NODE_ENV'] = 'development';
       req.headers = { 
         authorization: 'Bearer test-token',
         'x-restaurant-id': 'test-restaurant'
@@ -144,8 +144,8 @@ describe('Auth Middleware', () => {
     });
 
     it('should reject test token in production mode', async () => {
-      process.env.NODE_ENV = 'production';
-      process.env.PRODUCTION = 'true';
+      process.env['NODE_ENV'] = 'production';
+      process.env['PRODUCTION'] = 'true';
       req.headers = { authorization: 'Bearer test-token' };
       
       await expect(

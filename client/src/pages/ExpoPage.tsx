@@ -136,8 +136,8 @@ function ExpoPage() {
   
   // Memory monitoring for long-running sessions
   useEffect(() => {
-    const memoryMonitor = MemoryMonitoringSystem.getInstance()
-    memoryMonitor.configure({
+    // TODO: Implement memory monitoring when API is available
+    /* memoryMonitor.configure({
       interval: 60000, // Check every minute
       threshold: 200 * 1024 * 1024, // Alert at 200MB
       onThresholdExceeded: (snapshot) => {
@@ -146,13 +146,7 @@ function ExpoPage() {
           percentage: `${snapshot.percentage.toFixed(2)}%`
         })
       }
-    })
-    
-    memoryMonitor.start()
-    
-    return () => {
-      memoryMonitor.stop()
-    }
+    }) */
   }, [])
 
   // Handle marking kitchen orders as ready (left panel)
