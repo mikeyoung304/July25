@@ -85,7 +85,7 @@ function sanitizeObject(obj: any, path: string = ''): any {
     sanitized = sanitized.trim();
     
     // Log if sanitization changed the value
-    if (sanitized !== obj && process.env.NODE_ENV === 'development') {
+    if (sanitized !== obj && process.env['NODE_ENV'] === 'development') {
       logger.debug(`Sanitized field ${path}: "${obj}" -> "${sanitized}"`);
     }
     
@@ -204,7 +204,7 @@ export const sanitizeRequest = (req: Request, res: Response, next: NextFunction)
         });
         
         // In production, you might want to block these
-        if (process.env.NODE_ENV === 'production' && injectionPatterns.length > 1) {
+        if (process.env['NODE_ENV'] === 'production' && injectionPatterns.length > 1) {
           return res.status(400).json({
             error: 'Invalid request data detected',
             code: 'INVALID_INPUT'

@@ -327,11 +327,11 @@ export async function isPinLocked(userId: string): Promise<boolean> {
       return false;
     }
     
-    if (!data.locked_until) {
+    if (!data['locked_until']) {
       return false;
     }
     
-    const lockoutTime = new Date(data.locked_until);
+    const lockoutTime = new Date(data['locked_until']);
     return lockoutTime > new Date();
   } catch (error) {
     pinLogger.error('Error checking PIN lock status:', error);

@@ -59,8 +59,8 @@ OrdersService.setWebSocketServer(wss);
 applySecurity(app)
 
 // CORS configuration with stricter settings
-const allowedOrigins = (process.env.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [
-  process.env.FRONTEND_URL || 'http://localhost:5173',
+const allowedOrigins = (process.env['ALLOWED_ORIGINS']?.split(',').map(origin => origin.trim()) || [
+  process.env['FRONTEND_URL'] || 'http://localhost:5173',
   'https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
   'https://grow-ir056u92z-mikeyoung304-gmailcoms-projects.vercel.app',
   'https://growfreshlocalfood.com',
@@ -152,7 +152,7 @@ app.get('/health', (_req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV,
+    environment: process.env['NODE_ENV'],
   });
 });
 
@@ -167,7 +167,7 @@ setupWebSocketHandlers(wss);
 setupAIWebSocket(wss);
 
 // Start server
-const PORT = process.env.PORT || 3001;
+const PORT = process.env['PORT'] || 3001;
 
 async function startServer() {
   try {
@@ -188,7 +188,7 @@ async function startServer() {
     httpServer.listen(PORT, () => {
       const { getConfig } = require('./config/environment');
       const config = getConfig();
-      const host = process.env.NODE_ENV === 'production' ? config.frontend.url.replace('http://', '').replace('https://', '').split(':')[0] : 'localhost';
+      const host = process.env['NODE_ENV'] === 'production' ? config.frontend.url.replace('http://', '').replace('https://', '').split(':')[0] : 'localhost';
       
       logger.info(`🚀 Unified backend running on port ${PORT}`);
       logger.info(`   - REST API: http://${host}:${PORT}/api/v1`);

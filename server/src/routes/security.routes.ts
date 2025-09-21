@@ -50,7 +50,7 @@ router.post('/test',
   authenticate,
   requireRole('owner'),
   (req, res) => {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env['NODE_ENV'] === 'production') {
       return res.status(403).json({
         error: {
           code: 'FORBIDDEN',
@@ -83,14 +83,14 @@ router.get('/config',
   requireRole('owner'),
   (req, res) => {
     res.json({
-      environment: process.env.NODE_ENV,
+      environment: process.env['NODE_ENV'],
       security: {
         csrf: true,
         rateLimit: true,
         helmet: true,
         cors: true,
         sessionTimeout: '8h',
-        squareEnvironment: process.env.SQUARE_ENVIRONMENT || 'sandbox',
+        squareEnvironment: process.env['SQUARE_ENVIRONMENT'] || 'sandbox',
       },
       features: {
         suspiciousActivityDetection: true,
