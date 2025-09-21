@@ -18,9 +18,9 @@ function KitchenDisplaySimple() {
   const [statusFilter, setStatusFilter] = useState<'active' | 'ready'>('active')
   
   // Memory monitoring for long-running sessions
-  const memoryMonitor = MemoryMonitorInstance
+  const _memoryMonitor = MemoryMonitorInstance
   useEffect(() => {
-    const memoryMonitor = MemoryMonitoringSystem.getInstance()
+    const _memoryMonitor = MemoryMonitoringSystem.getInstance()
     memoryMonitor.configure({
       interval: 60000, // Check every minute
       threshold: 200 * 1024 * 1024, // Alert at 200MB
