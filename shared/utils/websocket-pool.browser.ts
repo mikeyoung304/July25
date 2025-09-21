@@ -407,7 +407,7 @@ export class WebSocketPool extends ManagedService {
    */
   private selectRoundRobin(connections: PooledWebSocketConnection[]): PooledWebSocketConnection {
     this.loadBalancingIndex = (this.loadBalancingIndex + 1) % connections.length;
-    return connections[this.loadBalancingIndex];
+    return connections[this.loadBalancingIndex]!;
   }
 
   /**

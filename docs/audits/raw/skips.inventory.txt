@@ -1,0 +1,9 @@
+tests/e2e/voice-control.e2e.test.ts:47:      test.skip()
+server/src/routes/__tests__/security.test.ts:243:    test.skip('should reject oversized file uploads', async () => {
+server/src/routes/__tests__/security.test.ts:255:    test.skip('should reject invalid file types', async () => {
+server/tests/security/csrf.proof.test.ts:9:describe.skip('Security Proof: CSRF Protection', () => {
+server/tests/security/rbac.proof.test.ts:257:    it.skip('should reject tokens without restaurant context', async () => {
+server/tests/security/rbac.proof.test.ts:278:  describe.skip('Invalid Role Handling', () => {
+server/tests/security/ratelimit.proof.test.ts:264:    it.skip('should handle high-volume API requests up to limit', async () => {
+server/tests/security/ratelimit.proof.test.ts:282:    it.skip('should return proper rate limit status and headers', async () => {
+server/tests/security/ratelimit.proof.test.ts:297:  describe.skip('Rate Limit Headers', () => {

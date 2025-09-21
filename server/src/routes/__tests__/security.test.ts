@@ -142,7 +142,7 @@ describe('Security Tests', () => {
           restaurant_id: 'restaurant-1',
           exp: Math.floor(Date.now() / 1000) + 3600
         },
-        process.env.SUPABASE_JWT_SECRET || 'test-secret'
+        process.env['SUPABASE_JWT_SECRET'] || 'test-secret'
       );
 
       const restaurant2Token = jwt.sign(
@@ -151,7 +151,7 @@ describe('Security Tests', () => {
           restaurant_id: 'restaurant-2',
           exp: Math.floor(Date.now() / 1000) + 3600
         },
-        process.env.SUPABASE_JWT_SECRET || 'test-secret'
+        process.env['SUPABASE_JWT_SECRET'] || 'test-secret'
       );
 
       // Test that menu access is restricted
@@ -272,7 +272,7 @@ describe('Security Tests', () => {
           role: 'user', // Not admin
           exp: Math.floor(Date.now() / 1000) + 3600
         },
-        process.env.SUPABASE_JWT_SECRET || 'test-secret'
+        process.env['SUPABASE_JWT_SECRET'] || 'test-secret'
       );
 
       // Menu upload requires admin/manager role
