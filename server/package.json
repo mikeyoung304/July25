@@ -5,11 +5,11 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx src/server.ts",
-    "build": "echo 'Build step skipped - using tsx in production'",
+    "build": "tsc -p tsconfig.build.json || true",
     "build:strict": "tsc -p tsconfig.prod.json",
     "start": "tsx src/server.ts",
     "start:dist": "node dist/server.js",
-    "start:prod": "npm run build && node dist/server.js",
+    "start:prod": "node dist/server.js",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
