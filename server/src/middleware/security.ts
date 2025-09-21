@@ -224,7 +224,7 @@ export const detectSuspiciousActivity = (req: Request, res: Response, next: Next
   }
   
   // Check for path traversal
-  const pathTraversalPatterns = /\.\.[\/\\]|\.\.%2[fF]|%2e%2e/g;
+  const pathTraversalPatterns = /\.\.[\\/]|\.\.%2[fF]|%2e%2e/g;
   if (pathTraversalPatterns.test(req.url)) {
     suspicious.push('Path traversal attempt');
   }
