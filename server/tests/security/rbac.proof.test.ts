@@ -275,7 +275,7 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
     });
   });
 
-  describe.skip('Invalid Role Handling', () => {
+  describe('Invalid Role Handling', () => {
     it('should reject tokens with invalid roles', async () => {
       const invalidRoleToken = createToken('superuser'); // Invalid role
 
