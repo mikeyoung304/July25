@@ -339,8 +339,8 @@ export class EnterpriseErrorHandler {
       message: errorMessage,
       originalError,
       timestamp: new Date().toISOString(),
-      stack: originalError.stack,
-      cause: (originalError as unknown as { cause?: unknown }).cause?.toString(),
+      ...(originalError.stack && { stack: originalError.stack }),
+      ...((originalError as unknown as { cause?: unknown }).cause && { cause: (originalError as unknown as { cause?: unknown }).cause?.toString() }),
       details: {
         ...context.details,
         originalType: originalError.constructor.name
@@ -348,22 +348,22 @@ export class EnterpriseErrorHandler {
       recoveryStrategy: RecoveryStrategy.NONE,
       retryCount: 0,
       canRecover: false,
-      
+
       // Context from parameters
       component: context.component || 'unknown',
       service: context.service || 'unknown',
-      userId: context.userId,
+      ...(context.userId && { userId: context.userId }),
       sessionId: context.sessionId || this.getSessionId(),
-      correlationId: context.correlationId,
-      requestId: context.requestId,
-      tags: context.tags,
-      
+      ...(context.correlationId && { correlationId: context.correlationId }),
+      ...(context.requestId && { requestId: context.requestId }),
+      ...(context.tags && { tags: context.tags }),
+
       // System context
-      memoryUsage: memoryInfo.current?.percentage,
-      networkStatus: typeof navigator !== 'undefined' && 'onLine' in navigator ? 
+      ...(memoryInfo.current?.percentage && { memoryUsage: memoryInfo.current.percentage }),
+      networkStatus: typeof navigator !== 'undefined' && 'onLine' in navigator ?
         (navigator.onLine ? 'online' : 'offline') : 'unknown',
-      userAgent: typeof navigator !== 'undefined' && 'userAgent' in navigator ? navigator.userAgent : undefined,
-      url: typeof window !== 'undefined' && 'location' in window ? window.location.href : undefined
+      ...(typeof navigator !== 'undefined' && 'userAgent' in navigator && { userAgent: navigator.userAgent }),
+      ...(typeof window !== 'undefined' && 'location' in window && { url: window.location.href })
     };
     
     // Determine recovery strategy
