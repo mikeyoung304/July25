@@ -122,7 +122,7 @@ function sanitizeParams(params: any): any {
   
   for (const [key, value] of Object.entries(params)) {
     // Sanitize key (parameter names shouldn't have special characters)
-    const sanitizedKey = key.replace(/[^a-zA-Z0-9_\-]/g, '');
+    const sanitizedKey = key.replace(/[^a-zA-Z0-9_-]/g, '');
     
     if (sanitizedKey !== key) {
       logger.warn(`Suspicious parameter name blocked: ${key}`);
@@ -265,6 +265,7 @@ export const strictSanitize = (req: Request, res: Response, next: NextFunction) 
     }
     
     // Check for binary data in text fields
+    // eslint-disable-next-line no-control-regex
     if (/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(allData)) {
       logger.warn('Binary data in text fields detected', {
         ip: req.ip,

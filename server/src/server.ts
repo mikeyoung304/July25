@@ -18,7 +18,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { setupRoutes } from './routes';
 import { initializeDatabase } from './config/database';
-import { validateEnvironment } from './config/environment';
+import { validateEnvironment, getConfig } from './config/environment';
 import { aiService } from './services/ai.service';
 import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocket';
 import { setupAIWebSocket } from './ai/websocket';
@@ -176,7 +176,6 @@ async function startServer() {
     
     // Initialize menu context for AI service
     try {
-      const { getConfig } = require('./config/environment');
       const config = getConfig();
       const restaurantId = config.restaurant.defaultId;
       await aiService.syncMenuFromDatabase(restaurantId);
@@ -186,7 +185,6 @@ async function startServer() {
     }
     
     httpServer.listen(PORT, () => {
-      const { getConfig } = require('./config/environment');
       const config = getConfig();
       const host = process.env['NODE_ENV'] === 'production' ? config.frontend.url.replace('http://', '').replace('https://', '').split(':')[0] : 'localhost';
       
