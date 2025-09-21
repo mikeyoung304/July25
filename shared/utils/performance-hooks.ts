@@ -13,10 +13,11 @@ export const useStableObject = <T extends Record<string, unknown>>(obj: T): T =>
   
   // In browser, use actual React implementation if available
   try {
-     
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const React = require('react');
-    const { useMemo, useRef } = React;
+
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unused-vars
+    const _React = require('react');
+    // Unused but kept for future use
+    // const { useMemo, useRef } = _React;
     
     // This would be the actual implementation, but we'll keep it simple for server safety
     return obj;

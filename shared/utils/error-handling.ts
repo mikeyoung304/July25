@@ -350,8 +350,8 @@ export class EnterpriseErrorHandler {
       canRecover: false,
       
       // Context from parameters
-      component: context.component,
-      service: context.service,
+      component: context.component || 'unknown',
+      service: context.service || 'unknown',
       userId: context.userId,
       sessionId: context.sessionId || this.getSessionId(),
       correlationId: context.correlationId,
@@ -526,8 +526,8 @@ export class EnterpriseErrorHandler {
         return null;
       
       case RecoveryStrategy.REDIRECT:
-        if (typeof window !== 'undefined' && 'location' in window && error.details?.redirectUrl) {
-          window.location.href = error.details.redirectUrl as string;
+        if (typeof window !== 'undefined' && 'location' in window && error.details?.['redirectUrl']) {
+          window.location.href = error.details['redirectUrl'] as string;
         }
         return null;
       

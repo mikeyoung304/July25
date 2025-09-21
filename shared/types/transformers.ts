@@ -227,7 +227,7 @@ export const transformSharedOrderItemToClient = (item: SharedOrderItem): ClientO
         id: validateString(mod.id, 'modifier.id'),
         name: validateString(mod.name, 'modifier.name'),
         price: validateNumber(mod.price, 'modifier.price')
-      })) || undefined,
+      })) || [],
       specialInstructions: item.special_instructions || undefined
     };
   } catch (error) {
@@ -255,7 +255,7 @@ export const transformClientOrderItemToShared = (item: ClientOrderItem): SharedO
         id: validateString(mod.id, 'modifier.id'),
         name: validateString(mod.name, 'modifier.name'),
         price: validateNumber(mod.price, 'modifier.price')
-      })) || undefined,
+      })) || [],
       special_instructions: item.specialInstructions || undefined
     };
   } catch (error) {
@@ -277,7 +277,7 @@ export const transformSharedMenuItemToClient = (item: SharedMenuItem): ClientMen
       id: validateString(item.id, 'id'),
       restaurantId: validateString(item.restaurant_id, 'restaurant_id'),
       name: validateString(item.name, 'name'),
-      description: item.description || undefined,
+      description: item.description || '',
       price: validateNumber(item.price, 'price'),
       category: validateString(item.category_id, 'category_id'), // Note: Using category_id as string
       available: item.is_available,
@@ -372,7 +372,7 @@ export const transformClientTableToShared = (table: ClientTable): SharedTable =>
         x: validateNumber(table.x, 'x'),
         y: validateNumber(table.y, 'y')
       },
-      shape: typeToShapeMap[table.type],
+      shape: typeToShapeMap[table.type] || 'rectangle',
       created_at: table.createdAt.toISOString(),
       updated_at: table.updatedAt.toISOString()
     };

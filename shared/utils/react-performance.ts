@@ -42,11 +42,15 @@ export function memoWithProfiling<P extends object>(
   propsAreEqual?: (prevProps: P, nextProps: P) => boolean
 ): React.ForwardRefExoticComponent<P & React.RefAttributes<any>> {
   const componentName = Component.displayName || Component.name || 'Anonymous';
-  
+
+  if (!React) {
+    throw new Error('React is not available in this environment');
+  }
+
   const MemoizedComponent = React.memo(Component, propsAreEqual);
   MemoizedComponent.displayName = `Memo(${componentName})`;
-  
-  return React?.forwardRef((props: any, ref: any) => {
+
+  return React.forwardRef((props: any, ref: any) => {
     // Profile component memory usage
     if (typeof window !== 'undefined') {
       // Only run memory profiling in browser
@@ -59,14 +63,14 @@ export function memoWithProfiling<P extends object>(
       }
     }
     
-    return React.createElement(MemoizedComponent, { ...props, ref });
+    return React!.createElement(MemoizedComponent, { ...props, ref });
   });
 }
 
 /**
  * Component performance wrapper with measurements
  */
-export function withPerformanceTracking<P extends object>(
+export function withPerformanceTracking<_P extends object>(
   Component: any,
   trackingName?: string
 ): any {
