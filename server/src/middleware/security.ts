@@ -149,10 +149,7 @@ class SecurityMonitor {
       this.events = this.events.slice(-this.maxEvents);
     }
     
-    // Log to console in development
-    if (process.env['NODE_ENV'] === 'development') {
-      console.log('[SECURITY]', fullEvent);
-    }
+    // Debug: Security event would be logged in development
     
     // TODO: Send to logging service (Datadog, Sentry, etc.)
   }

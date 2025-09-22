@@ -322,9 +322,7 @@ class PerformanceMonitor {
         keepalive: true,
       });
 
-      if (process.env['NODE_ENV'] === 'development') {
-        console.log(`📊 Sent ${metricsToSend.length} performance metrics`);
-      }
+      // Debug: Performance metrics sent to endpoint successfully
     } catch (error) {
       console.warn('⚠️ Failed to send performance metrics:', error);
       // Put metrics back for retry
