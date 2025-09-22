@@ -103,7 +103,7 @@ class WebVitalsReporter {
         keepalive: true,
       });
 
-      console.log('📊 Web Vitals reported:', report.metrics);
+      // Debug: Web Vitals metrics reported successfully
     } catch (error) {
       console.warn('⚠️ Failed to report Web Vitals:', error);
       

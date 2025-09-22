@@ -261,7 +261,7 @@ describe('Security Proof: Rate Limiting', () => {
   });
 
   describe('General API Rate Limiting (100 req/min)', () => {
-    it.skip('should handle high-volume API requests up to limit', async () => {
+    it('should handle high-volume API requests up to limit', async () => {
       // Test a subset to avoid test timeout
       const requests = 50;
       const responses = [];
@@ -279,7 +279,7 @@ describe('Security Proof: Rate Limiting', () => {
       await Promise.all(responses);
     });
 
-    it.skip('should return proper rate limit status and headers', async () => {
+    it('should return proper rate limit status and headers', async () => {
       const response = await request(app)
         .get('/api/menu');
 
@@ -294,7 +294,7 @@ describe('Security Proof: Rate Limiting', () => {
     });
   });
 
-  describe.skip('Rate Limit Headers', () => {
+  describe('Rate Limit Headers', () => {
     it('should include X-RateLimit-Limit header', async () => {
       const response = await request(app)
         .post('/api/auth/login')

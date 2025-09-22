@@ -43,4 +43,4 @@ afterAll(() => {
   vi.restoreAllMocks();
 });
 
-console.log('Test bootstrap loaded');
+// Test bootstrap loaded

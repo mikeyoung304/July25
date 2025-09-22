@@ -273,11 +273,11 @@ describe('Payment Routes', () => {
       app.use('/api/v1/payments', paymentsRouter);
 
       // vi.mocked(PaymentService.processRefund).mockResolvedValue({
-        id: 'refund-123',
-        paymentId: 'payment-123',
-        amount: 2550,
-        status: 'completed'
-      } as any);
+      //   id: 'refund-123',
+      //   paymentId: 'payment-123',
+      //   amount: 2550,
+      //   status: 'completed'
+      // } as any);
 
       const response = await request(app)
         .post('/api/v1/payments/payment-123/refund')
@@ -330,9 +330,9 @@ describe('Payment Routes', () => {
 
       expect(response.status).toBe(200);
       // expect(PaymentService.verifyWebhookSignature).toHaveBeenCalledWith(
-        expect.any(String),
-        signature
-      );
+      //   expect.any(String),
+      //   signature
+      // );
     });
 
     it('should reject webhook with invalid signature', async () => {

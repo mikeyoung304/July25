@@ -52,12 +52,12 @@ describe('Route Guard Consistency', () => {
           } else if (!content.includes('validateRestaurantAccess')) {
             // Has auth import but not using validateRestaurantAccess where needed
             // This is acceptable if using other auth methods
-            console.log(`Note: ${file} uses auth but not validateRestaurantAccess`);
+            // Note: uses auth but not validateRestaurantAccess
           }
         }
       } catch (error) {
         // File might not exist, that's okay
-        console.log(`Skipping ${file}: not found`);
+        // Skipping file: not found
       }
     }
     

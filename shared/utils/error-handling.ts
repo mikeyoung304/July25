@@ -250,7 +250,7 @@ export class EnterpriseErrorHandler {
       
       // Network status changes
       window.addEventListener('online', () => {
-        console.log('Network connection restored');
+        // Debug: Network connection restored
       });
       
       window.addEventListener('offline', () => {
@@ -483,7 +483,7 @@ export class EnterpriseErrorHandler {
     if (existing && existing.count > 10) {
       const timeSinceFirst = Date.now() - (existing.lastSeen - (existing.count * 1000));
       if (timeSinceFirst < 60000) { // Within 1 minute
-        console.warn(`Error storm detected: ${pattern} occurred ${existing.count} times`);
+        // Debug: Error storm detected
         
         // Create meta-error for error storm
         this.handleError(new Error(`Error storm: ${pattern}`), {
@@ -654,7 +654,7 @@ export class EnterpriseErrorHandler {
     
     // Check if fetch is available
     if (typeof fetch === 'undefined') {
-      console.warn('fetch API not available for error reporting');
+      // Debug: fetch API not available for error reporting
       return;
     }
     
@@ -669,7 +669,7 @@ export class EnterpriseErrorHandler {
         body: JSON.stringify(sanitizedError)
       });
     } catch (reportingError) {
-      console.error('Failed to report error:', reportingError);
+      // Debug: Failed to report error
     }
   }
   
@@ -686,7 +686,7 @@ export class EnterpriseErrorHandler {
       if (typeof window !== 'undefined' && 'alert' in window && error.severity === ErrorSeverity.CRITICAL) {
         alert(userMessage);
       } else {
-        console.warn('User notification:', userMessage);
+        // Debug: User notification would be shown
       }
     }
   }
