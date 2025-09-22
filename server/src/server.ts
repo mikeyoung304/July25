@@ -56,7 +56,7 @@ OrdersService.setWebSocketServer(wss);
 
 // Global middleware
 // Apply comprehensive security middleware
-applySecurity(app)
+applySecurity(app);
 
 // CORS configuration with stricter settings
 const allowedOrigins = (process.env['ALLOWED_ORIGINS']?.split(',').map(origin => origin.trim()) || [
