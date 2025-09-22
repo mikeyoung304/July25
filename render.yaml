@@ -4,7 +4,7 @@ services:
     runtime: node
     repo: https://github.com/mikeyoung304/July25
     branch: main
-    buildCommand: npm ci && npm run build --workspace server
+    buildCommand: npm ci --workspaces && npm run build --workspace server
     startCommand: npm run start --workspace server
     envVars:
       - key: NODE_VERSION

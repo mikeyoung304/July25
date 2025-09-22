@@ -65,7 +65,7 @@
     "memory:check": "ps aux | grep -E 'node|vite' | awk '{sum+=$6} END {printf \"Memory: %.0f MB\\n\", sum/1024}'",
     "clean:all": "rm -rf node_modules client/node_modules server/node_modules",
     "reset": "pkill -f vite 2>/dev/null || true; npm run clean",
-    "prepare": "husky install || true"
+    "prepare": "command -v husky >/dev/null 2>&1 && husky install || true"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.0.0",
@@ -120,8 +120,9 @@
   "author": "Macon AI Solutions",
   "license": "PROPRIETARY",
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x"
   },
+  "packageManager": "npm@10.7.0",
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
     "node-fetch": "^3.3.2",
