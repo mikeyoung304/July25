@@ -374,8 +374,6 @@ const GROW_FRESH_DATA = {
 };
 
 async function seedMenu() {
-  console.log('🌱 Seeding Grow Fresh Local Food menu...');
-  console.log('📍 Restaurant ID:', RESTAURANT_ID);
   
   try {
     // Insert or update restaurant
@@ -394,7 +392,6 @@ async function seedMenu() {
       console.error('❌ Failed to create restaurant:', restaurantError);
       throw restaurantError;
     }
-    console.log('✅ Restaurant created/updated');
     
     // Insert categories
     for (const category of GROW_FRESH_DATA.categories) {
@@ -415,7 +412,6 @@ async function seedMenu() {
         throw error;
       }
     }
-    console.log('✅ Categories created');
     
     // Get category mappings
     const { data: categories, error: catError } = await supabase
@@ -468,12 +464,6 @@ async function seedMenu() {
       itemCount++;
     }
     
-    console.log(`✅ ${itemCount} menu items created`);
-    console.log('\n🎉 Menu seeded successfully!');
-    console.log('\n📋 Summary:');
-    console.log(`   - Restaurant: ${GROW_FRESH_DATA.restaurant.name}`);
-    console.log(`   - Categories: ${GROW_FRESH_DATA.categories.length}`);
-    console.log(`   - Menu Items: ${itemCount}`);
     
   } catch (error) {
     console.error('❌ Seeding failed:', error);

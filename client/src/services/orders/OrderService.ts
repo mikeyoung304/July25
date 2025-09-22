@@ -1,9 +1,10 @@
+import type { Order } from "@rebuild/shared";
 /**
  * OrderService - Supports both mock data and real API calls
  * following Luis's API specification
  */
 
-import { Order, OrderItem, OrderItemModifier, OrderStatus, OrderType } from '@rebuild/shared'
+import { OrderItemModifier, OrderStatus, OrderType } from '@rebuild/shared'
 import { logger } from '@/services/logger'
 import { httpClient } from '@/services/http/httpClient'
 

@@ -103,7 +103,6 @@ function walkDirectory(dir, callback) {
 }
 
 function cleanupConsoleLogs() {
-  console.log('🧹 Starting console log cleanup...\n');
 
   let totalFiles = 0;
   let filesModified = 0;
@@ -123,7 +122,6 @@ function cleanupConsoleLogs() {
         filesModified++;
         totalReplacements += result.replacements;
         const relativePath = path.relative(process.cwd(), filePath);
-        console.log(`✓ ${relativePath} (${result.replacements} replacements)`);
       }
     });
   }
@@ -141,18 +139,10 @@ function cleanupConsoleLogs() {
         filesModified++;
         totalReplacements += result.replacements;
         const relativePath = path.relative(process.cwd(), filePath);
-        console.log(`✓ ${relativePath} (${result.replacements} replacements)`);
       }
     });
   }
 
-  console.log('\n📊 Summary:');
-  console.log(`- Files scanned: ${totalFiles}`);
-  console.log(`- Files modified: ${filesModified}`);
-  console.log(`- Total replacements: ${totalReplacements}`);
-  console.log(`- Files skipped (WebRTC/tests): ${skippedFiles}`);
-  console.log('\n✅ Console log cleanup complete!');
-  console.log('Note: console.warn and console.error were preserved as per technical debt docs.');
 }
 
 // Run the cleanup

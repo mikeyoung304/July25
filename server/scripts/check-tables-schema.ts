@@ -28,7 +28,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
 
 async function checkSchema() {
   try {
-    console.log('🔍 Checking tables schema...\n');
     
     // Try to fetch one row to see what columns exist
     const { data, error } = await supabase
@@ -40,7 +39,6 @@ async function checkSchema() {
       console.error('❌ Error fetching tables:', error);
       
       // Try a minimal insert to see what's required
-      console.log('\n🧪 Testing minimal insert...');
       const { error: insertError } = await supabase
         .from('tables')
         .insert({
@@ -54,15 +52,11 @@ async function checkSchema() {
       }
     } else {
       if (data && data.length > 0) {
-        console.log('📊 Table columns:');
         Object.keys(data[0]).forEach(key => {
-          console.log(`   - ${key}: ${typeof data[0][key]} (${data[0][key]})`);
         });
       } else {
-        console.log('ℹ️  No existing tables found');
         
         // Try inserting a simple table
-        console.log('\n🧪 Testing simple insert...');
         const { data: insertData, error: insertError } = await supabase
           .from('tables')
           .insert({
@@ -80,7 +74,6 @@ async function checkSchema() {
         if (insertError) {
           console.error('❌ Insert error:', insertError);
         } else {
-          console.log('✅ Insert successful:', insertData);
           
           // Clean up test data
           await supabase

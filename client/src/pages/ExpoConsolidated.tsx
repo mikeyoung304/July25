@@ -8,7 +8,7 @@ import { TouchOptimizedOrderCard } from '@/components/kitchen/TouchOptimizedOrde
 import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
 import { useTableGrouping, sortTableGroups, getTableGroupStats } from '@/hooks/useTableGrouping'
-import { cn } from '@/utils'
+import {  } from '@/utils'
 import type { Order } from '@rebuild/shared'
 
 type ViewMode = 'tables' | 'orders' | 'hybrid'
@@ -26,7 +26,7 @@ function ExpoConsolidated() {
     updateOrderStatus,
     readyOrders,
     activeOrders,
-    connectionState
+    _connectionState
   } = useKitchenOrdersOptimized()
   
   // Intelligent table grouping
@@ -62,7 +62,6 @@ function ExpoConsolidated() {
     await Promise.all(updatePromises)
     
     // TODO: Add success toast notification
-    console.log(`Table ${tableNumber} completed successfully`)
   }, [groupedOrders.tables, updateOrderStatus])
   
   // Handle individual order status change

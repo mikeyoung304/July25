@@ -47,7 +47,6 @@ filesToFix.forEach(filePath => {
   const fullPath = path.join(__dirname, '..', filePath);
   
   if (!fs.existsSync(fullPath)) {
-    console.log(`Skipping ${filePath} - file not found`);
     return;
   }
   
@@ -58,9 +57,7 @@ filesToFix.forEach(filePath => {
     fs.writeFileSync(fullPath, fixed);
     const matches = content.match(/logger\.(info|debug|warn|error)\s*\([^)]*,[^)]*,[^)]*\)/g);
     const count = matches ? matches.length : 0;
-    console.log(`Fixed ${count} logger calls in ${filePath}`);
     fixedCount += count;
   }
 });
 
-console.log(`\nTotal: Fixed ${fixedCount} logger calls across ${filesToFix.length} files`);

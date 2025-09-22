@@ -92,7 +92,7 @@ class PerformanceMonitor {
         }
       });
 
-    } catch (error) {
+    } catch {
       logger.warn('Failed to initialize performance observer', { error });
     }
   }
@@ -106,7 +106,7 @@ class PerformanceMonitor {
         callback(list.getEntries());
       });
       observer.observe({ type, buffered: true });
-    } catch (error) {
+    } catch {
       // Observer might not be supported for this metric type
       logger.info(`Performance metric ${type} not supported`);
     }
@@ -246,7 +246,7 @@ class PerformanceMonitor {
         });
         
         return entry.duration;
-      } catch (error) {
+      } catch {
         logger.warn('Failed to measure performance', { error, name, startMark, endMark });
       }
     }

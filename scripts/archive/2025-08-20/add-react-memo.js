@@ -115,7 +115,6 @@ componentsToMemoize.forEach(filePath => {
   const fullPath = path.join(__dirname, '..', filePath);
   
   if (!fs.existsSync(fullPath)) {
-    console.log(`Skipping ${filePath} - file not found`);
     return;
   }
   
@@ -126,11 +125,8 @@ componentsToMemoize.forEach(filePath => {
   
   if (memoized) {
     fs.writeFileSync(fullPath, modified);
-    console.log(`✅ Memoized ${componentName}`);
     totalMemoized++;
   } else {
-    console.log(`⏭️  ${componentName} already memoized or couldn't be processed`);
   }
 });
 
-console.log(`\n📊 Total: Memoized ${totalMemoized} components for better performance`);

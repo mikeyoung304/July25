@@ -41,7 +41,6 @@ class DocumentationGenerator {
   }
 
   public async generateAll(): Promise<void> {
-    console.log('📚 Generating comprehensive documentation...');
 
     try {
       if (this.config.generateAPI) {
@@ -66,8 +65,6 @@ class DocumentationGenerator {
 
       await this.generateMainIndex();
 
-      console.log('✅ Documentation generation completed successfully!');
-      console.log(`📂 Documentation available at: ${this.config.outputDir}`);
       
     } catch (error) {
       console.error('❌ Documentation generation failed:', error);
@@ -76,7 +73,6 @@ class DocumentationGenerator {
   }
 
   private async generateAPIDocumentation(): Promise<void> {
-    console.log('🔧 Generating API documentation...');
 
     // Generate OpenAPI spec from code
     const apiSpec = await this.extractAPISpec();
@@ -84,11 +80,9 @@ class DocumentationGenerator {
     const apiDocPath = join(this.config.outputDir, 'api.md');
     writeFileSync(apiDocPath, this.generateAPIMarkdown(apiSpec));
 
-    console.log('✓ API documentation generated');
   }
 
   private async generateTypeDocumentation(): Promise<void> {
-    console.log('📝 Generating TypeScript documentation...');
 
     try {
       // Generate TypeDoc for shared types
@@ -109,14 +103,12 @@ class DocumentationGenerator {
         cwd: this.rootDir
       });
 
-      console.log('✓ TypeScript documentation generated');
     } catch (error) {
       console.warn('⚠️ TypeDoc generation partially failed:', error);
     }
   }
 
   private async generateChangelog(): Promise<void> {
-    console.log('📋 Generating changelog...');
 
     try {
       const changelogPath = join(this.config.outputDir, 'CHANGELOG.md');
@@ -126,7 +118,6 @@ class DocumentationGenerator {
         cwd: this.rootDir
       });
 
-      console.log('✓ Changelog generated');
     } catch (error) {
       console.warn('⚠️ Changelog generation failed:', error);
       
@@ -138,7 +129,6 @@ class DocumentationGenerator {
   }
 
   private async generateComponentDocumentation(): Promise<void> {
-    console.log('🧩 Generating component documentation...');
 
     try {
       // Use compodoc for Angular-style documentation (works with React too)
@@ -147,7 +137,6 @@ class DocumentationGenerator {
         cwd: this.rootDir
       });
 
-      console.log('✓ Component documentation generated');
     } catch (error) {
       console.warn('⚠️ Component documentation generation failed, creating manual index...');
       await this.createComponentIndex();
@@ -155,7 +144,6 @@ class DocumentationGenerator {
   }
 
   private async generateADRIndex(): Promise<void> {
-    console.log('🏛️ Generating Architecture Decision Records index...');
 
     const adrDir = join(this.rootDir, 'docs/adr');
     const adrIndexPath = join(this.config.outputDir, 'architecture-decisions.md');
@@ -184,11 +172,9 @@ class DocumentationGenerator {
       writeFileSync(adrIndexPath, adrTemplate);
     }
 
-    console.log('✓ ADR index generated');
   }
 
   private async generateMainIndex(): Promise<void> {
-    console.log('📋 Generating main documentation index...');
 
     const indexContent = `# Project Documentation
 
@@ -235,7 +221,6 @@ This documentation is generated from:
     const indexPath = join(this.config.outputDir, 'README.md');
     writeFileSync(indexPath, indexContent);
 
-    console.log('✓ Main documentation index generated');
   }
 
   private async extractAPISpec(): Promise<any> {
@@ -539,7 +524,6 @@ async function main() {
         config.generateADR = false;
         break;
       case '--help':
-        console.log(`
 Documentation Generator
 
 Usage: npm run docs:generate [options]

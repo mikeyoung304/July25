@@ -342,7 +342,6 @@ export function kitchenFlow() {
     websocketConnections.add(1);
     
     socket.on('open', () => {
-      console.log(`Kitchen display ${__VU} connected`);
       
       // Subscribe to order updates
       socket.send(JSON.stringify({
@@ -376,7 +375,6 @@ export function kitchenFlow() {
     });
     
     socket.on('close', () => {
-      console.log(`Kitchen display ${__VU} disconnected`);
     });
     
     // Keep connection alive for test duration

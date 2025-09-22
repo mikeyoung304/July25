@@ -1,8 +1,9 @@
+import { getSafeOrderStatus, isStatusInGroup } from '../utils/orderStatusUtils';
 import React, { useState, useMemo } from 'react'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBoundary'
-import { STATUS_GROUPS, isStatusInGroup, getSafeOrderStatus } from '@/utils/orderStatusValidation'
+// 
 import { Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import type { Order } from '@rebuild/shared'
 

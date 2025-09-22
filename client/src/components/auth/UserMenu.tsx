@@ -14,13 +14,13 @@ import { logger } from '@/services/logger';
 
 interface UserMenuProps {
   className?: string;
-  position?: 'header' | 'nav' | 'floating';
+  _position?: 'header' | 'nav' | 'floating';
   showDetails?: boolean;
 }
 
 export function UserMenu({ 
   className = '', 
-  position = 'header',
+  _position = 'header',
   showDetails = true 
 }: UserMenuProps) {
   const { user, logout, isAuthenticated, restaurantId } = useAuth();

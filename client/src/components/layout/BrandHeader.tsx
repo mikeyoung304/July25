@@ -88,7 +88,7 @@ export function BrandHeader({
             
             {/* User Menu - Always show when authenticated */}
             {isAuthenticated && (
-              <UserMenu position="header" showDetails={true} />
+              <UserMenu _position="header" showDetails={true} />
             )}
           </div>
         </div>
