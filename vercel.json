@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build --workspace shared && npm run build --workspace client",
+  "devCommand": "npm run dev --workspace client",
+  "installCommand": "npm ci --workspaces",
+  "framework": null,
+  "outputDirectory": "client/dist",
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet ."
+}
