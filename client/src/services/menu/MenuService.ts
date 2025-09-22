@@ -79,9 +79,9 @@ export class MenuService implements IMenuService {
         items: response.items.map(item => this.transformMenuItem(item, response.categories)),
         categories: response.categories
       }
-    } catch (error) {
+    } catch {
       console.error('Menu API failed:', error);
-      throw error;
+      throw new Error("Menu service error");
     }
   }
 
@@ -99,9 +99,9 @@ export class MenuService implements IMenuService {
       const categories = await this.getMenuCategories()
       const response = await httpClient.get<any[]>('/api/v1/menu/items')
       return response.map(item => this.transformMenuItem(item, categories))
-    } catch (error) {
+    } catch {
       console.error('Menu items API failed:', error);
-      throw error;
+      throw new Error("Menu service error");
     }
   }
 
@@ -119,16 +119,16 @@ export class MenuService implements IMenuService {
       // Cache categories
       response.forEach(cat => this.categoriesCache.set(cat.id, cat))
       return response
-    } catch (error) {
+    } catch {
       console.error('Menu categories API failed:', error);
-      throw error;
+      throw new Error("Menu service error");
     }
   }
 
   async updateMenuItemAvailability(itemId: string, isAvailable: boolean): Promise<void> {
     try {
       await httpClient.patch(`/api/v1/menu/items/${itemId}`, { is_available: isAvailable })
-    } catch (error) {
+    } catch {
       console.warn('Mock: Updated menu item availability', { itemId, isAvailable })
       // In mock mode, just log the update
     }

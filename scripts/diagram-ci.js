@@ -57,7 +57,6 @@ function renderDiagram(diagram) {
     return false;
   }
   
-  console.log(`📊 Rendering ${diagram.input} → ${diagram.output}`);
   
   // Create a temporary config file if custom config is provided
   let configPath = null;
@@ -75,7 +74,6 @@ function renderDiagram(diagram) {
       fs.unlinkSync(configPath);
     }
     
-    console.log(`✅ Successfully rendered ${diagram.output}`);
     return true;
   } catch (error) {
     console.error(`❌ Failed to render ${diagram.input}:`, error.message);
@@ -90,7 +88,6 @@ function renderDiagram(diagram) {
 }
 
 function main() {
-  console.log('🎨 Starting diagram rendering...\n');
   
   // Check if mermaid-cli is available
   if (!checkMermaidCli()) {
@@ -113,13 +110,9 @@ function main() {
     } else {
       failureCount++;
     }
-    console.log(''); // Empty line between diagrams
   });
   
   // Summary
-  console.log('📈 Rendering complete!');
-  console.log(`   ✅ Success: ${successCount}`);
-  console.log(`   ❌ Failed: ${failureCount}`);
   
   if (failureCount > 0) {
     process.exit(1);

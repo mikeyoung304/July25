@@ -81,7 +81,5 @@ filesToFix.forEach(({ lines, fixes }, filePath) => {
 
   // Write the fixed content back
   fs.writeFileSync(filePath, lines.join('\n'));
-  console.log(`Fixed ${fixes.length} unused variable errors in ${path.relative(process.cwd(), filePath)}`);
 });
 
-console.log('\nDone! Run npm run lint to verify.');

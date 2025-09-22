@@ -84,7 +84,6 @@ filesToFix.forEach(filePath => {
   const fullPath = path.join(__dirname, '..', filePath);
   
   if (!fs.existsSync(fullPath)) {
-    console.log(`Skipping ${filePath} - file not found`);
     return;
   }
   
@@ -100,11 +99,8 @@ filesToFix.forEach(filePath => {
     const typeFixes = (content.match(/type:\s*['"](?:dine-in|takeout|drive-thru)['"]/g) || []).length;
     const total = propertyFixes + typeFixes;
     
-    console.log(`Fixed ${total} issues in ${filePath} (${propertyFixes} properties, ${typeFixes} types)`);
     totalFixes += total;
   } else {
-    console.log(`No changes needed in ${filePath}`);
   }
 });
 
-console.log(`\nTotal: Fixed ${totalFixes} type-related issues`);

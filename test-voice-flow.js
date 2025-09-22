@@ -33,9 +33,7 @@ class VoiceOrderingTest {
   }
 
   log(message, data = null) {
-    console.log(`🔍 ${message}`);
     if (data) {
-      console.log(`   ${JSON.stringify(data, null, 2)}`);
     }
   }
 
@@ -47,9 +45,7 @@ class VoiceOrderingTest {
   }
 
   success(message, data = null) {
-    console.log(`✅ ${message}`);
     if (data) {
-      console.log(`   ${JSON.stringify(data, null, 2)}`);
     }
   }
 
@@ -380,8 +376,6 @@ class VoiceOrderingTest {
   }
 
   async runFullTest() {
-    console.log('🚀 Starting Voice Ordering System Test');
-    console.log('=====================================\n');
 
     const steps = [
       () => this.authenticateDemo(),
@@ -405,18 +399,14 @@ class VoiceOrderingTest {
         orderId = stepResult.id;
       }
       
-      console.log(''); // Add spacing between steps
     }
 
     // Additional tests if order was created
     if (orderId) {
       await this.testWebSocketNotification(orderId);
-      console.log('');
       await this.testKitchenDisplay();
     }
 
-    console.log('\n🎉 Voice Ordering System Test Complete!');
-    console.log('======================================');
     
     return true;
   }

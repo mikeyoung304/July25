@@ -126,7 +126,6 @@ const indexes = [
 ];
 
 async function createIndexes() {
-  console.log('🚀 Starting index creation via Supabase...\n');
   
   let successCount = 0;
   let errorCount = 0;
@@ -141,16 +140,11 @@ async function createIndexes() {
         sql += ` WHERE ${index.where}`;
       }
       
-      console.log(`📝 Creating index: ${index.name}`);
-      console.log(`   Description: ${index.description}`);
-      console.log(`   SQL: ${sql}`);
       
       // Supabase doesn't allow DDL through client for security
       // Mark all for SQL script generation
-      console.log(`   ⚠️  Index needs manual creation via SQL editor`);
       skippedCount++;
       
-      console.log('');
     } catch (err) {
       console.error(`   ❌ Unexpected error: ${err.message}`);
       errorCount++;
@@ -159,16 +153,8 @@ async function createIndexes() {
   
   // Since we can't create indexes directly via Supabase client,
   // generate a SQL script that can be run
-  console.log('\n========================================');
-  console.log('📊 Index Creation Summary');
-  console.log('========================================');
-  console.log(`✅ Successful: ${successCount}`);
-  console.log(`⚠️  Needs manual creation: ${skippedCount}`);
-  console.log(`❌ Errors: ${errorCount}`);
   
   if (skippedCount > 0) {
-    console.log('\n⚠️  Supabase client cannot create indexes directly.');
-    console.log('Generating SQL script for manual execution...\n');
     
     // Generate SQL script
     const sqlScript = indexes.map(index => {
@@ -205,16 +191,11 @@ AND tablename IN ('orders', 'menu_items', 'restaurants')
 ORDER BY tablename, indexname;
 `);
     
-    console.log(`✅ SQL script generated: ${outputPath}`);
-    console.log('Run it with: psql $DATABASE_URL < server/scripts/generated-indexes.sql');
   }
   
   // Test some queries to verify performance
-  console.log('\n🔍 Testing query performance...');
-  console.log('========================================\n');
   
   // Test 1: Kitchen display query
-  console.log('Test 1: Kitchen Display Query');
   const startTime1 = Date.now();
   const { data: kdsOrders, error: kdsError } = await supabase
     .from('orders')
@@ -225,13 +206,10 @@ ORDER BY tablename, indexname;
     .limit(20);
   
   if (!kdsError) {
-    console.log(`✅ Retrieved ${kdsOrders.length} orders in ${Date.now() - startTime1}ms`);
   } else {
-    console.log(`❌ Error: ${kdsError.message}`);
   }
   
   // Test 2: Payment status query
-  console.log('\nTest 2: Payment Status Query');
   const startTime2 = Date.now();
   const { data: pendingPayments, error: paymentError } = await supabase
     .from('orders')
@@ -241,13 +219,10 @@ ORDER BY tablename, indexname;
     .limit(10);
   
   if (!paymentError) {
-    console.log(`✅ Retrieved ${pendingPayments.length} orders in ${Date.now() - startTime2}ms`);
   } else {
-    console.log(`❌ Error: ${paymentError.message}`);
   }
   
   // Test 3: Available menu items
-  console.log('\nTest 3: Available Menu Items Query');
   const startTime3 = Date.now();
   const { data: menuItems, error: menuError } = await supabase
     .from('menu_items')
@@ -257,12 +232,9 @@ ORDER BY tablename, indexname;
     .eq('active', true);
   
   if (!menuError) {
-    console.log(`✅ Retrieved ${menuItems.length} menu items in ${Date.now() - startTime3}ms`);
   } else {
-    console.log(`❌ Error: ${menuError.message}`);
   }
   
-  console.log('\n✅ Index creation process complete!');
 }
 
 createIndexes()

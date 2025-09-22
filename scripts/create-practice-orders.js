@@ -129,7 +129,6 @@ async function createOrder(token, orderData) {
       }
     };
     
-    console.log('Sending order:', JSON.stringify({ subtotal: order.subtotal, tax: order.tax, total_amount: order.total_amount }));
 
     const response = await fetch(`${API_URL}/orders`, {
       method: 'POST',
@@ -154,27 +153,21 @@ async function createOrder(token, orderData) {
 }
 
 async function main() {
-  console.log('🍔 Creating practice orders for Kitchen Display...\n');
   
   // Get auth token
-  console.log('Getting authentication token...');
   const token = await getAuthToken();
-  console.log('✓ Authentication successful\n');
 
   // Create orders with delays to simulate real traffic
   let successCount = 0;
   
   for (let i = 0; i < sampleOrders.length; i++) {
     const orderData = sampleOrders[i];
-    console.log(`Creating order ${i + 1}/${sampleOrders.length} for ${orderData.customer_name}...`);
     
     const result = await createOrder(token, orderData);
     
     if (result) {
       successCount++;
-      console.log(`✓ Order #${result.order_number || result.id} created successfully`);
     } else {
-      console.log(`✗ Failed to create order for ${orderData.customer_name}`);
     }
     
     // Add delay between orders (0.5-1.5 seconds)
@@ -184,8 +177,6 @@ async function main() {
     }
   }
 
-  console.log(`\n✅ Successfully created ${successCount}/${sampleOrders.length} practice orders!`);
-  console.log('📺 Check the Kitchen Display at http://localhost:5173/kitchen');
 }
 
 // Run the script

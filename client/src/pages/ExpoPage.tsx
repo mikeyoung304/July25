@@ -1,17 +1,18 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react'
+import { getSafeOrderStatus, isStatusInGroup } from '../utils/orderStatusUtils';
+import { Clock, Package, User, Eye, CheckCircle } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react'
 import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
-import { Eye, Filter, Clock, CheckCircle, Package, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { OrderCard } from '@/components/kitchen/OrderCard'
-import { TouchOptimizedOrderCard } from '@/components/kitchen/TouchOptimizedOrderCard'
-import { VirtualizedOrderGrid } from '@/components/kitchen/VirtualizedOrderGrid'
-import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
+// 
+// 
+// 
 import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBoundary'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
-import { STATUS_GROUPS, isStatusInGroup, getSafeOrderStatus } from '@/utils/orderStatusValidation'
+// 
 import { cn } from '@/utils'
-import { MemoryMonitorInstance } from '@rebuild/shared/utils/memory-monitoring'
+// 
 import type { Order } from '@rebuild/shared'
 
 // Ready Order Card Component for Expo - Includes "Mark as Picked Up" and "Mark as Sent" functionality

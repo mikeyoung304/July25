@@ -43,7 +43,6 @@ const tables = [
 
 async function seedTables() {
   try {
-    console.log('🌱 Seeding tables data...\n');
     
     // Check if tables already exist
     const { data: existingTables, error: checkError } = await supabase
@@ -57,13 +56,10 @@ async function seedTables() {
     }
     
     if (existingTables && existingTables.length > 0) {
-      console.log(`⚠️  Tables already exist for restaurant ${DEFAULT_RESTAURANT_ID}`);
-      console.log(`   Found ${existingTables.length} existing tables`);
       return;
     }
     
     // Insert tables
-    console.log(`📝 Inserting ${tables.length} tables...`);
     
     const { data, error } = await supabase
       .from('tables')
@@ -75,7 +71,6 @@ async function seedTables() {
       process.exit(1);
     }
     
-    console.log(`✅ Successfully inserted ${data?.length || 0} tables`);
     
     // Verify insertion
     const { data: verifyData, error: verifyError } = await supabase
@@ -87,13 +82,10 @@ async function seedTables() {
     if (verifyError) {
       console.error('❌ Error verifying tables:', verifyError);
     } else {
-      console.log('\n📊 Tables in database:');
       verifyData?.forEach(table => {
-        console.log(`   ${table.label}: ${table.type} (${table.seats} seats) - ${table.status}`);
       });
     }
     
-    console.log('\n✨ Table seeding complete!');
     
   } catch (error) {
     console.error('❌ Unexpected error:', error);

@@ -15,11 +15,6 @@ config({ path: path.join(__dirname, '../../.env') });
 
 // Colors for output
 const log = {
-  success: (msg: string) => console.log(chalk.green('✓'), msg),
-  error: (msg: string) => console.log(chalk.red('✗'), msg),
-  info: (msg: string) => console.log(chalk.blue('ℹ'), msg),
-  warn: (msg: string) => console.log(chalk.yellow('⚠'), msg),
-  debug: (msg: string) => console.log(chalk.gray('→'), msg)
 };
 
 // Command line arguments
@@ -272,26 +267,14 @@ async function monitorSessions(): Promise<void> {
       const data = await response.json();
       
       console.clear();
-      console.log(chalk.bold.cyan('🎙️  Voice System Monitor'));
-      console.log(chalk.gray('─'.repeat(50)));
       
       if (data.sessions.length === 0) {
-        console.log(chalk.gray('No active sessions'));
       } else {
-        console.log(chalk.green(`Active Sessions: ${data.sessions.length}`));
-        console.log();
         
         data.sessions.forEach((session: any) => {
-          console.log(chalk.bold(`Session: ${session.sessionId}`));
-          console.log(`  Phone: ${session.from}`);
-          console.log(`  Duration: ${Math.round(session.duration / 1000)}s`);
-          console.log(`  Metrics:`, session.metrics);
-          console.log();
         });
       }
       
-      console.log(chalk.gray('─'.repeat(50)));
-      console.log(chalk.gray('Press Ctrl+C to exit'));
     } catch (error) {
       log.error(`Failed to fetch sessions: ${error.message}`);
     }
@@ -330,22 +313,8 @@ async function calculateCosts(): Promise<void> {
     
     const totalCost = Object.values(costs).reduce((sum, cost) => sum + cost, 0);
     
-    console.log(chalk.bold.cyan('💰 Voice System Cost Analysis'));
-    console.log(chalk.gray('─'.repeat(50)));
-    console.log(`Total Sessions: ${metrics.totalSessions}`);
-    console.log(`Average Duration: ${avgSessionMinutes.toFixed(1)} minutes`);
-    console.log(`Total Tokens Used: ${(metrics.totalTokensUsed || 0).toLocaleString()}`);
-    console.log();
-    console.log(chalk.bold('Estimated Costs:'));
-    console.log(`  Text Input:   $${costs.textInput.toFixed(4)}`);
-    console.log(`  Text Output:  $${costs.textOutput.toFixed(4)}`);
-    console.log(`  Audio Input:  $${costs.audioInput.toFixed(4)}`);
-    console.log(`  Audio Output: $${costs.audioOutput.toFixed(4)}`);
-    console.log(chalk.gray('─'.repeat(50)));
-    console.log(chalk.bold.green(`Total Cost: $${totalCost.toFixed(2)}`));
     
     if (metrics.totalSessions > 0) {
-      console.log(chalk.yellow(`Cost per session: $${(totalCost / metrics.totalSessions).toFixed(4)}`));
     }
   } catch (error) {
     log.error(`Failed to calculate costs: ${error.message}`);
@@ -356,8 +325,6 @@ async function calculateCosts(): Promise<void> {
  * Main function
  */
 async function main() {
-  console.log(chalk.bold.cyan('🔧 Voice System Debug Tool'));
-  console.log(chalk.gray('─'.repeat(50)));
 
   switch (command) {
     case 'test':
@@ -389,23 +356,10 @@ async function main() {
       
     case 'help':
     default:
-      console.log('Available commands:');
-      console.log('  test-all      - Run all tests');
-      console.log('  test-openai   - Test OpenAI connection');
-      console.log('  test-supabase - Test Supabase connection');
-      console.log('  test-audio    - Test audio conversion');
-      console.log('  monitor       - Monitor active sessions');
-      console.log('  costs         - Calculate usage costs');
-      console.log('  help          - Show this help');
-      console.log();
-      console.log('Example:');
-      console.log('  tsx scripts/voice-debug.ts test-all');
       break;
   }
   
   if (command !== 'monitor') {
-    console.log(chalk.gray('─'.repeat(50)));
-    console.log(chalk.green('✓ Debug script completed'));
   }
 }
 

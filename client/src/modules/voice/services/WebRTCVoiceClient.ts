@@ -1166,7 +1166,7 @@ ENTRÉES → Ask:
         this.dc.onerror = null;
         this.dc.onclose = null;
         this.dc.close();
-      } catch (_e) {
+      } catch {
         // Ignore errors during cleanup
       }
       this.dc = null;
@@ -1191,7 +1191,7 @@ ENTRÉES → Ask:
         if (this.pc.signalingState !== 'closed') {
           this.pc.close();
         }
-      } catch (_e) {
+      } catch {
         console.warn('[WebRTCVoice] Error cleaning up peer connection:', _e);
       }
       this.pc = null;
@@ -1207,7 +1207,7 @@ ENTRÉES → Ask:
           track.onunmute = null;
           // Stop the track
           track.stop();
-        } catch (_e) {
+        } catch {
           // Ignore errors during cleanup
         }
       });
@@ -1239,7 +1239,7 @@ ENTRÉES → Ask:
         if (this.audioElement.parentNode) {
           this.audioElement.parentNode.removeChild(this.audioElement);
         }
-      } catch (_e) {
+      } catch {
         console.warn('[WebRTCVoice] Error cleaning up audio element:', _e);
       }
       this.audioElement = null;

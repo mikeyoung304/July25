@@ -6,7 +6,6 @@ const puppeteer = require('puppeteer');
   
   // Capture console logs
   page.on('console', msg => {
-    console.log(`[${msg.type()}] ${msg.text()}`);
   });
   
   // Capture page errors
@@ -15,7 +14,6 @@ const puppeteer = require('puppeteer');
   });
   
   // Navigate to KDS
-  console.log('Navigating to Kitchen Display...');
   await page.goto('http://localhost:5173/kitchen', { waitUntil: 'networkidle2' });
   
   // Wait a bit for any async operations
@@ -27,16 +25,12 @@ const puppeteer = require('puppeteer');
   }).catch(() => false);
   
   if (errorBoundary) {
-    console.log('\n⚠️  ERROR BOUNDARY IS ACTIVE - KDS failed to load');
   } else {
-    console.log('\n✅ KDS loaded successfully');
     
     // Check for orders
     const pageContent = await page.content();
     if (pageContent.includes('No orders yet')) {
-      console.log('📋 No orders displayed (but page loaded)');
     } else if (pageContent.includes('Order #')) {
-      console.log('📋 Orders are visible!');
     }
   }
   

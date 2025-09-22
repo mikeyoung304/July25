@@ -87,8 +87,6 @@ files.forEach(file => {
 
   if (modified) {
     fs.writeFileSync(file, content);
-    console.log(`Fixed type imports in ${path.relative(process.cwd(), file)}`);
   }
 });
 
-console.log('Type import fixes complete!');

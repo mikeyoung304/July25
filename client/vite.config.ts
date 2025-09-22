@@ -20,7 +20,6 @@ export default defineConfig(({ mode }) => {
       throw new Error('❌ Production build blocked: VITE_API_BASE_URL points to localhost');
     }
     // Log what we're using (will show in Vercel build logs)
-    console.log('🔧 Building with VITE_API_BASE_URL:', apiUrl || 'NOT SET!');
   }
   
   return {

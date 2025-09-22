@@ -95,7 +95,6 @@ async function getDependencyInfo(): Promise<AnalysisResult['dependencies']> {
 }
 
 async function generateReport(): Promise<void> {
-  console.log('🔍 Generating code analysis report...\n');
   
   const result: AnalysisResult = {
     timestamp: new Date().toISOString(),
@@ -137,8 +136,6 @@ ${Object.entries(result.projectStats.languages)
   await fs.writeFile('code-analysis.json', JSON.stringify(result, null, 2));
   await fs.writeFile('code-analysis.md', report);
   
-  console.log(report);
-  console.log('\n✅ Reports saved to code-analysis.json and code-analysis.md');
 }
 
 // Run if called directly

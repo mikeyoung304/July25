@@ -68,7 +68,6 @@ const restaurants = [
 ];
 
 async function seedRestaurants() {
-  console.log('🌱 Seeding restaurants...');
   
   try {
     // Check if restaurants table exists
@@ -78,9 +77,6 @@ async function seedRestaurants() {
       .limit(1);
     
     if (tableError && tableError.code === 'PGRST116') {
-      console.log('⚠️  Restaurants table does not exist. Creating...');
-      console.log('Please create the restaurants table first with the following schema:');
-      console.log(`
 CREATE TABLE restaurants (
   id UUID PRIMARY KEY,
   name TEXT NOT NULL,
@@ -102,7 +98,6 @@ CREATE TABLE restaurants (
 
     // Insert restaurants
     for (const restaurant of restaurants) {
-      console.log(`📍 Seeding restaurant: ${restaurant.name}`);
       
       const { error } = await supabase
         .from('restaurants')
@@ -111,14 +106,10 @@ CREATE TABLE restaurants (
       if (error) {
         console.error(`❌ Failed to seed ${restaurant.name}:`, error.message);
       } else {
-        console.log(`✅ Successfully seeded ${restaurant.name}`);
       }
     }
     
-    console.log('🎉 Restaurant seeding completed!');
-    console.log('\n📋 Test URLs:');
     restaurants.forEach(restaurant => {
-      console.log(`${restaurant.name}: http://localhost:5173/order/${restaurant.id}`);
     });
     
   } catch (error) {
