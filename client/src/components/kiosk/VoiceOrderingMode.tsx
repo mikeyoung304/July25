@@ -11,8 +11,7 @@ import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BrandHeader } from '@/components/layout/BrandHeader';
 import { ShoppingCart, Mic, MicOff, Volume2, Trash2 } from 'lucide-react';
-import { MenuItem as SharedMenuItem } from '@rebuild/shared';
-import { MenuItem as ApiMenuItem } from '@rebuild/shared/api-types';
+import { MenuItem as SharedMenuItem, ApiMenuItem } from '@rebuild/shared';
 
 // Lazy load the heavy VoiceControlWebRTC component
 const VoiceControlWebRTC = lazy(() => import('@/modules/voice/components/VoiceControlWebRTC').then(m => ({ default: m.VoiceControlWebRTC })));

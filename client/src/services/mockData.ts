@@ -1,6 +1,5 @@
 // Centralized mock data storage
-import { MenuItem as ApiMenuItem } from '@rebuild/shared/api-types'
-import { ClientOrder, ClientTable } from '@rebuild/shared/types/transformers'
+import { ApiMenuItem, ClientOrder, ClientTable } from '@rebuild/shared'
 
 export const mockData = {
   orders: [
