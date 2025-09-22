@@ -80,7 +80,7 @@ export const useTableGrouping = (orders: Order[]) => {
         }
         
         // Count items by status
-        order.items.forEach((item: OrderItem) => {
+        order.items.forEach((_item: OrderItem) => {
           tableGroup.totalItems++
           
           // Map order status to item status

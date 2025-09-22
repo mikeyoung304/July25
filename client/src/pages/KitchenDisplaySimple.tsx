@@ -1,10 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { Button } from '@/components/ui/button'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
-import { MemoryMonitorInstance } from '@rebuild/shared/utils/memory-monitoring'
-import type { Order } from '@rebuild/shared'
 
 /**
  * Minimal Kitchen Display System
@@ -17,12 +15,6 @@ function KitchenDisplaySimple() {
   // Simple filtering - active or ready only
   const [statusFilter, setStatusFilter] = useState<'active' | 'ready'>('active')
   
-  // Memory monitoring for long-running sessions
-  const _memoryMonitor = MemoryMonitorInstance
-  useEffect(() => {
-    // TODO: Implement memory monitoring when MemoryMonitorInstance API is available
-    // memoryMonitor.configure({...})
-  }, [])
 
   // Handle order status change - now uses shared hook
   const handleStatusChange = async (orderId: string, status: 'ready') => {

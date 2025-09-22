@@ -24,8 +24,8 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
   const [zoomLevel, setZoomLevel] = useState(1)
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
   // Grid functionality
-  const [showGrid, setShowGrid] = useState(true)
-  const [snapToGrid, setSnapToGrid] = useState(true)
+  const [_showGrid, _setShowGrid] = useState(true)
+  const [snapToGrid, _setSnapToGrid] = useState(true)
   const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null)
 
   const selectedTable = tables.find(t => t.id === selectedTableId)
