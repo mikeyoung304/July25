@@ -9,7 +9,7 @@ import { logger } from '@/services/logger'
 import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
 import { toSnakeCase } from '@/services/utils/caseTransform'
-import { getWsUrl, getRestaurantId } from '@/config'
+import { getWsUrl } from '@/config'
 
 export interface WebSocketConfig {
   url?: string

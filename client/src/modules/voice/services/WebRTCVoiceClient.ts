@@ -540,7 +540,7 @@ export class WebRTCVoiceClient extends EventEmitter {
             .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
           
           if (assistantItems.length > 0) {
-            const [itemId, entry] = assistantItems[assistantItems.length - 1];
+            const [_itemId, entry] = assistantItems[assistantItems.length - 1];
             entry.text += event.delta;
             // Debug: `${logPrefix} Assistant transcript delta (len=${event.delta.length})`
             
@@ -557,7 +557,7 @@ export class WebRTCVoiceClient extends EventEmitter {
             .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
           
           if (assistantItems.length > 0) {
-            const [itemId, entry] = assistantItems[assistantItems.length - 1];
+            const [_itemId, entry] = assistantItems[assistantItems.length - 1];
             entry.text = event.transcript;
             entry.final = true;
             // Debug: `${logPrefix} Assistant transcript done: "${event.transcript}"`
@@ -1166,7 +1166,7 @@ ENTRÉES → Ask:
         this.dc.onerror = null;
         this.dc.onclose = null;
         this.dc.close();
-      } catch (_e) {
+      } catch {
         // Ignore errors during cleanup
       }
       this.dc = null;
@@ -1207,7 +1207,7 @@ ENTRÉES → Ask:
           track.onunmute = null;
           // Stop the track
           track.stop();
-        } catch (_e) {
+        } catch {
           // Ignore errors during cleanup
         }
       });

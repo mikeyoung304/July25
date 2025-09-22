@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/core/supabase';
 import { httpClient } from '@/services/http/httpClient';
 import { logger } from '@/services/logger';

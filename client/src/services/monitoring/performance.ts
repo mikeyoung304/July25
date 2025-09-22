@@ -106,7 +106,7 @@ class PerformanceMonitor {
         callback(list.getEntries());
       });
       observer.observe({ type, buffered: true });
-    } catch (error) {
+    } catch {
       // Observer might not be supported for this metric type
       logger.info(`Performance metric ${type} not supported`);
     }

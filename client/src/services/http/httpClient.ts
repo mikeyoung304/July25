@@ -99,7 +99,7 @@ export class HttpClient extends SecureAPIClient {
       params,
       skipAuth = false,
       skipRestaurantId = false,
-      skipTransform = false,
+      skipTransform: _skipTransform = false,
       ...requestOptions
     } = options
 

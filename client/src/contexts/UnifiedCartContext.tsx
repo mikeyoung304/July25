@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+import React, { createContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { MenuItem, Cart, CartItem } from '@rebuild/shared';
 import { calculateCartTotals } from '@rebuild/shared/cart';
 import { useParams } from 'react-router-dom';

@@ -1,0 +1,12 @@
+
+> restaurant-os-client@6.0.3 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> restaurant-os-server@6.0.3 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> @rebuild/shared@1.0.0 typecheck
+> tsc --noEmit
+

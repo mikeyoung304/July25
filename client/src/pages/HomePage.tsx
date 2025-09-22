@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Users, ChefHat, ShoppingCart, Settings, Globe, Package, UserCheck } from 'lucide-react'
+import { Users, ChefHat, ShoppingCart, Settings, Globe, Package } from 'lucide-react'
 
 interface NavigationCardProps {
   title: string

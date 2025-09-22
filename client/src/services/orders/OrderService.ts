@@ -3,7 +3,7 @@
  * following Luis's API specification
  */
 
-import { Order, OrderItem, OrderItemModifier, OrderStatus, OrderType } from '@rebuild/shared'
+import { Order, OrderItemModifier, OrderStatus, OrderType } from '@rebuild/shared'
 import { logger } from '@/services/logger'
 import { httpClient } from '@/services/http/httpClient'
 
