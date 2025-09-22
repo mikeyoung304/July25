@@ -1,6 +1,6 @@
 import { Order, OrderType, OrderHistoryParams } from '@/services/types'
 import { mockOrderGenerator } from '@/services/realtime/orderSubscription'
-import { api } from '@/services/api'
+// import { api } from '@/services/api'
 
 export interface IOrderHistoryService {
   getOrderHistory(params?: OrderHistoryParams): Promise<{

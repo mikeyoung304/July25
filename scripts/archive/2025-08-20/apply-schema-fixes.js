@@ -6,7 +6,6 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function applySchemaFixes() {
-  console.log('Applying database schema fixes for floor plan...');
   
   try {
     // Test connection first
@@ -20,7 +19,6 @@ async function applySchemaFixes() {
       return;
     }
     
-    console.log('✓ Connected to Supabase successfully');
     
     // Since we can't execute DDL directly, let's check if z_index column exists
     const { data: sampleData } = await supabase
@@ -30,18 +28,12 @@ async function applySchemaFixes() {
     
     if (sampleData && sampleData.length > 0) {
       const columns = Object.keys(sampleData[0]);
-      console.log('Current table columns:', columns);
       
       if (columns.includes('z_index')) {
-        console.log('✓ z_index column already exists');
       } else {
-        console.log('❌ z_index column missing - needs manual addition');
-        console.log('Please run in Supabase SQL Editor:');
-        console.log('ALTER TABLE tables ADD COLUMN z_index INTEGER DEFAULT 1;');
       }
       
       // Test shape constraint by trying to create a circle table
-      console.log('Testing shape constraints...');
       const testTable = {
         restaurant_id: '11111111-1111-1111-1111-111111111111',
         label: 'Test Circle',
@@ -61,12 +53,7 @@ async function applySchemaFixes() {
         .single();
       
       if (createError) {
-        console.log('❌ Shape constraint needs updating:', createError.message);
-        console.log('Please run in Supabase SQL Editor:');
-        console.log('ALTER TABLE tables DROP CONSTRAINT IF EXISTS tables_shape_check;');
-        console.log("ALTER TABLE tables ADD CONSTRAINT tables_shape_check CHECK (shape IN ('circle', 'square', 'rectangle'));");
       } else {
-        console.log('✓ Shape constraints allow circle tables');
         // Clean up test table
         await supabase.from('tables').delete().eq('id', createData.id);
       }

@@ -158,7 +158,6 @@ filesToOptimize.forEach(filePath => {
   const fullPath = path.join(__dirname, '..', filePath);
   
   if (!fs.existsSync(fullPath)) {
-    console.log(`⏭️  Skipping ${filePath} - file not found`);
     return;
   }
   
@@ -167,11 +166,8 @@ filesToOptimize.forEach(filePath => {
   
   if (optimizations.length > 0) {
     fs.writeFileSync(fullPath, modified);
-    console.log(`✅ Optimized ${path.basename(filePath)}: ${optimizations.join(', ')}`);
     totalOptimizations += optimizations.length;
   } else {
-    console.log(`⏭️  ${path.basename(filePath)} - no optimizations needed`);
   }
 });
 
-console.log(`\n📊 Total: Added ${totalOptimizations} hook optimizations`);

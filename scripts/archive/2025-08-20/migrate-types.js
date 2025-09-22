@@ -99,7 +99,6 @@ function updateFile(filePath) {
   
   if (hasChanges) {
     fs.writeFileSync(filePath, content, 'utf8');
-    console.log(`✅ Updated: ${filePath}`);
     return true;
   }
   
@@ -107,7 +106,6 @@ function updateFile(filePath) {
 }
 
 function main() {
-  console.log('🔄 Starting type migration...\n');
   
   let totalFiles = 0;
   let updatedFiles = 0;
@@ -122,8 +120,6 @@ function main() {
     });
   });
   
-  console.log(`\n✨ Migration complete!`);
-  console.log(`📊 Processed ${totalFiles} files, updated ${updatedFiles} files`);
 }
 
 // Run migration

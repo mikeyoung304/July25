@@ -18,8 +18,6 @@ const supabase = createClient(
 );
 
 async function runMigrations() {
-  console.log('🚀 Running database migrations...');
-  console.log('📍 Database:', process.env.SUPABASE_URL);
   
   const migrationsDir = path.join(__dirname, '../supabase/migrations');
   
@@ -33,12 +31,10 @@ async function runMigrations() {
   const sqlFiles = files.filter(file => file.endsWith('.sql'));
   
   if (sqlFiles.length === 0) {
-    console.log('⚠️  No migration files found');
     return;
   }
   
   for (const file of sqlFiles) {
-    console.log(`\n📄 Running migration: ${file}`);
     const sqlPath = path.join(migrationsDir, file);
     const sql = fs.readFileSync(sqlPath, 'utf8');
     
@@ -59,23 +55,18 @@ async function runMigrations() {
           
           // For complex statements, we need to use raw SQL execution
           // This is a workaround since Supabase JS client doesn't expose direct SQL execution
-          console.log(`  ⏳ Executing: ${statement.substring(0, 50)}...`);
           
           // Note: In a real implementation, you'd use a proper migration tool
           // or connect directly to the PostgreSQL database
         }
       }
       
-      console.log(`  ✅ Migration completed: ${file}`);
     } catch (error) {
       console.error(`  ❌ Migration failed: ${file}`, error);
       process.exit(1);
     }
   }
   
-  console.log('\n✨ All migrations completed!');
-  console.log('\n💡 Note: For production, use Supabase CLI or a proper migration tool.');
-  console.log('   This script is a simplified version for development.');
 }
 
 runMigrations()

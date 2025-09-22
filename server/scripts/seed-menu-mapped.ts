@@ -42,7 +42,6 @@ const GROW_FRESH_DATA = {
 
 async function main() {
   try {
-    console.log('Seeding menu for restaurant:', RESTAURANT_ID);
 
     // 1. Categories
     const { data: existingCats } = await supabase
@@ -64,9 +63,7 @@ async function main() {
     if (categoriesToInsert.length) {
       const { error } = await supabase.from('menu_categories').insert(categoriesToInsert);
       if (error) throw error;
-      console.log(`Inserted ${categoriesToInsert.length} categories`);
     } else {
-      console.log('Categories already exist, skipping');
     }
 
     // refresh map
@@ -97,7 +94,6 @@ async function main() {
       }
 
       if (existingExternalIds.has(item.external_id)) {
-        console.log(`Skipping existing item: ${item.name} (${item.external_id})`);
         continue;
       }
 
@@ -123,10 +119,8 @@ async function main() {
 
       itemCount++;
       itemIdMap.set(item.external_id, data.id);
-      console.log(`Created ${item.name}  ext:${item.external_id} -> uuid:${data.id}`);
     }
 
-    console.log(`Done. Inserted ${itemCount} items`);
   } catch (e) {
     console.error('Seed failed:', e);
     process.exit(1);

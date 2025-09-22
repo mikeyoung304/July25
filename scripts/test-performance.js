@@ -9,7 +9,6 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 async function testImagePerformance() {
-  console.log('🚀 Starting performance tests...\n');
   
   const browser = await puppeteer.launch({ 
     headless: false,
@@ -52,7 +51,6 @@ async function testImagePerformance() {
   });
   
   // Navigate and measure
-  console.log('📱 Loading kiosk page...');
   const startTime = Date.now();
   
   await page.goto('http://localhost:5173/kiosk', {
@@ -60,7 +58,6 @@ async function testImagePerformance() {
   });
   
   const loadTime = Date.now() - startTime;
-  console.log(`✅ Page loaded in ${loadTime}ms\n`);
   
   // Wait for initial renders
   await page.waitForTimeout(2000);
@@ -84,17 +81,8 @@ async function testImagePerformance() {
     };
   });
   
-  console.log('📊 Performance Metrics:');
-  console.log('------------------------');
-  console.log(`Total images on page: ${metrics.totalImages}`);
-  console.log(`Images loaded initially: ${metrics.loadedImages}`);
-  console.log(`Images visible in viewport: ${metrics.visibleImages}`);
-  console.log(`Intersection Observer calls: ${metrics.intersectionObserverCalls}`);
-  console.log(`DOM Content Loaded: ${metrics.performance.domContentLoaded}ms`);
-  console.log(`Full page load: ${metrics.performance.loadComplete}ms\n`);
   
   // Test scrolling
-  console.log('📜 Testing lazy loading on scroll...');
   const beforeScroll = metrics.loadedImages;
   
   await page.evaluate(() => {
@@ -103,10 +91,8 @@ async function testImagePerformance() {
   await page.waitForTimeout(1000);
   
   const afterScroll = await page.evaluate(() => window.imageLoadTimes.length);
-  console.log(`Images loaded after scroll: ${afterScroll - beforeScroll} new images\n`);
   
   // Test cache headers
-  console.log('🔄 Testing cache headers...');
   const resources = await page.evaluate(() => 
     performance.getEntriesByType('resource')
       .filter(r => r.name.includes('/images/'))
@@ -119,13 +105,10 @@ async function testImagePerformance() {
       .slice(0, 5)
   );
   
-  console.log('Sample image load times:');
   resources.forEach(r => {
-    console.log(`  ${r.name}: ${r.duration}ms, ${r.size}KB ${r.cached ? '(cached)' : ''}`);
   });
   
   // Test fallback system
-  console.log('\n🔀 Testing fallback system...');
   const fallbackTest = await page.evaluate(() => {
     const images = Array.from(document.querySelectorAll('img'));
     const fallbacks = images.filter(img => 
@@ -142,19 +125,13 @@ async function testImagePerformance() {
     };
   });
   
-  console.log(`Fallback images used: ${fallbackTest.totalFallbacks}`);
   if (fallbackTest.samples.length > 0) {
-    console.log('Sample fallbacks:');
     fallbackTest.samples.forEach(s => {
-      console.log(`  ${s.alt} → ${s.src}`);
     });
   }
   
-  console.log('\n✨ Performance test complete!');
   
   // Keep browser open for inspection
-  console.log('\n👀 Browser left open for manual inspection.');
-  console.log('Press Ctrl+C to close...');
   
   // Wait indefinitely
   await new Promise(() => {});
@@ -165,12 +142,10 @@ try {
   require.resolve('puppeteer');
   testImagePerformance().catch(console.error);
 } catch (error) {
-  console.log('📦 Installing puppeteer for testing...');
   const { execSync } = require('child_process');
   execSync('npm install --save-dev puppeteer', { 
     stdio: 'inherit', 
     cwd: '/Users/mikeyoung/CODING/rebuild-6.0/client' 
   });
-  console.log('✅ Puppeteer installed, running tests...');
   testImagePerformance().catch(console.error);
 }
