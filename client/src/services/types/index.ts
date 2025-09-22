@@ -39,17 +39,17 @@ export type {
   ApiError
 } from '@rebuild/shared'
 
-// Import PaginationParams directly from shared types
-export type { PaginationParams } from '@rebuild/shared/types'
+// Import PaginationParams directly from shared
+export type { PaginationParams } from '@rebuild/shared'
 
 // Import and re-export API types with camelCase
-export type { 
-  MenuItem, 
-  MenuCategory,
-  MenuResponse,
+export type {
+  ApiMenuItem as MenuItem,
+  ApiMenuCategory as MenuCategory,
+  ApiMenuResponse as MenuResponse,
   ApiMenuItemModifierOption as MenuItemModifierOption,
   ApiMenuItemModifierGroup as MenuItemModifierGroup
-} from '@rebuild/shared/api-types'
+} from '@rebuild/shared'
 
 // Local-only types (if any) that don't exist in shared
 

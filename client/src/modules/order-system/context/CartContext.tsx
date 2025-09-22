@@ -4,8 +4,7 @@
  * This file is kept for backwards compatibility during migration.
  */
 import React, { useState, useEffect, useCallback, useMemo, createContext, useContext } from 'react';
-import { Cart, CartItem } from '@rebuild/shared';
-import { calculateCartTotals } from '@rebuild/shared/cart';
+import { Cart, CartItem, calculateCartTotals } from '@rebuild/shared';
 import { useParams } from 'react-router-dom';
 
 interface CartContextType {

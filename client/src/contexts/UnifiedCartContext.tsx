@@ -1,6 +1,5 @@
 import React, { createContext, useState, useCallback, useMemo, useEffect } from 'react';
-import { MenuItem, Cart, CartItem } from '@rebuild/shared';
-import { calculateCartTotals } from '@rebuild/shared/cart';
+import { MenuItem, Cart, CartItem, calculateCartTotals } from '@rebuild/shared';
 import { useParams } from 'react-router-dom';
 
 // Unified cart item interface that works for both regular and kiosk

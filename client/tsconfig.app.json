@@ -42,7 +42,6 @@
     "paths": {
       "@/*": ["./src/*"],
       "@rebuild/shared": ["../shared/index.ts"],
-      "@rebuild/shared/*": ["../shared/*"],
       "/shared/*": ["../shared/src/*"],
       "@shared/*": ["../shared/src/*"]
     }

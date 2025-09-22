@@ -3,8 +3,7 @@ import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { Button } from '@/components/ui/button'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
-import { MemoryMonitorInstance } from '@rebuild/shared/utils/memory-monitoring'
-import type { Order } from '@rebuild/shared'
+import { MemoryMonitorInstance, type Order } from '@rebuild/shared'
 
 /**
  * Minimal Kitchen Display System
