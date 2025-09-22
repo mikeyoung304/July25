@@ -130,12 +130,10 @@ const seedData = {
 };
 
 async function seedDatabase() {
-  console.log('🌱 Starting database seeding...');
 
   try {
     // Clear existing data (in development only)
     if (process.env.NODE_ENV === 'development') {
-      console.log('🧹 Clearing existing development data...');
       await supabase.from('order_items').delete().neq('id', '');
       await supabase.from('orders').delete().neq('id', '');
       await supabase.from('menu_items').delete().neq('id', '');
@@ -145,7 +143,6 @@ async function seedDatabase() {
     }
 
     // Seed restaurants
-    console.log('🏪 Seeding restaurants...');
     const { error: restaurantError } = await supabase
       .from('restaurants')
       .upsert(seedData.restaurants, { onConflict: 'id' });
@@ -153,7 +150,6 @@ async function seedDatabase() {
     if (restaurantError) throw restaurantError;
 
     // Seed menu categories
-    console.log('📋 Seeding menu categories...');
     const { error: categoryError } = await supabase
       .from('menu_categories')
       .upsert(seedData.menu_categories, { onConflict: 'id' });
@@ -161,7 +157,6 @@ async function seedDatabase() {
     if (categoryError) throw categoryError;
 
     // Seed menu items
-    console.log('🍽️ Seeding menu items...');
     const { error: menuError } = await supabase
       .from('menu_items')
       .upsert(seedData.menu_items, { onConflict: 'id' });
@@ -169,7 +164,6 @@ async function seedDatabase() {
     if (menuError) throw menuError;
 
     // Seed tables
-    console.log('🪑 Seeding tables...');
     const { error: tableError } = await supabase
       .from('tables')
       .upsert(seedData.tables, { onConflict: 'id' });
@@ -177,7 +171,6 @@ async function seedDatabase() {
     if (tableError) throw tableError;
 
     // Seed sample orders
-    console.log('📝 Seeding sample orders...');
     for (const order of seedData.sample_orders) {
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
@@ -186,11 +179,6 @@ async function seedDatabase() {
       if (orderError) throw orderError;
     }
 
-    console.log('✅ Database seeding completed successfully!');
-    console.log(`   Restaurant ID: ${defaultRestaurantId}`);
-    console.log(`   Menu items: ${seedData.menu_items.length}`);
-    console.log(`   Tables: ${seedData.tables.length}`);
-    console.log(`   Sample orders: ${seedData.sample_orders.length}`);
 
   } catch (error) {
     console.error('❌ Database seeding failed:', error);

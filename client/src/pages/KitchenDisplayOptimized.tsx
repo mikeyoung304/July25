@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
-import { TouchOptimizedOrderCard } from '@/components/kitchen/TouchOptimizedOrderCard'
+// 
 import { VirtualizedOrderGrid } from '@/components/kitchen/VirtualizedOrderGrid'
 import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
 import { Button } from '@/components/ui/button'
 import { Filter, Clock, ChefHat, AlertCircle, BarChart3, Zap } from 'lucide-react'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
-import { cn } from '@/utils'
+import {  } from '@/utils'
 import type { Order } from '@rebuild/shared'
 
 type StatusFilter = 'all' | 'active' | 'ready' | 'urgent'
@@ -23,7 +23,7 @@ function KitchenDisplayOptimized() {
     prioritizedOrders,
     activeOrders,
     readyOrders,
-    connectionState
+    _connectionState
   } = useKitchenOrdersOptimized()
   
   // Enhanced filtering and sorting state

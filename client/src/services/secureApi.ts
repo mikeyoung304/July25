@@ -1,5 +1,5 @@
 
-import { sanitizeInput, CSRFTokenManager } from '@/utils'
+import { sanitizeInput } from '@/utils'
 import { env } from '@/utils/env'
 
 export interface SecureRequestOptions extends RequestInit {

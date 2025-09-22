@@ -55,7 +55,6 @@ const imageMap: Record<string, string> = {
 };
 
 async function updateMenuImages() {
-  console.log('🖼️  Adding placeholder images to menu items...\n');
   
   // Get all menu items
   const { data: items, error: fetchError } = await supabase
@@ -68,7 +67,6 @@ async function updateMenuImages() {
     return;
   }
   
-  console.log(`Found ${items?.length || 0} menu items to update\n`);
   
   let updated = 0;
   let skipped = 0;
@@ -85,19 +83,13 @@ async function updateMenuImages() {
       if (updateError) {
         console.error(`❌ Failed to update ${item.name}:`, updateError.message);
       } else {
-        console.log(`✅ Updated: ${item.name}`);
         updated++;
       }
     } else {
-      console.log(`⚠️  No image found for: ${item.name}`);
       skipped++;
     }
   }
   
-  console.log('\n📊 Summary:');
-  console.log(`   ✅ Updated: ${updated} items`);
-  console.log(`   ⚠️  Skipped: ${skipped} items`);
-  console.log('\n✨ Done! Refresh your browser to see the new images.');
 }
 
 updateMenuImages().catch(console.error);

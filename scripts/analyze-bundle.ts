@@ -56,7 +56,6 @@ class BundleAnalyzer {
   }
 
   public async analyzeAll(): Promise<BundleAnalysis> {
-    console.log('📊 Starting comprehensive bundle analysis...');
 
     const analysis: BundleAnalysis = {
       timestamp: Date.now(),
@@ -75,19 +74,15 @@ class BundleAnalyzer {
 
     try {
       // Build the client for analysis
-      console.log('🔨 Building client for analysis...');
       await this.buildForAnalysis();
 
       // Analyze bundle composition
-      console.log('🔍 Analyzing bundle composition...');
       await this.analyzeBundleComposition(analysis);
 
       // Analyze dependencies
-      console.log('📦 Analyzing dependencies...');
       await this.analyzeDependencies(analysis);
 
       // Generate recommendations
-      console.log('💡 Generating recommendations...');
       this.generateRecommendations(analysis);
 
       // Compare with previous analysis
@@ -99,8 +94,6 @@ class BundleAnalyzer {
       // Generate visual reports
       await this.generateVisualReports();
 
-      console.log('✅ Bundle analysis completed successfully!');
-      console.log(`📂 Results saved to: ${this.outputDir}`);
 
       return analysis;
 
@@ -459,7 +452,6 @@ class BundleAnalyzer {
   }
 
   private async generateVisualReports(): Promise<void> {
-    console.log('📊 Generating visual bundle analysis...');
     
     try {
       // Use vite-bundle-analyzer for client
@@ -469,7 +461,6 @@ class BundleAnalyzer {
         stdio: 'pipe'
       });
       
-      console.log('✓ Visual bundle analysis generated');
     } catch (error) {
       console.warn('⚠️ Visual bundle analysis failed:', error);
     }
@@ -481,7 +472,6 @@ async function main() {
   const args = process.argv.slice(2);
   
   if (args.includes('--help')) {
-    console.log(`
 Bundle Analyzer
 
 Usage: npm run analyze:bundle [options]
@@ -503,14 +493,8 @@ Output files:
   const analyzer = new BundleAnalyzer();
   const analysis = await analyzer.analyzeAll();
   
-  console.log('\n📊 Bundle Analysis Results:');
-  console.log(`Total Size: ${analysis.totalSize} bytes`);
-  console.log(`Gzipped: ${analysis.gzippedSize} bytes`);
-  console.log(`Assets: ${analysis.assets.length}`);
-  console.log(`Recommendations: ${analysis.recommendations.length}`);
   
   if (analysis.trends) {
-    console.log(`Size Change: ${analysis.trends.sizeChange > 0 ? '+' : ''}${analysis.trends.sizeChange}%`);
   }
 }
 

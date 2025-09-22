@@ -12,7 +12,6 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 async function initializeMenuContext() {
-  console.log('🍽️  Initializing menu context for AI services...');
   
   try {
     const restaurantId = process.env.DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
@@ -24,19 +23,12 @@ async function initializeMenuContext() {
     const menu = aiService.getMenu();
     
     if (menu) {
-      console.log('✅ Menu context initialized successfully!');
-      console.log(`📊 Restaurant: ${menu.restaurant || restaurantId}`);
-      console.log(`📊 Menu items: ${menu.menu?.length || 0}`);
-      console.log(`📊 Categories: ${menu.categories?.length || 0}`);
       
       if (menu.menu?.length > 0) {
-        console.log('\n🍽️  Sample items:');
         menu.menu.slice(0, 5).forEach((item: any) => {
-          console.log(`   - ${item.name} ($${item.price})`);
         });
       }
     } else {
-      console.log('⚠️  Menu context not loaded');
     }
     
   } catch (error) {

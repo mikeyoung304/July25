@@ -10,7 +10,6 @@ const RESET = '\x1b[0m'
 const BOLD = '\x1b[1m'
 
 function log(message: string, color: string = RESET) {
-  console.log(`${color}${message}${RESET}`)
 }
 
 function loadEnvFile(filePath: string): Record<string, string> {

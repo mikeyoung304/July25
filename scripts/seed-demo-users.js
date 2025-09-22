@@ -61,7 +61,6 @@ const demoUsers = [
 ];
 
 async function seedDemoUsers() {
-  console.log('🌱 Seeding demo users...');
   
   for (const user of demoUsers) {
     try {
@@ -75,7 +74,6 @@ async function seedDemoUsers() {
 
       if (authError) {
         if (authError.message.includes('already exists')) {
-          console.log(`ℹ️  User ${user.email} already exists`);
           
           // Update existing user's metadata
           const { data: users } = await supabase.auth.admin.listUsers();
@@ -91,7 +89,6 @@ async function seedDemoUsers() {
           continue;
         }
       } else {
-        console.log(`✅ Created user: ${user.email}`);
       }
 
       // Get user ID
@@ -113,7 +110,6 @@ async function seedDemoUsers() {
         if (restaurantError) {
           console.error(`❌ Failed to add ${user.email} to restaurant:`, restaurantError);
         } else {
-          console.log(`✅ Added ${user.email} to demo restaurant`);
         }
       }
     } catch (error) {
@@ -121,11 +117,6 @@ async function seedDemoUsers() {
     }
   }
 
-  console.log('✨ Demo users seeded successfully!');
-  console.log('📝 Demo credentials:');
-  console.log('   Email: [role]@restaurant.com');
-  console.log('   Password: Demo123!');
-  console.log('   Roles: manager, server, kitchen, expo, cashier');
 }
 
 seedDemoUsers().catch(console.error);

@@ -6,7 +6,6 @@ try {
     console.error('❌ Compiled JS detected under /shared (not allowed):\n' + out);
     process.exit(1);
   }
-  console.log('✅ No compiled JS under /shared');
 } catch (e) {
   console.error('Guard check failed:', e?.message || e);
   process.exit(1);

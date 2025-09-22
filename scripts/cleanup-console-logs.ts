@@ -52,7 +52,6 @@ const REPLACEMENT_RULES: ReplacementRule[] = [
 ];
 
 async function cleanupConsoleLogs() {
-  console.log('🧹 Starting console log cleanup...\n');
 
   // Find all TypeScript files
   const files = globSync('**/*.{ts,tsx}', {
@@ -112,26 +111,16 @@ async function cleanupConsoleLogs() {
         
         totalReplacements += fileReplacements;
         filesModified++;
-        console.log(`✓ ${file} (${fileReplacements} replacements)`);
       }
     } catch (error) {
       console.error(`✗ Error processing ${file}:`, error);
     }
   }
 
-  console.log('\n📊 Summary:');
-  console.log(`- Files scanned: ${files.length}`);
-  console.log(`- Files modified: ${filesModified}`);
-  console.log(`- Total replacements: ${totalReplacements}`);
-  console.log(`- WebRTC files skipped: ${skippedFiles.length}`);
   
   if (skippedFiles.length > 0) {
-    console.log('\n⚠️  Skipped WebRTC files (due to duplicate bug):');
-    skippedFiles.forEach(f => console.log(`  - ${f}`));
   }
 
-  console.log('\n✅ Console log cleanup complete!');
-  console.log('Note: console.warn and console.error were preserved as per technical debt docs.');
 }
 
 // Run the cleanup

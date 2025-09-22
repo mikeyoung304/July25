@@ -29,21 +29,17 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
 
 async function seedTables() {
   try {
-    console.log('🌱 Starting simple table seed...\n');
     
     // First, let's see what columns the table actually has
-    console.log('📊 Checking table structure...');
     const { data: sample, error: sampleError } = await supabase
       .from('tables')
       .select('*')
       .limit(1);
     
     if (sampleError && sampleError.code !== 'PGRST116') {
-      console.log('Sample query error:', sampleError);
     }
     
     // Try the simplest possible insert - just restaurant_id and label
-    console.log('\n🧪 Attempting minimal insert...');
     
     const minimalTables = [
       { restaurant_id: DEFAULT_RESTAURANT_ID, label: 'Table 1' },
@@ -62,7 +58,6 @@ async function seedTables() {
       console.error('❌ Insert error:', error);
       
       // If that fails, try even simpler - one table with just required fields
-      console.log('\n🧪 Trying single table insert...');
       const { data: singleData, error: singleError } = await supabase
         .from('tables')
         .insert({ 
@@ -74,17 +69,12 @@ async function seedTables() {
       
       if (singleError) {
         console.error('❌ Single insert also failed:', singleError);
-        console.log('\n⚠️  The tables table might have a different schema than expected.');
-        console.log('   Please check the actual table structure in Supabase.');
       } else {
-        console.log('✅ Single table inserted:', singleData);
       }
     } else {
-      console.log('✅ Tables inserted successfully:', data);
     }
     
     // List all tables
-    console.log('\n📋 Fetching all tables for restaurant...');
     const { data: allTables, error: listError } = await supabase
       .from('tables')
       .select('*')
@@ -93,9 +83,7 @@ async function seedTables() {
     if (listError) {
       console.error('❌ Error fetching tables:', listError);
     } else {
-      console.log(`Found ${allTables?.length || 0} tables`);
       if (allTables && allTables.length > 0) {
-        console.log('Table structure:', Object.keys(allTables[0]));
       }
     }
     

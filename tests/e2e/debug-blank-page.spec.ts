@@ -17,12 +17,6 @@ test.describe('Debug blank page issue', () => {
     const bodyText = await page.locator('body').textContent();
     const rootHTML = await page.locator('#root').innerHTML();
     
-    console.log('=== Page Debug Info ===');
-    console.log('Title:', title);
-    console.log('Body text length:', bodyText?.length);
-    console.log('Root HTML length:', rootHTML?.length);
-    console.log('First 500 chars of body:', bodyText?.substring(0, 500));
-    console.log('Console messages:', messages);
     
     // Check if React rendered anything
     const hasContent = rootHTML && rootHTML.length > 0;

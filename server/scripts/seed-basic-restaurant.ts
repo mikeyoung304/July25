@@ -28,7 +28,6 @@ const restaurant = {
 };
 
 async function seedBasicRestaurant() {
-  console.log('🌱 Seeding basic restaurant...');
   
   try {
     const { error } = await supabase
@@ -38,7 +37,6 @@ async function seedBasicRestaurant() {
     if (error) {
       console.error(`❌ Failed to seed restaurant:`, error.message);
     } else {
-      console.log(`✅ Successfully seeded ${restaurant.name}`);
     }
     
   } catch (error) {
