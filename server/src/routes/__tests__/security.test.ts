@@ -240,7 +240,7 @@ describe('Security Tests', () => {
       }
     });
 
-    test.skip('should reject oversized file uploads', async () => {
+    test('should reject oversized file uploads', async () => {
       // TODO: Test requires rate limit reset between tests
       const largeBuffer = Buffer.alloc(11 * 1024 * 1024); // 11MB (limit is 10MB)
       
@@ -252,7 +252,7 @@ describe('Security Tests', () => {
       expect(response.status).toBe(413);
     });
 
-    test.skip('should reject invalid file types', async () => {
+    test('should reject invalid file types', async () => {
       // TODO: Test requires rate limit reset between tests
       const response = await request(app)
         .post('/api/v1/ai/transcribe')

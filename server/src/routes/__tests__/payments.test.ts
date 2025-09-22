@@ -213,7 +213,7 @@ describe('Payment Routes', () => {
   });
 
   describe('GET /api/v1/payments/:paymentId', () => {
-    it.skip('should retrieve payment details', async () => {
+    it('should retrieve payment details', async () => {
       // vi.mocked(PaymentService.getPaymentDetails).mockResolvedValue({
       //   id: 'payment-123',
       //   orderId: 'order-123',

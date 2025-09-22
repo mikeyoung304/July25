@@ -225,7 +225,6 @@
                 // Reduce quality if FPS drops below 30
                 if (fps < 30 && !prefersReducedMotion) {
                     document.body.classList.add('reduce-animation-quality');
-                    console.log('Reducing animation quality for performance');
                 }
                 
                 frameCount = 0;

@@ -254,7 +254,7 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
       expect(decoded1.restaurant_id).not.toBe(decoded2.restaurant_id);
     });
 
-    it.skip('should reject tokens without restaurant context', async () => { // KNOWN: Auth doesn't enforce restaurant_id yet
+    it('should reject tokens without restaurant context', async () => { // KNOWN: Auth doesn't enforce restaurant_id yet
       const tokenWithoutRestaurant = jwt.sign(
         {
           id: 'manager123',

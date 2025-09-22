@@ -38,7 +38,6 @@ export const SquarePaymentForm: React.FC<SquarePaymentFormProps> = ({
     
     // If in demo mode, skip Square SDK loading
     if (isDemoMode) {
-      console.log('Demo mode detected - skipping Square SDK loading');
       setIsInitializing(false);
       setIsSquareLoaded(false); // Don't load Square in demo mode
       return;
