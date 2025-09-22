@@ -17,6 +17,19 @@ export {
 } from './runtime';
 export * from './src/voice-types';      // voice websocket types
 export * from './cart';                 // cart utilities
+// Export api-types with "Api" prefix to avoid conflicts
+export type {
+  ApiMenuItem,
+  ApiMenuCategory,
+  ApiMenuItemModifier,
+  ApiMenuItemModifierOption,
+  ApiMenuItemModifierGroup,
+  ApiMenuResponse,
+  // Re-export with standard names (will override menu.types exports)
+  MenuItem as ApiMenuItem_Alt,
+  MenuCategory as ApiMenuCategory_Alt,
+  MenuResponse as ApiMenuResponse_Alt
+} from './api-types';
 
 // Common types used across modules
 export interface PaginationParams {
