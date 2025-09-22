@@ -35,7 +35,7 @@ describe('Auth Middleware', () => {
       headers: {},
     };
     res = {};
-    next = vi.fn() as NextFunction;
+    next = vi.fn() as unknown as NextFunction;
     
     // Reset environment variables
     process.env['NODE_ENV'] = 'test';
