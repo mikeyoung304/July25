@@ -42,7 +42,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "@rebuild/shared": ["../shared/index.ts"],
-      "@rebuild/shared/*": ["../shared/*"]
+      "@rebuild/shared/*": ["../shared/*"],
+      "/shared/*": ["../shared/src/*"],
+      "@shared/*": ["../shared/src/*"]
     }
   },
   "include": ["src"],
