@@ -52,3 +52,4 @@ CLAUDE.local.md
 /shared/**/*.js
 /shared/**/*.cjs
 /shared/**/*.mjs
+.vercel
