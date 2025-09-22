@@ -1,0 +1,33 @@
+
+> restaurant-os-client@6.0.3 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> restaurant-os-server@6.0.3 typecheck
+> tsc -p tsconfig.json --noEmit
+
+src/middleware/__tests__/auth.test.ts(38,12): error TS2352: Conversion of type 'Mock<[deferToNext: "route"], void>' to type 'NextFunction' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of parameters 'deferToNext' and 'deferToNext' are incompatible.
+    Type '"router"' is not comparable to type '"route"'.
+src/routes/__tests__/orders.rctx.test.ts(5,10): error TS2460: Module '"../orders.routes"' declares 'router' locally, but it is exported as 'orderRoutes'.
+src/routes/__tests__/rctx-comprehensive.test.ts(7,10): error TS2460: Module '"../menu.routes"' declares 'router' locally, but it is exported as 'menuRoutes'.
+src/routes/__tests__/rctx-comprehensive.test.ts(8,10): error TS2460: Module '"../tables.routes"' declares 'router' locally, but it is exported as 'tableRoutes'.
+src/routes/__tests__/rctx-comprehensive.test.ts(9,10): error TS2460: Module '"../restaurants.routes"' declares 'router' locally, but it is exported as 'restaurantRoutes'.
+src/routes/__tests__/rctx-comprehensive.test.ts(10,10): error TS2460: Module '"../auth.routes"' declares 'router' locally, but it is exported as 'authRoutes'.
+src/routes/__tests__/rctx-comprehensive.test.ts(11,10): error TS2459: Module '"../realtime.routes"' declares 'router' locally, but it is not exported.
+src/routes/__tests__/rctx-comprehensive.test.ts(12,10): error TS2460: Module '"../terminal.routes"' declares 'router' locally, but it is exported as 'terminalRoutes'.
+src/services/auth/pinAuth.test.ts(3,1): error TS6192: All imports in import declaration are unused.
+src/services/auth/pinAuth.test.ts(29,23): error TS2304: Cannot find name 'PinAuthService'.
+src/services/auth/pinAuth.test.ts(32,26): error TS2552: Cannot find name 'PinAuthService'. Did you mean 'pinAuthService'?
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 2
+npm error path /Users/mikeyoung/CODING/rebuild-6.0/server
+npm error workspace restaurant-os-server@6.0.3
+npm error location /Users/mikeyoung/CODING/rebuild-6.0/server
+npm error command failed
+npm error command sh -c tsc -p tsconfig.json --noEmit
+
+
+> @rebuild/shared@1.0.0 typecheck
+> tsc --noEmit
+

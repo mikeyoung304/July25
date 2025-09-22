@@ -1,10 +1,10 @@
 import { ParsedOrder, ParsedOrderSchema } from "../../../shared/types/orders";
 
-type DraftItem = { name: string; quantity: number; modifications?: string[]; specialInstructions?: string };
-type DraftOrder = { items: DraftItem[]; notes?: string };
-type Candidate = { draftName: string; quantity: number; modifications?: string[]; specialInstructions?: string;
+type DraftItem = { name: string; quantity: number; modifications?: string[] | undefined; specialInstructions?: string | undefined };
+type DraftOrder = { items: DraftItem[]; notes?: string | undefined };
+type Candidate = { draftName: string; quantity: number; modifications?: string[] | undefined; specialInstructions?: string | undefined;
   candidates: Array<{ menuItemId: string; name: string; score: number }> };
-export type DraftWithCandidates = { items: Candidate[]; notes?: string };
+export type DraftWithCandidates = { items: Candidate[]; notes?: string | undefined };
 
 function norm(s:string){return s.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();}
 function score(a:string,b:string){const A=new Set(norm(a).split(" ").filter(Boolean));

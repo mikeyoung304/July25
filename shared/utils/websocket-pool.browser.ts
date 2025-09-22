@@ -310,7 +310,7 @@ export class WebSocketPool extends ManagedService {
   /**
    * Handle connection close and attempt reconnection
    */
-  private handleConnectionClose(connection: PooledWebSocketConnection, code: number, reason: string): void {
+  private handleConnectionClose(connection: PooledWebSocketConnection, _code: number, _reason: string): void {
     // Debug: WebSocket connection closed
     
     if (this.config.enableFailover && connection.reconnectAttempts < this.config.maxReconnectAttempts) {

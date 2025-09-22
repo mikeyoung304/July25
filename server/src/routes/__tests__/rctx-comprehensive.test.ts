@@ -4,12 +4,12 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 
 // Import all route handlers that need RCTX testing
-import menuRouter from '../menu.routes';
-import tablesRouter from '../tables.routes';
-import restaurantsRouter from '../restaurants.routes';
-import authRouter from '../auth.routes';
-import realtimeRouter from '../realtime.routes';
-import terminalRouter from '../terminal.routes';
+import { menuRoutes as menuRouter } from '../menu.routes';
+import { tableRoutes as tablesRouter } from '../tables.routes';
+import { restaurantRoutes as restaurantsRouter } from '../restaurants.routes';
+import { authRoutes as authRouter } from '../auth.routes';
+import { realtimeRoutes as realtimeRouter } from '../realtime.routes';
+import { terminalRoutes as terminalRouter } from '../terminal.routes';
 
 // Import middleware
 import { authenticate } from '../../middleware/auth';

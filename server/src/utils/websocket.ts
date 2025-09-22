@@ -3,9 +3,9 @@ import { logger } from './logger';
 import { verifyWebSocketAuth } from '../middleware/auth';
 
 interface ExtendedWebSocket extends WebSocket {
-  restaurantId?: string;
-  userId?: string;
-  isAlive?: boolean;
+  restaurantId?: string | undefined;
+  userId?: string | undefined;
+  isAlive?: boolean | undefined;
 }
 
 const wsLogger = logger.child({ module: 'websocket' });

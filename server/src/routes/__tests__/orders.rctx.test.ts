@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import ordersRouter from '../orders.routes';
+import { orderRoutes as ordersRouter } from '../orders.routes';
 import { authenticate } from '../../middleware/auth';
 import { validateRestaurantAccess } from '../../middleware/restaurantAccess';
 // import { rateLimiter } from '../../middleware/rateLimiter';

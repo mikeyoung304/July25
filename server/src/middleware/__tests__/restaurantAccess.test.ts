@@ -18,9 +18,7 @@ describe('Restaurant Access Middleware', () => {
 
   beforeEach(() => {
     mockReq = {
-      headers: {},
-      user: undefined,
-      restaurantId: undefined
+      headers: {}
     };
     mockRes = {};
     mockNext = vi.fn() as unknown as NextFunction;
@@ -184,7 +182,7 @@ describe('Restaurant Access Middleware', () => {
 
     it('should deny when no restaurant role is set', () => {
       mockReq.user = { id: 'user-123' };
-      mockReq.restaurantRole = undefined;
+      // mockReq.restaurantRole = undefined;
 
       const middleware = requireRestaurantRole(['manager']);
       middleware(

@@ -85,10 +85,10 @@ export interface UpdateOrderDTO {
 }
 
 export interface OrderFilters {
-  status?: OrderStatus | OrderStatus[];
-  type?: OrderType | OrderType[];
-  payment_status?: PaymentStatus;
-  date_from?: string;
-  date_to?: string;
-  search?: string;
+  status?: OrderStatus | OrderStatus[] | undefined;
+  type?: OrderType | OrderType[] | undefined;
+  payment_status?: PaymentStatus | undefined;
+  date_from?: string | undefined;
+  date_to?: string | undefined;
+  search?: string | undefined;
 }

@@ -1,9 +1,9 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger'
 import { supabase } from '../config/database';
 import { validateRestaurantAccess, AuthenticatedRequest } from '../middleware/auth';
 import { getConfig } from '../config/environment';
-import { Table, TableStatus } from '../../../shared/types/table.types';
+import { TableStatus } from '../../../shared/types/table.types';
 
 const router = Router();
 const config = getConfig();
@@ -366,7 +366,7 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
           }))
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Exception in batch update:', {
         error: error.message,
         stack: error.stack,

@@ -340,7 +340,7 @@ export class EnterpriseErrorHandler {
       originalError,
       timestamp: new Date().toISOString(),
       ...(originalError.stack && { stack: originalError.stack }),
-      ...((originalError as unknown as { cause?: unknown }).cause && { cause: (originalError as unknown as { cause?: unknown }).cause?.toString() }),
+      ...((originalError as any).cause ? { cause: (originalError as any).cause.toString() } : {}),
       details: {
         ...context.details,
         originalType: originalError.constructor.name
