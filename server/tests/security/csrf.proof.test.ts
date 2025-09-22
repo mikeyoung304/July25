@@ -1,16 +1,23 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { csrfMiddleware, csrfErrorHandler } from '../../src/middleware/csrf';
 import { authenticate } from '../../src/middleware/auth';
 import jwt from 'jsonwebtoken';
+import { agent } from '../../../tests/utils/agent';
+import { getCsrfPair } from '../../../tests/utils/csrf';
 
-describe.skip('Security Proof: CSRF Protection', () => {
+describe('Security Proof: CSRF Protection', () => {
   let app: express.Application;
   let validToken: string;
+  let originalEnv: string | undefined;
 
   beforeAll(() => {
+    // Force production mode for CSRF tests
+    originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+
     app = express();
     app.use(express.json());
     app.use(cookieParser());
@@ -27,12 +34,16 @@ describe.skip('Security Proof: CSRF Protection', () => {
       process.env.SUPABASE_JWT_SECRET || 'test-jwt-secret-for-testing-only'
     );
 
-    // Apply CSRF middleware
-    app.use(csrfMiddleware);
+    // Apply CSRF middleware (it's a function that returns middleware)
+    app.use(csrfMiddleware());
 
-    // GET endpoint to retrieve CSRF token
-    app.get('/api/csrf-token', (_req, res) => {
-      res.json({ token: res.locals.csrfToken });
+    // GET endpoints to retrieve CSRF token (both for tests and helper)
+    app.get('/csrf', (req: any, res) => {
+      res.json({ csrfToken: req.csrfToken ? req.csrfToken() : null });
+    });
+
+    app.get('/api/csrf-token', (req: any, res) => {
+      res.json({ token: req.csrfToken ? req.csrfToken() : null });
     });
 
     // State-changing endpoints that require CSRF protection
@@ -54,6 +65,15 @@ describe.skip('Security Proof: CSRF Protection', () => {
 
     // Error handler for CSRF
     app.use(csrfErrorHandler);
+  });
+
+  afterAll(() => {
+    // Restore original NODE_ENV
+    if (originalEnv !== undefined) {
+      process.env.NODE_ENV = originalEnv;
+    } else {
+      delete process.env.NODE_ENV;
+    }
   });
 
   describe('CSRF Token Validation', () => {
@@ -111,15 +131,18 @@ describe.skip('Security Proof: CSRF Protection', () => {
     });
 
     it('should accept POST with valid CSRF token', async () => {
+      // Use agent to persist cookies
+      const a = agent(app);
+
       // First get a CSRF token
-      const tokenResponse = await request(app)
+      const tokenResponse = await a
         .get('/api/csrf-token')
         .expect(200);
 
       const csrfToken = tokenResponse.body.token;
 
-      // Use the token in a POST request
-      const response = await request(app)
+      // Use the token in a POST request with the same agent (cookies persist)
+      const response = await a
         .post('/api/order')
         .set('Authorization', `Bearer ${validToken}`)
         .set('X-CSRF-Token', csrfToken)
@@ -145,8 +168,10 @@ describe.skip('Security Proof: CSRF Protection', () => {
 
   describe('Double Submit Cookie Pattern', () => {
     it('should validate CSRF token matches cookie value', async () => {
-      // Get CSRF token
-      const tokenResponse = await request(app)
+      // Use agent to get CSRF token and cookie
+      const a = agent(app);
+
+      const tokenResponse = await a
         .get('/api/csrf-token')
         .expect(200);
 
@@ -157,11 +182,12 @@ describe.skip('Security Proof: CSRF Protection', () => {
       expect(cookies).toBeDefined();
 
       // Make request with token but without cookie (should fail)
+      // Use a new request object (not agent) to avoid sending cookies
       const response = await request(app)
         .post('/api/order')
         .set('Authorization', `Bearer ${validToken}`)
         .set('X-CSRF-Token', csrfToken)
-        // Not sending the cookie
+        // Not sending the cookie since we're using request not agent
         .send({ item: 'test' })
         .expect(403);
 
@@ -189,14 +215,16 @@ describe.skip('Security Proof: CSRF Protection', () => {
 
   describe('Origin/Referer Validation', () => {
     it('should validate Origin header for state-changing requests', async () => {
-      const tokenResponse = await request(app)
+      const a = agent(app);
+
+      const tokenResponse = await a
         .get('/api/csrf-token')
         .expect(200);
 
       const csrfToken = tokenResponse.body.token;
 
       // Request from different origin (should be rejected in production)
-      const response = await request(app)
+      const response = await a
         .post('/api/order')
         .set('Authorization', `Bearer ${validToken}`)
         .set('X-CSRF-Token', csrfToken)
@@ -209,14 +237,16 @@ describe.skip('Security Proof: CSRF Protection', () => {
     });
 
     it('should validate Referer header when Origin is not present', async () => {
-      const tokenResponse = await request(app)
+      const a = agent(app);
+
+      const tokenResponse = await a
         .get('/api/csrf-token')
         .expect(200);
 
       const csrfToken = tokenResponse.body.token;
 
       // Request with suspicious referer
-      const response = await request(app)
+      const response = await a
         .post('/api/order')
         .set('Authorization', `Bearer ${validToken}`)
         .set('X-CSRF-Token', csrfToken)
