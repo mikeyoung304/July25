@@ -1,12 +1,14 @@
 services:
   - type: web
-    name: grow-fresh-backend
+    name: july25-server
     runtime: node
     repo: https://github.com/mikeyoung304/July25
     branch: main
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: npm ci && npm run build --workspace server
+    startCommand: npm run start --workspace server
     envVars:
+      - key: NODE_VERSION
+        value: "20"
       - key: NODE_ENV
         value: production
       - key: PORT
