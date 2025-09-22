@@ -18,49 +18,35 @@ function ExpoPageDebug() {
 
   // Enhanced order completion for expo station
   const handleCompleteOrder = useCallback(async (orderId: string, status: 'ready') => {
-    console.log('🎯 [Expo Debug] Completing order:', orderId)
     // For expo, we want to complete orders, not just mark as ready
     const success = await updateOrderStatus(orderId, 'completed')
-    if (!success) {
-      console.error('❌ [Expo Debug] Failed to complete order:', orderId)
-    } else {
-      console.log('✅ [Expo Debug] Order completed successfully:', orderId)
-    }
   }, [updateOrderStatus])
   
   // Mark order as ready from kitchen overview
   const handleMarkReady = useCallback(async (orderId: string, status: 'ready') => {
-    console.log('📋 [Expo Debug] Marking order ready:', orderId)
     const success = await updateOrderStatus(orderId, status)
-    if (!success) {
-      console.error('❌ [Expo Debug] Failed to mark ready:', orderId)
-    }
   }, [updateOrderStatus])
 
   // Filter orders for expo view using status validation utilities
   const { activeOrders, readyOrders } = useMemo(() => {
-    console.log('🔍 [Expo Debug] Processing orders:', orders.length)
-    
     // Ensure all orders have valid statuses
     const safeOrders = orders.map(order => ({
       ...order,
       status: getSafeOrderStatus(order)
     }))
-    
-    const active = safeOrders.filter(o => 
+
+    const active = safeOrders.filter(o =>
       isStatusInGroup(o.status, 'ACTIVE')
-    ).sort((a, b) => 
+    ).sort((a, b) =>
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     )
-    
-    const ready = safeOrders.filter(o => 
+
+    const ready = safeOrders.filter(o =>
       isStatusInGroup(o.status, 'READY')
-    ).sort((a, b) => 
+    ).sort((a, b) =>
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     )
-    
-    console.log('📊 [Expo Debug] Active orders:', active.length, 'Ready orders:', ready.length)
-    
+
     return { activeOrders: active, readyOrders: ready }
   }, [orders])
 
@@ -81,7 +67,6 @@ function ExpoPageDebug() {
 
   // Enhanced error and loading states
   if (error) {
-    console.error('❌ [Expo Debug] Error state:', error)
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
@@ -102,7 +87,6 @@ function ExpoPageDebug() {
   }
 
   if (isLoading) {
-    console.log('⏳ [Expo Debug] Loading state')
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -113,8 +97,6 @@ function ExpoPageDebug() {
       </div>
     )
   }
-
-  console.log('🎯 [Expo Debug] Rendering with stats:', stats)
 
   return (
     <div className="min-h-screen bg-gray-50">

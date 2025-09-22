@@ -43,7 +43,6 @@ const replacements = [
 files.forEach(file => {
   const filePath = path.join(__dirname, file);
   if (!fs.existsSync(filePath)) {
-    console.log(`Skipping ${file} (not found)`);
     return;
   }
   
@@ -58,10 +57,6 @@ files.forEach(file => {
   
   if (changed) {
     fs.writeFileSync(filePath, content);
-    console.log(`Fixed ${file}`);
-  } else {
-    console.log(`No changes needed for ${file}`);
   }
 });
 
-console.log('Done!');
