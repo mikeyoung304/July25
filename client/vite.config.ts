@@ -161,7 +161,7 @@ export default defineConfig(({ mode }) => {
       // Set chunk size warnings
       chunkSizeWarningLimit: 500, // 500kb warning threshold
       
-      // Enable source maps for production debugging
+      // Disable source maps in CI to reduce memory usage
       sourcemap: mode === 'development' ? 'inline' : false,
       
       // Target modern browsers for smaller bundles
@@ -199,7 +199,8 @@ export default defineConfig(({ mode }) => {
 
     // Define global constants
     define: {
-      'globalThis.process': JSON.stringify({ env: {} })
+      'globalThis.process': JSON.stringify({ env: {} }),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || mode)
     },
     
     server: {
