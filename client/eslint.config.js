@@ -28,8 +28,9 @@ export default tseslint.config(
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_'
       }],
-      // Prevent importing from legacy CartContext
+      // Prevent importing from legacy CartContext and subpath imports
       'no-restricted-imports': ['error', {
+        'patterns': ['@rebuild/shared/*'],
         'paths': [
           {
             name: '@/modules/order-system/context/CartContext',
