@@ -6,7 +6,7 @@
     "dev": "vite",
     "dev:clean": "npx kill-port 5173 && vite",
     "verify": "node verify-setup.js",
-    "build": "vite build",
+    "build": "cross-env ROLLUP_SKIP_NODEJS_NATIVE=true ROLLUP_DISABLE_NATIVE=true vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview --port 4173",
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "cross-env": "^7.0.3",
     "@playwright/test": "^1.40.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.4",
