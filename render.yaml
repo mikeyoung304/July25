@@ -31,3 +31,15 @@ services:
         value: sandbox
       - key: SQUARE_LOCATION_ID
         value: L1V8KTKZN0DHD
+      - key: KIOSK_JWT_SECRET
+        sync: false
+      - key: STATION_TOKEN_SECRET
+        sync: false
+      - key: PIN_PEPPER
+        sync: false
+      - key: DEVICE_FINGERPRINT_SALT
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false

@@ -67,12 +67,14 @@ const allowedOrigins = (process.env['ALLOWED_ORIGINS']?.split(',').map(origin =>
   'https://www.growfreshlocalfood.com'
 ]);
 
-// Add July25 Vercel deployments
-const july25Origins = [
+// Add July25 and Rebuild-60 Vercel deployments
+const vercelDeployments = [
   'https://july25-client.vercel.app',
-  'https://july25-client-git-feat-r-b7c846-mikeyoung304-gmailcoms-projects.vercel.app'
+  'https://july25-client-git-feat-r-b7c846-mikeyoung304-gmailcoms-projects.vercel.app',
+  'https://rebuild-60.vercel.app',
+  'https://rebuild-60-ao1ku064c-mikeyoung304-gmailcoms-projects.vercel.app'
 ];
-allowedOrigins.push(...july25Origins);
+allowedOrigins.push(...vercelDeployments);
 
 logger.info('🔧 CORS allowed origins:', allowedOrigins);
 
@@ -86,7 +88,7 @@ app.use(cors({
       callback(null, true);
     } 
     // Allow specific Vercel preview deployments with strict pattern matching
-    else if (origin.match(/^https:\/\/july25-client-[a-z0-9]{1,20}\.vercel\.app$/)) {
+    else if (origin.match(/^https:\/\/(july25-client|rebuild-60)-[a-z0-9-]{1,50}\.vercel\.app$/)) {
       logger.info(`✅ Allowing Vercel preview deployment: ${origin}`);
       callback(null, true);
     } else {
