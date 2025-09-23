@@ -1,0 +1,18 @@
+{
+  "vercel": {
+    "status": "no_logs_provided",
+    "inferred_issues": [
+      "Likely failing at 'npm run build --workspace shared' step",
+      "Possible Node version mismatch (expects 20.x)",
+      "Possible missing shared/dist directory"
+    ]
+  },
+  "render": {
+    "status": "no_logs_provided",
+    "inferred_issues": [
+      "Likely failing at 'npm ci --workspaces' or build step",
+      "Possible Node version issue",
+      "Possible workspace resolution problem"
+    ]
+  }
+}
