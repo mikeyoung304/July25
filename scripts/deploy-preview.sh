@@ -15,12 +15,12 @@ fi
 
 # Check if project is linked
 if [ ! -f ".vercel/project.json" ]; then
-    echo "❌ Error: Vercel project not linked. Run: vercel link --project rebuild-6.0 --yes"
+    echo "❌ Error: Vercel project not linked. Run: vercel link --project july25-client --yes"
     exit 1
 fi
 
 # Show current project info
-echo "📦 Project: rebuild-6.0"
+echo "📦 Project: july25-client"
 echo "📁 Team: mikeyoung304-gmailcoms-projects"
 echo ""
 

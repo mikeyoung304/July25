@@ -1,20 +1,12 @@
 Vercel CLI 48.1.0
 Retrieving project…
-> Environment Variables found for mikeyoung304-gmailcoms-projects/rebuild-6.0 [194ms]
+> Environment Variables found for mikeyoung304-gmailcoms-projects/july25-client [247ms]
 
- name                               value               environments        created    
- VITE_ENABLE_PERF                   Encrypted           Production          1d ago     
- VITE_DEMO_PANEL                    Encrypted           Production          1d ago     
- VITE_DEBUG_VOICE                   Encrypted           Production          1d ago     
- VITE_SQUARE_ENVIRONMENT            Encrypted           Production          1d ago     
- VITE_SQUARE_LOCATION_ID            Encrypted           Production          1d ago     
- VITE_SQUARE_APP_ID                 Encrypted           Production          1d ago     
- VITE_USE_REALTIME_VOICE            Encrypted           Production          1d ago     
- VITE_USE_MOCK_DATA                 Encrypted           Production          1d ago     
- VITE_DEFAULT_RESTAURANT_ID         Encrypted           Production          1d ago     
- VITE_SUPABASE_ANON_KEY             Encrypted           Production          1d ago     
- VITE_SUPABASE_URL                  Encrypted           Production          1d ago     
- VITE_API_BASE_URL                  Encrypted           Production          1d ago     
+ name                               value               environments                        created    
+ VITE_DEFAULT_RESTAURANT_ID         Encrypted           Development, Preview, Production    42d ago    
+ VITE_API_BASE_URL                  Encrypted           Development, Preview, Production    42d ago    
+ VITE_SUPABASE_URL                  Encrypted           Production, Preview, Development    42d ago    
+ VITE_SUPABASE_ANON_KEY             Encrypted           Production, Preview, Development    42d ago    
 
 Common next commands:
 - `vercel env add`

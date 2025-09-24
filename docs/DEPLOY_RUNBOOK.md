@@ -38,7 +38,7 @@ For testing changes before merging to main:
 
 ```bash
 # Ensure you're in the project root
-cd /path/to/rebuild-6.0
+cd /path/to/july25-client
 
 # Run the preview deployment script
 ./scripts/deploy-preview.sh
@@ -70,7 +70,7 @@ If the project isn't linked yet:
 
 ```bash
 # Link the Vercel project
-vercel link --project rebuild-6.0 --yes
+vercel link --project july25-client --yes
 
 # Verify linkage
 ls -la .vercel/project.json
@@ -94,7 +94,7 @@ ROLLUP_NO_NATIVE=1 vercel
 
 ### Wrong Project Linked
 1. Remove link: `rm -rf .vercel/`
-2. Re-link: `vercel link --project rebuild-6.0 --yes`
+2. Re-link: `vercel link --project july25-client --yes`
 
 ### Deployment Stuck
 1. Check build logs: `vercel logs [deployment-url]`
@@ -134,7 +134,7 @@ After deployment:
 5. Check Vercel Functions logs (if any)
 
 ## Support
-- Vercel Dashboard: https://vercel.com/mikeyoung304-gmailcoms-projects/rebuild-6.0
+- Vercel Dashboard: https://vercel.com/mikeyoung304-gmailcoms-projects/july25-client
 - Render Dashboard: [Add your Render URL]
 - Team Contact: [Add team contact]
 

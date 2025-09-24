@@ -10,7 +10,7 @@ vercel deploy --prod
 
 1. **Vercel CLI installed**: `npm i -g vercel`
 2. **Authenticated**: `vercel login`
-3. **Project linked**: `vercel link --project rebuild-6.0`
+3. **Project linked**: `vercel link --project july25-client`
 
 ## Architecture
 
@@ -28,8 +28,8 @@ vercel deploy --prod
 
 ## Production URLs
 
-- **Main**: https://rebuild-60.vercel.app
-- **Preview**: https://rebuild-60-*.vercel.app
+- **Main**: https://july25-client.vercel.app
+- **Preview**: https://july25-client-*.vercel.app
 
 ## Environment Variables
 
@@ -48,7 +48,7 @@ Required in Vercel Dashboard:
 cd /Users/mikeyoung/CODING/rebuild-6.0
 
 # Link to Vercel project
-vercel link --yes --project rebuild-6.0
+vercel link --yes --project july25-client
 
 # Pull environment variables
 vercel pull --yes --environment production
@@ -101,7 +101,7 @@ This ensures:
 
 ### Wrong Project Deployed
 - **Issue**: Multiple Vercel projects linked
-- **Fix**: Re-link with `vercel link --project rebuild-6.0`
+- **Fix**: Re-link with `vercel link --project july25-client`
 
 ## CI/CD Integration
 

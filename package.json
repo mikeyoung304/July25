@@ -10,6 +10,7 @@
     "shared"
   ],
   "scripts": {
+    "check:vercel": "node tools/verify-vercel-project.mjs",
     "start": "cd server && npm start",
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' concurrently --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\"",
     "dev:supabase": "./scripts/dev-with-supabase.sh",
