@@ -1,0 +1,672 @@
+
+> restaurant-os@6.0.3 lint
+> eslint --ext .ts,.tsx .
+
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/public/debug.js
+  45:5  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/components/kiosk/KioskCheckoutPage.tsx
+   17:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/components/kiosk/VoiceOrderingMode.tsx
+  177:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  182:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  263:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  266:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/config/index.ts
+   9:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  14:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  14:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/contexts/AuthContext.tsx
+  388:9  warning  The 'refreshSession' function makes the dependencies of useEffect Hook (at line 489) change on every render. To fix this, wrap the definition of 'refreshSession' in its own useCallback() Hook  react-hooks/exhaustive-deps
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/contexts/UnifiedCartContext.tsx
+  67:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  70:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  70:64  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  70:94  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  71:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  71:70  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/hooks/useAudioAlerts.ts
+   29:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   44:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:90  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/hooks/useModal.ts
+  122:19  warning  The ref value 'timeoutRefs.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'timeoutRefs.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+  175:19  warning  The ref value 'timeoutRefs.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'timeoutRefs.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+  212:19  warning  The ref value 'timeoutRefs.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'timeoutRefs.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/hooks/useSquareTerminal.ts
+   46:13  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   47:11  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   58:27  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  163:19  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  205:60  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  207:41  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  211:48  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  221:35  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  246:19  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  314:19  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  326:6   warning  React Hook useCallback has a missing dependency: 'cancelCheckout'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  353:19  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/order-system/components/SquarePaymentForm.tsx
+  12:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/order-system/hooks/useRestaurantData.ts
+  36:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/order-system/types/index.ts
+  23:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/voice/components/VoiceControlWebRTC.tsx
+  11:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/voice/components/VoiceDebugPanel.tsx
+  44:25  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  61:5   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  78:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/voice/services/VoiceCheckoutOrchestrator.ts
+   27:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  300:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/voice/services/WebRTCVoiceClient.ts
+   61:25  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  384:38  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  543:20  warning  'itemId' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  560:20  warning  'itemId' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  625:65  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  706:24  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  873:26  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  924:20  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/DriveThruPage.tsx
+  50:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/ExpoConsolidated.tsx
+  12:15  warning  'Order' is defined but never used. Allowed unused vars must match /^_/u                     @typescript-eslint/no-unused-vars
+  29:5   warning  'connectionState' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/ExpoPage.tsx
+    3:37  warning  'CheckCircle' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  147:51  warning  'status' is defined but never used. Allowed unused args must match /^_/u       @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/ExpoPageDebug.tsx
+   3:17  warning  'Package' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   3:26  warning  'User' is defined but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  11:15  warning  'Order' is defined but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+  22:67  warning  'status' is defined but never used. Allowed unused args must match /^_/u   @typescript-eslint/no-unused-vars
+  27:12  error    Empty block statement                                                      no-empty
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/ExpoPageOptimized.tsx
+  11:15  warning  'Order' is defined but never used. Allowed unused vars must match /^_/u                       @typescript-eslint/no-unused-vars
+  20:5   warning  'prioritizedOrders' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  23:5   warning  'connectionState' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+  31:67  warning  'status' is defined but never used. Allowed unused args must match /^_/u                      @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/HomePage.tsx
+  33:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/KioskPage.tsx
+  17:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/KitchenDisplayOptimized.tsx
+  11:15  warning  'Order' is defined but never used. Allowed unused vars must match /^_/u                     @typescript-eslint/no-unused-vars
+  26:5   warning  'connectionState' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/KitchenDisplaySimple.tsx
+  6:38  warning  'Order' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/Login.tsx
+  41:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/OrderConfirmationPage.tsx
+   96:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  101:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  101:86  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/PinLogin.tsx
+  35:21  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+  82:6   warning  React Hook useEffect has a missing dependency: 'handleClear'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/ServerView.tsx
+  109:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/SplashScreen.tsx
+  80:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/StationLogin.tsx
+  90:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/components/VoiceOrderModal.tsx
+  30:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/hooks/useVoiceOrderWebRTC.ts
+  128:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  132:64  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/routes/LazyRoutes.tsx
+  60:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  61:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/api.ts
+  29:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/cache/ResponseCache.ts
+   32:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  162:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  244:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  298:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  308:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  339:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  346:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/http/httpClient.ts
+  102:7   warning  'skipTransform' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  249:67  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  253:48  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  256:48  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  382:14  warning  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/menu/MenuService.ts
+   16:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   18:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   50:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  147:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  160:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/monitoring/localStorage-manager.ts
+   84:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  167:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  215:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  221:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  310:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/monitoring/logger.ts
+  16:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/monitoring/performance.ts
+   64:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   76:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:59  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  268:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  269:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  270:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  271:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/orders/OrderService.ts
+   51:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   54:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   65:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   85:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  145:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/utils/NativeEventBus.ts
+  12:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/services/websocket/orderUpdates.ts
+   24:100  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  183:39   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  225:39   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  255:39   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/utils/validation.ts
+    7:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   45:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   89:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  127:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  156:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  177:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/fix-eslint-errors.js
+   3:12  error    A `require()` style import is forbidden                                                 @typescript-eslint/no-require-imports
+   4:7   warning  'path' is assigned a value but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+   4:14  error    A `require()` style import is forbidden                                                 @typescript-eslint/no-require-imports
+   5:22  error    A `require()` style import is forbidden                                                 @typescript-eslint/no-require-imports
+  32:13  warning  'lineContent' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/fix-index-signatures.js
+   1:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   2:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  24:28  error  Unnecessary escape character: \[         no-useless-escape
+  26:27  error  Unnecessary escape character: \[         no-useless-escape
+  28:27  error  Unnecessary escape character: \[         no-useless-escape
+  60:10  error  Empty block statement                    no-empty
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/adapters/openai/openai-chat.ts
+  66:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/adapters/openai/openai-order-nlp.ts
+  40:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  87:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  87:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  90:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/adapters/openai/openai-transcriber.ts
+  53:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/adapters/openai/openai-tts.ts
+  33:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/adapters/openai/utils.ts
+  34:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/core/chat.ts
+  18:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/core/order-nlp.ts
+  25:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/functions/realtime-menu-tools.ts
+   50:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  132:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  178:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  205:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  206:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  282:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  332:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  418:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  463:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  503:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  555:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  601:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/index.ts
+  98:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/stubs/order-nlp.stub.ts
+  8:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/ai/voice/EnhancedOpenAIAdapter.ts
+  265:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  295:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  341:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  401:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  429:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/api/routes/tables.ts
+  140:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/mappers/cart.mapper.ts
+   15:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   43:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  118:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  118:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/mappers/menu.mapper.ts
+   18:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   45:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/auth.ts
+   49:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   56:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   57:18  warning  'kioskError' is defined but never used    @typescript-eslint/no-unused-vars
+   62:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   69:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  165:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  169:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  181:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  197:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/authRateLimiter.ts
+  200:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  200:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/csrf.ts
+  45:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/metrics.ts
+   50:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   86:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/requestSanitizer.ts
+   43:30  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+   43:55  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+  106:22  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+  120:33  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+  120:39  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+  121:20  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+  125:51  error    Unnecessary escape character: \-                                                           no-useless-escape
+  249:36  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+  268:9   error    Unexpected control character(s) in regular expression: \x00, \x08, \x0b, \x0c, \x0e, \x1f  no-control-regex
+  287:40  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+  287:46  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+  308:33  warning  Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/security.ts
+   33:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  131:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  162:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  224:39  error    Unnecessary escape character: \/          no-useless-escape
+  240:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  265:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/validate.ts
+   6:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/ai.routes.ts
+   44:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  125:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  182:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  222:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  229:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  231:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  232:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  379:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  414:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  503:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/health.routes.ts
+  33:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/metrics.ts
+  63:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/orders.routes.ts
+   42:31   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   76:37   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   83:42   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   85:47   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  145:118  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/payments.routes.ts
+   33:6   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   43:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   97:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  119:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  119:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  157:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  178:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  183:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  234:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  260:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  266:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  273:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  295:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  303:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  303:90  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  324:80  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  325:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  358:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/realtime.routes.ts
+   99:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/security.routes.ts
+  19:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  66:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/tables.routes.ts
+   41:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   86:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   96:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  118:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  119:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  120:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  136:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  152:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  182:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  183:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  184:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  230:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  264:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  303:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  305:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  311:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  369:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  383:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  383:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/terminal.routes.ts
+   21:6   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   51:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   73:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   85:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  108:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  113:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  128:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  132:5   error    Unreachable code                          no-unreachable
+  144:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  158:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  181:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  197:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  212:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  229:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  247:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  263:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  314:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  327:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  339:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  351:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  367:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/server.ts
+  181:29  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  191:29  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/services/ai.service.ts
+  133:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/services/orderStateMachine.ts
+  127:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  169:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/services/orders.service.ts
+  425:102  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/services/payment.service.ts
+  28:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/utils/case.ts
+  24:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  51:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  51:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  64:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/utils/websocket.ts
+  113:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  156:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  177:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  191:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/voice/debug-dashboard.ts
+    9:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   11:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   12:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  478:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  584:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  584:66  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  602:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/voice/openai-adapter.ts
+    8:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  171:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  320:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  335:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/voice/twilio-bridge.ts
+  276:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  362:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  365:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/voice/types.ts
+  185:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  192:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  196:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  200:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/voice/voice-routes.ts
+   73:12  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  232:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/src/voice/websocket-server.ts
+   34:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   54:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   93:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  186:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  202:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/tests/contracts/order.contract.test.ts
+  2:10  warning  'z' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/tests/contracts/payment.contract.test.ts
+  2:10  warning  'z' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/tests/guards/routes.spec.ts
+  58:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  93:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/tests/middleware/validateRestaurantAccess.spec.ts
+   5:10  warning  'BadRequest' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+   5:22  warning  'Forbidden' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
+  14:10  warning  'AuthenticationService' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/tests/security/csrf.proof.test.ts
+  9:10  warning  'getCsrfPair' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/server/tests/security/ratelimit.proof.test.ts
+  140:13  warning  'response' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/monitoring/error-tracker.ts
+   24:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   35:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   61:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   61:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   71:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   71:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   93:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  108:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  128:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  158:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/monitoring/performance-monitor.ts
+   12:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   81:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+   96:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  224:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  232:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  233:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  267:90  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/monitoring/web-vitals.ts
+  86:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  87:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/runtime.ts
+  54:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/types/transformers.ts
+  163:94  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  197:93  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/types/validation.ts
+   57:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  182:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  323:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  336:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  336:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  336:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  344:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  345:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/utils/browser-only.ts
+  67:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/utils/cleanup-manager.ts
+   99:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  191:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  212:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  222:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  386:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  483:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  541:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/utils/error-handling.ts
+  343:29  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  343:69  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  619:23  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  671:14  warning  'reportingError' is defined but never used                                         @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/utils/memory-monitoring.ts
+  546:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/utils/performance-hooks.ts
+   24:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+   38:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+   54:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+   71:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  108:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  146:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  197:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  208:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/utils/react-performance.ts
+   13:12  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+   43:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   53:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   53:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   61:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+   74:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   76:4   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   97:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  122:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  128:4   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/utils/websocket-pool.browser.ts
+  202:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  265:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  292:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  335:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  377:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  625:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mikeyoung/CODING/rebuild-6.0/test-chip-monkey-simple.js
+  39:10  error  Parsing error: ';' expected
+
+/Users/mikeyoung/CODING/rebuild-6.0/test-chip-monkey-workaround.js
+  40:10  error  Parsing error: ';' expected
+
+/Users/mikeyoung/CODING/rebuild-6.0/test-chip-monkey.js
+  39:10  error  Parsing error: ';' expected
+
+/Users/mikeyoung/CODING/rebuild-6.0/test-voice-flow.js
+  36:15  error  Empty block statement  no-empty
+  48:15  error  Empty block statement  no-empty
+
+✖ 439 problems (21 errors, 418 warnings)
+
