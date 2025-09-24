@@ -16,7 +16,7 @@
     
     <!-- Performance Optimizations -->
     <link rel="preload" as="video" href="/assets/mikeyoung304-1.mp4" type="video/mp4">
-    <link rel="preload" as="image" href="/transparent.png" type="image/png">
+    <link rel="preload" href="/transparent.png" as="image" type="image/png">
     
     <!-- Fonts loaded locally for CSP compliance -->
     
@@ -24,6 +24,7 @@
   </head>
   <body>
     <div id="root"><span id="boot-sentinel">loading…</span></div>
+    <script src="/debug.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
