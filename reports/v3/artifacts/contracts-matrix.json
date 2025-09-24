@@ -1,0 +1,289 @@
+{
+  "metadata": {
+    "generated": "2025-09-24",
+    "version": "1.0.0",
+    "description": "Client-Server contract alignment matrix for July25"
+  },
+  "transformUtilities": [
+    {
+      "location": "shared/types/transformers.ts",
+      "functions": ["transformSharedOrderToClient", "transformClientOrderToShared", "transformSharedMenuItemToClient", "transformSharedTableToClient"],
+      "purpose": "Complex object transforms between shared and client types",
+      "status": "active"
+    },
+    {
+      "location": "client/src/services/utils/caseTransform.ts",
+      "functions": ["toCamelCase", "toSnakeCase", "transformQueryParams"],
+      "purpose": "Deep key transformation for API requests/responses",
+      "status": "active"
+    },
+    {
+      "location": "server/src/utils/case.ts",
+      "functions": ["camelizeKeys", "snakeizeKeys", "toCamelCase", "toSnakeCase"],
+      "purpose": "Server-side transformation utilities",
+      "status": "limited_usage"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/api/v1/orders",
+      "method": "GET",
+      "serverDTO": "database_snake_case",
+      "sharedType": "Order",
+      "clientType": "ClientOrder",
+      "transformAtServer": false,
+      "transformAtClient": true,
+      "transformLocation": "httpClient",
+      "status": "type_drift",
+      "priority": "P0"
+    },
+    {
+      "path": "/api/v1/orders",
+      "method": "POST",
+      "serverDTO": "OrderPayload",
+      "sharedType": "Order",
+      "clientType": "ClientOrder",
+      "transformAtServer": false,
+      "transformAtClient": true,
+      "transformLocation": "toSnakeCase",
+      "status": "type_drift",
+      "priority": "P0"
+    },
+    {
+      "path": "/api/v1/orders/voice",
+      "method": "POST",
+      "serverDTO": "custom",
+      "sharedType": null,
+      "clientType": "custom",
+      "transformAtServer": false,
+      "transformAtClient": false,
+      "transformLocation": null,
+      "status": "missing_transform",
+      "priority": "P1"
+    },
+    {
+      "path": "/api/v1/menu",
+      "method": "GET",
+      "serverDTO": "database_snake_case",
+      "sharedType": "MenuItem",
+      "clientType": "ClientMenuItem",
+      "transformAtServer": false,
+      "transformAtClient": true,
+      "transformLocation": "httpClient",
+      "status": "type_drift",
+      "priority": "P0"
+    },
+    {
+      "path": "/api/v1/menu/items",
+      "method": "GET",
+      "serverDTO": "database_snake_case",
+      "sharedType": "MenuItem",
+      "clientType": "ClientMenuItem",
+      "transformAtServer": false,
+      "transformAtClient": true,
+      "transformLocation": "httpClient",
+      "status": "type_drift",
+      "priority": "P0"
+    },
+    {
+      "path": "/api/v1/menu/items",
+      "method": "POST",
+      "serverDTO": "request_body",
+      "sharedType": "MenuItem",
+      "clientType": null,
+      "transformAtServer": false,
+      "transformAtClient": true,
+      "transformLocation": "toSnakeCase",
+      "status": "type_drift",
+      "priority": "P1"
+    },
+    {
+      "path": "/api/v1/tables",
+      "method": "GET",
+      "serverDTO": "database_snake_case",
+      "sharedType": "Table",
+      "clientType": "ClientTable",
+      "transformAtServer": false,
+      "transformAtClient": true,
+      "transformLocation": "httpClient",
+      "status": "type_drift",
+      "priority": "P0"
+    },
+    {
+      "path": "/api/v1/tables",
+      "method": "PUT",
+      "serverDTO": "request_body",
+      "sharedType": "Table",
+      "clientType": "ClientTable",
+      "transformAtServer": false,
+      "transformAtClient": true,
+      "transformLocation": "toSnakeCase",
+      "status": "type_drift",
+      "priority": "P0"
+    },
+    {
+      "path": "/api/v1/tables/batch",
+      "method": "PUT",
+      "serverDTO": "request_body",
+      "sharedType": "Table[]",
+      "clientType": "ClientTable[]",
+      "transformAtServer": false,
+      "transformAtClient": true,
+      "transformLocation": "toSnakeCase",
+      "status": "type_drift",
+      "priority": "P0"
+    },
+    {
+      "path": "/api/v1/auth/login",
+      "method": "POST",
+      "serverDTO": "custom",
+      "sharedType": null,
+      "clientType": "Session",
+      "transformAtServer": true,
+      "transformAtClient": false,
+      "transformLocation": "res.json",
+      "status": "ok",
+      "priority": null
+    },
+    {
+      "path": "/api/v1/auth/logout",
+      "method": "POST",
+      "serverDTO": "custom",
+      "sharedType": null,
+      "clientType": "SuccessResponse",
+      "transformAtServer": true,
+      "transformAtClient": false,
+      "transformLocation": "res.json",
+      "status": "ok",
+      "priority": null
+    },
+    {
+      "path": "/api/v1/payments",
+      "method": "POST",
+      "serverDTO": "request_body",
+      "sharedType": null,
+      "clientType": "PaymentResult",
+      "transformAtServer": false,
+      "transformAtClient": true,
+      "transformLocation": "httpClient",
+      "status": "type_drift",
+      "priority": "P0"
+    }
+  ],
+  "websocketEvents": [
+    {
+      "event": "order:created",
+      "serverEmit": "snake_case",
+      "clientExpects": "camelCase",
+      "transform": false,
+      "status": "missing_transform",
+      "priority": "P0"
+    },
+    {
+      "event": "order:updated",
+      "serverEmit": "snake_case",
+      "clientExpects": "camelCase",
+      "transform": false,
+      "status": "missing_transform",
+      "priority": "P0"
+    },
+    {
+      "event": "order:completed",
+      "serverEmit": "snake_case",
+      "clientExpects": "camelCase",
+      "transform": false,
+      "status": "missing_transform",
+      "priority": "P0"
+    },
+    {
+      "event": "table:updated",
+      "serverEmit": "snake_case",
+      "clientExpects": "camelCase",
+      "transform": false,
+      "status": "missing_transform",
+      "priority": "P0"
+    },
+    {
+      "event": "table:status",
+      "serverEmit": "snake_case",
+      "clientExpects": "camelCase",
+      "transform": false,
+      "status": "missing_transform",
+      "priority": "P0"
+    },
+    {
+      "event": "connected",
+      "serverEmit": "custom",
+      "clientExpects": "as_is",
+      "transform": false,
+      "status": "ok",
+      "priority": null
+    }
+  ],
+  "gaps": {
+    "critical": [
+      {
+        "type": "server_response_transform",
+        "description": "Server responses not transformed to camelCase",
+        "affectedFiles": [
+          "server/src/routes/orders.routes.ts",
+          "server/src/routes/menu.routes.ts",
+          "server/src/routes/tables.routes.ts"
+        ],
+        "impact": "high",
+        "effort": "medium"
+      },
+      {
+        "type": "websocket_transform",
+        "description": "WebSocket events not transformed",
+        "affectedFiles": [
+          "server/src/utils/websocket.ts"
+        ],
+        "impact": "high",
+        "effort": "low"
+      }
+    ],
+    "medium": [
+      {
+        "type": "request_validation",
+        "description": "Inconsistent request body validation",
+        "impact": "medium",
+        "effort": "medium"
+      },
+      {
+        "type": "type_duplication",
+        "description": "Multiple type definitions for same entities",
+        "impact": "medium",
+        "effort": "high"
+      }
+    ]
+  },
+  "recommendations": {
+    "strategy": "server_side_transform",
+    "reason": "Single transformation point, consistent for all clients",
+    "implementation": {
+      "middleware": "responseTransform",
+      "location": "server/src/middleware/responseTransform.ts",
+      "application": "Apply to all routes via Express middleware"
+    },
+    "wave1Endpoints": [
+      "/api/v1/orders",
+      "/api/v1/menu",
+      "/api/v1/menu/categories",
+      "/api/v1/tables",
+      "websocket:order:*",
+      "websocket:table:*"
+    ],
+    "estimatedEffort": "4-6 hours",
+    "risk": "medium",
+    "rollback": "Feature flag ENABLE_RESPONSE_TRANSFORM"
+  },
+  "statistics": {
+    "totalRoutes": 12,
+    "routesNeedingFix": 9,
+    "websocketEventsNeedingFix": 5,
+    "criticalGaps": 2,
+    "mediumGaps": 2,
+    "percentageNeedingFix": 75
+  }
+}

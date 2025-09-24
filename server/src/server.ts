@@ -31,6 +31,7 @@ import { authenticate, requireRole } from './middleware/auth';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
 import { applySecurity } from './middleware/security';
 import { sanitizeRequest } from './middleware/requestSanitizer';
+import { responseTransformMiddleware } from './middleware/responseTransform';
 
 // Validate required environment variables
 try {
@@ -133,6 +134,9 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Request sanitization (after body parsing, before other middleware)
 app.use(sanitizeRequest);
+
+// Response transformation middleware (transforms snake_case to camelCase)
+app.use(responseTransformMiddleware);
 
 // CSRF protection (after cookie parser, before routes)
 app.use(csrfMiddleware());
