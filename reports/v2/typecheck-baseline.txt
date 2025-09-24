@@ -1,0 +1,4 @@
+
+> restaurant-os@6.0.3 typecheck
+> tsc --build tsconfig.all.json
+

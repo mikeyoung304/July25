@@ -42,19 +42,8 @@ export async function authenticate(
       throw Unauthorized('Test tokens not allowed in strict auth mode');
     }
     
-    // Legacy test token support (will be removed)
-    // Only for backwards compatibility during migration
-    if (process.env['NODE_ENV'] === 'test' && token === 'test-token' && !strictAuth) {
-      logger.warn('⚠️ DEPRECATED: test-token usage detected. This will be removed soon.');
-      req.user = {
-        id: 'test-user-id',
-        email: 'test@example.com',
-        role: 'admin',
-        scopes: ['orders:create', 'orders:read', 'orders:write', 'payments:write', 'payments:read'],
-      };
-      req.restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
-      return next();
-    }
+    // Test tokens are no longer supported for security reasons
+    // Use proper JWT tokens in all environments
 
     // Verify JWT with proper signature validation
     let decoded: any;

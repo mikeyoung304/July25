@@ -82,14 +82,9 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
-    
-    // Check exact matches first
+
+    // Only allow explicitly listed origins - no wildcards
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } 
-    // Allow specific Vercel preview deployments with strict pattern matching
-    else if (origin.match(/^https:\/\/(july25-client|rebuild-60)-[a-z0-9-]{1,50}\.vercel\.app$/)) {
-      logger.info(`✅ Allowing Vercel preview deployment: ${origin}`);
       callback(null, true);
     } else {
       console.error(`❌ CORS blocked origin: "${origin}"`);

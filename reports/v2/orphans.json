@@ -1,0 +1,70 @@
+{
+  "summary": {
+    "total_orphaned_files": 182,
+    "categories": {
+      "scripts": 42,
+      "test_files": 38,
+      "components": 45,
+      "types": 23,
+      "services": 18,
+      "config": 16
+    }
+  },
+  "high_priority_deletions": [
+    "client/vite.config.ORIGINAL.ts",
+    "client/vite.config.backup.ts",
+    "server/src/middleware/webhookSignature.ts",
+    "client/src/services/websocket/WebSocketServiceV2.ts",
+    "client/src/core/api/unifiedApiClient.ts",
+    "client/src/pages/KitchenDisplayMinimal.tsx",
+    "client/src/pages/KitchenDisplayOptimized.tsx",
+    "client/src/pages/ExpoPageOptimized.tsx",
+    "client/src/pages/ExpoConsolidated.tsx"
+  ],
+  "duplicate_implementations": [
+    {
+      "type": "WebSocket Services",
+      "files": [
+        "client/src/services/websocket/WebSocketService.ts",
+        "client/src/services/websocket/WebSocketServiceV2.ts"
+      ]
+    },
+    {
+      "type": "Kitchen Display Pages",
+      "files": [
+        "client/src/pages/KitchenDisplay.tsx",
+        "client/src/pages/KitchenDisplayMinimal.tsx",
+        "client/src/pages/KitchenDisplayOptimized.tsx",
+        "client/src/pages/KitchenDisplaySimple.tsx"
+      ]
+    },
+    {
+      "type": "Expo Pages",
+      "files": [
+        "client/src/pages/ExpoPage.tsx",
+        "client/src/pages/ExpoPageDebug.tsx",
+        "client/src/pages/ExpoPageOptimized.tsx",
+        "client/src/pages/ExpoConsolidated.tsx"
+      ]
+    },
+    {
+      "type": "Error Boundaries",
+      "files": [
+        "client/src/components/errors/AppErrorBoundary.tsx",
+        "client/src/components/errors/GlobalErrorBoundary.tsx",
+        "client/src/components/errors/UnifiedErrorBoundary.tsx",
+        "client/src/components/errors/KitchenErrorBoundary.tsx"
+      ]
+    }
+  ],
+  "archive_candidates": [
+    "scripts/archive/2025-08-20/",
+    "scripts/load-test/",
+    "tests/manual/"
+  ],
+  "size_impact": {
+    "total_lines": 15234,
+    "estimated_kb": 487,
+    "percentage_of_codebase": "8.3%"
+  }
+}

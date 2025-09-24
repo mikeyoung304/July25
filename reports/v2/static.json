@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-09-23T23:00:00Z",
+  "baseline": {
+    "typescript": {
+      "errors": 0,
+      "status": "clean"
+    },
+    "eslint": {
+      "errors": 21,
+      "warnings": 418,
+      "total": 439
+    },
+    "technical_debt": {
+      "todos": 22,
+      "ts_ignore": 5,
+      "ts_expect_error": 1,
+      "total": 28
+    }
+  },
+  "comparison_to_prior": {
+    "typescript": "✅ Clean (was 0)",
+    "eslint_errors": "❌ Increased from 19 to 21 (+2)",
+    "eslint_warnings": "❌ Increased from 161 to 418 (+257)",
+    "note": "Significant increase in warnings, likely due to expanded linting scope"
+  }
+}
