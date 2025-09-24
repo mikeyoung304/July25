@@ -58,23 +58,45 @@ OrdersService.setWebSocketServer(wss);
 // Apply comprehensive security middleware
 applySecurity(app);
 
-// CORS configuration with stricter settings
-const allowedOrigins = (process.env['ALLOWED_ORIGINS']?.split(',').map(origin => origin.trim()) || [
-  process.env['FRONTEND_URL'] || 'http://localhost:5173',
+// CORS configuration with explicit allow-list (NO wildcards or regex patterns)
+const allowedOrigins: string[] = [
+  // Local development
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3001',
+
+  // Production domains
+  'https://growfreshlocalfood.com',
+  'https://www.growfreshlocalfood.com',
+
+  // July25 Vercel deployment (canonical)
+  'https://july25-client.vercel.app',
+
+  // Rebuild-60 Vercel deployment
+  'https://rebuild-60.vercel.app',
+
+  // Specific preview deployments (explicit list, no patterns)
+  'https://july25-client-git-feat-r-b7c846-mikeyoung304-gmailcoms-projects.vercel.app',
+  'https://rebuild-60-ao1ku064c-mikeyoung304-gmailcoms-projects.vercel.app',
+
+  // Legacy Grow deployments (will deprecate)
   'https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
   'https://grow-ir056u92z-mikeyoung304-gmailcoms-projects.vercel.app',
-  'https://growfreshlocalfood.com',
-  'https://www.growfreshlocalfood.com'
-]);
-
-// Add July25 and Rebuild-60 Vercel deployments
-const vercelDeployments = [
-  'https://july25-client.vercel.app',
-  'https://july25-client-git-feat-r-b7c846-mikeyoung304-gmailcoms-projects.vercel.app',
-  'https://rebuild-60.vercel.app',
-  'https://rebuild-60-ao1ku064c-mikeyoung304-gmailcoms-projects.vercel.app'
 ];
-allowedOrigins.push(...vercelDeployments);
+
+// Add environment-specific origins if provided (must be explicit URLs)
+if (process.env['ALLOWED_ORIGINS']) {
+  const envOrigins = process.env['ALLOWED_ORIGINS']
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(origin => origin.startsWith('http://') || origin.startsWith('https://'));
+  allowedOrigins.push(...envOrigins);
+}
+
+// Add frontend URL from environment if different
+if (process.env['FRONTEND_URL'] && !allowedOrigins.includes(process.env['FRONTEND_URL'])) {
+  allowedOrigins.push(process.env['FRONTEND_URL']);
+}
 
 logger.info('🔧 CORS allowed origins:', allowedOrigins);
 
