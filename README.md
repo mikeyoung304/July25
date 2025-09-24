@@ -63,7 +63,7 @@ npm run build
 ### Project Structure
 
 ```
-rebuild-6.0/
+july25/
 ├── client/          # React frontend (Vite)
 │   ├── src/
 │   │   ├── components/    # UI components

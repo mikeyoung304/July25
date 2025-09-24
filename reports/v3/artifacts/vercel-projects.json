@@ -1,5 +1,45 @@
+Vercel CLI 48.1.0
+Fetching projects in mikeyoung304-gmailcoms-projects
 {
-  "projectId": "prj_0H8m4inpecbGnssq8mie29SOI4O6",
-  "orgId": "team_OesWPwxqmdOsNGDnz0RqS4kA",
-  "projectName": "rebuild-6.0"
+  "projects": [
+    {
+      "name": "rebuild-6.0",
+      "id": "prj_0H8m4inpecbGnssq8mie29SOI4O6",
+      "latestProductionUrl": "https://rebuild-60.vercel.app",
+      "updatedAt": 1758680146011,
+      "nodeVersion": "22.x",
+      "deprecated": false
+    },
+    {
+      "name": "july25-client",
+      "id": "prj_iG6YRjjsMePUoGPmzZxnKUwYfH0n",
+      "latestProductionUrl": "https://july25-client.vercel.app",
+      "updatedAt": 1758680037255,
+      "nodeVersion": "20.x",
+      "deprecated": false
+    },
+    {
+      "name": "client",
+      "id": "prj_rGCJ3b6f49LkD3POWBCIHYBKg3Mg",
+      "latestProductionUrl": "--",
+      "updatedAt": 1758637830417,
+      "nodeVersion": "22.x",
+      "deprecated": false
+    },
+    {
+      "name": "plate-restaurant-system",
+      "id": "prj_bVKWjQKnMA6MxDUkwpfp75CflBCv",
+      "latestProductionUrl": "https://plate-restaurant-system-mikeyoung304-gmailcoms-projects.vercel.app",
+      "updatedAt": 1749117197879,
+      "nodeVersion": "22.x",
+      "deprecated": false
+    }
+  ],
+  "pagination": {
+    "count": 4,
+    "next": null,
+    "prev": 1758680146011
+  },
+  "contextName": "mikeyoung304-gmailcoms-projects",
+  "elapsed": "1s"
 }
