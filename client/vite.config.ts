@@ -52,15 +52,12 @@ export default defineConfig(({ mode }) => {
           manualChunks: (id) => {
             // node_modules chunks - more aggressive splitting
             if (id.includes('node_modules')) {
-              // Split React into smaller chunks
-              if (id.includes('react-dom')) {
-                return 'react-dom'; // Separate react-dom (largest part)
+              // IMPORTANT: Keep React and React-DOM together to prevent forwardRef issues
+              if (id.includes('react-dom') || id.includes('react/')) {
+                return 'react-bundle'; // Bundle React core together
               }
               if (id.includes('react-router')) {
                 return 'react-router'; // Separate router
-              }
-              if (id.includes('react/jsx-runtime') || id.includes('react/index')) {
-                return 'react-core'; // Core React only
               }
               if (id.includes('react') && !id.includes('react-hot-toast')) {
                 return 'react-libs'; // Other React libraries
@@ -175,11 +172,13 @@ export default defineConfig(({ mode }) => {
       },
     },
     
-    // Optimize dependencies
+    // Optimize dependencies - ensure React is properly bundled
     optimizeDeps: {
       include: [
         'react',
         'react-dom',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
         'react-router-dom',
         '@supabase/supabase-js',
       ],
