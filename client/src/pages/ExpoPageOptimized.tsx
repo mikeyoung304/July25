@@ -20,7 +20,7 @@ function ExpoPageOptimized() {
     prioritizedOrders,
     activeOrders, 
     readyOrders,
-    _connectionState 
+    connectionState
   } = useKitchenOrdersOptimized()
   
   // View modes for expo station

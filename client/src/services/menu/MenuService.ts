@@ -79,7 +79,7 @@ export class MenuService implements IMenuService {
         items: response.items.map(item => this.transformMenuItem(item, response.categories)),
         categories: response.categories
       }
-    } catch {
+    } catch (error) {
       console.error('Menu API failed:', error);
       throw new Error("Menu service error");
     }
@@ -99,7 +99,7 @@ export class MenuService implements IMenuService {
       const categories = await this.getMenuCategories()
       const response = await httpClient.get<any[]>('/api/v1/menu/items')
       return response.map(item => this.transformMenuItem(item, categories))
-    } catch {
+    } catch (error) {
       console.error('Menu items API failed:', error);
       throw new Error("Menu service error");
     }
@@ -119,7 +119,7 @@ export class MenuService implements IMenuService {
       // Cache categories
       response.forEach(cat => this.categoriesCache.set(cat.id, cat))
       return response
-    } catch {
+    } catch (error) {
       console.error('Menu categories API failed:', error);
       throw new Error("Menu service error");
     }

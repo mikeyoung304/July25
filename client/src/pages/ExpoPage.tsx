@@ -1,4 +1,5 @@
-import { getSafeOrderStatus, isStatusInGroup } from '../utils/orderStatusUtils';
+import { isStatusInGroup } from '../utils/orderStatusUtils';
+import { getSafeOrderStatus } from '../utils/orderStatusValidation';
 import { Clock, Package, User, Eye, CheckCircle } from 'lucide-react';
 import React, { useMemo, useState, useEffect } from 'react'
 import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'

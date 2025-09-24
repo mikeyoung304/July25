@@ -10,10 +10,16 @@
 
 ### Configuration
 The project uses `vercel.json` for deployment configuration:
-- **Build Command**: `cd client && npm install && npm run build`
+- **Install Command**: `npm ci --workspaces --include-workspace-root`
+- **Build Command**: `ROLLUP_NO_NATIVE=1 npm run build --workspace shared && ROLLUP_NO_NATIVE=1 npm run build --workspace client`
 - **Output Directory**: `client/dist`
 - **Framework**: Vite
 - **Rewrites**: SPA routing enabled
+
+#### Rollup Native Module Fix
+- **Issue**: Vercel's Linux environment requires platform-specific Rollup binaries
+- **Solution**: Set `ROLLUP_NO_NATIVE=1` environment variable during build
+- This prevents Rollup from trying to load native modules that may not be available
 
 ### Environment Variables Required
 ```env
@@ -58,6 +64,10 @@ vercel env add VARIABLE_NAME production
 1. Check build logs: `vercel logs <deployment-url>`
 2. Verify Node version: Should be 20.x
 3. Clear cache: `vercel --force`
+4. **Rollup Module Not Found Error**:
+   - Ensure `ROLLUP_NO_NATIVE=1` is set in build commands
+   - Verify `@rollup/rollup-linux-x64-gnu` is in client's optionalDependencies
+5. **Memory Issues**: Node options set to `--max-old-space-size=4096`
 
 ## Local Development
 

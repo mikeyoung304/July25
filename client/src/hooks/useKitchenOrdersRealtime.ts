@@ -38,8 +38,8 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
       } else {
         setOrders([])
       }
-    } catch {
-      const errorMessage = _err instanceof Error ? error : 'Failed to load orders'
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load orders'
       setError(errorMessage)
       setOrders([])
     } finally {

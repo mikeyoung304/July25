@@ -1191,8 +1191,8 @@ ENTRÉES → Ask:
         if (this.pc.signalingState !== 'closed') {
           this.pc.close();
         }
-      } catch {
-        console.warn('[WebRTCVoice] Error cleaning up peer connection:', _e);
+      } catch (e) {
+        console.warn('[WebRTCVoice] Error cleaning up peer connection:', e);
       }
       this.pc = null;
     }
@@ -1239,8 +1239,8 @@ ENTRÉES → Ask:
         if (this.audioElement.parentNode) {
           this.audioElement.parentNode.removeChild(this.audioElement);
         }
-      } catch {
-        console.warn('[WebRTCVoice] Error cleaning up audio element:', _e);
+      } catch (e) {
+        console.warn('[WebRTCVoice] Error cleaning up audio element:', e);
       }
       this.audioElement = null;
     }
