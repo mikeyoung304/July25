@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { logger } from './logger';
 import { verifyWebSocketAuth } from '../middleware/auth';
+import { transformWebSocketMessage } from '../middleware/responseTransform';
 
 interface ExtendedWebSocket extends WebSocket {
   restaurantId?: string | undefined;
@@ -71,7 +72,7 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
         handleWebSocketMessage(ws, message, wss);
       } catch (error) {
         wsLogger.error('Invalid WebSocket message:', error);
-        ws.send(JSON.stringify({ error: 'Invalid message format' }));
+        ws.send(JSON.stringify(transformWebSocketMessage({ error: 'Invalid message format' })));
       }
     });
 
@@ -84,10 +85,10 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
     });
 
     // Send welcome message
-    ws.send(JSON.stringify({
+    ws.send(JSON.stringify(transformWebSocketMessage({
       type: 'connected',
       timestamp: new Date().toISOString(),
-    }));
+    })));
   });
 
   wss.on('close', () => {
@@ -108,6 +109,36 @@ export function cleanupWebSocketServer(): void {
   }
 }
 
+/**
+ * Broadcast message to all clients in a restaurant
+ * Automatically transforms payload to camelCase
+ */
+export function broadcastToRestaurant(
+  wss: WebSocketServer,
+  restaurantId: string,
+  message: any
+): void {
+  const transformedMessage = transformWebSocketMessage(message);
+  const messageStr = JSON.stringify(transformedMessage);
+
+  wss.clients.forEach((client: ExtendedWebSocket) => {
+    if (
+      client.readyState === WebSocket.OPEN &&
+      client.restaurantId === restaurantId
+    ) {
+      client.send(messageStr);
+    }
+  });
+
+  wsLogger.debug('Broadcast to restaurant', {
+    restaurantId,
+    type: message.type,
+    clientCount: Array.from(wss.clients).filter(
+      (c: ExtendedWebSocket) => c.restaurantId === restaurantId
+    ).length
+  });
+}
+
 function handleWebSocketMessage(
   ws: ExtendedWebSocket,
   message: any,
@@ -118,11 +149,11 @@ function handleWebSocketMessage(
   switch (type) {
     case 'orders:sync':
       wsLogger.info(`Client requested order sync for restaurant: ${ws.restaurantId}`);
-      ws.send(JSON.stringify({
+      ws.send(JSON.stringify(transformWebSocketMessage({
         type: 'sync_complete',
         payload: { status: 'synced' },
         timestamp: new Date().toISOString(),
-      }));
+      })));
       break;
 
     case 'order:update_status':
@@ -136,39 +167,17 @@ function handleWebSocketMessage(
       break;
 
     case 'ping':
-      ws.send(JSON.stringify({ type: 'pong' }));
+      ws.send(JSON.stringify(transformWebSocketMessage({ type: 'pong' })));
       break;
 
     default:
       wsLogger.warn(`Unknown message type: ${type}`);
-      ws.send(JSON.stringify({
+      ws.send(JSON.stringify(transformWebSocketMessage({
         type: 'error',
         payload: { message: 'Unknown message type', type },
         timestamp: new Date().toISOString(),
-      }));
+      })));
   }
-}
-
-// Broadcast to all clients in a restaurant
-export function broadcastToRestaurant(
-  wss: WebSocketServer,
-  restaurantId: string,
-  message: any
-): void {
-  const payload = JSON.stringify(message);
-  let count = 0;
-
-  wss.clients.forEach((client: ExtendedWebSocket) => {
-    if (
-      client.readyState === WebSocket.OPEN &&
-      client.restaurantId === restaurantId
-    ) {
-      client.send(payload);
-      count++;
-    }
-  });
-
-  wsLogger.info(`Broadcast to ${count} clients in restaurant ${restaurantId}`);
 }
 
 // Broadcast order update
