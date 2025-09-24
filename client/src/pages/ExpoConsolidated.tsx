@@ -26,7 +26,7 @@ function ExpoConsolidated() {
     updateOrderStatus,
     readyOrders,
     activeOrders,
-    _connectionState
+    connectionState
   } = useKitchenOrdersOptimized()
   
   // Intelligent table grouping

@@ -23,7 +23,7 @@ function KitchenDisplayOptimized() {
     prioritizedOrders,
     activeOrders,
     readyOrders,
-    _connectionState
+    connectionState
   } = useKitchenOrdersOptimized()
   
   // Enhanced filtering and sorting state

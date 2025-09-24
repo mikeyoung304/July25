@@ -92,7 +92,7 @@ class PerformanceMonitor {
         }
       });
 
-    } catch {
+    } catch (error) {
       logger.warn('Failed to initialize performance observer', { error });
     }
   }
@@ -246,7 +246,7 @@ class PerformanceMonitor {
         });
         
         return entry.duration;
-      } catch {
+      } catch (error) {
         logger.warn('Failed to measure performance', { error, name, startMark, endMark });
       }
     }

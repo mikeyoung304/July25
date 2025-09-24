@@ -1,4 +1,5 @@
-import { getSafeOrderStatus, isStatusInGroup } from '../utils/orderStatusUtils';
+import { isStatusInGroup } from '../utils/orderStatusUtils';
+import { getSafeOrderStatus } from '../utils/orderStatusValidation';
 import React, { useState, useMemo } from 'react'
 import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
