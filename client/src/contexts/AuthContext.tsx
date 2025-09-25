@@ -289,11 +289,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Demo login (development only with explicit panel flag)
+  // Demo login (available when VITE_DEMO_PANEL is enabled)
   const loginAsDemo = async (role: string) => {
-    // Only available in development with demo panel explicitly enabled
-    if (import.meta.env.PROD || import.meta.env.VITE_DEMO_PANEL !== '1') {
-      throw new Error('Demo login requires VITE_DEMO_PANEL=1 in development');
+    // Only available when demo panel is explicitly enabled
+    if (import.meta.env.VITE_DEMO_PANEL !== '1') {
+      throw new Error('Demo login requires VITE_DEMO_PANEL=1');
     }
 
     setIsLoading(true);
