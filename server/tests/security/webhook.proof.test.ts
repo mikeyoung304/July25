@@ -352,9 +352,9 @@ describe('Security Proof: Webhook HMAC Authentication', () => {
 
       // Try various bypass attempts
       const bypassAttempts = [
-        { header: 'X-Webhook-Signature', value: 'test' }, // Wrong case
-        { header: 'x_webhook_signature', value: 'test' }, // Underscore
-        { header: 'webhook-signature', value: 'test' }, // Missing x-
+        { header: 'X-Webhook-Signature', value: 'test', expectedError: 'Invalid signature' }, // Wrong case - Express normalizes to lowercase
+        { header: 'x_webhook_signature', value: 'test', expectedError: 'Missing signature' }, // Underscore - not recognized
+        { header: 'webhook-signature', value: 'test', expectedError: 'Missing signature' }, // Missing x- prefix - not recognized
       ];
 
       for (const attempt of bypassAttempts) {
@@ -365,7 +365,7 @@ describe('Security Proof: Webhook HMAC Authentication', () => {
           .send(payload)
           .expect(401);
 
-        expect(response.body.error).toBe('Missing signature');
+        expect(response.body.error).toBe(attempt.expectedError);
       }
     });
 

@@ -60,8 +60,21 @@ export function webhookAuth(
       });
     }
 
-    // Use raw body if available, otherwise stringify the parsed body
-    const payload = req.rawBody || JSON.stringify(req.body);
+    // Use raw body if available, otherwise handle based on content type
+    let payload: string;
+    if (req.rawBody) {
+      payload = req.rawBody;
+    } else if (req.headers['content-type']?.includes('application/x-www-form-urlencoded')) {
+      // Reconstruct form-urlencoded string from parsed body
+      const searchParams = new global.URLSearchParams();
+      Object.entries(req.body as Record<string, string>).forEach(([key, value]) => {
+        searchParams.append(key, value);
+      });
+      payload = searchParams.toString();
+    } else {
+      // Default to JSON stringification for other content types
+      payload = JSON.stringify(req.body);
+    }
 
     if (!verifyWebhookSignature(payload, signature, secret)) {
       logger.warn('Webhook request failed signature verification', {

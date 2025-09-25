@@ -115,20 +115,12 @@ export class HttpClient extends SecureAPIClient {
           if (import.meta.env.DEV) {
             logger.info('🔐 Using Supabase session token for API request')
           }
-        } else if (import.meta.env.DEV) {
-          // Development-only test token fallback
-          headers.set('Authorization', 'Bearer test-token')
-          logger.info('🔧 Using test token (development only)')
         } else {
-          console.warn('❌ No authentication available for API request')
+          logger.warn('❌ No authentication available for API request')
         }
       } catch (error) {
-        console.error('Failed to get auth session:', error)
-        // Development fallback only
-        if (import.meta.env.DEV) {
-          headers.set('Authorization', 'Bearer test-token')
-          logger.info('🔧 Using test token (auth session failed, dev mode)')
-        }
+        logger.error('Failed to get auth session:', error as Error)
+        // No fallback - authentication is required
       }
     }
 

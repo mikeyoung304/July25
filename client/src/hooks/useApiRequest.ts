@@ -72,8 +72,6 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
             const demoToken = await getDemoToken();
             if (demoToken) {
               headers.set('Authorization', `Bearer ${demoToken}`);
-            } else if (import.meta.env.DEV) {
-              headers.set('Authorization', 'Bearer test-token');
             }
           }
         } else {
