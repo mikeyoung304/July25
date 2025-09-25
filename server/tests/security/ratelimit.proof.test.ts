@@ -142,9 +142,10 @@ describe('Security Proof: Rate Limiting', () => {
         .send({ email: 'test@example.com', password: 'test' });
 
       // Rate limit header assertions temporarily disabled
-      // expect(response.headers).toHaveProperty('x-ratelimit-limit');
-      // expect(response.headers).toHaveProperty('x-ratelimit-remaining');
-      // expect(response.headers['x-ratelimit-limit']).toBe('5');
+      // express-rate-limit v7 uses lowercase headers without x- prefix
+      expect(response.headers).toHaveProperty('ratelimit-limit');
+      expect(response.headers).toHaveProperty('ratelimit-remaining');
+      expect(response.headers['ratelimit-limit']).toBe('5');
     });
   });
 
@@ -288,28 +289,28 @@ describe('Security Proof: Rate Limiting', () => {
         expect(response.headers).toHaveProperty('retry-after');
       } else {
         expect(response.status).toBe(200);
-        expect(response.headers).toHaveProperty('x-ratelimit-limit');
-        expect(response.headers).toHaveProperty('x-ratelimit-remaining');
+        expect(response.headers).toHaveProperty('ratelimit-limit');
+        expect(response.headers).toHaveProperty('ratelimit-remaining');
       }
     });
   });
 
   describe('Rate Limit Headers', () => {
-    it('should include X-RateLimit-Limit header', async () => {
+    it('should include RateLimit-Limit header', async () => {
       const response = await request(app)
         .post('/api/auth/login')
         .send({ email: 'test@example.com' });
 
-      expect(response.headers['x-ratelimit-limit']).toBeDefined();
+      expect(response.headers['ratelimit-limit']).toBeDefined();
     });
 
-    it('should include X-RateLimit-Remaining header', async () => {
+    it('should include RateLimit-Remaining header', async () => {
       const response = await request(app)
         .post('/api/auth/login')
         .send({ email: 'test@example.com' });
 
-      expect(response.headers['x-ratelimit-remaining']).toBeDefined();
-      const remaining = parseInt(response.headers['x-ratelimit-remaining']);
+      expect(response.headers['ratelimit-remaining']).toBeDefined();
+      const remaining = parseInt(response.headers['ratelimit-remaining']);
       expect(remaining).toBeGreaterThanOrEqual(0);
     });
 
