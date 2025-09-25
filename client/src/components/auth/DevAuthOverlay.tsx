@@ -1,40 +1,37 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/auth.hooks';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Users, ChefHat, Package, CreditCard, Settings, Eye, EyeOff, Copy } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Users, ChefHat, Package, CreditCard, Settings, ShoppingCart } from 'lucide-react';
 import { logger } from '@/services/logger';
 import { toast } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 interface DemoRole {
   id: string;
   name: string;
-  description: string;
   icon: React.ReactNode;
-  color: string;
   email: string;
   password: string;
   pin?: string;
+  iconBg: string;
 }
 
 const demoRoles: DemoRole[] = [
   {
     id: 'manager',
     name: 'Manager',
-    description: 'Full restaurant operations access',
-    icon: <Settings className="h-5 w-5" />,
-    color: '#2A4B5C',
+    icon: <Settings className="h-8 w-8" />,
+    iconBg: 'bg-gray-500/10 text-gray-600',
     email: 'manager@restaurant.com',
     password: 'Demo123!',
     pin: '1234'
   },
   {
-    id: 'server', 
+    id: 'server',
     name: 'Server',
-    description: 'Order creation and payment processing',
-    icon: <Users className="h-5 w-5" />,
-    color: '#4ECDC4',
+    icon: <Users className="h-8 w-8" />,
+    iconBg: 'bg-blue-500/10 text-blue-600',
     email: 'server@restaurant.com',
     password: 'Demo123!',
     pin: '5678'
@@ -42,9 +39,8 @@ const demoRoles: DemoRole[] = [
   {
     id: 'kitchen',
     name: 'Kitchen',
-    description: 'Kitchen display and order management',
-    icon: <ChefHat className="h-5 w-5" />,
-    color: '#FF6B35',
+    icon: <ChefHat className="h-8 w-8" />,
+    iconBg: 'bg-orange-500/10 text-orange-600',
     email: 'kitchen@restaurant.com',
     password: 'Demo123!',
     pin: '9012'
@@ -52,22 +48,29 @@ const demoRoles: DemoRole[] = [
   {
     id: 'expo',
     name: 'Expo',
-    description: 'Order completion and expediting',
-    icon: <Package className="h-5 w-5" />,
-    color: '#F4A460',
+    icon: <Package className="h-8 w-8" />,
+    iconBg: 'bg-purple-500/10 text-purple-600',
     email: 'expo@restaurant.com',
     password: 'Demo123!',
     pin: '3456'
   },
   {
     id: 'cashier',
-    name: 'Cashier', 
-    description: 'Payment processing only',
-    icon: <CreditCard className="h-5 w-5" />,
-    color: '#88B0A4',
+    name: 'Cashier',
+    icon: <CreditCard className="h-8 w-8" />,
+    iconBg: 'bg-green-500/10 text-green-600',
     email: 'cashier@restaurant.com',
     password: 'Demo123!',
     pin: '7890'
+  },
+  {
+    id: 'orders',
+    name: 'Orders',
+    icon: <ShoppingCart className="h-8 w-8" />,
+    iconBg: 'bg-indigo-500/10 text-indigo-600',
+    email: 'server@restaurant.com',
+    password: 'Demo123!',
+    pin: '5678'
   }
 ];
 
@@ -75,27 +78,20 @@ export function DevAuthOverlay() {
   const { login, loginWithPin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [showPasswords, setShowPasswords] = useState(false);
-  const [showPins, setShowPins] = useState(false);
 
   // Only render when demo panel is explicitly enabled
   if (import.meta.env.VITE_DEMO_PANEL !== '1') {
     return null;
   }
 
-  const handleRoleSelect = async (role: DemoRole, usePin: boolean = false) => {
+  const handleRoleSelect = async (role: DemoRole) => {
     setIsLoading(true);
     setSelectedRole(role.id);
     const restaurantId = '11111111-1111-1111-1111-111111111111';
-    
+
     try {
-      if (usePin && role.pin) {
-        await loginWithPin(role.pin, restaurantId);
-        toast.success(`Logged in as ${role.name} using PIN`);
-      } else {
-        await login(role.email, role.password, restaurantId);
-        toast.success(`Logged in as ${role.name}`);
-      }
+      await login(role.email, role.password, restaurantId);
+      toast.success(`Logged in as ${role.name}`);
       logger.info(`Demo login successful as ${role.name}`);
     } catch (error) {
       logger.error(`Demo login failed for ${role.name}:`, error);
@@ -106,160 +102,56 @@ export function DevAuthOverlay() {
     }
   };
 
-  const copyToClipboard = (text: string, type: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success(`${type} copied to clipboard`);
-  };
-
   return (
-    <Card className="w-full max-w-2xl mx-auto mt-8 shadow-lg border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white">
-      <CardHeader className="text-center">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Badge variant="secondary" className="bg-orange-100 text-orange-800">
-            DEV MODE
-          </Badge>
-          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-            FRIENDS & FAMILY
-          </Badge>
-        </div>
-        <CardTitle className="text-2xl">Quick Demo Access</CardTitle>
-        <CardDescription>
-          Select a role to instantly log in with demo credentials (development only)
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4 flex gap-4 justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPasswords(!showPasswords)}
-            className="gap-2"
-          >
-            {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {showPasswords ? 'Hide' : 'Show'} Passwords
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPins(!showPins)}
-            className="gap-2"
-          >
-            {showPins ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {showPins ? 'Hide' : 'Show'} PINs
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {demoRoles.map((role) => (
-            <Card key={role.id} className="border" style={{ borderColor: role.color + '40' }}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="p-2 rounded-lg"
-                      style={{ backgroundColor: role.color + '20', color: role.color }}
-                    >
-                      {role.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{role.name}</h3>
-                      <p className="text-xs text-muted-foreground">{role.description}</p>
-                    </div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-5xl">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+            Quick Demo Access
+          </h1>
+          <p className="text-gray-600">
+            Select a role to instantly log in
+          </p>
+          <div className="mt-2 inline-flex items-center gap-2 text-xs bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
+            Demo Mode • Password: Demo123!
+          </div>
+        </motion.div>
+
+        <div className="grid md:grid-cols-3 gap-4">
+          {demoRoles.map((role, index) => (
+            <motion.div
+              key={role.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05, duration: 0.3 }}
+            >
+              <Card
+                className="h-full min-h-[160px] group cursor-pointer hover:shadow-lg transition-all duration-300 border-gray-200"
+                onClick={() => handleRoleSelect(role)}
+              >
+                <div className="flex flex-col items-center justify-center h-full p-6 gap-4">
+                  <div className={`p-3 rounded-xl transition-transform duration-300 group-hover:scale-110 ${role.iconBg}`}>
+                    {role.icon}
                   </div>
-                </div>
-                
-                <div className="space-y-2 mb-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Email:</span>
-                    <div className="flex items-center gap-1">
-                      <code className="bg-gray-100 px-2 py-0.5 rounded">{role.email}</code>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={() => copyToClipboard(role.email, 'Email')}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Password:</span>
-                    <div className="flex items-center gap-1">
-                      <code className="bg-gray-100 px-2 py-0.5 rounded">
-                        {showPasswords ? role.password : '••••••••'}
-                      </code>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={() => copyToClipboard(role.password, 'Password')}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  {role.pin && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">PIN:</span>
-                      <div className="flex items-center gap-1">
-                        <code className="bg-gray-100 px-2 py-0.5 rounded">
-                          {showPins ? role.pin : '••••'}
-                        </code>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                          onClick={() => copyToClipboard(role.pin, 'PIN')}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      </div>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {role.name}
+                  </h3>
+                  {isLoading && selectedRole === role.id && (
+                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
                     </div>
                   )}
                 </div>
-                
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    onClick={() => handleRoleSelect(role, false)}
-                    disabled={isLoading}
-                    variant="default"
-                    size="sm"
-                    className="w-full"
-                  >
-                    {isLoading && selectedRole === role.id ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    ) : (
-                      'Login with Email'
-                    )}
-                  </Button>
-                  {role.pin && (
-                    <Button
-                      onClick={() => handleRoleSelect(role, true)}
-                      disabled={isLoading}
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                    >
-                      {isLoading && selectedRole === role.id ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600" />
-                      ) : (
-                        'Login with PIN'
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+              </Card>
+            </motion.div>
           ))}
         </div>
-        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            <strong>Friends & Family Panel:</strong> This panel is only visible in development mode with VITE_DEMO_PANEL=1. 
-            These are real Supabase accounts with test data. Click login buttons to authenticate using actual credentials.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
