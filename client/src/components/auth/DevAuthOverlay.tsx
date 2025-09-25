@@ -78,8 +78,8 @@ export function DevAuthOverlay() {
   const [showPasswords, setShowPasswords] = useState(false);
   const [showPins, setShowPins] = useState(false);
 
-  // Only render in development with demo panel explicitly enabled
-  if (import.meta.env.PROD || import.meta.env.VITE_DEMO_PANEL !== '1') {
+  // Only render when demo panel is explicitly enabled
+  if (import.meta.env.VITE_DEMO_PANEL !== '1') {
     return null;
   }
 
