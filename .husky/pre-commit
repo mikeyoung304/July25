@@ -28,7 +28,7 @@ fi
 
 # Check for console.log statements (except in test/debug files)
 echo "🔎 Checking for console.log statements..."
-files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '(test|spec|debug|mock)' | xargs grep -l 'console\.log' 2>/dev/null)
+files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '(test|spec|debug|mock)' | xargs grep -l 'console\.log' 2>/dev/null || true)
 if [ ! -z "$files" ]; then
   echo "⚠️  Warning: console.log statements found in:"
   echo "$files"

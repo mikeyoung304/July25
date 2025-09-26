@@ -340,7 +340,7 @@ export class EnterpriseErrorHandler {
       originalError,
       timestamp: new Date().toISOString(),
       ...(originalError.stack && { stack: originalError.stack }),
-      ...((originalError as any).cause ? { cause: (originalError as any).cause.toString() } : {}),
+      ...((originalError as unknown as { cause?: unknown }).cause ? { cause: String((originalError as unknown as { cause: unknown }).cause) } : {}),
       details: {
         ...context.details,
         originalType: originalError.constructor.name
@@ -616,24 +616,27 @@ export class EnterpriseErrorHandler {
     const logLevel = this.getLogLevel(error.severity);
     const logMessage = `[${error.severity.toUpperCase()}] ${error.type}: ${error.message}`;
     
-    if (logLevel === 'error') {
-      console.error(logMessage, {
-        id: error.id,
-        component: error.component,
-        service: error.service,
-        timestamp: error.timestamp,
-        details: error.details,
-        stack: error.stack
-      });
-    } else {
-      console.warn(logMessage, {
-        id: error.id,
-        component: error.component,
-        service: error.service,
-        timestamp: error.timestamp,
-        details: error.details,
-        stack: error.stack
-      });
+    if (typeof window !== 'undefined' && (window as any).logger) {
+      const logger = (window as any).logger;
+      if (logLevel === 'error') {
+        logger.error(logMessage, {
+          id: error.id,
+          component: error.component,
+          service: error.service,
+          timestamp: error.timestamp,
+          details: error.details,
+          stack: error.stack
+        });
+      } else {
+        logger.warn(logMessage, {
+          id: error.id,
+          component: error.component,
+          service: error.service,
+          timestamp: error.timestamp,
+          details: error.details,
+          stack: error.stack
+        });
+      }
     }
   }
   
@@ -678,7 +681,7 @@ export class EnterpriseErrorHandler {
         },
         body: JSON.stringify(sanitizedError)
       });
-    } catch (reportingError) {
+    } catch {
       // Debug: Failed to report error
     }
   }
