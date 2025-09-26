@@ -3,14 +3,16 @@
 ## Quick Deploy
 
 ```bash
-vercel deploy --prod
+npm run deploy
 ```
+
+**📖 For complete Vercel deployment documentation, see [VERCEL.md](VERCEL.md)**
 
 ## Prerequisites
 
 1. **Vercel CLI installed**: `npm i -g vercel`
 2. **Authenticated**: `vercel login`
-3. **Project linked**: `vercel link --project july25-client`
+3. **Project linked**: Run `npm run vercel:check` to verify
 
 ## Architecture
 
@@ -45,7 +47,7 @@ Required in Vercel Dashboard:
 ### One-Time Setup
 ```bash
 # Navigate to project root
-cd /Users/mikeyoung/CODING/rebuild-6.0
+cd /Users/mikeyoung/CODING/rebuild-6.0  # or your project directory
 
 # Link to Vercel project
 vercel link --yes --project july25-client

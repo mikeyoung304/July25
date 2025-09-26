@@ -1,51 +1,74 @@
-# Restaurant OS Documentation
+# Documentation
 
 ## Quick Links
 
-- [Getting Started](./01-getting-started/installation.md) - 5 minute setup
-- [Architecture Overview](./02-architecture/overview.md) - System design
-- [API Reference](./04-api/rest/README.md) - Endpoint documentation
-- [Developer Guide](./06-development/setup.md) - Development workflow
+- 🚀 [Getting Started](../README.md#quick-start)
+- 📦 [Deployment Guide](DEPLOYMENT.md)
+- 🔧 [Environment Variables](ENVIRONMENT.md)
+- 🏗️ [Architecture](ARCHITECTURE.md)
+- 🔒 [Security](../SECURITY.md)
+- 🤝 [Contributing](../CONTRIBUTING.md)
 
-## Project Overview
+## Platform-Specific
 
-Restaurant OS is a comprehensive Point of Sale and management system for restaurants, featuring:
+- [Vercel Deployment](VERCEL.md) - Frontend hosting
+- [Supabase Setup](../supabase/MIGRATION_GUIDE.md) - Database
 
-- **Multi-tenant** architecture supporting multiple restaurant locations
-- **Real-time** order management with WebSocket updates
-- **AI-powered** voice ordering using OpenAI Realtime API
-- **Kitchen Display System** (KDS) with real-time order tracking
-- **Payment Integration** with Square Terminal support
-- **Analytics Dashboard** for business insights
+## Features
 
-## Documentation Structure
+- [Voice Ordering](voice/VOICE_ORDERING_EXPLAINED.md)
+- [Kitchen Display System](KDS-BIBLE.md)
+- [Order Flow](ORDER_FLOW.md)
 
-```
-docs/
-├── 01-getting-started/    # Quick setup and configuration
-├── 02-architecture/       # System design and decisions
-├── 03-features/          # Feature documentation
-├── 04-api/              # API reference (auto-generated)
-├── 05-operations/       # Deployment and monitoring
-└── 06-development/      # Development guidelines
-```
+## API Documentation
 
-## Tech Stack
+- [API Reference](api/API-REFERENCE.md)
+- [WebSocket Events](api/websockets/README.md)
+- [Authentication](JWT_AUTHENTICATION_FLOW.md)
 
-- **Frontend**: React 19.1.0, TypeScript 5.8.3, Vite 5.4.19
-- **Backend**: Express 4.18.2, Node.js, TypeScript 5.3.3
-- **Database**: Supabase (PostgreSQL)
-- **Real-time**: WebSockets, OpenAI Realtime API
-- **Payments**: Square SDK
+## Operations
 
-## Getting Help
+- [Troubleshooting](05-operations/troubleshooting.md)
+- [Testing Guide](TESTING_GUIDE.md)
+- [Operational Runbook](OPERATIONAL_RUNBOOK.md)
 
-- Check [Troubleshooting Guide](./05-operations/troubleshooting.md)
-- Review [Known Issues](./06-development/known-issues.md)
-- See [CLAUDE.md](/CLAUDE.md) for AI assistant guidelines
+## Development
 
-## Version
+- [Setup Guide](06-development/setup.md)
+- [Known Issues](06-development/known-issues.md)
+- [Architecture Decisions](ADR/)
 
-Current Version: 6.0.2
+## Current Status
 
-Last Updated: January 30, 2025
+- **Version**: 6.0.3
+- **Frontend**: https://july25-client.vercel.app
+- **Backend**: https://july25.onrender.com
+- **Last Updated**: 2025-09-25
+
+## Documentation Standards
+
+### File Organization
+- Core docs in `/docs`
+- API docs in `/docs/api`
+- Feature guides in respective sections
+- Archives in `/docs/archive/YYYY-MM-DD/`
+
+### Naming Conventions
+- UPPERCASE.md for major guides
+- lowercase.md for subsections
+- No version numbers in filenames
+- No dates in active documentation
+
+### Best Practices
+- Single source of truth per topic
+- Cross-reference instead of duplicate
+- Archive old versions
+- Keep documentation current
+
+## Need Help?
+
+1. Check relevant guide above
+2. Search in documentation
+3. Check [Known Issues](06-development/known-issues.md)
+4. Ask in team chat
+5. Create GitHub issue

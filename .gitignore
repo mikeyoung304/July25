@@ -53,3 +53,4 @@ CLAUDE.local.md
 /shared/**/*.cjs
 /shared/**/*.mjs
 .vercel
+test-results/
