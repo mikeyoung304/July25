@@ -57,7 +57,6 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
       }
     };
 
-     
     console.log = (...args) => {
       originalLog(...args);
       addLog('LOG', ...args);
@@ -74,7 +73,6 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
     };
 
     return () => {
-       
       console.log = originalLog;
       console.error = originalError;
       console.warn = originalWarn;
