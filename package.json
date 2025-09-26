@@ -1,7 +1,7 @@
 {
   "name": "restaurant-os",
   "private": true,
-  "version": "6.0.3",
+  "version": "6.0.6",
   "type": "module",
   "description": "Restaurant OS - Intelligent Restaurant Management System",
   "workspaces": [
@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "deploy": "./scripts/vercel-deploy.sh",
+    "check:vercel": "node tools/verify-vercel-project.mjs",
     "vercel:check": "node tools/verify-vercel-project.mjs",
     "vercel:link": "vercel link --project july25-client --yes",
     "start": "cd server && npm start",

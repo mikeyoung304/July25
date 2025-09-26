@@ -13,7 +13,7 @@ class ClientLogger implements Logger {
 
   info(message: string, meta?: Record<string, unknown>): void {
     if (this.isDevelopment) {
-      console.info(`[INFO] ${message}`, meta || '');
+      console.warn(`[INFO] ${message}`, meta || '');
     }
   }
 
