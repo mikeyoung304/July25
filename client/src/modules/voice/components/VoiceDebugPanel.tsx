@@ -41,6 +41,7 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
 
   // Capture console logs
   useEffect(() => {
+    // eslint-disable-next-line no-console
     const originalLog = console.log;
     const originalError = console.error;
     const originalWarn = console.warn;
@@ -61,6 +62,7 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
       originalLog(...args);
       addLog('LOG', ...args);
     };
+    // eslint-disable-next-line no-console
     console.log = logOverride;
 
     console.error = (...args) => {
@@ -74,6 +76,7 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
     };
 
     return () => {
+      // eslint-disable-next-line no-console
       console.log = originalLog;
       console.error = originalError;
       console.warn = originalWarn;
