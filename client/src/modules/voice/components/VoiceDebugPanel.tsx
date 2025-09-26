@@ -57,10 +57,11 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
       }
     };
 
-    console.log = (...args) => {
+    const logOverride = (...args: any[]) => {
       originalLog(...args);
       addLog('LOG', ...args);
     };
+    console.log = logOverride;
 
     console.error = (...args) => {
       originalError(...args);

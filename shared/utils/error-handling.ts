@@ -616,15 +616,25 @@ export class EnterpriseErrorHandler {
     const logLevel = this.getLogLevel(error.severity);
     const logMessage = `[${error.severity.toUpperCase()}] ${error.type}: ${error.message}`;
     
-    const logMethod = console[logLevel] as (...args: unknown[]) => void;
-    logMethod(logMessage, {
-      id: error.id,
-      component: error.component,
-      service: error.service,
-      timestamp: error.timestamp,
-      details: error.details,
-      stack: error.stack
-    });
+    if (logLevel === 'error') {
+      console.error(logMessage, {
+        id: error.id,
+        component: error.component,
+        service: error.service,
+        timestamp: error.timestamp,
+        details: error.details,
+        stack: error.stack
+      });
+    } else {
+      console.warn(logMessage, {
+        id: error.id,
+        component: error.component,
+        service: error.service,
+        timestamp: error.timestamp,
+        details: error.details,
+        stack: error.stack
+      });
+    }
   }
   
   /**
