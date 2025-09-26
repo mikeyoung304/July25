@@ -2,8 +2,8 @@
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Frontend CI](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/frontend-ci.yml)
-[![Production Ready](https://img.shields.io/badge/Production%20Ready-6.5%2F10-yellow)](./docs/PRODUCTION_SPRINT_PLAN.md)
-[![Security](https://img.shields.io/badge/Security-7.5%2F10-green)](./docs/SECURITY_FIXES_v6.0.5.md)
+[![Production Ready](https://img.shields.io/badge/Production%20Ready-6.5%2F10-yellow)](./docs/DEPLOYMENT.md)
+[![Security](https://img.shields.io/badge/Security-7.5%2F10-green)](./docs/ARCHITECTURE.md)
 
 A modern, production-ready restaurant management system with AI-powered voice ordering, real-time kitchen display, and comprehensive POS capabilities. **Centralized configuration and enhanced security in v6.0.6.**
 
@@ -20,8 +20,8 @@ A modern, production-ready restaurant management system with AI-powered voice or
 - 🔄 **Phase 2**: Security hardening (IN PROGRESS)
 - 📅 **Next**: Performance verification, database optimization
 
-[View Security Report →](./docs/SECURITY_FIXES_v6.0.5.md)  
-[View Sprint Plan →](./docs/PRODUCTION_SPRINT_PLAN.md)
+[View Architecture Guide →](./docs/ARCHITECTURE.md)  
+[View Deployment Guide →](./docs/DEPLOYMENT.md)
 
 ## 🚀 Quick Start
 
@@ -149,7 +149,7 @@ july25/
 
 ### Environment Variables
 
-**v6.0.6**: Configuration is now centralized. See [ENVIRONMENT_VARIABLES.md](./docs/ENVIRONMENT_VARIABLES.md) for complete documentation.
+**v6.0.6**: Configuration is now centralized. See [ENVIRONMENT.md](./docs/ENVIRONMENT.md) for complete documentation.
 
 ```bash
 # Key changes in v6.0.6:
@@ -333,7 +333,7 @@ This project is proprietary software. All rights reserved.
 
 ---
 
-**Version**: 6.0.4  
-**Last Updated**: September 12, 2025  
+**Version**: 6.0.6  
+**Last Updated**: September 26, 2025  
 **Status**: Production Ready (**9.5/10**) - Security Hardened, Voice & Payments Integrated ✅  
 **Next Milestone**: Production deployment on AWS/Vercel
