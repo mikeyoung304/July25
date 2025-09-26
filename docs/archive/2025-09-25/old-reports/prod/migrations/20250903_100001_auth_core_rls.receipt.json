@@ -1,8 +1,0 @@
-{
-  "status": "already_applied",
-  "version": "20250904121653",
-  "name": "20250903_100001_auth_core_rls",
-  "applied_at": "2025-09-04T12:16:53Z",
-  "transport": "mcp",
-  "result": "Migration already exists in production"
-}

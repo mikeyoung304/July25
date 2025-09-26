@@ -2,7 +2,7 @@
 
 ## Quick Links
 
-- 🚀 [Getting Started](../README.md#quick-start)
+- 🚀 [Getting Started](GETTING_STARTED.md)
 - 📦 [Deployment Guide](DEPLOYMENT.md)
 - 🔧 [Environment Variables](ENVIRONMENT.md)
 - 🏗️ [Architecture](ARCHITECTURE.md)
@@ -40,10 +40,10 @@
 
 ## Current Status
 
-- **Version**: 6.0.3
+- **Version**: 6.0.6
 - **Frontend**: https://july25-client.vercel.app
 - **Backend**: https://july25.onrender.com
-- **Last Updated**: 2025-09-25
+- **Last Updated**: 2025-09-26
 
 ## Documentation Standards
 

@@ -1,7 +1,0 @@
-tests/e2e/voice-control.e2e.test.ts:47:      test.skip()
-tests/e2e/basic-routes.spec.ts:33:      test.skip();
-tests/e2e/basic-routes.spec.ts:48:      test.skip();
-tests/e2e/basic-routes.spec.ts:63:      test.skip();
-tests/performance/lighthouse.spec.ts:9:    test.skip(browserName !== 'chromium', 'Lighthouse only works with Chromium browsers');
-server/tests/security/rbac.proof.test.ts:257:    it.skip('should reject tokens without restaurant context', async () => {
-server/tests/security/csrf.proof.test.ts:9:describe.skip('Security Proof: CSRF Protection', () => {

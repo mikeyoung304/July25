@@ -42,7 +42,7 @@ ${JSON.stringify(errors, null, 2)}
 
   // Log when scripts load successfully
   window.addEventListener('load', function() {
-    console.log('[DEBUG] Window loaded successfully');
+    console.warn('[DEBUG] Window loaded successfully');
   });
 
   // Export debug info

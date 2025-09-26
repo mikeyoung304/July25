@@ -189,10 +189,56 @@ If upgrading from earlier versions:
 3. Move server variables to root `.env`
 4. Update platform dashboards
 
+## Vercel Deployment Environment Setup
+
+### Vercel Environment Variables Configuration
+
+When deploying to Vercel, environment variables must be configured in the Vercel dashboard:
+
+1. **Access Vercel Dashboard**
+   - Go to your project in Vercel dashboard
+   - Navigate to Settings → Environment Variables
+
+2. **Required Variables for Production**
+   ```bash
+   VITE_API_BASE_URL=https://your-backend.onrender.com
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
+   VITE_SQUARE_APPLICATION_ID=your-square-app-id
+   VITE_SQUARE_LOCATION_ID=your-square-location-id
+   ```
+
+3. **Environment Targeting**
+   - Set variables for "Production" environment
+   - Optionally set different values for "Preview" and "Development"
+
+### Common Vercel Issues
+
+**Configuration Required Error**
+- Ensure `VITE_API_BASE_URL` is set in Vercel production environment
+- Use `vercel env ls production` to verify all required variables
+- Redeploy after adding missing environment variables
+
+**Build Failures**
+- Verify all environment variables are set in Vercel dashboard
+- Check build logs for missing dependencies
+- Ensure Node.js version matches (20.x)
+
+**Runtime Environment Issues**
+- Variables must be prefixed with `VITE_` for client-side access
+- Restart deployment after changing environment variables
+- Check browser console for undefined environment variables
+
 ## Support
 
 For environment-specific issues:
-- **Vercel**: Check [VERCEL.md](VERCEL.md)
+- **Vercel**: Use `vercel env ls production` to check variables
 - **Render**: Check deployment logs
 - **Supabase**: Check connection settings
 - **Local**: Verify `.env` file exists
+
+---
+
+**Last Updated**: September 26, 2025  
+**Version**: 6.0.6

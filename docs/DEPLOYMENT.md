@@ -1,187 +1,290 @@
 # Deployment Guide
 
-**Last Updated**: 2025-09-25
+This guide covers deploying Restaurant OS to production environments.
 
-## Quick Start
+## Quick Deploy
 
-### Deploy Frontend (Vercel)
+### Frontend (Vercel)
 ```bash
+# Deploy to Vercel
 npm run deploy
 ```
 
-### Deploy Backend (Render)
-Push to `main` branch - auto-deploys via GitHub integration.
-
-## Architecture Overview
-
-- **Frontend**: React SPA deployed to Vercel
-- **Backend**: Node.js API deployed to Render
-- **Database**: Supabase (managed service)
-- **Monorepo**: Uses npm workspaces (client, server, shared)
+### Backend (Render)
+```bash
+# Deploy to Render
+git push origin main
+```
 
 ## Environment Variables
 
 ### Frontend (Vercel)
-Set in Vercel Dashboard → Settings → Environment Variables:
+Required environment variables for the client:
 
-| Variable | Production Value | Description |
-|----------|-----------------|-------------|
-| VITE_API_BASE_URL | https://july25.onrender.com | Backend API URL |
-| VITE_SUPABASE_URL | [Your Supabase URL] | Supabase project URL |
-| VITE_SUPABASE_ANON_KEY | [Your Supabase Key] | Supabase anonymous key |
-| VITE_DEFAULT_RESTAURANT_ID | 11111111-1111-1111-1111-111111111111 | Default restaurant |
-| VITE_DEMO_PANEL | 1 | Enable demo panel (optional) |
+```bash
+VITE_API_BASE_URL=https://your-backend-url.onrender.com
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
+VITE_SQUARE_APPLICATION_ID=your-square-app-id
+VITE_SQUARE_LOCATION_ID=your-square-location-id
+```
 
 ### Backend (Render)
-Set in Render Dashboard → Environment:
+Required environment variables for the server:
 
-| Variable | Description |
-|----------|-------------|
-| PORT | 3001 (set by Render) |
-| NODE_ENV | production |
-| DATABASE_URL | PostgreSQL connection string |
-| SUPABASE_URL | Supabase project URL |
-| SUPABASE_SERVICE_ROLE_KEY | Service role key (admin access) |
-| JWT_SECRET | JWT signing secret |
-| OPENAI_API_KEY | OpenAI API key |
-| SQUARE_ACCESS_TOKEN | Square payment token |
-| SQUARE_LOCATION_ID | Square location ID |
-| SQUARE_APPLICATION_ID | Square application ID |
+```bash
+NODE_ENV=production
+PORT=3001
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your-service-key
+SUPABASE_JWT_SECRET=your-jwt-secret
+OPENAI_API_KEY=your-openai-key
+SQUARE_ACCESS_TOKEN=your-square-token
+SQUARE_WEBHOOK_SIGNATURE_KEY=your-webhook-key
+```
+
+## Production Deployment
+
+### Prerequisites
+- Node.js 20.x
+- npm 10.7.0+
+- Vercel CLI installed
+- Render account configured
+- Supabase project setup
+
+### Step-by-Step Deployment
+
+#### 1. Environment Setup
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Configure production environment variables
+# See ENVIRONMENT.md for complete variable reference
+```
+
+#### 2. Build Verification
+```bash
+# Install dependencies
+npm install
+
+# Run type checking
+npm run typecheck
+
+# Run tests
+npm test
+
+# Build both client and server
+npm run build:full
+```
+
+#### 3. Database Setup
+```bash
+# Apply database migrations
+npm run db:push
+
+# Seed initial data (if needed)
+npm run db:seed
+```
+
+#### 4. Frontend Deployment (Vercel)
+```bash
+# Link to Vercel project
+npm run vercel:link
+
+# Deploy to production
+npm run deploy
+```
+
+#### 5. Backend Deployment (Render)
+```bash
+# Push to main branch (triggers auto-deploy)
+git push origin main
+
+# Monitor deployment in Render dashboard
+```
 
 ## Deployment Checklist
 
-### Pre-Deployment
-- [ ] All tests passing: `npm test`
-- [ ] No TypeScript errors: `npm run typecheck`
-- [ ] No linting errors: `npm run lint`
+### Pre-deployment
+- [ ] All tests passing (`npm test`)
+- [ ] TypeScript compilation successful (`npm run typecheck`)
 - [ ] Environment variables configured
-- [ ] Database migrations ready
+- [ ] Database migrations applied
+- [ ] Build successful locally (`npm run build:full`)
+- [ ] Security audit passed
+- [ ] Performance benchmarks met
 
-### Frontend Deployment (Vercel)
-1. **Verify Setup**
-   ```bash
-   npm run vercel:check
-   ```
+### Post-deployment
+- [ ] Health check endpoints responding
+- [ ] Database connectivity verified
+- [ ] WebSocket connections working
+- [ ] Payment processing functional
+- [ ] Voice ordering operational
+- [ ] Kitchen display systems active
+- [ ] Authentication flows working
 
-2. **Deploy**
-   ```bash
-   npm run deploy
-   ```
+## Verification Steps
 
-3. **Verify**
-   - Visit https://july25-client.vercel.app
-   - Check browser console for errors
-   - Test API connectivity
+### Health Checks
+```bash
+# Frontend health
+curl https://your-app.vercel.app/
 
-### Backend Deployment (Render)
-1. **Push to Main**
-   ```bash
-   git push origin main
-   ```
+# Backend health
+curl https://your-api.onrender.com/api/health
 
-2. **Monitor**
-   - Check Render dashboard for build status
-   - View logs for any errors
-   - Test endpoints at https://july25.onrender.com
+# Voice system health
+curl https://your-api.onrender.com/api/v1/ai/voice/handshake
+```
 
-### Post-Deployment
-- [ ] Smoke test critical paths
-- [ ] Check error monitoring (Sentry)
-- [ ] Verify API endpoints
-- [ ] Test authentication flow
-- [ ] Confirm payments work
+### Functional Testing
+- Test complete order flow
+- Verify payment processing
+- Check real-time updates
+- Validate voice ordering
+- Confirm multi-tenant isolation
 
 ## Troubleshooting
 
-### Vercel Issues
+### Common Issues
 
-**Build fails with Rollup error**
-- Already handled by ROLLUP_NO_NATIVE=1 in build command
+**Build Failures**
+- Check Node.js version (requires 20.x)
+- Verify all dependencies installed (`npm install`)
+- Check for TypeScript errors (`npm run typecheck`)
+- Review memory limits (increase if needed)
 
-**Blank page after deployment**
-1. Check browser console for errors
-2. Verify environment variables in Vercel dashboard
-3. Ensure backend is running
+**Runtime Errors**
+- Verify environment variables are set
+- Check database connection string
+- Review application logs in Render/Vercel dashboards
+- Validate JWT secret configuration
 
-**Wrong project linked**
+**Performance Issues**
+- Monitor memory usage (should be <4GB)
+- Check database query performance
+- Review WebSocket connection counts
+- Verify bundle size (<100KB main chunk)
+
+**Voice Ordering Issues**
+- Verify OpenAI API key is valid
+- Check WebRTC connection setup
+- Validate microphone permissions
+- Review voice service logs
+
+## Rollback Procedure
+
+If deployment issues occur:
+
+### 1. Immediate Rollback
 ```bash
-rm -rf .vercel
-vercel link --project july25-client --yes
+# Vercel - rollback frontend
+vercel rollback
+
+# Render - use dashboard to rollback to previous deployment
+# Or redeploy previous commit:
+git revert HEAD
+git push origin main
 ```
 
-### Render Issues
-
-**Build timeout**
-- Increase build timeout in Render settings
-- Check for memory-intensive operations
-
-**Database connection failed**
-- Verify DATABASE_URL is correct
-- Check Supabase connection pooling settings
-- Ensure SSL mode is enabled
-
-**Port binding error**
-- Render sets PORT automatically
-- Don't hardcode port in server code
-
-## Rollback Procedures
-
-### Vercel Rollback
+### 2. Database Rollback (if needed)
 ```bash
-# List recent deployments
-vercel ls
-
-# Rollback to specific deployment
-vercel rollback [deployment-url]
+# Rollback database migrations
+supabase db reset --linked
 ```
 
-### Render Rollback
-1. Go to Render dashboard
-2. Select the service
-3. Click "Deploys" tab
-4. Find previous successful deploy
-5. Click "Rollback to this deploy"
+### 3. Verification After Rollback
+- Test critical user flows
+- Verify all systems operational
+- Monitor error rates and performance
 
 ## CI/CD Pipeline
 
-### GitHub Actions
-- **On PR**: Runs tests, linting, type checking
-- **On main push**: Triggers Render deployment
-- **Vercel**: Auto-deploys on push (preview for PRs, production for main)
+The deployment process is automated through GitHub Actions:
 
-### Local Testing
+1. **Pull Request**: 
+   - Runs tests and type checking
+   - Builds client and server
+   - Runs security scans
+   - Performs bundle analysis
+
+2. **Merge to Main**: 
+   - Automatically deploys to production
+   - Runs smoke tests
+   - Updates deployment status
+
+3. **Health Checks**: 
+   - Verifies deployment success
+   - Monitors key metrics
+   - Alerts on failures
+
+### Manual Deployment Override
+
+If automated deployment fails:
+
 ```bash
-# Test production build locally
-npm run build
-npm run preview
-# Visit http://localhost:4173
+# Frontend manual deploy
+vercel --prod
+
+# Backend manual deploy
+git push render main
+
+# Force rebuild
+render deploy --service-id your-service-id
 ```
+
+## Monitoring & Observability
+
+### Health Endpoints
+- Frontend: `https://your-app.vercel.app/`
+- Backend API: `https://your-api.onrender.com/api/health`
+- Voice Service: `https://your-api.onrender.com/api/v1/ai/voice/handshake`
+- WebSocket: `wss://your-api.onrender.com/ws`
+
+### Key Metrics to Monitor
+- Response times (<200ms API, <2s page load)
+- Error rates (<1% for critical flows)
+- Memory usage (<4GB server)
+- WebSocket connections
+- Database query performance
+- Voice ordering success rate
+
+### Logging
+- Vercel: Function logs in dashboard
+- Render: Service logs in dashboard  
+- Application: Structured JSON logging with Winston
+- Database: Supabase logs and metrics
+
+### Alerting
+- Set up alerts for:
+  - High error rates
+  - Slow response times
+  - Memory usage spikes
+  - Database connection issues
+  - Payment processing failures
 
 ## Security Considerations
 
-- Never commit `.env` files
-- Use environment-specific variables
-- Rotate secrets regularly
-- Enable 2FA on all services
-- Use service role keys only on backend
-- Implement rate limiting
-- Enable CORS properly
+### Production Security Checklist
+- [ ] All secrets stored in environment variables
+- [ ] HTTPS enforced on all endpoints
+- [ ] CORS properly configured
+- [ ] Rate limiting enabled
+- [ ] JWT secrets rotated regularly
+- [ ] Database RLS policies active
+- [ ] Input validation on all endpoints
+- [ ] Security headers configured
 
-## Monitoring
+### Regular Maintenance
+- Update dependencies monthly
+- Rotate secrets quarterly
+- Review access logs weekly
+- Monitor security advisories
+- Perform security audits
 
-### Health Checks
-- Frontend: https://july25-client.vercel.app
-- Backend: https://july25.onrender.com/health
-- API Status: https://july25.onrender.com/api/status
+---
 
-### Logs
-- **Vercel**: `vercel logs [deployment-url]`
-- **Render**: View in dashboard or use Render CLI
-- **Application**: Check Sentry for errors
-
-## Contact & Support
-
-- **Vercel Issues**: Check [docs/VERCEL.md](VERCEL.md)
-- **Database Issues**: Check Supabase dashboard
-- **Build Issues**: Review build logs in respective dashboards
-- **Emergency**: Follow escalation procedures in team documentation
+**Last Updated**: September 26, 2025  
+**Version**: 6.0.6
