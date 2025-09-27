@@ -21,7 +21,7 @@ const demoRoles: DemoRole[] = [
   {
     id: 'manager',
     name: 'Manager',
-    icon: <Settings className="h-8 w-8" />,
+    icon: <Settings className="h-6 w-6" />,
     iconBg: 'bg-gray-500/10 text-gray-600',
     email: 'manager@restaurant.com',
     password: 'Demo123!',
@@ -30,7 +30,7 @@ const demoRoles: DemoRole[] = [
   {
     id: 'server',
     name: 'Server',
-    icon: <Users className="h-8 w-8" />,
+    icon: <Users className="h-6 w-6" />,
     iconBg: 'bg-blue-500/10 text-blue-600',
     email: 'server@restaurant.com',
     password: 'Demo123!',
@@ -39,7 +39,7 @@ const demoRoles: DemoRole[] = [
   {
     id: 'kitchen',
     name: 'Kitchen',
-    icon: <ChefHat className="h-8 w-8" />,
+    icon: <ChefHat className="h-6 w-6" />,
     iconBg: 'bg-orange-500/10 text-orange-600',
     email: 'kitchen@restaurant.com',
     password: 'Demo123!',
@@ -48,7 +48,7 @@ const demoRoles: DemoRole[] = [
   {
     id: 'expo',
     name: 'Expo',
-    icon: <Package className="h-8 w-8" />,
+    icon: <Package className="h-6 w-6" />,
     iconBg: 'bg-purple-500/10 text-purple-600',
     email: 'expo@restaurant.com',
     password: 'Demo123!',
@@ -57,7 +57,7 @@ const demoRoles: DemoRole[] = [
   {
     id: 'cashier',
     name: 'Cashier',
-    icon: <CreditCard className="h-8 w-8" />,
+    icon: <CreditCard className="h-6 w-6" />,
     iconBg: 'bg-green-500/10 text-green-600',
     email: 'cashier@restaurant.com',
     password: 'Demo123!',
@@ -66,7 +66,7 @@ const demoRoles: DemoRole[] = [
   {
     id: 'orders',
     name: 'Orders',
-    icon: <ShoppingCart className="h-8 w-8" />,
+    icon: <ShoppingCart className="h-6 w-6" />,
     iconBg: 'bg-indigo-500/10 text-indigo-600',
     email: 'server@restaurant.com',
     password: 'Demo123!',
@@ -103,18 +103,23 @@ export function DevAuthOverlay() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl">
+    <div className="mt-12 pb-8">
+      <div className="w-full">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-8"
+          className="text-center mb-6"
         >
-          <h1 className="text-3xl font-semibold text-gray-900 mb-2">
-            Quick Demo Access
-          </h1>
-          <p className="text-gray-600">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-gray-50 text-gray-500">Quick Demo Access</span>
+            </div>
+          </div>
+          <p className="text-gray-600 mt-4 text-sm">
             Select a role to instantly log in
           </p>
           <div className="mt-2 inline-flex items-center gap-2 text-xs bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
@@ -122,7 +127,7 @@ export function DevAuthOverlay() {
           </div>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {demoRoles.map((role, index) => (
             <motion.div
               key={role.id}
@@ -131,19 +136,19 @@ export function DevAuthOverlay() {
               transition={{ delay: index * 0.05, duration: 0.3 }}
             >
               <Card
-                className="h-full min-h-[160px] group cursor-pointer hover:shadow-lg transition-all duration-300 border-gray-200"
+                className="h-full min-h-[120px] group cursor-pointer hover:shadow-lg transition-all duration-300 border-gray-200"
                 onClick={() => handleRoleSelect(role)}
               >
-                <div className="flex flex-col items-center justify-center h-full p-6 gap-4">
-                  <div className={`p-3 rounded-xl transition-transform duration-300 group-hover:scale-110 ${role.iconBg}`}>
+                <div className="flex flex-col items-center justify-center h-full p-4 gap-3">
+                  <div className={`p-2 rounded-xl transition-transform duration-300 group-hover:scale-110 ${role.iconBg}`}>
                     {role.icon}
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900">
+                  <h3 className="text-sm font-medium text-gray-900">
                     {role.name}
                   </h3>
                   {isLoading && selectedRole === role.id && (
                     <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900" />
                     </div>
                   )}
                 </div>
