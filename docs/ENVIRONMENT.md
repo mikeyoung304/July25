@@ -75,7 +75,7 @@ cp .env.example .env
 | SENTRY_DSN | Error tracking | - |
 | LOG_LEVEL | Logging level | info |
 | ENABLE_CORS | Enable CORS | true |
-| ALLOWED_ORIGINS | CORS origins | * |
+| ALLOWED_ORIGINS | Extra CORS origins (comma-separated). Auto-detects Vercel/Render URLs when unset | - |
 
 ## Environment Files
 

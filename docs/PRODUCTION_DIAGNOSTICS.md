@@ -161,9 +161,9 @@ In Vercel Dashboard:
 4. **Voice WebSocket**: Separate system, also failing
 
 ### CORS Configuration
-1. **Allowed Origins**: Only july25-client-* patterns
-2. **Blocked**: rebuild-60-* domains
-3. **Fix**: Update regex pattern in server
+1. **Allowed Origins**: Core domains plus auto-detected `FRONTEND_URL`, Render URLs, and Vercel deployment metadata
+2. **Blocked**: Preview domains only fail if hosting variables are missing or extra custom domains aren't in `ALLOWED_ORIGINS`
+3. **Fix**: Ensure platform exposes the deployment URL to the backend (or add it via `ALLOWED_ORIGINS` env)
 
 ### Environment Variables
 **Vercel Missing (9 variables)**:
@@ -188,7 +188,7 @@ In Vercel Dashboard:
 ## 📝 LESSONS LEARNED
 
 1. **Environment variables were not migrated** when moving from july25-client to rebuild-60
-2. **CORS patterns too restrictive** - need wildcard for all preview deployments
+2. **Ensure preview URLs reach the backend** - keep `FRONTEND_URL`/`VERCEL_*` env vars in sync or populate `ALLOWED_ORIGINS`
 3. **Missing documentation** for required environment variables
 4. **No health check dashboard** to catch these issues early
 5. **Deployment protection** should be configured per environment

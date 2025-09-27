@@ -59,59 +59,96 @@ OrdersService.setWebSocketServer(wss);
 // Apply comprehensive security middleware
 applySecurity(app);
 
-// CORS configuration with explicit allow-list (NO wildcards or regex patterns)
-const allowedOrigins: string[] = [
+// Utility to normalize and validate origins (ensures scheme + host only)
+const normalizeOrigin = (origin: string | undefined | null): string | null => {
+  if (!origin) return null;
+  const trimmed = origin.trim();
+  if (!trimmed) return null;
+
+  try {
+    const candidate = trimmed.startsWith('http://') || trimmed.startsWith('https://')
+      ? trimmed
+      : `https://${trimmed}`;
+    const { protocol, host } = new URL(candidate);
+    if (!protocol || !host) return null;
+    return `${protocol}//${host}`;
+  } catch {
+    return null;
+  }
+};
+
+const allowedOrigins = new Set<string>([
   // Local development
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:4173', // vite preview
+  'http://127.0.0.1:4173',
   'http://localhost:3000',
+  'http://127.0.0.1:3000',
   'http://localhost:3001',
+  'http://127.0.0.1:3001',
 
   // Production domains
   'https://growfreshlocalfood.com',
   'https://www.growfreshlocalfood.com',
 
-  // July25 Vercel deployment (canonical)
+  // July25 canonical deployment
   'https://july25-client.vercel.app',
 
-  // Rebuild-60 Vercel deployment
+  // Rebuild-60 canonical deployment
   'https://rebuild-60.vercel.app',
 
-  // Specific preview deployments (explicit list, no patterns)
+  // Historic preview deployments (kept for compatibility)
   'https://july25-client-git-feat-r-b7c846-mikeyoung304-gmailcoms-projects.vercel.app',
   'https://rebuild-60-ao1ku064c-mikeyoung304-gmailcoms-projects.vercel.app',
-
-  // Legacy Grow deployments (will deprecate)
   'https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
   'https://grow-ir056u92z-mikeyoung304-gmailcoms-projects.vercel.app',
-];
+]);
 
-// Add environment-specific origins if provided (must be explicit URLs)
+const addOrigin = (origin: string | undefined | null, label?: string) => {
+  const normalized = normalizeOrigin(origin);
+  if (!normalized) {
+    if (origin) {
+      logger.warn('Skipping invalid CORS origin', { origin, label });
+    }
+    return;
+  }
+  allowedOrigins.add(normalized);
+};
+
+// Add explicit environment overrides (comma-separated list)
 if (process.env['ALLOWED_ORIGINS']) {
-  const envOrigins = process.env['ALLOWED_ORIGINS']
+  process.env['ALLOWED_ORIGINS']
     .split(',')
-    .map(origin => origin.trim())
-    .filter(origin => origin.startsWith('http://') || origin.startsWith('https://'));
-  allowedOrigins.push(...envOrigins);
+    .forEach(origin => addOrigin(origin, 'ALLOWED_ORIGINS'));
 }
 
-// Add frontend URL from environment if different
-if (process.env['FRONTEND_URL'] && !allowedOrigins.includes(process.env['FRONTEND_URL'])) {
-  allowedOrigins.push(process.env['FRONTEND_URL']);
-}
+// Add primary frontend URL (Render, Vercel, etc.)
+addOrigin(process.env['FRONTEND_URL'], 'FRONTEND_URL');
+addOrigin(process.env['RENDER_EXTERNAL_URL'], 'RENDER_EXTERNAL_URL');
 
-logger.info('🔧 CORS allowed origins:', allowedOrigins);
+// Support Vercel deployment metadata (preview/staging URLs)
+addOrigin(process.env['VERCEL_URL'], 'VERCEL_URL');
+addOrigin(process.env['VERCEL_BRANCH_URL'], 'VERCEL_BRANCH_URL');
+addOrigin(process.env['VERCEL_DEPLOYMENT_URL'], 'VERCEL_DEPLOYMENT_URL');
+addOrigin(process.env['NEXT_PUBLIC_VERCEL_URL'], 'NEXT_PUBLIC_VERCEL_URL');
+
+const allowedOriginList = Array.from(allowedOrigins);
+
+logger.info('🔧 CORS allowed origins:', allowedOriginList);
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
 
-    // Only allow explicitly listed origins - no wildcards
-    if (allowedOrigins.includes(origin)) {
+    const normalized = normalizeOrigin(origin);
+
+    if (normalized && allowedOrigins.has(normalized)) {
       callback(null, true);
     } else {
       console.error(`❌ CORS blocked origin: "${origin}"`);
-      console.error(`   Allowed origins:`, allowedOrigins);
+      console.error('   Allowed origins:', allowedOriginList);
       callback(new Error('Not allowed by CORS'));
     }
   },
