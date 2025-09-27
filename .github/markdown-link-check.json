@@ -1,0 +1,27 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://github.com/.*"
+    },
+    {
+      "pattern": "^http://localhost.*"
+    },
+    {
+      "pattern": "^https://app.supabase.com.*"
+    },
+    {
+      "pattern": "^https://developer.squareup.com.*"
+    }
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "file://./docs/"
+    }
+  ],
+  "timeout": "20s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "30s",
+  "aliveStatusCodes": [200, 206]
+}
