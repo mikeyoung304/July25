@@ -199,6 +199,7 @@ export default defineConfig(({ mode }) => {
 
     // Define global constants
     define: {
+      'import.meta.env.VITE_DEMO_PANEL': JSON.stringify('1'), // Always show demo panel on this demo site
       'globalThis.process': JSON.stringify({ env: {} }),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || mode)
     },
