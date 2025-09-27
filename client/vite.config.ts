@@ -1,12 +1,16 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
+  // Resolve env files relative to the client workspace (Vercel runs from repo root)
+  const envDir = fileURLToPath(new URL('.', import.meta.url))
+
   // Load from .env files
-  const fileEnv = loadEnv(mode, process.cwd(), '');
+  const fileEnv = loadEnv(mode, envDir, '');
   
   // In production, prefer process.env (from Vercel) over file env
   const env = mode === 'production' ? 
@@ -194,8 +198,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     
-    // Load .env files from the root directory
-    envDir: '..',
+    // Load .env files from the client workspace
+    envDir,
 
     // Define global constants
     define: {
