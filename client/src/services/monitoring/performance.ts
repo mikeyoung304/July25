@@ -4,6 +4,7 @@
  */
 
 import { logger } from './logger';
+import { httpClient } from '@/services/http';
 
 interface PerformanceMetric {
   name: string;
@@ -275,13 +276,15 @@ class PerformanceMonitor {
     // In production, send to analytics service
     if (!import.meta.env.DEV) {
       // TODO: Send to analytics endpoint
-      fetch('/api/v1/analytics/performance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(report)
-      }).catch(() => {
-        // Silently fail - don't impact user experience
-      });
+      void httpClient
+        .post('/api/v1/analytics/performance', report, {
+          // analytics endpoint does not require auth context
+          skipAuth: true,
+          skipRestaurantId: true
+        })
+        .catch(() => {
+          // Silently fail - don't impact user experience
+        });
     }
 
     logger.info('Performance Report', report);
