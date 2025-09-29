@@ -1,6 +1,13 @@
 import { useState, useCallback } from 'react'
 import { useToast } from '@/hooks/useToast'
 import type { VoiceOrderItem } from '@/modules/voice/contexts/types'
+import { httpClient } from '@/services/http'
+
+interface OrderSubmissionResponse {
+  id: string
+  order_number?: string
+  estimatedTime?: string
+}
 
 export function useOrderSubmission() {
   const { toast } = useToast()
@@ -42,22 +49,12 @@ export function useOrderSubmission() {
         }
       }
 
-      const response = await fetch('/api/v1/orders', {
-        method: 'POST',
+      const result = await httpClient.post<OrderSubmissionResponse>('/api/v1/orders', orderData, {
+        skipAuth: true,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer kiosk-token',
-          'X-Restaurant-ID': import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
-        },
-        body: JSON.stringify(orderData)
+          Authorization: 'Bearer kiosk-token'
+        }
       })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || `HTTP ${response.status}`)
-      }
-
-      const result = await response.json()
       
       toast.success(`Order #${result.order_number || result.id} submitted successfully!`)
       

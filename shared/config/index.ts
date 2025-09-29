@@ -56,10 +56,8 @@ class ConfigService {
    * Initialize configuration from environment variables
    */
   init(): AppConfig {
-    if (this.config) {
-      return this.config;
-    }
-    
+    const viteEnv = typeof import.meta !== 'undefined' ? (import.meta as any).env : undefined;
+
     const nodeEnv = (process.env['NODE_ENV'] || 'development') as AppConfig['nodeEnv'];
     
     const newConfig: AppConfig = {
@@ -70,14 +68,26 @@ class ConfigService {
       isTest: nodeEnv === 'test',
 
       // API Configuration
-      apiBaseUrl: process.env['VITE_API_BASE_URL'] || process.env['API_BASE_URL'] || 'http://localhost:3001',
+      apiBaseUrl:
+        viteEnv?.VITE_API_BASE_URL ||
+        process.env['VITE_API_BASE_URL'] ||
+        process.env['API_BASE_URL'] ||
+        'http://localhost:3001',
       frontendUrl: process.env['FRONTEND_URL'] || 'http://localhost:5173',
       port: parseInt(process.env['PORT'] || '3001', 10),
 
       // Database
       databaseUrl: process.env['DATABASE_URL'] || '',
-      supabaseUrl: process.env['VITE_SUPABASE_URL'] || process.env['SUPABASE_URL'] || '',
-      supabaseAnonKey: process.env['VITE_SUPABASE_ANON_KEY'] || process.env['SUPABASE_ANON_KEY'] || '',
+      supabaseUrl:
+        viteEnv?.VITE_SUPABASE_URL ||
+        process.env['VITE_SUPABASE_URL'] ||
+        process.env['SUPABASE_URL'] ||
+        '',
+      supabaseAnonKey:
+        viteEnv?.VITE_SUPABASE_ANON_KEY ||
+        process.env['VITE_SUPABASE_ANON_KEY'] ||
+        process.env['SUPABASE_ANON_KEY'] ||
+        '',
       supabaseServiceKey: process.env['SUPABASE_SERVICE_KEY'] || '',
       supabaseJwtSecret: process.env['SUPABASE_JWT_SECRET'] || '',
 
@@ -88,7 +98,11 @@ class ConfigService {
       deviceFingerprintSalt: process.env['DEVICE_FINGERPRINT_SALT'] || '',
 
       // Restaurant
-      defaultRestaurantId: process.env['VITE_DEFAULT_RESTAURANT_ID'] || process.env['DEFAULT_RESTAURANT_ID'] || '',
+      defaultRestaurantId:
+        viteEnv?.VITE_DEFAULT_RESTAURANT_ID ||
+        process.env['VITE_DEFAULT_RESTAURANT_ID'] ||
+        process.env['DEFAULT_RESTAURANT_ID'] ||
+        '',
 
       // AI Services
       openaiApiKey: process.env['OPENAI_API_KEY'] || '',
@@ -97,13 +111,26 @@ class ConfigService {
 
       // Payment Processing
       squareAccessToken: process.env['SQUARE_ACCESS_TOKEN'] || 'demo',
-      squareEnvironment: (process.env['VITE_SQUARE_ENVIRONMENT'] || process.env['SQUARE_ENVIRONMENT'] || 'sandbox') as 'sandbox' | 'production',
-      squareLocationId: process.env['VITE_SQUARE_LOCATION_ID'] || process.env['SQUARE_LOCATION_ID'] || 'demo',
-      squareAppId: process.env['VITE_SQUARE_APP_ID'] || process.env['SQUARE_APP_ID'] || 'demo',
+      squareEnvironment: (
+        viteEnv?.VITE_SQUARE_ENVIRONMENT ||
+        process.env['VITE_SQUARE_ENVIRONMENT'] ||
+        process.env['SQUARE_ENVIRONMENT'] ||
+        'sandbox'
+      ) as 'sandbox' | 'production',
+      squareLocationId:
+        viteEnv?.VITE_SQUARE_LOCATION_ID ||
+        process.env['VITE_SQUARE_LOCATION_ID'] ||
+        process.env['SQUARE_LOCATION_ID'] ||
+        'demo',
+      squareAppId:
+        viteEnv?.VITE_SQUARE_APP_ID ||
+        process.env['VITE_SQUARE_APP_ID'] ||
+        process.env['SQUARE_APP_ID'] ||
+        'demo',
 
       // Feature Flags
-      useMockData: process.env['VITE_USE_MOCK_DATA'] === 'true',
-      useRealtimeVoice: process.env['VITE_USE_REALTIME_VOICE'] !== 'false',
+      useMockData: (viteEnv?.VITE_USE_MOCK_DATA ?? process.env['VITE_USE_MOCK_DATA']) === 'true',
+      useRealtimeVoice: (viteEnv?.VITE_USE_REALTIME_VOICE ?? process.env['VITE_USE_REALTIME_VOICE']) !== 'false',
     };
 
     this.config = newConfig;
