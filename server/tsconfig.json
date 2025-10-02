@@ -43,7 +43,8 @@
     "node_modules",
     "dist",
     "tests",
-    "scripts"
+    "scripts",
+    "../shared/config/browser.ts"
   ],
   "ts-node": {
     "esm": true,

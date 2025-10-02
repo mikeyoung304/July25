@@ -14,7 +14,7 @@ interface ImportMetaEnv {
   SSR?: boolean
 }
 
-function getEnv(): ImportMetaEnv {
+export function getEnv(): ImportMetaEnv {
   // In test environment, use process.env
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
     return {
@@ -29,13 +29,24 @@ function getEnv(): ImportMetaEnv {
     }
   }
   
-  // In browser/Vite environment, use import.meta.env
-  // This will be handled by the polyfill in test environment
+  // In browser/Vite environment, prefer the shared config bootstrap
+  if (typeof window !== 'undefined') {
+    const sharedEnv = (globalThis as typeof globalThis & {
+      __SHARED_CONFIG_VITE_ENV__?: ImportMetaEnv
+    }).__SHARED_CONFIG_VITE_ENV__
+
+    if (sharedEnv) {
+      return sharedEnv
+    }
+  }
+
+  // Fall back to the raw import.meta env (Vite replaces at build time)
   try {
-    return import.meta.env || {}
+    return (import.meta as { env?: ImportMetaEnv }).env || {}
   } catch {
     return {}
   }
 }
 
 export const env = getEnv()
+export default env

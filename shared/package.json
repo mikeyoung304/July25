@@ -9,11 +9,25 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "default": "./dist/config/index.js"
+    },
+    "./config/browser": {
+      "types": "./dist/config/browser.d.ts",
+      "default": "./dist/config/browser.js"
+    },
+    "./config/node": {
+      "types": "./dist/config/node.d.ts",
+      "default": "./dist/config/node.js"
+    },
     "./*": null
   },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
+    "typecheck:quick": "tsc --noEmit",
+    "lint": "eslint config/index.ts config/browser.ts config/node.ts",
     "test:quick": "echo \"no quick tests\""
   },
   "devDependencies": {

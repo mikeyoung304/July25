@@ -19,6 +19,7 @@
     "src/**/__mocks__/**/*",
     "src/test-utils/**/*",
     "tests/**/*",
-    "scripts/**/*"
+    "scripts/**/*",
+    "../shared/config/browser.ts"
   ]
 }

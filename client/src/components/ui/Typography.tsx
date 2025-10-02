@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@/utils';
 import { getTypographyClasses } from '@/lib/typography';
 
-interface TypographyProps {
+export interface TypographyProps {
   children: React.ReactNode;
   className?: string;
   as?: React.ElementType;

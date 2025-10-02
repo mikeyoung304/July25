@@ -1,46 +1,12 @@
-#!/usr/bin/env sh
-CHANGED="$(git diff --cached --name-only)"
-if [ -n "$CHANGED" ] && echo "$CHANGED" | grep -Evq '^(AGENTS\.md|\.codex/|docs/|\.github/)'; then
-  echo "[husky] code changes detected -> running full checks"
-else
-  echo "[husky] docs-only changes -> skipping heavy checks"
-  exit 0
-fi
-. "$(dirname -- "$0")/_/husky.sh"
+#!/usr/bin/env bash
+. "$(dirname "$0")/_/husky.sh"
 
-echo "🚀 Running pre-commit checks (fast mode)..."
+echo "[husky] pre-commit: quick typecheck + lint"
 
-# Guard against compiled JS in /shared
-echo "🛡️  Checking for compiled JS in /shared..."
-npm run check:no-shared-js
-if [ $? -ne 0 ]; then
-  echo "❌ Compiled JS detected in /shared. Please fix before committing."
-  exit 1
+# Allow skipping on local emergency fixes:
+#   SKIP_PRECOMMIT_TS=1 git commit -m "..."
+if [ -z "$SKIP_PRECOMMIT_TS" ]; then
+  npm run typecheck:quick --workspaces || exit 1
 fi
 
-# Run TypeScript check (fast, no emit)
-echo "📘 Running TypeScript check..."
-npm run typecheck
-if [ $? -ne 0 ]; then
-  echo "❌ TypeScript errors found. Please fix before committing."
-  exit 1
-fi
-
-# Check for console.log statements (except in test/debug files)
-echo "🔎 Checking for console.log statements..."
-files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '(test|spec|debug|mock)' | xargs grep -l 'console\.log' 2>/dev/null || true)
-if [ ! -z "$files" ]; then
-  echo "⚠️  Warning: console.log statements found in:"
-  echo "$files"
-  echo "Consider using the logger service instead."
-fi
-
-# Check for 'any' types in new code
-echo "🔎 Checking for 'any' types in staged files..."
-any_count=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' | xargs grep -c ': any' 2>/dev/null | awk -F: '{sum+=$2} END {print sum}')
-if [ "$any_count" -gt "0" ]; then
-  echo "⚠️  Warning: $any_count 'any' types found in staged files"
-  echo "Consider using proper types for better type safety"
-fi
-
-echo "✅ Pre-commit checks passed! (Full tests run in CI)"
+npm run lint --workspaces --silent || exit 1

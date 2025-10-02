@@ -1,6 +1,6 @@
 
 // Note: logger import moved after getConfig to avoid circular dependency
-import { configService, validateConfig } from '../../../shared/config';
+import { configService, validateConfig } from '@rebuild/shared/config/node';
 
 export interface EnvironmentConfig {
   port: number;
