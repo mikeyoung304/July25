@@ -1,14 +1,16 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    "composite": true,
     "noEmit": false,
     "outDir": "dist",
     "declaration": true,
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "target": "ES2020",
     "jsx": "react-jsx",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "include": ["./**/*.ts", "./**/*.tsx"],
   "exclude": ["dist", "node_modules"]

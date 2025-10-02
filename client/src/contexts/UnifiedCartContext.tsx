@@ -16,7 +16,7 @@ export interface UnifiedCart extends Cart {
 }
 
 // Context interface that combines both cart systems
-interface UnifiedCartContextType {
+export interface UnifiedCartContextType {
   cart: UnifiedCart;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;

@@ -52,6 +52,7 @@
     "../shared/utils/cleanup-manager.ts",
     "../shared/utils/memory-monitoring.ts",
     "../shared/utils/websocket-pool.browser.ts",
-    "../shared/utils/websocket-pool.ts"
+    "../shared/utils/websocket-pool.ts",
+    "../shared/config/browser.ts"
   ]
 }

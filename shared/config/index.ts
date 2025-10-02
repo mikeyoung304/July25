@@ -5,6 +5,11 @@
  * Eliminates hardcoded values and ensures multi-tenancy support.
  */
 
+declare global {
+   
+  var __SHARED_CONFIG_VITE_ENV__: Record<string, string | undefined> | undefined;
+}
+
 export interface AppConfig {
   // Environment
   nodeEnv: 'development' | 'test' | 'production';
@@ -56,7 +61,7 @@ class ConfigService {
    * Initialize configuration from environment variables
    */
   init(): AppConfig {
-    const viteEnv = typeof import.meta !== 'undefined' ? (import.meta as any).env : undefined;
+    const viteEnv = typeof window !== 'undefined' ? globalThis.__SHARED_CONFIG_VITE_ENV__ : undefined;
 
     const nodeEnv = (process.env['NODE_ENV'] || 'development') as AppConfig['nodeEnv'];
     
@@ -69,7 +74,7 @@ class ConfigService {
 
       // API Configuration
       apiBaseUrl:
-        viteEnv?.VITE_API_BASE_URL ||
+        viteEnv?.['VITE_API_BASE_URL'] ||
         process.env['VITE_API_BASE_URL'] ||
         process.env['API_BASE_URL'] ||
         'http://localhost:3001',
@@ -79,12 +84,12 @@ class ConfigService {
       // Database
       databaseUrl: process.env['DATABASE_URL'] || '',
       supabaseUrl:
-        viteEnv?.VITE_SUPABASE_URL ||
+        viteEnv?.['VITE_SUPABASE_URL'] ||
         process.env['VITE_SUPABASE_URL'] ||
         process.env['SUPABASE_URL'] ||
         '',
       supabaseAnonKey:
-        viteEnv?.VITE_SUPABASE_ANON_KEY ||
+        viteEnv?.['VITE_SUPABASE_ANON_KEY'] ||
         process.env['VITE_SUPABASE_ANON_KEY'] ||
         process.env['SUPABASE_ANON_KEY'] ||
         '',
@@ -99,7 +104,7 @@ class ConfigService {
 
       // Restaurant
       defaultRestaurantId:
-        viteEnv?.VITE_DEFAULT_RESTAURANT_ID ||
+        viteEnv?.['VITE_DEFAULT_RESTAURANT_ID'] ||
         process.env['VITE_DEFAULT_RESTAURANT_ID'] ||
         process.env['DEFAULT_RESTAURANT_ID'] ||
         '',
@@ -112,25 +117,25 @@ class ConfigService {
       // Payment Processing
       squareAccessToken: process.env['SQUARE_ACCESS_TOKEN'] || 'demo',
       squareEnvironment: (
-        viteEnv?.VITE_SQUARE_ENVIRONMENT ||
+        viteEnv?.['VITE_SQUARE_ENVIRONMENT'] ||
         process.env['VITE_SQUARE_ENVIRONMENT'] ||
         process.env['SQUARE_ENVIRONMENT'] ||
         'sandbox'
       ) as 'sandbox' | 'production',
       squareLocationId:
-        viteEnv?.VITE_SQUARE_LOCATION_ID ||
+        viteEnv?.['VITE_SQUARE_LOCATION_ID'] ||
         process.env['VITE_SQUARE_LOCATION_ID'] ||
         process.env['SQUARE_LOCATION_ID'] ||
         'demo',
       squareAppId:
-        viteEnv?.VITE_SQUARE_APP_ID ||
+        viteEnv?.['VITE_SQUARE_APP_ID'] ||
         process.env['VITE_SQUARE_APP_ID'] ||
         process.env['SQUARE_APP_ID'] ||
         'demo',
 
       // Feature Flags
-      useMockData: (viteEnv?.VITE_USE_MOCK_DATA ?? process.env['VITE_USE_MOCK_DATA']) === 'true',
-      useRealtimeVoice: (viteEnv?.VITE_USE_REALTIME_VOICE ?? process.env['VITE_USE_REALTIME_VOICE']) !== 'false',
+      useMockData: (viteEnv?.['VITE_USE_MOCK_DATA'] ?? process.env['VITE_USE_MOCK_DATA']) === 'true',
+      useRealtimeVoice: (viteEnv?.['VITE_USE_REALTIME_VOICE'] ?? process.env['VITE_USE_REALTIME_VOICE']) !== 'false',
     };
 
     this.config = newConfig;
@@ -218,13 +223,10 @@ class ConfigService {
 }
 
 // Create the service instance
-const configService = new ConfigService();
+export const configService = new ConfigService();
 
 // Export the simple config for build compatibility
 export { config } from './simple';
-
-// Export the service instance for runtime usage
-export { configService };
 
 // Export convenience functions
 export const getConfig = () => configService.get();
