@@ -1,12 +1,8 @@
-// IMPORTANT: Load environment variables FIRST before any other imports
-// This ensures all services have access to env vars during initialization
-import dotenv from 'dotenv';
-import path from 'path';
+// IMPORTANT: Environment must be loaded FIRST via env.ts
+// The import of ./config/environment will trigger ./config/env.ts
+import { validateEnvironment, getConfig } from './config/environment';
+import { initializeDatabase } from './config/database';
 
-// Load from root .env file explicitly
-dotenv.config({ path: path.join(__dirname, '../../.env') });
-
-// Now import everything else
 import express, { Express } from 'express';
 import cors from 'cors';
 import _helmet from 'helmet';
@@ -17,8 +13,6 @@ import { logger } from './utils/logger';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import { setupRoutes } from './routes';
-import { initializeDatabase } from './config/database';
-import { validateEnvironment, getConfig } from './config/environment';
 import { aiService } from './services/ai.service';
 import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocket';
 import { setupAIWebSocket } from './ai/websocket';
@@ -32,16 +26,6 @@ import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
 import { applySecurity } from './middleware/security';
 import { sanitizeRequest } from './middleware/requestSanitizer';
 import { responseTransformMiddleware } from './middleware/responseTransform';
-
-// Validate required environment variables
-try {
-  validateEnvironment();
-  logger.info('✅ Environment validation passed');
-} catch (error) {
-  logger.error('❌ Environment validation failed:', error);
-  logger.error('Please check your .env file and ensure all required variables are set');
-  process.exit(1);
-}
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -227,31 +211,31 @@ setupWebSocketHandlers(wss);
 setupAIWebSocket(wss);
 
 // Start server
-const PORT = process.env['PORT'] || 3001;
-
 async function startServer() {
   try {
-    // Initialize database connection
+    // Validate environment and initialize database
+    validateEnvironment();
     await initializeDatabase();
-    
+    const config = getConfig();
+
     // Initialize menu context for AI service
     try {
-      const config = getConfig();
       const restaurantId = config.restaurant.defaultId;
       await aiService.syncMenuFromDatabase(restaurantId);
       logger.info('✅ Menu context initialized for AI service');
     } catch (error) {
       logger.warn('⚠️  Failed to initialize menu context:', error);
     }
-    
-    httpServer.listen(PORT, () => {
-      const config = getConfig();
-      const host = process.env['NODE_ENV'] === 'production' ? config.frontend.url.replace('http://', '').replace('https://', '').split(':')[0] : 'localhost';
-      
-      logger.info(`🚀 Unified backend running on port ${PORT}`);
-      logger.info(`   - REST API: http://${host}:${PORT}/api/v1`);
-      logger.info(`   - Voice AI: http://${host}:${PORT}/api/v1/ai`);
-      logger.info(`   - WebSocket: ws://${host}:${PORT}`);
+
+    httpServer.listen(config.port, () => {
+      const host = config.nodeEnv === 'production'
+        ? config.frontend.url.replace('http://', '').replace('https://', '').split(':')[0]
+        : 'localhost';
+
+      logger.info(`🚀 Unified backend running on port ${config.port}`);
+      logger.info(`   - REST API: http://${host}:${config.port}/api/v1`);
+      logger.info(`   - Voice AI: http://${host}:${config.port}/api/v1/ai`);
+      logger.info(`   - WebSocket: ws://${host}:${config.port}`);
       logger.info(`🌍 Environment: ${config.nodeEnv}`);
       logger.info(`🔗 Frontend URL: ${config.frontend.url}`);
       logger.info(`🏢 Default Restaurant: ${config.restaurant.defaultId}`);
@@ -261,7 +245,6 @@ async function startServer() {
     process.exit(1);
   }
 }
-
 // Cleanup tracking
 let isShuttingDown = false;
 

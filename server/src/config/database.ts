@@ -1,39 +1,45 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { getConfig } from './environment';
 import { logger } from '../utils/logger';
-import dotenv from 'dotenv';
-import path from 'path';
 
-// Ensure environment variables are loaded from root directory
-dotenv.config({ path: path.join(__dirname, '../../../.env') });
+let _supabaseClient: SupabaseClient | null = null;
 
-const config = getConfig();
-
-// Create Supabase client with service role key for backend operations
-export const supabase = createClient(
-  config.supabase.url,
-  config.supabase.serviceKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-    db: {
-      schema: 'public',
-    },
+function getSupabaseClient(): SupabaseClient {
+  if (!_supabaseClient) {
+    const config = getConfig();
+    _supabaseClient = createClient(
+      config.supabase.url,
+      config.supabase.serviceKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+        db: {
+          schema: 'public',
+        },
+      }
+    );
   }
-);
+  return _supabaseClient;
+}
 
-// Test database connection
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    const client = getSupabaseClient();
+    const value = (client as any)[prop];
+    return typeof value === 'function' ? value.bind(client) : value;
+  }
+});
+
 export async function initializeDatabase(): Promise<void> {
   try {
-    // Simple query to test connection
     const { error } = await supabase
       .from('restaurants')
       .select('id')
       .limit(1);
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = table doesn't exist yet
+    if (error && error.code !== 'PGRST116') {
       throw error;
     }
 
@@ -44,7 +50,6 @@ export async function initializeDatabase(): Promise<void> {
   }
 }
 
-// Helper function to get restaurant-scoped query
 export function getRestaurantQuery(restaurantId: string) {
   return {
     eq: (column: string) => ({ [column]: restaurantId }),
