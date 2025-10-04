@@ -1,6 +1,9 @@
 /**
  * Centralized Configuration Service
  * 
+ * NOTE: This is for CLIENT-SIDE USE ONLY (browser/Vite).
+ * Server uses server/src/config/env.ts for environment loading.
+ * 
  * Single source of truth for all configuration values.
  * Eliminates hardcoded values and ensures multi-tenancy support.
  */
@@ -107,43 +110,44 @@ class ConfigService {
         viteEnv?.['VITE_DEFAULT_RESTAURANT_ID'] ||
         process.env['VITE_DEFAULT_RESTAURANT_ID'] ||
         process.env['DEFAULT_RESTAURANT_ID'] ||
-        '',
+        '11111111-1111-1111-1111-111111111111',
 
       // AI Services
-      openaiApiKey: process.env['OPENAI_API_KEY'] || '',
-      openaiRealtimeModel: process.env['OPENAI_REALTIME_MODEL'] || '',
+      ...(
+        process.env['OPENAI_API_KEY']
+          ? { openaiApiKey: process.env['OPENAI_API_KEY'] }
+          : {}
+      ),
+      openaiRealtimeModel: process.env['OPENAI_REALTIME_MODEL'] || 'gpt-4o-realtime-preview-2025-06-03',
       aiDegradedMode: process.env['AI_DEGRADED_MODE'] === 'true',
 
       // Payment Processing
-      squareAccessToken: process.env['SQUARE_ACCESS_TOKEN'] || 'demo',
-      squareEnvironment: (
-        viteEnv?.['VITE_SQUARE_ENVIRONMENT'] ||
-        process.env['VITE_SQUARE_ENVIRONMENT'] ||
-        process.env['SQUARE_ENVIRONMENT'] ||
-        'sandbox'
-      ) as 'sandbox' | 'production',
-      squareLocationId:
-        viteEnv?.['VITE_SQUARE_LOCATION_ID'] ||
-        process.env['VITE_SQUARE_LOCATION_ID'] ||
-        process.env['SQUARE_LOCATION_ID'] ||
-        'demo',
+      squareAccessToken: process.env['SQUARE_ACCESS_TOKEN'] || '',
+      squareEnvironment: (process.env['SQUARE_ENVIRONMENT'] as 'sandbox' | 'production') || 'sandbox',
+      squareLocationId: process.env['SQUARE_LOCATION_ID'] || '',
       squareAppId:
         viteEnv?.['VITE_SQUARE_APP_ID'] ||
         process.env['VITE_SQUARE_APP_ID'] ||
         process.env['SQUARE_APP_ID'] ||
-        'demo',
+        '',
 
       // Feature Flags
-      useMockData: (viteEnv?.['VITE_USE_MOCK_DATA'] ?? process.env['VITE_USE_MOCK_DATA']) === 'true',
-      useRealtimeVoice: (viteEnv?.['VITE_USE_REALTIME_VOICE'] ?? process.env['VITE_USE_REALTIME_VOICE']) !== 'false',
+      useMockData:
+        viteEnv?.['VITE_USE_MOCK_DATA'] === 'true' ||
+        process.env['VITE_USE_MOCK_DATA'] === 'true' ||
+        false,
+      useRealtimeVoice:
+        viteEnv?.['VITE_USE_REALTIME_VOICE'] === 'true' ||
+        process.env['VITE_USE_REALTIME_VOICE'] === 'true' ||
+        false,
     };
 
     this.config = newConfig;
-    return this.config;
+    return newConfig;
   }
-  
+
   /**
-   * Get configuration (initializes if needed)
+   * Get current configuration
    */
   get(): AppConfig {
     if (!this.config) {
@@ -151,63 +155,43 @@ class ConfigService {
     }
     return this.config;
   }
-  
+
   /**
    * Validate required configuration values
-   * Throws errors for missing critical configuration
    */
   validate(): void {
     const config = this.get();
-    const errors: string[] = [];
-    
-    // Required in all environments
-    if (!config.supabaseUrl) errors.push('SUPABASE_URL is required');
-    if (!config.supabaseAnonKey) errors.push('SUPABASE_ANON_KEY is required');
-    if (!config.defaultRestaurantId) errors.push('DEFAULT_RESTAURANT_ID is required');
-    
-    // Required for server
-    if (typeof window === 'undefined') {
-      if (!config.databaseUrl) errors.push('DATABASE_URL is required');
-      if (!config.supabaseServiceKey) errors.push('SUPABASE_SERVICE_KEY is required');
-      if (!config.supabaseJwtSecret) errors.push('SUPABASE_JWT_SECRET is required');
-      if (!config.kioskJwtSecret) errors.push('KIOSK_JWT_SECRET is required');
-      if (!config.stationTokenSecret) errors.push('STATION_TOKEN_SECRET is required');
-      if (!config.pinPepper) errors.push('PIN_PEPPER is required');
-      if (!config.deviceFingerprintSalt) errors.push('DEVICE_FINGERPRINT_SALT is required');
-      
-      // Required for AI features (unless degraded mode)
-      if (!config.aiDegradedMode && !config.openaiApiKey) {
-        errors.push('OPENAI_API_KEY is required (or set AI_DEGRADED_MODE=true)');
-      }
+
+    const required: Array<{ key: keyof AppConfig; name: string }> = [
+      { key: 'supabaseUrl', name: 'SUPABASE_URL' },
+      { key: 'supabaseAnonKey', name: 'SUPABASE_ANON_KEY' },
+      { key: 'supabaseServiceKey', name: 'SUPABASE_SERVICE_KEY' },
+      { key: 'defaultRestaurantId', name: 'DEFAULT_RESTAURANT_ID' },
+    ];
+
+    const missing = required.filter((r) => !config[r.key]);
+
+    if (missing.length > 0) {
+      const missingNames = missing.map((m) => m.name).join(', ');
+      throw new Error(`Missing required environment variables: ${missingNames}`);
     }
-    
-    if (errors.length > 0) {
-      throw new Error(`Configuration validation failed:\n${errors.join('\n')}`);
+
+    // Validate UUIDs
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(config.defaultRestaurantId)) {
+      throw new Error('DEFAULT_RESTAURANT_ID must be a valid UUID');
     }
   }
-  
+
   /**
-   * Check if running in browser
+   * Get API URL with optional path
    */
-  isBrowser(): boolean {
-    return typeof window !== 'undefined';
-  }
-  
-  /**
-   * Check if running on server
-   */
-  isServer(): boolean {
-    return !this.isBrowser();
-  }
-  
-  /**
-   * Get API URL with proper protocol
-   */
-  getApiUrl(path: string = ''): string {
+  getApiUrl(path?: string): string {
     const config = this.get();
-    const baseUrl = this.isBrowser() 
-      ? (config.apiBaseUrl || window.location.origin.replace(':5173', ':3001'))
-      : config.apiBaseUrl;
+    const baseUrl =
+      typeof window !== 'undefined'
+        ? (config.apiBaseUrl || window.location.origin.replace(':5173', ':3001'))
+        : config.apiBaseUrl;
     
     return path ? `${baseUrl}${path.startsWith('/') ? path : `/${path}`}` : baseUrl;
   }
@@ -222,8 +206,22 @@ class ConfigService {
   }
 }
 
-// Create the service instance
-export const configService = new ConfigService();
+// Lazy singleton - only initializes when first accessed
+let _instance: ConfigService | null = null;
+
+function getInstance(): ConfigService {
+  if (!_instance) {
+    _instance = new ConfigService();
+  }
+  return _instance;
+}
+
+export const configService = {
+  get: () => getInstance().get(),
+  validate: () => getInstance().validate(),
+  getApiUrl: (path?: string) => getInstance().getApiUrl(path),
+  getWsUrl: (path?: string) => getInstance().getWsUrl(path)
+};
 
 // Export the simple config for build compatibility
 export { config } from './simple';

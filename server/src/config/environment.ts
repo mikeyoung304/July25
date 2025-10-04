@@ -1,6 +1,5 @@
-
-// Note: logger import moved after getConfig to avoid circular dependency
-import { configService, validateConfig } from '@rebuild/shared/config/node';
+import { env, validateEnv } from './env';
+import { logger } from '../utils/logger';
 
 export interface EnvironmentConfig {
   port: number;
@@ -9,7 +8,7 @@ export interface EnvironmentConfig {
     url: string;
     anonKey: string;
     serviceKey: string;
-    jwtSecret?: string | undefined;
+    jwtSecret?: string;
   };
   frontend: {
     url: string;
@@ -47,44 +46,37 @@ export interface EnvironmentConfig {
 
 export function validateEnvironment(): void {
   try {
-    // Use centralized validation
-    validateConfig();
+    validateEnv();
     
-    // Additional server-specific validation
-    const cfg = configService.get();
-    
-    if (!cfg.isDevelopment && !cfg.aiDegradedMode && !cfg.openaiApiKey) {
+    if (env.NODE_ENV !== 'development' && !env.AI_DEGRADED_MODE && !env.OPENAI_API_KEY) {
       throw new Error('OPENAI_API_KEY is required in production. Set AI_DEGRADED_MODE=true to use stubs.');
     }
     
-    if (!cfg.openaiApiKey) {
-      console.warn(`⚠️  OpenAI API key not configured - AI features will use stub implementations`);
+    if (!env.OPENAI_API_KEY) {
+      logger.warn('⚠️  OpenAI API key not configured - AI features will use stub implementations');
     } else {
-      console.warn(`✅ OpenAI configured`);
+      logger.info('✅ OpenAI configured');
     }
   } catch (error) {
-    // Re-throw with more context
     throw new Error(`Environment validation failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 export function getConfig(): EnvironmentConfig {
-  const cfg = configService.get();
-  
   return {
-    port: cfg.port,
-    nodeEnv: cfg.nodeEnv,
+    port: env.PORT,
+    nodeEnv: env.NODE_ENV as 'development' | 'production' | 'test',
     supabase: {
-      url: cfg.supabaseUrl,
-      anonKey: cfg.supabaseAnonKey,
-      serviceKey: cfg.supabaseServiceKey,
-      jwtSecret: cfg.supabaseJwtSecret || undefined,
+      url: env.SUPABASE_URL,
+      anonKey: env.SUPABASE_ANON_KEY,
+      serviceKey: env.SUPABASE_SERVICE_KEY,
+      ...(env.SUPABASE_JWT_SECRET ? { jwtSecret: env.SUPABASE_JWT_SECRET } : {}),
     },
     frontend: {
-      url: cfg.frontendUrl,
+      url: env.FRONTEND_URL,
     },
     openai: {
-      ...(cfg.openaiApiKey ? { apiKey: cfg.openaiApiKey } : {}),
+      ...(env.OPENAI_API_KEY ? { apiKey: env.OPENAI_API_KEY } : {}),
     },
     logging: {
       level: process.env['LOG_LEVEL'] || 'info',
@@ -98,19 +90,19 @@ export function getConfig(): EnvironmentConfig {
       maxRequests: parseInt(process.env['RATE_LIMIT_MAX_REQUESTS'] || '100', 10),
     },
     restaurant: {
-      defaultId: cfg.defaultRestaurantId,
+      defaultId: env.DEFAULT_RESTAURANT_ID,
     },
     auth: {
-      kioskJwtSecret: cfg.kioskJwtSecret,
-      stationTokenSecret: cfg.stationTokenSecret,
-      pinPepper: cfg.pinPepper,
-      deviceFingerprintSalt: cfg.deviceFingerprintSalt,
+      kioskJwtSecret: env.KIOSK_JWT_SECRET,
+      stationTokenSecret: env.STATION_TOKEN_SECRET,
+      pinPepper: env.PIN_PEPPER,
+      deviceFingerprintSalt: env.DEVICE_FINGERPRINT_SALT,
     },
     square: {
-      accessToken: cfg.squareAccessToken,
-      environment: cfg.squareEnvironment,
-      locationId: cfg.squareLocationId,
-      appId: cfg.squareAppId,
+      accessToken: env.SQUARE_ACCESS_TOKEN,
+      environment: env.SQUARE_ENVIRONMENT,
+      locationId: env.SQUARE_LOCATION_ID,
+      appId: env.SQUARE_APP_ID,
     },
   };
 }
