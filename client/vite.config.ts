@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   // IMPORTANT: Load .env from ROOT directory (monorepo setup)
   // This allows ONE .env file to serve both server and client
   const envDir = fileURLToPath(new URL('../', import.meta.url))
-
+  
   // Load from .env files (only VITE_ prefixed vars will be exposed to browser)
   const fileEnv = loadEnv(mode, envDir, 'VITE_');
 
@@ -17,13 +17,23 @@ export default defineConfig(({ mode }) => {
   const env = mode === 'production' ?
     { ...fileEnv, ...process.env } :
     fileEnv;
-  
+    
   // Production safety check
   if (mode === 'production') {
-    const apiUrl = env.VITE_API_BASE_URL || process.env.VITE_API_BASE_URL || '';
-    if (/localhost|127\.0\.0\.1/.test(apiUrl)) {
-      throw new Error('❌ Production build blocked: VITE_API_BASE_URL points to localhost');
+    const requiredEnvVars = [
+      'VITE_API_BASE_URL',
+      'VITE_SUPABASE_URL',
+      'VITE_SUPABASE_ANON_KEY',
+    ];
+    
+    const missingVars = requiredEnvVars.filter(varName => !env[varName]);
+    
+    if (missingVars.length > 0) {
+      console.error('❌ Missing required environment variables for production build:');
+      missingVars.forEach(varName => console.error(`   - ${varName}`));
+      throw new Error('Cannot build without required environment variables');
     }
+    
     // Log what we're using (will show in Vercel build logs)
   }
   
@@ -39,18 +49,10 @@ export default defineConfig(({ mode }) => {
       })] : []),
     ],
     
-    // Optimize build output
     build: {
-      // Enable minification
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: mode === 'production',
-          drop_debugger: true,
-        },
-      },
+      outDir: 'dist',
+      sourcemap: mode === 'development',
       
-      // Code splitting configuration
       rollupOptions: {
         output: {
           // CRITICAL: Manual chunks prevent memory explosion
@@ -72,11 +74,11 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@supabase/auth')) {
                 return 'supabase-auth';
               }
-              if (id.includes('supabase')) {
+              if (id.includes('@supabase')) {
                 return 'supabase-client';
               }
               
-              // Square payments
+              // Square vendor
               if (id.includes('square')) {
                 return 'square-vendor';
               }
@@ -88,11 +90,8 @@ export default defineConfig(({ mode }) => {
               if (id.includes('framer-motion')) {
                 return 'ui-animation';
               }
-              if (id.includes('@headlessui') || id.includes('clsx')) {
-                return 'ui-core';
-              }
               
-              // Date/time utilities
+              // Date libraries
               if (id.includes('date-fns') || id.includes('dayjs')) {
                 return 'date-vendor';
               }
@@ -104,44 +103,24 @@ export default defineConfig(({ mode }) => {
               
               // Monitoring and analytics
               if (id.includes('sentry') || id.includes('@sentry')) {
-                return 'monitoring';
+                return 'monitoring-vendor';
               }
               
-              // All other vendor code - split into smaller chunks
-              if (id.includes('lodash')) {
-                return 'utils-lodash';
-              }
-              if (id.includes('axios') || id.includes('ky')) {
-                return 'http-client';
-              }
-              
+              // Other vendor code
               return 'vendor';
-            }
-            
-            // Split large components into separate chunks
-            if (id.includes('WebRTCVoiceClient')) {
-              return 'voice-client';
-            }
-            if (id.includes('FloorPlanEditor')) {
-              return 'floor-plan';
-            }
-            if (id.includes('modules/order-system')) {
-              return 'order-system';
-            }
-            if (id.includes('modules/voice')) {
-              return 'voice-module';
-            }
-            if (id.includes('modules/analytics')) {
-              return 'analytics';
-            }
-            if (id.includes('modules/payments')) {
-              return 'payments';
             }
           },
           
-          // Optimize chunk size
+          // Chunk file naming
           chunkFileNames: (chunkInfo) => {
-            const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
+            const facadeModuleId = chunkInfo.name || 'chunk';
+            return `js/[name]-${facadeModuleId}-[hash].js`;
+          },
+          
+          // Entry file naming
+          entryFileNames: (chunkInfo) => {
+            const facadeModuleId = chunkInfo.facadeModuleId ? 
+              chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
             return `js/[name]-${facadeModuleId}-[hash].js`;
           },
           
@@ -178,12 +157,13 @@ export default defineConfig(({ mode }) => {
     },
     
     // Optimize dependencies - ensure React is properly bundled
+    // CRITICAL FIX: Removed 'react/jsx-dev-runtime' to prevent jsxDEV error in production
     optimizeDeps: {
       include: [
         'react',
         'react-dom',
         'react/jsx-runtime',
-        'react/jsx-dev-runtime',
+        // NOTE: 'react/jsx-dev-runtime' removed - causes production build errors
         'react-router-dom',
         '@supabase/supabase-js',
       ],
