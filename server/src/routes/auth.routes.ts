@@ -89,32 +89,58 @@ router.post('/kiosk',
  * POST /api/v1/auth/login
  * Email/password login for managers and owners via Supabase
  */
-router.post('/login', 
+router.post('/login',
   authRateLimiters.checkSuspicious,
   authRateLimiters.login,
   async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, restaurantId } = req.body;
 
+    // 🔍 DIAGNOSTIC LOGGING
+    logger.info('🔍 LOGIN ATTEMPT:', {
+      email,
+      restaurantId,
+      hasPassword: !!password,
+      passwordLength: password?.length,
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+      origin: req.headers.origin,
+      referer: req.headers.referer
+    });
+
     // Validate input
     if (!email || !password) {
+      logger.warn('🔍 LOGIN VALIDATION FAILED: Missing email or password');
       throw BadRequest('Email and password are required');
     }
 
     if (!restaurantId) {
+      logger.warn('🔍 LOGIN VALIDATION FAILED: Missing restaurantId');
       throw BadRequest('Restaurant ID is required');
     }
 
     // Authenticate with Supabase
+    logger.info('🔍 CALLING SUPABASE AUTH...');
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password
     });
 
     if (authError || !authData.user) {
-      logger.warn('Login failed', { email, error: authError?.message });
+      logger.warn('🔍 SUPABASE AUTH FAILED:', {
+        email,
+        error: authError?.message,
+        errorCode: authError?.status,
+        errorName: authError?.name
+      });
       throw Unauthorized('Invalid email or password');
     }
+
+    logger.info('🔍 SUPABASE AUTH SUCCESS:', {
+      userId: authData.user.id,
+      email: authData.user.email,
+      hasSession: !!authData.session
+    });
 
     // Check user's role in the restaurant
     const { data: userRole, error: _roleError } = await supabase

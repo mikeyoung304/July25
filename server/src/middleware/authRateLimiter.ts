@@ -199,7 +199,22 @@ export const stationAuthRateLimiter = rateLimit({
 // Suspicious activity checker middleware
 export const suspiciousActivityCheck = (req: Request, res: any, next: any) => {
   const clientId = getClientId(req);
-  
+
+  // 🔍 DIAGNOSTIC LOGGING
+  logger.info('🔍 AUTH CHECK:', {
+    clientId,
+    ip: req.ip,
+    isBlocked: blockedIPs.has(clientId),
+    attempts: suspiciousIPs.get(clientId) || 0,
+    endpoint: req.path,
+    method: req.method,
+    headers: {
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      userAgent: req.headers['user-agent']?.slice(0, 100)
+    }
+  });
+
   // Check if client is blocked
   if (blockedIPs.has(clientId)) {
     logger.error(`[SECURITY] Blocked client attempted access: ${clientId}`);
@@ -208,13 +223,13 @@ export const suspiciousActivityCheck = (req: Request, res: any, next: any) => {
       message: 'Your access has been temporarily suspended due to suspicious activity.'
     });
   }
-  
+
   // Check suspicious activity threshold
   const attempts = suspiciousIPs.get(clientId) || 0;
   if (attempts > 5) {
     logger.warn(`[SECURITY] Suspicious client activity: ${clientId} (${attempts} failed attempts)`);
   }
-  
+
   next();
 };
 

@@ -6,15 +6,16 @@ import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // Resolve env files relative to the client workspace (Vercel runs from repo root)
-  const envDir = fileURLToPath(new URL('.', import.meta.url))
+  // IMPORTANT: Load .env from ROOT directory (monorepo setup)
+  // This allows ONE .env file to serve both server and client
+  const envDir = fileURLToPath(new URL('../', import.meta.url))
 
-  // Load from .env files
-  const fileEnv = loadEnv(mode, envDir, '');
-  
+  // Load from .env files (only VITE_ prefixed vars will be exposed to browser)
+  const fileEnv = loadEnv(mode, envDir, 'VITE_');
+
   // In production, prefer process.env (from Vercel) over file env
-  const env = mode === 'production' ? 
-    { ...fileEnv, ...process.env } : 
+  const env = mode === 'production' ?
+    { ...fileEnv, ...process.env } :
     fileEnv;
   
   // Production safety check
@@ -198,8 +199,11 @@ export default defineConfig(({ mode }) => {
       },
     },
     
-    // Load .env files from the client workspace
+    // Load .env files from ROOT directory (monorepo setup)
     envDir,
+
+    // Only expose VITE_ prefixed variables to the browser
+    envPrefix: 'VITE_',
 
     // Define global constants
     define: {
