@@ -1,20 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
-import { env } from '@/utils/env'
+import { env } from '@/config/env-validator'
 
-// These should be stored in environment variables
-const supabaseUrl = env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || ''
+// Environment variables are validated at app startup
+// If we reach this point, we know they exist and are valid
+const supabaseUrl = env.VITE_SUPABASE_URL
+const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY
 
-// Create Supabase client only if we have valid credentials
-let supabase: ReturnType<typeof createClient> | null = null
-
-if (supabaseUrl && supabaseAnonKey) {
-  supabase = createClient(supabaseUrl, supabaseAnonKey)
-} else {
-  console.error('Missing Supabase environment variables. Please check your .env file.')
-}
-
-export { supabase }
+// Create Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Types for database tables (simplified for now)
 export interface DatabaseOrder {
