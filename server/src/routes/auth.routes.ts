@@ -148,7 +148,6 @@ router.post('/login',
       .select('role')
       .eq('user_id', authData.user.id)
       .eq('restaurant_id', restaurantId)
-      .eq('is_active', true)
       .single();
 
     if (_roleError || !userRole) {
