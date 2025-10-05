@@ -17,8 +17,7 @@ let tokenExpiresAt: number | null = null;
  */
 export class DemoAuthService {
   private static async fetchDemoToken(): Promise<{ token: string; expiresIn: number }> {
-    const apiBase = env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 
-      (import.meta.env.PROD ? 'https://july25.onrender.com' : 'http://localhost:3001');
+    const apiBase = env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
     
     const response = await fetch(`${apiBase}/api/v1/auth/kiosk`, {
       method: 'POST',

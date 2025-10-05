@@ -430,8 +430,8 @@ class CleanupManagerImpl {
       }
     }
     
-    // Node.js environment
-    if (typeof process !== 'undefined') {
+    // Node.js environment (check for process.on method to exclude browser polyfills)
+    if (typeof process !== 'undefined' && typeof process.on === 'function') {
       const gracefulShutdown = (signal: string) => {
         console.warn(`Received ${signal}, starting graceful shutdown...`);
         this.shutdownAll()
@@ -444,17 +444,17 @@ class CleanupManagerImpl {
             process.exit(1);
           });
       };
-      
+
       process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
       process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-      
+
       // Handle uncaught exceptions
       process.on('uncaughtException', (error) => {
         console.error('Uncaught exception, emergency shutdown:', error);
         this.shutdownAll()
           .finally(() => process.exit(1));
       });
-      
+
       // Handle unhandled promise rejections
       process.on('unhandledRejection', (reason) => {
         console.error('Unhandled promise rejection:', reason);
