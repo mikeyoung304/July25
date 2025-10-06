@@ -79,8 +79,15 @@ function App() {
       }
     }
 
-    // Always initialize WebSocket on app startup
-    initializeWebSocket()
+    // Check if user is already logged in on startup
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        logger.info('🔐 Existing session found, initializing WebSocket...')
+        initializeWebSocket()
+      } else {
+        logger.info('👤 No session found, waiting for login...')
+      }
+    })
 
     // Subscribe to auth state changes (for Supabase users)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, _session) => {
