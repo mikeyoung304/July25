@@ -174,12 +174,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setUser(response.user);
       setRestaurantId(response.restaurantId);
-      
+
       if (response.session) {
-        const expiresAt = response.session.expires_in 
+        const expiresAt = response.session.expires_in
           ? Math.floor(Date.now() / 1000) + response.session.expires_in
           : undefined;
-        
+
+        // Set session in Supabase client so httpClient can use it
+        await supabase.auth.setSession({
+          access_token: response.session.access_token,
+          refresh_token: response.session.refresh_token || ''
+        });
+
         setSession({
           accessToken: response.session.access_token,
           refreshToken: response.session.refresh_token,
