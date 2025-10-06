@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { BadRequest, Unauthorized } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
-import { supabase } from '../config/database';
+import { supabase, supabaseAuth } from '../config/database';
 import { validatePin, createOrUpdatePin } from '../services/auth/pinAuth';
 import { createStationToken, validateStationToken as _validateStationToken, revokeAllStationTokens } from '../services/auth/stationAuth';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
@@ -119,9 +119,9 @@ router.post('/login',
       throw BadRequest('Restaurant ID is required');
     }
 
-    // Authenticate with Supabase
+    // Authenticate with Supabase using anon client
     logger.info('🔍 CALLING SUPABASE AUTH...');
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    const { data: authData, error: authError } = await supabaseAuth.auth.signInWithPassword({
       email,
       password
     });
@@ -332,7 +332,7 @@ router.post('/logout', authenticate, async (req: AuthenticatedRequest, res: Resp
 
     // Sign out from Supabase (if using Supabase auth)
     try {
-      await supabase.auth.signOut();
+      await supabaseAuth.auth.signOut();
     } catch (error) {
       // Ignore Supabase signout errors (user might be using PIN/station auth)
       logger.debug('Supabase signout error (ignored):', error);

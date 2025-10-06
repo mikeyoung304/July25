@@ -3,7 +3,9 @@ import { getConfig } from './environment';
 import { logger } from '../utils/logger';
 
 let _supabaseClient: SupabaseClient | null = null;
+let _supabaseAuthClient: SupabaseClient | null = null;
 
+// Service role client for database operations (bypasses RLS)
 function getSupabaseClient(): SupabaseClient {
   if (!_supabaseClient) {
     const config = getConfig();
@@ -24,9 +26,36 @@ function getSupabaseClient(): SupabaseClient {
   return _supabaseClient;
 }
 
+// Anon client for authentication operations
+function getSupabaseAuthClient(): SupabaseClient {
+  if (!_supabaseAuthClient) {
+    const config = getConfig();
+    _supabaseAuthClient = createClient(
+      config.supabase.url,
+      config.supabase.anonKey,  // Use ANON key for auth
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
+  }
+  return _supabaseAuthClient;
+}
+
 export const supabase = new Proxy({} as SupabaseClient, {
   get(_target, prop) {
     const client = getSupabaseClient();
+    const value = (client as any)[prop];
+    return typeof value === 'function' ? value.bind(client) : value;
+  }
+});
+
+// Export auth client for authentication operations
+export const supabaseAuth = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    const client = getSupabaseAuthClient();
     const value = (client as any)[prop];
     return typeof value === 'function' ? value.bind(client) : value;
   }
