@@ -131,9 +131,19 @@ app.use(cors({
 
     const normalized = normalizeOrigin(origin);
 
+    // Check if origin is in allowed list
     if (normalized && allowedOrigins.has(normalized)) {
       callback(null, true);
-    } else {
+    }
+    // Allow Vercel preview deployments matching our project patterns
+    else if (normalized && (
+      normalized.match(/^https:\/\/july25-client-[a-z0-9]+-mikeyoung304-gmailcoms-projects\.vercel\.app$/) ||
+      normalized.match(/^https:\/\/rebuild-60-[a-z0-9]+-mikeyoung304-gmailcoms-projects\.vercel\.app$/) ||
+      normalized.match(/^https:\/\/grow-[a-z0-9]+-mikeyoung304-gmailcoms-projects\.vercel\.app$/)
+    )) {
+      callback(null, true);
+    }
+    else {
       console.error(`❌ CORS blocked origin: "${origin}"`);
       console.error('   Allowed origins:', allowedOriginList);
       callback(new Error('Not allowed by CORS'));
