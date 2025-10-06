@@ -1,0 +1,259 @@
+
+Running 4 tests using 1 worker
+
+[1A[2K[1/4] tests/enhanced/login-diagnostic.spec.ts:76:7 › Login Flow Diagnosis › 1. Navigate to login page and capture initial state
+[1A[2Ktests/enhanced/login-diagnostic.spec.ts:76:7 › Login Flow Diagnosis › 1. Navigate to login page and capture initial state
+
+🔍 TEST 1: Navigating to login page...
+
+[1A[2K[BROWSER WARNING]: <link rel=preload> uses an unsupported `as` value
+
+[1A[2K[BROWSER DEBUG]: [vite] connecting...
+
+[1A[2K[BROWSER DEBUG]: [vite] connected.
+
+[1A[2K[BROWSER INFO]: %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+
+[1A[2K[BROWSER WARNING]: LocalStorage: 0 items, 0.0KB used
+
+[1A[2K[BROWSER ERROR]: Missing Supabase environment variables. Please check your .env file.
+
+[1A[2K[BROWSER WARNING]: [2025-10-05T13:11:53.707Z] [INFO] [httpClient] Using API base URL from config: http://localhost:3001
+
+[1A[2K[BROWSER WARNING]: [2025-10-05T13:11:53.710Z] [INFO] [restaurant-types] Created RestaurantContext with ID: restaurant-context-1759669913710
+
+[1A[2K[BROWSER ERROR]: [DEBUG] Error captured: {message: Uncaught TypeError: process.on is not a function, filename: http://localhost:5173/@fs/Users/mikeyoung/CODING/rebuild-6.0/shared/dist/utils/cleanup-manager.js, lineno: 346, colno: 21, error: Object}
+
+[1A[2K[PAGE ERROR]: process.on is not a function
+
+[1A[2K[BROWSER WARNING]: [DEBUG] Window loaded successfully
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: LCP = 28.00ms {element: DIV, url: , good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: CLS = 0.00score {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: FCP = 28.00ms {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: TTFB = 4.00ms {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: DCL = 91.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: PageLoad = 94.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: DNS = 0.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: TCP = 0.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: Request = 4.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] Performance Report {url: http://localhost:5173/login, userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap… Gecko) HeadlessChrome/139.0.7258.5 Safari/537.36, timestamp: 1759669913717, metrics: Array(9), timings: Object}
+
+[1A[2KLOGIN PAGE STATE: {
+  "url": "http://localhost:5173/login",
+  "hasLoginForm": false,
+  "hasPasswordField": false,
+  "hasDemoButtons": 0,
+  "hasSignInButton": false,
+  "title": "MACON Restaurant AI - Intelligent Restaurant Management"
+}
+
+[1A[2KAUTOMATIC AUTH CALLS ON PAGE LOAD: [33m10[39m
+
+[1A[2K[2/4] tests/enhanced/login-diagnostic.spec.ts:119:7 › Login Flow Diagnosis › 2. Attempt demo button login - Manager
+[1A[2Ktests/enhanced/login-diagnostic.spec.ts:119:7 › Login Flow Diagnosis › 2. Attempt demo button login - Manager
+
+🔍 TEST 2: Testing Manager demo button...
+
+[1A[2K[BROWSER WARNING]: <link rel=preload> uses an unsupported `as` value
+
+[1A[2K[BROWSER DEBUG]: [vite] connecting...
+
+[1A[2K[BROWSER DEBUG]: [vite] connected.
+
+[1A[2K[BROWSER INFO]: %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+
+[1A[2K[BROWSER WARNING]: LocalStorage: 0 items, 0.0KB used
+
+[1A[2K[BROWSER ERROR]: Missing Supabase environment variables. Please check your .env file.
+
+[1A[2K[BROWSER WARNING]: [2025-10-05T13:11:56.384Z] [INFO] [httpClient] Using API base URL from config: http://localhost:3001
+
+[1A[2K[BROWSER WARNING]: [2025-10-05T13:11:56.385Z] [INFO] [restaurant-types] Created RestaurantContext with ID: restaurant-context-1759669916385
+
+[1A[2K[BROWSER ERROR]: [DEBUG] Error captured: {message: Uncaught TypeError: process.on is not a function, filename: http://localhost:5173/@fs/Users/mikeyoung/CODING/rebuild-6.0/shared/dist/utils/cleanup-manager.js, lineno: 346, colno: 21, error: Object}
+
+[1A[2K[PAGE ERROR]: process.on is not a function
+
+[1A[2K[BROWSER WARNING]: [DEBUG] Window loaded successfully
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: LCP = 16.00ms {element: DIV, url: , good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: CLS = 0.00score {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: FCP = 16.00ms {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: TTFB = 2.00ms {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: DCL = 70.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: PageLoad = 75.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: DNS = 0.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: TCP = 0.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: Request = 2.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] Performance Report {url: http://localhost:5173/login, userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap… Gecko) HeadlessChrome/139.0.7258.5 Safari/537.36, timestamp: 1759669916394, metrics: Array(9), timings: Object}
+
+[1A[2KManager button visible: [33mfalse[39m
+
+[1A[2K[3/4] tests/enhanced/login-diagnostic.spec.ts:159:7 › Login Flow Diagnosis › 3. Attempt manual email/password login
+[1A[2Ktests/enhanced/login-diagnostic.spec.ts:159:7 › Login Flow Diagnosis › 3. Attempt manual email/password login
+
+🔍 TEST 3: Testing manual login...
+
+[1A[2K[BROWSER WARNING]: <link rel=preload> uses an unsupported `as` value
+
+[1A[2K[BROWSER DEBUG]: [vite] connecting...
+
+[1A[2K[BROWSER DEBUG]: [vite] connected.
+
+[1A[2K[BROWSER INFO]: %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+
+[1A[2K[BROWSER WARNING]: LocalStorage: 0 items, 0.0KB used
+
+[1A[2K[BROWSER ERROR]: Missing Supabase environment variables. Please check your .env file.
+
+[1A[2K[BROWSER WARNING]: [2025-10-05T13:11:57.011Z] [INFO] [httpClient] Using API base URL from config: http://localhost:3001
+
+[1A[2K[BROWSER WARNING]: [2025-10-05T13:11:57.011Z] [INFO] [restaurant-types] Created RestaurantContext with ID: restaurant-context-1759669917011
+
+[1A[2K[BROWSER ERROR]: [DEBUG] Error captured: {message: Uncaught TypeError: process.on is not a function, filename: http://localhost:5173/@fs/Users/mikeyoung/CODING/rebuild-6.0/shared/dist/utils/cleanup-manager.js, lineno: 346, colno: 21, error: Object}
+
+[1A[2K[PAGE ERROR]: process.on is not a function
+
+[1A[2K[BROWSER WARNING]: [DEBUG] Window loaded successfully
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: LCP = 12.00ms {element: DIV, url: , good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: CLS = 0.00score {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: FCP = 12.00ms {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: TTFB = 2.00ms {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: DCL = 73.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: PageLoad = 76.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: DNS = 0.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: TCP = 1.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: Request = 1.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] Performance Report {url: http://localhost:5173/login, userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap… Gecko) HeadlessChrome/139.0.7258.5 Safari/537.36, timestamp: 1759669917018, metrics: Array(9), timings: Object}
+
+[1A[2K❌ Email input not found!
+
+[1A[2K[4/4] tests/enhanced/login-diagnostic.spec.ts:227:7 › Login Flow Diagnosis › 4. Test rate limiter behavior - Multiple attempts
+[1A[2Ktests/enhanced/login-diagnostic.spec.ts:227:7 › Login Flow Diagnosis › 4. Test rate limiter behavior - Multiple attempts
+
+🔍 TEST 4: Testing rate limiter...
+
+[1A[2K[BROWSER WARNING]: <link rel=preload> uses an unsupported `as` value
+
+[1A[2K[BROWSER DEBUG]: [vite] connecting...
+
+[1A[2K[BROWSER DEBUG]: [vite] connected.
+
+[1A[2K[BROWSER INFO]: %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+
+[1A[2K[BROWSER WARNING]: LocalStorage: 0 items, 0.0KB used
+
+[1A[2K[BROWSER ERROR]: Missing Supabase environment variables. Please check your .env file.
+
+[1A[2K[BROWSER WARNING]: [2025-10-05T13:11:57.633Z] [INFO] [httpClient] Using API base URL from config: http://localhost:3001
+
+[1A[2K[BROWSER WARNING]: [2025-10-05T13:11:57.633Z] [INFO] [restaurant-types] Created RestaurantContext with ID: restaurant-context-1759669917633
+
+[1A[2K[BROWSER ERROR]: [DEBUG] Error captured: {message: Uncaught TypeError: process.on is not a function, filename: http://localhost:5173/@fs/Users/mikeyoung/CODING/rebuild-6.0/shared/dist/utils/cleanup-manager.js, lineno: 346, colno: 21, error: Object}
+
+[1A[2K[PAGE ERROR]: process.on is not a function
+
+[1A[2K[BROWSER WARNING]: [DEBUG] Window loaded successfully
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: LCP = 12.00ms {element: DIV, url: , good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: CLS = 0.00score {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: FCP = 12.00ms {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: TTFB = 2.00ms {good: true}
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: DCL = 71.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: PageLoad = 75.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: DNS = 0.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: TCP = 0.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] ✅ Performance: Request = 1.00ms 
+
+[1A[2K[BROWSER WARNING]: [INFO] Performance Report {url: http://localhost:5173/login, userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap… Gecko) HeadlessChrome/139.0.7258.5 Safari/537.36, timestamp: 1759669917641, metrics: Array(9), timings: Object}
+
+[1A[2K[BROWSER WARNING]: The resource http://localhost:5173/transparent.png was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+
+[1A[2K[BROWSER WARNING]: [INFO] ⚠️ Performance: LCP = 3084.00ms {element: PRE, url: , good: false}
+
+[1A[2K
+📊 Saving complete network log...
+
+[1A[2K✅ All diagnostic files saved
+
+[1A[2K📁 Files created:
+
+[1A[2K  - diagnostic-01-login-page.png
+
+[1A[2K  - diagnostic-01-page-load-network.json
+
+[1A[2K  - diagnostic-02-after-demo-click.png
+
+[1A[2K  - diagnostic-02-demo-button-network.json
+
+[1A[2K  - diagnostic-03-before-submit.png
+
+[1A[2K  - diagnostic-04-after-submit.png
+
+[1A[2K  - diagnostic-03-manual-login-network.json
+
+[1A[2K  - diagnostic-04-rate-limiter-test.json
+
+[1A[2K  - diagnostic-full-network-log.json
+
+[1A[2K  1) tests/enhanced/login-diagnostic.spec.ts:227:7 › Login Flow Diagnosis › 4. Test rate limiter behavior - Multiple attempts 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="email"]')[22m
+
+
+      238 |       const passwordInput = page.locator('input[type="password"]');
+      239 |
+    > 240 |       await emailInput.fill(`test${i}@test.com`);
+          |                        ^
+      241 |       await passwordInput.fill('WrongPassword123!');
+      242 |
+      243 |       const signInButton = page.locator('button').filter({ hasText: /Sign in/i }).first();
+        at /Users/mikeyoung/CODING/rebuild-6.0/server/tests/enhanced/login-diagnostic.spec.ts:240:24
+
+    Error Context: test-results/tests-enhanced-login-diagn-cdd1c-ehavior---Multiple-attempts/error-context.md
+
+
+[1A[2K  1 failed
+    tests/enhanced/login-diagnostic.spec.ts:227:7 › Login Flow Diagnosis › 4. Test rate limiter behavior - Multiple attempts 
+  3 passed (35.5s)
