@@ -87,6 +87,9 @@ const allowedOrigins = new Set<string>([
   'https://rebuild-60-ao1ku064c-mikeyoung304-gmailcoms-projects.vercel.app',
   'https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
   'https://grow-ir056u92z-mikeyoung304-gmailcoms-projects.vercel.app',
+
+  // Current preview deployment
+  'https://july25-client-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
 ]);
 
 const addOrigin = (origin: string | undefined | null, label?: string) => {
