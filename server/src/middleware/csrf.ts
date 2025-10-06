@@ -21,10 +21,11 @@ export function csrfMiddleware() {
     }
 
     // Skip CSRF for certain paths
+    // API endpoints accessed programmatically (not browser forms) should skip CSRF
     const skipPaths = [
       '/api/v1/health',
-      '/api/v1/auth/demo',
-      '/api/v1/realtime/session' // WebRTC doesn't need CSRF
+      '/api/v1/auth/kiosk',        // Kiosk demo authentication (programmatic access)
+      '/api/v1/realtime/session'   // WebRTC doesn't need CSRF
     ];
 
     if (skipPaths.some(path => req.path.startsWith(path))) {
