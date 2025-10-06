@@ -93,6 +93,18 @@ export function DevAuthOverlay() {
       await login(role.email, role.password, restaurantId);
       toast.success(`Logged in as ${role.name}`);
       logger.info(`Demo login successful as ${role.name}`);
+
+      // Navigate to appropriate dashboard based on role
+      const roleRoutes: Record<string, string> = {
+        manager: '/dashboard',
+        server: '/server',
+        kitchen: '/kitchen',
+        expo: '/expo',
+        cashier: '/dashboard'
+      };
+
+      const destination = roleRoutes[role.id] || '/dashboard';
+      window.location.href = destination; // Use location.href for full page reload to ensure state updates
     } catch (error) {
       logger.error(`Demo login failed for ${role.name}:`, error);
       toast.error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
