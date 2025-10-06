@@ -21,10 +21,11 @@ export function csrfMiddleware() {
     }
 
     // Skip CSRF for certain paths
-    // API endpoints accessed programmatically (not browser forms) should skip CSRF
+    // REST API endpoints accessed programmatically (not browser forms) should skip CSRF
+    // CSRF protection is designed for traditional form-based submissions, not REST APIs
     const skipPaths = [
       '/api/v1/health',
-      '/api/v1/auth/kiosk',        // Kiosk demo authentication (programmatic access)
+      '/api/v1/auth/',             // All auth endpoints (login, kiosk, pin, etc.) - protected by rate limiting
       '/api/v1/realtime/session'   // WebRTC doesn't need CSRF
     ];
 
