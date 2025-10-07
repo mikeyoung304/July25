@@ -454,17 +454,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Check if user can access based on roles and scopes
   const canAccess = (requiredRoles: string[], requiredScopes?: string[]): boolean => {
-    if (!user) return false;
-    
+    if (!user) {
+      logger.warn('canAccess: No user object', { requiredRoles, requiredScopes });
+      return false;
+    }
+
     // Check role requirement
-    const hasRequiredRole = requiredRoles.length === 0 || 
+    const hasRequiredRole = requiredRoles.length === 0 ||
                            requiredRoles.includes(user.role || '');
-    
+
     // Check scope requirement
-    const hasRequiredScope = !requiredScopes || 
+    const hasRequiredScope = !requiredScopes ||
                             requiredScopes.length === 0 ||
                             requiredScopes.some(scope => hasScope(scope));
-    
+
+    // 🔍 DEBUG LOGGING
+    logger.info('🔐 canAccess check', {
+      userRole: user.role,
+      userScopes: user.scopes,
+      requiredRoles,
+      requiredScopes,
+      hasRequiredRole,
+      hasRequiredScope,
+      result: hasRequiredRole && hasRequiredScope
+    });
+
     return hasRequiredRole && hasRequiredScope;
   };
 

@@ -169,13 +169,29 @@ router.post('/login',
         user_agent: req.headers['user-agent']
       });
 
+    // Fetch user scopes from role_scopes table
+    const { data: scopesData, error: scopesError } = await supabase
+      .from('role_scopes')
+      .select('scope')
+      .eq('role', userRole.role);
+
+    if (scopesError) {
+      logger.warn('Failed to fetch user scopes', {
+        role: userRole.role,
+        error: scopesError.message
+      });
+    }
+
+    const scopes = scopesData?.map(s => s.scope) || [];
+
     logger.info('User logged in successfully', {
       userId: authData.user.id,
       email,
       role: userRole.role,
+      scopes,
       restaurantId
     });
-    
+
     // Reset rate limiting on successful auth
     resetFailedAttempts(req);
 
@@ -184,7 +200,8 @@ router.post('/login',
       user: {
         id: authData.user.id,
         email: authData.user.email,
-        role: userRole.role
+        role: userRole.role,
+        scopes
       },
       session: {
         access_token: authData.session?.access_token,
@@ -240,9 +257,25 @@ router.post('/pin-login',
 
     const token = jwt.sign(payload, jwtSecret, { algorithm: 'HS256' });
 
+    // Fetch user scopes from role_scopes table
+    const { data: scopesData, error: scopesError } = await supabase
+      .from('role_scopes')
+      .select('scope')
+      .eq('role', result.role);
+
+    if (scopesError) {
+      logger.warn('Failed to fetch user scopes for PIN login', {
+        role: result.role,
+        error: scopesError.message
+      });
+    }
+
+    const scopes = scopesData?.map(s => s.scope) || [];
+
     logger.info('PIN login successful', {
       userId: result.userId,
       role: result.role,
+      scopes,
       restaurantId
     });
 
@@ -250,7 +283,8 @@ router.post('/pin-login',
       user: {
         id: result.userId,
         email: result.userEmail,
-        role: result.role
+        role: result.role,
+        scopes
       },
       token,
       expiresIn: 12 * 60 * 60,

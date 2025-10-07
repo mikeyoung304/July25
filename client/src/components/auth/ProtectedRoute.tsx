@@ -45,20 +45,30 @@ export function ProtectedRoute({
       path: location.pathname,
       redirectTo: fallbackPath
     });
-    
+
     // Save the attempted location for redirect after login
     return <Navigate to={fallbackPath} state={{ from: location }} replace />;
   }
 
   // Check authorization (roles and scopes)
   if (requiredRoles.length > 0 || requiredScopes.length > 0) {
-    if (!canAccess(requiredRoles, requiredScopes)) {
+    const canAccessResult = canAccess(requiredRoles, requiredScopes);
+
+    // 🔍 DEBUG LOGGING
+    logger.info('🔐 Authorization check', {
+      path: location.pathname,
+      requiredRoles,
+      requiredScopes,
+      canAccess: canAccessResult
+    });
+
+    if (!canAccessResult) {
       logger.warn('Access denied: Insufficient permissions', {
         path: location.pathname,
         requiredRoles,
         requiredScopes
       });
-      
+
       // Redirect to unauthorized page or home
       return <Navigate to="/unauthorized" replace />;
     }
