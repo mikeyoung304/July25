@@ -96,11 +96,11 @@ export function DevAuthOverlay() {
 
       // Navigate to appropriate dashboard based on role
       const roleRoutes: Record<string, string> = {
-        manager: '/dashboard',
+        manager: '/',
         server: '/server',
         kitchen: '/kitchen',
         expo: '/expo',
-        cashier: '/dashboard'
+        cashier: '/'
       };
 
       const destination = roleRoutes[role.id] || '/dashboard';

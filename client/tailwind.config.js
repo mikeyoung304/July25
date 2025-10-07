@@ -55,6 +55,8 @@ module.exports = {
           800: '#115e59',
           900: '#134e4a',
         },
+        // Background color for dashboard pages
+        'macon-background': '#F7F3ED',
       },
       // Apple's 8-point grid system
       spacing: {

@@ -12,6 +12,7 @@ import { HomePage } from '@/pages/HomePage'
 const Login = lazy(() => import('@/pages/Login'))
 const PinLogin = lazy(() => import('@/pages/PinLogin'))
 const StationLogin = lazy(() => import('@/pages/StationLogin'))
+const UnauthorizedPage = lazy(() => import('@/pages/UnauthorizedPage').then(m => ({ default: m.UnauthorizedPage })))
 
 // Lazy load all other routes for code splitting
 const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })))
@@ -222,6 +223,11 @@ export function AppRoutes() {
                   </Suspense>
                 </Profiler>
               </ErrorBoundary>
+            } />
+            <Route path="/unauthorized" element={
+              <Suspense fallback={<RouteLoader />}>
+                <UnauthorizedPage />
+              </Suspense>
             } />
           </Routes>
         </Profiler>
