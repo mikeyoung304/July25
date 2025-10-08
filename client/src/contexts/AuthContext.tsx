@@ -192,9 +192,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
           : undefined;
 
         // Set session in Supabase client so httpClient can use it
-        await supabase.auth.setSession({
+        const { error: sessionError } = await supabase.auth.setSession({
           access_token: response.session.access_token,
           refresh_token: response.session.refresh_token || ''
+        });
+
+        if (sessionError) {
+          logger.error('Failed to set Supabase session:', sessionError);
+          throw new Error('Session setup failed');
+        }
+
+        // Verify session was actually saved
+        const { data: { session: verifySession } } = await supabase.auth.getSession();
+        if (!verifySession) {
+          logger.error('Session verification failed after setSession');
+          throw new Error('Session not persisted');
+        }
+
+        logger.info('✅ Supabase session confirmed', {
+          hasAccessToken: !!verifySession.access_token,
+          expiresAt: verifySession.expires_at
         });
 
         setSession({
