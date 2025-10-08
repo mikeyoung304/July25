@@ -92,9 +92,11 @@ export function DevAuthOverlay() {
     const restaurantId = '11111111-1111-1111-1111-111111111111';
 
     try {
+      // Login and wait for session to be fully established
       await login(role.email, role.password, restaurantId);
+
+      logger.info(`✅ Demo login completed for ${role.name}, session ready`);
       toast.success(`Logged in as ${role.name}`);
-      logger.info(`Demo login successful as ${role.name}`);
 
       // Navigate to appropriate dashboard based on role
       const roleRoutes: Record<string, string> = {
@@ -107,10 +109,11 @@ export function DevAuthOverlay() {
 
       const destination = roleRoutes[role.id] || '/dashboard';
 
-      // Wait for auth context to fully update before navigating
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Small delay to ensure React state updates propagate
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Use React Router navigation instead of hard reload
+      logger.info(`🚀 Navigating to ${destination}`);
       navigate(destination, { replace: true });
     } catch (error) {
       logger.error(`Demo login failed for ${role.name}:`, error);
