@@ -60,6 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        logger.info('🔄 Initializing auth context...');
 
         // Check for existing Supabase session
         const { data: { session: supabaseSession } } = await supabase.auth.getSession();
@@ -109,11 +110,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } catch (error) {
         logger.error('Failed to initialize auth:', error);
       } finally {
+        logger.info('✅ Auth initialization complete');
         setIsLoading(false);
       }
     };
 
     initializeAuth();
+
+    // Safety timeout: Force loading to complete after 5 seconds
+    const loadingTimeout = setTimeout(() => {
+      if (isLoading) {
+        logger.warn('⚠️ Auth loading timeout - forcing completion after 5s');
+        setIsLoading(false);
+      }
+    }, 5000);
 
     // Subscribe to auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -150,6 +160,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
 
     return () => {
+      clearTimeout(loadingTimeout);
       authListener.subscription.unsubscribe();
     };
   }, []);
