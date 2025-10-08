@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth.hooks';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -75,6 +76,7 @@ const demoRoles: DemoRole[] = [
 ];
 
 export function DevAuthOverlay() {
+  const navigate = useNavigate();
   const { login, loginWithPin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
@@ -104,7 +106,12 @@ export function DevAuthOverlay() {
       };
 
       const destination = roleRoutes[role.id] || '/dashboard';
-      window.location.href = destination; // Use location.href for full page reload to ensure state updates
+
+      // Wait for auth context to fully update before navigating
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Use React Router navigation instead of hard reload
+      navigate(destination, { replace: true });
     } catch (error) {
       logger.error(`Demo login failed for ${role.name}:`, error);
       toast.error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);

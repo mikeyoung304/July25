@@ -76,19 +76,10 @@ const allowedOrigins = new Set<string>([
   'https://growfreshlocalfood.com',
   'https://www.growfreshlocalfood.com',
 
-  // July25 canonical deployment
+  // July25 canonical deployment (production)
   'https://july25-client.vercel.app',
 
-  // Rebuild-60 canonical deployment
-  'https://rebuild-60.vercel.app',
-
-  // Historic preview deployments (kept for compatibility)
-  'https://july25-client-git-feat-r-b7c846-mikeyoung304-gmailcoms-projects.vercel.app',
-  'https://rebuild-60-ao1ku064c-mikeyoung304-gmailcoms-projects.vercel.app',
-  'https://grow-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
-  'https://grow-ir056u92z-mikeyoung304-gmailcoms-projects.vercel.app',
-
-  // Current preview deployment
+  // Main branch preview deployment
   'https://july25-client-git-main-mikeyoung304-gmailcoms-projects.vercel.app',
 ]);
 
