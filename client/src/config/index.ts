@@ -1,10 +1,10 @@
 /**
  * Client-side Configuration Service
- * 
+ *
  * Wraps the shared config service with Vite-specific environment variable handling
  */
 
-// eslint-disable-next-line no-restricted-imports -- central config aggregator purposely imports shared browser entry
+// eslint-disable-next-line no-restricted-imports
 import { browserConfig as sharedConfigSimple, configService as sharedConfig } from '@rebuild/shared/config/browser';
 
 // Re-export everything from shared config (browser entrypoint)
