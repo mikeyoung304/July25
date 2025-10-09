@@ -140,10 +140,7 @@ export default defineConfig(({ mode }) => {
       
       // Set chunk size warnings
       chunkSizeWarningLimit: 500, // 500kb warning threshold
-      
-      // Disable source maps in CI to reduce memory usage
-      sourcemap: mode === 'development' ? 'inline' : false,
-      
+
       // Target modern browsers for smaller bundles
       target: 'es2020',
       

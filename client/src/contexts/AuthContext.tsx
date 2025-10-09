@@ -159,7 +159,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
 
     return () => {
-      clearTimeout(loadingTimeout);
       authListener.subscription.unsubscribe();
     };
   }, []);
