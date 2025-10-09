@@ -10,6 +10,9 @@
 
 import { test, expect, Page } from '@playwright/test';
 
+// Production URL (publicly accessible)
+// Preview deployments require Vercel auth, so use production for E2E tests
+// Override with: VERCEL_URL=<url> npx playwright test
 const VERCEL_URL = process.env.VERCEL_URL || 'https://july25-client.vercel.app';
 const TEST_TIMEOUT = 60000;
 
@@ -55,6 +58,16 @@ test.describe('Authentication & Authorization Flow', () => {
     await page.context().clearCookies();
     await page.goto(`${VERCEL_URL}/login`);
     await page.waitForLoadState('networkidle');
+
+    // Wait for splash screen to disappear (if present)
+    // Look for common splash screen indicators and wait for them to be hidden
+    const splashScreen = page.locator('[data-testid="splash-screen"], .splash-screen, .loading-screen').first();
+    if (await splashScreen.isVisible().catch(() => false)) {
+      await splashScreen.waitFor({ state: 'hidden', timeout: 10000 });
+    }
+
+    // Wait a bit for any animations to complete
+    await page.waitForTimeout(1000);
   });
 
   test('Page loads correctly and demo panel is visible', async ({ page }) => {
@@ -64,6 +77,9 @@ test.describe('Authentication & Authorization Flow', () => {
     });
 
     await test.step('Demo panel renders', async () => {
+      // Scroll down to make demo buttons visible (they're in bottom half of screen)
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
+
       const demoSection = page.locator('text=Quick Demo Access');
       await expect(demoSection).toBeVisible({ timeout: 10000 });
     });
@@ -82,7 +98,11 @@ test.describe('Authentication & Authorization Flow', () => {
 
       test(`${role.name}: Can login successfully`, async ({ page }) => {
         await test.step('Click demo role button', async () => {
+          // Scroll to make demo buttons visible
+          await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
+
           const roleButton = page.locator(`button:has-text("${role.name}")`).first();
+          await roleButton.scrollIntoViewIfNeeded();
           await roleButton.click();
         });
 
@@ -117,7 +137,10 @@ test.describe('Authentication & Authorization Flow', () => {
 
       test(`${role.name}: Can access allowed routes`, async ({ page }) => {
         // Login first
-        await page.locator(`button:has-text("${role.name}")`).first().click();
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
+        const button = page.locator(`button:has-text("${role.name}")`).first();
+        await button.scrollIntoViewIfNeeded();
+        await button.click();
         await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
 
         for (const route of role.allowedRoutes) {
@@ -137,7 +160,10 @@ test.describe('Authentication & Authorization Flow', () => {
 
       test(`${role.name}: Cannot access denied routes`, async ({ page }) => {
         // Login first
-        await page.locator(`button:has-text("${role.name}")`).first().click();
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
+        const button = page.locator(`button:has-text("${role.name}")`).first();
+        await button.scrollIntoViewIfNeeded();
+        await button.click();
         await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
 
         for (const route of role.deniedRoutes) {
@@ -180,7 +206,10 @@ test.describe('Authentication & Authorization Flow', () => {
     });
 
     // Perform login
-    await page.locator('button:has-text("Manager")').first().click();
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
+    const managerButton = page.locator('button:has-text("Manager")').first();
+    await managerButton.scrollIntoViewIfNeeded();
+    await managerButton.click();
     await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
 
     // Verify scopes in response
@@ -222,7 +251,11 @@ test.describe('Authentication & Authorization Flow', () => {
 
     // Navigate and login
     await page.goto(`${VERCEL_URL}/login`);
-    await page.locator('button:has-text("Manager")').first().click();
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
+    const managerButton = page.locator('button:has-text("Manager")').first();
+    await managerButton.scrollIntoViewIfNeeded();
+    await managerButton.click();
     await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
     await page.waitForLoadState('networkidle');
 
@@ -294,7 +327,11 @@ test.describe('Debug: Investigate "No Access" Issue', () => {
 
     // Perform login
     await page.goto(`${VERCEL_URL}/login`);
-    await page.locator('button:has-text("Manager")').first().click();
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
+    const managerButton = page.locator('button:has-text("Manager")').first();
+    await managerButton.scrollIntoViewIfNeeded();
+    await managerButton.click();
 
     // Wait and capture state
     await page.waitForTimeout(3000);
