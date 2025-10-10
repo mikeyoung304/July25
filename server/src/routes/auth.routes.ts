@@ -412,6 +412,22 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
       .eq('is_active', true)
       .single();
 
+    // Fetch user scopes from role_scopes table (same as login endpoint)
+    const role = userRole?.role || req.user!.role;
+    const { data: scopesData, error: scopesError } = await supabase
+      .from('role_scopes')
+      .select('scope')
+      .eq('role', role);
+
+    if (scopesError) {
+      logger.warn('Failed to fetch user scopes for /auth/me', {
+        role,
+        error: scopesError.message
+      });
+    }
+
+    const scopes = scopesData?.map(s => s.scope) || [];
+
     res.json({
       user: {
         id: userId,
@@ -419,8 +435,8 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
         displayName: profile?.display_name,
         phone: profile?.phone,
         employeeId: profile?.employee_id,
-        role: userRole?.role || req.user!.role,
-        scopes: req.user!.scopes
+        role,
+        scopes
       },
       restaurantId
     });

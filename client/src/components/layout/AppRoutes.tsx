@@ -16,7 +16,7 @@ const UnauthorizedPage = lazy(() => import('@/pages/UnauthorizedPage').then(m =>
 
 // Lazy load all other routes for code splitting
 const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })))
-const KitchenDisplaySimple = lazy(() => import('@/pages/KitchenDisplaySimple'))
+const KitchenDisplayOptimized = lazy(() => import('@/pages/KitchenDisplayOptimized'))
 const KioskDemo = lazy(() => import('@/pages/KioskDemo'))
 const OrderHistory = lazy(() => import('@/pages/OrderHistory').then(m => ({ default: m.OrderHistory })))
 const PerformanceDashboard = lazy(() => import('@/pages/PerformanceDashboard'))
@@ -103,7 +103,7 @@ export function AppRoutes() {
                 >
                   <Profiler id="KitchenDisplay" onRender={onRenderCallback}>
                     <Suspense fallback={<RouteLoader />}>
-                      <KitchenDisplaySimple />
+                      <KitchenDisplayOptimized />
                     </Suspense>
                   </Profiler>
                 </ErrorBoundary>

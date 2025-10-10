@@ -1,12 +1,19 @@
 # Grow App - Restaurant Management System
 
-**Last Updated**: 2025-10-09
-**Version**: 6.0.6
+**Last Updated**: 2025-10-10
+**Version**: 6.0.7
 **Stack**: React 19.1.0, TypeScript 5.8.3, Vite 5.4.19, Express, Supabase
 
 ## Project Overview
 
-Full-stack restaurant management system with AI-powered voice ordering, real-time kitchen display, and multi-tenant architecture. Built for enterprise use with strict data isolation.
+Full-stack restaurant management system with AI-powered voice ordering, **professional kitchen display with table grouping**, and multi-tenant architecture. Built for enterprise use with strict data isolation.
+
+### Recent Updates (v6.0.7)
+- ✅ Upgraded kitchen display to optimized version with table grouping
+- ✅ Added dual view modes (Tables/Grid) for flexible workflows
+- ✅ Implemented batch operations for complete table service
+- ✅ Fixed auth scopes for kitchen/expo roles (`orders.write`)
+- 📄 See `KITCHEN_DISPLAY_UPGRADE.md` for full details
 
 ## Critical Architecture Rules
 
