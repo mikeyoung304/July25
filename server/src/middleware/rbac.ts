@@ -43,6 +43,19 @@ export enum ApiScope {
 /**
  * Role to Scope Mappings
  * Define what each role can do
+ *
+ * ⚠️ IMPORTANT: DUAL-SOURCE ARCHITECTURE
+ * These scopes MUST match the database role_scopes table in supabase/migrations/20250130_auth_tables.sql
+ *
+ * WHY TWO SOURCES?
+ * - Database: Used for client-side authorization (queried during login)
+ * - This constant: Used for server-side API protection (performance - no DB query per request)
+ *
+ * WHEN UPDATING SCOPES:
+ * 1. Update this constant
+ * 2. Update the database migration
+ * 3. Run migration in Supabase
+ * 4. Verify sync with: npm test -- rbac.test (if test exists)
  */
 const ROLE_SCOPES: Record<string, ApiScope[]> = {
   owner: [
