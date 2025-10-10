@@ -229,18 +229,38 @@ CREATE TABLE user_restaurants (
 ### `role_scopes` Table
 ```sql
 CREATE TABLE role_scopes (
-  role TEXT,
-  scope TEXT,
-  PRIMARY KEY (role, scope)
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  role TEXT NOT NULL,
+  scope_name TEXT REFERENCES api_scopes(scope_name) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(role, scope_name)
 );
 ```
 
+**IMPORTANT: Dual-Source Scope Architecture**
+
+Scopes are defined in TWO places for different purposes:
+
+1. **Database (`role_scopes` table)**:
+   - Used by client-side authorization (`canAccess()`)
+   - Queried during login to populate user object
+   - Provides flexibility for runtime scope changes
+
+2. **Hardcoded (`server/src/middleware/rbac.ts` - ROLE_SCOPES constant)**:
+   - Used by server-side API protection (`requireScopes()` middleware)
+   - Avoids database queries on every API request (performance)
+   - Provides compile-time type safety
+
+⚠️ **These MUST be kept in sync manually**. If you update scopes in the database, also update `rbac.ts`.
+
 Example scopes:
-- `orders.read`, `orders.write`
-- `menu.read`, `menu.write`
-- `tables.read`, `tables.write`
-- `analytics.read`
-- `staff.manage`
+- `orders:create`, `orders:read`, `orders:update`, `orders:delete`, `orders:status`
+- `menu:manage`
+- `tables:manage`
+- `payments:process`, `payments:refund`, `payments:read`
+- `staff:manage`, `staff:schedule`
+- `reports:view`, `reports:export`
+- `system:config`
 
 ---
 
