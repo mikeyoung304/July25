@@ -1,34 +1,41 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
-// 
+//
 import { VirtualizedOrderGrid } from '@/components/kitchen/VirtualizedOrderGrid'
 import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
+import { TableGroupCard } from '@/components/kitchen/TableGroupCard'
 import { Button } from '@/components/ui/button'
-import { Filter, Clock, ChefHat, AlertCircle, BarChart3, Zap } from 'lucide-react'
+import { Filter, Clock, ChefHat, AlertCircle, BarChart3, Zap, Users, LayoutGrid } from 'lucide-react'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
+import { useTableGrouping, sortTableGroups } from '@/hooks/useTableGrouping'
 import {  } from '@/utils'
 import type { Order } from '@rebuild/shared'
 
 type StatusFilter = 'all' | 'active' | 'ready' | 'urgent'
 type SortMode = 'priority' | 'chronological' | 'type'
+type ViewMode = 'grid' | 'tables'
 
 function KitchenDisplayOptimized() {
   // Use optimized hook with advanced features
-  const { 
-    orders, 
-    isLoading, 
-    error, 
+  const {
+    orders,
+    isLoading,
+    error,
     updateOrderStatus,
     prioritizedOrders,
     activeOrders,
     readyOrders,
     connectionState
   } = useKitchenOrdersOptimized()
-  
+
+  // Table grouping
+  const groupedOrders = useTableGrouping(orders)
+
   // Enhanced filtering and sorting state
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [sortMode, setSortMode] = useState<SortMode>('priority')
+  const [viewMode, setViewMode] = useState<ViewMode>('tables')
   const [showStats, setShowStats] = useState(false)
 
   // Enhanced order status handling
@@ -38,6 +45,19 @@ function KitchenDisplayOptimized() {
       console.error('Failed to update order status:', orderId)
     }
   }, [updateOrderStatus])
+
+  // Handle batch table completion
+  const handleBatchComplete = useCallback(async (tableNumber: string) => {
+    const tableGroup = groupedOrders.tables.get(tableNumber)
+    if (!tableGroup) return
+
+    // Mark all orders for the table as ready
+    const updatePromises = tableGroup.orders.map(order =>
+      updateOrderStatus(order.id, 'ready')
+    )
+
+    await Promise.all(updatePromises)
+  }, [groupedOrders.tables, updateOrderStatus])
 
   // Compute detailed statistics
   const stats = useMemo(() => {
@@ -121,6 +141,22 @@ function KitchenDisplayOptimized() {
         return filtered
     }
   }, [orders, activeOrders, readyOrders, prioritizedOrders, statusFilter, sortMode])
+
+  // Sort table groups for table view mode
+  const sortedTableGroups = useMemo(() => {
+    const groups = Array.from(groupedOrders.tables.values())
+    // Filter by status if needed
+    const filtered = statusFilter === 'ready'
+      ? groups.filter(g => g.status === 'ready' || g.status === 'partially-ready')
+      : statusFilter === 'urgent'
+      ? groups.filter(g => g.urgency === 'urgent' || g.urgency === 'critical')
+      : groups
+
+    // Apply sorting based on sortMode
+    const sortKey = sortMode === 'priority' ? 'urgency' :
+                    sortMode === 'chronological' ? 'age' : 'table'
+    return sortTableGroups(new Map(filtered.map(g => [g.tableNumber, g])), sortKey)
+  }, [groupedOrders.tables, statusFilter, sortMode])
 
   // Enhanced error and loading states
   if (error) {
@@ -269,8 +305,31 @@ function KitchenDisplayOptimized() {
               )}
             </div>
 
-            {/* Sort Controls */}
+            {/* View Mode and Sort Controls */}
             <div className="flex items-center gap-2">
+              {/* View Mode Toggle */}
+              <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
+                <Button
+                  variant={viewMode === 'tables' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('tables')}
+                  className="gap-1"
+                >
+                  <Users className="w-4 h-4" />
+                  Tables
+                </Button>
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="gap-1"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  Grid
+                </Button>
+              </div>
+
+              {/* Sort Controls */}
               <span className="text-sm text-gray-600">Sort:</span>
               <Button
                 variant={sortMode === 'priority' ? 'default' : 'outline'}
@@ -303,34 +362,62 @@ function KitchenDisplayOptimized() {
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {filteredAndSortedOrders.length === 0 ? (
-          <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
-            <div className="text-6xl mb-6">
-              {statusFilter === 'urgent' ? '🎯' : statusFilter === 'ready' ? '✅' : '👨‍🍳'}
+        {viewMode === 'tables' ? (
+          /* Table Grouping View */
+          sortedTableGroups.length === 0 ? (
+            <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
+              <div className="text-6xl mb-6">👨‍🍳</div>
+              <p className="text-gray-500 text-2xl mb-2">
+                {statusFilter === 'ready' ? 'No tables ready' : 'No active table orders'}
+              </p>
+              <p className="text-gray-400 text-lg">
+                Table orders will appear here grouped by table number
+              </p>
             </div>
-            <p className="text-gray-500 text-2xl mb-2">
-              {statusFilter === 'urgent' 
-                ? 'No urgent orders' 
-                : statusFilter === 'ready'
-                ? 'No orders ready'
-                : 'No active orders'
-              }
-            </p>
-            <p className="text-gray-400 text-lg">
-              {statusFilter === 'urgent' 
-                ? 'Great job staying on top of orders!'
-                : statusFilter === 'ready'
-                ? 'Orders will appear here when ready for pickup'
-                : 'All caught up! New orders will appear here.'
-              }
-            </p>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              {sortedTableGroups.map(tableGroup => (
+                <TableGroupCard
+                  key={tableGroup.tableNumber}
+                  tableGroup={tableGroup}
+                  onOrderStatusChange={handleStatusChange}
+                  onBatchComplete={handleBatchComplete}
+                  variant="kitchen"
+                />
+              ))}
+            </div>
+          )
         ) : (
-          <VirtualizedOrderGrid
-            orders={filteredAndSortedOrders}
-            onStatusChange={handleStatusChange}
-            className="h-[calc(100vh-300px)]"
-          />
+          /* Grid View */
+          filteredAndSortedOrders.length === 0 ? (
+            <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
+              <div className="text-6xl mb-6">
+                {statusFilter === 'urgent' ? '🎯' : statusFilter === 'ready' ? '✅' : '👨‍🍳'}
+              </div>
+              <p className="text-gray-500 text-2xl mb-2">
+                {statusFilter === 'urgent'
+                  ? 'No urgent orders'
+                  : statusFilter === 'ready'
+                  ? 'No orders ready'
+                  : 'No active orders'
+                }
+              </p>
+              <p className="text-gray-400 text-lg">
+                {statusFilter === 'urgent'
+                  ? 'Great job staying on top of orders!'
+                  : statusFilter === 'ready'
+                  ? 'Orders will appear here when ready for pickup'
+                  : 'All caught up! New orders will appear here.'
+                }
+              </p>
+            </div>
+          ) : (
+            <VirtualizedOrderGrid
+              orders={filteredAndSortedOrders}
+              onStatusChange={handleStatusChange}
+              className="h-[calc(100vh-300px)]"
+            />
+          )
         )}
       </div>
 
