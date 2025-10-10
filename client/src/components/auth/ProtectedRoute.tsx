@@ -113,7 +113,7 @@ export function KitchenRoute({ children }: { children: ReactNode }) {
 
 export function AdminRoute({ children }: { children: ReactNode }) {
   return (
-    <ProtectedRoute requiredRoles={['owner']}>
+    <ProtectedRoute requiredRoles={['owner', 'manager']}>
       {children}
     </ProtectedRoute>
   );

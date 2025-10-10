@@ -57,12 +57,14 @@ role TEXT NOT NULL CHECK (role IN ('owner', 'manager', 'server', 'cashier', 'kit
 
 | Role | API Scopes | Route Access |
 |------|-----------|--------------|
-| **owner** | ALL scopes (full system access) | ALL routes |
-| **manager** | All except `system:config` | ManagerRoute, ServerRoute, KitchenRoute |
+| **owner** | ALL scopes (full system access) | ALL routes including AdminRoute |
+| **manager** | All except `system:config` | ALL routes including AdminRoute (same as owner) |
 | **server** | orders:*, payments:*, tables:manage | ServerRoute |
 | **cashier** | orders:read, payments:* | (undefined - no route guard) |
 | **kitchen** | orders:read, orders:status | KitchenRoute |
 | **expo** | orders:read, orders:status | KitchenRoute |
+
+**Update (2025-10-10):** Managers now have full admin access. For operational purposes, owners and managers have equivalent permissions.
 
 ---
 
@@ -89,7 +91,7 @@ AdminRoute    → requiredRoles: ['owner']
 | `/server` | ServerRoute | owner, manager, server | ✅ YES |
 | `/kitchen` | KitchenRoute | owner, manager, kitchen, expo | ✅ YES |
 | `/expo` | KitchenRoute | owner, manager, kitchen, expo | ✅ YES |
-| `/admin` | AdminRoute | owner | ❌ NO |
+| `/admin` | AdminRoute | owner, manager | ✅ YES |
 | `/performance` | ManagerRoute | owner, manager | ✅ YES |
 | `/history` | ServerRoute | owner, manager, server | ✅ YES |
 | `/kiosk` | Public | NONE | ✅ YES |
@@ -307,12 +309,12 @@ if (requiredRoles.length > 0 || requiredScopes.length > 0) {
 - [ ] Verify redirect to `/` (HomePage with colored blocks)
 - [ ] Click "Server" button → should load `/server` (has manager in requiredRoles)
 - [ ] Click "Kitchen" button → should load `/kitchen` (has manager in requiredRoles)
-- [ ] Click "Admin" button → should show "Unauthorized" (only owner allowed)
+- [ ] Click "Admin" button → should load `/admin` (manager now has access)
 - [ ] Check browser console for auth logs
 - [ ] Verify user.role === 'manager' in localStorage
 
 ### Other Roles Tests
-- [ ] server@restaurant.com → can access `/server`, blocked from `/admin`
+- [ ] server@restaurant.com → can access `/server`, blocked from `/admin` (requires owner/manager role)
 - [ ] kitchen@restaurant.com → can access `/kitchen`, blocked from `/server`
 - [ ] cashier@restaurant.com → can access `/`, where should they go?
 
