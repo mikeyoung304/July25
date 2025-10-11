@@ -100,26 +100,29 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
       categoryGroups.get(categoryName)!.push(item);
     });
 
-    // Define section metadata - Apple minimal style (no icons)
-    const sectionMetadata: Record<string, { title: string; order: number }> = {
-      'Starters': { title: 'Starters', order: 1 },
-      'Salads': { title: 'Salads', order: 2 },
-      'Sandwiches': { title: 'Sandwiches', order: 3 },
-      'Bowls': { title: 'Bowls', order: 4 },
-      'Entrees': { title: 'Entrees', order: 5 },
-      'Vegan': { title: 'Plant-Based', order: 6 },
-      'Beverages': { title: 'Beverages', order: 7 },
-      'Other': { title: 'More Items', order: 8 }
+    // Define section metadata matching restaurant's menu style
+    const sectionMetadata: Record<string, { title: string; order: number; description?: string }> = {
+      'Starters': { title: 'STARTERS', order: 1, description: 'Perfect for sharing or starting your meal' },
+      'Nachos': { title: 'NACHOS', order: 2, description: 'Loaded with fresh ingredients' },
+      'Salads': { title: 'SALADS', order: 3, description: 'Fresh, healthy options packed with flavor' },
+      'Sandwiches': { title: 'SANDWICHES', order: 4, description: 'Served with choice of side and pickle' },
+      'Bowls': { title: 'BOWLS', order: 5, description: 'Hearty and satisfying bowls' },
+      'Vegan': { title: 'VEGAN', order: 6, description: 'Plant-based selections' },
+      'Entrees': { title: 'ENTREES', order: 7, description: 'Served with 2 sides and cornbread' },
+      'Fresh Sides': { title: 'FRESH SIDES', order: 8, description: 'Perfect accompaniments to any meal' },
+      'Beverages': { title: 'Beverages', order: 9 },
+      'Other': { title: 'More Items', order: 10 }
     };
 
-    // Convert to sections array
-    const sections: MenuSection[] = [];
+    // Convert to sections array with metadata
+    const sections: Array<MenuSection & { description?: string }> = [];
     categoryGroups.forEach((items, categoryName) => {
       const metadata = sectionMetadata[categoryName] || sectionMetadata['Other'];
       sections.push({
         id: categoryName.toLowerCase().replace(/\s+/g, '-'),
         title: metadata.title,
-        items: items
+        items: items,
+        description: metadata.description
       });
     });
 
@@ -187,30 +190,20 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
     );
   }
 
-  // Show menu sections with generous spacing
+  // Show menu sections with generous spacing - styled like restaurant menu
   return (
     <div className="space-y-16 md:space-y-20">
       {menuSections.map((section) => (
         <section key={section.id} id={`section-${section.id}`} className="">
-          {/* Section Header - Attention-grabbing */}
-          <div className="mb-8 md:mb-12">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl md:text-3xl font-bold leading-tight text-gray-900">
-                {section.title}
-              </h2>
-              <span className="text-lg md:text-xl font-medium text-gray-600 bg-gray-100 px-4 py-2 rounded-full">
-                {section.items.length} {section.items.length === 1 ? 'item' : 'items'}
-              </span>
-            </div>
-            {/* Optional section description for better UX */}
-            {section.id === 'starters' && (
-              <p className="text-lg text-gray-600 mt-2">Perfect for sharing or starting your meal</p>
-            )}
-            {section.id === 'salads' && (
-              <p className="text-lg text-gray-600 mt-2">Fresh, healthy options packed with flavor</p>
-            )}
-            {section.id === 'entrees' && (
-              <p className="text-lg text-gray-600 mt-2">Our signature dishes and hearty meals</p>
+          {/* Section Header - Restaurant style with orange accent */}
+          <div className="mb-8 md:mb-10 border-b border-orange-400 pb-4">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-wide text-orange-500 mb-2">
+              {section.title}
+            </h2>
+            {section.description && (
+              <p className="text-sm md:text-base text-gray-600 italic mt-1">
+                {section.description}
+              </p>
             )}
           </div>
 
