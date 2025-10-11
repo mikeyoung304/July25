@@ -8,66 +8,64 @@ export interface MenuSection {
 
 export const menuSections: MenuSection[] = [
   {
-    id: 'popular',
-    title: 'Popular Items',
-    description: 'Customer favorites',
-    icon: '⭐',
-    items: ['305', '501', '202', '401'] // Mom's Chicken Salad, Soul Bowl, Jalapeño Pimento Bites, Chicken Salad Sandwich
-  },
-  {
-    id: 'lunch-combos',
-    title: 'Lunch Combos',
-    description: 'Complete meals with sides',
-    icon: '🍱',
-    items: ['701', '702', '703', '704']
-  },
-  {
-    id: 'fresh-bowls',
-    title: 'Fresh Bowls',
-    description: 'Hearty and healthy bowl meals',
-    icon: '🍲',
-    items: ['501', '502', '503', '601']
-  },
-  {
-    id: 'garden-fresh-salads',
-    title: 'Garden Fresh Salads',
-    description: 'Made with local, organic greens',
-    icon: '🥗',
-    items: ['301', '302', '303', '304', '305', '306']
-  },
-  {
-    id: 'sandwiches-wraps',
-    title: 'Sandwiches',
-    description: 'Served with a side and house pickle',
-    icon: '🥪',
-    items: ['401', '402', '403', '404', '405']
-  },
-  {
-    id: 'small-plates',
-    title: 'Small Plates & Starters',
-    description: 'Perfect for sharing',
-    icon: '🍽️',
+    id: 'starters',
+    title: 'STARTERS',
+    description: 'Perfect for sharing or starting your meal',
     items: ['201', '202', '203', '204', '205']
   },
   {
-    id: 'plant-based',
-    title: 'Plant-Based',
-    description: '100% vegan options',
-    icon: '🌱',
+    id: 'nachos',
+    title: 'NACHOS',
+    description: 'Loaded with fresh ingredients',
+    items: []
+  },
+  {
+    id: 'salads',
+    title: 'SALADS',
+    description: 'Fresh, healthy options packed with flavor',
+    items: ['301', '302', '303', '304', '305', '306']
+  },
+  {
+    id: 'sandwiches',
+    title: 'SANDWICHES',
+    description: 'Served with choice of side and pickle',
+    items: ['401', '402', '403', '404', '405']
+  },
+  {
+    id: 'bowls',
+    title: 'BOWLS',
+    description: 'Hearty and satisfying bowls',
+    items: ['501', '502', '503']
+  },
+  {
+    id: 'vegan',
+    title: 'VEGAN',
+    description: 'Plant-based selections',
     items: ['601', '602']
+  },
+  {
+    id: 'entrees',
+    title: 'ENTREES',
+    description: 'Served with 2 sides and cornbread',
+    items: ['701', '702', '703', '704']
+  },
+  {
+    id: 'fresh-sides',
+    title: 'FRESH SIDES',
+    description: 'Perfect accompaniments to any meal',
+    items: []
   },
   {
     id: 'beverages',
     title: 'Beverages',
     description: 'Refreshing drinks',
-    icon: '🥤',
     items: ['101', '102', '103']
   }
 ];
 
 export const getDaypartSection = (): string => {
   const hour = new Date().getHours();
-  if (hour < 11) return 'small-plates'; // Before lunch
-  if (hour < 14) return 'lunch-combos'; // Lunch time
-  return 'fresh-bowls'; // After lunch
+  if (hour < 11) return 'starters'; // Before lunch
+  if (hour < 14) return 'sandwiches'; // Lunch time
+  return 'bowls'; // After lunch
 };

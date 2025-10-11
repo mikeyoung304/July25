@@ -19,13 +19,15 @@ const RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
 
 const GROW_FRESH_DATA = {
   categories: [
-    { name: 'Beverages', slug: 'beverages', display_order: 1 },
-    { name: 'Starters', slug: 'starters', display_order: 2 },
+    { name: 'Starters', slug: 'starters', display_order: 1 },
+    { name: 'Nachos', slug: 'nachos', display_order: 2 },
     { name: 'Salads', slug: 'salads', display_order: 3 },
     { name: 'Sandwiches', slug: 'sandwiches', display_order: 4 },
     { name: 'Bowls', slug: 'bowls', display_order: 5 },
     { name: 'Vegan', slug: 'vegan', display_order: 6 },
-    { name: 'Entrees', slug: 'entrees', display_order: 7 }
+    { name: 'Entrees', slug: 'entrees', display_order: 7 },
+    { name: 'Fresh Sides', slug: 'fresh-sides', display_order: 8 },
+    { name: 'Beverages', slug: 'beverages', display_order: 9 }
   ],
   items: [
     {
