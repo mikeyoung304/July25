@@ -96,34 +96,15 @@ export function responseTransformMiddleware(
 
 /**
  * Transform WebSocket message payloads to camelCase
+ * DISABLED per ADR-001 (full snake_case convention)
+ *
  * Used by WebSocket handlers before sending events
+ * Now returns message as-is (snake_case) for consistency
  */
 export function transformWebSocketMessage(message: any): any {
-  if (!ENABLE_RESPONSE_TRANSFORM) {
-    return message;
-  }
-
-  try {
-    // Preserve message type and metadata, transform payload
-    if (message && typeof message === 'object') {
-      const { type, payload, ...rest } = message;
-
-      return {
-        type,
-        payload: payload ? camelizeKeys(payload) : payload,
-        ...camelizeKeys(rest)
-      };
-    }
-
-    return camelizeKeys(message);
-  } catch (error) {
-    transformLogger.error('WebSocket message transformation failed', {
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-
-    // Return original message on transform failure
-    return message;
-  }
+  // ADR-001: Return message as-is (snake_case)
+  // Frontend expects snake_case, no transformation needed
+  return message;
 }
 
 /**

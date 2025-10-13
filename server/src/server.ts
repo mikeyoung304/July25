@@ -25,7 +25,7 @@ import { authenticate, requireRole } from './middleware/auth';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
 import { applySecurity } from './middleware/security';
 import { sanitizeRequest } from './middleware/requestSanitizer';
-import { responseTransformMiddleware } from './middleware/responseTransform';
+// Disabled per ADR-001: import { responseTransformMiddleware } from './middleware/responseTransform';
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -160,8 +160,10 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 // Request sanitization (after body parsing, before other middleware)
 app.use(sanitizeRequest);
 
-// Response transformation middleware (transforms snake_case to camelCase)
-app.use(responseTransformMiddleware);
+// Response transformation middleware - DISABLED per ADR-001 (full snake_case convention)
+// Rationale: Database uses snake_case, frontend expects snake_case, transformation adds overhead
+// Frontend has defensive code that checks snake_case first, so this is safe to disable
+// app.use(responseTransformMiddleware);
 
 // CSRF protection (after cookie parser, before routes)
 app.use(csrfMiddleware());
