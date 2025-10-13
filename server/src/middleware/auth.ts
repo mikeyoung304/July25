@@ -107,7 +107,7 @@ export async function optionalAuth(
 ): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       // No token, but that's okay
       req.restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
@@ -117,8 +117,9 @@ export async function optionalAuth(
     // If token exists, validate it
     return authenticate(req, _res, next);
   } catch (error) {
-    // Log but don't fail
+    // Log but don't fail - still set restaurant ID for unauthenticated access
     logger.warn('Optional auth failed:', error);
+    req.restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
     next();
   }
 }
