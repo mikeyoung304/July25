@@ -172,7 +172,7 @@ router.post('/login',
     // Fetch user scopes from role_scopes table
     const { data: scopesData, error: scopesError } = await supabase
       .from('role_scopes')
-      .select('scope_name')
+      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
       .eq('role', userRole.role);
 
     if (scopesError) {
@@ -182,7 +182,7 @@ router.post('/login',
       });
     }
 
-    const scopes = scopesData?.map(s => s.scope_name) || [];
+    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
 
     logger.info('User logged in successfully', {
       userId: authData.user.id,
@@ -260,7 +260,7 @@ router.post('/pin-login',
     // Fetch user scopes from role_scopes table
     const { data: scopesData, error: scopesError } = await supabase
       .from('role_scopes')
-      .select('scope_name')
+      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
       .eq('role', result.role);
 
     if (scopesError) {
@@ -270,7 +270,7 @@ router.post('/pin-login',
       });
     }
 
-    const scopes = scopesData?.map(s => s.scope_name) || [];
+    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
 
     logger.info('PIN login successful', {
       userId: result.userId,
@@ -416,7 +416,7 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
     const role = userRole?.role || req.user!.role;
     const { data: scopesData, error: scopesError } = await supabase
       .from('role_scopes')
-      .select('scope_name')
+      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
       .eq('role', role);
 
     if (scopesError) {
@@ -426,7 +426,7 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
       });
     }
 
-    const scopes = scopesData?.map(s => s.scope_name) || [];
+    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
 
     res.json({
       user: {
