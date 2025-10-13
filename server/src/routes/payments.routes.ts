@@ -43,31 +43,31 @@ router.post('/create',
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
     const restaurantId = req.restaurantId!;
-    const { orderId, token, amount, idempotencyKey } = req.body;
+    const { order_id, token, amount, idempotency_key } = req.body; // ADR-001: snake_case
 
     // Validate required fields
-    if (!orderId) {
+    if (!order_id) {
       throw BadRequest('Order ID is required');
     }
     if (!token) {
       throw BadRequest('Payment token is required');
     }
 
-    routeLogger.info('Processing payment request', { 
-      restaurantId, 
-      orderId,
+    routeLogger.info('Processing payment request', {
+      restaurantId,
+      order_id,
       clientProvidedAmount: amount,
-      clientProvidedIdempotency: idempotencyKey
+      clientProvidedIdempotency: idempotency_key
     });
 
     try {
       // SECURITY: Server-side payment validation
       // Never trust client-provided amounts
       const validation = await PaymentService.validatePaymentRequest(
-        orderId,
+        order_id,
         restaurantId,
         amount,
-        idempotencyKey
+        idempotency_key
       );
 
       // Use server-calculated amount and idempotency key
@@ -75,14 +75,14 @@ router.post('/create',
       const serverIdempotencyKey = validation.idempotencyKey;
 
       routeLogger.info('Payment validated', {
-        orderId,
+        order_id,
         serverAmount: validation.orderTotal,
         tax: validation.tax,
         subtotal: validation.subtotal
       });
 
       // Get order for reference
-      const order = await OrdersService.getOrder(restaurantId, orderId);
+      const order = await OrdersService.getOrder(restaurantId, order_id);
       
       // Create payment request with server-validated amount
       const paymentRequest = {
@@ -93,10 +93,10 @@ router.post('/create',
           currency: 'USD',
         },
         locationId: process.env['SQUARE_LOCATION_ID'],
-        referenceId: orderId,
+        referenceId: order_id,
         note: `Payment for order #${(order as any).order_number}`,
         // Enable verification token for 3D Secure if provided
-        ...(req.body.verificationToken && { verificationToken: req.body.verificationToken }),
+        ...(req.body.verification_token && { verificationToken: req.body.verification_token }),
       };
 
       // Check if we're in demo mode (no Square credentials)
@@ -110,7 +110,7 @@ router.post('/create',
             id: `demo-payment-${randomUUID()}`,
             status: 'COMPLETED',
             amountMoney: paymentRequest.amountMoney,
-            referenceId: orderId,
+            referenceId: order_id,
             createdAt: new Date().toISOString(),
           }
         };
@@ -121,9 +121,9 @@ router.post('/create',
       }
 
       if (paymentResult.payment?.status !== 'COMPLETED') {
-        routeLogger.warn('Payment not completed', { 
+        routeLogger.warn('Payment not completed', {
           status: paymentResult.payment?.status,
-          orderId 
+          order_id
         });
         
         return res.status(400).json({
@@ -137,7 +137,7 @@ router.post('/create',
       // Update order payment status
       await OrdersService.updateOrderPayment(
         restaurantId,
-        orderId,
+        order_id,
         'paid',
         'card',
         paymentResult.payment.id
@@ -145,7 +145,7 @@ router.post('/create',
 
       // Log successful payment for audit trail with user context
       await PaymentService.logPaymentAttempt({
-        orderId,
+        orderId: order_id,
         amount: validation.orderTotal,
         status: 'success',
         restaurantId: restaurantId,
@@ -161,10 +161,10 @@ router.post('/create',
         ...(req.ip && { ipAddress: req.ip })
       });
 
-      routeLogger.info('Payment successful', { 
-        orderId, 
+      routeLogger.info('Payment successful', {
+        order_id,
         paymentId: paymentResult.payment.id,
-        amount: validation.orderTotal 
+        amount: validation.orderTotal
       });
 
       res.json({
@@ -172,27 +172,27 @@ router.post('/create',
         paymentId: paymentResult.payment.id,
         status: paymentResult.payment.status,
         receiptUrl: paymentResult.payment.receiptUrl,
-        order: await OrdersService.getOrder(restaurantId, orderId), // Return updated order
+        order: await OrdersService.getOrder(restaurantId, order_id), // Return updated order
       });
 
     } catch (squareError: any) {
       if (squareError.isError && squareError.errors) {
         const errors = squareError.errors || [];
-        routeLogger.error('Square API error', { 
-          orderId, 
+        routeLogger.error('Square API error', {
+          order_id,
           errors: errors.map((e: any) => ({ category: e.category, code: e.code, detail: e.detail }))
         });
 
         // Log failed payment attempt
         const firstError = errors[0];
         await PaymentService.logPaymentAttempt({
-          orderId,
+          orderId: order_id,
           amount: req.body.amount || 0,
           status: 'failed',
           restaurantId: restaurantId,
           paymentMethod: 'card',
           userAgent: req.headers['user-agent'] as string,
-          idempotencyKey: idempotencyKey || randomUUID(),
+          idempotencyKey: idempotency_key || randomUUID(),
           metadata: {
             userRole: req.user?.role,
             errorCategory: firstError?.category
@@ -233,13 +233,13 @@ router.post('/create',
 
   } catch (error: any) {
     routeLogger.error('Payment processing failed', { error });
-    
+
     // Update order payment status to failed
-    if (req.body.orderId) {
+    if (req.body.order_id) {
       try {
         await OrdersService.updateOrderPayment(
           req.restaurantId!,
-          req.body.orderId,
+          req.body.order_id,
           'failed',
           'card'
         );
@@ -247,7 +247,7 @@ router.post('/create',
         routeLogger.error('Failed to update order payment status', { updateError });
       }
     }
-    
+
     next(error);
   }
 });
