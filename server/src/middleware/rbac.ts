@@ -119,10 +119,11 @@ const ROLE_SCOPES: Record<string, ApiScope[]> = {
     ApiScope.ORDERS_STATUS
   ],
   
-  // Kiosk demo role for self-service
+  // Kiosk demo role for self-service (friends & family online orders)
   kiosk_demo: [
     ApiScope.ORDERS_CREATE,
     ApiScope.ORDERS_READ,
+    ApiScope.PAYMENTS_PROCESS, // Required for completing demo orders
     ApiScope.MENU_MANAGE // Read-only for menu viewing
   ]
 };
