@@ -26,7 +26,9 @@ export function csrfMiddleware() {
     const skipPaths = [
       '/api/v1/health',
       '/api/v1/auth/',             // All auth endpoints (login, kiosk, pin, etc.) - protected by rate limiting
-      '/api/v1/realtime/session'   // WebRTC doesn't need CSRF
+      '/api/v1/realtime/session',  // WebRTC doesn't need CSRF
+      '/api/v1/orders',            // Order creation API - protected by JWT auth
+      '/api/v1/payments'           // Payment API - protected by JWT auth + Square validation
     ];
 
     if (skipPaths.some(path => req.path.startsWith(path))) {
