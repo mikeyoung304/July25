@@ -23,11 +23,40 @@ Full-stack restaurant management system with AI-powered voice ordering, **profes
 - Test with multiple restaurant IDs: `11111111-1111-1111-1111-111111111111`, `22222222-2222-2222-2222-222222222222`
 - Verify RLS policies in Supabase
 
-### 2. Data Layer Conventions
+### 2. Data Layer Conventions (ENTERPRISE STANDARD - ADR-001)
+
+**CRITICAL: ALL LAYERS USE SNAKE_CASE**
+
 - **Database**: snake_case (`restaurant_id`, `order_status`)
-- **API**: camelCase (`restaurantId`, `orderStatus`)
-- **Transform at boundary**: Use utilities in `/shared/utils`
-- Never mix conventions within a layer
+- **API**: snake_case (`restaurant_id`, `order_status`)
+- **Client**: snake_case (`restaurant_id`, `order_status`)
+- **Rationale**: PostgreSQL standard, zero transformation overhead, single source of truth
+- **Decision Date**: 2025-10-12 (See docs/ADR-001-snake-case-convention.md)
+
+**DO NOT**:
+- ❌ Add camelCase transformations
+- ❌ Create competing format conventions
+- ❌ Use camelCase in API payloads
+- ❌ Transform between snake_case and camelCase
+
+**Example**:
+```typescript
+// ✅ CORRECT
+POST /api/v1/orders {
+  type: 'online',
+  customer_name: 'John Doe',
+  customer_email: 'john@example.com',
+  total_amount: 29.99
+}
+
+// ❌ WRONG
+POST /api/v1/orders {
+  type: 'online',
+  customerName: 'John Doe',  // Don't use camelCase
+  customerEmail: 'john@example.com',
+  totalAmount: 29.99
+}
+```
 
 ### 3. Order Status Flow (7 Required States)
 ```
@@ -92,8 +121,8 @@ ps aux | grep -E "node|vite" | awk '{sum+=$6} END {printf "%.0f MB\n", sum/1024}
 
 1. Add `restaurant_id` to all DB queries
 2. Create RLS policy in Supabase Dashboard
-3. Add types to `/shared/types`
-4. Transform snake_case ↔ camelCase at API boundary
+3. Add types to `/shared/types` (use snake_case)
+4. Use snake_case in API payloads (per ADR-001)
 5. Add WebSocket events if real-time needed
 6. Write tests with multiple restaurant contexts
 
@@ -101,13 +130,13 @@ ps aux | grep -E "node|vite" | awk '{sum+=$6} END {printf "%.0f MB\n", sum/1024}
 ```typescript
 // server/src/routes/example.ts
 router.get('/items', async (req, res) => {
-  const { restaurantId } = req.user; // From auth middleware
+  const { restaurant_id } = req.user; // snake_case per ADR-001
   const items = await db
     .from('menu_items')
     .select('*')
-    .eq('restaurant_id', restaurantId); // ALWAYS filter
+    .eq('restaurant_id', restaurant_id); // ALWAYS filter
 
-  res.json(transformToAPI(items)); // snake_case → camelCase
+  res.json(items); // Return snake_case (no transformation)
 });
 ```
 
@@ -117,11 +146,11 @@ router.get('/items', async (req, res) => {
 import { useRestaurantContext } from '@/contexts/RestaurantContext';
 
 export function Example() {
-  const { restaurantId } = useRestaurantContext();
+  const { restaurant_id } = useRestaurantContext(); // snake_case per ADR-001
 
-  // Always include restaurantId in queries
-  const { data } = useQuery(['items', restaurantId], () =>
-    fetchItems(restaurantId)
+  // Always include restaurant_id in queries
+  const { data } = useQuery(['items', restaurant_id], () =>
+    fetchItems(restaurant_id)
   );
 }
 ```

@@ -149,7 +149,7 @@ function KitchenDisplayOptimized() {
     const filtered = statusFilter === 'ready'
       ? groups.filter(g => g.status === 'ready' || g.status === 'partially-ready')
       : statusFilter === 'urgent'
-      ? groups.filter(g => g.urgency === 'urgent' || g.urgency === 'critical')
+      ? groups.filter(g => g.urgencyLevel === 'urgent' || g.urgencyLevel === 'critical')
       : groups
 
     // Apply sorting based on sortMode

@@ -1,36 +1,82 @@
-# Authentication v6.0 - Testing Checklist
+# Restaurant OS v6.0.7 - Testing Checklist
 
-## ✅ Status: Code Complete, Ready for Testing
+## ✅ Status: 90% Production Ready, Awaiting Fall Menu
 
-**Commit**: `93055bc` - refactor: migrate to pure supabase auth and remove race conditions
+**Recent Commits**:
+- `c675a1a` - feat(auth): grant managers full admin access
+- `1ef8ef5` - fix(auth): correct role_scopes column name
+- `7fda07a` - feat(kitchen): upgrade to optimized display with table grouping
+- `93055bc` - refactor: migrate to pure supabase auth
 
 ---
 
-## What Was Fixed
+## Recent Fixes (Oct 10-11, 2025)
 
-### The Problem
-- Demo login flow was broken due to **race condition** between:
-  1. Backend login response
-  2. Supabase session persistence
-  3. Page navigation
-  4. Auth context initialization on new page
+### 1. Authentication System ✅ FIXED
+**Problem**: Demo login race condition between backend response, session persistence, and page navigation
 
-### The Solution
-- **Removed backend `/login` dependency** - frontend authenticates directly with Supabase
-- **Removed 5-second timeout bandaid** - no longer needed
-- **Simplified auth flow** - single source of truth (Supabase)
-- **Better error handling** - clear logs for debugging
+**Solution** (commit `93055bc`):
+- Migrated to pure Supabase auth (removed backend `/login` dependency)
+- Removed 5-second timeout hack
+- Single source of truth (Supabase)
+- Enhanced error logging
 
-### Changes Made
-1. `client/src/contexts/AuthContext.tsx`:
-   - `login()` now calls `supabase.auth.signInWithPassword()` directly
-   - `loginAsDemo()` simplified to use standard `login()`
-   - `initializeAuth()` enhanced with better logging
-   - Removed timeout hack
+**Impact**: ✅ Demo login now works reliably without timeouts or race conditions
 
-2. Documentation:
-   - `docs/AUTHENTICATION_ARCHITECTURE.md` - full architecture guide
-   - `docs/MIGRATION_V6_AUTH.md` - migration guide and troubleshooting
+---
+
+### 2. Voice Ordering ✅ FIXED
+**Problem**: Voice orders detected by AI but not added to cart
+
+**Root Cause**: Empty `handleOrderDetected` callback in `DriveThruPage.tsx:50-68`
+
+**Solution** (commit `c675a1a`):
+```typescript
+const handleOrderDetected = useCallback((order: any) => {
+  if (!order?.items || order.items.length === 0) return;
+
+  order.items.forEach((detectedItem: any) => {
+    const menuItem = menuItems.find(m =>
+      m.name.toLowerCase() === detectedItem.name.toLowerCase()
+    );
+
+    if (menuItem) {
+      addItem(menuItem, detectedItem.quantity || 1, detectedItem.modifications || []);
+    } else {
+      console.warn(`[DriveThru] Menu item not found: ${detectedItem.name}`);
+    }
+  });
+}, [menuItems, addItem]);
+```
+
+**Impact**: ✅ Voice orders now correctly add items to cart
+
+---
+
+### 3. Kitchen Display Upgrade ✅ COMPLETE
+**Change**: Upgraded from simple list view to optimized display with table grouping
+
+**New Features** (commit `7fda07a`):
+- Table grouping with consolidation
+- Dual view modes (Tables + Grid)
+- Batch operations (complete entire table)
+- Priority sorting (urgency, age, table)
+- Virtual scrolling (handles 1000+ orders)
+
+**TypeScript Fix**: Changed `g.urgency` → `g.urgencyLevel` (line 152)
+
+**Impact**: ✅ Professional kitchen display ready for high-volume service
+
+---
+
+### 4. Manager Permissions ✅ FIXED
+**Problem**: Managers had limited access
+
+**Solution** (commit `c675a1a`):
+- Granted managers full admin access
+- Updated role_scopes table
+
+**Impact**: ✅ Managers can now access all necessary features
 
 ---
 
@@ -295,19 +341,257 @@ npm run dev
 
 ---
 
-## Success Criteria
+## Success Criteria - Authentication Tests
 
-All tests pass when:
+All auth tests pass when:
 
-- [x] ✅ Code changes committed (93055bc)
-- [ ] ⏳ Test 1: Demo login works
-- [ ] ⏳ Test 2: Session persists after refresh
-- [ ] ⏳ Test 3: Authorization checks work
-- [ ] ⏳ Test 4: Logout clears session
-- [ ] ⏳ Test 5: All roles work correctly
-- [ ] ⏳ Test 6: Handles slow network
+- [x] ✅ Code changes committed
+- [x] ✅ Test 1: Demo login works
+- [x] ✅ Test 2: Session persists after refresh
+- [x] ✅ Test 3: Authorization checks work
+- [x] ✅ Test 4: Logout clears session
+- [x] ✅ Test 5: All roles work correctly
+- [x] ✅ Test 6: Handles slow network
 
-**Once all tests pass**: Ready for deployment!
+**Status**: ✅ All authentication tests passing
+
+---
+
+## Fall Menu Deployment Testing
+
+### Prerequisites
+
+**Before deploying fall menu**:
+1. [ ] User provides fall menu items (spreadsheet or list)
+2. [ ] Fall menu images prepared (800x600px, <500KB each)
+3. [ ] Images named in kebab-case (e.g., `butternut-squash-soup.jpg`)
+
+---
+
+### Test 7: Fall Menu Deployment
+
+**Goal**: Successfully deploy fall menu and verify it works across all channels
+
+#### Step 1: Update Seed Script
+```bash
+# 1. Open seed file
+code /server/scripts/seed-menu.ts
+
+# 2. Replace summer items with fall items
+# Example fall items:
+# - Butternut Squash Soup
+# - Apple Cider Glazed Pork Chop
+# - Pumpkin Cheesecake
+# - Maple Pecan Salad
+# - Cranberry Glazed Turkey
+
+# 3. Add comprehensive aliases for voice ordering
+# Example:
+aliases: [
+  'squash soup',
+  'butternut soup',
+  'fall soup',
+  'pumpkin soup',
+  'cream of butternut'
+]
+```
+
+**Expected Result**: ✅ Seed file updated with fall menu items
+
+---
+
+#### Step 2: Add Menu Images
+```bash
+# 1. Navigate to images directory
+cd /client/public/images/menu/
+
+# 2. Add fall menu images
+# - butternut-squash-soup.jpg
+# - apple-cider-pork.jpg
+# - pumpkin-cheesecake.jpg
+# - maple-pecan-salad.jpg
+# - cranberry-turkey.jpg
+
+# 3. Verify images exist
+ls -lh *.jpg
+```
+
+**Expected Result**: ✅ All fall menu images present in directory
+
+---
+
+#### Step 3: Run Seed Script
+```bash
+cd server
+npm run seed:menu
+```
+
+**Expected Output**:
+```
+🌱 Seeding menu items...
+✅ Seeded 58 menu items successfully
+✅ Menu seed complete
+```
+
+**Expected Result**: ✅ Seed completes without errors
+
+---
+
+#### Step 4: Clear Cache
+```bash
+curl -X POST http://localhost:3001/api/v1/menu/cache/clear \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"restaurantId": "11111111-1111-1111-1111-111111111111"}'
+```
+
+**Expected Response**:
+```json
+{
+  "success": true,
+  "message": "Cache cleared for restaurant"
+}
+```
+
+**Expected Result**: ✅ Cache cleared successfully
+
+---
+
+#### Step 5: Sync to Voice AI
+```bash
+curl -X POST http://localhost:3001/api/v1/menu/sync-ai \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"restaurantId": "11111111-1111-1111-1111-111111111111"}'
+```
+
+**Expected Response**:
+```json
+{
+  "success": true,
+  "itemsSynced": 58,
+  "timestamp": "2025-10-11T18:30:00Z"
+}
+```
+
+**Expected Result**: ✅ Menu synced to OpenAI
+
+---
+
+#### Step 6: Test Online Ordering
+1. Open http://localhost:5173/order/11111111-1111-1111-1111-111111111111
+2. Verify fall menu items appear
+3. Check images load correctly (no broken images)
+4. Click "Butternut Squash Soup"
+5. Verify modal opens with description, price, modifiers
+6. Add to cart
+7. Open cart drawer
+8. Verify item appears with correct price
+9. Proceed to checkout
+10. Complete test order
+
+**Expected Results**:
+- ✅ Fall menu items display correctly
+- ✅ Images load without errors
+- ✅ Item details modal works
+- ✅ Add to cart functions
+- ✅ Cart calculates totals correctly
+- ✅ Checkout completes
+
+---
+
+#### Step 7: Test Voice Ordering
+1. Navigate to http://localhost:5173/drive-thru
+2. Press and hold microphone button
+3. Say: "I'd like the butternut squash soup"
+4. Release button
+5. Observe console logs
+6. Verify item appears in cart
+
+**Expected Console Logs**:
+```
+[DriveThru] Order detected from AI: {items: [{name: "Butternut Squash Soup", quantity: 1}]}
+[DriveThru] Adding 1x Butternut Squash Soup
+```
+
+**Expected Results**:
+- ✅ Voice recognition detects "butternut squash soup"
+- ✅ AI matches to menu item
+- ✅ Item added to cart with quantity 1
+- ✅ NO "Menu item not found" warnings
+
+**Test Variations**:
+- "I'll have two apple cider pork chops" → ✅ Quantity 2
+- "Give me a pumpkin cheesecake" → ✅ Matches alias
+- "I want the fall soup" → ✅ Matches alias
+- "Can I get a maple salad" → ✅ Partial name match
+
+---
+
+#### Step 8: Test Kitchen Display
+1. Complete an order with fall menu items (Steps 6 or 7)
+2. Navigate to http://localhost:5173/kitchen
+3. Verify order appears in kitchen display
+4. Check fall menu item names display correctly
+5. Change order status to "preparing"
+6. Mark as "ready"
+7. Navigate to http://localhost:5173/expo
+8. Verify order appears in expo view
+9. Mark as "completed"
+
+**Expected Results**:
+- ✅ Order appears in kitchen within 2 seconds
+- ✅ Fall menu item names display correctly
+- ✅ No truncation or formatting issues
+- ✅ Status changes reflect immediately
+- ✅ WebSocket updates work
+- ✅ Expo view shows order
+- ✅ Complete works
+
+---
+
+### Test 8: Full E2E Fall Menu Order
+
+**Goal**: Complete order flow from voice → kitchen → payment → confirmation
+
+**Steps**:
+1. Open drive-thru page
+2. Voice order: "I want butternut squash soup and pumpkin cheesecake"
+3. Verify both items in cart
+4. Click "Checkout"
+5. Enter customer info
+6. Click "Place Order"
+7. Observe order created (status: pending)
+8. Check kitchen display shows order
+9. Kitchen marks order as "ready"
+10. Return to order confirmation page
+
+**Expected Results**:
+- ✅ Voice recognizes both items
+- ✅ Cart shows both items with correct prices
+- ✅ Order creates successfully
+- ✅ Kitchen receives order via WebSocket
+- ✅ Status updates reflect in real-time
+- ✅ Order confirmation displays
+
+---
+
+## Fall Menu Success Criteria
+
+All fall menu tests pass when:
+
+- [ ] ⏳ Test 7: Fall menu deployed successfully
+- [ ] ⏳ Step 1: Seed script updated
+- [ ] ⏳ Step 2: Images added
+- [ ] ⏳ Step 3: Seed script runs without errors
+- [ ] ⏳ Step 4: Cache cleared
+- [ ] ⏳ Step 5: Synced to voice AI
+- [ ] ⏳ Step 6: Online ordering works
+- [ ] ⏳ Step 7: Voice ordering recognizes fall items
+- [ ] ⏳ Step 8: Kitchen display shows fall items
+- [ ] ⏳ Test 8: Full E2E order completes
+
+**Once all tests pass**: ✅ Ready for production launch!
 
 ---
 
@@ -332,8 +616,17 @@ All tests pass when:
 
 ## Documentation
 
-- **Architecture**: `docs/AUTHENTICATION_ARCHITECTURE.md`
-- **Migration Guide**: `docs/MIGRATION_V6_AUTH.md`
+### Architecture & Systems
+- **Production Status**: [docs/PRODUCTION_STATUS.md](docs/PRODUCTION_STATUS.md) - 90% ready assessment
+- **Menu System**: [docs/MENU_SYSTEM.md](docs/MENU_SYSTEM.md) - Fall menu deployment guide
+- **Square Integration**: [docs/SQUARE_INTEGRATION.md](docs/SQUARE_INTEGRATION.md) - Payment flow
+- **Order Flow**: [docs/ORDER_FLOW.md](docs/ORDER_FLOW.md) - Customer journey
+- **Database**: [docs/DATABASE.md](docs/DATABASE.md) - Supabase schema
+- **Roadmap**: [docs/ROADMAP.md](docs/ROADMAP.md) - Project timeline
+
+### Authentication
+- **Architecture**: [docs/AUTHENTICATION_ARCHITECTURE.md](docs/AUTHENTICATION_ARCHITECTURE.md)
+- **Migration Guide**: [docs/MIGRATION_V6_AUTH.md](docs/MIGRATION_V6_AUTH.md)
 - **Code**: `client/src/contexts/AuthContext.tsx` (see inline comments)
 
 ---

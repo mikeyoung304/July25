@@ -1,8 +1,462 @@
 # Order Flow Documentation
 
+**Last Updated**: October 11, 2025
+**Version**: 6.0.7
+**Status**: ✅ Production Ready
+
 ## Overview
 
-The Restaurant OS 6.0 order flow is designed to handle the complete lifecycle of an order from creation through fulfillment. This document outlines the technical implementation and data flow.
+The Restaurant OS 6.0 order flow is designed to handle the complete lifecycle of an order from creation through fulfillment. This document outlines the technical implementation and data flow for all order channels: online ordering, kiosk, voice ordering, and in-person.
+
+## Table of Contents
+
+- [Customer Online Ordering Journey](#customer-online-ordering-journey)
+- [Order Lifecycle States](#order-lifecycle-states)
+- [Implementation Details](#implementation-details)
+- [Square Payment Integration](#square-payment-integration)
+- [WebSocket Architecture](#websocket-architecture)
+- [Error Handling](#error-handling)
+- [Performance Optimizations](#performance-optimizations)
+
+---
+
+## Customer Online Ordering Journey
+
+### Complete User Flow (Step-by-Step)
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│                   CUSTOMER ORDERING FLOW                       │
+├───────────────────────────────────────────────────────────────┤
+│                                                                │
+│  1. Browse Menu     → GET /menu/items                         │
+│  2. Add to Cart     → localStorage persistence                │
+│  3. Review Cart     → CartDrawer component                    │
+│  4. Checkout        → /checkout page                          │
+│  5. Enter Info      → Email, phone, order type               │
+│  6. Submit Order    → POST /orders (status: pending)         │
+│  7. Process Payment → POST /payments/create                   │
+│  8. Square Checkout → Redirect to Square                     │
+│  9. Payment Complete→ Webhook → Order confirmed              │
+│ 10. Confirmation    → /order-confirmation page               │
+│                                                                │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### Step 1: Browse Menu
+
+**URL**: `http://localhost:5173/order/:restaurantId`
+**Component**: `/client/src/modules/order-system/components/CustomerOrderPage.tsx`
+
+```typescript
+// Component loads menu on mount
+useEffect(() => {
+  if (restaurantId) {
+    loadMenuItems(restaurantId);
+  }
+}, [restaurantId]);
+
+// API Call
+GET /api/v1/menu/items?restaurantId=11111111-1111-1111-1111-111111111111
+
+// Response
+{
+  "items": [
+    {
+      "id": "uuid",
+      "name": "Fried Chicken Sandwich",
+      "price": 12.99,
+      "category": "Sandwiches",
+      "imageUrl": "/images/menu/fried-chicken-sandwich.jpg",
+      "modifiers": [...]
+    }
+  ]
+}
+```
+
+**Key Files**:
+- `CustomerOrderPage.tsx` - Entry point
+- `MenuSections.tsx` - Category-based display
+- `ItemCard.tsx` - Individual item cards
+
+---
+
+### Step 2: Add Item to Cart
+
+**User Action**: Click menu item → Modal opens
+
+**Component**: `/client/src/modules/menu/components/ItemDetailModal.tsx`
+
+```typescript
+// User selects modifiers
+const selectedModifications = [
+  { name: "No pickles", price: 0 },
+  { name: "Extra cheese", price: 1.50 }
+];
+
+// User clicks "Add to Cart"
+addItem(menuItem, quantity, selectedModifications);
+```
+
+**Cart State Management**: `/client/src/contexts/UnifiedCartContext.tsx`
+
+```typescript
+const addItem = (menuItem: MenuItem, quantity: number, modifications: Modification[]) => {
+  const newItem: CartItem = {
+    id: generateId(),
+    menuItem,
+    quantity,
+    modifications
+  };
+
+  setItems([...items, newItem]);
+
+  // Persist to localStorage
+  localStorage.setItem('cart_current', JSON.stringify({
+    items: [...items, newItem],
+    restaurantId
+  }));
+};
+```
+
+**localStorage Key**: `cart_current`
+
+---
+
+### Step 3: View Cart
+
+**Component**: `/client/src/components/cart/CartDrawer.tsx`
+
+```tsx
+<CartDrawer>
+  {/* Cart Items */}
+  {items.map(item => (
+    <div key={item.id}>
+      <span>{item.quantity}x {item.menuItem.name}</span>
+      {item.modifications.map(mod => (
+        <span>{mod.name} (+${mod.price})</span>
+      ))}
+      <span>${itemTotal}</span>
+    </div>
+  ))}
+
+  {/* Cart Summary */}
+  <div>
+    <span>Subtotal: ${subtotal}</span>
+    <span>Tax (8.25%): ${tax}</span>
+    <span>Tip: ${tip}</span>
+    <span>Total: ${total}</span>
+  </div>
+
+  <Button onClick={() => navigate('/checkout')}>
+    Checkout
+  </Button>
+</CartDrawer>
+```
+
+**Calculations** (UnifiedCartContext.tsx:Lines 150-180):
+```typescript
+const subtotal = items.reduce((sum, item) => {
+  const itemPrice = item.menuItem.price;
+  const modifiersCost = item.modifications.reduce((sum, mod) => sum + mod.price, 0);
+  return sum + ((itemPrice + modifiersCost) * item.quantity);
+}, 0);
+
+const tax = subtotal * 0.0825; // 8.25% tax rate
+const total = subtotal + tax + tip;
+```
+
+---
+
+### Step 4: Checkout Page
+
+**URL**: `/checkout`
+**Component**: `/client/src/pages/CheckoutPage.tsx:14-358`
+
+```tsx
+<form onSubmit={handleSubmit}>
+  {/* Customer Information */}
+  <input
+    name="email"
+    type="email"
+    required
+    pattern="[^@]+@[^@]+\.[^@]+"
+  />
+  <input
+    name="phone"
+    type="tel"
+    required
+    pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+  />
+  <input
+    name="customerName"
+    required
+  />
+
+  {/* Order Type */}
+  <select name="orderType">
+    <option value="takeout">Takeout</option>
+    <option value="dine-in">Dine-In</option>
+    <option value="delivery">Delivery</option>
+  </select>
+
+  {/* Conditional: Table number if dine-in */}
+  {orderType === 'dine-in' && (
+    <input name="tableNumber" type="number" />
+  )}
+
+  <Button type="submit">Place Order</Button>
+</form>
+```
+
+---
+
+### Step 5: Submit Order
+
+**API Call**: `/server/src/routes/orders.routes.ts:38-55`
+
+```typescript
+// Client sends
+POST /api/v1/orders
+Content-Type: application/json
+Authorization: Bearer {token}
+
+{
+  "restaurantId": "11111111-1111-1111-1111-111111111111",
+  "items": [
+    {
+      "menuItemId": "uuid",
+      "menuItemName": "Fried Chicken Sandwich",
+      "quantity": 2,
+      "price": 12.99,
+      "modifications": ["No pickles", "Extra cheese"]
+    }
+  ],
+  "orderType": "takeout",
+  "customerInfo": {
+    "email": "customer@example.com",
+    "phone": "555-123-4567",
+    "name": "John Doe"
+  },
+  "subtotal": 29.98,
+  "tax": 2.47,
+  "tip": 5.00,
+  "total": 37.45
+}
+```
+
+**Server Processing**:
+```typescript
+// 1. Validate input
+if (!body.items || body.items.length === 0) {
+  throw new Error('Order must have items');
+}
+
+// 2. Server-side total calculation (NEVER trust client)
+const calculatedSubtotal = body.items.reduce((sum, item) => {
+  const menuItem = await db.menuItems.findUnique({ where: { id: item.menuItemId } });
+  return sum + (menuItem.price * item.quantity);
+}, 0);
+
+const calculatedTax = calculatedSubtotal * 0.0825;
+const calculatedTotal = calculatedSubtotal + calculatedTax + body.tip;
+
+// 3. Verify amounts match (1 cent tolerance for rounding)
+if (Math.abs(calculatedTotal - body.total) > 0.01) {
+  throw new Error('Total mismatch - possible tampering');
+}
+
+// 4. Generate order number (human-readable)
+const orderNumber = await generateOrderNumber(restaurantId);
+
+// 5. Create order in database
+const order = await db.orders.create({
+  data: {
+    restaurantId: body.restaurantId,
+    orderNumber: orderNumber,
+    status: 'pending', // Initial status
+    type: body.orderType,
+    customerInfo: body.customerInfo,
+    items: body.items,
+    subtotal: calculatedSubtotal,
+    tax: calculatedTax,
+    tip: body.tip,
+    total: calculatedTotal
+  }
+});
+
+// 6. Return order
+res.status(201).json({ order });
+```
+
+**Response**:
+```json
+{
+  "order": {
+    "id": "order-uuid",
+    "orderNumber": "1234",
+    "status": "pending",
+    "type": "takeout",
+    "total": 37.45,
+    "createdAt": "2025-10-11T18:30:00Z"
+  }
+}
+```
+
+---
+
+### Step 6: Payment Processing
+
+**API Call**: POST `/api/v1/payments/create`
+
+See [Square Integration Documentation](./SQUARE_INTEGRATION.md) for complete payment flow.
+
+**Quick Summary**:
+1. Client creates Square checkout
+2. User redirected to Square hosted page
+3. Customer enters card details
+4. Square processes payment
+5. Square webhook notifies our server
+6. Order status: pending → confirmed
+
+---
+
+### Step 7: Order Confirmation
+
+**URL**: `/order-confirmation?orderId={uuid}`
+**Component**: `/client/src/pages/OrderConfirmationPage.tsx`
+
+```tsx
+<div className="confirmation">
+  <h1>✅ Order Confirmed!</h1>
+
+  <div className="order-details">
+    <span>Order Number: {orderNumber}</span>
+    <span>Status: {status}</span>
+    <span>Estimated Time: 15-20 minutes</span>
+  </div>
+
+  <div className="order-items">
+    {items.map(item => (
+      <div>
+        <span>{item.quantity}x {item.name}</span>
+        <span>${item.price * item.quantity}</span>
+      </div>
+    ))}
+  </div>
+
+  <div className="order-total">
+    <span>Total: ${total}</span>
+  </div>
+</div>
+```
+
+---
+
+### API Sequence Diagram
+
+```
+Client                          Server                         Square
+  |                               |                               |
+  | GET /menu/items              |                               |
+  |----------------------------->|                               |
+  |<-----------------------------|                               |
+  |   (Menu items)               |                               |
+  |                               |                               |
+  | [User adds items to cart]    |                               |
+  | [localStorage persists]      |                               |
+  |                               |                               |
+  | POST /orders                 |                               |
+  |----------------------------->|                               |
+  |         order_id             | [Validates + Creates]         |
+  |         status: pending      |                               |
+  |<-----------------------------|                               |
+  |                               |                               |
+  | POST /payments/create        |                               |
+  |----------------------------->|                               |
+  |                               | POST /v2/online-checkout/... |
+  |                               |----------------------------->|
+  |                               |         checkout_url         |
+  |                               |<-----------------------------|
+  |    checkout_url redirect     |                               |
+  |<-----------------------------|                               |
+  |                               |                               |
+  |                          [User completes payment]            |
+  |------------------------------------------------------------->|
+  |                               |                               |
+  |                               |   payment.updated webhook    |
+  |                               |<-----------------------------|
+  |                               | [Updates order: confirmed]   |
+  |                               | [Creates payment audit log]  |
+  |                               | [Broadcasts WebSocket event] |
+  |                               |                               |
+  |                               | WebSocket: order_confirmed   |
+  |<-----------------------------|                               |
+  |                               |                               |
+  | Navigate to /order-confirmation                              |
+```
+
+---
+
+### Key Components Map
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| **CustomerOrderPage** | `client/src/modules/order-system/components/` | Menu browsing entry point |
+| **MenuSections** | `client/src/modules/menu/components/` | Category-based menu display |
+| **ItemDetailModal** | `client/src/modules/menu/components/` | Item details + modifier selection |
+| **CartDrawer** | `client/src/components/cart/` | Cart review sidebar |
+| **UnifiedCartContext** | `client/src/contexts/` | Cart state management + localStorage |
+| **CheckoutPage** | `client/src/pages/` | Customer info + payment submission |
+| **OrderConfirmationPage** | `client/src/pages/` | Success screen |
+
+---
+
+### localStorage Cart Persistence
+
+**Key**: `cart_current`
+
+**Structure**:
+```json
+{
+  "restaurantId": "11111111-1111-1111-1111-111111111111",
+  "items": [
+    {
+      "id": "cart-item-uuid",
+      "menuItem": {
+        "id": "menu-uuid",
+        "name": "Fried Chicken Sandwich",
+        "price": 12.99
+      },
+      "quantity": 2,
+      "modifications": [
+        {
+          "name": "No pickles",
+          "price": 0
+        },
+        {
+          "name": "Extra cheese",
+          "price": 1.50
+        }
+      ]
+    }
+  ],
+  "lastUpdated": "2025-10-11T18:25:00Z"
+}
+```
+
+**Why localStorage?**
+- Survives page refresh
+- Persists if user closes browser
+- No server dependency for browsing
+- Fast access (synchronous)
+
+**When Cleared**:
+- User clicks "Clear Cart"
+- Order successfully completed
+- User manually clears browser data
+
+---
 
 ## Order Lifecycle States
 
@@ -147,44 +601,54 @@ socket.emit('authenticate', {
    - Automatic reconnection with exponential backoff
    - Order sync on reconnection
 
-## Payment Processing
+## Square Payment Integration
 
-### Supported Methods
+### Payment Methods Supported
 
-1. **Cash Payment**
-   - Order created immediately
-   - Marked as pending payment
-   - Completed at counter
+1. **Online Payments** (Square Web SDK)
+   - Hosted checkout page
+   - Card tokenization
+   - Redirect flow
+   - See: [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md)
 
-2. **Card Payment**
-   - Square Web Payments SDK
-   - Tokenization on client
-   - Processing via Square API
+2. **Terminal Payments** (Square Terminal API)
+   - Physical terminal device
+   - Tap/chip/swipe
+   - Polling-based status checks (every 2 seconds)
+   - 5-minute timeout
+   - See: [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md)
 
-3. **Terminal Payment**
-   - Square Terminal SDK
-   - Polling for completion
-   - Automatic order completion
+3. **Cash Payments** (Manual)
+   - Order created with status 'pending'
+   - Marked as confirmed at register
+   - No Square integration required
 
-### Payment Flow
+### Quick Payment Flow
 
 ```typescript
-// KioskCheckoutPage.tsx
-const handlePaymentSubmit = async () => {
-  switch (paymentMethod) {
-    case 'cash':
-      const order = await createOrder()
-      navigate('/order-confirmation')
-      break
-    case 'card':
-      // Square SDK handles
-      break
-    case 'terminal':
-      await terminal.processPayment()
-      break
-  }
-}
+// 1. Create order (status: pending)
+POST /api/v1/orders
+// Response: { order: { id, status: 'pending' } }
+
+// 2. Create Square checkout
+POST /api/v1/terminal/checkout
+// Response: { checkout: { id, status: 'PENDING' } }
+
+// 3. Poll status every 2 seconds
+GET /api/v1/terminal/checkout/:checkoutId
+// Response: { checkout: { status: 'COMPLETED' } }
+
+// 4. Complete payment
+POST /api/v1/terminal/checkout/:checkoutId/complete
+// Response: { order: { status: 'confirmed' } }
 ```
+
+**For complete payment integration details**, see:
+- [Square Integration Documentation](./SQUARE_INTEGRATION.md)
+- Server-side amount validation
+- Payment audit trail
+- Error handling strategies
+- Testing procedures
 
 ## Error Handling
 
