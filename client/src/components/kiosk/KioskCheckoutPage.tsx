@@ -92,10 +92,12 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     debug: process.env.NODE_ENV === 'development'
   });
   
-  // Load terminal devices on mount
+  // Load terminal devices only when terminal payment method is selected
   useEffect(() => {
-    terminal.loadDevices();
-  }, [terminal]);
+    if (selectedPaymentMethod === 'terminal' && terminal.availableDevices.length === 0) {
+      terminal.loadDevices();
+    }
+  }, [selectedPaymentMethod]); // Only depend on payment method selection
   
   // Handle voice payment method selection
   useEffect(() => {
