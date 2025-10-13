@@ -1,0 +1,1054 @@
+# Troubleshooting Guide
+
+**Last Updated**: 2025-10-13
+**Version**: 6.0.7
+
+This guide helps diagnose and resolve common issues in the Restaurant OS.
+
+---
+
+## Table of Contents
+
+1. [Order Flow Issues](#order-flow-issues)
+2. [Kitchen Display Problems](#kitchen-display-problems)
+3. [Voice Ordering Issues](#voice-ordering-issues)
+4. [Payment Failures](#payment-failures)
+5. [Authentication Problems](#authentication-problems)
+6. [WebSocket Connection Issues](#websocket-connection-issues)
+7. [CORS Errors](#cors-errors)
+8. [Database & RLS Problems](#database--rls-problems)
+9. [Performance Issues](#performance-issues)
+10. [Deployment Issues](#deployment-issues)
+
+---
+
+## Order Flow Issues
+
+### Problem: Orders Not Appearing in Kitchen Display
+
+**Symptoms**:
+- Customer completes checkout
+- Payment succeeds
+- Order not showing on kitchen display
+
+**Diagnosis Steps**:
+
+1. **Check order was created in database**:
+```bash
+# In Supabase SQL Editor or psql
+SELECT id, order_number, status, restaurant_id, created_at
+FROM orders
+WHERE restaurant_id = 'YOUR_RESTAURANT_ID'
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+2. **Check WebSocket connection**:
+```typescript
+// In browser console (kitchen display):
+console.log('WebSocket state:', document.querySelector('.kitchen-display').__ws?.readyState);
+// 1 = OPEN, 0 = CONNECTING, 2 = CLOSING, 3 = CLOSED
+```
+
+3. **Check order broadcast**:
+```bash
+# In server logs (Render or local):
+grep "broadcastNewOrder" logs/server.log
+# Should see: "Broadcast to restaurant: {restaurantId}"
+```
+
+**Common Causes & Fixes**:
+
+| Cause | Fix |
+|-------|-----|
+| **WebSocket disconnected** | Refresh kitchen display, check network |
+| **Wrong restaurant_id** | Verify JWT token contains correct restaurant_id |
+| **Order status skip** | Order created with status='completed' (skipped kitchen) |
+| **RLS policy blocking** | Check database RLS policies enabled |
+
+**Quick Fix**:
+```bash
+# Restart kitchen display WebSocket
+window.location.reload();
+
+# Manually trigger sync
+ws.send(JSON.stringify({ type: 'orders:sync' }));
+```
+
+---
+
+### Problem: Order Stuck in "Pending" Status
+
+**Symptoms**:
+- Order created but never moves to "confirmed" or "preparing"
+- Payment completed but order not progressing
+
+**Diagnosis**:
+
+```sql
+-- Check order and payment status
+SELECT
+  o.id,
+  o.order_number,
+  o.status,
+  o.payment_info,
+  o.created_at,
+  o.updated_at
+FROM orders o
+WHERE o.id = 'ORDER_ID';
+```
+
+**Common Causes**:
+
+1. **Payment not linked**: `payment_info` is null or missing `paymentIds`
+2. **Status update failed**: WebSocket message not sent
+3. **Kitchen display not listening**: No staff monitoring orders
+
+**Fix**:
+
+```typescript
+// Manually update order status (server-side or Supabase):
+await supabase
+  .from('orders')
+  .update({ status: 'confirmed', updated_at: new Date().toISOString() })
+  .eq('id', orderId);
+
+// Broadcast update
+broadcastOrderUpdate(wss, order);
+```
+
+---
+
+### Problem: Duplicate Orders Created
+
+**Symptoms**:
+- Same order appears multiple times in kitchen display
+- Customer charged once but 2+ orders in database
+
+**Diagnosis**:
+
+```sql
+-- Find duplicate orders (same items, same time)
+SELECT
+  order_number,
+  restaurant_id,
+  total,
+  created_at,
+  COUNT(*) as count
+FROM orders
+WHERE restaurant_id = 'YOUR_RESTAURANT_ID'
+  AND created_at > NOW() - INTERVAL '1 hour'
+GROUP BY order_number, restaurant_id, total, created_at
+HAVING COUNT(*) > 1;
+```
+
+**Common Causes**:
+
+1. **Idempotency key not used**: Payment API called twice with different keys
+2. **Double-click submit**: Client-side button not disabled during processing
+3. **Network retry**: Request timed out, client retried, both succeeded
+
+**Fix**:
+
+```typescript
+// Add idempotency to order creation
+const idempotencyKey = `order-${restaurantId}-${Date.now()}-${Math.random()}`;
+
+// Store in metadata
+await supabase.from('orders').insert({
+  ...orderData,
+  metadata: { idempotencyKey },
+});
+
+// Check for duplicates before creating
+const existing = await supabase
+  .from('orders')
+  .select('id')
+  .eq('metadata->>idempotencyKey', idempotencyKey)
+  .single();
+
+if (existing) {
+  return existing; // Return existing order
+}
+```
+
+**Prevention**:
+- Disable submit button after first click
+- Use idempotency keys for all order creation
+- Implement request deduplication middleware
+
+---
+
+## Kitchen Display Problems
+
+### Problem: Kitchen Display Not Updating in Real-Time
+
+**Symptoms**:
+- New orders not appearing automatically
+- Status changes not reflected
+- Must manually refresh to see updates
+
+**Diagnosis**:
+
+```typescript
+// Check WebSocket connection state (browser console)
+const ws = window.__websocket_client__;
+console.log('Connection state:', ws?.readyState);
+console.log('Restaurant ID:', ws?.restaurantId);
+console.log('Last message:', ws?.lastMessage);
+```
+
+**Common Causes**:
+
+| Cause | Diagnosis | Fix |
+|-------|-----------|-----|
+| **WebSocket closed** | `readyState === 3` | Implement auto-reconnect |
+| **Wrong restaurant_id** | `ws.restaurantId !== actual` | Fix JWT token claim |
+| **Firewall blocking** | Network tab shows failed upgrade | Configure firewall/proxy |
+| **Tab backgrounded (mobile)** | iOS/Android suspend WebSocket | Reconnect on tab focus |
+
+**Fix**:
+
+```typescript
+// Add auto-reconnect logic
+useEffect(() => {
+  let reconnectAttempts = 0;
+
+  function connect() {
+    const ws = new WebSocket(WS_URL);
+
+    ws.onclose = () => {
+      reconnectAttempts++;
+      const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+      console.log(`Reconnecting in ${delay}ms...`);
+      setTimeout(connect, delay);
+    };
+
+    ws.onopen = () => {
+      reconnectAttempts = 0; // Reset on successful connection
+      console.log('✅ Connected');
+    };
+  }
+
+  connect();
+}, []);
+```
+
+---
+
+### Problem: Orders Missing Table Numbers
+
+**Symptoms**:
+- Table grouping shows "No Table" for dine-in orders
+- Orders should have table_number but don't
+
+**Diagnosis**:
+
+```sql
+-- Find orders missing table numbers
+SELECT id, order_number, type, table_number
+FROM orders
+WHERE restaurant_id = 'YOUR_RESTAURANT_ID'
+  AND type = 'dine-in'
+  AND table_number IS NULL
+ORDER BY created_at DESC;
+```
+
+**Common Causes**:
+
+1. **Kiosk not configured**: Table number not passed from kiosk
+2. **Server endpoint not populating**: API accepts but doesn't validate
+3. **QR code missing table data**: QR codes don't include table number
+
+**Fix**:
+
+```typescript
+// Server-side validation
+router.post('/api/v1/orders', async (req, res) => {
+  const { type, table_number } = req.body;
+
+  if (type === 'dine-in' && !table_number) {
+    return res.status(400).json({
+      error: 'TABLE_NUMBER_REQUIRED',
+      message: 'Table number required for dine-in orders',
+    });
+  }
+
+  // ... create order
+});
+```
+
+**Backfill Missing Table Numbers**:
+
+```sql
+-- If you know the pattern (e.g., order_number = table_number)
+UPDATE orders
+SET table_number = CAST(order_number AS INTEGER)
+WHERE type = 'dine-in'
+  AND table_number IS NULL
+  AND order_number ~ '^[0-9]+$';
+```
+
+---
+
+## Voice Ordering Issues
+
+### Problem: Microphone Not Working
+
+**Symptoms**:
+- "Hold to Talk" button doesn't activate
+- No audio waveform shown
+- Browser shows no microphone permission request
+
+**Diagnosis Steps**:
+
+1. **Check browser permissions**:
+```typescript
+// In browser console:
+navigator.permissions.query({ name: 'microphone' }).then(result => {
+  console.log('Microphone permission:', result.state);
+  // 'granted', 'denied', or 'prompt'
+});
+```
+
+2. **Check microphone access**:
+```typescript
+navigator.mediaDevices.getUserMedia({ audio: true })
+  .then(stream => console.log('✅ Microphone works', stream))
+  .catch(err => console.error('❌ Microphone error:', err));
+```
+
+3. **Check device list**:
+```typescript
+navigator.mediaDevices.enumerateDevices()
+  .then(devices => {
+    const mics = devices.filter(d => d.kind === 'audioinput');
+    console.log('Microphones:', mics);
+  });
+```
+
+**Common Fixes**:
+
+| Issue | Fix |
+|-------|-----|
+| **Permission denied** | Browser Settings → Privacy → Microphone → Allow |
+| **No microphone detected** | Check system settings, plug in mic |
+| **HTTPS required** | Microphone only works on HTTPS or localhost |
+| **Browser not supported** | Use Chrome/Edge (best WebRTC support) |
+
+**Quick Test**:
+Visit https://webcammictest.com/ to verify microphone works outside your app.
+
+---
+
+### Problem: AI Doesn't Understand Orders
+
+**Symptoms**:
+- Transcript shows correct speech
+- AI responds with "I didn't catch that"
+- Items not added to cart
+
+**Diagnosis**:
+
+```typescript
+// Check AI function calls (browser console)
+window.__voice_client__?.on('function_call', (event) => {
+  console.log('Function called:', event.name, event.arguments);
+});
+
+// Should see:
+// Function called: add_to_order { items: [{...}] }
+```
+
+**Common Causes**:
+
+1. **Menu not loaded**: AI doesn't know restaurant's menu items
+2. **Item name mismatch**: Customer says "burger" but menu says "hamburger"
+3. **Ambiguous request**: "I want two" (two what?)
+4. **Context lost**: Long pause, AI forgot previous context
+
+**Fix**:
+
+**1. Verify menu context loaded**:
+```typescript
+// Server logs should show:
+"✅ Menu context initialized for AI service"
+"Loaded 47 menu items for restaurant: {restaurantId}"
+```
+
+**2. Add menu item aliases**:
+```sql
+-- Update menu items with common aliases
+UPDATE menu_items
+SET aliases = ARRAY['burger', 'hamburger', 'cheeseburger']
+WHERE name = 'Classic Burger';
+```
+
+**3. Improve AI instructions**:
+```typescript
+const instructions = `
+When customer's request is ambiguous:
+- "I want two" → Ask: "Two of what item?"
+- "Make it a large" → Ask: "Which item would you like large?"
+
+When item not found:
+- Search aliases (burger = hamburger = beef sandwich)
+- Suggest closest match: "Did you mean Classic Burger?"
+`;
+```
+
+---
+
+### Problem: Voice Connection Drops Mid-Order
+
+**Symptoms**:
+- Voice works initially
+- Connection lost after 30-60 seconds
+- Must refresh to reconnect
+
+**Diagnosis**:
+
+```typescript
+// Check WebRTC connection state
+pc.oniceconnectionstatechange = () => {
+  console.log('ICE state:', pc.iceConnectionState);
+  // Should be: 'connected', not 'disconnected' or 'failed'
+};
+
+pc.onconnectionstatechange = () => {
+  console.log('Connection state:', pc.connectionState);
+};
+```
+
+**Common Causes**:
+
+| Cause | Fix |
+|-------|-----|
+| **Ephemeral token expired** | Token has 60s TTL, implement refresh |
+| **Network switch** | WiFi → Cellular, connection lost |
+| **Firewall blocking** | Some firewalls block WebRTC, use VPN or different network |
+| **ICE candidate failure** | NAT traversal failed, check STUN/TURN config |
+
+**Fix - Auto-refresh ephemeral token**:
+
+```typescript
+const TOKEN_LIFETIME = 60000; // 60 seconds
+const REFRESH_THRESHOLD = 10000; // Refresh with 10s remaining
+
+let tokenExpiresAt = Date.now() + TOKEN_LIFETIME;
+
+setInterval(async () => {
+  const timeLeft = tokenExpiresAt - Date.now();
+
+  if (timeLeft < REFRESH_THRESHOLD) {
+    // Request new token
+    const { token } = await fetch('/api/v1/realtime/session', {
+      method: 'POST',
+      body: JSON.stringify({ restaurantId }),
+    }).then(r => r.json());
+
+    // Reconnect with new token
+    await voiceClient.reconnect(token);
+    tokenExpiresAt = Date.now() + TOKEN_LIFETIME;
+  }
+}, 5000);
+```
+
+---
+
+## Payment Failures
+
+### Problem: Square Payment Not Completing
+
+**Symptoms**:
+- Payment form loads
+- Customer enters card details
+- "Processing..." spinner never stops
+- No payment recorded
+
+**Diagnosis**:
+
+```typescript
+// Check Square Web SDK initialization (browser console)
+console.log('Square payments:', window.Square);
+console.log('Payment form:', window.__square_payment_form__);
+
+// Check API response
+fetch('/api/v1/payments/create', {
+  method: 'POST',
+  body: JSON.stringify({ orderId, token, amount }),
+}).then(r => r.json()).then(console.log);
+```
+
+**Common Causes**:
+
+| Cause | Fix |
+|-------|-----|
+| **Invalid access token** | Check `VITE_SQUARE_ACCESS_TOKEN` environment variable |
+| **Sandbox vs Production mismatch** | Use sandbox token with sandbox mode |
+| **CORS blocking** | Add Square domain to CORS whitelist |
+| **Network timeout** | Increase timeout, check Render/Vercel logs |
+
+**Fix - Verify Square configuration**:
+
+```bash
+# .env.local (client)
+VITE_SQUARE_ACCESS_TOKEN=sandbox-sq0... # Sandbox for testing
+VITE_SQUARE_APPLICATION_ID=sandbox-sq0atb...
+VITE_SQUARE_LOCATION_ID=LOCATION_ID
+
+# .env (server)
+SQUARE_ACCESS_TOKEN=sandbox-sq0...
+SQUARE_ENVIRONMENT=sandbox # or 'production'
+```
+
+**Test Square connection**:
+
+```bash
+# Test API connectivity
+curl -X GET \
+  'https://connect.squareupsandbox.com/v2/locations' \
+  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN'
+```
+
+---
+
+### Problem: Demo Mode Not Working
+
+**Symptoms**:
+- `VITE_SQUARE_ACCESS_TOKEN` not set or set to 'demo'
+- Demo order button not showing
+- Or demo button shows but payment fails
+
+**Diagnosis**:
+
+```typescript
+// Check demo mode detection (client)
+const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN ||
+                    import.meta.env.VITE_SQUARE_ACCESS_TOKEN === 'demo' ||
+                    import.meta.env.DEV;
+console.log('Demo mode:', isDemoMode);
+```
+
+**Fix**:
+
+```typescript
+// Ensure demo payment endpoint exists (server)
+router.post('/api/v1/payments/create', async (req, res) => {
+  const { token, amount, orderId } = req.body;
+
+  // Check for demo token
+  if (token === 'demo-token' || process.env.NODE_ENV === 'development') {
+    // Create mock payment
+    return res.json({
+      id: `demo-payment-${Date.now()}`,
+      status: 'completed',
+      amount,
+      orderId,
+    });
+  }
+
+  // Real Square payment logic...
+});
+```
+
+---
+
+## Authentication Problems
+
+### Problem: "Unauthorized" Error on API Requests
+
+**Symptoms**:
+- API returns 401 Unauthorized
+- Frontend shows "Please log in"
+- User is logged in but requests fail
+
+**Diagnosis**:
+
+```typescript
+// Check JWT token (browser console)
+const token = localStorage.getItem('auth_token');
+console.log('Token:', token);
+
+// Decode JWT (without verification)
+const payload = JSON.parse(atob(token.split('.')[1]));
+console.log('Token payload:', payload);
+console.log('Expires:', new Date(payload.exp * 1000));
+```
+
+**Common Causes**:
+
+| Cause | Fix |
+|-------|-----|
+| **Token expired** | `exp` timestamp in past → Refresh token |
+| **Token not sent** | Missing `Authorization` header → Check axios config |
+| **Wrong restaurant_id** | JWT `restaurant_id` doesn't match resource |
+| **Invalid signature** | JWT_SECRET mismatch between environments |
+
+**Fix - Automatic token refresh**:
+
+```typescript
+// Axios interceptor for token refresh
+axios.interceptors.response.use(
+  response => response,
+  async error => {
+    if (error.response?.status === 401) {
+      // Attempt token refresh
+      const refreshToken = localStorage.getItem('refresh_token');
+      const { data } = await axios.post('/api/v1/auth/refresh', {
+        refresh_token: refreshToken,
+      });
+
+      // Store new token
+      localStorage.setItem('auth_token', data.token);
+
+      // Retry original request
+      error.config.headers['Authorization'] = `Bearer ${data.token}`;
+      return axios(error.config);
+    }
+    return Promise.reject(error);
+  }
+);
+```
+
+---
+
+### Problem: RLS Policy Blocking Queries
+
+**Symptoms**:
+- Queries return empty results
+- User should have access but data not visible
+- Supabase logs show "policy violation"
+
+**Diagnosis**:
+
+```sql
+-- Check RLS policies
+SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual
+FROM pg_policies
+WHERE tablename = 'orders';
+
+-- Check current session variables
+SHOW app.restaurant_id;
+```
+
+**Common Causes**:
+
+1. **Session variable not set**: `app.restaurant_id` not configured
+2. **Wrong role**: Policy applies to `authenticated` but user is `anon`
+3. **Policy logic error**: `USING` clause incorrect
+
+**Fix**:
+
+```typescript
+// Ensure session variable set (server-side)
+const { data, error } = await supabase.rpc('set_session_restaurant_id', {
+  restaurant_id: req.user.restaurantId,
+});
+
+// Then query with RLS applied
+const orders = await supabase.from('orders').select('*');
+```
+
+**Bypass RLS (admin/debug only)**:
+
+```typescript
+// Use service role key (server-side ONLY)
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!, // Bypasses RLS
+);
+
+// Query without RLS restrictions
+const allOrders = await supabaseAdmin.from('orders').select('*');
+```
+
+---
+
+## WebSocket Connection Issues
+
+### Problem: WebSocket Connection Fails
+
+**Symptoms**:
+- Browser console: "WebSocket connection failed"
+- Kitchen display not updating
+- Network tab shows failed WebSocket upgrade
+
+**Diagnosis**:
+
+```typescript
+// Check WebSocket URL and headers
+const ws = new WebSocket('wss://api.example.com?token=JWT_TOKEN');
+
+ws.onopen = () => console.log('✅ Connected');
+ws.onerror = (err) => console.error('❌ Error:', err);
+ws.onclose = (event) => console.log('Closed:', event.code, event.reason);
+```
+
+**Common Error Codes**:
+
+| Code | Meaning | Fix |
+|------|---------|-----|
+| 1000 | Normal closure | Expected, no action |
+| 1001 | Going away (server restart) | Auto-reconnect |
+| 1006 | Abnormal closure (network) | Check firewall/proxy |
+| 1008 | Policy violation (auth failed) | Fix JWT token |
+| 1011 | Server error | Check server logs |
+
+**Fix - Connection issues**:
+
+```bash
+# 1. Check server is running
+curl https://api.example.com/health
+
+# 2. Check WebSocket endpoint accessible
+curl -i -N \
+  -H "Connection: Upgrade" \
+  -H "Upgrade: websocket" \
+  -H "Sec-WebSocket-Version: 13" \
+  -H "Sec-WebSocket-Key: test" \
+  https://api.example.com
+
+# Should return: 101 Switching Protocols
+```
+
+**Fix - Proxy/Load Balancer**:
+
+```yaml
+# Render: Enable WebSocket support
+services:
+  - type: web
+    name: api
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: WS_ENABLED
+        value: true
+    # WebSockets work by default on Render
+```
+
+---
+
+## CORS Errors
+
+### Problem: "Blocked by CORS policy" Error
+
+**Symptoms**:
+- Browser console: "Access to fetch at '...' from origin '...' has been blocked by CORS policy"
+- API requests fail with CORS error
+- Preflight OPTIONS requests fail
+
+**Diagnosis**:
+
+```bash
+# Check CORS headers
+curl -H "Origin: https://your-frontend.com" \
+     -H "Access-Control-Request-Method: POST" \
+     -H "Access-Control-Request-Headers: Content-Type" \
+     -X OPTIONS \
+     https://your-api.com/api/v1/orders
+
+# Should return:
+# Access-Control-Allow-Origin: https://your-frontend.com
+# Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+# Access-Control-Allow-Headers: Content-Type, Authorization
+```
+
+**Common Causes**:
+
+| Cause | Fix |
+|-------|-----|
+| **Frontend URL not in allowlist** | Add to `ALLOWED_ORIGINS` env var |
+| **Credentials not allowed** | Enable `credentials: true` in CORS config |
+| **Wrong HTTP method** | Add method to `allowedMethods` array |
+| **Custom header not allowed** | Add header to `allowedHeaders` array |
+
+**Fix - Add origin to allowlist**:
+
+```typescript
+// server/src/server.ts
+const allowedOrigins = new Set<string>([
+  'http://localhost:5173',
+  'https://your-frontend.vercel.app',
+  'https://your-custom-domain.com', // Add your domain
+]);
+
+// Or use environment variable
+if (process.env.ALLOWED_ORIGINS) {
+  process.env.ALLOWED_ORIGINS.split(',').forEach(origin => {
+    allowedOrigins.add(origin.trim());
+  });
+}
+```
+
+**Fix - Vercel preview URLs**:
+
+```typescript
+// Auto-allow Vercel preview deployments
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+
+    if (
+      allowedOrigins.has(origin) ||
+      origin.match(/^https:\/\/.*\.vercel\.app$/)
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+```
+
+---
+
+## Database & RLS Problems
+
+### Problem: Slow Queries
+
+**Symptoms**:
+- API requests take >1 second
+- Kitchen display lags when loading orders
+- Database CPU at 100%
+
+**Diagnosis**:
+
+```sql
+-- Find slow queries
+SELECT
+  pid,
+  now() - query_start as duration,
+  query,
+  state
+FROM pg_stat_activity
+WHERE state != 'idle'
+  AND now() - query_start > interval '1 second'
+ORDER BY duration DESC;
+
+-- Check missing indexes
+SELECT
+  schemaname,
+  tablename,
+  attname,
+  n_distinct,
+  correlation
+FROM pg_stats
+WHERE schemaname = 'public'
+  AND tablename = 'orders'
+ORDER BY n_distinct DESC;
+```
+
+**Common Issues**:
+
+| Issue | Fix |
+|-------|-----|
+| **Missing index on restaurant_id** | `CREATE INDEX idx_orders_restaurant ON orders(restaurant_id);` |
+| **Sequential scan on large table** | Add index on frequently filtered columns |
+| **Complex RLS policies** | Simplify `USING` clause or use materialized views |
+| **N+1 queries** | Use `select('*, items(*)')` to join in one query |
+
+**Fix - Add indexes**:
+
+```sql
+-- Critical indexes for multi-tenancy
+CREATE INDEX IF NOT EXISTS idx_orders_restaurant_status
+  ON orders(restaurant_id, status);
+
+CREATE INDEX IF NOT EXISTS idx_orders_restaurant_created
+  ON orders(restaurant_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_menu_items_restaurant
+  ON menu_items(restaurant_id);
+
+-- GIN index for JSONB queries
+CREATE INDEX IF NOT EXISTS idx_orders_items_gin
+  ON orders USING GIN (items);
+```
+
+---
+
+## Performance Issues
+
+### Problem: High Memory Usage
+
+**Symptoms**:
+- Server crashes with "Out of memory"
+- Render logs: "R14 - Memory quota exceeded"
+- Node.js heap out of memory
+
+**Diagnosis**:
+
+```bash
+# Check memory usage
+ps aux | grep node
+# Look for RSS column (memory in KB)
+
+# Monitor memory over time
+watch -n 5 'ps aux | grep node'
+
+# Node.js heap usage
+node --expose-gc your-script.js
+```
+
+**Common Causes**:
+
+1. **Memory leak in WebSocket connections**
+2. **Large JSON payloads not garbage collected**
+3. **Image uploads held in memory**
+4. **Inefficient caching**
+
+**Fix**:
+
+```typescript
+// 1. Limit WebSocket client tracking
+const MAX_CLIENTS = 1000;
+
+wss.on('connection', (ws) => {
+  if (wss.clients.size > MAX_CLIENTS) {
+    ws.close(1008, 'Server at capacity');
+    return;
+  }
+});
+
+// 2. Stream large responses
+router.get('/api/v1/orders/export', async (req, res) => {
+  const stream = supabase.from('orders').select('*').stream();
+
+  res.setHeader('Content-Type', 'application/json');
+  stream.pipe(res);
+});
+
+// 3. Implement response size limits
+app.use(express.json({ limit: '1mb' }));
+```
+
+---
+
+## Deployment Issues
+
+### Problem: Render Deployment Fails
+
+**Symptoms**:
+- Render build fails with error
+- Deploy succeeds but app doesn't start
+- Health check failures
+
+**Diagnosis**:
+
+```bash
+# Check Render logs
+# Dashboard → Service → Logs → Filter by "error"
+
+# Common error patterns:
+"Module not found"  # Missing dependency
+"Port already in use"  # Process management issue
+"ECONNREFUSED"  # Database connection failed
+```
+
+**Common Fixes**:
+
+| Issue | Fix |
+|-------|-----|
+| **Missing dependency** | Add to `package.json` and commit |
+| **Build timeout** | Increase build timeout in Render settings |
+| **Environment variable missing** | Add in Render Dashboard → Environment |
+| **Wrong Node version** | Set `NODE_VERSION` env var |
+
+**Fix - Build command**:
+
+```json
+// package.json
+{
+  "scripts": {
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && vite build",
+    "build:server": "cd server && tsc",
+    "start": "node server/dist/server.js"
+  }
+}
+```
+
+---
+
+## Emergency Procedures
+
+### System Down - Quick Recovery
+
+1. **Check Render status**: https://status.render.com
+2. **Check Supabase status**: https://status.supabase.com
+3. **Check Vercel status**: https://vercel-status.com
+4. **Restart services**:
+   - Render: Dashboard → Service → Manual Deploy → "Clear build cache & deploy"
+   - Vercel: Dashboard → Deployments → Redeploy
+
+### Data Loss - Restore from Backup
+
+```sql
+-- Supabase automatic backups (point-in-time recovery)
+-- Dashboard → Project → Database → Backups
+-- Select restore point → Restore
+
+-- Manual backup
+pg_dump -h db.project.supabase.co \
+  -U postgres \
+  -d postgres \
+  > backup-$(date +%Y%m%d).sql
+```
+
+### Critical Bug - Rollback Deployment
+
+```bash
+# Render: Dashboard → Service → Deployments → Previous → "Rollback"
+
+# Vercel:
+vercel rollback https://july25-client.vercel.app
+
+# Git rollback:
+git revert HEAD
+git push origin main
+```
+
+---
+
+## Getting Help
+
+### Logs Locations
+
+| Service | Log Location |
+|---------|-------------|
+| **Render (Server)** | Dashboard → Service → Logs |
+| **Vercel (Client)** | Dashboard → Deployments → Function Logs |
+| **Supabase (DB)** | Dashboard → Logs → Database |
+| **Browser (Client)** | DevTools → Console (F12) |
+
+### Debug Mode
+
+Enable verbose logging:
+
+```bash
+# .env (server)
+LOG_LEVEL=debug
+DEBUG=*
+
+# Browser console
+localStorage.setItem('debug', '*');
+location.reload();
+```
+
+### Support Channels
+
+1. **Documentation**: Check `/docs` directory
+2. **GitHub Issues**: https://github.com/your-repo/issues
+3. **Team Chat**: Slack/Discord
+4. **Emergency**: Contact on-call engineer
+
+---
+
+**Last Updated**: 2025-10-13
+**Maintainer**: Development Team
+**Version**: 6.0.7
