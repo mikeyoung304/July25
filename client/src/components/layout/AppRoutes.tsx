@@ -52,17 +52,9 @@ export function AppRoutes() {
       <ErrorBoundary level="section">
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
-            {/* Public Routes - NOW PROTECTED */}
-            <Route path="/" element={
-              <ProtectedRoute requireAuth={true} fallbackPath="/login">
-                <HomePage />
-              </ProtectedRoute>
-            } />
-            <Route path="/home" element={
-              <ProtectedRoute requireAuth={true} fallbackPath="/login">
-                <HomePage />
-              </ProtectedRoute>
-            } />
+            {/* Public Routes - Accessible to everyone (customers & staff) */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
             
             {/* Auth Routes (Public) */}
             <Route path="/login" element={
