@@ -16,15 +16,10 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   } = useAsyncState<Restaurant | null>(null)
 
   useEffect(() => {
-    // In a real app, this would fetch the restaurant data based on the logged-in user
-    // For now, we'll simulate with mock data
-    const loadRestaurant = async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Mock restaurant data - use environment variable for restaurant ID
+    // Load restaurant synchronously - no delay needed for mock data
+    try {
       const mockRestaurant: Restaurant = {
-        id: env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
+        id: env.VITE_DEFAULT_RESTAURANT_ID || import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
         name: 'Grow Fresh Local Food',
         timezone: 'America/New_York',
         currency: 'USD',
@@ -34,14 +29,13 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
           kitchenDisplayMode: 'grid'
         }
       }
-      
-      return mockRestaurant
-    }
 
-    execute(loadRestaurant()).catch(err => {
+      setRestaurant(mockRestaurant)
+      logger.info('✅ Restaurant context loaded immediately:', { id: mockRestaurant.id })
+    } catch (err) {
       console.error('Error loading restaurant:', err)
-    })
-  }, [execute])
+    }
+  }, [setRestaurant])
 
   const contextValue = {
     restaurant: restaurant ?? null,
