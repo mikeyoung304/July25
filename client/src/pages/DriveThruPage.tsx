@@ -47,9 +47,25 @@ const DriveThruPageContent: React.FC = () => {
     }
   }, [orderParser, processParsedItems]);
   
-  const handleOrderDetected = useCallback((_order: any) => {
-    // Order detection is handled through transcript processing
-  }, []);
+  const handleOrderDetected = useCallback((order: any) => {
+    // AI-detected orders from OpenAI Realtime API function calling
+    if (!order?.items || order.items.length === 0) return;
+
+    console.log('[DriveThru] Order detected from AI:', order);
+
+    order.items.forEach((detectedItem: any) => {
+      const menuItem = menuItems.find(m =>
+        m.name.toLowerCase() === detectedItem.name.toLowerCase()
+      );
+
+      if (menuItem) {
+        console.log(`[DriveThru] Adding ${detectedItem.quantity}x ${menuItem.name}`);
+        addItem(menuItem, detectedItem.quantity || 1, detectedItem.modifications || []);
+      } else {
+        console.warn(`[DriveThru] Menu item not found: ${detectedItem.name}`);
+      }
+    });
+  }, [menuItems, addItem]);
 
   const handleConfirmOrder = useCallback(() => {
     // TODO: Navigate to checkout or confirmation

@@ -51,7 +51,7 @@ const CheckoutPageContent: React.FC = () => {
       // Ensure we have a valid demo token
       await DemoAuthService.getDemoToken();
       
-      // Create the order
+      // Create the order (using snake_case per ADR-001)
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
@@ -60,11 +60,11 @@ const CheckoutPageContent: React.FC = () => {
           quantity: item.quantity,
           price: item.price,
           modifiers: item.modifiers || [],
-          specialInstructions: item.specialInstructions || '',
+          special_instructions: item.specialInstructions || '',
         })),
-        customerName: form.values.customerEmail.split('@')[0],
-        customerEmail: form.values.customerEmail,
-        customerPhone: form.values.customerPhone.replace(/\D/g, ''),
+        customer_name: form.values.customerEmail.split('@')[0],
+        customer_email: form.values.customerEmail,
+        customer_phone: form.values.customerPhone.replace(/\D/g, ''),
         notes: 'Demo online order',
         subtotal: cart.subtotal,
         tax: cart.tax,
@@ -123,7 +123,7 @@ const CheckoutPageContent: React.FC = () => {
     form.clearErrors();
 
     try {
-      // First, create the order using the new API hook
+      // First, create the order using snake_case (per ADR-001)
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
@@ -132,11 +132,11 @@ const CheckoutPageContent: React.FC = () => {
           quantity: item.quantity,
           price: item.price,
           modifiers: item.modifiers || [],
-          specialInstructions: item.specialInstructions || '',
+          special_instructions: item.specialInstructions || '',
         })),
-        customerName: form.values.customerEmail.split('@')[0], // Use email prefix as name
-        customerEmail: form.values.customerEmail,
-        customerPhone: form.values.customerPhone.replace(/\D/g, ''), // Clean phone number
+        customer_name: form.values.customerEmail.split('@')[0],
+        customer_email: form.values.customerEmail,
+        customer_phone: form.values.customerPhone.replace(/\D/g, ''),
         notes: 'Online order',
         subtotal: cart.subtotal,
         tax: cart.tax,

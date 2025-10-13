@@ -1,12 +1,13 @@
 # Database Schema Documentation
 
-**Last Updated**: 2025-09-26
-**Version**: See [VERSION.md](VERSION.md)
-**Database**: PostgreSQL (Supabase)
+**Last Updated**: October 11, 2025
+**Version**: 6.0.7
+**Database**: PostgreSQL (Supabase Cloud)
+**Status**: ✅ Production Ready
 
 ## Overview
 
-Restaurant OS uses PostgreSQL hosted on Supabase with Row Level Security (RLS) for multi-tenant data isolation.
+Restaurant OS uses PostgreSQL hosted on **Supabase Cloud** (no local database) with Row Level Security (RLS) for multi-tenant data isolation. All tables enforce restaurant_id scoping to prevent cross-tenant data access.
 
 ## Source of Truth
 
@@ -43,7 +44,7 @@ User accounts with role-based access.
 | created_at | TIMESTAMP | Creation timestamp |
 
 ### menu_items
-Restaurant menu catalog.
+Restaurant menu catalog with modifiers and voice AI aliases.
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -51,36 +52,161 @@ Restaurant menu catalog.
 | restaurant_id | UUID | FK to restaurants |
 | name | VARCHAR(255) | Item name |
 | description | TEXT | Item description |
-| price | INTEGER | Price in cents |
+| price | DECIMAL(10,2) | Price in dollars |
 | category | VARCHAR(100) | Menu category |
 | available | BOOLEAN | Availability flag |
-| image_url | TEXT | Item image |
-| created_at | TIMESTAMP | Creation timestamp |
+| image_url | TEXT | Item image path |
+| preparation_time | INTEGER | Prep time in minutes |
+| **modifiers** | **JSONB** | **Customization options** |
+| **aliases** | **JSONB** | **Voice AI search terms** |
+| created_at | TIMESTAMPTZ | Creation timestamp |
+| updated_at | TIMESTAMPTZ | Last update |
+
+**JSONB Fields**:
+
+**modifiers** - Array of modifier objects:
+```json
+[
+  {
+    "name": "Extra Cheese",
+    "price": 1.50,
+    "category": "add-ons"
+  },
+  {
+    "name": "No pickles",
+    "price": 0,
+    "category": "remove"
+  },
+  {
+    "name": "Spicy",
+    "price": 0,
+    "category": "style"
+  }
+]
+```
+
+**aliases** - Array of voice recognition terms:
+```json
+[
+  "chicken sandwich",
+  "fried chicken burger",
+  "crispy chicken"
+]
+```
+
+**RLS Policy**:
+```sql
+CREATE POLICY menu_items_tenant_isolation ON menu_items
+  FOR ALL USING (restaurant_id = current_setting('app.current_restaurant_id')::uuid);
+```
+
+**Indexes**:
+```sql
+CREATE INDEX idx_menu_items_restaurant ON menu_items(restaurant_id);
+CREATE INDEX idx_menu_items_category ON menu_items(restaurant_id, category);
+CREATE INDEX idx_menu_items_available ON menu_items(restaurant_id, available);
+```
 
 ### orders
-Customer orders with status tracking.
+Customer orders with embedded items and payment info.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | UUID | Primary key |
 | restaurant_id | UUID | FK to restaurants |
-| table_id | UUID | FK to tables |
-| status | ENUM | pending/preparing/ready/delivered/completed/cancelled |
-| total | INTEGER | Total in cents |
-| created_at | TIMESTAMP | Order time |
-| updated_at | TIMESTAMP | Last update |
+| order_number | VARCHAR(50) | Human-readable number (e.g., "1234") |
+| status | VARCHAR(50) | pending → confirmed → preparing → ready → completed OR cancelled |
+| type | VARCHAR(50) | dine-in, takeout, delivery, drive-thru |
+| table_number | INTEGER | Table number (if dine-in) |
+| **customer_info** | **JSONB** | **Customer contact details** |
+| **items** | **JSONB** | **Order line items (embedded)** |
+| subtotal | DECIMAL(10,2) | Pre-tax total |
+| tax | DECIMAL(10,2) | Tax amount (8.25%) |
+| tip | DECIMAL(10,2) | Tip amount |
+| total | DECIMAL(10,2) | Final total (subtotal + tax + tip) |
+| **payment_info** | **JSONB** | **Payment method & transaction details** |
+| **metadata** | **JSONB** | **Flexible additional data** |
+| created_at | TIMESTAMPTZ | Order creation time |
+| updated_at | TIMESTAMPTZ | Last status update |
 
-### order_items
-Line items within orders.
+**JSONB Fields**:
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| order_id | UUID | FK to orders |
-| menu_item_id | UUID | FK to menu_items |
-| quantity | INTEGER | Item quantity |
-| price | INTEGER | Price at order time |
-| modifiers | JSONB | Custom modifications |
+**customer_info** - Customer contact details:
+```json
+{
+  "email": "customer@example.com",
+  "phone": "555-123-4567",
+  "name": "John Doe"
+}
+```
+
+**items** - Embedded order line items (NO separate order_items table):
+```json
+[
+  {
+    "menuItemId": "uuid",
+    "menuItemName": "Fried Chicken Sandwich",
+    "quantity": 2,
+    "price": 12.99,
+    "modifications": ["No pickles", "Extra cheese"]
+  },
+  {
+    "menuItemId": "uuid",
+    "menuItemName": "Sweet Tea",
+    "quantity": 1,
+    "price": 2.99,
+    "modifications": []
+  }
+]
+```
+
+**payment_info** - Payment method and transaction details:
+```json
+{
+  "method": "square_terminal",
+  "checkoutId": "checkout-uuid",
+  "paymentIds": ["payment-uuid"],
+  "completedAt": "2025-10-11T18:35:00Z"
+}
+```
+
+**metadata** - Flexible field for additional data:
+```json
+{
+  "source": "online",
+  "paymentMethod": "square",
+  "squareCheckoutId": "checkout-uuid",
+  "estimatedPickupTime": "2025-10-11T14:30:00Z",
+  "specialInstructions": "Please knock on door"
+}
+```
+
+**Order Status Flow** (7 required states):
+```
+pending → confirmed → preparing → ready → served → completed
+↓
+cancelled
+```
+
+**RLS Policy**:
+```sql
+CREATE POLICY orders_tenant_isolation ON orders
+  FOR ALL USING (restaurant_id = current_setting('app.current_restaurant_id')::uuid);
+```
+
+**Indexes**:
+```sql
+CREATE INDEX idx_orders_restaurant_status ON orders(restaurant_id, status);
+CREATE INDEX idx_orders_created_at ON orders(restaurant_id, created_at DESC);
+CREATE INDEX idx_orders_number ON orders(restaurant_id, order_number);
+```
+
+**Constraints**:
+```sql
+ALTER TABLE orders
+  ADD CONSTRAINT orders_restaurant_order_number_key
+  UNIQUE (restaurant_id, order_number);
+```
 
 ### tables
 Restaurant floor tables.
@@ -94,18 +220,60 @@ Restaurant floor tables.
 | status | ENUM | available/occupied/reserved |
 | qr_code | TEXT | QR code data |
 
-### payments
-Payment transaction records.
+### payment_audit_logs
+Immutable payment audit trail for PCI compliance.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | UUID | Primary key |
-| order_id | UUID | FK to orders |
-| amount | INTEGER | Amount in cents |
-| method | ENUM | cash/card/terminal |
-| status | ENUM | pending/completed/failed/refunded |
-| processor_id | VARCHAR(255) | External payment ID |
-| created_at | TIMESTAMP | Transaction time |
+| restaurant_id | UUID | FK to restaurants |
+| order_id | UUID | FK to orders (nullable) |
+| payment_provider | VARCHAR(50) | 'square', 'stripe', etc. |
+| transaction_id | VARCHAR(255) | External payment ID |
+| amount | DECIMAL(10,2) | Payment amount |
+| status | VARCHAR(50) | pending, success, failed, refunded |
+| **raw_response** | **JSONB** | **Complete provider response** |
+| created_at | TIMESTAMPTZ | Transaction timestamp |
+
+**Purpose**: Immutable audit trail for all payment attempts. Required for PCI compliance and fraud investigation.
+
+**JSONB Fields**:
+
+**raw_response** - Complete Square/Stripe API response:
+```json
+{
+  "checkout": {
+    "id": "checkout-uuid",
+    "status": "COMPLETED",
+    "amountMoney": {
+      "amount": 3746,
+      "currency": "USD"
+    },
+    "paymentIds": ["payment-uuid"],
+    "device": {
+      "id": "device-uuid",
+      "name": "Register 1"
+    },
+    "createdAt": "2025-10-11T18:30:00Z",
+    "completedAt": "2025-10-11T18:35:00Z"
+  }
+}
+```
+
+**Retention**: 7 years (PCI compliance requirement)
+
+**RLS Policy**:
+```sql
+CREATE POLICY payment_audit_tenant_isolation ON payment_audit_logs
+  FOR ALL USING (restaurant_id = current_setting('app.current_restaurant_id')::uuid);
+```
+
+**Indexes**:
+```sql
+CREATE INDEX idx_payment_audit_restaurant ON payment_audit_logs(restaurant_id);
+CREATE INDEX idx_payment_audit_order ON payment_audit_logs(order_id);
+CREATE INDEX idx_payment_audit_transaction ON payment_audit_logs(transaction_id);
+```
 
 ### audit_logs
 Security and compliance audit trail.
@@ -301,6 +469,10 @@ Key metrics to monitor:
 
 ## Related Documentation
 
-- [API Documentation](api/README.md)
-- [Environment Variables](ENVIRONMENT.md)
-- [Security Guidelines](SECURITY.md)
+- [Menu System](./MENU_SYSTEM.md) - Menu management & fall menu deployment
+- [Square Integration](./SQUARE_INTEGRATION.md) - Payment processing & terminal API
+- [Order Flow](./ORDER_FLOW.md) - Complete customer ordering journey
+- [API Documentation](api/README.md) - All API endpoints
+- [Environment Variables](ENVIRONMENT.md) - Configuration guide
+- [Security Guidelines](SECURITY.md) - Security best practices
+- [Production Status](./PRODUCTION_STATUS.md) - Current readiness assessment
