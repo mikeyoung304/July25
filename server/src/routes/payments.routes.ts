@@ -34,6 +34,72 @@ const client = new SquareClient({
 
 const paymentsApi = client.payments;
 
+// STARTUP VALIDATION: Verify Square credentials match
+// This prevents runtime payment failures due to misconfigured credentials
+(async () => {
+  // Skip validation in demo mode
+  if (!process.env['SQUARE_ACCESS_TOKEN'] ||
+      process.env['SQUARE_ACCESS_TOKEN'] === 'demo' ||
+      process.env['NODE_ENV'] === 'development') {
+    routeLogger.info('Demo mode: Skipping Square credential validation');
+    return;
+  }
+
+  try {
+    // Fetch available locations for this access token
+    const locationsResponse = await client.locations.list();
+    const locations = locationsResponse.locations || [];
+    const locationIds = locations.map((l) => l.id).filter((id): id is string => id !== undefined);
+    const configuredLocation = process.env['SQUARE_LOCATION_ID'];
+
+    if (!configuredLocation) {
+      routeLogger.error('❌ SQUARE_LOCATION_ID not configured');
+      return;
+    }
+
+    // Check if configured location exists for this access token
+    if (!locationIds.includes(configuredLocation)) {
+      const errorMsg = [
+        '❌ SQUARE CREDENTIAL MISMATCH DETECTED',
+        `Configured SQUARE_LOCATION_ID: ${configuredLocation}`,
+        `Available location IDs for this access token: ${locationIds.join(', ')}`,
+        'PAYMENT PROCESSING WILL FAIL until you update SQUARE_LOCATION_ID',
+        '',
+        'Fix: Update your environment variable to one of the available locations above.'
+      ].join('\n');
+
+      routeLogger.error(errorMsg);
+
+      // Log each available location with details for troubleshooting
+      locations.forEach((loc) => {
+        routeLogger.info('Available Square Location', {
+          id: loc.id,
+          name: loc.name,
+          merchant_id: loc.merchantId,
+          status: loc.status
+        });
+      });
+    } else {
+      // Success - credentials match
+      const matchingLocation = locations.find((l) => l.id === configuredLocation);
+      routeLogger.info('✅ Square credentials validated successfully', {
+        locationId: configuredLocation,
+        locationName: matchingLocation?.name,
+        merchantId: matchingLocation?.merchantId,
+        environment: process.env['SQUARE_ENVIRONMENT'],
+        totalLocations: locations.length
+      });
+    }
+  } catch (error: any) {
+    routeLogger.error('❌ Square credential validation failed', {
+      error: error.message,
+      statusCode: error.statusCode
+    });
+    // Don't crash the server, but prominently log the issue
+    // This allows the server to start but payments will fail with clear errors
+  }
+})();
+
 // POST /api/v1/payments/create - Process payment
 router.post('/create',
   authenticate,

@@ -14,6 +14,7 @@
     "check:vercel": "node tools/verify-vercel-project.mjs",
     "env:check": "node scripts/check-env.mjs",
     "env:validate": "node scripts/validate-env.mjs",
+    "validate:square": "./scripts/validate-square-credentials.sh",
     "vercel:check": "node tools/verify-vercel-project.mjs",
     "vercel:link": "vercel link --project july25-client --yes",
     "start": "cd server && npm start",
