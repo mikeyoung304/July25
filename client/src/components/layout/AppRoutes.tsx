@@ -6,9 +6,10 @@ import { env } from '@/utils/env'
 import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
 // Eager load critical/common pages
-import { HomePage } from '@/pages/HomePage'
+import { LandingPage } from '@/pages/LandingPage'
 
 // Lazy load auth pages
+const HomePage = lazy(() => import('@/pages/HomePage').then(m => ({ default: m.HomePage })))
 const Login = lazy(() => import('@/pages/Login'))
 const PinLogin = lazy(() => import('@/pages/PinLogin'))
 const StationLogin = lazy(() => import('@/pages/StationLogin'))
@@ -52,9 +53,17 @@ export function AppRoutes() {
       <ErrorBoundary level="section">
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
-            {/* Public Routes - Accessible to everyone (customers & staff) */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/home" element={<HomePage />} />
+            {/* Landing Page - Public (customers & staff initial entry) */}
+            <Route path="/" element={<LandingPage />} />
+
+            {/* Staff Home - Protected (authenticated staff navigation hub) */}
+            <Route path="/home" element={
+              <ProtectedRoute requireAuth={true} fallbackPath="/login">
+                <Suspense fallback={<RouteLoader />}>
+                  <HomePage />
+                </Suspense>
+              </ProtectedRoute>
+            } />
             
             {/* Auth Routes (Public) */}
             <Route path="/login" element={
