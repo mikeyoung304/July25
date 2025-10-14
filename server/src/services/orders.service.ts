@@ -373,18 +373,18 @@ export class OrdersService {
         updatedAt: new Date().toISOString()
       };
 
-      // Prepare update object
+      // Prepare update object - only update metadata, not order status
+      // Order status progression should be managed separately via updateOrderStatus
       const update: Record<string, unknown> = {
         metadata: metadata,
         updated_at: new Date().toISOString(),
       };
 
-      // If payment is successful, update order status to confirmed
-      if (paymentStatus === 'paid' && currentOrder.status === 'pending') {
-        update['status'] = 'confirmed';
-      }
+      // Note: We don't update order status here anymore.
+      // Payment status (paid/failed/refunded) is stored in metadata.
+      // Order status (pending/confirmed/preparing/ready/etc) is managed via updateOrderStatus.
 
-      const { data, error } = await supabase
+      const { data, error} = await supabase
         .from('orders')
         .update(update)
         .eq('id', orderId)
