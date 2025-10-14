@@ -55,3 +55,4 @@ CLAUDE.local.md
 /shared/**/*.mjs
 .vercel
 test-results/
+.env.vercel*
