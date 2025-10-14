@@ -27,7 +27,7 @@ export function ProtectedRoute({
   fallbackPath = '/login',
   requireAuth = true
 }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, canAccess } = useAuth();
+  const { isAuthenticated, isLoading, canAccess, user } = useAuth();
   const location = useLocation();
 
   // Show loading state while checking auth
@@ -45,9 +45,11 @@ export function ProtectedRoute({
 
   // Check authentication requirement
   if (requireAuth && !isAuthenticated) {
-    logger.info('Access denied: Not authenticated', {
+    logger.warn('❌ ProtectedRoute: Not authenticated', {
       path: location.pathname,
-      redirectTo: fallbackPath
+      redirectTo: fallbackPath,
+      hasUser: !!user,
+      userRole: user?.role
     });
 
     // Save the attempted location for redirect after login
@@ -58,19 +60,30 @@ export function ProtectedRoute({
   if (requiredRoles.length > 0 || requiredScopes.length > 0) {
     const canAccessResult = canAccess(requiredRoles, requiredScopes);
 
-    // 🔍 DEBUG LOGGING
-    logger.info('🔐 Authorization check', {
+    // 🔍 ENHANCED DEBUG LOGGING
+    logger.info('🔐 ProtectedRoute: Authorization check', {
       path: location.pathname,
+      isAuthenticated,
+      hasUser: !!user,
+      userRole: user?.role,
+      userScopes: user?.scopes,
       requiredRoles,
       requiredScopes,
-      canAccess: canAccessResult
+      canAccessResult
     });
 
     if (!canAccessResult) {
-      logger.warn('Access denied: Insufficient permissions', {
+      logger.error('❌ ProtectedRoute: ACCESS DENIED', {
         path: location.pathname,
+        userRole: user?.role,
+        userScopes: user?.scopes,
         requiredRoles,
-        requiredScopes
+        requiredScopes,
+        reason: !user?.role
+          ? 'User has no role'
+          : !requiredRoles.includes(user.role)
+            ? `User role '${user.role}' not in required roles [${requiredRoles.join(', ')}]`
+            : 'Scope check failed'
       });
 
       // Redirect to unauthorized page or home
@@ -79,6 +92,7 @@ export function ProtectedRoute({
   }
 
   // User is authorized, render children
+  logger.info('✅ ProtectedRoute: Access granted', { path: location.pathname, userRole: user?.role });
   return <>{children}</>;
 }
 
