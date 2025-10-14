@@ -12,13 +12,11 @@ const routeLogger = logger.child({ route: 'terminal' });
 
 // Initialize Square client (reuse existing configuration)
 const client = new SquareClient({
-  environment: process.env['SQUARE_ENVIRONMENT'] === 'production' 
-    ? SquareEnvironment.Production 
+  environment: process.env['SQUARE_ENVIRONMENT'] === 'production'
+    ? SquareEnvironment.Production
     : SquareEnvironment.Sandbox,
-  bearerAuthCredentials: {
-    accessToken: process.env['SQUARE_ACCESS_TOKEN']!
-  }
-} as any);
+  token: process.env['SQUARE_ACCESS_TOKEN']!
+});
 
 const terminalApi = client.terminal;
 
