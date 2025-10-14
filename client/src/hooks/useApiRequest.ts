@@ -115,17 +115,26 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
       if (!response.ok) {
         const errorText = await response.text();
         let errorMessage = `API request failed: ${response.status} ${response.statusText}`;
-        
+
         try {
           const errorJson = JSON.parse(errorText);
           errorMessage = errorJson.message || errorJson.error || errorMessage;
         } catch {
           // Use text if not JSON
-          if (errorText) {
+          if (errorText && errorText.trim()) {
             errorMessage = errorText;
           }
         }
-        
+
+        // Log for debugging
+        console.error('API Error Details:', {
+          url,
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText.substring(0, 500), // Limit log size
+          parsedMessage: errorMessage
+        });
+
         throw new Error(errorMessage);
       }
       

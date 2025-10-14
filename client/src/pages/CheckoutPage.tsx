@@ -106,7 +106,12 @@ const CheckoutPageContent: React.FC = () => {
       });
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Demo payment failed. Please try again.';
+      console.error('Demo payment error:', error);
+      const errorMessage = error instanceof Error
+        ? error.message
+        : typeof error === 'string'
+          ? error
+          : JSON.stringify(error) || 'Demo payment failed. Please try again.';
       form.setFieldError('general' as keyof typeof form.values, errorMessage);
     } finally {
       setIsProcessing(false);
@@ -178,7 +183,12 @@ const CheckoutPageContent: React.FC = () => {
       });
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred. Please try again.';
+      console.error('Payment processing error:', error);
+      const errorMessage = error instanceof Error
+        ? error.message
+        : typeof error === 'string'
+          ? error
+          : JSON.stringify(error) || 'An error occurred. Please try again.';
       form.setFieldError('general' as keyof typeof form.values, errorMessage);
     } finally {
       setIsProcessing(false);
