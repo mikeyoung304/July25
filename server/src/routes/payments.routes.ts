@@ -26,11 +26,11 @@ if (process.env['SQUARE_ENVIRONMENT'] === 'production') {
 
 // Initialize Square client
 const client = new SquareClient({
-  environment: process.env['SQUARE_ENVIRONMENT'] === 'production' 
-    ? SquareEnvironment.Production 
+  environment: process.env['SQUARE_ENVIRONMENT'] === 'production'
+    ? SquareEnvironment.Production
     : SquareEnvironment.Sandbox,
-  accessToken: process.env['SQUARE_ACCESS_TOKEN']!
-} as any);
+  token: process.env['SQUARE_ACCESS_TOKEN']!
+});
 
 const paymentsApi = client.payments;
 
