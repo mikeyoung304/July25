@@ -98,16 +98,9 @@ export function DevAuthOverlay() {
       logger.info(`✅ Demo login completed for ${role.name}, session ready`);
       toast.success(`Logged in as ${role.name}`);
 
-      // Navigate to appropriate dashboard based on role
-      const roleRoutes: Record<string, string> = {
-        manager: '/',
-        server: '/server',
-        kitchen: '/kitchen',
-        expo: '/expo',
-        cashier: '/'
-      };
-
-      const destination = roleRoutes[role.id] || '/dashboard';
+      // Navigate to staff home page (navigation hub)
+      // Staff can then choose their specific workspace
+      const destination = '/home';
 
       // Small delay to ensure React state updates propagate
       await new Promise(resolve => setTimeout(resolve, 100));
