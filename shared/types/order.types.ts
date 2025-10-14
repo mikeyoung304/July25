@@ -63,6 +63,11 @@ export interface Order {
   updated_at: string;
   completed_at?: string;
   estimated_ready_time?: string;
+  // Scheduled order fields
+  scheduled_pickup_time?: string;
+  auto_fire_time?: string;
+  is_scheduled?: boolean;
+  manually_fired?: boolean;
 }
 
 export interface CreateOrderDTO {
@@ -75,6 +80,7 @@ export interface CreateOrderDTO {
   table_number?: string;
   notes?: string;
   payment_method?: PaymentMethod;
+  scheduled_pickup_time?: string;
 }
 
 export interface UpdateOrderDTO {

@@ -11,12 +11,15 @@ import { Filter, Clock, ChefHat, AlertCircle, BarChart3, Zap, Users, LayoutGrid,
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
 import { useTableGrouping, sortTableGroups } from '@/hooks/useTableGrouping'
 import { useOrderGrouping, sortOrderGroups } from '@/hooks/useOrderGrouping'
+import { useScheduledOrders } from '@/hooks/useScheduledOrders'
+import { ScheduledOrdersSection } from '@/components/kitchen/ScheduledOrdersSection'
 import {  } from '@/utils'
 import type { Order } from '@rebuild/shared'
 
 type StatusFilter = 'all' | 'active' | 'ready' | 'urgent'
 type SortMode = 'priority' | 'chronological' | 'type'
 type ViewMode = 'grid' | 'tables' | 'orders'
+type OrderTypeFilter = 'all' | 'drive-thru' | 'counter' | 'curbside' | 'delivery'
 
 function KitchenDisplayOptimized() {
   // Use optimized hook with advanced features
@@ -31,16 +34,20 @@ function KitchenDisplayOptimized() {
     connectionState
   } = useKitchenOrdersOptimized()
 
-  // Table grouping
-  const groupedOrders = useTableGrouping(orders)
+  // Separate active from scheduled orders
+  const { active: activeOrders, scheduled: scheduledGroups } = useScheduledOrders(orders)
 
-  // Order grouping (for online orders)
-  const orderGroups = useOrderGrouping(orders)
+  // Table grouping (only active orders)
+  const groupedOrders = useTableGrouping(activeOrders)
+
+  // Order grouping (only active online orders)
+  const orderGroups = useOrderGrouping(activeOrders)
 
   // Enhanced filtering and sorting state
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [sortMode, setSortMode] = useState<SortMode>('priority')
   const [viewMode, setViewMode] = useState<ViewMode>('orders')
+  const [orderTypeFilter, setOrderTypeFilter] = useState<OrderTypeFilter>('all')
   const [showStats, setShowStats] = useState(false)
 
   // Enhanced order status handling
@@ -63,6 +70,16 @@ function KitchenDisplayOptimized() {
 
     await Promise.all(updatePromises)
   }, [groupedOrders.tables, updateOrderStatus])
+
+  // Handle manually firing a scheduled order
+  const handleManualFire = useCallback(async (orderId: string) => {
+    // Move scheduled order to active by updating is_scheduled flag
+    // The backend will handle setting status to 'preparing'
+    const success = await updateOrderStatus(orderId, 'preparing')
+    if (!success) {
+      console.error('Failed to manually fire order:', orderId)
+    }
+  }, [updateOrderStatus])
 
   // Compute detailed statistics
   const stats = useMemo(() => {
@@ -166,7 +183,7 @@ function KitchenDisplayOptimized() {
   // Sort and filter order groups for orders view mode
   const sortedOrderGroups = useMemo(() => {
     // Filter by status
-    const filtered = statusFilter === 'ready'
+    let filtered = statusFilter === 'ready'
       ? orderGroups.filter(g => g.status === 'ready')
       : statusFilter === 'urgent'
       ? orderGroups.filter(g => g.urgency_level === 'urgent' || g.urgency_level === 'critical')
@@ -174,11 +191,16 @@ function KitchenDisplayOptimized() {
       ? orderGroups.filter(g => !['ready', 'completed', 'cancelled'].includes(g.status))
       : orderGroups
 
+    // Filter by order type (pickup type)
+    if (orderTypeFilter !== 'all') {
+      filtered = filtered.filter(g => g.pickup_type === orderTypeFilter)
+    }
+
     // Apply sorting based on sortMode
     const sortKey = sortMode === 'priority' ? 'urgency' :
                     sortMode === 'chronological' ? 'age' : 'order_number'
     return sortOrderGroups(filtered, sortKey)
-  }, [orderGroups, statusFilter, sortMode])
+  }, [orderGroups, statusFilter, orderTypeFilter, sortMode])
 
   // Enhanced error and loading states
   if (error) {
@@ -290,45 +312,95 @@ function KitchenDisplayOptimized() {
       {/* Enhanced Filters and Controls */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              {/* Status Filters */}
-              <Button
-                variant={statusFilter === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setStatusFilter('all')}
-              >
-                All ({orders.filter(o => !['completed', 'cancelled'].includes(o.status)).length})
-              </Button>
-              <Button
-                variant={statusFilter === 'active' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setStatusFilter('active')}
-              >
-                Active ({stats.active})
-              </Button>
-              <Button
-                variant={statusFilter === 'ready' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setStatusFilter('ready')}
-              >
-                Ready ({stats.ready})
-              </Button>
-              {stats.urgent > 0 && (
+          <div className="space-y-3">
+            {/* Status Filters Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                <span className="text-sm text-gray-600 self-center">Status:</span>
                 <Button
-                  variant={statusFilter === 'urgent' ? 'destructive' : 'outline'}
+                  variant={statusFilter === 'all' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setStatusFilter('urgent')}
-                  className="text-red-600 border-red-300"
+                  onClick={() => setStatusFilter('all')}
                 >
-                  <AlertCircle className="w-3 h-3 mr-1" />
-                  Urgent ({stats.urgent})
+                  All ({orders.filter(o => !['completed', 'cancelled'].includes(o.status)).length})
                 </Button>
-              )}
+                <Button
+                  variant={statusFilter === 'active' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setStatusFilter('active')}
+                >
+                  Active ({stats.active})
+                </Button>
+                <Button
+                  variant={statusFilter === 'ready' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setStatusFilter('ready')}
+                >
+                  Ready ({stats.ready})
+                </Button>
+                {stats.urgent > 0 && (
+                  <Button
+                    variant={statusFilter === 'urgent' ? 'destructive' : 'outline'}
+                    size="sm"
+                    onClick={() => setStatusFilter('urgent')}
+                    className="text-red-600 border-red-300"
+                  >
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    Urgent ({stats.urgent})
+                  </Button>
+                )}
+              </div>
             </div>
 
-            {/* View Mode and Sort Controls */}
-            <div className="flex items-center gap-2">
+            {/* Order Type Filters Row (only show in Orders view) */}
+            {viewMode === 'orders' && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Type:</span>
+                <Button
+                  variant={orderTypeFilter === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOrderTypeFilter('all')}
+                >
+                  All Orders
+                </Button>
+                <Button
+                  variant={orderTypeFilter === 'drive-thru' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOrderTypeFilter('drive-thru')}
+                  className="gap-1"
+                >
+                  🚗 Drive-Thru
+                </Button>
+                <Button
+                  variant={orderTypeFilter === 'counter' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOrderTypeFilter('counter')}
+                  className="gap-1"
+                >
+                  🏪 Counter
+                </Button>
+                <Button
+                  variant={orderTypeFilter === 'curbside' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOrderTypeFilter('curbside')}
+                  className="gap-1"
+                >
+                  🅿️ Curbside
+                </Button>
+                <Button
+                  variant={orderTypeFilter === 'delivery' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOrderTypeFilter('delivery')}
+                  className="gap-1"
+                >
+                  🚚 Delivery
+                </Button>
+              </div>
+            )}
+
+            {/* View Mode and Sort Controls Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
               {/* View Mode Toggle */}
               <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
                 <Button
@@ -474,6 +546,12 @@ function KitchenDisplayOptimized() {
             />
           )
         )}
+
+        {/* Scheduled Orders Section */}
+        <ScheduledOrdersSection
+          scheduledGroups={scheduledGroups}
+          onManualFire={handleManualFire}
+        />
       </div>
 
       {/* Performance Indicator */}
