@@ -116,8 +116,7 @@ router.post('/create',
         };
       } else {
         // Process real payment with Square
-        const response = await (paymentsApi as any).createPayment(paymentRequest as any);
-        paymentResult = response.result;
+        paymentResult = await paymentsApi.create(paymentRequest);
       }
 
       if (paymentResult.payment?.status !== 'COMPLETED') {
@@ -261,13 +260,17 @@ router.get('/:paymentId',
   try {
     const { paymentId } = req.params;
 
+    if (!paymentId) {
+      throw BadRequest('Payment ID is required');
+    }
+
     routeLogger.info('Retrieving payment details', { paymentId });
 
-    const { result } = await (paymentsApi as any).getPayment(paymentId);
+    const paymentResponse = await paymentsApi.get({ paymentId });
 
     res.json({
       success: true,
-      payment: result.payment,
+      payment: paymentResponse.payment,
     });
 
   } catch (error: any) {
@@ -297,10 +300,14 @@ router.post('/:paymentId/refund',
     const { paymentId } = req.params;
     const { amount, reason } = req.body;
 
+    if (!paymentId) {
+      throw BadRequest('Payment ID is required');
+    }
+
     routeLogger.info('Processing refund', { paymentId, amount, reason });
 
     // Get payment details first
-    const { result: paymentResult } = await (paymentsApi as any).getPayment(paymentId as any);
+    const paymentResult = await paymentsApi.get({ paymentId });
     const payment = paymentResult.payment;
 
     if (!payment) {

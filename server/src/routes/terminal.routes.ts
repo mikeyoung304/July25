@@ -155,7 +155,7 @@ router.get('/checkout/:checkoutId', authenticate, validateRestaurantAccess, asyn
       if (result.checkout.status === 'COMPLETED' && result.checkout.paymentIds && result.checkout.paymentIds.length > 0) {
         try {
           const paymentId = result.checkout.paymentIds[0];
-          const { result: paymentResult } = await (client.payments as any).getPayment(paymentId);
+          const paymentResult = await client.payments.get({ paymentId });
           paymentDetails = paymentResult.payment;
         } catch (paymentError) {
           routeLogger.warn('Could not retrieve payment details', { paymentError });
