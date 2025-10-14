@@ -13,6 +13,46 @@ interface OrderGroupCardProps {
   variant?: 'kitchen' | 'expo'
 }
 
+// Large prominent order type badge component
+const OrderTypeBadge = ({ pickupType }: { pickupType: OrderGroup['pickup_type'] }) => {
+  const typeConfig = {
+    'drive-thru': {
+      icon: '🚗',
+      label: 'DRIVE-THRU',
+      gradient: 'from-purple-500 to-purple-700',
+    },
+    'counter': {
+      icon: '🏪',
+      label: 'COUNTER',
+      gradient: 'from-orange-500 to-orange-700',
+    },
+    'curbside': {
+      icon: '🅿️',
+      label: 'CURBSIDE',
+      gradient: 'from-blue-500 to-blue-700',
+    },
+    'delivery': {
+      icon: '🚚',
+      label: 'DELIVERY',
+      gradient: 'from-green-500 to-green-700',
+    }
+  }
+
+  const config = typeConfig[pickupType] || typeConfig['counter']
+
+  return (
+    <div className="absolute -top-3 -left-3 z-20 transform hover:scale-110 transition-transform">
+      <div className={cn(
+        "rounded-full w-16 h-16 flex items-center justify-center",
+        "shadow-2xl ring-2 ring-white",
+        `bg-gradient-to-br ${config.gradient}`
+      )}>
+        <span className="text-3xl">{config.icon}</span>
+      </div>
+    </div>
+  )
+}
+
 export function OrderGroupCard({
   orderGroup,
   onStatusChange,
@@ -55,9 +95,17 @@ export function OrderGroupCard({
     }
   }
 
-  // Urgency styling
+  // Pickup type styling (used when not urgent)
+  const pickupTypeStyles = {
+    'drive-thru': 'border-purple-400 bg-purple-50/30',
+    'counter': 'border-orange-400 bg-orange-50/30',
+    'curbside': 'border-blue-400 bg-blue-50/30',
+    'delivery': 'border-green-400 bg-green-50/30'
+  }
+
+  // Urgency colors override pickup type styling
   const urgencyColors = {
-    normal: 'border-gray-200 bg-white',
+    normal: pickupTypeStyles[orderGroup.pickup_type] || 'border-gray-200 bg-white',
     warning: 'border-yellow-300 bg-yellow-50',
     urgent: 'border-orange-400 bg-orange-50',
     critical: 'border-red-400 bg-red-50 animate-pulse'
@@ -84,12 +132,15 @@ export function OrderGroupCard({
   return (
     <div
       className={cn(
-        'rounded-lg border-2 p-4 shadow-sm transition-all',
+        'rounded-lg border-2 p-4 shadow-sm transition-all relative',
         urgencyColors[orderGroup.urgency_level]
       )}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-3">
+      {/* Large Order Type Badge */}
+      <OrderTypeBadge pickupType={orderGroup.pickup_type} />
+
+      {/* Header - adjusted padding for badge */}
+      <div className="flex items-start justify-between mb-3 ml-10">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-lg font-bold">Order #{orderGroup.order_number}</h3>
@@ -107,13 +158,9 @@ export function OrderGroupCard({
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-lg">
-                {pickupTypeIcons[orderGroup.pickup_type]}
-              </span>
-              <span className="text-xs uppercase font-semibold">
-                {orderGroup.pickup_type}
-              </span>
+            {/* Pickup type is now shown in large badge - keeping minimal text here */}
+            <div className="text-xs text-gray-500 uppercase mt-1">
+              {orderGroup.pickup_type.replace('-', ' ')}
             </div>
           </div>
         </div>
@@ -193,17 +240,21 @@ export function OrderGroupCard({
 
       {/* Actions */}
       <div className="flex gap-2">
-        {orderGroup.status === 'preparing' && (
+        {/* Show "Mark Ready" for pending, confirmed, or preparing status */}
+        {(orderGroup.status === 'pending' ||
+          orderGroup.status === 'confirmed' ||
+          orderGroup.status === 'preparing') && (
           <Button
             onClick={handleMarkReady}
             disabled={isUpdating}
-            className="flex-1"
+            className="flex-1 bg-blue-600 hover:bg-blue-700"
             variant="default"
           >
             {isUpdating ? 'Updating...' : 'Mark Ready'}
           </Button>
         )}
 
+        {/* Show "Picked Up" and optional "Notify" when ready */}
         {orderGroup.status === 'ready' && (
           <>
             {onNotifyCustomer && orderGroup.customer_phone && (
@@ -224,28 +275,6 @@ export function OrderGroupCard({
               ✅ Picked Up
             </Button>
           </>
-        )}
-
-        {orderGroup.status === 'pending' && (
-          <Button
-            onClick={handleMarkReady}
-            disabled={isUpdating}
-            className="flex-1"
-            variant="secondary"
-          >
-            Start Preparing
-          </Button>
-        )}
-
-        {orderGroup.status === 'confirmed' && (
-          <Button
-            onClick={handleMarkReady}
-            disabled={isUpdating}
-            className="flex-1"
-            variant="default"
-          >
-            {isUpdating ? 'Updating...' : 'Mark Ready'}
-          </Button>
         )}
       </div>
     </div>
