@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import { logger } from '../utils/logger';
 import { OrdersService, type Order } from './orders.service';
 import { BadRequest } from '../middleware/errorHandler';
@@ -80,8 +79,9 @@ export class PaymentService {
       throw BadRequest(`Order total must be at least $${this.MINIMUM_ORDER_AMOUNT}`);
     }
 
-    // Generate server-side idempotency key
-    const idempotencyKey = `order-${order.id}-${Date.now()}-${randomUUID()}`;
+    // Generate server-side idempotency key (max 45 chars per Square)
+    // Format: last 12 chars of order ID + timestamp = 26 chars total
+    const idempotencyKey = `${order.id.slice(-12)}-${Date.now()}`;
 
     logger.info('Payment validation complete', {
       orderId: order.id,
@@ -230,7 +230,9 @@ export class PaymentService {
       throw BadRequest('Unable to determine refund amount');
     }
 
-    const idempotencyKey = `refund-${paymentId}-${Date.now()}-${randomUUID()}`;
+    // Generate refund idempotency key (max 45 chars per Square)
+    // Format: "ref-" + last 12 chars of payment ID + timestamp = 30 chars total
+    const idempotencyKey = `ref-${paymentId.slice(-12)}-${Date.now()}`;
 
     return {
       amount: refundAmount,
