@@ -118,7 +118,10 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
 
         try {
           const errorJson = JSON.parse(errorText);
-          errorMessage = errorJson.message || errorJson.error || errorMessage;
+          // Handle nested error objects: {error: {message: "..."}} or {message: "..."}
+          errorMessage = errorJson.message ||
+                        errorJson.error?.message ||
+                        (typeof errorJson.error === 'string' ? errorJson.error : errorMessage);
         } catch {
           // Use text if not JSON
           if (errorText && errorText.trim()) {

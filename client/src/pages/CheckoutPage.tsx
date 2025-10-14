@@ -79,10 +79,10 @@ const CheckoutPageContent: React.FC = () => {
       const order = orderResponse as { id: string; order_number: string };
 
       // Process demo payment (will be mocked on server)
+      // Note: Don't send 'amount' - let server calculate from order to avoid mismatch
       const paymentResponse = await paymentApi.post('/api/v1/payments/create', {
         order_id: order.id,  // ✅ snake_case per ADR-001
         token: 'demo-token',
-        amount: cart.total,
         idempotency_key: `demo-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,  // ✅ snake_case per ADR-001
       });
 
@@ -156,10 +156,10 @@ const CheckoutPageContent: React.FC = () => {
       const order = orderResponse as { id: string; order_number: string };
 
       // Now process the payment using the new API hook
+      // Note: Don't send 'amount' - let server calculate from order to avoid mismatch
       const paymentResponse = await paymentApi.post('/api/v1/payments/create', {
         order_id: order.id,  // ✅ snake_case per ADR-001
         token,
-        amount: cart.total,
         idempotency_key: `checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,  // ✅ snake_case per ADR-001
       });
 
