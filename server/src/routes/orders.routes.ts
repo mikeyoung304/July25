@@ -188,7 +188,7 @@ router.patch('/:id/status', authenticate, validateRestaurantAccess, async (req: 
       throw BadRequest('Status is required');
     }
 
-    const validStatuses: OrderStatus[] = ['new', 'pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'];
+    const validStatuses: OrderStatus[] = ['new', 'pending', 'confirmed', 'preparing', 'ready', 'picked-up', 'completed', 'cancelled'];
     if (!validStatuses.includes(status as OrderStatus)) {
       throw BadRequest(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }

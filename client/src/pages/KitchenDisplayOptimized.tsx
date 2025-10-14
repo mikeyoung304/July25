@@ -5,16 +5,18 @@ import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { VirtualizedOrderGrid } from '@/components/kitchen/VirtualizedOrderGrid'
 import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
 import { TableGroupCard } from '@/components/kitchen/TableGroupCard'
+import { OrderGroupCard } from '@/components/kitchen/OrderGroupCard'
 import { Button } from '@/components/ui/button'
-import { Filter, Clock, ChefHat, AlertCircle, BarChart3, Zap, Users, LayoutGrid } from 'lucide-react'
+import { Filter, Clock, ChefHat, AlertCircle, BarChart3, Zap, Users, LayoutGrid, Package } from 'lucide-react'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
 import { useTableGrouping, sortTableGroups } from '@/hooks/useTableGrouping'
+import { useOrderGrouping, sortOrderGroups } from '@/hooks/useOrderGrouping'
 import {  } from '@/utils'
 import type { Order } from '@rebuild/shared'
 
 type StatusFilter = 'all' | 'active' | 'ready' | 'urgent'
 type SortMode = 'priority' | 'chronological' | 'type'
-type ViewMode = 'grid' | 'tables'
+type ViewMode = 'grid' | 'tables' | 'orders'
 
 function KitchenDisplayOptimized() {
   // Use optimized hook with advanced features
@@ -32,14 +34,17 @@ function KitchenDisplayOptimized() {
   // Table grouping
   const groupedOrders = useTableGrouping(orders)
 
+  // Order grouping (for online orders)
+  const orderGroups = useOrderGrouping(orders)
+
   // Enhanced filtering and sorting state
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [sortMode, setSortMode] = useState<SortMode>('priority')
-  const [viewMode, setViewMode] = useState<ViewMode>('tables')
+  const [viewMode, setViewMode] = useState<ViewMode>('orders')
   const [showStats, setShowStats] = useState(false)
 
   // Enhanced order status handling
-  const handleStatusChange = useCallback(async (orderId: string, status: 'ready') => {
+  const handleStatusChange = useCallback(async (orderId: string, status: Order['status']) => {
     const success = await updateOrderStatus(orderId, status)
     if (!success) {
       console.error('Failed to update order status:', orderId)
@@ -157,6 +162,23 @@ function KitchenDisplayOptimized() {
                     sortMode === 'chronological' ? 'age' : 'table'
     return sortTableGroups(new Map(filtered.map(g => [g.tableNumber, g])), sortKey)
   }, [groupedOrders.tables, statusFilter, sortMode])
+
+  // Sort and filter order groups for orders view mode
+  const sortedOrderGroups = useMemo(() => {
+    // Filter by status
+    const filtered = statusFilter === 'ready'
+      ? orderGroups.filter(g => g.status === 'ready')
+      : statusFilter === 'urgent'
+      ? orderGroups.filter(g => g.urgency_level === 'urgent' || g.urgency_level === 'critical')
+      : statusFilter === 'active'
+      ? orderGroups.filter(g => !['ready', 'completed', 'cancelled'].includes(g.status))
+      : orderGroups
+
+    // Apply sorting based on sortMode
+    const sortKey = sortMode === 'priority' ? 'urgency' :
+                    sortMode === 'chronological' ? 'age' : 'order_number'
+    return sortOrderGroups(filtered, sortKey)
+  }, [orderGroups, statusFilter, sortMode])
 
   // Enhanced error and loading states
   if (error) {
@@ -310,6 +332,15 @@ function KitchenDisplayOptimized() {
               {/* View Mode Toggle */}
               <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
                 <Button
+                  variant={viewMode === 'orders' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('orders')}
+                  className="gap-1"
+                >
+                  <Package className="w-4 h-4" />
+                  Orders
+                </Button>
+                <Button
                   variant={viewMode === 'tables' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('tables')}
@@ -362,7 +393,31 @@ function KitchenDisplayOptimized() {
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {viewMode === 'tables' ? (
+        {viewMode === 'orders' ? (
+          /* Order Grouping View */
+          sortedOrderGroups.length === 0 ? (
+            <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
+              <div className="text-6xl mb-6">🚗</div>
+              <p className="text-gray-500 text-2xl mb-2">
+                {statusFilter === 'ready' ? 'No orders ready for pickup' : 'No active online orders'}
+              </p>
+              <p className="text-gray-400 text-lg">
+                Online orders will appear here grouped by order number
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {sortedOrderGroups.map(orderGroup => (
+                <OrderGroupCard
+                  key={orderGroup.order_id}
+                  orderGroup={orderGroup}
+                  onStatusChange={handleStatusChange}
+                  variant="kitchen"
+                />
+              ))}
+            </div>
+          )
+        ) : viewMode === 'tables' ? (
           /* Table Grouping View */
           sortedTableGroups.length === 0 ? (
             <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">

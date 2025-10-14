@@ -3,12 +3,13 @@
  * Single source of truth for all order-related types
  */
 
-export type OrderStatus = 
+export type OrderStatus =
   | 'new'
   | 'pending'
-  | 'confirmed' 
+  | 'confirmed'
   | 'preparing'
   | 'ready'
+  | 'picked-up'
   | 'completed'
   | 'cancelled';
 
