@@ -26,13 +26,13 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Load orders from API
+  // Load orders from API - stable with useCallback([]) to prevent dependency churn
   const loadOrders = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
       const result = await api.getOrders()
-      
+
       if (Array.isArray(result)) {
         setOrders(result)
       } else {
@@ -45,7 +45,7 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, []) // Empty deps - stable reference
 
   // Handle order status change with proper backend sync
   const updateOrderStatus = useCallback(async (orderId: string, status: Order['status']) => {
@@ -68,14 +68,24 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
 
   // Initial load on mount
   useEffect(() => {
-    if (!restaurantLoading && !restaurantError) {
+    let isMounted = true
+
+    if (!restaurantLoading && !restaurantError && isMounted) {
       loadOrders()
     }
-  }, [loadOrders, restaurantLoading, restaurantError])
+
+    return () => {
+      isMounted = false
+    }
+    // Intentionally exclude loadOrders from deps - it's stable with empty deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurantLoading, restaurantError])
 
   // WebSocket connection and subscriptions for real-time updates
   useEffect(() => {
     if (restaurantLoading || restaurantError) return
+
+    let isMounted = true // Guard against state updates after unmount
 
     // Connect to WebSocket using connection manager
     connectionManager.connect().catch((error) => {
@@ -83,6 +93,8 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
     })
 
     const unsubscribeCreated = webSocketService.subscribe('order:created', (payload: unknown) => {
+      if (!isMounted) return // Prevent state updates after unmount
+
       const data = payload as { order?: unknown } | unknown
       const rawOrder = (data as { order?: unknown })?.order || data
       if (rawOrder) {
@@ -92,6 +104,8 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
     })
 
     const unsubscribeUpdated = webSocketService.subscribe('order:updated', (payload: unknown) => {
+      if (!isMounted) return // Prevent state updates after unmount
+
       const data = payload as { order?: unknown } | unknown
       const rawOrder = (data as { order?: unknown })?.order || data
       if (rawOrder) {
@@ -101,6 +115,8 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
     })
 
     const unsubscribeDeleted = webSocketService.subscribe('order:deleted', (payload: unknown) => {
+      if (!isMounted) return // Prevent state updates after unmount
+
       const data = payload as { orderId?: string; id?: string }
       const orderId = data.orderId || data.id
       if (orderId) {
@@ -109,19 +125,25 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
     })
 
     const unsubscribeStatusChanged = webSocketService.subscribe('order:status_changed', (payload: unknown) => {
+      if (!isMounted) return // Prevent state updates after unmount
+
       const data = payload as { orderId?: string; status?: string }
       if (data.orderId && data.status) {
-        setOrders(prev => prev.map(o => 
+        setOrders(prev => prev.map(o =>
           o.id === data.orderId ? { ...o, status: data.status as Order['status'] } : o
         ))
       }
     })
 
     return () => {
+      isMounted = false // Mark as unmounted first
+
+      // Clean up subscriptions
       unsubscribeCreated()
       unsubscribeUpdated()
       unsubscribeDeleted()
       unsubscribeStatusChanged()
+
       // Disconnect from WebSocket when component unmounts
       connectionManager.disconnect()
     }

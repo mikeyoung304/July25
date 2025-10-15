@@ -20,12 +20,12 @@ interface TableGroupCardProps {
 }
 
 // Mini order card for displaying within table group
-const MiniOrderCard = ({ 
-  order, 
-  onStatusChange 
-}: { 
+const MiniOrderCard = React.memo(({
+  order,
+  onStatusChange
+}: {
   order: Order
-  onStatusChange?: (orderId: string, status: 'ready') => void 
+  onStatusChange?: (orderId: string, status: 'ready') => void
 }) => {
   const urgencyColor = useMemo(() => {
     const ageMinutes = Math.floor(
@@ -48,10 +48,16 @@ const MiniOrderCard = ({
       'completed': { color: 'bg-gray-100 text-gray-800', label: 'COMPLETED' },
       'cancelled': { color: 'bg-red-100 text-red-800', label: 'CANCELLED' }
     }
-    
+
     return statusConfig[order.status] || statusConfig['pending']
   }, [order.status])
-  
+
+  const handleMarkReady = useCallback(() => {
+    if (onStatusChange) {
+      onStatusChange(order.id, 'ready')
+    }
+  }, [onStatusChange, order.id])
+
   return (
     <div className={cn(
       "border rounded-lg p-3 transition-all hover:shadow-md",
@@ -93,26 +99,28 @@ const MiniOrderCard = ({
         <Button
           size="sm"
           className="w-full mt-2 h-8"
-          onClick={() => onStatusChange(order.id, 'ready')}
+          onClick={handleMarkReady}
         >
           Mark Ready
         </Button>
       )}
     </div>
   )
-}
+})
+
+MiniOrderCard.displayName = 'MiniOrderCard'
 
 // Circular progress indicator
-const CircularProgress = ({ 
-  value, 
-  size = 60, 
+const CircularProgress = React.memo(({
+  value,
+  size = 60,
   strokeWidth = 4,
-  label 
-}: { 
+  label
+}: {
   value: number
   size?: number
   strokeWidth?: number
-  label?: string 
+  label?: string
 }) => {
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
@@ -155,15 +163,17 @@ const CircularProgress = ({
       )}
     </div>
   )
-}
+})
 
-export const TableGroupCard: React.FC<TableGroupCardProps> = ({
+CircularProgress.displayName = 'CircularProgress'
+
+export const TableGroupCard = React.memo(({
   tableGroup,
   onOrderStatusChange,
   onBatchComplete,
   variant = 'kitchen',
   className
-}) => {
+}: TableGroupCardProps) => {
   // Determine card styling based on urgency and status
   const cardStyling = useMemo(() => {
     const baseClass = "border-2 shadow-xl transition-all"
@@ -340,4 +350,6 @@ export const TableGroupCard: React.FC<TableGroupCardProps> = ({
       </CardContent>
     </Card>
   )
-}
+})
+
+TableGroupCard.displayName = 'TableGroupCard'

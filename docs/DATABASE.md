@@ -476,3 +476,29 @@ Key metrics to monitor:
 - [Environment Variables](ENVIRONMENT.md) - Configuration guide
 - [Security Guidelines](SECURITY.md) - Security best practices
 - [Production Status](./PRODUCTION_STATUS.md) - Current readiness assessment
+
+<!-- RLS-POLICY-START -->
+## Multi-tenancy & RLS
+
+### Orders / Scheduled Orders Policies
+```sql
+-- UPDATE: tenant-scoped
+CREATE POLICY tenant_update_orders
+ON public.orders
+FOR UPDATE
+USING (restaurant_id = (current_setting('request.jwt.claims', true)::jsonb->>'restaurant_id'))
+WITH CHECK (restaurant_id = (current_setting('request.jwt.claims', true)::jsonb->>'restaurant_id'));
+
+-- Mirror for DELETE and for scheduled_orders
+```
+
+### PIN Model
+- Per-restaurant PINs
+- Constraint: `UNIQUE (restaurant_id, user_id)`
+- All PIN reads/updates include `.eq('restaurant_id', restaurantId)`
+
+### Indexes
+- `orders (restaurant_id, status)`
+- `scheduled_orders (restaurant_id, scheduled_at)`
+
+<!-- RLS-POLICY-END -->

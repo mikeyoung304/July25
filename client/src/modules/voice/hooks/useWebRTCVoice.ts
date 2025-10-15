@@ -37,10 +37,10 @@ export interface UseWebRTCVoiceReturn {
  */
 export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVoiceReturn {
   const { autoConnect: _autoConnect = true, debug = false, onTranscript, onOrderDetected, onError } = options;
-  
+
   // Get restaurant ID from environment or use default
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
-  
+
   const clientRef = useRef<WebRTCVoiceClient | null>(null);
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
   const [isRecording, setIsRecording] = useState(false);
@@ -50,108 +50,129 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [isListening, setIsListening] = useState(false);
-  
-  // Initialize client
+
+  // Store callbacks in refs to avoid client re-initialization
+  const onTranscriptRef = useRef(onTranscript);
+  const onOrderDetectedRef = useRef(onOrderDetected);
+  const onErrorRef = useRef(onError);
+
+  // Update callback refs when they change
+  useEffect(() => {
+    onTranscriptRef.current = onTranscript;
+    onOrderDetectedRef.current = onOrderDetected;
+    onErrorRef.current = onError;
+  }, [onTranscript, onOrderDetected, onError]);
+
+  // Initialize client ONCE with stable dependencies
   useEffect(() => {
     const client = new WebRTCVoiceClient({
       restaurantId,
       userId: undefined, // Can be added later when auth is properly integrated
       debug,
     });
-    
-    // Set up event listeners
-    client.on('connection.change', (state: ConnectionState) => {
+
+    clientRef.current = client;
+
+    // Cleanup only - listeners attached in separate effect
+    return () => {
+      client.disconnect();
+      client.removeAllListeners();
+      clientRef.current = null;
+    };
+  }, [restaurantId, debug]); // Minimal stable deps
+
+  // Attach/detach event listeners in separate effect
+  useEffect(() => {
+    const client = clientRef.current;
+    if (!client) return;
+
+    // Define handlers that use refs for callbacks
+    const handleConnectionChange = (state: ConnectionState) => {
       setConnectionState(state);
       // Clear any stale text when connection changes
       if (state === 'connected' || state === 'disconnected') {
         setResponseText('');
         setTranscript('');
       }
-      // Connection state changed
-    });
-    
-    client.on('transcript', (event: TranscriptEvent) => {
+    };
+
+    const handleTranscript = (event: TranscriptEvent) => {
       setTranscript(event.text);
       setLastTranscript(event);
       setIsProcessing(false);
-      
-      // Transcript received
-      
-      onTranscript?.(event);
-    });
-    
-    client.on('order.detected', (event: OrderEvent) => {
-      // Order detected
-      onOrderDetected?.(event);
-    });
-    
-    client.on('response.text', (text: string) => {
-      // If empty text, clear the response (signal to reset)
+      onTranscriptRef.current?.(event);
+    };
+
+    const handleOrderDetected = (event: OrderEvent) => {
+      onOrderDetectedRef.current?.(event);
+    };
+
+    const handleResponseText = (text: string) => {
       if (!text) {
         setResponseText('');
       } else {
-        // For actual text, replace (not accumulate) to show current state
         setResponseText(text);
       }
-    });
-    
-    client.on('response.complete', () => {
+    };
+
+    const handleResponseComplete = () => {
       setIsProcessing(false);
-    });
-    
-    client.on('speech.started', () => {
+    };
+
+    const handleSpeechStarted = () => {
       setIsProcessing(true);
       setIsListening(true);
-      setTranscript(''); // Clear previous transcript
-      setResponseText(''); // Clear previous response
-      if (debug) {
-        // Speech started
-      }
-    });
-    
-    client.on('speech.stopped', () => {
-      // User stopped speaking, processing will continue
+      setTranscript('');
+      setResponseText('');
+    };
+
+    const handleSpeechStopped = () => {
       setIsListening(false);
-      if (debug) {
-        // Speech stopped
-      }
-    });
-    
-    client.on('recording.started', () => {
+    };
+
+    const handleRecordingStarted = () => {
       setIsRecording(true);
-      // Clear any stale responses when starting to record
       setResponseText('');
       setTranscript('');
-    });
-    
-    client.on('recording.stopped', () => {
+    };
+
+    const handleRecordingStopped = () => {
       setIsRecording(false);
-    });
-    
-    client.on('error', (err: Error) => {
+    };
+
+    const handleError = (err: Error) => {
       console.error('[useWebRTCVoice] Error:', err);
       setError(err);
       setIsProcessing(false);
-      onError?.(err);
-    });
-    
-    clientRef.current = client;
-    
-    // Auto-connect is disabled for WebRTC - user must click button
-    // if (autoConnect) {
-    //   client.connect().catch(err => {
-    //     console.error('[useWebRTCVoice] Auto-connect failed:', err);
-    //     setError(err);
-    //   });
-    // }
-    
-    // Cleanup
-    return () => {
-      client.disconnect();
-      client.removeAllListeners();
-      clientRef.current = null;
+      onErrorRef.current?.(err);
     };
-  }, [debug, onError, onOrderDetected, onTranscript, restaurantId]); // Include all dependencies
+
+    // Attach all listeners
+    client.on('connection.change', handleConnectionChange);
+    client.on('transcript', handleTranscript);
+    client.on('order.detected', handleOrderDetected);
+    client.on('response.text', handleResponseText);
+    client.on('response.complete', handleResponseComplete);
+    client.on('speech.started', handleSpeechStarted);
+    client.on('speech.stopped', handleSpeechStopped);
+    client.on('recording.started', handleRecordingStarted);
+    client.on('recording.stopped', handleRecordingStopped);
+    client.on('error', handleError);
+
+    // Cleanup: detach all listeners
+    return () => {
+      client.off('connection.change', handleConnectionChange);
+      client.off('transcript', handleTranscript);
+      client.off('order.detected', handleOrderDetected);
+      client.off('response.text', handleResponseText);
+      client.off('response.complete', handleResponseComplete);
+      client.off('speech.started', handleSpeechStarted);
+      client.off('speech.stopped', handleSpeechStopped);
+      client.off('recording.started', handleRecordingStarted);
+      client.off('recording.stopped', handleRecordingStopped);
+      client.off('error', handleError);
+    };
+  }, []); // Empty deps - only attach/detach once
   
   // Connect to service
   const connect = useCallback(async () => {

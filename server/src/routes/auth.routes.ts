@@ -15,50 +15,46 @@ import {
 const router = Router();
 
 // Constants for demo auth
-const DEMO_ROLE = 'kiosk_demo';
 const DEMO_SCOPES = ['menu:read', 'orders:create', 'ai.voice:chat', 'payments:process'];
 const ALLOWED_DEMO_RESTAURANTS = [
   '11111111-1111-1111-1111-111111111111' // Default demo restaurant
 ];
 
 /**
- * POST /api/v1/auth/kiosk
- * Issues a short-lived JWT for kiosk demo sessions
+ * POST /api/v1/auth/demo-session
+ * Issues a short-lived JWT for demo sessions (replaces client-side credentials)
  */
-router.post('/kiosk', 
+router.post('/demo-session',
   authRateLimiters.checkSuspicious,
   authRateLimiters.kiosk,
   async (req: Request, res: Response) => {
   try {
-    const { restaurantId } = req.body;
+    const { role, restaurantId } = req.body;
 
-    // Validate restaurant ID
-    if (!restaurantId) {
-      throw BadRequest('restaurantId is required');
+    // Validate inputs
+    if (!role || !restaurantId) {
+      throw BadRequest('role and restaurantId are required');
     }
 
     if (!ALLOWED_DEMO_RESTAURANTS.includes(restaurantId)) {
       throw BadRequest('Invalid restaurant ID for demo');
     }
 
-    // Get JWT secret with fallback chain for resilience
-    const jwtSecret = process.env['KIOSK_JWT_SECRET'] || 
-                     process.env['SUPABASE_JWT_SECRET'] ||
-                     (process.env['NODE_ENV'] === 'development' ? 
-                      'demo-secret-key-for-local-development-only' : null);
-    
+    // Get JWT secret (no fallbacks for security)
+    const jwtSecret = process.env['SUPABASE_JWT_SECRET'];
     if (!jwtSecret) {
-      logger.error('KIOSK_JWT_SECRET not configured - see docs/DEMO_AUTH_SETUP.md');
-      throw BadRequest('Demo authentication not configured. Please contact support or see docs/DEMO_AUTH_SETUP.md for setup instructions.');
+      logger.error('⛔ JWT_SECRET not configured - demo auth cannot proceed');
+      throw new Error('Server authentication not configured');
     }
 
     // Generate random demo user ID
     const randomId = Math.random().toString(36).substring(2, 15);
-    
+    const demoUserId = `demo:${role}:${randomId}`;
+
     // Create JWT payload
     const payload = {
-      sub: `demo:${randomId}`,
-      role: DEMO_ROLE,
+      sub: demoUserId,
+      role: role,
       restaurant_id: restaurantId,
       scope: DEMO_SCOPES,
       iat: Math.floor(Date.now() / 1000),
@@ -68,19 +64,24 @@ router.post('/kiosk',
     // Sign the token
     const token = jwt.sign(payload, jwtSecret, { algorithm: 'HS256' });
 
-    logger.info('Demo kiosk token issued', {
-      restaurantId,
-      demoUserId: payload.sub,
-      expiresIn: 3600
+    logger.info('demo_session_created', {
+      user_id: demoUserId,
+      restaurant_id: restaurantId
     });
 
     res.json({
+      user: {
+        id: demoUserId,
+        role: role,
+        scopes: DEMO_SCOPES
+      },
       token,
-      expiresIn: 3600
+      expiresIn: 3600,
+      restaurantId
     });
 
   } catch (error) {
-    logger.error('Kiosk auth error:', error);
+    logger.error('Demo session creation failed:', error);
     throw error;
   }
 });
@@ -96,51 +97,27 @@ router.post('/login',
   try {
     const { email, password, restaurantId } = req.body;
 
-    // 🔍 DIAGNOSTIC LOGGING
-    logger.info('🔍 LOGIN ATTEMPT:', {
-      email,
-      restaurantId,
-      hasPassword: !!password,
-      passwordLength: password?.length,
-      ip: req.ip,
-      userAgent: req.headers['user-agent'],
-      origin: req.headers.origin,
-      referer: req.headers.referer
-    });
-
     // Validate input
     if (!email || !password) {
-      logger.warn('🔍 LOGIN VALIDATION FAILED: Missing email or password');
+      logger.warn('auth_validation_fail', { reason: 'missing_credentials', restaurant_id: restaurantId });
       throw BadRequest('Email and password are required');
     }
 
     if (!restaurantId) {
-      logger.warn('🔍 LOGIN VALIDATION FAILED: Missing restaurantId');
+      logger.warn('auth_validation_fail', { reason: 'missing_restaurant_id' });
       throw BadRequest('Restaurant ID is required');
     }
 
     // Authenticate with Supabase using anon client
-    logger.info('🔍 CALLING SUPABASE AUTH...');
     const { data: authData, error: authError } = await supabaseAuth.auth.signInWithPassword({
       email,
       password
     });
 
     if (authError || !authData.user) {
-      logger.warn('🔍 SUPABASE AUTH FAILED:', {
-        email,
-        error: authError?.message,
-        errorCode: authError?.status,
-        errorName: authError?.name
-      });
+      logger.warn('auth_fail', { reason: authError?.message, restaurant_id: restaurantId });
       throw Unauthorized('Invalid email or password');
     }
-
-    logger.info('🔍 SUPABASE AUTH SUCCESS:', {
-      userId: authData.user.id,
-      email: authData.user.email,
-      hasSession: !!authData.session
-    });
 
     // Check user's role in the restaurant
     const { data: userRole, error: _roleError } = await supabase
@@ -151,10 +128,7 @@ router.post('/login',
       .single();
 
     if (_roleError || !userRole) {
-      logger.warn('User has no access to restaurant', {
-        userId: authData.user.id,
-        restaurantId
-      });
+      logger.warn('auth_fail', { reason: 'no_restaurant_access', restaurant_id: restaurantId });
       throw Unauthorized('No access to this restaurant');
     }
 
@@ -176,20 +150,14 @@ router.post('/login',
       .eq('role', userRole.role);
 
     if (scopesError) {
-      logger.warn('Failed to fetch user scopes', {
-        role: userRole.role,
-        error: scopesError.message
-      });
+      logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
     }
 
     const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
 
-    logger.info('User logged in successfully', {
-      userId: authData.user.id,
-      email,
-      role: userRole.role,
-      scopes,
-      restaurantId
+    logger.info('auth_success', {
+      user_id: authData.user.id,
+      restaurant_id: restaurantId
     });
 
     // Reset rate limiting on successful auth
@@ -236,14 +204,16 @@ router.post('/pin-login',
     const result = await validatePin(pin, restaurantId);
 
     if (!result.isValid) {
-      logger.warn('PIN login failed', { restaurantId, error: result.error });
+      logger.warn('auth_fail', { reason: 'invalid_pin', restaurant_id: restaurantId });
       throw Unauthorized(result.error || 'Invalid PIN');
     }
 
-    // Generate JWT token for PIN user
-    const jwtSecret = process.env['KIOSK_JWT_SECRET'] || 
-                     process.env['SUPABASE_JWT_SECRET'] ||
-                     'pin-secret-change-in-production';
+    // Generate JWT token for PIN user (no fallbacks for security)
+    const jwtSecret = process.env['SUPABASE_JWT_SECRET'];
+    if (!jwtSecret) {
+      logger.error('⛔ JWT_SECRET not configured - PIN auth cannot proceed');
+      throw new Error('Server authentication not configured');
+    }
 
     const payload = {
       sub: result.userId,
@@ -264,19 +234,14 @@ router.post('/pin-login',
       .eq('role', result.role);
 
     if (scopesError) {
-      logger.warn('Failed to fetch user scopes for PIN login', {
-        role: result.role,
-        error: scopesError.message
-      });
+      logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
     }
 
     const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
 
-    logger.info('PIN login successful', {
-      userId: result.userId,
-      role: result.role,
-      scopes,
-      restaurantId
+    logger.info('auth_success', {
+      user_id: result.userId,
+      restaurant_id: restaurantId
     });
 
     res.json({
@@ -324,11 +289,9 @@ router.post('/station-login',
       createdBy: req.user!.id
     });
 
-    logger.info('Station login successful', {
-      stationType,
-      stationName,
-      restaurantId,
-      createdBy: req.user!.id
+    logger.info('auth_success', {
+      user_id: `station:${stationType}:${stationName}`,
+      restaurant_id: restaurantId
     });
 
     res.json({
@@ -372,9 +335,9 @@ router.post('/logout', authenticate, async (req: AuthenticatedRequest, res: Resp
       logger.debug('Supabase signout error (ignored):', error);
     }
 
-    logger.info('User logged out', {
-      userId,
-      restaurantId
+    logger.info('logout_success', {
+      user_id: userId,
+      restaurant_id: restaurantId
     });
 
     res.json({
@@ -420,10 +383,7 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response,
       .eq('role', role);
 
     if (scopesError) {
-      logger.warn('Failed to fetch user scopes for /auth/me', {
-        role,
-        error: scopesError.message
-      });
+      logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
     }
 
     const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
@@ -466,12 +426,12 @@ router.post('/refresh',
     });
 
     if (authError || !authData.session) {
-      logger.warn('Token refresh failed', { error: authError?.message });
+      logger.warn('token_refresh_fail', { reason: 'invalid_token' });
       throw Unauthorized('Invalid refresh token');
     }
 
-    logger.info('Token refreshed successfully', {
-      userId: authData.user?.id
+    logger.info('token_refresh_success', {
+      user_id: authData.user?.id
     });
 
     res.json({
@@ -508,9 +468,9 @@ router.post('/set-pin', authenticate, async (req: AuthenticatedRequest, res: Res
       pin
     });
 
-    logger.info('PIN set successfully', {
-      userId,
-      restaurantId
+    logger.info('pin_set_success', {
+      user_id: userId,
+      restaurant_id: restaurantId
     });
 
     res.json({
@@ -538,9 +498,8 @@ router.post('/revoke-stations', authenticate, requireScopes(ApiScope.STAFF_MANAG
 
     const revokedCount = await revokeAllStationTokens(restaurantId, userId);
 
-    logger.info('Station tokens revoked', {
-      restaurantId,
-      revokedBy: userId,
+    logger.info('station_tokens_revoked', {
+      restaurant_id: restaurantId,
       count: revokedCount
     });
 

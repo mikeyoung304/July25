@@ -61,6 +61,7 @@ export async function checkAndFireScheduledOrders(
           updated_at: now
         })
         .eq('id', order.id)
+        .eq('restaurant_id', restaurantId) // Multi-tenancy guard
     )
 
     await Promise.all(updates)

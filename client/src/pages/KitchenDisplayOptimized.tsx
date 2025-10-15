@@ -20,7 +20,7 @@ type SortMode = 'priority' | 'chronological' | 'type'
 type ViewMode = 'grid' | 'tables' | 'orders'
 type OrderTypeFilter = 'all' | 'drive-thru' | 'counter'  // Simplified: drive-thru = online, counter = dining
 
-function KitchenDisplayOptimized() {
+const KitchenDisplayOptimized = React.memo(() => {
   // Use optimized hook with advanced features
   const {
     orders,
@@ -48,6 +48,22 @@ function KitchenDisplayOptimized() {
   const [viewMode, setViewMode] = useState<ViewMode>('orders')
   const [orderTypeFilter, setOrderTypeFilter] = useState<OrderTypeFilter>('all')
   const [showStats, setShowStats] = useState(false)
+
+  // Stable handlers for UI controls
+  const toggleStats = useCallback(() => setShowStats(prev => !prev), [])
+  const setStatusAll = useCallback(() => setStatusFilter('all'), [])
+  const setStatusActive = useCallback(() => setStatusFilter('active'), [])
+  const setStatusReady = useCallback(() => setStatusFilter('ready'), [])
+  const setStatusUrgent = useCallback(() => setStatusFilter('urgent'), [])
+  const setOrderTypeAll = useCallback(() => setOrderTypeFilter('all'), [])
+  const setOrderTypeDriveThru = useCallback(() => setOrderTypeFilter('drive-thru'), [])
+  const setOrderTypeCounter = useCallback(() => setOrderTypeFilter('counter'), [])
+  const setViewOrders = useCallback(() => setViewMode('orders'), [])
+  const setViewTables = useCallback(() => setViewMode('tables'), [])
+  const setViewGrid = useCallback(() => setViewMode('grid'), [])
+  const setSortPriority = useCallback(() => setSortMode('priority'), [])
+  const setSortChronological = useCallback(() => setSortMode('chronological'), [])
+  const setSortType = useCallback(() => setSortMode('type'), [])
 
   // Enhanced order status handling
   const handleStatusChange = useCallback(async (orderId: string, status: Order['status']) => {
@@ -270,7 +286,7 @@ function KitchenDisplayOptimized() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowStats(!showStats)}
+                onClick={toggleStats}
               >
                 <BarChart3 className="w-4 h-4" />
               </Button>
@@ -319,21 +335,21 @@ function KitchenDisplayOptimized() {
                 <Button
                   variant={statusFilter === 'all' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setStatusFilter('all')}
+                  onClick={setStatusAll}
                 >
                   All ({orders.filter(o => !['completed', 'cancelled'].includes(o.status)).length})
                 </Button>
                 <Button
                   variant={statusFilter === 'active' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setStatusFilter('active')}
+                  onClick={setStatusActive}
                 >
                   Active ({stats.active})
                 </Button>
                 <Button
                   variant={statusFilter === 'ready' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setStatusFilter('ready')}
+                  onClick={setStatusReady}
                 >
                   Ready ({stats.ready})
                 </Button>
@@ -341,7 +357,7 @@ function KitchenDisplayOptimized() {
                   <Button
                     variant={statusFilter === 'urgent' ? 'destructive' : 'outline'}
                     size="sm"
-                    onClick={() => setStatusFilter('urgent')}
+                    onClick={setStatusUrgent}
                     className="text-red-600 border-red-300"
                   >
                     <AlertCircle className="w-3 h-3 mr-1" />
@@ -358,14 +374,14 @@ function KitchenDisplayOptimized() {
                 <Button
                   variant={orderTypeFilter === 'all' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setOrderTypeFilter('all')}
+                  onClick={setOrderTypeAll}
                 >
                   All Orders
                 </Button>
                 <Button
                   variant={orderTypeFilter === 'drive-thru' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setOrderTypeFilter('drive-thru')}
+                  onClick={setOrderTypeDriveThru}
                   className={orderTypeFilter === 'drive-thru' ? 'bg-accent hover:bg-accent-600' : ''}
                 >
                   Online
@@ -373,7 +389,7 @@ function KitchenDisplayOptimized() {
                 <Button
                   variant={orderTypeFilter === 'counter' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setOrderTypeFilter('counter')}
+                  onClick={setOrderTypeCounter}
                   className={orderTypeFilter === 'counter' ? 'bg-amber-500 hover:bg-amber-600' : ''}
                 >
                   Dine-In
@@ -389,7 +405,7 @@ function KitchenDisplayOptimized() {
                 <Button
                   variant={viewMode === 'orders' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setViewMode('orders')}
+                  onClick={setViewOrders}
                   className="gap-1"
                 >
                   <Package className="w-4 h-4" />
@@ -398,7 +414,7 @@ function KitchenDisplayOptimized() {
                 <Button
                   variant={viewMode === 'tables' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setViewMode('tables')}
+                  onClick={setViewTables}
                   className="gap-1"
                 >
                   <Users className="w-4 h-4" />
@@ -407,7 +423,7 @@ function KitchenDisplayOptimized() {
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setViewMode('grid')}
+                  onClick={setViewGrid}
                   className="gap-1"
                 >
                   <LayoutGrid className="w-4 h-4" />
@@ -420,7 +436,7 @@ function KitchenDisplayOptimized() {
               <Button
                 variant={sortMode === 'priority' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSortMode('priority')}
+                onClick={setSortPriority}
               >
                 <Zap className="w-3 h-3 mr-1" />
                 Priority
@@ -428,7 +444,7 @@ function KitchenDisplayOptimized() {
               <Button
                 variant={sortMode === 'chronological' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSortMode('chronological')}
+                onClick={setSortChronological}
               >
                 <Clock className="w-3 h-3 mr-1" />
                 Time
@@ -436,7 +452,7 @@ function KitchenDisplayOptimized() {
               <Button
                 variant={sortMode === 'type' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSortMode('type')}
+                onClick={setSortType}
               >
                 <Filter className="w-3 h-3 mr-1" />
                 Type
@@ -546,7 +562,9 @@ function KitchenDisplayOptimized() {
       )}
     </div>
   )
-}
+})
+
+KitchenDisplayOptimized.displayName = 'KitchenDisplayOptimized'
 
 // Wrap with KDS error boundary for resilience
 const KitchenDisplayOptimizedWithErrorBoundary = () => (
@@ -554,5 +572,7 @@ const KitchenDisplayOptimizedWithErrorBoundary = () => (
     <KitchenDisplayOptimized />
   </KDSErrorBoundary>
 )
+
+KitchenDisplayOptimizedWithErrorBoundary.displayName = 'KitchenDisplayOptimizedWithErrorBoundary'
 
 export default KitchenDisplayOptimizedWithErrorBoundary

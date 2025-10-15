@@ -11,7 +11,7 @@ export const TipSlider: React.FC<TipSliderProps> = ({ subtotal, onTipChange, ini
   const [tipPercentage, setTipPercentage] = useState(18);
   const [customTip, setCustomTip] = useState<string>('');
   const [isCustom, setIsCustom] = useState(false);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const tipOptions = useMemo(() => [
     { percentage: 15, label: '15%' },

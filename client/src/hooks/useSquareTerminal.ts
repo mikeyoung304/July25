@@ -117,8 +117,8 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
   const { toast } = useToast();
 
   // Refs for cleanup
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isUnmountedRef = useRef(false);
 
   // Cleanup function

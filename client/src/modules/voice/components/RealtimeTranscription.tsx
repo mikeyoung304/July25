@@ -34,7 +34,7 @@ export const RealtimeTranscription: React.FC<RealtimeTranscriptionProps> = ({
   const [displayText, setDisplayText] = useState('');
   const [showCursor, setShowCursor] = useState(false);
   const previousTextRef = useRef('');
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Handle text changes with typing effect
   useEffect(() => {

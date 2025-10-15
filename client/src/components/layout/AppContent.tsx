@@ -1,3 +1,4 @@
+import React, { memo, useMemo } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { useLocation } from 'react-router-dom'
 import { SkipNavigation } from '@/components/shared/accessibility/SkipNavigation'
@@ -10,18 +11,19 @@ interface AppContentProps {
   isDevelopment: boolean
 }
 
-export function AppContent({ isDevelopment }: AppContentProps) {
+export const AppContent = memo(({ isDevelopment }: AppContentProps) => {
   useGlobalKeyboardShortcuts()
   const location = useLocation()
-  
+
   // Hide header on customer-facing order flow pages and kiosk pages
-  const isCustomerOrderPage = location.pathname.startsWith('/order') || 
-                              location.pathname.startsWith('/checkout') || 
-                              location.pathname.startsWith('/order-confirmation') ||
-                              location.pathname.startsWith('/kiosk')
-  
-  const showHeader = !isCustomerOrderPage
-  
+  const showHeader = useMemo(() => {
+    const isCustomerOrderPage = location.pathname.startsWith('/order') ||
+                                location.pathname.startsWith('/checkout') ||
+                                location.pathname.startsWith('/order-confirmation') ||
+                                location.pathname.startsWith('/kiosk')
+    return !isCustomerOrderPage
+  }, [location.pathname])
+
   return (
     <>
       <SkipNavigation />
@@ -35,4 +37,6 @@ export function AppContent({ isDevelopment }: AppContentProps) {
       </div>
     </>
   )
-}
+})
+
+AppContent.displayName = 'AppContent'

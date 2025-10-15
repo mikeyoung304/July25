@@ -33,13 +33,20 @@ export class WebSocketService extends EventEmitter {
   private reconnectTimer: NodeJS.Timeout | null = null
   private connectionState: ConnectionState = 'disconnected'
   private isIntentionallyClosed = false
+  // Guard flag: prevents concurrent reconnection attempts and timer scheduling
+  private isReconnecting = false
   private lastHeartbeat: number = 0
   private heartbeatTimer: NodeJS.Timeout | null = null
   private heartbeatInterval = 30000 // 30 seconds
 
   constructor(config: WebSocketConfig = {}) {
     super()
-    
+
+    // Dev-only instrumentation for e2e tests
+    if (import.meta.env.DEV) {
+      (window as any).__dbgWS = (window as any).__dbgWS || { connectCount: 0, subCount: 0 }
+    }
+
     // Set default configuration with enhanced resilience settings
     this.config = {
       url: config.url || this.buildWebSocketUrl(),
@@ -60,9 +67,15 @@ export class WebSocketService extends EventEmitter {
    * Connect to WebSocket server
    */
   async connect(): Promise<void> {
-    // Check both WebSocket state and connection state
+    // Guard: prevent double connection attempts
     if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
-      console.warn('WebSocket already connected or connecting')
+      console.warn('[WebSocket] Already connected or connecting, skipping...')
+      return
+    }
+
+    // Guard: prevent connection during reconnection cycle
+    if (this.isReconnecting) {
+      console.warn('[WebSocket] Reconnection in progress, skipping connect...')
       return
     }
 
@@ -106,7 +119,12 @@ export class WebSocketService extends EventEmitter {
 
       // Create WebSocket connection
       this.ws = new WebSocket(wsUrl.toString())
-      
+
+      // Dev-only: Track connection count
+      if (import.meta.env.DEV && (window as any).__dbgWS) {
+        (window as any).__dbgWS.connectCount++
+      }
+
       // Set up event handlers
       this.ws.onopen = this.handleOpen.bind(this)
       this.ws.onmessage = this.handleMessage.bind(this)
@@ -125,24 +143,30 @@ export class WebSocketService extends EventEmitter {
    */
   disconnect(): void {
     this.isIntentionallyClosed = true
+    this.isReconnecting = false // Reset reconnection flag on disconnect
     this.stopHeartbeat()
-    
+
     // Clear reconnect timer first to prevent reconnection
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
-    
+
     if (this.ws) {
       // Close with proper code and reason
       if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
         this.ws.close(1000, 'Client disconnect')
       }
       this.ws = null
+
+      // Dev-only: Decrement connection count
+      if (import.meta.env.DEV && (window as any).__dbgWS) {
+        (window as any).__dbgWS.connectCount--
+      }
     }
-    
+
     this.setConnectionState('disconnected')
-    
+
     // Clean up after setting state and closing connection
     this.cleanup()
   }
@@ -180,7 +204,12 @@ export class WebSocketService extends EventEmitter {
     callback: (payload: T) => void
   ): () => void {
     logger.info(`[WebSocket] Creating subscription for message type: '${messageType}'`)
-    
+
+    // Dev-only: Track subscription count
+    if (import.meta.env.DEV && (window as any).__dbgWS) {
+      (window as any).__dbgWS.subCount++
+    }
+
     const handler = (message: WebSocketMessage) => {
       logger.info(`[WebSocket] Subscription handler checking: ${message.type} === ${messageType}?`)
       if (message.type === messageType) {
@@ -188,12 +217,17 @@ export class WebSocketService extends EventEmitter {
         callback(message.payload as T)
       }
     }
-    
+
     this.on('message', handler)
-    
+
     // Return unsubscribe function
     return () => {
       this.off('message', handler)
+
+      // Dev-only: Decrement subscription count
+      if (import.meta.env.DEV && (window as any).__dbgWS) {
+        (window as any).__dbgWS.subCount--
+      }
     }
   }
 
@@ -214,6 +248,7 @@ export class WebSocketService extends EventEmitter {
   private handleOpen(): void {
     console.warn('WebSocket connected')
     this.reconnectAttempts = 0
+    this.isReconnecting = false // Reset reconnection flag on successful connection
     this.lastHeartbeat = Date.now()
     this.setConnectionState('connected')
     this.startHeartbeat()
@@ -300,67 +335,83 @@ export class WebSocketService extends EventEmitter {
   }
 
   private scheduleReconnect(): void {
+    // Guard: Prevent double reconnection scheduling
+    if (this.isReconnecting) {
+      console.warn('[WebSocket] Reconnection already scheduled, skipping...')
+      return
+    }
+
     // Clear any existing reconnect timer first to prevent memory leaks
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
-    
+
     if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
       console.error('Max reconnection attempts reached')
+      this.isReconnecting = false
       this.emit('maxReconnectAttemptsReached')
       return
     }
-    
+
+    this.isReconnecting = true
     this.reconnectAttempts++
-    
+
     // Improved exponential backoff with jitter
     // Start with 2 seconds, double each time, max 30 seconds
     const baseDelay = Math.min(2000 * Math.pow(2, this.reconnectAttempts - 1), 30000)
-    
+
     // Add 0-25% jitter to prevent thundering herd
     const jitterPercent = Math.random() * 0.25
     const jitter = baseDelay * jitterPercent
-    
+
     const delay = Math.min(baseDelay + jitter, 30000) // Ensure max 30 seconds
-    
+
     console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${Math.round(delay)}ms (exponential backoff with jitter)`)
-    
-    this.reconnectTimer = setTimeout(() => {
-      this.reconnectTimer = null // Clear reference after execution
-      
-      // Only reconnect if still disconnected
-      if (!this.isConnected() && !this.isIntentionallyClosed) {
-        this.connect()
+
+    this.reconnectTimer = setTimeout(async () => {
+      try {
+        this.reconnectTimer = null // Clear reference after execution
+
+        // Only reconnect if still disconnected
+        if (!this.isConnected() && !this.isIntentionallyClosed) {
+          await this.connect()
+        }
+      } finally {
+        // ALWAYS reset flag, even if connect() throws
+        this.isReconnecting = false
       }
     }, delay)
   }
 
   private cleanup(): void {
+    // Reset reconnection state
+    this.isReconnecting = false
+
     // Clear reconnect timer
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
-    
+
     // Stop heartbeat
     this.stopHeartbeat()
-    
+
     // Remove all WebSocket event handlers to prevent memory leaks
     if (this.ws) {
       this.ws.onopen = null
       this.ws.onmessage = null
       this.ws.onerror = null
       this.ws.onclose = null
-      
+
       // Close connection if still open
       if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
         this.ws.close(1000, 'Cleanup')
       }
-      
+
       this.ws = null
     }
-    
+
     // Clear all event listeners from EventEmitter
     this.removeAllListeners()
   }

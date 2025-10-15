@@ -12,9 +12,6 @@ interface DemoRole {
   id: string;
   name: string;
   icon: React.ReactNode;
-  email: string;
-  password: string;
-  pin?: string;
   iconBg: string;
 }
 
@@ -23,61 +20,43 @@ const demoRoles: DemoRole[] = [
     id: 'manager',
     name: 'Manager',
     icon: <Settings className="h-6 w-6" />,
-    iconBg: 'bg-gray-500/10 text-gray-600',
-    email: 'manager@restaurant.com',
-    password: 'Demo123!',
-    pin: '1234'
+    iconBg: 'bg-gray-500/10 text-gray-600'
   },
   {
     id: 'server',
     name: 'Server',
     icon: <Users className="h-6 w-6" />,
-    iconBg: 'bg-blue-500/10 text-blue-600',
-    email: 'server@restaurant.com',
-    password: 'Demo123!',
-    pin: '5678'
+    iconBg: 'bg-blue-500/10 text-blue-600'
   },
   {
     id: 'kitchen',
     name: 'Kitchen',
     icon: <ChefHat className="h-6 w-6" />,
-    iconBg: 'bg-orange-500/10 text-orange-600',
-    email: 'kitchen@restaurant.com',
-    password: 'Demo123!',
-    pin: '9012'
+    iconBg: 'bg-orange-500/10 text-orange-600'
   },
   {
     id: 'expo',
     name: 'Expo',
     icon: <Package className="h-6 w-6" />,
-    iconBg: 'bg-purple-500/10 text-purple-600',
-    email: 'expo@restaurant.com',
-    password: 'Demo123!',
-    pin: '3456'
+    iconBg: 'bg-purple-500/10 text-purple-600'
   },
   {
     id: 'cashier',
     name: 'Cashier',
     icon: <CreditCard className="h-6 w-6" />,
-    iconBg: 'bg-green-500/10 text-green-600',
-    email: 'cashier@restaurant.com',
-    password: 'Demo123!',
-    pin: '7890'
+    iconBg: 'bg-green-500/10 text-green-600'
   },
   {
     id: 'orders',
     name: 'Orders',
     icon: <ShoppingCart className="h-6 w-6" />,
-    iconBg: 'bg-indigo-500/10 text-indigo-600',
-    email: 'server@restaurant.com',
-    password: 'Demo123!',
-    pin: '5678'
+    iconBg: 'bg-indigo-500/10 text-indigo-600'
   }
 ];
 
 export function DevAuthOverlay() {
   const navigate = useNavigate();
-  const { login, loginWithPin } = useAuth();
+  const { loginAsDemo } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
@@ -90,30 +69,28 @@ export function DevAuthOverlay() {
     console.log('🎯 [DevAuth] Step 1: handleRoleSelect started for', role.name);
     setIsLoading(true);
     setSelectedRole(role.id);
-    const restaurantId = '11111111-1111-1111-1111-111111111111';
 
     try {
-      console.log('🎯 [DevAuth] Step 2: Calling login() with', role.email);
+      console.log('🎯 [DevAuth] Step 2: Requesting demo session for', role.id);
       const loginStart = Date.now();
 
-      // Login and wait for session to be fully established
-      await login(role.email, role.password, restaurantId);
+      // Request demo session from server (no credentials in client)
+      await loginAsDemo(role.id);
 
       const loginDuration = Date.now() - loginStart;
-      console.log(`🎯 [DevAuth] Step 3: login() completed in ${loginDuration}ms`);
+      console.log(`🎯 [DevAuth] Step 3: loginAsDemo() completed in ${loginDuration}ms`);
 
       logger.info(`✅ Demo login completed for ${role.name}, session ready`);
       toast.success(`Logged in as ${role.name}`);
 
       // Navigate to staff home page (navigation hub)
-      // Staff can then choose their specific workspace
       const destination = '/home';
 
       console.log('🎯 [DevAuth] Step 4: Waiting 100ms before navigation');
       // Small delay to ensure React state updates propagate
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Use React Router navigation instead of hard reload
+      // Use React Router navigation
       console.log(`🎯 [DevAuth] Step 5: Navigating to ${destination}`);
       logger.info(`🚀 Navigating to ${destination}`);
       navigate(destination, { replace: true });
@@ -148,10 +125,10 @@ export function DevAuthOverlay() {
             </div>
           </div>
           <p className="text-gray-600 mt-4 text-sm">
-            Select a role to instantly log in
+            Select a role to request demo access
           </p>
           <div className="mt-2 inline-flex items-center gap-2 text-xs bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
-            Demo Mode • Password: Demo123!
+            Demo Mode • Temporary Access
           </div>
         </motion.div>
 

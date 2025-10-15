@@ -45,31 +45,17 @@ export async function authenticate(
     // Test tokens are no longer supported for security reasons
     // Use proper JWT tokens in all environments
 
-    // Verify JWT with proper signature validation
+    // Verify JWT with single configured secret (no fallbacks for security)
+    const jwtSecret = config.supabase.jwtSecret;
+    if (!jwtSecret) {
+      logger.error('⛔ JWT_SECRET not configured - authentication cannot proceed');
+      throw new Error('Server authentication not configured');
+    }
+
     let decoded: any;
     try {
-      // Try kiosk JWT secret first (for demo tokens)
-      const kioskSecret = process.env['KIOSK_JWT_SECRET'];
-      
-      if (kioskSecret) {
-        try {
-          decoded = jwt.verify(token, kioskSecret) as any;
-        } catch (kioskError) {
-          // If kiosk JWT fails, try Supabase JWT
-          if (!config.supabase.jwtSecret) {
-            throw new Error('JWT secret not configured - authentication cannot proceed');
-          }
-          decoded = jwt.verify(token, config.supabase.jwtSecret) as any;
-        }
-      } else {
-        // No kiosk secret, use Supabase JWT
-        if (!config.supabase.jwtSecret) {
-          throw new Error('JWT secret not configured - authentication cannot proceed');
-        }
-        decoded = jwt.verify(token, config.supabase.jwtSecret) as any;
-      }
+      decoded = jwt.verify(token, jwtSecret) as any;
     } catch (error) {
-      logger.error('Token verification failed:', error instanceof Error ? error.message : String(error));
       if (error instanceof jwt.TokenExpiredError) {
         throw Unauthorized('Token expired');
       } else if (error instanceof jwt.JsonWebTokenError) {
@@ -133,76 +119,31 @@ export async function verifyWebSocketAuth(
     const token = url.searchParams.get('token');
 
     if (!token) {
-      // In development, allow anonymous connections with warning
-      if (config.nodeEnv === 'development') {
-        logger.warn('⚠️ WebSocket: Anonymous connection (no token) - dev mode only');
-        return {
-          userId: 'anonymous',
-          restaurantId: config.restaurant.defaultId,
-        };
+      // In production, always reject connections without token
+      if (config.nodeEnv === 'production') {
+        logger.warn('WebSocket auth rejected: no token in production');
+        return null;
       }
-      return null;
-    }
-
-    // STRICT_AUTH mode - no bypasses allowed
-    const strictAuth = process.env['STRICT_AUTH'] === 'true';
-    
-    // In strict auth mode, never allow test tokens
-    if (strictAuth && token === 'test-token') {
-      logger.error('⛔ WebSocket: STRICT_AUTH enabled - test token rejected');
-      return null;
-    }
-    
-    // Legacy test token support for tests only
-    if (process.env['NODE_ENV'] === 'test' && token === 'test-token' && !strictAuth) {
-      logger.warn('⚠️ WebSocket: DEPRECATED test-token usage');
+      // In development/test, allow anonymous connections with warning
+      logger.warn('⚠️ WebSocket: Anonymous connection (no token) - non-production only');
       return {
-        userId: 'test-user-id',
+        userId: 'anonymous',
         restaurantId: config.restaurant.defaultId,
       };
     }
 
-    // Verify JWT with proper signature validation
+    // Verify JWT with single configured secret (no fallbacks for security)
+    const jwtSecret = config.supabase.jwtSecret;
+    if (!jwtSecret) {
+      logger.error('⛔ JWT_SECRET not configured - WebSocket auth cannot proceed');
+      return null;
+    }
+
     let decoded: any;
-    
-    // First, try to decode without verification to check token type
     try {
-      const unverified = jwt.decode(token) as any;
-      
-      // Check if this is a demo/kiosk token (sub starts with 'demo:')
-      if (unverified?.sub?.startsWith('demo:')) {
-        // This is a demo token - verify with KIOSK_JWT_SECRET
-        const kioskSecret = process.env['KIOSK_JWT_SECRET'];
-        if (!kioskSecret) {
-          logger.error('KIOSK_JWT_SECRET not configured for demo token verification');
-          return null;
-        }
-        
-        try {
-          decoded = jwt.verify(token, kioskSecret) as any;
-          logger.info('Demo token verified for WebSocket connection', { 
-            userId: decoded.sub,
-            restaurantId: decoded.restaurant_id 
-          });
-        } catch (kioskError) {
-          logger.error('Demo token verification failed:', kioskError);
-          return null;
-        }
-      } else {
-        // Regular Supabase token - verify with Supabase secret
-        if (!config.supabase.jwtSecret) {
-          logger.error('JWT secret not configured - cannot verify token');
-          return null;
-        }
-        try {
-          decoded = jwt.verify(token, config.supabase.jwtSecret) as any;
-        } catch (supabaseError) {
-          logger.error('Supabase JWT verification failed:', supabaseError);
-          return null;
-        }
-      }
-    } catch (decodeError) {
-      logger.error('Failed to decode JWT token:', decodeError);
+      decoded = jwt.verify(token, jwtSecret) as any;
+    } catch (error) {
+      logger.warn('WebSocket auth rejected: invalid token');
       return null;
     }
 
