@@ -176,8 +176,8 @@ The Restaurant OS is **95% enterprise-grade production ready**. All core systems
 - [ ] Verify webhook delivery (if enabled)
 
 **Documentation**:
-- [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md)
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
+- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration)
+- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems)
 
 ---
 
@@ -727,8 +727,8 @@ The Restaurant OS is **production ready at 95%**. All core systems are functiona
 
 ### Feature Documentation
 - [MENU_SYSTEM.md](./MENU_SYSTEM.md) - Menu management & fall menu guide
-- [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md) - Payment integration (Updated Oct 14)
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md) - Payment incident analysis
+- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration) - Payment integration (Updated Oct 14)
+- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems) - Payment incident analysis
 - [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer ordering journey
 - [DATABASE.md](./DATABASE.md) - Supabase schema
 - [TESTING_CHECKLIST.md](../TESTING_CHECKLIST.md) - Testing procedures

@@ -309,7 +309,7 @@ res.status(201).json({ order });
 
 **API Call**: POST `/api/v1/payments/create`
 
-See [Square Integration Documentation](./SQUARE_INTEGRATION.md) for complete payment flow.
+See [Square Integration Documentation](./DEPLOYMENT.md#square-integration) for complete payment flow.
 
 **Quick Summary**:
 1. Client creates Square checkout
@@ -609,14 +609,14 @@ socket.emit('authenticate', {
    - Hosted checkout page
    - Card tokenization
    - Redirect flow
-   - See: [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md)
+   - See: [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration)
 
 2. **Terminal Payments** (Square Terminal API)
    - Physical terminal device
    - Tap/chip/swipe
    - Polling-based status checks (every 2 seconds)
    - 5-minute timeout
-   - See: [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md)
+   - See: [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration)
 
 3. **Cash Payments** (Manual)
    - Order created with status 'pending'
@@ -644,7 +644,7 @@ POST /api/v1/terminal/checkout/:checkoutId/complete
 ```
 
 **For complete payment integration details**, see:
-- [Square Integration Documentation](./SQUARE_INTEGRATION.md)
+- [Square Integration Documentation](./DEPLOYMENT.md#square-integration)
 - Server-side amount validation
 - Payment audit trail
 - Error handling strategies

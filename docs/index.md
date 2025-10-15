@@ -43,7 +43,7 @@ Technical reference documentation.
 ### API & Integration
 - [API Documentation](api/README.md) - REST endpoints ⭐
 - [Database Schema](DATABASE.md) - Table structure ⭐
-- [WebSocket Events](WEBSOCKET_EVENTS.md) - Real-time events ⭐
+- [WebSocket Events](DEPLOYMENT.md#websockets) - Real-time events ⭐
 
 ### Configuration
 - [Environment Variables](ENVIRONMENT.md) - All env vars

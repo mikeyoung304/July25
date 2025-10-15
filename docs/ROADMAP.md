@@ -230,7 +230,7 @@
 
 New comprehensive documentation:
 - [MENU_SYSTEM.md](./MENU_SYSTEM.md) - Menu architecture & fall menu guide
-- [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md) - Complete payment flow
+- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration) - Complete payment flow
 - [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer ordering journey (updated)
 - [DATABASE.md](./DATABASE.md) - Supabase schema with JSONB examples (updated)
 - [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - Current readiness assessment

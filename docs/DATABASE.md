@@ -470,7 +470,7 @@ Key metrics to monitor:
 ## Related Documentation
 
 - [Menu System](./MENU_SYSTEM.md) - Menu management & fall menu deployment
-- [Square Integration](./SQUARE_INTEGRATION.md) - Payment processing & terminal API
+- [Square Integration](./DEPLOYMENT.md#square-integration) - Payment processing & terminal API
 - [Order Flow](./ORDER_FLOW.md) - Complete customer ordering journey
 - [API Documentation](api/README.md) - All API endpoints
 - [Environment Variables](ENVIRONMENT.md) - Configuration guide

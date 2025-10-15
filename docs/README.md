@@ -57,7 +57,7 @@ Enterprise-grade architectural decisions documented for AI agents and developers
 - [Kitchen Display System](KDS-BIBLE.md)
 - [Menu System](MENU_SYSTEM.md)
 - [Order Flow](ORDER_FLOW.md)
-- [Square Integration](SQUARE_INTEGRATION.md)
+- [Square Integration](DEPLOYMENT.md#square-integration)
 
 ## API Documentation
 

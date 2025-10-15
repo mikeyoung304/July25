@@ -115,12 +115,7 @@ All PRs must pass the following automated checks:
 
 ## Architecture Guidelines
 
-### Multi-tenancy
-
-All features must support multi-tenant operation:
-- Include `restaurant_id` in all data operations
-- Validate restaurant context in API endpoints
-- Never expose data across restaurant boundaries
+For architecture-specific requirements including multi-tenancy, deployment operations, and system design patterns, see [DEPLOYMENT.md#contributor-ops-handoff](./DEPLOYMENT.md#contributor-ops-handoff).
 
 ### Performance
 
