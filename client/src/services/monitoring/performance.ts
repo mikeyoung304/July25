@@ -260,8 +260,21 @@ class PerformanceMonitor {
   private reportMetrics() {
     if (this.metrics.length === 0) return;
 
+    // Sanitize URL: remove sensitive query parameters (token, keys, etc.)
+    const sanitizeUrl = (url: string): string => {
+      try {
+        const urlObj = new URL(url);
+        const paramsToRemove = ['token', 'api_key', 'apiKey', 'key', 'secret', 'password'];
+        paramsToRemove.forEach(param => urlObj.searchParams.delete(param));
+        return urlObj.toString();
+      } catch {
+        // If URL parsing fails, return pathname only
+        return window.location.pathname;
+      }
+    };
+
     const report = {
-      url: window.location.href,
+      url: sanitizeUrl(window.location.href),
       userAgent: navigator.userAgent,
       timestamp: Date.now(),
       metrics: this.metrics,
@@ -274,11 +287,12 @@ class PerformanceMonitor {
     };
 
     // In production, send to analytics service
+    // DISABLED: Analytics endpoint not yet implemented on server
+    // TODO: Re-enable when /api/v1/analytics/performance endpoint is created
+    /*
     if (!import.meta.env.DEV) {
-      // TODO: Send to analytics endpoint
       void httpClient
         .post('/api/v1/analytics/performance', report, {
-          // analytics endpoint does not require auth context
           skipAuth: true,
           skipRestaurantId: true
         })
@@ -286,8 +300,12 @@ class PerformanceMonitor {
           // Silently fail - don't impact user experience
         });
     }
+    */
 
-    logger.info('Performance Report', report);
+    // Log metrics in development only
+    if (import.meta.env.DEV) {
+      logger.info('Performance Report', report);
+    }
   }
 
   /**
