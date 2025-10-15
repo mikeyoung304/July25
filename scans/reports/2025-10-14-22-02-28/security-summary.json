@@ -1,0 +1,210 @@
+{
+  "scan_metadata": {
+    "timestamp": "2025-10-14T22:02:28Z",
+    "agent": "Security Auditor",
+    "codebase": "Grow App v6.0.7",
+    "scan_type": "comprehensive_security_audit",
+    "duration_seconds": 180
+  },
+  "risk_assessment": {
+    "overall_risk_level": "MEDIUM",
+    "production_ready": false,
+    "blockers_count": 4,
+    "estimated_fix_time_hours": 8
+  },
+  "findings_summary": {
+    "total_issues": 8,
+    "critical": 0,
+    "high": 3,
+    "medium": 5,
+    "low": 0,
+    "info": 0
+  },
+  "critical_findings": [],
+  "high_risk_findings": [
+    {
+      "id": "SEC-001",
+      "title": "Hardcoded Demo Credentials in AuthContext",
+      "severity": "HIGH",
+      "cvss_score": 7.5,
+      "file": "client/src/contexts/AuthContext.tsx",
+      "lines": "340-346",
+      "impact": "Demo credentials exposed in client bundle, extractable via browser DevTools",
+      "urgency": "FIX_BEFORE_PRODUCTION",
+      "estimated_effort_hours": 2
+    },
+    {
+      "id": "SEC-002",
+      "title": "Duplicate Demo Credentials in DevAuthOverlay",
+      "severity": "HIGH",
+      "cvss_score": 7.5,
+      "file": "client/src/components/auth/DevAuthOverlay.tsx",
+      "lines": "27-74",
+      "impact": "Passwords AND PIN codes hardcoded in client, multiple attack vectors",
+      "urgency": "FIX_BEFORE_PRODUCTION",
+      "estimated_effort_hours": 3
+    },
+    {
+      "id": "SEC-003",
+      "title": "Weak JWT Secret Fallback Chain",
+      "severity": "HIGH",
+      "cvss_score": 8.2,
+      "file": "server/src/routes/auth.routes.ts",
+      "lines": "45-48",
+      "impact": "Development fallback secret could be used to forge JWTs if production secrets missing",
+      "urgency": "FIX_BEFORE_PRODUCTION",
+      "estimated_effort_hours": 1
+    }
+  ],
+  "medium_risk_findings": [
+    {
+      "id": "SEC-004",
+      "title": "Unprotected Metrics Endpoint",
+      "severity": "MEDIUM",
+      "cvss_score": 5.3,
+      "file": "server/src/routes/metrics.ts",
+      "line": 9,
+      "urgency": "FIX_IN_NEXT_SPRINT"
+    },
+    {
+      "id": "SEC-005",
+      "title": "Health Endpoints Expose System Info",
+      "severity": "MEDIUM",
+      "cvss_score": 4.7,
+      "file": "server/src/routes/health.routes.ts",
+      "lines": "98-105",
+      "urgency": "FIX_IN_NEXT_SPRINT"
+    },
+    {
+      "id": "SEC-006",
+      "title": "Excessive Diagnostic Logging (PII)",
+      "severity": "MEDIUM",
+      "cvss_score": 5.0,
+      "file": "server/src/routes/auth.routes.ts",
+      "lines": "100-109",
+      "urgency": "FIX_BEFORE_PRODUCTION"
+    },
+    {
+      "id": "SEC-007",
+      "title": "Anonymous WebSocket in Development",
+      "severity": "MEDIUM",
+      "cvss_score": 6.1,
+      "file": "server/src/middleware/auth.ts",
+      "lines": "137-143",
+      "urgency": "FIX_BEFORE_PRODUCTION"
+    },
+    {
+      "id": "SEC-008",
+      "title": "CORS Origin Validation Logic",
+      "severity": "MEDIUM",
+      "cvss_score": 5.8,
+      "file": "server/src/server.ts",
+      "lines": "118-143",
+      "urgency": "FIX_BEFORE_PRODUCTION"
+    }
+  ],
+  "security_scores": {
+    "code_quality": 8.5,
+    "authentication": 9.0,
+    "data_protection": 9.0,
+    "network_security": 7.5,
+    "overall": 8.5
+  },
+  "positive_findings": [
+    "No SERVICE_KEY exposure in client code",
+    "JWT signature validation properly implemented",
+    "Multi-tenancy enforcement on all data routes",
+    "RLS policies active in database",
+    "No SQL injection vectors (parameterized queries)",
+    "95% auth middleware coverage",
+    "CORS properly configured with credentials",
+    "Rate limiting on auth endpoints",
+    "CSRF protection enabled",
+    "Request sanitization active"
+  ],
+  "authentication_analysis": {
+    "total_routes": 58,
+    "protected_routes": 55,
+    "optional_auth_routes": 3,
+    "public_routes": 5,
+    "coverage_percentage": 95,
+    "restaurant_access_validation": "PASS",
+    "jwt_implementation": "SECURE",
+    "token_expiration": "IMPLEMENTED"
+  },
+  "sql_injection_analysis": {
+    "status": "PASS",
+    "vulnerabilities_found": 0,
+    "query_method": "parameterized_supabase_orm",
+    "raw_sql_found": false,
+    "string_interpolation_found": false
+  },
+  "cors_analysis": {
+    "security_score": 8,
+    "credentials_enabled": true,
+    "allowed_origins_count": 9,
+    "regex_patterns_used": true,
+    "no_origin_allowed": true,
+    "issues": [
+      "No-origin requests allowed (mobile apps)",
+      "Potential regex bypass in Vercel pattern"
+    ]
+  },
+  "environment_security": {
+    "gitignore_status": "PASS",
+    "tracked_env_files": [
+      ".env.example",
+      "server/.env.test"
+    ],
+    "server_secrets_exposed": false,
+    "client_vite_prefix_enforced": true,
+    "service_keys_location": "server_only"
+  },
+  "compliance_notes": {
+    "gdpr": "WARNING - PII in logs (Finding SEC-006)",
+    "pci_dss": "COMPLIANT - No card data stored",
+    "soc2_readiness": "PARTIAL - Audit logging needed"
+  },
+  "immediate_actions": [
+    {
+      "priority": 1,
+      "action": "Remove hardcoded demo credentials from client code",
+      "findings": ["SEC-001", "SEC-002"],
+      "estimated_hours": 4
+    },
+    {
+      "priority": 2,
+      "action": "Enforce strict JWT secret configuration",
+      "findings": ["SEC-003"],
+      "estimated_hours": 1
+    },
+    {
+      "priority": 3,
+      "action": "Sanitize authentication logs",
+      "findings": ["SEC-006"],
+      "estimated_hours": 2
+    },
+    {
+      "priority": 4,
+      "action": "Disable anonymous WebSocket in production",
+      "findings": ["SEC-007"],
+      "estimated_hours": 0.5
+    }
+  ],
+  "next_scan": {
+    "scheduled_date": "2025-10-21",
+    "frequency": "weekly",
+    "focus_areas": [
+      "Verify demo credential removal",
+      "Test JWT secret enforcement",
+      "Audit log sanitization",
+      "WebSocket authentication"
+    ]
+  },
+  "recommended_tools": {
+    "dependency_scanning": "Snyk",
+    "static_analysis": "SonarQube",
+    "dynamic_testing": "OWASP ZAP",
+    "secret_detection": "GitGuardian"
+  }
+}
