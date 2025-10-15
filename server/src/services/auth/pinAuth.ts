@@ -3,6 +3,11 @@ import { supabase } from '../../config/database';
 import { logger } from '../../utils/logger';
 import { BadRequest } from '../../middleware/errorHandler';
 
+// DESIGN: PINs are per-restaurant
+// A user can have different PINs for different restaurants they work at.
+// All PIN operations (create, update, validate, lock/unlock) are scoped by restaurant_id.
+// This ensures proper multi-tenancy and allows users to maintain separate security contexts.
+
 const pinLogger = logger.child({ module: 'pin-auth' });
 
 // Configuration
@@ -90,11 +95,12 @@ export async function createOrUpdatePin(params: CreatePinParams): Promise<void> 
   const pinHash = hashPin(pin, salt);
   
   try {
-    // Check if PIN already exists
+    // Check if PIN already exists for this user+restaurant
     const { data: existing } = await supabase
       .from('user_pins')
       .select('id')
       .eq('user_id', userId)
+      .eq('restaurant_id', restaurantId)
       .single();
     
     if (existing) {
@@ -109,7 +115,8 @@ export async function createOrUpdatePin(params: CreatePinParams): Promise<void> 
           locked_until: null,
           updated_at: new Date().toISOString()
         })
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .eq('restaurant_id', restaurantId);
       
       if (error) {
         pinLogger.error('Failed to update PIN:', error);
@@ -287,9 +294,9 @@ export async function validatePin(
 }
 
 /**
- * Reset PIN attempts for a user
+ * Reset PIN attempts for a user at a specific restaurant
  */
-export async function resetPinAttempts(userId: string): Promise<void> {
+export async function resetPinAttempts(userId: string, restaurantId: string): Promise<void> {
   try {
     const { error } = await supabase
       .from('user_pins')
@@ -298,14 +305,15 @@ export async function resetPinAttempts(userId: string): Promise<void> {
         locked_until: null,
         updated_at: new Date().toISOString()
       })
-      .eq('user_id', userId);
-    
+      .eq('user_id', userId)
+      .eq('restaurant_id', restaurantId);
+
     if (error) {
       pinLogger.error('Failed to reset PIN attempts:', error);
       throw error;
     }
-    
-    pinLogger.info('PIN attempts reset', { userId });
+
+    pinLogger.info('PIN attempts reset', { userId, restaurantId });
   } catch (error) {
     pinLogger.error('Error resetting PIN attempts:', error);
     throw error;
@@ -313,24 +321,25 @@ export async function resetPinAttempts(userId: string): Promise<void> {
 }
 
 /**
- * Check if a user's PIN is locked
+ * Check if a user's PIN is locked at a specific restaurant
  */
-export async function isPinLocked(userId: string): Promise<boolean> {
+export async function isPinLocked(userId: string, restaurantId: string): Promise<boolean> {
   try {
     const { data, error } = await supabase
       .from('user_pins')
       .select('locked_until')
       .eq('user_id', userId)
+      .eq('restaurant_id', restaurantId)
       .single();
-    
+
     if (error || !data) {
       return false;
     }
-    
+
     if (!data['locked_until']) {
       return false;
     }
-    
+
     const lockoutTime = new Date(data['locked_until']);
     return lockoutTime > new Date();
   } catch (error) {
