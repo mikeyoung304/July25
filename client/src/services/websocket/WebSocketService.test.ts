@@ -385,20 +385,42 @@ describe('WebSocketService', { timeout: 10000 }, () => {
     test('should stop reconnecting after max attempts', async () => {
       const maxAttempts = 10
       service = new WebSocketService({ maxReconnectAttempts: maxAttempts })
-      
+
       await service.connect()
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
-      
+
       // Simulate multiple failed connections
       for (let i = 0; i < maxAttempts + 1; i++) {
         mockWebSocket.simulateError()
         mockWebSocket.simulateClose(1006)
         await vi.advanceTimersByTimeAsync(35000) // Advance past any reconnect delay
       }
-      
+
       const totalCalls = (global.WebSocket as unknown as vi.Mock).mock.calls.length
       expect(totalCalls).toBeLessThanOrEqual(maxAttempts + 1) // Initial + max retries
+    })
+
+    test('should prevent concurrent reconnection attempts', async () => {
+      await service.connect()
+      await vi.runOnlyPendingTimersAsync()
+      mockWebSocket.simulateOpen()
+      await vi.runOnlyPendingTimersAsync()
+
+      // Clear mock to count only reconnection attempts
+      ;(global.WebSocket as unknown as vi.Mock).mockClear()
+
+      // Simulate close to trigger reconnection
+      mockWebSocket.simulateClose(1006, 'Connection lost')
+
+      // Try to connect manually while reconnection is scheduled (should be prevented)
+      await service.connect()
+
+      // Only one reconnection should be scheduled
+      await vi.advanceTimersByTimeAsync(3000)
+
+      // Should have only 1 reconnection attempt (concurrent attempts blocked)
+      expect(global.WebSocket).toHaveBeenCalledTimes(1)
     })
   })
   

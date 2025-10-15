@@ -33,7 +33,8 @@ export class WebSocketService extends EventEmitter {
   private reconnectTimer: NodeJS.Timeout | null = null
   private connectionState: ConnectionState = 'disconnected'
   private isIntentionallyClosed = false
-  private isReconnecting = false // Prevent double reconnection scheduling
+  // Guard flag: prevents concurrent reconnection attempts and timer scheduling
+  private isReconnecting = false
   private lastHeartbeat: number = 0
   private heartbeatTimer: NodeJS.Timeout | null = null
   private heartbeatInterval = 30000 // 30 seconds
@@ -61,9 +62,15 @@ export class WebSocketService extends EventEmitter {
    * Connect to WebSocket server
    */
   async connect(): Promise<void> {
-    // Check both WebSocket state and connection state
+    // Guard: prevent double connection attempts
     if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
-      console.warn('WebSocket already connected or connecting')
+      console.warn('[WebSocket] Already connected or connecting, skipping...')
+      return
+    }
+
+    // Guard: prevent connection during reconnection cycle
+    if (this.isReconnecting) {
+      console.warn('[WebSocket] Reconnection in progress, skipping connect...')
       return
     }
 

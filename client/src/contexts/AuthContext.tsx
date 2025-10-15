@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { supabase } from '@/core/supabase';
 import { httpClient } from '@/services/http/httpClient';
 import { logger } from '@/services/logger';
@@ -55,6 +55,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
+
+  // Refs to prevent race conditions in refresh logic
+  const refreshInProgressRef = useRef(false);
+  const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize auth state from Supabase session
   useEffect(() => {
@@ -401,11 +405,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Refresh session
-  const refreshSession = async () => {
+  // Refresh session - wrapped in useCallback to prevent effect loops
+  const refreshSession = useCallback(async () => {
+    // Guard: prevent concurrent refresh attempts
+    if (refreshInProgressRef.current) {
+      logger.warn('Refresh already in progress, skipping...');
+      return;
+    }
+
     if (!session?.refreshToken) {
       throw new Error('No refresh token available');
     }
+
+    refreshInProgressRef.current = true;
 
     try {
       const response = await httpClient.post<{
@@ -419,7 +431,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       const expiresAt = Math.floor(Date.now() / 1000) + response.session.expires_in;
-      
+
       setSession({
         accessToken: response.session.access_token,
         refreshToken: response.session.refresh_token,
@@ -431,8 +443,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       logger.error('Session refresh failed:', error);
       throw error;
+    } finally {
+      refreshInProgressRef.current = false;
     }
-  };
+  }, [session?.refreshToken]);
 
   // Set PIN for current user
   const setPin = async (pin: string) => {
@@ -489,13 +503,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return hasRequiredRole && hasRequiredScope;
   };
 
-  // Auto-refresh token before expiry
+  // Auto-refresh token before expiry - single timer via ref
   useEffect(() => {
+    // Clear any existing timer first
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = null;
+    }
+
     if (!session?.expiresAt || !session.refreshToken) return;
 
     // Refresh 5 minutes before expiry
     const refreshTime = (session.expiresAt - 300) * 1000 - Date.now();
-    
+
     if (refreshTime <= 0) {
       // Token already expired or about to expire
       refreshSession().catch(error => {
@@ -505,14 +525,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
 
-    const timer = setTimeout(() => {
+    // Schedule single refresh via ref
+    refreshTimerRef.current = setTimeout(() => {
+      refreshTimerRef.current = null; // Clear ref after execution
       refreshSession().catch(error => {
         logger.error('Auto-refresh failed:', error);
         logout(); // Logout if refresh fails
       });
     }, refreshTime);
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+        refreshTimerRef.current = null;
+      }
+    };
   }, [session?.expiresAt, session?.refreshToken, refreshSession]);
 
   const value: AuthContextType = {
