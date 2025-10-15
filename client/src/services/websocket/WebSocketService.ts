@@ -33,6 +33,7 @@ export class WebSocketService extends EventEmitter {
   private reconnectTimer: NodeJS.Timeout | null = null
   private connectionState: ConnectionState = 'disconnected'
   private isIntentionallyClosed = false
+  private isReconnecting = false // Prevent double reconnection scheduling
   private lastHeartbeat: number = 0
   private heartbeatTimer: NodeJS.Timeout | null = null
   private heartbeatInterval = 30000 // 30 seconds
@@ -125,14 +126,15 @@ export class WebSocketService extends EventEmitter {
    */
   disconnect(): void {
     this.isIntentionallyClosed = true
+    this.isReconnecting = false // Reset reconnection flag on disconnect
     this.stopHeartbeat()
-    
+
     // Clear reconnect timer first to prevent reconnection
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
-    
+
     if (this.ws) {
       // Close with proper code and reason
       if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
@@ -140,9 +142,9 @@ export class WebSocketService extends EventEmitter {
       }
       this.ws = null
     }
-    
+
     this.setConnectionState('disconnected')
-    
+
     // Clean up after setting state and closing connection
     this.cleanup()
   }
@@ -214,6 +216,7 @@ export class WebSocketService extends EventEmitter {
   private handleOpen(): void {
     console.warn('WebSocket connected')
     this.reconnectAttempts = 0
+    this.isReconnecting = false // Reset reconnection flag on successful connection
     this.lastHeartbeat = Date.now()
     this.setConnectionState('connected')
     this.startHeartbeat()
@@ -300,35 +303,44 @@ export class WebSocketService extends EventEmitter {
   }
 
   private scheduleReconnect(): void {
+    // Guard: Prevent double reconnection scheduling
+    if (this.isReconnecting) {
+      console.warn('[WebSocket] Reconnection already scheduled, skipping...')
+      return
+    }
+
     // Clear any existing reconnect timer first to prevent memory leaks
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
-    
+
     if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
       console.error('Max reconnection attempts reached')
+      this.isReconnecting = false
       this.emit('maxReconnectAttemptsReached')
       return
     }
-    
+
+    this.isReconnecting = true
     this.reconnectAttempts++
-    
+
     // Improved exponential backoff with jitter
     // Start with 2 seconds, double each time, max 30 seconds
     const baseDelay = Math.min(2000 * Math.pow(2, this.reconnectAttempts - 1), 30000)
-    
+
     // Add 0-25% jitter to prevent thundering herd
     const jitterPercent = Math.random() * 0.25
     const jitter = baseDelay * jitterPercent
-    
+
     const delay = Math.min(baseDelay + jitter, 30000) // Ensure max 30 seconds
-    
+
     console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${Math.round(delay)}ms (exponential backoff with jitter)`)
-    
+
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null // Clear reference after execution
-      
+      this.isReconnecting = false // Reset flag before attempting reconnection
+
       // Only reconnect if still disconnected
       if (!this.isConnected() && !this.isIntentionallyClosed) {
         this.connect()
@@ -337,30 +349,33 @@ export class WebSocketService extends EventEmitter {
   }
 
   private cleanup(): void {
+    // Reset reconnection state
+    this.isReconnecting = false
+
     // Clear reconnect timer
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
-    
+
     // Stop heartbeat
     this.stopHeartbeat()
-    
+
     // Remove all WebSocket event handlers to prevent memory leaks
     if (this.ws) {
       this.ws.onopen = null
       this.ws.onmessage = null
       this.ws.onerror = null
       this.ws.onclose = null
-      
+
       // Close connection if still open
       if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
         this.ws.close(1000, 'Cleanup')
       }
-      
+
       this.ws = null
     }
-    
+
     // Clear all event listeners from EventEmitter
     this.removeAllListeners()
   }
