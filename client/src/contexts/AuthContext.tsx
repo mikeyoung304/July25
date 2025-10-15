@@ -58,7 +58,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Refs to prevent race conditions in refresh logic
   const refreshInProgressRef = useRef(false);
-  const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialize auth state from Supabase session
   useEffect(() => {

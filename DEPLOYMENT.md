@@ -31,3 +31,41 @@
 
 ## Post-Deploy Checks
 - WS reconnects/min < 0.2; KDS e2e happy path under 1s (P95); no CORS rejections from allowed domains.
+
+## Provider Specifics (Vercel)
+
+### URLs
+- **Production:** https://july25-client.vercel.app
+- **Backend API:** https://july25.onrender.com
+- **Preview:** Auto-generated per PR/branch
+
+### Client Environment Variables (Vercel Dashboard)
+- `VITE_API_BASE_URL` = https://july25.onrender.com
+- `VITE_SUPABASE_URL` = [Your Supabase URL]
+- `VITE_SUPABASE_ANON_KEY` = [Your Supabase anon key]
+- `VITE_DEFAULT_RESTAURANT_ID` = 11111111-1111-1111-1111-111111111111
+- `VITE_DEMO_PANEL` = 1 (optional, non-prod only)
+
+### Build Configuration
+- **Framework preset:** Vite + React
+- **Build output:** client/dist
+- **Node version:** 20.x
+- **Build flag:** `ROLLUP_NO_NATIVE=1` (required to prevent native module errors)
+- **Monorepo:** Deploy from repository root only; never from `/client`, `/server`, or `/shared`
+
+### Deployment Commands
+```bash
+npm run deploy              # Safe production deployment with checks
+vercel link --project july25-client --yes  # Link to correct project
+vercel ls                   # List deployments
+vercel rollback [url]       # Emergency rollback
+```
+
+### Project IDs (reference)
+- Project: `prj_iG6YRjjsMePUoGPmzZxnKUwYfH0n`
+- Org: `team_OesWPwxqmdOsNGDnz0RqS4kA`
+
+### Common Issues
+- **Blank page post-deploy:** Check env vars set in Vercel Dashboard; verify backend at july25.onrender.com/health
+- **Multiple projects in dashboard:** Delete duplicates; remove `.vercel` from subdirectories; always deploy from root
+- **Build fails (Rollup):** Ensure `ROLLUP_NO_NATIVE=1` is set in build command

@@ -41,7 +41,12 @@ export class WebSocketService extends EventEmitter {
 
   constructor(config: WebSocketConfig = {}) {
     super()
-    
+
+    // Dev-only instrumentation for e2e tests
+    if (import.meta.env.DEV) {
+      (window as any).__dbgWS = (window as any).__dbgWS || { connectCount: 0, subCount: 0 }
+    }
+
     // Set default configuration with enhanced resilience settings
     this.config = {
       url: config.url || this.buildWebSocketUrl(),
@@ -114,7 +119,12 @@ export class WebSocketService extends EventEmitter {
 
       // Create WebSocket connection
       this.ws = new WebSocket(wsUrl.toString())
-      
+
+      // Dev-only: Track connection count
+      if (import.meta.env.DEV && (window as any).__dbgWS) {
+        (window as any).__dbgWS.connectCount++
+      }
+
       // Set up event handlers
       this.ws.onopen = this.handleOpen.bind(this)
       this.ws.onmessage = this.handleMessage.bind(this)
@@ -148,6 +158,11 @@ export class WebSocketService extends EventEmitter {
         this.ws.close(1000, 'Client disconnect')
       }
       this.ws = null
+
+      // Dev-only: Decrement connection count
+      if (import.meta.env.DEV && (window as any).__dbgWS) {
+        (window as any).__dbgWS.connectCount--
+      }
     }
 
     this.setConnectionState('disconnected')
@@ -189,7 +204,12 @@ export class WebSocketService extends EventEmitter {
     callback: (payload: T) => void
   ): () => void {
     logger.info(`[WebSocket] Creating subscription for message type: '${messageType}'`)
-    
+
+    // Dev-only: Track subscription count
+    if (import.meta.env.DEV && (window as any).__dbgWS) {
+      (window as any).__dbgWS.subCount++
+    }
+
     const handler = (message: WebSocketMessage) => {
       logger.info(`[WebSocket] Subscription handler checking: ${message.type} === ${messageType}?`)
       if (message.type === messageType) {
@@ -197,12 +217,17 @@ export class WebSocketService extends EventEmitter {
         callback(message.payload as T)
       }
     }
-    
+
     this.on('message', handler)
-    
+
     // Return unsubscribe function
     return () => {
       this.off('message', handler)
+
+      // Dev-only: Decrement subscription count
+      if (import.meta.env.DEV && (window as any).__dbgWS) {
+        (window as any).__dbgWS.subCount--
+      }
     }
   }
 
@@ -344,13 +369,17 @@ export class WebSocketService extends EventEmitter {
 
     console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${Math.round(delay)}ms (exponential backoff with jitter)`)
 
-    this.reconnectTimer = setTimeout(() => {
-      this.reconnectTimer = null // Clear reference after execution
-      this.isReconnecting = false // Reset flag before attempting reconnection
+    this.reconnectTimer = setTimeout(async () => {
+      try {
+        this.reconnectTimer = null // Clear reference after execution
 
-      // Only reconnect if still disconnected
-      if (!this.isConnected() && !this.isIntentionallyClosed) {
-        this.connect()
+        // Only reconnect if still disconnected
+        if (!this.isConnected() && !this.isIntentionallyClosed) {
+          await this.connect()
+        }
+      } finally {
+        // ALWAYS reset flag, even if connect() throws
+        this.isReconnecting = false
       }
     }, delay)
   }
