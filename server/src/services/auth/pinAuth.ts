@@ -219,7 +219,8 @@ export async function validatePin(
             locked_until: null,
             last_attempt_at: new Date().toISOString()
           })
-          .eq('id', record.id);
+          .eq('id', record.id)
+          .eq('restaurant_id', restaurantId);
         
         // Get user's role for this restaurant
         const { data: userRole } = await supabase
@@ -272,8 +273,9 @@ export async function validatePin(
         await supabase
           .from('user_pins')
           .update(updates)
-          .eq('id', record.id);
-        
+          .eq('id', record.id)
+          .eq('restaurant_id', restaurantId);
+
         await logAuthEvent(record.user_id, restaurantId, 'pin_failed');
       }
     }
