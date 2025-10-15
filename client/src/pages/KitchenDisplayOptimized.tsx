@@ -18,7 +18,7 @@ import type { Order } from '@rebuild/shared'
 type StatusFilter = 'all' | 'active' | 'ready' | 'urgent'
 type SortMode = 'priority' | 'chronological' | 'type'
 type ViewMode = 'grid' | 'tables' | 'orders'
-type OrderTypeFilter = 'all' | 'drive-thru' | 'counter' | 'curbside' | 'delivery'
+type OrderTypeFilter = 'all' | 'drive-thru' | 'counter'  // Simplified: drive-thru = online, counter = dining
 
 function KitchenDisplayOptimized() {
   // Use optimized hook with advanced features
@@ -351,7 +351,7 @@ function KitchenDisplayOptimized() {
               </div>
             </div>
 
-            {/* Order Type Filters Row (only show in Orders view) */}
+            {/* Order Type Filters Row (only show in Orders view) - Simplified to 2 types */}
             {viewMode === 'orders' && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">Type:</span>
@@ -366,33 +366,17 @@ function KitchenDisplayOptimized() {
                   variant={orderTypeFilter === 'drive-thru' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOrderTypeFilter('drive-thru')}
-                  className="gap-1"
+                  className={orderTypeFilter === 'drive-thru' ? 'bg-accent hover:bg-accent-600' : ''}
                 >
-                  🚗 Drive-Thru
+                  Online
                 </Button>
                 <Button
                   variant={orderTypeFilter === 'counter' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOrderTypeFilter('counter')}
-                  className="gap-1"
+                  className={orderTypeFilter === 'counter' ? 'bg-amber-500 hover:bg-amber-600' : ''}
                 >
-                  🏪 Counter
-                </Button>
-                <Button
-                  variant={orderTypeFilter === 'curbside' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setOrderTypeFilter('curbside')}
-                  className="gap-1"
-                >
-                  🅿️ Curbside
-                </Button>
-                <Button
-                  variant={orderTypeFilter === 'delivery' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setOrderTypeFilter('delivery')}
-                  className="gap-1"
-                >
-                  🚚 Delivery
+                  Dine-In
                 </Button>
               </div>
             )}

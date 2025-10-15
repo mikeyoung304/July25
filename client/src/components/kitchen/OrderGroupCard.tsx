@@ -13,43 +13,38 @@ interface OrderGroupCardProps {
   variant?: 'kitchen' | 'expo'
 }
 
-// Large prominent order type badge component
+// Small, clean order type badge component
 const OrderTypeBadge = ({ pickupType }: { pickupType: OrderGroup['pickup_type'] }) => {
+  // Simplified to 2 types: online (drive-thru) and dining-room
   const typeConfig = {
     'drive-thru': {
-      icon: '🚗',
-      label: 'DRIVE-THRU',
-      gradient: 'from-purple-500 to-purple-700',
+      label: 'ONLINE',
+      bg: 'bg-accent/10',
+      text: 'text-accent-700',
+      border: 'border-accent-500'
     },
     'counter': {
-      icon: '🏪',
-      label: 'COUNTER',
-      gradient: 'from-orange-500 to-orange-700',
-    },
-    'curbside': {
-      icon: '🅿️',
-      label: 'CURBSIDE',
-      gradient: 'from-blue-500 to-blue-700',
-    },
-    'delivery': {
-      icon: '🚚',
-      label: 'DELIVERY',
-      gradient: 'from-green-500 to-green-700',
+      label: 'DINE-IN',
+      bg: 'bg-amber-50',
+      text: 'text-amber-700',
+      border: 'border-amber-500'
     }
   }
 
   const config = typeConfig[pickupType] || typeConfig['counter']
 
   return (
-    <div className="absolute -top-3 -left-3 z-20 transform hover:scale-110 transition-transform">
-      <div className={cn(
-        "rounded-full w-16 h-16 flex items-center justify-center",
-        "shadow-2xl ring-2 ring-white",
-        `bg-gradient-to-br ${config.gradient}`
-      )}>
-        <span className="text-3xl">{config.icon}</span>
-      </div>
-    </div>
+    <Badge
+      variant="outline"
+      className={cn(
+        'text-xs font-semibold px-2 py-1',
+        config.bg,
+        config.text,
+        config.border
+      )}
+    >
+      {config.label}
+    </Badge>
   )
 }
 
@@ -95,21 +90,13 @@ export function OrderGroupCard({
     }
   }
 
-  // Pickup type styling (used when not urgent)
-  const pickupTypeStyles = {
-    'drive-thru': 'border-purple-400 bg-purple-50/30',
-    'counter': 'border-orange-400 bg-orange-50/30',
-    'curbside': 'border-blue-400 bg-blue-50/30',
-    'delivery': 'border-green-400 bg-green-50/30'
+  // Clean order type styling - simplified to 2 types
+  const orderTypeStyles = {
+    'drive-thru': 'border-accent-500 bg-white',  // Teal border for online orders
+    'counter': 'border-amber-400 bg-white'       // Amber border for dining room
   }
 
-  // Urgency colors override pickup type styling
-  const urgencyColors = {
-    normal: pickupTypeStyles[orderGroup.pickup_type] || 'border-gray-200 bg-white',
-    warning: 'border-yellow-300 bg-yellow-50',
-    urgent: 'border-orange-400 bg-orange-50',
-    critical: 'border-red-400 bg-red-50 animate-pulse'
-  }
+  const cardStyle = orderTypeStyles[orderGroup.pickup_type] || 'border-gray-300 bg-white'
 
   const statusColors = {
     new: 'bg-blue-100 text-blue-700',
@@ -122,28 +109,19 @@ export function OrderGroupCard({
     cancelled: 'bg-red-100 text-red-700'
   }
 
-  const pickupTypeIcons = {
-    'drive-thru': '🚗',
-    'counter': '🏪',
-    'curbside': '🅿️',
-    'delivery': '🚚'
-  }
-
   return (
     <div
       className={cn(
-        'rounded-lg border-2 p-4 shadow-sm transition-all relative',
-        urgencyColors[orderGroup.urgency_level]
+        'rounded-lg border-2 p-4 shadow-card hover:shadow-card-hover transition-all',
+        cardStyle
       )}
     >
-      {/* Large Order Type Badge */}
-      <OrderTypeBadge pickupType={orderGroup.pickup_type} />
-
-      {/* Header - adjusted padding for badge */}
-      <div className="flex items-start justify-between mb-3 ml-10">
+      {/* Clean Header */}
+      <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-lg font-bold">Order #{orderGroup.order_number}</h3>
+            <h3 className="text-lg font-bold text-gray-900">Order #{orderGroup.order_number}</h3>
+            <OrderTypeBadge pickupType={orderGroup.pickup_type} />
             <Badge variant="outline" className={cn('text-xs', statusColors[orderGroup.status])}>
               {orderGroup.status.toUpperCase()}
             </Badge>
@@ -152,35 +130,21 @@ export function OrderGroupCard({
             <div className="flex items-center gap-2">
               <span className="font-medium">{orderGroup.customer_name}</span>
               {orderGroup.customer_phone && (
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1 text-gray-500">
                   <Phone className="w-3 h-3" />
                   {orderGroup.customer_phone}
                 </span>
               )}
             </div>
-            {/* Pickup type is now shown in large badge - keeping minimal text here */}
-            <div className="text-xs text-gray-500 uppercase mt-1">
-              {orderGroup.pickup_type.replace('-', ' ')}
-            </div>
           </div>
         </div>
 
-        {/* Age indicator */}
+        {/* Simple time indicator */}
         <div className="text-right">
-          <div className={cn(
-            'flex items-center gap-1 text-sm',
-            orderGroup.urgency_level === 'critical' && 'text-red-600 font-bold',
-            orderGroup.urgency_level === 'urgent' && 'text-orange-600 font-semibold',
-            orderGroup.urgency_level === 'warning' && 'text-yellow-700'
-          )}>
+          <div className="flex items-center gap-1 text-sm text-gray-600">
             <Clock className="w-4 h-4" />
-            <span>{orderGroup.age_minutes} min ago</span>
+            <span>{orderGroup.age_minutes} min</span>
           </div>
-          {orderGroup.urgency_level === 'critical' && (
-            <div className="text-xs text-red-600 font-bold mt-1">
-              URGENT!
-            </div>
-          )}
         </div>
       </div>
 
