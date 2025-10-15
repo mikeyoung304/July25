@@ -34,13 +34,13 @@ function KitchenDisplayOptimized() {
   } = useKitchenOrdersOptimized()
 
   // Separate active from scheduled orders
-  const { active: activeOrders, scheduled: scheduledGroups } = useScheduledOrders(orders)
+  const { active: unscheduledOrders, scheduled: scheduledGroups } = useScheduledOrders(orders)
 
-  // Table grouping (only active orders)
-  const groupedOrders = useTableGrouping(activeOrders)
+  // Table grouping (only unscheduled orders)
+  const groupedOrders = useTableGrouping(unscheduledOrders)
 
-  // Order grouping (only active online orders)
-  const orderGroups = useOrderGrouping(activeOrders)
+  // Order grouping (only unscheduled online orders)
+  const orderGroups = useOrderGrouping(unscheduledOrders)
 
   // Enhanced filtering and sorting state
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
@@ -460,6 +460,7 @@ function KitchenDisplayOptimized() {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Main Content Area */}
