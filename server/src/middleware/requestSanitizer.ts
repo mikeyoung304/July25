@@ -119,16 +119,25 @@ function sanitizeObject(obj: any, path: string = ''): any {
  */
 function sanitizeParams(params: any): any {
   const sanitized: any = {};
-  
+
+  // Skip sanitization for auth tokens (already validated by Supabase/auth layer)
+  const SKIP_PARAMS = new Set(['token', 'access_token', 'refresh_token', 'api_key']);
+
   for (const [key, value] of Object.entries(params)) {
+    // Skip sensitive query parameters (tokens, keys)
+    if (SKIP_PARAMS.has(key)) {
+      sanitized[key] = value;
+      continue;
+    }
+
     // Sanitize key (parameter names shouldn't have special characters)
     const sanitizedKey = key.replace(/[^a-zA-Z0-9_\-]/g, '');
-    
+
     if (sanitizedKey !== key) {
       logger.warn(`Suspicious parameter name blocked: ${key}`);
       continue;
     }
-    
+
     // Sanitize value
     if (typeof value === 'string') {
       // URL decode and sanitize
@@ -142,7 +151,7 @@ function sanitizeParams(params: any): any {
       sanitized[sanitizedKey] = value;
     }
   }
-  
+
   return sanitized;
 }
 
