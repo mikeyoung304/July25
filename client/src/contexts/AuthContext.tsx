@@ -165,8 +165,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Email/password login (Pure Supabase Auth)
   const login = async (email: string, password: string, restaurantId: string) => {
+    console.log('🔐 [AuthContext] login() START:', { email, restaurantId });
     setIsLoading(true);
     try {
+      console.log('🔐 [AuthContext] Step A: Calling supabase.auth.signInWithPassword');
+      const supabaseStart = Date.now();
       logger.info('🔐 Attempting Supabase login', { email, restaurantId });
 
       // 1. Authenticate with Supabase directly
@@ -175,7 +178,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password
       });
 
+      const supabaseDuration = Date.now() - supabaseStart;
+      console.log(`🔐 [AuthContext] Step B: Supabase auth completed in ${supabaseDuration}ms`);
+
       if (authError || !authData.session) {
+        console.error('🔐 [AuthContext] ERROR: Supabase authentication failed:', authError);
         logger.error('Supabase authentication failed:', authError);
         throw new Error(authError?.message || 'Login failed');
       }
@@ -183,12 +190,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logger.info('✅ Supabase authentication successful');
 
       // 2. Fetch user profile and role from backend
+      console.log('🔐 [AuthContext] Step C: Calling /api/v1/auth/me');
+      const authMeStart = Date.now();
+
       // (httpClient will automatically use the Supabase session we just created)
       const response = await httpClient.get<{ user: User; restaurantId: string }>(
         '/api/v1/auth/me'
       );
 
+      const authMeDuration = Date.now() - authMeStart;
+      console.log(`🔐 [AuthContext] Step D: /auth/me completed in ${authMeDuration}ms`);
+
       // 3. Update React state
+      console.log('🔐 [AuthContext] Step E: Setting user state');
       setUser(response.user);
       setRestaurantId(response.restaurantId);
       setSession({
@@ -198,6 +212,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         expiresAt: authData.session.expires_at
       });
 
+      console.log('🔐 [AuthContext] Step F: login() COMPLETE', {
+        role: response.user.role,
+        scopes: response.user.scopes
+      });
+
       logger.info('✅ Login complete', {
         email,
         role: response.user.role,
@@ -205,11 +224,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
     } catch (error) {
+      console.error('🔐 [AuthContext] ERROR in login():', error);
       logger.error('Login failed:', error);
       // Clean up on error
       await supabase.auth.signOut();
       throw error;
     } finally {
+      console.log('🔐 [AuthContext] login() setting isLoading=false');
       setIsLoading(false);
     }
   };
