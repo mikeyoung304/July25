@@ -43,7 +43,10 @@ const GridItem: React.FC<GridItemProps> = ({ columnIndex, rowIndex, style, data 
 }
 
 export function VirtualizedOrderGrid({ orders, onStatusChange, className }: VirtualizedOrderGridProps) {
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+  const [dimensions, setDimensions] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth - 32 : 1200,
+    height: typeof window !== 'undefined' ? Math.max(600, window.innerHeight - 200) : 800
+  })
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -57,11 +60,12 @@ export function VirtualizedOrderGrid({ orders, onStatusChange, className }: Virt
       }
     }
 
-    updateDimensions()
-    
+    // Delay initial measurement to ensure DOM is ready
+    const timer = setTimeout(updateDimensions, 0)
+
     const resizeObserver = new ResizeObserver(updateDimensions)
     const container = document.getElementById('kitchen-grid-container')
-    
+
     if (container) {
       resizeObserver.observe(container)
     }
@@ -69,6 +73,7 @@ export function VirtualizedOrderGrid({ orders, onStatusChange, className }: Virt
     window.addEventListener('resize', updateDimensions)
 
     return () => {
+      clearTimeout(timer)
       resizeObserver.disconnect()
       window.removeEventListener('resize', updateDimensions)
     }
