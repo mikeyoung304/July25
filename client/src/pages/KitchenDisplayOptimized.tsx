@@ -13,7 +13,6 @@ import { useTableGrouping, sortTableGroups } from '@/hooks/useTableGrouping'
 import { useOrderGrouping, sortOrderGroups } from '@/hooks/useOrderGrouping'
 import { useScheduledOrders } from '@/hooks/useScheduledOrders'
 import { ScheduledOrdersSection } from '@/components/kitchen/ScheduledOrdersSection'
-import {  } from '@/utils'
 import type { Order } from '@rebuild/shared'
 
 type StatusFilter = 'all' | 'active' | 'ready' | 'urgent'
