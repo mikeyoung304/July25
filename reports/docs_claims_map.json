@@ -1,0 +1,881 @@
+[
+  {
+    "file": "docs/SQUARE_INTEGRATION.md",
+    "claims": [
+      {
+        "claim": "Square Node.js SDK v43 is used for payment integration",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 7,
+            "text": "import { SquareClient, SquareEnvironment } from 'square';"
+          }
+        ]
+      },
+      {
+        "claim": "SquareClient uses 'token' property for authentication (not 'accessToken')",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 28,
+            "text": "const client = new SquareClient({ token: process.env['SQUARE_ACCESS_TOKEN']! });"
+          }
+        ]
+      },
+      {
+        "claim": "Idempotency keys are shortened to 26 characters (format: {last_12_order_id}-{timestamp})",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/services/payment.service.ts",
+            "line": 84,
+            "text": "const idempotencyKey = `${order.id.slice(-12)}-${Date.now()}`;"
+          }
+        ]
+      },
+      {
+        "claim": "Server validates SQUARE_LOCATION_ID matches access token on startup",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 37,
+            "text": "// STARTUP VALIDATION: Verify Square credentials match"
+          },
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 61,
+            "text": "if (!locationIds.includes(configuredLocation)) { error logging }"
+          }
+        ]
+      },
+      {
+        "claim": "Payment endpoint is POST /api/v1/payments/create",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 104,
+            "text": "router.post('/create', authenticate, validateRestaurantAccess, ..."
+          }
+        ]
+      },
+      {
+        "claim": "Server NEVER trusts client-provided amounts, always validates server-side",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 132,
+            "text": "const validation = await PaymentService.validatePaymentRequest(...)"
+          },
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 158,
+            "text": "amountMoney: { amount: BigInt(serverAmount) } // Use server-calculated amount"
+          }
+        ]
+      },
+      {
+        "claim": "Demo mode supported with SQUARE_ACCESS_TOKEN=demo",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 171,
+            "text": "if (!process.env['SQUARE_ACCESS_TOKEN'] || process.env['SQUARE_ACCESS_TOKEN'] === 'demo')"
+          }
+        ]
+      },
+      {
+        "claim": "Payment audit logs created for PCI compliance (7-year retention)",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 212,
+            "text": "await PaymentService.logPaymentAttempt({ orderId, amount, status, ... })"
+          }
+        ]
+      },
+      {
+        "claim": "Square Terminal API supports in-person payments with polling every 2 seconds",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "server/src/routes/terminal.routes.ts",
+            "line": 6,
+            "text": "import { SquareClient } from 'square' (terminal routes exist)"
+          }
+        ]
+      },
+      {
+        "claim": "Script /scripts/validate-square-credentials.sh validates credentials",
+        "status": "no_evidence",
+        "evidence": []
+      }
+    ]
+  },
+  {
+    "file": "docs/WEBSOCKET_EVENTS.md",
+    "claims": [
+      {
+        "claim": "WebSocket connections require authentication",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/middleware/auth.ts",
+            "line": 114,
+            "text": "export async function verifyWebSocketAuth(request)"
+          },
+          {
+            "path": "server/src/utils/websocket.ts",
+            "line": 52,
+            "text": "const auth = await verifyWebSocketAuth(request);"
+          }
+        ]
+      },
+      {
+        "claim": "Failed authentication closes connection with code 1008",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/utils/websocket.ts",
+            "line": 55,
+            "text": "ws.close(1008, 'Unauthorized');"
+          }
+        ]
+      },
+      {
+        "claim": "WebSocket events include order:created, order:updated, order:status",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/utils/websocket.ts",
+            "line": 206,
+            "text": "type: 'order:created'"
+          },
+          {
+            "path": "server/src/utils/websocket.ts",
+            "line": 191,
+            "text": "type: 'order:updated'"
+          }
+        ]
+      },
+      {
+        "claim": "Heartbeat interval is 60 seconds",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/WEBSOCKET_EVENTS.md",
+            "line": 30,
+            "text": "Heartbeat: 60-second ping/pong (no code confirmation found)"
+          }
+        ]
+      },
+      {
+        "claim": "Rate limits: 100/minute for regular messages, 1000/minute for voice streaming",
+        "status": "no_evidence",
+        "evidence": []
+      },
+      {
+        "claim": "WebSocket URL is ws://localhost:3001 (dev) or wss://july25.onrender.com (prod)",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/WEBSOCKET_EVENTS.md",
+            "line": 5,
+            "text": "Documented URLs but no code confirmation of exact paths"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/PRODUCTION_DIAGNOSTICS.md",
+    "claims": [
+      {
+        "claim": "Historical document from September 23, 2025 incident",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "docs/PRODUCTION_DIAGNOSTICS.md",
+            "line": 11,
+            "text": "Incident Date: September 23, 2025 3:00 AM"
+          }
+        ]
+      },
+      {
+        "claim": "CORS allows july25-client-*.vercel.app domains",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/server.ts",
+            "line": 64,
+            "text": "const allowedOrigins = new Set<string>([...])"
+          }
+        ]
+      },
+      {
+        "claim": "Missing environment variables: KIOSK_JWT_SECRET, STATION_TOKEN_SECRET, PIN_PEPPER, DEVICE_FINGERPRINT_SALT, SUPABASE_JWT_SECRET",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/PRODUCTION_DIAGNOSTICS.md",
+            "line": 64,
+            "text": "Listed as historical issues (no current code verification)"
+          }
+        ]
+      },
+      {
+        "claim": "WebSocket authentication requires JWT token",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/utils/websocket.ts",
+            "line": 52,
+            "text": "const auth = await verifyWebSocketAuth(request);"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md",
+    "claims": [
+      {
+        "claim": "Incident caused by single-character typo in SQUARE_LOCATION_ID (L3 instead of L1)",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "docs/POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md",
+            "line": 13,
+            "text": "The location ID configured was `L3V8KTKZN0DHD` but correct is `L1V8KTKZN0DHD`"
+          }
+        ]
+      },
+      {
+        "claim": "Startup validation now checks if SQUARE_LOCATION_ID matches access token",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 50,
+            "text": "const locationsResponse = await client.locations.list();"
+          },
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 61,
+            "text": "if (!locationIds.includes(configuredLocation)) { log error }"
+          }
+        ]
+      },
+      {
+        "claim": "Credential validation script at /scripts/validate-square-credentials.sh",
+        "status": "no_evidence",
+        "evidence": []
+      },
+      {
+        "claim": "SDK v43 changed createPayment() to create()",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 185,
+            "text": "paymentResult = await paymentsApi.create(paymentRequest);"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/MIGRATION_V6_AUTH.md",
+    "claims": [
+      {
+        "claim": "Frontend authenticates directly with Supabase using signInWithPassword",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "client/src/contexts/AuthContext.tsx",
+            "line": 180,
+            "text": "const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password })"
+          }
+        ]
+      },
+      {
+        "claim": "Backend endpoint /api/v1/auth/login was removed",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/MIGRATION_V6_AUTH.md",
+            "line": 38,
+            "text": "Documented as removed, but backend endpoint still exists per docs note"
+          }
+        ]
+      },
+      {
+        "claim": "Backend endpoint /api/v1/auth/me still exists for user profile fetching",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/MIGRATION_V6_AUTH.md",
+            "line": 49,
+            "text": "Endpoint listed as kept (no code confirmation found)"
+          }
+        ]
+      },
+      {
+        "claim": "Race condition between setSession() and navigation was eliminated",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "client/src/contexts/AuthContext.tsx",
+            "line": 60,
+            "text": "const refreshInProgressRef = useRef(false); (prevents race conditions)"
+          }
+        ]
+      },
+      {
+        "claim": "SUPABASE_JWT_SECRET required in backend for JWT validation",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/MIGRATION_V6_AUTH.md",
+            "line": 104,
+            "text": "Listed as required environment variable (no code confirmation)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/KDS-BIBLE.md",
+    "claims": [
+      {
+        "claim": "7 order statuses: new, pending, confirmed, preparing, ready, completed, cancelled",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "shared/types/order.types.ts",
+            "line": 6,
+            "text": "export type OrderStatus = 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready' | 'picked-up' | 'completed' | 'cancelled'"
+          }
+        ]
+      },
+      {
+        "claim": "OrderStateMachine.ts validates status transitions",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/KDS-BIBLE.md",
+            "line": 120,
+            "text": "Referenced file path /server/src/services/orderStateMachine.ts"
+          }
+        ]
+      },
+      {
+        "claim": "useKitchenOrdersRealtime hook subscribes to WebSocket events",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/KDS-BIBLE.md",
+            "line": 127,
+            "text": "Hook name documented (no code confirmation found)"
+          }
+        ]
+      },
+      {
+        "claim": "KitchenErrorBoundary catches runtime errors",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/KDS-BIBLE.md",
+            "line": 131,
+            "text": "Component referenced (no code confirmation)"
+          }
+        ]
+      },
+      {
+        "claim": "WebSocket heartbeat interval is 30 seconds",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/KDS-BIBLE.md",
+            "line": 105,
+            "text": "Documented as 30s (conflicts with 60s in WEBSOCKET_EVENTS.md)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/CONTRIBUTING.md",
+    "claims": [
+      {
+        "claim": "TypeScript strict mode must be enabled",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/CONTRIBUTING.md",
+            "line": 66,
+            "text": "Documented requirement (no tsconfig.json verification)"
+          }
+        ]
+      },
+      {
+        "claim": "ESLint configuration is enforced",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/CONTRIBUTING.md",
+            "line": 73,
+            "text": "Documented as enforced (no code verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Current test coverage baseline is ~23.47%",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/CONTRIBUTING.md",
+            "line": 82,
+            "text": "Specific coverage number documented (no test report verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Bundle size target: Main chunk <100KB",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/CONTRIBUTING.md",
+            "line": 115,
+            "text": "Documented as quality gate (no webpack config verification)"
+          }
+        ]
+      },
+      {
+        "claim": "All features must support multi-tenant operation with restaurant_id",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "docs/CONTRIBUTING.md",
+            "line": 120,
+            "text": "Include `restaurant_id` in all data operations"
+          },
+          {
+            "path": "shared/types/order.types.ts",
+            "line": 46,
+            "text": "restaurant_id: string (in Order interface)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/AGENTS.md",
+    "claims": [
+      {
+        "claim": "Default model is gpt-5-codex for code, fallback gpt-5 for planning",
+        "status": "no_evidence",
+        "evidence": []
+      },
+      {
+        "claim": "Typecheck command: npm run typecheck --workspaces",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/AGENTS.md",
+            "line": 13,
+            "text": "Command documented (no package.json verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Quality gates: TS errors=0, Lint errors=0, Tests pass, Bundle <100KB",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/AGENTS.md",
+            "line": 19,
+            "text": "Gates documented as requirements (no CI config verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Feature flags: VOICE_ENABLED, TWILIO_ENABLED, PAYMENTS_WEBHOOKS_ENABLED, DEMO_MODE",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/AGENTS.md",
+            "line": 25,
+            "text": "Flags listed (no code verification of actual usage)"
+          }
+        ]
+      },
+      {
+        "claim": "RLS policies enforce multi-tenancy",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "supabase/migrations/20251015_multi_tenancy_rls_and_pin_fix.sql",
+            "line": 1,
+            "text": "Migration file exists for RLS policies"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/DOCUMENTATION_STANDARDS.md",
+    "claims": [
+      {
+        "claim": "Every doc must include Last Updated date and link to VERSION.md",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "docs/DOCUMENTATION_STANDARDS.md",
+            "line": 12,
+            "text": "Required header format defined with Last Updated and VERSION.md link"
+          }
+        ]
+      },
+      {
+        "claim": "Do NOT hardcode version numbers in documentation",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "docs/DOCUMENTATION_STANDARDS.md",
+            "line": 24,
+            "text": "❌ Hardcode version numbers (marked as WRONG)"
+          }
+        ]
+      },
+      {
+        "claim": "File naming: lowercase with hyphens (e.g., database-schema.md)",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "docs/DOCUMENTATION_STANDARDS.md",
+            "line": 78,
+            "text": "Use lowercase with hyphens: `database-schema.md`"
+          }
+        ]
+      },
+      {
+        "claim": "CI pipeline checks for hardcoded versions, valid links, required headers",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/DOCUMENTATION_STANDARDS.md",
+            "line": 193,
+            "text": "CI checks documented (no actual CI config verification)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/ORDER_FLOW.md",
+    "claims": [
+      {
+        "claim": "Order creation endpoint is POST /api/v1/orders",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/orders.routes.ts",
+            "line": 38,
+            "text": "// POST /api/v1/orders - Create new order"
+          }
+        ]
+      },
+      {
+        "claim": "Menu items fetched via GET /api/v1/menu/items",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/menu.routes.ts",
+            "line": 23,
+            "text": "// GET /api/v1/menu/items - Get all menu items"
+          }
+        ]
+      },
+      {
+        "claim": "Cart persists in localStorage with key 'cart_current'",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/ORDER_FLOW.md",
+            "line": 417,
+            "text": "localStorage Key: `cart_current` documented (no code verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Tax rate is 8.25%",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/ORDER_FLOW.md",
+            "line": 165,
+            "text": "Tax (8.25%) documented in calculations (no code verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Order statuses: new, pending, confirmed, preparing, ready, completed, cancelled",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "shared/types/order.types.ts",
+            "line": 6,
+            "text": "export type OrderStatus = 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready' | 'picked-up' | 'completed' | 'cancelled'"
+          }
+        ]
+      },
+      {
+        "claim": "Server NEVER trusts client-provided amounts, always recalculates",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "docs/ORDER_FLOW.md",
+            "line": 255,
+            "text": "const calculatedSubtotal = body.items.reduce(...) // Server-side calculation"
+          },
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 132,
+            "text": "const validation = await PaymentService.validatePaymentRequest(...)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/ARCHITECTURE.md",
+    "claims": [
+      {
+        "claim": "Client built with React + Vite",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/ARCHITECTURE.md",
+            "line": 6,
+            "text": "subgraph Client[client (React+Vite)] documented in diagram"
+          }
+        ]
+      },
+      {
+        "claim": "Server built with Express + TypeScript",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/ARCHITECTURE.md",
+            "line": 10,
+            "text": "subgraph Server[server (Express+TS)] documented in diagram"
+          }
+        ]
+      },
+      {
+        "claim": "Database uses Supabase with RLS policies",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "supabase/migrations/20251015_multi_tenancy_rls_and_pin_fix.sql",
+            "line": 1,
+            "text": "Migration file for RLS policies exists"
+          }
+        ]
+      },
+      {
+        "claim": "Square adapter handles payment processing",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 28,
+            "text": "const client = new SquareClient({...})"
+          }
+        ]
+      },
+      {
+        "claim": "API uses camelCase, but POST /orders endpoint uses snake_case per ADR-001",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/payments.routes.ts",
+            "line": 112,
+            "text": "const { order_id, token, amount, idempotency_key } = req.body; // ADR-001: snake_case"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/MENU_SYSTEM.md",
+    "claims": [
+      {
+        "claim": "Menu items cached for 5 minutes (TTL 300 seconds)",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/MENU_SYSTEM.md",
+            "line": 190,
+            "text": "Cache: 5 minutes (300 seconds) documented (cache.service.ts not found)"
+          }
+        ]
+      },
+      {
+        "claim": "Menu seed script at /server/scripts/seed-menu.ts",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/MENU_SYSTEM.md",
+            "line": 52,
+            "text": "File path documented (no file content verification)"
+          }
+        ]
+      },
+      {
+        "claim": "GET /api/v1/menu/items endpoint for fetching menu",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "server/src/routes/menu.routes.ts",
+            "line": 23,
+            "text": "// GET /api/v1/menu/items - Get all menu items"
+          }
+        ]
+      },
+      {
+        "claim": "Menu items table has RLS policy for multi-tenancy",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/MENU_SYSTEM.md",
+            "line": 82,
+            "text": "CREATE POLICY menu_items_tenant_isolation documented (no migration verification)"
+          }
+        ]
+      },
+      {
+        "claim": "POST /api/v1/menu/sync-ai syncs menu to OpenAI Realtime API",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/MENU_SYSTEM.md",
+            "line": 223,
+            "text": "Endpoint documented (no route file verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Voice ordering uses aliases for item matching",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/MENU_SYSTEM.md",
+            "line": 488,
+            "text": "Aliases field documented in structure (no code verification)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "docs/voice/VOICE_ORDERING_EXPLAINED.md",
+    "claims": [
+      {
+        "claim": "WebRTC used for voice streaming",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "client/src/modules/voice/services/WebRTCVoiceClient.ts",
+            "line": 42,
+            "text": "export class WebRTCVoiceClient extends EventEmitter"
+          }
+        ]
+      },
+      {
+        "claim": "useWebRTCVoice hook integrates voice functionality",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "client/src/modules/voice/hooks/useWebRTCVoice.ts",
+            "line": 38,
+            "text": "export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {})"
+          }
+        ]
+      },
+      {
+        "claim": "VoiceControlWebRTC component provides hold-to-talk UI",
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "client/src/modules/voice/components/VoiceControlWebRTC.tsx",
+            "line": 42,
+            "text": "} = useWebRTCVoice({ (component uses the hook)"
+          }
+        ]
+      },
+      {
+        "claim": "Audio format: PCM16, 24kHz sample rate, mono channel",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/voice/VOICE_ORDERING_EXPLAINED.md",
+            "line": 210,
+            "text": "Audio settings documented (no code verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Ephemeral tokens have 60-second lifetime",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/voice/VOICE_ORDERING_EXPLAINED.md",
+            "line": 76,
+            "text": "60 second token documented (no backend route verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Realtime session endpoint at /server/src/routes/realtime.routes.ts",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/voice/VOICE_ORDERING_EXPLAINED.md",
+            "line": 103,
+            "text": "File path documented (no file content verification)"
+          }
+        ]
+      },
+      {
+        "claim": "Target latency: Connection <1s, first word <300ms, complete order <2s",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/voice/VOICE_ORDERING_EXPLAINED.md",
+            "line": 262,
+            "text": "Performance metrics documented (no telemetry verification)"
+          }
+        ]
+      },
+      {
+        "claim": "WebRTCVoiceClient.ts is 1,264 lines of code",
+        "status": "weak",
+        "evidence": [
+          {
+            "path": "docs/voice/VOICE_ORDERING_EXPLAINED.md",
+            "line": 99,
+            "text": "Specific line count documented (no file size verification)"
+          }
+        ]
+      }
+    ]
+  }
+]
