@@ -87,13 +87,20 @@ export function DevAuthOverlay() {
   }
 
   const handleRoleSelect = async (role: DemoRole) => {
+    console.log('🎯 [DevAuth] Step 1: handleRoleSelect started for', role.name);
     setIsLoading(true);
     setSelectedRole(role.id);
     const restaurantId = '11111111-1111-1111-1111-111111111111';
 
     try {
+      console.log('🎯 [DevAuth] Step 2: Calling login() with', role.email);
+      const loginStart = Date.now();
+
       // Login and wait for session to be fully established
       await login(role.email, role.password, restaurantId);
+
+      const loginDuration = Date.now() - loginStart;
+      console.log(`🎯 [DevAuth] Step 3: login() completed in ${loginDuration}ms`);
 
       logger.info(`✅ Demo login completed for ${role.name}, session ready`);
       toast.success(`Logged in as ${role.name}`);
@@ -102,16 +109,22 @@ export function DevAuthOverlay() {
       // Staff can then choose their specific workspace
       const destination = '/home';
 
+      console.log('🎯 [DevAuth] Step 4: Waiting 100ms before navigation');
       // Small delay to ensure React state updates propagate
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Use React Router navigation instead of hard reload
+      console.log(`🎯 [DevAuth] Step 5: Navigating to ${destination}`);
       logger.info(`🚀 Navigating to ${destination}`);
       navigate(destination, { replace: true });
+
+      console.log('🎯 [DevAuth] Step 6: Navigation called, handleRoleSelect complete');
     } catch (error) {
+      console.error('🎯 [DevAuth] ERROR in handleRoleSelect:', error);
       logger.error(`Demo login failed for ${role.name}:`, error);
       toast.error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
+      console.log('🎯 [DevAuth] Step 7: Cleaning up loading state');
       setIsLoading(false);
       setSelectedRole(null);
     }
