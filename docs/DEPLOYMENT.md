@@ -521,5 +521,91 @@ interface Order {
 
 ---
 
+## KDS Deploy
+
+### Kitchen Display System
+
+**Order Statuses**
+_(Source: KDS-BIBLE.md@79d1619, verified)_
+
+7 order statuses must be handled by KDS:
+- `new` - Order just created
+- `pending` - Order submitted
+- `confirmed` - Order accepted by kitchen
+- `preparing` - Actively being prepared
+- `ready` - Ready for pickup
+- `completed` - Order fulfilled
+- `cancelled` - Order cancelled
+
+**Implementation:** `shared/types/order.types.ts:6`
+```typescript
+export type OrderStatus =
+  'new' | 'pending' | 'confirmed' | 'preparing' |
+  'ready' | 'picked-up' | 'completed' | 'cancelled'
+```
+
+**WebSocket Real-Time Updates**
+_(Source: KDS-BIBLE.md@79d1619, verified)_
+
+KDS receives real-time order updates via WebSocket connection with restaurant-scoped events.
+
+**Implementation Files:**
+- `server/src/utils/websocket.ts` - WebSocket server implementation
+- `client/src/hooks/useKitchenOrdersRealtime.ts` - Client-side real-time hook
+- `client/src/pages/KitchenDisplayOptimized.tsx` - Main KDS display
+- `client/src/components/kitchen/OrderCard.tsx` - Order card component
+- `client/src/components/errors/KitchenErrorBoundary.tsx` - Error boundary
+
+---
+
+## Production Diagnostics
+
+### CORS Configuration
+
+**CORS Allowlist (No Wildcards)**
+_(Source: PRODUCTION_DIAGNOSTICS.md@79d1619, verified)_
+
+CORS configuration uses explicit allowlist. No wildcard (`*`) origins permitted.
+
+**Implementation:** `server/src/server.ts:64-126`
+```typescript
+const allowedOrigins = new Set<string>([...]);
+// FRONTEND_URL added to allowed origins (line 105)
+// ALLOWED_ORIGINS env var parsed and added (lines 98-101)
+// Origin matching logic (line 126)
+```
+
+**Environment Variables:**
+- `FRONTEND_URL` - Primary frontend URL (has default fallback)
+- `ALLOWED_ORIGINS` - Additional allowed origins (comma-separated, has default fallback)
+
+**Configuration:** `server/src/config/env.ts`
+
+### WebSocket Authentication
+
+**Production WebSocket Authentication**
+_(Source: PRODUCTION_DIAGNOSTICS.md@79d1619, verified)_
+
+Production WebSocket path rejects missing/invalid JWT.
+
+**Implementation:** `server/src/utils/websocket.ts:52` calls `verifyWebSocketAuth()`
+
+### Historical Incidents
+
+**September 23, 2025 Production Incident**
+_(Source: PRODUCTION_DIAGNOSTICS.md@79d1619, verified)_
+
+Historical incident documenting production system failures due to missing environment variables and CORS misconfiguration. Full incident report archived in `docs/archive/moved/2025-10-15_PRODUCTION_DIAGNOSTICS.md`.
+
+**Root Causes:**
+- Missing environment variables in Vercel deployment
+- CORS blocking between frontend and backend
+- Missing JWT secrets in Render
+- WebSocket authentication failures
+
+**Resolution:** Environment variables configured, CORS allowlist updated, JWT secrets added.
+
+---
+
 **Last Updated**: September 26, 2025
 **Version**: 6.0.6

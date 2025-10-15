@@ -33,7 +33,7 @@ Step-by-step guides for common tasks.
 
 ### Features
 - [Voice Ordering](voice/VOICE_ORDERING_EXPLAINED.md) - AI voice system
-- [Kitchen Display System](KDS-BIBLE.md) - KDS implementation
+- [Kitchen Display System](DEPLOYMENT.md#kds-deploy) - KDS implementation
 - [Order Flow](ORDER_FLOW.md) - Order lifecycle
 
 ## 📖 Reference

@@ -54,7 +54,7 @@ Enterprise-grade architectural decisions documented for AI agents and developers
 ## Features
 
 - [Voice Ordering](voice/VOICE_ORDERING_EXPLAINED.md)
-- [Kitchen Display System](KDS-BIBLE.md)
+- [Kitchen Display System](DEPLOYMENT.md#kds-deploy)
 - [Menu System](MENU_SYSTEM.md)
 - [Order Flow](ORDER_FLOW.md)
 - [Square Integration](DEPLOYMENT.md#square-integration)
