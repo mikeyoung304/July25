@@ -55,6 +55,7 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 ### Infrastructure
 
 - **Environment Variables**: Secrets never in code
+  - The single required secret is SUPABASE_SERVICE_KEY (server-side only, never exposed to client)
 - **Dependency Scanning**: Regular vulnerability audits
 - **Access Logs**: All API access logged with user context
 - **Error Handling**: No sensitive data in error messages

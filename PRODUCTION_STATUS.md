@@ -1,20 +1,8 @@
-# Production Readiness Status
+# Moved to Canonical Documentation
 
-**Last Updated:** 2025-10-15
-**Version:** 6.0.8-rc.1
-**Status:** ✅ Launch-ready (canary)
-**Overall Readiness:** A- (Security A, Realtime A-, Ops B+)
+This page has been consolidated into the canonical docs.
 
-## Executive Summary
-Security hardening complete; realtime stabilized; multi-tenancy enforced at app and DB layers. Canary rollout planned with tight monitoring. ADR-001 (snake_case end-to-end) is scheduled post-launch.
+- Canonical: [Production Status](./docs/PRODUCTION_STATUS.md#production-readiness-status)
+- Original preserved at: docs/archive/legacy-root/2025-10-15_PRODUCTION_STATUS.md
 
-## Recent Milestones
-- ✅ Single JWT secret (fail-fast), strict CORS allowlist, PII redaction
-- ✅ WS reconnect finally, single init + cleanup; KDS e2e thrash + churn pass
-- ✅ RLS policies + composite PIN uniqueness; mutation guards by restaurant
-- ✅ Artifact audit (no secrets in dist)
-
-## Risks / Next Sprint
-- **Naming:** unify snake_case across API/client; remove transformers
-- **Observability:** expand structured logs + Sentry
-- **Payments:** increase integration tests
+Rationale: single source of truth with evidence-verified content.
