@@ -1,0 +1,139 @@
+<testsuites id="" name="" tests="2" failures="2" skipped="0" errors="0" time="379.35593100000006">
+<testsuite name="voice-order.spec.ts" timestamp="2025-10-16T17:12:28.788Z" hostname="chromium-voice" tests="2" failures="2" skipped="0" time="377.781" errors="0">
+<testcase name="Voice Ordering E2E › Run 1: Normal Network" classname="voice-order.spec.ts" time="189.583">
+<failure message="voice-order.spec.ts:494:3 Run 1: Normal Network" type="FAILURE">
+<![CDATA[  [chromium-voice] › voice-order.spec.ts:494:3 › Voice Ordering E2E › Run 1: Normal Network ────────
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.scrollIntoViewIfNeeded: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for locator('input[type="email"], input[name="email"], input[placeholder*="email" i]').first()
+
+
+      30 | // Responsive visibility helpers
+      31 | async function ensureVisible(locator: Locator) {
+    > 32 |   await locator.scrollIntoViewIfNeeded();
+         |                 ^
+      33 |   await locator.waitFor({ state: 'visible', timeout: 8000 });
+      34 | }
+      35 |
+        at ensureVisible (/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/voice-order.spec.ts:32:17)
+        at runVoiceOrderingFlow (/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/voice-order.spec.ts:273:13)
+        at /Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/voice-order.spec.ts:495:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/voice-order-Voice-Ordering-E2E-Run-1-Normal-Network-chromium-voice/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/voice-order-Voice-Ordering-E2E-Run-1-Normal-Network-chromium-voice/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/voice-order-Voice-Ordering-E2E-Run-1-Normal-Network-chromium-voice/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/voice-order-Voice-Ordering-E2E-Run-1-Normal-Network-chromium-voice/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/voice-order-Voice-Ordering-E2E-Run-1-Normal-Network-chromium-voice/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+========== Starting pass1_normal test ==========
+
+[B1] Navigating to BASE_URL...
+[splash] Waiting 5.5s for splash screen...
+[splash] No splash selector found or already hidden
+[B3] Attempting login...
+
+[[ATTACHMENT|../../../test-results/voice-order-Voice-Ordering-E2E-Run-1-Normal-Network-chromium-voice/test-failed-1.png]]
+
+[[ATTACHMENT|../../../test-results/voice-order-Voice-Ordering-E2E-Run-1-Normal-Network-chromium-voice/video.webm]]
+
+[[ATTACHMENT|../../../test-results/voice-order-Voice-Ordering-E2E-Run-1-Normal-Network-chromium-voice/error-context.md]]
+
+[[ATTACHMENT|../../../test-results/voice-order-Voice-Ordering-E2E-Run-1-Normal-Network-chromium-voice/trace.zip]]
+]]>
+</system-out>
+<system-err>
+<![CDATA[[ERROR] Test failed in pass1_normal: locator.scrollIntoViewIfNeeded: Test timeout of 180000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[type="email"], input[name="email"], input[placeholder*="email" i]').first()[22m
+
+]]>
+</system-err>
+</testcase>
+<testcase name="Voice Ordering E2E › Run 2: Degraded Network (3G)" classname="voice-order.spec.ts" time="188.198">
+<failure message="voice-order.spec.ts:499:3 Run 2: Degraded Network (3G)" type="FAILURE">
+<![CDATA[  [chromium-voice] › voice-order.spec.ts:499:3 › Voice Ordering E2E › Run 2: Degraded Network (3G) ─
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.scrollIntoViewIfNeeded: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for locator('input[type="email"], input[name="email"], input[placeholder*="email" i]').first()
+
+
+      30 | // Responsive visibility helpers
+      31 | async function ensureVisible(locator: Locator) {
+    > 32 |   await locator.scrollIntoViewIfNeeded();
+         |                 ^
+      33 |   await locator.waitFor({ state: 'visible', timeout: 8000 });
+      34 | }
+      35 |
+        at ensureVisible (/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/voice-order.spec.ts:32:17)
+        at runVoiceOrderingFlow (/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/voice-order.spec.ts:273:13)
+        at /Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/voice-order.spec.ts:500:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/voice-order-Voice-Ordering-E2E-Run-2-Degraded-Network-3G--chromium-voice/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/voice-order-Voice-Ordering-E2E-Run-2-Degraded-Network-3G--chromium-voice/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/voice-order-Voice-Ordering-E2E-Run-2-Degraded-Network-3G--chromium-voice/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-results/voice-order-Voice-Ordering-E2E-Run-2-Degraded-Network-3G--chromium-voice/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../test-results/voice-order-Voice-Ordering-E2E-Run-2-Degraded-Network-3G--chromium-voice/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+========== Starting pass2_degraded test ==========
+
+[B1] Navigating to BASE_URL...
+[splash] Waiting 5.5s for splash screen...
+[splash] No splash selector found or already hidden
+[Network] Enabling degraded network (3G simulation)...
+[B3] Attempting login...
+
+[[ATTACHMENT|../../../test-results/voice-order-Voice-Ordering-E2E-Run-2-Degraded-Network-3G--chromium-voice/test-failed-1.png]]
+
+[[ATTACHMENT|../../../test-results/voice-order-Voice-Ordering-E2E-Run-2-Degraded-Network-3G--chromium-voice/video.webm]]
+
+[[ATTACHMENT|../../../test-results/voice-order-Voice-Ordering-E2E-Run-2-Degraded-Network-3G--chromium-voice/error-context.md]]
+
+[[ATTACHMENT|../../../test-results/voice-order-Voice-Ordering-E2E-Run-2-Degraded-Network-3G--chromium-voice/trace.zip]]
+]]>
+</system-out>
+<system-err>
+<![CDATA[[ERROR] Test failed in pass2_degraded: locator.scrollIntoViewIfNeeded: Test timeout of 180000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[type="email"], input[name="email"], input[placeholder*="email" i]').first()[22m
+
+]]>
+</system-err>
+</testcase>
+</testsuite>
+</testsuites>
