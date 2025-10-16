@@ -8,6 +8,14 @@ on:
       - 'tools/**'
       - 'scripts/**'
       - '.github/workflows/frontend-ci.yml'
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'scripts/docs-check.js'
+      - 'scripts/reality-audit.sh'
+      - '.github/workflows/docs-ci.yml'
+      - '.github/workflows/docs-check.yml'
+      - '.github/workflows/reality-audit.yml'
 
 jobs:
   client:
