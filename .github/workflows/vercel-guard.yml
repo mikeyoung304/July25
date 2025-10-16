@@ -2,8 +2,20 @@ name: Vercel Project Guard
 on:
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'scripts/docs-check.js'
+      - '.github/workflows/docs-ci.yml'
+      - '.github/workflows/docs-check.yml'
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'scripts/docs-check.js'
+      - '.github/workflows/docs-ci.yml'
+      - '.github/workflows/docs-check.yml'
 jobs:
   verify-vercel-project:
     runs-on: ubuntu-latest
