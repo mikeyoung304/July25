@@ -2,6 +2,8 @@ name: Docs Check
 on:
   pull_request:
     branches: [ main, 'stabilize/**', 'docs/**' ]
+  push:
+    branches: [ main ]
 jobs:
   docs:
     runs-on: ubuntu-latest
