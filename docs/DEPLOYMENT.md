@@ -107,6 +107,8 @@ git push origin main
 
 ## Deployment Checklist
 
+<a id="pre-deployment-checklist"></a>
+
 ### Pre-deployment
 - [ ] All tests passing (`npm test`)
 - [ ] TypeScript compilation successful (`npm run typecheck`)
@@ -173,6 +175,8 @@ curl https://your-api.onrender.com/api/v1/ai/voice/handshake
 - Check WebRTC connection setup
 - Validate microphone permissions
 - Review voice service logs
+
+<a id="release-flow"></a>
 
 ## Rollback Procedure
 
@@ -421,6 +425,8 @@ Restaurant context automatically scoped from JWT. All WebSocket events filtered 
 
 ---
 
+<a id="incidents-postmortems"></a>
+
 ## Incidents & Post-Mortems
 
 ### Square Credential Mismatch Incident (October 14, 2025)
@@ -502,9 +508,15 @@ Supabase migrations and RLS policies exist for user authentication schema and re
 
 ---
 
+<a id="contributor-ops-handoff"></a>
+
 ## Contributor Operations Handoff
 
 ### Multi-Tenant Architecture
+
+<a id="multi-tenancy-requirement"></a>
+
+
 
 **Multi-Tenancy Requirement**
 _(Source: CONTRIBUTING.md@79d1619, verified)_

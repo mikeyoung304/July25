@@ -547,6 +547,8 @@ Payment integration with Square API. Audit trail logging confirmed.
 
 ---
 
+<a id="voice--webrtc-auth-and-websocket-jwt"></a>
+
 ## Voice & WebRTC Auth and WebSocket JWT
 
 **(Source: voice/VOICE_ORDERING_EXPLAINED.md@1b8a708, verified)**

@@ -117,6 +117,8 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 - [ ] Add Redis-based session store
 - [ ] Implement session fingerprinting
 
+<a id="agent--operator-safety"></a>
+
 ## Agent & Operator Safety
 
 ### Security Rails for AI Agents & Human Operators

@@ -221,10 +221,16 @@ function extractHeadings(content) {
       headings.add(anchor);
     }
 
-    // Also check for {#custom-anchor} syntax
+    // Check for {#custom-anchor} syntax
     const anchorMatch = line.match(/\{#([\w-]+)\}/);
     if (anchorMatch) {
       headings.add(anchorMatch[1]);
+    }
+
+    // Check for HTML anchor tags: <a id="anchor-name"></a>
+    const htmlAnchorMatch = line.match(/<a\s+id="([\w-]+)"\s*>/i);
+    if (htmlAnchorMatch) {
+      headings.add(htmlAnchorMatch[1]);
     }
   }
 
