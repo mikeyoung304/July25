@@ -1,15 +1,8 @@
-# Roadmap (Q4 2025)
+# Moved to Canonical Documentation
 
-## Now → Launch
-- Cut v6.0.8-rc.1, canary, full rollout with monitors.
-- Docs freeze during canary (critical fixes only).
+This page has been consolidated into the canonical docs.
 
-## Sprint: Refactor & Conform (post-launch)
-- **ADR-001 Naming**: snake_case end-to-end; remove camel↔snake transformers; update client models & API docs.
-- **Complexity**: split OrdersService, VoiceWebSocketServer, KitchenDisplayOptimized into focused units.
-- **Observability**: structured logs, request IDs/correlation, Sentry (client+server).
-- **Payments**: increase integration tests and error semantics.
+- Canonical: [Roadmap](./docs/ROADMAP.md#restaurant-os-v60-production-roadmap)
+- Original preserved at: docs/archive/legacy-root/2025-10-15_ROADMAP.md
 
-## Stretch
-- Offline/low-connectivity improvements for KDS.
-- Configurable KDS roles/views per station.
+Rationale: single source of truth with evidence-verified content.

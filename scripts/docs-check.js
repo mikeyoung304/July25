@@ -27,8 +27,8 @@ function mustContain(file, needle, description = null) {
 
 mustContain('README.md', 'v6.0.8-rc.1');
 mustContain('index.md', 'Documentation Index');
-mustContain('SECURITY.md', 'single required secret');
-mustContain('DEPLOYMENT.md', 'CORS');
+mustContain('docs/SECURITY.md', 'single required secret');
+mustContain('docs/DEPLOYMENT.md', 'CORS');
 mustContain('docs/DATABASE.md', 'RLS');
 
 // ============================================================================

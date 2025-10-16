@@ -1,21 +1,8 @@
-# KDS Order Flow (Operations)
+# Moved to Canonical Documentation
 
-## Overview
-Kitchen Display System (KDS) shows live orders and status changes in real time via WebSockets.
+This page has been consolidated into the canonical docs.
 
-## Steps in service
-1. Orders placed from Server UI appear in KDS within ~1s (P95).
-2. Tap to advance status; changes propagate to other stations.
-3. Filters and views can be customized per station.
+- Canonical: [Deployment Guide → KDS Deploy](./docs/DEPLOYMENT.md#kds-deploy)
+- Original preserved at: docs/archive/incidents/2025-10-15_KDS_ORDER_FLOW.md
 
-## Reliability (current code)
-- Single WebSocket connection guard per client.
-- Stable effect dependencies with explicit cleanup to prevent duplicate subscriptions.
-- Reconnect logic uses try/finally to avoid stuck flags.
-
-## Troubleshooting quick checks
-- Refresh page; guards should recover.
-- In dev, check `window.__dbgWS` counters (connectCount, subCount).
-- If updates lag: check network, server logs, or auth token expiry.
-
-For deeper incidents, see TROUBLESHOOTING.
+Rationale: single source of truth with evidence-verified content.
