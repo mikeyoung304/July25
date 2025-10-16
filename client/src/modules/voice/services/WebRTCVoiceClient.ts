@@ -7,6 +7,7 @@ export interface WebRTCVoiceConfig {
   userId?: string;
   debug?: boolean;
   enableVAD?: boolean; // Optional: enable server VAD mode
+  muteAudioOutput?: boolean; // Optional: mute AI voice responses (transcription only)
 }
 
 export interface TranscriptEvent {
@@ -122,8 +123,13 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.audioElement = document.createElement('audio');
       this.audioElement.autoplay = true;
       this.audioElement.style.display = 'none';
+      // Mute if configured for transcription-only mode
+      if (this.config.muteAudioOutput) {
+        this.audioElement.muted = true;
+        this.audioElement.volume = 0;
+      }
       document.body.appendChild(this.audioElement);
-      
+
       this.pc.ontrack = (event) => {
         if (this.config.debug) {
           // Debug: '[WebRTCVoice] Received remote audio track:', event.streams

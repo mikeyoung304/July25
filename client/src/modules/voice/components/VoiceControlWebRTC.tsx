@@ -7,10 +7,11 @@ import { VoiceDebugPanel } from './VoiceDebugPanel';
 import { AlertCircle, Mic, MicOff } from 'lucide-react';
 
 interface VoiceControlWebRTCProps {
-  onTranscript?: (text: string) => void;
+  onTranscript?: (event: { text: string; isFinal: boolean }) => void;
   onOrderDetected?: (order: any) => void;
   debug?: boolean;
   className?: string;
+  muteAudioOutput?: boolean; // Option to disable voice responses
 }
 
 /**
@@ -22,10 +23,11 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   onOrderDetected,
   debug = false,
   className = '',
+  muteAudioOutput = false,
 }) => {
   const [showDebug, setShowDebug] = useState(debug);
   const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied'>('prompt');
-  
+
   const {
     connect,
     disconnect,
@@ -42,8 +44,9 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   } = useWebRTCVoice({
     autoConnect: false, // We'll connect after permission check
     debug,
+    muteAudioOutput, // Pass through to hook
     onTranscript: (event) => {
-      onTranscript?.(event.text);
+      onTranscript?.({ text: event.text, isFinal: event.isFinal });
     },
     onOrderDetected,
   });
