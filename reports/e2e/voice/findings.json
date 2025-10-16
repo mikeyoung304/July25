@@ -1,0 +1,41 @@
+{
+  "pass": false,
+  "summary": "E2E voice ordering test failed due to authentication flow mismatch",
+  "reasons": [
+    "AUTH/FLOW: Test expected traditional email/password login, but application uses Demo Mode with role-based quick access",
+    "UI/NAV: Homepage requires clicking role button (Server/Manager/etc.) for auto-authentication, not email form",
+    "VOICE/ASR: Voice ordering interface not reached in either Playwright or Puppeteer tests",
+    "TEST/DESIGN: Test selectors and flow do not match actual application authentication architecture"
+  ],
+  "durations": {
+    "loginMs": 0,
+    "voiceMs": 0,
+    "totalTestTimeMs": 382000
+  },
+  "wsAuth": false,
+  "transcriptDetected": false,
+  "orderUIUpdated": false,
+  "authFlowDiscovered": {
+    "type": "demo_mode_role_selection",
+    "description": "Application uses role-based quick access buttons on homepage. Clicking Server/Manager/Kitchen auto-authenticates without credentials.",
+    "correctFlow": [
+      "1. Navigate to BASE_URL",
+      "2. Wait 5.5s for splash screen",
+      "3. Click role button (e.g., Server) from Quick Demo Access section",
+      "4. User is auto-authenticated as server@restaurant.com",
+      "5. Workspace selector appears with Server/Kitchen/Kiosk/Admin/Expo cards",
+      "6. Click workspace card to enter that workspace",
+      "7. Look for voice ordering controls within workspace"
+    ]
+  },
+  "artifactsCollected": [
+    "playwright_console_pass1_normal.ndjson",
+    "playwright_console_pass2_degraded.ndjson",
+    "playwright.junit.xml",
+    "video_pass1_normal.webm",
+    "video_pass2_degraded.webm",
+    "trace.zip (Playwright trace with screenshots/snapshots)",
+    "test-failed-1.png (error screenshot showing workspace selector)",
+    "puppeteer screenshots (home, login, workspace states)"
+  ]
+}
