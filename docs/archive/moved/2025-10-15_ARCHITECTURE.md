@@ -1,11 +1,5 @@
 # Architecture Overview
 
-**For detailed authentication and security architecture, see:**
-- [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md) - Complete auth flows, session management, RLS
-- [SECURITY.md](./SECURITY.md) - Security measures, compliance, agent safety
-
----
-
 ## System
 ```mermaid
 graph LR

@@ -185,7 +185,25 @@ The Restaurant OS is **95% enterprise-grade production ready**. All core systems
 
 **Status**: ✅ READY FOR FALL MENU (100%)
 
+**(Source: MENU_SYSTEM.md@1b8a708, verified)**
+
 **Current Menu**: 53 items (summer menu)
+
+**Menu Items API**
+
+Menu items endpoint: `GET /api/v1/menu/items`
+
+**Implementation:** `server/src/routes/menu.routes.ts:23`
+- Restaurant ID filtering confirmed
+- Response format matches documentation
+
+**Menu Caching**
+
+Menu items cached for 5 minutes (TTL 300 seconds).
+
+**Implementation:**
+- `server/src/config/environment.ts:86` - `ttlSeconds: parseInt(process.env['CACHE_TTL_SECONDS'] || '300', 10)`
+- `server/src/services/menu.service.ts:9` - `const menuCache = new NodeCache({ stdTTL: config.cache.ttlSeconds })`
 
 **Ready to Change**:
 - ✅ Seed script structure documented

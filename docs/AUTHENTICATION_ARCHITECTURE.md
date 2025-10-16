@@ -4,6 +4,33 @@
 
 Restaurant OS v6.0 uses **Supabase Auth** as the primary authentication system for web users, with custom JWT tokens for specialized use cases (kiosks, kitchen displays).
 
+## System Architecture Context
+
+**(Source: ARCHITECTURE.md@1b8a708, verified)**
+
+**Database: Supabase with RLS**
+
+Database uses Supabase with Row-Level Security (RLS) policies for multi-tenant isolation.
+
+**Implementation:** `supabase/migrations/20251015_multi_tenancy_rls_and_pin_fix.sql`
+
+**Payment Adapter: Square**
+
+Square adapter handles payment processing.
+
+**Implementation:** `server/src/routes/payments.routes.ts:28`
+
+**API Convention: ADR-001**
+
+API uses snake_case convention. POST `/orders` endpoint uses snake_case per ADR-001.
+
+**Implementation:** `server/src/routes/payments.routes.ts:112`
+```typescript
+const { order_id, token, amount, idempotency_key } = req.body; // ADR-001: snake_case
+```
+
+---
+
 ## Architecture Principles
 
 1. **Single Source of Truth**: Supabase manages all user authentication and session state
@@ -469,6 +496,81 @@ npm run seed:demo-users
 - [ ] Multi-restaurant SSO
 - [ ] OAuth integration (Google, Apple)
 - [ ] Hardware token support (YubiKey)
+
+---
+
+## Order Flow Auth Touchpoints
+
+**(Source: ORDER_FLOW.md@1b8a708, verified)**
+
+### Order Creation Endpoint
+
+**POST /api/v1/orders**
+
+**Implementation:** `server/src/routes/orders.routes.ts:38`
+
+**Authentication:** JWT authentication required on all `/api/v1/*` routes. Restaurant context extracted from token.
+
+**Implementation:** `server/src/middleware/auth.ts`
+- Authentication middleware enforced
+- JWT validation
+- Restaurant context from token
+
+### Menu Items Endpoint
+
+**GET /api/v1/menu/items**
+
+**Implementation:** `server/src/routes/menu.routes.ts:23`
+- Restaurant ID filtering confirmed
+- Response format matches documentation
+
+### Server-Side Amount Validation
+
+Server NEVER trusts client-provided amounts. Always recalculates totals server-side.
+
+**Implementation:**
+- `server/src/routes/orders.routes.ts` - Server calculates totals independently
+- `server/src/routes/payments.routes.ts:132` - `PaymentService.validatePaymentRequest()`
+- Throws error if client/server amounts mismatch by >1 cent
+
+### Order Statuses
+
+Order lifecycle statuses: `new`, `pending`, `confirmed`, `preparing`, `ready`, `completed`, `cancelled`
+
+**Implementation:** `shared/types/order.types.ts:6`
+
+### Payment Integration
+
+Payment integration with Square API. Audit trail logging confirmed.
+
+**Implementation:** `server/src/routes/payments.routes.ts`
+
+---
+
+## Voice & WebRTC Auth and WebSocket JWT
+
+**(Source: voice/VOICE_ORDERING_EXPLAINED.md@1b8a708, verified)**
+
+### WebRTC Voice Streaming
+
+WebRTC used for voice streaming between client and OpenAI Realtime API.
+
+**Implementation:** `client/src/modules/voice/services/WebRTCVoiceClient.ts:42`
+```typescript
+export class WebRTCVoiceClient extends EventEmitter
+```
+
+### useWebRTCVoice Hook
+
+React hook for voice functionality integration: `useWebRTCVoice()`
+
+**Implementation:** `client/src/modules/voice/hooks/useWebRTCVoice.ts:38`
+
+### VoiceControlWebRTC Component
+
+Hold-to-talk UI component for voice ordering.
+
+**Implementation:** `client/src/modules/voice/components/VoiceControlWebRTC.tsx:42`
 
 ---
 
