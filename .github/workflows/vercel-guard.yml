@@ -21,6 +21,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - uses: dorny/paths-filter@v3
+        id: changed
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - '**/*.md'
+              - 'scripts/docs-check.js'
+              - '.github/workflows/docs-ci.yml'
+              - '.github/workflows/docs-check.yml'
+
+      - name: Docs-only — short circuit
+        if: ${{ steps.changed.outputs.docs == 'true' }}
+        run: |
+          echo "Docs-only PR detected; short-circuiting job with success."
+          exit 0
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
