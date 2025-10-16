@@ -1,5 +1,7 @@
 # WebSocket Events Documentation
 
+**Correction (2025-10-15):** Heartbeat interval is 30 seconds; earlier draft incorrectly stated 60 seconds. Verified against code.
+
 **Last Updated**: 2025-09-26
 **Version**: See [VERSION.md](VERSION.md)
 **WebSocket URL**: `ws://localhost:3001` (dev) | `wss://july25.onrender.com` (prod)
@@ -27,7 +29,7 @@ const ws = new WebSocket('ws://localhost:3001', {
 
 1. **Authentication**: Connection requires valid JWT token
 2. **Restaurant Context**: Automatically scoped to user's restaurant
-3. **Heartbeat**: 60-second ping/pong to detect broken connections
+3. **Heartbeat**: 30-second ping/pong to detect broken connections
 4. **Auto-reconnect**: Clients should implement exponential backoff
 
 Source: [`server/src/utils/websocket.ts`](../server/src/utils/websocket.ts)

@@ -752,12 +752,16 @@ None identified.
 
 **Documentation Quality: 71.9%** - Documentation is generally accurate and well-grounded in the codebase. 94.5% of claims have at least some code support.
 
-### Critical Missing Evidence (4 Items Only)
+### Critical Missing Evidence (2 Items Remaining)
 
-1. `/scripts/validate-square-credentials.sh` script (SQUARE_INTEGRATION.md, POST_MORTEM.md)
-2. WebSocket rate limiting (100/min, 1000/min) (WEBSOCKET_EVENTS.md)
-3. Model names (gpt-5-codex) (AGENTS.md)
-4. cache.service.ts file (MENU_SYSTEM.md references but file not found)
+**✅ CORRECTIONS APPLIED (2025-10-15):**
+1. ✅ `/scripts/validate-square-credentials.sh` - **FOUND** (150 lines, executable, npm script verified)
+2. ✅ `cache.service.ts` reference - **CORRECTED** (TTL 300s implemented in menu.service.ts:9)
+3. ✅ Heartbeat interval discrepancy - **RESOLVED** (30s verified in code, docs corrected)
+
+**❌ STILL MISSING (2 Items):**
+1. WebSocket rate limiting (100/min, 1000/min) (WEBSOCKET_EVENTS.md) - No code implementation found
+2. Model names (gpt-5-codex) (AGENTS.md) - Model references not found in code
 
 ### Top Verified Claims by Category
 

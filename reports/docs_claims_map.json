@@ -113,8 +113,19 @@
       },
       {
         "claim": "Script /scripts/validate-square-credentials.sh validates credentials",
-        "status": "no_evidence",
-        "evidence": []
+        "status": "verified",
+        "evidence": [
+          {
+            "path": "scripts/validate-square-credentials.sh",
+            "line": 1,
+            "text": "#!/bin/bash - Square Credentials Validation Script (150 lines, executable)"
+          },
+          {
+            "path": "package.json",
+            "line": 17,
+            "text": "\"validate:square\": \"./scripts/validate-square-credentials.sh\""
+          }
+        ]
       }
     ]
   },
@@ -165,13 +176,18 @@
         ]
       },
       {
-        "claim": "Heartbeat interval is 60 seconds",
-        "status": "weak",
+        "claim": "Heartbeat interval is 30 seconds",
+        "status": "verified",
         "evidence": [
           {
-            "path": "docs/WEBSOCKET_EVENTS.md",
-            "line": 30,
-            "text": "Heartbeat: 60-second ping/pong (no code confirmation found)"
+            "path": "server/src/voice/websocket-server.ts",
+            "line": 26,
+            "text": "private heartbeatInterval = 30000; // 30 seconds"
+          },
+          {
+            "path": "client/src/services/websocket/WebSocketService.ts",
+            "line": 40,
+            "text": "private heartbeatInterval = 30000 // 30 seconds"
           }
         ]
       },
@@ -399,12 +415,17 @@
       },
       {
         "claim": "WebSocket heartbeat interval is 30 seconds",
-        "status": "weak",
+        "status": "verified",
         "evidence": [
           {
-            "path": "docs/KDS-BIBLE.md",
-            "line": 105,
-            "text": "Documented as 30s (conflicts with 60s in WEBSOCKET_EVENTS.md)"
+            "path": "server/src/voice/websocket-server.ts",
+            "line": 26,
+            "text": "private heartbeatInterval = 30000; // 30 seconds"
+          },
+          {
+            "path": "client/src/services/websocket/WebSocketService.ts",
+            "line": 40,
+            "text": "private heartbeatInterval = 30000 // 30 seconds"
           }
         ]
       }
@@ -719,12 +740,17 @@
     "claims": [
       {
         "claim": "Menu items cached for 5 minutes (TTL 300 seconds)",
-        "status": "weak",
+        "status": "verified",
         "evidence": [
           {
-            "path": "docs/MENU_SYSTEM.md",
-            "line": 190,
-            "text": "Cache: 5 minutes (300 seconds) documented (cache.service.ts not found)"
+            "path": "server/src/config/environment.ts",
+            "line": 86,
+            "text": "ttlSeconds: parseInt(process.env['CACHE_TTL_SECONDS'] || '300', 10)"
+          },
+          {
+            "path": "server/src/services/menu.service.ts",
+            "line": 9,
+            "text": "const menuCache = new NodeCache({ stdTTL: config.cache.ttlSeconds });"
           }
         ]
       },
