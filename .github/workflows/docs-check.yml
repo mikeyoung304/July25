@@ -25,7 +25,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --workspace=root
+        run: npm ci || npm install
 
       - name: Check .env.example completeness
         run: |

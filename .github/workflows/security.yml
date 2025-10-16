@@ -3,8 +3,20 @@ name: Security Tests
 on:
   push:
     branches: [main, develop]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'scripts/docs-check.js'
+      - '.github/workflows/docs-ci.yml'
+      - '.github/workflows/docs-check.yml'
   pull_request:
     branches: [main, develop]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'scripts/docs-check.js'
+      - '.github/workflows/docs-ci.yml'
+      - '.github/workflows/docs-check.yml'
   schedule:
     - cron: '0 0 * * 1' # Weekly on Monday
 
