@@ -1,6 +1,6 @@
 # Version Information
 
-**Last Updated**: 2025-09-26
+**Last Updated**: 2025-10-16
 
 This document serves as the single source of truth for all version information in the Restaurant OS system.
 
@@ -8,7 +8,7 @@ This document serves as the single source of truth for all version information i
 
 | Component | Version | Notes |
 |-----------|---------|-------|
-| **Application** | 6.0.6 | Main application version |
+| **Application** | 6.0.8 | Main application version |
 | **Client (React)** | 18.3.1 | Frontend framework |
 | **Server (Express)** | 4.21.2 | Backend framework |
 | **Node.js** | 20.x | Runtime requirement |
@@ -30,4 +30,5 @@ Version information is sourced from:
 
 ## Update History
 
+- 2025-10-16: Version 6.0.8 - Documentation cleanup and CI improvements
 - 2025-09-26: Initial version truth established
