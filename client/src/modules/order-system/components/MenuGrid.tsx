@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { MenuItemCard } from './MenuItemCard';
 import { useMenuItems } from '../../menu/hooks/useMenuItems';
 import { MenuItem } from '../../menu/types';
@@ -9,11 +9,11 @@ interface MenuGridProps {
   onItemClick: (item: MenuItem) => void;
 }
 
-export const MenuGrid: React.FC<MenuGridProps> = ({ 
-  selectedCategory, 
-  searchQuery, 
-  onItemClick 
-}) => {
+export const MenuGrid = React.memo(({
+  selectedCategory,
+  searchQuery,
+  onItemClick
+}: MenuGridProps) => {
   const { items, loading, error } = useMenuItems();
 
   const filteredItems = React.useMemo(() => {
@@ -62,4 +62,6 @@ export const MenuGrid: React.FC<MenuGridProps> = ({
       ))}
     </div>
   );
-};
+})
+
+MenuGrid.displayName = 'MenuGrid'

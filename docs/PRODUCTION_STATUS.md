@@ -176,8 +176,8 @@ The Restaurant OS is **95% enterprise-grade production ready**. All core systems
 - [ ] Verify webhook delivery (if enabled)
 
 **Documentation**:
-- [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md)
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
+- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration)
+- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems)
 
 ---
 
@@ -185,7 +185,25 @@ The Restaurant OS is **95% enterprise-grade production ready**. All core systems
 
 **Status**: ✅ READY FOR FALL MENU (100%)
 
+**(Source: MENU_SYSTEM.md@1b8a708, verified)**
+
 **Current Menu**: 53 items (summer menu)
+
+**Menu Items API**
+
+Menu items endpoint: `GET /api/v1/menu/items`
+
+**Implementation:** `server/src/routes/menu.routes.ts:23`
+- Restaurant ID filtering confirmed
+- Response format matches documentation
+
+**Menu Caching**
+
+Menu items cached for 5 minutes (TTL 300 seconds).
+
+**Implementation:**
+- `server/src/config/environment.ts:86` - `ttlSeconds: parseInt(process.env['CACHE_TTL_SECONDS'] || '300', 10)`
+- `server/src/services/menu.service.ts:9` - `const menuCache = new NodeCache({ stdTTL: config.cache.ttlSeconds })`
 
 **Ready to Change**:
 - ✅ Seed script structure documented
@@ -727,8 +745,8 @@ The Restaurant OS is **production ready at 95%**. All core systems are functiona
 
 ### Feature Documentation
 - [MENU_SYSTEM.md](./MENU_SYSTEM.md) - Menu management & fall menu guide
-- [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md) - Payment integration (Updated Oct 14)
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md) - Payment incident analysis
+- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration) - Payment integration (Updated Oct 14)
+- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems) - Payment incident analysis
 - [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer ordering journey
 - [DATABASE.md](./DATABASE.md) - Supabase schema
 - [TESTING_CHECKLIST.md](../TESTING_CHECKLIST.md) - Testing procedures

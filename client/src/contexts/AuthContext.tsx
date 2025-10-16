@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { supabase } from '@/core/supabase';
 import { httpClient } from '@/services/http/httpClient';
 import { logger } from '@/services/logger';
@@ -56,6 +56,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
 
+  // Refs to prevent race conditions in refresh logic
+  const refreshInProgressRef = useRef(false);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Initialize auth state from Supabase session
   useEffect(() => {
     const initializeAuth = async () => {
@@ -83,7 +87,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               expiresAt: supabaseSession.expires_at
             });
 
-            logger.info('✅ User authenticated', { role: response.user.role });
+            logger.info('✅ User authenticated');
           } catch (error) {
             // Session invalid or backend unreachable, clear it
             logger.warn('Failed to fetch user details, clearing session', error);
@@ -102,7 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 setUser(parsed.user);
                 setSession(parsed.session);
                 setRestaurantId(parsed.restaurantId);
-                logger.info('✅ Restored PIN/Station session', { role: parsed.user.role });
+                logger.info('✅ Restored PIN/Station session');
               } else {
                 // Session expired, clear it
                 localStorage.removeItem('auth_session');
@@ -170,7 +174,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       console.log('🔐 [AuthContext] Step A: Calling supabase.auth.signInWithPassword');
       const supabaseStart = Date.now();
-      logger.info('🔐 Attempting Supabase login', { email, restaurantId });
+      logger.info('🔐 Attempting Supabase login');
 
       // 1. Authenticate with Supabase directly
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -212,16 +216,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         expiresAt: authData.session.expires_at
       });
 
-      console.log('🔐 [AuthContext] Step F: login() COMPLETE', {
-        role: response.user.role,
-        scopes: response.user.scopes
-      });
+      console.log('🔐 [AuthContext] Step F: login() COMPLETE');
 
-      logger.info('✅ Login complete', {
-        email,
-        role: response.user.role,
-        scopes: response.user.scopes
-      });
+      logger.info('✅ Login complete');
 
     } catch (error) {
       console.error('🔐 [AuthContext] ERROR in login():', error);
@@ -268,7 +265,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         restaurantId: response.restaurantId
       }));
 
-      logger.info('PIN login successful', { role: response.user.role });
+      logger.info('PIN login successful');
     } catch (error) {
       logger.error('PIN login failed:', error);
       throw error;
@@ -318,7 +315,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         restaurantId: response.restaurantId
       }));
 
-      logger.info('Station login successful', { stationType, stationName });
+      logger.info('Station login successful');
     } catch (error) {
       logger.error('Station login failed:', error);
       throw error;
@@ -327,32 +324,54 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Demo login (available when VITE_DEMO_PANEL is enabled)
+  // Demo login - requests a short-lived demo token from the server
   const loginAsDemo = async (role: string) => {
     // Only available when demo panel is explicitly enabled
     if (import.meta.env.VITE_DEMO_PANEL !== '1') {
       throw new Error('Demo login requires VITE_DEMO_PANEL=1');
     }
 
-    const defaultRestaurantId = '11111111-1111-1111-1111-111111111111';
+    setIsLoading(true);
+    try {
+      const defaultRestaurantId = '11111111-1111-1111-1111-111111111111';
 
-    // Map role to demo credentials (using seeded accounts)
-    const demoCredentials: Record<string, { email: string; password: string }> = {
-      manager: { email: 'manager@restaurant.com', password: 'Demo123!' },
-      server: { email: 'server@restaurant.com', password: 'Demo123!' },
-      kitchen: { email: 'kitchen@restaurant.com', password: 'Demo123!' },
-      expo: { email: 'expo@restaurant.com', password: 'Demo123!' },
-      cashier: { email: 'cashier@restaurant.com', password: 'Demo123!' }
-    };
+      // Request demo session from server (no credentials in client)
+      const response = await httpClient.post<{
+        user: User;
+        token: string;
+        expiresIn: number;
+        restaurantId: string;
+      }>('/api/v1/auth/demo-session', {
+        role,
+        restaurantId: defaultRestaurantId
+      });
 
-    const creds = demoCredentials[role];
-    if (!creds) {
-      throw new Error(`Invalid demo role: ${role}`);
+      setUser(response.user);
+      setRestaurantId(response.restaurantId);
+
+      const expiresAt = Math.floor(Date.now() / 1000) + response.expiresIn;
+      const sessionData = {
+        accessToken: response.token,
+        expiresIn: response.expiresIn,
+        expiresAt
+      };
+
+      setSession(sessionData);
+
+      // Save demo session to localStorage
+      localStorage.setItem('auth_session', JSON.stringify({
+        user: response.user,
+        session: sessionData,
+        restaurantId: response.restaurantId
+      }));
+
+      logger.info('Demo session started');
+    } catch (error) {
+      logger.error('Demo login failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-
-    // Use the standard login function (already uses Supabase)
-    logger.info(`🎭 Demo login as ${role}`);
-    await login(creds.email, creds.password, defaultRestaurantId);
   };
 
   // Logout
@@ -386,11 +405,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Refresh session
-  const refreshSession = async () => {
+  // Refresh session - wrapped in useCallback to prevent effect loops
+  const refreshSession = useCallback(async () => {
+    // Guard: prevent concurrent refresh attempts
+    if (refreshInProgressRef.current) {
+      logger.warn('Refresh already in progress, skipping...');
+      return;
+    }
+
     if (!session?.refreshToken) {
       throw new Error('No refresh token available');
     }
+
+    refreshInProgressRef.current = true;
 
     try {
       const response = await httpClient.post<{
@@ -404,7 +431,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       const expiresAt = Math.floor(Date.now() / 1000) + response.session.expires_in;
-      
+
       setSession({
         accessToken: response.session.access_token,
         refreshToken: response.session.refresh_token,
@@ -416,8 +443,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       logger.error('Session refresh failed:', error);
       throw error;
+    } finally {
+      refreshInProgressRef.current = false;
     }
-  };
+  }, [session?.refreshToken]);
 
   // Set PIN for current user
   const setPin = async (pin: string) => {
@@ -464,12 +493,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                             requiredScopes.length === 0 ||
                             requiredScopes.some(scope => hasScope(scope));
 
-    // 🔍 DEBUG LOGGING
-    logger.info('🔐 canAccess check', {
-      userRole: user.role,
-      userScopes: user.scopes,
-      requiredRoles,
-      requiredScopes,
+    // 🔍 DEBUG LOGGING (non-sensitive)
+    logger.debug('canAccess check', {
       hasRequiredRole,
       hasRequiredScope,
       result: hasRequiredRole && hasRequiredScope
@@ -478,13 +503,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return hasRequiredRole && hasRequiredScope;
   };
 
-  // Auto-refresh token before expiry
+  // Auto-refresh token before expiry - single timer via ref
   useEffect(() => {
+    // Clear any existing timer first
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = null;
+    }
+
     if (!session?.expiresAt || !session.refreshToken) return;
 
     // Refresh 5 minutes before expiry
     const refreshTime = (session.expiresAt - 300) * 1000 - Date.now();
-    
+
     if (refreshTime <= 0) {
       // Token already expired or about to expire
       refreshSession().catch(error => {
@@ -494,14 +525,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
 
-    const timer = setTimeout(() => {
+    // Schedule single refresh via ref
+    refreshTimerRef.current = setTimeout(() => {
+      refreshTimerRef.current = null; // Clear ref after execution
       refreshSession().catch(error => {
         logger.error('Auto-refresh failed:', error);
         logout(); // Logout if refresh fails
       });
     }, refreshTime);
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+        refreshTimerRef.current = null;
+      }
+    };
   }, [session?.expiresAt, session?.refreshToken, refreshSession]);
 
   const value: AuthContextType = {

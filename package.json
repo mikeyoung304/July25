@@ -61,6 +61,7 @@
     "analyze": "tsx scripts/gen-code-analysis.ts",
     "analyze:bundle": "tsx scripts/analyze-bundle.ts",
     "docs:generate": "tsx scripts/generate-docs.ts",
+    "docs:check": "node scripts/docs-check.js",
     "dev:setup": "./scripts/dev-setup.sh",
     "db:seed": "tsx scripts/seed-database.ts",
     "test:enhanced": "npx playwright test",

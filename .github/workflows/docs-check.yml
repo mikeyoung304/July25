@@ -1,25 +1,15 @@
-name: Documentation Check
-
+name: Docs Check
 on:
   pull_request:
-    paths:
-      - 'docs/**'
-      - '*.md'
-      - '.env.example'
-      - 'package.json'
-      - '.github/workflows/docs-check.yml'
-
+    branches: [ main, 'stabilize/**', 'docs/**' ]
+  push:
+    branches: [ main ]
 jobs:
-  docs-check:
-    name: Validate Documentation
+  docs:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'

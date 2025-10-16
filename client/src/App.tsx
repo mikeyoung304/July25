@@ -50,37 +50,65 @@ function App() {
     }
 
     let isConnected = false // Track connection state to prevent duplicates
+    let isConnecting = false // Prevent concurrent connection attempts
+    let connectionPromise: Promise<void> | null = null // Guard against double init
+    let isMounted = true // Track component mount state
 
     // Initialize WebSocket for ALL users (including demo/friends & family)
     const initializeWebSocket = async () => {
-      if (!isConnected) {
-        // Only connect in development mode or when we have a real backend
-        const shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
-        
-        if (shouldConnect) {
+      // Guard: prevent double initialization
+      if (isConnecting || isConnected) {
+        logger.info('🔌 WebSocket already connecting/connected, skipping...')
+        return connectionPromise
+      }
+
+      // Only connect in development mode or when we have a real backend
+      const shouldConnect = isDevelopment || !!env.VITE_API_BASE_URL
+
+      if (!shouldConnect) {
+        return
+      }
+
+      isConnecting = true
+      logger.info('🔌 Initializing WebSocket connection for real-time updates...')
+
+      connectionPromise = (async () => {
+        try {
+          // CRITICAL FIX: Connect WebSocket FIRST, then initialize handlers
+          await connectionManager.connect()
+
+          // Check if unmounted during connection
+          if (!isMounted) {
+            logger.info('⚠️ Component unmounted during connection, aborting...')
+            return
+          }
+
+          logger.info('✅ WebSocket connected, now initializing order updates handler...')
+
+          // Initialize order updates handler AFTER connection is established
+          orderUpdatesHandler.initialize()
+          logger.info('✅ Order updates handler initialized')
+
           isConnected = true
-          logger.info('🔌 Initializing WebSocket connection for real-time updates...')
-          
-          try {
-            // CRITICAL FIX: Connect WebSocket FIRST, then initialize handlers
-            await connectionManager.connect()
-            logger.info('✅ WebSocket connected, now initializing order updates handler...')
-            
-            // Initialize order updates handler AFTER connection is established
-            orderUpdatesHandler.initialize()
-            logger.info('✅ Order updates handler initialized')
-          } catch (error) {
-            console.warn('WebSocket connection failed:', error)
-            isConnected = false // Reset on failure
-            // Try to initialize handler anyway for when connection is restored
+        } catch (error) {
+          console.warn('WebSocket connection failed:', error)
+          // Try to initialize handler anyway for when connection is restored
+          if (isMounted) {
             orderUpdatesHandler.initialize()
           }
+        } finally {
+          isConnecting = false
+          connectionPromise = null
         }
-      }
+      })()
+
+      return connectionPromise
     }
 
     // Check if user is already logged in on startup
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return
+
       if (session) {
         logger.info('🔐 Existing session found, initializing WebSocket...')
         initializeWebSocket()
@@ -91,35 +119,51 @@ function App() {
 
     // Subscribe to auth state changes (for Supabase users)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, _session) => {
+      if (!isMounted) return
+
       if (event === 'SIGNED_OUT') {
         // Properly cleanup before reinitializing
         logger.info('🔒 User signed out, cleaning up WebSocket connections...')
-        
-        // Set flag first to prevent race conditions
+
+        // Set flags first to prevent race conditions
         isConnected = false
-        
+        isConnecting = false
+        connectionPromise = null
+
         // Cleanup in correct order
         orderUpdatesHandler.cleanup()
         webSocketService.disconnect()
         connectionManager.forceDisconnect()
-        
+
         // Wait longer to ensure cleanup completes
         setTimeout(() => {
+          if (!isMounted) return
           logger.info('🔌 Reinitializing WebSocket for demo mode...')
           initializeWebSocket()
         }, 2000)
-      } else if (event === 'SIGNED_IN' && !isConnected) {
+      } else if (event === 'SIGNED_IN' && !isConnected && !isConnecting) {
         // Handle sign in - reconnect with new auth
         logger.info('🔓 User signed in, reinitializing WebSocket with auth...')
-        setTimeout(() => initializeWebSocket(), 1000)
+        setTimeout(() => {
+          if (!isMounted) return
+          initializeWebSocket()
+        }, 1000)
       }
     })
-    
+
     return () => {
+      // Mark as unmounted first
+      isMounted = false
+
       // Cleanup on unmount
       authListener.subscription.unsubscribe()
       orderUpdatesHandler.cleanup()
       webSocketService.disconnect()
+
+      // Reset connection state
+      isConnected = false
+      isConnecting = false
+      connectionPromise = null
     }
   }, [isDevelopment])
   

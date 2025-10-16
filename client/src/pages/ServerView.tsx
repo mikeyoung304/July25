@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, memo } from 'react'
 import { motion } from 'framer-motion'
 import { RoleGuard } from '@/components/auth/RoleGuard'
 import { Card } from '@/components/ui/card'
@@ -12,7 +12,7 @@ import { ServerStats } from './components/ServerStats'
 import { ServerHeader } from './components/ServerHeader'
 import { Info } from 'lucide-react'
 
-export function ServerView() {
+export const ServerView = memo(() => {
   const {
     tables,
     isLoading,
@@ -57,6 +57,12 @@ export function ServerView() {
     voiceOrder.resetVoiceOrder()
   }, [setSelectedTableId, voiceOrder])
 
+  const handleCloseSeatSelection = useCallback(() => {
+    setShowSeatSelection(false)
+    setSelectedTableId(null)
+    setSelectedSeat(null)
+  }, [setSelectedTableId])
+
   return (
     <RoleGuard suggestedRoles={['server', 'admin']} pageTitle="Server View - Dining Room">
       <div className="min-h-screen bg-macon-background">
@@ -97,11 +103,7 @@ export function ServerView() {
               selectedSeat={selectedSeat}
               onSeatSelect={setSelectedSeat}
               onStartVoiceOrder={handleStartVoiceOrder}
-              onClose={() => {
-                setShowSeatSelection(false)
-                setSelectedTableId(null)
-                setSelectedSeat(null)
-              }}
+              onClose={handleCloseSeatSelection}
             />
 
             <VoiceOrderModal
@@ -134,4 +136,6 @@ export function ServerView() {
       </div>
     </RoleGuard>
   )
-}
+})
+
+ServerView.displayName = 'ServerView'

@@ -470,9 +470,35 @@ Key metrics to monitor:
 ## Related Documentation
 
 - [Menu System](./MENU_SYSTEM.md) - Menu management & fall menu deployment
-- [Square Integration](./SQUARE_INTEGRATION.md) - Payment processing & terminal API
+- [Square Integration](./DEPLOYMENT.md#square-integration) - Payment processing & terminal API
 - [Order Flow](./ORDER_FLOW.md) - Complete customer ordering journey
 - [API Documentation](api/README.md) - All API endpoints
 - [Environment Variables](ENVIRONMENT.md) - Configuration guide
 - [Security Guidelines](SECURITY.md) - Security best practices
 - [Production Status](./PRODUCTION_STATUS.md) - Current readiness assessment
+
+<!-- RLS-POLICY-START -->
+## Multi-tenancy & RLS
+
+### Orders / Scheduled Orders Policies
+```sql
+-- UPDATE: tenant-scoped
+CREATE POLICY tenant_update_orders
+ON public.orders
+FOR UPDATE
+USING (restaurant_id = (current_setting('request.jwt.claims', true)::jsonb->>'restaurant_id'))
+WITH CHECK (restaurant_id = (current_setting('request.jwt.claims', true)::jsonb->>'restaurant_id'));
+
+-- Mirror for DELETE and for scheduled_orders
+```
+
+### PIN Model
+- Per-restaurant PINs
+- Constraint: `UNIQUE (restaurant_id, user_id)`
+- All PIN reads/updates include `.eq('restaurant_id', restaurantId)`
+
+### Indexes
+- `orders (restaurant_id, status)`
+- `scheduled_orders (restaurant_id, scheduled_at)`
+
+<!-- RLS-POLICY-END -->

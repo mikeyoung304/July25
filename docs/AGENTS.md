@@ -1,32 +1,17 @@
-# AGENTS.md — Agent & Human Operator Guide
+# AGENTS.md — Moved to Canonical Documentation
 
-## Mission
-Keep `main` green with small, auditable PRs. Prefer correctness, security, reproducibility.
-
-## Repo Structure
-client/ (React+Vite) • server/ (Express+TS) • shared/ • supabase/ • scripts/ • tests/
-
-## Models
-Default **gpt-5-codex** for code; fallback **gpt-5** for planning/summary.
-
-## Commands & Checks
-Typecheck: `npm run typecheck --workspaces`  
-Lint: `npm run lint --workspaces --silent`  
-Tests (quick): `CI=1 RUN_VISUAL=0 RUN_PERF=0 RUN_E2E=0 npm run test:quick --workspaces`  
-Builds: `npm run build --workspace client && npm run build --workspace server`  
-All-in-one: `bash docs/CHECKS.sh` (app checks commented until re-enabled)
-
-## Quality Gates
-TS errors: 0 • Lint: 0 errors • Tests pass • Client+Server build pass • Bundle budget (<100KB main)
+**This file has been merged into canonical documentation.**
 
 ## Security Rails
-No secrets in logs • No schema/RLS edits without approval • CSRF on mutations • Webhook signatures • Origin/CSP/helmet • Rate limits • RLS enforced
 
-## Feature Flags (prod default=false)
-VOICE_ENABLED • TWILIO_ENABLED • PAYMENTS_WEBHOOKS_ENABLED • DEMO_MODE
+For security requirements and RLS enforcement, see:
+→ **[SECURITY.md#agent-operator-safety](./SECURITY.md#agent--operator-safety)**
 
-## Output Contract (every PR)
-PLAN • FILES CHANGED • DIFF • CHECKS • RISK & ROLLBACK (`git revert <sha>`) • NEXT STEP
+## Original Content
 
-## Stop Conditions
-Security fail • touches migrations/secrets • irreducible flake after one small iteration
+Archived at: `docs/archive/moved/2025-10-15_AGENTS.md`
+
+---
+
+**Last Updated**: 2025-10-15
+**Status**: Merged (see canonical locations above)
