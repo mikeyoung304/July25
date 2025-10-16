@@ -147,6 +147,7 @@ Restaurant context automatically scoped from JWT. All WebSocket events filtered 
 
 **Implementation:** `server/src/middleware/auth.ts` - Auth returns `restaurantId` from decoded JWT
 
+<a id="auth-migration"></a>
 ## Authentication Migration
 
 ### Frontend Direct Supabase Authentication
