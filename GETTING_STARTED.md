@@ -1,27 +1,8 @@
-# Getting Started (Local Dev)
+# Moved to Canonical Documentation
 
-## Prereqs
-- Node 20, pnpm, Postgres or Supabase project
+This page has been consolidated into the canonical docs.
 
-## Setup
-```bash
-pnpm i
-cp .env.example .env.local   # fill in SUPABASE_URL and keys (non-prod)
-pnpm -w dev
-```
+- See: `docs/` version of this file or the relevant section in **DEPLOYMENT.md** / **SECURITY.md** / **AUTHENTICATION_ARCHITECTURE.md**
+- Rationale: Single source of truth with evidence-verified content
+- Original preserved at: (see docs/archive/** path in this repo)
 
-## Login flows
-Owner/Staff: email/password via Supabase → JWT → app.
-
-PIN login: per-restaurant PIN issues a tenant-scoped JWT (shared devices).
-
-Demo session: non-prod only, via /api/v1/auth/demo-session when DEMO_LOGIN_ENABLED=true.
-
-## Realtime (WS) in dev
-WebSocket auth may allow relaxed rules locally; prod always requires JWT.
-
-## Where to next
-- Documentation Index
-- Deployment
-- Security
-- Database & RLS

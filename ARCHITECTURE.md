@@ -1,24 +1,8 @@
-# Architecture
+# Moved to Canonical Documentation
 
-See [docs/architecture/README.md](./docs/architecture/README.md) for complete architecture documentation.
+This page has been consolidated into the canonical docs.
 
-**Last Updated**: September 2, 2025
+- See: `docs/` version of this file or the relevant section in **DEPLOYMENT.md** / **SECURITY.md** / **AUTHENTICATION_ARCHITECTURE.md**
+- Rationale: Single source of truth with evidence-verified content
+- Original preserved at: (see docs/archive/** path in this repo)
 
-## Quick Reference
-
-### Unified Backend (Port 3001)
-- ALL services in one Express backend
-- NO microservices
-- NO port 3002
-
-### Key Decisions
-1. **One Backend**: API + AI + WebSocket on port 3001
-2. **One Frontend**: React on port 5173
-3. **Direct Integration**: WebRTC to OpenAI (client-side)
-4. **Cloud Database**: Supabase (no local Docker)
-
-### Critical Rules
-- ✅ Handle all 7 order statuses
-- ✅ Include restaurant_id in all operations
-- ✅ Never expose API keys to client
-- ✅ Always validate input

@@ -1,15 +1,8 @@
-# Roadmap (Q4 2025)
+# Moved to Canonical Documentation
 
-## Now → Launch
-- Cut v6.0.8-rc.1, canary, full rollout with monitors.
-- Docs freeze during canary (critical fixes only).
+This page has been consolidated into the canonical docs.
 
-## Sprint: Refactor & Conform (post-launch)
-- **ADR-001 Naming**: snake_case end-to-end; remove camel↔snake transformers; update client models & API docs.
-- **Complexity**: split OrdersService, VoiceWebSocketServer, KitchenDisplayOptimized into focused units.
-- **Observability**: structured logs, request IDs/correlation, Sentry (client+server).
-- **Payments**: increase integration tests and error semantics.
+- See: `docs/` version of this file or the relevant section in **DEPLOYMENT.md** / **SECURITY.md** / **AUTHENTICATION_ARCHITECTURE.md**
+- Rationale: Single source of truth with evidence-verified content
+- Original preserved at: (see docs/archive/** path in this repo)
 
-## Stretch
-- Offline/low-connectivity improvements for KDS.
-- Configurable KDS roles/views per station.

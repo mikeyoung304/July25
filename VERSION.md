@@ -1,8 +1,8 @@
-# Version Information
+# Moved to Canonical Documentation
 
-**Current:** v6.0.8-rc.1 (2025-10-15)
+This page has been consolidated into the canonical docs.
 
-## Notes
-- Security hardening (JWT secret fail-fast, strict CORS, PII redaction)
-- Realtime stability (WS reconnect finally, single init, cleanup)
-- Multi-tenancy RLS + composite PIN uniqueness; app-layer guards
+- See: `docs/` version of this file or the relevant section in **DEPLOYMENT.md** / **SECURITY.md** / **AUTHENTICATION_ARCHITECTURE.md**
+- Rationale: Single source of truth with evidence-verified content
+- Original preserved at: (see docs/archive/** path in this repo)
+
