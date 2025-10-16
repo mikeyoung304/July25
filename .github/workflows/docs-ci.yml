@@ -20,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - name: Install deps (root or workspace)
-        run: pnpm -v && pnpm install --frozen-lockfile || pnpm install
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci || npm install
       - name: docs:check
-        run: pnpm docs:check
+        run: npm run docs:check
