@@ -92,9 +92,31 @@
 ## 🎮 Phase 4: Innovation (Ongoing)
 **Goal**: Market differentiation
 
+### Voice Ordering Vision
+
+**(Source: voice/VOICE_ORDERING_EXPLAINED.md@1b8a708, verified)**
+
+**Current Implementation:**
+- ✅ WebRTC voice streaming (client-side)
+- ✅ OpenAI Realtime API integration
+- ✅ Hold-to-talk UI component
+- ✅ Menu item matching with aliases
+
+**Future Enhancements:**
+- Multi-language support (Spanish, Chinese, etc.)
+- Voice biometrics for regular customers
+- Personalized recommendations
+- Allergy and preference memory
+- Group ordering support
+
+**Technical Components:**
+- `WebRTCVoiceClient.ts` - Core voice engine (1,264 lines)
+- `VoiceControlWebRTC.tsx` - UI component
+- `useWebRTCVoice.ts` - React integration
+
 ### Future Features:
 - [ ] AI-powered demand forecasting
-- [ ] Voice ordering improvements
+- [ ] Voice ordering improvements (see above)
 - [ ] Kitchen automation
 - [ ] Dynamic pricing
 - [ ] Multi-location management
@@ -230,7 +252,7 @@
 
 New comprehensive documentation:
 - [MENU_SYSTEM.md](./MENU_SYSTEM.md) - Menu architecture & fall menu guide
-- [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md) - Complete payment flow
+- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration) - Complete payment flow
 - [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer ordering journey (updated)
 - [DATABASE.md](./DATABASE.md) - Supabase schema with JSONB examples (updated)
 - [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - Current readiness assessment

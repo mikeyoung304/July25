@@ -33,7 +33,7 @@ Step-by-step guides for common tasks.
 
 ### Features
 - [Voice Ordering](voice/VOICE_ORDERING_EXPLAINED.md) - AI voice system
-- [Kitchen Display System](KDS-BIBLE.md) - KDS implementation
+- [Kitchen Display System](DEPLOYMENT.md#kds-deploy) - KDS implementation
 - [Order Flow](ORDER_FLOW.md) - Order lifecycle
 
 ## 📖 Reference
@@ -43,7 +43,7 @@ Technical reference documentation.
 ### API & Integration
 - [API Documentation](api/README.md) - REST endpoints ⭐
 - [Database Schema](DATABASE.md) - Table structure ⭐
-- [WebSocket Events](WEBSOCKET_EVENTS.md) - Real-time events ⭐
+- [WebSocket Events](DEPLOYMENT.md#websockets) - Real-time events ⭐
 
 ### Configuration
 - [Environment Variables](ENVIRONMENT.md) - All env vars

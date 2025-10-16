@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created validation script: `scripts/validate-square-credentials.sh`
   - Added startup validation in `payments.routes.ts`
   - Validates token, location ID, and payment permissions
-  - See: [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
+  - See: [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems)
 
 - **Idempotency Key Length**
   - Shortened from 93 to 26 characters
@@ -103,8 +103,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Prevention ROI**: 10 seconds (validation) vs 4+ hours (debugging)
 
 ### 🔗 Related Documentation
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
-- [SQUARE_INTEGRATION.md](./SQUARE_INTEGRATION.md)
+- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems)
+- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration)
 - [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md)
 
 ## [6.0.6] - 2025-09-13 - Performance & Stability Sprint

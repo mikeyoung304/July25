@@ -230,7 +230,7 @@ Client implementations:
 
 ## Further Information
 
-- [WebSocket Events](../WEBSOCKET_EVENTS.md)
+- [WebSocket Events](../DEPLOYMENT.md#websockets)
 - [Database Schema](../DATABASE.md)
 - [Authentication Flow](../JWT_AUTHENTICATION_FLOW.md)
 - [Security Guidelines](../SECURITY.md)

@@ -323,11 +323,13 @@ export class OrderUpdatesHandler {
    */
   private reinitializeSubscriptions(): void {
     logger.info('[OrderUpdates] Reinitializing subscriptions after reconnection...')
-    
-    // Reset initialization flag and re-initialize properly
-    this.isInitialized = false
+
+    // CRITICAL: Cleanup existing subscriptions BEFORE reinitializing to prevent duplicates
+    this.cleanup()
+
+    // Now safe to re-initialize
     this.initialize()
-    
+
     logger.info('[OrderUpdates] Subscriptions reinitialized')
   }
   

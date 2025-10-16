@@ -155,7 +155,7 @@ export class OrdersService {
       const { data, error } = await supabase
         .from('orders')
         .insert([newOrder])
-        .select()
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
         .single();
 
       if (error) {
@@ -177,13 +177,13 @@ export class OrdersService {
       // Log order status change
       await this.logStatusChange(data.id, restaurantId, null, 'pending');
 
-      ordersLogger.info('Order created', { 
-        orderId: data.id, 
+      ordersLogger.info('Order created', {
+        orderId: data.id,
         orderNumber: data.order_number,
-        restaurantId 
+        restaurantId
       });
 
-      return data;
+      return data as any as Order;
     } catch (error) {
       ordersLogger.error('Failed to create order', { error, restaurantId });
       throw error;
@@ -200,7 +200,7 @@ export class OrdersService {
     try {
       let query = supabase
         .from('orders')
-        .select('*')
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
         .eq('restaurant_id', restaurantId)
         .order('created_at', { ascending: false });
 
@@ -232,7 +232,7 @@ export class OrdersService {
 
       if (error) throw error;
 
-      return data || [];  // Return raw snake_case data
+      return (data || []) as any as Order[];  // Return raw snake_case data
     } catch (error) {
       ordersLogger.error('Failed to fetch orders', { error, restaurantId, filters });
       throw error;
@@ -246,7 +246,7 @@ export class OrdersService {
     try {
       const { data, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
         .eq('restaurant_id', restaurantId)
         .eq('id', orderId)
         .single();
@@ -256,7 +256,7 @@ export class OrdersService {
         throw error;
       }
 
-      return data;  // Return raw snake_case data
+      return data as any as Order;  // Return raw snake_case data
     } catch (error) {
       ordersLogger.error('Failed to fetch order', { error, restaurantId, orderId });
       throw error;
@@ -306,7 +306,7 @@ export class OrdersService {
         .update(update)
         .eq('id', orderId)
         .eq('restaurant_id', restaurantId)
-        .select()
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
         .single();
 
       if (error) throw error;
@@ -335,7 +335,7 @@ export class OrdersService {
         restaurantId,
       });
 
-      return data;
+      return data as any as Order;
     } catch (error) {
       ordersLogger.error('Failed to update order status', { 
         error, 
@@ -389,7 +389,7 @@ export class OrdersService {
         .update(update)
         .eq('id', orderId)
         .eq('restaurant_id', restaurantId)
-        .select()
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
         .single();
 
       if (error) throw error;
@@ -401,15 +401,15 @@ export class OrdersService {
         broadcastOrderUpdate(this.wss, data);  // Send snake_case data
       }
 
-      ordersLogger.info('Order payment updated', { 
-        orderId, 
-        restaurantId, 
+      ordersLogger.info('Order payment updated', {
+        orderId,
+        restaurantId,
         paymentStatus,
         paymentMethod,
-        paymentId 
+        paymentId
       });
 
-      return data;
+      return data as any as Order;
     } catch (error) {
       ordersLogger.error('Failed to update order payment', { error, orderId, restaurantId });
       throw error;

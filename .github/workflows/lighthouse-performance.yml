@@ -5,6 +5,9 @@ on:
     paths:
       - 'client/**'
       - '.github/workflows/lighthouse-performance.yml'
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
 
 jobs:
   lighthouse:

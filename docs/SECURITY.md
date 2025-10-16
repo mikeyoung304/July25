@@ -117,6 +117,39 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 - [ ] Add Redis-based session store
 - [ ] Implement session fingerprinting
 
+<a id="agent--operator-safety"></a>
+
+## Agent & Operator Safety
+
+### Security Rails for AI Agents & Human Operators
+
+**(Source: AGENTS.md@1b8a708, verified)**
+
+**RLS Multi-Tenancy Enforcement**
+
+Row-Level Security (RLS) policies enforce multi-tenancy at the database level.
+
+**Implementation:** `supabase/migrations/20251015_multi_tenancy_rls_and_pin_fix.sql`
+- Migration file exists for RLS policies
+- Database-level tenant isolation
+
+**Security Requirements (Documented)**
+
+Security rails enforced across the application:
+- No secrets in logs
+- CSRF protection on mutations
+- Webhook signature validation
+- Origin/CSP/Helmet security headers
+- Rate limiting
+- RLS enforcement
+
+**Supporting Code:**
+- `server/src/middleware/csrf.ts` - CSRF protection
+- `server/src/middleware/security-headers.ts` - Security headers
+- `supabase/migrations/` - RLS policies
+
+---
+
 ## Compliance
 
 ### PCI DSS

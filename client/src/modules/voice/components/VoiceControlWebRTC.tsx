@@ -48,20 +48,34 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     onOrderDetected,
   });
   
-  // Check microphone permission
+  // Check microphone permission - store connect in ref to avoid dep loop
+  const connectRef = React.useRef(connect);
+  React.useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
+
+  // Permission check with proper cleanup
   useEffect(() => {
+    let permissionStatus: PermissionStatus | null = null;
+
+    const handlePermissionChange = () => {
+      if (permissionStatus) {
+        setPermissionState(permissionStatus.state as 'prompt' | 'granted' | 'denied');
+      }
+    };
+
     navigator.permissions
       .query({ name: 'microphone' as PermissionName })
       .then((result) => {
+        permissionStatus = result;
         setPermissionState(result.state as 'prompt' | 'granted' | 'denied');
-        
-        result.addEventListener('change', () => {
-          setPermissionState(result.state as 'prompt' | 'granted' | 'denied');
-        });
-        
+
+        // Add listener with cleanup tracking
+        result.addEventListener('change', handlePermissionChange);
+
         // Auto-connect if permission already granted
-        if (result.state === 'granted') {
-          connect().catch(console.error);
+        if (result.state === 'granted' && connectRef.current) {
+          connectRef.current().catch(console.error);
         }
       })
       .catch((err) => {
@@ -69,7 +83,14 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
         // Assume prompt state if we can't check
         setPermissionState('prompt');
       });
-  }, [connect]);
+
+    // Cleanup: remove permission change listener
+    return () => {
+      if (permissionStatus) {
+        permissionStatus.removeEventListener('change', handlePermissionChange);
+      }
+    };
+  }, []); // Empty deps - only run once on mount
   
   // Handle initial permission request
   const handleRequestPermission = async () => {

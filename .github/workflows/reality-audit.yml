@@ -1,0 +1,52 @@
+name: Reality Auditor v3
+
+on:
+  # Daily at 03:00 UTC
+  schedule:
+    - cron: '0 3 * * *'
+
+  # Manual trigger
+  workflow_dispatch:
+
+jobs:
+  reality-audit:
+    name: Nightly Documentation-to-Code Sync Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for git operations
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "Reality Auditor Bot"
+          git config --global user.email "bot@reality-auditor.local"
+
+      - name: Run Reality Audit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/reality-audit.sh
+        continue-on-error: true  # Don't fail workflow if audit detects issues
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Reality Audit Complete"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "If reality greps failed, an automated PR has been created."
+          echo "Review the PR for documentation sync issues."
+          echo ""
