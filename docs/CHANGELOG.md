@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.8] - 2025-10-16 - Documentation Cleanup & CI Improvements
+
+### 📚 Documentation
+
+- **Documentation Consolidation & Cleanup**
+  - Archived 50+ legacy and duplicate documentation files
+  - Created systematic archive structure:
+    - `docs/archive/moved/` - Files merged into canonical docs
+    - `docs/archive/incidents/` - Incident-related docs
+    - `docs/archive/legacy-root/` - Deprecated root-level files
+  - Moved all documentation to `/docs` canonical location
+  - Removed orphan markdown files across repository
+  - Updated root-level files to redirect to canonical docs
+  - Created comprehensive docs index and navigation
+
+- **Documentation Guardrails**
+  - Implemented 5-checkpoint docs validation system:
+    1. Orphan detector (ensures all .md files linked from index)
+    2. Stub detector (validates navigation stubs)
+    3. Risk linter (scans for dangerous patterns)
+    4. Anchor linter (verifies markdown link anchors)
+    5. Reality greps (verifies code claims match implementation)
+  - Added `npm run docs:check` script for automated validation
+  - Created `.github/workflows/docs-ci.yml` for fast docs validation
+  - All docs guardrails passing ✅
+
+### 🔧 CI/CD Improvements
+
+- **Workflow Optimization for Docs PRs**
+  - Created dedicated Docs CI workflow (fast, docs-only validation)
+  - Added paths-ignore filters to heavy workflows:
+    - Quality Gates (typecheck, lint, tests, builds)
+    - Security Tests (CSRF, rate limit, RBAC, CodeQL)
+    - Playwright Smoke Tests
+    - Vercel Project Guard
+  - Docs-only PRs now skip irrelevant CI checks
+  - CI runtime reduced for docs changes: ~10 minutes → ~2 minutes
+
+- **Workflow Fixes**
+  - Fixed docs-check.yml npm install command
+  - Updated workflow triggers for better path filtering
+  - Improved CI efficiency and cost optimization
+
+### ✨ Reports Generated
+
+- Created comprehensive documentation audit reports:
+  - `reports/docs_stragglers.md` - Complete file audit
+  - `reports/docs_guarded_merge_evidence.md` - Validation evidence
+  - `reports/anchor_autoheal_map.md` - Link verification
+  - `reports/orphan_archive_plan.md` - Archive strategy
+
+### 📊 Impact
+
+- **Documentation Quality**: Centralized, navigable, validated
+- **CI Efficiency**: 80% faster for docs-only changes
+- **Maintainability**: Automated guardrails prevent docs drift
+- **Developer Experience**: Clear docs structure, fast feedback
+
+### 🔗 Related PRs
+
+- PR #99: docs: guarded merges & reality sync (v6.0.8)
+- PR #100: docs: archive legacy duplicates (v6.0.8)
+
 ## [6.0.7] - 2025-10-14 - Payment System Operational
 
 ### 🎯 Square Payment Integration Complete
