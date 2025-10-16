@@ -463,6 +463,8 @@ Migrated to Square SDK v43 with updated method names.
 
 ---
 
+<a id="auth-migration"></a>
+
 ## Authentication Migration
 
 ### Authentication Migration v6.0
