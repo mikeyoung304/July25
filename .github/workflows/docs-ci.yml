@@ -1,18 +1,30 @@
-name: docs-ci
+name: Docs CI
 on:
   pull_request:
     paths:
-      - 'AGENTS.md'
-      - '.codex/'
-      - 'docs/'
-      - '.github/**'
+      - 'docs/**'
+      - '**/*.md'
+      - 'reports/**'
+      - 'scripts/docs-check.js'
+      - '.github/workflows/**'
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '**/*.md'
+      - 'reports/**'
+      - 'scripts/docs-check.js'
+      - '.github/workflows/**'
 jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
-      - run: |
-          chmod +x docs/CHECKS.sh
-          bash docs/CHECKS.sh
+      - name: Install deps (root or workspace)
+        run: pnpm -v && pnpm install --frozen-lockfile || pnpm install
+      - name: docs:check
+        run: pnpm docs:check
