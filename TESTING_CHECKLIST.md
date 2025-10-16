@@ -619,14 +619,14 @@ All fall menu tests pass when:
 ### Architecture & Systems
 - **Production Status**: [docs/PRODUCTION_STATUS.md](docs/PRODUCTION_STATUS.md) - 90% ready assessment
 - **Menu System**: [docs/MENU_SYSTEM.md](docs/MENU_SYSTEM.md) - Fall menu deployment guide
-- **Square Integration**: [docs/SQUARE_INTEGRATION.md](docs/SQUARE_INTEGRATION.md) - Payment flow
+- **Square Integration**: [DEPLOYMENT.md#square-integration](DEPLOYMENT.md#square-integration) - Payment flow
 - **Order Flow**: [docs/ORDER_FLOW.md](docs/ORDER_FLOW.md) - Customer journey
 - **Database**: [docs/DATABASE.md](docs/DATABASE.md) - Supabase schema
 - **Roadmap**: [docs/ROADMAP.md](docs/ROADMAP.md) - Project timeline
 
 ### Authentication
 - **Architecture**: [docs/AUTHENTICATION_ARCHITECTURE.md](docs/AUTHENTICATION_ARCHITECTURE.md)
-- **Migration Guide**: [docs/MIGRATION_V6_AUTH.md](docs/MIGRATION_V6_AUTH.md)
+- **Migration Guide**: [DEPLOYMENT.md#authentication-migration](DEPLOYMENT.md#authentication-migration) - Auth migration details
 - **Code**: `client/src/contexts/AuthContext.tsx` (see inline comments)
 
 ---

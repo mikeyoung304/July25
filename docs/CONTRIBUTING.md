@@ -115,7 +115,22 @@ All PRs must pass the following automated checks:
 
 ## Architecture Guidelines
 
-For architecture-specific requirements including multi-tenancy, deployment operations, and system design patterns, see [DEPLOYMENT.md#contributor-ops-handoff](./DEPLOYMENT.md#contributor-ops-handoff).
+### Multi-Tenancy
+
+All features must support multi-tenant operation with `restaurant_id` scoping. Every database operation and API endpoint must enforce tenant isolation.
+
+**See:** [DEPLOYMENT.md#multi-tenancy-requirement](./DEPLOYMENT.md#multi-tenancy-requirement) for implementation patterns.
+
+### Contributor Ops Handoff
+
+Operational and deployment procedures have been moved to the canonical deployment guide for single-source-of-truth maintenance.
+
+**For operational procedures, see [DEPLOYMENT.md#contributor-ops-handoff](./DEPLOYMENT.md#contributor-ops-handoff):**
+- Environment configuration
+- Release and rollback procedures
+- Payment integration setup
+- WebSocket configuration
+- Authentication architecture
 
 ### Performance
 
@@ -162,6 +177,8 @@ Update documentation when you:
 - **Documentation**: Refer to the [docs/](docs/) directory
 
 ## Release Process
+
+For release procedures, rollback steps, and deployment workflows, see [DEPLOYMENT.md#release-flow](./DEPLOYMENT.md#release-flow).
 
 Releases follow [Semantic Versioning](https://semver.org/):
 - **Major** (X.0.0): Breaking changes

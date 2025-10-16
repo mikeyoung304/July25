@@ -32,6 +32,214 @@
 ## Post-Deploy Checks
 - WS reconnects/min < 0.2; KDS e2e happy path under 1s (P95); no CORS rejections from allowed domains.
 
+## Square Integration
+
+### Payment Integration Architecture
+
+**Square SDK v43** is used for payment processing. Authentication uses the `token` property (not `accessToken` as in prior versions).
+
+**Implementation:** `server/src/routes/payments.routes.ts:7,28` (Source: SQUARE_INTEGRATION@9abd2d9, verified)
+```typescript
+import { SquareClient, SquareEnvironment } from 'square';
+const client = new SquareClient({ token: process.env['SQUARE_ACCESS_TOKEN']! });
+```
+
+### Credential Validation at Startup
+
+Server validates that `SQUARE_LOCATION_ID` matches the access token on startup. Logs prominent warnings if mismatch detected. (Source: SQUARE_INTEGRATION@9abd2d9, verified)
+
+**Implementation:** `server/src/routes/payments.routes.ts:37-101`
+- Fetches locations from Square API
+- Validates configured location exists in access token's permitted locations
+- Fails fast with error logging on mismatch
+
+### Idempotency Keys
+
+Idempotency keys shortened to 26 characters to stay within Square's 45-character limit. (Source: SQUARE_INTEGRATION@9abd2d9, verified)
+
+**Format:** `{last_12_order_id}-{timestamp}` (12 + 1 + 13 = 26 chars)
+
+**Implementation:** `server/src/services/payment.service.ts:84`
+```typescript
+const idempotencyKey = `${order.id.slice(-12)}-${Date.now()}`;
+```
+
+### Server-Side Amount Validation
+
+Server NEVER trusts client-provided amounts. All payment amounts are validated server-side. (Source: SQUARE_INTEGRATION@9abd2d9, verified)
+
+**Implementation:** `server/src/routes/payments.routes.ts:132,158`
+- `PaymentService.validatePaymentRequest()` recalculates totals
+- Payment request uses server-calculated amount: `amountMoney: { amount: BigInt(serverAmount) }`
+
+### Payment Endpoint
+
+Primary payment creation endpoint: `POST /api/v1/payments/create` (Source: SQUARE_INTEGRATION@9abd2d9, verified)
+
+**Implementation:** `server/src/routes/payments.routes.ts:104`
+- Requires authentication and restaurant access validation
+- Returns payment result or error
+
+### Demo Mode Support
+
+Supports demo mode with `SQUARE_ACCESS_TOKEN=demo` for development/testing. (Source: SQUARE_INTEGRATION@9abd2d9, verified)
+
+**Implementation:** `server/src/routes/payments.routes.ts:171`
+
+### Payment Audit Logs
+
+Payment audit logs created for PCI compliance (7-year retention recommended). (Source: SQUARE_INTEGRATION@9abd2d9, verified)
+
+**Implementation:** `server/src/routes/payments.routes.ts:212`
+```typescript
+await PaymentService.logPaymentAttempt({ orderId, amount, status, ... })
+```
+
+### Required Environment Variables
+
+- `SQUARE_ACCESS_TOKEN` - Square API access token
+- `SQUARE_LOCATION_ID` - Square location ID (must match access token)
+
+**Configuration:** Referenced in `server/src/config/env.ts`, `server/src/config/environment.ts` (Source: SQUARE_INTEGRATION@9abd2d9, verified)
+
+## WebSockets
+
+### JWT Authentication Required
+
+WebSocket connections require authentication. In production mode, connections without valid JWT are rejected. (Source: WEBSOCKET_EVENTS@9abd2d9, verified)
+
+**Implementation:** `server/src/middleware/auth.ts:114` + `server/src/utils/websocket.ts:52-61`
+```typescript
+export async function verifyWebSocketAuth(request) {
+  // Validates JWT signature
+  // Rejects connections with no token (line 124)
+  // Returns restaurantId from decoded JWT
+}
+```
+
+On connection:
+```typescript
+const auth = await verifyWebSocketAuth(request);
+if (!auth) {
+  console.log("WebSocket authentication failed");
+  ws.close(1008, 'Unauthorized');
+}
+```
+
+### Failed Authentication Handling
+
+Failed authentication closes connection with WebSocket close code `1008` (Policy Violation). (Source: WEBSOCKET_EVENTS@9abd2d9, verified)
+
+**Implementation:** `server/src/utils/websocket.ts:55`
+
+### WebSocket Events
+
+Core order events: (Source: WEBSOCKET_EVENTS@9abd2d9, verified)
+- `order:created` - New order created
+- `order:updated` - Order modified
+- `order:status` - Order status changed
+
+**Implementation:** `server/src/utils/websocket.ts:191,206`
+
+### Restaurant Context Scoping
+
+Restaurant context automatically scoped from JWT. All WebSocket events filtered by `restaurantId` from authenticated token. (Source: WEBSOCKET_EVENTS@9abd2d9, verified)
+
+**Implementation:** `server/src/middleware/auth.ts` - Auth returns `restaurantId` from decoded JWT
+
+## Authentication Migration
+
+### Frontend Direct Supabase Authentication
+
+Frontend authenticates directly with Supabase using `signInWithPassword()`. Backend `/api/v1/auth/login` endpoint removed. (Source: MIGRATION_V6_AUTH@9abd2d9, verified)
+
+**Implementation:** `client/src/contexts/AuthContext.tsx:180`
+```typescript
+const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+  email,
+  password
+});
+```
+
+### Race Condition Prevention
+
+Race condition between `setSession()` and navigation eliminated using `refreshInProgressRef`. (Source: MIGRATION_V6_AUTH@9abd2d9, verified)
+
+**Implementation:** `client/src/contexts/AuthContext.tsx:60`
+```typescript
+const refreshInProgressRef = useRef(false);
+// Prevents concurrent session refresh calls
+```
+
+### Database Migrations
+
+Supabase migrations and RLS policies exist for user authentication schema and restaurant multi-tenancy. (Source: MIGRATION_V6_AUTH@9abd2d9, verified)
+
+**Implementation:** `supabase/migrations/` - 6 SQL migration files found
+
+## Incidents & Post-Mortems
+
+### Post-Mortem: Square Credential Mismatch Incident (October 14, 2025)
+
+**Incident Summary** (Source: POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14@9abd2d9, verified)
+
+Single-character typo in `SQUARE_LOCATION_ID` caused payment failures. Configured value was `L3V8KTKZN0DHD` but correct value is `L1V8KTKZN0DHD` (L3 vs L1).
+
+**Root Cause:** Environment variable typo
+**Impact:** All payment attempts failed
+**Resolution Time:** ~2 hours
+
+**Fix: Startup Validation** (Source: POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14@9abd2d9, verified)
+
+Server now validates `SQUARE_LOCATION_ID` matches access token on startup.
+
+**Implementation:** `server/src/routes/payments.routes.ts:37-101`
+```typescript
+// STARTUP VALIDATION: Verify Square credentials match
+const locationsResponse = await client.locations.list();
+const locationIds = locations.map(loc => loc.id);
+if (!locationIds.includes(configuredLocation)) {
+  console.error('SQUARE_LOCATION_ID mismatch!');
+}
+```
+
+**Fix: SDK v43 Migration** (Source: POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14@9abd2d9, verified)
+
+Migrated to Square SDK v43 with updated method names.
+
+**Changes:**
+- `createPayment()` → `create()`
+- `accessToken` property → `token` property
+- Response no longer wrapped in `.result`
+
+**Implementation:** `server/src/routes/payments.routes.ts:185`
+
+## Contributor Ops Handoff
+
+### Multi-Tenancy Requirement
+
+All features must support multi-tenant operation with `restaurant_id` scoping. (Source: CONTRIBUTING@9abd2d9, verified)
+
+**Pattern:** Include `restaurant_id` in all data operations
+
+**Implementation:** `shared/types/order.types.ts:46`
+```typescript
+interface Order {
+  restaurant_id: string;
+  // ... other fields
+}
+```
+
+### Deployment Procedures
+
+For operational and deployment procedures, see the sections above:
+- **Environment Setup**: [Environments & Secrets](#environments--secrets)
+- **Release Process**: [Release Flow](#release-flow)
+- **Rollback Procedures**: [Rollback (App)](#rollback-app) and [Rollback (DB)](#rollback-db)
+- **Payment Integration**: [Square Integration](#square-integration)
+- **Real-time Features**: [WebSockets](#websockets)
+- **Authentication**: [Authentication Migration](#authentication-migration)
+
 ## Provider Specifics (Vercel)
 
 ### URLs
