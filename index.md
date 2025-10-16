@@ -1,5 +1,7 @@
 # Grow App Documentation Index
 
+[![Docs CI](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml)
+
 **Version:** See [docs/VERSION.md](./docs/VERSION.md)
 
 ## 1. Core Documentation

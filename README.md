@@ -1,6 +1,7 @@
 # Grow App (Restaurant OS) — v6.0.8-rc.1
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
+[![Docs CI](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml)
 
 **Status:** Launch-ready (canary, then full roll)
 **Client:** React 19 · **Server:** Node 20 · **DB:** Postgres (Supabase) · **Realtime:** WebSockets
