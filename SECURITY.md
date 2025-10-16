@@ -2,7 +2,7 @@
 
 This page has been consolidated into the canonical docs.
 
-- See: `docs/` version of this file or the relevant section in **DEPLOYMENT.md** / **SECURITY.md** / **AUTHENTICATION_ARCHITECTURE.md**
-- Rationale: Single source of truth with evidence-verified content
-- Original preserved at: (see docs/archive/** path in this repo)
+- Canonical: [Security Guide](./docs/SECURITY.md#security-policy)
+- Original preserved at: docs/archive/legacy-root/2025-10-15_SECURITY.md
 
+Rationale: single source of truth with evidence-verified content.
