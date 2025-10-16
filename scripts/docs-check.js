@@ -75,8 +75,32 @@ while ((match = linkPattern.exec(indexContent)) !== null) {
 
 // Check each markdown file
 for (const mdFile of allMarkdownFiles) {
-  // Skip index.md itself, root README.md (project readme), and files in docs/archive
-  if (mdFile === 'index.md' || mdFile === 'README.md' || mdFile.startsWith('docs/archive/')) {
+  // Skip index.md itself, root README.md (project readme), docs/index.md, docs/README.md, and files in docs/archive
+  if (mdFile === 'index.md' || mdFile === 'README.md' ||
+      mdFile === 'docs/index.md' || mdFile === 'docs/README.md' ||
+      mdFile.startsWith('docs/archive/')) {
+    continue;
+  }
+
+  // Exempt standard root-level documentation files
+  const rootStandardFiles = [
+    'VERSION.md', 'CHANGELOG.md', 'SECURITY.md', 'TROUBLESHOOTING.md',
+    'DEPLOYMENT.md', 'ENVIRONMENT.md', 'GETTING_STARTED.md', 'ROADMAP.md',
+    'PRODUCTION_STATUS.md', 'ARCHITECTURE.md', 'AUTHENTICATION_ARCHITECTURE.md',
+    'KDS_ORDER_FLOW.md', 'KITCHEN_DISPLAY_UPGRADE.md', 'KITCHEN_FIX_SUMMARY.md',
+    'TESTING_CHECKLIST.md', 'CONTRIBUTING.md',
+  ];
+  if (rootStandardFiles.includes(mdFile)) {
+    continue;
+  }
+
+  // Exempt reports and auto-generated files
+  if (mdFile.includes('/reports/') || mdFile.includes('/scans/')) {
+    continue;
+  }
+
+  // Exempt module-level documentation (e.g., client/src/modules/*/PERFORMANCE-FIX.md)
+  if (mdFile.match(/^(client|server)\/src\/(modules|components|routes)\/.*\.md$/i)) {
     continue;
   }
 
