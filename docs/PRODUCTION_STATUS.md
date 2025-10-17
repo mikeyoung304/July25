@@ -1,9 +1,9 @@
 # Production Readiness Status
 
-**Last Updated**: October 14, 2025
-**Version**: 6.0.7
+**Last Updated**: October 17, 2025
+**Version**: 6.0.8
 **Overall Readiness**: 95% (Enterprise-Grade)
-**Status**: ✅ Production Ready - Payment System Operational
+**Status**: ✅ Production Ready - Pending Auth Strategy Review
 
 ---
 
@@ -11,12 +11,21 @@
 
 The Restaurant OS is **95% enterprise-grade production ready**. All core systems are functional, documented with formal ADRs, and fully tested. Payment system is **fully operational** as of October 14, 2025.
 
+⚠️ **Production Decision Required**: Review dual authentication architecture ([ADR-006](./ADR-006-dual-authentication-pattern.md)) before launch.
+
 ### Recent Milestones
+
+**KDS Authentication Fix** ✅ (October 17, 2025):
+- ✅ **httpClient Dual Auth**: Implemented Supabase + localStorage fallback pattern
+- ✅ **KDS Integration**: Fixed 401 errors preventing real order display
+- ✅ **End-to-End Flow**: ServerView → KDS flow now functional
+- ✅ **ADR-006**: Documented dual auth decision, tradeoffs, migration path
+- ⚠️ **Technical Debt**: localStorage auth requires production security review
 
 **Phase 2 Completion** ✅ (October 13, 2025):
 - ✅ **ADR-001**: Full snake_case convention adopted
 - ✅ **Response Transform Middleware**: Disabled (zero-overhead architecture)
-- ✅ **5 Formal ADRs**: Multi-tenancy, Embedded Orders, WebSocket, Voice Ordering
+- ✅ **6 Formal ADRs**: Multi-tenancy, Embedded Orders, WebSocket, Voice Ordering, Dual Auth
 - ✅ **Documentation System**: Comprehensive navigation, troubleshooting guide
 - ✅ **Technical Debt**: Tracked and prioritized
 

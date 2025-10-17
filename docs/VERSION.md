@@ -1,6 +1,6 @@
 # Version Information
 
-**Last Updated**: 2025-10-16
+**Last Updated**: 2025-10-17
 
 This document serves as the single source of truth for all version information in the Restaurant OS system.
 
@@ -30,5 +30,10 @@ Version information is sourced from:
 
 ## Update History
 
-- 2025-10-16: Version 6.0.8 - Documentation cleanup and CI improvements
+- 2025-10-17: Version 6.0.8 - KDS Authentication Fix & Documentation Cleanup
+  - Fixed critical authentication bug in httpClient (dual auth pattern implementation)
+  - Created ADR-006: Dual Authentication Architecture Pattern
+  - Comprehensive documentation updates across AUTHENTICATION_ARCHITECTURE, PRODUCTION_STATUS, TROUBLESHOOTING, and CHANGELOG
+  - See docs/CHANGELOG.md for complete details
+  - Commit: `94b6ea4`
 - 2025-09-26: Initial version truth established

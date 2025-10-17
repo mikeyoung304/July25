@@ -7,9 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [6.0.8] - 2025-10-16 - Documentation Cleanup & CI Improvements
+## [6.0.8] - 2025-10-17 - Authentication Fix & Documentation Cleanup
 
-### 📚 Documentation
+### 🔐 Authentication Fix (October 17, 2025)
+
+#### Fixed
+- **KDS Authentication Integration** (Critical Bug)
+  - Fixed httpClient only checking Supabase sessions, missing localStorage tokens
+  - KDS was showing mock "Classic Burger" data instead of real orders
+  - Implemented dual authentication pattern: Supabase sessions OR localStorage fallback
+  - Resolves 401 errors causing API failures for demo/PIN/station authentication
+  - Enables end-to-end testing: ServerView → voice order → KDS display
+  - File: `client/src/services/http/httpClient.ts` (lines 109-148)
+  - Commit: `94b6ea4`
+
+#### Added
+- **ADR-006: Dual Authentication Architecture Pattern**
+  - Documents localStorage fallback rationale and implementation
+  - Provides production migration decision tree (3 options)
+  - Lists security tradeoffs: localStorage vs Supabase
+  - Security checklist for production deployment
+  - Migration timeline: 2h (remove) | 8-12h (harden) | 16-24h (migrate)
+  - Location: `/docs/ADR-006-dual-authentication-pattern.md`
+
+- **Comprehensive Authentication Documentation**
+  - Updated `AUTHENTICATION_ARCHITECTURE.md` with dual auth section (150+ lines)
+  - Added httpClient implementation details with code examples
+  - Security tradeoffs comparison table
+  - Production migration options (A, B, C) with decision criteria
+  - Testing guide for both auth paths
+  - Debugging code snippets
+
+- **Demo/PIN/Station Authentication Troubleshooting**
+  - Added dedicated section in `TROUBLESHOOTING.md`
+  - Diagnosis steps for both Supabase and localStorage auth
+  - Fixed localStorage key reference: `auth_session` (not `auth_token`)
+  - Common causes & fixes table
+  - Version check commands
+
+#### Technical Debt
+- **localStorage Authentication Requires Production Review**
+  - localStorage tokens vulnerable to XSS (less secure than httpOnly cookies)
+  - No automatic token refresh (users must re-login every 12 hours)
+  - Token revocation requires manual intervention
+  - **Recommendation**: Review ADR-006 before production launch
+  - **Decision Required**: Keep dual auth | Migrate to Supabase | Remove localStorage
+
+#### Impact
+- **Unblocked Phase 1 Stabilization**: All demo pages now functional
+- **End-to-End Testing**: ServerView → KDS flow working
+- **Documentation Accuracy**: Corrected 3 critical inaccuracies in auth docs
+- **Future AI Agents**: Comprehensive context prevents similar bugs
+
+### 📚 Documentation (October 16, 2025)
 
 - **Documentation Consolidation & Cleanup**
   - Archived 50+ legacy and duplicate documentation files

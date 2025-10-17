@@ -556,24 +556,99 @@ router.post('/api/v1/payments/create', async (req, res) => {
 
 ## Authentication Problems
 
-### Problem: "Unauthorized" Error on API Requests
+### Problem: Demo/PIN/Station Authentication Not Working
 
 **Symptoms**:
-- API returns 401 Unauthorized
-- Frontend shows "Please log in"
-- User is logged in but requests fail
+- Logged in with demo/PIN/station but API returns 401 Unauthorized
+- Kitchen Display shows mock "Classic Burger" instead of real orders
+- Console shows "No authentication available for API request"
 
 **Diagnosis**:
 
 ```typescript
-// Check JWT token (browser console)
-const token = localStorage.getItem('auth_token');
-console.log('Token:', token);
+// Check which auth method is active (browser console)
 
-// Decode JWT (without verification)
-const payload = JSON.parse(atob(token.split('.')[1]));
-console.log('Token payload:', payload);
-console.log('Expires:', new Date(payload.exp * 1000));
+// 1. Check Supabase session (email/password auth)
+const { data: { session } } = await supabase.auth.getSession();
+console.log('Supabase session:', session);
+
+// 2. Check localStorage session (demo/PIN/station auth)
+const savedSession = localStorage.getItem('auth_session');
+console.log('localStorage session:', savedSession ? JSON.parse(savedSession) : null);
+
+// 3. Verify httpClient will find auth
+if (session?.access_token) {
+  console.log('✅ Will use SUPABASE auth (production)');
+} else if (savedSession) {
+  const parsed = JSON.parse(savedSession);
+  if (parsed.session?.expiresAt > Date.now() / 1000) {
+    console.log('✅ Will use LOCALSTORAGE auth (demo/PIN/station)');
+  } else {
+    console.log('❌ localStorage token EXPIRED');
+  }
+} else {
+  console.log('❌ NO AUTH AVAILABLE');
+}
+```
+
+**Common Causes & Fixes**:
+
+| Cause | Diagnosis | Fix |
+|-------|-----------|-----|
+| **localStorage session expired** | `expiresAt < Date.now() / 1000` | Re-login with demo/PIN |
+| **Wrong localStorage format** | Parse error or missing fields | Clear localStorage, re-login |
+| **Demo endpoint disabled** | `DEMO_LOGIN_ENABLED=false` on server | Set env var to `true` |
+| **httpClient using old version** | No localStorage fallback code | Update to v6.0.8+ |
+
+**Fix - Re-authenticate**:
+
+```typescript
+// Clear expired session
+localStorage.removeItem('auth_session');
+
+// Re-login (demo example)
+await authContext.loginAsDemo('server');
+
+// Verify new session created
+const newSession = JSON.parse(localStorage.getItem('auth_session'));
+console.log('New session expires:', new Date(newSession.session.expiresAt * 1000));
+```
+
+**Fix - Check httpClient version**:
+
+```bash
+# Verify httpClient has dual auth support (v6.0.8+)
+grep -A 20 "Check Supabase session" client/src/services/http/httpClient.ts
+
+# Should see both Supabase check AND localStorage fallback
+```
+
+**Related Documentation**:
+- [ADR-006: Dual Authentication Pattern](./ADR-006-dual-authentication-pattern.md)
+- [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md#dual-authentication-architecture-adr-006)
+
+---
+
+### Problem: "Unauthorized" Error on API Requests (Supabase Auth)
+
+**Symptoms**:
+- API returns 401 Unauthorized
+- Frontend shows "Please log in"
+- User is logged in with email/password but requests fail
+
+**Diagnosis**:
+
+```typescript
+// Check Supabase JWT token (browser console)
+const { data: { session } } = await supabase.auth.getSession();
+console.log('Supabase session:', session);
+
+if (session?.access_token) {
+  // Decode JWT (without verification)
+  const payload = JSON.parse(atob(session.access_token.split('.')[1]));
+  console.log('Token payload:', payload);
+  console.log('Expires:', new Date(payload.exp * 1000));
+}
 ```
 
 **Common Causes**:
