@@ -169,20 +169,24 @@ export function useVoiceOrderWebRTC() {
         body: JSON.stringify({
           table_number: selectedTable.label,
           seat_number: selectedSeat,
-          items: orderItems.map(item => ({
-            id: item.id,
-            menu_item_id: item.menuItemId,
-            name: item.name,
-            quantity: item.quantity,
-            modifications: item.modifications?.map(mod => mod.name) || []
-          })),
+          items: orderItems.map(item => {
+            const menuItem = menuItems.find(m => m.id === item.menuItemId)
+            return {
+              id: item.id,
+              menu_item_id: item.menuItemId,
+              name: item.name,
+              quantity: item.quantity,
+              price: menuItem?.price || 12.99, // Required by OrderItem schema
+              modifications: item.modifications?.map(mod => mod.name) || []
+            }
+          }),
           notes: `Voice order from ${selectedTable.label}, Seat ${selectedSeat}`,
           total_amount: orderItems.reduce((sum, item) => {
             const menuItem = menuItems.find(m => m.id === item.menuItemId)
             return sum + (menuItem?.price || 12.99) * item.quantity
           }, 0),
           customer_name: `Table ${selectedTable.label} - Seat ${selectedSeat}`,
-          order_type: 'dine-in'
+          type: 'dine-in' // Changed from order_type to match schema
         })
       })
       
