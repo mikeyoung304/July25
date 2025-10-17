@@ -106,9 +106,10 @@ export class HttpClient extends SecureAPIClient {
     // Build headers
     const headers = new Headers(requestOptions.headers)
 
-    // 1. Add Supabase JWT authentication (per Luis's spec)
+    // 1. Add JWT authentication (Supabase or localStorage-based demo/PIN/station tokens)
     if (!skipAuth) {
       try {
+        // Try Supabase session first
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.access_token) {
           headers.set('Authorization', `Bearer ${session.access_token}`)
@@ -116,11 +117,33 @@ export class HttpClient extends SecureAPIClient {
             logger.info('🔐 Using Supabase session token for API request')
           }
         } else {
-          logger.warn('❌ No authentication available for API request')
+          // Fallback to localStorage for demo/PIN/station sessions
+          const savedSession = localStorage.getItem('auth_session')
+          if (savedSession) {
+            try {
+              const parsed = JSON.parse(savedSession)
+              if (parsed.session?.accessToken && parsed.session?.expiresAt) {
+                // Check if token is still valid
+                if (parsed.session.expiresAt > Date.now() / 1000) {
+                  headers.set('Authorization', `Bearer ${parsed.session.accessToken}`)
+                  if (import.meta.env.DEV) {
+                    logger.info('🔐 Using localStorage session token (demo/PIN/station) for API request')
+                  }
+                } else {
+                  if (import.meta.env.DEV) {
+                    logger.warn('⚠️ localStorage session token expired')
+                  }
+                }
+              }
+            } catch (parseError) {
+              logger.error('Failed to parse localStorage auth session:', parseError as Error)
+            }
+          } else {
+            logger.warn('❌ No authentication available for API request (no Supabase or localStorage session)')
+          }
         }
       } catch (error) {
         logger.error('Failed to get auth session:', error as Error)
-        // No fallback - authentication is required
       }
     }
 
