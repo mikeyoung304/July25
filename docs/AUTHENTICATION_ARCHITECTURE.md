@@ -33,10 +33,10 @@ const { order_id, token, amount, idempotency_key } = req.body; // ADR-001: snake
 
 ## Architecture Principles
 
-1. **Single Source of Truth**: Supabase manages all user authentication and session state
-2. **Zero Redundancy**: Frontend authenticates directly with Supabase (no backend proxy)
-3. **Automatic Token Management**: httpClient automatically includes Supabase JWT in all requests
-4. **Separation of Concerns**: Different auth methods for different use cases
+1. **Single Source of Truth**: Supabase manages production user authentication and session state
+2. **Zero Redundancy**: Frontend authenticates directly with Supabase for email/password (no backend proxy)
+3. **Dual Authentication Support** ([ADR-006](./ADR-006-dual-authentication-pattern.md)): httpClient checks Supabase sessions (primary) OR localStorage sessions (demo/PIN/station fallback)
+4. **Separation of Concerns**: Different auth methods for different use cases (production vs development/shared devices)
 
 ---
 
@@ -126,24 +126,41 @@ Display uses JWT for WebSocket + API access
 
 **Flow**:
 ```
-Developer clicks demo role button
+Developer clicks demo role button (e.g., "Server", "Kitchen")
     ↓
 Frontend → loginAsDemo(role)
     ↓
-Maps role to demo credentials (e.g., server → server@restaurant.com)
+Frontend → Backend /api/v1/auth/demo-session
     ↓
-Calls standard login() with demo credentials
+Backend generates custom JWT (not Supabase)
     ↓
-(Same flow as Email/Password Login)
+Backend returns { token, expiresIn, user, restaurantId }
+    ↓
+Frontend stores in localStorage.auth_session (not Supabase)
+    ↓
+httpClient reads from localStorage on API calls (dual auth pattern)
 ```
 
 **Files**:
-- `client/src/contexts/AuthContext.tsx` - `loginAsDemo()` function
-- `client/src/components/auth/DevAuthOverlay.tsx` - Demo UI
+- `client/src/contexts/AuthContext.tsx` - `loginAsDemo()` function (lines 328-375)
+- `client/src/services/auth/demoAuth.ts` - Demo token fetching (deprecated by AuthContext)
+- `server/src/routes/auth.routes.ts` - `/api/v1/auth/demo-session` endpoint
+- `client/src/services/http/httpClient.ts` - Dual auth pattern (lines 109-148)
+
+**Session Storage**:
+- Custom format in `localStorage` under key `auth_session`
+- JWT signed with `KIOSK_JWT_SECRET` (1-hour expiry)
+- Format: `{ user, session: { accessToken, expiresAt, expiresIn }, restaurantId }`
 
 **Requirements**:
-- `VITE_DEMO_PANEL=1` environment variable
-- Demo users must exist in Supabase Auth + `user_restaurants` table
+- `VITE_DEMO_PANEL=1` environment variable (frontend)
+- `DEMO_LOGIN_ENABLED=true` environment variable (backend)
+- Demo users do NOT need to exist in Supabase Auth or database
+
+**Key Difference from Email/Password**:
+- Email/Password: Uses Supabase Auth, stores in Supabase localStorage
+- Demo: Uses custom JWT, stores in custom localStorage format
+- httpClient supports both via dual authentication pattern ([ADR-006](./ADR-006-dual-authentication-pattern.md))
 
 ---
 
@@ -200,29 +217,52 @@ req.user = {
 
 ## HTTP Client Integration
 
-### Automatic Auth Headers
+### Dual Authentication Pattern (ADR-006)
 
-`client/src/services/http/httpClient.ts` automatically attaches Supabase JWT to all requests:
+`client/src/services/http/httpClient.ts` implements a **dual authentication pattern** to support both Supabase sessions (production) and localStorage sessions (demo/PIN/station):
 
 ```typescript
 async request(endpoint, options) {
-  // Get current Supabase session
+  // 1. Try Supabase session first (primary, production-ready)
   const { data: { session } } = await supabase.auth.getSession();
 
-  // Add Authorization header
   if (session?.access_token) {
     headers.set('Authorization', `Bearer ${session.access_token}`);
+    // Supabase session found - production auth
+  } else {
+    // 2. Fallback to localStorage for demo/PIN/station authentication
+    const savedSession = localStorage.getItem('auth_session');
+    if (savedSession) {
+      try {
+        const parsed = JSON.parse(savedSession);
+        if (parsed.session?.accessToken && parsed.session?.expiresAt) {
+          // Validate token hasn't expired
+          if (parsed.session.expiresAt > Date.now() / 1000) {
+            headers.set('Authorization', `Bearer ${parsed.session.accessToken}`);
+            // localStorage session found - demo/PIN/station auth
+          }
+        }
+      } catch (error) {
+        // Invalid session format - log and continue without auth
+      }
+    }
   }
 
-  // Add restaurant ID header
+  // 3. Add restaurant ID header (multi-tenancy)
   headers.set('x-restaurant-id', restaurantId);
 
-  // Make request
+  // 4. Make request
   return super.request(endpoint, { headers, ...options });
 }
 ```
 
-**No manual token management required** - Supabase handles everything.
+**Authentication Priority**:
+1. **Primary**: Supabase session (email/password login - production-ready)
+2. **Fallback**: localStorage session (demo/PIN/station login - development/testing)
+
+**Implementation Details**:
+- Lines 109-148 in `client/src/services/http/httpClient.ts`
+- See [ADR-006](./ADR-006-dual-authentication-pattern.md) for rationale and tradeoffs
 
 ---
 
@@ -496,6 +536,161 @@ npm run seed:demo-users
 - [ ] Multi-restaurant SSO
 - [ ] OAuth integration (Google, Apple)
 - [ ] Hardware token support (YubiKey)
+
+---
+
+## Dual Authentication Architecture (ADR-006)
+
+### Overview
+
+As of v6.0.8 (October 17, 2025), the system implements a **dual authentication pattern** to support both production and development/testing use cases.
+
+**See [ADR-006-dual-authentication-pattern.md](./ADR-006-dual-authentication-pattern.md) for full architectural decision record.**
+
+### Authentication Paths
+
+| Auth Method | Storage | Use Case | Production Ready |
+|-------------|---------|----------|------------------|
+| **Supabase Session** | `localStorage.sb-{project}-auth-token` | Email/password login (managers, owners) | ✅ YES |
+| **localStorage Session** | `localStorage.auth_session` | Demo/PIN/station login | ⚠️ DEVELOPMENT ONLY |
+
+### Why Two Systems?
+
+**Historical Context**:
+- v6.0 migrated to direct Supabase auth for production users
+- Demo/PIN/station auth remained as custom JWTs in localStorage
+- httpClient originally only checked Supabase → demo users got 401 errors
+- v6.0.8 fix: httpClient now checks both (dual auth pattern)
+
+**Current State**:
+- Production users (email/password): Supabase Auth (httpOnly cookies, auto-refresh, secure)
+- Dev/test users (demo): Custom JWTs in localStorage (less secure, manual management)
+- Shared devices (PIN): Custom JWTs in localStorage (planned for production)
+- Kiosk displays (station): Custom JWTs in localStorage (planned for production)
+
+### Implementation: httpClient Dual Auth
+
+```typescript
+// client/src/services/http/httpClient.ts:109-148
+
+async request(endpoint, options) {
+  // PRIMARY: Check Supabase session
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (session?.access_token) {
+    // ✅ Supabase auth (production-ready)
+    headers.set('Authorization', `Bearer ${session.access_token}`);
+  } else {
+    // FALLBACK: Check localStorage session
+    const saved = localStorage.getItem('auth_session');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.session?.accessToken &&
+          parsed.session?.expiresAt > Date.now() / 1000) {
+        // ⚠️ localStorage auth (demo/PIN/station)
+        headers.set('Authorization', `Bearer ${parsed.session.accessToken}`);
+      }
+    }
+  }
+
+  return super.request(endpoint, { headers });
+}
+```
+
+### Security Tradeoffs
+
+| Aspect | Supabase Auth | localStorage Auth |
+|--------|---------------|-------------------|
+| **Storage** | Supabase-managed localStorage | Custom `auth_session` key |
+| **XSS Protection** | ⚠️ Vulnerable (localStorage) | ⚠️ Vulnerable (localStorage) |
+| **Token Refresh** | ✅ Automatic | ❌ Manual (must re-login) |
+| **Revocation** | ✅ Centralized | ❌ Manual database update |
+| **Lifetime** | 1 hour (auto-refresh to 30 days) | 12 hours (PIN), 7 days (station) |
+| **Production Ready** | ✅ YES | ⚠️ NEEDS REVIEW |
+
+### Production Migration Options
+
+**Option A: Keep Dual Auth with Security Hardening**
+- Implement CSP headers (prevent XSS)
+- Add token rotation (8-hour expiry)
+- IP allowlisting for PIN terminals
+- Device fingerprinting
+- **Timeline**: 8-12 hours
+- **Use When**: < 10 staff using PIN
+
+**Option B: Migrate to Supabase Custom Auth**
+- Create custom auth provider for PIN/station users
+- All auth through Supabase → single system
+- httpClient reverts to Supabase-only (remove fallback)
+- **Timeline**: 16-24 hours
+- **Use When**: > 10 staff using PIN
+
+**Option C: Remove localStorage Auth Entirely**
+- Production uses Supabase exclusively
+- Demo/development disabled in production
+- **Timeline**: 2 hours
+- **Use When**: No PIN/station auth needed
+
+### Testing Both Auth Paths
+
+```bash
+# Test Supabase auth
+1. Login with email/password (manager@restaurant.com)
+2. Check localStorage.getItem('sb-{project}-auth-token')
+3. Make API call → Should use Supabase token
+
+# Test localStorage auth
+1. Login with demo ("Server" button)
+2. Check localStorage.getItem('auth_session')
+3. Make API call → Should use localStorage token
+
+# Test fallback behavior
+1. Clear Supabase session: supabase.auth.signOut()
+2. Keep localStorage session
+3. Make API call → Should still work (fallback)
+```
+
+### Known Issues & Limitations
+
+**Current Limitations**:
+- No automatic token refresh for localStorage sessions
+- PIN users must re-login every 12 hours
+- Station displays must re-authenticate every 7 days
+- Token revocation requires manual intervention
+
+**Future Improvements** (Post v6.0.8):
+- Implement token refresh mechanism for localStorage
+- Add token revocation endpoint
+- Migrate to Supabase custom auth (consolidate systems)
+- Implement hardware token support (YubiKey)
+
+### Debugging Dual Auth
+
+```typescript
+// Check which auth method is being used (browser console)
+
+// 1. Check Supabase session
+const { data: { session } } = await supabase.auth.getSession();
+console.log('Supabase session:', session);
+
+// 2. Check localStorage session
+const saved = localStorage.getItem('auth_session');
+console.log('localStorage session:', JSON.parse(saved));
+
+// 3. Check which one httpClient will use
+if (session?.access_token) {
+  console.log('✅ Will use SUPABASE auth');
+} else if (saved) {
+  const parsed = JSON.parse(saved);
+  if (parsed.session?.expiresAt > Date.now() / 1000) {
+    console.log('⚠️ Will use LOCALSTORAGE auth');
+  } else {
+    console.log('❌ localStorage token EXPIRED');
+  }
+} else {
+  console.log('❌ NO AUTH AVAILABLE');
+}
+```
 
 ---
 

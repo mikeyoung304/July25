@@ -10,6 +10,14 @@
 - [Architecture Overview](./docs/ARCHITECTURE.md) — System design & components
 - [Database Schema & RLS](./docs/DATABASE.md) — Data model & row-level security
 
+### Architecture Decision Records (ADRs)
+- [ADR-001: Snake Case Convention](./docs/ADR-001-snake-case-convention.md) — Unified data layer format
+- [ADR-002: Multi-Tenancy Architecture](./docs/ADR-002-multi-tenancy-architecture.md) — Restaurant isolation strategy
+- [ADR-003: Embedded Orders Pattern](./docs/ADR-003-embedded-orders-pattern.md) — Order data structure
+- [ADR-004: WebSocket Realtime Architecture](./docs/ADR-004-websocket-realtime-architecture.md) — Real-time event system
+- [ADR-005: Client-Side Voice Ordering](./docs/ADR-005-client-side-voice-ordering.md) — Voice integration approach
+- [ADR-006: Dual Authentication Pattern](./docs/ADR-006-dual-authentication-pattern.md) — Supabase + localStorage auth (v6.0.8)
+
 ## 2. Security & Authentication
 - [Security Guide](./docs/SECURITY.md) — Security controls & best practices
 - [Authentication Architecture](./docs/AUTHENTICATION_ARCHITECTURE.md) — Auth flows & JWT
@@ -35,6 +43,7 @@
 
 ## 6. Incidents & Diagnostics
 - [Post-Mortem: Payment Credentials (2025-10-14)](./docs/POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
+- [Documentation Update Summary (2025-10-17)](./docs/DOCUMENTATION_UPDATE_SUMMARY_2025-10-17.md) — KDS auth fix & doc cleanup
 - [Auth Diagnostic Guide](./AUTH_DIAGNOSTIC_GUIDE.md) — Auth debugging workflows
 
 ## 7. Roadmap & Planning
