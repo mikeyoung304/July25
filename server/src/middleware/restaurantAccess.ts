@@ -34,10 +34,12 @@ export async function validateRestaurantAccess(
       return next();
     }
 
-    // For kiosk demo users, they're already scoped to a specific restaurant
-    if (req.user.role === 'kiosk_demo' && req.user.restaurant_id === requestedRestaurantId) {
+    // For demo users (identified by demo: prefix in user ID), bypass DB check
+    // Demo users don't exist in user_restaurants table but are scoped to a specific restaurant in their JWT
+    const isDemoUser = req.user.id.startsWith('demo:');
+    if (isDemoUser && req.user.restaurant_id === requestedRestaurantId) {
       req.restaurantId = requestedRestaurantId;
-      req.restaurantRole = 'kiosk';
+      req.restaurantRole = req.user.role || 'demo'; // Use their actual role
       return next();
     }
 
