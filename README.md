@@ -14,8 +14,8 @@
 
 ## Docs
 - Start here: [Documentation Index](./index.md)
-- Deploy: [DEPLOYMENT](./DEPLOYMENT.md) · Security: [SECURITY](./SECURITY.md) · DB: [DATABASE](./DATABASE.md)
-- Troubleshoot: [TROUBLESHOOTING](./TROUBLESHOOTING.md) · Version: [VERSION](./VERSION.md)
+- Deploy: [DEPLOYMENT](./docs/DEPLOYMENT.md) · Security: [SECURITY](./docs/SECURITY.md) · DB: [DATABASE](./docs/DATABASE.md)
+- Troubleshoot: [TROUBLESHOOTING](./docs/TROUBLESHOOTING.md) · Version: [VERSION](./docs/VERSION.md)
 
 ## Quickstart (local)
 ```bash

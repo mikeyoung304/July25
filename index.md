@@ -39,12 +39,12 @@
 - [Contributing Guide](./docs/CONTRIBUTING.md) — Development workflow & standards
 - [Documentation Standards](./docs/DOCUMENTATION_STANDARDS.md) — Doc writing guidelines
 - [Supabase Migration Guide](./supabase/MIGRATION_GUIDE.md) — Database migrations
-- [Testing Checklist](./TESTING_CHECKLIST.md) — QA & testing procedures
+- [Testing Checklist](./docs/TESTING_CHECKLIST.md) — QA & testing procedures
 
 ## 6. Incidents & Diagnostics
 - [Post-Mortem: Payment Credentials (2025-10-14)](./docs/POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
 - [Documentation Update Summary (2025-10-17)](./docs/DOCUMENTATION_UPDATE_SUMMARY_2025-10-17.md) — KDS auth fix & doc cleanup
-- [Auth Diagnostic Guide](./AUTH_DIAGNOSTIC_GUIDE.md) — Auth debugging workflows
+- [Auth Diagnostic Guide](./docs/AUTH_DIAGNOSTIC_GUIDE.md) — Auth debugging workflows
 
 ## 7. Roadmap & Planning
 - [Product Roadmap](./docs/ROADMAP.md) — Feature pipeline & vision

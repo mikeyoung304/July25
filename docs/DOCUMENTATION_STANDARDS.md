@@ -1,6 +1,6 @@
 # Documentation Standards
 
-**Last Updated**: 2025-09-26
+**Last Updated**: 2025-10-17
 **Version**: See [VERSION.md](VERSION.md)
 
 ## Purpose
@@ -72,6 +72,54 @@ Outdated documentation preserved for reference.
 
 ### `/reports/` - Generated reports
 Build reports, coverage reports, analysis outputs.
+
+## Root Directory Policy
+
+**Effective Date**: 2025-10-17
+
+The root directory should contain **ONLY** these 4 documentation files:
+
+1. **README.md** - Project overview, quick start, badges
+2. **index.md** - Documentation navigation hub
+3. **SECURITY.md** - Brief security policy for GitHub Security tab
+4. **CONTRIBUTING.md** - Brief contributor guide for GitHub PR interface
+
+### Rationale
+
+This follows industry best practices observed in major open-source projects (React, Next.js, Vue, Vite, Supabase):
+- Clean root directory improves project discoverability
+- GitHub special files (SECURITY.md, CONTRIBUTING.md) get automatic integration
+- All comprehensive documentation lives in organized `docs/` directory
+- Component-level READMEs (client/, server/, shared/) remain in their respective directories
+
+### Special File Requirements
+
+**SECURITY.md** must include:
+- Supported versions table
+- Vulnerability reporting instructions
+- Response timeline
+- Link to comprehensive security documentation
+
+**CONTRIBUTING.md** must include:
+- Quick start steps
+- PR checklist
+- Key guidelines (multi-tenancy, security, testing)
+- Link to comprehensive contributing documentation
+
+### Migration from Redirect Stubs
+
+**October 2025 Migration**: The project previously used redirect stub files (300-byte files pointing to docs/) as a transitional pattern following the October 15 consolidation. These have been removed in favor of direct links to `docs/` in README.md and index.md.
+
+**Do NOT**:
+- ❌ Create redirect stub files at root
+- ❌ Duplicate content between root and docs/
+- ❌ Add comprehensive documentation to root
+
+**DO**:
+- ✅ Keep root minimal (4 files only)
+- ✅ Use direct links to docs/ in README.md and index.md
+- ✅ Maintain brief GitHub-friendly versions at root
+- ✅ Keep detailed versions in docs/
 
 ## File Naming
 
