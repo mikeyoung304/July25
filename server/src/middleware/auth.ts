@@ -64,11 +64,32 @@ export async function authenticate(
       throw Unauthorized('Token verification failed');
     }
 
+    // Handle role with kiosk_demo → customer alias
+    let userRole = decoded.role || 'user';
+
+    // Feature flag: Accept kiosk_demo as alias for customer (default: true for backwards compat)
+    const acceptKioskDemoAlias = process.env['AUTH_ACCEPT_KIOSK_DEMO_ALIAS'] !== 'false';
+
+    if (userRole === 'kiosk_demo') {
+      if (acceptKioskDemoAlias) {
+        logger.warn("⚠️ auth: role 'kiosk_demo' is deprecated; treating as 'customer'", {
+          userId: decoded.sub,
+          path: req.path
+        });
+        userRole = 'customer'; // Alias kiosk_demo → customer
+      } else {
+        logger.error("⛔ auth: role 'kiosk_demo' rejected (AUTH_ACCEPT_KIOSK_DEMO_ALIAS=false)", {
+          userId: decoded.sub
+        });
+        throw Unauthorized("Role 'kiosk_demo' is deprecated. Use 'customer' instead.");
+      }
+    }
+
     // Set user info
     req.user = {
       id: decoded.sub,
       email: decoded.email,
-      role: decoded.role || 'user',
+      role: userRole,
       scopes: decoded.scope || [],
       restaurant_id: decoded.restaurant_id, // Add restaurant_id from token
     };

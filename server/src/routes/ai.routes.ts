@@ -247,7 +247,7 @@ router.post('/parse-order', aiServiceLimiter, trackAIMetrics('parse-order'), aut
  * Process voice audio and return response
  * Combines transcription and chat in one endpoint
  */
-router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authenticate, requireRole(['admin', 'manager', 'user', 'kiosk_demo']), requireScope(['ai.voice:chat']), audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authenticate, requireRole(['admin', 'manager', 'user', 'customer']), requireScope(['ai.voice:chat']), audioUpload.single('audio'), async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.file) {
       res.set('Cache-Control', 'no-store');
