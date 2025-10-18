@@ -4,7 +4,7 @@ import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderPar
 import { OrderModification } from '@/modules/voice/contexts/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import type { Table } from '@/modules/floor-plan/types'
-import { getDemoToken } from '@/services/auth/demoAuth'
+import { getServerToken } from '@/services/auth/roleHelpers'
 import { logger } from '@/services/monitoring/logger'
 
 // Helper to resolve absolute API URLs for production
@@ -158,13 +158,14 @@ export function useVoiceOrderWebRTC() {
     }
     
     try {
-      const demoToken = await getDemoToken()
+      const serverToken = await getServerToken()
       const response = await fetch(apiUrl('/api/v1/orders'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${demoToken}`,
-          'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111'
+          'Authorization': `Bearer ${serverToken}`,
+          'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111',
+          'X-Client-Flow': 'server'
         },
         body: JSON.stringify({
           table_number: selectedTable.label,

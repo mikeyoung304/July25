@@ -120,10 +120,19 @@ const ROLE_SCOPES: Record<string, ApiScope[]> = {
   ],
   
   // Kiosk demo role for self-service (friends & family online orders)
+  // DEPRECATED: Use 'customer' role instead (backwards compat via AUTH_ACCEPT_KIOSK_DEMO_ALIAS)
   kiosk_demo: [
     ApiScope.ORDERS_CREATE,
     ApiScope.ORDERS_READ,
     ApiScope.PAYMENTS_PROCESS, // Required for completing demo orders
+    ApiScope.MENU_MANAGE // Read-only for menu viewing
+  ],
+
+  // Customer role for public self-service orders (online, kiosk)
+  customer: [
+    ApiScope.ORDERS_CREATE,
+    ApiScope.ORDERS_READ,
+    ApiScope.PAYMENTS_PROCESS,
     ApiScope.MENU_MANAGE // Read-only for menu viewing
   ]
 };
@@ -202,22 +211,23 @@ export function requireScopes(...requiredScopes: ApiScope[]) {
         return next();
       }
 
-      // For kiosk_demo users, use predefined scopes
-      if (req.user.role === 'kiosk_demo') {
-        const kioskScopes = getScopesForRole('kiosk_demo');
-        const hasRequiredScope = requiredScopes.some(scope => 
-          kioskScopes.includes(scope)
+      // For customer or kiosk_demo users, use predefined scopes (no database lookup)
+      if (req.user.role === 'customer' || req.user.role === 'kiosk_demo') {
+        const roleScopes = getScopesForRole(req.user.role);
+        const hasRequiredScope = requiredScopes.some(scope =>
+          roleScopes.includes(scope)
         );
-        
+
         if (!hasRequiredScope) {
-          rbacLogger.warn('Kiosk user lacks required scope', {
+          rbacLogger.warn('Customer/kiosk user lacks required scope', {
             userId: req.user.id,
+            role: req.user.role,
             requiredScopes,
-            userScopes: kioskScopes
+            userScopes: roleScopes
           });
           return next(Forbidden(`Insufficient permissions. Required: ${requiredScopes.join(', ')}`));
         }
-        
+
         return next();
       }
 
