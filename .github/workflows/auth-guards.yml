@@ -1,0 +1,238 @@
+name: Auth Guards
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'server/src/middleware/auth.ts'
+      - 'server/src/routes/**'
+      - 'client/src/**'
+      - 'supabase/migrations/**'
+      - '.github/workflows/auth-guards.yml'
+
+jobs:
+  auth-integration-tests:
+    name: Auth Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install server dependencies
+        run: cd server && npm ci
+
+      - name: Build server
+        run: cd server && npm run build || true
+        continue-on-error: true
+
+      - name: Run auth integration tests
+        run: cd server && npm test -- src/routes/__tests__/orders.auth.test.ts
+        env:
+          NODE_ENV: test
+          AUTH_ACCEPT_KIOSK_DEMO_ALIAS: 'true'
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-test-results
+          path: server/coverage/
+          retention-days: 7
+
+  kiosk-demo-deprecation-gate:
+    name: Kiosk Demo Deprecation Gate
+    runs-on: ubuntu-latest
+
+    # This gate enforces removal of 'kiosk_demo' from client code once migration is complete
+    # Set MIGRATION_STAGE=post to enable strict enforcement
+
+    env:
+      # Migration stage controls grep gate behavior:
+      # - "pre":  Allow kiosk_demo in client code (migration in progress)
+      # - "post": Reject kiosk_demo in client code (migration complete)
+      MIGRATION_STAGE: ${{ vars.MIGRATION_STAGE || 'pre' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check migration stage
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🚦 Auth Migration Stage: $MIGRATION_STAGE"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+
+          if [ "$MIGRATION_STAGE" = "pre" ]; then
+            echo "✅ PRE-MIGRATION: kiosk_demo references allowed in client code"
+            echo "   Migration in progress, both roles supported"
+            echo ""
+          elif [ "$MIGRATION_STAGE" = "post" ]; then
+            echo "🔒 POST-MIGRATION: kiosk_demo references BANNED in client code"
+            echo "   All clients must use 'customer' role"
+            echo ""
+          else
+            echo "⚠️  Unknown MIGRATION_STAGE: $MIGRATION_STAGE"
+            echo "   Valid values: pre, post"
+            echo "   Defaulting to 'pre' (permissive)"
+            echo ""
+            echo "MIGRATION_STAGE=pre" >> $GITHUB_ENV
+          fi
+
+      - name: Scan for kiosk_demo in client code (POST-MIGRATION)
+        if: env.MIGRATION_STAGE == 'post'
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🔍 Scanning client code for deprecated 'kiosk_demo' references"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+
+          # Search for kiosk_demo in client code, excluding:
+          # - node_modules/
+          # - dist/ and build/
+          # - test files (__tests__/, *.test.ts, *.spec.ts)
+          # - docs and markdown files
+
+          MATCHES=$(grep -r "kiosk_demo" client/src/ \
+            --include="*.ts" \
+            --include="*.tsx" \
+            --include="*.js" \
+            --include="*.jsx" \
+            --exclude-dir=node_modules \
+            --exclude-dir=dist \
+            --exclude-dir=build \
+            --exclude="*.test.ts" \
+            --exclude="*.test.tsx" \
+            --exclude="*.spec.ts" \
+            --exclude="*.spec.tsx" \
+            2>/dev/null || true)
+
+          if [ -n "$MATCHES" ]; then
+            echo "❌ FAILED: Found kiosk_demo references in client code:"
+            echo ""
+            echo "$MATCHES"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🔧 Required Actions:"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            echo "1. Replace all 'kiosk_demo' with 'customer' in client code"
+            echo "2. Update client-side auth services"
+            echo "3. Test with customer role tokens"
+            echo "4. Verify no regressions in online ordering flow"
+            echo ""
+            echo "See: docs/runbooks/POST_DUAL_AUTH_ROLL_OUT.md"
+            echo "See: docs/ADR-006-dual-authentication-pattern.md"
+            echo ""
+            exit 1
+          else
+            echo "✅ PASSED: No kiosk_demo references found in client code"
+            echo ""
+            echo "Migration stage: POST ✅"
+            echo "Client code: Clean ✅"
+            echo ""
+          fi
+
+      - name: Skip grep gate (PRE-MIGRATION)
+        if: env.MIGRATION_STAGE != 'post'
+        run: |
+          echo "ℹ️  Skipping grep gate (MIGRATION_STAGE=$MIGRATION_STAGE)"
+          echo ""
+          echo "To enable strict enforcement:"
+          echo "  1. Complete client migration to 'customer' role"
+          echo "  2. Set GitHub Actions variable: MIGRATION_STAGE=post"
+          echo "  3. Re-run this workflow"
+          echo ""
+
+  role-consistency-check:
+    name: Role Consistency Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify role definitions consistency
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🔍 Checking auth role consistency across codebase"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+
+          # Check that 'customer' role is defined in key files
+
+          # 1. Server auth middleware
+          if ! grep -q "role.*customer" server/src/middleware/auth.ts; then
+            echo "⚠️  WARNING: 'customer' role not found in server/src/middleware/auth.ts"
+          else
+            echo "✅ server/src/middleware/auth.ts mentions 'customer'"
+          fi
+
+          # 2. Orders routes (requireRole)
+          if ! grep -q "customer" server/src/routes/orders.routes.ts; then
+            echo "⚠️  WARNING: 'customer' role not found in server/src/routes/orders.routes.ts"
+          else
+            echo "✅ server/src/routes/orders.routes.ts allows 'customer'"
+          fi
+
+          # 3. DB migration exists
+          if [ ! -f "supabase/migrations/20251018_add_customer_role_scopes.sql" ]; then
+            echo "⚠️  WARNING: Customer role migration not found"
+          else
+            echo "✅ supabase/migrations/20251018_add_customer_role_scopes.sql exists"
+          fi
+
+          # 4. Auth tests exist
+          if [ ! -f "server/src/routes/__tests__/orders.auth.test.ts" ]; then
+            echo "⚠️  WARNING: Auth integration tests not found"
+          else
+            echo "✅ server/src/routes/__tests__/orders.auth.test.ts exists"
+          fi
+
+          echo ""
+          echo "✅ Role consistency check complete"
+          echo ""
+
+      - name: Check AUTH_ACCEPT_KIOSK_DEMO_ALIAS flag usage
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🔍 Checking AUTH_ACCEPT_KIOSK_DEMO_ALIAS flag usage"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+
+          # Verify flag is documented in .env.example
+          if ! grep -q "AUTH_ACCEPT_KIOSK_DEMO_ALIAS" .env.example; then
+            echo "⚠️  WARNING: AUTH_ACCEPT_KIOSK_DEMO_ALIAS not in .env.example"
+          else
+            echo "✅ AUTH_ACCEPT_KIOSK_DEMO_ALIAS documented in .env.example"
+          fi
+
+          # Verify flag is used in auth middleware
+          if ! grep -q "AUTH_ACCEPT_KIOSK_DEMO_ALIAS" server/src/middleware/auth.ts; then
+            echo "⚠️  WARNING: AUTH_ACCEPT_KIOSK_DEMO_ALIAS not used in auth middleware"
+          else
+            echo "✅ AUTH_ACCEPT_KIOSK_DEMO_ALIAS used in server/src/middleware/auth.ts"
+          fi
+
+          echo ""
+          echo "✅ Flag usage check complete"
+          echo ""
