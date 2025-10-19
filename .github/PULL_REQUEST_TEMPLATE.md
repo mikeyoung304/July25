@@ -25,3 +25,11 @@ Revert: git revert <commit-sha>
 
 NEXT STEP
 One-line follow-up
+
+---
+
+### Audit Hygiene
+- [ ] References **Audit finding ID(s)** (e.g., STAB-001)
+- [ ] DB operations are **transactional** where appropriate
+- [ ] Concurrency: optimistic locking/versioning considered where applicable
+- [ ] Tests: added/updated to cover behavior and regressions

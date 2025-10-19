@@ -1,0 +1,27 @@
+name: "🔍 Verification – Audit Finding"
+description: "Confirm the audit claim with hard evidence before any fix."
+labels: ["verification","audit-2025-10-19"]
+body:
+  - type: input
+    id: finding-id
+    attributes:
+      label: Finding ID
+      placeholder: e.g., STAB-001
+  - type: textarea
+    id: claim
+    attributes:
+      label: Claim (quoted from audit)
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence (file+line links, SQL DDL/queries, logs)
+      description: "Use GitHub permalinks or paste minimal snippet/SQL with results."
+  - type: checkboxes
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      options:
+        - label: Evidence links to exact file+line (or SQL DDL) prove/negate claim
+        - label: Repro steps captured (or 'not reproducible' with proof)
+        - label: Decision recorded (Valid / Partially valid / Not valid)
+        - label: If valid → follow-up 'Fix' issue linked
