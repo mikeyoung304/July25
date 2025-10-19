@@ -595,6 +595,18 @@ const allowedOrigins = new Set<string>([...]);
 
 **Configuration:** `server/src/config/env.ts`
 
+**Custom Headers Allowed**:
+The following custom headers are permitted in CORS requests (server/src/server.ts:145):
+- `Authorization` - JWT bearer tokens
+- `Content-Type` - Request body type
+- `x-restaurant-id` / `X-Restaurant-ID` - Multi-tenant context (both case variations accepted)
+- `x-request-id` - Request tracing
+- `X-CSRF-Token` - CSRF protection
+- `x-demo-token-version` - Demo auth versioning
+- `X-Client-Flow` / `x-client-flow` - Order flow tracking (online, kiosk, server)
+
+**Critical**: If adding new custom headers to client requests, they MUST be added to the `allowedHeaders` array in `server/src/server.ts` to prevent CORS blocking.
+
 ### WebSocket Authentication
 
 **Production WebSocket Authentication**
