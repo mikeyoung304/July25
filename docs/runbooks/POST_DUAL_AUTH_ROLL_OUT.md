@@ -70,6 +70,34 @@ Configure monitoring for:
 - Deprecation warning counts
 - 401 Unauthorized errors
 
+### 5. Pre-Deploy Go/No-Go Checklist
+
+Before deploying to any environment, confirm:
+
+**Database:**
+- [ ] `customer` role scopes present in `role_scopes` table
+- [ ] Migration `20251018_add_customer_role_scopes.sql` applied
+
+**Environment Variables:**
+- [ ] `AUTH_DUAL_AUTH_ENABLE=true` (if using dual auth pattern)
+- [ ] `AUTH_ACCEPT_KIOSK_DEMO_ALIAS=true` (allows kiosk_demo → customer)
+
+**Sanity Tests:**
+- [ ] Public checkout order: POST /api/v1/orders with customer token → 201 Created
+- [ ] Server order: POST /api/v1/orders with server token → 201 Created
+- [ ] KDS receives order via WebSocket (if wired)
+- [ ] Payment processing completes successfully
+
+**Logs & Monitoring:**
+- [ ] No spike in 401/403 errors (check APM dashboard)
+- [ ] Kiosk_demo deprecation warning count near zero or trending down
+- [ ] Monitoring script operational: `./scripts/monitor-auth-roles.sh`
+
+**Rollback Plan:**
+- [ ] Feature flag can be disabled: `AUTH_ACCEPT_KIOSK_DEMO_ALIAS=false`
+- [ ] Git revert command ready: `git revert <commit-sha>`
+- [ ] Stakeholder notification plan in place
+
 ---
 
 ## Rollout Stages

@@ -1,6 +1,6 @@
 # ADR-006: Dual Authentication Pattern - localStorage Fallback for httpClient
 
-**Status**: ACCEPTED (Phase 1 Stabilization)
+**Status**: ACCEPTED
 **Date**: 2025-10-17
 **Deciders**: Technical Lead
 **Related**: [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md)
@@ -367,8 +367,32 @@ Track these metrics to inform production decision:
 
 ---
 
+## Alias Removal Criteria
+
+The kiosk_demo role alias will be removed when:
+1. ✅ All client-side token generators updated to issue `customer` role
+2. ✅ 30 consecutive days with zero `kiosk_demo` token issuance (tracked via logs)
+3. ✅ Monitoring script confirms no deprecation warnings in production
+4. ✅ Stakeholder approval obtained
+
+**Monitoring Command:**
+```bash
+LOG_DIR=/var/log/restaurant-os/ DAYS_BACK=30 ./scripts/monitor-auth-roles.sh
+# Expected output when ready:
+# Kiosk_demo role tokens: 0 (0%)
+```
+
+Once criteria met:
+1. Set `AUTH_ACCEPT_KIOSK_DEMO_ALIAS=false` in production
+2. Monitor for 7 days
+3. Create migration to remove kiosk_demo from `role_scopes` table
+4. Remove kiosk_demo from `server/src/middleware/rbac.ts`
+
+---
+
 ## Changelog
 
+- **2025-10-18**: Added alias removal criteria (30-day zero usage rule)
 - **2025-10-17**: Initial ADR created after implementing dual auth fix
 - **Status**: ACCEPTED for Phase 1, REVIEW before production
 

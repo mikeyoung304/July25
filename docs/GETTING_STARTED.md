@@ -48,6 +48,51 @@ July25/
 └── tests/          # Test files
 ```
 
+## Auth Quickstart (v6.0.8+)
+
+Restaurant OS uses dual authentication (Supabase + localStorage). For local development:
+
+### 1. Environment Setup
+```bash
+# Ensure auth flags are set in .env
+AUTH_DUAL_AUTH_ENABLE=true
+AUTH_ACCEPT_KIOSK_DEMO_ALIAS=true  # Allows kiosk_demo → customer alias
+DEMO_LOGIN_ENABLED=true            # Enables /api/v1/auth/demo-session
+```
+
+### 2. Database Migration
+```bash
+# Apply customer role scopes migration
+npm run db:push
+
+# Verify customer role exists
+psql $DATABASE_URL -c "SELECT role, scope_name FROM role_scopes WHERE role='customer';"
+```
+
+### 3. Test Authentication
+```bash
+# Run auth integration tests (12 tests)
+npm run test:server -- tests/routes/orders.auth.test.ts
+
+# Expected: ✅ 12/12 passing
+```
+
+### 4. Demo Token Helpers
+
+Two demo token generators exist for testing:
+
+```typescript
+// Customer token (public self-service)
+import { getCustomerToken } from '@/services/auth/roleHelpers';
+const token = await getCustomerToken();
+
+// Server token (staff operations)
+import { getServerToken } from '@/services/auth/roleHelpers';
+const token = await getServerToken();
+```
+
+See [AUTHENTICATION_ARCHITECTURE.md](./docs/AUTHENTICATION_ARCHITECTURE.md) for complete auth documentation.
+
 ## Development Workflow
 
 ### Running Tests
