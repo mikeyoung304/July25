@@ -564,12 +564,23 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
 
     // Basic duplicate name check
     const labels = tables.map(t => t.label.trim().toLowerCase())
-    const duplicates = labels.filter((label, index) => 
+    const duplicates = labels.filter((label, index) =>
       label && labels.indexOf(label) !== index
     )
-    
+
     if (duplicates.length > 0) {
-      toast.error(`Duplicate table names found. Please rename tables.`)
+      const uniqueDuplicates = [...new Set(duplicates)]
+      const duplicateDetails = uniqueDuplicates.map(dup => {
+        const originalLabels = tables
+          .filter(t => t.label.trim().toLowerCase() === dup)
+          .map(t => t.label)
+        return `  • "${originalLabels[0]}" (${originalLabels.length} tables)`
+      }).join('\n')
+
+      toast.error(
+        `Duplicate table names found:\n${duplicateDetails}\n\nTable names are case-insensitive. Please use unique names.`,
+        { duration: 8000 }
+      )
       logger.warn('Duplicate names found:', duplicates)
       return
     }

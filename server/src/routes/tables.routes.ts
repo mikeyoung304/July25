@@ -8,6 +8,41 @@ import { TableStatus } from '../../../shared/types/table.types';
 const router = Router();
 const config = getConfig();
 
+// Helper: Check for duplicate table labels
+async function checkDuplicateLabel(
+  restaurantId: string,
+  label: string,
+  excludeId?: string
+): Promise<boolean> {
+  const normalized = label.trim().toLowerCase();
+
+  const { data, error } = await supabase
+    .from('tables')
+    .select('id')
+    .eq('restaurant_id', restaurantId)
+    .eq('active', true);
+
+  if (error) throw error;
+
+  const existingLabels = (data || [])
+    .filter(t => !excludeId || t.id !== excludeId)
+    .map((t: any) => t.id);
+
+  // We need to fetch full records to check labels since we can't use ilike with functions
+  if (existingLabels.length === 0) return false;
+
+  const { data: fullTables } = await supabase
+    .from('tables')
+    .select('id, label')
+    .eq('restaurant_id', restaurantId)
+    .eq('active', true)
+    .in('id', existingLabels);
+
+  return (fullTables || []).some(
+    (t: any) => t.label.trim().toLowerCase() === normalized && t.id !== excludeId
+  );
+}
+
 // Apply restaurant validation to all routes (skip in development for testing)
 if (config.nodeEnv !== 'development') {
   router.use(validateRestaurantAccess);
@@ -91,7 +126,21 @@ export const createTable = async (req: AuthenticatedRequest & { body: CreateTabl
   try {
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { x, y, type, z_index, ...otherData } = req.body;
-    
+
+    // Validate label is provided
+    if (!otherData.label || !otherData.label.trim()) {
+      return res.status(400).json({ error: 'Table label is required' });
+    }
+
+    // Check for duplicate label (server-side validation)
+    const isDuplicate = await checkDuplicateLabel(restaurantId, otherData.label);
+    if (isDuplicate) {
+      return res.status(400).json({
+        error: 'Duplicate table name',
+        message: `A table named "${otherData.label}" already exists in your restaurant. Table names are case-insensitive.`
+      });
+    }
+
     // Transform frontend properties to database columns
     const tableData: Record<string, any> = {
       ...otherData,
@@ -103,7 +152,7 @@ export const createTable = async (req: AuthenticatedRequest & { body: CreateTabl
       active: true,
       status: 'available' as TableStatus
     };
-    
+
     const { data, error } = await supabase
       .from('tables')
       .insert([tableData])
@@ -142,12 +191,23 @@ export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTabl
     const restaurantId = req.headers['x-restaurant-id'] as string;
     const { id } = req.params;
     const updates = req.body;
-    
+
     // Remove fields that shouldn't be updated
     delete updates.id;
     delete updates.restaurant_id;
     delete updates.created_at;
-    
+
+    // If label is being updated, check for duplicates
+    if (updates.label && updates.label.trim()) {
+      const isDuplicate = await checkDuplicateLabel(restaurantId, updates.label, id);
+      if (isDuplicate) {
+        return res.status(400).json({
+          error: 'Duplicate table name',
+          message: `A table named "${updates.label}" already exists in your restaurant. Table names are case-insensitive.`
+        });
+      }
+    }
+
     // Transform frontend properties to database columns if present
     const dbUpdates: Record<string, any> = { ...updates };
     if ('x' in updates) {
@@ -162,7 +222,7 @@ export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTabl
       dbUpdates['shape'] = updates['type'];
       delete dbUpdates['type'];
     }
-    
+
     const { data, error } = await supabase
       .from('tables')
       .update(dbUpdates)

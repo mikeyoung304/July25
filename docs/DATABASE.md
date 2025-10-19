@@ -209,16 +209,61 @@ ALTER TABLE orders
 ```
 
 ### tables
-Restaurant floor tables.
+Restaurant floor plan tables with positioning and layout information.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | UUID | Primary key |
 | restaurant_id | UUID | FK to restaurants |
-| number | VARCHAR(10) | Table identifier |
-| capacity | INTEGER | Seat capacity |
-| status | ENUM | available/occupied/reserved |
-| qr_code | TEXT | QR code data |
+| label | VARCHAR(255) | Table name/identifier (unique per restaurant among active tables) |
+| x_pos | INTEGER | X coordinate on floor plan canvas |
+| y_pos | INTEGER | Y coordinate on floor plan canvas |
+| width | INTEGER | Table width in pixels |
+| height | INTEGER | Table height in pixels |
+| shape | VARCHAR(50) | Table shape: 'circle', 'square', 'rectangle' |
+| seats | INTEGER | Seating capacity |
+| rotation | INTEGER | Rotation angle in degrees (0-360) |
+| z_index | INTEGER | Layering order for overlapping tables |
+| status | VARCHAR(50) | available, occupied, reserved |
+| active | BOOLEAN | Soft delete flag (false = deleted) |
+| current_order_id | UUID | FK to orders (nullable) - current order at this table |
+| created_at | TIMESTAMPTZ | Creation timestamp |
+| updated_at | TIMESTAMPTZ | Last update timestamp |
+
+**RLS Policies**:
+```sql
+-- Service role bypass for admin operations
+CREATE POLICY service_role_bypass_tables ON tables
+  FOR ALL USING (is_service_role());
+
+-- Tenant access based on restaurant membership
+CREATE POLICY tables_tenant_access ON tables
+  FOR ALL USING (is_member_of_restaurant(restaurant_id))
+  WITH CHECK (is_member_of_restaurant(restaurant_id));
+```
+
+**Unique Constraint** (Partial Index):
+```sql
+-- Ensures table labels are unique per restaurant among active tables only
+-- Allows soft-deleted (active=false) tables to reuse names
+CREATE UNIQUE INDEX unique_active_table_labels
+  ON tables(restaurant_id, LOWER(TRIM(label)))
+  WHERE active = true;
+```
+
+**Indexes**:
+```sql
+CREATE INDEX idx_tables_restaurant_status
+  ON tables(restaurant_id, status);
+```
+
+**Server-Client Schema Transformation**:
+The server transforms database columns to frontend-friendly names:
+- `x_pos` → `x`
+- `y_pos` → `y`
+- `shape` → `type`
+
+This transformation occurs in `server/src/routes/tables.routes.ts`.
 
 ### payment_audit_logs
 Immutable payment audit trail for PCI compliance.
