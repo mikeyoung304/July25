@@ -1,0 +1,54 @@
+{
+  "version": "2025-10-18",
+  "roles": {
+    "customer": {
+      "status": "stable",
+      "aliases": ["kiosk_demo:deprecated"],
+      "description": "Public self-service user (online, kiosk)",
+      "scopes": ["orders:create", "orders:read", "payments:process", "menu:read", "ai.voice:chat"]
+    },
+    "server": {
+      "status": "stable",
+      "aliases": [],
+      "description": "In-restaurant staff member",
+      "scopes": ["orders:create", "orders:read", "orders:update", "orders:status", "payments:process", "payments:read", "tables:manage"]
+    },
+    "manager": {
+      "status": "stable",
+      "aliases": [],
+      "scopes": ["orders:*", "payments:*", "reports:*", "staff:manage", "menu:manage", "tables:manage"]
+    },
+    "owner": {
+      "status": "stable",
+      "aliases": [],
+      "scopes": ["*"]
+    }
+  },
+  "scopes": {
+    "orders:create": { "resource": "orders", "action": "create" },
+    "orders:read": { "resource": "orders", "action": "read" },
+    "orders:update": { "resource": "orders", "action": "update" },
+    "orders:status": { "resource": "orders", "action": "status" },
+    "payments:process": { "resource": "payments", "action": "process" },
+    "menu:read": { "resource": "menu", "action": "read" },
+    "ai.voice:chat": { "resource": "ai.voice", "action": "chat" },
+    "tables:manage": { "resource": "tables", "action": "manage" }
+  },
+  "headers": {
+    "X-Client-Flow": {
+      "values": ["online", "kiosk", "server"],
+      "description": "Identifies originating client context"
+    },
+    "X-Restaurant-ID": {
+      "format": "uuid-v4",
+      "description": "Multi-tenant restaurant context"
+    }
+  },
+  "deprecated": {
+    "kiosk_demo": {
+      "replacedBy": "customer",
+      "deprecatedDate": "2025-10-18",
+      "removalCriteria": "30 days zero usage"
+    }
+  }
+}
