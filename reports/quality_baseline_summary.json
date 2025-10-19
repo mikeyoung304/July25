@@ -1,0 +1,53 @@
+{
+  "ts_total": 1,
+  "ts_top": [
+    [
+      "5058",
+      1
+    ]
+  ],
+  "eslint_errors": 12,
+  "eslint_warnings": 477,
+  "eslint_top": [
+    [
+      "@typescript-eslint/no-explicit-any",
+      357
+    ],
+    [
+      "@typescript-eslint/no-unused-vars",
+      64
+    ],
+    [
+      "no-console",
+      48
+    ],
+    [
+      "react-hooks/exhaustive-deps",
+      6
+    ],
+    [
+      "no-var",
+      4
+    ],
+    [
+      "@typescript-eslint/no-require-imports",
+      3
+    ],
+    [
+      "'no-restricted-imports')",
+      2
+    ],
+    [
+      "no-useless-escape",
+      2
+    ],
+    [
+      "no-empty",
+      1
+    ],
+    [
+      "no-control-regex",
+      1
+    ]
+  ]
+}

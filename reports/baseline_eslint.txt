@@ -1,0 +1,23 @@
+
+> restaurant-os@6.0.8 lint
+> eslint shared/config client/src/config server/src/config/environment.ts
+
+
+/Users/mikeyoung/CODING/rebuild-6.0/client/src/config/index.ts
+   7:1  warning  Unused eslint-disable directive (no problems were reported from 'no-restricted-imports')
+  11:1  warning  Unused eslint-disable directive (no problems were reported from 'no-restricted-imports')
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/config/browser.js
+   2:1   error  Unexpected var, use let or const instead  no-var
+   4:14  error  Unexpected var, use let or const instead  no-var
+  63:14  error  A `require()` style import is forbidden   @typescript-eslint/no-require-imports
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/config/index.js
+  167:18  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+/Users/mikeyoung/CODING/rebuild-6.0/shared/config/simple.js
+  13:15  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+✖ 7 problems (5 errors, 2 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
+
