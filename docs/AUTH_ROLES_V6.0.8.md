@@ -12,11 +12,18 @@
 
 **Client Usage**:
 ```typescript
-import { getCustomerToken } from '@/services/auth/roleHelpers';
+import { useAuth } from '@/contexts/AuthContext';
 
 // In CheckoutPage or KioskCheckoutPage
-const token = await getCustomerToken();
+const { loginAsDemo, isAuthenticated } = useAuth();
+
+// Ensure customer is authenticated
+if (!isAuthenticated) {
+  await loginAsDemo('customer');
+}
 ```
+
+**Deprecated (v6.0.9)**: `getCustomerToken()` from `roleHelpers` stores tokens in sessionStorage (incompatible with httpClient). Use `AuthContext.loginAsDemo('customer')` instead.
 
 ### server (Staff Operations)
 **Use Cases**: Staff servers placing orders for customers, table management, voice ordering for dine-in
@@ -31,11 +38,16 @@ const token = await getCustomerToken();
 
 **Client Usage**:
 ```typescript
-import { getServerToken } from '@/services/auth/roleHelpers';
+import { useAuth } from '@/contexts/AuthContext';
 
 // In ServerView or voice ordering hooks
-const token = await getServerToken();
+const { loginAsDemo } = useAuth();
+
+// Login as server for staff operations
+await loginAsDemo('server');
 ```
+
+**Deprecated (v6.0.9)**: `getServerToken()` from `roleHelpers` stores tokens in sessionStorage (incompatible with httpClient). Use `AuthContext.loginAsDemo('server')` instead.
 
 ### kiosk_demo (DEPRECATED - Alias to 'customer')
 **Status**: DEPRECATED in v6.0.8

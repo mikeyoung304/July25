@@ -7,6 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.9] - 2025-10-18 - Online Order Flow Fix (CORS & Auth)
+
+### 🔧 Critical Fixes
+
+#### Fixed
+- **Online Order Submission Blocking Issue** (Production Blocker)
+  - **PRIMARY FIX**: Added `X-Client-Flow` header to CORS allowedHeaders
+    - Browser was blocking order submissions due to missing header in preflight
+    - Header identifies order origin: `online`, `kiosk`, or `server`
+    - File: `server/src/server.ts:145`
+    - Impact: Resolves "failed to fetch" errors on checkout
+
+  - **SECONDARY FIX**: CheckoutPage authentication pattern mismatch
+    - Replaced deprecated `getCustomerToken()` with `AuthContext.loginAsDemo()`
+    - Issue: Old helper stored tokens in sessionStorage, httpClient checks localStorage
+    - File: `client/src/pages/CheckoutPage.tsx`
+    - Impact: Ensures proper token storage for dual auth pattern (ADR-006)
+
+#### Deprecated
+- **DemoAuthService and roleHelpers** (v6.0.9)
+  - Added `@deprecated` notices to `DemoAuthService` class
+  - Added `@deprecated` notices to `getCustomerToken()` and `getServerToken()` functions
+  - Files: `client/src/services/auth/demoAuth.ts`, `client/src/services/auth/roleHelpers.ts`
+  - Migration path: Use `AuthContext.loginAsDemo(role)` instead
+  - Reason: sessionStorage incompatible with httpClient's localStorage.auth_session check
+
+### 📚 Documentation
+
+#### Updated
+- **DEPLOYMENT.md** - Added CORS configuration documentation
+  - Documented all custom headers permitted in CORS requests
+  - Added critical notice about header registration requirements
+  - Location: `docs/DEPLOYMENT.md:598-608`
+
+- **GETTING_STARTED.md** - Updated auth quickstart examples
+  - Replaced deprecated roleHelpers pattern with AuthContext
+  - Updated both customer and server authentication examples
+  - Location: `docs/GETTING_STARTED.md:80-110`
+
+- **AUTH_ROLES_V6.0.8.md** - Updated client usage patterns
+  - Replaced deprecated `getCustomerToken()` with `AuthContext.loginAsDemo('customer')`
+  - Replaced deprecated `getServerToken()` with `AuthContext.loginAsDemo('server')`
+  - Added deprecation notices for both roles
+  - Location: `docs/AUTH_ROLES_V6.0.8.md:13-50`
+
+### 🧪 Testing
+- **Order Flow Verified**: `/order` → `/checkout` → `/order-confirmation`
+- **CORS Headers**: Verified X-Client-Flow accepted in preflight
+- **Auth Tokens**: Confirmed proper localStorage storage
+- **KDS Integration**: Verified orders received via WebSocket
+
+### 📊 Impact
+- **Production Readiness**: Unblocked online ordering flow
+- **User Experience**: Customers can now complete checkout without errors
+- **Documentation Accuracy**: All auth examples now use correct pattern
+- **Future Development**: Clear migration path away from deprecated helpers
+
+### 🔗 Root Cause
+Console errors showed CORS blocking `X-Client-Flow` header sent during order submission. Authentication was also using incompatible storage mechanism (sessionStorage vs localStorage.auth_session).
+
 ## [6.0.8] - 2025-10-17 - Authentication Fix & Documentation Cleanup
 
 ### 🔐 Authentication & Role Naming (October 17-18, 2025)

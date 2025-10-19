@@ -882,6 +882,61 @@ app.use(cors({
 
 ---
 
+### Problem: Custom Header Blocked by CORS
+
+**Symptoms**:
+- Browser console: "Request header X-Client-Flow is not allowed by Access-Control-Allow-Headers in preflight response"
+- API requests with custom headers fail
+- Preflight OPTIONS request succeeds but main request blocked
+
+**Diagnosis**:
+
+```bash
+# Test custom header in preflight
+curl -H "Origin: https://your-frontend.com" \
+     -H "Access-Control-Request-Method: POST" \
+     -H "Access-Control-Request-Headers: Content-Type, X-Client-Flow" \
+     -X OPTIONS \
+     https://your-api.com/api/v1/orders
+
+# Check response - should include X-Client-Flow in Access-Control-Allow-Headers
+```
+
+**Common Custom Headers in Restaurant OS**:
+- `X-Client-Flow` - Order flow tracking (online, kiosk, server)
+- `X-Restaurant-ID` - Multi-tenant context
+- `x-request-id` - Request tracing
+- `X-CSRF-Token` - CSRF protection
+- `x-demo-token-version` - Demo auth versioning
+
+**Fix - Add header to CORS allowlist**:
+
+```typescript
+// server/src/server.ts
+app.use(cors({
+  // ...other CORS config
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'x-restaurant-id',
+    'X-Restaurant-ID',
+    'x-request-id',
+    'X-CSRF-Token',
+    'x-demo-token-version',
+    'X-Client-Flow',         // Add your custom header
+    'x-client-flow',         // Case variations
+  ],
+}));
+```
+
+**CRITICAL**: If you add a new custom header to client requests, you MUST add it to the `allowedHeaders` array in `server/src/server.ts:145` to prevent CORS blocking.
+
+**Related Documentation**:
+- [DEPLOYMENT.md - CORS Configuration](./DEPLOYMENT.md#production-diagnostics)
+- [CHANGELOG.md - v6.0.9](./CHANGELOG.md#609---2025-10-18---online-order-flow-fix-cors--auth)
+
+---
+
 ## Database & RLS Problems
 
 ### Problem: Slow Queries
