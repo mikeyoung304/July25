@@ -77,19 +77,35 @@ npm run test:server -- tests/routes/orders.auth.test.ts
 # Expected: ✅ 12/12 passing
 ```
 
-### 4. Demo Token Helpers
+### 4. Demo Authentication
 
-Two demo token generators exist for testing:
+Demo authentication uses `AuthContext` for proper token storage:
 
 ```typescript
-// Customer token (public self-service)
-import { getCustomerToken } from '@/services/auth/roleHelpers';
-const token = await getCustomerToken();
+// Customer authentication (public self-service - online orders, kiosk)
+import { useAuth } from '@/contexts/AuthContext';
 
-// Server token (staff operations)
-import { getServerToken } from '@/services/auth/roleHelpers';
-const token = await getServerToken();
+const CheckoutPage = () => {
+  const { loginAsDemo, isAuthenticated } = useAuth();
+
+  // Ensure customer is authenticated before order submission
+  if (!isAuthenticated) {
+    await loginAsDemo('customer');
+  }
+};
+
+// Server authentication (staff operations - ServerView, voice ordering)
+import { useAuth } from '@/contexts/AuthContext';
+
+const ServerView = () => {
+  const { loginAsDemo } = useAuth();
+
+  // Login as server for staff operations
+  await loginAsDemo('server');
+};
 ```
+
+**Deprecated (v6.0.9)**: `getCustomerToken()` and `getServerToken()` from `@/services/auth/roleHelpers` store tokens in sessionStorage which is incompatible with httpClient's dual auth pattern. Use `AuthContext.loginAsDemo()` instead.
 
 See [AUTHENTICATION_ARCHITECTURE.md](./docs/AUTHENTICATION_ARCHITECTURE.md) for complete auth documentation.
 
