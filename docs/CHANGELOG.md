@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.0.8] - 2025-10-17 - Authentication Fix & Documentation Cleanup
 
-### 🔐 Authentication Fix (October 17, 2025)
+### 🔐 Authentication & Role Naming (October 17-18, 2025)
 
 #### Fixed
 - **KDS Authentication Integration** (Critical Bug)
@@ -53,13 +53,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Recommendation**: Review ADR-006 before production launch
   - **Decision Required**: Keep dual auth | Migrate to Supabase | Remove localStorage
 
+#### Role Naming Clarification
+- **Introduced 'customer' Role** (v6.0.8)
+  - Canonical role for public self-service orders (online, kiosk)
+  - Replaces confusing 'kiosk_demo' name
+  - Migration: `supabase/migrations/20251018_add_customer_role_scopes.sql`
+  - Scopes: `orders:create`, `orders:read`, `payments:process`, `menu:read`, `ai.voice:chat`
+
+- **Deprecated 'kiosk_demo' Role**
+  - Backwards-compatible alias via `AUTH_ACCEPT_KIOSK_DEMO_ALIAS=true`
+  - Logs WARN when kiosk_demo tokens used
+  - Removal timeline: 30 days after zero usage confirmed
+
+- **Added X-Client-Flow Header**
+  - Values: `online`, `kiosk`, `server`
+  - Enables client flow telemetry and debugging
+
 #### Impact
 - **Unblocked Phase 1 Stabilization**: All demo pages now functional
 - **End-to-End Testing**: ServerView → KDS flow working
 - **Documentation Accuracy**: Corrected 3 critical inaccuracies in auth docs
 - **Future AI Agents**: Comprehensive context prevents similar bugs
 
-### 📚 Documentation (October 16, 2025)
+### 📚 Documentation (October 16-18, 2025)
 
 - **Documentation Consolidation & Cleanup**
   - Archived 50+ legacy and duplicate documentation files

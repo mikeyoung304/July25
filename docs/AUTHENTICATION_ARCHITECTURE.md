@@ -40,6 +40,43 @@ const { order_id, token, amount, idempotency_key } = req.body; // ADR-001: snake
 
 ---
 
+## Roles & Scopes (v6.0.8+)
+
+### Role Definitions Table
+
+| Role      | Who/Where                           | Typical Scopes                         | Can Update Orders? |
+|-----------|-------------------------------------|----------------------------------------|--------------------|
+| customer  | Public self-service/online/kiosk    | menu:read, orders:create, orders:read, payments:process, ai.voice:chat | No                 |
+| server    | In-restaurant staff (ServerView)    | menu:read, orders:create, orders:read, orders:update, orders:status, payments:process, tables:manage | Yes                |
+
+**Note:** Additional roles (owner, manager, kitchen, expo, cashier) exist for staff operations. See `server/src/middleware/rbac.ts:60-138` for complete role-scope mappings.
+
+### Flows → Auth Mapping
+
+Each client flow maps to a specific role:
+
+- **Public Checkout** (`/order` → `/checkout`): `customer` role
+- **Kiosk Components** (KioskCheckoutPage): `customer` role
+- **ServerView** (voice ordering for dine-in): `server` role
+
+### Headers
+
+All order creation requests include:
+- `Authorization: Bearer <JWT>` - Role encoded in token (`role: "customer"` or `role: "server"`)
+- `X-Restaurant-ID: <uuid>` - Multi-tenant context
+- `X-Client-Flow: online | kiosk | server` - Telemetry and flow-specific logic
+
+### Alias & Deprecation Policy
+
+**kiosk_demo → customer Alias:**
+- `kiosk_demo` role is **DEPRECATED** as of v6.0.8
+- Controlled by `AUTH_ACCEPT_KIOSK_DEMO_ALIAS` environment variable (default: `true`)
+- When enabled: Tokens with `role: "kiosk_demo"` automatically aliased to `customer` with WARN log
+- **Removal timeline:** After 30 consecutive days of zero kiosk_demo token usage, disable alias and remove from codebase
+- **Migration status:** See [AUTH_ROLES_V6.0.8.md](./AUTH_ROLES_V6.0.8.md) for phase tracking
+
+---
+
 ## Authentication Methods
 
 ### 1. Email/Password Login (Managers, Owners)
