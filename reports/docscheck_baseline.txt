@@ -1,0 +1,23 @@
+
+> restaurant-os@6.0.8 docs:check
+> node scripts/docs-check.js
+
+
+[1/5] Orphan Detector: checking all .md files are linked from index.md...
+  ✓ Checked 55 markdown files
+
+[2/5] Stub Detector: checking stub files are properly archived...
+  ✓ Found 19 stub files (19 valid in-place navigation stubs)
+
+[3/5] Risk Linter: scanning for dangerous patterns...
+  ✓ Scanned 47 canonical files for risk patterns
+
+[4/5] Anchor Linter: verifying all markdown links with anchors...
+  ✓ Verified 64 anchor links (0 errors)
+
+[5/5] Reality Greps: verifying critical implementation details...
+  ✓ Completed 6 reality checks
+
+======================================================================
+✅ ALL DOCS GUARDRAILS PASSED
+======================================================================

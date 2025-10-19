@@ -1,0 +1,12 @@
+
+> restaurant-os@6.0.8 typecheck
+> tsc -b tsconfig.all.json --pretty false
+
+client/src/pages/KioskDemo.tsx(125,19): error TS2322: Type '(transcription: string) => void' is not assignable to type '(event: { text: string; isFinal: boolean; }) => void'.
+  Types of parameters 'transcription' and 'event' are incompatible.
+    Type '{ text: string; isFinal: boolean; }' is not assignable to type 'string'.
+client/src/utils/orderStatusValidation.ts(43,34): error TS2345: Argument of type 'OrderStatus' is not assignable to parameter of type '"ready" | "new" | "pending" | "confirmed" | "preparing" | "completed" | "cancelled"'.
+  Type '"picked-up"' is not assignable to type '"ready" | "new" | "pending" | "confirmed" | "preparing" | "completed" | "cancelled"'.
+client/src/utils/orderStatusValidation.ts(60,9): error TS2741: Property '"picked-up"' is missing in type '{ new: string; pending: string; confirmed: string; preparing: string; ready: string; completed: string; cancelled: string; }' but required in type 'Record<OrderStatus, string>'.
+client/src/utils/orderStatusValidation.ts(77,9): error TS2741: Property '"picked-up"' is missing in type '{ new: string; pending: string; confirmed: string; preparing: string; ready: string; completed: string; cancelled: string; }' but required in type 'Record<OrderStatus, string>'.
+client/src/utils/orderStatusValidation.ts(97,9): error TS2741: Property '"picked-up"' is missing in type '{ new: ("pending" | "confirmed" | "cancelled")[]; pending: ("confirmed" | "cancelled")[]; confirmed: ("preparing" | "cancelled")[]; preparing: ("ready" | "cancelled")[]; ready: ("completed" | "cancelled")[]; completed: undefined[]; cancelled: undefined[]; }' but required in type 'Record<OrderStatus, OrderStatus[]>'.
