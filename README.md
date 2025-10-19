@@ -17,10 +17,19 @@
 - Deploy: [DEPLOYMENT](./docs/DEPLOYMENT.md) · Security: [SECURITY](./docs/SECURITY.md) · DB: [DATABASE](./docs/DATABASE.md)
 - Troubleshoot: [TROUBLESHOOTING](./docs/TROUBLESHOOTING.md) · Version: [VERSION](./docs/VERSION.md)
 
+## Auth Roles at a Glance
+
+**Public Orders:** `customer` role (self-service checkout, kiosk)
+**Staff Orders:** `server` role (ServerView, voice ordering)
+**Deprecated:** `kiosk_demo` is a temporary alias for `customer` (controlled by env flag)
+
+→ See [AUTHENTICATION_ARCHITECTURE.md](./docs/AUTHENTICATION_ARCHITECTURE.md) for complete auth flows
+→ See [POST_DUAL_AUTH_ROLL_OUT.md](./docs/runbooks/POST_DUAL_AUTH_ROLL_OUT.md) for deployment runbook
+
 ## Quickstart (local)
 ```bash
-pnpm i
-pnpm -w dev
+npm install
+npm run dev
 ```
 
 ## Environments

@@ -18,6 +18,12 @@
 - [ADR-005: Client-Side Voice Ordering](./docs/ADR-005-client-side-voice-ordering.md) — Voice integration approach
 - [ADR-006: Dual Authentication Pattern](./docs/ADR-006-dual-authentication-pattern.md) — Supabase + localStorage auth (v6.0.8)
 
+### Naming Guardrails
+- [Naming Charter](./docs/naming/NAMING_CHARTER.md) — Conventions & deprecation policy
+- [Naming Lexicon](./docs/naming/LEXICON.md) — Canonical term registry
+- [Role-Scope Matrix](./docs/naming/ROLE_SCOPE_MATRIX.md) — Permission mappings
+- [Machine Registry](./docs/naming/lexicon.json) — Programmatic access
+
 ## 2. Security & Authentication
 - [Security Guide](./docs/SECURITY.md) — Security controls & best practices
 - [Authentication Architecture](./docs/AUTHENTICATION_ARCHITECTURE.md) — Auth flows & JWT
