@@ -15,6 +15,10 @@ let tokenExpiresAt: number | null = null;
  * Demo authentication service for development and testing
  * Automatically fetches and manages demo JWT tokens
  *
+ * @deprecated This service stores tokens in sessionStorage which is incompatible with
+ * httpClient's dual auth pattern (which checks localStorage.auth_session).
+ * Use AuthContext.loginAsDemo() instead, which properly stores tokens in localStorage.
+ *
  * TODO: Replace with proper PIN authentication for production
  * See AUTHENTICATION_ARCHITECTURE.md for production auth implementation
  */

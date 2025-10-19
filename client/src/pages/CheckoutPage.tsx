@@ -9,7 +9,7 @@ import { SquarePaymentForm } from '@/modules/order-system/components/SquarePayme
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useFormValidation, validators } from '@/utils/validation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
-import { getCustomerToken } from '@/services/auth/roleHelpers';
+import { useAuth } from '@/contexts/AuthContext';
 
 const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ const CheckoutPageContent: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const orderApi = useApiRequest();
   const paymentApi = useApiRequest();
+  const { loginAsDemo, isAuthenticated } = useAuth();
   
   // Check if we're in demo mode
   const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN || 
@@ -48,8 +49,10 @@ const CheckoutPageContent: React.FC = () => {
     form.clearErrors();
 
     try {
-      // Ensure we have a valid customer token
-      await getCustomerToken();
+      // Ensure customer is authenticated (demo mode)
+      if (!isAuthenticated) {
+        await loginAsDemo('customer');
+      }
 
       // Create the order (using snake_case per ADR-001)
       const orderResponse = await orderApi.post('/api/v1/orders', {
@@ -132,8 +135,10 @@ const CheckoutPageContent: React.FC = () => {
     form.clearErrors();
 
     try {
-      // Ensure we have a valid customer token
-      await getCustomerToken();
+      // Ensure customer is authenticated (production mode)
+      if (!isAuthenticated) {
+        await loginAsDemo('customer');
+      }
 
       // First, create the order using snake_case (per ADR-001)
       const orderResponse = await orderApi.post('/api/v1/orders', {
