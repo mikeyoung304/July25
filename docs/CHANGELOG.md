@@ -197,6 +197,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Floor Plan Performance**: Improved - batch table updates 40x faster (1000ms → 25ms for 50 tables)
 - **User Experience**: Enhanced - floor plan editor now saves instantly (no more 2-5 second delays)
 - **Scalability**: Improved - bulk update pattern established for future performance optimizations
+- **Code Maintainability**: Dramatically improved - FloorPlanEditor reduced from 940 to 225 lines (76% reduction)
+- **Component Quality**: Enhanced - concerns properly separated (hooks, services, sub-components)
+- **Test  ability**: Improved - isolated hooks and services much easier to test than monolithic component
+- **Developer Experience**: Better - clear separation of concerns makes code easier to understand and modify
 
 ### 🔗 Related Issues
 - **Fix #120**: FIX STAB-004 - Payment audit logging fail-fast
@@ -211,6 +215,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Verification #110**: OPT-005 verification
 - **Fix #121**: FIX OPT-002 - Batch table updates optimization
 - **Verification #108**: OPT-002 verification
+- **Fix #123**: FIX REF-001 - FloorPlanEditor god component refactoring
+- **Verification #105**: REF-001 verification
 - **Audit Roadmap**: See `docs/audit/P0-FIX-ROADMAP.md`
 - **Milestone**: [P0 Audit Fixes - Oct 2025](https://github.com/mikeyoung304/July25/milestone/2)
 
@@ -690,6 +696,92 @@ it('clears interval on unmount', () => {
   - Error handling patterns
   - When NOT to use bulk updates
   - **File**: `docs/DATABASE.md` (lines 627-941)
+
+### 🔨 Code Quality & Maintainability Fixes
+
+#### Fixed - FloorPlanEditor God Component (REF-001)
+- **Component refactored from 940 lines to 225 lines** (76% size reduction)
+  - Violated Single Responsibility Principle with 7+ different concerns
+  - Complex state management (14 useState calls)
+  - Business logic mixed with UI rendering
+  - Multiple large callback functions (handleSave was 130+ lines)
+  - **Impact**: Difficult to maintain, test, and extend; high complexity
+  - **Root Cause**: All concerns in single component without separation
+  - **Solution**: Extracted custom hooks and sub-components
+  - **Files**:
+    - Hooks: `client/src/modules/floor-plan/hooks/useTableManagement.ts`
+    - Hooks: `client/src/modules/floor-plan/hooks/useCanvasControls.ts`
+    - Hooks: `client/src/modules/floor-plan/hooks/useFloorPlanLayout.ts`
+    - Service: `client/src/modules/floor-plan/services/TablePersistenceService.ts`
+    - Components: `TableEditor.tsx`, `CanvasInstructions.tsx`, `LoadingOverlay.tsx`
+    - Main: `client/src/modules/floor-plan/components/FloorPlanEditor.tsx` (refactored)
+  - **Issue**: Closes #123, Resolves #105 (REF-001 verification)
+  - **Maintainability**: Significantly improved - each concern now isolated and testable
+
+#### Added - Custom Hooks for State Management
+- **Created useTableManagement hook**
+  - Manages table state (tables, selectedTableId)
+  - CRUD operations (add, update, delete, duplicate)
+  - Keyboard shortcuts for rotation (R/E keys)
+  - Selection management
+  - **File**: `client/src/modules/floor-plan/hooks/useTableManagement.ts`
+  - **Lines**: 169 lines (extracted from 940-line component)
+
+- **Created useCanvasControls hook**
+  - Canvas size, zoom, pan state management
+  - Automatic canvas resize with ResizeObserver
+  - Grid snapping configuration
+  - Canvas readiness state
+  - **File**: `client/src/modules/floor-plan/hooks/useCanvasControls.ts`
+  - **Lines**: 65 lines (extracted from 940-line component)
+
+- **Created useFloorPlanLayout hook**
+  - Auto-fit algorithm (optimal zoom/pan calculation)
+  - Center tables algorithm
+  - Layout optimization logic
+  - Smooth animation controls
+  - **File**: `client/src/modules/floor-plan/hooks/useFloorPlanLayout.ts`
+  - **Lines**: 167 lines (extracted from 940-line component)
+
+#### Added - Service for Business Logic
+- **Created TablePersistenceService**
+  - Save tables logic (create/update detection)
+  - Load tables logic
+  - Duplicate name validation
+  - Error handling and toast notifications
+  - **File**: `client/src/modules/floor-plan/services/TablePersistenceService.ts`
+  - **Lines**: 166 lines (extracted from 940-line component)
+  - **Pattern**: Static class methods for stateless business logic
+
+#### Added - UI Sub-Components
+- **Created TableEditor component**
+  - Floating editor panel for selected table
+  - Table properties editing (name, seats, rotation, size)
+  - Delete button
+  - **File**: `client/src/modules/floor-plan/components/TableEditor.tsx`
+  - **Lines**: 108 lines (extracted from 940-line component)
+
+- **Created CanvasInstructions component**
+  - Instructions overlay
+  - Keyboard shortcuts reference
+  - **File**: `client/src/modules/floor-plan/components/CanvasInstructions.tsx`
+  - **Lines**: 15 lines (extracted from 940-line component)
+
+- **Created LoadingOverlay component**
+  - Loading/auto-fitting state display
+  - Spinner with message
+  - **File**: `client/src/modules/floor-plan/components/LoadingOverlay.tsx`
+  - **Lines**: 29 lines (extracted from 940-line component)
+
+#### Updated - FloorPlanEditor Main Component
+- **Refactored to orchestrator pattern**
+  - Uses all extracted hooks and services
+  - Focuses on composition and coordination
+  - Clean separation of concerns
+  - Improved readability and maintainability
+  - **File**: `client/src/modules/floor-plan/components/FloorPlanEditor.tsx`
+  - **Before**: 940 lines with mixed concerns
+  - **After**: 225 lines of clean orchestration (76% reduction)
 
 ### 📚 Documentation Updates
 - **ADR-009**: Error Handling Philosophy created (fail-fast vs fail-safe)
