@@ -173,33 +173,28 @@ router.put('/batch', async (req, res, next) => {
       return res.status(400).json({ error: 'Tables must be an array' });
     }
     
-    // Update each table
-    const promises = tables.map(table => {
-      const { id, ...updates } = table;
-      delete updates.restaurant_id;
-      delete updates.created_at;
-      
-      return supabase
-        .from('tables')
-        .update(updates)
-        .eq('id', id)
-        .eq('restaurant_id', restaurantId)
-        .select()
-        .single();
+    // Prepare tables for RPC function (remove protected fields)
+    const cleanedTables = tables.map(table => {
+      const { restaurant_id, created_at, ...updates } = table;
+      return updates;
     });
-    
-    const results = await Promise.all(promises);
-    const errors = results.filter(r => r.error);
-    
-    if (errors.length > 0) {
-      return res.status(400).json({ 
-        error: 'Some updates failed', 
-        details: errors 
+
+    // Call optimized RPC function (single UPDATE instead of N queries)
+    const { data, error } = await supabase
+      .rpc('batch_update_tables', {
+        p_restaurant_id: restaurantId,
+        p_tables: cleanedTables
+      });
+
+    if (error) {
+      return res.status(400).json({
+        error: 'Batch update failed',
+        message: error.message,
+        code: error.code
       });
     }
-    
-    const data = results.map(r => r.data);
-    res.json(data);
+
+    res.json(data || []);
   } catch (error) {
     return next(error);
   }
