@@ -2,14 +2,15 @@ import type { Order } from '@rebuild/shared'
 
 /**
  * Complete list of all valid order statuses
- * CRITICAL: Must handle ALL 7 statuses to prevent runtime errors
+ * CRITICAL: Must handle ALL 8 statuses to prevent runtime errors
  */
 export const ORDER_STATUSES = [
   'new',
-  'pending', 
+  'pending',
   'confirmed',
   'preparing',
   'ready',
+  'picked-up',
   'completed',
   'cancelled'
 ] as const
@@ -22,18 +23,18 @@ export type OrderStatus = typeof ORDER_STATUSES[number]
 export const STATUS_GROUPS = {
   // Orders actively being worked on (Kitchen Display focus)
   ACTIVE: ['new', 'pending', 'confirmed', 'preparing'] as const,
-  
+
   // Orders ready for fulfillment (Expo focus)
-  READY: ['ready'] as const,
-  
+  READY: ['ready', 'picked-up'] as const,
+
   // Orders that are finished
   FINISHED: ['completed', 'cancelled'] as const,
-  
+
   // Orders visible to kitchen staff
   KITCHEN_VISIBLE: ['new', 'pending', 'confirmed', 'preparing', 'ready'] as const,
-  
+
   // Orders visible to expo staff
-  EXPO_VISIBLE: ['new', 'pending', 'confirmed', 'preparing', 'ready'] as const
+  EXPO_VISIBLE: ['new', 'pending', 'confirmed', 'preparing', 'ready', 'picked-up'] as const
 } as const
 
 /**
@@ -63,10 +64,11 @@ export function getStatusLabel(status: Order['status']): string {
     'confirmed': 'Confirmed',
     'preparing': 'Preparing',
     'ready': 'Ready',
+    'picked-up': 'Picked Up',
     'completed': 'Completed',
     'cancelled': 'Cancelled'
   }
-  
+
   return labels[status] || 'Unknown Status'
 }
 
@@ -80,10 +82,11 @@ export function getStatusColor(status: Order['status']): string {
     'confirmed': 'bg-orange-100 text-orange-800',
     'preparing': 'bg-purple-100 text-purple-800',
     'ready': 'bg-green-100 text-green-800',
+    'picked-up': 'bg-teal-100 text-teal-800',
     'completed': 'bg-gray-100 text-gray-800',
     'cancelled': 'bg-red-100 text-red-800'
   }
-  
+
   return colors[status] || 'bg-gray-100 text-gray-800'
 }
 
@@ -91,7 +94,7 @@ export function getStatusColor(status: Order['status']): string {
  * Validates order status transitions
  */
 export function isValidStatusTransition(
-  from: Order['status'], 
+  from: Order['status'],
   to: Order['status']
 ): boolean {
   const validTransitions: Record<Order['status'], Order['status'][]> = {
@@ -99,11 +102,12 @@ export function isValidStatusTransition(
     'pending': ['confirmed', 'cancelled'],
     'confirmed': ['preparing', 'cancelled'],
     'preparing': ['ready', 'cancelled'],
-    'ready': ['completed', 'cancelled'],
+    'ready': ['picked-up', 'completed', 'cancelled'],
+    'picked-up': ['completed'],
     'completed': [], // Final state
     'cancelled': [] // Final state
   }
-  
+
   return validTransitions[from]?.includes(to) || false
 }
 

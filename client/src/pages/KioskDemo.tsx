@@ -28,7 +28,8 @@ const KioskDemo: React.FC = () => {
   // Restaurant context is available but not currently used
   // const { restaurant } = useRestaurant()
 
-  const handleOrderComplete = (transcription: string) => {
+  const handleOrderComplete = (event: { text: string; isFinal: boolean }) => {
+    const transcription = event.text
     setOrderHistory(prev => [...prev, transcription])
     const voiceOrder = parseVoiceOrder(transcription)
     
