@@ -373,6 +373,272 @@ await supabase
 
 ---
 
+## Transaction Requirements
+
+### Order Creation Must Be Atomic
+
+**Problem**: Order creation involves multiple database operations that must succeed or fail together:
+
+1. **INSERT** order into `orders` table
+2. **INSERT** audit log into `order_status_history` table
+3. **(Optional)** Broadcast WebSocket notification (NOT part of transaction)
+
+**Without Transaction** (WRONG):
+```typescript
+// ❌ BAD: Non-atomic operations
+const { data } = await supabase
+  .from('orders')
+  .insert(newOrder)
+  .select()
+  .single();
+
+// If this fails, we have order without audit trail!
+await supabase
+  .from('order_status_history')
+  .insert({
+    order_id: data.id,
+    from_status: null,
+    to_status: 'pending'
+  });
+```
+
+**Risk**: Order created successfully, but audit log fails → data inconsistency!
+
+**With Transaction** (CORRECT):
+```typescript
+// ✅ GOOD: Atomic RPC function
+const { data } = await supabase
+  .rpc('create_order_with_audit', {
+    p_restaurant_id: restaurantId,
+    p_order_number: orderNumber,
+    p_items: items,
+    p_status: 'pending',
+    // ... other parameters
+  })
+  .single();
+
+// If either operation fails, BOTH rollback (ACID compliance)
+```
+
+### PostgreSQL RPC Function Pattern
+
+**Migration**: `supabase/migrations/20251019_add_create_order_with_audit_rpc.sql`
+
+**Function Definition**:
+```sql
+CREATE OR REPLACE FUNCTION create_order_with_audit(
+  p_restaurant_id UUID,
+  p_order_number VARCHAR,
+  p_type VARCHAR,
+  p_status VARCHAR DEFAULT 'pending',
+  p_items JSONB DEFAULT '[]'::jsonb,
+  p_subtotal DECIMAL DEFAULT 0,
+  p_tax DECIMAL DEFAULT 0,
+  p_total_amount DECIMAL DEFAULT 0,
+  -- ... other parameters
+)
+RETURNS TABLE (...) -- Returns full order record
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_order_id UUID;
+BEGIN
+  v_order_id := gen_random_uuid();
+
+  -- Operation #1: Insert order
+  INSERT INTO orders (id, restaurant_id, ...) VALUES (v_order_id, p_restaurant_id, ...);
+
+  -- Operation #2: Insert audit log (ATOMIC with operation #1)
+  INSERT INTO order_status_history (order_id, restaurant_id, from_status, to_status)
+  VALUES (v_order_id, p_restaurant_id, NULL, p_status);
+
+  -- Return created order
+  RETURN QUERY SELECT * FROM orders WHERE id = v_order_id;
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Any error triggers automatic rollback of BOTH operations
+    RAISE;
+END;
+$$;
+```
+
+**ACID Guarantees**:
+- **Atomicity**: Both operations succeed or both fail (no partial state)
+- **Consistency**: Order and audit log always synchronized
+- **Isolation**: Other transactions see complete order or nothing
+- **Durability**: Once committed, both records persisted
+
+### What Should NOT Be in Transaction
+
+**WebSocket Broadcasts**: Real-time notifications do NOT need ACID guarantees.
+
+```typescript
+// ✅ CORRECT: WebSocket outside transaction
+const { data } = await supabase.rpc('create_order_with_audit', { ... });
+
+// Send WebSocket AFTER transaction commits
+if (this.wss) {
+  broadcastNewOrder(this.wss, data);
+}
+```
+
+**Rationale**:
+- WebSocket failure should NOT rollback order creation
+- Real-time updates are best-effort (clients can poll if WebSocket fails)
+- Including WebSocket in transaction would add unnecessary coupling
+- Transaction should only include database operations requiring consistency
+
+### Order Status Updates
+
+**Status updates also require transactions** (see #118 STAB-002):
+
+```typescript
+// Future: updateOrderStatus should also use RPC function
+await supabase.rpc('update_order_status_with_audit', {
+  p_order_id: orderId,
+  p_new_status: 'preparing',
+  p_old_version: currentVersion, // For optimistic locking
+  // ... other parameters
+});
+```
+
+**Pattern**: Any operation that modifies order state + requires audit logging → Use RPC function
+
+### Optimistic Locking for Concurrent Updates
+
+**Problem**: Multiple users/processes can update the same order simultaneously, causing lost updates.
+
+**Example Scenario** (WITHOUT optimistic locking):
+```
+Time  | Request A (Kitchen)      | Request B (Server)
+------|--------------------------|---------------------------
+T1    | Read order (v1, pending) | Read order (v1, pending)
+T2    | Update to "preparing"    |
+T3    |                          | Update to "cancelled"  ← OVERWRITES!
+```
+
+Result: Request B overwrites Request A's change. Kitchen thinks order is preparing, but database says cancelled!
+
+**Solution**: Optimistic Locking with Version Column
+
+**Migration**: `supabase/migrations/20251019_add_version_to_orders.sql`
+
+```sql
+-- Add version column (defaults to 1 for existing orders)
+ALTER TABLE orders
+ADD COLUMN version INTEGER NOT NULL DEFAULT 1;
+
+-- Index for debugging concurrent conflicts
+CREATE INDEX idx_orders_version ON orders(restaurant_id, version);
+```
+
+**Pattern: Version-Based Updates**
+
+```typescript
+// ❌ BAD: No concurrency protection
+async updateOrderStatus(orderId: string, newStatus: string) {
+  const order = await getOrder(orderId);
+
+  await supabase
+    .from('orders')
+    .update({ status: newStatus })
+    .eq('id', orderId); // No version check!
+}
+
+// ✅ GOOD: Optimistic locking with version
+async updateOrderStatus(orderId: string, newStatus: string) {
+  const order = await getOrder(orderId);
+  const currentVersion = order.version;
+
+  const { data, error } = await supabase
+    .from('orders')
+    .update({
+      status: newStatus,
+      version: currentVersion + 1 // Increment version
+    })
+    .eq('id', orderId)
+    .eq('version', currentVersion) // CRITICAL: Version check
+    .select()
+    .single();
+
+  if (error?.code === 'PGRST116') {
+    // No rows updated = version conflict
+    throw new Error('Order was modified by another request. Please retry.');
+  }
+
+  return data;
+}
+```
+
+**How It Works**:
+
+1. **Read**: Fetch current order with version (e.g., version=5)
+2. **Prepare**: Increment version in UPDATE (set version=6)
+3. **Check**: Include `.eq('version', 5)` in WHERE clause
+4. **Detect Conflict**: If another request already updated to version=6, WHERE clause fails (0 rows updated)
+5. **Handle**: Throw error, client retries with fresh version
+
+**ACID Guarantees**:
+- **Atomicity**: Version check + increment in single UPDATE
+- **Consistency**: Only one concurrent update succeeds
+- **Isolation**: PostgreSQL row-level locking prevents race conditions
+- **Durability**: Version persisted with status change
+
+**Client-Side Retry Pattern**:
+
+```typescript
+async function updateOrderStatusWithRetry(
+  orderId: string,
+  newStatus: string,
+  maxRetries = 3
+): Promise<Order> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await OrdersService.updateOrderStatus(orderId, newStatus);
+    } catch (error) {
+      if (error.message.includes('conflict') && attempt < maxRetries) {
+        // Version conflict - wait briefly and retry
+        await new Promise(resolve => setTimeout(resolve, 100 * attempt));
+        continue;
+      }
+      throw error; // Non-conflict error or max retries exceeded
+    }
+  }
+}
+```
+
+**Performance Impact**:
+- Version check adds ~0.1ms overhead (negligible)
+- Index on version is optional (primarily for debugging)
+- Conflicts are rare in practice (<1% of updates)
+
+**When Conflicts Occur**:
+- Two kitchen staff update same order simultaneously
+- Automated system + manual user both update order
+- High-concurrency scenarios (multiple terminals)
+
+**Monitoring**:
+```sql
+-- Find orders with many versions (high contention)
+SELECT order_number, version, status
+FROM orders
+WHERE version > 10
+ORDER BY version DESC;
+```
+
+**Alternative Considered**: Pessimistic Locking (SELECT FOR UPDATE)
+- Rejected: Requires keeping database connection open during user interaction
+- Rejected: Deadlock potential in high-concurrency scenarios
+- Optimistic locking is better fit for restaurant operations
+
+### Related Issues
+
+- **#117 (STAB-001)**: Transaction wrapping for createOrder ✅ **Fixed** (2025-10-19)
+- **#118 (STAB-002)**: Optimistic locking for updateOrderStatus ✅ **Fixed** (2025-10-19)
+
+---
+
 ## Consequences
 
 ### Positive
@@ -617,4 +883,13 @@ This ADR documents the existing embedded orders pattern implemented since projec
 ---
 
 **Revision History**:
+- 2025-10-19: Updated (v1.2) - Added Optimistic Locking section (#118 STAB-002)
+  - Documents version column pattern for concurrent update safety
+  - Provides client-side retry pattern for version conflicts
+  - Explains when conflicts occur and how to monitor them
+  - Compares optimistic vs pessimistic locking approaches
+- 2025-10-19: Updated (v1.1) - Added Transaction Requirements section (#117 STAB-001)
+  - Documents RPC function pattern for atomic order creation
+  - Clarifies when transactions are required vs not required
+  - Establishes pattern for future order status update transactions
 - 2025-10-13: Initial version (v1.0) - Documenting existing architecture

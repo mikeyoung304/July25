@@ -158,6 +158,49 @@ Security rails enforced across the application:
 - Payment processing via Square (PCI compliant)
 - No credit card data stored locally
 - Tokenization for all payment methods
+- **Payment audit logging is MANDATORY** (fail-fast requirement)
+  - All payment attempts must be logged to `payment_audit_logs` table
+  - Audit log failures MUST block payment processing (no silent failures)
+  - 7-year retention required for compliance
+  - See ADR-009 for error handling philosophy
+
+### Error Handling for Compliance Operations
+
+**Fail-Fast Policy** (per ADR-009):
+
+Compliance-critical operations MUST fail-fast (throw errors that halt the operation):
+- ✅ **Payment audit logging** - Failures block payment processing
+- ✅ **Authentication failures** - No access without valid authentication
+- ✅ **Authorization failures** - No access without proper permissions
+- ✅ **Database connection failures** - Cannot operate without data access
+- ✅ **Payment processor failures** - Cannot process payments without Square
+
+**Rationale**:
+- Better to deny service temporarily than violate compliance requirements
+- Missing audit logs = PCI DSS violation = fines, penalties, loss of payment processing
+- Fail-fast makes problems immediately visible (alerts, monitoring)
+- Similar to Square credential validation (fails fast on startup)
+
+**Examples**:
+```typescript
+// ✅ GOOD: Fail-fast for audit logging
+try {
+  await logPaymentAudit(data);
+} catch (error) {
+  logger.error('CRITICAL: Audit failed', { error });
+  throw new Error('Payment unavailable - audit system failure');
+}
+
+// ❌ BAD: Swallow critical errors
+try {
+  await logPaymentAudit(data);
+} catch (error) {
+  logger.error('Audit failed', { error });
+  // WRONG: Don't silently continue
+}
+```
+
+See **docs/ADR-009-error-handling-philosophy.md** for complete decision matrix.
 
 ### GDPR/Privacy
 

@@ -66,6 +66,37 @@ export class OrdersService {
   }
 
   /**
+   * Get restaurant tax rate
+   * Per ADR-007: Tax rates are now configured per-restaurant
+   */
+  private static async getRestaurantTaxRate(restaurantId: string): Promise<number> {
+    try {
+      const { data, error } = await supabase
+        .from('restaurants')
+        .select('tax_rate')
+        .eq('id', restaurantId)
+        .single();
+
+      if (error) {
+        ordersLogger.error('Failed to fetch restaurant tax rate', { error, restaurantId });
+        // Fall back to default California rate (8.25%) if fetch fails
+        ordersLogger.warn('Using default tax rate 0.0825 (8.25%) due to fetch error');
+        return 0.0825;
+      }
+
+      if (!data || data.tax_rate === null || data.tax_rate === undefined) {
+        ordersLogger.warn('Restaurant tax rate not found, using default', { restaurantId });
+        return 0.0825;
+      }
+
+      return Number(data.tax_rate);
+    } catch (error) {
+      ordersLogger.error('Exception fetching restaurant tax rate', { error, restaurantId });
+      return 0.0825;
+    }
+  }
+
+  /**
    * Create a new order
    */
   static async createOrder(
@@ -96,7 +127,8 @@ export class OrdersService {
         return total + itemTotal + modifiersTotal;
       }, 0);
 
-      const taxRate = 0.07; // 7% tax - should be configurable per restaurant
+      // Get restaurant-specific tax rate (ADR-007: Per-Restaurant Configuration)
+      const taxRate = await this.getRestaurantTaxRate(restaurantId);
       const tax = orderData.tax !== undefined ? orderData.tax : subtotal * taxRate;
       const tip = orderData.tip || 0;
       const totalAmount = orderData.total_amount !== undefined ? orderData.total_amount : (subtotal + tax + tip);
@@ -152,14 +184,27 @@ export class OrdersService {
         },
       };
 
+      // Use atomic RPC function for transactional order creation + audit logging
+      // Per ADR-003 and #117 (STAB-001): Insert and audit MUST be atomic
       const { data, error } = await supabase
-        .from('orders')
-        .insert([newOrder])
-        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
+        .rpc('create_order_with_audit', {
+          p_restaurant_id: newOrder.restaurant_id,
+          p_order_number: newOrder.order_number,
+          p_type: newOrder.type,
+          p_status: newOrder.status,
+          p_items: newOrder.items as any,
+          p_subtotal: newOrder.subtotal,
+          p_tax: newOrder.tax,
+          p_total_amount: newOrder.total_amount,
+          p_notes: newOrder.notes || null,
+          p_customer_name: newOrder.customer_name || null,
+          p_table_number: newOrder.table_number || null,
+          p_metadata: newOrder.metadata as any || {}
+        })
         .single();
 
       if (error) {
-        ordersLogger.error('Database insertion failed', { 
+        ordersLogger.error('Atomic order creation failed', {
           error,
           orderType: newOrder.type,
           orderData: { ...newOrder, items: `[${newOrder.items.length} items]` }
@@ -168,18 +213,20 @@ export class OrdersService {
       }
 
       // Return raw snake_case data - frontend expects this format
-      
+
       // Broadcast new order via WebSocket
+      // Note: WebSocket is intentionally OUTSIDE the transaction
+      // Real-time notifications don't need ACID guarantees
       if (this.wss) {
         broadcastNewOrder(this.wss, data);  // Send snake_case data
       }
 
-      // Log order status change
-      await this.logStatusChange(data.id, restaurantId, null, 'pending');
+      // Note: Status change logging is now handled atomically by the RPC function
+      // No separate logStatusChange call needed - it's part of the transaction
 
       ordersLogger.info('Order created', {
-        orderId: data.id,
-        orderNumber: data.order_number,
+        orderId: (data as any).id,
+        orderNumber: (data as any).order_number,
         restaurantId
       });
 
@@ -200,7 +247,7 @@ export class OrdersService {
     try {
       let query = supabase
         .from('orders')
-        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version')
         .eq('restaurant_id', restaurantId)
         .order('created_at', { ascending: false });
 
@@ -246,7 +293,7 @@ export class OrdersService {
     try {
       const { data, error } = await supabase
         .from('orders')
-        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version')
         .eq('restaurant_id', restaurantId)
         .eq('id', orderId)
         .single();
@@ -264,7 +311,8 @@ export class OrdersService {
   }
 
   /**
-   * Update order status
+   * Update order status with optimistic locking
+   * Per ADR-003 and #118 (STAB-002): Uses version column to prevent lost updates
    */
   static async updateOrderStatus(
     restaurantId: string,
@@ -273,15 +321,19 @@ export class OrdersService {
     notes?: string
   ): Promise<Order> {
     try {
-      // Get current order
+      // Get current order with version
       const currentOrder = await this.getOrder(restaurantId, orderId);
       if (!currentOrder) {
         throw new Error('Order not found');
       }
 
-      // Prepare update
+      // Extract current version for optimistic locking
+      const currentVersion = (currentOrder as any).version || 1;
+
+      // Prepare update with version increment
       const update: Record<string, unknown> = {
         status: newStatus,
+        version: currentVersion + 1, // Increment version for optimistic locking
         updated_at: new Date().toISOString(),
       };
 
@@ -301,15 +353,45 @@ export class OrdersService {
           break;
       }
 
+      // Optimistic locking: Update only if version matches
+      // If another request modified the order, version will have changed
       const { data, error } = await supabase
         .from('orders')
         .update(update)
         .eq('id', orderId)
         .eq('restaurant_id', restaurantId)
-        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
+        .eq('version', currentVersion) // CRITICAL: Optimistic lock check
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version')
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Check if error is due to version conflict (no rows updated)
+        if (error.code === 'PGRST116') {
+          // PGRST116 = "The result contains 0 rows"
+          // This means version conflict - order was modified by another request
+          ordersLogger.warn('Order status update conflict detected (optimistic lock)', {
+            orderId,
+            restaurantId,
+            expectedVersion: currentVersion,
+            attemptedStatus: newStatus
+          });
+          throw new Error(
+            `Order status update conflict. Order was modified by another request. ` +
+            `Please retry the operation. (Order ID: ${orderId})`
+          );
+        }
+        throw error;
+      }
+
+      // Verify we got data back (should always be true if no error)
+      if (!data) {
+        ordersLogger.error('Order status update succeeded but returned no data', {
+          orderId,
+          restaurantId,
+          newStatus
+        });
+        throw new Error('Order status update succeeded but returned no data');
+      }
 
       // Return raw snake_case data
 
@@ -389,7 +471,7 @@ export class OrdersService {
         .update(update)
         .eq('id', orderId)
         .eq('restaurant_id', restaurantId)
-        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired')
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version')
         .single();
 
       if (error) throw error;

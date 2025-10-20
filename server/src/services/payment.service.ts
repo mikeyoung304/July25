@@ -28,8 +28,39 @@ export interface PaymentAuditLogEntry {
 }
 
 export class PaymentService {
-  private static readonly TAX_RATE = 0.08; // TODO: Make this configurable per restaurant
   private static readonly MINIMUM_ORDER_AMOUNT = 0.01;
+
+  /**
+   * Get restaurant tax rate
+   * Per ADR-007: Tax rates are now configured per-restaurant
+   * MUST match OrdersService.getRestaurantTaxRate() to ensure consistency
+   */
+  private static async getRestaurantTaxRate(restaurantId: string): Promise<number> {
+    try {
+      const { data, error } = await supabase
+        .from('restaurants')
+        .select('tax_rate')
+        .eq('id', restaurantId)
+        .single();
+
+      if (error) {
+        logger.error('Failed to fetch restaurant tax rate', { error, restaurantId });
+        // Fall back to default California rate (8.25%) if fetch fails
+        logger.warn('Using default tax rate 0.0825 (8.25%) due to fetch error');
+        return 0.0825;
+      }
+
+      if (!data || data.tax_rate === null || data.tax_rate === undefined) {
+        logger.warn('Restaurant tax rate not found, using default', { restaurantId });
+        return 0.0825;
+      }
+
+      return Number(data.tax_rate);
+    } catch (error) {
+      logger.error('Exception fetching restaurant tax rate', { error, restaurantId });
+      return 0.0825;
+    }
+  }
 
   /**
    * Calculate order total from items
@@ -40,17 +71,23 @@ export class PaymentService {
       throw BadRequest('Order has no items');
     }
 
+    // Get restaurant ID from order
+    const restaurantId = (order as any).restaurant_id || (order as any).restaurantId;
+    if (!restaurantId) {
+      throw BadRequest('Order missing restaurant_id');
+    }
+
     let subtotal = 0;
 
     // Calculate subtotal from items
     for (const item of order.items) {
       const itemPrice = Number(item.price) || 0;
       const quantity = Number(item.quantity) || 1;
-      
+
       if (itemPrice < 0) {
         throw BadRequest(`Invalid price for item ${item.name}`);
       }
-      
+
       if (quantity < 1) {
         throw BadRequest(`Invalid quantity for item ${item.name}`);
       }
@@ -70,8 +107,10 @@ export class PaymentService {
       }
     }
 
-    // Calculate tax
-    const tax = subtotal * this.TAX_RATE;
+    // Get restaurant-specific tax rate (ADR-007: Per-Restaurant Configuration)
+    // CRITICAL: This MUST match OrdersService tax calculation for consistency
+    const taxRate = await this.getRestaurantTaxRate(restaurantId);
+    const tax = subtotal * taxRate;
     const total = subtotal + tax;
 
     // Validate minimum order amount
@@ -184,18 +223,24 @@ export class PaymentService {
         .insert(auditLog);
 
       if (error) {
-        logger.error('Failed to store payment audit log', { error, auditLog });
-        // Don't throw - audit logging failure shouldn't stop payment processing
-        // But alert monitoring system
-        logger.error('CRITICAL: Payment audit log failed - compliance risk', {
+        logger.error('CRITICAL: Payment audit log failed - compliance requirement violated', {
           orderId: entry.orderId,
           paymentId: entry.paymentId,
-          error: error.message
+          error: error.message,
+          auditLog
         });
+        // FAIL-FAST: Per ADR-009 and SECURITY.md, audit log failures MUST block payment
+        // This is a PCI DSS compliance requirement - payment audit logs are mandatory
+        throw new Error('Payment processing unavailable - audit system failure. Please try again later.');
       }
     } catch (dbError) {
-      logger.error('Database error storing payment audit', { dbError, auditLog });
-      // Same as above - log but don't fail the payment
+      logger.error('CRITICAL: Database error storing payment audit - compliance requirement violated', {
+        dbError,
+        orderId: entry.orderId,
+        auditLog
+      });
+      // FAIL-FAST: Same as above - audit logging is mandatory for PCI compliance
+      throw new Error('Payment processing unavailable - audit system failure. Please try again later.');
     }
   }
 
