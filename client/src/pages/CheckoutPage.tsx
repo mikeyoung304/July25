@@ -9,7 +9,7 @@ import { SquarePaymentForm } from '@/modules/order-system/components/SquarePayme
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useFormValidation, validators } from '@/utils/validation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth.hooks';
 
 const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
