@@ -202,11 +202,12 @@ vi.mock('../src/config/database', () => {
           };
         }
         if (table === 'restaurants') {
+          // Mock restaurant tax rate queries
           return {
             select: vi.fn(() => ({
               eq: vi.fn(() => ({
                 single: vi.fn(() => Promise.resolve({
-                  data: { tax_rate: 0.0825 },
+                  data: { tax_rate: 0.0825 }, // 8.25% default tax rate
                   error: null
                 }))
               }))
