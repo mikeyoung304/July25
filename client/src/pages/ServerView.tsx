@@ -69,7 +69,7 @@ export const ServerView = memo(() => {
         <ServerHeader restaurant={restaurant ? {
           ...restaurant,
           logo_url: undefined,
-          tax_rate: 0.08,
+          tax_rate: restaurant.tax_rate ?? 0.08, // Use restaurant-specific tax rate with fallback
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         } : null} />

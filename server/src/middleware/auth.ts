@@ -5,7 +5,8 @@ import { getConfig } from '../config/environment';
 import { Unauthorized } from './errorHandler';
 import { logger } from '../utils/logger';
 
-const config = getConfig();
+// Note: getConfig() is called inside each function instead of at module level
+// This allows tests to modify process.env and have the changes take effect
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -25,23 +26,24 @@ export async function authenticate(
   next: NextFunction
 ): Promise<void> {
   try {
+    const config = getConfig(); // Get fresh config (important for tests)
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw Unauthorized('No token provided');
     }
 
     const token = authHeader.substring(7);
-    
+
     // STRICT_AUTH mode - no bypasses allowed
     const strictAuth = process.env['STRICT_AUTH'] === 'true';
-    
+
     // In strict auth mode, never allow test tokens
     if (strictAuth && token === 'test-token') {
       logger.error('⛔ STRICT_AUTH enabled - test token rejected');
       throw Unauthorized('Test tokens not allowed in strict auth mode');
     }
-    
+
     // Test tokens are no longer supported for security reasons
     // Use proper JWT tokens in all environments
 
@@ -113,6 +115,7 @@ export async function optionalAuth(
   next: NextFunction
 ): Promise<void> {
   try {
+    const config = getConfig(); // Get fresh config (important for tests)
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -125,6 +128,7 @@ export async function optionalAuth(
     return authenticate(req, _res, next);
   } catch (error) {
     // Log but don't fail - still set restaurant ID for unauthenticated access
+    const config = getConfig();
     logger.warn('Optional auth failed:', error);
     req.restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
     next();
@@ -136,6 +140,7 @@ export async function verifyWebSocketAuth(
   request: IncomingMessage
 ): Promise<{ userId: string; restaurantId?: string } | null> {
   try {
+    const config = getConfig(); // Get fresh config (important for tests)
     const url = new URL(request.url || '', `http://${request.headers.host}`);
     const token = url.searchParams.get('token');
 
@@ -212,12 +217,13 @@ export function validateRestaurantAccess(
   _res: Response,
   next: NextFunction
 ): void {
+  const config = getConfig(); // Get fresh config (important for tests)
   const restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
-  
+
   if (!restaurantId) {
     return next(Unauthorized('Restaurant ID is required'));
   }
-  
+
   req.restaurantId = restaurantId;
   next();
 }

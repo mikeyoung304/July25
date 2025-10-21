@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useNavigate } from 'react-router-dom';
 import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
+import { useTaxRate } from '@/hooks/useTaxRate';
 
 // Type alias for compatibility
 type KioskOrderItem = UnifiedCartItem;
@@ -18,6 +19,7 @@ export function useKioskOrderSubmission() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const orderApi = useApiRequest();
+  const taxRate = useTaxRate();
 
   const submitOrder = useCallback(async (
     items: KioskOrderItem[],
@@ -35,7 +37,7 @@ export function useKioskOrderSubmission() {
     try {
       // Calculate totals
       const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const tax = subtotal * 0.08; // 8% tax rate
+      const tax = subtotal * taxRate; // Use restaurant-specific tax rate
       const total = subtotal + tax;
 
       // Prepare order data in the format expected by the API

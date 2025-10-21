@@ -7,6 +7,7 @@ export interface Restaurant {
   name: string
   timezone: string
   currency: string
+  tax_rate?: number // Sales tax rate (decimal format: 0.08 = 8%). Default: 0.08, configurable per tenant
   settings?: {
     orderPrefix?: string
     autoAcceptOrders?: boolean

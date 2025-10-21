@@ -164,12 +164,15 @@ export class VoiceOrderProcessor {
   
   /**
    * Submit current order to the system
+   * @param customerName - Name for the order
+   * @param orderType - Type of order (dine-in, takeout, drive-thru)
+   * @param taxRate - Tax rate as decimal (e.g., 0.08 for 8%). Defaults to 0.08
    */
-  async submitCurrentOrder(customerName: string, orderType: 'dine-in' | 'takeout' | 'drive-thru' = 'dine-in'): Promise<Order> {
+  async submitCurrentOrder(customerName: string, orderType: 'dine-in' | 'takeout' | 'drive-thru' = 'dine-in', taxRate: number = 0.08): Promise<Order> {
     if (this.currentOrder.length === 0) {
       throw new Error('No items in order');
     }
-    
+
     // Convert to order items
     const orderItems: Partial<OrderItem>[] = this.currentOrder.map(item => ({
       menuItemId: item.menuItem.id,
@@ -183,12 +186,12 @@ export class VoiceOrderProcessor {
       })),
       specialInstructions: item.specialInstructions
     }));
-    
+
     // Calculate totals
     const subtotal = this.currentOrder.reduce((sum, item) =>
       sum + (item.menuItem.price * item.quantity), 0
     );
-    const tax = subtotal * 0.0825; // 8.25% - align with server default (TODO Track B: fetch from API)
+    const tax = subtotal * taxRate; // Use restaurant-specific tax rate
     const total = subtotal + tax;
     
     // Submit order - convert UI order type to database type
