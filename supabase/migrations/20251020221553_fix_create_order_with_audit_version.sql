@@ -5,8 +5,13 @@
 -- Solution: Add version INTEGER to RETURNS TABLE and SELECT statement
 -- Date: 2025-10-20
 
--- Drop and recreate function with version in RETURNS TABLE
-CREATE OR REPLACE FUNCTION create_order_with_audit(
+-- Drop existing function (must drop before changing return signature)
+DROP FUNCTION IF EXISTS create_order_with_audit(
+  UUID, VARCHAR, VARCHAR, VARCHAR, JSONB, DECIMAL, DECIMAL, DECIMAL, TEXT, VARCHAR, VARCHAR, JSONB
+);
+
+-- Create function with version in RETURNS TABLE
+CREATE FUNCTION create_order_with_audit(
   p_restaurant_id UUID,
   p_order_number VARCHAR,
   p_type VARCHAR,
