@@ -19,22 +19,27 @@ export default defineConfig(({ mode }) => {
     fileEnv;
     
   // Production safety check
-  if (mode === 'production') {
+  // Skip strict validation in CI environments (GitHub Actions smoke tests)
+  // Enforce strict validation only for actual deployments (Vercel/production)
+  if (mode === 'production' && !process.env.CI) {
     const requiredEnvVars = [
       'VITE_API_BASE_URL',
       'VITE_SUPABASE_URL',
       'VITE_SUPABASE_ANON_KEY',
     ];
-    
+
     const missingVars = requiredEnvVars.filter(varName => !env[varName]);
-    
+
     if (missingVars.length > 0) {
       console.error('❌ Missing required environment variables for production build:');
       missingVars.forEach(varName => console.error(`   - ${varName}`));
       throw new Error('Cannot build without required environment variables');
     }
-    
+
     // Log what we're using (will show in Vercel build logs)
+  } else if (mode === 'production' && process.env.CI) {
+    console.warn('⚠️  CI environment detected - skipping strict env validation');
+    console.warn('   Production builds on Vercel will still enforce strict validation');
   }
   
   return {

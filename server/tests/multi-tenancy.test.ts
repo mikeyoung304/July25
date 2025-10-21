@@ -79,7 +79,8 @@ vi.mock('../src/config/database', () => {
         total_amount: 50.00,
         customer_name: 'Customer A',
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        version: 1
       } as Order,
       {
         id: 'order-restaurant1-002',
@@ -91,7 +92,8 @@ vi.mock('../src/config/database', () => {
         total_amount: 75.00,
         customer_name: 'Customer B',
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        version: 1
       } as Order
     ],
     '22222222-2222-2222-2222-222222222222': [
@@ -105,7 +107,8 @@ vi.mock('../src/config/database', () => {
         total_amount: 100.00,
         customer_name: 'Customer C',
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        version: 1
       } as Order
     ]
   };
@@ -195,6 +198,18 @@ vi.mock('../src/config/database', () => {
             })),
             delete: vi.fn(() => ({
               eq: vi.fn(() => Promise.resolve({ data: null, error: null }))
+            }))
+          };
+        }
+        if (table === 'restaurants') {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                single: vi.fn(() => Promise.resolve({
+                  data: { tax_rate: 0.0825 },
+                  error: null
+                }))
+              }))
             }))
           };
         }
