@@ -57,7 +57,7 @@ export async function validateRestaurantAccess(
         requestedRestaurantId,
         error: error?.message
       });
-      throw Forbidden('Access denied to this restaurant');
+      throw Forbidden('Access denied to this restaurant', 'RESTAURANT_ACCESS_DENIED');
     }
 
     // Set the validated restaurant ID and user's role for this restaurant
@@ -89,7 +89,7 @@ export function requireRestaurantRole(roles: string[]) {
         requiredRoles: roles,
         userRole: req.restaurantRole
       });
-      next(Forbidden('Insufficient permissions for this restaurant'));
+      next(Forbidden('Insufficient permissions for this restaurant', 'RESTAURANT_ROLE_REQUIRED'));
     } else {
       next();
     }

@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { orderRoutes } from '../src/routes/orders.routes';
 import { authenticate } from '../src/middleware/auth';
 import { validateRestaurantAccess } from '../src/middleware/restaurantAccess';
+import { errorHandler } from '../src/middleware/errorHandler';
 import type { Order } from '@rebuild/shared';
 
 // Mock AI module to prevent OpenAI initialization
@@ -123,34 +124,26 @@ vi.mock('../src/config/database', () => {
                 if (field === 'restaurant_id') {
                   // Simulate proper RLS - only return orders for the specified restaurant
                   const orders = mockOrders[value] || [];
-                  return {
-                    eq: vi.fn(() => ({
-                      single: vi.fn(() =>
-                        Promise.resolve({
-                          data: orders[0] || null,
-                          error: null
-                        })
-                      )
-                    })),
-                    order: vi.fn(() =>
+
+                  // Create a chainable query builder for list queries
+                  const createChainableQuery = () => ({
+                    eq: vi.fn(() => createChainableQuery()),
+                    order: vi.fn(() => createChainableQuery()),
+                    limit: vi.fn(() => createChainableQuery()),
+                    range: vi.fn(() => createChainableQuery()),
+                    gte: vi.fn(() => createChainableQuery()),
+                    lte: vi.fn(() => createChainableQuery()),
+                    then: (resolve: any) => resolve({ data: orders, error: null }),
+                    catch: (reject: any) => undefined,
+                    single: vi.fn(() =>
                       Promise.resolve({
-                        data: orders,
+                        data: orders[0] || null,
                         error: null
                       })
-                    ),
-                    single: vi.fn(() => {
-                      // For single order fetch by ID
-                      const order = Object.values(mockOrders)
-                        .flat()
-                        .find((o: Order) => o.id === value);
+                    )
+                  });
 
-                      // Only return if restaurant_id matches
-                      return Promise.resolve({
-                        data: order || null,
-                        error: order ? null : { message: 'Order not found' }
-                      });
-                    })
-                  };
+                  return createChainableQuery();
                 }
                 if (field === 'id') {
                   // Single order fetch - return builder for chaining
@@ -190,12 +183,23 @@ vi.mock('../src/config/database', () => {
               })
             })),
             insert: vi.fn(() => Promise.resolve({ data: null, error: null })),
-            update: vi.fn(() => ({
-              eq: vi.fn(() => ({
-                eq: vi.fn(() => Promise.resolve({ data: null, error: null })),
-                single: vi.fn(() => Promise.resolve({ data: null, error: null }))
-              }))
-            })),
+            update: vi.fn((updateData: any) => {
+              // Create chainable update query builder
+              const createUpdateChain = () => ({
+                eq: vi.fn((field: string, value: string) => createUpdateChain()),
+                select: vi.fn(() => ({
+                  single: vi.fn(() => Promise.resolve({
+                    data: null,
+                    error: { code: 'PGRST116', message: 'Not found' }  // Simulate not found for cross-restaurant updates
+                  }))
+                })),
+                single: vi.fn(() => Promise.resolve({
+                  data: null,
+                  error: { code: 'PGRST116', message: 'Not found' }
+                }))
+              });
+              return createUpdateChain();
+            }),
             delete: vi.fn(() => ({
               eq: vi.fn(() => Promise.resolve({ data: null, error: null }))
             }))
@@ -211,6 +215,51 @@ vi.mock('../src/config/database', () => {
                   error: null
                 }))
               }))
+            }))
+          };
+        }
+        if (table === 'user_restaurants') {
+          // Mock user-restaurant access mappings
+          const mockUserRestaurants: Record<string, Array<{ restaurant_id: string; role: string }>> = {
+            'user-restaurant-1': [
+              { restaurant_id: '11111111-1111-1111-1111-111111111111', role: 'server' }
+            ],
+            'user-restaurant-2': [
+              { restaurant_id: '22222222-2222-2222-2222-222222222222', role: 'server' }
+            ]
+          };
+
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn((field: string, value: string) => {
+                if (field === 'user_id') {
+                  const userRecords = mockUserRestaurants[value] || [];
+                  return {
+                    eq: vi.fn((nextField: string, nextValue: string) => {
+                      if (nextField === 'restaurant_id') {
+                        // Find matching record for this user and restaurant
+                        const record = userRecords.find(r => r.restaurant_id === nextValue);
+                        return {
+                          single: vi.fn(() => Promise.resolve({
+                            data: record || null,
+                            error: record ? null : { message: 'User restaurant access not found' }
+                          }))
+                        };
+                      }
+                      return {
+                        single: vi.fn(() => Promise.resolve({ data: null, error: null }))
+                      };
+                    }),
+                    single: vi.fn(() => Promise.resolve({
+                      data: userRecords[0] || null,
+                      error: null
+                    }))
+                  };
+                }
+                return {
+                  single: vi.fn(() => Promise.resolve({ data: null, error: null }))
+                };
+              })
             }))
           };
         }
@@ -276,6 +325,9 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
     app.use(authenticate);
     app.use(validateRestaurantAccess);
     app.use('/api/v1/orders', orderRoutes);
+
+    // Apply error handler last (must be after routes)
+    app.use(errorHandler);
   });
 
   describe('Cross-Restaurant List Access Prevention', () => {

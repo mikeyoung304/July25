@@ -6,6 +6,7 @@ import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import type { Table } from '@/modules/floor-plan/types'
 import { getServerToken } from '@/services/auth/roleHelpers'
 import { logger } from '@/services/monitoring/logger'
+import { useTaxRate } from '@/hooks/useTaxRate'
 
 // Helper to resolve absolute API URLs for production
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -22,6 +23,7 @@ interface OrderItem {
 export function useVoiceOrderWebRTC() {
   const { toast } = useToast()
   const { items: menuItems } = useMenuItems()
+  const taxRate = useTaxRate()
   const [showVoiceOrder, setShowVoiceOrder] = useState(false)
   const [currentTranscript, setCurrentTranscript] = useState('')
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
@@ -187,8 +189,8 @@ export function useVoiceOrderWebRTC() {
               const menuItem = menuItems.find(m => m.id === item.menuItemId)
               return sum + (menuItem?.price || 12.99) * item.quantity
             }, 0);
-            const tax = subtotal * 0.0825; // Match server default tax rate
-            return subtotal + tax; // TODO (Track B): Fetch tax rate from API endpoint
+            const tax = subtotal * taxRate; // Use restaurant-specific tax rate
+            return subtotal + tax;
           })(),
           customer_name: `Table ${selectedTable.label} - Seat ${selectedSeat}`,
           type: 'dine-in' // Changed from order_type to match schema

@@ -23,6 +23,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
         name: 'Grow Fresh Local Food',
         timezone: 'America/New_York',
         currency: 'USD',
+        tax_rate: 0.08, // 8% sales tax - configurable per tenant
         settings: {
           orderPrefix: 'GRW',
           autoAcceptOrders: true,

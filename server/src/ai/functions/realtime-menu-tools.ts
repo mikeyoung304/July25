@@ -62,8 +62,42 @@ const supabase: SupabaseClient = createClient(
 // Cache for menu items (5 minutes TTL)
 const menuCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
 
+// Cache for restaurant data including tax rates (5 minutes TTL)
+const restaurantCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
+
 // In-memory cart storage (replace with Redis in production)
 const cartStorage = new Map<string, Cart>();
+
+/**
+ * Get restaurant tax rate from database (with caching)
+ */
+async function getRestaurantTaxRate(restaurantId: string): Promise<number> {
+  const cacheKey = `tax_rate_${restaurantId}`;
+  const cached = restaurantCache.get<number>(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('tax_rate')
+      .eq('id', restaurantId)
+      .single();
+
+    if (error || !data) {
+      logger.warn('[MenuTools] Failed to fetch tax rate, using default 0.08', { restaurantId, error });
+      return 0.08; // Default fallback
+    }
+
+    const taxRate = data.tax_rate ?? 0.08;
+    restaurantCache.set(cacheKey, taxRate);
+    return taxRate;
+  } catch (error) {
+    logger.error('[MenuTools] Exception fetching tax rate', { restaurantId, error });
+    return 0.08; // Default fallback
+  }
+}
 
 /**
  * Get or create cart for session
@@ -86,10 +120,12 @@ function getCart(sessionId: string, restaurantId: string): Cart {
 
 /**
  * Update cart totals
+ * @param cart - Cart to update
+ * @param taxRate - Tax rate as decimal (e.g., 0.08 for 8%)
  */
-function updateCartTotals(cart: Cart): void {
+function updateCartTotals(cart: Cart, taxRate: number = 0.08): void {
   cart.subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  cart.tax = cart.subtotal * 0.08; // 8% tax rate
+  cart.tax = cart.subtotal * taxRate; // Use restaurant-specific tax rate
   cart.total = cart.subtotal + cart.tax;
   cart.updated_at = Date.now();
 }
@@ -372,8 +408,9 @@ export const menuFunctionTools = {
           });
         }
 
-        // Update totals
-        updateCartTotals(cart);
+        // Fetch restaurant tax rate and update totals
+        const taxRate = await getRestaurantTaxRate(context.restaurantId);
+        updateCartTotals(cart, taxRate);
 
         return {
           success: true,
@@ -428,8 +465,10 @@ export const menuFunctionTools = {
         if (!removed) {
           return { success: false, error: 'Failed to remove item from cart' };
         }
-        
-        updateCartTotals(cart);
+
+        // Fetch restaurant tax rate and update totals
+        const taxRate = await getRestaurantTaxRate(context.restaurantId);
+        updateCartTotals(cart, taxRate);
 
         return {
           success: true,
@@ -602,7 +641,9 @@ export const menuFunctionTools = {
       try {
         const cart = getCart(context.sessionId, context.restaurantId);
         cart.items = [];
-        updateCartTotals(cart);
+        // Fetch restaurant tax rate and update totals (will be 0 since cart is empty)
+        const taxRate = await getRestaurantTaxRate(context.restaurantId);
+        updateCartTotals(cart, taxRate);
 
         return {
           success: true,

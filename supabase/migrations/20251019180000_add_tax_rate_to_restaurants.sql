@@ -4,12 +4,13 @@
 -- Solution: Per-restaurant configuration (ADR-007)
 -- Date: 2025-10-19
 
--- Add tax_rate column with 8.25% default (standard California combined rate)
--- Using DECIMAL(5,4) to support rates like 0.0825 (8.25%)
+-- Add tax_rate column with 8% default (per user requirement)
+-- Using DECIMAL(5,4) to support rates like 0.08 (8%) or 0.0825 (8.25%)
 -- Precision: 5 total digits, 4 after decimal point
 -- Range: 0.0000 to 9.9999 (0% to 999.99%)
+-- Each restaurant tenant can configure their own rate
 ALTER TABLE restaurants
-ADD COLUMN IF NOT EXISTS tax_rate DECIMAL(5,4) NOT NULL DEFAULT 0.0825;
+ADD COLUMN IF NOT EXISTS tax_rate DECIMAL(5,4) NOT NULL DEFAULT 0.08;
 
 -- Add comment for documentation
 COMMENT ON COLUMN restaurants.tax_rate IS 'Per-restaurant sales tax rate (decimal format: 0.0825 = 8.25%). Configurable per location for compliance with local tax jurisdictions. See ADR-007.';
