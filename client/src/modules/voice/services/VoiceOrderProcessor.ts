@@ -185,10 +185,10 @@ export class VoiceOrderProcessor {
     }));
     
     // Calculate totals
-    const subtotal = this.currentOrder.reduce((sum, item) => 
+    const subtotal = this.currentOrder.reduce((sum, item) =>
       sum + (item.menuItem.price * item.quantity), 0
     );
-    const tax = subtotal * 0.08; // 8% tax
+    const tax = subtotal * 0.0825; // 8.25% - align with server default (TODO Track B: fetch from API)
     const total = subtotal + tax;
     
     // Submit order - convert UI order type to database type

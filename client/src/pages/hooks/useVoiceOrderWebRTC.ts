@@ -182,10 +182,14 @@ export function useVoiceOrderWebRTC() {
             }
           }),
           notes: `Voice order from ${selectedTable.label}, Seat ${selectedSeat}`,
-          total_amount: orderItems.reduce((sum, item) => {
-            const menuItem = menuItems.find(m => m.id === item.menuItemId)
-            return sum + (menuItem?.price || 12.99) * item.quantity
-          }, 0),
+          total_amount: (() => {
+            const subtotal = orderItems.reduce((sum, item) => {
+              const menuItem = menuItems.find(m => m.id === item.menuItemId)
+              return sum + (menuItem?.price || 12.99) * item.quantity
+            }, 0);
+            const tax = subtotal * 0.0825; // Match server default tax rate
+            return subtotal + tax; // TODO (Track B): Fetch tax rate from API endpoint
+          })(),
           customer_name: `Table ${selectedTable.label} - Seat ${selectedSeat}`,
           type: 'dine-in' // Changed from order_type to match schema
         })
