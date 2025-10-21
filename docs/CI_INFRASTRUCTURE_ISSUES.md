@@ -7,9 +7,10 @@
 
 ## Executive Summary
 
-Main branch CI was failing for 2+ weeks due to two infrastructure issues:
-1. **Smoke test**: Vite production build validation expecting env vars not available in GitHub Actions
-2. **Timing test**: HMAC timing attack prevention test too strict for CI runner performance variance
+Main branch CI was failing for 2+ weeks due to three infrastructure issues:
+1. **Env var validation**: Vite production build validation expecting env vars not available in GitHub Actions
+2. **Dead smoke test workflow**: Orphaned workflow referencing deleted config and test files
+3. **Timing test**: HMAC timing attack prevention test too strict for CI runner performance variance
 
 **Root Cause**: Environment validation added Oct 5 (commit 0a90587) was designed for Vercel deployments but also ran in GitHub Actions without the necessary secrets.
 
@@ -84,7 +85,41 @@ if (mode === 'production' && !process.env.CI) {
 
 ---
 
-## Issue #2: Webhook Timing Test Flakiness
+## Issue #2: Dead Smoke Test Workflow
+
+### Symptoms
+```
+Error: /home/runner/work/July25/July25/client/playwright-smoke.config.ts does not exist
+```
+
+### Timeline
+- **Commit 53dfbf4**: Playwright smoke tests added with config file
+- **Commit ea89695**: Smoke tests moved to tests/e2e/, config file deleted
+- **Oct 21, 2025**: Dead workflow discovered during CI fixes
+
+### Root Cause
+
+**Orphaned Workflow**: The `.github/workflows/playwright-smoke.yml` workflow references:
+- `client/playwright-smoke.config.ts` (deleted in ea89695)
+- `client/smoke-tests/` directory (moved to tests/e2e/ in ea89695)
+
+The tests were refactored but the workflow was never updated or removed.
+
+### Solution Implemented
+
+**Remove Dead Workflow**: Deleted `.github/workflows/playwright-smoke.yml`
+
+**Rationale**:
+- Config and tests don't exist
+- E2E tests not currently run in CI
+- Workflow has been broken since ea89695
+- Blocks CI fixes from merging
+
+**Future Work**: If smoke/e2e tests are needed, create new workflow that references correct paths.
+
+---
+
+## Issue #3: Webhook Timing Test Flakiness
 
 ### Symptoms
 ```
@@ -209,11 +244,11 @@ failure  2025-10-19  (smoke-test, timing test)
 ### CI Infrastructure Fixes
 - `client/vite.config.ts` - Conditional env validation
 - `server/tests/security/webhook.proof.test.ts` - CI timing tolerance
+- `.github/workflows/playwright-smoke.yml` - REMOVED (dead workflow)
 - `docs/CI_INFRASTRUCTURE_ISSUES.md` - This documentation
 
 ### Affected Workflows
-- `.github/workflows/playwright-smoke.yml` - Smoke tests
-- `.github/workflows/quick-tests.yml` - Quick test suite
+- `.github/workflows/quick-tests.yml` - Quick test suite (webhook timing test)
 
 ---
 
