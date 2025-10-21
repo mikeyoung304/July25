@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { authenticate, verifyWebSocketAuth } from '../middleware/auth';
+import { authenticate, verifyWebSocketAuth } from '../../src/middleware/auth';
 import { Request, Response, NextFunction } from 'express';
 import { IncomingMessage } from 'http';
-import { logger } from '../utils/logger';
+import { logger } from '../../src/utils/logger';
 
 // Mock environment
 const originalEnv = process.env;
