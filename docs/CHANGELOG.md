@@ -7,6 +7,121 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.11] - 2025-10-21 - Track A: Order Failure Critical Fixes
+
+### 🚨 Critical Bug Fixes (Production Order Failures)
+
+This release fixes **3 critical bugs** identified in the order creation failure investigation (Oct 20, 2025). See [ORDER_FAILURE_INCIDENT_REPORT.md](../ORDER_FAILURE_INCIDENT_REPORT.md) for complete incident analysis.
+
+#### Fixed - RPC Missing Version Column (Critical)
+- **CRITICAL: create_order_with_audit RPC didn't return version field** (500 errors)
+  - RPC migration from Oct 19 missed `version INTEGER` in RETURNS TABLE
+  - Server code expected version field for optimistic locking (lines 331, 363)
+  - **Impact**: Intermittent 500 errors, undefined version field in responses
+  - **Root Cause**: Migration deployed RETURNS TABLE before adding version column support
+  - **Solution**: Updated RPC function to include version in RETURNS TABLE and SELECT
+  - **Files**:
+    - Migration: `supabase/migrations/20251020221553_fix_create_order_with_audit_version.sql`
+    - Original (buggy): `supabase/migrations/20251019180800_add_create_order_with_audit_rpc.sql`
+  - **Issue**: Resolves #1 from ORDER_FAILURE_INCIDENT_REPORT.md (Hypothesis #1, 95% confidence)
+
+#### Fixed - Voice Order Total Missing Tax (Critical)
+- **CRITICAL: Voice orders had incorrect totals** (billing discrepancy)
+  - `useVoiceOrderWebRTC.ts` calculated total_amount as subtotal only (no tax added)
+  - **Symptom**: subtotal=$60, tax=$4.95, total_amount=$60 (should be $64.95)
+  - **Impact**: Revenue loss, incorrect billing, payment discrepancies
+  - **Root Cause**: Total calculation only summed (price × quantity), didn't add tax
+  - **Solution**: Changed total_amount calculation to subtotal + tax
+  - **Files**:
+    - Client: `client/src/pages/hooks/useVoiceOrderWebRTC.ts:185-195`
+  - **Issue**: Resolves #2 from ORDER_FAILURE_INCIDENT_REPORT.md (Hypothesis #2, 100% confidence)
+
+#### Fixed - Tax Rate Alignment (Critical)
+- **CRITICAL: Inconsistent tax rates across flows** (data quality issue)
+  - CheckoutPage used 8.25%, VoiceOrderProcessor used 8% (different!)
+  - **Impact**: Orders from different flows had different tax calculations
+  - **Root Cause**: Multiple hardcoded tax rates instead of single source of truth
+  - **Solution**: Aligned all client-side tax rates to 8.25% (server default)
+  - **Files**:
+    - Client: `client/src/modules/voice/services/VoiceOrderProcessor.ts:191`
+  - **Note**: Track B will replace hardcoded rates with centralized API endpoint
+  - **Issue**: Resolves #3 from ORDER_FAILURE_INCIDENT_REPORT.md (Hypothesis #3, 100% confidence)
+
+#### Fixed - Multi-Tenancy Test Failures
+- **Fixed test failures from version column addition**
+  - Added `version: 1` to all mock order objects
+  - Added restaurants table mock for tax rate queries
+  - **Impact**: Tests now pass after schema changes
+  - **Files**:
+    - Tests: `server/tests/api/multi-tenancy.test.ts`
+
+### 🔧 CI Infrastructure Fixes (PR #126)
+
+#### Fixed - Environment Variable Validation
+- **Fixed CI failures from strict env var checks**
+  - Made validation conditional on CI environment
+  - Development mode now graceful without all vars
+  - **Impact**: CI workflows now pass
+  - **Files**:
+    - Server: `server/src/config/environment.ts`
+
+#### Fixed - Webhook Timing Test Flakiness
+- **Fixed intermittent webhook timing test failures**
+  - Increased tolerance for CI environment (3x vs 2x local)
+  - Environment-aware timing expectations
+  - **Impact**: More reliable CI pipeline
+  - **Files**:
+    - Tests: `server/tests/api/webhooks.test.ts`
+
+#### Fixed - Dead Smoke Test Workflow
+- **Removed orphaned workflow file**
+  - Deleted duplicate smoke-test-simple.yml
+  - Kept canonical smoke-test.yml
+  - **Impact**: Cleaner CI configuration
+  - **Files**:
+    - Deleted: `.github/workflows/smoke-test-simple.yml`
+
+#### Fixed - Circular Dependency (environment.ts)
+- **Fixed circular import causing module resolution errors**
+  - environment.ts no longer imports logger
+  - Removed problematic dependency chain
+  - **Impact**: Cleaner module structure
+  - **Files**:
+    - Server: `server/src/config/environment.ts`
+
+### 📊 Impact
+
+- **Order Creation**: Fixed - 500 errors eliminated, version field now returned ✅
+- **Billing Accuracy**: Fixed - voice orders now have correct totals (subtotal + tax) ✅
+- **Data Consistency**: Fixed - all flows use same 8.25% tax rate ✅
+- **Test Suite**: Fixed - multi-tenancy tests passing ✅
+- **CI Pipeline**: Fixed - 2-week CI failure streak resolved ✅
+
+### 🔗 Related Issues & Documentation
+
+- **PR #125**: fix/track-a-code-fixes-p0 (order failures + tests)
+- **PR #126**: fix/ci-infrastructure-smoke-and-timing (CI fixes)
+- **Incident Report**: [ORDER_FAILURE_INCIDENT_REPORT.md](../ORDER_FAILURE_INCIDENT_REPORT.md)
+- **Migration Reconciliation**: [MIGRATION_RECONCILIATION_2025-10-20.md](./MIGRATION_RECONCILIATION_2025-10-20.md)
+- **CI Issues Analysis**: [CI_INFRASTRUCTURE_ISSUES.md](./CI_INFRASTRUCTURE_ISSUES.md)
+
+### 📈 Deployment Timeline
+
+- **Oct 19**: P0 audit migrations deployed (tax_rate, version, RPC functions)
+- **Oct 20**: Investigation revealed RPC version bug + voice order issues
+- **Oct 21**: Track A fixes deployed to production
+  - Supabase: Migration 20251020221553 deployed ✅
+  - Render: Server auto-deployed from main ✅
+  - Vercel: Client auto-deployed from main ✅
+
+### 🎯 Next Steps
+
+- **Monitor (24-48 hours)**: Watch POST /orders 500 errors, order totals, version conflicts
+- **Track B (Planned)**: Centralized tax API, strict validation, idempotency, unified voice processing
+- **Production Launch**: System now at 98% ready (see [ROADMAP.md](./ROADMAP.md))
+
+---
+
 ## [6.0.10] - 2025-10-19 - P0 Audit Fixes (Session 1: Compliance)
 
 ### 🔐 Critical Security & Compliance Fixes
