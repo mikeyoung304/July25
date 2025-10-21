@@ -49,6 +49,9 @@ CLAUDE.local.md
 *.jsonl
 ~/.claude.backup*
 
+# Build/Test Artifacts
+artifacts/
+
 # Prevent accidental CJS breaking dev
 /shared/**/*.js
 /shared/**/*.cjs
