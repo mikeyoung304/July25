@@ -1,5 +1,4 @@
 import { env, validateEnv } from './env';
-import { logger } from '../utils/logger';
 
 export interface EnvironmentConfig {
   port: number;
@@ -53,9 +52,9 @@ export function validateEnvironment(): void {
     }
     
     if (!env.OPENAI_API_KEY) {
-      logger.warn('⚠️  OpenAI API key not configured - AI features will use stub implementations');
+      console.warn('⚠️  OpenAI API key not configured - AI features will use stub implementations');
     } else {
-      logger.info('✅ OpenAI configured');
+      console.warn('✅ OpenAI configured');
     }
   } catch (error) {
     throw new Error(`Environment validation failed: ${error instanceof Error ? error.message : String(error)}`);
