@@ -11,6 +11,12 @@ fi
 
 npm run lint --workspaces --silent || exit 1
 
+# Validate GitHub Actions workflows
+if git diff --cached --name-only | grep -q "^\.github/workflows/.*\.yml$"; then
+  echo "🔍 Workflow files detected, validating..."
+  npm run validate:workflows
+fi
+
 # Check for schema drift if staging migration files
 if git diff --cached --name-only | grep -q "^supabase/migrations/.*\.sql$"; then
   echo "🔍 Migration files detected, checking schema sync..."
