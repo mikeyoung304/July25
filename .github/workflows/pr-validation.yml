@@ -12,6 +12,10 @@ on:
       - 'prisma.config.ts'
       - '.github/workflows/pr-validation.yml'
 
+permissions:
+  contents: read           # Checkout code
+  pull-requests: write     # Comment on PRs with validation results
+
 jobs:
   validate-migrations:
     name: Validate Migrations & Schema

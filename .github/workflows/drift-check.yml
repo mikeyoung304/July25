@@ -12,6 +12,10 @@ on:
   # Allow manual trigger
   workflow_dispatch:
 
+permissions:
+  contents: read      # Checkout code
+  issues: write       # Create/update drift detection issues
+
 jobs:
   detect-drift:
     name: Check for Schema Drift
