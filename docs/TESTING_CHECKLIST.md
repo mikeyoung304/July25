@@ -1,6 +1,8 @@
-# Restaurant OS v6.0.10 - Testing Checklist
+# Restaurant OS - Testing Checklist
 
-## ✅ Status: 98% Production Ready (P0 Audit: 7/8 Complete)
+## ✅ Status: 99% Production Ready (E2E Tests Added)
+
+**Latest Update**: 2025-10-22 - Added E2E smoke tests for production launch
 
 **Recent Commits**:
 - `7473fb7` - refactor(floor): split FloorPlanEditor god component (Fix #123)
@@ -9,6 +11,67 @@
 - `525ae49` - chore(audit): verification workflow scaffolding and p0 import (Fix #119, #120)
 - `c675a1a` - feat(auth): grant managers full admin access
 - `93055bc` - refactor: migrate to pure supabase auth
+
+---
+
+## 🧪 E2E Testing (Oct 22, 2025)
+
+### Test Suite Overview
+**Location**: `tests/e2e/`
+**Framework**: Playwright
+**Status**: ✅ Smoke tests implemented
+
+### Running Tests
+
+```bash
+# Run smoke tests only (critical path - fast)
+npm run test:e2e:smoke
+
+# Run full E2E suite
+npm run test:e2e
+
+# Run specific test file
+npx playwright test tests/e2e/auth/login.smoke.spec.ts
+
+# Run with UI mode (debugging)
+npx playwright test --ui
+
+# View last test report
+npx playwright show-report
+```
+
+### Test Coverage
+
+#### Authentication (`tests/e2e/auth/`)
+- ✅ Demo login for all roles (server, cashier, kitchen, manager, owner)
+- ✅ Session persistence across page reload
+- ✅ Role-based navigation
+- ✅ Error handling (network failures)
+
+#### Order Flow (`tests/e2e/orders/`)
+- ✅ Server order creation (smoke test)
+- ✅ Menu item display with prices
+- ✅ Order submission flow
+- ⏳ Checkout flow (customer-facing)
+- ⏳ Voice order flow
+
+#### Kitchen Display (`tests/e2e/kds/`)
+- ✅ KDS interface loads correctly
+- ✅ Order cards display
+- ✅ Status update controls visible
+- ✅ Real-time WebSocket connection
+- ⏳ Order status transitions
+
+#### Payment (`tests/e2e/payments/`)
+- ⏳ Square Terminal integration
+- ⏳ Payment success flow
+- ⏳ Payment error handling
+
+### CI/CD Integration
+E2E smoke tests run as part of the CI pipeline before deployment.
+
+**GitHub Actions**: Smoke tests run on every PR to main
+**Pre-Deployment**: Full E2E suite runs before production deploy
 
 ---
 

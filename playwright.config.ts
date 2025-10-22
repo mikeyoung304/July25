@@ -1,14 +1,17 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests/enhanced',
+  testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
+  timeout: 30 * 1000,
   reporter: [
-    ['html', { outputFolder: 'test-results/enhanced-html-report' }],
-    ['json', { outputFile: 'test-results/enhanced-results.json' }]
+    ['html', { outputFolder: 'test-results/e2e-html-report' }],
+    ['json', { outputFile: 'test-results/e2e-results.json' }],
+    ['list'],
+    ...(process.env.CI ? [['github']] : []),
   ],
   use: {
     baseURL: process.env.BASE_URL ?? 'http://localhost:5173',
@@ -71,13 +74,24 @@ export default defineConfig({
     // Performance tests
     {
       name: 'performance',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         launchOptions: {
           args: ['--no-sandbox', '--disable-web-security']
         }
       },
       testDir: './tests/performance',
+    },
+
+    // E2E Smoke tests (critical path only)
+    {
+      name: 'smoke',
+      testMatch: /.*\.smoke\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+      },
+      testDir: './tests/e2e',
     },
   ],
 

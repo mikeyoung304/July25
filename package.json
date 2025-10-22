@@ -70,6 +70,8 @@
     "test:a11y": "npx playwright test --project=accessibility",
     "test:api": "npx playwright test --project=api",
     "test:performance": "npx playwright test --project=performance",
+    "test:e2e": "npx playwright test --project=chromium",
+    "test:e2e:smoke": "./scripts/run-smoke-tests.sh",
     "voice:smoke": "curl -s http://localhost:3001/api/v1/ai/voice/handshake | jq .",
     "memory:check": "ps aux | grep -E 'node|vite' | awk '{sum+=$6} END {printf \"Memory: %.0f MB\\n\", sum/1024}'",
     "clean:all": "rm -rf node_modules client/node_modules server/node_modules",
