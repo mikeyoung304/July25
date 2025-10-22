@@ -19,6 +19,14 @@ Thank you for your interest in contributing to Restaurant OS!
 - [ ] Documentation updated if needed
 - [ ] Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
 - [ ] Multi-tenancy enforced (all features include `restaurant_id` scoping)
+- [ ] **Database Changes Deployed** (if applicable):
+  - Created migration: `supabase migration new description`
+  - Wrote SQL with idempotent patterns (`IF NOT EXISTS`, `ON CONFLICT DO NOTHING`)
+  - **Deployed to Supabase cloud:** `supabase db push --linked`
+  - **Verified deployment:** `supabase db diff --linked` shows no changes
+  - Migration file committed to git
+  - Never edited deployed migrations (created new ones instead)
+  - See [SUPABASE_CONNECTION_GUIDE.md](./docs/SUPABASE_CONNECTION_GUIDE.md) for full workflow
 
 ## Important Guidelines
 
