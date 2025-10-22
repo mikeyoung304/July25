@@ -19,6 +19,10 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read      # Checkout code
+  issues: write       # Create deployment failure issues
+
 jobs:
   deploy:
     name: Deploy Migrations to Production
