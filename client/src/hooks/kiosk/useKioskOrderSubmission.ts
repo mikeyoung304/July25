@@ -87,7 +87,7 @@ export function useKioskOrderSubmission() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [orderApi]);
+  }, [orderApi, taxRate]);
 
   const submitOrderAndNavigate = useCallback(async (
     items: KioskOrderItem[],

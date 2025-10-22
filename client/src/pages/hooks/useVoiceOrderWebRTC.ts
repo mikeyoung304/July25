@@ -4,9 +4,9 @@ import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderPar
 import { OrderModification } from '@/modules/voice/contexts/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import type { Table } from '@/modules/floor-plan/types'
-import { getServerToken } from '@/services/auth/roleHelpers'
 import { logger } from '@/services/monitoring/logger'
 import { useTaxRate } from '@/hooks/useTaxRate'
+import { supabase } from '@/config/supabase'
 
 // Helper to resolve absolute API URLs for production
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -160,12 +160,21 @@ export function useVoiceOrderWebRTC() {
     }
     
     try {
-      const serverToken = await getServerToken()
+      // Dual auth pattern: Try Supabase session first, fallback to localStorage
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token ||
+        JSON.parse(localStorage.getItem('auth_session') || '{}').session?.accessToken
+
+      if (!token) {
+        toast.error('Please log in to submit orders')
+        return false
+      }
+
       const response = await fetch(apiUrl('/api/v1/orders'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${serverToken}`,
+          'Authorization': `Bearer ${token}`,
           'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111',
           'X-Client-Flow': 'server'
         },
@@ -210,7 +219,7 @@ export function useVoiceOrderWebRTC() {
       toast.error('Failed to submit order. Please try again.')
       return false
     }
-  }, [orderItems, menuItems, toast])
+  }, [orderItems, menuItems, toast, taxRate])
 
   // Reset voice order state
   const resetVoiceOrder = useCallback(() => {
