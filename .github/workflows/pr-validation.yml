@@ -1,0 +1,255 @@
+name: PR Validation - Database Migrations
+
+# Purpose: Validate database migrations and schema before merge
+# Part of: Phase 2.1 - Stable CI/CD Automation
+# Prevents: Schema drift, type mismatches, invalid migrations
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'prisma/schema.prisma'
+      - 'prisma.config.ts'
+      - '.github/workflows/pr-validation.yml'
+
+jobs:
+  validate-migrations:
+    name: Validate Migrations & Schema
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for comparison
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Prisma schema validity
+        id: prisma-validate
+        run: |
+          echo "::group::Prisma Schema Validation"
+          if npx prisma validate; then
+            echo "✅ Prisma schema is valid"
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Prisma schema validation failed"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Check migration file naming convention
+        id: naming-check
+        run: |
+          echo "::group::Migration Naming Convention Check"
+          INVALID_NAMES=()
+
+          for file in supabase/migrations/*.sql; do
+            filename=$(basename "$file" .sql)
+
+            # Skip if it's just README or similar
+            if [[ "$filename" == "README" ]]; then
+              continue
+            fi
+
+            # Check format: timestamp_description.sql
+            # Timestamp should be YYYYMMDD or YYYYMMDDHHMMSS
+            if [[ ! "$filename" =~ ^[0-9]{8,14}_.+$ ]]; then
+              INVALID_NAMES+=("$filename")
+            fi
+          done
+
+          if [ ${#INVALID_NAMES[@]} -eq 0 ]; then
+            echo "✅ All migration files follow naming convention"
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Invalid migration file names found:"
+            printf '  - %s\n' "${INVALID_NAMES[@]}"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Verify Prisma schema is in sync
+        id: schema-sync
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Prisma Schema Sync Check"
+
+          if [ -z "$DATABASE_URL" ]; then
+            echo "⚠️  DATABASE_URL not set - skipping sync check"
+            echo "skipped=true" >> $GITHUB_OUTPUT
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          # Pull latest schema from database
+          npx prisma db pull --force
+
+          # Check for differences
+          if git diff --exit-code prisma/schema.prisma > /dev/null 2>&1; then
+            echo "✅ Prisma schema is in sync with database"
+            echo "synced=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Prisma schema is out of sync with database"
+            echo ""
+            echo "Schema differences detected:"
+            git diff prisma/schema.prisma
+            echo ""
+            echo "Action required: Run './scripts/post-migration-sync.sh' and commit the result"
+            echo "synced=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Verify migration history
+        id: history-check
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Migration History Verification"
+
+          if [ -z "$DATABASE_URL" ]; then
+            echo "⚠️  DATABASE_URL not set - skipping history check"
+            echo "skipped=true" >> $GITHUB_OUTPUT
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          # Run verification script
+          if ./scripts/verify-migration-history.sh; then
+            echo "✅ Migration history verified"
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Migration history check completed with warnings"
+            echo "Check output above for details"
+            echo "valid=true" >> $GITHUB_OUTPUT  # Don't fail on warnings
+          fi
+          echo "::endgroup::"
+
+      - name: Basic SQL syntax validation
+        id: sql-syntax
+        run: |
+          echo "::group::SQL Syntax Validation"
+
+          SYNTAX_ERRORS=()
+
+          for file in supabase/migrations/*.sql; do
+            filename=$(basename "$file")
+
+            # Skip README
+            if [[ "$filename" == "README.md" ]]; then
+              continue
+            fi
+
+            # Basic syntax checks (can be enhanced with sqlfluff or pg_query)
+            # Check for common issues
+            if grep -q "DROP TABLE.*IF NOT EXISTS" "$file"; then
+              SYNTAX_ERRORS+=("$filename: DROP TABLE IF NOT EXISTS is invalid (should be DROP TABLE IF EXISTS)")
+            fi
+
+            # Check file is not empty
+            if [ ! -s "$file" ]; then
+              SYNTAX_ERRORS+=("$filename: File is empty")
+            fi
+          done
+
+          if [ ${#SYNTAX_ERRORS[@]} -eq 0 ]; then
+            echo "✅ No obvious SQL syntax errors detected"
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ SQL syntax issues found:"
+            printf '  - %s\n' "${SYNTAX_ERRORS[@]}"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Comment PR with results
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          PRISMA_VALID: ${{ steps.prisma-validate.outputs.valid }}
+          NAMING_VALID: ${{ steps.naming-check.outputs.valid }}
+          SCHEMA_SYNCED: ${{ steps.schema-sync.outputs.synced }}
+          SCHEMA_SKIPPED: ${{ steps.schema-sync.outputs.skipped }}
+          HISTORY_VALID: ${{ steps.history-check.outputs.valid }}
+          HISTORY_SKIPPED: ${{ steps.history-check.outputs.skipped }}
+          SQL_VALID: ${{ steps.sql-syntax.outputs.valid }}
+        with:
+          script: |
+            const prismaValid = process.env.PRISMA_VALID === 'true';
+            const namingValid = process.env.NAMING_VALID === 'true';
+            const schemaSynced = process.env.SCHEMA_SYNCED === 'true';
+            const schemaSkipped = process.env.SCHEMA_SKIPPED === 'true';
+            const historyValid = process.env.HISTORY_VALID === 'true';
+            const historySkipped = process.env.HISTORY_SKIPPED === 'true';
+            const sqlValid = process.env.SQL_VALID === 'true';
+
+            const allPassed = prismaValid && namingValid && (schemaSynced || schemaSkipped) && (historyValid || historySkipped) && sqlValid;
+
+            let body = `## 🔍 Migration Validation Results\n\n`;
+
+            body += `| Check | Status |\n`;
+            body += `|-------|--------|\n`;
+            body += `| Prisma Schema Validity | ${prismaValid ? '✅ Pass' : '❌ Fail'} |\n`;
+            body += `| Migration Naming Convention | ${namingValid ? '✅ Pass' : '❌ Fail'} |\n`;
+            body += `| Schema Sync | ${schemaSkipped ? '⚠️ Skipped (no DATABASE_URL)' : (schemaSynced ? '✅ Synced' : '❌ Out of sync')} |\n`;
+            body += `| Migration History | ${historySkipped ? '⚠️ Skipped (no DATABASE_URL)' : (historyValid ? '✅ Valid' : '❌ Invalid')} |\n`;
+            body += `| SQL Syntax | ${sqlValid ? '✅ Pass' : '❌ Fail'} |\n`;
+            body += `\n`;
+
+            if (allPassed) {
+              body += `### ✅ All validation checks passed!\n\n`;
+              body += `This PR is safe to merge from a database migration perspective.\n`;
+            } else {
+              body += `### ❌ Some validation checks failed\n\n`;
+              body += `Please review the workflow logs and fix the issues before merging.\n\n`;
+
+              if (!schemaSynced && !schemaSkipped) {
+                body += `**Action Required:** Run \`./scripts/post-migration-sync.sh\` locally and commit the updated Prisma schema.\n\n`;
+              }
+            }
+
+            body += `---\n`;
+            body += `*Part of Phase 2: Stable CI/CD Automation*\n`;
+            body += `*See: docs/CI_CD_WORKFLOWS.md for details*`;
+
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.data.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Migration Validation Results')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }

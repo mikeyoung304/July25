@@ -1,0 +1,236 @@
+name: Database Schema Drift Detection
+
+# Purpose: Detect schema drift between production database and git
+# Part of: Phase 2.4 - Stable CI/CD Automation
+# Prevents: Manual dashboard changes causing production incidents
+
+on:
+  schedule:
+    # Run every day at 9 AM UTC
+    - cron: '0 9 * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  detect-drift:
+    name: Check for Schema Drift
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Save current schema
+        run: |
+          cp prisma/schema.prisma /tmp/schema-before.prisma
+
+      - name: Introspect production database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Introspecting Production Database"
+          npx prisma db pull
+          echo "::endgroup::"
+
+      - name: Check for drift
+        id: drift-check
+        run: |
+          echo "::group::Comparing Schemas"
+
+          if diff /tmp/schema-before.prisma prisma/schema.prisma > /tmp/schema-diff.txt; then
+            echo "✅ No schema drift detected"
+            echo "Production database matches git schema"
+            echo "drift=false" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Schema drift detected!"
+            echo ""
+            echo "Differences found between production and git:"
+            cat /tmp/schema-diff.txt
+            echo ""
+            echo "drift=true" >> $GITHUB_OUTPUT
+
+            # Count number of changes
+            CHANGES=$(wc -l < /tmp/schema-diff.txt)
+            echo "change_count=$CHANGES" >> $GITHUB_OUTPUT
+          fi
+
+          echo "::endgroup::"
+
+      - name: Create or update drift issue
+        if: steps.drift-check.outputs.drift == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const diff = fs.readFileSync('/tmp/schema-diff.txt', 'utf8');
+            const changeCount = '${{ steps.drift-check.outputs.change_count }}';
+
+            const body = `## 🚨 Database Schema Drift Detected
+
+**Status:** Production database schema does not match git repository
+
+**Changes detected:** ${changeCount} lines different
+
+**Last checked:** ${new Date().toISOString()}
+
+---
+
+### Schema Differences
+
+\`\`\`diff
+${diff}
+\`\`\`
+
+---
+
+### What Caused This?
+
+Schema drift usually happens when:
+- Manual changes made via Supabase Dashboard
+- Migration deployed but Prisma schema not updated in git
+- Direct SQL changes via psql or other tools
+
+### Remediation Steps
+
+**Option 1: Accept drift and update git (if changes are intentional)**
+\`\`\`bash
+# Update Prisma schema to match production
+./scripts/post-migration-sync.sh
+
+# Commit the updated schema
+git add prisma/schema.prisma
+git commit -m "chore(schema): sync Prisma with production drift"
+git push
+\`\`\`
+
+**Option 2: Revert production to match git (if changes are unintentional)**
+\`\`\`bash
+# Create rollback migration to undo changes
+# Review the diff above and create SQL to revert changes
+
+# Deploy rollback migration
+./scripts/deploy-migration.sh supabase/migrations/<rollback_file>.sql
+\`\`\`
+
+**Option 3: Document as known drift (if temporary)**
+- Add comment explaining why drift exists
+- Schedule time to resolve
+- Keep this issue open as reminder
+
+---
+
+### Prevention
+
+To prevent future drift:
+1. **Never** make schema changes via Supabase Dashboard
+2. **Always** use migration files in \`supabase/migrations/\`
+3. **Always** run \`./scripts/post-migration-sync.sh\` after deploying migrations
+4. Enable required status checks on pull requests
+
+---
+
+**Auto-detected by drift check workflow**
+*Runs daily at 9 AM UTC*
+*See: docs/CI_CD_WORKFLOWS.md for details*`;
+
+            // Find existing drift issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'schema-drift'
+            });
+
+            if (issues.data.length > 0) {
+              // Update existing issue
+              const issue = issues.data[0];
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: body
+              });
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `🔄 Drift still detected on ${new Date().toISOString()}\n\nChanges: ${changeCount} lines different`
+              });
+
+              console.log(`Updated existing drift issue #${issue.number}`);
+            } else {
+              // Create new issue
+              const newIssue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Database Schema Drift Detected',
+                body: body,
+                labels: ['database', 'schema-drift', 'needs-investigation']
+              });
+
+              console.log(`Created new drift issue #${newIssue.data.number}`);
+            }
+
+      - name: Close drift issues if no drift
+        if: steps.drift-check.outputs.drift == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find open drift issues
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'schema-drift'
+            });
+
+            for (const issue of issues.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `✅ Schema drift resolved!\n\nProduction database now matches git schema.\n\nVerified: ${new Date().toISOString()}`
+              });
+
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+
+              console.log(`Closed drift issue #${issue.number}`);
+            }
+
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## 🔍 Drift Detection Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.drift-check.outputs.drift }}" == "true" ]; then
+            echo "### ❌ Drift Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Changes:** ${{ steps.drift-check.outputs.change_count }} lines different" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "A GitHub issue has been created with details and remediation steps." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ No Drift" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Production database schema matches git repository." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Checked at $(date -u '+%Y-%m-%d %H:%M:%S UTC')*" >> $GITHUB_STEP_SUMMARY

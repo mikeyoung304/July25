@@ -19,14 +19,16 @@ Thank you for your interest in contributing to Restaurant OS!
 - [ ] Documentation updated if needed
 - [ ] Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
 - [ ] Multi-tenancy enforced (all features include `restaurant_id` scoping)
-- [ ] **Database Changes Deployed** (if applicable):
-  - Created migration: `supabase migration new description`
+- [ ] **Database Changes** (if applicable):
+  - Created migration file: `supabase/migrations/YYYYMMDDHHMMSS_description.sql`
   - Wrote SQL with idempotent patterns (`IF NOT EXISTS`, `ON CONFLICT DO NOTHING`)
-  - **Deployed to Supabase cloud:** `supabase db push --linked`
-  - **Verified deployment:** `supabase db diff --linked` shows no changes
-  - Migration file committed to git
+  - Included migration tracking: `INSERT INTO supabase_migrations.schema_migrations...`
+  - **Synced Prisma schema:** `./scripts/post-migration-sync.sh`
+  - Committed both migration and updated `prisma/schema.prisma`
+  - PR validation passed (automated checks on schema sync)
+  - After merge: CI/CD auto-deploys migration before code
   - Never edited deployed migrations (created new ones instead)
-  - See [SUPABASE_CONNECTION_GUIDE.md](./docs/SUPABASE_CONNECTION_GUIDE.md) for full workflow
+  - See [CI_CD_WORKFLOWS.md](./docs/CI_CD_WORKFLOWS.md) for full workflow
 
 ## Important Guidelines
 
