@@ -388,7 +388,7 @@ model users {
   oauth_consents              oauth_consents[]
   one_time_tokens             one_time_tokens[]
   sessions                    sessions[]
-  user_pins                   user_pins[] @ignore
+  user_pins                   user_pins[]            @ignore
   user_profiles               user_profiles?
   user_restaurants            user_restaurants[]
 
@@ -534,7 +534,7 @@ model restaurants {
   orders               orders[]
   station_tokens       station_tokens[]
   tables               tables[]
-  user_pins            user_pins[] @ignore
+  user_pins            user_pins[]            @ignore
   user_restaurants     user_restaurants[]
   voice_order_logs     voice_order_logs[]
 
