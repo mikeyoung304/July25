@@ -75,73 +75,53 @@ jobs:
             const diff = fs.readFileSync('/tmp/schema-diff.txt', 'utf8');
             const changeCount = '${{ steps.drift-check.outputs.change_count }}';
 
-            const body = `## 🚨 Database Schema Drift Detected
-
-**Status:** Production database schema does not match git repository
-
-**Changes detected:** ${changeCount} lines different
-
-**Last checked:** ${new Date().toISOString()}
-
----
-
-### Schema Differences
-
-\`\`\`diff
-${diff}
-\`\`\`
-
----
-
-### What Caused This?
-
-Schema drift usually happens when:
-- Manual changes made via Supabase Dashboard
-- Migration deployed but Prisma schema not updated in git
-- Direct SQL changes via psql or other tools
-
-### Remediation Steps
-
-**Option 1: Accept drift and update git (if changes are intentional)**
-\`\`\`bash
-# Update Prisma schema to match production
-./scripts/post-migration-sync.sh
-
-# Commit the updated schema
-git add prisma/schema.prisma
-git commit -m "chore(schema): sync Prisma with production drift"
-git push
-\`\`\`
-
-**Option 2: Revert production to match git (if changes are unintentional)**
-\`\`\`bash
-# Create rollback migration to undo changes
-# Review the diff above and create SQL to revert changes
-
-# Deploy rollback migration
-./scripts/deploy-migration.sh supabase/migrations/<rollback_file>.sql
-\`\`\`
-
-**Option 3: Document as known drift (if temporary)**
-- Add comment explaining why drift exists
-- Schedule time to resolve
-- Keep this issue open as reminder
-
----
-
-### Prevention
-
-To prevent future drift:
-1. **Never** make schema changes via Supabase Dashboard
-2. **Always** use migration files in \`supabase/migrations/\`
-3. **Always** run \`./scripts/post-migration-sync.sh\` after deploying migrations
-4. Enable required status checks on pull requests
-
----
-
-**Auto-detected by drift check workflow**
-*Runs daily at 9 AM UTC*
-*See: docs/CI_CD_WORKFLOWS.md for details*`;
+            const body = '## 🚨 Database Schema Drift Detected\n\n' +
+              '**Status:** Production database schema does not match git repository\n\n' +
+              `**Changes detected:** ${changeCount} lines different\n\n` +
+              `**Last checked:** ${new Date().toISOString()}\n\n` +
+              '---\n\n' +
+              '### Schema Differences\n\n' +
+              '```diff\n' +
+              `${diff}\n` +
+              '```\n\n' +
+              '---\n\n' +
+              '### What Caused This?\n\n' +
+              'Schema drift usually happens when:\n' +
+              '- Manual changes made via Supabase Dashboard\n' +
+              '- Migration deployed but Prisma schema not updated in git\n' +
+              '- Direct SQL changes via psql or other tools\n\n' +
+              '### Remediation Steps\n\n' +
+              '**Option 1: Accept drift and update git (if changes are intentional)**\n' +
+              '```bash\n' +
+              '# Update Prisma schema to match production\n' +
+              './scripts/post-migration-sync.sh\n\n' +
+              '# Commit the updated schema\n' +
+              'git add prisma/schema.prisma\n' +
+              'git commit -m "chore(schema): sync Prisma with production drift"\n' +
+              'git push\n' +
+              '```\n\n' +
+              '**Option 2: Revert production to match git (if changes are unintentional)**\n' +
+              '```bash\n' +
+              '# Create rollback migration to undo changes\n' +
+              '# Review the diff above and create SQL to revert changes\n\n' +
+              '# Deploy rollback migration\n' +
+              './scripts/deploy-migration.sh supabase/migrations/<rollback_file>.sql\n' +
+              '```\n\n' +
+              '**Option 3: Document as known drift (if temporary)**\n' +
+              '- Add comment explaining why drift exists\n' +
+              '- Schedule time to resolve\n' +
+              '- Keep this issue open as reminder\n\n' +
+              '---\n\n' +
+              '### Prevention\n\n' +
+              'To prevent future drift:\n' +
+              '1. **Never** make schema changes via Supabase Dashboard\n' +
+              '2. **Always** use migration files in `supabase/migrations/`\n' +
+              '3. **Always** run `./scripts/post-migration-sync.sh` after deploying migrations\n' +
+              '4. Enable required status checks on pull requests\n\n' +
+              '---\n\n' +
+              '**Auto-detected by drift check workflow**\n' +
+              '*Runs daily at 9 AM UTC*\n' +
+              '*See: docs/CI_CD_WORKFLOWS.md for details*';
 
             // Find existing drift issue
             const issues = await github.rest.issues.listForRepo({
