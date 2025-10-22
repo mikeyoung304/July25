@@ -40,6 +40,8 @@ jobs:
 
       - name: Check Prisma schema validity
         id: prisma-validate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           echo "::group::Prisma Schema Validation"
           if npx prisma validate; then
