@@ -6,7 +6,7 @@ import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import type { Table } from '@/modules/floor-plan/types'
 import { logger } from '@/services/monitoring/logger'
 import { useTaxRate } from '@/hooks/useTaxRate'
-import { supabase } from '@/config/supabase'
+import { supabase } from '@/core/supabase'
 
 // Helper to resolve absolute API URLs for production
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');

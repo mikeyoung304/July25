@@ -1,4 +1,4 @@
-import { useRestaurantContext } from '@/core/useRestaurantContext'
+import { useRestaurant } from '@/core/restaurant-hooks'
 
 /**
  * Hook to get the current restaurant's tax rate
@@ -16,6 +16,6 @@ import { useRestaurantContext } from '@/core/useRestaurantContext'
  * - See migration: 20251019180000_add_tax_rate_to_restaurants.sql
  */
 export function useTaxRate(): number {
-  const { restaurant } = useRestaurantContext()
+  const { restaurant } = useRestaurant()
   return restaurant?.tax_rate ?? 0.08
 }
