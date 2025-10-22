@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🚨 Critical Production Fixes
 
-#### Fixed - Schema Drift Production Incident
+#### Fixed - Schema Drift Production Incidents (Two Separate Issues)
+
+**Incident #1: Missing `tax_rate` Column**
 - **CRITICAL: Order submission failures due to missing database column**
   - Missing `tax_rate` column in Supabase cloud database caused 500 errors
   - Migrations were committed to git but never deployed to production
@@ -21,7 +23,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Files**:
     - Migrations deployed: `20251019180000_add_tax_rate_to_restaurants.sql`, `20251021000000_update_tax_rate_to_0_08.sql`
     - Code fixes: commits 910f277, 44d1f48, 302cb9a
-  - **Post-mortem**: See [POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md](./POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md)
+  - **Time to Resolution**: ~4 hours (19:00 - 22:00 UTC)
+
+**Incident #2: Missing `order_status_history.created_at` Column**
+- **CRITICAL: Voice and server orders failing with 500 errors**
+  - RPC function `create_order_with_audit` expected `created_at` column in `order_status_history` table
+  - RPC migration (20251019180800) deployed but underlying table schema never updated
+  - PostgreSQL error: `column "created_at" of relation "order_status_history" does not exist` (code 42703)
+  - **Impact**: ALL voice orders and server-initiated orders blocked
+  - **Resolution**: Created and deployed migration `20251021231910_add_created_at_to_order_status_history.sql`
+  - **Files**:
+    - Migration created: `20251021231910_add_created_at_to_order_status_history.sql`
+    - Deployed via psql: 2025-10-21 23:19 UTC
+    - Column added with `DEFAULT now()`, all existing records backfilled
+  - **Time to Resolution**: ~30 minutes (detection to fix)
+  - **Pattern**: Same root cause as Incident #1 - incomplete migration deployment
+
+- **Post-mortem**: See [POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md](./POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md)
 
 #### Fixed - Build Failures from Incorrect Import Paths
 - **Import path corrections for Vercel deployment**
