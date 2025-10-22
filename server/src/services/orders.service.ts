@@ -79,20 +79,20 @@ export class OrdersService {
 
       if (error) {
         ordersLogger.error('Failed to fetch restaurant tax rate', { error, restaurantId });
-        // Fall back to default California rate (8.25%) if fetch fails
-        ordersLogger.warn('Using default tax rate 0.0825 (8.25%) due to fetch error');
-        return 0.0825;
+        // Fall back to default rate (8%) if fetch fails
+        ordersLogger.warn('Using default tax rate 0.08 (8%) due to fetch error');
+        return 0.08;
       }
 
       if (!data || data.tax_rate === null || data.tax_rate === undefined) {
         ordersLogger.warn('Restaurant tax rate not found, using default', { restaurantId });
-        return 0.0825;
+        return 0.08;
       }
 
       return Number(data.tax_rate);
     } catch (error) {
       ordersLogger.error('Exception fetching restaurant tax rate', { error, restaurantId });
-      return 0.0825;
+      return 0.08;
     }
   }
 
