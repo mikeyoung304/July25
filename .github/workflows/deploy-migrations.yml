@@ -193,51 +193,36 @@ jobs:
           script: |
             const failedMigrations = '${{ steps.deploy.outputs.failed }}'.split(' ').filter(Boolean);
 
-            const body = `## 🚨 Migration Deployment Failed
-
-**Failed migrations:**
-${failedMigrations.map(m => `- \`${m}\``).join('\n')}
-
-**Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-**Commit:** ${{ github.sha }}
-
----
-
-### Immediate Actions Required
-
-1. **Check workflow logs** for error details
-2. **Verify database state** - check if migration was partially applied
-3. **Consider rollback** if database is in inconsistent state
-
-### Rollback Procedure
-
-\`\`\`bash
-# Option 1: Use rollback script (if .rollback.sql exists)
-./scripts/rollback-migration.sh <migration_name>
-
-# Option 2: Restore from Supabase backup
-# See docs/RUNBOOKS.md section "Database Rollback"
-\`\`\`
-
-### Investigation Checklist
-
-- [ ] Check error message in workflow logs
-- [ ] Verify migration SQL syntax
-- [ ] Check database permissions
-- [ ] Verify no conflicting schema changes
-- [ ] Test migration locally against database dump
-
-### Next Steps
-
-1. Fix the migration file
-2. Push fix to main (workflow will retry)
-3. Or manually deploy using: \`./scripts/deploy-migration.sh <file>\`
-
----
-
-**Auto-created by deployment workflow**
-*See: docs/CI_CD_WORKFLOWS.md for details*`;
+            const body = '## 🚨 Migration Deployment Failed\n\n' +
+              '**Failed migrations:**\n' +
+              failedMigrations.map(m => `- \`${m}\``).join('\n') + '\n\n' +
+              `**Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n` +
+              `**Commit:** ${{ github.sha }}\n\n` +
+              '---\n\n' +
+              '### Immediate Actions Required\n\n' +
+              '1. **Check workflow logs** for error details\n' +
+              '2. **Verify database state** - check if migration was partially applied\n' +
+              '3. **Consider rollback** if database is in inconsistent state\n\n' +
+              '### Rollback Procedure\n\n' +
+              '```bash\n' +
+              '# Option 1: Use rollback script (if .rollback.sql exists)\n' +
+              './scripts/rollback-migration.sh <migration_name>\n\n' +
+              '# Option 2: Restore from Supabase backup\n' +
+              '# See docs/RUNBOOKS.md section "Database Rollback"\n' +
+              '```\n\n' +
+              '### Investigation Checklist\n\n' +
+              '- [ ] Check error message in workflow logs\n' +
+              '- [ ] Verify migration SQL syntax\n' +
+              '- [ ] Check database permissions\n' +
+              '- [ ] Verify no conflicting schema changes\n' +
+              '- [ ] Test migration locally against database dump\n\n' +
+              '### Next Steps\n\n' +
+              '1. Fix the migration file\n' +
+              '2. Push fix to main (workflow will retry)\n' +
+              '3. Or manually deploy using: `./scripts/deploy-migration.sh <file>`\n\n' +
+              '---\n\n' +
+              '**Auto-created by deployment workflow**\n' +
+              '*See: docs/CI_CD_WORKFLOWS.md for details*';
 
             await github.rest.issues.create({
               owner: context.repo.owner,
