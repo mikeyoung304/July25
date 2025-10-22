@@ -38,16 +38,19 @@
 ## 4. Operational Guides
 - [Production Status](./docs/PRODUCTION_STATUS.md) — Current readiness metrics
 - [Production Diagnostics](./docs/PRODUCTION_DIAGNOSTICS.md) — Troubleshooting production
+- [Runbooks](./docs/RUNBOOKS.md) — Incident response procedures
 - [Troubleshooting](./docs/TROUBLESHOOTING.md) — Common issues & fixes
 - [Environment Variables](./docs/ENVIRONMENT.md) — Configuration reference
 
 ## 5. Development
 - [Contributing Guide](./docs/CONTRIBUTING.md) — Development workflow & standards
 - [Documentation Standards](./docs/DOCUMENTATION_STANDARDS.md) — Doc writing guidelines
-- [Supabase Migration Guide](./supabase/MIGRATION_GUIDE.md) — Database migrations
+- [Supabase Connection Guide](./docs/SUPABASE_CONNECTION_GUIDE.md) — Database migrations & workflows
+- [Deployment Checklist](./docs/DEPLOYMENT_CHECKLIST.md) — Production deployment procedures
 - [Testing Checklist](./docs/TESTING_CHECKLIST.md) — QA & testing procedures
 
 ## 6. Incidents & Diagnostics
+- [Post-Mortem: Schema Drift (2025-10-21)](./docs/POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md) — v6.0.13 order submission failures
 - [Post-Mortem: Payment Credentials (2025-10-14)](./docs/POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
 - [Documentation Update Summary (2025-10-17)](./docs/DOCUMENTATION_UPDATE_SUMMARY_2025-10-17.md) — KDS auth fix & doc cleanup
 - [Auth Diagnostic Guide](./docs/AUTH_DIAGNOSTIC_GUIDE.md) — Auth debugging workflows

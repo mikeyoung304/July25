@@ -7,6 +7,107 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.13] - 2025-10-21 - Schema Drift & Documentation Stability
+
+### 🚨 Critical Production Fixes
+
+#### Fixed - Schema Drift Production Incident
+- **CRITICAL: Order submission failures due to missing database column**
+  - Missing `tax_rate` column in Supabase cloud database caused 500 errors
+  - Migrations were committed to git but never deployed to production
+  - Root cause: Conflicting documentation led to skipped deployment step
+  - **Impact**: Production order submission failures, revenue loss
+  - **Resolution**: Deployed migrations via psql, fixed import paths, redeployed code
+  - **Files**:
+    - Migrations deployed: `20251019180000_add_tax_rate_to_restaurants.sql`, `20251021000000_update_tax_rate_to_0_08.sql`
+    - Code fixes: commits 910f277, 44d1f48, 302cb9a
+  - **Post-mortem**: See [POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md](./POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md)
+
+#### Fixed - Build Failures from Incorrect Import Paths
+- **Import path corrections for Vercel deployment**
+  - Fixed: `@/config/supabase` → `@/core/supabase` (useVoiceOrderWebRTC.ts)
+  - Fixed: `@/core/useRestaurantContext` → `@/core/restaurant-hooks` (useTaxRate.ts)
+  - **Impact**: Vercel builds now succeed, deployments unblocked
+  - **Files**: `client/src/pages/hooks/useVoiceOrderWebRTC.ts`, `client/src/hooks/useTaxRate.ts`
+
+### 📚 Documentation & Prevention
+
+#### Added - Documentation Cleanup
+- **Deprecated conflicting Supabase migration guide**
+  - Moved `/supabase/MIGRATION_GUIDE.md` → `/docs/archive/MIGRATION_GUIDE_DEPRECATED_2025-10-21.md`
+  - Added deprecation banner with redirect to authoritative guide
+  - **Reason**: Guide incorrectly stated migrations were "reference only", led to production incident
+
+- **Created schema drift post-mortem**
+  - File: `/docs/POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md`
+  - Documents incident timeline, root cause, resolution, prevention measures
+  - Lessons learned: single source of truth, fail-safe defaults, verification before deployment
+
+- **Created operational runbooks**
+  - File: `/docs/RUNBOOKS.md`
+  - Step-by-step procedures for common incidents (500 errors, 403 errors, schema drift, build failures, WebSocket issues)
+  - No context required - mechanical debugging steps
+
+- **Enhanced CONTRIBUTING.md with database checklist**
+  - Added mandatory checklist for database changes
+  - Enforces deployment verification: `supabase db push --linked` → `supabase db diff --linked`
+  - Prevents future schema drift incidents
+
+- **Created migration directory guide**
+  - File: `/supabase/migrations/README.md`
+  - Documents workflow, naming conventions, folder structure
+  - Links to authoritative `/docs/SUPABASE_CONNECTION_GUIDE.md`
+
+#### Changed - Documentation Hierarchy
+- **Updated index.md to point to correct guides**
+  - Section 4 (Operational Guides): Added RUNBOOKS.md
+  - Section 5 (Development): Fixed link from deprecated MIGRATION_GUIDE.md to SUPABASE_CONNECTION_GUIDE.md
+  - Section 5 (Development): Added DEPLOYMENT_CHECKLIST.md
+  - Section 6 (Incidents): Added POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md
+  - **Impact**: Single source of truth established, prevents conflicting documentation
+
+#### Added - Prevention Automation
+- **Schema verification script**
+  - File: `/scripts/verify_schema_sync.sh`
+  - Detects schema drift between local migrations and Supabase cloud
+  - Can be run manually or in CI pipeline
+
+- **Migration file template**
+  - File: `/supabase/migrations/.template.sql`
+  - Enforces structured metadata headers (purpose, author, deployment, rollback)
+  - Promotes idempotent SQL patterns (`IF NOT EXISTS`, `ON CONFLICT DO NOTHING`)
+
+- **Pre-commit hook enhancement**
+  - File: `.husky/pre-commit`
+  - Checks for schema drift when committing migration files
+  - Warns developers to deploy before committing
+
+- **Deployment checklist**
+  - File: `/docs/DEPLOYMENT_CHECKLIST.md`
+  - Comprehensive checklist for production deployments
+  - Includes database migration verification steps
+
+### 📊 Impact
+- **Production Stability**: Restored - order submission working, schema drift resolved
+- **Documentation Quality**: Improved - single source of truth established, conflicts removed
+- **Developer Experience**: Enhanced - clear workflows, automated verification, mechanical runbooks
+- **Future Prevention**: Implemented - pre-commit hooks, verification scripts, deployment checklists
+- **Incident Response**: Improved - runbooks provide mechanical debugging steps
+
+### 🔗 Related
+- **Incident**: Production order submission failures (500 errors)
+- **Root Cause**: Conflicting documentation (MIGRATION_GUIDE.md vs SUPABASE_CONNECTION_GUIDE.md)
+- **Fix Commits**: 910f277 (tax_rate code), 44d1f48 (schema drift fix), 302cb9a (import paths)
+- **Prevention**: Documentation deprecation, runbooks, automation, checklists
+
+### 📈 Deployment Notes
+- Migrations deployed via psql on 2025-10-21 (bypassed CLI conflicts)
+- Code fixes deployed in commit 302cb9a
+- Vercel/Render deployments successful
+- Production testing required for ServerView order submission
+
+---
+
 ## [6.0.12] - 2025-10-21 - Track A: Tax Rate Centralization & Configuration
 
 ### 🎯 Tax Rate Architecture Overhaul

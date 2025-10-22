@@ -10,3 +10,26 @@ if [ -z "$SKIP_PRECOMMIT_TS" ]; then
 fi
 
 npm run lint --workspaces --silent || exit 1
+
+# Check for schema drift if staging migration files
+if git diff --cached --name-only | grep -q "^supabase/migrations/.*\.sql$"; then
+  echo "🔍 Migration files detected, checking schema sync..."
+
+  if command -v supabase &> /dev/null; then
+    if ! supabase db diff --linked > /dev/null 2>&1; then
+      echo ""
+      echo "⚠️  WARNING: You are committing migration files, but schema drift detected!"
+      echo ""
+      echo "Migrations should be deployed BEFORE committing:"
+      echo "  supabase db push --linked"
+      echo ""
+      echo "To commit anyway: git commit --no-verify"
+      echo ""
+      exit 1
+    fi
+    echo "✅ Schema in sync"
+  else
+    echo "⚠️  Supabase CLI not found, skipping schema check"
+    echo "   Install: brew install supabase/tap/supabase"
+  fi
+fi
