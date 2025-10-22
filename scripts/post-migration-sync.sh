@@ -37,6 +37,23 @@ fi
 echo "✓ Schema introspection complete"
 echo ""
 
+# Step 1.5: Fix @ignore attributes for user_pins relations
+# Prisma db pull doesn't preserve manual @ignore attributes on relation fields
+# when the related model has @@ignore at model level
+echo "🔧 Patching @ignore attributes for user_pins relations..."
+
+# Fix users.user_pins relation field
+sed -i.bak 's/^  user_pins                   user_pins\[\]$/  user_pins                   user_pins[]            @ignore/' prisma/schema.prisma
+
+# Fix restaurants.user_pins relation field
+sed -i.bak 's/^  user_pins            user_pins\[\]$/  user_pins            user_pins[]            @ignore/' prisma/schema.prisma
+
+# Remove backup files
+rm -f prisma/schema.prisma.bak
+
+echo "✓ Schema patching complete"
+echo ""
+
 # Step 2: Generate TypeScript types
 echo "🔨 Generating TypeScript types..."
 npx prisma generate
