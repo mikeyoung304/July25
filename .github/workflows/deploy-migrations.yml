@@ -1,0 +1,253 @@
+name: Deploy Database Migrations
+
+# Purpose: Automatically deploy migrations to Supabase on merge to main
+# Part of: Phase 2.3 - Stable CI/CD Automation
+# Critical: This runs BEFORE Vercel/Render deploy code (timing guarantee)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/*.sql'
+
+  # Allow manual trigger for emergency deployments
+  workflow_dispatch:
+    inputs:
+      migration_file:
+        description: 'Specific migration file to deploy (e.g., supabase/migrations/20251023_add_column.sql)'
+        required: false
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy Migrations to Production
+    runs-on: ubuntu-latest
+    environment: production  # Requires approval in repo settings if configured
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit to detect new migrations
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Detect new migrations
+        id: detect
+        run: |
+          echo "::group::Detecting New Migrations"
+
+          # Manual trigger case
+          if [ -n "${{ inputs.migration_file }}" ]; then
+            echo "Manual deployment requested: ${{ inputs.migration_file }}"
+            echo "migrations=${{ inputs.migration_file }}" >> $GITHUB_OUTPUT
+            echo "count=1" >> $GITHUB_OUTPUT
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          # Auto-trigger case: detect new/modified migrations from last commit
+          NEW_MIGRATIONS=$(git diff --name-only HEAD~1 HEAD | grep '^supabase/migrations/.*\.sql$' | grep -v 'README' || true)
+
+          if [ -z "$NEW_MIGRATIONS" ]; then
+            echo "No new migrations detected"
+            echo "migrations=" >> $GITHUB_OUTPUT
+            echo "count=0" >> $GITHUB_OUTPUT
+          else
+            echo "New migrations detected:"
+            echo "$NEW_MIGRATIONS" | while read -r file; do
+              echo "  - $file"
+            done
+
+            # Convert to space-separated list for iteration
+            MIGRATIONS_LIST=$(echo "$NEW_MIGRATIONS" | tr '\n' ' ')
+            echo "migrations=$MIGRATIONS_LIST" >> $GITHUB_OUTPUT
+
+            COUNT=$(echo "$NEW_MIGRATIONS" | wc -l)
+            echo "count=$COUNT" >> $GITHUB_OUTPUT
+          fi
+
+          echo "::endgroup::"
+
+      - name: Deploy migrations
+        id: deploy
+        if: steps.detect.outputs.count > 0
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Deploying Migrations"
+
+          MIGRATIONS="${{ steps.detect.outputs.migrations }}"
+          FAILED_MIGRATIONS=()
+          SUCCESSFUL_MIGRATIONS=()
+          SKIPPED_MIGRATIONS=()
+
+          for migration in $MIGRATIONS; do
+            echo ""
+            echo "================================================"
+            echo "Deploying: $migration"
+            echo "================================================"
+
+            if ./scripts/deploy-migration.sh "$migration"; then
+              EXIT_CODE=$?
+              if [ $EXIT_CODE -eq 2 ]; then
+                echo "Migration already applied (skipped)"
+                SKIPPED_MIGRATIONS+=("$migration")
+              else
+                echo "Migration deployed successfully"
+                SUCCESSFUL_MIGRATIONS+=("$migration")
+              fi
+            else
+              echo "Migration deployment failed"
+              FAILED_MIGRATIONS+=("$migration")
+            fi
+          done
+
+          echo ""
+          echo "================================================"
+          echo "Deployment Summary"
+          echo "================================================"
+          echo "Successful: ${#SUCCESSFUL_MIGRATIONS[@]}"
+          echo "Skipped (already applied): ${#SKIPPED_MIGRATIONS[@]}"
+          echo "Failed: ${#FAILED_MIGRATIONS[@]}"
+          echo ""
+
+          # Save results for next steps
+          echo "successful=${SUCCESSFUL_MIGRATIONS[*]}" >> $GITHUB_OUTPUT
+          echo "skipped=${SKIPPED_MIGRATIONS[*]}" >> $GITHUB_OUTPUT
+          echo "failed=${FAILED_MIGRATIONS[*]}" >> $GITHUB_OUTPUT
+          echo "failed_count=${#FAILED_MIGRATIONS[@]}" >> $GITHUB_OUTPUT
+
+          if [ ${#FAILED_MIGRATIONS[@]} -gt 0 ]; then
+            echo "failed=true" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "failed=false" >> $GITHUB_OUTPUT
+          fi
+
+          echo "::endgroup::"
+
+      - name: Sync Prisma schema (post-deployment)
+        if: steps.detect.outputs.count > 0 && steps.deploy.outputs.failed == 'false'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::Syncing Prisma Schema"
+          ./scripts/post-migration-sync.sh
+          echo "::endgroup::"
+
+      - name: Create deployment summary
+        if: steps.detect.outputs.count > 0
+        run: |
+          echo "## 🚀 Migration Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.deploy.outputs.failed }}" == "true" ]; then
+            echo "### ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Failed migrations:**" >> $GITHUB_STEP_SUMMARY
+            for migration in ${{ steps.deploy.outputs.failed }}; do
+              echo "- \`$migration\`" >> $GITHUB_STEP_SUMMARY
+            done
+          else
+            echo "### ✅ Deployment Successful" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            if [ -n "${{ steps.deploy.outputs.successful }}" ]; then
+              echo "**Successfully deployed:**" >> $GITHUB_STEP_SUMMARY
+              for migration in ${{ steps.deploy.outputs.successful }}; do
+                echo "- \`$migration\`" >> $GITHUB_STEP_SUMMARY
+              done
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            if [ -n "${{ steps.deploy.outputs.skipped }}" ]; then
+              echo "**Skipped (already applied):**" >> $GITHUB_STEP_SUMMARY
+              for migration in ${{ steps.deploy.outputs.skipped }}; do
+                echo "- \`$migration\`" >> $GITHUB_STEP_SUMMARY
+              done
+            fi
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Deployment completed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')*" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create issue on failure
+        if: failure() && steps.deploy.outputs.failed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const failedMigrations = '${{ steps.deploy.outputs.failed }}'.split(' ').filter(Boolean);
+
+            const body = `## 🚨 Migration Deployment Failed
+
+**Failed migrations:**
+${failedMigrations.map(m => `- \`${m}\``).join('\n')}
+
+**Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+**Commit:** ${{ github.sha }}
+
+---
+
+### Immediate Actions Required
+
+1. **Check workflow logs** for error details
+2. **Verify database state** - check if migration was partially applied
+3. **Consider rollback** if database is in inconsistent state
+
+### Rollback Procedure
+
+\`\`\`bash
+# Option 1: Use rollback script (if .rollback.sql exists)
+./scripts/rollback-migration.sh <migration_name>
+
+# Option 2: Restore from Supabase backup
+# See docs/RUNBOOKS.md section "Database Rollback"
+\`\`\`
+
+### Investigation Checklist
+
+- [ ] Check error message in workflow logs
+- [ ] Verify migration SQL syntax
+- [ ] Check database permissions
+- [ ] Verify no conflicting schema changes
+- [ ] Test migration locally against database dump
+
+### Next Steps
+
+1. Fix the migration file
+2. Push fix to main (workflow will retry)
+3. Or manually deploy using: \`./scripts/deploy-migration.sh <file>\`
+
+---
+
+**Auto-created by deployment workflow**
+*See: docs/CI_CD_WORKFLOWS.md for details*`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Migration Deployment Failed: ${failedMigrations[0]}`,
+              body: body,
+              labels: ['database', 'migration-failure', 'urgent']
+            });
+
+      - name: Post success notification
+        if: success() && steps.detect.outputs.count > 0
+        run: |
+          echo "✅ Migration deployment completed successfully"
+          echo "Database schema updated before code deployment"
+          echo ""
+          echo "Next: Vercel/Render will deploy application code (takes 3-5 minutes)"
+          echo "Application will find updated database schema ready to use"
