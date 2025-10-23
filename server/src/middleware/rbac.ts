@@ -211,15 +211,17 @@ export function requireScopes(...requiredScopes: ApiScope[]) {
         return next();
       }
 
-      // For customer or kiosk_demo users, use predefined scopes (no database lookup)
-      if (req.user.role === 'customer' || req.user.role === 'kiosk_demo') {
-        const roleScopes = getScopesForRole(req.user.role);
+      // For demo users (identified by user ID prefix), use JWT role-based scopes (no database lookup)
+      // Demo user IDs have format: demo:role:randomId (e.g., demo:server:abc123)
+      // This allows ephemeral demo sessions without database records
+      if (req.user.id?.startsWith('demo:')) {
+        const roleScopes = getScopesForRole(req.user.role!);
         const hasRequiredScope = requiredScopes.some(scope =>
           roleScopes.includes(scope)
         );
 
         if (!hasRequiredScope) {
-          rbacLogger.warn('Customer/kiosk user lacks required scope', {
+          rbacLogger.warn('Demo user lacks required scope', {
             userId: req.user.id,
             role: req.user.role,
             requiredScopes,
@@ -227,6 +229,12 @@ export function requireScopes(...requiredScopes: ApiScope[]) {
           });
           return next(Forbidden(`Insufficient permissions. Required: ${requiredScopes.join(', ')}`));
         }
+
+        rbacLogger.debug('Demo user authorized via JWT role', {
+          userId: req.user.id,
+          role: req.user.role,
+          scopes: roleScopes
+        });
 
         return next();
       }
