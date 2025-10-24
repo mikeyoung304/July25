@@ -40,9 +40,25 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_KEY=your-service-key
 SUPABASE_JWT_SECRET=your-jwt-secret
 OPENAI_API_KEY=your-openai-key
-SQUARE_ACCESS_TOKEN=your-square-token
+SQUARE_ACCESS_TOKEN=your-square-token  # See Square API Configuration below
+SQUARE_LOCATION_ID=your-square-location-id
 SQUARE_WEBHOOK_SIGNATURE_KEY=your-webhook-key
 ```
+
+#### Critical Environment Variables
+
+**SQUARE_ACCESS_TOKEN** (REQUIRED for payments):
+- Demo mode: `SQUARE_ACCESS_TOKEN=demo` - Mock payments for testing
+- Production: Get from Square Dashboard → Developer → Access Tokens
+- Sandbox: Get from Square Dashboard → Sandbox → Access Tokens
+
+**SUPABASE_JWT_SECRET** (REQUIRED for authentication):
+- Get from Supabase Dashboard → Settings → API → JWT Settings
+- Server will fail to start if missing (fail-fast security requirement)
+
+**SUPABASE_SERVICE_KEY** (REQUIRED for database operations):
+- Get from Supabase Dashboard → Settings → API → Service Role Key
+- Never expose to client-side code
 
 ## Production Deployment
 
@@ -287,6 +303,72 @@ render deploy --service-id your-service-id
 - Review access logs weekly
 - Monitor security advisories
 - Perform security audits
+
+---
+
+## Square API Configuration
+
+### Getting Square Credentials
+
+**Production Credentials:**
+1. Log in to [Square Dashboard](https://squareup.com/dashboard)
+2. Navigate to: **Developer** → **Access Tokens**
+3. Copy your **Production Access Token**
+4. Copy your **Production Location ID**
+5. Add to Render environment variables:
+   ```
+   SQUARE_ACCESS_TOKEN=<production-token>
+   SQUARE_LOCATION_ID=<production-location-id>
+   SQUARE_ENVIRONMENT=production
+   ```
+
+**Sandbox/Testing Credentials:**
+1. Log in to [Square Dashboard](https://squareup.com/dashboard)
+2. Navigate to: **Developer** → **Sandbox** → **Access Tokens**
+3. Copy your **Sandbox Access Token**
+4. Copy your **Sandbox Location ID**
+5. Add to Render environment variables:
+   ```
+   SQUARE_ACCESS_TOKEN=<sandbox-token>
+   SQUARE_LOCATION_ID=<sandbox-location-id>
+   SQUARE_ENVIRONMENT=sandbox
+   ```
+
+**Demo Mode (No Square Account Required):**
+For testing without a Square account or payment processing:
+```
+SQUARE_ACCESS_TOKEN=demo
+```
+
+**What Demo Mode Does:**
+- Skips real Square API calls
+- Mocks successful payment responses
+- Returns fake payment IDs
+- Allows full user flow testing
+- Does NOT process real credit cards
+- Safe for internal testing and demos
+
+**When to Use Each Mode:**
+- **Demo**: Internal testing, development, no Square account yet
+- **Sandbox**: Integration testing with Square's test environment
+- **Production**: Live payment processing with real credit cards
+
+### Credential Validation
+
+The server validates Square credentials on startup:
+- Verifies `SQUARE_LOCATION_ID` exists in access token's permitted locations
+- Logs prominent warnings if mismatch detected
+- Fails fast with error logging on invalid configuration
+
+**Check Render logs for:**
+```
+✅ Square credentials validated successfully
+```
+
+**Or error message:**
+```
+🚨 SQUARE_LOCATION_ID mismatch detected!
+```
 
 ---
 
