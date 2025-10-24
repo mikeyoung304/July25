@@ -3,6 +3,7 @@ import { logger } from '../utils/logger';
 import { randomUUID } from 'crypto';
 import { WebSocketServer } from 'ws';
 import { broadcastOrderUpdate, broadcastNewOrder } from '../utils/websocket';
+import { NotFound } from '../middleware/errorHandler';
 // Removed mapOrder - returning raw snake_case data for frontend consistency
 // import { menuIdMapper } from './menu-id-mapper'; // Not currently used
 import type {
@@ -324,7 +325,7 @@ export class OrdersService {
       // Get current order with version
       const currentOrder = await this.getOrder(restaurantId, orderId);
       if (!currentOrder) {
-        throw new Error('Order not found');
+        throw NotFound('Order not found');
       }
 
       // Extract current version for optimistic locking
