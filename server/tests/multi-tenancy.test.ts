@@ -371,7 +371,7 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
         .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('RESTAURANT_ACCESS_DENIED');
+      expect(response.body.error.code).toBe('RESTAURANT_ACCESS_DENIED');
     });
 
     it('should prevent restaurant 2 user from accessing restaurant 1 orders list', async () => {
@@ -382,7 +382,7 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
         .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('RESTAURANT_ACCESS_DENIED');
+      expect(response.body.error.code).toBe('RESTAURANT_ACCESS_DENIED');
     });
   });
 
@@ -441,14 +441,14 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
         .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('RESTAURANT_ACCESS_DENIED');
+      expect(response.body.error.code).toBe('RESTAURANT_ACCESS_DENIED');
     });
   });
 
   describe('Cross-Restaurant Order Mutation Prevention', () => {
     it('should prevent restaurant 1 user from updating restaurant 2 order status', async () => {
       const response = await request(app)
-        .put(`/api/v1/orders/${RESTAURANT_2_ORDER_ID}/status`)
+        .patch(`/api/v1/orders/${RESTAURANT_2_ORDER_ID}/status`)
         .set('Authorization', `Bearer ${restaurant1Token}`)
         .set('X-Restaurant-ID', RESTAURANT_1_ID)
         .send({ status: 'preparing' })
@@ -459,7 +459,7 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
 
     it('should prevent restaurant 2 user from updating restaurant 1 order status', async () => {
       const response = await request(app)
-        .put(`/api/v1/orders/${RESTAURANT_1_ORDER_ID}/status`)
+        .patch(`/api/v1/orders/${RESTAURANT_1_ORDER_ID}/status`)
         .set('Authorization', `Bearer ${restaurant2Token}`)
         .set('X-Restaurant-ID', RESTAURANT_2_ID)
         .send({ status: 'preparing' })
