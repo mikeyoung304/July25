@@ -11,4 +11,7 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+      - run: npm run build --workspace shared
       - run: node scripts/ts-freeze.cjs
