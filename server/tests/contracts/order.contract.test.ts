@@ -4,15 +4,17 @@ import { OrderPayload } from '../../../shared/contracts/order';
 
 describe('Order Contract Validation', () => {
   describe('OrderPayload schema', () => {
-    it('should accept valid camelCase order payload', () => {
+    it('should accept valid order payload with snake_case per ADR-001', () => {
       const validOrder = {
         type: 'dine_in',
-        tableNumber: 5,
-        customerName: 'John Doe',
+        table_number: 5,
+        customer_name: 'John Doe',
         items: [
           {
-            itemId: 'item-123',
+            item_id: 'item-123',
+            name: 'Test Item',
             quantity: 2,
+            price: 12.99,
             notes: 'No onions'
           }
         ]
@@ -43,17 +45,17 @@ describe('Order Contract Validation', () => {
       expect(result.success).toBe(false);
     });
 
-    it('should reject missing required fields', () => {
+    it('should reject missing required fields (items)', () => {
       const invalidOrder = {
-        tableNumber: 5,
-        // Missing type and items
+        table_number: 5,
+        type: 'dine_in',
+        // Missing items (required field)
       };
 
       const result = OrderPayload.safeParse(invalidOrder);
       expect(result.success).toBe(false);
       if (!result.success) {
         const issues = result.error.issues.map(i => i.path[0]);
-        expect(issues).toContain('type');
         expect(issues).toContain('items');
       }
     });
@@ -73,15 +75,17 @@ describe('Order Contract Validation', () => {
       }
     });
 
-    it('should accept optional fields', () => {
+    it('should accept optional fields (snake_case per ADR-001)', () => {
       const orderWithOptionals = {
         type: 'delivery',
-        customerName: 'John Doe',
-        tableNumber: 0,
+        customer_name: 'John Doe',
+        table_number: 0,
         items: [
           {
-            itemId: 'item-123',
+            item_id: 'item-123',
+            name: 'Test Item',
             quantity: 1,
+            price: 8.99,
             notes: 'Extra sauce'
           }
         ]
@@ -90,8 +94,8 @@ describe('Order Contract Validation', () => {
       const result = OrderPayload.safeParse(orderWithOptionals);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.customerName).toBe('John Doe');
-        expect(result.data.tableNumber).toBe(0);
+        expect(result.data.customer_name).toBe('John Doe');
+        expect(result.data.table_number).toBe(0);
       }
     });
   });
