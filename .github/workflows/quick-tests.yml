@@ -44,7 +44,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: rm -rf node_modules package-lock.json
-      - run: npm install
+      - run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+      - run: npm run build --workspace shared
       - run: echo "CI=1" >> $GITHUB_ENV
       - run: npm run test:quick --workspaces

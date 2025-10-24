@@ -65,6 +65,9 @@ jobs:
           FORCE_COLOR: '0'
         run: npm run test:quick --workspaces
 
+      - name: Build shared package
+        run: npm run build --workspace shared
+
       - name: Build client
         run: npm run build --workspace client
 
