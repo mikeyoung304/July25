@@ -1,14 +1,15 @@
 import { WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger';
-import { 
-  ClientEventSchema, 
-  ServerEvent, 
-  SessionState, 
+import {
+  ClientEventSchema,
+  ServerEvent,
+  SessionState,
   VoiceMetrics,
-  VoiceError 
+  VoiceError
 } from '../../../shared/src/voice-types';
 import { OpenAIAdapter } from './openai-adapter';
+import { verifyWebSocketAuth } from '../middleware/auth';
 
 interface VoiceSession {
   id: string;
@@ -31,13 +32,32 @@ export class VoiceWebSocketServer {
     setInterval(() => this.cleanupInactiveSessions(), 60000);
   }
 
-  handleConnection(ws: WebSocket, request: any) {
+  async handleConnection(ws: WebSocket, request: any) {
     logger.info('[VoiceWebSocket] New connection received', {
       url: request.url,
       headers: request.headers,
       origin: request.headers?.origin
     });
-    
+
+    // Authenticate WebSocket connection
+    // In production, authentication is REQUIRED for voice connections
+    try {
+      const auth = await verifyWebSocketAuth(request);
+      if (!auth) {
+        logger.warn('[VoiceWebSocket] Authentication failed - rejecting connection');
+        ws.close(1008, 'Authentication required');
+        return;
+      }
+      logger.info('[VoiceWebSocket] Connection authenticated', {
+        userId: auth.userId,
+        restaurantId: auth.restaurantId
+      });
+    } catch (error) {
+      logger.error('[VoiceWebSocket] Authentication error:', error);
+      ws.close(1008, 'Authentication failed');
+      return;
+    }
+
     // Set up connection handlers
     ws.on('message', (data) => {
       logger.debug('[VoiceWebSocket] Message received, size:', Buffer.byteLength(data as Buffer));
