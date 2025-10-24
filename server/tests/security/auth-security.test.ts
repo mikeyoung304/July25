@@ -31,11 +31,15 @@ describe('Auth Security Tests', () => {
       const res = {} as Response;
       const next = vi.fn() as NextFunction;
 
-      await expect(async () => {
-        await authenticate(req as any, res, next);
-      }).rejects.toThrow();
+      // Express middleware calls next(error) instead of throwing
+      await authenticate(req as any, res, next);
 
-      expect(next).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('authentication not configured')
+        })
+      );
     });
 
     it('should reject WebSocket auth when JWT_SECRET is missing', async () => {
