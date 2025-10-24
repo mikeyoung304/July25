@@ -36,9 +36,13 @@ jobs:
 
       - name: Install root dependencies
         run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
 
       - name: Install server dependencies
         run: cd server && npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
 
       - name: Build server
         run: cd server && npm run build || true
