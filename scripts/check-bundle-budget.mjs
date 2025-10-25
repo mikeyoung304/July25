@@ -2,10 +2,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const LIMIT_BYTES = 100 * 1024 // 100KB
-const clientDist = path.resolve('client/dist/assets')
+const clientDist = path.resolve('client/dist/js')
 
 if (!fs.existsSync(clientDist)) {
-  console.error('Bundle budget: client/dist/assets not found. Did you build the client?')
+  console.error('Bundle budget: client/dist/js not found. Did you build the client?')
   process.exit(1)
 }
 
