@@ -11,4 +11,6 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
       - run: node scripts/eslint-freeze.cjs

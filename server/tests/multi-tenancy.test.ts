@@ -127,7 +127,21 @@ vi.mock('../src/config/database', () => {
 
                   // Create a chainable query builder for list queries
                   const createChainableQuery = () => ({
-                    eq: vi.fn(() => createChainableQuery()),
+                    eq: vi.fn((nextField: string, nextValue: string) => {
+                      if (nextField === 'id') {
+                        // Further filter by ID - find specific order in this restaurant
+                        const order = orders.find((o: Order) => o.id === nextValue);
+                        return {
+                          single: vi.fn(() =>
+                            Promise.resolve({
+                              data: order || null,
+                              error: order ? null : { code: 'PGRST116', message: 'Order not found' }
+                            })
+                          )
+                        };
+                      }
+                      return createChainableQuery();
+                    }),
                     order: vi.fn(() => createChainableQuery()),
                     limit: vi.fn(() => createChainableQuery()),
                     range: vi.fn(() => createChainableQuery()),
@@ -160,7 +174,7 @@ vi.mock('../src/config/database', () => {
                           single: vi.fn(() =>
                             Promise.resolve({
                               data: matchesRestaurant ? order : null,
-                              error: matchesRestaurant ? null : { message: 'Order not found' }
+                              error: matchesRestaurant ? null : { code: 'PGRST116', message: 'Order not found' }
                             })
                           )
                         };
@@ -184,19 +198,66 @@ vi.mock('../src/config/database', () => {
             })),
             insert: vi.fn(() => Promise.resolve({ data: null, error: null })),
             update: vi.fn((updateData: any) => {
-              // Create chainable update query builder
+              // Create chainable update query builder that tracks filters
+              let orderId: string | null = null;
+              let restaurantId: string | null = null;
+              let versionFilter: number | null = null;
+
               const createUpdateChain = () => ({
-                eq: vi.fn((field: string, value: string) => createUpdateChain()),
+                eq: vi.fn((field: string, value: string | number) => {
+                  if (field === 'id') orderId = value as string;
+                  if (field === 'restaurant_id') restaurantId = value as string;
+                  if (field === 'version') versionFilter = value as number;
+                  return createUpdateChain();
+                }),
                 select: vi.fn(() => ({
-                  single: vi.fn(() => Promise.resolve({
-                    data: null,
-                    error: { code: 'PGRST116', message: 'Not found' }  // Simulate not found for cross-restaurant updates
-                  }))
+                  single: vi.fn(() => {
+                    // Find the order
+                    const order = Object.values(mockOrders)
+                      .flat()
+                      .find((o: Order) => o.id === orderId);
+
+                    // Check if order exists and belongs to the specified restaurant
+                    const matchesRestaurant = order?.restaurant_id === restaurantId;
+
+                    if (!matchesRestaurant || !order) {
+                      return Promise.resolve({
+                        data: null,
+                        error: { code: 'PGRST116', message: 'Not found' }
+                      });
+                    }
+
+                    // Apply the update and return the updated order
+                    const updatedOrder = { ...order, ...updateData };
+                    return Promise.resolve({
+                      data: updatedOrder,
+                      error: null
+                    });
+                  })
                 })),
-                single: vi.fn(() => Promise.resolve({
-                  data: null,
-                  error: { code: 'PGRST116', message: 'Not found' }
-                }))
+                single: vi.fn(() => {
+                  // Find the order
+                  const order = Object.values(mockOrders)
+                    .flat()
+                    .find((o: Order) => o.id === orderId);
+
+                  // Check if order exists and belongs to the specified restaurant
+                  const matchesRestaurant = order?.restaurant_id === restaurantId;
+
+                  if (!matchesRestaurant || !order) {
+                    return Promise.resolve({
+                      data: null,
+                      error: { code: 'PGRST116', message: 'Not found' }
+                    });
+                  }
+
+                  // Apply the update and return the updated order
+                  const updatedOrder = { ...order, ...updateData };
+                  return Promise.resolve({
+                    data: updatedOrder,
+                    error: null
+                  });
+                })
               });
               return createUpdateChain();
             }),
@@ -371,7 +432,7 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
         .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('RESTAURANT_ACCESS_DENIED');
+      expect(response.body.error.code).toBe('RESTAURANT_ACCESS_DENIED');
     });
 
     it('should prevent restaurant 2 user from accessing restaurant 1 orders list', async () => {
@@ -382,7 +443,7 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
         .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('RESTAURANT_ACCESS_DENIED');
+      expect(response.body.error.code).toBe('RESTAURANT_ACCESS_DENIED');
     });
   });
 
@@ -441,14 +502,14 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
         .expect(403);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('RESTAURANT_ACCESS_DENIED');
+      expect(response.body.error.code).toBe('RESTAURANT_ACCESS_DENIED');
     });
   });
 
   describe('Cross-Restaurant Order Mutation Prevention', () => {
     it('should prevent restaurant 1 user from updating restaurant 2 order status', async () => {
       const response = await request(app)
-        .put(`/api/v1/orders/${RESTAURANT_2_ORDER_ID}/status`)
+        .patch(`/api/v1/orders/${RESTAURANT_2_ORDER_ID}/status`)
         .set('Authorization', `Bearer ${restaurant1Token}`)
         .set('X-Restaurant-ID', RESTAURANT_1_ID)
         .send({ status: 'preparing' })
@@ -459,7 +520,7 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
 
     it('should prevent restaurant 2 user from updating restaurant 1 order status', async () => {
       const response = await request(app)
-        .put(`/api/v1/orders/${RESTAURANT_1_ORDER_ID}/status`)
+        .patch(`/api/v1/orders/${RESTAURANT_1_ORDER_ID}/status`)
         .set('Authorization', `Bearer ${restaurant2Token}`)
         .set('X-Restaurant-ID', RESTAURANT_2_ID)
         .send({ status: 'preparing' })
