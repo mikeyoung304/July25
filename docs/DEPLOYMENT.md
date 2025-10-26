@@ -308,6 +308,25 @@ render deploy --service-id your-service-id
 
 ## Square API Configuration
 
+**For complete Square setup instructions, see [SQUARE_API_SETUP.md](../SQUARE_API_SETUP.md)**
+
+This section provides a quick reference. For step-by-step instructions, troubleshooting, and testing, refer to the comprehensive Square API Setup Guide.
+
+### Quick Setup
+
+**Required Environment Variables:**
+```bash
+# Server-side (Render)
+SQUARE_ACCESS_TOKEN=your-access-token
+SQUARE_ENVIRONMENT=sandbox  # or 'production'
+SQUARE_LOCATION_ID=your-location-id
+
+# Client-side (Vercel)
+VITE_SQUARE_APP_ID=your-app-id
+VITE_SQUARE_LOCATION_ID=your-location-id
+VITE_SQUARE_ENVIRONMENT=sandbox  # or 'production'
+```
+
 ### Getting Square Credentials
 
 **Production Credentials:**
@@ -369,6 +388,18 @@ The server validates Square credentials on startup:
 ```
 🚨 SQUARE_LOCATION_ID mismatch detected!
 ```
+
+### Testing Square Configuration
+
+```bash
+# Validate credentials
+./scripts/validate-square-credentials.sh
+
+# Test payment flow
+./scripts/test-payment-flow.sh
+```
+
+**For detailed troubleshooting and testing instructions, see [SQUARE_API_SETUP.md](../SQUARE_API_SETUP.md)**
 
 ---
 
