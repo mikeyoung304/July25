@@ -21,11 +21,11 @@ export async function validateRestaurantAccess(
       throw Unauthorized('Authentication required');
     }
 
-    // Get restaurant ID from header or request
-    const requestedRestaurantId = req.restaurantId || req.headers['x-restaurant-id'] as string;
-    
+    // Get restaurant ID from header (NEVER from req.restaurantId at this point - it shouldn't be set yet)
+    const requestedRestaurantId = req.headers['x-restaurant-id'] as string;
+
     if (!requestedRestaurantId) {
-      throw Forbidden('Restaurant ID is required');
+      throw Forbidden('Restaurant ID is required (X-Restaurant-ID header)');
     }
 
     // For admin users, allow access to any restaurant
@@ -61,6 +61,7 @@ export async function validateRestaurantAccess(
     }
 
     // Set the validated restaurant ID and user's role for this restaurant
+    // ONLY set this after validation passes - this is the security boundary
     req.restaurantId = requestedRestaurantId;
     req.restaurantRole = userRestaurant.role;
 
