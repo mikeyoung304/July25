@@ -83,11 +83,11 @@ Voice ordering feature failed with **401 Unauthorized** errors when creating rea
 **Location:** `/Users/mikeyoung/CODING/rebuild-6.0/.env:26`
 
 ```bash
-OPENAI_API_KEY=[REDACTED]zYHPI9dJLVhEpywf7p8Y74MSZ0b4dkyOLYT9MzGCqQss1NFPhIp1lSTrZAOeweKPTTRvHPr2k7T3BlbkFJ4aAFDkxFGYFSHkjMD5XzYV3KOAV52GH-AGdFf6dFj4xbnjwe6ymgTZ9S7drYPZ
+OPENAI_API_KEY=sk-svcacct-[REDACTED]
 ```
 
 **Key Properties:**
-- Format: `[REDACTED]*` (service account key)
+- Format: `sk-svcacct-*` (service account key)
 - Length: 155 characters
 - Location: Only in root `.env` file (no duplicates)
 - Status: ❌ Rejected by OpenAI API
@@ -146,8 +146,8 @@ git log --oneline -10 -- server/src/routes/realtime.routes.ts
 **Key mismatch between local development and production environments.**
 
 **Investigation revealed:**
-1. ✅ Local `.env` had old service account key: `[REDACTED]...rYPZ`
-2. ✅ Production Render environment had newer project key: `[REDACTED]...wcsA`
+1. ✅ Local `.env` had old service account key: `sk-svcacct-...rYPZ`
+2. ✅ Production Render environment had newer project key: `sk-proj-...wcsA`
 3. ✅ Old key was revoked or expired
 4. ✅ User confirmed correct key from OpenAI dashboard ends in `wcsA`
 
@@ -156,10 +156,10 @@ Updated `/Users/mikeyoung/CODING/rebuild-6.0/.env` line 26:
 
 ```bash
 # BEFORE:
-OPENAI_API_KEY=[REDACTED]zYHPI9dJLVhEpywf7p8Y74MSZ0b4dkyOLYT9MzGCqQss1NFPhIp1lSTrZAOeweKPTTRvHPr2k7T3BlbkFJ4aAFDkxFGYFSHkjMD5XzYV3KOAV52GH-AGdFf6dFj4xbnjwe6ymgTZ9S7drYPZ
+OPENAI_API_KEY=sk-svcacct-[REDACTED]
 
 # AFTER:
-OPENAI_API_KEY=[REDACTED]WCGmZJlvkAY4cVhjlAA9ya_77PsTSovmmXo_HR9jF_mVq5slQ1CTy6bNQo4oeatjAu2HlWqLZcT3BlbkFJD5WFYD_Nl9qjbL1GpQLDkScFYTHP7E0h9bTg52t5vUg2HTkrKGdVT9tSATychMf7Jz2olYwcsA
+OPENAI_API_KEY=sk-proj-[REDACTED]
 ```
 
 ### Verification
@@ -168,7 +168,7 @@ OPENAI_API_KEY=[REDACTED]WCGmZJlvkAY4cVhjlAA9ya_77PsTSovmmXo_HR9jF_mVq5slQ1CTy6b
 $ ./scripts/test-openai-key.sh
 
 🔍 Testing OpenAI API Key...
-Key format: [REDACTED]WCGmZJl...Jz2olYwcsA
+Key format: sk-proj-WCGmZJl...Jz2olYwcsA
 Key length: 164 characters
 
 1️⃣  Testing basic API access (list models)...
