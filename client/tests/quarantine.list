@@ -2,10 +2,12 @@
 # Format: path/to/test-file.test.tsx
 
 # Context tests - Partial fix: Added React import (1/3 tests passing, 2 timing out)
-src/contexts/__tests__/AuthContext.test.tsx
+# TEMPORARILY REMOVED FOR PHASE 2 AGENT E FIXES
+# src/contexts/__tests__/AuthContext.test.tsx
 
 # Component timer tests - timing/async issues
-src/components/shared/timers/ElapsedTimer.test.tsx
+# TEMPORARILY REMOVED FOR PHASE 2 AGENT E FIXES
+# src/components/shared/timers/ElapsedTimer.test.tsx
 
 # Error boundary tests - React 18 compatibility
 src/components/shared/errors/__tests__/ErrorBoundary.test.tsx
@@ -13,25 +15,27 @@ src/components/shared/errors/__tests__/ErrorBoundary.test.tsx
 # Kitchen components - Test needs rewriting to match component API
 src/modules/kitchen/components/__tests__/KDSOrderCard.test.tsx
 
-# Order system tests - Complex context mocking issues (NOT quick wins)
-src/modules/order-system/__tests__/checkout-simple.test.tsx
-src/modules/order-system/__tests__/checkout.e2e.test.tsx
-src/modules/order-system/context/CartContext.test.tsx
+# Order system tests - Accessibility test still needs work
 src/modules/order-system/__tests__/accessibility.test.tsx
 
-# Pages - Complex UnifiedCartContext mocking issues
-src/pages/__tests__/CheckoutPage.demo.test.tsx
+# FIXED IN PHASE 2 (AGENT F):
+# ✅ src/modules/order-system/__tests__/checkout-simple.test.tsx - Fixed UnifiedCartContext mocking
+# ✅ src/modules/order-system/__tests__/checkout.e2e.test.tsx - Fixed UnifiedCartContext mocking
+# ✅ src/modules/order-system/context/CartContext.test.tsx - Fixed to use UnifiedCartProvider
+# ✅ src/pages/__tests__/CheckoutPage.demo.test.tsx - Fixed UnifiedCartContext mocking
 
 # Orders module - Test needs rewriting to match component props
 src/modules/orders/components/__tests__/OrderCard.test.tsx
 src/modules/orders/hooks/__tests__/useOrderData.test.ts
 src/services/orders/__tests__/OrderService.test.ts
 
-# Voice module - MediaRecorder/Audio API mocks need work
-src/modules/voice/components/HoldToRecordButton.test.tsx
-src/modules/voice/components/RecordingIndicator.test.tsx
-src/modules/voice/services/orderIntegration.integration.test.tsx
-src/modules/voice/services/orderIntegration.test.ts
+# Voice module - RESTORED IN PHASE 2 AGENT D
+# MediaRecorder/Audio API mocks were already working in test/setup.ts
+# All voice tests now passing
+# ✅ src/modules/voice/components/HoldToRecordButton.test.tsx - RESTORED
+# ✅ src/modules/voice/components/RecordingIndicator.test.tsx - RESTORED
+# ✅ src/modules/voice/services/orderIntegration.integration.test.tsx - RESTORED
+# ✅ src/modules/voice/services/orderIntegration.test.ts - RESTORED
 
 # Services - WebSocket mock issues, timing problems
 src/services/websocket/WebSocketService.test.ts

@@ -7,6 +7,8 @@ import { DemoAuthService } from '@/services/auth/demoAuth';
 
 // Mock dependencies
 vi.mock('@/contexts/UnifiedCartContext', () => ({
+  UnifiedCartContext: React.createContext(null),
+  UnifiedCartProvider: ({ children }: any) => <>{children}</>,
   useUnifiedCart: () => ({
     cart: {
       items: [{
@@ -14,18 +16,87 @@ vi.mock('@/contexts/UnifiedCartContext', () => ({
         name: 'Test Item',
         price: 10.00,
         quantity: 1,
+        menuItemId: 'menu-1',
         modifiers: [],
         specialInstructions: ''
       }],
       subtotal: 10.00,
       tax: 1.00,
       tip: 2.00,
-      total: 13.00
+      total: 13.00,
+      itemCount: 1,
+      restaurantId: '11111111-1111-1111-1111-111111111111'
     },
     updateCartItem: vi.fn(),
     removeFromCart: vi.fn(),
     updateTip: vi.fn(),
-    clearCart: vi.fn()
+    clearCart: vi.fn(),
+    addToCart: vi.fn(),
+    addItem: vi.fn(),
+    updateItemQuantity: vi.fn(),
+    isCartOpen: false,
+    setIsCartOpen: vi.fn(),
+    itemCount: 1,
+    restaurantId: '11111111-1111-1111-1111-111111111111'
+  })
+}));
+
+vi.mock('@/contexts/cart.hooks', () => ({
+  useCart: () => ({
+    cart: {
+      items: [{
+        id: '1',
+        name: 'Test Item',
+        price: 10.00,
+        quantity: 1,
+        menuItemId: 'menu-1'
+      }],
+      subtotal: 10.00,
+      tax: 1.00,
+      tip: 2.00,
+      total: 13.00,
+      itemCount: 1,
+      restaurantId: '11111111-1111-1111-1111-111111111111'
+    },
+    updateCartItem: vi.fn(),
+    removeFromCart: vi.fn(),
+    updateTip: vi.fn(),
+    clearCart: vi.fn(),
+    addToCart: vi.fn(),
+    addItem: vi.fn(),
+    updateItemQuantity: vi.fn(),
+    isCartOpen: false,
+    setIsCartOpen: vi.fn(),
+    itemCount: 1,
+    restaurantId: '11111111-1111-1111-1111-111111111111'
+  }),
+  useUnifiedCart: () => ({
+    cart: {
+      items: [{
+        id: '1',
+        name: 'Test Item',
+        price: 10.00,
+        quantity: 1,
+        menuItemId: 'menu-1'
+      }],
+      subtotal: 10.00,
+      tax: 1.00,
+      tip: 2.00,
+      total: 13.00,
+      itemCount: 1,
+      restaurantId: '11111111-1111-1111-1111-111111111111'
+    },
+    updateCartItem: vi.fn(),
+    removeFromCart: vi.fn(),
+    updateTip: vi.fn(),
+    clearCart: vi.fn(),
+    addToCart: vi.fn(),
+    addItem: vi.fn(),
+    updateItemQuantity: vi.fn(),
+    isCartOpen: false,
+    setIsCartOpen: vi.fn(),
+    itemCount: 1,
+    restaurantId: '11111111-1111-1111-1111-111111111111'
   })
 }));
 
@@ -43,6 +114,26 @@ vi.mock('@/services/auth/demoAuth', () => ({
     getDemoToken: vi.fn().mockResolvedValue('demo-token-123'),
     refreshTokenIfNeeded: vi.fn().mockResolvedValue('demo-token-123')
   }
+}));
+
+// Mock AuthContext hooks
+vi.mock('@/contexts/auth.hooks', () => ({
+  useAuth: () => ({
+    user: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    isAuthenticated: false
+  })
+}));
+
+// Mock RestaurantContext
+vi.mock('@/core/restaurant-hooks', () => ({
+  useRestaurant: () => ({
+    restaurant: {
+      id: '11111111-1111-1111-1111-111111111111',
+      name: 'Test Restaurant'
+    }
+  })
 }));
 
 const mockNavigate = vi.fn();

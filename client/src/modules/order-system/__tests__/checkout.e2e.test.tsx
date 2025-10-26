@@ -9,11 +9,19 @@ import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
 
 // Module boundary mocks only
 const mockCart = {
-  items: [{ id: '1', menuItem: { name: 'Greek Bowl' }, quantity: 1 }],
+  items: [{
+    id: '1',
+    name: 'Greek Bowl',
+    price: 10,
+    quantity: 1,
+    menuItemId: 'menu-1'
+  }],
   subtotal: 10,
   tax: 0.83,
   tip: 0,
   total: 10.83,
+  itemCount: 1,
+  restaurantId: '11111111-1111-1111-1111-111111111111'
 };
 
 const mockUseCart = {
@@ -22,21 +30,57 @@ const mockUseCart = {
   clearCart: vi.fn(),
   updateCartItem: vi.fn(),
   removeFromCart: vi.fn(),
+  addToCart: vi.fn(),
+  addItem: vi.fn(),
+  updateItemQuantity: vi.fn(),
+  isCartOpen: false,
+  setIsCartOpen: vi.fn(),
+  itemCount: 1,
+  restaurantId: '11111111-1111-1111-1111-111111111111'
 };
 
 vi.mock('@/contexts/UnifiedCartContext', () => ({
-  useCart: () => mockUseCart,
+  UnifiedCartContext: React.createContext(null),
+  UnifiedCartProvider: ({ children }: any) => <>{children}</>,
   useUnifiedCart: () => mockUseCart
 }));
 
+vi.mock('@/contexts/cart.hooks', () => ({
+  useCart: () => mockUseCart,
+  useUnifiedCart: () => mockUseCart,
+  useKioskCart: () => mockUseCart
+}));
+
 vi.mock('@/modules/order-system/context/CartContext', () => ({
-  CartProvider: ({ children }: any) => children,
+  CartContext: React.createContext(null),
+  CartProvider: ({ children }: any) => <>{children}</>,
+  useCart: () => mockUseCart
 }));
 
 vi.mock('@/modules/order-system/components/SquarePaymentForm', () => ({
   SquarePaymentForm: ({ onSuccess }: any) => (
     <button onClick={() => onSuccess('nonce-123')}>Pay</button>
   ),
+}));
+
+// Mock AuthContext hooks
+vi.mock('@/contexts/auth.hooks', () => ({
+  useAuth: () => ({
+    user: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    isAuthenticated: false
+  })
+}));
+
+// Mock RestaurantContext
+vi.mock('@/core/restaurant-hooks', () => ({
+  useRestaurant: () => ({
+    restaurant: {
+      id: '11111111-1111-1111-1111-111111111111',
+      name: 'Test Restaurant'
+    }
+  })
 }));
 
 describe('Checkout E2E Flow', () => {

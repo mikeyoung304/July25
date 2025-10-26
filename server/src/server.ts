@@ -2,6 +2,7 @@
 // The import of ./config/environment will trigger ./config/env.ts
 import { validateEnvironment, getConfig } from './config/environment';
 import { initializeDatabase } from './config/database';
+import { initializeSentry, getSentryRequestHandler, getSentryTracingHandler, getSentryErrorHandler } from './config/sentry';
 
 import express, { Express } from 'express';
 import cors from 'cors';
@@ -29,7 +30,7 @@ import { sanitizeRequest } from './middleware/requestSanitizer';
 
 const app: Express = express();
 const httpServer = createServer(app);
-export const wss = new WebSocketServer({ 
+export const wss = new WebSocketServer({
   server: httpServer,
   perMessageDeflate: false, // Disable compression for better performance
   maxPayload: 5 * 1024 * 1024, // 5MB max payload
@@ -38,6 +39,15 @@ export const wss = new WebSocketServer({
 
 // Set WebSocket server for OrdersService
 OrdersService.setWebSocketServer(wss);
+
+// Initialize Sentry monitoring (before any other middleware)
+initializeSentry();
+
+// Sentry request handler (must be first middleware)
+app.use(getSentryRequestHandler());
+
+// Sentry tracing middleware (must be after request handler)
+app.use(getSentryTracingHandler());
 
 // Global middleware
 // Apply comprehensive security middleware
@@ -197,17 +207,21 @@ app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/realtime', realtimeRoutes);
 
 // Health check (outside API versioning for monitoring tools)
+// Redirect to the comprehensive health check endpoint
 app.get('/health', (_req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env['NODE_ENV'],
-  });
+  res.redirect(301, '/api/v1/health');
+});
+
+// Also support /api/health for consistency
+app.get('/api/health', (_req, res) => {
+  res.redirect(301, '/api/v1/health');
 });
 
 // CSRF error handler (before general error handler)
 app.use(csrfErrorHandler);
+
+// Sentry error handler (must be after routes, before other error handlers)
+app.use(getSentryErrorHandler());
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

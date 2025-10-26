@@ -32,6 +32,8 @@
     "test:quick": "vitest run --bail=1 --reporter=dot --silent"
   },
   "dependencies": {
+    "@sentry/node": "^10.22.0",
+    "@sentry/profiling-node": "^10.22.0",
     "@supabase/supabase-js": "2.39.7",
     "bcryptjs": "^3.0.2",
     "chalk": "5.3.0",

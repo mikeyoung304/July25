@@ -1,15 +1,15 @@
 import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { CartProvider } from './CartContext';
-import { useCart } from '@/contexts/UnifiedCartContext';
+import { UnifiedCartProvider } from '@/contexts/UnifiedCartContext';
+import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { CartItem } from '@rebuild/shared';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <MemoryRouter initialEntries={['/order/test-restaurant']}>
     <Routes>
       <Route path="/order/:restaurantId" element={
-        <CartProvider>{children}</CartProvider>
+        <UnifiedCartProvider>{children}</UnifiedCartProvider>
       } />
     </Routes>
   </MemoryRouter>
@@ -21,8 +21,8 @@ describe('CartContext', () => {
   });
 
   it('should initialize with empty cart', () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
-    
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
+
     expect(result.current.cart.items).toHaveLength(0);
     expect(result.current.cart.subtotal).toBe(0);
     expect(result.current.cart.tax).toBe(0);
@@ -31,7 +31,7 @@ describe('CartContext', () => {
   });
 
   it('should add item to cart', () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
     
     const testItem: Omit<CartItem, 'id'> = {
       menuItemId: 'menu-1',
@@ -53,7 +53,7 @@ describe('CartContext', () => {
   });
 
   it('should add item with modifiers', () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
     
     const testItem: Omit<CartItem, 'id'> = {
       menuItemId: 'menu-1',
@@ -77,7 +77,7 @@ describe('CartContext', () => {
   });
 
   it('should update cart item quantity', () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
     
     act(() => {
       result.current.addToCart({
@@ -99,7 +99,7 @@ describe('CartContext', () => {
   });
 
   it('should remove item from cart', () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
     
     act(() => {
       result.current.addToCart({
@@ -122,7 +122,7 @@ describe('CartContext', () => {
   });
 
   it('should update tip amount', () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
     
     act(() => {
       result.current.addToCart({
@@ -142,7 +142,7 @@ describe('CartContext', () => {
   });
 
   it('should clear cart', () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
     
     act(() => {
       result.current.addToCart({
@@ -165,7 +165,7 @@ describe('CartContext', () => {
   });
 
   it('should persist cart to localStorage', () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
     
     act(() => {
       result.current.addToCart({
@@ -176,9 +176,9 @@ describe('CartContext', () => {
       });
     });
 
-    const savedCart = localStorage.getItem('cart_test-restaurant');
+    const savedCart = localStorage.getItem('cart_current');
     expect(savedCart).toBeTruthy();
-    
+
     const parsedCart = JSON.parse(savedCart!);
     expect(parsedCart.items).toHaveLength(1);
     expect(parsedCart.items[0].name).toBe('Test Burger');
@@ -193,16 +193,13 @@ describe('CartContext', () => {
         price: 15.99,
         quantity: 2
       }],
-      subtotal: 31.98,
-      tax: 2.64,
       tip: 0,
-      total: 34.62,
       restaurantId: 'test-restaurant'
     };
 
-    localStorage.setItem('cart_test-restaurant', JSON.stringify(savedCart));
+    localStorage.setItem('cart_current', JSON.stringify(savedCart));
 
-    const { result } = renderHook(() => useCart(), { wrapper });
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
     
     expect(result.current.cart.items).toHaveLength(1);
     expect(result.current.cart.items[0].name).toBe('Saved Burger');
@@ -210,7 +207,7 @@ describe('CartContext', () => {
   });
 
   it('should toggle cart drawer', () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
+    const { result } = renderHook(() => useUnifiedCart(), { wrapper });
     
     expect(result.current.isCartOpen).toBe(false);
 
