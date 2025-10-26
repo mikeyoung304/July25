@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { logger } from '../utils/logger';
 
 let sentryInitialized = false;
@@ -36,11 +36,11 @@ export function initializeSentry(): void {
       // Profiling
       profilesSampleRate: tracesSampleRate, // Match trace sample rate
       integrations: [
-        new ProfilingIntegration(),
+        nodeProfilingIntegration(),
       ],
 
       // Additional configuration
-      beforeSend(event, hint) {
+      beforeSend(event, _hint) {
         // Filter out sensitive data
         if (event.request) {
           // Remove sensitive headers
@@ -61,8 +61,8 @@ export function initializeSentry(): void {
         }
 
         // Remove sensitive context data
-        if (event.contexts?.user) {
-          delete event.contexts.user.ip_address;
+        if (event.contexts?.['user']) {
+          delete event.contexts['user']['ip_address'];
         }
 
         return event;
@@ -102,7 +102,8 @@ export function getSentryRequestHandler() {
     // Return no-op middleware if Sentry is not initialized
     return (_req: any, _res: any, next: any) => next();
   }
-  return Sentry.Handlers.requestHandler();
+  // In Sentry v8+, request handler is no longer needed as it's automatic
+  return (_req: any, _res: any, next: any) => next();
 }
 
 /**
@@ -113,7 +114,8 @@ export function getSentryTracingHandler() {
     // Return no-op middleware if Sentry is not initialized
     return (_req: any, _res: any, next: any) => next();
   }
-  return Sentry.Handlers.tracingHandler();
+  // In Sentry v8+, tracing is handled automatically with the Express integration
+  return (_req: any, _res: any, next: any) => next();
 }
 
 /**
@@ -125,8 +127,11 @@ export function getSentryErrorHandler() {
     // Return no-op middleware if Sentry is not initialized
     return (_err: any, _req: any, _res: any, next: any) => next(_err);
   }
-  return Sentry.Handlers.errorHandler({
-    shouldHandleError(error) {
+  // Use the Express error handler middleware from @sentry/node
+  // In v8+, errorHandler is exported directly, not under Handlers
+  const { errorHandler } = require('@sentry/node');
+  return errorHandler({
+    shouldHandleError(error: any) {
       // Handle all errors with status code >= 500
       return !error.statusCode || error.statusCode >= 500;
     },
@@ -138,7 +143,11 @@ export function getSentryErrorHandler() {
  */
 export function captureException(error: Error, context?: Record<string, any>) {
   if (sentryInitialized) {
-    Sentry.captureException(error, { extra: context });
+    if (context) {
+      Sentry.captureException(error, { extra: context });
+    } else {
+      Sentry.captureException(error);
+    }
   }
 }
 
@@ -147,7 +156,11 @@ export function captureException(error: Error, context?: Record<string, any>) {
  */
 export function captureMessage(message: string, level: Sentry.SeverityLevel = 'info', context?: Record<string, any>) {
   if (sentryInitialized) {
-    Sentry.captureMessage(message, { level, extra: context });
+    if (context) {
+      Sentry.captureMessage(message, { level, extra: context });
+    } else {
+      Sentry.captureMessage(message, level);
+    }
   }
 }
 
