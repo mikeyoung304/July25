@@ -96,11 +96,9 @@ export async function authenticate(
       restaurant_id: decoded.restaurant_id, // Add restaurant_id from token
     };
 
-    // Set restaurant ID from header or token
-    req.restaurantId = 
-      req.headers['x-restaurant-id'] as string ||
-      decoded.restaurant_id ||
-      config.restaurant.defaultId;
+    // DO NOT set req.restaurantId here - let the restaurantAccess middleware
+    // validate access and set it after checking permissions.
+    // Setting it here would bypass multi-tenancy security checks.
 
     next();
   } catch (error) {
@@ -115,22 +113,18 @@ export async function optionalAuth(
   next: NextFunction
 ): Promise<void> {
   try {
-    const config = getConfig(); // Get fresh config (important for tests)
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      // No token, but that's okay
-      req.restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
+      // No token, but that's okay - restaurantAccess middleware will handle restaurant ID
       return next();
     }
 
     // If token exists, validate it
     return authenticate(req, _res, next);
   } catch (error) {
-    // Log but don't fail - still set restaurant ID for unauthenticated access
-    const config = getConfig();
+    // Log but don't fail - restaurantAccess middleware will handle restaurant ID
     logger.warn('Optional auth failed:', error);
-    req.restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
     next();
   }
 }
