@@ -1,7 +1,7 @@
 import React from 'react'
 import { vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react'
-import { KDSOrderCard } from '@/components/orders/KDSOrderCard'
+import { OrderCard as KDSOrderCard } from '@/components/kitchen/OrderCard'
 import type { Order } from '@rebuild/shared'
 
 // Mock the child components

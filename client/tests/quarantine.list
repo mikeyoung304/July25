@@ -1,2 +1,54 @@
-src/**/*.{test,spec}.{ts,tsx}
-**/__tests__/**/*.{ts,tsx}
+# Quarantined Tests - Tests with failures that need to be fixed
+# Format: path/to/test-file.test.tsx
+
+# Context tests - Partial fix: Added React import (1/3 tests passing, 2 timing out)
+src/contexts/__tests__/AuthContext.test.tsx
+
+# Component timer tests - timing/async issues
+src/components/shared/timers/ElapsedTimer.test.tsx
+
+# Error boundary tests - React 18 compatibility
+src/components/shared/errors/__tests__/ErrorBoundary.test.tsx
+
+# Kitchen components - Test needs rewriting to match component API
+src/modules/kitchen/components/__tests__/KDSOrderCard.test.tsx
+
+# Order system tests - Complex context mocking issues (NOT quick wins)
+src/modules/order-system/__tests__/checkout-simple.test.tsx
+src/modules/order-system/__tests__/checkout.e2e.test.tsx
+src/modules/order-system/context/CartContext.test.tsx
+src/modules/order-system/__tests__/accessibility.test.tsx
+
+# Pages - Complex UnifiedCartContext mocking issues
+src/pages/__tests__/CheckoutPage.demo.test.tsx
+
+# Orders module - Test needs rewriting to match component props
+src/modules/orders/components/__tests__/OrderCard.test.tsx
+src/modules/orders/hooks/__tests__/useOrderData.test.ts
+src/services/orders/__tests__/OrderService.test.ts
+
+# Voice module - MediaRecorder/Audio API mocks need work
+src/modules/voice/components/HoldToRecordButton.test.tsx
+src/modules/voice/components/RecordingIndicator.test.tsx
+src/modules/voice/services/orderIntegration.integration.test.tsx
+src/modules/voice/services/orderIntegration.test.ts
+
+# Services - WebSocket mock issues, timing problems
+src/services/websocket/WebSocketService.test.ts
+src/hooks/__tests__/useKitchenOrdersRealtime.test.ts
+
+# FIXED IN PHASE 2.1:
+# ✅ src/modules/floor-plan/components/__tests__/chip-monkey.test.tsx - Added React import
+
+# PHASE 2.2 FINDINGS (Router context phase):
+# Investigated 4 checkout/cart tests originally labeled "router context issues"
+# DISCOVERIES:
+# - Fixed: Added VITE_DEFAULT_RESTAURANT_ID to test/setup.ts
+# - Fixed: Changed vi.requireActual → vi.importActual in checkout-simple.test.tsx
+# - Fixed: Added React import to CheckoutPage.demo.test.tsx
+# - Fixed: Changed named imports to default imports for CheckoutPage/OrderConfirmationPage
+# - Added MemoryRouter to CheckoutPage.demo.test.tsx (was using BrowserRouter)
+# ACTUAL ISSUE: These aren't router problems - they need complex UnifiedCartContext mocking
+# - Mocks need to export UnifiedCartContext, not just useUnifiedCart hook
+# - Tests require proper context provider setup with all exports
+# - NOT "Quick Wins" as originally categorized - require moderate complexity work

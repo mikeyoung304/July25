@@ -1,6 +1,7 @@
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import CheckoutPage from '../CheckoutPage';
 import { DemoAuthService } from '@/services/auth/demoAuth';
 
@@ -62,9 +63,9 @@ describe('CheckoutPage - Demo Mode', () => {
 
   it('shows demo mode banner when in demo environment', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <CheckoutPage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     expect(screen.getByText(/Demo Mode – No cards will be charged/)).toBeInTheDocument();
@@ -72,9 +73,9 @@ describe('CheckoutPage - Demo Mode', () => {
 
   it('shows "Complete Order (Demo)" button in demo mode', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <CheckoutPage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     const demoButton = screen.getByRole('button', { name: /Complete Order \(Demo\)/i });
@@ -83,9 +84,9 @@ describe('CheckoutPage - Demo Mode', () => {
 
   it('processes demo payment successfully', async () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <CheckoutPage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     // Fill in required fields
@@ -116,9 +117,9 @@ describe('CheckoutPage - Demo Mode', () => {
 
   it('validates form before processing demo payment', async () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <CheckoutPage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     // Click demo button without filling form

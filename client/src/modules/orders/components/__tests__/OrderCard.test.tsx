@@ -1,7 +1,7 @@
 import React from 'react'
 import { vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react'
-import { OrderCard } from '../OrderCard/OrderCard'
+import { OrderCard } from '@/components/kitchen/OrderCard'
 import { OrderItem } from '@/modules/orders/types'
 
 // Mock react-router-dom
