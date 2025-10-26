@@ -56,7 +56,9 @@ artifacts/
 /shared/**/*.js
 /shared/**/*.cjs
 /shared/**/*.mjs
-.vercel
+# Keep .vercel/project.json in git for CI
+.vercel/*
+!.vercel/project.json
 test-results/
 .env.vercel*
 
