@@ -64,3 +64,5 @@
 - Incidents: [docs/incidents/](./docs/incidents/)
 - Strategy: [docs/strategy/](./docs/strategy/)
 - Historical: [docs/archive/](./docs/archive/)
+  - [Payment 500 Error Diagnosis](./docs/archive/PAYMENT_500_ERROR_DIAGNOSIS.md)
+  - [Payment Fix Status](./docs/archive/PAYMENT_FIX_STATUS.md)
