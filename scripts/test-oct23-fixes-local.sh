@@ -134,7 +134,7 @@ if [ -f ".env" ]; then
   if [ -n "$OPENAI_API_KEY" ]; then
     KEY_PREFIX=$(echo "$OPENAI_API_KEY" | cut -c1-10)
     KEY_SUFFIX=$(echo "$OPENAI_API_KEY" | tail -c 6)
-    if [[ "$OPENAI_API_KEY" == [REDACTED]* ]]; then
+    if [[ "$OPENAI_API_KEY" == sk-proj-* ]]; then
       report_test "OpenAI Key Format" "PASS" "Project key ($KEY_PREFIX...$KEY_SUFFIX)"
     else
       report_test "OpenAI Key Format" "PASS" "Key present ($KEY_PREFIX...$KEY_SUFFIX)"

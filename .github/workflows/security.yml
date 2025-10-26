@@ -97,7 +97,7 @@ jobs:
       - name: Check for exposed secrets
         run: |
           # Check for API keys in code
-          if rg "[REDACTED][A-Za-z0-9]+" --type-not env; then
+          if rg "sk-proj-[A-Za-z0-9]+" --type-not env; then
             echo "❌ Found exposed API keys!"
             exit 1
           fi

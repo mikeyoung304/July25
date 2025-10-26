@@ -14,9 +14,9 @@ echo "✅"
 
 # 2) No 'sk-proj' or 'sk-' patterns that look like real keys
 echo -n "Checking for API key patterns... "
-if git grep -I "[REDACTED][a-zA-Z0-9]" -- . ':!**/_archive/**' ':!**/node_modules/**' ':!**/*.png' ':!**/*.jpg' ':!**/*.svg' >/dev/null 2>&1; then
+if git grep -I "sk-proj-[a-zA-Z0-9]" -- . ':!**/_archive/**' ':!**/node_modules/**' ':!**/*.png' ':!**/*.jpg' ':!**/*.svg' >/dev/null 2>&1; then
   echo "❌ Found potential API key pattern in repo."
-  git grep -I "[REDACTED]" -- . ':!**/_archive/**' ':!**/node_modules/**' ':!**/*.png' ':!**/*.jpg' ':!**/*.svg' | head -3
+  git grep -I "sk-proj-" -- . ':!**/_archive/**' ':!**/node_modules/**' ':!**/*.png' ':!**/*.jpg' ':!**/*.svg' | head -3
   exit 1
 fi
 echo "✅"
