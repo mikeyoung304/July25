@@ -118,7 +118,8 @@ async function checkPayments(): Promise<HealthStatus['services']['payments']> {
     // This is a lightweight API call that verifies credentials
     const response = await squareClient.locations.list();
 
-    if (response.result) {
+    // Square API v2 returns the response directly, not wrapped in .result
+    if (response) {
       return {
         status: 'ok',
         provider: 'square',
@@ -190,9 +191,11 @@ router.get('/health', async (_req: Request, res: Response) => {
           misses: cacheStats.misses,
         },
         payments: paymentsStatus,
-        monitoring: {
-          status: isSentryEnabled() ? 'ok' : 'n/a',
-          provider: isSentryEnabled() ? 'sentry' : undefined,
+        monitoring: isSentryEnabled() ? {
+          status: 'ok' as const,
+          provider: 'sentry' as const,
+        } : {
+          status: 'n/a' as const,
         },
       },
     };
@@ -259,22 +262,24 @@ router.get('/status', async (_req: Request, res: Response) => {
           misses: cacheStats.misses,
         },
         payments: paymentsStatus,
-        monitoring: {
-          status: isSentryEnabled() ? 'ok' : 'n/a',
-          provider: isSentryEnabled() ? 'sentry' : undefined,
+        monitoring: isSentryEnabled() ? {
+          status: 'ok' as const,
+          provider: 'sentry' as const,
+        } : {
+          status: 'n/a' as const,
         },
-        ai: aiStatus,
+        ...(aiStatus ? { ai: aiStatus } : {}),
       },
     };
 
     // Determine overall health status
     if (databaseStatus.status === 'error') {
       health.status = 'unhealthy';
-    } else if (aiStatus.status === 'unhealthy') {
+    } else if (aiStatus && aiStatus.status === 'unhealthy') {
       health.status = 'unhealthy';
     } else if (paymentsStatus.status === 'error') {
       health.status = 'degraded';
-    } else if (aiStatus.status === 'degraded' ||
+    } else if ((aiStatus && aiStatus.status === 'degraded') ||
                (databaseStatus.latency && databaseStatus.latency > 1000)) {
       health.status = 'degraded';
     }
@@ -301,12 +306,12 @@ router.get('/ready', async (_req: Request, res: Response) => {
       checkAI(),
     ]);
     
-    if (dbStatus.status === 'ok' && aiStatus.status !== 'unhealthy') {
+    if (dbStatus.status === 'ok' && aiStatus && aiStatus.status !== 'unhealthy') {
       res.status(200).json({ ready: true });
     } else {
       const reasons = [];
       if (dbStatus.status !== 'ok') reasons.push('Database not ready');
-      if (aiStatus.status === 'unhealthy') reasons.push('AI service not ready');
+      if (aiStatus && aiStatus.status === 'unhealthy') reasons.push('AI service not ready');
       
       res.status(503).json({ 
         ready: false, 
