@@ -1,25 +1,30 @@
-# Grow App (Restaurant OS) — v6.0.10
+# Grow App (Restaurant OS) — v6.0.8
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Docs CI](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml)
 
-**Status:** Production Ready (P0 Audit: 7/8 Complete - 98% Ready)
+**Status:** 65-70% Complete - 73% Test Pass Rate - 2 Critical Blockers
 **Client:** React 18.3.1 · **Server:** Node 20 · **DB:** Postgres (Supabase) · **Realtime:** WebSockets
 
-## Highlights (v6.0.10)
-- **P0 Audit Fixes (7/8 Complete - 87.5%):** All critical stability, security, and performance issues resolved
-  - **Security & Compliance:** PCI fail-fast payment auditing, centralized tax rates (revenue protection)
-  - **Data Integrity:** PostgreSQL RPC transactions, optimistic locking with version columns
-  - **Performance:** 40x improvement on batch table updates (1000ms → 25ms), ElapsedTimer fix
-  - **Code Quality:** FloorPlanEditor refactored from 940 → 225 lines (76% reduction)
-- **Security hardening:** single JWT secret (fail-fast), strict CORS allowlist, PII-redacted logs, no client-bundled secrets.
-- **Realtime stability:** KDS single-connection guard, proper effect cleanup, reconnect `finally` guard.
-- **Multi-tenancy:** app-layer `.eq('restaurant_id', ...)` on mutations **and** DB RLS + indexes; per-restaurant PIN model.
-- **Tests:** unit + KDS e2e (thrash + nav-churn scenarios); artifact audit script (no secrets in dist).
+**For accurate project status, see [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md)**
+
+## Test Health (Current Reality)
+- **Pass Rate:** 73% (22/30 passing)
+- **Critical Blockers:** 2 (JSDOM environment, Vitest config issues)
+- **Known Issues:** 8 failing tests (4 in quarantine, 4 active failures)
+- **Status Details:** See [TEST_HEALTH_DASHBOARD.md](./TEST_HEALTH_DASHBOARD.md)
+
+## Recent Progress (v6.0.8)
+- **Security hardening:** single JWT secret (fail-fast), strict CORS allowlist, PII-redacted logs, no client-bundled secrets
+- **Realtime stability:** KDS single-connection guard, proper effect cleanup, reconnect `finally` guard
+- **Multi-tenancy:** app-layer `.eq('restaurant_id', ...)` on mutations **and** DB RLS + indexes; per-restaurant PIN model
+- **Performance:** 40x improvement on batch table updates (1000ms → 25ms), ElapsedTimer fix
+- **Code Quality:** FloorPlanEditor refactored from 940 → 225 lines (76% reduction)
 
 ## Docs
 - Start here: [Documentation Index](./index.md)
 - Deploy: [DEPLOYMENT](./docs/DEPLOYMENT.md) · Security: [SECURITY](./docs/SECURITY.md) · DB: [DATABASE](./docs/DATABASE.md)
+- Payments: [Square API Setup](./SQUARE_API_SETUP.md) · Env Vars: [ENVIRONMENT](./docs/ENVIRONMENT.md)
 - Troubleshoot: [TROUBLESHOOTING](./docs/TROUBLESHOOTING.md) · Version: [VERSION](./docs/VERSION.md)
 
 ## Auth Roles at a Glance
@@ -42,8 +47,9 @@ Prod: CORS allowlist enforced; WebSocket requires valid JWT; KIOSK_JWT_SECRET mu
 
 Non-prod demo (optional): /api/v1/auth/demo-session enabled only with DEMO_LOGIN_ENABLED=true.
 
-## Production Release
-Version 6.0.10 ready for deployment (98% production ready, all critical P0 fixes complete).
+## Development Status
+**Not production ready** - 2 critical blockers must be resolved before deployment.
+See [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md) for complete status and blocker details.
 
 ## License
 MIT

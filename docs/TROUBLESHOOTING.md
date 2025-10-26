@@ -458,6 +458,8 @@ setInterval(async () => {
 
 ## Payment Failures
 
+**For comprehensive Square setup and troubleshooting, see [SQUARE_API_SETUP.md](../SQUARE_API_SETUP.md)**
+
 ### Problem: Square Payment Not Completing
 
 **Symptoms**:
@@ -505,11 +507,19 @@ SQUARE_ENVIRONMENT=sandbox # or 'production'
 **Test Square connection**:
 
 ```bash
-# Test API connectivity
+# Validate Square credentials
+./scripts/validate-square-credentials.sh
+
+# Test payment flow end-to-end
+./scripts/test-payment-flow.sh
+
+# Manual API test
 curl -X GET \
   'https://connect.squareupsandbox.com/v2/locations' \
   -H 'Authorization: Bearer YOUR_ACCESS_TOKEN'
 ```
+
+**See [SQUARE_API_SETUP.md](../SQUARE_API_SETUP.md) for detailed troubleshooting steps.**
 
 ---
 
