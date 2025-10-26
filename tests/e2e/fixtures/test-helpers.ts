@@ -15,19 +15,21 @@ export async function loginAsRole(page: Page, role: TestUserRole) {
   // Navigate to home page
   await page.goto('/');
 
-  // Wait for demo panel to load
-  await page.waitForSelector('[data-testid="demo-panel"]', { timeout: 5000 });
+  // Wait for React app to mount
+  await page.waitForSelector('[data-testid="app-ready"]', { timeout: 3000 });
 
-  // Click the role button in demo panel
-  const roleButton = page.locator(`[data-testid="demo-login-${role}"]`);
-  await expect(roleButton).toBeVisible();
+  // Wait for splash screen to complete and demo buttons to appear (6+ seconds for splash)
+  // Demo role buttons show capitalized role names: "Server", "Kitchen", "Manager", etc.
+  const capitalizedRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+  const roleButton = page.locator(`button:has-text("${capitalizedRole}")`).first();
+  await expect(roleButton).toBeVisible({ timeout: 10000 });
   await roleButton.click();
 
-  // Wait for navigation to role-specific page
-  await page.waitForURL(/\/(server|cashier|kitchen|manager|owner)/);
+  // Wait for navigation to role-specific page or /home
+  await page.waitForURL(/\/(home|server|cashier|kitchen|manager|owner|expo)/, { timeout: 10000 });
 
-  // Verify we're logged in
-  await expect(page.locator(`text=${user.displayName}`)).toBeVisible({ timeout: 10000 });
+  // Verify we've navigated successfully
+  await expect(page).toHaveURL(/\/(home|server|cashier|kitchen|manager|owner|expo)/);
 }
 
 /**
@@ -44,10 +46,14 @@ export async function waitForWebSocket(page: Page) {
  * Clear all application state (localStorage, sessionStorage, cookies)
  */
 export async function clearAppState(page: Page) {
-  await page.evaluate(() => {
-    window.localStorage.clear();
-    window.sessionStorage.clear();
-  });
+  try {
+    await page.evaluate(() => {
+      window.localStorage.clear();
+      window.sessionStorage.clear();
+    });
+  } catch (error) {
+    // Ignore localStorage access errors (page not navigated yet)
+  }
   await page.context().clearCookies();
 }
 

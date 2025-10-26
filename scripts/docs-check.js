@@ -8,6 +8,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
 
+// Load version from package.json
+const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+const VERSION = packageJson.version;
+
 let errors = [];
 
 // ============================================================================
@@ -25,7 +29,8 @@ function mustContain(file, needle, description = null) {
   }
 }
 
-mustContain('README.md', 'v6.0.8-rc.1');
+// Check that README contains version from package.json
+mustContain('README.md', `v${VERSION}`);
 mustContain('index.md', 'Documentation Index');
 mustContain('docs/SECURITY.md', 'single required secret');
 mustContain('docs/DEPLOYMENT.md', 'CORS');

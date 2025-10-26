@@ -1,9 +1,9 @@
+import React, { useContext } from 'react'
 import { describe, test, beforeEach, afterEach, vi, expect } from 'vitest'
 import { render, waitFor, act } from '@testing-library/react'
 import { AuthProvider, AuthContext } from '../AuthContext'
 import { supabase } from '@/core/supabase'
 import { httpClient } from '@/services/http/httpClient'
-import { useContext } from 'react'
 
 // Mock dependencies
 vi.mock('@/core/supabase', () => ({

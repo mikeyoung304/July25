@@ -2,7 +2,7 @@ import React from 'react';
 import { vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { CheckoutPage } from '@/pages/CheckoutPage';
+import CheckoutPage from '@/pages/CheckoutPage';
 import '@testing-library/jest-dom';
 
 // Mock CartContext
@@ -26,10 +26,13 @@ vi.mock('@/modules/order-system/context/CartContext', () => ({
 }));
 
 // Mock router
-vi.mock('react-router-dom', () => ({
-  ...vi.requireActual('react-router-dom'),
-  useNavigate: () => vi.fn()
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => vi.fn()
+  };
+});
 
 describe('CheckoutPage', () => {
   it('should render checkout form and navigate on submit', async () => {
