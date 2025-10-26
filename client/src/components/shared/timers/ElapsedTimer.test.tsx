@@ -1,6 +1,6 @@
 import React from 'react'
 import { vi } from 'vitest';
-import { render, cleanup } from '@testing-library/react'
+import { render, cleanup, act } from '@testing-library/react'
 import { ElapsedTimer } from './ElapsedTimer'
 
 /**
@@ -82,13 +82,17 @@ describe('ElapsedTimer', () => {
     expect(getByText('30s')).toBeInTheDocument()
 
     // Advance time by 1 second
-    vi.advanceTimersByTime(1000)
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
 
     // Timer should update to 31s
     expect(getByText('31s')).toBeInTheDocument()
 
     // Advance time by 5 more seconds
-    vi.advanceTimersByTime(5000)
+    act(() => {
+      vi.advanceTimersByTime(5000)
+    })
 
     // Timer should update to 36s
     expect(getByText('36s')).toBeInTheDocument()
@@ -107,7 +111,9 @@ describe('ElapsedTimer', () => {
     expect(getByText('1m')).toBeInTheDocument()
 
     // Advance time by 60 seconds (1 minute)
-    vi.advanceTimersByTime(60000)
+    act(() => {
+      vi.advanceTimersByTime(60000)
+    })
 
     // Timer should update to 2m
     expect(getByText('2m')).toBeInTheDocument()
@@ -154,7 +160,9 @@ describe('ElapsedTimer', () => {
     expect(getByText('0m')).toBeInTheDocument()
 
     // Advance time by 60 seconds
-    vi.advanceTimersByTime(60000)
+    act(() => {
+      vi.advanceTimersByTime(60000)
+    })
 
     // Timer should update to 1m
     expect(getByText('1m')).toBeInTheDocument()

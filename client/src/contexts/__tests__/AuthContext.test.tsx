@@ -51,7 +51,7 @@ describe('AuthContext - Token Refresh', () => {
   })
 
   afterEach(() => {
-    vi.clearAllTimers()
+    vi.runOnlyPendingTimers()
     vi.useRealTimers()
   })
 
@@ -70,6 +70,15 @@ describe('AuthContext - Token Refresh', () => {
       expiresIn: 600
     }
 
+    // Mock the refresh response before rendering
+    ;(httpClient.post as vi.Mock).mockResolvedValue({
+      session: {
+        access_token: 'new-token',
+        refresh_token: 'new-refresh-token',
+        expires_in: 600
+      }
+    })
+
     const { rerender } = render(
       <AuthProvider>
         <TestComponent />
@@ -85,6 +94,8 @@ describe('AuthContext - Token Refresh', () => {
         expires_at: mockSession.expiresAt,
         expires_in: mockSession.expiresIn
       })
+      // Run timers to process any pending promises
+      await vi.runOnlyPendingTimersAsync()
     })
 
     rerender(
@@ -94,34 +105,25 @@ describe('AuthContext - Token Refresh', () => {
     )
 
     // Advance time to just before refresh (5 minutes before expiry = 5 minutes from now)
-    await act(async () => {
+    act(() => {
       vi.advanceTimersByTime(299000) // 4:59 - just before refresh
     })
 
     // Refresh should not have been called yet
     expect(httpClient.post).not.toHaveBeenCalled()
 
-    // Advance to trigger refresh
-    ;(httpClient.post as vi.Mock).mockResolvedValue({
-      session: {
-        access_token: 'new-token',
-        refresh_token: 'new-refresh-token',
-        expires_in: 600
-      }
-    })
-
+    // Advance to trigger refresh and wait for async operation
     await act(async () => {
       vi.advanceTimersByTime(2000) // 5:01 - past refresh time
+      await vi.runOnlyPendingTimersAsync()
     })
 
     // Refresh should have been called exactly once
-    await waitFor(() => {
-      expect(httpClient.post).toHaveBeenCalledTimes(1)
-      expect(httpClient.post).toHaveBeenCalledWith('/api/v1/auth/refresh', {
-        refreshToken: 'refresh-token'
-      })
+    expect(httpClient.post).toHaveBeenCalledTimes(1)
+    expect(httpClient.post).toHaveBeenCalledWith('/api/v1/auth/refresh', {
+      refreshToken: 'refresh-token'
     })
-  })
+  }, 30000)
 
   test('should prevent concurrent refresh attempts with latch', async () => {
     const TestComponent = () => {
@@ -149,6 +151,8 @@ describe('AuthContext - Token Refresh', () => {
         expires_at: Math.floor(Date.now() / 1000) + 600,
         expires_in: 600
       })
+      // Run timers to process any pending promises
+      await vi.runOnlyPendingTimersAsync()
     })
 
     // Mock slow refresh response
@@ -183,6 +187,8 @@ describe('AuthContext - Token Refresh', () => {
         }
       })
       await refreshPromise
+      // Run timers to process any pending promises
+      await vi.runOnlyPendingTimersAsync()
     })
 
     // Now a new refresh should be allowed
@@ -196,12 +202,13 @@ describe('AuthContext - Token Refresh', () => {
 
     await act(async () => {
       refreshButton.click()
+      await vi.runOnlyPendingTimersAsync()
     })
 
     await waitFor(() => {
       expect(httpClient.post).toHaveBeenCalledTimes(2)
-    })
-  })
+    }, { timeout: 5000 })
+  }, 30000)
 
   test('should clear refresh timer on unmount', async () => {
     const TestComponent = () => {

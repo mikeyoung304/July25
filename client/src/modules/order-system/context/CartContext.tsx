@@ -169,3 +169,9 @@ export const useCart = () => {
   }
   return context;
 };
+
+// Export the context itself for testing
+export { CartContext };
+
+// Default export for convenience
+export default CartProvider;

@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { UnifiedCartContext } from './UnifiedCartContext';
+import { UnifiedCartContext, UnifiedCartProvider } from './UnifiedCartContext';
 
 export const useUnifiedCart = () => {
   const context = useContext(UnifiedCartContext);
@@ -12,3 +12,6 @@ export const useUnifiedCart = () => {
 // Aliases for backward compatibility
 export const useCart = useUnifiedCart;
 export const useKioskCart = useUnifiedCart;
+
+// Re-export context and provider for convenience
+export { UnifiedCartContext, UnifiedCartProvider };

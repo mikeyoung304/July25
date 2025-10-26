@@ -218,3 +218,8 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
 };
 
 // Hooks moved to cart.hooks.ts for better Fast Refresh compatibility
+// Export the context for testing and direct usage
+export { UnifiedCartContext };
+
+// Default export for convenience
+export default UnifiedCartProvider;
