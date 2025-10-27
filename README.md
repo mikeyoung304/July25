@@ -3,7 +3,7 @@
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Docs CI](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml)
 
-**Status:** 90% Production Ready - 85%+ Test Pass Rate - Phase 2 Complete ✅
+**Status:** 90% Production Ready - 85%+ Test Pass Rate - All Critical Blockers Resolved ✅
 **Client:** React 18.3.1 · **Server:** Node 20 · **DB:** Postgres (Supabase) · **Realtime:** WebSockets
 
 **For accurate project status, see [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md)**
@@ -49,8 +49,11 @@ Prod: CORS allowlist enforced; WebSocket requires valid JWT; KIOSK_JWT_SECRET mu
 Non-prod demo (optional): /api/v1/auth/demo-session enabled only with DEMO_LOGIN_ENABLED=true.
 
 ## Development Status
-**90% Production Ready** - Phase 2 test restoration complete (98.5% success rate).
-Payment system configured with demo mode. Only 2 minor test edge cases remaining.
+**90% Production Ready** - All critical blockers resolved ✅
+- Menu loading fixed (HTTP 500 → HTTP 200)
+- Phase 2 test restoration complete (98.5% success rate)
+- Payment system configured with demo mode
+- Only 2 minor test edge cases remaining
 See [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md) for complete status and details.
 
 ## License
