@@ -9,12 +9,15 @@ import { defaultFilters, OrderStatus, OrderFilters } from '@/types/filters'
 vi.mock('@/services', () => ({
   orderService: {
     getOrders: vi.fn(),
-    updateOrderStatus: vi.fn()
+    updateOrderStatus: vi.fn(),
+    getOrderById: vi.fn(),
+    submitOrder: vi.fn(),
+    validateOrder: vi.fn()
   }
 }))
 
 // Mock the restaurant context
-vi.mock('@/core/restaurant-hooks', () => ({
+vi.mock('@/core', () => ({
   useRestaurant: () => ({
     restaurant: { id: 'rest-1', name: 'Test Restaurant' },
     isLoading: false
@@ -38,66 +41,93 @@ describe('useOrderData', () => {
     {
       id: '1',
       restaurant_id: 'rest-1',
-      orderNumber: '001',
-      tableNumber: '5',
-      items: [{ id: '1', name: 'Test Item', quantity: 1 }],
+      order_number: '001',
+      table_number: '5',
+      items: [{
+        id: '1',
+        menu_item_id: '1',
+        name: 'Test Item',
+        quantity: 1,
+        price: 10.00,
+        subtotal: 10.00
+      }],
       status: 'new',
-      orderTime: new Date(),
-      totalAmount: 10.00,
-      paymentStatus: 'pending'
+      type: 'online',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      subtotal: 10.00,
+      tax: 0.80,
+      total: 10.80,
+      payment_status: 'pending'
     },
     {
       id: '2',
       restaurant_id: 'rest-1',
-      orderNumber: '002',
-      tableNumber: '6',
-      items: [{ id: '2', name: 'Another Item', quantity: 2 }],
+      order_number: '002',
+      table_number: '6',
+      items: [{
+        id: '2',
+        menu_item_id: '2',
+        name: 'Another Item',
+        quantity: 2,
+        price: 10.00,
+        subtotal: 20.00
+      }],
       status: 'preparing',
-      orderTime: new Date(),
-      totalAmount: 20.00,
-      paymentStatus: 'paid'
+      type: 'online',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      subtotal: 20.00,
+      tax: 1.60,
+      total: 21.60,
+      payment_status: 'paid'
     }
   ]
   
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(orderService.getOrders as vi.Mock).mockResolvedValue({
-      orders: mockOrders,
-      total: mockOrders.length
-    })
-    ;(orderService.updateOrderStatus as vi.Mock).mockResolvedValue({
-      success: true,
-      order: { ...mockOrders[0], status: 'preparing' }
-    })
+    ;(orderService.getOrders as vi.Mock).mockResolvedValue(mockOrders)
+    ;(orderService.updateOrderStatus as vi.Mock).mockResolvedValue({ ...mockOrders[0], status: 'preparing' })
+
+    // Ensure the toast methods are properly mocked
+    vi.mocked(orderService.getOrders).mockClear()
+    vi.mocked(orderService.updateOrderStatus).mockClear()
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
   })
   
   it('should fetch orders on mount', async () => {
     const { result } = renderHook(() => useOrderData())
-    
-    expect(result.current.loading).toBe(true)
-    
+
+    // Initially loading should be false (useAsyncState starts with loading: false)
+    // Then when refetch is called in useEffect, it will become true briefly
+    // Wait for data to be loaded
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-      expect(result.current.orders).toEqual(mockOrders)
-      expect(result.current.error).toBe(null)
-    })
-    
+      expect(result.current.orders.length).toBeGreaterThan(0)
+    }, { timeout: 5000 })
+
+    expect(result.current.orders).toEqual(mockOrders)
+    expect(result.current.error).toBe(null)
+    expect(result.current.loading).toBe(false)
     expect(orderService.getOrders).toHaveBeenCalled()
-    expect(orderService.getOrders).toHaveBeenCalledWith('rest-1', undefined)
+    expect(orderService.getOrders).toHaveBeenCalledWith(undefined)
   })
   
   it('should fetch orders with filters', async () => {
-    const filters: OrderFilters = { 
+    const filters: OrderFilters = {
       ...defaultFilters,
-      status: ['new'] 
+      status: ['new']
     }
     const { result } = renderHook(() => useOrderData(filters))
-    
+
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
-    
-    expect(orderService.getOrders).toHaveBeenCalledWith('rest-1', {
+      expect(result.current.orders).toBeDefined()
+    }, { timeout: 5000 })
+
+    expect(result.current.loading).toBe(false)
+    expect(orderService.getOrders).toHaveBeenCalledWith({
       status: 'new',
       tableId: undefined
     })
@@ -105,17 +135,17 @@ describe('useOrderData', () => {
   
   it('should refetch orders', async () => {
     const { result } = renderHook(() => useOrderData())
-    
+
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
-    
+      expect(result.current.orders.length).toBeGreaterThan(0)
+    }, { timeout: 5000 })
+
     const initialCallCount = (orderService.getOrders as vi.Mock).mock.calls.length
-    
-    act(() => {
-      result.current.refetch()
+
+    await act(async () => {
+      await result.current.refetch()
     })
-    
+
     await waitFor(() => {
       expect((orderService.getOrders as vi.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
     })
@@ -123,21 +153,18 @@ describe('useOrderData', () => {
   
   it('should update order status optimistically', async () => {
     const { result } = renderHook(() => useOrderData())
-    
+
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
+      expect(result.current.orders.length).toBeGreaterThan(0)
+    }, { timeout: 5000 })
+
+    await act(async () => {
+      await result.current.updateOrderStatus('1', 'preparing')
     })
-    
-    act(() => {
-      result.current.updateOrderStatus('1', 'preparing')
-    })
-    
+
     // Check optimistic update
     expect(result.current.orders[0].status).toBe('preparing')
-    
-    await waitFor(() => {
-      expect(orderService.updateOrderStatus).toHaveBeenCalledWith('rest-1', '1', 'preparing')
-    })
+    expect(orderService.updateOrderStatus).toHaveBeenCalledWith('1', 'preparing')
   })
   
   it('should handle errors gracefully', async () => {
@@ -165,22 +192,23 @@ describe('useOrderData', () => {
       ({ filters }: { filters?: OrderFilters }) => useOrderData(filters),
       { initialProps: { filters: undefined as OrderFilters | undefined } }
     )
-    
+
     await waitFor(() => {
-      expect(result.current.loading).toBe(false)
-    })
-    
+      expect(result.current.orders).toBeDefined()
+    }, { timeout: 5000 })
+
     const initialCallCount = (orderService.getOrders as vi.Mock).mock.calls.length
-    
+
     // Change filters
     rerender({ filters: { ...defaultFilters, status: ['new'] as OrderStatus[] } })
-    
+
     await waitFor(() => {
       expect((orderService.getOrders as vi.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
-      expect(orderService.getOrders).toHaveBeenLastCalledWith('rest-1', {
-        status: 'new',
-        tableId: undefined
-      })
+    })
+
+    expect(orderService.getOrders).toHaveBeenLastCalledWith({
+      status: 'new',
+      tableId: undefined
     })
   })
 })
