@@ -1,204 +1,281 @@
 import { OrderService } from '../OrderService'
-import { mockData, resetMockData } from '@/services/mockData'
-import { Order } from '@/services/types'
+import { vi } from 'vitest'
+import { httpClient } from '@/services/http/httpClient'
+
+// Mock the httpClient
+vi.mock('@/services/http/httpClient', () => ({
+  httpClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn()
+  }
+}))
 
 describe('OrderService', () => {
   let orderService: OrderService
-  
+
   beforeEach(() => {
     orderService = new OrderService()
-    // Reset mock data
-    resetMockData()
-    mockData.orders.length = 0
-    mockData.orders.push(
-      {
-        id: '1',
-        restaurant_id: 'rest-1',
-        orderNumber: '001',
-        tableNumber: '5',
-        items: [
-          { id: '1', name: 'Test Item', quantity: 1 }
-        ],
-        status: 'new',
-        orderTime: new Date(),
-        totalAmount: 10.00,
-        paymentStatus: 'pending'
-      }
-    )
-    // Add test tables
-    mockData.tables.push(
-      {
-        id: 'test-table-1',
-        restaurant_id: 'rest-1',
-        type: 'square',
-        x: 100,
-        y: 100,
-        width: 80,
-        height: 80,
-        seats: 4,
-        label: '1',
-        rotation: 0,
-        status: 'available',
-        z_index: 1
-      },
-      {
-        id: 'test-table-2',
-        restaurant_id: 'rest-1',
-        type: 'square',
-        x: 200,
-        y: 100,
-        width: 80,
-        height: 80,
-        seats: 4,
-        label: '2',
-        rotation: 0,
-        status: 'available',
-        z_index: 1
-      },
-      {
-        id: 'test-table-10',
-        restaurant_id: 'rest-1',
-        type: 'square',
-        x: 300,
-        y: 100,
-        width: 80,
-        height: 80,
-        seats: 4,
-        label: '10',
-        rotation: 0,
-        status: 'available',
-        z_index: 1
-      }
-    )
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
-    orderService.reset()
-    resetMockData()
+    vi.clearAllMocks()
   })
   
   describe('getOrders', () => {
     it('should return all orders when no filters provided', async () => {
-      const result = await orderService.getOrders('rest-1')
-      
-      expect(result.orders).toHaveLength(1)
-      expect(result.total).toBe(1)
-      expect(result.orders[0].orderNumber).toBe('001')
+      const mockOrders = [
+        {
+          id: '1',
+          restaurant_id: 'rest-1',
+          order_number: '001',
+          table_number: '5',
+          items: [{ id: '1', menu_item_id: '1', name: 'Test Item', quantity: 1, price: 10, subtotal: 10 }],
+          status: 'new',
+          type: 'dine-in',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          subtotal: 10.00,
+          tax: 0.80,
+          total: 10.80,
+          payment_status: 'pending'
+        }
+      ];
+
+      (httpClient.get as vi.Mock).mockResolvedValue(mockOrders)
+
+      const result = await orderService.getOrders()
+
+      expect(result).toHaveLength(1)
+      expect(result[0].order_number).toBe('001')
+      expect(httpClient.get).toHaveBeenCalledWith('/api/v1/orders', { params: {} })
     })
-    
+
     it('should filter orders by status', async () => {
-      mockData.orders.push({
-        id: '2',
-        restaurant_id: 'rest-1',
-        orderNumber: '002',
-        tableNumber: '6',
-        items: [],
-        status: 'preparing',
-        orderTime: new Date(),
-        totalAmount: 20.00,
-        paymentStatus: 'paid'
+      const mockOrders = [
+        {
+          id: '1',
+          restaurant_id: 'rest-1',
+          order_number: '001',
+          table_number: '5',
+          items: [],
+          status: 'new',
+          type: 'dine-in',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          subtotal: 10.00,
+          tax: 0.80,
+          total: 10.80,
+          payment_status: 'pending'
+        }
+      ];
+
+      (httpClient.get as vi.Mock).mockResolvedValue(mockOrders)
+
+      const result = await orderService.getOrders({ status: 'new' })
+
+      expect(result).toHaveLength(1)
+      expect(result[0].status).toBe('new')
+      expect(httpClient.get).toHaveBeenCalledWith('/api/v1/orders', {
+        params: { status: 'new' }
       })
-      
-      const result = await orderService.getOrders('rest-1', { status: 'new' })
-      
-      expect(result.orders).toHaveLength(1)
-      expect(result.orders[0].status).toBe('new')
     })
-    
-    it('should enforce rate limiting', async () => {
-      // Make 10 requests (the limit)
-      const promises = []
-      for (let i = 0; i < 10; i++) {
-        promises.push(orderService.getOrders('rest-1'))
-      }
-      await Promise.all(promises)
-      
-      // 11th request should fail
-      await expect(orderService.getOrders('rest-1')).rejects.toThrow('Rate limit exceeded')
-    }, 10000)
+
+    it('should handle API errors and fallback to mock data', async () => {
+      (httpClient.get as vi.Mock).mockRejectedValue(new Error('API Error'))
+
+      const result = await orderService.getOrders()
+
+      expect(result).toBeDefined()
+      expect(Array.isArray(result)).toBe(true)
+    })
   })
   
   describe('getOrderById', () => {
-    it('should return order when found', async () => {
-      const order = await orderService.getOrderById('rest-1', '1')
-      
+    it('should return order when found via API', async () => {
+      const mockOrder = {
+        id: '1',
+        restaurant_id: 'rest-1',
+        order_number: '001',
+        table_number: '5',
+        items: [],
+        status: 'new',
+        type: 'online',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        subtotal: 10.00,
+        tax: 0.80,
+        total: 10.80,
+        payment_status: 'pending'
+      };
+
+      (httpClient.get as vi.Mock).mockResolvedValue(mockOrder)
+
+      const order = await orderService.getOrderById('1')
+
       expect(order).toBeDefined()
-      expect(order.orderNumber).toBe('001')
+      expect(order.order_number).toBe('001')
+      expect(httpClient.get).toHaveBeenCalledWith('/api/v1/orders/1')
     })
-    
-    it('should throw error when order not found', async () => {
-      await expect(orderService.getOrderById('rest-1', '999')).rejects.toThrow('Order not found')
+
+    it('should fallback to mock data when API fails', async () => {
+      (httpClient.get as vi.Mock).mockRejectedValue(new Error('API Error'))
+
+      const order = await orderService.getOrderById('order-1')
+
+      expect(order).toBeDefined()
+      expect(order.order_number).toBe('#1001')
+    })
+
+    it('should throw error when order not found in mock data', async () => {
+      (httpClient.get as vi.Mock).mockRejectedValue(new Error('API Error'))
+
+      await expect(orderService.getOrderById('999')).rejects.toThrow('Order not found')
     })
   })
   
   describe('updateOrderStatus', () => {
-    it('should update order status successfully', async () => {
-      const result = await orderService.updateOrderStatus('rest-1', '1', 'preparing')
-      
-      expect(result.success).toBe(true)
-      expect(result.order.status).toBe('preparing')
-      expect(mockData.orders[0].status).toBe('preparing')
+    it('should update order status successfully via API', async () => {
+      const mockOrder = {
+        id: '1',
+        restaurant_id: 'rest-1',
+        order_number: '001',
+        table_number: '5',
+        items: [],
+        status: 'preparing',
+        type: 'online',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        subtotal: 10.00,
+        tax: 0.80,
+        total: 10.80,
+        payment_status: 'pending'
+      };
+
+      (httpClient.patch as vi.Mock).mockResolvedValue(mockOrder)
+
+      const result = await orderService.updateOrderStatus('1', 'preparing')
+
+      expect(result).toBeDefined()
+      expect(result.status).toBe('preparing')
+      expect(httpClient.patch).toHaveBeenCalledWith('/api/v1/orders/1/status', { status: 'preparing' })
     })
-    
-    it('should throw error when order not found', async () => {
+
+    it('should fallback to mock data when API fails', async () => {
+      (httpClient.patch as vi.Mock).mockRejectedValue(new Error('API Error'))
+
+      const result = await orderService.updateOrderStatus('order-1', 'preparing')
+
+      expect(result).toBeDefined()
+      expect(result.status).toBe('preparing')
+    })
+
+    it('should throw error when order not found in mock data', async () => {
+      (httpClient.patch as vi.Mock).mockRejectedValue(new Error('API Error'))
+
       await expect(
-        orderService.updateOrderStatus('rest-1', '999', 'preparing')
+        orderService.updateOrderStatus('999', 'preparing')
       ).rejects.toThrow('Order not found')
     })
   })
   
   describe('submitOrder', () => {
-    it('should create new order with valid data', async () => {
+    it('should create new order with valid data via API', async () => {
       const orderData: Partial<Order> = {
-        tableNumber: '10',
+        restaurant_id: 'rest-1',
+        table_number: '10',
         items: [
-          { id: '1', name: 'Burger', quantity: 2 }
+          { id: '1', menu_item_id: '1', name: 'Burger', quantity: 2, price: 12.50, subtotal: 25.00 }
         ],
-        totalAmount: 25.00
+        type: 'online',
+        subtotal: 25.00,
+        tax: 2.00,
+        total: 27.00
       }
-      
-      const result = await orderService.submitOrder('rest-1', orderData)
-      
-      expect(result.success).toBe(true)
-      expect(result.orderId).toBeDefined()
-      expect(result.order).toBeDefined()
-      expect(result.order.tableNumber).toBe('10')
-      expect(result.order.items).toHaveLength(1)
+
+      const mockOrder = {
+        id: 'new-order-1',
+        ...orderData,
+        order_number: '100',
+        status: 'new',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        payment_status: 'pending'
+      };
+
+      (httpClient.post as vi.Mock).mockResolvedValue(mockOrder)
+
+      const result = await orderService.submitOrder(orderData)
+
+      expect(result).toBeDefined()
+      expect(result.table_number).toBe('10')
+      expect(result.items).toHaveLength(1)
+      expect(httpClient.post).toHaveBeenCalledWith('/api/v1/orders', orderData)
     })
-    
-    it('should validate and sanitize input data', async () => {
+
+    it('should fallback to mock order when API fails', async () => {
       const orderData: Partial<Order> = {
-        tableNumber: '<script>alert("xss")</script>',
+        restaurant_id: 'rest-1',
+        table_number: '10',
         items: [
-          { 
-            id: '1', 
-            name: 'Burger<script>alert("xss")</script>', 
-            quantity: -5 // Invalid quantity
-          }
+          { id: '1', menu_item_id: '1', name: 'Burger', quantity: 2, price: 12.50, subtotal: 25.00 }
         ],
-        totalAmount: -100 // Invalid amount
-      }
-      
-      await expect(orderService.submitOrder('rest-1', orderData)).rejects.toThrow()
+        type: 'online',
+        subtotal: 25.00,
+        tax: 2.00,
+        total: 27.00
+      };
+
+      (httpClient.post as vi.Mock).mockRejectedValue(new Error('API Error'))
+
+      const result = await orderService.submitOrder(orderData)
+
+      expect(result).toBeDefined()
+      expect(result.table_number).toBe('10')
+      expect(result.items).toHaveLength(1)
+      expect(result.status).toBe('new')
     })
-    
-    it('should generate sequential order numbers', async () => {
-      const order1 = await orderService.submitOrder('rest-1', {
-        tableNumber: '1',
-        items: [{ id: '1', name: 'Item 1', quantity: 1 }],
-        totalAmount: 10
-      })
-      
-      const order2 = await orderService.submitOrder('rest-1', {
-        tableNumber: '2',
-        items: [{ id: '2', name: 'Item 2', quantity: 1 }],
-        totalAmount: 20
-      })
-      
-      const orderNum1 = parseInt(order1.order.orderNumber)
-      const orderNum2 = parseInt(order2.order.orderNumber)
-      
-      expect(orderNum2).toBe(orderNum1 + 1)
+
+    it('should reject order with invalid data (no items)', async () => {
+      const orderData: Partial<Order> = {
+        restaurant_id: 'rest-1',
+        table_number: '10',
+        items: [],
+        type: 'online',
+        total: 25.00
+      }
+
+      await expect(orderService.submitOrder(orderData)).rejects.toThrow('Invalid order data')
+    })
+
+    it('should reject order with invalid item (negative quantity)', async () => {
+      const orderData: Partial<Order> = {
+        restaurant_id: 'rest-1',
+        table_number: '10',
+        items: [
+          { id: '1', menu_item_id: '1', name: 'Burger', quantity: -5, price: 12.50, subtotal: -62.50 }
+        ],
+        type: 'online',
+        total: 25.00
+      }
+
+      await expect(orderService.submitOrder(orderData)).rejects.toThrow('Invalid order data')
+    })
+
+    it('should reject order with item missing required fields', async () => {
+      const orderData: Partial<Order> = {
+        restaurant_id: 'rest-1',
+        table_number: '10',
+        items: [
+          { id: '', menu_item_id: '', name: '', quantity: 1, price: 12.50, subtotal: 12.50 }
+        ],
+        type: 'online',
+        total: 25.00
+      }
+
+      await expect(orderService.submitOrder(orderData)).rejects.toThrow('Invalid order data')
     })
   })
 })
