@@ -5,59 +5,60 @@
  * duplicate WebSocket subscriptions or memory leaks.
  */
 
+import { describe, test, beforeEach, vi, expect } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useKitchenOrdersRealtime } from '../useKitchenOrdersRealtime'
 import { webSocketService } from '@/services/websocket'
 import { connectionManager } from '@/services/websocket/ConnectionManager'
 import { api } from '@/services/api'
 
-// Mock dependencies
-jest.mock('@/services/websocket', () => ({
+// Mock dependencies using Vitest
+vi.mock('@/services/websocket', () => ({
   webSocketService: {
-    subscribe: jest.fn(),
-    isConnected: jest.fn(() => true)
+    subscribe: vi.fn(),
+    isConnected: vi.fn(() => true)
   }
 }))
 
-jest.mock('@/services/websocket/ConnectionManager', () => ({
+vi.mock('@/services/websocket/ConnectionManager', () => ({
   connectionManager: {
-    connect: jest.fn(() => Promise.resolve()),
-    disconnect: jest.fn()
+    connect: vi.fn(() => Promise.resolve()),
+    disconnect: vi.fn()
   }
 }))
 
-jest.mock('@/services/api', () => ({
+vi.mock('@/services/api', () => ({
   api: {
-    getOrders: jest.fn(() => Promise.resolve([]))
+    getOrders: vi.fn(() => Promise.resolve([]))
   }
 }))
 
-jest.mock('@/core', () => ({
+vi.mock('@/core', () => ({
   useRestaurant: () => ({
     isLoading: false,
     error: null
   })
 }))
 
-jest.mock('@/modules/orders/hooks/useOrderActions', () => ({
+vi.mock('@/modules/orders/hooks/useOrderActions', () => ({
   useOrderActions: () => ({
-    updateOrderStatus: jest.fn()
+    updateOrderStatus: vi.fn()
   })
 }))
 
 describe('useKitchenOrdersRealtime - Race Condition Prevention', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Mock subscribe to return unsubscribe functions
-    const mockSubscribe = webSocketService.subscribe as jest.Mock
-    mockSubscribe.mockReturnValue(jest.fn())
+    const mockSubscribe = webSocketService.subscribe as ReturnType<typeof vi.fn>
+    mockSubscribe.mockReturnValue(vi.fn())
   })
 
-  it('should not create duplicate subscriptions on rapid mount/unmount', async () => {
-    const mockSubscribe = webSocketService.subscribe as jest.Mock
-    const mockConnect = connectionManager.connect as jest.Mock
-    const mockDisconnect = connectionManager.disconnect as jest.Mock
+  test('should not create duplicate subscriptions on rapid mount/unmount', async () => {
+    const mockSubscribe = webSocketService.subscribe as ReturnType<typeof vi.fn>
+    const mockConnect = connectionManager.connect as ReturnType<typeof vi.fn>
+    const mockDisconnect = connectionManager.disconnect as ReturnType<typeof vi.fn>
 
     // Rapid mount/unmount cycle (5 times)
     for (let i = 0; i < 5; i++) {
@@ -90,15 +91,15 @@ describe('useKitchenOrdersRealtime - Race Condition Prevention', () => {
     expect(mockDisconnect).toHaveBeenCalledTimes(5)
   })
 
-  it('should prevent state updates after unmount', async () => {
-    const mockSubscribe = webSocketService.subscribe as jest.Mock
+  test('should prevent state updates after unmount', async () => {
+    const mockSubscribe = webSocketService.subscribe as ReturnType<typeof vi.fn>
 
     // Track subscription callbacks
     const subscriptionCallbacks: Array<(payload: unknown) => void> = []
 
     mockSubscribe.mockImplementation((event: string, callback: (payload: unknown) => void) => {
       subscriptionCallbacks.push(callback)
-      return jest.fn() // return unsubscribe function
+      return vi.fn() // return unsubscribe function
     })
 
     const { unmount } = renderHook(() => useKitchenOrdersRealtime())
@@ -121,8 +122,8 @@ describe('useKitchenOrdersRealtime - Race Condition Prevention', () => {
     })
   })
 
-  it('should handle mount during connection', async () => {
-    const mockConnect = connectionManager.connect as jest.Mock
+  test('should handle mount during connection', async () => {
+    const mockConnect = connectionManager.connect as ReturnType<typeof vi.fn>
 
     // Simulate slow connection
     let resolveConnection: () => void
@@ -144,8 +145,8 @@ describe('useKitchenOrdersRealtime - Race Condition Prevention', () => {
     expect(mockConnect).toHaveBeenCalled()
   })
 
-  it('should properly cleanup loadOrders effect', async () => {
-    const mockGetOrders = api.getOrders as jest.Mock
+  test('should properly cleanup loadOrders effect', async () => {
+    const mockGetOrders = api.getOrders as ReturnType<typeof vi.fn>
     mockGetOrders.mockResolvedValue([])
 
     // Mount and unmount rapidly multiple times
@@ -160,7 +161,7 @@ describe('useKitchenOrdersRealtime - Race Condition Prevention', () => {
     })
   })
 
-  it('should maintain stable loadOrders reference', () => {
+  test('should maintain stable loadOrders reference', () => {
     const { result, rerender } = renderHook(() => useKitchenOrdersRealtime())
 
     // Initial render
