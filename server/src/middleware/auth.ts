@@ -116,15 +116,28 @@ export async function optionalAuth(
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      // No token, but that's okay - restaurantAccess middleware will handle restaurant ID
+      // No token provided - extract restaurant ID from header for unauthenticated requests
+      // This allows public endpoints (like menu browsing) to work without authentication
+      const restaurantId = req.headers['x-restaurant-id'] as string;
+      if (restaurantId) {
+        req.restaurantId = restaurantId;
+        logger.debug('Unauthenticated request with restaurant ID from header', {
+          restaurantId,
+          path: req.path
+        });
+      }
       return next();
     }
 
     // If token exists, validate it
     return authenticate(req, _res, next);
   } catch (error) {
-    // Log but don't fail - restaurantAccess middleware will handle restaurant ID
+    // Log but don't fail - extract restaurant ID from header as fallback
     logger.warn('Optional auth failed:', error);
+    const restaurantId = req.headers['x-restaurant-id'] as string;
+    if (restaurantId) {
+      req.restaurantId = restaurantId;
+    }
     next();
   }
 }
