@@ -26,6 +26,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added comprehensive logging to track auth state transitions
   - File: `client/src/contexts/AuthContext.tsx`
 
+- **CRITICAL: Token Refresh Failures During Logout** - Fixed 401 errors preventing workspace access
+  - Root cause: Backend `/logout` endpoint required valid token, but `supabase.auth.signOut()` already invalidated it
+  - Symptom: Users getting "No token provided" and "Invalid refresh token" errors
+  - Previous fix (auth race condition) inadvertently broke logout by invalidating token before backend call
+  - Solution: Removed backend logout call entirely - frontend `supabase.auth.signOut()` is sufficient
+  - Impact: Eliminates 401 errors, reduces network overhead, simplifies auth flow
+  - Investigation: `docs/investigations/token-refresh-failure-analysis.md`
+  - File: `client/src/contexts/AuthContext.tsx`
+
 ### Changed
 - **Landing Page**: Root route (/) now displays WorkspaceDashboard (replaces old customer/staff split page)
 - **Configuration**: Consolidated workspace config into single source of truth (`WORKSPACE_CONFIG`)

@@ -396,11 +396,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await supabase.auth.signOut();
       logger.info('✅ Supabase signOut complete');
 
-      // Call logout endpoint (after Supabase signout to ensure token is invalid)
-      await httpClient.post('/api/v1/auth/logout').catch(err => {
-        // Don't fail logout if backend call fails
-        logger.warn('Backend logout call failed (non-critical):', err);
-      });
+      // NOTE: We don't call backend /logout endpoint because:
+      // 1. supabase.auth.signOut() already invalidated the session
+      // 2. Backend endpoint requires valid token (would get 401)
+      // 3. Frontend supabase.auth.signOut() is sufficient for auth invalidation
+      // 4. Removes network overhead and potential failure point
+      // See: docs/investigations/token-refresh-failure-analysis.md
 
       // Clear local state (onAuthStateChange will also do this, but we do it explicitly for immediate UI update)
       setUser(null);
