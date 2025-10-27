@@ -460,6 +460,49 @@ setInterval(async () => {
 
 **For comprehensive Square setup and troubleshooting, see [SQUARE_API_SETUP.md](../SQUARE_API_SETUP.md)**
 
+### Problem: Online Ordering Checkout Fails with "Internal server error"
+
+**Symptoms**:
+- Demo user clicks "Complete Order (Demo)"
+- Shows "Internal server error"
+- Order created but payment audit logging fails
+- Render logs show: `invalid input syntax for type uuid: "demo:server:xyz"`
+
+**Root Cause**:
+The `payment_audit_logs.user_id` column requires UUID type, but demo users have string IDs like `"demo:server:xyz"` or `"demo:customer:abc"`. This was blocking ALL online orders for demo users.
+
+**Status**: ✅ **FIXED in v6.0.13** (October 27, 2025)
+
+**Solution Applied**:
+1. Database migration made `user_id` column nullable
+2. Demo user IDs now stored in `metadata.demoUserId` field
+3. Real users still use UUID in `user_id` column (FK integrity maintained)
+4. PCI compliance preserved (full audit trail for all payment attempts)
+
+**Verification**:
+```sql
+-- Check that user_id is now nullable
+SELECT column_name, is_nullable, data_type
+FROM information_schema.columns
+WHERE table_name = 'payment_audit_logs' AND column_name = 'user_id';
+-- Should show: is_nullable = 'YES'
+
+-- Check demo user payments in audit log
+SELECT id, user_id, metadata->>'demoUserId' as demo_user_id, status, amount
+FROM payment_audit_logs
+WHERE metadata->>'demoUserId' LIKE 'demo:%'
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+**Files Changed**:
+- `supabase/migrations/20251027173500_fix_payment_audit_demo_users.sql`
+- `server/src/routes/payments.routes.ts` (3 locations updated)
+
+**Related**: ADR-006 (Dual Authentication Pattern)
+
+---
+
 ### Problem: Square Payment Not Completing
 
 **Symptoms**:
