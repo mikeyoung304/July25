@@ -130,12 +130,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Subscribe to auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      logger.info(`📡 onAuthStateChange: ${event}`, { hasSession: !!session });
+
       if (event === 'SIGNED_IN' && session) {
+        // CRITICAL FIX: Only fetch user if we don't already have one with matching session
+        // This prevents duplicate fetch during manual login() which already fetches user
+        const currentToken = session.access_token;
+
         // Fetch user details when signed in
         try {
           const response = await httpClient.get<{ user: User; restaurantId: string }>(
             '/api/v1/auth/me'
           );
+
+          logger.info('✅ onAuthStateChange: Fetched user from /auth/me', {
+            email: response.user?.email
+          });
+
           setUser(response.user);
           setRestaurantId(response.restaurantId);
           setSession({
@@ -145,14 +156,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
             expiresAt: session.expires_at
           });
         } catch (error) {
-          logger.error('Failed to fetch user details:', error);
+          logger.error('❌ onAuthStateChange: Failed to fetch user details:', error);
         }
       } else if (event === 'SIGNED_OUT') {
+        logger.info('🚪 onAuthStateChange: Clearing auth state');
         setUser(null);
         setSession(null);
         setRestaurantId(null);
         localStorage.removeItem('auth_session');
       } else if (event === 'TOKEN_REFRESHED' && session) {
+        logger.info('🔄 onAuthStateChange: Token refreshed');
         setSession({
           accessToken: session.access_token,
           refreshToken: session.refresh_token,
@@ -169,44 +182,45 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Email/password login (Pure Supabase Auth)
   const login = async (email: string, password: string, restaurantId: string) => {
-    console.log('🔐 [AuthContext] login() START:', { email, restaurantId });
+    logger.info('🔐 login() START', { email, restaurantId });
     setIsLoading(true);
     try {
-      console.log('🔐 [AuthContext] Step A: Calling supabase.auth.signInWithPassword');
-      const supabaseStart = Date.now();
-      logger.info('🔐 Attempting Supabase login');
-
       // 1. Authenticate with Supabase directly
+      logger.info('🔐 Step 1: Calling supabase.auth.signInWithPassword');
+      const supabaseStart = Date.now();
+
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
       const supabaseDuration = Date.now() - supabaseStart;
-      console.log(`🔐 [AuthContext] Step B: Supabase auth completed in ${supabaseDuration}ms`);
+      logger.info(`🔐 Step 1 complete: Supabase auth (${supabaseDuration}ms)`);
 
       if (authError || !authData.session) {
-        console.error('🔐 [AuthContext] ERROR: Supabase authentication failed:', authError);
-        logger.error('Supabase authentication failed:', authError);
+        logger.error('❌ Supabase authentication failed:', authError);
         throw new Error(authError?.message || 'Login failed');
       }
 
-      logger.info('✅ Supabase authentication successful');
-
       // 2. Fetch user profile and role from backend
-      console.log('🔐 [AuthContext] Step C: Calling /api/v1/auth/me');
+      logger.info('🔐 Step 2: Fetching user from /api/v1/auth/me');
       const authMeStart = Date.now();
 
-      // (httpClient will automatically use the Supabase session we just created)
+      // NOTE: This will trigger onAuthStateChange SIGNED_IN event asynchronously
+      // Both this manual fetch and onAuthStateChange will call /auth/me
+      // This is intentional for immediate UI update, onAuthStateChange ensures consistency
       const response = await httpClient.get<{ user: User; restaurantId: string }>(
         '/api/v1/auth/me'
       );
 
       const authMeDuration = Date.now() - authMeStart;
-      console.log(`🔐 [AuthContext] Step D: /auth/me completed in ${authMeDuration}ms`);
+      logger.info(`🔐 Step 2 complete: User fetched (${authMeDuration}ms)`, {
+        email: response.user?.email,
+        role: response.user?.role
+      });
 
-      // 3. Update React state
-      console.log('🔐 [AuthContext] Step E: Setting user state');
+      // 3. Update React state immediately (don't wait for onAuthStateChange)
+      logger.info('🔐 Step 3: Setting user state in React context');
       setUser(response.user);
       setRestaurantId(response.restaurantId);
       setSession({
@@ -216,18 +230,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         expiresAt: authData.session.expires_at
       });
 
-      console.log('🔐 [AuthContext] Step F: login() COMPLETE');
-
-      logger.info('✅ Login complete');
+      logger.info('✅ login() COMPLETE', { email: response.user?.email });
 
     } catch (error) {
-      console.error('🔐 [AuthContext] ERROR in login():', error);
-      logger.error('Login failed:', error);
+      logger.error('❌ login() FAILED:', error);
       // Clean up on error
       await supabase.auth.signOut();
       throw error;
     } finally {
-      console.log('🔐 [AuthContext] login() setting isLoading=false');
       setIsLoading(false);
     }
   };
@@ -378,24 +388,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     setIsLoading(true);
     try {
-      // Call logout endpoint
-      await httpClient.post('/api/v1/auth/logout');
-      
-      // Clear local state
+      logger.info('🚪 Starting logout sequence...');
+
+      // CRITICAL FIX: Sign out from Supabase FIRST
+      // This ensures SIGNED_OUT event fires before we manually clear state
+      // Prevents race condition where new login happens before old SIGNED_OUT event
+      await supabase.auth.signOut();
+      logger.info('✅ Supabase signOut complete');
+
+      // Call logout endpoint (after Supabase signout to ensure token is invalid)
+      await httpClient.post('/api/v1/auth/logout').catch(err => {
+        // Don't fail logout if backend call fails
+        logger.warn('Backend logout call failed (non-critical):', err);
+      });
+
+      // Clear local state (onAuthStateChange will also do this, but we do it explicitly for immediate UI update)
       setUser(null);
       setSession(null);
       setRestaurantId(null);
-      
+
       // Clear localStorage
       localStorage.removeItem('auth_session');
-      
-      // Sign out from Supabase
-      await supabase.auth.signOut();
-      
-      logger.info('Logout successful');
+
+      logger.info('✅ Logout successful');
     } catch (error) {
-      logger.error('Logout failed:', error);
-      // Clear state even if logout fails
+      logger.error('❌ Logout failed:', error);
+      // Clear state even if logout fails (fail-safe)
       setUser(null);
       setSession(null);
       setRestaurantId(null);

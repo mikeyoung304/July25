@@ -16,16 +16,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Demo Mode**: Pre-fills role-specific credentials per workspace (server@restaurant.com, kitchen@restaurant.com, etc.)
   - Files: `WorkspaceDashboard.tsx`, `WorkspaceAuthModal.tsx`, `useWorkspaceAccess.ts`, `demoCredentials.ts`
 
+### Fixed
+- **CRITICAL: Auth State Race Condition** - Fixed stale user data displayed after account switching
+  - Root cause: Race condition between `logout()` and `onAuthStateChange` events
+  - Symptom: WorkspaceAuthModal showed previous user's email after logout + login sequence
+  - Example: User logs in as kitchen@, switches to expo@, but modal still shows kitchen@
+  - Solution: Reordered logout sequence to call `supabase.auth.signOut()` BEFORE clearing React state
+  - Impact: Ensures SIGNED_OUT event fires and completes before new login can proceed
+  - Added comprehensive logging to track auth state transitions
+  - File: `client/src/contexts/AuthContext.tsx`
+
 ### Changed
 - **Landing Page**: Root route (/) now displays WorkspaceDashboard (replaces old customer/staff split page)
 - **Configuration**: Consolidated workspace config into single source of truth (`WORKSPACE_CONFIG`)
 - **Protected Routes**: Redirect to `/` (workspace dashboard) instead of `/login`
+- **Auth Logging**: Enhanced logging in login(), logout(), and onAuthStateChange for debugging
 
 ### Technical Details
 - WorkspaceDashboard: 6 tiles, workspace-aware auth, demo mode support
 - Single workspace config maps routes, permissions, and demo credentials
 - Full accessibility: focus trap, keyboard navigation, ARIA attributes
 - Comprehensive test coverage (100+ unit tests, 30+ E2E scenarios)
+- Auth state management: Fixed race condition by ensuring sequential logout/login operations
 
 ## [6.0.13] - 2025-10-27
 
