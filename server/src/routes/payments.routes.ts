@@ -220,9 +220,10 @@ router.post('/create',
         idempotencyKey: serverIdempotencyKey,
         metadata: {
           orderNumber: (order as any).order_number,
-          userRole: req.user?.role
+          userRole: req.user?.role,
+          ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
         },
-        ...(req.user?.id && { userId: req.user.id }),
+        ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
         ...(req.ip && { ipAddress: req.ip })
       });
 
@@ -260,9 +261,10 @@ router.post('/create',
           idempotencyKey: idempotency_key || randomUUID(),
           metadata: {
             userRole: req.user?.role,
-            errorCategory: firstError?.category
+            errorCategory: firstError?.category,
+            ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
           },
-          ...(req.user?.id && { userId: req.user.id }),
+          ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
           ...(firstError?.code && { errorCode: firstError.code }),
           ...(firstError?.detail && { errorDetail: firstError.detail }),
           ...(req.ip && { ipAddress: req.ip })
@@ -410,9 +412,10 @@ router.post('/:paymentId/refund',
         refundId: refundResult.refund?.id,
         refundReason: reason,
         userRole: req.user?.role,
-        originalPaymentId: paymentId
+        originalPaymentId: paymentId,
+        ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
       },
-      ...(req.user?.id && { userId: req.user.id }),
+      ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
       ...(paymentId && { paymentId }),
       ...(req.ip && { ipAddress: req.ip })
     });
