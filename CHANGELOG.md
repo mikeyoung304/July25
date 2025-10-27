@@ -7,6 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Workspace-Based Landing Flow** - New dashboard-centric entry experience (feature flag)
+  - **WorkspaceDashboard Component**: Clean landing page with 6 workspace tiles (Server, Kitchen, Kiosk, Online Order, Admin, Expo)
+  - **No Login Text**: Dashboard shows only "Select your workspace" - authentication happens contextually
+  - **Intelligent Authentication Gating**:
+    - Public workspaces (Kiosk, Online Order) accessible immediately without auth
+    - Protected workspaces (Server, Kitchen, Admin, Expo) trigger modal on selection
+  - **WorkspaceAuthModal**:
+    - Full accessibility: focus trap, ESC key, keyboard navigation, ARIA labels
+    - Demo mode: Pre-fills role-specific credentials (server@restaurant.com, kitchen@restaurant.com, etc.)
+    - "Use different account" option to clear demo pre-fill
+    - Links to PIN login and Station login alternatives
+    - Insufficient permissions handling with switch account option
+  - **Deep Link Support**: Direct navigation to /server, /kitchen, etc. shows modal if not authenticated
+  - **Feature Flag**: `VITE_WORKSPACE_LANDING_ENABLED=1` to enable (default: disabled)
+  - **Fallback Route**: Old LandingPage preserved at /welcome for rollback
+  - Files:
+    - `client/src/pages/WorkspaceDashboard.tsx`
+    - `client/src/components/auth/WorkspaceAuthModal.tsx`
+    - `client/src/hooks/useWorkspaceAccess.ts`
+    - `client/src/config/demoCredentials.ts`
+    - `client/src/components/layout/AppRoutes.tsx` (routing logic)
+    - `client/src/components/auth/ProtectedRoute.tsx` (deep link handling)
+
+### Changed
+- **Landing Flow Architecture**: Conditional routing based on feature flag
+  - When enabled: Root route (/) → WorkspaceDashboard
+  - When disabled: Root route (/) → LandingPage (current behavior)
+- **Demo Mode Behavior**: Demo credentials now workspace-aware
+  - Pre-fills based on clicked workspace (Server → server creds, Kitchen → kitchen creds)
+  - No demo pre-fill for public workspaces (Kiosk, Online Order)
+
+### Technical Details
+**Components:**
+- WorkspaceDashboard: 6 workspace tiles, no login text, demo badge in demo mode only
+- WorkspaceAuthModal: 300+ lines, full accessibility, focus management, demo support
+- useWorkspaceAccess hook: Handles workspace permissions, modal state, navigation
+
+**Testing:**
+- Unit tests: WorkspaceDashboard, WorkspaceAuthModal, useWorkspaceAccess (100+ test cases)
+- E2E tests: workspace-landing.spec.ts (30+ scenarios)
+- Coverage: Public vs protected access, demo mode, deep links, accessibility, permission checks
+
+**Accessibility:**
+- Focus trap prevents tab escape
+- ESC key closes modal
+- ARIA dialog attributes
+- Keyboard activation (Enter/Space)
+- Focus restoration on close
+
+**Migration Path:**
+1. Deploy with feature flag disabled (default)
+2. Test in staging with `VITE_WORKSPACE_LANDING_ENABLED=1`
+3. Enable in production when validated
+4. Rollback: Toggle flag to `0`
+
+**Related:**
+- Issue: Authentication confusion between customer and staff flows
+- Solution: Workspace-first approach eliminates "Login" ambiguity
+- Maintains all existing auth flows: Supabase, PIN, Station, Demo
+
 ## [6.0.13] - 2025-10-27
 
 ### Fixed

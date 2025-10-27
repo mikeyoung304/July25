@@ -1,7 +1,10 @@
-import React, { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React, { ReactNode, useState } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth.hooks';
 import { logger } from '@/services/logger';
+import { WorkspaceAuthModal } from './WorkspaceAuthModal';
+import { WorkspaceType } from '@/config/demoCredentials';
+import { env } from '@/utils/env';
 
 export interface ProtectedRouteProps {
   children: ReactNode;
@@ -29,6 +32,22 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, canAccess, user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+
+  // Check if workspace landing feature is enabled
+  const workspaceLandingEnabled = env.VITE_WORKSPACE_LANDING_ENABLED === '1';
+
+  // Map route paths to workspace types for modal
+  const getWorkspaceFromPath = (path: string): WorkspaceType | null => {
+    if (path.startsWith('/server')) return 'server';
+    if (path.startsWith('/kitchen')) return 'kitchen';
+    if (path.startsWith('/expo')) return 'expo';
+    if (path.startsWith('/admin')) return 'admin';
+    if (path.startsWith('/kiosk')) return 'kiosk';
+    if (path.startsWith('/order')) return 'online-order';
+    return null;
+  };
 
   // Show loading state while checking auth
   if (isLoading) {
@@ -49,10 +68,38 @@ export function ProtectedRoute({
       path: location.pathname,
       redirectTo: fallbackPath,
       hasUser: !!user,
-      userRole: user?.role
+      userRole: user?.role,
+      workspaceLandingEnabled
     });
 
-    // Save the attempted location for redirect after login
+    // If workspace landing is enabled, show modal for deep links
+    if (workspaceLandingEnabled) {
+      const workspace = getWorkspaceFromPath(location.pathname);
+
+      if (workspace && !showModal) {
+        setShowModal(true);
+      }
+
+      if (workspace && showModal) {
+        return (
+          <WorkspaceAuthModal
+            isOpen={showModal}
+            onClose={() => {
+              setShowModal(false);
+              navigate('/', { replace: true });
+            }}
+            onSuccess={() => {
+              setShowModal(false);
+              // Component will re-render with isAuthenticated=true
+            }}
+            workspace={workspace}
+            intendedDestination={location.pathname}
+          />
+        );
+      }
+    }
+
+    // Fallback: Save the attempted location for redirect after login
     return <Navigate to={fallbackPath} state={{ from: location }} replace />;
   }
 

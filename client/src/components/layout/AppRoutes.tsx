@@ -7,6 +7,7 @@ import { performanceMonitor } from '@/services/performance/performanceMonitor'
 
 // Eager load critical/common pages
 import { LandingPage } from '@/pages/LandingPage'
+import { WorkspaceDashboard } from '@/pages/WorkspaceDashboard'
 
 // Lazy load auth pages
 const HomePage = lazy(() => import('@/pages/HomePage').then(m => ({ default: m.HomePage })))
@@ -48,13 +49,28 @@ const onRenderCallback = (
 }
 
 export function AppRoutes() {
+  // Check if workspace landing feature is enabled
+  const workspaceLandingEnabled = env.VITE_WORKSPACE_LANDING_ENABLED === '1'
+
   return (
     <main id="main-content" role="main" data-testid="app-root">
       <ErrorBoundary level="section">
         <Profiler id="Routes" onRender={onRenderCallback}>
           <Routes>
-            {/* Landing Page - Public (customers & staff initial entry) */}
-            <Route path="/" element={<LandingPage />} />
+            {/* Landing Page - Conditional based on feature flag */}
+            {workspaceLandingEnabled ? (
+              <>
+                {/* New Workspace Dashboard at root */}
+                <Route path="/" element={<WorkspaceDashboard />} />
+                {/* Old LandingPage moved to /welcome for fallback */}
+                <Route path="/welcome" element={<LandingPage />} />
+              </>
+            ) : (
+              <>
+                {/* Current behavior: LandingPage at root */}
+                <Route path="/" element={<LandingPage />} />
+              </>
+            )}
 
             {/* Staff Home - Protected (authenticated staff navigation hub) */}
             <Route path="/home" element={
