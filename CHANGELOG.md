@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.13] - 2025-10-27
+
+### Fixed
+- **CRITICAL: Online Ordering Checkout Failure** - Fixed demo users unable to complete orders
+  - Root cause: payment_audit_logs.user_id column required UUID but demo users have string IDs (e.g., "demo:server:xyz")
+  - PostgreSQL error: invalid_text_representation when attempting to insert demo user IDs
+  - Solution: Made user_id column nullable and store demo IDs in metadata.demoUserId field instead
+  - Impact: Unblocks all online ordering for demo users while maintaining PCI compliance
+  - Files: supabase/migrations/20251027173500_fix_payment_audit_demo_users.sql, server/src/routes/payments.routes.ts
+
+### Changed
+- **Payment audit logging** - Updated to handle both authenticated and demo users
+  - Real users: UUID stored in user_id column (maintains FK integrity to auth.users)
+  - Demo users: user_id is NULL, ID stored in metadata.demoUserId field
+  - All payment attempts still logged for PCI compliance
+  - No changes to authentication flow or security model
+
+### Technical Details
+**Database Migration:**
+- Removed NOT NULL constraint from payment_audit_logs.user_id
+- Added column documentation explaining dual user handling
+- Idempotent migration (safe to re-run)
+
+**Code Changes (payments.routes.ts):**
+- Success logging (line ~225): Check if ID starts with "demo:" before storing in user_id
+- Failed logging (line ~265): Store demo IDs in metadata instead
+- Refund logging (line ~417): Consistent demo user handling
+
+**Testing:**
+- Database migration verified (user_id is_nullable = YES)
+- All payment audit logging code updated across 3 locations
+- Awaiting Render auto-deploy for end-to-end verification
+
+**Related:**
+- ADR-006 (dual authentication pattern)
+- SECURITY.md (fail-fast compliance requirements)
+
 ## [6.0.12] - 2025-10-27
 
 ### Fixed
