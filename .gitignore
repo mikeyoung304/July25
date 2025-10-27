@@ -32,6 +32,9 @@ server/dist/
 .env.local
 .env.production
 
+# Secrets and sensitive files
+secrets.txt
+
 *storybook.log
 storybook-static
 
