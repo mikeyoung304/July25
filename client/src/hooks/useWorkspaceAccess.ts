@@ -1,18 +1,12 @@
 /**
  * useWorkspaceAccess Hook
  * Manages workspace access logic and authentication requirements
- * Part of: Workspace-Based Landing Flow
  */
 
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/auth.hooks'
-import {
-  WorkspaceType,
-  isProtectedWorkspace,
-  getWorkspaceRoute,
-  getWorkspaceRequiredRoles
-} from '@/config/demoCredentials'
+import { WorkspaceType, WORKSPACE_CONFIG } from '@/config/demoCredentials'
 import { logger } from '@/services/logger'
 
 export interface WorkspaceAccessResult {
@@ -39,10 +33,11 @@ export function useWorkspaceAccess(workspace: WorkspaceType): WorkspaceAccessRes
   const [showModal, setShowModal] = useState(false)
   const [intendedDestination, setIntendedDestination] = useState<string | null>(null)
 
-  // Check if workspace requires authentication
-  const requiresAuth = isProtectedWorkspace(workspace)
-  const destination = getWorkspaceRoute(workspace)
-  const requiredRoles = getWorkspaceRequiredRoles(workspace)
+  // Get workspace config
+  const config = WORKSPACE_CONFIG[workspace]
+  const requiresAuth = config.requiresAuth
+  const destination = config.route
+  const requiredRoles = config.requiredRoles
 
   // Check if user has permission (only relevant if authenticated)
   const hasPermission = !requiresAuth || (isAuthenticated && checkAccess(requiredRoles))

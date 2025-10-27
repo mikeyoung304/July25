@@ -14,7 +14,7 @@ import { logger } from '@/services/logger'
 import {
   WorkspaceType,
   getDemoCredentials,
-  getWorkspaceRequiredRoles
+  WORKSPACE_CONFIG
 } from '@/config/demoCredentials'
 
 export interface WorkspaceAuthModalProps {
@@ -50,7 +50,7 @@ export function WorkspaceAuthModal({
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
   const demoMode = import.meta.env.VITE_DEMO_PANEL === '1'
   const demoCredentials = getDemoCredentials(workspace)
-  const requiredRoles = getWorkspaceRequiredRoles(workspace)
+  const requiredRoles = WORKSPACE_CONFIG[workspace].requiredRoles
 
   // Pre-fill demo credentials if available
   useEffect(() => {

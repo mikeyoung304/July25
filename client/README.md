@@ -125,62 +125,24 @@ VITE_API_BASE_URL=http://localhost:3001
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_key
 VITE_WEBSOCKET_URL=ws://localhost:3001
-VITE_WORKSPACE_LANDING_ENABLED=0    # Enable new workspace dashboard (default: 0)
 VITE_DEMO_PANEL=0                    # Enable demo mode (default: 0)
 ```
 
-## Workspace Landing (Feature Flag)
+## Workspace Landing
 
-The application supports a new workspace-based landing experience that eliminates authentication confusion by presenting workspace tiles upfront.
-
-### Enabling the Feature
-Set `VITE_WORKSPACE_LANDING_ENABLED=1` in your `.env` file to enable the new landing flow.
+The application uses a workspace-based landing page that presents 6 workspace tiles upfront (Server, Kitchen, Kiosk, Online Order, Admin, Expo).
 
 ### Architecture
-When enabled:
-- **Root Route (`/`)**: Displays WorkspaceDashboard with 6 workspace tiles
-- **Old Landing (`/welcome`)**: Preserved for fallback
-- **Protected Workspaces**: Server, Kitchen, Admin, Expo (require authentication)
-- **Public Workspaces**: Kiosk, Online Order (no authentication required)
-
-### Components
-- **WorkspaceDashboard** (`/src/pages/WorkspaceDashboard.tsx`): Main landing page with 6 workspace tiles
-- **WorkspaceAuthModal** (`/src/components/auth/WorkspaceAuthModal.tsx`): Authentication modal with focus trap and keyboard navigation
-- **useWorkspaceAccess** (`/src/hooks/useWorkspaceAccess.ts`): Hook for workspace access logic
+- **Root Route (`/`)**: WorkspaceDashboard with 6 workspace tiles
+- **Protected Workspaces**: Server, Kitchen, Admin, Expo (require authentication via modal)
+- **Public Workspaces**: Kiosk, Online Order (immediate access, no authentication)
 
 ### Demo Mode
-When `VITE_DEMO_PANEL=1`, the system pre-fills role-specific credentials:
-- **Server Workspace**: server@restaurant.com / Demo123!
-- **Kitchen Workspace**: kitchen@restaurant.com / Demo123!
-- **Expo Workspace**: expo@restaurant.com / Demo123!
-- **Admin Workspace**: manager@restaurant.com / Demo123!
-
-### Deep Links
-Deep links to protected workspaces (e.g., `/server`, `/kitchen`) automatically show the authentication modal when the user is not authenticated. After successful login, the user is navigated to their intended destination.
-
-### Accessibility
-- Focus trap within modal
-- ESC key closes modal
-- Keyboard navigation through all interactive elements
-- ARIA labels and roles
-- Return focus to triggering tile on close
-
-### Testing
-```bash
-# Unit tests
-npm test -- WorkspaceDashboard
-npm test -- WorkspaceAuthModal
-npm test -- useWorkspaceAccess
-
-# E2E tests
-npm run test:e2e -- workspace-landing.spec.ts
-```
-
-### Rollback
-To disable the feature and revert to the original landing:
-```env
-VITE_WORKSPACE_LANDING_ENABLED=0
-```
+When `VITE_DEMO_PANEL=1`, clicking protected workspace tiles pre-fills role-specific credentials:
+- Server → server@restaurant.com / Demo123!
+- Kitchen → kitchen@restaurant.com / Demo123!
+- Expo → expo@restaurant.com / Demo123!
+- Admin → manager@restaurant.com / Demo123!
 
 ## Testing
 
