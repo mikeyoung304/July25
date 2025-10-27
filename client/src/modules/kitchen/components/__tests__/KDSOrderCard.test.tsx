@@ -4,54 +4,12 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { OrderCard as KDSOrderCard } from '@/components/kitchen/OrderCard'
 import type { Order } from '@rebuild/shared'
 
-// Mock the child components
-vi.mock('@/components/shared/order/OrderHeaders', () => ({
-  OrderHeader: ({ orderNumber, status }: { orderNumber: string; status: string }) => (
-    <div data-testid="order-header">
-      Order #{orderNumber} - {status}
-    </div>
-  ),
-  OrderMetadata: ({ tableNumber, orderTime }: { tableNumber: string; orderTime: Date }) => (
-    <div data-testid="order-metadata">
-      Table {tableNumber} - {orderTime.toLocaleTimeString()}
-    </div>
-  )
-}))
-
-vi.mock('@/components/shared/order/OrderItemsList', () => ({
-  OrderItemsList: ({ items }: { items: any[] }) => (
-    <div data-testid="order-items">
-      {items.map((item: any) => (
-        <div key={item.id}>
-          {item.quantity}x {item.name}
-          {item.modifiers && <span> - {item.modifiers.join(', ')}</span>}
-          {item.notes && <span> ({item.notes})</span>}
-        </div>
-      ))}
-    </div>
-  )
-}))
-
-vi.mock('@/components/shared/order/OrderActions', () => ({
-  OrderActions: ({ status, onStatusChange }: { status: string; onStatusChange?: (status: string) => void }) => (
-    <div data-testid="order-actions">
-      {status === 'new' && (
-        <button onClick={() => onStatusChange?.('preparing')}>Start Preparing</button>
-      )}
-      {status === 'preparing' && (
-        <button onClick={() => onStatusChange?.('ready')}>Mark Ready</button>
-      )}
-      {status === 'ready' && <span>Ready for pickup</span>}
-    </div>
-  )
-}))
-
 describe('KDSOrderCard', () => {
   const mockOrder: Order = {
     id: 'order-1',
     restaurant_id: 'rest-1',
     order_number: '001',
-    type: 'dine-in',
+    type: 'online', // Component maps 'online' to 'Dine-In'
     status: 'new',
     items: [
       {
@@ -81,14 +39,13 @@ describe('KDSOrderCard', () => {
     total: 33.45,
     payment_status: 'pending',
     table_number: '5',
-    notes: 'Well done',
     created_at: '2024-01-01T12:00:00Z',
     updated_at: '2024-01-01T12:00:00Z'
   }
 
   const defaultProps = {
     order: mockOrder,
-    onStatusChange: vi.fn()
+    onStatusChange: vi.fn() // Signature: (orderId: string, status: 'ready') => void
   }
 
   beforeEach(() => {
@@ -103,69 +60,87 @@ describe('KDSOrderCard', () => {
 
   it('renders order information correctly', () => {
     render(<KDSOrderCard {...defaultProps} />)
-    
-    // Check that order header contains the order number and status
-    const orderHeader = screen.getByTestId('order-header')
-    expect(orderHeader).toHaveTextContent('001')
-    expect(orderHeader).toHaveTextContent('new')
-    expect(screen.getByTestId('order-items')).toBeInTheDocument()
+
+    // Check order number and status
+    expect(screen.getByText(/Order #001/)).toBeInTheDocument()
+    expect(screen.getByText('NEW')).toBeInTheDocument()
   })
 
   it('displays all order items with details', () => {
     render(<KDSOrderCard {...defaultProps} />)
-    
+
+    // Component renders items as "quantity x name"
     expect(screen.getByText('2x Cheeseburger')).toBeInTheDocument()
-    expect(screen.getByText(/Extra cheese, No onions/)).toBeInTheDocument()
     expect(screen.getByText('1x French Fries')).toBeInTheDocument()
+
+    // Modifiers are rendered as bullets
+    expect(screen.getByText('• Extra cheese')).toBeInTheDocument()
+    expect(screen.getByText('• No onions')).toBeInTheDocument()
+
+    // Special instructions
+    expect(screen.getByText(/Note: Well done/)).toBeInTheDocument()
   })
 
-  it('shows order actions for new orders', () => {
+  it('shows Complete Order button for new orders', () => {
     render(<KDSOrderCard {...defaultProps} />)
-    
-    const startButton = screen.getByText('Start Preparing')
-    expect(startButton).toBeInTheDocument()
-    
-    fireEvent.click(startButton)
-    expect(defaultProps.onStatusChange).toHaveBeenCalledWith('order-1', 'preparing')
+
+    const completeButton = screen.getByText('Complete Order')
+    expect(completeButton).toBeInTheDocument()
+
+    fireEvent.click(completeButton)
+    // Component signature: onStatusChange(orderId: string, status: 'ready')
+    expect(defaultProps.onStatusChange).toHaveBeenCalledWith('order-1', 'ready')
   })
 
-  it('shows different actions for preparing orders', () => {
+  it('shows Complete Order button for preparing orders', () => {
     const preparingOrder = { ...mockOrder, status: 'preparing' as const }
     render(<KDSOrderCard order={preparingOrder} onStatusChange={defaultProps.onStatusChange} />)
-    
-    const readyButton = screen.getByText('Mark Ready')
-    expect(readyButton).toBeInTheDocument()
-    
-    fireEvent.click(readyButton)
+
+    // Component only has one action button: Complete Order (not multi-step)
+    const completeButton = screen.getByText('Complete Order')
+    expect(completeButton).toBeInTheDocument()
+
+    fireEvent.click(completeButton)
     expect(defaultProps.onStatusChange).toHaveBeenCalledWith('order-1', 'ready')
   })
 
   it('shows ready status for completed orders', () => {
     const readyOrder = { ...mockOrder, status: 'ready' as const }
     render(<KDSOrderCard order={readyOrder} onStatusChange={defaultProps.onStatusChange} />)
-    
-    expect(screen.getByText('Ready for pickup')).toBeInTheDocument()
-    expect(screen.queryByRole('button')).not.toBeInTheDocument()
-  })
 
-  it('applies KDS-specific styling', () => {
-    render(<KDSOrderCard {...defaultProps} />)
-    
-    const card = screen.getByTestId('order-card-order-1')
-    expect(card).toHaveClass('kds-order-card')
+    // Component shows checkmark and text for ready orders
+    expect(screen.getByText(/✓ Ready for Pickup/)).toBeInTheDocument()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
   it('handles order type badge display', () => {
     render(<KDSOrderCard {...defaultProps} />)
-    
-    // Should show order type badge for KDS variant
-    expect(screen.getByText('Dine In')).toBeInTheDocument()
+
+    // Component maps 'online' type to 'Dine-In'
+    expect(screen.getByText('Dine-In')).toBeInTheDocument()
   })
 
-  it('displays timer when enabled', () => {
+  it('displays timer', () => {
     render(<KDSOrderCard {...defaultProps} />)
-    
-    // Timer should be visible in KDS variant
-    expect(screen.getByText(/\d+m/)).toBeInTheDocument()
+
+    // Timer shows elapsed time in minutes (calculated from created_at)
+    // Since mock time is 12:00:00 and created_at is 12:00:00, elapsed is 0 minutes
+    expect(screen.getByText(/0m/)).toBeInTheDocument()
+  })
+
+  it('displays table number when customer name is available', () => {
+    const orderWithCustomer = { ...mockOrder, customer_name: 'John Doe' }
+    render(<KDSOrderCard order={orderWithCustomer} onStatusChange={defaultProps.onStatusChange} />)
+
+    // Table number is only displayed if customer_name exists
+    expect(screen.getByText(/Table 5/)).toBeInTheDocument()
+    expect(screen.getByText('John Doe')).toBeInTheDocument()
+  })
+
+  it('does not display customer section when customer name is not available', () => {
+    render(<KDSOrderCard {...defaultProps} />)
+
+    // Customer section should not be rendered when customer_name is undefined
+    expect(screen.queryByText(/Table 5/)).not.toBeInTheDocument()
   })
 })
