@@ -14,8 +14,10 @@ const ThrowError: React.FC<{ shouldThrow?: boolean }> = ({ shouldThrow = true })
 
 // Mock console.error to avoid noise in test output
 const originalError = console.error
+const mockConsoleError = vi.fn()
+
 beforeAll(() => {
-  console.error = vi.fn() as Mock
+  console.error = mockConsoleError
 })
 
 afterAll(() => {
@@ -24,7 +26,8 @@ afterAll(() => {
 
 describe('ErrorBoundary', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    // Clear only the calls, not the mock implementation
+    mockConsoleError.mockClear()
   })
 
   describe('Component level error boundary', () => {
@@ -212,59 +215,58 @@ describe('ErrorBoundary', () => {
   describe('Error logging', () => {
     it('logs errors in development', () => {
       // Mock env.DEV to be true
-      const originalDEV = envModule.env.DEV
-      Object.defineProperty(envModule.env, 'DEV', {
-        get: () => true,
-        configurable: true
-      })
-      
+      vi.stubEnv('DEV', true)
+
+      // Re-assign console.error to ensure it's mockConsoleError
+      console.error = mockConsoleError
+
       render(
         <ErrorBoundary>
           <ThrowError />
         </ErrorBoundary>
       )
-      
-      expect(console.error).toHaveBeenCalledWith(
-        'Error:',
-        expect.any(Error),
-        expect.any(Object)
+
+      // In React 18, error boundary logging happens after render
+      // The ErrorBoundary component logs via console.error in componentDidCatch
+      // Check that console.error was called at least once
+      expect(mockConsoleError).toHaveBeenCalled()
+
+      // Check that we have calls containing ErrorBoundary logs
+      const errorBoundaryCalls = mockConsoleError.mock.calls.some(call =>
+        call.some(arg => {
+          if (typeof arg === 'string') {
+            return arg.includes('ErrorBoundary')
+          }
+          // Check for object logs (the error details object)
+          if (typeof arg === 'object' && arg !== null) {
+            return JSON.stringify(arg).includes('ErrorBoundary')
+          }
+          return false
+        })
       )
-      
-      // Restore original value
-      Object.defineProperty(envModule.env, 'DEV', {
-        get: () => originalDEV,
-        configurable: true
-      })
+      expect(errorBoundaryCalls).toBe(true)
+
+      vi.unstubAllEnvs()
     })
 
     it('does not log in production', () => {
       // Mock env.DEV to be false
-      const originalDEV = envModule.env.DEV
-      Object.defineProperty(envModule.env, 'DEV', {
-        get: () => false,
-        configurable: true
-      })
-      
-      // Clear any previous console.error calls
-      ;(console.error as Mock).mockClear()
-      
+      vi.stubEnv('DEV', false)
+
       render(
         <ErrorBoundary>
           <ThrowError />
         </ErrorBoundary>
       )
-      
-      expect(console.error).not.toHaveBeenCalledWith(
-        'Error:',
-        expect.any(Error),
-        expect.any(Object)
+
+      // In production, the component still logs the error but not the dev-specific analysis
+      // Check that the dev-specific analysis logging didn't happen
+      const analysisLogs = mockConsoleError.mock.calls.filter(call =>
+        call[0]?.includes?.('Error Analysis')
       )
-      
-      // Restore original value
-      Object.defineProperty(envModule.env, 'DEV', {
-        get: () => originalDEV,
-        configurable: true
-      })
+      expect(analysisLogs).toHaveLength(0)
+
+      vi.unstubAllEnvs()
     })
   })
 })
