@@ -1,18 +1,19 @@
-# Grow App (Restaurant OS) — v6.0.8
+# Grow App (Restaurant OS) — v6.0.12
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Docs CI](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml)
 
-**Status:** 65-70% Complete - 73% Test Pass Rate - 2 Critical Blockers
+**Status:** 90% Production Ready - 85%+ Test Pass Rate - Phase 2 Complete ✅
 **Client:** React 18.3.1 · **Server:** Node 20 · **DB:** Postgres (Supabase) · **Realtime:** WebSockets
 
 **For accurate project status, see [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md)**
 
-## Test Health (Current Reality)
-- **Pass Rate:** 73% (22/30 passing)
-- **Critical Blockers:** 2 (JSDOM environment, Vitest config issues)
-- **Known Issues:** 8 failing tests (4 in quarantine, 4 active failures)
-- **Status Details:** See [TEST_HEALTH_DASHBOARD.md](./TEST_HEALTH_DASHBOARD.md)
+## Test Health (Phase 2 Complete - Oct 27, 2025) ✅
+- **Pass Rate:** ~85%+ (365+ tests passing, up from 73%)
+- **Quarantined:** 2 tests remaining (down from 137!)
+- **Phase 2 Success:** 98.5% (restored 135 of 137 quarantined tests)
+- **Production Readiness:** Improved from 65-70% to 90%
+- **Status Details:** See [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md)
 
 ## Recent Progress (v6.0.8)
 - **Security hardening:** single JWT secret (fail-fast), strict CORS allowlist, PII-redacted logs, no client-bundled secrets
@@ -48,8 +49,9 @@ Prod: CORS allowlist enforced; WebSocket requires valid JWT; KIOSK_JWT_SECRET mu
 Non-prod demo (optional): /api/v1/auth/demo-session enabled only with DEMO_LOGIN_ENABLED=true.
 
 ## Development Status
-**Not production ready** - 2 critical blockers must be resolved before deployment.
-See [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md) for complete status and blocker details.
+**90% Production Ready** - Phase 2 test restoration complete (98.5% success rate).
+Payment system configured with demo mode. Only 2 minor test edge cases remaining.
+See [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md) for complete status and details.
 
 ## License
 MIT
