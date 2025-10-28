@@ -17,6 +17,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Files: `WorkspaceDashboard.tsx`, `WorkspaceAuthModal.tsx`, `useWorkspaceAccess.ts`, `demoCredentials.ts`
 
 ### Fixed
+- **CRITICAL: Workspace Authentication Bypass** - Fixed protected workspaces failing to authenticate users
+  - Root cause: Double `handleAccess()` call created race condition with stale auth state
+  - Symptom: Auth modal flashes briefly then redirects to Online Order without making login API call
+  - Example: User clicks Server workspace, modal appears with server@restaurant.com, but no POST /api/v1/auth/login call made
+  - Solution: Replace redundant `handleAccess()` call in `handleSuccess()` with direct `navigate(intendedDestination)`
+  - Impact: Enables authentication for all protected workspaces (Server, Kitchen, Admin, Expo)
+  - Investigation: `docs/investigations/auth-bypass-root-cause-FINAL.md`
+  - Files: `client/src/pages/WorkspaceDashboard.tsx`
+
+- **CRITICAL: Online Order Menu Items Below Viewport** - Fixed menu items appearing 500px below fold
+  - Root cause: Excessive CSS spacing pushed first menu item to 1,087px from top (viewport only 600px)
+  - Symptom: Users reported "menu doesn't load" - actually loaded but invisible below fold
+  - Measurement: Header (150px) + filters (150px) + categories (256px) + excessive padding (531px) = items at 1,087px
+  - Solution: Reduced padding and spacing in CustomerOrderPage and MenuSections components
+  - Changes: `py-12 md:py-16` → `py-6 md:py-8`, `space-y-16 md:space-y-20` → `space-y-8 md:space-y-10`
+  - Impact: Menu items now visible in initial viewport without scrolling
+  - Investigation: `docs/investigations/comprehensive-root-cause-analysis-oct27-2025.md`
+  - Files: `client/src/modules/order-system/components/CustomerOrderPage.tsx`, `client/src/modules/order-system/components/MenuSections.tsx`
+
 - **CRITICAL: Auth State Race Condition** - Fixed stale user data displayed after account switching
   - Root cause: Race condition between `logout()` and `onAuthStateChange` events
   - Symptom: WorkspaceAuthModal showed previous user's email after logout + login sequence

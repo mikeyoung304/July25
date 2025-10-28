@@ -147,8 +147,8 @@ export const CustomerOrderPage: React.FC = () => {
         />
       )}
 
-      {/* Menu Sections - More generous spacing */}
-      <main className="max-w-7xl mx-auto px-6 md:px-8 py-12 md:py-16">
+      {/* Menu Sections - Compact spacing to show items above fold */}
+      <main className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8">
         <MenuSections
           searchQuery={searchQuery}
           dietaryFilters={dietaryFilters}

@@ -190,13 +190,13 @@ export const MenuSections: React.FC<MenuSectionsProps> = ({
     );
   }
 
-  // Show menu sections with generous spacing - styled like restaurant menu
+  // Show menu sections with compact spacing to show items above fold
   return (
-    <div className="space-y-16 md:space-y-20">
+    <div className="space-y-8 md:space-y-10">
       {menuSections.map((section) => (
         <section key={section.id} id={`section-${section.id}`} className="">
           {/* Section Header - Restaurant style with orange accent */}
-          <div className="mb-8 md:mb-10 border-b border-orange-400 pb-4">
+          <div className="mb-6 md:mb-8 border-b border-orange-400 pb-4">
             <h2 className="text-3xl md:text-4xl font-bold tracking-wide text-orange-500 mb-2">
               {section.title}
             </h2>

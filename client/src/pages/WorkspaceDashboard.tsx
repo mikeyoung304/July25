@@ -8,10 +8,12 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Users, ChefHat, ShoppingCart, Settings, Globe, Package } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { WorkspaceAuthModal } from '@/components/auth/WorkspaceAuthModal'
 import { useWorkspaceAccess } from '@/hooks/useWorkspaceAccess'
 import { WorkspaceType } from '@/config/demoCredentials'
 import { useAuth } from '@/contexts/auth.hooks'
+import { logger } from '@/services/logger'
 
 interface WorkspaceTileProps {
   title: string
@@ -32,14 +34,22 @@ function WorkspaceTile({ title, workspace, icon, color, delay = 0 }: WorkspaceTi
     isLoading
   } = useWorkspaceAccess(workspace)
   const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
 
   // Show insufficient permissions if authenticated but lacking access
   const showInsufficientPermissions = requiresAuth && isAuthenticated && !hasPermission
 
   const handleSuccess = () => {
     closeModal()
-    // The hook will handle navigation after modal closes
-    handleAccess()
+    // Navigate directly to intended destination after successful authentication
+    // Don't call handleAccess() again to avoid race condition with stale auth state
+    if (intendedDestination) {
+      logger.info('Navigating to workspace after auth success', {
+        workspace,
+        destination: intendedDestination
+      })
+      navigate(intendedDestination)
+    }
   }
 
   return (
