@@ -147,6 +147,241 @@ Operational and deployment procedures have been moved to the canonical deploymen
 - Implement proper authentication checks
 - Follow OWASP security guidelines
 
+## Adding Protected Routes
+
+When adding a new API route that requires authentication and authorization, follow this guide to ensure proper security and avoid common middleware ordering bugs.
+
+### The Standard Pattern
+
+All protected routes must follow this middleware order:
+
+```typescript
+router.METHOD('/path',
+  authenticate,                      // 1. Verify JWT, set req.user
+  validateRestaurantAccess,          // 2. Extract + validate restaurant ID, set req.restaurantId
+  requireScopes(ApiScope.XXX),       // 3. Check permissions (requires both user and restaurantId)
+  validateBody(Schema),              // 4. Validate request body (optional, for POST/PATCH)
+  async (req: AuthenticatedRequest, res, next) => {
+    // Your route handler - all dependencies satisfied
+  }
+);
+```
+
+**Why this order matters:** The `requireScopes()` middleware at `server/src/middleware/rbac.ts:202` checks for `req.restaurantId`. If `validateRestaurantAccess` runs after `requireScopes`, the context will be undefined and the request will fail with 403 errors.
+
+### Step-by-Step Guide
+
+#### 1. Determine Required Scopes
+
+Check `server/src/middleware/rbac.ts:12-41` for available scopes:
+
+```typescript
+export enum ApiScope {
+  ORDERS_CREATE = 'orders:create',
+  ORDERS_READ = 'orders:read',
+  ORDERS_UPDATE = 'orders:update',
+  PAYMENTS_PROCESS = 'payments:process',
+  // ... etc
+}
+```
+
+**Naming Convention:** Always use colons (`:`) not dots (`.`). Example: `orders:create` not `orders.create`
+
+#### 2. Add the Route with Correct Middleware Order
+
+**Example - POST Route:**
+```typescript
+import { authenticate, AuthenticatedRequest } from '../middleware/auth';
+import { validateRestaurantAccess } from '../middleware/restaurantAccess';
+import { requireScopes, ApiScope } from '../middleware/rbac';
+import { validateBody } from '../middleware/validate';
+
+router.post('/items',
+  authenticate,                              // ✅ Always first
+  validateRestaurantAccess,                  // ✅ Always before requireScopes
+  requireScopes(ApiScope.MENU_MANAGE),      // ✅ After restaurant context
+  validateBody(MenuItemPayload),             // ✅ Last middleware
+  async (req: AuthenticatedRequest, res, next) => {
+    const restaurantId = req.restaurantId!;  // Safe - validated by middleware
+    const itemData = (req as any).validated; // Safe - validated by middleware
+
+    // Your implementation
+  }
+);
+```
+
+**Example - GET Route:**
+```typescript
+router.get('/items',
+  authenticate,
+  validateRestaurantAccess,
+  // No validateBody needed for GET
+  async (req: AuthenticatedRequest, res, next) => {
+    const restaurantId = req.restaurantId!;
+    // Your implementation
+  }
+);
+```
+
+#### 3. Implement Multi-Tenancy
+
+**Always scope database queries by restaurantId:**
+
+```typescript
+// ✅ CORRECT - Scoped by restaurant
+const items = await db.menu_items
+  .where('restaurant_id', restaurantId)
+  .select();
+
+// ❌ WRONG - No restaurant scoping (security vulnerability!)
+const items = await db.menu_items.select();
+```
+
+**Always include restaurantId in created records:**
+
+```typescript
+// ✅ CORRECT
+const newItem = await db.menu_items.insert({
+  ...itemData,
+  restaurant_id: restaurantId  // Multi-tenant scoping
+});
+
+// ❌ WRONG - Missing restaurant_id
+const newItem = await db.menu_items.insert(itemData);
+```
+
+#### 4. If Adding New Scopes
+
+If your route needs a scope that doesn't exist yet:
+
+**Step 4a:** Add to ApiScope enum (`server/src/middleware/rbac.ts:12-41`)
+```typescript
+export enum ApiScope {
+  // ... existing scopes
+  REPORTS_EXPORT = 'reports:export',  // New scope
+}
+```
+
+**Step 4b:** Add to role(s) in ROLE_SCOPES constant (`rbac.ts:103+`)
+```typescript
+manager: [
+  // ... existing scopes
+  ApiScope.REPORTS_EXPORT,  // Add to manager role
+],
+```
+
+**Step 4c:** Create database migration (see `rbac.ts:43-102` for detailed procedure)
+```sql
+-- File: supabase/migrations/YYYYMMDD_add_reports_export_scope.sql
+
+-- 1. Add to api_scopes table FIRST
+INSERT INTO api_scopes (scope, description) VALUES
+  ('reports:export', 'Export reports to CSV/PDF')
+ON CONFLICT (scope) DO NOTHING;
+
+-- 2. Add to role_scopes table
+INSERT INTO role_scopes (role, scope) VALUES
+  ('manager', 'reports:export')
+ON CONFLICT (role, scope) DO NOTHING;
+```
+
+**Step 4d:** Apply migration
+```bash
+supabase db push --linked
+```
+
+**Step 4e:** Verify sync
+```bash
+# Query database to confirm scope exists
+psql -c "SELECT role, scope FROM role_scopes WHERE scope = 'reports:export';"
+```
+
+### Protected Routes Checklist
+
+Before submitting your PR, verify:
+
+- [ ] Middleware order is correct: authenticate → validateRestaurantAccess → requireScopes → validateBody
+- [ ] Correct scope(s) specified in requireScopes()
+- [ ] Database queries scoped by restaurantId
+- [ ] Created records include restaurant_id
+- [ ] If new scope: Added to ApiScope enum
+- [ ] If new scope: Added to ROLE_SCOPES constant
+- [ ] If new scope: Database migration created and applied
+- [ ] Tested with non-admin role (server, kitchen, customer)
+- [ ] X-Restaurant-ID header included in test requests
+
+### Reference Implementations
+
+**Study these files for correct patterns:**
+
+- `server/src/routes/payments.routes.ts:104-109` - POST route with all middleware
+- `server/src/routes/orders.routes.ts:40` - POST route (fixed in commit 0ad5c77a)
+- `server/src/routes/orders.routes.ts:18` - GET route with authentication
+- `server/src/routes/auth.routes.ts:359` - GET route with restaurant context
+
+### Common Mistakes to Avoid
+
+**❌ Mistake 1: Wrong middleware order**
+```typescript
+router.post('/',
+  authenticate,
+  requireScopes(ApiScope.ORDERS_CREATE),  // ❌ WRONG - before validateRestaurantAccess
+  validateRestaurantAccess,
+  // ...
+);
+```
+**Error:** 403 Forbidden - Restaurant context required
+
+**✅ Fix:** Move validateRestaurantAccess before requireScopes
+
+---
+
+**❌ Mistake 2: Forgetting validateRestaurantAccess**
+```typescript
+router.post('/',
+  authenticate,
+  requireScopes(ApiScope.ORDERS_CREATE),  // ❌ Missing validateRestaurantAccess
+  // ...
+);
+```
+**Error:** 403 Forbidden - Restaurant context required
+
+**✅ Fix:** Add validateRestaurantAccess middleware
+
+---
+
+**❌ Mistake 3: Using dot notation for scopes**
+```typescript
+INSERT INTO api_scopes (scope) VALUES ('orders.create');  // ❌ WRONG - uses dots
+```
+**Error:** Foreign key violation or scope mismatch
+
+**✅ Fix:** Use colon notation: `'orders:create'`
+
+---
+
+**❌ Mistake 4: Testing only with admin role**
+```bash
+# Only testing with admin bypasses scope checks
+curl -H "Authorization: Bearer $ADMIN_TOKEN" ...
+```
+**Problem:** Bug not discovered until production
+
+**✅ Fix:** Test with server, kitchen, or customer role:
+```bash
+TOKEN=$(curl ... -d '{"email":"server@restaurant.com",...}' | jq -r '.session.accessToken')
+curl -H "Authorization: Bearer $TOKEN" ...
+```
+
+### Related Documentation
+
+- **Middleware Patterns:** [AUTHENTICATION_ARCHITECTURE.md - Middleware Patterns & Ordering](./AUTHENTICATION_ARCHITECTURE.md#middleware-patterns--ordering)
+- **RBAC Architecture:** [AUTHENTICATION_ARCHITECTURE.md - Database Schema](./AUTHENTICATION_ARCHITECTURE.md#database-schema)
+- **Investigation Case Study:** [docs/investigations/workspace-auth-fix-2025-10-29.md](./investigations/workspace-auth-fix-2025-10-29.md)
+- **Troubleshooting 403 Errors:** [TROUBLESHOOTING.md - 403 Forbidden Errors](#) (if added)
+
+---
+
 ## Documentation
 
 ### When to Update Documentation

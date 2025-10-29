@@ -682,6 +682,267 @@ grep -A 20 "Check Supabase session" client/src/services/http/httpClient.ts
 
 ---
 
+### Problem: 403 Forbidden - Restaurant Context Required
+
+**Symptoms**:
+- API returns `403 Forbidden` with error message "Restaurant context required"
+- User is authenticated (has valid JWT) but requests fail
+- Error occurs on protected endpoints (POST /orders, POST /payments, etc.)
+- Stack trace points to `server/src/middleware/rbac.ts:202`
+
+**Root Cause**: Middleware ordering violation. The `requireScopes()` middleware runs before `validateRestaurantAccess`, so `req.restaurantId` is undefined.
+
+**Diagnosis**:
+
+```bash
+# Check backend logs for this error pattern
+grep "Restaurant context required" logs/server.log
+
+# Look for middleware order issue
+grep -A 10 "router.post\|router.get" server/src/routes/*.routes.ts
+
+# Compare with working pattern
+cat server/src/routes/payments.routes.ts:104-109
+```
+
+**Common Causes**:
+
+| Cause | Symptom | Fix |
+|-------|---------|-----|
+| **Wrong middleware order** | requireScopes before validateRestaurantAccess | Reorder: validateRestaurantAccess must run first |
+| **Missing validateRestaurantAccess** | Only authenticate + requireScopes | Add validateRestaurantAccess middleware |
+| **Missing X-Restaurant-ID header** | Client not sending header | Add header to HTTP client |
+
+**Fix 1 - Correct Middleware Order**:
+
+```typescript
+// ❌ WRONG - requireScopes before validateRestaurantAccess
+router.post('/items',
+  authenticate,
+  requireScopes(ApiScope.MENU_MANAGE),    // Runs second - no restaurantId yet!
+  validateRestaurantAccess,                // Runs third - too late
+  async (req, res) => { /* ... */ }
+);
+
+// ✅ CORRECT - validateRestaurantAccess before requireScopes
+router.post('/items',
+  authenticate,                            // 1. Set user
+  validateRestaurantAccess,                // 2. Set restaurantId
+  requireScopes(ApiScope.MENU_MANAGE),    // 3. Check permissions (has restaurantId now)
+  async (req, res) => { /* ... */ }
+);
+```
+
+**Fix 2 - Add Missing Middleware**:
+
+```typescript
+// ❌ WRONG - Missing validateRestaurantAccess
+router.post('/items',
+  authenticate,
+  requireScopes(ApiScope.MENU_MANAGE),
+  async (req, res) => { /* ... */ }
+);
+
+// ✅ CORRECT - All required middleware
+router.post('/items',
+  authenticate,
+  validateRestaurantAccess,                // Add this
+  requireScopes(ApiScope.MENU_MANAGE),
+  async (req, res) => { /* ... */ }
+);
+```
+
+**Fix 3 - Verify X-Restaurant-ID Header**:
+
+```bash
+# Test with curl to verify header is being sent
+TOKEN="your_jwt_token_here"
+RESTAURANT_ID="11111111-1111-1111-1111-111111111111"
+
+curl -X POST http://localhost:3001/api/v1/orders \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Restaurant-ID: $RESTAURANT_ID" \    # ← Must include this
+  -H "Content-Type: application/json" \
+  -d '{"items":[...]}'
+```
+
+**Verification**:
+
+After fix, check logs for success:
+```bash
+grep "Restaurant access validated" logs/server.log  # ✅ validateRestaurantAccess passed
+grep "RBAC check passed" logs/server.log            # ✅ requireScopes passed
+```
+
+**Related Documentation**:
+- [AUTHENTICATION_ARCHITECTURE.md - Middleware Patterns](./AUTHENTICATION_ARCHITECTURE.md#middleware-patterns--ordering)
+- [CONTRIBUTING.md - Adding Protected Routes](./CONTRIBUTING.md#adding-protected-routes)
+- [Investigation Case Study](./investigations/workspace-auth-fix-2025-10-29.md) - Real debugging example
+
+---
+
+### Problem: 403 Forbidden - Insufficient Permissions
+
+**Symptoms**:
+- API returns `403 Forbidden` with error message "Insufficient permissions. Required: orders:create"
+- User is authenticated and restaurant context is set
+- User role doesn't have the required scope
+
+**Root Cause**: User's role lacks the required permission scope.
+
+**Diagnosis**:
+
+```bash
+# Check what scopes the user's role has
+psql -c "
+  SELECT ur.role, rs.scope
+  FROM user_restaurants ur
+  JOIN role_scopes rs ON rs.role = ur.role
+  WHERE ur.user_id = 'USER_ID_HERE'
+    AND ur.restaurant_id = 'RESTAURANT_ID_HERE'
+  ORDER BY rs.scope;
+"
+
+# Check what the endpoint requires
+grep "requireScopes" server/src/routes/orders.routes.ts
+```
+
+**Common Causes**:
+
+| Cause | Diagnosis | Fix |
+|-------|-----------|-----|
+| **User has wrong role** | Kitchen user trying to create orders | Assign correct role (server, not kitchen) |
+| **Database scope missing** | Code has scope, database doesn't | Run migration to sync scopes |
+| **Scope naming mismatch** | Database has `orders.write`, code checks `orders:create` | Update database to use colon notation |
+
+**Fix 1 - Assign Correct Role**:
+
+```sql
+-- Check current role
+SELECT role FROM user_restaurants
+WHERE user_id = 'USER_ID' AND restaurant_id = 'RESTAURANT_ID';
+
+-- Update to correct role
+UPDATE user_restaurants
+SET role = 'server'  -- server can create orders
+WHERE user_id = 'USER_ID' AND restaurant_id = 'RESTAURANT_ID';
+```
+
+**Fix 2 - Sync Database Scopes**:
+
+If the scope exists in code (`server/src/middleware/rbac.ts`) but not in database:
+
+```sql
+-- 1. Check if scope exists in api_scopes
+SELECT * FROM api_scopes WHERE scope = 'orders:create';
+
+-- 2. If missing, add it
+INSERT INTO api_scopes (scope, description) VALUES
+  ('orders:create', 'Create new orders')
+ON CONFLICT (scope) DO NOTHING;
+
+-- 3. Add to role_scopes table
+INSERT INTO role_scopes (role, scope) VALUES
+  ('server', 'orders:create')
+ON CONFLICT (role, scope) DO NOTHING;
+
+-- 4. Verify
+SELECT role, scope FROM role_scopes WHERE role = 'server' ORDER BY scope;
+```
+
+**Fix 3 - Fix Naming Convention**:
+
+```sql
+-- Check for legacy dot notation
+SELECT * FROM api_scopes WHERE scope LIKE '%.%';
+
+-- Delete legacy scopes
+DELETE FROM role_scopes WHERE scope LIKE '%.%';
+DELETE FROM api_scopes WHERE scope LIKE '%.%';
+
+-- Add correct colon notation (see migration file for full list)
+-- Reference: supabase/migrations/20251029_sync_role_scopes_with_rbac_v2.sql
+```
+
+**Verification**:
+
+```bash
+# Test with corrected role
+TOKEN=$(curl -X POST http://localhost:3001/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"server@restaurant.com","password":"Demo123!"}' \
+  | jq -r '.session.accessToken')
+
+curl -X POST http://localhost:3001/api/v1/orders \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Restaurant-ID: $RESTAURANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"items":[...]}' \
+  | jq
+```
+
+**Related Documentation**:
+- [RBAC Sync Procedure](../server/src/middleware/rbac.ts) - See comment at line 43-102
+- [Investigation Case Study - Round 3](./investigations/workspace-auth-fix-2025-10-29.md#round-3-database-scope-sync)
+
+---
+
+### Problem: 403 Forbidden - No Access to This Restaurant
+
+**Symptoms**:
+- API returns `403 Forbidden` with error message "No access to this restaurant"
+- User is authenticated but not assigned to the restaurant
+- Error occurs in `validateRestaurantAccess` middleware
+
+**Root Cause**: User exists but has no entry in `user_restaurants` table for the requested restaurant.
+
+**Diagnosis**:
+
+```sql
+-- Check user's restaurant assignments
+SELECT ur.restaurant_id, ur.role, ur.is_active, r.name
+FROM user_restaurants ur
+JOIN restaurants r ON r.id = ur.restaurant_id
+WHERE ur.user_id = 'USER_ID_HERE';
+
+-- Check if restaurant exists
+SELECT id, name FROM restaurants WHERE id = 'RESTAURANT_ID_HERE';
+```
+
+**Fix - Assign User to Restaurant**:
+
+```sql
+-- Add user to restaurant
+INSERT INTO user_restaurants (user_id, restaurant_id, role, is_active)
+VALUES (
+  'USER_ID_HERE',
+  'RESTAURANT_ID_HERE',
+  'server',  -- or 'manager', 'kitchen', etc.
+  true
+)
+ON CONFLICT (user_id, restaurant_id) DO UPDATE
+SET is_active = true;
+
+-- Verify assignment
+SELECT * FROM user_restaurants
+WHERE user_id = 'USER_ID_HERE'
+  AND restaurant_id = 'RESTAURANT_ID_HERE';
+```
+
+**Verification**:
+
+```bash
+# Test with assigned user
+curl -X GET http://localhost:3001/api/v1/auth/me \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Restaurant-ID: $RESTAURANT_ID" \
+  | jq
+
+# Should return user with role
+```
+
+---
+
 ### Problem: "Unauthorized" Error on API Requests (Supabase Auth)
 
 **Symptoms**:
