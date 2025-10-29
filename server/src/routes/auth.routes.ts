@@ -6,10 +6,11 @@ import { supabase, supabaseAuth } from '../config/database';
 import { validatePin, createOrUpdatePin } from '../services/auth/pinAuth';
 import { createStationToken, validateStationToken as _validateStationToken, revokeAllStationTokens } from '../services/auth/stationAuth';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
+import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
-import { 
+import {
   authRateLimiters,
-  resetFailedAttempts 
+  resetFailedAttempts
 } from '../middleware/authRateLimiter';
 
 const router = Router();
@@ -353,8 +354,9 @@ router.post('/logout', authenticate, async (req: AuthenticatedRequest, res: Resp
 /**
  * GET /api/v1/auth/me
  * Get current user information
+ * Requires X-Restaurant-ID header to retrieve restaurant-specific role
  */
-router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.get('/me', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.id;
     const restaurantId = req.restaurantId;
