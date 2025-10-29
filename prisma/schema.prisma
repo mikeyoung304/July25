@@ -388,6 +388,7 @@ model users {
   oauth_consents              oauth_consents[]
   one_time_tokens             one_time_tokens[]
   sessions                    sessions[]
+  payment_audit_logs          payment_audit_logs[]
   user_pins                   user_pins[]            @ignore
   user_profiles               user_profiles?
   user_restaurants            user_restaurants[]
@@ -501,8 +502,18 @@ model orders {
   is_scheduled          Boolean?               @default(false)
   manually_fired        Boolean?               @default(false)
   version               Int                    @default(1)
+  seat_number           Int?
+  payment_status        String?                @default("unpaid") @db.VarChar(20)
+  payment_method        String?                @db.VarChar(20)
+  payment_amount        Decimal?               @db.Decimal(10, 2)
+  cash_received         Decimal?               @db.Decimal(10, 2)
+  change_given          Decimal?               @db.Decimal(10, 2)
+  payment_id            String?                @db.VarChar(255)
+  check_closed_at       DateTime?              @db.Timestamp(6)
+  closed_by_user_id     String?                @db.Uuid
   order_status_history  order_status_history[]
   restaurants           restaurants            @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  payment_audit_logs    payment_audit_logs[]
   tables                tables[]
   voice_order_logs      voice_order_logs[]
 
@@ -512,6 +523,8 @@ model orders {
   @@index([restaurant_id], map: "idx_orders_restaurant_id")
   @@index([restaurant_id, status], map: "idx_orders_restaurant_status")
   @@index([restaurant_id, version], map: "idx_orders_version")
+  @@index([check_closed_at], map: "idx_orders_check_closed")
+  @@index([payment_status], map: "idx_orders_payment_status")
   @@schema("public")
 }
 
@@ -659,6 +672,41 @@ model voice_order_logs {
 
   @@index([restaurant_id, created_at(sort: Desc)], map: "idx_voice_logs_restaurant")
   @@index([restaurant_id, created_at(sort: Desc)], map: "idx_voice_logs_restaurant_created")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payment_audit_logs {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id        String?   @db.Uuid
+  user_id         String?   @db.Uuid
+  restaurant_id   String    @db.Uuid
+  amount          Int
+  payment_method  String
+  payment_id      String?
+  status          String
+  error_code      String?
+  error_detail    String?
+  ip_address      String?   @db.Inet
+  user_agent      String?
+  idempotency_key String?   @unique
+  metadata        Json?     @default("{}")
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime? @default(now()) @db.Timestamptz(6)
+  orders          orders?   @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([created_at], map: "idx_payment_audit_logs_created_at")
+  @@index([idempotency_key], map: "idx_payment_audit_logs_idempotency_key")
+  @@index([order_id], map: "idx_payment_audit_logs_order_id")
+  @@index([payment_id], map: "idx_payment_audit_logs_payment_id")
+  @@index([restaurant_id, created_at(sort: Desc)], map: "idx_payment_audit_logs_restaurant_created")
+  @@index([restaurant_id], map: "idx_payment_audit_logs_restaurant_id")
+  @@index([restaurant_id, status], map: "idx_payment_audit_logs_restaurant_status")
+  @@index([status], map: "idx_payment_audit_logs_status")
+  @@index([user_id], map: "idx_payment_audit_logs_user_id")
   @@schema("public")
 }
 
