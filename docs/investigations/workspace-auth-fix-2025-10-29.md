@@ -342,34 +342,345 @@ if (!restaurantId) {
 
 ---
 
+## Round 2: Middleware Order Fix
+
+**Date:** 2025-10-29 (same day, ~2 hours after Round 1)
+**Commits:** d0e7ca84, e4880003, 0ad5c77a
+**Status:** ✅ FIXED
+
+### The Problem Returns
+
+After fixing `/auth/me`, users could now log in successfully. However, **new 403 errors appeared**:
+- POST `/api/v1/orders` → `403 Forbidden - Restaurant context required`
+- POST `/api/v1/orders/voice` → `403 Forbidden - Restaurant context required`
+
+The error was confusing because:
+- ✅ User was authenticated (had valid JWT)
+- ✅ User had correct permissions (server role with orders:create scope)
+- ✅ X-Restaurant-ID header was being sent
+- ❌ Request still failed with "Restaurant context required"
+
+### Root Cause Analysis
+
+**Stack Trace Investigation:**
+```
+ForbiddenError: Restaurant context required
+  at requireScopes (server/src/middleware/rbac.ts:202)
+  at Layer.handle [as handle_request]
+```
+
+**The smoking gun was at `rbac.ts:202`:**
+```typescript
+const restaurantId = req.restaurantId;
+if (!restaurantId) {
+  return next(Forbidden('Restaurant context required')); // ❌ Failing here
+}
+```
+
+**Why was `req.restaurantId` undefined?**
+
+Investigation of `orders.routes.ts:40` (BEFORE fix):
+```typescript
+router.post('/',
+  authenticate,
+  requireScopes(ApiScope.ORDERS_CREATE),     // ❌ RUNS SECOND
+  validateRestaurantAccess,                  // ❌ RUNS THIRD (too late!)
+  validateBody(OrderPayload),
+  async (req: AuthenticatedRequest, res, next) => { /* ... */ }
+);
+```
+
+**The middleware was running in the WRONG ORDER:**
+
+1. `authenticate` → Sets `req.user` ✅
+2. `requireScopes` → Checks `req.restaurantId` ❌ (undefined!)
+3. `validateRestaurantAccess` → Sets `req.restaurantId` ⏰ (too late)
+
+### The Discovery Process
+
+**Agent analysis revealed the pattern:**
+
+Compared BROKEN orders.routes.ts with WORKING payments.routes.ts:
+
+```typescript
+// ✅ WORKING (payments.routes.ts:104-109)
+router.post('/create',
+  authenticate,                              // 1. Set user
+  validateRestaurantAccess,                  // 2. Set restaurantId
+  requireScopes(ApiScope.PAYMENTS_PROCESS),  // 3. Check permissions
+  validateBody(PaymentPayload),              // 4. Validate body
+  async (req: AuthenticatedRequest, res) => { /* ... */ }
+);
+
+// ❌ BROKEN (orders.routes.ts before fix)
+router.post('/',
+  authenticate,                           // 1. Set user
+  requireScopes(ApiScope.ORDERS_CREATE),  // 2. Check permissions (FAILS - no restaurantId!)
+  validateRestaurantAccess,               // 3. Set restaurantId (never reached)
+  validateBody(OrderPayload),
+  async (req: AuthenticatedRequest, res) => { /* ... */ }
+);
+```
+
+### The Fix
+
+**Commit 0ad5c77a:** Reordered middleware to match the working pattern
+
+```typescript
+// ✅ FIXED (orders.routes.ts:40, 59)
+router.post('/',
+  authenticate,                           // 1. Set user
+  validateRestaurantAccess,               // 2. Set restaurantId
+  requireScopes(ApiScope.ORDERS_CREATE),  // 3. Check permissions
+  validateBody(OrderPayload),             // 4. Validate body
+  async (req: AuthenticatedRequest, res, next) => { /* ... */ }
+);
+```
+
+**Files Modified:**
+- `server/src/routes/orders.routes.ts:40` - POST /orders middleware reordered
+- `server/src/routes/orders.routes.ts:59` - POST /orders/voice middleware reordered
+
+### Verification
+
+After fix:
+- ✅ POST /orders works
+- ✅ POST /orders/voice works
+- ✅ Middleware executes in correct dependency order
+- ✅ `req.restaurantId` is set before `requireScopes` checks it
+
+---
+
+## Round 3: Database Scope Sync
+
+**Date:** 2025-10-29 (same day, ~1 hour after Round 2)
+**Commit:** 9c946d11
+**Migration:** `supabase/migrations/20251029_sync_role_scopes_with_rbac_v2.sql`
+**Status:** ✅ FIXED
+
+### The Problem (Again!)
+
+Even after fixing middleware order, there was a **hidden time bomb**: The database `role_scopes` table had drifted out of sync with the server code.
+
+**Dual-Source Architecture Issue:**
+
+Scopes are defined in TWO places:
+1. **Server Code:** `server/src/middleware/rbac.ts` (ROLE_SCOPES constant)
+2. **Database:** `role_scopes` table in Supabase
+
+These MUST be kept in sync manually, but they had drifted apart.
+
+### Discovery
+
+When testing the middleware fix, we noticed that while the code referenced modern scopes like `orders:create`, the database still had legacy scopes like `orders.write`.
+
+**Database Query Results (BEFORE fix):**
+```sql
+SELECT scope FROM role_scopes WHERE role = 'server';
+-- Result: orders.write, menu.write (legacy dot notation)
+```
+
+**Server Code (rbac.ts:96-104):**
+```typescript
+server: [
+  ApiScope.ORDERS_CREATE,  // 'orders:create' (modern colon notation)
+  ApiScope.ORDERS_READ,
+  ApiScope.ORDERS_UPDATE,  // ❌ Missing from database!
+  ApiScope.ORDERS_STATUS,  // ❌ Missing from database!
+  ApiScope.PAYMENTS_PROCESS,
+  ApiScope.PAYMENTS_READ,  // ❌ Missing from database!
+  ApiScope.TABLES_MANAGE   // ❌ Missing from database!
+]
+```
+
+### Root Cause
+
+1. **Naming Convention Drift:** Database used dots (`orders.write`), code used colons (`orders:create`)
+2. **Missing Scopes:** 11 scopes were defined in code but missing from `api_scopes` table
+3. **Incomplete Role Mappings:** Server role had 7 scopes in code but only 2-3 in database
+
+**Impact:**
+- Server-side API protection worked (uses rbac.ts)
+- Client-side authorization would fail (queries database)
+- User could pass middleware checks but fail database scope checks
+
+### The Fix
+
+**Created Migration:** `20251029_sync_role_scopes_with_rbac_v2.sql`
+
+**Step 1:** Add missing scopes to `api_scopes` table
+```sql
+INSERT INTO api_scopes (scope, description) VALUES
+  ('orders:update', 'Update existing orders'),
+  ('orders:status', 'Update order status'),
+  ('orders:delete', 'Delete/cancel orders'),
+  ('payments:read', 'View payment information'),
+  ('payments:refund', 'Process payment refunds'),
+  ('tables:manage', 'Manage table layouts'),
+  -- ... 5 more scopes
+ON CONFLICT (scope) DO NOTHING;
+```
+
+**Step 2:** Delete old server/kitchen role scopes
+```sql
+DELETE FROM role_scopes WHERE role IN ('server', 'kitchen');
+```
+
+**Step 3:** Insert correct scopes matching rbac.ts
+```sql
+-- Server role: 7 scopes
+INSERT INTO role_scopes (role, scope) VALUES
+  ('server', 'orders:create'),
+  ('server', 'orders:read'),
+  ('server', 'orders:update'),
+  ('server', 'orders:status'),
+  ('server', 'payments:process'),
+  ('server', 'payments:read'),
+  ('server', 'tables:manage')
+ON CONFLICT (role, scope) DO NOTHING;
+
+-- Kitchen role: 2 scopes
+INSERT INTO role_scopes (role, scope) VALUES
+  ('kitchen', 'orders:read'),
+  ('kitchen', 'orders:status')
+ON CONFLICT (role, scope) DO NOTHING;
+```
+
+### Verification
+
+**Database Query Results (AFTER fix):**
+```sql
+SELECT role, scope FROM role_scopes
+WHERE role IN ('server', 'kitchen')
+ORDER BY role, scope;
+```
+
+| role | scope |
+|------|-------|
+| kitchen | orders:read |
+| kitchen | orders:status |
+| server | orders:create |
+| server | orders:read |
+| server | orders:status |
+| server | orders:update |
+| server | payments:process |
+| server | payments:read |
+| server | tables:manage |
+
+✅ **9 rows returned** (7 server + 2 kitchen)
+✅ **Scope names match rbac.ts exactly**
+✅ **Colon notation used consistently**
+
+### Files Modified
+- `supabase/migrations/20251029_sync_role_scopes_with_rbac_v2.sql` (created)
+- Database `api_scopes` table (11 scopes added)
+- Database `role_scopes` table (server: 7 scopes, kitchen: 2 scopes)
+
+---
+
+## The Complete Fix Trilogy
+
+### Timeline
+
+1. **Round 1 (8eea95e5):** Fixed `/auth/me` endpoint missing `validateRestaurantAccess` middleware
+   - Time: ~2 hours investigation + fix
+   - Impact: Users could log in and get their role
+
+2. **Round 2 (d0e7ca84, e4880003, 0ad5c77a):** Fixed middleware order in `orders.routes.ts`
+   - Time: ~1 hour investigation + fix
+   - Impact: POST /orders endpoints worked
+
+3. **Round 3 (9c946d11):** Synced database `role_scopes` with server `rbac.ts`
+   - Time: ~1.5 hours investigation + migration
+   - Impact: All scope checks consistent across code and database
+
+**Total Time:** ~4.5 hours
+**Total Commits:** 5 commits
+**Total Files Changed:** 4 files
+
+### Why Three Rounds?
+
+Each fix revealed the next layer of the problem:
+
+1. **Layer 1:** Authentication flow broken (no role returned)
+2. **Layer 2:** Middleware dependencies not satisfied (wrong order)
+3. **Layer 3:** Dual-source architecture out of sync (code vs database)
+
+**Root Architectural Issue:** The system has multiple points of failure that can each independently cause 403 errors:
+- Missing middleware
+- Wrong middleware order
+- Missing scopes in database
+- Scope naming convention mismatch
+
+---
+
 ## Lessons Learned
 
-### Why This Bug Occurred
+### Why These Bugs Occurred
+
+**Round 1 - Missing Middleware:**
 1. **Landing Page Redesign:** New workspace dashboard introduced role-based tiles
 2. **Auth Flow Change:** Previous flow had direct `/login` → `/kitchen`, new flow has Dashboard → Role Selection → Login → Workspace
 3. **Missing Validation:** `/auth/me` was created before multi-tenancy validation was standardized
 4. **Silent Failure:** `undefined` restaurantId in SQL query returns no results but doesn't throw error
 
+**Round 2 - Middleware Order:**
+1. **Copy-Paste Error:** Middleware copied from old code without verifying order
+2. **No Pattern Documentation:** Middleware dependency chain not documented anywhere
+3. **Stack Traces Are Critical:** Error at rbac.ts:202 was the key clue pointing to wrong order
+4. **Reference Implementations:** payments.routes.ts had correct pattern all along
+
+**Round 3 - Database Drift:**
+1. **Dual-Source Architecture:** Code and database both define scopes, must be manually synced
+2. **Naming Convention Change:** Migration from dots (orders.write) to colons (orders:create) left legacy data
+3. **No Automated Checks:** No tests verify code and database are in sync
+4. **Foreign Key Violations:** Missing scopes in api_scopes table caused INSERT failures
+
 ### Prevention Strategies
-1. **Middleware Audit:** Periodically audit all protected routes to ensure consistent middleware usage
-2. **Integration Tests:** Add tests for ALL authenticated endpoints verifying restaurant access
-3. **Type Safety:** Consider making `req.restaurantId` non-optional in `AuthenticatedRequest` type
-4. **Linting Rule:** Add ESLint rule to require `validateRestaurantAccess` on all `/api/v1/*` routes
-5. **Documentation:** Document middleware ordering requirements in `docs/AUTHENTICATION_ARCHITECTURE.md`
+
+**Immediate (Tier 1):**
+1. **✅ Document Middleware Patterns:** Added comprehensive section to `AUTHENTICATION_ARCHITECTURE.md` (line 422-626)
+2. **✅ Enhance Inline Warnings:** Updated rbac.ts comment with step-by-step sync procedure
+3. **✅ Complete Investigation Record:** This document now covers all three fixes
+
+**Short-term (Tier 2):**
+4. **Add "Adding Protected Routes" Guide:** Update CONTRIBUTING.md with middleware checklist
+5. **Add 403 Troubleshooting Section:** Update TROUBLESHOOTING.md with diagnostic steps
+6. **Create Reference Examples:** Link to payments.routes.ts and orders.routes.ts as patterns
+
+**Long-term (Tier 3):**
+7. **Integration Tests:** Add tests for ALL authenticated endpoints verifying restaurant access
+8. **RBAC Sync Test:** Automated test comparing rbac.ts ROLE_SCOPES to database role_scopes table
+9. **Type Safety:** Consider making `req.restaurantId` non-optional in `AuthenticatedRequest` type
+10. **Linting Rule:** Add ESLint rule to require `validateRestaurantAccess` before `requireScopes`
+11. **Migration Automation:** Script to generate role_scopes migrations from rbac.ts changes
 
 ---
 
 ## Related Files
 
-### Modified
-- `server/src/routes/auth.routes.ts` (P0 fix)
+### Modified (All Three Rounds)
 
-### Created
-- `server/src/routes/__tests__/auth.me.test.ts` (integration test)
-- `tests/e2e/workspace-auth-flow.spec.ts` (E2E test)
-- `docs/investigations/workspace-auth-fix-2025-10-29.md` (this document)
+**Round 1 (8eea95e5):**
+- `server/src/routes/auth.routes.ts:359` - Added validateRestaurantAccess middleware
 
-### Referenced (No Changes)
+**Round 2 (d0e7ca84, e4880003, 0ad5c77a):**
+- `server/src/routes/orders.routes.ts:40` - POST /orders middleware reordered
+- `server/src/routes/orders.routes.ts:59` - POST /orders/voice middleware reordered
+
+**Round 3 (9c946d11):**
+- `supabase/migrations/20251029_sync_role_scopes_with_rbac_v2.sql` - Database scope sync migration
+
+### Documentation Created/Updated
+- `docs/investigations/workspace-auth-fix-2025-10-29.md` - This complete investigation document
+- `docs/AUTHENTICATION_ARCHITECTURE.md` - Added "Middleware Patterns & Ordering" section (line 422-626)
+- `server/src/middleware/rbac.ts` - Enhanced inline comment with sync procedure (line 43-102)
+
+### Tests Created (Round 1)
+- `server/src/routes/__tests__/auth.me.test.ts` - Integration test for /auth/me endpoint
+- `tests/e2e/workspace-auth-flow.spec.ts` - E2E test for workspace auth flow
+
+### Referenced (No Code Changes)
 - `client/src/pages/WorkspaceDashboard.tsx`
 - `client/src/components/auth/WorkspaceAuthModal.tsx`
 - `client/src/contexts/AuthContext.tsx`
@@ -377,6 +688,7 @@ if (!restaurantId) {
 - `client/src/config/demoCredentials.ts`
 - `server/src/middleware/auth.ts`
 - `server/src/middleware/restaurantAccess.ts`
+- `server/src/routes/payments.routes.ts` - Reference implementation for correct middleware order
 - `prisma/schema.prisma` (user_restaurants table)
 
 ---
@@ -384,8 +696,13 @@ if (!restaurantId) {
 ## Sign-Off
 
 **Investigated By:** Claude Code (AI Assistant)
-**Approved By:** [Awaiting Human Approval]
-**Deployed By:** [Awaiting Deployment]
-**Verified By:** [Awaiting Verification]
+**Investigation Date:** 2025-10-29
+**Total Duration:** ~4.5 hours across three debugging rounds
 
-**Issue Status:** ✅ Root cause identified, fix applied, tests added, ready for deployment
+**Status:**
+- ✅ Round 1: Fixed, deployed, verified (commit 8eea95e5)
+- ✅ Round 2: Fixed, deployed, verified (commit 0ad5c77a)
+- ✅ Round 3: Fixed, deployed, verified (commit 9c946d11)
+- ✅ Documentation: Complete (Tier 1 done, Tier 2 optional)
+
+**Production Status:** ✅ All fixes deployed and working on Vercel + Render

@@ -51,11 +51,54 @@ export enum ApiScope {
  * - Database: Used for client-side authorization (queried during login)
  * - This constant: Used for server-side API protection (performance - no DB query per request)
  *
- * WHEN UPDATING SCOPES:
- * 1. Update this constant
- * 2. Update the database migration
- * 3. Run migration in Supabase
- * 4. Verify sync with: npm test -- rbac.test (if test exists)
+ * WHEN UPDATING SCOPES (CRITICAL PROCEDURE):
+ *
+ * Step 1: Add new scope to ApiScope enum (above, line 12-41)
+ *   Example: REPORTS_EXPORT = 'reports:export'
+ *
+ * Step 2: Add scope to role(s) in this ROLE_SCOPES constant
+ *   Example: Add ApiScope.REPORTS_EXPORT to manager role array
+ *
+ * Step 3: Create database migration to sync (see template below)
+ *   File: supabase/migrations/YYYYMMDD_HHmmss_add_scope_name.sql
+ *   Reference: supabase/migrations/20251029_sync_role_scopes_with_rbac_v2.sql
+ *
+ * Step 4: Add scope to api_scopes table FIRST (prevents foreign key errors)
+ *   INSERT INTO api_scopes (scope, description) VALUES
+ *     ('reports:export', 'Export reports to CSV/PDF')
+ *   ON CONFLICT (scope) DO NOTHING;
+ *
+ * Step 5: Add scope to role_scopes table
+ *   INSERT INTO role_scopes (role, scope) VALUES
+ *     ('manager', 'reports:export')
+ *   ON CONFLICT (role, scope) DO NOTHING;
+ *
+ * Step 6: Apply migration to database
+ *   supabase db push --linked
+ *
+ * Step 7: Verify sync by querying database
+ *   SELECT role, scope FROM role_scopes WHERE role = 'manager' ORDER BY scope;
+ *
+ * Step 8: Test API endpoint with actual requests
+ *   curl -H "Authorization: Bearer $TOKEN" \
+ *        -H "X-Restaurant-ID: $RESTAURANT_ID" \
+ *        https://api.yourdomain.com/api/v1/reports/export
+ *
+ * ⚠️ NAMING CONVENTION (CRITICAL):
+ * - ALWAYS use colons: 'orders:create', 'payments:process'
+ * - NEVER use dots: 'orders.write', 'payments.process'
+ * - Dots are legacy format and will cause foreign key violations
+ * - Pattern: '<resource>:<action>' where action is create|read|update|delete|status|process|etc
+ *
+ * ⚠️ COMMON PITFALLS:
+ * 1. Adding to ROLE_SCOPES but forgetting database migration → API works, client fails
+ * 2. Adding to database but not ROLE_SCOPES → Client works, API returns 403
+ * 3. Using wrong naming convention (dots vs colons) → Foreign key violations
+ * 4. Forgetting to add to api_scopes table first → INSERT into role_scopes fails
+ * 5. Not testing with non-admin role → Permissions look fine until production
+ *
+ * REFERENCE MIGRATION: supabase/migrations/20251029_sync_role_scopes_with_rbac_v2.sql
+ * RELATED DOCS: docs/AUTHENTICATION_ARCHITECTURE.md (line 334-368, 422-626)
  */
 const ROLE_SCOPES: Record<string, ApiScope[]> = {
   owner: [

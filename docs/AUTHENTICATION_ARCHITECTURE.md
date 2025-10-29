@@ -419,6 +419,213 @@ const allowedOrigins = [
 
 ---
 
+## Middleware Patterns & Ordering
+
+### Critical Dependency Chain
+
+Express middleware executes in the order specified in route definitions. For protected routes with RBAC (Role-Based Access Control), **middleware order is CRITICAL** and must follow this pattern:
+
+```
+1. authenticate         → Sets req.user from JWT
+2. validateRestaurantAccess → Sets req.restaurantId from header + validates access
+3. requireScopes(...)      → Checks permissions (needs BOTH user AND restaurantId)
+4. validateBody(...)       → Validates request payload (optional, for POST/PATCH)
+```
+
+**Why This Order Matters:**
+
+The `requireScopes()` middleware at `server/src/middleware/rbac.ts:202` performs this check:
+
+```typescript
+const restaurantId = req.restaurantId;
+if (!restaurantId) {
+  return next(Forbidden('Restaurant context required')); // ❌ Fails here if undefined
+}
+```
+
+If `validateRestaurantAccess` runs AFTER `requireScopes`, then `req.restaurantId` will be `undefined`, causing a **403 Forbidden "Restaurant context required"** error even for authenticated users with correct permissions.
+
+### Correct Pattern ✅
+
+**Example:** `server/src/routes/payments.routes.ts:104-109`
+
+```typescript
+router.post('/create',
+  authenticate,                              // 1. Verify JWT, set req.user
+  validateRestaurantAccess,                  // 2. Extract + validate restaurant ID
+  requireScopes(ApiScope.PAYMENTS_PROCESS),  // 3. Check permissions
+  validateBody(PaymentPayload),              // 4. Validate request body
+  async (req: AuthenticatedRequest, res, next) => {
+    // Route handler - all dependencies satisfied
+    const restaurantId = req.restaurantId!;  // ✅ Safe to use
+    // ...
+  }
+);
+```
+
+**Example:** `server/src/routes/orders.routes.ts:40` (after fix in commit 0ad5c77a)
+
+```typescript
+router.post('/',
+  authenticate,
+  validateRestaurantAccess,
+  requireScopes(ApiScope.ORDERS_CREATE),
+  validateBody(OrderPayload),
+  async (req: AuthenticatedRequest, res, next) => {
+    // Route handler
+  }
+);
+```
+
+### Anti-Pattern ❌ (What NOT to Do)
+
+**WRONG - requireScopes before validateRestaurantAccess:**
+
+```typescript
+router.post('/orders',
+  authenticate,
+  requireScopes(ApiScope.ORDERS_CREATE),     // ❌ WRONG ORDER
+  validateRestaurantAccess,                  // ❌ Too late - restaurantId not set yet
+  async (req: AuthenticatedRequest, res) => {
+    // This code never runs - middleware fails at requireScopes
+  }
+);
+```
+
+**Result:**
+- ❌ Client receives: `403 Forbidden - Restaurant context required`
+- ❌ Stack trace points to: `server/src/middleware/rbac.ts:202`
+- ❌ User has correct permissions but middleware order prevents validation
+
+**This exact bug occurred twice:**
+- Fixed in commit `e4880003` (removed incorrect middleware)
+- Fixed in commit `0ad5c77a` (corrected middleware order)
+
+### Error Symptoms
+
+If middleware is out of order, you'll see these symptoms:
+
+**1. Backend Logs:**
+```
+WARN: User lacks required scope
+userId: abc123
+userRole: server
+requiredScopes: [ 'orders:create' ]
+userScopes: []  ← Empty because restaurant context missing
+```
+
+**2. Client Response:**
+```json
+{
+  "error": "Restaurant context required",
+  "code": "FORBIDDEN"
+}
+```
+
+**3. Stack Trace:**
+```
+ForbiddenError: Restaurant context required
+  at requireScopes (server/src/middleware/rbac.ts:202)
+  at Layer.handle [as handle_request]
+```
+
+### Common Mistakes Checklist
+
+When adding a new protected route, avoid these mistakes:
+
+- [ ] ❌ **Putting requireScopes before validateRestaurantAccess**
+  - Fix: Always put validateRestaurantAccess BEFORE requireScopes
+
+- [ ] ❌ **Forgetting validateRestaurantAccess entirely**
+  - Fix: Every route using requireScopes needs validateRestaurantAccess first
+
+- [ ] ❌ **Copying middleware from old code without checking order**
+  - Fix: Always use payments.routes.ts or orders.routes.ts as reference
+
+- [ ] ❌ **Adding custom middleware between authenticate and validateRestaurantAccess**
+  - Fix: Keep these two adjacent unless your middleware doesn't need req.user
+
+- [ ] ❌ **Testing only with admin role (which bypasses scope checks)**
+  - Fix: Test with server, kitchen, or customer roles to catch permission issues
+
+### Middleware Reference
+
+**authenticate** (`server/src/middleware/auth.ts`)
+- Verifies JWT token from `Authorization: Bearer <token>` header
+- Supports both Supabase JWTs and custom JWTs (PIN/station/demo)
+- Sets `req.user = { id, role, email, restaurant_id }`
+- **Does NOT set `req.restaurantId`** (by design - security separation)
+
+**validateRestaurantAccess** (`server/src/middleware/restaurantAccess.ts`)
+- Extracts restaurant ID from `X-Restaurant-ID` header
+- Validates user has access to that restaurant (queries `user_restaurants` table)
+- Sets `req.restaurantId` after validation succeeds
+- Returns 403 if user doesn't have access to restaurant
+
+**requireScopes(...scopes)** (`server/src/middleware/rbac.ts`)
+- Checks if user has at least one of the required scopes
+- **Requires both `req.user` AND `req.restaurantId` to be set**
+- Looks up user's role in restaurant (via `user_restaurants` table)
+- Maps role to scopes (via `ROLE_SCOPES` constant)
+- Returns 403 if user lacks required permissions
+
+**validateBody(schema)** (`server/src/middleware/validate.ts`)
+- Validates request body against Zod schema
+- Returns 400 with validation errors if invalid
+- Sets `req.validated` with parsed data
+- Should run AFTER authentication/authorization checks
+
+### Debugging Middleware Issues
+
+If you suspect middleware ordering issues:
+
+**1. Check route definition:**
+```typescript
+// Find the route in server/src/routes/*.routes.ts
+// Verify middleware order matches the pattern above
+```
+
+**2. Check backend logs:**
+```bash
+# Look for these log messages:
+grep "Restaurant access validated" logs/server.log  # validateRestaurantAccess succeeded
+grep "RBAC check passed" logs/server.log            # requireScopes succeeded
+grep "Restaurant context required" logs/server.log  # Middleware order issue
+```
+
+**3. Test with curl:**
+```bash
+# Get token
+TOKEN=$(curl -X POST http://localhost:3001/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"server@restaurant.com","password":"Demo123!"}' \
+  | jq -r '.session.accessToken')
+
+# Test endpoint WITH proper headers
+curl -X POST http://localhost:3001/api/v1/orders \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "X-Restaurant-ID: 11111111-1111-1111-1111-111111111111" \
+  -H "Content-Type: application/json" \
+  -d '{"items":[...]}'
+
+# If this works but browser requests fail, check if X-Restaurant-ID header is being sent
+```
+
+**4. Compare with working routes:**
+```bash
+# payments.routes.ts:104-109 is the canonical correct pattern
+# orders.routes.ts:40 was fixed in commit 0ad5c77a
+# auth.routes.ts:359 shows pattern for GET routes
+```
+
+### Related Documentation
+
+- **RBAC Dual-Source Architecture:** See section "Database Schema" above (line 334-368)
+- **Investigation Report:** `docs/investigations/workspace-auth-fix-2025-10-29.md`
+- **Troubleshooting:** `docs/TROUBLESHOOTING.md` (403 Errors section)
+
+---
+
 ## Migration from v5.0
 
 ### What Changed
