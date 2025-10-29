@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { authenticate, AuthenticatedRequest, requireRole, requireScope } from '../middleware/auth';
+import { authenticate, AuthenticatedRequest, requireRole } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
+import { requireScopes, ApiScope } from '../middleware/rbac';
 import { OrdersService } from '../services/orders.service';
 import { BadRequest, NotFound } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
@@ -36,7 +37,7 @@ router.get('/', authenticate, validateRestaurantAccess, async (req: Authenticate
 });
 
 // POST /api/v1/orders - Create new order
-router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'customer', 'server']), requireScope(['orders:create']), validateRestaurantAccess, validateBody(OrderPayload), async (req: AuthenticatedRequest, res, next) => {
+router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'customer', 'server']), requireScopes(ApiScope.ORDERS_CREATE), validateRestaurantAccess, validateBody(OrderPayload), async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
     const orderData = (req as any).validated;
@@ -55,7 +56,7 @@ router.post('/', authenticate, requireRole(['admin', 'manager', 'user', 'custome
 });
 
 // POST /api/v1/orders/voice - Process voice order
-router.post('/voice', authenticate, requireRole(['admin', 'manager', 'user', 'customer', 'server']), requireScope(['orders:create']), validateRestaurantAccess, async (req: AuthenticatedRequest, res, _next) => {
+router.post('/voice', authenticate, requireRole(['admin', 'manager', 'user', 'customer', 'server']), requireScopes(ApiScope.ORDERS_CREATE), validateRestaurantAccess, async (req: AuthenticatedRequest, res, _next) => {
   try {
     const restaurantId = req.restaurantId!;
     const { transcription, audioUrl, metadata: _metadata } = req.body;
