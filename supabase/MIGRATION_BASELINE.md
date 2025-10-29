@@ -1,8 +1,39 @@
 # Migration Baseline Documentation
 
 **Date:** 2025-10-22
+**Last Updated:** 2025-10-29
 **Baseline Migration:** `20250713130722_remote_schema.sql`
 **Purpose:** Document the migration history baseline to resolve forked migration tracking
+
+---
+
+## 🤖 AI Agent Quick Start
+
+**TL;DR:** Prisma schema is the source of truth. Migration files are history.
+
+**Key Principles:**
+1. 🎯 **Prisma = Current State** - `prisma/schema.prisma` reflects actual production database
+2. 📜 **Migrations = History** - `.sql` files in `supabase/migrations/` are a changelog
+3. ⚡ **Auto-Sync Required** - Always run `./scripts/post-migration-sync.sh` after migrations
+4. 🚫 **Don't Use Archived Migrations** - Pre-baseline migrations in `.archive/` are for reference only
+
+**Normal Workflow:**
+1. Create migration: `supabase/migrations/YYYYMMDDHHMMSS_description.sql`
+2. Test locally: `./scripts/deploy-migration.sh supabase/migrations/your-file.sql`
+3. Sync Prisma: `./scripts/post-migration-sync.sh` ⚠️ CRITICAL - Don't skip this!
+4. Commit both: Migration + updated Prisma schema
+5. Push to main: CI/CD deploys to production
+
+**Why This Matters:**
+- Before October 2025: Manual Dashboard changes + inconsistent migrations = chaos
+- After October 2025: Prisma introspection + automated sync + CI/CD = stability
+
+**Related Documentation:**
+- Deployment workflow → [../docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md)
+- CI/CD automation → [../docs/CI_CD_WORKFLOWS.md](../docs/CI_CD_WORKFLOWS.md)
+- Connection/troubleshooting → [../docs/SUPABASE_CONNECTION_GUIDE.md](../docs/SUPABASE_CONNECTION_GUIDE.md)
+
+---
 
 ## Background
 

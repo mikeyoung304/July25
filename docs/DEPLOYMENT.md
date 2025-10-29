@@ -2,6 +2,42 @@
 
 This guide covers deploying Restaurant OS to production environments.
 
+---
+
+## 🤖 AI Agent Quick Start
+
+**TL;DR for AI Agents:** This system uses **fully automated CI/CD deployment**.
+
+### Normal Production Deployment Flow:
+```
+git push origin main → GitHub Actions → Database Migrations → Render (Backend) → Vercel (Frontend)
+```
+
+**What you should do:**
+1. ✅ Test migrations locally using `./scripts/deploy-migration.sh <file>`
+2. ✅ Run `./scripts/post-migration-sync.sh` to sync Prisma schema
+3. ✅ Commit Prisma schema changes
+4. ✅ Push to main: `git push origin main`
+5. ✅ CI/CD handles everything else automatically
+
+**What you should NOT do:**
+- ❌ Don't manually deploy to Render/Vercel (auto-deploys on push to main)
+- ❌ Don't run migrations directly on production (CI/CD does this)
+- ❌ Don't use `supabase db push` for production (use scripts/deploy-migration.sh locally, CI/CD for prod)
+
+**Key Files:**
+- `.github/workflows/deploy-migrations.yml` - Auto-deploys migrations on push to main
+- `scripts/deploy-migration.sh` - LOCAL testing of migrations before push
+- `scripts/post-migration-sync.sh` - Syncs Prisma schema after migrations
+- `docs/SUPABASE_CONNECTION_GUIDE.md` - Reference for troubleshooting only
+
+**Related Documentation:**
+- Database troubleshooting → [SUPABASE_CONNECTION_GUIDE.md](./SUPABASE_CONNECTION_GUIDE.md)
+- CI/CD workflows → [CI_CD_WORKFLOWS.md](./CI_CD_WORKFLOWS.md)
+- Migration system → [supabase/MIGRATION_BASELINE.md](../supabase/MIGRATION_BASELINE.md)
+
+---
+
 ## Quick Deploy
 
 ### Frontend (Vercel)

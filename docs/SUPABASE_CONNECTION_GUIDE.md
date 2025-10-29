@@ -1,8 +1,34 @@
 # Supabase Connection Guide
 
-**Last Updated:** 2025-10-20
-**Status:** Production Reference
+**Last Updated:** 2025-10-29
+**Status:** ⚠️ REFERENCE & TROUBLESHOOTING ONLY
 **Audience:** Developers, DevOps, Claude Code AI
+
+---
+
+## ⚠️ Important: Read This First
+
+**🤖 AI Agents:** If you're looking for deployment instructions, you want **[DEPLOYMENT.md](./DEPLOYMENT.md)** instead. This document is for **troubleshooting and manual database access only**.
+
+### Normal Workflow (What You Probably Want):
+1. Test migrations locally: `./scripts/deploy-migration.sh <file>`
+2. Sync Prisma: `./scripts/post-migration-sync.sh`
+3. Push to main: `git push origin main`
+4. CI/CD auto-deploys everything
+
+**📖 This guide is for:**
+- Manual database diagnostics
+- Troubleshooting connection issues
+- Running one-off queries
+- Understanding connection methods
+- Emergency manual operations
+
+**🚀 For normal deployment, see:**
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - Standard deployment workflow
+- [CI_CD_WORKFLOWS.md](./CI_CD_WORKFLOWS.md) - CI/CD automation
+- [../supabase/MIGRATION_BASELINE.md](../supabase/MIGRATION_BASELINE.md) - Migration system overview
+
+---
 
 ## Executive Summary
 

@@ -2,7 +2,41 @@
 
 **Part of:** Phase 2 - Stable CI/CD Automation
 **Created:** 2025-10-22
+**Last Updated:** 2025-10-29
 **Purpose:** Automate database migrations to prevent schema drift incidents
+
+---
+
+## 🤖 AI Agent Quick Start
+
+**TL;DR:** This system auto-deploys database migrations **before** code deploys.
+
+### The Complete Flow:
+```
+git push origin main → GitHub Actions detects migrations → Deploy migrations (1-2 min)
+                                                                     ↓
+                                                         Render/Vercel deploy code (3-5 min)
+```
+
+**What happens automatically:**
+1. ✅ GitHub Actions detects new .sql files in `supabase/migrations/`
+2. ✅ Runs `scripts/deploy-migration.sh` for each migration
+3. ✅ Syncs Prisma schema via `scripts/post-migration-sync.sh`
+4. ✅ Render and Vercel auto-deploy after migrations complete
+5. ✅ Creates GitHub issue if migration fails
+
+**Your workflow:**
+1. Create migration: Add `.sql` file to `supabase/migrations/`
+2. Test locally: `./scripts/deploy-migration.sh supabase/migrations/your-file.sql`
+3. Sync Prisma: `./scripts/post-migration-sync.sh`
+4. Commit changes: `git add . && git commit -m "feat: add migration"`
+5. Push to main: `git push origin main`
+6. Done! CI/CD handles the rest.
+
+**Related Documentation:**
+- Standard deployment → [DEPLOYMENT.md](./DEPLOYMENT.md)
+- Database connection/troubleshooting → [SUPABASE_CONNECTION_GUIDE.md](./SUPABASE_CONNECTION_GUIDE.md)
+- Migration system → [../supabase/MIGRATION_BASELINE.md](../supabase/MIGRATION_BASELINE.md)
 
 ---
 
