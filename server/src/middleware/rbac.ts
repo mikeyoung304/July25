@@ -215,6 +215,13 @@ function getScopesForRole(role: string): ApiScope[] {
 }
 
 /**
+ * Get scopes for a given role as string array (for JWT payload)
+ */
+export function getRoleScopesArray(role: string): string[] {
+  return getScopesForRole(role).map(scope => scope as string);
+}
+
+/**
  * Check if user has required scope
  */
 export function hasScope(

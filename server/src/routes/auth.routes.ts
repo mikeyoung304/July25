@@ -7,7 +7,7 @@ import { validatePin, createOrUpdatePin } from '../services/auth/pinAuth';
 import { createStationToken, validateStationToken as _validateStationToken, revokeAllStationTokens } from '../services/auth/stationAuth';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
-import { requireScopes, ApiScope } from '../middleware/rbac';
+import { requireScopes, ApiScope, getRoleScopesArray } from '../middleware/rbac';
 import {
   authRateLimiters,
   resetFailedAttempts
@@ -16,7 +16,6 @@ import {
 const router = Router();
 
 // Constants for demo auth
-const DEMO_SCOPES = ['menu:read', 'orders:create', 'ai.voice:chat', 'payments:process'];
 const ALLOWED_DEMO_RESTAURANTS = [
   '11111111-1111-1111-1111-111111111111' // Default demo restaurant
 ];
@@ -41,6 +40,18 @@ router.post('/demo-session',
       throw BadRequest('Invalid restaurant ID for demo');
     }
 
+    // Get role-specific scopes from RBAC configuration
+    const roleScopes = getRoleScopesArray(role);
+
+    // Validate that the role exists in RBAC configuration
+    if (roleScopes.length === 0) {
+      logger.warn('demo_session_invalid_role', {
+        role,
+        restaurant_id: restaurantId
+      });
+      throw BadRequest(`Invalid role: ${role}. Role not configured in RBAC.`);
+    }
+
     // Get JWT secret (no fallbacks for security)
     const jwtSecret = process.env['SUPABASE_JWT_SECRET'];
     if (!jwtSecret) {
@@ -52,12 +63,12 @@ router.post('/demo-session',
     const randomId = Math.random().toString(36).substring(2, 15);
     const demoUserId = `demo:${role}:${randomId}`;
 
-    // Create JWT payload
+    // Create JWT payload with role-specific scopes
     const payload = {
       sub: demoUserId,
       role: role,
       restaurant_id: restaurantId,
-      scope: DEMO_SCOPES,
+      scope: roleScopes,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour
     };
@@ -67,6 +78,8 @@ router.post('/demo-session',
 
     logger.info('demo_session_created', {
       user_id: demoUserId,
+      role: role,
+      scopes: roleScopes,
       restaurant_id: restaurantId
     });
 
@@ -74,7 +87,7 @@ router.post('/demo-session',
       user: {
         id: demoUserId,
         role: role,
-        scopes: DEMO_SCOPES
+        scopes: roleScopes
       },
       token,
       expiresIn: 3600,
