@@ -92,58 +92,90 @@ export function useVoiceOrderWebRTC() {
   }, [orderItems, toast])
 
   // Handle transcript from WebRTC voice - accepts both string and event object
+  // NOTE: Transcripts are for live display only - AI handles parsing via handleOrderData
   const handleVoiceTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
     // Normalize input to handle both signatures
     const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text
     const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal
-    
-    logger.info('[useVoiceOrderWebRTC] Voice transcript', { text, isFinal })
-    
-    if (isFinal) {
-      setCurrentTranscript('')
 
-      // Parse order locally if we have the parser
-      if (orderParserRef.current) {
-        const parsedItems = orderParserRef.current.parseUserTranscript(text)
-        if (parsedItems.length > 0) {
-          processParsedItems(parsedItems)
+    logger.info('[useVoiceOrderWebRTC] Voice transcript', { text, isFinal })
+
+    // Update transcript for live display
+    if (isFinal) {
+      setCurrentTranscript('') // Clear after finalized
+    } else {
+      setCurrentTranscript(text) // Show interim transcript
+    }
+
+    // DO NOT parse transcripts here - OpenAI Realtime API handles parsing
+    // The AI will call add_to_order() function and emit order.detected events
+    // which are processed by handleOrderData callback
+  }, [])
+
+  // Handle order data from OpenAI Realtime API
+  // AI provides: { items: [{ name: "Greek Salad", quantity: 1, modifiers: ["extra feta"] }] }
+  // We need to: find menuItemId from name, transform to our OrderItem format
+  const handleOrderData = useCallback((orderData: any) => {
+    logger.info('[handleOrderData] Received AI order data:', { orderData })
+
+    // AI emits items without menuItemId - only human-readable names
+    if (!orderData?.items || orderData.items.length === 0) {
+      logger.warn('[handleOrderData] No items in AI order data')
+      return
+    }
+
+    const matchedItems: OrderItem[] = []
+    const unmatchedItems: string[] = []
+
+    orderData.items.forEach((aiItem: any) => {
+      // Use OrderParser to find menu item by name (fuzzy matching)
+      if (orderParserRef.current && menuItems.length > 0) {
+        const match = orderParserRef.current.findBestMenuMatch(aiItem.name)
+
+        if (match.item && match.confidence > 0.5) {
+          logger.info('[handleOrderData] Matched AI item:', {
+            aiName: aiItem.name,
+            menuName: match.item.name,
+            confidence: match.confidence
+          })
+
+          matchedItems.push({
+            id: `voice-${Date.now()}-${Math.random()}`,
+            menuItemId: match.item.id, // Found the UUID!
+            name: match.item.name, // Use actual menu name
+            quantity: aiItem.quantity || 1,
+            modifications: (aiItem.modifiers || aiItem.modifications || []).map((mod: string | any) => ({
+              id: typeof mod === 'string' ? `mod-${mod}` : mod.id,
+              name: typeof mod === 'string' ? mod : mod.name,
+              price: typeof mod === 'string' ? 0 : (mod.price || 0)
+            }))
+          })
         } else {
-          // Parsing failed - don't add raw text items as they'll cause submission errors
-          logger.warn('[handleVoiceTranscript] Failed to parse order:', { text })
-          toast.error(
-            "I didn't understand that menu item. Please try again and speak more clearly, " +
-            "or try a different item name."
-          )
+          logger.warn('[handleOrderData] Could not match item:', {
+            name: aiItem.name,
+            confidence: match.confidence
+          })
+          unmatchedItems.push(aiItem.name)
         }
       } else {
-        // No parser available yet - menu items might still be loading
-        logger.warn('[handleVoiceTranscript] OrderParser not initialized - menu items may not be loaded')
-        toast.error("Menu not loaded yet. Please wait a moment and try again.")
+        logger.warn('[handleOrderData] OrderParser not available or menu not loaded')
+        unmatchedItems.push(aiItem.name)
       }
-    } else {
-      // Update current transcript for live display
-      setCurrentTranscript(text)
-    }
-  }, [processParsedItems])
+    })
 
-  // Handle order data from server (if server-side parsing is enabled)
-  const handleOrderData = useCallback((orderData: any) => {
-    logger.info('[useVoiceOrderWebRTC] Order data from server', { orderData })
-    
-    if (orderData?.success && orderData?.items?.length > 0) {
-      const newItems: OrderItem[] = orderData.items.map((item: any) => {
-        const menuItem = menuItems.find(m => m.id === item.menuItemId)
-        return {
-          id: `voice-${Date.now()}-${Math.random()}`,
-          menuItemId: item.menuItemId,
-          name: menuItem?.name || item.name || 'Unknown Item',
-          quantity: item.quantity || 1,
-          modifications: item.modifications || []
-        }
-      })
-      
-      setOrderItems(prev => [...prev, ...newItems])
-      toast.success(`Added ${newItems.length} item${newItems.length > 1 ? 's' : ''} from server`)
+    if (matchedItems.length > 0) {
+      setOrderItems(prev => [...prev, ...matchedItems])
+      toast.success(
+        `Added ${matchedItems.length} item${matchedItems.length > 1 ? 's' : ''} to order`
+      )
+    }
+
+    if (unmatchedItems.length > 0) {
+      logger.error('[handleOrderData] Unmatched items:', unmatchedItems)
+      toast.error(
+        `Could not find menu items: ${unmatchedItems.join(', ')}. ` +
+        `Please try again or choose from the menu.`
+      )
     }
   }, [menuItems, toast])
 
