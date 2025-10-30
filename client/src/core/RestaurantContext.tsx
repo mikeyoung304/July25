@@ -1,66 +1,63 @@
-import React, { useEffect, ReactNode } from 'react'
+import React, { useState, useEffect, ReactNode } from 'react'
 import { logger } from '@/services/logger'
-import { useAsyncState } from '@/hooks/useAsyncState'
 import { RestaurantContext, type Restaurant } from './restaurant-types'
 import { env } from '@/utils/env'
 import { useAuth } from '@/contexts/auth.hooks'
+
+// Helper to create restaurant data
+function createRestaurantData(restaurantId: string | null): Restaurant {
+  const id = restaurantId ||
+             env.VITE_DEFAULT_RESTAURANT_ID ||
+             import.meta.env.VITE_DEFAULT_RESTAURANT_ID ||
+             '11111111-1111-1111-1111-111111111111'
+
+  return {
+    id,
+    name: 'Grow Fresh Local Food',
+    timezone: 'America/New_York',
+    currency: 'USD',
+    tax_rate: 0.08, // 8% sales tax - configurable per tenant
+    settings: {
+      orderPrefix: 'GRW',
+      autoAcceptOrders: true,
+      kitchenDisplayMode: 'grid'
+    }
+  }
+}
 
 // Provider
 export function RestaurantProvider({ children }: { children: ReactNode }) {
   logger.info('[RestaurantProvider] Mounting with context ID:', (RestaurantContext as { __contextId?: string }).__contextId)
   const { restaurantId: authRestaurantId } = useAuth()
-  const {
-    data: restaurant,
-    loading: isLoading,
-    error,
-    execute,
-    setData: setRestaurant
-  } = useAsyncState<Restaurant | null>(null)
 
+  // Initialize restaurant synchronously - NEVER null, always available immediately
+  const [restaurant, setRestaurant] = useState<Restaurant>(() =>
+    createRestaurantData(authRestaurantId)
+  )
+
+  // Update restaurant when auth restaurant ID changes (e.g., after login)
   useEffect(() => {
-    // Use restaurant ID from authenticated user's context
-    // Falls back to default if not authenticated yet
-    try {
-      const restaurantId = authRestaurantId ||
-                          env.VITE_DEFAULT_RESTAURANT_ID ||
-                          import.meta.env.VITE_DEFAULT_RESTAURANT_ID ||
-                          '11111111-1111-1111-1111-111111111111'
-
-      const restaurantData: Restaurant = {
-        id: restaurantId, // Use actual user's restaurant ID from auth
-        name: 'Grow Fresh Local Food',
-        timezone: 'America/New_York',
-        currency: 'USD',
-        tax_rate: 0.08, // 8% sales tax - configurable per tenant
-        settings: {
-          orderPrefix: 'GRW',
-          autoAcceptOrders: true,
-          kitchenDisplayMode: 'grid'
-        }
-      }
-
-      setRestaurant(restaurantData)
-      logger.info('✅ Restaurant context loaded:', {
-        id: restaurantData.id,
+    const newRestaurant = createRestaurantData(authRestaurantId)
+    if (newRestaurant.id !== restaurant.id) {
+      setRestaurant(newRestaurant)
+      logger.info('✅ Restaurant context updated:', {
+        id: newRestaurant.id,
         source: authRestaurantId ? 'auth' : 'default'
       })
-    } catch (err) {
-      console.error('Error loading restaurant:', err)
     }
-  }, [authRestaurantId, setRestaurant])
+  }, [authRestaurantId, restaurant.id])
 
   const contextValue = {
-    restaurant: restaurant ?? null,
+    restaurant, // Never null - always defined
     setRestaurant,
-    isLoading,
-    error
+    isLoading: false, // Always ready immediately
+    error: null
   }
-  
+
   logger.info('[RestaurantProvider] Providing context value:', {
     contextId: (RestaurantContext as { __contextId?: string }).__contextId,
-    hasRestaurant: !!restaurant,
-    isLoading,
-    hasError: !!error
+    restaurantId: restaurant.id,
+    isLoading: false
   })
 
   return (

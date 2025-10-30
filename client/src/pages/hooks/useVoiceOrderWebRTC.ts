@@ -101,29 +101,24 @@ export function useVoiceOrderWebRTC() {
     
     if (isFinal) {
       setCurrentTranscript('')
-      
+
       // Parse order locally if we have the parser
       if (orderParserRef.current) {
         const parsedItems = orderParserRef.current.parseUserTranscript(text)
         if (parsedItems.length > 0) {
           processParsedItems(parsedItems)
         } else {
-          // If no items parsed, add as raw text for manual processing
-          const rawItem: OrderItem = {
-            id: `voice-${Date.now()}-${Math.random()}`,
-            name: text,
-            quantity: 1
-          }
-          setOrderItems(prev => [...prev, rawItem])
+          // Parsing failed - don't add raw text items as they'll cause submission errors
+          logger.warn('[handleVoiceTranscript] Failed to parse order:', { text })
+          toast.error(
+            "I didn't understand that menu item. Please try again and speak more clearly, " +
+            "or try a different item name."
+          )
         }
       } else {
-        // No parser available, add as raw text
-        const rawItem: OrderItem = {
-          id: `voice-${Date.now()}-${Math.random()}`,
-          name: text,
-          quantity: 1
-        }
-        setOrderItems(prev => [...prev, rawItem])
+        // No parser available yet - menu items might still be loading
+        logger.warn('[handleVoiceTranscript] OrderParser not initialized - menu items may not be loaded')
+        toast.error("Menu not loaded yet. Please wait a moment and try again.")
       }
     } else {
       // Update current transcript for live display
@@ -161,6 +156,21 @@ export function useVoiceOrderWebRTC() {
   const submitOrder = useCallback(async (selectedTable: Table | null, selectedSeat: number | null) => {
     if (orderItems.length === 0 || !selectedTable || !selectedSeat) {
       toast.error('No order items to submit')
+      return false
+    }
+
+    // CRITICAL: Validate all items have menuItemId before submission
+    // Items without menuItemId are raw text from failed parsing and will cause 400/500 errors
+    const invalidItems = orderItems.filter(item => !item.menuItemId)
+    if (invalidItems.length > 0) {
+      logger.error('[submitOrder] Invalid items without menuItemId:', {
+        invalidCount: invalidItems.length,
+        invalidNames: invalidItems.map(i => i.name)
+      })
+      toast.error(
+        `Cannot submit: ${invalidItems.length} item${invalidItems.length > 1 ? 's' : ''} not recognized from menu. ` +
+        `Please remove unrecognized items and try again.`
+      )
       return false
     }
 
