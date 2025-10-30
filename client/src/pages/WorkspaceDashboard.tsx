@@ -30,8 +30,7 @@ function WorkspaceTile({ title, workspace, icon, color, delay = 0 }: WorkspaceTi
     closeModal,
     intendedDestination,
     hasPermission,
-    requiresAuth,
-    isLoading
+    requiresAuth
   } = useWorkspaceAccess(workspace)
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
@@ -64,17 +63,11 @@ function WorkspaceTile({ title, workspace, icon, color, delay = 0 }: WorkspaceTi
       >
         <button
           onClick={handleAccess}
-          disabled={isLoading}
-          className="w-full h-full rounded-2xl p-8 md:p-10 lg:p-12 flex flex-col items-center justify-center text-white shadow-xl cursor-pointer overflow-hidden group transition-all duration-200 relative disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-full rounded-2xl p-8 md:p-10 lg:p-12 flex flex-col items-center justify-center text-white shadow-xl cursor-pointer overflow-hidden group transition-all duration-200 relative"
           style={{ backgroundColor: color }}
           data-testid={`workspace-tile-${workspace}`}
         >
           <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
-          {isLoading && (
-            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white" />
-            </div>
-          )}
           <div className="relative z-10 flex flex-col items-center space-y-4 md:space-y-6">
             {React.cloneElement(icon as React.ReactElement, {
               className: 'h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24'
