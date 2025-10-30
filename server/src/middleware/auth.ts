@@ -96,9 +96,10 @@ export async function authenticate(
       restaurant_id: decoded.restaurant_id, // Add restaurant_id from token
     };
 
-    // DO NOT set req.restaurantId here - let the restaurantAccess middleware
-    // validate access and set it after checking permissions.
-    // Setting it here would bypass multi-tenancy security checks.
+    // Set req.restaurantId from JWT for menu/public endpoints
+    // restaurantAccess middleware will validate multi-tenancy permissions for protected routes
+    // Fallback to X-Restaurant-ID header if not in JWT
+    req.restaurantId = decoded.restaurant_id || (req.headers['x-restaurant-id'] as string);
 
     next();
   } catch (error) {

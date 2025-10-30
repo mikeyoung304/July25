@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { supabase } from '@/core/supabase';
-import { httpClient } from '@/services/http/httpClient';
+import { httpClient, setCurrentRestaurantId } from '@/services/http/httpClient';
 import { logger } from '@/services/logger';
 
 interface User {
@@ -358,6 +358,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setUser(response.user);
       setRestaurantId(response.restaurantId);
+      setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
 
       const expiresAt = Math.floor(Date.now() / 1000) + response.expiresIn;
       const sessionData = {

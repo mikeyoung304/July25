@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useToast } from '@/hooks/useToast'
 import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser'
 import { OrderModification } from '@/modules/voice/contexts/types'
@@ -36,10 +36,13 @@ export function useVoiceOrderWebRTC() {
   const [showPostOrderPrompt, setShowPostOrderPrompt] = useState(false)
   const [lastCompletedSeat, setLastCompletedSeat] = useState<number | null>(null)
 
-  // Initialize order parser when menu items are loaded
-  if (menuItems.length > 0 && !orderParserRef.current) {
-    orderParserRef.current = new OrderParser(menuItems)
-  }
+  // Rebuild order parser whenever menu items change
+  useEffect(() => {
+    if (menuItems.length > 0) {
+      orderParserRef.current = new OrderParser(menuItems)
+      logger.info('[useVoiceOrderWebRTC] OrderParser initialized with', menuItems.length, 'items')
+    }
+  }, [menuItems])
 
   // Process parsed menu items and add to order
   const processParsedItems = useCallback((parsedItems: ParsedOrderItem[]) => {
@@ -121,6 +124,19 @@ export function useVoiceOrderWebRTC() {
     // AI emits items without menuItemId - only human-readable names
     if (!orderData?.items || orderData.items.length === 0) {
       logger.warn('[handleOrderData] No items in AI order data')
+      return
+    }
+
+    // Defensive checks: ensure menu is loaded and parser is ready
+    if (menuItems.length === 0) {
+      logger.error('[handleOrderData] Menu not loaded yet')
+      toast.error('Menu is still loading. Please wait and try again.')
+      return
+    }
+
+    if (!orderParserRef.current) {
+      logger.error('[handleOrderData] OrderParser not initialized')
+      toast.error('Voice ordering not ready. Please refresh the page.')
       return
     }
 
