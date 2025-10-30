@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { randomUUID } from 'crypto';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
@@ -71,43 +70,57 @@ router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiS
     // Parse the voice order using AI
     let parsedOrder;
     try {
-      // Get menu items for context
+      // Get menu items for validation
       const menuItems = await MenuService.getItems(restaurantId);
-      
-      // Use AI to parse the order
-      const aiResult = await (ai as any).orderNLP?.parseOrder({
+
+      // Use AI to parse the order with OrderMatchingService
+      // Returns ParsedOrder with menuItemId field (camelCase)
+      const aiResult = await ai.orderNLP?.parse({
         restaurantId,
         text: transcription
-      }) || { items: [] };
-      
+      }) || { items: [], notes: undefined };
+
+      routeLogger.debug('AI parse result', {
+        itemCount: aiResult.items.length,
+        items: aiResult.items
+      });
+
       // Map AI result to our format
+      // AI returns ParsedOrder with: { menuItemId, quantity, modifications, specialInstructions }
       parsedOrder = {
         items: aiResult.items.map((item: any) => {
-          // Find the menu item to get the price and menu_item_id
-          const menuItem = menuItems.find((m: any) =>
-            m.id === item.menu_item_id ||
-            m.name.toLowerCase() === item.name?.toLowerCase()
-          );
+          // Look up menu item by the menuItemId (camelCase) that AI provides
+          const menuItem = menuItems.find((m: any) => m.id === item.menuItemId);
+
+          if (!menuItem) {
+            routeLogger.warn('Menu item not found', { menuItemId: item.menuItemId });
+            throw new Error(`Menu item not found for ID: ${item.menuItemId}`);
+          }
 
           const quantity = item.quantity || 1;
-          const price = menuItem?.price || 0;
+          const price = menuItem.price;
 
           return {
-            id: menuItem?.id || randomUUID(), // Item UUID - use menu item ID or generate new
-            menu_item_id: menuItem?.id,       // Required reference to menu_items table
-            name: item.name || menuItem?.name || 'Unknown Item',
+            id: menuItem.id,                   // Use actual menu item ID
+            menu_item_id: menuItem.id,         // Required reference to menu_items table
+            name: menuItem.name,               // Use actual menu item name
             quantity,
             price,
-            subtotal: price * quantity,        // Calculate subtotal
+            subtotal: price * quantity,
             modifiers: item.modifications || [],
-            special_instructions: item.special_instructions || item.specialInstructions
+            special_instructions: item.specialInstructions
           };
         }),
         confidence: aiResult.items.length > 0 ? 0.85 : 0.3
       };
+
+      routeLogger.info('Voice order parsed successfully', {
+        itemCount: parsedOrder.items.length,
+        items: parsedOrder.items.map((i: any) => ({ name: i.name, price: i.price }))
+      });
     } catch (error) {
       routeLogger.error('AI order parsing failed', { error });
-      
+
       // Fallback to a simple response
       parsedOrder = {
         items: [],
