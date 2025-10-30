@@ -3,7 +3,7 @@ import { logger } from '@/services/logger'
 import { useAsyncState } from '@/hooks/useAsyncState'
 import { RestaurantContext, type Restaurant } from './restaurant-types'
 import { env } from '@/utils/env'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth.hooks'
 
 // Provider
 export function RestaurantProvider({ children }: { children: ReactNode }) {
