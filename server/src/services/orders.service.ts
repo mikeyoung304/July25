@@ -28,6 +28,7 @@ export interface CreateOrderRequest {
   customerEmail?: string;
   customerPhone?: string;
   tableNumber?: string;
+  seatNumber?: number;
   notes?: string;
   subtotal?: number;
   tax?: number;
@@ -105,6 +106,11 @@ export class OrdersService {
     orderData: CreateOrderRequest
   ): Promise<Order> {
     try {
+      // Validate seat number if both tableNumber and seatNumber are provided
+      if (orderData.tableNumber && orderData.seatNumber) {
+        await this.validateSeatNumber(restaurantId, orderData.tableNumber, orderData.seatNumber);
+      }
+
       // Convert external IDs to UUIDs for items
       const itemsWithUuids = await Promise.all(
         orderData.items.map(async (item) => {
@@ -175,7 +181,8 @@ export class OrdersService {
         // customer_email and customer_phone columns don't exist in DB
         // Store them in metadata instead
         table_number: orderData.tableNumber,
-        metadata: { 
+        seat_number: orderData.seatNumber,
+        metadata: {
           ...orderData.metadata,
           originalType: uiOrderType, // Preserve original type for UI display
           uiType: uiOrderType, // Alternative name for compatibility
@@ -200,6 +207,7 @@ export class OrdersService {
           p_notes: newOrder.notes || null,
           p_customer_name: newOrder.customer_name || null,
           p_table_number: newOrder.table_number || null,
+          p_seat_number: newOrder.seat_number || null,
           p_metadata: newOrder.metadata as any || {}
         })
         .single();
@@ -248,7 +256,7 @@ export class OrdersService {
     try {
       let query = supabase
         .from('orders')
-        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version')
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, seat_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version, payment_status, payment_method, payment_amount, cash_received, change_given, payment_id, check_closed_at, closed_by_user_id')
         .eq('restaurant_id', restaurantId)
         .order('created_at', { ascending: false });
 
@@ -294,7 +302,7 @@ export class OrdersService {
     try {
       const { data, error } = await supabase
         .from('orders')
-        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version')
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, seat_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version, payment_status, payment_method, payment_amount, cash_received, change_given, payment_id, check_closed_at, closed_by_user_id')
         .eq('restaurant_id', restaurantId)
         .eq('id', orderId)
         .single();
@@ -362,7 +370,7 @@ export class OrdersService {
         .eq('id', orderId)
         .eq('restaurant_id', restaurantId)
         .eq('version', currentVersion) // CRITICAL: Optimistic lock check
-        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version')
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, seat_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version, payment_status, payment_method, payment_amount, cash_received, change_given, payment_id, check_closed_at, closed_by_user_id')
         .single();
 
       if (error) {
@@ -432,13 +440,20 @@ export class OrdersService {
 
   /**
    * Update order payment information
+   * Updated to use new payment_status, payment_method, payment_amount, etc. columns
    */
   static async updateOrderPayment(
     restaurantId: string,
     orderId: string,
-    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded',
-    paymentMethod?: 'cash' | 'card' | 'online' | 'other',
-    paymentId?: string
+    paymentStatus: 'unpaid' | 'paid' | 'failed' | 'refunded',
+    paymentMethod?: 'cash' | 'card' | 'house_account' | 'gift_card' | 'other',
+    paymentId?: string,
+    additionalData?: {
+      cash_received?: number;
+      change_given?: number;
+      payment_amount?: number;
+    },
+    closedByUserId?: string
   ): Promise<Order> {
     try {
       // Get current order
@@ -447,32 +462,48 @@ export class OrdersService {
         throw new Error('Order not found');
       }
 
-      // Store payment info in metadata since payment_status column doesn't exist
-      const metadata = (currentOrder as { metadata?: Record<string, unknown> }).metadata || {};
-      metadata['payment'] = {
-        status: paymentStatus,
-        method: paymentMethod,
-        paymentId: paymentId,
-        updatedAt: new Date().toISOString()
-      };
-
-      // Prepare update object - only update metadata, not order status
-      // Order status progression should be managed separately via updateOrderStatus
+      // Prepare update object with new payment fields
       const update: Record<string, unknown> = {
-        metadata: metadata,
+        payment_status: paymentStatus,
+        payment_method: paymentMethod || null,
+        payment_id: paymentId || null,
         updated_at: new Date().toISOString(),
       };
 
-      // Note: We don't update order status here anymore.
-      // Payment status (paid/failed/refunded) is stored in metadata.
-      // Order status (pending/confirmed/preparing/ready/etc) is managed via updateOrderStatus.
+      // Set payment_amount (defaults to order total if not provided)
+      if (additionalData?.payment_amount !== undefined) {
+        update['payment_amount'] = additionalData.payment_amount;
+      } else if (paymentStatus === 'paid') {
+        // Use order total_amount as payment_amount if not explicitly provided
+        update['payment_amount'] = (currentOrder as any).total_amount;
+      }
 
-      const { data, error} = await supabase
+      // Set cash-specific fields
+      if (paymentMethod === 'cash' && additionalData) {
+        if (additionalData.cash_received !== undefined) {
+          update['cash_received'] = additionalData.cash_received;
+        }
+        if (additionalData.change_given !== undefined) {
+          update['change_given'] = additionalData.change_given;
+        }
+      }
+
+      // Set check_closed_at timestamp when payment is successful
+      if (paymentStatus === 'paid') {
+        update['check_closed_at'] = new Date().toISOString();
+
+        // Set closed_by_user_id if provided
+        if (closedByUserId) {
+          update['closed_by_user_id'] = closedByUserId;
+        }
+      }
+
+      const { data, error } = await supabase
         .from('orders')
         .update(update)
         .eq('id', orderId)
         .eq('restaurant_id', restaurantId)
-        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version')
+        .select('id, restaurant_id, order_number, type, status, items, subtotal, tax, total_amount, notes, customer_name, table_number, seat_number, metadata, created_at, updated_at, preparing_at, ready_at, completed_at, cancelled_at, scheduled_pickup_time, auto_fire_time, is_scheduled, manually_fired, version, payment_status, payment_method, payment_amount, cash_received, change_given, payment_id, check_closed_at, closed_by_user_id')
         .single();
 
       if (error) throw error;
@@ -489,7 +520,9 @@ export class OrdersService {
         restaurantId,
         paymentStatus,
         paymentMethod,
-        paymentId
+        paymentId,
+        paymentAmount: update['payment_amount'],
+        closedByUserId
       });
 
       return data as any as Order;
@@ -622,6 +655,61 @@ export class OrdersService {
         }]);
     } catch (error) {
       ordersLogger.warn('Failed to log status change', { error, orderId });
+    }
+  }
+
+  /**
+   * Validate seat number against table capacity
+   */
+  private static async validateSeatNumber(
+    restaurantId: string,
+    tableNumber: string,
+    seatNumber: number
+  ): Promise<void> {
+    try {
+      // Fetch table by label (table_number maps to label column)
+      const { data: table, error } = await supabase
+        .from('tables')
+        .select('capacity')
+        .eq('restaurant_id', restaurantId)
+        .eq('label', tableNumber)
+        .eq('active', true)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Table not found - don't fail validation, just log warning
+          ordersLogger.warn('Table not found for seat validation', {
+            restaurantId,
+            tableNumber,
+            seatNumber
+          });
+          return;
+        }
+        throw error;
+      }
+
+      // Validate seat number against capacity
+      if (table && table.capacity && seatNumber > table.capacity) {
+        throw new Error(
+          `Seat number ${seatNumber} exceeds table capacity of ${table.capacity} for table ${tableNumber}`
+        );
+      }
+
+      ordersLogger.debug('Seat number validated', {
+        restaurantId,
+        tableNumber,
+        seatNumber,
+        capacity: table?.capacity
+      });
+    } catch (error) {
+      ordersLogger.error('Seat validation failed', {
+        error,
+        restaurantId,
+        tableNumber,
+        seatNumber
+      });
+      throw error;
     }
   }
 

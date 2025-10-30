@@ -10,3 +10,12 @@ export const PaymentPayload = z.object({
 });
 
 export type PaymentPayloadT = z.infer<typeof PaymentPayload>;
+
+// Cash payment validation schema
+export const CashPaymentPayload = z.object({
+  order_id: z.string().min(1),
+  amount_received: z.number().positive(), // Amount of cash received from customer
+  table_id: z.string().uuid().optional() // Optional table ID for status update
+});
+
+export type CashPaymentPayloadT = z.infer<typeof CashPaymentPayload>;

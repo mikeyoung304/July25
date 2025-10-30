@@ -20,6 +20,7 @@ export const orderSchemas = {
     type: Joi.string().valid('kiosk', 'drive-thru', 'online', 'voice').default('kiosk'),
     customerName: Joi.string().max(100).optional(),
     tableNumber: Joi.string().max(20).optional(),
+    seatNumber: Joi.number().integer().min(1).optional(),
     notes: Joi.string().max(500).optional(),
     metadata: Joi.object().optional(),
   }),

@@ -1,0 +1,560 @@
+{
+  "orchestration": {
+    "version": "1.0",
+    "createdAt": "2025-10-29T10:00:00Z",
+    "currentPhase": "PHASE_1",
+    "status": "initialized"
+  },
+  "phases": {
+    "PHASE_1": {
+      "name": "Sequential Seat Ordering",
+      "description": "Enable multi-seat ordering with Next Seat and Finish Table workflow",
+      "status": "ready",
+      "startedAt": null,
+      "completedAt": null,
+      "estimatedDuration": "1.5 days",
+      "tasks": {
+        "DB_001": {
+          "name": "Create seat_number migration",
+          "assignedTo": "DATABASE_AGENT",
+          "status": "ready",
+          "priority": "critical",
+          "dependsOn": [],
+          "blockedBy": [],
+          "startedAt": null,
+          "completedAt": null,
+          "estimatedDuration": "2h",
+          "description": "Add seat_number column to orders table with index",
+          "files": [
+            "supabase/migrations/001_add_seat_number_to_orders.sql"
+          ],
+          "rollbackScript": "supabase/migrations/001_add_seat_number_to_orders_down.sql"
+        },
+        "BE_001": {
+          "name": "Update order creation API",
+          "assignedTo": "BACKEND_AGENT",
+          "status": "blocked",
+          "priority": "critical",
+          "dependsOn": ["DB_001"],
+          "blockedBy": ["DB_001"],
+          "startedAt": null,
+          "completedAt": null,
+          "estimatedDuration": "2h",
+          "description": "Modify POST /orders/create to accept seatNumber parameter",
+          "files": [
+            "server/src/routes/orders.routes.ts",
+            "server/src/models/order.model.ts"
+          ]
+        },
+        "BE_002": {
+          "name": "Add seat validation logic",
+          "assignedTo": "BACKEND_AGENT",
+          "status": "blocked",
+          "priority": "high",
+          "dependsOn": ["DB_001", "BE_001"],
+          "blockedBy": ["DB_001", "BE_001"],
+          "startedAt": null,
+          "completedAt": null,
+          "estimatedDuration": "1h",
+          "description": "Validate seat_number against table capacity",
+          "files": [
+            "server/src/services/orders.service.ts"
+          ]
+        },
+        "FE_001": {
+          "name": "Create PostOrderPrompt component",
+          "assignedTo": "FRONTEND_AGENT",
+          "status": "ready",
+          "priority": "critical",
+          "dependsOn": [],
+          "blockedBy": [],
+          "startedAt": null,
+          "completedAt": null,
+          "estimatedDuration": "3h",
+          "description": "Build UI with Add Next Seat and Finish Table buttons",
+          "files": [
+            "client/src/pages/components/PostOrderPrompt.tsx"
+          ]
+        },
+        "FE_002": {
+          "name": "Update SeatSelectionModal",
+          "assignedTo": "FRONTEND_AGENT",
+          "status": "ready",
+          "priority": "critical",
+          "dependsOn": [],
+          "blockedBy": [],
+          "startedAt": null,
+          "completedAt": null,
+          "estimatedDuration": "2h",
+          "description": "Add visual indicators for ordered seats",
+          "files": [
+            "client/src/pages/components/SeatSelectionModal.tsx"
+          ]
+        },
+        "FE_003": {
+          "name": "Update useVoiceOrderWebRTC hook",
+          "assignedTo": "FRONTEND_AGENT",
+          "status": "ready",
+          "priority": "critical",
+          "dependsOn": [],
+          "blockedBy": [],
+          "startedAt": null,
+          "completedAt": null,
+          "estimatedDuration": "2h",
+          "description": "Add seat tracking and post-order prompt logic",
+          "files": [
+            "client/src/pages/hooks/useVoiceOrderWebRTC.ts"
+          ]
+        },
+        "TEST_001": {
+          "name": "Create test fixtures",
+          "assignedTo": "TESTING_AGENT",
+          "status": "ready",
+          "priority": "medium",
+          "dependsOn": [],
+          "blockedBy": [],
+          "startedAt": null,
+          "completedAt": null,
+          "estimatedDuration": "1h",
+          "description": "Set up multi-seat order test data",
+          "files": [
+            "tests/fixtures/multi-seat-orders.ts"
+          ]
+        },
+        "TEST_002": {
+          "name": "Write integration tests",
+          "assignedTo": "TESTING_AGENT",
+          "status": "blocked",
+          "priority": "high",
+          "dependsOn": ["BE_001", "FE_001", "FE_002", "FE_003"],
+          "blockedBy": ["BE_001", "FE_001", "FE_002", "FE_003"],
+          "startedAt": null,
+          "completedAt": null,
+          "estimatedDuration": "2h",
+          "description": "E2E test for multi-seat ordering workflow",
+          "files": [
+            "tests/e2e/multi-seat-ordering.spec.ts"
+          ]
+        },
+        "DOC_001": {
+          "name": "Document seat ordering workflow",
+          "assignedTo": "DOCUMENTATION_AGENT",
+          "status": "ready",
+          "priority": "low",
+          "dependsOn": [],
+          "blockedBy": [],
+          "startedAt": null,
+          "completedAt": null,
+          "estimatedDuration": "1h",
+          "description": "API docs and component usage examples",
+          "files": [
+            "docs/api/seat-ordering.md"
+          ]
+        }
+      },
+      "qualityGates": {
+        "migration_runs_successfully": {
+          "description": "Migration runs on dev database without errors",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "api_accepts_seat_number": {
+          "description": "POST /orders/create accepts and stores seat_number",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "ui_shows_buttons": {
+          "description": "UI displays Next Seat and Finish Table buttons",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "integration_test_passes": {
+          "description": "E2E test for multi-seat ordering completes successfully",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "kitchen_shows_seat_numbers": {
+          "description": "Kitchen display shows seat numbers on order cards",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        }
+      }
+    },
+    "PHASE_2": {
+      "name": "Payment & Check Closing",
+      "description": "Enable cash and card payments with tender selection UI",
+      "status": "locked",
+      "startedAt": null,
+      "completedAt": null,
+      "estimatedDuration": "1.5 days",
+      "unlockCondition": "PHASE_1 quality gates all passed",
+      "tasks": {
+        "DB_002": {
+          "name": "Add payment fields migration",
+          "assignedTo": "DATABASE_AGENT",
+          "status": "locked",
+          "priority": "critical",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "2h",
+          "description": "Add payment_status, payment_method, cash_received, etc.",
+          "files": [
+            "supabase/migrations/002_add_payment_fields_to_orders.sql"
+          ]
+        },
+        "BE_003": {
+          "name": "Create POST /payments/cash endpoint",
+          "assignedTo": "BACKEND_AGENT",
+          "status": "locked",
+          "priority": "critical",
+          "dependsOn": ["DB_002"],
+          "blockedBy": ["DB_002"],
+          "estimatedDuration": "2h",
+          "description": "Handle cash payments with change calculation",
+          "files": [
+            "server/src/routes/payments.routes.ts"
+          ]
+        },
+        "BE_004": {
+          "name": "Update OrdersService payment logic",
+          "assignedTo": "BACKEND_AGENT",
+          "status": "locked",
+          "priority": "high",
+          "dependsOn": ["DB_002"],
+          "blockedBy": ["DB_002"],
+          "estimatedDuration": "1h",
+          "description": "Support cash payments in updateOrderPayment()",
+          "files": [
+            "server/src/services/orders.service.ts"
+          ]
+        },
+        "BE_005": {
+          "name": "Update TableService status logic",
+          "assignedTo": "BACKEND_AGENT",
+          "status": "locked",
+          "priority": "high",
+          "dependsOn": ["DB_002"],
+          "blockedBy": ["DB_002"],
+          "estimatedDuration": "1h",
+          "description": "Add updateStatusAfterPayment() method",
+          "files": [
+            "server/src/services/table.service.ts"
+          ]
+        },
+        "FE_004": {
+          "name": "Create CheckClosingScreen component",
+          "assignedTo": "FRONTEND_AGENT",
+          "status": "locked",
+          "priority": "critical",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "2h",
+          "description": "Main checkout screen with summary and navigation",
+          "files": [
+            "client/src/pages/CheckClosingScreen.tsx"
+          ]
+        },
+        "FE_005": {
+          "name": "Create TenderSelection component",
+          "assignedTo": "FRONTEND_AGENT",
+          "status": "locked",
+          "priority": "critical",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "2h",
+          "description": "Cash and Card payment method selector",
+          "files": [
+            "client/src/components/payments/TenderSelection.tsx"
+          ]
+        },
+        "FE_006": {
+          "name": "Create CashPayment component",
+          "assignedTo": "FRONTEND_AGENT",
+          "status": "locked",
+          "priority": "critical",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "3h",
+          "description": "Cash entry with fast buttons and change calculation",
+          "files": [
+            "client/src/components/payments/CashPayment.tsx"
+          ]
+        },
+        "FE_007": {
+          "name": "Create CardPayment component",
+          "assignedTo": "FRONTEND_AGENT",
+          "status": "locked",
+          "priority": "critical",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "2h",
+          "description": "Square SDK integration for card payments",
+          "files": [
+            "client/src/components/payments/CardPayment.tsx"
+          ]
+        },
+        "INT_001": {
+          "name": "Verify Square SDK compatibility",
+          "assignedTo": "INTEGRATION_AGENT",
+          "status": "locked",
+          "priority": "high",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "2h",
+          "description": "Test Square integration with new payment flow",
+          "files": []
+        },
+        "INT_002": {
+          "name": "Test payment audit logging",
+          "assignedTo": "INTEGRATION_AGENT",
+          "status": "locked",
+          "priority": "medium",
+          "dependsOn": ["BE_003", "BE_004"],
+          "blockedBy": ["BE_003", "BE_004"],
+          "estimatedDuration": "1h",
+          "description": "Verify all payments are logged correctly",
+          "files": []
+        },
+        "TEST_003": {
+          "name": "E2E test for cash payment",
+          "assignedTo": "TESTING_AGENT",
+          "status": "locked",
+          "priority": "high",
+          "dependsOn": ["BE_003", "FE_006"],
+          "blockedBy": ["BE_003", "FE_006"],
+          "estimatedDuration": "2h",
+          "description": "End-to-end cash payment workflow test",
+          "files": [
+            "tests/e2e/cash-payment.spec.ts"
+          ]
+        },
+        "TEST_004": {
+          "name": "E2E test for card payment",
+          "assignedTo": "TESTING_AGENT",
+          "status": "locked",
+          "priority": "high",
+          "dependsOn": ["FE_007", "INT_001"],
+          "blockedBy": ["FE_007", "INT_001"],
+          "estimatedDuration": "2h",
+          "description": "End-to-end card payment workflow test",
+          "files": [
+            "tests/e2e/card-payment.spec.ts"
+          ]
+        },
+        "DOC_002": {
+          "name": "Document payment API",
+          "assignedTo": "DOCUMENTATION_AGENT",
+          "status": "locked",
+          "priority": "low",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "1h",
+          "description": "Document /payments/cash endpoint and payment fields",
+          "files": [
+            "docs/api/payments.md"
+          ]
+        }
+      },
+      "qualityGates": {
+        "cash_payment_works": {
+          "description": "Cash payment endpoint processes payments correctly",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "card_payment_works": {
+          "description": "Card payment via Square works seamlessly",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "table_status_updates": {
+          "description": "Table status auto-updates to paid after payment",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "change_calculation_accurate": {
+          "description": "Change calculation for cash payments is correct",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "e2e_tests_pass": {
+          "description": "Both cash and card E2E tests pass",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        }
+      }
+    },
+    "PHASE_3": {
+      "name": "Table Status Automation",
+      "description": "Auto-update table status with real-time synchronization",
+      "status": "locked",
+      "startedAt": null,
+      "completedAt": null,
+      "estimatedDuration": "1 day",
+      "unlockCondition": "PHASE_2 quality gates all passed",
+      "tasks": {
+        "BE_006": {
+          "name": "Add real-time status broadcast",
+          "assignedTo": "BACKEND_AGENT",
+          "status": "locked",
+          "priority": "high",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "2h",
+          "description": "Emit Supabase events on table status changes",
+          "files": [
+            "server/src/services/table.service.ts"
+          ]
+        },
+        "BE_007": {
+          "name": "Add auto-transition logic",
+          "assignedTo": "BACKEND_AGENT",
+          "status": "locked",
+          "priority": "medium",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "1h",
+          "description": "Auto-transition from paid to cleaning after 2 minutes",
+          "files": [
+            "server/src/services/table.service.ts"
+          ]
+        },
+        "FE_008": {
+          "name": "Create useTableStatus hook",
+          "assignedTo": "FRONTEND_AGENT",
+          "status": "locked",
+          "priority": "high",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "2h",
+          "description": "Subscribe to Supabase real-time table status updates",
+          "files": [
+            "client/src/hooks/useTableStatus.ts"
+          ]
+        },
+        "FE_009": {
+          "name": "Update floor plan status colors",
+          "assignedTo": "FRONTEND_AGENT",
+          "status": "locked",
+          "priority": "medium",
+          "dependsOn": ["FE_008"],
+          "blockedBy": ["FE_008"],
+          "estimatedDuration": "1h",
+          "description": "Add visual indicators for all table statuses",
+          "files": [
+            "client/src/components/floor-plan/TableShape.tsx"
+          ]
+        },
+        "INT_003": {
+          "name": "Configure Supabase Realtime",
+          "assignedTo": "INTEGRATION_AGENT",
+          "status": "locked",
+          "priority": "high",
+          "dependsOn": [],
+          "blockedBy": [],
+          "estimatedDuration": "2h",
+          "description": "Set up real-time channels and test broadcast",
+          "files": []
+        },
+        "TEST_005": {
+          "name": "Test real-time updates across devices",
+          "assignedTo": "TESTING_AGENT",
+          "status": "locked",
+          "priority": "high",
+          "dependsOn": ["BE_006", "FE_008", "INT_003"],
+          "blockedBy": ["BE_006", "FE_008", "INT_003"],
+          "estimatedDuration": "2h",
+          "description": "Verify multi-device synchronization",
+          "files": [
+            "tests/e2e/real-time-status.spec.ts"
+          ]
+        }
+      },
+      "qualityGates": {
+        "payment_triggers_update": {
+          "description": "Payment completion triggers table status update",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "realtime_broadcast_works": {
+          "description": "Status changes broadcast via Supabase Realtime",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "multi_device_sync": {
+          "description": "Multiple devices receive real-time updates",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        },
+        "auto_transition_works": {
+          "description": "Auto-transition from paid to cleaning functions",
+          "status": "pending",
+          "verifiedBy": null,
+          "verifiedAt": null
+        }
+      }
+    }
+  },
+  "agents": {
+    "DATABASE_AGENT": {
+      "status": "ready",
+      "currentTask": null,
+      "completedTasks": [],
+      "capabilities": ["migrations", "schema-changes", "indexes", "rollback-scripts"]
+    },
+    "BACKEND_AGENT": {
+      "status": "ready",
+      "currentTask": null,
+      "completedTasks": [],
+      "capabilities": ["api-endpoints", "services", "validation", "business-logic"]
+    },
+    "FRONTEND_AGENT": {
+      "status": "ready",
+      "currentTask": null,
+      "completedTasks": [],
+      "capabilities": ["react-components", "hooks", "ui-ux", "state-management"]
+    },
+    "INTEGRATION_AGENT": {
+      "status": "ready",
+      "currentTask": null,
+      "completedTasks": [],
+      "capabilities": ["square-sdk", "supabase-realtime", "webhooks", "third-party-apis"]
+    },
+    "TESTING_AGENT": {
+      "status": "ready",
+      "currentTask": null,
+      "completedTasks": [],
+      "capabilities": ["unit-tests", "integration-tests", "e2e-tests", "fixtures"]
+    },
+    "DOCUMENTATION_AGENT": {
+      "status": "ready",
+      "currentTask": null,
+      "completedTasks": [],
+      "capabilities": ["api-docs", "component-docs", "guides", "migration-docs"]
+    }
+  },
+  "fileLocks": {},
+  "logs": [],
+  "metrics": {
+    "totalTasks": 27,
+    "completedTasks": 0,
+    "failedTasks": 0,
+    "inProgressTasks": 0,
+    "estimatedTotalDuration": "5 days",
+    "actualDuration": null,
+    "startTime": null,
+    "endTime": null
+  }
+}

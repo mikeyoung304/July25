@@ -39,6 +39,8 @@ export const OrderPayload = z.object({
   // Table/location info
   table_number: z.union([z.string(), z.number()]).optional(),
   tableNumber: z.union([z.string(), z.number()]).optional(), // camelCase variant
+  seat_number: z.number().int().min(1).optional(),
+  seatNumber: z.number().int().min(1).optional(), // camelCase variant
 
   // Order notes
   notes: z.string().max(1000).optional(),

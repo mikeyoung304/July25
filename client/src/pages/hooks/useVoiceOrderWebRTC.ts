@@ -31,6 +31,11 @@ export function useVoiceOrderWebRTC() {
   const [isProcessing, setIsProcessing] = useState(false)
   const orderParserRef = useRef<OrderParser | null>(null)
 
+  // Multi-seat ordering state
+  const [orderedSeats, setOrderedSeats] = useState<number[]>([])
+  const [showPostOrderPrompt, setShowPostOrderPrompt] = useState(false)
+  const [lastCompletedSeat, setLastCompletedSeat] = useState<number | null>(null)
+
   // Initialize order parser when menu items are loaded
   if (menuItems.length > 0 && !orderParserRef.current) {
     orderParserRef.current = new OrderParser(menuItems)
@@ -158,7 +163,7 @@ export function useVoiceOrderWebRTC() {
       toast.error('No order items to submit')
       return false
     }
-    
+
     try {
       // Dual auth pattern: Try Supabase session first, fallback to localStorage
       const { data: { session } } = await supabase.auth.getSession()
@@ -205,9 +210,18 @@ export function useVoiceOrderWebRTC() {
           type: 'dine-in' // Changed from order_type to match schema
         })
       })
-      
+
       if (response.ok) {
         toast.success(`Order submitted for ${selectedTable.label}, Seat ${selectedSeat}!`)
+
+        // Track ordered seat and show post-order prompt
+        setOrderedSeats(prev => [...prev, selectedSeat])
+        setLastCompletedSeat(selectedSeat)
+        setShowPostOrderPrompt(true)
+
+        // Clear current order items for next seat
+        setOrderItems([])
+
         return true
       } else {
         const errorText = await response.text()
@@ -221,13 +235,49 @@ export function useVoiceOrderWebRTC() {
     }
   }, [orderItems, menuItems, toast, taxRate])
 
-  // Reset voice order state
+  // Handler for "Add Next Seat" button
+  const handleAddNextSeat = useCallback(() => {
+    setShowPostOrderPrompt(false)
+    setShowVoiceOrder(false)
+    // Don't reset orderedSeats - keep tracking which seats have orders
+    // Parent component will re-open seat selection modal
+  }, [])
+
+  // Handler for "Finish Table" button
+  const handleFinishTable = useCallback(() => {
+    setShowPostOrderPrompt(false)
+    setShowVoiceOrder(false)
+    // Reset all state for this table
+    setOrderedSeats([])
+    setLastCompletedSeat(null)
+    setOrderItems([])
+    setCurrentTranscript('')
+    setIsVoiceActive(false)
+    setIsProcessing(false)
+    toast.success('Table orders complete!')
+  }, [toast])
+
+  // Reset voice order state (called when canceling or closing)
   const resetVoiceOrder = useCallback(() => {
     setShowVoiceOrder(false)
     setCurrentTranscript('')
     setOrderItems([])
     setIsVoiceActive(false)
     setIsProcessing(false)
+    setShowPostOrderPrompt(false)
+    // Keep orderedSeats intact unless explicitly finishing table
+  }, [])
+
+  // Complete reset for starting fresh with a new table
+  const resetAllState = useCallback(() => {
+    setShowVoiceOrder(false)
+    setCurrentTranscript('')
+    setOrderItems([])
+    setIsVoiceActive(false)
+    setIsProcessing(false)
+    setShowPostOrderPrompt(false)
+    setOrderedSeats([])
+    setLastCompletedSeat(null)
   }, [])
 
   return {
@@ -240,12 +290,21 @@ export function useVoiceOrderWebRTC() {
     isVoiceActive,
     isProcessing,
     setIsProcessing,
-    
+
+    // Multi-seat state
+    orderedSeats,
+    showPostOrderPrompt,
+    setShowPostOrderPrompt,
+    lastCompletedSeat,
+
     // Handlers
     handleVoiceTranscript,
     handleOrderData,
     removeOrderItem,
     submitOrder,
-    resetVoiceOrder
+    resetVoiceOrder,
+    handleAddNextSeat,
+    handleFinishTable,
+    resetAllState
   }
 }

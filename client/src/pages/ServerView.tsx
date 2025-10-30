@@ -8,6 +8,7 @@ import { useVoiceOrderWebRTC } from './hooks/useVoiceOrderWebRTC'
 import { ServerFloorPlan } from './components/ServerFloorPlan'
 import { SeatSelectionModal } from './components/SeatSelectionModal'
 import { VoiceOrderModal } from './components/VoiceOrderModal'
+import { PostOrderPrompt } from './components/PostOrderPrompt'
 import { ServerStats } from './components/ServerStats'
 import { ServerHeader } from './components/ServerHeader'
 import { Info } from 'lucide-react'
@@ -43,12 +44,31 @@ export const ServerView = memo(() => {
   const handleSubmitOrder = useCallback(async () => {
     const success = await voiceOrder.submitOrder(selectedTable, selectedSeat)
     if (success) {
-      setSelectedTableId(null)
-      setSelectedSeat(null)
-      setShowSeatSelection(false)
-      voiceOrder.resetVoiceOrder()
+      // Don't clear selectedTableId or selectedSeat - we need them for the post-order prompt
+      // The voice order modal will close, and post-order prompt will show
+      voiceOrder.setShowVoiceOrder(false)
     }
-  }, [voiceOrder, selectedTable, selectedSeat, setSelectedTableId])
+  }, [voiceOrder, selectedTable, selectedSeat])
+
+  const handleAddNextSeat = useCallback(() => {
+    voiceOrder.handleAddNextSeat()
+    setSelectedSeat(null)
+    setShowSeatSelection(true)
+  }, [voiceOrder])
+
+  const handleFinishTable = useCallback(() => {
+    voiceOrder.handleFinishTable()
+    setSelectedTableId(null)
+    setSelectedSeat(null)
+    setShowSeatSelection(false)
+  }, [voiceOrder, setSelectedTableId])
+
+  const handleFinishTableFromSeatModal = useCallback(() => {
+    voiceOrder.handleFinishTable()
+    setSelectedTableId(null)
+    setSelectedSeat(null)
+    setShowSeatSelection(false)
+  }, [voiceOrder, setSelectedTableId])
 
   const handleCloseModals = useCallback(() => {
     setSelectedTableId(null)
@@ -101,8 +121,10 @@ export const ServerView = memo(() => {
                 updated_at: selectedTable.updated_at || new Date().toISOString()
               } : null}
               selectedSeat={selectedSeat}
+              orderedSeats={voiceOrder.orderedSeats}
               onSeatSelect={setSelectedSeat}
               onStartVoiceOrder={handleStartVoiceOrder}
+              onFinishTable={handleFinishTableFromSeatModal}
               onClose={handleCloseSeatSelection}
             />
 
@@ -113,6 +135,25 @@ export const ServerView = memo(() => {
               voiceOrder={voiceOrder}
               onSubmit={handleSubmitOrder}
               onClose={handleCloseModals}
+            />
+
+            <PostOrderPrompt
+              show={voiceOrder.showPostOrderPrompt && !!selectedTable}
+              table={selectedTable ? {
+                id: selectedTable.id,
+                restaurant_id: selectedTable.restaurant_id || '',
+                label: selectedTable.label,
+                capacity: selectedTable.seats,
+                status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
+                current_order_id: selectedTable.current_order_id,
+                created_at: selectedTable.created_at || new Date().toISOString(),
+                updated_at: selectedTable.updated_at || new Date().toISOString()
+              } : null}
+              completedSeat={voiceOrder.lastCompletedSeat || 1}
+              orderedSeats={voiceOrder.orderedSeats}
+              totalSeats={selectedTable?.seats || 4}
+              onAddNextSeat={handleAddNextSeat}
+              onFinishTable={handleFinishTable}
             />
 
             <ServerStats stats={stats} />
@@ -127,6 +168,7 @@ export const ServerView = memo(() => {
                     <li>Choose a seat number for the order</li>
                     <li>Use voice commands to add items to the order</li>
                     <li>Review and submit the order when complete</li>
+                    <li>Add orders for additional seats or finish the entire table</li>
                   </ol>
                 </div>
               </div>

@@ -9,7 +9,8 @@ import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
 import { PaymentService } from '../services/payment.service';
 import { validateBody } from '../middleware/validate';
-import { PaymentPayload } from '../../../shared/contracts/payment';
+import { PaymentPayload, CashPaymentPayload } from '../../../shared/contracts/payment';
+import { TableService } from '../services/table.service';
 
 const router = Router();
 const routeLogger = logger.child({ route: 'payments' });
@@ -205,7 +206,9 @@ router.post('/create',
         order_id,
         'paid',
         'card',
-        paymentResult.payment.id
+        paymentResult.payment.id,
+        undefined, // additionalData not needed for card payments
+        req.user?.id // closedByUserId
       );
 
       // Log successful payment for audit trail with user context
@@ -309,6 +312,158 @@ router.post('/create',
           req.body.order_id,
           'failed',
           'card'
+        );
+      } catch (updateError) {
+        routeLogger.error('Failed to update order payment status', { updateError });
+      }
+    }
+
+    next(error);
+  }
+});
+
+// POST /api/v1/payments/cash - Process cash payment
+router.post('/cash',
+  authenticate,
+  validateRestaurantAccess,
+  requireScopes(ApiScope.PAYMENTS_PROCESS),
+  validateBody(CashPaymentPayload),
+  async (req: AuthenticatedRequest, res, next): Promise<any> => {
+  try {
+    const restaurantId = req.restaurantId!;
+    const { order_id, amount_received, table_id } = req.body;
+
+    routeLogger.info('Processing cash payment request', {
+      restaurantId,
+      order_id,
+      amount_received,
+      table_id
+    });
+
+    // Get order to validate and calculate change
+    const order = await OrdersService.getOrder(restaurantId, order_id);
+    if (!order) {
+      throw BadRequest('Order not found');
+    }
+
+    // Get order total
+    const orderTotal = (order as any).total_amount;
+    if (!orderTotal || orderTotal <= 0) {
+      throw BadRequest('Invalid order total');
+    }
+
+    // Validate amount received is sufficient
+    if (amount_received < orderTotal) {
+      routeLogger.warn('Insufficient cash payment', {
+        order_id,
+        orderTotal,
+        amount_received,
+        shortage: orderTotal - amount_received
+      });
+
+      return res.status(400).json({
+        success: false,
+        error: 'Insufficient payment',
+        message: `Amount received ($${amount_received.toFixed(2)}) is less than order total ($${orderTotal.toFixed(2)})`,
+        order_total: orderTotal,
+        amount_received: amount_received,
+        shortage: orderTotal - amount_received
+      });
+    }
+
+    // Calculate change
+    const change = amount_received - orderTotal;
+
+    routeLogger.info('Cash payment validated', {
+      order_id,
+      orderTotal,
+      amount_received,
+      change
+    });
+
+    // Update order with cash payment details
+    const updatedOrder = await OrdersService.updateOrderPayment(
+      restaurantId,
+      order_id,
+      'paid',
+      'cash',
+      undefined, // No payment_id for cash payments
+      {
+        cash_received: amount_received,
+        change_given: change,
+        payment_amount: orderTotal
+      },
+      req.user?.id // closedByUserId
+    );
+
+    // Log successful cash payment for audit trail
+    await PaymentService.logPaymentAttempt({
+      orderId: order_id,
+      amount: orderTotal,
+      status: 'success',
+      restaurantId: restaurantId,
+      paymentMethod: 'cash',
+      userAgent: req.headers['user-agent'] as string,
+      idempotencyKey: `cash-${order_id}-${Date.now()}`,
+      metadata: {
+        orderNumber: (order as any).order_number,
+        userRole: req.user?.role,
+        cashReceived: amount_received,
+        changeGiven: change,
+        ...(table_id && { tableId: table_id }),
+        ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
+      },
+      ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
+      ...(req.ip && { ipAddress: req.ip })
+    });
+
+    // Update table status if table_id provided
+    if (table_id) {
+      try {
+        await TableService.updateStatusAfterPayment(table_id, restaurantId);
+        routeLogger.info('Table status updated after cash payment', {
+          table_id,
+          order_id
+        });
+      } catch (tableError) {
+        // Log but don't fail the payment if table update fails
+        routeLogger.warn('Failed to update table status after cash payment', {
+          tableError,
+          table_id,
+          order_id
+        });
+      }
+    }
+
+    routeLogger.info('Cash payment successful', {
+      order_id,
+      orderTotal,
+      amount_received,
+      change
+    });
+
+    res.json({
+      success: true,
+      order: updatedOrder,
+      change: change,
+      payment_details: {
+        amount_received: amount_received,
+        order_total: orderTotal,
+        change_given: change
+      }
+    });
+
+  } catch (error: any) {
+    routeLogger.error('Cash payment processing failed', { error });
+
+    // Update order payment status to failed
+    if (req.body.order_id) {
+      try {
+        await OrdersService.updateOrderPayment(
+          req.restaurantId!,
+          req.body.order_id,
+          'failed',
+          'cash'
         );
       } catch (updateError) {
         routeLogger.error('Failed to update order payment status', { updateError });

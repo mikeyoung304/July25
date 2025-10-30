@@ -58,6 +58,7 @@ export interface Order {
   payment_status: PaymentStatus;
   payment_method?: PaymentMethod;
   table_number?: string;
+  seat_number?: number; // NEW: For multi-seat ordering
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -78,6 +79,7 @@ export interface CreateOrderDTO {
   type: OrderType;
   items: Omit<OrderItem, 'id' | 'subtotal'>[];
   table_number?: string;
+  seat_number?: number; // NEW: For multi-seat ordering
   notes?: string;
   payment_method?: PaymentMethod;
   scheduled_pickup_time?: string;
