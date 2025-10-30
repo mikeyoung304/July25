@@ -359,6 +359,96 @@ INSERT INTO api_scopes VALUES (...);  -- ERROR: duplicate key
 CREATE INDEX idx_orders_status ON orders(status);  -- ERROR: already exists
 ```
 
+### Keeping RPC Functions in Sync with Table Changes
+
+**⚠️ CRITICAL:** When adding/removing columns from tables that are used by RPC functions, you MUST update the RPC's `RETURNS TABLE` clause to match.
+
+**Common Pitfall:**
+Adding columns to a table (e.g., `orders.payment_status`) without updating RPCs that return those tables leads to 500 errors when the service layer expects all columns but the RPC only returns a subset.
+
+**Example Scenario:**
+```
+1. Migration A: ALTER TABLE orders ADD COLUMN payment_status VARCHAR(20);
+2. Migration B: (missing!) Update create_order_with_audit RETURNS TABLE to include payment_status
+3. Result: 500 error when creating orders because RPC returns fewer columns than expected
+```
+
+**Correct Workflow:**
+
+When adding columns to a table used in RPC functions:
+
+1. **Identify Affected RPCs:**
+```bash
+# Find RPCs that reference the table
+psql "$DATABASE_URL" -c "\df+ *order*"
+
+# Check RPC definition
+psql "$DATABASE_URL" -c "SELECT pg_get_functiondef(oid) FROM pg_proc WHERE proname = 'create_order_with_audit';"
+```
+
+2. **Update RPC in Same Migration or Immediately After:**
+```sql
+-- Migration: 20251030_add_payment_fields.sql
+
+-- STEP 1: Add columns to table
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status VARCHAR(20);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(20);
+
+-- STEP 2: Update RPC RETURNS TABLE to include new columns
+DROP FUNCTION IF EXISTS create_order_with_audit(...);  -- Drop with exact signature
+
+CREATE FUNCTION create_order_with_audit(...)
+RETURNS TABLE (
+  id UUID,
+  restaurant_id UUID,
+  order_number VARCHAR,
+  -- ... existing columns ...
+  payment_status VARCHAR,  -- ✅ ADDED
+  payment_method VARCHAR   -- ✅ ADDED
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- INSERT logic stays the same
+  -- New columns use their DEFAULT values automatically
+
+  RETURN QUERY
+  SELECT
+    o.id,
+    o.restaurant_id,
+    o.order_number,
+    -- ... existing columns ...
+    o.payment_status,  -- ✅ ADDED
+    o.payment_method   -- ✅ ADDED
+  FROM orders o
+  WHERE o.id = v_order_id;
+END;
+$$;
+```
+
+3. **Verify RPC Signature After Deployment:**
+```bash
+# Check RETURNS TABLE includes all columns
+psql "$DATABASE_URL" -c "
+SELECT pg_get_function_result(oid)
+FROM pg_proc
+WHERE proname = 'create_order_with_audit'
+ORDER BY oid DESC LIMIT 1;
+"
+```
+
+**Validation Checklist:**
+- [ ] Table columns added with `IF NOT EXISTS`
+- [ ] RPC `RETURNS TABLE` updated to include new columns
+- [ ] RPC `RETURN QUERY SELECT` includes new columns
+- [ ] Deployed both changes atomically (same migration or consecutive)
+- [ ] Verified RPC signature matches table structure
+- [ ] Synced Prisma schema: `./scripts/post-migration-sync.sh`
+
+**Related Incidents:**
+- 2025-10-29: Server role 500 error - payment fields added to orders table but create_order_with_audit not updated ([#554d7d56](https://github.com/mikeyoung304/July25/commit/554d7d56))
+
 ### Handling Migration Conflicts
 
 **Scenario:** Local migration conflicts with remote schema
