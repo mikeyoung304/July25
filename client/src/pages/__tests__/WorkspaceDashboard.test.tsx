@@ -3,6 +3,7 @@
  * Part of: Workspace-Based Landing Flow
  */
 
+import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
@@ -126,7 +127,10 @@ describe('WorkspaceDashboard', () => {
       expect(screen.queryByTestId(/auth-modal/)).not.toBeInTheDocument()
     })
 
-    it('disables tile when isLoading is true', () => {
+    it('REGRESSION: tiles are clickable even when auth isLoading is true (Oct 29 bug fix)', () => {
+      // This test verifies the fix for the bug where tiles were disabled during
+      // AuthContext initialization (150-700ms), causing them to be stuck with
+      // loading spinners in incognito mode
       vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
         ...mockUseWorkspaceAccess,
         isLoading: true
@@ -135,7 +139,73 @@ describe('WorkspaceDashboard', () => {
       renderComponent()
 
       const serverTile = screen.getByTestId('workspace-tile-server')
-      expect(serverTile).toBeDisabled()
+
+      // Tile should NOT be disabled even when auth is loading
+      expect(serverTile).not.toBeDisabled()
+
+      // Tile should be clickable
+      fireEvent.click(serverTile)
+      expect(mockUseWorkspaceAccess.handleAccess).toHaveBeenCalled()
+    })
+
+    it('REGRESSION: tiles do not show loading spinner during auth initialization', () => {
+      // Verify that tiles don't have loading spinners during auth init
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        isLoading: true
+      } as any)
+
+      renderComponent()
+
+      const serverTile = screen.getByTestId('workspace-tile-server')
+
+      // No loading spinner should be present in the tile
+      // The tile should show the workspace icon and title immediately
+      expect(screen.getByText('Server')).toBeInTheDocument()
+
+      // Verify no spinner element exists in the tile
+      const tileContent = serverTile.textContent
+      expect(tileContent).toBe('Server') // Only title, no loading text
+    })
+
+    it('REGRESSION: tiles are immediately clickable on mount during auth initialization', async () => {
+      // Simulate the exact scenario: auth is loading during initial render
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        isLoading: true
+      } as any)
+
+      renderComponent()
+
+      // Tiles should be immediately clickable without waiting for auth to finish
+      const kioskTile = screen.getByTestId('workspace-tile-kiosk')
+      const serverTile = screen.getByTestId('workspace-tile-server')
+
+      // Both tiles should be enabled and clickable immediately
+      expect(kioskTile).not.toBeDisabled()
+      expect(serverTile).not.toBeDisabled()
+
+      // Clicking should work immediately
+      fireEvent.click(kioskTile)
+      expect(mockUseWorkspaceAccess.handleAccess).toHaveBeenCalled()
+    })
+
+    it('REGRESSION: handleAccess is called during auth loading state', () => {
+      // This ensures the workspace access logic runs even if auth hasn't initialized
+      const mockHandleAccess = vi.fn()
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        isLoading: true,
+        handleAccess: mockHandleAccess
+      } as any)
+
+      renderComponent()
+
+      const serverTile = screen.getByTestId('workspace-tile-server')
+      fireEvent.click(serverTile)
+
+      // handleAccess should be called even when isLoading is true
+      expect(mockHandleAccess).toHaveBeenCalled()
     })
   })
 
