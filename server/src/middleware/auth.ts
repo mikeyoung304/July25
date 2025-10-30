@@ -119,12 +119,20 @@ export async function optionalAuth(
       // No token provided - extract restaurant ID from header for unauthenticated requests
       // This allows public endpoints (like menu browsing) to work without authentication
       const restaurantId = req.headers['x-restaurant-id'] as string;
-      if (restaurantId) {
+
+      // Validate restaurant ID is a proper value (not string literals "undefined" or "null")
+      if (restaurantId && restaurantId !== 'undefined' && restaurantId !== 'null') {
         req.restaurantId = restaurantId;
         logger.debug('Unauthenticated request with restaurant ID from header', {
           restaurantId,
           path: req.path
         });
+      } else if (restaurantId === 'undefined' || restaurantId === 'null') {
+        logger.warn('Invalid restaurant ID string received from client', {
+          value: restaurantId,
+          path: req.path
+        });
+        // Don't set req.restaurantId - leave it undefined so route handlers can detect missing ID
       }
       return next();
     }

@@ -2,13 +2,14 @@ import { z } from 'zod';
 
 // Order item schema - matches OrdersService.OrderItem interface
 // Accepts snake_case fields per ADR-001 (full snake_case convention)
+// Per ADR-003: id and menu_item_id are REQUIRED for proper menu item relationships
 export const OrderItem = z.object({
-  id: z.string().optional(), // Menu item UUID or external ID
-  item_id: z.string().optional(), // Alternative field name
-  menu_item_id: z.string().optional(), // Legacy field name
+  id: z.string().min(1), // Item UUID (required)
+  menu_item_id: z.string().min(1), // Menu item reference (required)
   name: z.string().min(1), // Item name
   quantity: z.number().int().positive(), // Quantity ordered
   price: z.number().nonnegative(), // Item price
+  subtotal: z.number().nonnegative().optional(), // Calculated subtotal (price * quantity)
   modifiers: z.array(z.any()).optional(), // Item modifiers/customizations
   modifications: z.array(z.any()).optional(), // Alternative field name
   notes: z.string().max(500).optional(), // Order notes

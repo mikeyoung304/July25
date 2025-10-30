@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { randomUUID } from 'crypto';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
@@ -82,18 +83,24 @@ router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiS
       // Map AI result to our format
       parsedOrder = {
         items: aiResult.items.map((item: any) => {
-          // Find the menu item to get the price
-          const menuItem = menuItems.find((m: any) => 
-            m.id === item.menu_item_id || 
+          // Find the menu item to get the price and menu_item_id
+          const menuItem = menuItems.find((m: any) =>
+            m.id === item.menu_item_id ||
             m.name.toLowerCase() === item.name?.toLowerCase()
           );
-          
+
+          const quantity = item.quantity || 1;
+          const price = menuItem?.price || 0;
+
           return {
+            id: menuItem?.id || randomUUID(), // Item UUID - use menu item ID or generate new
+            menu_item_id: menuItem?.id,       // Required reference to menu_items table
             name: item.name || menuItem?.name || 'Unknown Item',
-            quantity: item.quantity || 1,
-            price: menuItem?.price || 0,
-            modifications: item.modifications || [],
-            specialInstructions: item.special_instructions
+            quantity,
+            price,
+            subtotal: price * quantity,        // Calculate subtotal
+            modifiers: item.modifications || [],
+            special_instructions: item.special_instructions || item.specialInstructions
           };
         }),
         confidence: aiResult.items.length > 0 ? 0.85 : 0.3

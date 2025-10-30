@@ -16,7 +16,8 @@ import type {
 const ordersLogger = logger.child({ service: 'OrdersService' });
 
 // Extend shared OrderItem for service-specific needs
-export interface OrderItem extends Omit<SharedOrderItem, 'menu_item_id' | 'subtotal'> {
+// Per ADR-003: menu_item_id and subtotal are REQUIRED for proper menu item relationships
+export interface OrderItem extends SharedOrderItem {
   notes?: string | undefined;
 }
 
@@ -538,7 +539,17 @@ export class OrdersService {
   static async processVoiceOrder(
     restaurantId: string,
     transcription: string,
-    parsedItems: Array<{ name: string; quantity: number; price?: number; notes?: string; modifiers?: any }>,
+    parsedItems: Array<{
+      id?: string;
+      menu_item_id?: string;
+      name: string;
+      quantity: number;
+      price?: number;
+      subtotal?: number;
+      notes?: string;
+      modifiers?: any;
+      special_instructions?: string;
+    }>,
     confidence: number,
     audioUrl?: string
   ): Promise<Order> {
@@ -560,14 +571,22 @@ export class OrdersService {
       }
 
       // Create order from parsed items
-      const orderItems: OrderItem[] = parsedItems.map(item => ({
-        id: randomUUID(),
-        name: item.name,
-        quantity: item.quantity || 1,
-        price: item.price || 0,
-        modifiers: item.modifiers,
-        notes: item.notes,
-      }));
+      const orderItems: OrderItem[] = parsedItems.map(item => {
+        const quantity = item.quantity || 1;
+        const price = item.price || 0;
+        const specialInstructions = item.special_instructions || item.notes;
+
+        return {
+          id: item.id || randomUUID(),                    // Use provided ID or generate
+          menu_item_id: item.menu_item_id || randomUUID(), // Use menu reference or generate fallback
+          name: item.name,
+          quantity,
+          price,
+          subtotal: item.subtotal || (price * quantity),  // Use provided or calculate
+          modifiers: item.modifiers,
+          ...(specialInstructions && { special_instructions: specialInstructions }), // Only include if defined
+        };
+      });
 
       const order = await this.createOrder(restaurantId, {
         type: 'voice',

@@ -56,7 +56,13 @@ router.get('/items/:id', optionalAuth, async (req: AuthenticatedRequest, res, ne
 // GET /api/v1/menu/categories - Get menu categories
 router.get('/categories', optionalAuth, async (req: AuthenticatedRequest, res, next) => {
   try {
-    const restaurantId = req.restaurantId!;
+    const restaurantId = req.restaurantId;
+
+    // Validate restaurant ID is present and valid
+    if (!restaurantId || restaurantId === 'undefined' || restaurantId === 'null') {
+      throw BadRequest('Valid restaurant ID is required');
+    }
+
     const categories = await MenuService.getCategories(restaurantId);
     res.json(categories);
   } catch (error) {

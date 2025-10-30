@@ -151,11 +151,20 @@ export class HttpClient extends SecureAPIClient {
     if (!skipRestaurantId) {
       // Use centralized restaurant ID getter (handles fallback to default)
       const restaurantId = getCurrentRestaurantId() || getRestaurantId()
-      headers.set('x-restaurant-id', restaurantId)
-      
-      const debugVoice = import.meta.env.VITE_DEBUG_VOICE === 'true';
-      if (import.meta.env.DEV && debugVoice) {
-        logger.info(`[HttpClient] X-Restaurant-ID: ${restaurantId} → ${endpoint}`);
+
+      // Only set header if we have a valid restaurant ID
+      if (restaurantId && restaurantId !== 'undefined' && restaurantId !== 'null') {
+        headers.set('x-restaurant-id', restaurantId)
+
+        const debugVoice = import.meta.env.VITE_DEBUG_VOICE === 'true';
+        if (import.meta.env.DEV && debugVoice) {
+          logger.info(`[HttpClient] X-Restaurant-ID: ${restaurantId} → ${endpoint}`);
+        }
+      } else {
+        logger.warn('[HttpClient] Restaurant ID not available for API request', {
+          endpoint,
+          restaurantId: restaurantId || 'null'
+        });
       }
     }
 
