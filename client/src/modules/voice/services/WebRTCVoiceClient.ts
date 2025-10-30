@@ -734,11 +734,11 @@ export class WebRTCVoiceClient extends EventEmitter {
 - Use confirm_order function when customer wants to checkout
 
 ⚠️ GOLDEN RULES:
-1. Ask about allergies/dietary needs EARLY: "Any allergies or dietary preferences?"
-2. Clarify required choices (dressing, side, bread) before moving on
-3. Summarize clearly: item → options → quantity → price
-4. If uncertain about something, say so
-5. ALWAYS use the add_to_order function to add items, don't just acknowledge
+1. IMMEDIATELY call add_to_order when customer mentions menu items - don't ask first
+2. Add items with basic defaults (e.g., Greek dressing for salad, wheat bread for sandwich)
+3. AFTER adding, ask follow-up questions to customize: "Added Greek Salad! What dressing?"
+4. Summarize what was added: item → quantity → price
+5. If uncertain about an item name, ask for clarification before adding
 
 🎤 TRANSCRIPTION HELP (common misheard items):
 - "Soul Bowl" (NOT "sobo" or "solo") - Southern comfort food bowl
@@ -890,10 +890,11 @@ ENTRÉES → Ask:
       temperature: 0.6, // Minimum temperature for Realtime API
       max_response_output_tokens: 500 // Sufficient for complete responses
     };
-    
+
     // Only add tools if they exist and are non-empty
     if (tools && tools.length > 0) {
       sessionConfig.tools = tools;
+      sessionConfig.tool_choice = 'auto'; // Enable automatic function calling
     }
     
     const sessionUpdate = {
