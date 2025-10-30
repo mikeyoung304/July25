@@ -3,23 +3,31 @@ import { logger } from '@/services/logger'
 import { useAsyncState } from '@/hooks/useAsyncState'
 import { RestaurantContext, type Restaurant } from './restaurant-types'
 import { env } from '@/utils/env'
+import { useAuth } from '@/contexts/AuthContext'
 
 // Provider
 export function RestaurantProvider({ children }: { children: ReactNode }) {
   logger.info('[RestaurantProvider] Mounting with context ID:', (RestaurantContext as { __contextId?: string }).__contextId)
-  const { 
-    data: restaurant, 
-    loading: isLoading, 
-    error, 
+  const { restaurantId: authRestaurantId } = useAuth()
+  const {
+    data: restaurant,
+    loading: isLoading,
+    error,
     execute,
-    setData: setRestaurant 
+    setData: setRestaurant
   } = useAsyncState<Restaurant | null>(null)
 
   useEffect(() => {
-    // Load restaurant synchronously - no delay needed for mock data
+    // Use restaurant ID from authenticated user's context
+    // Falls back to default if not authenticated yet
     try {
-      const mockRestaurant: Restaurant = {
-        id: env.VITE_DEFAULT_RESTAURANT_ID || import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
+      const restaurantId = authRestaurantId ||
+                          env.VITE_DEFAULT_RESTAURANT_ID ||
+                          import.meta.env.VITE_DEFAULT_RESTAURANT_ID ||
+                          '11111111-1111-1111-1111-111111111111'
+
+      const restaurantData: Restaurant = {
+        id: restaurantId, // Use actual user's restaurant ID from auth
         name: 'Grow Fresh Local Food',
         timezone: 'America/New_York',
         currency: 'USD',
@@ -31,12 +39,15 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      setRestaurant(mockRestaurant)
-      logger.info('✅ Restaurant context loaded immediately:', { id: mockRestaurant.id })
+      setRestaurant(restaurantData)
+      logger.info('✅ Restaurant context loaded:', {
+        id: restaurantData.id,
+        source: authRestaurantId ? 'auth' : 'default'
+      })
     } catch (err) {
       console.error('Error loading restaurant:', err)
     }
-  }, [setRestaurant])
+  }, [authRestaurantId, setRestaurant])
 
   const contextValue = {
     restaurant: restaurant ?? null,
