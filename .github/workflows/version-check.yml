@@ -1,0 +1,107 @@
+name: Version Consistency Check
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check version consistency across documentation
+        run: |
+          echo "🔍 Checking version consistency across all documentation..."
+          echo ""
+
+          # Extract versions from different files
+          VERSION_MD=$(grep -oP '(?<=\*\*Application\*\* \| )[\d.]+' docs/VERSION.md | head -1)
+          README_VERSION=$(grep -oP '(?<=Restaurant OS\) — v)[\d.]+' README.md | head -1)
+          CHANGELOG_VERSION=$(grep -oP '(?<=## \[)[\d.]+(?=\])' docs/CHANGELOG.md | head -1)
+          SOURCE_OF_TRUTH_VERSION=$(grep -oP '(?<=Restaurant OS v)[\d.]+' SOURCE_OF_TRUTH.md | head -1)
+
+          echo "📄 VERSION.md: v$VERSION_MD"
+          echo "📄 README.md: v$README_VERSION"
+          echo "📄 CHANGELOG.md: v$CHANGELOG_VERSION"
+          echo "📄 SOURCE_OF_TRUTH.md: v$SOURCE_OF_TRUTH_VERSION"
+          echo ""
+
+          # Check if all versions match
+          if [ "$VERSION_MD" != "$README_VERSION" ]; then
+            echo "❌ Version mismatch: VERSION.md ($VERSION_MD) != README.md ($README_VERSION)"
+            exit 1
+          fi
+
+          if [ "$VERSION_MD" != "$CHANGELOG_VERSION" ]; then
+            echo "❌ Version mismatch: VERSION.md ($VERSION_MD) != CHANGELOG.md ($CHANGELOG_VERSION)"
+            exit 1
+          fi
+
+          if [ "$VERSION_MD" != "$SOURCE_OF_TRUTH_VERSION" ]; then
+            echo "❌ Version mismatch: VERSION.md ($VERSION_MD) != SOURCE_OF_TRUTH.md ($SOURCE_OF_TRUTH_VERSION)"
+            exit 1
+          fi
+
+          echo "✅ All versions consistent: v$VERSION_MD"
+          echo ""
+          echo "📋 Version consistency verified across:"
+          echo "  - docs/VERSION.md (canonical source)"
+          echo "  - README.md"
+          echo "  - docs/CHANGELOG.md"
+          echo "  - SOURCE_OF_TRUTH.md"
+
+      - name: Verify VERSION.md is referenced as canonical source
+        run: |
+          echo ""
+          echo "🔍 Verifying VERSION.md is properly referenced as canonical source..."
+          echo ""
+
+          # Check that README links to VERSION.md
+          if ! grep -q "VERSION.md" README.md; then
+            echo "❌ README.md does not reference VERSION.md as canonical source"
+            exit 1
+          fi
+
+          # Check that SOURCE_OF_TRUTH.md links to VERSION.md
+          if ! grep -q "VERSION.md" SOURCE_OF_TRUTH.md; then
+            echo "❌ SOURCE_OF_TRUTH.md does not reference VERSION.md"
+            exit 1
+          fi
+
+          echo "✅ VERSION.md properly referenced as canonical source"
+
+      - name: Check for hardcoded version numbers in docs
+        run: |
+          echo ""
+          echo "🔍 Checking for hardcoded version numbers in documentation..."
+          echo ""
+
+          # Search for patterns like "version 6.0.14" or "v6.0.14" in docs (excluding CHANGELOG and VERSION.md)
+          HARDCODED=$(grep -rn "version [0-9]\+\.[0-9]\+\.[0-9]\+" docs/ --include="*.md" --exclude="CHANGELOG.md" --exclude="VERSION.md" || true)
+
+          if [ -n "$HARDCODED" ]; then
+            echo "⚠️  Found potentially hardcoded version numbers:"
+            echo "$HARDCODED"
+            echo ""
+            echo "💡 Consider replacing hardcoded versions with links to VERSION.md"
+            # Don't fail the build, just warn
+          else
+            echo "✅ No hardcoded version numbers found in documentation"
+          fi
+
+      - name: Summary
+        if: success()
+        run: |
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ VERSION CONSISTENCY CHECK PASSED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "All version numbers are synchronized and VERSION.md is"
+          echo "properly established as the canonical version source."
+          echo ""

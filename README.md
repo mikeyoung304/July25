@@ -1,4 +1,4 @@
-# Grow App (Restaurant OS) — v6.0.12
+# Grow App (Restaurant OS) — v6.0.14
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Docs CI](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml)
@@ -6,26 +6,28 @@
 **Status:** 90% Production Ready - 85%+ Test Pass Rate - All Critical Blockers Resolved ✅
 **Client:** React 18.3.1 · **Server:** Node 20 · **DB:** Postgres (Supabase) · **Realtime:** WebSockets
 
-**For accurate project status, see [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md)**
+**For accurate project status, see [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md)**
+**For complete version history, see [VERSION.md](./docs/VERSION.md)**
 
 ## Test Health (Phase 2 Complete - Oct 27, 2025) ✅
 - **Pass Rate:** ~85%+ (365+ tests passing, up from 73%)
 - **Quarantined:** 2 tests remaining (down from 137!)
 - **Phase 2 Success:** 98.5% (restored 135 of 137 quarantined tests)
 - **Production Readiness:** Improved from 65-70% to 90%
-- **Status Details:** See [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md)
+- **Status Details:** See [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md)
 
-## Recent Progress (v6.0.8)
-- **Security hardening:** single JWT secret (fail-fast), strict CORS allowlist, PII-redacted logs, no client-bundled secrets
-- **Realtime stability:** KDS single-connection guard, proper effect cleanup, reconnect `finally` guard
-- **Multi-tenancy:** app-layer `.eq('restaurant_id', ...)` on mutations **and** DB RLS + indexes; per-restaurant PIN model
-- **Performance:** 40x improvement on batch table updates (1000ms → 25ms), ElapsedTimer fix
-- **Code Quality:** FloorPlanEditor refactored from 940 → 225 lines (76% reduction)
+## Recent Progress (v6.0.14)
+- **Test Coverage:** Added 155 new tests (37 regression + 118 unit tests) for voice orders, auth, and workspace
+- **Code Quality:** 70% reduction in WebRTCVoiceClient complexity (1,312 → 396 lines)
+- **Service Extraction:** 3 new focused services (AudioStreaming, MenuIntegration, VoiceOrderProcessor)
+- **Voice Ordering:** Hybrid AI parsing with OpenAI fallback, menu API fixes
+- **Security hardening:** single JWT secret (fail-fast), strict CORS allowlist, PII-redacted logs
+- **Performance:** 40x improvement on batch table updates (1000ms → 25ms)
 
 ## Docs
 - Start here: [Documentation Index](./index.md)
 - Deploy: [DEPLOYMENT](./docs/DEPLOYMENT.md) · Security: [SECURITY](./docs/SECURITY.md) · DB: [DATABASE](./docs/DATABASE.md)
-- Payments: [Square API Setup](./SQUARE_API_SETUP.md) · Env Vars: [ENVIRONMENT](./docs/ENVIRONMENT.md)
+- Payments: [Square API Setup](./docs/api/SQUARE_API_SETUP.md) · Env Vars: [ENVIRONMENT](./docs/ENVIRONMENT.md)
 - Troubleshoot: [TROUBLESHOOTING](./docs/TROUBLESHOOTING.md) · Version: [VERSION](./docs/VERSION.md)
 
 ## Auth Roles at a Glance
@@ -54,7 +56,7 @@ Non-prod demo (optional): /api/v1/auth/demo-session enabled only with DEMO_LOGIN
 - Phase 2 test restoration complete (98.5% success rate)
 - Payment system configured with demo mode
 - Only 2 minor test edge cases remaining
-See [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md) for complete status and details.
+See [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md) for complete status and details.
 
 ## License
 MIT

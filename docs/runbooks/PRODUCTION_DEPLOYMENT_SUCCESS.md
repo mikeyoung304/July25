@@ -303,9 +303,9 @@ git log --oneline -5
 ```
 
 ### Documentation References
-- **Deployment Checklist:** PRODUCTION_DEPLOYMENT_CHECKLIST.md
-- **Source of Truth:** SOURCE_OF_TRUTH.md
-- **Square Setup:** SQUARE_API_SETUP.md
+- **Deployment Checklist:** docs/runbooks/PRODUCTION_DEPLOYMENT_CHECKLIST.md
+- **Source of Truth:** docs/meta/SOURCE_OF_TRUTH.md
+- **Square Setup:** docs/api/SQUARE_API_SETUP.md
 - **Security Policy:** docs/SECURITY.md
 
 ---
