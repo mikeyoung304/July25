@@ -29,9 +29,13 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 
 ### Authentication & Authorization
 
+- **Dual Authentication Pattern** (v6.0.8+): Supports both Supabase sessions and localStorage sessions
+  - See [ADR-006-dual-authentication-pattern.md](./ADR-006-dual-authentication-pattern.md)
+  - Production: Supabase email/password authentication
+  - Development: Demo/PIN/station login
 - **JWT Tokens**: RS256 signed with secure keys
 - **PIN Security**: bcrypt with pepper, rate-limited attempts
-- **Session Management**: 
+- **Session Management**:
   - Managers: 8-hour sessions
   - Staff: 12-hour sessions
   - Automatic logout on inactivity
@@ -55,7 +59,12 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 ### Infrastructure
 
 - **Environment Variables**: Secrets never in code
-  - The single required secret is SUPABASE_SERVICE_KEY (server-side only, never exposed to client)
+  - **Required Secrets** (server-side only, never exposed to client):
+    - `SUPABASE_SERVICE_KEY` - Database service access
+    - `KIOSK_JWT_SECRET` - JWT signing for kiosk/customer sessions
+    - `JWT_SECRET` - General JWT signing (optional, falls back to KIOSK_JWT_SECRET)
+  - Production: Must set all required secrets (no fallbacks)
+  - Development: Demo mode available with `DEMO_LOGIN_ENABLED=true`
 - **Dependency Scanning**: Regular vulnerability audits
 - **Access Logs**: All API access logged with user context
 - **Error Handling**: No sensitive data in error messages
@@ -290,5 +299,5 @@ Bug Bounty Program: Coming soon
 
 ---
 
-Last Updated: September 1, 2025
-Version: 6.0.3
+Last Updated: October 30, 2025
+Version: 6.0.14

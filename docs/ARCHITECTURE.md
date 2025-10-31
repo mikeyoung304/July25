@@ -1,5 +1,8 @@
 # Architecture Overview
 
+**Last Updated:** October 30, 2025
+**Version:** 6.0.14
+
 **For detailed authentication and security architecture, see:**
 - [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md) - Complete auth flows, session management, RLS
 - [SECURITY.md](./SECURITY.md) - Security measures, compliance, agent safety
@@ -31,8 +34,8 @@ graph LR
   Pay --> Square[(Square)]
 Order→Pay→KDS
 ```
-mermaid
-Copy code
+
+```mermaid
 sequenceDiagram
   participant C as Client
   participant S as Server

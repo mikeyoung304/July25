@@ -787,7 +787,7 @@ npm run seed:demo-users
 
 ### Overview
 
-As of v6.0.8 (October 17, 2025), the system implements a **dual authentication pattern** to support both production and development/testing use cases.
+As of v6.0.8 (October 2024), the system implements a **dual authentication pattern** to support both production and development/testing use cases.
 
 **See [ADR-006-dual-authentication-pattern.md](./ADR-006-dual-authentication-pattern.md) for full architectural decision record.**
 
