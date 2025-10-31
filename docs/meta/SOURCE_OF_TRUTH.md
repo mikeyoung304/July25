@@ -10,7 +10,7 @@
 
 **Current Version:** v6.0.14
 
-For complete version history and component versions, see [VERSION.md](./docs/VERSION.md) - the canonical source for all version information.
+For complete version history and component versions, see [VERSION.md](../VERSION.md) - the canonical source for all version information.
 
 ---
 

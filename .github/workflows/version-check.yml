@@ -19,11 +19,11 @@ jobs:
           echo "🔍 Checking version consistency across all documentation..."
           echo ""
 
-          # Extract versions from different files
-          VERSION_MD=$(grep -oP '(?<=\*\*Application\*\* \| )[\d.]+' docs/VERSION.md | head -1)
-          README_VERSION=$(grep -oP '(?<=Restaurant OS\) — v)[\d.]+' README.md | head -1)
-          CHANGELOG_VERSION=$(grep -oP '(?<=## \[)[\d.]+(?=\])' docs/CHANGELOG.md | head -1)
-          SOURCE_OF_TRUTH_VERSION=$(grep -oP '(?<=Restaurant OS v)[\d.]+' SOURCE_OF_TRUTH.md | head -1)
+          # Extract versions from different files using sed (compatible with both GNU and BSD)
+          VERSION_MD=$(grep '| \*\*Application\*\*' docs/VERSION.md | sed -E 's/.*\| ([0-9]+\.[0-9]+\.[0-9]+).*/\1/' | head -1)
+          README_VERSION=$(grep '# Grow App (Restaurant OS)' README.md | sed -E 's/.*v([0-9]+\.[0-9]+\.[0-9]+).*/\1/' | head -1)
+          CHANGELOG_VERSION=$(grep '^## \[' docs/CHANGELOG.md | grep -v 'Unreleased' | sed -E 's/.*\[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/' | head -1)
+          SOURCE_OF_TRUTH_VERSION=$(grep '# Restaurant OS v' docs/meta/SOURCE_OF_TRUTH.md | sed -E 's/.*v([0-9]+\.[0-9]+\.[0-9]+).*/\1/' | head -1)
 
           echo "📄 VERSION.md: v$VERSION_MD"
           echo "📄 README.md: v$README_VERSION"
@@ -53,7 +53,7 @@ jobs:
           echo "  - docs/VERSION.md (canonical source)"
           echo "  - README.md"
           echo "  - docs/CHANGELOG.md"
-          echo "  - SOURCE_OF_TRUTH.md"
+          echo "  - docs/meta/SOURCE_OF_TRUTH.md"
 
       - name: Verify VERSION.md is referenced as canonical source
         run: |
@@ -68,7 +68,7 @@ jobs:
           fi
 
           # Check that SOURCE_OF_TRUTH.md links to VERSION.md
-          if ! grep -q "VERSION.md" SOURCE_OF_TRUTH.md; then
+          if ! grep -q "VERSION.md" docs/meta/SOURCE_OF_TRUTH.md; then
             echo "❌ SOURCE_OF_TRUTH.md does not reference VERSION.md"
             exit 1
           fi
