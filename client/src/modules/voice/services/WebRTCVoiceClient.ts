@@ -1,6 +1,9 @@
 /* eslint-env browser */
 import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { getAuthToken } from '../../../services/auth';
+import { VoiceSessionConfig } from './VoiceSessionConfig';
+import { WebRTCConnection } from './WebRTCConnection';
+import { VoiceEventHandler } from './VoiceEventHandler';
 
 export interface WebRTCVoiceConfig {
   restaurantId: string;
@@ -29,7 +32,7 @@ export interface OrderEvent {
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
 
-export type TurnState = 
+export type TurnState =
   | 'idle'
   | 'recording'
   | 'committing'
@@ -39,54 +42,125 @@ export type TurnState =
 /**
  * WebRTC client for OpenAI Realtime API
  * Provides low-latency voice transcription and responses
+ *
+ * This is an orchestrator that delegates to specialized services:
+ * - VoiceSessionConfig: Session configuration and token management
+ * - WebRTCConnection: WebRTC peer connection lifecycle
+ * - VoiceEventHandler: Realtime API event processing
  */
 export class WebRTCVoiceClient extends EventEmitter {
-  private pc: RTCPeerConnection | null = null;
-  private dc: RTCDataChannel | null = null;
-  private audioElement: HTMLAudioElement | null = null;
-  private mediaStream: MediaStream | null = null;
   private config: WebRTCVoiceConfig;
-  private connectionState: ConnectionState = 'disconnected';
-  private ephemeralToken: string | null = null;
-  private tokenExpiresAt: number = 0;
-  private tokenRefreshTimer: NodeJS.Timeout | null = null;
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 3;
-  private partialTranscript = '';
-  private aiPartialTranscript = '';
-  private reconnectDelay = 1000;
-  private isRecording = false;
-  private sessionActive = false;
-  private isConnecting = false;
-  private activeResponseId: string | null = null;
-  private messageQueue: any[] = [];
-  private dcReady = false;
-  private lastCommitTime = 0;
-  
-  // Turn state machine
+
+  // Delegated services
+  private sessionConfig: VoiceSessionConfig;
+  private connection: WebRTCConnection;
+  private eventHandler: VoiceEventHandler;
+
+  // Turn state machine (managed by orchestrator)
   private turnState: TurnState = 'idle';
-  private currentUserItemId: string | null = null;
-  private seenEventIds = new Set<string>();
-  private turnId = 0;
-  private eventIndex = 0;
-  
-  // Transcript management
-  private transcriptMap = new Map<string, { text: string; final: boolean; role: 'user' | 'assistant' }>();
-  
-  // Menu context
-  private menuContext = '';
+  private isRecording = false;
+  private lastCommitTime = 0;
+
+  // Connection state tracking
+  private connectionState: ConnectionState = 'disconnected';
+  private isConnecting = false;
 
   constructor(config: WebRTCVoiceConfig) {
     super();
     this.config = config;
-    
-    // Log API base once at initialization
-    // const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'; // Not currently used
-    // Debug: `[RT] WebRTC Voice Client initialized - API: ${apiBase}`
-    
+
     if (this.config.debug) {
-      // Debug: '[RT] Debug mode enabled, config:', config
+      console.log('[WebRTCVoiceClient] Initializing orchestrator with services');
     }
+
+    // Create services
+    this.sessionConfig = new VoiceSessionConfig(config, { getAuthToken });
+    this.connection = new WebRTCConnection(config);
+    this.eventHandler = new VoiceEventHandler(config);
+
+    // Wire connection events
+    this.connection.on('connection.change', (state: ConnectionState) => {
+      this.connectionState = state;
+      this.emit('connection.change', state);
+    });
+
+    this.connection.on('error', (error: Error) => {
+      this.emit('error', error);
+    });
+
+    // Wire data channel ready event
+    this.connection.on('dataChannelReady', (dc: RTCDataChannel) => {
+      if (this.config.debug) {
+        console.log('[WebRTCVoiceClient] Data channel ready, attaching to event handler');
+      }
+      this.eventHandler.setDataChannel(dc);
+    });
+
+    // Wire event handler events - proxy all to external listeners
+    const eventsToProxy = [
+      'session.created',
+      'transcript',
+      'speech.started',
+      'speech.stopped',
+      'response.text',
+      'response.complete',
+      'order.detected',
+      'order.confirmation',
+      'order.item.removed',
+      'order.items.added',
+      'error',
+      'rate_limit_error',
+      'session_expired'
+    ];
+
+    eventsToProxy.forEach(eventName => {
+      this.eventHandler.on(eventName, (...args: any[]) => {
+        this.emit(eventName, ...args);
+      });
+    });
+
+    // Handle session.created event to send session configuration
+    this.eventHandler.on('session.created', () => {
+      if (this.config.debug) {
+        console.log('[WebRTCVoiceClient] Session created, sending configuration');
+      }
+      const sessionConfigObj = this.sessionConfig.buildSessionConfig();
+      this.eventHandler.sendEvent({
+        type: 'session.update',
+        session: sessionConfigObj
+      });
+
+      // Clear audio buffer immediately after session config
+      this.eventHandler.sendEvent({
+        type: 'input_audio_buffer.clear'
+      });
+    });
+
+    // Handle reconnection events
+    this.connection.on('reconnect.needed', async () => {
+      if (this.config.debug) {
+        console.log('[WebRTCVoiceClient] Reconnection needed, fetching new token');
+      }
+      await this.handleReconnect();
+    });
+
+    this.connection.on('disconnection', () => {
+      if (this.config.debug) {
+        console.log('[WebRTCVoiceClient] Connection lost, cleaning up');
+      }
+      this.handleDisconnection();
+    });
+
+    // Handle specific error types from event handler
+    this.eventHandler.on('rate_limit_error', () => {
+      console.warn('[WebRTCVoiceClient] Rate limit exceeded');
+      // Let external listeners handle this
+    });
+
+    this.eventHandler.on('session_expired', async () => {
+      console.warn('[WebRTCVoiceClient] Session expired, reconnecting');
+      await this.handleSessionExpired();
+    });
   }
 
   /**
@@ -95,853 +169,41 @@ export class WebRTCVoiceClient extends EventEmitter {
   async connect(): Promise<void> {
     // Prevent duplicate connections
     if (this.isConnecting || this.connectionState === 'connected') {
-      // Debug: '[WebRTCVoice] Already connecting or connected, skipping...'
+      if (this.config.debug) {
+        console.log('[WebRTCVoiceClient] Already connecting or connected, skipping...');
+      }
       return;
     }
-    
+
     this.isConnecting = true;
-    
+
     try {
-      // Debug: '[WebRTCVoice] Starting connection...'
-      this.setConnectionState('connecting');
-      
-      // Step 1: Get ephemeral token from our server
-      // Debug: '[WebRTCVoice] Fetching ephemeral token...'
-      await this.fetchEphemeralToken();
-      
-      // Step 2: Create RTCPeerConnection
-      this.pc = new RTCPeerConnection({
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-        ],
-        bundlePolicy: 'max-bundle',
-      });
-      
-      this.setupPeerConnectionHandlers();
-      
-      // Step 3: Set up audio output handler
-      this.audioElement = document.createElement('audio');
-      this.audioElement.autoplay = true;
-      this.audioElement.style.display = 'none';
-      // Mute if configured for transcription-only mode
-      if (this.config.muteAudioOutput) {
-        this.audioElement.muted = true;
-        this.audioElement.volume = 0;
-      }
-      document.body.appendChild(this.audioElement);
-
-      this.pc.ontrack = (event) => {
-        if (this.config.debug) {
-          // Debug: '[WebRTCVoice] Received remote audio track:', event.streams
-        }
-        if (this.audioElement && event.streams[0]) {
-          this.audioElement.srcObject = event.streams[0];
-        }
-      };
-      
-      // Step 4: Set up microphone and add track (creates first m-line)
-      await this.setupMicrophone();
-      
-      // Step 5: Create data channel (creates second m-line)
-      this.dc = this.pc.createDataChannel('oai-events', {
-        ordered: true,
-      });
-      this.setupDataChannel();
-      
-      // Step 7: Create offer and establish connection
-      const offer = await this.pc.createOffer();
-      await this.pc.setLocalDescription(offer);
-      
       if (this.config.debug) {
-        // Log the m-lines in the offer to debug ordering
-        const _mLines = offer.sdp?.match(/m=.*/g);
-        // Debug: '[WebRTCVoice] SDP m-lines in offer:', mLines
+        console.log('[WebRTCVoiceClient] Starting connection sequence...');
       }
-      
-      // Step 7: Send SDP to OpenAI
-      const model = import.meta.env.VITE_OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03';
-      const sdpResponse = await fetch(
-        `https://api.openai.com/v1/realtime?model=${model}`,
-        {
-          method: 'POST',
-          body: offer.sdp,
-          headers: {
-            'Authorization': `Bearer ${this.ephemeralToken}`,
-            'Content-Type': 'application/sdp',
-          },
-        }
-      );
-      
-      if (!sdpResponse.ok) {
-        throw new Error(`OpenAI SDP exchange failed: ${sdpResponse.status}`);
+
+      // Step 1: Fetch ephemeral token via session config service
+      await this.sessionConfig.fetchEphemeralToken();
+
+      // Step 2: Get token and connect via connection service
+      const token = this.sessionConfig.getToken();
+      if (!token) {
+        throw new Error('Failed to get ephemeral token');
       }
-      
-      // Step 8: Set remote description
-      const answerSdp = await sdpResponse.text();
-      
-      // Check if pc still exists and is in correct state
-      if (!this.pc) {
-        throw new Error('PeerConnection was closed during SDP exchange');
-      }
-      
-      // Check if we're in the correct state to set remote description
-      if (this.pc.signalingState !== 'have-local-offer') {
-        console.error('[WebRTCVoice] Wrong signaling state for setting answer:', this.pc.signalingState);
-        throw new Error(`Cannot set remote answer in state: ${this.pc.signalingState}`);
-      }
-      
-      const answer: RTCSessionDescriptionInit = {
-        type: 'answer',
-        sdp: answerSdp,
-      };
-      
-      // Debug: '[WebRTCVoice] Setting remote description...'
-      await this.pc.setRemoteDescription(answer);
-      
-      this.sessionActive = true;
-      this.reconnectAttempts = 0;
+
+      await this.connection.connect(token);
+
       this.isConnecting = false;
-      
+
       if (this.config.debug) {
-        // Debug: '[WebRTCVoice] WebRTC connection established'
+        console.log('[WebRTCVoiceClient] Connection established successfully');
       }
-      
+
     } catch (error) {
-      console.error('[WebRTCVoice] Connection failed:', error);
+      console.error('[WebRTCVoiceClient] Connection failed:', error);
       this.isConnecting = false;
-      this.setConnectionState('error');
       this.emit('error', error);
-      
-      // Clean up failed connection
-      this.cleanupConnection();
-      
-      // Attempt reconnection with proper delay
-      this.reconnectAttempts++;
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        const delay = Math.min(5000, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
-        // Debug: `[WebRTCVoice] Will retry connection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`
-        setTimeout(() => {
-          if (this.connectionState !== 'connected') {
-            this.reconnect();
-          }
-        }, delay);
-      } else {
-        console.error('[WebRTCVoice] Max reconnection attempts reached. Please refresh the page.');
-      }
-    }
-  }
-
-  /**
-   * Fetch ephemeral token from our backend
-   */
-  private async fetchEphemeralToken(): Promise<void> {
-    const authToken = await getAuthToken();
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-    
-    if (this.config.debug) {
-      // Debug: '[RT] Fetching ephemeral token from:', `${apiBase}/api/v1/realtime/session`
-    }
-    
-    const response = await fetch(`${apiBase}/api/v1/realtime/session`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json',
-        'x-restaurant-id': this.config.restaurantId,
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get ephemeral token: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    this.ephemeralToken = data.client_secret.value;
-    this.tokenExpiresAt = data.expires_at || Date.now() + 60000;
-    
-    // Store menu context if provided
-    if (data.menu_context) {
-      this.menuContext = data.menu_context;
-      // Debug: '[RT] Menu context loaded:', this.menuContext.split('\n').length, 'lines'
-    }
-    
-    // Schedule token refresh 10 seconds before expiry
-    this.scheduleTokenRefresh();
-    
-    if (this.config.debug) {
-      // Debug: '[WebRTCVoice] Got ephemeral token, expires at:', new Date(this.tokenExpiresAt)
-    }
-  }
-
-  /**
-   * Schedule token refresh before expiry
-   */
-  private scheduleTokenRefresh(): void {
-    // Clear any existing timer
-    if (this.tokenRefreshTimer) {
-      clearTimeout(this.tokenRefreshTimer);
-    }
-    
-    // Calculate when to refresh (10 seconds before expiry)
-    const refreshTime = this.tokenExpiresAt - Date.now() - 10000;
-    
-    if (refreshTime > 0) {
-      this.tokenRefreshTimer = setTimeout(async () => {
-        if (this.sessionActive) {
-          // Debug: '[WebRTCVoice] Refreshing ephemeral token...'
-          try {
-            await this.fetchEphemeralToken();
-            // Note: We can't update an active WebRTC session token
-            // This is for the next connection
-          } catch (error) {
-            console.error('[WebRTCVoice] Token refresh failed:', error);
-          }
-        }
-      }, refreshTime);
-    }
-  }
-
-  /**
-   * Set up microphone input
-   */
-  private async setupMicrophone(): Promise<void> {
-    try {
-      this.mediaStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          // Don't specify sample rate - let browser negotiate
-        },
-      });
-      
-      const audioTrack = this.mediaStream.getAudioTracks()[0];
-      if (this.pc && audioTrack) {
-        // CRITICAL: Ensure track is MUTED before adding to connection
-        // Debug: '[WebRTCVoice] Audio track initial state - enabled:', audioTrack.enabled
-        audioTrack.enabled = false;
-        // Debug: '[WebRTCVoice] Audio track after muting - enabled:', audioTrack.enabled
-        
-        // Simple approach: just add the track
-        this.pc.addTrack(audioTrack, this.mediaStream);
-        // Debug: '[WebRTCVoice] Audio track added to peer connection in MUTED state'
-        
-        if (this.config.debug) {
-          // Debug: '[WebRTCVoice] Microphone connected but muted - will only transmit when button held'
-        }
-      }
-    } catch (error) {
-      console.error('[WebRTCVoice] Microphone setup failed:', error);
-      throw new Error('Microphone access denied or unavailable');
-    }
-  }
-
-  /**
-   * Set up data channel for bidirectional event communication
-   */
-  private setupDataChannel(): void {
-    if (!this.dc) return;
-    
-    this.dc.onopen = () => {
-      if (this.config.debug) {
-        // Debug: '[WebRTCVoice] Data channel opened'
-      }
-      
-      this.dcReady = true;
-      this.setConnectionState('connected');
-      
-      // Flush any queued messages
-      if (this.messageQueue.length > 0) {
-        // Debug: `[WebRTCVoice] Flushing ${this.messageQueue.length} queued messages`
-        for (const msg of this.messageQueue) {
-          this.dc!.send(JSON.stringify(msg));
-        }
-        this.messageQueue = [];
-      }
-      // Wait for session.created before sending session.update
-    };
-    
-    this.dc.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        this.handleRealtimeEvent(data);
-      } catch (error) {
-        console.error('[WebRTCVoice] Failed to parse message:', error);
-      }
-    };
-    
-    this.dc.onerror = (error) => {
-      console.error('[WebRTCVoice] Data channel error:', error);
-      this.emit('error', error);
-    };
-    
-    this.dc.onclose = () => {
-      if (this.config.debug) {
-        // Debug: '[WebRTCVoice] Data channel closed'
-      }
-      this.dcReady = false;
-      this.handleDisconnection();
-    };
-  }
-
-  /**
-   * Handle events from OpenAI Realtime API
-   */
-  private handleRealtimeEvent(event: any): void {
-    // Deduplication check
-    if (event.event_id && this.seenEventIds.has(event.event_id)) {
-      if (this.config.debug) {
-        // Debug: `[RT] Duplicate event ignored: ${event.event_id}`
-      }
-      return;
-    }
-    if (event.event_id) {
-      this.seenEventIds.add(event.event_id);
-      // Keep set size bounded
-      if (this.seenEventIds.size > 1000) {
-        const firstId = this.seenEventIds.values().next().value;
-        this.seenEventIds.delete(firstId);
-      }
-    }
-    
-    // Instrumentation
-    this.eventIndex++;
-    const _logPrefix = `[RT] t=${this.turnId}#${String(this.eventIndex).padStart(2, '0')}`;
-    
-    if (this.config.debug) {
-      // Debug: `${logPrefix} ${event.type}`, event
-    }
-    
-    switch (event.type) {
-      case 'session.created':
-        // Debug: `${logPrefix} Session created successfully`
-        if (this.config.debug) {
-          // Debug: 'Session details:', JSON.stringify(event.session, null, 2)
-        }
-        this.emit('session.created', event.session);
-        // Now send session.update after session is created
-        this.configureSession();
-        break;
-        
-      case 'session.updated':
-        // Debug: `${logPrefix} Session configuration updated`
-        break;
-        
-      case 'input_audio_buffer.speech_started':
-        // Debug: `${logPrefix} Speech started detected`
-        if (this.turnState === 'recording') {
-          this.partialTranscript = '';
-          this.emit('speech.started');
-        }
-        break;
-        
-      case 'input_audio_buffer.speech_stopped':
-        // Debug: `${logPrefix} Speech stopped detected`
-        if (this.turnState === 'recording') {
-          this.emit('speech.stopped');
-        }
-        break;
-        
-      case 'input_audio_buffer.committed':
-        // Debug: `${logPrefix} Audio buffer committed`
-        break;
-        
-      case 'input_audio_buffer.cleared':
-        // Debug: `${logPrefix} Audio buffer cleared`
-        break;
-        
-      case 'conversation.item.created':
-        // Track items by role
-        if (event.item?.role === 'user' && event.item?.id) {
-          this.currentUserItemId = event.item.id;
-          // Debug: `${logPrefix} User item created: ${this.currentUserItemId}`
-          // Initialize transcript entry
-          this.transcriptMap.set(event.item.id, { text: '', final: false, role: 'user' });
-        } else if (event.item?.role === 'assistant' && event.item?.id) {
-          // Debug: `${logPrefix} Assistant item created: ${event.item.id}`
-          this.transcriptMap.set(event.item.id, { text: '', final: false, role: 'assistant' });
-        }
-        break;
-        
-      case 'conversation.item.input_audio_transcription.delta':
-        // Accumulate delta to the correct user item
-        if (event.item_id && event.delta) {
-          const entry = this.transcriptMap.get(event.item_id);
-          if (entry && entry.role === 'user') {
-            entry.text += event.delta;
-            // Debug: `${logPrefix} User transcript delta (len=${event.delta.length})`
-            
-            // Emit partial transcript
-            const partialTranscript: TranscriptEvent = {
-              text: entry.text,
-              isFinal: false,
-              confidence: 0.9,
-              timestamp: Date.now(),
-            };
-            this.emit('transcript', partialTranscript);
-          }
-        }
-        break;
-        
-      case 'conversation.item.input_audio_transcription.completed':
-        // Finalize the user transcript
-        if (event.item_id && event.transcript) {
-          const entry = this.transcriptMap.get(event.item_id);
-          if (entry && entry.role === 'user') {
-            entry.text = event.transcript; // Use full transcript, not accumulation
-            entry.final = true;
-            
-            const finalTranscript: TranscriptEvent = {
-              text: event.transcript,
-              isFinal: true,
-              confidence: 0.95,
-              timestamp: Date.now(),
-            };
-            this.emit('transcript', finalTranscript);
-            // Debug: `${logPrefix} User transcript completed: "${event.transcript}"`
-            
-            // State transition: waiting_user_final → waiting_response
-            if (this.turnState === 'waiting_user_final' && 
-                event.item_id === this.currentUserItemId) {
-              // Debug: `${logPrefix} Turn state: waiting_user_final → waiting_response`
-              this.turnState = 'waiting_response';
-              
-              // Send exactly one response.create
-              this.sendEvent({
-                type: 'response.create',
-                response: {
-                  modalities: ['text', 'audio'],
-                  instructions: 'You MUST respond in English only. Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences. Speak English only, never Spanish or any other language.',
-                }
-              });
-              // Debug: `${logPrefix} Manual response.create sent`
-              
-              // Note: Order detection now happens via function calling
-              // The AI will call add_to_order function when items are detected
-            }
-          }
-        }
-        break;
-        
-      case 'response.created':
-        // Track the active response
-        if (event.response?.id) {
-          this.activeResponseId = event.response.id;
-          // Debug: `${logPrefix} Response created: ${this.activeResponseId}`
-          // Initialize assistant transcript entry
-          if (event.response.output && event.response.output.length > 0) {
-            const _itemId = event.response.output[0].id;
-            if (_itemId) {
-              this.transcriptMap.set(_itemId, { text: '', final: false, role: 'assistant' });
-            }
-          }
-        }
-        break;
-        
-      case 'response.audio_transcript.delta':
-        // Accumulate assistant transcript delta
-        if (event.delta && this.turnState === 'waiting_response') {
-          // Find the assistant item for this response
-          const assistantItems = Array.from(this.transcriptMap.entries())
-            .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
-          
-          if (assistantItems.length > 0) {
-            const [itemId, entry] = assistantItems[assistantItems.length - 1];
-            entry.text += event.delta;
-            // Debug: `${logPrefix} Assistant transcript delta (len=${event.delta.length})`
-            
-            // Emit partial response
-            this.emit('response.text', entry.text);
-          }
-        }
-        break;
-        
-      case 'response.audio_transcript.done':
-        // Finalize assistant transcript
-        if (event.transcript) {
-          const assistantItems = Array.from(this.transcriptMap.entries())
-            .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
-          
-          if (assistantItems.length > 0) {
-            const [itemId, entry] = assistantItems[assistantItems.length - 1];
-            entry.text = event.transcript;
-            entry.final = true;
-            // Debug: `${logPrefix} Assistant transcript done: "${event.transcript}"`
-            
-            this.emit('response.complete', event.transcript);
-          }
-        }
-        break;
-        
-      case 'response.text.delta':
-        // Text-only response (if no audio)
-        if (this.turnState === 'waiting_response') {
-          this.emit('response.text', event.delta);
-        }
-        break;
-        
-      case 'response.audio.delta':
-        // Audio is handled via WebRTC audio track
-        // Debug: `${logPrefix} Audio delta received (${event.delta?.length || 0} bytes)`
-        break;
-        
-      case 'response.done':
-        // Turn complete - transition back to idle
-        // Debug: `${logPrefix} Response done`
-        if (this.turnState === 'waiting_response') {
-          // Debug: `${logPrefix} Turn state: waiting_response → idle`
-          this.turnState = 'idle';
-          this.currentUserItemId = null;
-          this.activeResponseId = null;
-          // Increment turn ID for next turn
-          this.turnId++;
-          this.eventIndex = 0;
-        }
-        this.emit('response.complete', event.response);
-        break;
-        
-      case 'response.output_item.added':
-      case 'response.output_item.done':
-      case 'response.content_part.added':
-      case 'response.content_part.done':
-      case 'rate_limits.updated':
-        // Known benign events - log but don't warn
-        // Debug: `${logPrefix} ${event.type}`
-        break;
-        
-      case 'response.function_call_arguments.start':
-        // Function call started
-        // Debug: `${logPrefix} Function call started: ${event.name}`
-        break;
-        
-      case 'response.function_call_arguments.delta':
-        // Function call arguments being streamed
-        // Debug: `${logPrefix} Function call delta for: ${event.name}`
-        break;
-        
-      case 'response.function_call_arguments.done':
-        // Function call complete - parse and emit structured events
-        // Debug: `${logPrefix} Function call complete: ${event.name}`, event.arguments
-        
-        try {
-          const args = JSON.parse(event.arguments);
-          
-          if (event.name === 'add_to_order') {
-            // Validate and filter items with names
-            const validItems = (args.items || []).filter((item: any) => {
-              if (!item?.name) {
-                console.warn(`${_logPrefix} Skipping item without name:`, item);
-                return false;
-              }
-              return true;
-            });
-            
-            // Emit structured order event with items
-            const orderEvent: OrderEvent = {
-              items: validItems,
-              confidence: 0.95,
-              timestamp: Date.now(),
-            };
-            
-            // Debug: `${logPrefix} Emitting order.detected with ${orderEvent.items.length} items`
-            this.emit('order.detected', orderEvent);
-            
-            // Also emit for legacy compatibility
-            if (orderEvent.items.length > 0) {
-              this.emit('order.items.added', {
-                items: orderEvent.items,
-                timestamp: Date.now()
-              });
-            }
-          } else if (event.name === 'confirm_order') {
-            // Emit order confirmation event
-            // Debug: `${logPrefix} Emitting order.confirmation: ${args.action}`
-            this.emit('order.confirmation', {
-              action: args.action,
-              timestamp: Date.now()
-            });
-          } else if (event.name === 'remove_from_order') {
-            // Emit item removal event
-            // Debug: `${logPrefix} Emitting order.item.removed: ${args.itemName}`
-            this.emit('order.item.removed', {
-              itemName: args.itemName,
-              quantity: args.quantity,
-              timestamp: Date.now()
-            });
-          }
-        } catch (error) {
-          console.error(`${_logPrefix} Failed to parse function call arguments:`, error);
-          console.error('Raw arguments:', event.arguments);
-        }
-        break;
-        
-      case 'error': {
-        console.error('[WebRTCVoice] API error:', JSON.stringify(event.error, null, 2));
-        console.error('[WebRTCVoice] Full error event:', JSON.stringify(event, null, 2));
-        const errorMessage = event.error?.message || event.error?.error?.message || 'OpenAI API error';
-        const error = new Error(errorMessage);
-        this.emit('error', error);
-        
-        // Handle specific error types
-        if (event.error?.code === 'rate_limit_exceeded') {
-          console.warn('[WebRTCVoice] Rate limit exceeded, will retry after delay');
-          this.handleRateLimitError();
-        } else if (event.error?.code === 'session_expired') {
-          console.warn('[WebRTCVoice] Session expired, reconnecting...');
-          this.handleSessionExpired();
-        }
-        break;
-      }
-        
-        
-      default:
-        // Log truly unhandled events
-        if (this.config.debug) {
-          // Debug: `${logPrefix} Unhandled event type: ${event.type}`
-        }
-    }
-  }
-
-  /**
-   * Configure the OpenAI session with proper limits
-   */
-  private configureSession(): void {
-    const _logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
-    
-    // Determine turn detection mode
-    let turnDetection: any = null; // Default: manual PTT
-    if (this.config.enableVAD) {
-      turnDetection = {
-        type: 'server_vad',
-        threshold: 0.5,
-        prefix_padding_ms: 300,
-        silence_duration_ms: 250,
-        create_response: false, // Still manually trigger responses
-      };
-      // Debug: `${logPrefix} Configuring session with VAD enabled (manual response trigger)`
-    } else {
-      // Debug: `${logPrefix} Configuring session with manual PTT control`
-    }
-    
-    // Build instructions with menu context
-    let instructions = `You are Grow Restaurant's friendly, fast, and accurate customer service agent. You MUST speak in English only. Never respond in any other language.
-
-🎯 YOUR JOB:
-- Help guests choose items and take complete, correct orders
-- Be concise (1-2 sentences), warm, and proactive
-- Always confirm: final order, price, pickup/dine-in choice
-- Use the add_to_order function when customer orders items
-- Use confirm_order function when customer wants to checkout
-
-⚠️ GOLDEN RULES:
-1. IMMEDIATELY call add_to_order when customer mentions menu items - don't ask first
-2. Add items with basic defaults (e.g., Greek dressing for salad, wheat bread for sandwich)
-3. AFTER adding, ask follow-up questions to customize: "Added Greek Salad! What dressing?"
-4. Summarize what was added: item → quantity → price
-5. If uncertain about an item name, ask for clarification before adding
-
-🎤 TRANSCRIPTION HELP (common misheard items):
-- "Soul Bowl" (NOT "sobo" or "solo") - Southern comfort food bowl
-- "Peach Arugula" (NOT "peach a ruler") - Salad with arugula
-- "Jalapeño Pimento" (NOT "holla pino") - Spicy cheese bites
-- "Succotash" (NOT "suck a toss") - Vegan vegetable dish
-- If you hear something unclear, confirm: "Did you say Soul Bowl?"
-
-📋 SMART FOLLOW-UPS BY CATEGORY:
-
-SALADS → Ask: 
-- Dressing? (Vidalia Onion, Balsamic, Greek, Ranch, Honey Mustard, Poppy Seed, Lemon Vinaigrette)
-- Cheese if applicable? (feta, blue, cheddar)
-- Add protein? (+$4 chicken, +$6 salmon)
-
-SANDWICHES → Ask:
-- Bread? (white, wheat, or flatbread)
-- Side? (potato salad, fruit cup, cucumber salad, side salad, peanut noodles)
-- Toasted?
-
-BOWLS:
-- Fajita Keto → "Add rice for +$1?"
-- Greek → "Dairy (feta/tzatziki) okay?"
-- Soul → "Pork sausage okay?"
-
-VEGAN → Confirm no dairy/egg/honey, warn about peanuts in noodles
-
-ENTRÉES → Ask:
-- Choose 2 sides (potato salad, fruit cup, cucumber salad, side salad, peanut noodles)
-- Cornbread okay?
-
-💬 EXAMPLE RESPONSES:
-- "Great choice! Feta or blue cheese? Add prosciutto for +$4?"
-- "White, wheat, or flatbread? Which side would you like?"
-- "Any allergies I should know about?"
-- "That's a Greek Salad with chicken, balsamic dressing. $16 total. Dine-in or to-go?"
-
-🚫 REDIRECT NON-FOOD TOPICS:
-- "I can only help with food orders. What would you like to order?"
-- "Let me help you with our menu. Any starters today?"
-
-⚠️ LANGUAGE REQUIREMENT:
-- You MUST speak English ONLY
-- If you hear Spanish or any other language, respond in English: "I can help you in English. What would you like to order?"
-- Never respond in Spanish, French, Chinese, or any language other than English
-- All responses, greetings, and confirmations MUST be in English`;
-    
-    // Add menu context if available
-    if (this.menuContext) {
-      instructions += this.menuContext;
-    } else {
-      instructions += `\n\nNote: Menu information is currently unavailable. Please ask the customer what they'd like and I'll do my best to help.`;
-    }
-    
-    // Define tools/functions for structured order extraction
-    const tools = [
-      {
-        type: 'function',
-        name: 'add_to_order',
-        description: 'Add items to the customer\'s order when they request specific menu items',
-        parameters: {
-          type: 'object',
-          properties: {
-            items: {
-              type: 'array',
-              description: 'Array of items to add to the order',
-              items: {
-                type: 'object',
-                properties: {
-                  name: { 
-                    type: 'string',
-                    description: 'The menu item name (e.g., "Soul Bowl", "Greek Salad")'
-                  },
-                  quantity: { 
-                    type: 'integer',
-                    minimum: 1,
-                    default: 1,
-                    description: 'Number of this item'
-                  },
-                  modifications: { 
-                    type: 'array', 
-                    items: { type: 'string' },
-                    description: 'Modifications like "no onions", "extra cheese", "add chicken"'
-                  },
-                  specialInstructions: {
-                    type: 'string',
-                    description: 'Any special preparation instructions'
-                  }
-                },
-                required: ['name', 'quantity'],
-                additionalProperties: false
-              }
-            }
-          },
-          required: ['items'],
-          additionalProperties: false
-        }
-      },
-      {
-        type: 'function',
-        name: 'confirm_order',
-        description: 'Confirm the order and proceed with checkout when customer is ready',
-        parameters: {
-          type: 'object',
-          properties: {
-            action: { 
-              type: 'string',
-              enum: ['checkout', 'review', 'cancel'],
-              description: 'Action to take with the order'
-            }
-          },
-          required: ['action'],
-          additionalProperties: false
-        }
-      },
-      {
-        type: 'function',
-        name: 'remove_from_order',
-        description: 'Remove items from the order when customer changes their mind',
-        parameters: {
-          type: 'object',
-          properties: {
-            itemName: {
-              type: 'string',
-              description: 'Name of the item to remove'
-            },
-            quantity: {
-              type: 'integer',
-              description: 'Number to remove (optional, removes all if not specified)'
-            }
-          },
-          required: ['itemName'],
-          additionalProperties: false
-        }
-      }
-    ];
-    
-    const sessionConfig: any = {
-      modalities: ['text', 'audio'],
-      instructions,
-      voice: 'alloy',
-      input_audio_format: 'pcm16',
-      output_audio_format: 'pcm16',
-      input_audio_transcription: {
-        model: 'whisper-1',
-        language: 'en'  // Force English transcription
-      },
-      turn_detection: turnDetection,
-      temperature: 0.6, // Minimum temperature for Realtime API
-      max_response_output_tokens: 500 // Sufficient for complete responses
-    };
-
-    // Only add tools if they exist and are non-empty
-    if (tools && tools.length > 0) {
-      sessionConfig.tools = tools;
-      sessionConfig.tool_choice = 'auto'; // Enable automatic function calling
-    }
-    
-    const sessionUpdate = {
-      type: 'session.update',
-      session: sessionConfig
-    };
-    
-    this.sendEvent(sessionUpdate);
-    
-    // Immediately clear the audio buffer to ensure no audio is being processed
-    this.sendEvent({
-      type: 'input_audio_buffer.clear'
-    });
-    
-    // Debug: `${logPrefix} Session configured (tools temporarily disabled to fix connection)`
-  }
-
-  /**
-   * Legacy order detection - now handled by function calling
-   * Kept for backward compatibility but no longer used
-   * @deprecated Use function calling instead
-   */
-  private detectOrderIntent(_text: string): void {
-    // Order detection is now handled via OpenAI function calling
-    // The AI will automatically call add_to_order when it detects menu items
-    // This provides much more accurate extraction with proper quantities and modifications
-    // Debug: '[RT] detectOrderIntent called but using function calling instead'
-  }
-
-
-  /**
-   * Send event to OpenAI via data channel
-   */
-  sendEvent(event: any): void {
-    if (this.dcReady && this.dc && this.dc.readyState === 'open') {
-      this.dc.send(JSON.stringify(event));
-      
-      const _logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
-      if (this.config.debug) {
-        // Debug: `${logPrefix} Sent: ${event.type}`
-      } else {
-        // Debug: `${logPrefix} → ${event.type}`
-      }
-    } else {
-      // Queue the message for later
-      this.messageQueue.push(event);
-      // Debug: `[RT] Queued event (${event.type}) - DC not ready. Queue size: ${this.messageQueue.length}`
+      throw error;
     }
   }
 
@@ -951,49 +213,35 @@ ENTRÉES → Ask:
   startRecording(): void {
     // State machine guard: only allow from idle state
     if (this.turnState !== 'idle') {
-      console.warn(`[RT] Cannot start recording in state: ${this.turnState}`);
+      console.warn(`[WebRTCVoiceClient] Cannot start recording in state: ${this.turnState}`);
       return;
     }
-    
-    if (!this.mediaStream) {
-      console.error('[RT] No media stream available');
-      return;
+
+    if (this.config.debug) {
+      console.log('[WebRTCVoiceClient] Turn state: idle → recording');
     }
-    
-    const _logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
-    // Debug: `${logPrefix} Turn state: idle → recording`
     this.turnState = 'recording';
-    
-    // Clear transcript map for new turn
-    this.transcriptMap.clear();
-    this.currentUserItemId = null;
-    this.activeResponseId = null;
-    
-    // Clear any partial transcripts
-    this.partialTranscript = '';
-    this.aiPartialTranscript = '';
-    
+
+    // Update event handler turn state
+    this.eventHandler.setTurnState('recording');
+
     // Clear audio buffer before starting
-    this.sendEvent({
+    this.eventHandler.sendEvent({
       type: 'input_audio_buffer.clear'
     });
-    
+
     // Enable microphone to start transmitting
-    const audioTrack = this.mediaStream.getAudioTracks()[0];
-    if (audioTrack) {
-      audioTrack.enabled = true;
-      // Debug: `${logPrefix} Microphone ENABLED - transmitting audio`
-    }
-    
+    this.connection.enableMicrophone();
+
     this.isRecording = true;
     this.emit('recording.started');
-    
+
     // Clear any response text in the UI
     this.emit('response.text', '');
     this.emit('transcript', { text: '', isFinal: false, confidence: 0, timestamp: Date.now() });
-    
+
     if (this.config.debug) {
-      // Debug: `${logPrefix} Recording started - hold button to continue`
+      console.log('[WebRTCVoiceClient] Recording started - hold button to continue');
     }
   }
 
@@ -1003,119 +251,91 @@ ENTRÉES → Ask:
   stopRecording(): void {
     // State machine guard: only allow from recording state
     if (this.turnState !== 'recording') {
-      console.warn(`[RT] Cannot stop recording in state: ${this.turnState}`);
+      console.warn(`[WebRTCVoiceClient] Cannot stop recording in state: ${this.turnState}`);
       return;
     }
-    
-    if (!this.mediaStream) {
-      console.error('[RT] No media stream available');
-      return;
-    }
-    
+
     // Debounce protection
     const now = Date.now();
     if (now - this.lastCommitTime < 250) {
-      console.warn('[RT] Ignoring rapid stop - debouncing');
+      console.warn('[WebRTCVoiceClient] Ignoring rapid stop - debouncing');
       return;
     }
-    
-    const _logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
-    
-    // IMMEDIATELY mute microphone to stop transmission
-    const audioTrack = this.mediaStream.getAudioTracks()[0];
-    if (audioTrack) {
-      audioTrack.enabled = false;
-      // Debug: `${logPrefix} Microphone DISABLED - stopped transmitting`
+
+    if (this.config.debug) {
+      console.log('[WebRTCVoiceClient] Turn state: recording → committing');
     }
-    
+
+    // IMMEDIATELY mute microphone to stop transmission
+    this.connection.disableMicrophone();
+
     this.lastCommitTime = now;
     this.isRecording = false;
-    
+
     // State transition: recording → committing
-    // Debug: `${logPrefix} Turn state: recording → committing`
     this.turnState = 'committing';
-    
+    this.eventHandler.setTurnState('committing');
+
     // Commit the audio buffer
-    this.sendEvent({
+    this.eventHandler.sendEvent({
       type: 'input_audio_buffer.commit'
     });
-    // Debug: `${logPrefix} Audio buffer committed`
-    
+
     // State transition: committing → waiting_user_final
-    // Debug: `${logPrefix} Turn state: committing → waiting_user_final`
-    this.turnState = 'waiting_user_final';
-    
-    this.emit('recording.stopped');
-    
-    // Note: response.create will be sent when transcription.completed arrives
     if (this.config.debug) {
-      // Debug: `${logPrefix} Waiting for user transcript to finalize...`
+      console.log('[WebRTCVoiceClient] Turn state: committing → waiting_user_final');
+    }
+    this.turnState = 'waiting_user_final';
+    this.eventHandler.setTurnState('waiting_user_final');
+
+    this.emit('recording.stopped');
+
+    if (this.config.debug) {
+      console.log('[WebRTCVoiceClient] Waiting for user transcript to finalize...');
     }
   }
 
   /**
-   * Handle peer connection state changes
+   * Handle reconnection
    */
-  private setupPeerConnectionHandlers(): void {
-    if (!this.pc) return;
-    
-    this.pc.oniceconnectionstatechange = () => {
-      if (this.config.debug) {
-        // Debug: '[WebRTCVoice] ICE connection state:', this.pc?.iceConnectionState
+  private async handleReconnect(): Promise<void> {
+    try {
+      // Check if token is still valid
+      if (!this.sessionConfig.isTokenValid()) {
+        await this.sessionConfig.fetchEphemeralToken();
       }
-      
-      if (this.pc?.iceConnectionState === 'failed' || this.pc?.iceConnectionState === 'disconnected') {
-        this.handleDisconnection();
-      }
-    };
-    
-    this.pc.onconnectionstatechange = () => {
-      if (this.config.debug) {
-        // Debug: '[WebRTCVoice] Connection state:', this.pc?.connectionState
-      }
-    };
-  }
 
-  /**
-   * Set connection state and emit event
-   */
-  private setConnectionState(state: ConnectionState): void {
-    if (this.connectionState !== state) {
-      this.connectionState = state;
-      this.emit('connection.change', state);
+      const token = this.sessionConfig.getToken();
+      if (token) {
+        await this.connection.connect(token);
+      }
+    } catch (error) {
+      console.error('[WebRTCVoiceClient] Reconnection failed:', error);
+      this.emit('error', error);
     }
-  }
-
-  /**
-   * Handle rate limit errors
-   */
-  private handleRateLimitError(): void {
-    // Exponential backoff for rate limits
-    const backoffDelay = Math.min(30000, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
-    // Debug: `[WebRTCVoice] Waiting ${backoffDelay}ms before retry due to rate limit`
-    
-    setTimeout(() => {
-      if (this.sessionActive) {
-        this.reconnect();
-      }
-    }, backoffDelay);
   }
 
   /**
    * Handle session expiration
    */
   private async handleSessionExpired(): Promise<void> {
-    // Debug: '[WebRTCVoice] Handling session expiration...'
-    
-    // Clear current session
-    this.sessionActive = false;
-    this.ephemeralToken = null;
-    
-    // Try to reconnect with new token
+    if (this.config.debug) {
+      console.log('[WebRTCVoiceClient] Handling session expiration...');
+    }
+
     try {
-      await this.reconnect();
+      // Disconnect current session
+      this.connection.disconnect();
+
+      // Fetch new token and reconnect
+      await this.sessionConfig.fetchEphemeralToken();
+      const token = this.sessionConfig.getToken();
+
+      if (token) {
+        await this.connection.connect(token);
+      }
     } catch (error) {
-      console.error('[WebRTCVoice] Failed to recover from session expiration:', error);
+      console.error('[WebRTCVoiceClient] Failed to recover from session expiration:', error);
       this.emit('error', error);
     }
   }
@@ -1124,133 +344,17 @@ ENTRÉES → Ask:
    * Handle disconnection
    */
   private handleDisconnection(): void {
-    this.setConnectionState('disconnected');
-    this.sessionActive = false;
-    
-    // Clear accumulated transcripts to prevent memory leaks
-    this.partialTranscript = '';
-    this.aiPartialTranscript = '';
-    
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnect();
-    }
+    this.connectionState = 'disconnected';
+    this.resetTurnState();
   }
 
   /**
-   * Reconnect to the service
+   * Reset turn state
    */
-  private async reconnect(): Promise<void> {
-    // Debug: `[WebRTCVoice] Reconnecting... attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`
-    
-    // Clean up existing connection
-    this.disconnect();
-    
-    // Check if token is still valid
-    if (this.tokenExpiresAt < Date.now() + 5000) {
-      this.ephemeralToken = null; // Force new token
-    }
-    
-    // Reconnect (don't increment here as it's already incremented in the error handler)
-    await this.connect();
-  }
-
-  /**
-   * Clean up connection resources without changing state
-   */
-  private cleanupConnection(): void {
-    // Clear token refresh timer FIRST to prevent further operations
-    if (this.tokenRefreshTimer) {
-      clearTimeout(this.tokenRefreshTimer);
-      this.tokenRefreshTimer = null;
-    }
-    
-    // Close data channel
-    if (this.dc) {
-      try {
-        // Remove event handlers before closing
-        this.dc.onopen = null;
-        this.dc.onmessage = null;
-        this.dc.onerror = null;
-        this.dc.onclose = null;
-        this.dc.close();
-      } catch {
-        // Ignore errors during cleanup
-      }
-      this.dc = null;
-    }
-    
-    // Close peer connection and clean up event handlers
-    if (this.pc) {
-      try {
-        // Remove all event handlers to prevent memory leaks
-        this.pc.onicecandidate = null;
-        this.pc.oniceconnectionstatechange = null;
-        this.pc.onconnectionstatechange = null;
-        this.pc.ontrack = null;
-        this.pc.onsignalingstatechange = null;
-        this.pc.ondatachannel = null;
-        this.pc.onconnectionstatechange = null;
-        this.pc.onsignalingstatechange = null;
-        this.pc.ontrack = null;
-        this.pc.ondatachannel = null;
-        
-        // Close the connection
-        if (this.pc.signalingState !== 'closed') {
-          this.pc.close();
-        }
-      } catch (e) {
-        console.warn('[WebRTCVoice] Error cleaning up peer connection:', e);
-      }
-      this.pc = null;
-    }
-    
-    // Stop media stream tracks properly
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => {
-        try {
-          // Remove event listeners from track
-          track.onended = null;
-          track.onmute = null;
-          track.onunmute = null;
-          // Stop the track
-          track.stop();
-        } catch {
-          // Ignore errors during cleanup
-        }
-      });
-      this.mediaStream = null;
-    }
-    
-    // Clean up audio element properly to prevent memory leaks
-    if (this.audioElement) {
-      try {
-        // Stop any playing audio
-        this.audioElement.pause();
-        
-        // Clear the source to release media resources
-        this.audioElement.srcObject = null;
-        this.audioElement.src = '';
-        
-        // Remove all event listeners
-        this.audioElement.onloadedmetadata = null;
-        this.audioElement.onplay = null;
-        this.audioElement.onpause = null;
-        this.audioElement.onerror = null;
-        this.audioElement.onended = null;
-        this.audioElement.onseeking = null;
-        this.audioElement.onseeked = null;
-        this.audioElement.onpause = null;
-        this.audioElement.onerror = null;
-        
-        // Remove from DOM
-        if (this.audioElement.parentNode) {
-          this.audioElement.parentNode.removeChild(this.audioElement);
-        }
-      } catch (e) {
-        console.warn('[WebRTCVoice] Error cleaning up audio element:', e);
-      }
-      this.audioElement = null;
-    }
+  private resetTurnState(): void {
+    this.turnState = 'idle';
+    this.isRecording = false;
+    this.eventHandler.setTurnState('idle');
   }
 
   /**
@@ -1258,42 +362,21 @@ ENTRÉES → Ask:
    */
   disconnect(): void {
     // Clear all state flags
-    this.sessionActive = false;
     this.isRecording = false;
     this.isConnecting = false;
-    this.activeResponseId = null;
-    this.dcReady = false;
-    this.currentUserItemId = null;
-    
-    // Clear data structures
-    this.messageQueue = [];
-    this.transcriptMap.clear();
-    this.seenEventIds.clear();
-    
-    // Clear text state
-    this.partialTranscript = '';
-    this.aiPartialTranscript = '';
-    
-    // Reset counters
-    this.reconnectAttempts = 0;
-    this.turnId = 0;
-    this.eventIndex = 0;
-    
-    // Clear token and timer
-    this.ephemeralToken = null;
-    this.tokenExpiresAt = 0;
-    if (this.tokenRefreshTimer) {
-      clearTimeout(this.tokenRefreshTimer);
-      this.tokenRefreshTimer = null;
-    }
-    
-    // Use cleanup method
-    this.cleanupConnection();
-    
-    this.setConnectionState('disconnected');
-    
+
+    // Disconnect services
+    this.connection.disconnect();
+    this.sessionConfig.clearTokenRefresh();
+    this.eventHandler.reset();
+
+    // Reset turn state
+    this.resetTurnState();
+
+    this.connectionState = 'disconnected';
+
     if (this.config.debug) {
-      // Debug: '[WebRTCVoice] Disconnected'
+      console.log('[WebRTCVoiceClient] Disconnected');
     }
   }
 
