@@ -2,13 +2,23 @@
 
 [Home](../../../../index.md) > [Docs](../../../README.md) > [Reference](../../README.md) > [API](../README.md) > API Reference
 
-**Last Updated**: October 30, 2025
-**Version**: 6.0.14
-**Base URL**: `http://localhost:3001` (development) | `https://july25.onrender.com` (production)
+**OpenAPI Specification**: [openapi.yaml](../openapi.yaml)
+**Interactive Docs**: [View in Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/mikeyoung304/rebuild-6.0/main/docs/reference/api/openapi.yaml)
+**Local Viewer**: [index.html](../index.html) - Open in browser for interactive documentation
+
+**Last Updated**: October 31, 2025
+**Version**: 6.0.8
+**Base URL**: `http://localhost:3001/api/v1` (development) | `https://july25.onrender.com/api/v1` (production)
+
+---
 
 ## Overview
 
-Restaurant OS provides a RESTful API for restaurant management operations. All endpoints follow REST conventions and return JSON responses.
+Restaurant OS provides a comprehensive RESTful API for restaurant management operations. All endpoints follow REST conventions and return JSON responses.
+
+**For complete endpoint documentation, request/response schemas, and examples, see the [OpenAPI specification](../openapi.yaml).**
+
+This document provides additional context, quick reference, and examples beyond the OpenAPI spec.
 
 ## Authentication
 

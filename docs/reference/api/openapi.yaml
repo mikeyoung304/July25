@@ -1,0 +1,1644 @@
+openapi: 3.0.3
+info:
+  title: Restaurant OS API
+  version: 6.0.8
+  description: |
+    Restaurant OS provides a comprehensive API for managing restaurant operations including:
+    - Point of Sale (POS)
+    - Kitchen Display System (KDS)
+    - Online ordering and checkout
+    - Voice ordering via WebRTC (OpenAI Realtime API)
+    - Payment processing (Square integration)
+    - Table management
+    - Menu management
+
+    ## Authentication
+
+    The API supports dual authentication:
+    - **Production**: Supabase JWT (RLS-enforced)
+    - **Development**: JWT fallback (demo/PIN/station authentication)
+
+    All authenticated endpoints require an `Authorization: Bearer <token>` header.
+    Multi-tenant requests also require `X-Restaurant-ID` header.
+
+    See [Authentication Architecture](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) for details.
+
+  contact:
+    name: Restaurant OS Team
+    url: https://github.com/mikeyoung304/rebuild-6.0
+
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:3001/api/v1
+    description: Local development server
+  - url: https://production-url/api/v1
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Orders
+    description: Order creation and management
+  - name: Menu
+    description: Menu items and categories
+  - name: Payments
+    description: Payment processing via Square
+  - name: Voice & AI
+    description: Voice ordering and AI services via WebRTC
+  - name: Tables
+    description: Table management for dine-in service
+  - name: Health
+    description: Health checks and monitoring
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Supabase JWT (production) or custom JWT (demo/PIN/station).
+        Include in header: `Authorization: Bearer <token>`
+
+  parameters:
+    RestaurantIdHeader:
+      name: X-Restaurant-ID
+      in: header
+      required: true
+      description: Restaurant ID for multi-tenant context
+      schema:
+        type: string
+        format: uuid
+        example: "11111111-1111-1111-1111-111111111111"
+
+    ClientFlowHeader:
+      name: X-Client-Flow
+      in: header
+      required: false
+      description: Client flow for telemetry and flow-specific logic
+      schema:
+        type: string
+        enum: [online, kiosk, server]
+        example: "online"
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid request"
+        message:
+          type: string
+          description: Detailed error message
+          example: "Order ID is required"
+        code:
+          type: string
+          description: Error code
+          example: "VALIDATION_ERROR"
+        detail:
+          type: string
+          description: Additional error details
+
+    User:
+      type: object
+      required:
+        - id
+        - role
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User email (if applicable)
+        displayName:
+          type: string
+          description: User display name
+        role:
+          type: string
+          enum: [customer, server, kitchen, expo, cashier, manager, owner]
+          description: User role in restaurant
+        scopes:
+          type: array
+          items:
+            type: string
+          description: User permissions/scopes
+          example: ["orders:create", "orders:read", "payments:process"]
+
+    AuthSession:
+      type: object
+      required:
+        - access_token
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        refresh_token:
+          type: string
+          description: Refresh token (Supabase auth only)
+        expires_in:
+          type: integer
+          description: Token expiration time in seconds
+          example: 3600
+
+    MenuItem:
+      type: object
+      required:
+        - id
+        - name
+        - price
+        - restaurant_id
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Soul Bowl"
+        description:
+          type: string
+          example: "Fresh greens with grilled chicken and house dressing"
+        price:
+          type: number
+          format: float
+          example: 12.99
+        category:
+          type: string
+          example: "Bowls"
+        available:
+          type: boolean
+          default: true
+        restaurant_id:
+          type: string
+          format: uuid
+        image_url:
+          type: string
+          format: uri
+          description: Menu item image URL
+
+    OrderItem:
+      type: object
+      required:
+        - menu_item_id
+        - quantity
+        - price
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Order item ID (generated server-side)
+        menu_item_id:
+          type: string
+          format: uuid
+          description: Reference to menu_items table
+        name:
+          type: string
+          example: "Soul Bowl"
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+        price:
+          type: number
+          format: float
+          description: Item price at time of order
+          example: 12.99
+        subtotal:
+          type: number
+          format: float
+          description: Calculated subtotal (price * quantity)
+          example: 25.98
+        modifiers:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              price:
+                type: number
+          description: Item modifiers (e.g., "Extra Cheese")
+        special_instructions:
+          type: string
+          example: "No onions"
+
+    Order:
+      type: object
+      required:
+        - id
+        - restaurant_id
+        - order_number
+        - status
+        - type
+        - items
+        - subtotal
+        - tax
+        - total
+        - payment_status
+      properties:
+        id:
+          type: string
+          format: uuid
+        restaurant_id:
+          type: string
+          format: uuid
+        order_number:
+          type: string
+          example: "ORD-1001"
+        customer_name:
+          type: string
+          example: "John Doe"
+        customer_phone:
+          type: string
+          example: "+1-555-123-4567"
+        customer_email:
+          type: string
+          format: email
+        type:
+          type: string
+          enum: [online, pickup, delivery]
+          description: Database-valid order type
+        status:
+          type: string
+          enum: [new, pending, confirmed, preparing, ready, picked-up, completed, cancelled]
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        subtotal:
+          type: number
+          format: float
+          description: Sum of all item subtotals
+        tax:
+          type: number
+          format: float
+          description: Tax amount
+        tip:
+          type: number
+          format: float
+          description: Tip amount (optional)
+        total:
+          type: number
+          format: float
+          description: Grand total (subtotal + tax + tip)
+        payment_status:
+          type: string
+          enum: [pending, paid, refunded, failed]
+        payment_method:
+          type: string
+          enum: [cash, card, online, other]
+        table_number:
+          type: string
+          example: "T5"
+        seat_number:
+          type: integer
+          description: Seat number for multi-seat ordering
+        notes:
+          type: string
+          example: "Extra napkins please"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        estimated_ready_time:
+          type: string
+          format: date-time
+        scheduled_pickup_time:
+          type: string
+          format: date-time
+          description: For scheduled orders
+        is_scheduled:
+          type: boolean
+          description: Whether order is scheduled for future
+
+    CreateOrderRequest:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - menu_item_id
+              - quantity
+              - price
+            properties:
+              menu_item_id:
+                type: string
+                format: uuid
+              quantity:
+                type: integer
+                minimum: 1
+              price:
+                type: number
+              modifiers:
+                type: array
+                items:
+                  type: object
+              special_instructions:
+                type: string
+        customer_name:
+          type: string
+        customer_phone:
+          type: string
+        customer_email:
+          type: string
+          format: email
+        type:
+          type: string
+          enum: [online, pickup, delivery]
+          default: online
+        table_number:
+          type: string
+        seat_number:
+          type: integer
+        notes:
+          type: string
+        payment_method:
+          type: string
+          enum: [cash, card, online, other]
+        scheduled_pickup_time:
+          type: string
+          format: date-time
+
+    PaymentRequest:
+      type: object
+      required:
+        - order_id
+        - token
+      properties:
+        order_id:
+          type: string
+          format: uuid
+          description: Order ID to process payment for
+        token:
+          type: string
+          description: Square payment token (from Square Web Payments SDK)
+        amount:
+          type: number
+          format: float
+          description: |
+            Payment amount (OPTIONAL - server validates and recalculates).
+            Server NEVER trusts client-provided amounts.
+        idempotency_key:
+          type: string
+          description: |
+            Unique key to prevent duplicate charges (OPTIONAL - server generates if not provided).
+            Format: UUID v4
+        verification_token:
+          type: string
+          description: 3D Secure verification token (if applicable)
+
+    CashPaymentRequest:
+      type: object
+      required:
+        - order_id
+        - amount_received
+      properties:
+        order_id:
+          type: string
+          format: uuid
+        amount_received:
+          type: number
+          format: float
+          description: Amount of cash received from customer
+          example: 20.00
+        table_id:
+          type: string
+          format: uuid
+          description: Table ID (if dine-in payment)
+
+    Table:
+      type: object
+      required:
+        - id
+        - restaurant_id
+        - label
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        restaurant_id:
+          type: string
+          format: uuid
+        label:
+          type: string
+          example: "T5"
+        capacity:
+          type: integer
+          minimum: 1
+          example: 4
+        status:
+          type: string
+          enum: [available, occupied, reserved, cleaning]
+        x:
+          type: number
+          description: X position for floor plan (frontend property)
+        y:
+          type: number
+          description: Y position for floor plan (frontend property)
+        type:
+          type: string
+          enum: [rectangle, circle, square]
+          description: Table shape (frontend property, maps to 'shape' in DB)
+        z_index:
+          type: integer
+          description: Z-index for layering
+        section:
+          type: string
+          example: "Patio"
+        current_order_id:
+          type: string
+          format: uuid
+          description: Current order associated with table
+        active:
+          type: boolean
+          default: true
+        created_at:
+          type: string
+          format: date-time
+
+paths:
+  /health:
+    get:
+      summary: Basic health check
+      tags: [Health]
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+                    description: Server uptime in seconds
+                  environment:
+                    type: string
+                    example: "production"
+                  version:
+                    type: string
+                    example: "6.0.8"
+                  services:
+                    type: object
+                    properties:
+                      server:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum: [ok, error]
+                      database:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum: [ok, error]
+                          latency:
+                            type: number
+                            description: DB latency in ms
+                      payments:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum: [ok, error, n/a]
+                          provider:
+                            type: string
+                            example: "square"
+                          environment:
+                            type: string
+                            enum: [sandbox, production]
+        '503':
+          description: Service unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /status:
+    get:
+      summary: Detailed status check (includes AI service)
+      tags: [Health]
+      security: []
+      responses:
+        '200':
+          description: Service status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                  services:
+                    type: object
+                    properties:
+                      ai:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum: [healthy, degraded, unhealthy]
+                          provider:
+                            type: string
+                            enum: [openai, stubs]
+
+  /auth/login:
+    post:
+      summary: Email/password login
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - restaurantId
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "server@restaurant.com"
+                password:
+                  type: string
+                  format: password
+                  example: "Demo123!"
+                restaurantId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  session:
+                    $ref: '#/components/schemas/AuthSession'
+                  restaurantId:
+                    type: string
+                    format: uuid
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/pin-login:
+    post:
+      summary: PIN-based login (for staff on shared devices)
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pin
+                - restaurantId
+              properties:
+                pin:
+                  type: string
+                  example: "1234"
+                restaurantId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: PIN login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+                    description: Custom JWT token (12-hour expiry)
+                  expiresIn:
+                    type: integer
+                    example: 43200
+                  restaurantId:
+                    type: string
+                    format: uuid
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/demo-session:
+    post:
+      summary: Create demo session (development only)
+      tags: [Authentication]
+      security: []
+      description: |
+        Issues a short-lived JWT for demo sessions. Replaces client-side credentials.
+        Requires DEMO_LOGIN_ENABLED=true on server.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role
+                - restaurantId
+              properties:
+                role:
+                  type: string
+                  enum: [customer, server, kitchen, expo, cashier, manager, owner]
+                restaurantId:
+                  type: string
+                  format: uuid
+                  example: "11111111-1111-1111-1111-111111111111"
+      responses:
+        '200':
+          description: Demo session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "demo:server:abc123"
+                      role:
+                        type: string
+                      scopes:
+                        type: array
+                        items:
+                          type: string
+                  token:
+                    type: string
+                  expiresIn:
+                    type: integer
+                    example: 3600
+                  restaurantId:
+                    type: string
+                    format: uuid
+
+  /auth/me:
+    get:
+      summary: Get current user information
+      tags: [Authentication]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      responses:
+        '200':
+          description: User information retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  restaurantId:
+                    type: string
+                    format: uuid
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/logout:
+    post:
+      summary: Logout and cleanup session
+      tags: [Authentication]
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+
+  /auth/refresh:
+    post:
+      summary: Refresh authentication token
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: '#/components/schemas/AuthSession'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /menu:
+    get:
+      summary: Get full menu with categories
+      tags: [Menu]
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      responses:
+        '200':
+          description: Full menu retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        items:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/MenuItem'
+
+  /menu/items:
+    get:
+      summary: Get all menu items
+      tags: [Menu]
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category
+      responses:
+        '200':
+          description: Menu items retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
+
+  /menu/items/{id}:
+    get:
+      summary: Get single menu item
+      tags: [Menu]
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Menu item retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+        '404':
+          description: Menu item not found
+
+  /menu/categories:
+    get:
+      summary: Get menu categories
+      tags: [Menu]
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      responses:
+        '200':
+          description: Categories retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    display_order:
+                      type: integer
+
+  /orders:
+    get:
+      summary: List orders with filters
+      tags: [Orders]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [new, pending, confirmed, preparing, ready, picked-up, completed, cancelled]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [online, pickup, delivery]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Orders retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+
+    post:
+      summary: Create new order
+      tags: [Orders]
+      description: |
+        Create a new order. Server validates and recalculates all amounts.
+        Requires `orders:create` scope.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - $ref: '#/components/parameters/ClientFlowHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid order data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /orders/{id}:
+    get:
+      summary: Get order by ID
+      tags: [Orders]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: Order not found
+
+    delete:
+      summary: Cancel order
+      tags: [Orders]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  example: "Customer requested cancellation"
+      responses:
+        '200':
+          description: Order cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /orders/{id}/status:
+    patch:
+      summary: Update order status
+      tags: [Orders]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [new, pending, confirmed, preparing, ready, picked-up, completed, cancelled]
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Order status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid status
+
+  /orders/voice:
+    post:
+      summary: Process voice order (AI parsing)
+      tags: [Orders, Voice & AI]
+      description: |
+        Process voice-to-text order using AI. Returns parsed order with confidence score.
+        Uses hybrid AI approach: OpenAI Realtime API for parsing + menu validation.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - transcription
+              properties:
+                transcription:
+                  type: string
+                  example: "I'd like a Soul Bowl and a Greek Salad"
+                audioUrl:
+                  type: string
+                  format: uri
+                  description: URL to stored audio file (optional)
+                metadata:
+                  type: object
+                  description: Additional metadata
+      responses:
+        '200':
+          description: Voice order processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  order:
+                    $ref: '#/components/schemas/Order'
+                  confidence:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.85
+                  message:
+                    type: string
+                    example: "Perfect! Your Soul Bowl will be ready in about 10 minutes."
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    description: Suggestions if parsing failed
+
+  /payments/create:
+    post:
+      summary: Process card payment via Square
+      tags: [Payments]
+      description: |
+        Process payment via Square. Server validates amounts - clients should NOT send calculated totals.
+        Payment validation is server-authoritative for security.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: Payment processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  paymentId:
+                    type: string
+                    description: Square payment ID
+                  status:
+                    type: string
+                    enum: [COMPLETED, PENDING]
+                  receiptUrl:
+                    type: string
+                    format: uri
+                  order:
+                    $ref: '#/components/schemas/Order'
+        '400':
+          description: Payment failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                  detail:
+                    type: string
+                  code:
+                    type: string
+                    example: "CARD_DECLINED"
+
+  /payments/cash:
+    post:
+      summary: Process cash payment
+      tags: [Payments]
+      description: |
+        Process cash payment. Server validates amount is sufficient and calculates change.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashPaymentRequest'
+      responses:
+        '200':
+          description: Cash payment processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  order:
+                    $ref: '#/components/schemas/Order'
+                  change:
+                    type: number
+                    format: float
+                    example: 5.01
+                  payment_details:
+                    type: object
+                    properties:
+                      amount_received:
+                        type: number
+                      order_total:
+                        type: number
+                      change_given:
+                        type: number
+        '400':
+          description: Insufficient payment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Insufficient payment"
+                  order_total:
+                    type: number
+                  amount_received:
+                    type: number
+                  shortage:
+                    type: number
+
+  /payments/{paymentId}:
+    get:
+      summary: Get payment details
+      tags: [Payments]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Square payment ID
+      responses:
+        '200':
+          description: Payment details retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  payment:
+                    type: object
+                    description: Square payment object
+        '404':
+          description: Payment not found
+
+  /payments/{paymentId}/refund:
+    post:
+      summary: Refund payment
+      tags: [Payments]
+      description: Requires `payments:refund` scope
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  format: float
+                  description: Refund amount (omit for full refund)
+                reason:
+                  type: string
+                  example: "Customer requested refund"
+      responses:
+        '200':
+          description: Refund processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  refund:
+                    type: object
+                    description: Square refund object
+
+  /ai/voice/session:
+    post:
+      summary: Create voice ordering session (WebRTC)
+      tags: [Voice & AI]
+      description: |
+        Get ephemeral token for OpenAI Realtime API (voice ordering via WebRTC).
+        Token expires after session ends.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - restaurantId
+              properties:
+                restaurantId:
+                  type: string
+                  format: uuid
+                userId:
+                  type: string
+                  format: uuid
+                  description: User ID (optional)
+      responses:
+        '200':
+          description: Session token created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Ephemeral token for WebRTC
+                  expires_at:
+                    type: string
+                    format: date-time
+
+  /ai/transcribe:
+    post:
+      summary: Transcribe audio to text
+      tags: [Voice & AI]
+      description: Returns transcription of uploaded audio
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio file (WAV, MP3, OGG)
+      responses:
+        '200':
+          description: Transcription successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  text:
+                    type: string
+                  transcript:
+                    type: string
+                  duration:
+                    type: number
+                  restaurantId:
+                    type: string
+
+  /ai/chat:
+    post:
+      summary: Chat with AI assistant
+      tags: [Voice & AI]
+      description: Text-based chat with AI (uses menu context)
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  example: "What bowls do you have?"
+      responses:
+        '200':
+          description: Chat response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "We've got Soul Bowl, Greek Bowl, and Mediterranean Bowl!"
+                  restaurantId:
+                    type: string
+
+  /ai/health:
+    get:
+      summary: AI service health check
+      tags: [Voice & AI]
+      security: []
+      responses:
+        '200':
+          description: AI service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+        '503':
+          description: AI service unavailable
+
+  /tables:
+    get:
+      summary: Get all tables
+      tags: [Tables]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      responses:
+        '200':
+          description: Tables retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
+
+    post:
+      summary: Create new table
+      tags: [Tables]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - label
+              properties:
+                label:
+                  type: string
+                  example: "T10"
+                capacity:
+                  type: integer
+                  example: 4
+                x:
+                  type: number
+                y:
+                  type: number
+                type:
+                  type: string
+                  enum: [rectangle, circle, square]
+                section:
+                  type: string
+      responses:
+        '201':
+          description: Table created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+
+  /tables/{id}:
+    get:
+      summary: Get single table
+      tags: [Tables]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Table retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+        '404':
+          description: Table not found
+
+    put:
+      summary: Update table
+      tags: [Tables]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  type: string
+                capacity:
+                  type: integer
+                x:
+                  type: number
+                y:
+                  type: number
+                type:
+                  type: string
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Table updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+
+    delete:
+      summary: Delete table (soft delete)
+      tags: [Tables]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Table deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  id:
+                    type: string
+
+  /tables/{id}/status:
+    patch:
+      summary: Update table status
+      tags: [Tables]
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [available, occupied, reserved, cleaning]
+                orderId:
+                  type: string
+                  format: uuid
+                  description: Order ID (required if status is 'occupied')
+      responses:
+        '200':
+          description: Table status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+
+  /tables/batch:
+    put:
+      summary: Batch update tables (floor plan editor)
+      tags: [Tables]
+      description: |
+        Optimized bulk update for floor plan editor.
+        Uses PostgreSQL RPC for performance (~40x faster than sequential updates).
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tables
+              properties:
+                tables:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - id
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      x:
+                        type: number
+                      y:
+                        type: number
+                      type:
+                        type: string
+                      label:
+                        type: string
+                      capacity:
+                        type: integer
+      responses:
+        '200':
+          description: Tables updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
+
+components:
+  responses:
+    UnauthorizedError:
+      description: Authentication required or failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid email or password"
+            code: "UNAUTHORIZED"
