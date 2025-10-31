@@ -1,4 +1,10 @@
-# Voice Ordering Magic Explained 🎙️
+> **⚠️ ARCHIVED DOCUMENTATION**
+> **Date Archived:** October 15, 2025
+> **Reason:** Consolidated into canonical documentation
+> **See Instead:** [Voice Ordering Explained (Active)](../../voice/VOICE_ORDERING_EXPLAINED.md)
+> **This archive preserved for:** Historical voice ordering explanation
+
+# Voice Ordering Magic Explained 🎙️ (ARCHIVED)
 
 ## The Big Picture: Your Digital Waiter That Never Forgets
 

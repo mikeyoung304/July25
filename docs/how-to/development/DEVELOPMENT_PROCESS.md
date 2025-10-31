@@ -1,5 +1,7 @@
 # Development Process Guide
 
+[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Development](./README.md) > Development Process
+
 ## Database Migration Best Practices
 
 ### Overview
@@ -246,3 +248,18 @@ When in doubt:
 4. Batch related changes when possible
 
 **Remember**: Taking 30 minutes to plan a migration saves hours of fixing break-fix cycles.
+
+---
+
+## Related Documentation
+
+- [CI/CD Workflows](./CI_CD_WORKFLOWS.md) - Automation and deployment
+- [Supabase Connection Guide](../../SUPABASE_CONNECTION_GUIDE.md) - Database workflows
+- [Database Schema](../../reference/schema/DATABASE.md) - Schema reference
+- [Getting Started](../../tutorials/GETTING_STARTED.md) - Development setup
+- [Contributing Guide](./CONTRIBUTING.md) - Development standards
+
+---
+
+**Last Updated:** October 30, 2025
+**Version:** 6.0.14

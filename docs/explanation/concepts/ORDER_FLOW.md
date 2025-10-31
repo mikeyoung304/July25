@@ -10,11 +10,11 @@ For authentication touchpoints, server-side validation, and order security, see:
 ## Complete Order Flow Documentation
 
 For the complete customer ordering journey and implementation details, see:
-→ **[Order Flow Documentation (Full)](./archive/moved/2025-10-15_ORDER_FLOW.md)**
+→ **[Order Flow Documentation (Full)](./archive/2025-10/2025-10-15_ORDER_FLOW.md)**
 
 ## Original Content
 
-Archived at: `docs/archive/moved/2025-10-15_ORDER_FLOW.md`
+Archived at: `docs/archive/2025-10/2025-10-15_ORDER_FLOW.md`
 
 ---
 

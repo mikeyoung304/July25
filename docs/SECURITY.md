@@ -1,5 +1,7 @@
 # Security Policy
 
+[Home](../index.md) > [Docs](./README.md) > Security
+
 ## Supported Versions
 
 | Version | Supported          |
@@ -296,6 +298,16 @@ In case of security breach:
 
 Security Team: security@restaurant-os.com
 Bug Bounty Program: Coming soon
+
+---
+
+## Related Documentation
+
+- [Authentication Architecture](./explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) - Auth flows and security
+- [ADR-006: Dual Authentication](./explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md) - Auth pattern
+- [Deployment Guide](./how-to/operations/DEPLOYMENT.md) - Production security
+- [Database Schema](./reference/schema/DATABASE.md) - RLS policies
+- [Production Status](./PRODUCTION_STATUS.md) - Security readiness
 
 ---
 

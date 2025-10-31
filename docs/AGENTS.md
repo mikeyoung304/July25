@@ -9,7 +9,7 @@ For security requirements and RLS enforcement, see:
 
 ## Original Content
 
-Archived at: `docs/archive/moved/2025-10-15_AGENTS.md`
+Archived at: `docs/archive/2025-10/2025-10-15_AGENTS.md`
 
 ---
 

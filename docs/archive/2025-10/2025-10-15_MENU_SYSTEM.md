@@ -1,8 +1,14 @@
-# Menu System Architecture
+> **⚠️ ARCHIVED DOCUMENTATION**
+> **Date Archived:** October 15, 2025
+> **Reason:** Consolidated into canonical documentation
+> **See Instead:** [Menu System (Active)](../../explanation/concepts/MENU_SYSTEM.md)
+> **This archive preserved for:** Historical architecture reference
+
+# Menu System Architecture (ARCHIVED)
 
 **Last Updated**: October 11, 2025
 **Version**: 6.0.7
-**Status**: ✅ Production Ready
+**Status**: ✅ Production Ready (ARCHIVED)
 
 ---
 

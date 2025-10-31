@@ -1,4 +1,10 @@
-# 🚨 PRODUCTION SYSTEM DIAGNOSTIC REPORT
+> **⚠️ ARCHIVED DOCUMENTATION**
+> **Date Archived:** October 15, 2025
+> **Reason:** Historical incident report, referenced in DEPLOYMENT.md
+> **See Instead:** [Production Diagnostics (Active Stub)](../../PRODUCTION_DIAGNOSTICS.md) | [Deployment Guide](../../how-to/operations/DEPLOYMENT.md)
+> **This archive preserved for:** Complete incident details and troubleshooting steps
+
+# 🚨 PRODUCTION SYSTEM DIAGNOSTIC REPORT (ARCHIVED)
 
 > ⚠️ **HISTORICAL DOCUMENT** - This report documents an incident from September 23, 2025
 >

@@ -1,7 +1,9 @@
 # API Documentation
 
-**Last Updated**: 2025-09-26
-**Version**: See [VERSION.md](../VERSION.md)
+[Home](../../../../index.md) > [Docs](../../../README.md) > [Reference](../../README.md) > [API](../README.md) > API Reference
+
+**Last Updated**: October 30, 2025
+**Version**: 6.0.14
 **Base URL**: `http://localhost:3001` (development) | `https://july25.onrender.com` (production)
 
 ## Overview
@@ -230,7 +232,22 @@ Client implementations:
 
 ## Further Information
 
-- [WebSocket Events](../DEPLOYMENT.md#websockets)
-- [Database Schema](../DATABASE.md)
-- [Authentication Flow](../JWT_AUTHENTICATION_FLOW.md)
-- [Security Guidelines](../SECURITY.md)
+- [WebSocket Events](../../../how-to/operations/DEPLOYMENT.md#websockets)
+- [Database Schema](../../schema/DATABASE.md)
+- [Authentication Architecture](../../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
+- [Security Guidelines](../../../SECURITY.md)
+
+---
+
+## Related Documentation
+
+- [Authentication Architecture](../../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) - Auth flows
+- [Square API Setup](../SQUARE_API_SETUP.md) - Payment integration
+- [WebSocket Events](../../../WEBSOCKET_EVENTS.md) - Real-time updates
+- [Getting Started](../../../tutorials/GETTING_STARTED.md) - Development setup
+- [Deployment Guide](../../../how-to/operations/DEPLOYMENT.md) - Production deployment
+
+---
+
+**Last Updated**: October 30, 2025
+**Version**: 6.0.14

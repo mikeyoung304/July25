@@ -1,5 +1,7 @@
 # Deployment Guide
 
+[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Operations](./README.md) > Deployment
+
 This guide covers deploying Restaurant OS to production environments.
 
 ---
@@ -770,7 +772,7 @@ Production WebSocket path rejects missing/invalid JWT.
 **September 23, 2025 Production Incident**
 _(Source: PRODUCTION_DIAGNOSTICS.md@79d1619, verified)_
 
-Historical incident documenting production system failures due to missing environment variables and CORS misconfiguration. Full incident report archived in `docs/archive/moved/2025-10-15_PRODUCTION_DIAGNOSTICS.md`.
+Historical incident documenting production system failures due to missing environment variables and CORS misconfiguration. Full incident report archived in `docs/archive/2025-10/2025-10-15_PRODUCTION_DIAGNOSTICS.md`.
 
 **Root Causes:**
 - Missing environment variables in Vercel deployment
@@ -782,5 +784,16 @@ Historical incident documenting production system failures due to missing enviro
 
 ---
 
-**Last Updated**: September 26, 2025
-**Version**: 6.0.6
+## Related Documentation
+
+- [Production Status](../../PRODUCTION_STATUS.md) - Readiness assessment
+- [Deployment Checklist](./runbooks/PRODUCTION_DEPLOYMENT_CHECKLIST.md) - Pre-flight checklist
+- [Deployment Success Report](./runbooks/PRODUCTION_DEPLOYMENT_SUCCESS.md) - Verification
+- [CI/CD Workflows](../development/CI_CD_WORKFLOWS.md) - Automation
+- [Supabase Connection Guide](../../SUPABASE_CONNECTION_GUIDE.md) - Database migrations
+- [Square API Setup](../../reference/api/SQUARE_API_SETUP.md) - Payment configuration
+
+---
+
+**Last Updated**: October 30, 2025
+**Version**: 6.0.14

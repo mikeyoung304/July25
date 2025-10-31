@@ -21,7 +21,7 @@ For future enhancements and voice ordering vision, see:
 
 ## Original Content
 
-Archived at: `docs/archive/moved/2025-10-15_voice_VOICE_ORDERING_EXPLAINED.md`
+Archived at: `docs/archive/2025-10/2025-10-15_voice_VOICE_ORDERING_EXPLAINED.md`
 
 ---
 

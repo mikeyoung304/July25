@@ -3,7 +3,7 @@
 **Status**: ✅ Merged into [DEPLOYMENT.md](./DEPLOYMENT.md#square-integration)
 
 **Merged**: October 15, 2025
-**Original**: Archived in `docs/archive/moved/2025-10-15_SQUARE_INTEGRATION.md`
+**Original**: Archived in `docs/archive/2025-10/2025-10-15_SQUARE_INTEGRATION.md`
 
 This document's verified content has been integrated into the canonical deployment documentation.
 
@@ -17,6 +17,6 @@ This document's verified content has been integrated into the canonical deployme
 ## Archived Content
 
 The original comprehensive guide has been preserved at:
-`docs/archive/moved/2025-10-15_SQUARE_INTEGRATION.md`
+`docs/archive/2025-10/2025-10-15_SQUARE_INTEGRATION.md`
 
 This stub remains for backward compatibility. All new documentation updates should be made in [DEPLOYMENT.md](./DEPLOYMENT.md).

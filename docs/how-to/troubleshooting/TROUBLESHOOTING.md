@@ -1,7 +1,9 @@
 # Troubleshooting Guide
 
-**Last Updated**: 2025-10-13
-**Version**: 6.0.7
+[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Troubleshooting](./README.md) > Troubleshooting Guide
+
+**Last Updated**: October 30, 2025
+**Version**: 6.0.14
 
 This guide helps diagnose and resolve common issues in the Restaurant OS.
 
@@ -1493,6 +1495,16 @@ location.reload();
 
 ---
 
-**Last Updated**: 2025-10-13
+## Related Documentation
+
+- [Auth Diagnostic Guide](./AUTH_DIAGNOSTIC_GUIDE.md) - Authentication debugging
+- [Investigation Reports](../../investigations/) - Past incident analysis
+- [Development Process](../development/DEVELOPMENT_PROCESS.md) - Development workflows
+- [Deployment Guide](../operations/DEPLOYMENT.md) - Production deployment
+- [Database Schema](../../reference/schema/DATABASE.md) - Database reference
+
+---
+
+**Last Updated**: October 30, 2025
 **Maintainer**: Development Team
-**Version**: 6.0.7
+**Version**: 6.0.14

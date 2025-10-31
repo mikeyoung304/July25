@@ -4,6 +4,18 @@
 
 **Version:** See [docs/VERSION.md](./docs/VERSION.md)
 
+## 🧭 Quick Navigation
+
+**Need help finding documentation?** See [docs/NAVIGATION.md](./docs/NAVIGATION.md) for navigation by role, task, and technology.
+
+**Browse by topic:**
+- [Getting Started](./docs/GETTING_STARTED.md) - New to Restaurant OS? Start here
+- [Architecture](./docs/ARCHITECTURE.md) - System design and voice ordering
+- [Deployment](./docs/DEPLOYMENT.md) - Production deployment
+- [Troubleshooting](./docs/TROUBLESHOOTING.md) - Common issues and fixes
+
+---
+
 ## 1. Core Documentation
 - [Getting Started](./docs/GETTING_STARTED.md) — First run locally
 - [Deployment Guide](./docs/DEPLOYMENT.md) — Production deploy (Vercel/Render)

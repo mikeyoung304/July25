@@ -3,7 +3,7 @@
 **Status**: ✅ Merged into [DEPLOYMENT.md](./DEPLOYMENT.md#production-diagnostics)
 
 **Merged**: October 15, 2025
-**Original**: Archived in `docs/archive/moved/2025-10-15_PRODUCTION_DIAGNOSTICS.md`
+**Original**: Archived in `docs/archive/2025-10/2025-10-15_PRODUCTION_DIAGNOSTICS.md`
 
 This historical incident report's verified findings have been integrated into the canonical deployment documentation.
 
@@ -26,6 +26,6 @@ The verified technical details have been extracted and merged into the canonical
 ## Archived Content
 
 The complete incident report with step-by-step recovery procedures and lessons learned has been preserved at:
-`docs/archive/moved/2025-10-15_PRODUCTION_DIAGNOSTICS.md`
+`docs/archive/2025-10/2025-10-15_PRODUCTION_DIAGNOSTICS.md`
 
 This stub remains for backward compatibility. All new production diagnostics documentation should be added to [DEPLOYMENT.md#production-diagnostics](./DEPLOYMENT.md#production-diagnostics).

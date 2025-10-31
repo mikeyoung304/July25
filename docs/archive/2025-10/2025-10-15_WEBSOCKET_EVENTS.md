@@ -1,4 +1,10 @@
-# WebSocket Events Documentation
+> **⚠️ ARCHIVED DOCUMENTATION**
+> **Date Archived:** October 15, 2025
+> **Reason:** Consolidated into canonical documentation
+> **See Instead:** [WebSocket Events (Active)](../../reference/api/WEBSOCKET_EVENTS.md)
+> **This archive preserved for:** Historical event catalog reference
+
+# WebSocket Events Documentation (ARCHIVED)
 
 **Correction (2025-10-15):** Heartbeat interval is 30 seconds; earlier draft incorrectly stated 60 seconds. Verified against code.
 

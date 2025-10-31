@@ -1,7 +1,9 @@
 # Database Schema Documentation
 
-**Last Updated**: October 11, 2025
-**Version**: 6.0.7
+[Home](../../../index.md) > [Docs](../../README.md) > [Reference](../README.md) > [Schema](./README.md) > Database
+
+**Last Updated**: October 30, 2025
+**Version**: 6.0.14
 **Database**: PostgreSQL (Supabase Cloud)
 **Status**: ✅ Production Ready
 
@@ -1306,3 +1308,13 @@ WITH CHECK (restaurant_id = (current_setting('request.jwt.claims', true)::jsonb-
 - `scheduled_orders (restaurant_id, scheduled_at)`
 
 <!-- RLS-POLICY-END -->
+
+---
+
+## Related Documentation
+
+- [ADR-002: Multi-Tenancy Architecture](../../explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md) - RLS design
+- [Supabase Connection Guide](../../SUPABASE_CONNECTION_GUIDE.md) - Database workflows
+- [Development Process](../../how-to/development/DEVELOPMENT_PROCESS.md) - Migration best practices
+- [Authentication Architecture](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) - Auth and RLS
+- [Getting Started](../../tutorials/GETTING_STARTED.md) - Database setup

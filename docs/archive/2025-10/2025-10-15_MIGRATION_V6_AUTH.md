@@ -1,4 +1,10 @@
-# Migration Guide: Authentication v6.0
+> **⚠️ ARCHIVED DOCUMENTATION**
+> **Date Archived:** October 15, 2025
+> **Reason:** Consolidated into canonical documentation
+> **See Instead:** [Migration V6 Auth (Active)](../../explanation/concepts/MIGRATION_V6_AUTH.md)
+> **This archive preserved for:** Historical migration reference
+
+# Migration Guide: Authentication v6.0 (ARCHIVED)
 
 ## Summary
 

@@ -1,8 +1,14 @@
-# Square Payment Integration
+> **⚠️ ARCHIVED DOCUMENTATION**
+> **Date Archived:** October 15, 2025
+> **Reason:** Consolidated into canonical documentation
+> **See Instead:** [Square Integration (Active)](../../explanation/concepts/SQUARE_INTEGRATION.md)
+> **This archive preserved for:** Historical integration reference
+
+# Square Payment Integration (ARCHIVED)
 
 **Last Updated**: October 14, 2025
 **Version**: 6.0.7
-**Status**: ✅ Production Ready - Payment System Fully Operational
+**Status**: ✅ Production Ready - Payment System Fully Operational (ARCHIVED)
 **SDK Version**: Square Node.js SDK v43
 
 ---

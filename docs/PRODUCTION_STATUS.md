@@ -1,5 +1,7 @@
 # Production Readiness Status
 
+[Home](../index.md) > [Docs](./README.md) > Production Status
+
 **Last Updated**: October 30, 2025
 **Version**: 6.0.14
 **Overall Readiness**: 92% (Enterprise-Grade)
@@ -817,8 +819,18 @@ The Restaurant OS is **production ready at 92%**. All core systems are functiona
 - [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration) - Payment integration (Updated Oct 14)
 - [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems) - Payment incident analysis
 - [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer ordering journey
-- [DATABASE.md](./DATABASE.md) - Supabase schema
-- [TESTING_CHECKLIST.md](../TESTING_CHECKLIST.md) - Testing procedures
+- [DATABASE.md](./reference/schema/DATABASE.md) - Supabase schema
+- [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - Testing procedures
+
+---
+
+## Related Documentation
+
+- [Deployment Guide](./how-to/operations/DEPLOYMENT.md) - Production deployment
+- [Deployment Checklist](./how-to/operations/runbooks/PRODUCTION_DEPLOYMENT_CHECKLIST.md) - Pre-flight checklist
+- [Deployment Success Report](./how-to/operations/runbooks/PRODUCTION_DEPLOYMENT_SUCCESS.md) - Verification
+- [Architecture Overview](./explanation/architecture/ARCHITECTURE.md) - System design
+- [Security Guide](./SECURITY.md) - Security measures
 
 ---
 

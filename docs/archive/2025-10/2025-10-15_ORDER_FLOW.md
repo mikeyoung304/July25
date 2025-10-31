@@ -1,8 +1,14 @@
+> **⚠️ ARCHIVED DOCUMENTATION**
+> **Date Archived:** October 15, 2025
+> **Reason:** Consolidated into canonical documentation
+> **See Instead:** [Order Flow (Active)](../../explanation/concepts/ORDER_FLOW.md) | [Auth Touchpoints](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#order-flow-auth-touchpoints)
+> **This archive preserved for:** Complete operational guide with detailed implementation (851 lines)
+
 # Order Flow Documentation
 
 **Last Updated**: October 11, 2025
 **Version**: 6.0.7
-**Status**: ✅ Production Ready
+**Status**: ✅ Production Ready (ARCHIVED)
 
 ## Overview
 

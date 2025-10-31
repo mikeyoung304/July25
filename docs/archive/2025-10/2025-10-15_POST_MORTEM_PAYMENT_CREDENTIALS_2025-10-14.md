@@ -1,4 +1,10 @@
-# Post-Mortem: Square Payment Integration Credential Mismatch
+> **⚠️ ARCHIVED DOCUMENTATION**
+> **Date Archived:** October 15, 2025
+> **Reason:** Historical incident report
+> **See Instead:** [Post-Mortem (Active Stub)](../../POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
+> **This archive preserved for:** Full incident details and lessons learned
+
+# Post-Mortem: Square Payment Integration Credential Mismatch (ARCHIVED)
 
 **Date**: October 14, 2025
 **Severity**: High (Payment processing failure in production)

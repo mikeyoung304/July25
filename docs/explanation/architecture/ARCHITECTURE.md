@@ -1,5 +1,7 @@
 # Architecture Overview
 
+[Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](./README.md) > Architecture Overview
+
 **Last Updated:** October 30, 2025
 **Version:** 6.0.14
 
@@ -222,3 +224,13 @@ Potential architectural improvements:
 - **Analytics**: Track voice session metrics and success rates
 - **Multi-language**: Extend AI instructions for internationalization
 - **Voice Biometrics**: User identification via voice patterns
+
+---
+
+## Related Documentation
+
+- [Authentication Architecture](./AUTHENTICATION_ARCHITECTURE.md) - Auth flows and security
+- [ADR-005: Client-Side Voice Ordering](../architecture-decisions/ADR-005-client-side-voice-ordering.md) - Voice ordering decision
+- [Voice Ordering Explained](../../voice/VOICE_ORDERING_EXPLAINED.md) - Voice implementation details
+- [Deployment Guide](../../how-to/operations/DEPLOYMENT.md) - Production deployment
+- [Database Schema](../../reference/schema/DATABASE.md) - Data model and RLS

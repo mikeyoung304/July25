@@ -1,8 +1,10 @@
 # CI/CD Workflows for Database Migrations
 
+[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Development](./README.md) > CI/CD Workflows
+
 **Part of:** Phase 2 - Stable CI/CD Automation
 **Created:** 2025-10-22
-**Last Updated:** 2025-10-29
+**Last Updated:** October 30, 2025
 **Purpose:** Automate database migrations to prevent schema drift incidents
 
 ---
@@ -531,5 +533,15 @@ git push
 
 ---
 
-**Last Updated:** 2025-10-22 (Phase 2.6)
-**Related:** `SUPABASE_CONNECTION_GUIDE.md`, `POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md`
+## Related Documentation
+
+- [Deployment Guide](../operations/DEPLOYMENT.md) - Production deployment
+- [Supabase Connection Guide](../../SUPABASE_CONNECTION_GUIDE.md) - Database workflows
+- [Development Process](./DEVELOPMENT_PROCESS.md) - Development workflows
+- [Testing Checklist](../../TESTING_CHECKLIST.md) - QA procedures
+- [Post-Mortem: Schema Drift](../../archive/incidents/POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md) - Incident analysis
+
+---
+
+**Last Updated:** October 30, 2025
+**Version:** 6.0.14

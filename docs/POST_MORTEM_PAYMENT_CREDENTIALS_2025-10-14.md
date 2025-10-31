@@ -3,7 +3,7 @@
 **Status**: ✅ Merged into [DEPLOYMENT.md](./DEPLOYMENT.md#incidents-postmortems)
 
 **Merged**: October 15, 2025
-**Original**: Archived in `docs/archive/moved/2025-10-15_POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md`
+**Original**: Archived in `docs/archive/2025-10/2025-10-15_POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md`
 
 This incident post-mortem's verified findings have been integrated into the canonical deployment documentation.
 
@@ -16,6 +16,6 @@ This incident post-mortem's verified findings have been integrated into the cano
 ## Archived Content
 
 The complete post-mortem has been preserved at:
-`docs/archive/moved/2025-10-15_POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md`
+`docs/archive/2025-10/2025-10-15_POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md`
 
 This stub remains for backward compatibility. All new incident documentation should be added to [DEPLOYMENT.md#incidents-postmortems](./DEPLOYMENT.md#incidents-postmortems).

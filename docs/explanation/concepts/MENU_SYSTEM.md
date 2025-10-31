@@ -14,7 +14,7 @@ For voice ordering integration and future menu enhancements, see:
 
 ## Original Content
 
-Archived at: `docs/archive/moved/2025-10-15_MENU_SYSTEM.md`
+Archived at: `docs/archive/2025-10/2025-10-15_MENU_SYSTEM.md`
 
 ---
 
