@@ -9,6 +9,14 @@
 - [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md) - Complete auth flows, session management, RLS
 - [SECURITY.md](./SECURITY.md) - Security measures, compliance, agent safety
 
+## Architecture Diagrams
+
+- [C4 Context Diagram](./diagrams/c4-context.md) - System in context
+- [C4 Container Diagram](./diagrams/c4-container.md) - Technical architecture
+- [Authentication Flows](./diagrams/auth-flow.md) - Dual auth pattern
+- [Voice Ordering Architecture](./diagrams/voice-ordering.md) - Service decomposition
+- [Payment Flow](./diagrams/payment-flow.md) - Server-side validation
+
 ---
 
 ## System
