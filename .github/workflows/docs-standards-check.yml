@@ -1,0 +1,215 @@
+name: Documentation Standards Check
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs/**/*.md'
+  pull_request:
+    paths:
+      - 'docs/**/*.md'
+
+jobs:
+  standards-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check Diátaxis structure
+        run: |
+          echo "📚 Verifying Diátaxis framework structure..."
+          echo ""
+
+          # Define required directories
+          required_dirs=("tutorials" "how-to" "reference" "explanation")
+          missing_dirs=0
+          missing_readmes=0
+
+          for dir in "${required_dirs[@]}"; do
+            if [ ! -d "docs/$dir" ]; then
+              echo "❌ Missing Diátaxis directory: docs/$dir"
+              missing_dirs=$((missing_dirs + 1))
+            else
+              echo "✅ Found: docs/$dir"
+
+              if [ ! -f "docs/$dir/README.md" ]; then
+                echo "   ⚠️  Warning: Missing README.md in docs/$dir"
+                missing_readmes=$((missing_readmes + 1))
+              fi
+            fi
+          done
+
+          echo ""
+          if [ $missing_dirs -gt 0 ]; then
+            echo "❌ Diátaxis structure incomplete: $missing_dirs missing director(ies)"
+            exit 1
+          fi
+
+          if [ $missing_readmes -gt 0 ]; then
+            echo "⚠️  Warning: $missing_readmes Diátaxis director(ies) missing README.md"
+            echo "💡 Consider adding README.md files to explain each section"
+          fi
+
+          echo "✅ Diátaxis structure validated"
+          echo ""
+
+      - name: Check archive policy
+        run: |
+          echo "📦 Checking archive organization..."
+          echo ""
+
+          # Verify archived files have ARCHIVED banner
+          if [ -d "docs/archive" ]; then
+            missing_banner=0
+
+            # Check first 5 archived files for ARCHIVED banner
+            find docs/archive -name "*.md" -type f | head -5 | while read file; do
+              if ! head -3 "$file" | grep -qi "ARCHIVED"; then
+                echo "⚠️  Warning: $file missing ARCHIVED banner"
+                missing_banner=$((missing_banner + 1))
+              fi
+            done
+
+            # Check for old organizational structure
+            if [ -d "docs/archive/moved" ]; then
+              echo "⚠️  Warning: docs/archive/moved exists"
+              echo "💡 Consider reorganizing archives by date (YYYY-MM-DD format)"
+            fi
+
+            echo "✅ Archive policy check complete"
+          else
+            echo "ℹ️  No archive directory found (acceptable for new projects)"
+          fi
+          echo ""
+
+      - name: Check for hardcoded versions
+        run: |
+          echo "🔢 Checking for hardcoded version numbers..."
+          echo ""
+
+          # Look for "Current version:" statements (but allow "Fixed in vX.X.X")
+          hardcoded=$(grep -rn "Current version: v\?[0-9]" docs/ --include="*.md" \
+             --exclude="VERSION.md" \
+             --exclude="CHANGELOG.md" 2>/dev/null || true)
+
+          if [ -n "$hardcoded" ]; then
+            echo "⚠️  Warning: Found hardcoded version references:"
+            echo "$hardcoded"
+            echo ""
+            echo "💡 Consider linking to VERSION.md instead of hardcoding versions"
+            echo "   Example: See [VERSION.md](../VERSION.md) for current version"
+          else
+            echo "✅ No hardcoded 'Current version:' statements found"
+          fi
+
+          # Check for direct version references in tutorials (which should be version-agnostic)
+          tutorial_versions=$(grep -rn "version [0-9]\+\.[0-9]\+\.[0-9]\+" docs/tutorials/ --include="*.md" 2>/dev/null || true)
+          if [ -n "$tutorial_versions" ]; then
+            echo ""
+            echo "⚠️  Warning: Found version numbers in tutorials:"
+            echo "$tutorial_versions"
+            echo ""
+            echo "💡 Tutorials should be version-agnostic when possible"
+          fi
+
+          echo "✅ Version reference check complete"
+          echo ""
+
+      - name: Check documentation completeness
+        run: |
+          echo "📋 Checking documentation completeness..."
+          echo ""
+
+          # Define key files that should exist
+          required_files=(
+            "docs/README.md"
+            "docs/NAVIGATION.md"
+            "docs/tutorials/GETTING_STARTED.md"
+            "docs/explanation/architecture/ARCHITECTURE.md"
+          )
+
+          missing_count=0
+
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing required file: $file"
+              missing_count=$((missing_count + 1))
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+
+          # Check for API reference (flexible path)
+          if [ -f "docs/reference/api/README.md" ] || [ -f "docs/reference/api/api/README.md" ] || [ -f "docs/reference/README.md" ]; then
+            echo "✅ Found: API reference documentation"
+          else
+            echo "❌ Missing: API reference documentation"
+            missing_count=$((missing_count + 1))
+          fi
+
+          echo ""
+          if [ $missing_count -gt 0 ]; then
+            echo "❌ Documentation incomplete: $missing_count required file(s) missing"
+            exit 1
+          fi
+
+          echo "✅ All key documentation files present"
+          echo ""
+
+      - name: Check for TODO and FIXME markers
+        run: |
+          echo "🔍 Checking for TODO and FIXME markers in documentation..."
+          echo ""
+
+          # Find TODO and FIXME markers (but don't fail, just warn)
+          todos=$(grep -rn "TODO\|FIXME" docs/ --include="*.md" 2>/dev/null || true)
+
+          if [ -n "$todos" ]; then
+            echo "⚠️  Warning: Found TODO/FIXME markers in documentation:"
+            echo "$todos"
+            echo ""
+            echo "💡 Consider creating issues for these items and removing the markers"
+          else
+            echo "✅ No TODO or FIXME markers found"
+          fi
+          echo ""
+
+      - name: Check documentation freshness
+        run: |
+          echo "📅 Checking documentation freshness..."
+          echo ""
+
+          # Find files older than 6 months without "Last Updated" date
+          # This is a heuristic check - won't fail CI, just warn
+          OLD_FILES=$(find docs/ -name "*.md" -type f \
+            -not -path "docs/archive/*" \
+            -mtime +180 2>/dev/null | while read file; do
+              if ! head -20 "$file" | grep -q "Last Updated"; then
+                echo "$file (modified $(stat -f '%Sm' -t '%Y-%m-%d' "$file" 2>/dev/null || stat -c '%y' "$file" 2>/dev/null | cut -d' ' -f1))"
+              fi
+            done)
+
+          if [ -n "$OLD_FILES" ]; then
+            echo "⚠️  Warning: Files older than 6 months without 'Last Updated' date:"
+            echo "$OLD_FILES"
+            echo ""
+            echo "💡 Consider reviewing these files for accuracy and adding update dates"
+          else
+            echo "✅ Documentation freshness acceptable"
+          fi
+          echo ""
+
+      - name: Summary
+        if: success()
+        run: |
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ DOCUMENTATION STANDARDS CHECK PASSED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "Documentation structure and standards validated:"
+          echo "  - Diátaxis framework structure ✅"
+          echo "  - Archive organization ✅"
+          echo "  - Version references ✅"
+          echo "  - Documentation completeness ✅"
+          echo ""

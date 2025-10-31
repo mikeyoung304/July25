@@ -94,6 +94,58 @@ jobs:
             echo "✅ No hardcoded version numbers found in documentation"
           fi
 
+      - name: Check Last Updated dates
+        run: |
+          echo ""
+          echo "🔍 Checking for Last Updated dates in documentation..."
+          echo ""
+
+          # Find docs without Last Updated in first 20 lines
+          missing=$(find docs/ -name "*.md" -type f \
+            -not -path "docs/archive/*" \
+            -not -path "docs/tutorials/*" \
+            | while read file; do
+                if ! head -20 "$file" | grep -q "Last Updated"; then
+                  echo "$file"
+                fi
+              done)
+
+          if [ -n "$missing" ]; then
+            echo "⚠️  Warning: Files missing 'Last Updated' date:"
+            echo "$missing"
+            echo ""
+            echo "💡 Consider adding timestamps to major documentation files."
+            echo "   Format: **Last Updated:** YYYY-MM-DD"
+          else
+            echo "✅ All major documentation files have Last Updated dates"
+          fi
+
+      - name: Check root directory policy
+        run: |
+          echo ""
+          echo "🔍 Checking root directory policy..."
+          echo ""
+
+          # Count markdown files at root (should be exactly 4)
+          count=$(ls -1 *.md 2>/dev/null | wc -l | tr -d ' ')
+          echo "📄 Root markdown files found: $count"
+
+          if [ "$count" -ne 4 ]; then
+            echo ""
+            echo "❌ Root directory policy violated!"
+            echo "Expected 4 files (README.md, index.md, SECURITY.md, CONTRIBUTING.md), found $count"
+            echo ""
+            echo "Current root markdown files:"
+            ls -1 *.md
+            exit 1
+          fi
+
+          echo "✅ Root directory policy enforced (4 files)"
+          echo "   - README.md"
+          echo "   - index.md"
+          echo "   - SECURITY.md"
+          echo "   - CONTRIBUTING.md"
+
       - name: Summary
         if: success()
         run: |

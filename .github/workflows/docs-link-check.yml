@@ -1,0 +1,144 @@
+name: Documentation Link Check
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs/**/*.md'
+      - '*.md'
+  pull_request:
+    paths:
+      - 'docs/**/*.md'
+      - '*.md'
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check internal links
+        run: |
+          echo "🔗 Checking internal markdown links..."
+          echo ""
+
+          # Track if we find any broken links
+          BROKEN_LINKS=0
+
+          # Find all markdown files
+          find . -name "*.md" -type f | while read file; do
+            # Extract markdown links [text](path) - handle both forms
+            # Pattern matches: ](path) and extracts the path
+            grep -oP '\]\(\K[^)]+' "$file" 2>/dev/null | while read link; do
+              # Skip external URLs
+              if [[ "$link" =~ ^https?:// ]] || [[ "$link" =~ ^http:// ]]; then
+                continue
+              fi
+
+              # Skip mailto links
+              if [[ "$link" =~ ^mailto: ]]; then
+                continue
+              fi
+
+              # Skip anchor-only links (within same document)
+              if [[ "$link" =~ ^# ]]; then
+                continue
+              fi
+
+              # Extract the file path (remove anchor if present)
+              file_path="${link%%#*}"
+
+              # Skip empty paths (pure anchors)
+              if [ -z "$file_path" ]; then
+                continue
+              fi
+
+              # Resolve relative path from the file's directory
+              dir=$(dirname "$file")
+
+              # Handle absolute paths from repo root (starting with /)
+              if [[ "$file_path" =~ ^/ ]]; then
+                target=".$file_path"
+              else
+                target="$dir/$file_path"
+              fi
+
+              # Normalize the path (remove ./ and ../)
+              target=$(realpath -m "$target" 2>/dev/null || echo "$target")
+
+              # Check if file or directory exists
+              if [ ! -f "$target" ] && [ ! -d "$target" ]; then
+                echo "❌ Broken link in $file:"
+                echo "   Link: $link"
+                echo "   Expected: $target"
+                echo ""
+                BROKEN_LINKS=$((BROKEN_LINKS + 1))
+              fi
+            done
+          done
+
+          if [ $BROKEN_LINKS -gt 0 ]; then
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "❌ Found $BROKEN_LINKS broken link(s)"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            exit 1
+          fi
+
+          echo "✅ All internal links are valid"
+
+      - name: Check for common link mistakes
+        run: |
+          echo ""
+          echo "🔍 Checking for common link mistakes..."
+          echo ""
+
+          # Check for absolute local paths (should use relative paths)
+          if grep -r "](/Users/" docs/ --include="*.md" 2>/dev/null; then
+            echo "❌ Found absolute local paths in documentation"
+            echo "   Please use relative paths instead of absolute system paths"
+            exit 1
+          fi
+
+          if grep -r "](/home/" docs/ --include="*.md" 2>/dev/null; then
+            echo "❌ Found absolute local paths in documentation"
+            echo "   Please use relative paths instead of absolute system paths"
+            exit 1
+          fi
+
+          if grep -r "](C:/" docs/ --include="*.md" 2>/dev/null; then
+            echo "❌ Found absolute Windows paths in documentation"
+            echo "   Please use relative paths instead of absolute system paths"
+            exit 1
+          fi
+
+          # Check for broken anchor references (double underscores often indicate issues)
+          ANCHOR_WARNINGS=$(grep -r "](#[^)]*__[^)]*)" docs/ --include="*.md" 2>/dev/null || true)
+          if [ -n "$ANCHOR_WARNINGS" ]; then
+            echo "⚠️  Warning: Found anchor links with double underscores (may be broken):"
+            echo "$ANCHOR_WARNINGS"
+            echo ""
+            echo "💡 Verify these anchors match their target headings"
+          fi
+
+          # Check for spaces in anchor links (should use hyphens)
+          SPACE_ANCHORS=$(grep -r "](#[^)]*%20[^)]*)" docs/ --include="*.md" 2>/dev/null || true)
+          if [ -n "$SPACE_ANCHORS" ]; then
+            echo "⚠️  Warning: Found anchor links with encoded spaces:"
+            echo "$SPACE_ANCHORS"
+            echo ""
+            echo "💡 Use hyphens (-) instead of spaces in anchor links"
+          fi
+
+          echo "✅ No common link mistakes found"
+
+      - name: Summary
+        if: success()
+        run: |
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ DOCUMENTATION LINK CHECK PASSED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "All internal links are valid and follow best practices."
+          echo ""
