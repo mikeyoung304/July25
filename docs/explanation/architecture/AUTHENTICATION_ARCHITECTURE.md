@@ -1,5 +1,7 @@
 # Authentication Architecture v6.0
 
+[Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](./README.md) > Authentication Architecture
+
 ## Overview
 
 Restaurant OS v6.0 uses **Supabase Auth** as the primary authentication system for web users, with custom JWT tokens for specialized use cases (kiosks, kitchen displays).
@@ -783,158 +785,21 @@ npm run seed:demo-users
 
 ---
 
-## Dual Authentication Architecture (ADR-006)
+## Dual Authentication Pattern
 
-### Overview
+Restaurant OS implements a dual authentication system to support both production and development environments.
 
-As of v6.0.8 (October 2024), the system implements a **dual authentication pattern** to support both production and development/testing use cases.
+**For complete details, see [ADR-006: Dual Authentication Pattern](../../ADR-006-dual-authentication-pattern.md)**
 
-**See [ADR-006-dual-authentication-pattern.md](./ADR-006-dual-authentication-pattern.md) for full architectural decision record.**
+### Quick Summary
+- **Production**: Supabase JWT (secure, RLS-enforced)
+- **Development**: JWT fallback (flexible, bypasses RLS)
+- **Migration Path**: Documented in ADR-006
 
-### Authentication Paths
-
-| Auth Method | Storage | Use Case | Production Ready |
-|-------------|---------|----------|------------------|
-| **Supabase Session** | `localStorage.sb-{project}-auth-token` | Email/password login (managers, owners) | ✅ YES |
-| **localStorage Session** | `localStorage.auth_session` | Demo/PIN/station login | ⚠️ DEVELOPMENT ONLY |
-
-### Why Two Systems?
-
-**Historical Context**:
-- v6.0 migrated to direct Supabase auth for production users
-- Demo/PIN/station auth remained as custom JWTs in localStorage
-- httpClient originally only checked Supabase → demo users got 401 errors
-- v6.0.8 fix: httpClient now checks both (dual auth pattern)
-
-**Current State**:
-- Production users (email/password): Supabase Auth (httpOnly cookies, auto-refresh, secure)
-- Dev/test users (demo): Custom JWTs in localStorage (less secure, manual management)
-- Shared devices (PIN): Custom JWTs in localStorage (planned for production)
-- Kiosk displays (station): Custom JWTs in localStorage (planned for production)
-
-### Implementation: httpClient Dual Auth
-
-```typescript
-// client/src/services/http/httpClient.ts:109-148
-
-async request(endpoint, options) {
-  // PRIMARY: Check Supabase session
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (session?.access_token) {
-    // ✅ Supabase auth (production-ready)
-    headers.set('Authorization', `Bearer ${session.access_token}`);
-  } else {
-    // FALLBACK: Check localStorage session
-    const saved = localStorage.getItem('auth_session');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.session?.accessToken &&
-          parsed.session?.expiresAt > Date.now() / 1000) {
-        // ⚠️ localStorage auth (demo/PIN/station)
-        headers.set('Authorization', `Bearer ${parsed.session.accessToken}`);
-      }
-    }
-  }
-
-  return super.request(endpoint, { headers });
-}
-```
-
-### Security Tradeoffs
-
-| Aspect | Supabase Auth | localStorage Auth |
-|--------|---------------|-------------------|
-| **Storage** | Supabase-managed localStorage | Custom `auth_session` key |
-| **XSS Protection** | ⚠️ Vulnerable (localStorage) | ⚠️ Vulnerable (localStorage) |
-| **Token Refresh** | ✅ Automatic | ❌ Manual (must re-login) |
-| **Revocation** | ✅ Centralized | ❌ Manual database update |
-| **Lifetime** | 1 hour (auto-refresh to 30 days) | 12 hours (PIN), 7 days (station) |
-| **Production Ready** | ✅ YES | ⚠️ NEEDS REVIEW |
-
-### Production Migration Options
-
-**Option A: Keep Dual Auth with Security Hardening**
-- Implement CSP headers (prevent XSS)
-- Add token rotation (8-hour expiry)
-- IP allowlisting for PIN terminals
-- Device fingerprinting
-- **Timeline**: 8-12 hours
-- **Use When**: < 10 staff using PIN
-
-**Option B: Migrate to Supabase Custom Auth**
-- Create custom auth provider for PIN/station users
-- All auth through Supabase → single system
-- httpClient reverts to Supabase-only (remove fallback)
-- **Timeline**: 16-24 hours
-- **Use When**: > 10 staff using PIN
-
-**Option C: Remove localStorage Auth Entirely**
-- Production uses Supabase exclusively
-- Demo/development disabled in production
-- **Timeline**: 2 hours
-- **Use When**: No PIN/station auth needed
-
-### Testing Both Auth Paths
-
-```bash
-# Test Supabase auth
-1. Login with email/password (manager@restaurant.com)
-2. Check localStorage.getItem('sb-{project}-auth-token')
-3. Make API call → Should use Supabase token
-
-# Test localStorage auth
-1. Login with demo ("Server" button)
-2. Check localStorage.getItem('auth_session')
-3. Make API call → Should use localStorage token
-
-# Test fallback behavior
-1. Clear Supabase session: supabase.auth.signOut()
-2. Keep localStorage session
-3. Make API call → Should still work (fallback)
-```
-
-### Known Issues & Limitations
-
-**Current Limitations**:
-- No automatic token refresh for localStorage sessions
-- PIN users must re-login every 12 hours
-- Station displays must re-authenticate every 7 days
-- Token revocation requires manual intervention
-
-**Future Improvements** (Post v6.0.8):
-- Implement token refresh mechanism for localStorage
-- Add token revocation endpoint
-- Migrate to Supabase custom auth (consolidate systems)
-- Implement hardware token support (YubiKey)
-
-### Debugging Dual Auth
-
-```typescript
-// Check which auth method is being used (browser console)
-
-// 1. Check Supabase session
-const { data: { session } } = await supabase.auth.getSession();
-console.log('Supabase session:', session);
-
-// 2. Check localStorage session
-const saved = localStorage.getItem('auth_session');
-console.log('localStorage session:', JSON.parse(saved));
-
-// 3. Check which one httpClient will use
-if (session?.access_token) {
-  console.log('✅ Will use SUPABASE auth');
-} else if (saved) {
-  const parsed = JSON.parse(saved);
-  if (parsed.session?.expiresAt > Date.now() / 1000) {
-    console.log('⚠️ Will use LOCALSTORAGE auth');
-  } else {
-    console.log('❌ localStorage token EXPIRED');
-  }
-} else {
-  console.log('❌ NO AUTH AVAILABLE');
-}
-```
+### Key Benefits
+- Zero downtime migration
+- Environment-specific security
+- Backward compatibility maintained
 
 ---
 
@@ -1048,6 +913,16 @@ The voice ordering system has comprehensive test coverage:
 - **Regression tests**: Prevent Oct 2025 bugs from recurring
 - **Unit tests**: Validate service isolation and responsibilities
 - **Integration tests**: Voice order flow end-to-end
+
+---
+
+## Related Documentation
+
+- [ADR-006: Dual Authentication Pattern](../architecture-decisions/ADR-006-dual-authentication-pattern.md) - Dual auth decision
+- [Auth Roles](../../AUTH_ROLES.md) - Role definitions
+- [Security Policies](../../SECURITY.md) - Security practices
+- [API Reference](../../reference/api/README.md) - API authentication
+- [Troubleshooting Auth Issues](../../how-to/troubleshooting/AUTH_DIAGNOSTIC_GUIDE.md) - Auth debugging
 
 ---
 

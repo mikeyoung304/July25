@@ -1,5 +1,7 @@
 # Getting Started
 
+[Home](../../index.md) > [Docs](../README.md) > [Tutorials](./README.md) > Getting Started
+
 This guide will help you set up and run Restaurant OS locally.
 
 ## Prerequisites
@@ -23,8 +25,9 @@ npm install
 cp .env.example .env
 
 # Edit .env with your configuration
-# See docs/ENVIRONMENT.md for complete variable reference
 ```
+
+**For complete environment variable documentation, see [ENVIRONMENT.md](../reference/ENVIRONMENT.md)**
 
 ### 3. Start Development
 ```bash
@@ -164,10 +167,20 @@ npm run dev:clean
 
 ## Next Steps
 
-- Read [ARCHITECTURE.md](ARCHITECTURE.md) for system overview
-- See [DEPLOYMENT.md](DEPLOYMENT.md) for production deployment
-- Check [ENVIRONMENT.md](ENVIRONMENT.md) for configuration details
-- Review [API documentation](api/README.md) for backend integration
+- Read [Architecture Overview](../explanation/architecture/ARCHITECTURE.md) for system design
+- See [Development Process](../how-to/development/DEVELOPMENT_PROCESS.md) for workflows
+- Check [Deployment Guide](../how-to/operations/DEPLOYMENT.md) for production deployment
+- Review [API documentation](../reference/api/README.md) for backend integration
+
+---
+
+## Related Documentation
+
+- [Architecture Overview](../explanation/architecture/ARCHITECTURE.md) - System design
+- [Authentication Architecture](../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) - Auth setup
+- [Development Process](../how-to/development/DEVELOPMENT_PROCESS.md) - Workflows and best practices
+- [Environment Configuration](../reference/config/ENVIRONMENT.md) - Environment variables
+- [Troubleshooting](../how-to/troubleshooting/TROUBLESHOOTING.md) - Common issues
 
 ---
 

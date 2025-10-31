@@ -80,68 +80,9 @@ cancelled
 
 ### 5. Authentication Architecture (DUAL PATTERN - ADR-006)
 
-**CRITICAL: Two Authentication Systems Coexist**
+See [ADR-006: Dual Authentication Pattern](../ADR-006-dual-authentication-pattern.md) for complete documentation.
 
-The application supports **TWO separate authentication paths**:
-- **Supabase Sessions** (Primary): Email/password auth, production-ready
-- **localStorage Sessions** (Fallback): Demo/PIN/station auth, development/testing
-
-**httpClient Dual Auth Pattern** (`client/src/services/http/httpClient.ts`):
-```typescript
-// Priority Order:
-// 1. Try Supabase session first (production path)
-const { data: { session } } = await supabase.auth.getSession();
-if (session?.access_token) {
-  headers.set('Authorization', `Bearer ${session.access_token}`);
-} else {
-  // 2. Fallback to localStorage (demo/PIN/station path)
-  const savedSession = localStorage.getItem('auth_session');
-  if (savedSession) {
-    const parsed = JSON.parse(savedSession);
-    if (parsed.session?.accessToken && parsed.session?.expiresAt > Date.now() / 1000) {
-      headers.set('Authorization', `Bearer ${parsed.session.accessToken}`);
-    }
-  }
-}
-```
-
-**When Adding Auth-Required Features:**
-1. Use httpClient for API calls (handles both auth paths automatically)
-2. Test with BOTH auth methods: email/password AND demo login
-3. Check both `supabase.auth.getSession()` and `localStorage.getItem('auth_session')`
-4. Never assume only one auth system exists
-
-**localStorage Token Format:**
-```typescript
-{
-  session: {
-    accessToken: string,    // JWT token
-    expiresAt: number,      // Unix timestamp (12 hours default)
-    role: string,           // e.g., "server", "kitchen", "expo"
-    userId: string          // e.g., "demo:server:abc123"
-  },
-  user: {
-    id: string,
-    role: string,
-    restaurant_id: string
-  }
-}
-```
-
-**Production Considerations:**
-- ⚠️ localStorage auth has security tradeoffs (XSS vulnerability, no auto-refresh)
-- See `docs/ADR-006-dual-authentication-pattern.md` for migration options
-- Decision required before production launch (3 options available)
-- Current implementation prioritizes development velocity over security
-
-**Debug Auth Issues:**
-```typescript
-// Browser console - check which auth is active
-const { data: { session } } = await supabase.auth.getSession();
-const savedSession = localStorage.getItem('auth_session');
-console.log('Supabase:', session);
-console.log('localStorage:', savedSession ? JSON.parse(savedSession) : null);
-```
+Quick reference: Production uses Supabase JWT, Development uses JWT fallback.
 
 ## Project Structure
 ```
