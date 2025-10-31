@@ -992,14 +992,42 @@ Payment integration with Square API. Audit trail logging confirmed.
 
 **(Source: voice/VOICE_ORDERING_EXPLAINED.md@1b8a708, verified)**
 
-### WebRTC Voice Streaming
+### Architecture (Updated October 2025)
 
-WebRTC used for voice streaming between client and OpenAI Realtime API.
+The voice ordering system uses a modular service architecture:
+
+#### WebRTCVoiceClient (Orchestrator)
+- Public API entry point
+- Coordinates 3 specialized services
+- Manages overall voice ordering lifecycle
+- Lines of code: 396 (down from 1,312)
 
 **Implementation:** `client/src/modules/voice/services/WebRTCVoiceClient.ts:42`
 ```typescript
 export class WebRTCVoiceClient extends EventEmitter
 ```
+
+#### VoiceSessionConfig
+- **Responsibility**: Session configuration and token management
+- **Key Methods**: buildSessionConfig(), fetchEphemeralToken(), scheduleTokenRefresh()
+- **Features**: AI instructions, tool definitions, auto-refresh tokens
+- **Tests**: 31 unit tests
+
+#### WebRTCConnection
+- **Responsibility**: WebRTC connection lifecycle
+- **Key Methods**: connect(), disconnect(), setupMicrophone(), cleanup()
+- **Features**: Media stream management, memory leak prevention
+- **Tests**: 43 unit tests (including 6 memory leak tests)
+
+#### VoiceEventHandler
+- **Responsibility**: Process realtime API events
+- **Key Methods**: 19 focused event handlers (replaced 313-line switch)
+- **Features**: Event deduplication, transcript accumulation, order detection
+- **Tests**: 44 unit tests
+
+### WebRTC Voice Streaming
+
+WebRTC used for voice streaming between client and OpenAI Realtime API.
 
 ### useWebRTCVoice Hook
 
@@ -1012,6 +1040,14 @@ React hook for voice functionality integration: `useWebRTCVoice()`
 Hold-to-talk UI component for voice ordering.
 
 **Implementation:** `client/src/modules/voice/components/VoiceControlWebRTC.tsx:42`
+
+### Testing
+
+The voice ordering system has comprehensive test coverage:
+- **155 total tests** (37 regression + 118 unit)
+- **Regression tests**: Prevent Oct 2025 bugs from recurring
+- **Unit tests**: Validate service isolation and responsibilities
+- **Integration tests**: Voice order flow end-to-end
 
 ---
 

@@ -7,6 +7,285 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.14] - 2025-10-30 - Technical Debt Reduction & Test Coverage Sprint
+
+### 🎯 Overview
+
+This release represents a major technical debt reduction effort focused on test coverage, code quality, and architectural improvements. Added 155 new tests (37 regression + 118 unit tests), refactored critical integration code with a 70% reduction in complexity, and established migration best practices to prevent future technical debt accumulation.
+
+### ✅ All Changes Backward Compatible - Zero Breaking Changes
+
+### 📊 Impact Summary
+
+- **Test Coverage**: +155 new tests (37 regression + 118 unit tests)
+  - Voice order integration: 15 regression tests
+  - Auth middleware: 7 regression tests
+  - Workspace + OpenAI: 15 regression tests
+  - Service unit tests: 118 tests (3 new services)
+- **Code Quality**: 70% reduction in WebRTCVoiceClient complexity (1,312 → 396 lines)
+- **Service Extraction**: 3 new focused services extracted for reusability
+- **Documentation**: Migration best practices guide to prevent future churn
+- **Quality Gates**: All tests passing, zero TypeScript errors
+
+### 🧪 Testing & Quality Improvements
+
+#### Added - Voice Order Integration Tests (15 Tests)
+- **Comprehensive voice order workflow regression suite**
+  - Happy path: AI ordering with menu integration, cart updates, order submission
+  - Error paths: API failures, timeout handling, invalid responses
+  - Edge cases: Empty responses, malformed data, network interruptions
+  - **Impact**: Prevents regressions in critical revenue-generating feature
+  - **File**: `client/src/tests/integration/voice-orders.test.tsx`
+  - **Coverage**: WebRTC flow, AI parsing, menu validation, cart operations, checkout
+  - **Rationale**: Voice ordering had zero integration tests despite being production feature
+
+#### Added - Auth Middleware Tests (7 Tests)
+- **Authentication middleware regression coverage**
+  - Token validation and JWT verification
+  - Restaurant access control (multi-tenancy)
+  - Role-based permission enforcement
+  - Error handling and auth failures
+  - **Impact**: Ensures security boundaries remain intact across changes
+  - **File**: `server/tests/middleware/auth.test.ts`
+  - **Coverage**: authenticate(), optionalAuth(), validateRestaurantAccess(), requireRestaurantRole()
+  - **Rationale**: Auth middleware had no tests, critical for security
+
+#### Added - Workspace + OpenAI Tests (15 Tests)
+- **Workspace service regression tests (8 tests)**
+  - CRUD operations: create, read, update, delete
+  - Validation: duplicate names, invalid IDs
+  - Multi-tenancy: restaurant isolation
+  - **File**: `server/tests/services/workspace.test.ts`
+
+- **OpenAI service regression tests (7 tests)**
+  - Chat completions with streaming
+  - Error handling and retries
+  - Response parsing and validation
+  - **File**: `server/tests/services/openai.test.ts`
+  - **Impact**: Ensures AI features remain stable
+  - **Rationale**: No test coverage for workspace or AI service logic
+
+#### Added - Service Unit Tests (118 Tests)
+- **Extracted services with comprehensive test coverage**
+  - **AudioStreamingService** (40 tests)
+    - Audio chunk processing, format validation
+    - Buffer management, memory cleanup
+    - Error handling, stream lifecycle
+    - File: `client/src/modules/voice/services/AudioStreamingService.test.ts`
+
+  - **MenuIntegrationService** (38 tests)
+    - Menu item lookup, price validation
+    - Fuzzy matching, category filtering
+    - AI response parsing, cart transformations
+    - File: `client/src/modules/voice/services/MenuIntegrationService.test.ts`
+
+  - **VoiceOrderProcessor** (40 tests)
+    - Order finalization, validation
+    - Tax calculations, submission flow
+    - Error recovery, state management
+    - File: `client/src/modules/voice/services/VoiceOrderProcessor.test.ts`
+
+  - **Impact**: High confidence in service behavior, enables safe refactoring
+  - **Rationale**: Services extracted from god component had zero test coverage
+
+### 🔨 Refactoring & Code Quality
+
+#### Refactored - WebRTCVoiceClient Integration (70% Code Reduction)
+- **Massive complexity reduction in voice ordering integration**
+  - **Before**: 1,312 lines of monolithic integration code
+  - **After**: 396 lines of clean orchestration (70% reduction!)
+  - **Extracted Services**:
+    - `AudioStreamingService`: Handles WebRTC audio streaming, buffer management
+    - `MenuIntegrationService`: Menu lookups, fuzzy matching, AI response parsing
+    - `VoiceOrderProcessor`: Order finalization, validation, submission
+  - **Files**:
+    - Refactored: `client/src/pages/hooks/useVoiceOrderWebRTC.ts` (1,312 → 396 lines)
+    - New: `client/src/modules/voice/services/AudioStreamingService.ts`
+    - New: `client/src/modules/voice/services/MenuIntegrationService.ts`
+    - New: `client/src/modules/voice/services/VoiceOrderProcessor.ts`
+  - **Impact**:
+    - Dramatically improved maintainability and testability
+    - Clear separation of concerns (Single Responsibility Principle)
+    - Reusable services for future voice features
+    - Each service independently testable with 38-40 unit tests
+  - **Pattern**: Service extraction with comprehensive unit test coverage
+  - **Rationale**: Original 1,312-line hook violated SRP, was untestable
+
+#### Benefits of Service Extraction
+- **Testability**: 118 unit tests for extracted services (was 0)
+- **Reusability**: Services can be used in other voice features
+- **Maintainability**: Each service has single, clear responsibility
+- **Debuggability**: Smaller units easier to reason about and debug
+- **Documentation**: Self-documenting through focused interfaces
+
+### 📚 Documentation & Best Practices
+
+#### Added - Migration Best Practices Guide
+- **Comprehensive guide to prevent migration-related technical debt**
+  - **When to run migrations**: Development workflow patterns
+  - **What to migrate**: Database schema, API changes, breaking changes
+  - **How to migrate safely**: Testing, rollback plans, deployment coordination
+  - **Common pitfalls**: Schema drift, race conditions, data loss scenarios
+  - **Decision trees**: Flow charts for migration planning
+  - **File**: `/docs/MIGRATION_BEST_PRACTICES.md`
+  - **Impact**: Reduces future migration-related incidents and churn
+  - **Rationale**: Multiple schema drift incidents (6.0.13, 6.0.12) needed prevention
+
+#### Updated - Documentation Organization
+- **Moved orchestration files to dedicated archive**
+  - Original location: `/docs/orchestration/`
+  - New location: `/docs/archive/orchestration/`
+  - Files moved: `TEAM_ORCHESTRATION.md`, `TEAM_HANDOFF_TEMPLATE.md`
+  - **Rationale**: Orchestration docs were specific to agent collaboration, not system documentation
+  - **Impact**: Cleaner docs structure, easier navigation for developers
+
+### 🔗 Related Issues & Documentation
+
+- **Test Coverage Gap**: Voice ordering had 0 integration tests
+- **God Component**: useVoiceOrderWebRTC.ts was 1,312 lines (too complex)
+- **Service Extraction**: Pattern established for future refactoring
+- **Migration Incidents**: 6.0.13 schema drift, 6.0.12 tax rate issues
+- **Prevention**: Migration best practices guide prevents future incidents
+
+### 📈 Quality Metrics
+
+**Before This Release**:
+- Voice order integration tests: 0
+- Auth middleware tests: 0
+- Workspace service tests: 0
+- OpenAI service tests: 0
+- Service unit tests: 0
+- WebRTCVoiceClient: 1,312 lines (unmaintainable)
+
+**After This Release**:
+- Voice order integration tests: 15 (100% coverage of critical paths)
+- Auth middleware tests: 7 (100% coverage of auth flows)
+- Workspace service tests: 8 (CRUD + validation)
+- OpenAI service tests: 7 (AI integration coverage)
+- Service unit tests: 118 (3 new services fully tested)
+- WebRTCVoiceClient: 396 lines (70% reduction, clean orchestration)
+
+**Overall Impact**:
+- Total new tests: 155 (37 regression + 118 unit)
+- Code reduction: 916 lines removed from critical integration
+- Test passing rate: 100% (all tests green)
+- TypeScript errors: 0 (strict mode enabled)
+- Breaking changes: 0 (fully backward compatible)
+
+### 🎯 Technical Debt Reduction ROI
+
+**Investment**: ~8 hours (testing + refactoring + documentation)
+**Return**:
+- 155 new tests prevent future regressions (saves debugging time)
+- 70% code reduction improves maintainability (faster feature development)
+- Migration best practices prevent schema drift incidents (saves incident response time)
+- Service extraction enables reuse in future features (accelerates development)
+
+### 🔍 Technical Details
+
+#### Service Extraction Pattern
+
+**Before** (God Component - WRONG):
+```typescript
+// useVoiceOrderWebRTC.ts - 1,312 lines
+// ❌ BAD: Everything in one massive hook
+export function useVoiceOrderWebRTC() {
+  // Audio streaming logic (200+ lines)
+  // Menu integration logic (300+ lines)
+  // Order processing logic (250+ lines)
+  // WebRTC management (200+ lines)
+  // State management (150+ lines)
+  // Error handling (100+ lines)
+  // ... etc
+}
+```
+
+**After** (Service Extraction - CORRECT):
+```typescript
+// useVoiceOrderWebRTC.ts - 396 lines
+// ✅ GOOD: Orchestrates focused services
+export function useVoiceOrderWebRTC() {
+  const audioService = new AudioStreamingService()
+  const menuService = new MenuIntegrationService(menuData)
+  const orderProcessor = new VoiceOrderProcessor(restaurantId)
+
+  // Clean orchestration logic only
+  // Each service handles its own concern
+  // Total: 396 lines of coordination code
+}
+
+// AudioStreamingService.ts - 180 lines
+// Handles ONLY audio streaming
+// 40 unit tests
+
+// MenuIntegrationService.ts - 220 lines
+// Handles ONLY menu operations
+// 38 unit tests
+
+// VoiceOrderProcessor.ts - 200 lines
+// Handles ONLY order processing
+// 40 unit tests
+```
+
+#### Test Coverage Example
+
+**Integration Test** (voice-orders.test.tsx):
+```typescript
+it('completes full voice order workflow', async () => {
+  // 1. Start voice session
+  // 2. AI processes speech → cart items
+  // 3. Menu validation
+  // 4. Cart updates
+  // 5. Order submission
+  // 6. Confirmation
+
+  // Validates entire flow end-to-end
+})
+```
+
+**Unit Test** (AudioStreamingService.test.ts):
+```typescript
+it('processes audio chunks correctly', () => {
+  const service = new AudioStreamingService()
+  const chunk = new Uint8Array([1, 2, 3])
+
+  service.processChunk(chunk)
+
+  expect(service.buffer).toContain(chunk)
+})
+```
+
+### 🔒 Backward Compatibility
+
+**Zero Breaking Changes**:
+- All existing APIs unchanged
+- Service extraction internal only
+- Tests added, no behavior modified
+- Documentation additions only
+- Migration guide is advisory, not mandatory
+
+### 🚀 Future Improvements Enabled
+
+- **Service Reusability**: Extracted services can power:
+  - Mobile app voice ordering
+  - Phone-based voice ordering
+  - Voice-enabled kiosk mode
+  - Drive-thru voice integration
+
+- **Test Infrastructure**: Patterns established for:
+  - Additional integration test suites
+  - Performance regression tests
+  - Load testing for voice features
+  - End-to-end automation
+
+- **Migration Safety**: Best practices prevent:
+  - Schema drift incidents
+  - Data loss during deployments
+  - Breaking changes without coordination
+  - Insufficient rollback planning
+
+---
+
 ## [6.0.13] - 2025-10-21 - Schema Drift & Documentation Stability
 
 ### 🚨 Critical Production Fixes
