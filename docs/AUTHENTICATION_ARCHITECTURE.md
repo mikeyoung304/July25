@@ -73,7 +73,7 @@ All order creation requests include:
 - Controlled by `AUTH_ACCEPT_KIOSK_DEMO_ALIAS` environment variable (default: `true`)
 - When enabled: Tokens with `role: "kiosk_demo"` automatically aliased to `customer` with WARN log
 - **Removal timeline:** After 30 consecutive days of zero kiosk_demo token usage, disable alias and remove from codebase
-- **Migration status:** See [AUTH_ROLES_V6.0.8.md](./AUTH_ROLES_V6.0.8.md) for phase tracking
+- **Migration status:** See [AUTH_ROLES.md](./AUTH_ROLES.md) for phase tracking
 
 ---
 

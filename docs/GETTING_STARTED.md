@@ -171,5 +171,5 @@ npm run dev:clean
 
 ---
 
-**Version**: 6.0.6  
-**Last Updated**: September 26, 2025
+**Version**: 6.0.14
+**Last Updated**: October 30, 2025
