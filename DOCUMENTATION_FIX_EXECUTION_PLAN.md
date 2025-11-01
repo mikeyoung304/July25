@@ -17,7 +17,7 @@ This plan addresses all 87 documentation errors identified in the comprehensive 
 ### Timeline Options
 
 | Option | Phases | Time | Outcome |
-|--------|--------|------|---------|
+| --- | --- | --- | --- |
 | **CRITICAL** | Phase 1 only | 6.5 hours | Fix all schema drift and type errors |
 | **RECOMMENDED** | Phase 1 + 2 | 12 hours | Fix all P0+P1 issues (87→20 errors) |
 | **COMPLETE** | Phase 1 + 2 + 3 | 19 hours | Add automation enforcement |
@@ -390,7 +390,7 @@ Fixes orphan file issue. Improves documentation discoverability.
    - Fix any case mismatches or typo
 3. For relocated files:
    - Update both file path AND anchor
-   - Example: `[Auth](docs/AUTHENTICATION.md#flow)` → `[Auth](docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#authentication-flow)`
+   - Example: `[Auth](docs/AUTHENTICATION.md#flow)` → `[Auth](docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#authentication-methods)`
 4. Remove references to deleted ADR-006:
    - Find 8 occurrences of links to ADR-006
    - Replace with link to current dual-auth documentation
@@ -483,7 +483,7 @@ Achieves 100% timestamp compliance.
   Audit trail for order status transitions.
 
   | Column | Type | Description |
-  |--------|------|-------------|
+  | --- | --- | --- |
   | id | UUID | Primary key |
   | order_id | UUID | FK to orders |
   | from_status | VARCHAR(50) | Previous status (NULL for initial) |
@@ -1689,7 +1689,7 @@ Fixes 27 P0 issues. Error count: 87 → 60"
 
 ```
 START
-  |
+  |  |
   ├─ Do you have 6 hours today?
   │   NO → Stop, schedule Phase 1 for tomorrow
   │   YES → Execute Phase 1 (CRITICAL)
@@ -1793,7 +1793,7 @@ START
 ### Known Risks and Mitigations
 
 | Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
+| --- | --- | --- | --- |
 | **Agents make conflicting changes** | LOW | HIGH | Non-overlapping file ownership per agent |
 | **Breaking changes to critical files** | MEDIUM | HIGH | Work on doc-update branch, validate after each phase |
 | **Agent produces incorrect fixes** | MEDIUM | MEDIUM | Each agent verifies against source of truth |

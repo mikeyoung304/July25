@@ -21,7 +21,7 @@ The codebase demonstrates **strong architectural compliance** with ADR-001 (Snak
 ### Critical Findings
 
 | Severity | Count | Category |
-|----------|-------|----------|
+| --- | --- | --- |
 | **CRITICAL (P0)** | 3 | ADR-001 violations - Active transformation infrastructure |
 | **HIGH (P1)** | 24 | TODO/FIXME requiring action |
 | **MEDIUM (P2)** | 8 | Convention inconsistencies |
@@ -417,7 +417,7 @@ All routes return data directly from services/database without manual transforma
 ### Codebase Metrics
 
 | Metric | Count | Notes |
-|--------|-------|-------|
+| --- | --- | --- |
 | Total TypeScript Files | 406 | 88 server, 318 client |
 | Total Lines of Code | ~120,000+ | Estimated |
 | API Route Files | 12 | All in server/src/routes/ |
@@ -431,7 +431,7 @@ All routes return data directly from services/database without manual transforma
 ### Convention Compliance
 
 | Convention | Compliance | Notes |
-|------------|-----------|-------|
+| --- | --- | --- |
 | ADR-001 (Snake Case) | 85% | Middleware violates at runtime |
 | Single Quotes | 98.3% | 11 files need fixing |
 | Async/Await | 98.8% | 14 files use .then() |
@@ -588,7 +588,7 @@ Update `tsconfig.json`:
 ### Critical Risks
 
 | Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
+| --- | --- | --- | --- |
 | Breaking frontend on transformation removal | HIGH | HIGH | Gradual rollout, feature flag |
 | TypeScript compilation errors | MEDIUM | HIGH | Comprehensive type updates first |
 | API contract breaking changes | HIGH | MEDIUM | Version API to v2, deprecation notice |

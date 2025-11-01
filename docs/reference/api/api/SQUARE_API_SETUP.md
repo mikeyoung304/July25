@@ -1,5 +1,8 @@
 # Square API Configuration Guide
 
+
+**Last Updated:** 2025-11-01
+
 **Last Updated**: October 25, 2025
 **Version**: 6.0
 
@@ -337,7 +340,7 @@ API_URL="https://your-app.onrender.com"  # Or http://localhost:3001
 Use these test cards in Square Sandbox:
 
 | Card Number | Result |
-|-------------|--------|
+| --- | --- |
 | 4111 1111 1111 1111 | Success |
 | 4000 0000 0000 0002 | Declined |
 | 5105 1051 0510 5100 | Success (Mastercard) |
@@ -470,7 +473,7 @@ npm run dev
 **Recommended setup**:
 
 | Environment | SQUARE_ACCESS_TOKEN | SQUARE_ENVIRONMENT | Purpose |
-|-------------|---------------------|-------------------|---------|
+| --- | --- | --- | --- |
 | Local Dev | demo | sandbox | Development without API calls |
 | Staging | Sandbox token | sandbox | Integration testing |
 | Production | Production token | production | Live payments |
@@ -505,7 +508,7 @@ If you see this on startup, your configuration is correct.
 ### Environment Variable Summary
 
 | Variable | Required | Where to Get It | Example |
-|----------|----------|-----------------|---------|
+| --- | --- | --- | --- |
 | SQUARE_ACCESS_TOKEN | Yes | Square Dashboard > Developer > Access Tokens | `EAAAxxxxxxxx` |
 | SQUARE_ENVIRONMENT | Yes | Manual (sandbox or production) | `sandbox` |
 | SQUARE_LOCATION_ID | Yes | Square Dashboard > Developer > Locations | `L1V8KTKZN0DHD` |

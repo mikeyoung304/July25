@@ -20,7 +20,7 @@ This document's verified content has been integrated into the canonical deployme
 The following file paths were corrected in the canonical documentation:
 
 | Referenced Path (Old) | Actual Path (Corrected) |
-|----------------------|-------------------------|
+| --- | --- |
 | `client/src/modules/kitchen/*` | `client/src/pages/KitchenDisplay*.tsx` |
 | `client/src/modules/kitchen/*` | `client/src/components/kitchen/*` |
 | - | `client/src/hooks/useKitchenOrdersRealtime.ts` |

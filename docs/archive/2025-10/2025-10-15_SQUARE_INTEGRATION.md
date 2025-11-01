@@ -104,7 +104,7 @@ Payment processing is **fully operational** as of October 14, 2025. After resolv
 ### Key Files
 
 | File | Purpose | Key Changes (Oct 14) |
-|------|---------|---------------------|
+| --- | --- | --- |
 | `/server/src/routes/payments.routes.ts` | Web payments endpoint | SDK v43 auth, startup validation |
 | `/server/src/routes/terminal.routes.ts` | Terminal API endpoints | SDK v43 auth |
 | `/server/src/services/payment.service.ts` | Payment validation & idempotency | Shortened keys to 26 chars |

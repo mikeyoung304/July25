@@ -662,7 +662,7 @@ function App() {
 ### High-Priority Magic Numbers
 
 | Location | Number | Should Be Constant | Context |
-|----------|--------|-------------------|---------|
+| --- | --- | --- | --- |
 | `orders.service.ts:99` | `0.07` | `TAX_RATE` | Tax calculation (should be per-restaurant) |
 | `payment.service.ts:31` | `0.08` | `DEFAULT_TAX_RATE` | Duplicate tax rate |
 | `payment.service.ts:32` | `0.01` | `MINIMUM_ORDER_AMOUNT` | Already constant ✓ |
@@ -740,7 +740,7 @@ export const VOICE_CONFIG = {
 ### Server-Side Files (Top 10 by Complexity)
 
 | File | Lines | Functions | Avg Complexity | Max Complexity | Issues |
-|------|-------|-----------|----------------|----------------|--------|
+| --- | --- | --- | --- | --- | --- |
 | `middleware/auth.ts` | 261 | 5 | 12.4 | 18 | CRITICAL |
 | `routes/payments.routes.ts` | 449 | 3 | 11.3 | 14 | HIGH |
 | `services/orders.service.ts` | 545 | 12 | 9.2 | 12 | HIGH |
@@ -755,7 +755,7 @@ export const VOICE_CONFIG = {
 ### Client-Side Files (Top 10 by Complexity)
 
 | File | Lines | Components | Avg Complexity | Max Complexity | Issues |
-|------|-------|------------|----------------|----------------|--------|
+| --- | --- | --- | --- | --- | --- |
 | `pages/KitchenDisplayOptimized.tsx` | 558 | 1 | - | 22 | CRITICAL |
 | `App.tsx` | 178 | 1 | - | 11 | MEDIUM |
 | `contexts/UnifiedCartContext.tsx` | 221 | 1 | - | 10 | MEDIUM |

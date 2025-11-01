@@ -32,7 +32,7 @@ Investigation identified **7 distinct bugs** spanning schema migrations, busines
 ### Critical Findings
 
 | # | Root Cause | Confidence | Impact | Evidence |
-|---|------------|------------|--------|----------|
+| --- | --- | --- | --- | --- |
 | **1** | RPC missing `version` column in RETURNS | **95%** | 500 errors, undefined version | Migration mismatch |
 | **2** | Voice order total missing tax | **100%** | Incorrect totals | useVoiceOrderWebRTC.ts:185-188 |
 | **3** | Triple tax rate hardcoding | **100%** | Inconsistent calculations | 3 different values (7%, 8%, 8.25%) |
@@ -286,7 +286,7 @@ const quantityMap: Record<string, number> = {
 **Lines 30, 172, 248**: Schema inconsistencies
 
 | Doc Says | Reality | Location |
-|----------|---------|----------|
+| --- | --- | --- |
 | `customer_info JSONB` | `customer_name VARCHAR` | orders table |
 | `total` | `total_amount` | orders table |
 | `tip` column | No `tip` column, stored in metadata | orders table |
@@ -934,7 +934,7 @@ Monitor:
 ### A. File Reference Index
 
 | File | Lines | Issue |
-|------|-------|-------|
+| --- | --- | --- |
 | `supabase/migrations/20251019_add_create_order_with_audit_rpc.sql` | 40-64 | Missing version in RETURNS |
 | `supabase/migrations/20251019_add_version_to_orders.sql` | 9-10 | Added version column |
 | `server/src/services/orders.service.ts` | 134 | Accepts unvalidated totals |

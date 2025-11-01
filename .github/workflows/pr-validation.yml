@@ -46,10 +46,10 @@ jobs:
           echo "::group::Prisma Schema Validation"
           if npx prisma validate; then
             echo "✅ Prisma schema is valid"
-            echo "valid=true" >> $GITHUB_OUTPUT
+            echo "valid=true" >> "$GITHUB_OUTPUT"
           else
             echo "❌ Prisma schema validation failed"
-            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "valid=false" >> "$GITHUB_OUTPUT"
             exit 1
           fi
           echo "::endgroup::"
@@ -77,11 +77,11 @@ jobs:
 
           if [ ${#INVALID_NAMES[@]} -eq 0 ]; then
             echo "✅ All migration files follow naming convention"
-            echo "valid=true" >> $GITHUB_OUTPUT
+            echo "valid=true" >> "$GITHUB_OUTPUT"
           else
             echo "❌ Invalid migration file names found:"
             printf '  - %s\n' "${INVALID_NAMES[@]}"
-            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "valid=false" >> "$GITHUB_OUTPUT"
             exit 1
           fi
           echo "::endgroup::"
@@ -95,7 +95,7 @@ jobs:
 
           if [ -z "$DATABASE_URL" ]; then
             echo "⚠️  DATABASE_URL not set - skipping sync check"
-            echo "skipped=true" >> $GITHUB_OUTPUT
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
             echo "::endgroup::"
             exit 0
           fi
@@ -106,7 +106,7 @@ jobs:
           # Check for differences
           if git diff --exit-code prisma/schema.prisma > /dev/null 2>&1; then
             echo "✅ Prisma schema is in sync with database"
-            echo "synced=true" >> $GITHUB_OUTPUT
+            echo "synced=true" >> "$GITHUB_OUTPUT"
           else
             echo "❌ Prisma schema is out of sync with database"
             echo ""
@@ -114,7 +114,7 @@ jobs:
             git diff prisma/schema.prisma
             echo ""
             echo "Action required: Run './scripts/post-migration-sync.sh' and commit the result"
-            echo "synced=false" >> $GITHUB_OUTPUT
+            echo "synced=false" >> "$GITHUB_OUTPUT"
             exit 1
           fi
           echo "::endgroup::"
@@ -128,7 +128,7 @@ jobs:
 
           if [ -z "$DATABASE_URL" ]; then
             echo "⚠️  DATABASE_URL not set - skipping history check"
-            echo "skipped=true" >> $GITHUB_OUTPUT
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
             echo "::endgroup::"
             exit 0
           fi
@@ -136,11 +136,11 @@ jobs:
           # Run verification script
           if ./scripts/verify-migration-history.sh; then
             echo "✅ Migration history verified"
-            echo "valid=true" >> $GITHUB_OUTPUT
+            echo "valid=true" >> "$GITHUB_OUTPUT"
           else
             echo "⚠️  Migration history check completed with warnings"
             echo "Check output above for details"
-            echo "valid=true" >> $GITHUB_OUTPUT  # Don't fail on warnings
+            echo "valid=true" >> "$GITHUB_OUTPUT"  # Don't fail on warnings
           fi
           echo "::endgroup::"
 
@@ -173,11 +173,11 @@ jobs:
 
           if [ ${#SYNTAX_ERRORS[@]} -eq 0 ]; then
             echo "✅ No obvious SQL syntax errors detected"
-            echo "valid=true" >> $GITHUB_OUTPUT
+            echo "valid=true" >> "$GITHUB_OUTPUT"
           else
             echo "❌ SQL syntax issues found:"
             printf '  - %s\n' "${SYNTAX_ERRORS[@]}"
-            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "valid=false" >> "$GITHUB_OUTPUT"
             exit 1
           fi
           echo "::endgroup::"

@@ -333,7 +333,7 @@ return response as T
 
 ### Transformation Utilities Found
 | File | Functions | Lines | Status |
-|------|-----------|-------|--------|
+| --- | --- | --- | --- |
 | client/src/services/utils/caseTransform.ts | 3 | 136 | ❌ DELETE |
 | server/src/utils/case.ts | 4 | 72 | ❌ DELETE |
 | server/src/middleware/responseTransform.ts | 1 (active) | 157 | ❌ DISABLE |
@@ -343,7 +343,7 @@ return response as T
 
 ### API Violations by Route
 | Route | Violations | Severity |
-|-------|-----------|----------|
+| --- | --- | --- |
 | /api/v1/auth/* | 8 | HIGH |
 | /api/v1/orders/* | 3 | HIGH |
 | /api/v1/menu/* | 5 | HIGH |
@@ -352,7 +352,7 @@ return response as T
 
 ### Type Violations
 | File | Interfaces | Properties | Severity |
-|------|-----------|-----------|----------|
+| --- | --- | --- | --- |
 | shared/api-types.ts | 6 | 25+ | HIGH |
 | shared/types/transformers.ts | 5 | 40+ | CRITICAL |
 | server/src/mappers/menu.mapper.ts | 2 | 12 | HIGH |

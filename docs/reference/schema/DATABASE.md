@@ -1,5 +1,8 @@
 # Database Schema Documentation
 
+
+**Last Updated:** 2025-11-01
+
 [Home](../../../index.md) > [Docs](../../README.md) > [Reference](../README.md) > [Schema](./README.md) > Database
 
 **Last Updated**: October 30, 2025
@@ -23,7 +26,7 @@ The canonical database schema is defined in:
 Primary tenant table - all data is scoped to a restaurant.
 
 | Column | Type | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | id | UUID | Primary key |
 | name | VARCHAR(255) | Restaurant name |
 | address | TEXT | Physical address |
@@ -87,7 +90,7 @@ private static async getRestaurantTaxRate(restaurantId: string): Promise<number>
 User accounts with role-based access.
 
 | Column | Type | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | id | UUID | Primary key |
 | email | VARCHAR(255) | Unique email |
 | password_hash | TEXT | Bcrypt hash |
@@ -100,7 +103,7 @@ User accounts with role-based access.
 Restaurant menu catalog with modifiers and voice AI aliases.
 
 | Column | Type | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | id | UUID | Primary key |
 | restaurant_id | UUID | FK to restaurants |
 | name | VARCHAR(255) | Item name |
@@ -164,7 +167,7 @@ CREATE INDEX idx_menu_items_available ON menu_items(restaurant_id, available);
 Customer orders with embedded items and payment info.
 
 | Column | Type | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | id | UUID | Primary key |
 | restaurant_id | UUID | FK to restaurants |
 | order_number | VARCHAR(50) | Human-readable number (e.g., "1234") |
@@ -274,7 +277,7 @@ ALTER TABLE orders
 Restaurant floor tables.
 
 | Column | Type | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | id | UUID | Primary key |
 | restaurant_id | UUID | FK to restaurants |
 | number | VARCHAR(10) | Table identifier |
@@ -286,7 +289,7 @@ Restaurant floor tables.
 Immutable payment audit trail for PCI compliance.
 
 | Column | Type | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | id | UUID | Primary key |
 | restaurant_id | UUID | FK to restaurants |
 | order_id | UUID | FK to orders (nullable) |
@@ -341,7 +344,7 @@ CREATE INDEX idx_payment_audit_transaction ON payment_audit_logs(transaction_id)
 Security and compliance audit trail.
 
 | Column | Type | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | id | UUID | Primary key |
 | user_id | UUID | FK to users |
 | restaurant_id | UUID | FK to restaurants |
@@ -839,7 +842,7 @@ router.put('/batch', async (req, res, next) => {
 **Benchmark** (50 table updates):
 
 | Method | Network Round-trips | Time | Relative |
-|--------|---------------------|------|----------|
+| --- | --- | --- | --- |
 | **Promise.all (N queries)** | 50 | 1000-2000ms | 1x (baseline) |
 | **Bulk RPC (single query)** | 1 | 25-50ms | **40x faster** |
 
@@ -1200,7 +1203,7 @@ ORDER BY date DESC;
 ### Optimistic vs Pessimistic Locking
 
 | Aspect | Optimistic Locking | Pessimistic Locking |
-|--------|-------------------|---------------------|
+| --- | --- | --- |
 | **Lock Timing** | At update time | At read time |
 | **Pattern** | Read → Update with version check | SELECT FOR UPDATE → Update |
 | **Conflicts** | Detected after fact, retry | Prevented upfront, wait |
@@ -1326,7 +1329,7 @@ Key metrics to monitor:
 ## Related Documentation
 
 - [Menu System](./MENU_SYSTEM.md) - Menu management & fall menu deployment
-- [Square Integration](./DEPLOYMENT.md#square-integration) - Payment processing & terminal API
+- [Square Integration](../../how-to/operations/DEPLOYMENT.md#square-integration) - Payment processing & terminal API
 - [Order Flow](./ORDER_FLOW.md) - Complete customer ordering journey
 - [API Documentation](api/README.md) - All API endpoints
 - [Environment Variables](ENVIRONMENT.md) - Configuration guide

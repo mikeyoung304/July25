@@ -1,5 +1,8 @@
 # AGENTS.md — Moved to Canonical Documentation
 
+
+**Last Updated:** 2025-11-01
+
 **This file has been merged into canonical documentation.**
 
 ## Security Rails

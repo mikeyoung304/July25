@@ -77,7 +77,7 @@ The Grow App demonstrates **excellent security fundamentals** with proper authen
 ## Security Scores
 
 | Category | Score | Grade |
-|----------|-------|-------|
+| --- | --- | --- |
 | Code Quality | 8.5/10 | 🟢 A |
 | Authentication | 9.0/10 | 🟢 A |
 | Data Protection | 9.0/10 | 🟢 A |

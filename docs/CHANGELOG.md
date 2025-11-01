@@ -1665,7 +1665,7 @@ Console errors showed CORS blocking `X-Client-Flow` header sent during order sub
   - Created validation script: `scripts/validate-square-credentials.sh`
   - Added startup validation in `payments.routes.ts`
   - Validates token, location ID, and payment permissions
-  - See: [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems)
+  - See: [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](how-to/operations/DEPLOYMENT.md#incidents-postmortems)
 
 - **Idempotency Key Length**
   - Shortened from 93 to 26 characters
@@ -1742,8 +1742,8 @@ Console errors showed CORS blocking `X-Client-Flow` header sent during order sub
 - **Prevention ROI**: 10 seconds (validation) vs 4+ hours (debugging)
 
 ### 🔗 Related Documentation
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems)
-- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration)
+- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](how-to/operations/DEPLOYMENT.md#incidents-postmortems)
+- [SQUARE_INTEGRATION.md](how-to/operations/DEPLOYMENT.md#square-integration)
 - [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md)
 
 ## [6.0.6] - 2025-09-13 - Performance & Stability Sprint
@@ -2045,7 +2045,7 @@ Console errors showed CORS blocking `X-Client-Flow` header sent during order sub
 ## Version History Summary
 
 | Version | Date | Status | Key Changes |
-|---------|------|--------|-------------|
+| --- | --- | --- | --- |
 | 6.0.3 | 2025-02-01 | Current | Authentication & RBAC complete |
 | 6.0.2 | 2025-01-30 | Stable | TypeScript fixes, documentation |
 | 6.0.1 | 2025-01-27 | Stable | Order flow stability |

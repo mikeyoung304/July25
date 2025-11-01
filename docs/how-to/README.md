@@ -13,7 +13,7 @@ Guides for deploying, running, and maintaining Restaurant OS in production:
 - [Deployment Guide](./operations/DEPLOYMENT.md) - Deploy Restaurant OS to production
 - [Deployment Checklist](./operations/DEPLOYMENT_CHECKLIST.md) - Pre-flight verification
 - [KDS Bible](./operations/KDS-BIBLE.md) - Kitchen Display System operations
-- [Runbooks](./operations/runbooks/) - Operational procedures and playbooks
+- [Runbooks](./operations/runbooks/README.md) - Operational procedures and playbooks
 
 ## Development
 

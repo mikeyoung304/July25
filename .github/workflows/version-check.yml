@@ -104,7 +104,7 @@ jobs:
           missing=$(find docs/ -name "*.md" -type f \
             -not -path "docs/archive/*" \
             -not -path "docs/tutorials/*" \
-            | while read file; do
+            | while read -r file; do
                 if ! head -20 "$file" | grep -q "Last Updated"; then
                   echo "$file"
                 fi
@@ -127,7 +127,7 @@ jobs:
           echo ""
 
           # Count markdown files at root (should be exactly 4)
-          count=$(ls -1 *.md 2>/dev/null | wc -l | tr -d ' ')
+          count=$(find . -maxdepth 1 -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
           echo "📄 Root markdown files found: $count"
 
           if [ "$count" -ne 4 ]; then
@@ -136,7 +136,7 @@ jobs:
             echo "Expected 4 files (README.md, index.md, SECURITY.md, CONTRIBUTING.md), found $count"
             echo ""
             echo "Current root markdown files:"
-            ls -1 *.md
+            find . -maxdepth 1 -name "*.md" -type f -exec basename {} \;
             exit 1
           fi
 

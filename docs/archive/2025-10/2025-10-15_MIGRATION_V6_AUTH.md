@@ -44,14 +44,14 @@ const response = await httpClient.get('/api/v1/auth/me');
 ### ❌ Removed Endpoints
 
 | Endpoint | Method | Replacement |
-|----------|--------|-------------|
+| --- | --- | --- |
 | `/api/v1/auth/login` | POST | `supabase.auth.signInWithPassword()` |
 | `/api/v1/auth/refresh` | POST | Supabase auto-refresh |
 
 ### ✅ Kept Endpoints
 
 | Endpoint | Method | Purpose |
-|----------|--------|---------|
+| --- | --- | --- |
 | `/api/v1/auth/me` | GET | Fetch user profile + role |
 | `/api/v1/auth/pin-login` | POST | PIN-based authentication |
 | `/api/v1/auth/station-login` | POST | Kitchen display authentication |

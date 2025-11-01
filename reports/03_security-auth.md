@@ -81,7 +81,7 @@ scriptSrc: isDevelopment
 **Location**: `/server/src/middleware/rateLimiter.ts`
 
 | Endpoint Type | Window | Max Requests | Skip in Dev |
-|--------------|--------|--------------|-------------|
+| --- | --- | --- | --- |
 | General API | 15 min | 1000 | Yes |
 | Voice Orders | 1 min | 100 | Yes |
 | Auth | 15 min | 5 | No |
@@ -178,7 +178,7 @@ server/tests/security/rbac.proof.test.ts
 
 ### Scoring Breakdown
 | Category | Score | Weight |
-|----------|-------|--------|
+| --- | --- | --- |
 | Authentication | 85/100 | 25% |
 | Authorization (RBAC) | 95/100 | 20% |
 | Headers & CSP | 90/100 | 15% |
@@ -232,7 +232,7 @@ function verifyWebhookSignature(req: Request): boolean {
 ## 📊 Compliance Status
 
 | Standard | Status | Notes |
-|----------|--------|-------|
+| --- | --- | --- |
 | OWASP Top 10 | ✅ 8/10 | Missing: Logging, Monitoring |
 | PCI DSS | ⚠️ Partial | Need: Encryption at rest, Key management |
 | SOC 2 | ⚠️ Partial | Need: Audit logs, Access reviews |

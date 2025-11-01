@@ -15,7 +15,7 @@
 
 ### Active AI Providers
 | Provider | Usage | Files | Status |
-|----------|-------|-------|--------|
+| --- | --- | --- | --- |
 | OpenAI | Voice, Chat, TTS | 30 files | ✅ ACTIVE |
 | WebRTC | Voice streaming | 20 files | ✅ ACTIVE |
 | Twilio | Phone integration | 3 files | ⚠️ PARTIAL |

@@ -144,7 +144,7 @@ graph TD
 The AI is trained to ask contextual questions:
 
 | Item Type | AI Asks About |
-|-----------|---------------|
+| --- | --- |
 | Salads | Dressing choice, add protein? |
 | Sandwiches | Bread type, toasted?, side choice |
 | Burgers | How cooked?, cheese?, add bacon? |
@@ -266,7 +266,7 @@ location.reload();
 ## Performance Metrics
 
 | Metric | Target | Current | Notes |
-|--------|--------|---------|-------|
+| --- | --- | --- | --- |
 | Connection Time | <1s | ~500ms | Time to establish WebRTC |
 | First Word | <300ms | ~200ms | When transcription starts |
 | Complete Order | <2s | ~1.6s | Full round trip |
@@ -393,7 +393,7 @@ http://localhost:5173/kiosk
 ### Key Files to Know:
 
 | File | Purpose |
-|------|---------|
+| --- | --- |
 | `WebRTCVoiceClient.ts` | Core voice engine |
 | `VoiceControlWebRTC.tsx` | UI component |
 | `realtime.routes.ts` | Backend API |

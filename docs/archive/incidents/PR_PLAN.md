@@ -904,13 +904,13 @@ describe('Order Creation Flows - Integration', () => {
 ### Track B Timeline & Milestones
 
 | Phase | Task | Hours | Milestone |
-|-------|------|-------|-----------|
+| --- | --- | --- | --- |
 | 1 | Tax Rate API | 2-3 | Centralized tax configuration |
 | 2 | Strict Validation | 1 | Server rejects invalid totals |
 | 3 | Idempotency Keys | 2-3 | No duplicate orders |
 | 4 | Unified Voice Service | 3-4 | Single voice processing path |
 | 5 | Integration Tests | 2-3 | Comprehensive test coverage |
-| **Total** | | **10-16 hours** | **~2 days** |
+| **Total** | - | **10-16 hours** | **~2 days** |
 
 ---
 
@@ -964,7 +964,7 @@ describe('Order Creation Flows - Integration', () => {
 ### Track A Risks
 
 | Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
+| --- | --- | --- | --- |
 | Migration breaks RPC | Low | High | Test in staging first |
 | Voice total calculation breaks | Low | Medium | Add comprehensive tests |
 | Tax rate mismatch during transition | Medium | Low | Use same rate (8.25%) everywhere |
@@ -973,7 +973,7 @@ describe('Order Creation Flows - Integration', () => {
 ### Track B Risks
 
 | Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
+| --- | --- | --- | --- |
 | Strict validation rejects valid orders | Low | High | Test thoroughly in staging |
 | Tax rate API latency | Low | Medium | Implement caching (1 hour TTL) |
 | Idempotency key collisions | Very Low | Medium | Use UUID + timestamp |

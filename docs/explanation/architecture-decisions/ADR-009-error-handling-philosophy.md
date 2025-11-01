@@ -93,7 +93,7 @@ We adopt a **fail-fast by default** error handling philosophy with explicit deci
 Use this matrix when deciding error handling strategy:
 
 | Operation Type | Examples | Error Handling | Rationale |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Compliance-Critical** | Payment audit logs, access logs, PII access tracking | **FAIL-FAST** (throw) | Regulatory requirements, legal liability |
 | **Financial Transactions** | Payment processing, refunds, order totals | **FAIL-FAST** (throw) | Financial accuracy required |
 | **Authentication** | Login, token validation, session checks | **FAIL-FAST** (throw) | Security requirement |

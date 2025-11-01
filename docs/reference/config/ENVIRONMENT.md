@@ -1,5 +1,8 @@
 # Environment Variables Guide
 
+
+**Last Updated:** 2025-11-01
+
 **Last Updated**: 2025-10-31
 
 ## Overview
@@ -27,7 +30,7 @@ All client-side variables **MUST** have the `VITE_` prefix to be accessible in t
 
 ### Required
 | Variable | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
+| --- | --- | --- | --- | --- |
 | VITE_API_BASE_URL | url | ✅ Yes | - | Backend API URL (http://localhost:3001 for dev) |
 | VITE_SUPABASE_URL | url | ✅ Yes | - | Supabase project URL (https://[project].supabase.co) |
 | VITE_SUPABASE_ANON_KEY | string | ✅ Yes | - | Supabase anonymous/public key for client-side auth |
@@ -36,20 +39,20 @@ All client-side variables **MUST** have the `VITE_` prefix to be accessible in t
 
 ### Square Payment Integration
 | Variable | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
+| --- | --- | --- | --- | --- |
 | VITE_SQUARE_APP_ID | string | ✅ Yes (for payments) | - | Square application ID (Web SDK) |
 | VITE_SQUARE_LOCATION_ID | string | ✅ Yes (for payments) | - | Square location ID for web payments |
 | VITE_SQUARE_ENVIRONMENT | string | ✅ Yes (for payments) | sandbox | Square environment ('sandbox' or 'production') - must match server |
 
 ### AI & Voice Features
 | Variable | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
+| --- | --- | --- | --- | --- |
 | VITE_OPENAI_API_KEY | string | ❌ No | - | OpenAI API key for client-side voice WebRTC features |
 | VITE_USE_REALTIME_VOICE | boolean | ❌ No | false | Enable real-time voice assistant features |
 
 ### Development & Debugging
 | Variable | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
+| --- | --- | --- | --- | --- |
 | VITE_DEBUG_VOICE | boolean | ❌ No | false | Enable voice/menu debugging logs |
 | VITE_USE_MOCK_DATA | boolean | ❌ No | false | Use mock data instead of real API calls (dev only) |
 | VITE_ENABLE_PERF | boolean | ❌ No | false | Enable performance monitoring and metrics |
@@ -59,7 +62,7 @@ All client-side variables **MUST** have the `VITE_` prefix to be accessible in t
 
 ### Required
 | Variable | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
+| --- | --- | --- | --- | --- |
 | PORT | number | ✅ Yes | 3001 | Server port number |
 | NODE_ENV | string | ✅ Yes | development | Environment mode (development/production) |
 | DATABASE_URL | string | ✅ Yes | - | PostgreSQL connection string |
@@ -71,12 +74,12 @@ All client-side variables **MUST** have the `VITE_` prefix to be accessible in t
 
 ### AI & Integrations
 | Variable | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
+| --- | --- | --- | --- | --- |
 | OPENAI_API_KEY | string | ✅ Yes | - | OpenAI API key for AI features and voice assistant |
 
 ### Payments
 | Variable | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
+| --- | --- | --- | --- | --- |
 | SQUARE_ACCESS_TOKEN | string | ✅ Yes (for payments) | - | Square API access token (sandbox: SB*, production: EAAA*) |
 | SQUARE_LOCATION_ID | string | ✅ Yes (for payments) | - | Square location ID for payment processing |
 | SQUARE_ENVIRONMENT | string | ✅ Yes | sandbox | Square environment ('sandbox' or 'production') |
@@ -84,7 +87,7 @@ All client-side variables **MUST** have the `VITE_` prefix to be accessible in t
 
 ### Security & Authentication
 | Variable | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
+| --- | --- | --- | --- | --- |
 | PIN_PEPPER | string | ✅ Yes | - | Secret pepper for PIN hashing (generate random string) |
 | DEVICE_FINGERPRINT_SALT | string | ✅ Yes | - | Salt for device fingerprinting in station auth |
 | FRONTEND_URL | url | ✅ Yes | http://localhost:5173 | Frontend application URL for CORS configuration |
@@ -93,7 +96,7 @@ All client-side variables **MUST** have the `VITE_` prefix to be accessible in t
 
 ### Performance & Monitoring
 | Variable | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
+| --- | --- | --- | --- | --- |
 | CACHE_TTL_SECONDS | number | ❌ No | 300 | Cache time-to-live in seconds (5 minutes) |
 | RATE_LIMIT_WINDOW_MS | number | ❌ No | 60000 | Rate limit time window in milliseconds (1 minute) |
 | RATE_LIMIT_MAX_REQUESTS | number | ❌ No | 100 | Maximum requests per rate limit window |

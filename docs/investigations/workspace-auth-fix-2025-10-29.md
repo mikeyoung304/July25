@@ -1,4 +1,7 @@
 # Workspace Authentication Flow Fix - Investigation Report
+
+**Last Updated:** 2025-10-29
+
 **Date:** 2025-10-29
 **Issue:** Users authenticated but lacking permissions after workspace role selection
 **Root Cause:** `/auth/me` endpoint missing restaurant access validation
@@ -128,7 +131,7 @@ WHERE u.email IN ('kitchen@restaurant.com', 'server@restaurant.com',
 ```
 
 | Email | Restaurant ID | Role | Active |
-|-------|--------------|------|--------|
+| --- | --- | --- | --- |
 | expo@restaurant.com | 11111111-... | expo | true |
 | kitchen@restaurant.com | 11111111-... | kitchen | true |
 | manager@restaurant.com | 11111111-... | manager | true |
@@ -556,7 +559,7 @@ ORDER BY role, scope;
 ```
 
 | role | scope |
-|------|-------|
+| --- | --- |
 | kitchen | orders:read |
 | kitchen | orders:status |
 | server | orders:create |

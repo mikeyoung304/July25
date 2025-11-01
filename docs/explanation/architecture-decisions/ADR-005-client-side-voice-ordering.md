@@ -579,7 +579,7 @@ Sessions are isolated - no crosstalk between customers.
 ### Latency Benchmarks
 
 | Metric | Target | Measured | Status |
-|--------|--------|----------|--------|
+| --- | --- | --- | --- |
 | Connection establishment | <1s | ~500ms | ✅ |
 | First word transcribed | <300ms | ~200ms | ✅ |
 | Complete order round-trip | <2s | ~1.6s | ✅ |
@@ -588,7 +588,7 @@ Sessions are isolated - no crosstalk between customers.
 ### Accuracy Metrics
 
 | Metric | Target | Measured | Status |
-|--------|--------|----------|--------|
+| --- | --- | --- | --- |
 | Speech recognition | >95% | ~97% | ✅ |
 | Menu item matching | >90% | ~93% | ✅ |
 | Modification detection | >85% | ~88% | ✅ |

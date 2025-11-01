@@ -88,8 +88,8 @@ But database/shared types include `"picked-up"`:
 ```typescript
 // From @rebuild/shared
 export type OrderStatus =
-  | 'new' | 'pending' | 'confirmed' | 'preparing'
-  | 'ready' | 'picked-up' | 'completed' | 'cancelled'
+  | 'new' | 'pending' | 'confirmed' | 'preparing' |
+  | 'ready' | 'picked-up' | 'completed' | 'cancelled' |
 ```
 
 **Fix Required**: Add `"picked-up"` status to all Record types:
@@ -809,7 +809,7 @@ function getFirstItemName(order: Order): string | undefined {
 ### Type Safety Metrics
 
 | Metric | Count | Status |
-|--------|-------|--------|
+| --- | --- | --- |
 | **Active Type Errors** | 5 | 🔴 P0 |
 | **Explicit `any` Usage** | 350+ | 🟡 P1 |
 | **Type Assertions (`as any`)** | 200+ | 🟡 P2 |

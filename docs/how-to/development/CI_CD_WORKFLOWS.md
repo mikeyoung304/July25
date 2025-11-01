@@ -1,5 +1,8 @@
 # CI/CD Workflows for Database Migrations
 
+
+**Last Updated:** 2025-11-01
+
 [Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Development](./README.md) > CI/CD Workflows
 
 **Part of:** Phase 2 - Stable CI/CD Automation
@@ -318,27 +321,27 @@ WHERE version = '20251023_add_column';
 
 ```
 Developer                     GitHub Actions                 Production
-    |                               |                              |
-    |--- git push origin main ----->|                              |
-    |                               |                              |
-    |                        Detect migration files               |
-    |                               |                              |
-    |                        Deploy to database ------------------>|
-    |                         (1-2 minutes)                        |
-    |                               |                              |
-    |                               |<-------- Migration applied --|
-    |                               |                              |
-    |                        Post success notification            |
-    |<------------------------      |                              |
-    |                               |                              |
-    |                         Meanwhile...                         |
-    |                               |                              |
-    |                        Vercel/Render build                   |
-    |                         (3-5 minutes)                        |
-    |                               |                              |
-    |                               |------ Deploy code ---------->|
-    |                               |                              |
-    |                               |     (Database already ready) |
+    | --- | --- |
+    | --- git push origin main -----> |  |
+    | --- | --- |
+    | Detect migration files |
+    | --- | --- |
+    | Deploy to database ------------------> |
+    | (1-2 minutes) |
+    | --- | --- |
+    |  | <-------- Migration applied -- |
+    | --- | --- |
+    | Post success notification |
+    | <------------------------ |  |
+    | --- | --- |
+    | Meanwhile... |
+    | --- | --- |
+    | Vercel/Render build |
+    | (3-5 minutes) |
+    | --- | --- |
+    |  | ------ Deploy code ----------> |
+    | --- | --- |
+    |  | (Database already ready) |
 ```
 
 **Key guarantee:** Database migration completes before code deployment starts.

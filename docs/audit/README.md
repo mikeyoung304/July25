@@ -6,6 +6,9 @@
 
 - **`codebase-audit-2025-10-19.json`** - Summary report with all 8 agent conclusions (50 lines)
 - **`codebase-audit-detailed-2025-10-19.json`** - Comprehensive detailed report with 163 findings (400+ lines)
+- [Action Checklist](./ACTION_CHECKLIST.md) - Prioritized action items from audit
+- [P0 Fix Roadmap](./P0-FIX-ROADMAP.md) - Critical fixes roadmap
+- [Tracking Quick Reference](./TRACKING-QUICK-REFERENCE.md) - Quick reference for tracking progress
 
 ## 🎯 Quick Start - Immediate Actions
 
@@ -61,7 +64,7 @@
 ## 🚀 Quick Wins (High Impact, Low Effort)
 
 | Task | Effort | Impact | File |
-|------|--------|--------|------|
+| --- | --- | --- | --- |
 | Add database indexes | 1 hour | 90% query speedup | Migration file |
 | Fix ElapsedTimer | 1 hour | Critical UX fix | ElapsedTimer.tsx |
 | Combine duplicate filters | 2-3 hours | 80% reduction | useKitchenOrdersOptimized.ts |

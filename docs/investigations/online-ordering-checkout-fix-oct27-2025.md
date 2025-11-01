@@ -1,5 +1,8 @@
 # Investigation Report: Online Ordering Checkout Fix
 
+
+**Last Updated:** 2025-10-27
+
 **Date**: October 27, 2025
 **Version**: 6.0.13
 **Severity**: P0 - Production Blocking
@@ -21,7 +24,7 @@ Online ordering checkout was completely broken for ALL demo users due to a datab
 ## Timeline
 
 | Time | Event |
-|------|-------|
+| --- | --- |
 | **12:30 PM** | User requested Puppeteer test of online ordering |
 | **12:35 PM** | Puppeteer successfully navigated through order flow |
 | **12:36 PM** | Checkout failed with "Internal server error" |
@@ -464,7 +467,7 @@ SELECT COUNT(*) FROM payment_audit_logs;
 ### Compliance Check
 
 | Requirement | Status | Notes |
-|------------|--------|-------|
+| --- | --- | --- |
 | **PCI DSS** | ✅ PASS | Full audit trail preserved |
 | **GDPR** | ✅ PASS | Demo users ephemeral (no PII stored) |
 | **Multi-Tenancy** | ✅ PASS | restaurant_id isolation unchanged |
@@ -506,8 +509,8 @@ SELECT COUNT(*) FROM payment_audit_logs;
 - [ADR-009: Error Handling Philosophy](../ADR-009-error-handling-philosophy.md)
 - [AUTHENTICATION_ARCHITECTURE.md](../AUTHENTICATION_ARCHITECTURE.md)
 - [SECURITY.md](../SECURITY.md)
-- [TROUBLESHOOTING.md](../TROUBLESHOOTING.md#payment-failures)
-- [CHANGELOG.md](../../CHANGELOG.md) - v6.0.13
+- [TROUBLESHOOTING.md](../how-to/troubleshooting/TROUBLESHOOTING.md#payment-failures)
+- [CHANGELOG.md](../CHANGELOG.md) - v6.0.13
 
 ---
 

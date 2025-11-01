@@ -1,4 +1,7 @@
 # Table Ordering & Payment Workflow Best Practices
+
+**Last Updated:** 2025-10-30
+
 ## Competitive Analysis & Implementation Recommendations
 
 **Date:** October 29, 2025
@@ -21,7 +24,7 @@ This report analyzes how leading restaurant POS/KDS systems (Toast, Square, Ligh
 ### Priority Recommendations
 
 | Priority | Feature | Effort | Impact | Timeline |
-|----------|---------|--------|--------|----------|
+| --- | --- | --- | --- | --- |
 | P0 | Sequential seat ordering with "Finish Table" | Medium | High | 2-3 days |
 | P0 | Check closing with tender selection (Cash/Card) | Medium | High | 2-3 days |
 | P1 | Table status automation post-payment | Low | Medium | 1 day |
@@ -808,8 +811,8 @@ Response:
 ### Feature Comparison Matrix
 
 | Feature | Toast | Square | Lightspeed | Clover | **Your System** | Gap |
-|---------|-------|--------|------------|--------|----------------|-----|
-| **Seat Ordering** |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Seat Ordering** | - | - | - | - | - | - |
 | Sequential seat workflow | ✅ | ✅ | ✅ | ✅ | ❌ | **Critical** |
 | "Add Next Seat" button | ✅ | ✅ | ✅ | ✅ | ❌ | **Critical** |
 | "Finish Table" button | ✅ (Send) | ✅ (Charge) | ✅ (Send) | ✅ | ❌ | **Critical** |
@@ -817,7 +820,7 @@ Response:
 | Move items between seats | ✅ | ✅ | ✅ | ✅ | ❌ | Medium |
 | Visual seat status indicator | ✅ | ✅ | ✅ | ✅ | ❌ | Medium |
 | Course management | ✅ | ⚠️ | ✅ | ✅ | ❌ | Low |
-| **Payment & Checkout** |
+| **Payment & Checkout** | - | - | - | - | - | - |
 | Tender selection screen | ✅ | ✅ | ✅ | ✅ | ❌ | **Critical** |
 | Cash payment option | ✅ | ✅ | ✅ | ✅ | ❌ | **Critical** |
 | Card payment | ✅ | ✅ | ✅ | ✅ | ✅ | - |
@@ -827,12 +830,12 @@ Response:
 | Digital signature | ✅ | ✅ | ⚠️ | ✅ | ⚠️ | Low |
 | Receipt options | ✅ | ✅ | ✅ | ✅ | ⚠️ | Low |
 | Split tender (cash + card) | ✅ | ✅ | ✅ | ✅ | ❌ | Low |
-| **Split Check** |
+| **Split Check** | - | - | - | - | - | - |
 | Split by seat | ✅ | ✅ | ✅ | ✅ | ❌ | High |
 | Split by item | ✅ | ✅ | ✅ | ✅ | ❌ | High |
 | Split evenly | ✅ | ✅ | ⚠️ | ⚠️ | ❌ | Medium |
 | Fractional item split | ✅ | ✅ | ⚠️ | ⚠️ | ❌ | Low |
-| **Table Management** |
+| **Table Management** | - | - | - | - | - | - |
 | Table status tracking | ✅ | ✅ | ✅ | ✅ | ✅ | - |
 | Auto status update on payment | ✅ | ✅ | ✅ | ⚠️ | ❌ | High |
 | Table-to-order linking | ✅ | ✅ | ✅ | ✅ | ✅ | - |
@@ -2392,12 +2395,12 @@ export interface Order {
 // shared/types/table.types.ts
 
 export type TableStatus =
-  | 'available'
-  | 'reserved'
-  | 'seated'
-  | 'occupied'
-  | 'paid'
-  | 'cleaning'
+  | 'available' |
+  | 'reserved' |
+  | 'seated' |
+  | 'occupied' |
+  | 'paid' |
+  | 'cleaning' |
 ```
 
 ---

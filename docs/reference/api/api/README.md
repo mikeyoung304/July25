@@ -1,5 +1,8 @@
 # API Documentation
 
+
+**Last Updated:** 2025-11-01
+
 [Home](../../../../index.md) > [Docs](../../../README.md) > [Reference](../../README.md) > [API](../README.md) > API Reference
 
 **OpenAPI Specification**: [openapi.yaml](../openapi.yaml)
@@ -33,14 +36,14 @@ Authorization: Bearer <your-jwt-token>
 ### Health & Monitoring
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | GET | `/health` | No | Health check endpoint | [health.routes.ts](../../server/src/routes/health.routes.ts) |
 | GET | `/metrics` | No | Prometheus metrics | [metrics.ts](../../server/src/routes/metrics.ts) |
 
 ### Authentication
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | POST | `/api/auth/login` | No | Email/password login | [auth.routes.ts](../../server/src/routes/auth.routes.ts) |
 | POST | `/api/auth/pin` | No | PIN-based login | [auth.routes.ts](../../server/src/routes/auth.routes.ts) |
 | POST | `/api/auth/station` | No | Station device login | [auth.routes.ts](../../server/src/routes/auth.routes.ts) |
@@ -50,7 +53,7 @@ Authorization: Bearer <your-jwt-token>
 ### Restaurant Management
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | GET | `/api/restaurants` | Yes | List restaurants | [restaurants.routes.ts](../../server/src/routes/restaurants.routes.ts) |
 | GET | `/api/restaurants/:id` | Yes | Get restaurant details | [restaurants.routes.ts](../../server/src/routes/restaurants.routes.ts) |
 | PUT | `/api/restaurants/:id` | Yes | Update restaurant | [restaurants.routes.ts](../../server/src/routes/restaurants.routes.ts) |
@@ -58,7 +61,7 @@ Authorization: Bearer <your-jwt-token>
 ### Menu Management
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | GET | `/api/menu` | Yes | Get menu items | [menu.routes.ts](../../server/src/routes/menu.routes.ts) |
 | GET | `/api/menu/:id` | Yes | Get menu item details | [menu.routes.ts](../../server/src/routes/menu.routes.ts) |
 | POST | `/api/menu` | Yes | Create menu item | [menu.routes.ts](../../server/src/routes/menu.routes.ts) |
@@ -68,7 +71,7 @@ Authorization: Bearer <your-jwt-token>
 ### Order Management
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | GET | `/api/orders` | Yes | List orders | [orders.routes.ts](../../server/src/routes/orders.routes.ts) |
 | GET | `/api/orders/:id` | Yes | Get order details | [orders.routes.ts](../../server/src/routes/orders.routes.ts) |
 | POST | `/api/orders` | Yes | Create order | [orders.routes.ts](../../server/src/routes/orders.routes.ts) |
@@ -78,7 +81,7 @@ Authorization: Bearer <your-jwt-token>
 ### Table Management
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | GET | `/api/tables` | Yes | List tables | [tables.routes.ts](../../server/src/routes/tables.routes.ts) |
 | GET | `/api/tables/:id` | Yes | Get table details | [tables.routes.ts](../../server/src/routes/tables.routes.ts) |
 | POST | `/api/tables` | Yes | Create table | [tables.routes.ts](../../server/src/routes/tables.routes.ts) |
@@ -87,7 +90,7 @@ Authorization: Bearer <your-jwt-token>
 ### Payment Processing
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | POST | `/api/payments/process` | Yes | Process payment | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
 | POST | `/api/payments/refund` | Yes | Process refund | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
 | GET | `/api/payments/:id` | Yes | Get payment details | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
@@ -95,7 +98,7 @@ Authorization: Bearer <your-jwt-token>
 ### AI & Voice
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | POST | `/api/v1/ai/voice/handshake` | Yes | Initialize voice session | [ai.routes.ts](../../server/src/routes/ai.routes.ts) |
 | POST | `/api/ai/voice/process` | Yes | Process voice command | [ai.routes.ts](../../server/src/routes/ai.routes.ts) |
 | GET | `/api/ai/voice/status` | Yes | Voice system status | [ai.routes.ts](../../server/src/routes/ai.routes.ts) |
@@ -103,21 +106,21 @@ Authorization: Bearer <your-jwt-token>
 ### Real-time & WebSockets
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | WS | `/ws` | Yes | WebSocket connection | [realtime.routes.ts](../../server/src/routes/realtime.routes.ts) |
 | WS | `/voice-stream` | Yes | Voice streaming | [realtime.routes.ts](../../server/src/routes/realtime.routes.ts) |
 
 ### Terminal Operations
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | POST | `/api/terminal/checkout` | Yes | Terminal checkout | [terminal.routes.ts](../../server/src/routes/terminal.routes.ts) |
 | POST | `/api/terminal/cancel` | Yes | Cancel terminal payment | [terminal.routes.ts](../../server/src/routes/terminal.routes.ts) |
 
 ### Security & Audit
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | GET | `/api/security/audit` | Yes | Get audit logs | [security.routes.ts](../../server/src/routes/security.routes.ts) |
 | GET | `/api/security/sessions` | Yes | Active sessions | [security.routes.ts](../../server/src/routes/security.routes.ts) |
 | POST | `/api/security/validate` | Yes | Validate permissions | [security.routes.ts](../../server/src/routes/security.routes.ts) |
@@ -125,7 +128,7 @@ Authorization: Bearer <your-jwt-token>
 ### Webhooks
 
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | POST | `/api/webhooks/square` | No* | Square webhooks | [webhook.routes.ts](../../server/src/routes/webhook.routes.ts) |
 | POST | `/api/webhooks/stripe` | No* | Stripe webhooks | [webhook.routes.ts](../../server/src/routes/webhook.routes.ts) |
 
@@ -175,7 +178,7 @@ X-CSRF-Token: <csrf-token>
 ## Status Codes
 
 | Code | Description |
-|------|-------------|
+| --- | --- |
 | 200 | Success |
 | 201 | Created |
 | 204 | No Content |

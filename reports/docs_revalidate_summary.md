@@ -27,7 +27,7 @@ All 18 violations are **legacy duplicate files** documented in `reports/orphan_t
 Older versions superseded by canonical `docs/*` files:
 
 | File | Canonical Version | Action |
-|------|-------------------|--------|
+| --- | --- | --- |
 | ARCHITECTURE.md | docs/ARCHITECTURE.md | Archive root |
 | AUTHENTICATION_ARCHITECTURE.md | docs/AUTHENTICATION_ARCHITECTURE.md | Archive root |
 | CHANGELOG.md | docs/CHANGELOG.md | Archive root |
@@ -92,7 +92,7 @@ All implementation claims verified:
 ## Progress Metrics
 
 | Metric | Before (Start) | After Phase 1 | After Phase 2 | After Phase 3 | Now |
-|--------|----------------|---------------|---------------|---------------|-----|
+| --- | --- | --- | --- | --- | --- |
 | **Total Errors** | 61 | 47 | 32 | 18 | **18** |
 | Orphans | 40 | 32 | 32 | 18 | **18** |
 | Stub Violations | 4 | 0 | 0 | 0 | **0** |

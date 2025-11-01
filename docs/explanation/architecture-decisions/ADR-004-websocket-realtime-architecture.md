@@ -558,7 +558,7 @@ AppState.addEventListener('change', (state) => {
 ### Latency Benchmarks
 
 | Event | Target | Measured | Status |
-|-------|--------|----------|--------|
+| --- | --- | --- | --- |
 | Order created → Kitchen display | <2s | ~500ms | ✅ |
 | Status update → All clients | <5s | ~1s | ✅ |
 | Reconnection after network drop | <10s | ~3s | ✅ |
@@ -567,7 +567,7 @@ AppState.addEventListener('change', (state) => {
 ### Scalability Tests
 
 | Metric | Target | Measured | Status |
-|--------|--------|----------|--------|
+| --- | --- | --- | --- |
 | Concurrent connections (single server) | 1000+ | 1500 | ✅ |
 | Connections per restaurant | 10+ | 20 | ✅ |
 | Broadcast latency (100 clients) | <500ms | ~200ms | ✅ |
@@ -576,7 +576,7 @@ AppState.addEventListener('change', (state) => {
 ### Reliability Metrics
 
 | Metric | Target | Measured | Status |
-|--------|--------|----------|--------|
+| --- | --- | --- | --- |
 | Dead connection detection | <120s | 60s | ✅ |
 | Automatic reconnection success rate | >95% | 98% | ✅ |
 | Message delivery success rate | >99.9% | 99.95% | ✅ |

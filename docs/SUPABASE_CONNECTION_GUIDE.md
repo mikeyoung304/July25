@@ -769,7 +769,7 @@ SELECT * FROM orders;  -- Returns only allowed rows
 ## Connection Summary
 
 | Method | Primary Use | Auth Required | When to Use |
-|--------|-------------|---------------|-------------|
+| --- | --- | --- | --- |
 | `supabase` CLI | Migrations, schema management | Project link | Deploying changes, managing migrations |
 | `psql` | Diagnostics, queries | Password | Verification, one-off queries |
 | Supabase Dashboard | Monitoring, manual changes | OAuth | Viewing data, emergency fixes |

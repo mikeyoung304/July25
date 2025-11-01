@@ -28,7 +28,7 @@
 ## Summary Matrix
 
 | Source File | Target(s) | Status | #Verified | #Weak | #No Evidence | Action |
-|-------------|-----------|--------|-----------|-------|--------------|--------|
+| --- | --- | --- | --- | --- | --- | --- |
 | **SQUARE_INTEGRATION.md** | DEPLOYMENT.md → #square-integration | PASS | 8 | 1 | 1 | Merge all verified |
 | **WEBSOCKET_EVENTS.md** | DEPLOYMENT.md → #websockets | PASS | 3 | 2 | 1 | Merge verified, quarantine weak |
 | **PRODUCTION_DIAGNOSTICS.md** | DEPLOYMENT.md → #production-diagnostics | PARTIAL | 3 | 1 | 0 | Update URLs, then merge |
@@ -753,7 +753,7 @@ None required.
 ## Path Corrections Summary
 
 | File | Current Path (Docs) | Corrected Path (Actual) | Action |
-|------|---------------------|-------------------------|--------|
+| --- | --- | --- | --- |
 | KDS-BIBLE.md | `client/src/modules/kitchen/*.tsx` | `client/src/pages/KitchenDisplay*.tsx` | Update references |
 | PRODUCTION_DIAGNOSTICS.md | `july25-client-*.vercel.app` | *(Current production URL)* | Update URLs |
 | PRODUCTION_DIAGNOSTICS.md | `rebuild-60-*.vercel.app` | *(Current production URL)* | Update URLs |

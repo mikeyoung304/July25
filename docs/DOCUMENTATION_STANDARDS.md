@@ -1,5 +1,8 @@
 # Documentation Standards
 
+
+**Last Updated:** 2025-11-01
+
 **Last Updated**: 2025-10-31
 **Version**: See [VERSION.md](VERSION.md)
 
@@ -198,7 +201,7 @@ Use lowercase with hyphens:
 Use tables for structured data:
 ```markdown
 | Column | Type | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | id | UUID | Primary key |
 | name | VARCHAR | Item name |
 ```
@@ -276,21 +279,21 @@ This performs a fast check of:
 ### API Endpoint Documentation
 ```markdown
 | Method | Path | Auth | Description | Source |
-|--------|------|------|-------------|--------|
+| --- | --- | --- | --- | --- |
 | GET | /api/orders | Yes | List orders | [orders.routes.ts](../server/src/routes/orders.routes.ts) |
 ```
 
 ### Configuration Documentation
 ```markdown
 | Variable | Required | Description | Default |
-|----------|----------|-------------|---------|
+| --- | --- | --- | --- |
 | PORT | Yes | Server port | 3001 |
 ```
 
 ### Error Documentation
 ```markdown
 | Code | Description | Resolution |
-|------|-------------|------------|
+| --- | --- | --- |
 | AUTH_FAILED | Authentication failed | Check token validity |
 ```
 

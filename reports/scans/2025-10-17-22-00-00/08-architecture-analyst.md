@@ -622,7 +622,7 @@ npm install @commitlint/cli@latest
 
 ### Codebase Metrics
 | Metric | Value | Threshold | Status |
-|--------|-------|-----------|--------|
+| --- | --- | --- | --- |
 | Total Files | 406 | N/A | ✅ |
 | Client LOC | 45,344 | <50,000 | ✅ |
 | Server LOC | ~12,000 | <20,000 | ✅ |
@@ -672,7 +672,7 @@ npm audit fix
 
 ### C. ADR Violations Summary
 | ADR | Title | Compliance | Violations |
-|-----|-------|------------|------------|
+| --- | --- | --- | --- |
 | ADR-001 | snake_case | ✅ FULL | None |
 | ADR-002 | Multi-tenancy | ✅ FULL | None |
 | ADR-003 | Embedded Orders | ⚠️ PARTIAL | Floor plan denorm |

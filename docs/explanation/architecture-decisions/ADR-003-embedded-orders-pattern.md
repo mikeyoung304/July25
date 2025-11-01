@@ -839,7 +839,7 @@ describe('Embedded Orders Pattern', () => {
 **Environment**: Supabase Cloud, 1000 orders with avg 3 items each
 
 | Operation | Embedded (JSONB) | Normalized (JOINs) | Improvement |
-|-----------|-----------------|-------------------|-------------|
+| --- | --- | --- | --- |
 | Fetch 1 order | ~5ms | ~25ms | 5x faster |
 | Fetch 100 orders | ~50ms | ~250ms | 5x faster |
 | Create order | ~15ms | ~30ms (transaction) | 2x faster |

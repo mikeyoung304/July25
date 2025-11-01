@@ -245,7 +245,7 @@ gh run logs <deploy-run-id> | grep "Square"
 ## 📋 Decision Matrix
 
 | Scenario | Solution | Timeline | Risk |
-|----------|----------|----------|------|
+| --- | --- | --- | --- |
 | **Need to test flows today** | Demo Mode | 5 min | Low |
 | **Need real payments this week** | Fix Audit Table | 30 min | Low |
 | **Gradual rollout preferred** | Hybrid | 1 hour | Very Low |

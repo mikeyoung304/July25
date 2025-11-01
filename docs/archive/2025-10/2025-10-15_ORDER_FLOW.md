@@ -363,43 +363,43 @@ See [Square Integration Documentation](./DEPLOYMENT.md#square-integration) for c
 
 ```
 Client                          Server                         Square
-  |                               |                               |
-  | GET /menu/items              |                               |
-  |----------------------------->|                               |
-  |<-----------------------------|                               |
-  |   (Menu items)               |                               |
-  |                               |                               |
-  | [User adds items to cart]    |                               |
-  | [localStorage persists]      |                               |
-  |                               |                               |
-  | POST /orders                 |                               |
-  |----------------------------->|                               |
-  |         order_id             | [Validates + Creates]         |
-  |         status: pending      |                               |
-  |<-----------------------------|                               |
-  |                               |                               |
-  | POST /payments/create        |                               |
-  |----------------------------->|                               |
-  |                               | POST /v2/online-checkout/... |
-  |                               |----------------------------->|
-  |                               |         checkout_url         |
-  |                               |<-----------------------------|
-  |    checkout_url redirect     |                               |
-  |<-----------------------------|                               |
-  |                               |                               |
-  |                          [User completes payment]            |
-  |------------------------------------------------------------->|
-  |                               |                               |
-  |                               |   payment.updated webhook    |
-  |                               |<-----------------------------|
-  |                               | [Updates order: confirmed]   |
-  |                               | [Creates payment audit log]  |
-  |                               | [Broadcasts WebSocket event] |
-  |                               |                               |
-  |                               | WebSocket: order_confirmed   |
-  |<-----------------------------|                               |
-  |                               |                               |
-  | Navigate to /order-confirmation                              |
+  | --- | --- |
+  | GET /menu/items |  |
+  | -----------------------------> |  |
+  | <----------------------------- |  |
+  | (Menu items) |  |
+  | --- | --- |
+  | [User adds items to cart] |  |
+  | [localStorage persists] |  |
+  | --- | --- |
+  | POST /orders |  |
+  | -----------------------------> |  |
+  | order_id | [Validates + Creates] |
+  | status: pending |  |
+  | <----------------------------- |  |
+  | --- | --- |
+  | POST /payments/create |  |
+  | -----------------------------> |  |
+  |  | POST /v2/online-checkout/... |
+  |  | -----------------------------> |
+  |  | checkout_url |
+  |  | <----------------------------- |
+  | checkout_url redirect |  |
+  | <----------------------------- |  |
+  | --- | --- |
+  | [User completes payment] |
+  | -------------------------------------------------------------> |
+  | --- | --- |
+  |  | payment.updated webhook |
+  |  | <----------------------------- |
+  |  | [Updates order: confirmed] |
+  |  | [Creates payment audit log] |
+  |  | [Broadcasts WebSocket event] |
+  | --- | --- |
+  |  | WebSocket: order_confirmed |
+  | <----------------------------- |  |
+  | --- | --- |
+  | Navigate to /order-confirmation |
 ```
 
 ---
@@ -407,7 +407,7 @@ Client                          Server                         Square
 ### Key Components Map
 
 | Component | Location | Purpose |
-|-----------|----------|---------|
+| --- | --- | --- |
 | **CustomerOrderPage** | `client/src/modules/order-system/components/` | Menu browsing entry point |
 | **MenuSections** | `client/src/modules/menu/components/` | Category-based menu display |
 | **ItemDetailModal** | `client/src/modules/menu/components/` | Item details + modifier selection |
@@ -470,13 +470,13 @@ Client                          Server                         Square
 
 ```typescript
 type OrderStatus =
-  | 'new' // Order just created, not yet acknowledged
-  | 'pending' // Order received, awaiting confirmation
-  | 'confirmed' // Order confirmed, ready for preparation
-  | 'preparing' // Kitchen actively preparing order
-  | 'ready' // Order ready for pickup/delivery
-  | 'completed' // Order fulfilled and delivered
-  | 'cancelled' // Order cancelled at any stage
+  | 'new' // Order just created, not yet acknowledged |
+  | 'pending' // Order received, awaiting confirmation |
+  | 'confirmed' // Order confirmed, ready for preparation |
+  | 'preparing' // Kitchen actively preparing order |
+  | 'ready' // Order ready for pickup/delivery |
+  | 'completed' // Order fulfilled and delivered |
+  | 'cancelled' // Order cancelled at any stage |
 ```
 
 ### 2. State Transitions

@@ -622,12 +622,12 @@ app.use((req, res, next) => {
 ## Statistics Summary
 
 | Category | Count | Examples |
-|----------|-------|----------|
+| --- | --- | --- |
 | **CRITICAL (P0)** | 4 | VITE_OPENAI_API_KEY exposure, Wildcard CORS, .env files in repo, No-origin CORS |
 | **HIGH (P1)** | 7 | Demo tokens in localStorage, Ephemeral token exposure, CSRF/Rate limit disabled in dev |
 | **MEDIUM (P2)** | 5 | Missing input validation, Weak auth logging, No token refresh limits |
 | **LOW (P3)** | 3 | Verbose errors, Missing security.txt, No SRI |
-| **TOTAL** | 19 | |
+| **TOTAL** | 19 | - |
 
 **Files Scanned**: 2,847
 **Critical Patterns Searched**: 15
@@ -670,7 +670,7 @@ Add production check to reject no-origin requests (see Finding #3).
 ### P0 (Critical) - Fix Within 24 Hours
 
 | Finding | Task | Owner | Estimate |
-|---------|------|-------|----------|
+| --- | --- | --- | --- |
 | #1 | Remove VITE_OPENAI_API_KEY from .env files | DevOps | 5 min |
 | #2 | Rotate all secrets in active .env files | Security | 30 min |
 | #2 | Move secrets to vault (1Password/AWS) | DevOps | 2 hours |
@@ -684,7 +684,7 @@ Add production check to reject no-origin requests (see Finding #3).
 ### P1 (High) - Fix Within 1 Week
 
 | Finding | Task | Owner | Estimate |
-|---------|------|-------|----------|
+| --- | --- | --- | --- |
 | #5 | Move demo tokens to HttpOnly cookies | Full-stack | 4 hours |
 | #6 | Implement token obfuscation in WebRTC client | Frontend | 2 hours |
 | #7 | Enable rate limiting in dev (reduced limits) | Backend | 30 min |
@@ -700,7 +700,7 @@ Add production check to reject no-origin requests (see Finding #3).
 ### P2 (Medium) - Fix Within 2 Weeks
 
 | Finding | Task | Owner | Estimate |
-|---------|------|-------|----------|
+| --- | --- | --- | --- |
 | #12 | Reduce token refresh rate limit | Backend | 10 min |
 | #13 | Add PIN input validation | Backend | 20 min |
 | #14 | Require WebSocket tokens in dev | Backend | 30 min |
@@ -714,7 +714,7 @@ Add production check to reject no-origin requests (see Finding #3).
 ### P3 (Low) - Fix Within 1 Month
 
 | Finding | Task | Owner | Estimate |
-|---------|------|-------|----------|
+| --- | --- | --- | --- |
 | #17 | Implement generic error messages | Backend | 2 hours |
 | #18 | Add security.txt file | DevOps | 15 min |
 | #19 | Add SRI hashes for external scripts | Frontend | 1 hour |

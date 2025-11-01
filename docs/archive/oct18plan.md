@@ -366,7 +366,7 @@ const token = await DemoAuthService.getDemoToken('kiosk_demo');
 ## Risk Assessment
 
 | Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
+| --- | --- | --- | --- |
 | CheckoutPage change breaks public ordering | Low | High | Thorough testing on staging before production |
 | Staff server flow accidentally affected | Very Low | High | No changes to ServerView or demoAuth defaults |
 | Payment flow issues on production | Low | High | Test with Square sandbox, monitor error rates |

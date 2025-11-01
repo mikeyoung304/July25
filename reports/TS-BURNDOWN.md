@@ -8,7 +8,7 @@
 ## Error Summary by Type
 
 | Code | Count | Description | Priority |
-|------|-------|-------------|----------|
+| --- | --- | --- | --- |
 | TS4111 | 118 | Index signature access | High (easy fix) |
 | TS2304 | 97 | Cannot find name | High (missing imports) |
 | TS6133 | 62 | Unused variables | Medium (cleanup) |
@@ -50,7 +50,7 @@
 ## Files with Most Errors (Top 10)
 
 | File | Errors | Category |
-|------|--------|----------|
+| --- | --- | --- |
 | shared/monitoring/performance-monitor.ts | 38 | Monitoring |
 | server/src/ai/voice/EnhancedOpenAIAdapter.ts | 36 | Voice AI |
 | shared/monitoring/error-tracker.ts | 34 | Monitoring |
@@ -84,7 +84,7 @@
 ## Tracking Metrics
 
 | Metric | Current | Target Week 1 | Target Week 2 |
-|--------|---------|---------------|---------------|
+| --- | --- | --- | --- |
 | Total Errors | **0** 🎉 | 420 (-20%) ✅ | 250 (-52%) ✅ |
 | Critical Path Errors | **0** ✅ | 0 ✅ | 0 ✅ |
 | Files with Errors | **0** 🎉 | 120 ✅ | 80 ✅ |
@@ -105,7 +105,7 @@
 ## Owner Assignments
 
 | Component | Owner | Status | ETA |
-|-----------|-------|--------|-----|
+| --- | --- | --- | --- |
 | Auth/RBAC | TYPETAMER | ✅ Complete | Done |
 | Payments | TYPETAMER | ✅ Complete | Done |
 | API Types | Team | Queued | Week 1 |

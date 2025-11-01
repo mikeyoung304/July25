@@ -794,7 +794,7 @@ DELETE FROM payment_audit_logs WHERE id = 'xyz';    -- FAILS (policy violation)
 ### Priority Matrix
 
 | Severity | Count | Total Effort | Impact |
-|----------|-------|--------------|--------|
+| --- | --- | --- | --- |
 | P0 (Production Blockers) | 3 | 7-11 hours | CRITICAL - Revenue & Compliance |
 | P1 (Production Hardening) | 15 | 45-70 hours | HIGH - Stability & Security |
 | P2 (Optimization) | 12 | 30-50 hours | MEDIUM - Performance & UX |
@@ -2098,7 +2098,7 @@ The following P1 improvements are documented with similar detail:
 ### Phase 1: Production Launch
 
 | Metric | Target | Measurement |
-|--------|--------|-------------|
+| --- | --- | --- |
 | Order success rate | >98% | Total successful orders / total attempts |
 | Payment success rate | >95% | Total successful payments / total attempts |
 | System uptime | >99% | (Total time - downtime) / total time |
@@ -2110,7 +2110,7 @@ The following P1 improvements are documented with similar detail:
 ### Phase 2: Production Hardening
 
 | Metric | Target | Measurement |
-|--------|--------|-------------|
+| --- | --- | --- |
 | WebSocket reconnection success | >99.5% | Successful reconnections / total attempts |
 | Payment webhook retry success | >99% | Successfully processed / total webhooks |
 | Tax calculation consistency | 100% | Orders with correct totals / total orders |
@@ -2120,7 +2120,7 @@ The following P1 improvements are documented with similar detail:
 ### Phase 3: Optimization
 
 | Metric | Target | Measurement |
-|--------|--------|-------------|
+| --- | --- | --- |
 | Order latency | <300ms | P99 response time (improved) |
 | Test coverage | >80% | Lines covered / total lines |
 | Cache hit rate | >90% | Cache hits / total requests |
@@ -2130,7 +2130,7 @@ The following P1 improvements are documented with similar detail:
 ### Phase 4: Innovation
 
 | Metric | Target | Measurement |
-|--------|--------|-------------|
+| --- | --- | --- |
 | Voice ordering accuracy | >95% | Correctly interpreted orders / total attempts |
 | Customer satisfaction | >4.5/5 | Average rating from surveys |
 | Revenue per restaurant | +15% | Increase from pre-system baseline |
@@ -2320,7 +2320,7 @@ The following P1 improvements are documented with similar detail:
 ### Timeline Summary
 
 | Phase | Duration | Effort | Team Size | Completion Date |
-|-------|----------|--------|-----------|-----------------|
+| --- | --- | --- | --- | --- |
 | Phase 1: Launch | 2 weeks | 7-11 hours | 4.5 FTE | Week 2 |
 | Phase 2: Hardening | 6 weeks | 45-70 hours | 6 FTE | Week 8 |
 | Phase 3: Optimization | 12 weeks | 62-88 hours | 4.5 FTE | Week 20 |

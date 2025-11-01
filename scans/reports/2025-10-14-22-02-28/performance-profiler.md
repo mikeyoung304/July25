@@ -40,7 +40,7 @@ Status: GOOD - Well under target
 
 ### Largest Chunks (Top 10)
 | Chunk | Size | Status | Notes |
-|-------|------|--------|-------|
+| --- | --- | --- | --- |
 | react-bundle | 167KB | ✅ GOOD | React core bundled together |
 | vendor | 143KB | ✅ GOOD | Other vendor code |
 | index | 114KB | ⚠️ WATCH | Main app code, monitor growth |

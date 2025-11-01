@@ -1,5 +1,8 @@
 # Version Information
 
+
+**Last Updated:** 2025-11-01
+
 **Last Updated**: 2025-10-30
 
 This document serves as the single source of truth for all version information in the Restaurant OS system.
@@ -7,7 +10,7 @@ This document serves as the single source of truth for all version information i
 ## Current Versions
 
 | Component | Version | Notes |
-|-----------|---------|-------|
+| --- | --- | --- |
 | **Application** | 6.0.14 | Main application version (Technical Debt Reduction & Test Coverage Sprint) |
 | **Client (React)** | 18.3.1 | Frontend framework |
 | **Server (Express)** | 4.21.2 | Backend framework |

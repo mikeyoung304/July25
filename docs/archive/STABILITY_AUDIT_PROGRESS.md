@@ -273,7 +273,7 @@ Updated all contract tests to expect snake_case field names per ADR-001
 
 ### Completed Tasks: 12/13 (92% Complete)
 | Task | Status | Time Spent | Notes |
-|------|--------|------------|-------|
+| --- | --- | --- | --- |
 | Payment audit logs migration | ✅ Complete | 30 min | Deployed via psql Oct 24 |
 | Multi-tenancy security review | ✅ Complete | 45 min | Verified - already implemented |
 | Auth security fixes | ✅ Complete | 2 hours | JWT + WebSocket fixed Oct 24 |

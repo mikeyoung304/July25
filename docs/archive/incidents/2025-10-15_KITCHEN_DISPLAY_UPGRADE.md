@@ -48,7 +48,7 @@ Upgraded the kitchen display system from basic (`KitchenDisplaySimple`) to advan
 ## Feature Comparison
 
 | Feature | Before (Simple) | After (Optimized + Grouping) |
-|---------|----------------|------------------------------|
+| --- | --- | --- |
 | **View Modes** | Single grid only | Tables + Grid toggle |
 | **Table Grouping** | ❌ No | ✅ **Yes** with circular progress |
 | **Batch Operations** | ❌ No | ✅ Complete entire tables |

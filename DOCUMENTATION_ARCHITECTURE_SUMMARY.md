@@ -9,7 +9,7 @@
 ## QUICK FACTS
 
 | Metric | Value |
-|--------|-------|
+| --- | --- |
 | **Total Documentation Files** | 126 markdown files |
 | **Documentation Size** | 2.0 MB |
 | **Main Directories** | 25 directories |
@@ -72,7 +72,7 @@
 ### 1. Clear Organization (Diátaxis Framework)
 
 | Type | Purpose | Users | Style |
-|------|---------|-------|-------|
+| --- | --- | --- | --- |
 | **Tutorials** | Learn by doing | Beginners | Task-driven, numbered steps |
 | **How-To** | Solve problems | Experienced users | Goal-oriented, recipes |
 | **Reference** | Look up facts | Anyone | Structured data, tables |

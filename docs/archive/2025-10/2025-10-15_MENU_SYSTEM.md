@@ -54,7 +54,7 @@ The Restaurant OS menu system provides a flexible, multi-tenant architecture for
 ### Key Files
 
 | File | Purpose | Location |
-|------|---------|----------|
+| --- | --- | --- |
 | **Seed Script** | Contains all menu items | `/server/scripts/seed-menu.ts` |
 | **Menu Routes** | API endpoints | `/server/src/routes/menu.routes.ts` |
 | **Menu Service** | Business logic | `/server/src/services/menu.service.ts` |

@@ -7,12 +7,12 @@
 ## Menu System Production Status
 
 For menu API, caching, and fall menu deployment readiness, see:
-→ **[PRODUCTION_STATUS.md - Menu System](./PRODUCTION_STATUS.md#5-menu-system)**
+→ **[PRODUCTION_STATUS.md - Menu System](../../PRODUCTION_STATUS.md#5-menu-system)**
 
 ## Menu System Vision
 
 For voice ordering integration and future menu enhancements, see:
-→ **[ROADMAP.md - Voice Ordering Vision](./ROADMAP.md#voice-ordering-vision)**
+→ **[ROADMAP.md - Voice Ordering Vision](../../ROADMAP.md#voice-ordering-vision)**
 
 ## Original Content
 

@@ -13,7 +13,7 @@
 ## Overview Table
 
 | Path | Title | Last Commit | Size/Words | Flags | Overlap | Action |
-|------|-------|-------------|------------|-------|---------|--------|
+| --- | --- | --- | --- | --- | --- | --- |
 | .github/PULL_REQUEST_TEMPLATE.md | PULL_REQUEST_TEMPLATE | 7bfd165 (2025-09-20) | 248B / 31w | ✓ | None obvious | Review |
 | ARCHITECTURE.md | Architecture | ae96327 (2025-09-02) | 670B / 100w | ✓ | ROADMAP.md / PRODUCTION_STA... | Review |
 | AUTH_DIAGNOSTIC_GUIDE.md | Auth Diagnostic Guide - Server Login ... | 101650f (2025-10-09) | 3934B / 527w | ✓ | DEPLOYMENT.md | Review |
@@ -2051,7 +2051,7 @@ Completed comprehensive autonomous scan of the Grow App codebase to identify mul
 ## Bundle Size Targets
 
 | Target | Limit | Current | Status |
-|--------|-------|---------|--------|
+| --- | --- | --- | --- |
 ```
 
 ---

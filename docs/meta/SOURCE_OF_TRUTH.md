@@ -1,5 +1,8 @@
 # Restaurant OS v6.0.14 - Project Source of Truth
 
+
+**Last Updated:** 2025-10-30
+
 **Last Updated:** October 30, 2025 (Post-Technical Debt Reduction Sprint)
 **Branch:** main
 **Purpose:** Single authoritative status document

@@ -10,8 +10,9 @@ Reference documentation provides accurate, detailed information about the system
 
 REST API endpoints, WebSocket events, and integration guides:
 
-- [API Reference](./api/README.md) - REST API endpoints
-- [Square API Setup](./api/SQUARE_API_SETUP.md) - Payment integration setup
+- [API Reference](./api/api/README.md) - REST API endpoints
+- [Payment API Documentation](./api/api/PAYMENT_API_DOCUMENTATION.md) - Payment processing API
+- [Square API Setup](./api/api/SQUARE_API_SETUP.md) - Payment integration setup
 - [WebSocket Events](./api/WEBSOCKET_EVENTS.md) - Real-time event reference
 
 ## Schema & Database

@@ -7,7 +7,7 @@
 ## Voice Authentication & WebRTC
 
 For WebRTC voice streaming, authentication, and technical implementation, see:
-→ **[AUTHENTICATION_ARCHITECTURE.md#voice--webrtc-auth-and-websocket-jwt](../AUTHENTICATION_ARCHITECTURE.md#voice--webrtc-auth-and-websocket-jwt)**
+→ **[AUTHENTICATION_ARCHITECTURE.md#voice--webrtc-auth-and-websocket-jwt](../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#voice--webrtc-auth-and-websocket-jwt)**
 
 **Updated October 2025** with new modular architecture:
 - WebRTCVoiceClient (Orchestrator) - 396 lines (down from 1,312)

@@ -1,4 +1,7 @@
 # KDS Strategic Plan: Online Order-First Model
+
+**Last Updated:** 2025-10-16
+
 **Date**: 2025-10-14
 **Business Model**: Drive-Thru Pickup for Online Orders
 

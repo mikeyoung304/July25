@@ -202,7 +202,7 @@ if (!jwtSecret) {
 ## ✅ **Bug Attribution Matrix**
 
 | Bug | Introduced | Discovered | Fixed Locally | Deployed to Prod |
-|-----|------------|------------|---------------|------------------|
+| --- | --- | --- | --- | --- |
 | **RBAC** | Oct 18 (5 days ago) | Today | ✅ Yes | ❌ No |
 | **OpenAI Key** | N/A (env mismatch) | Today | ✅ Yes | N/A (local only) |
 | **Missing JWT_SECRET** | N/A (never set) | Today | 📋 Documented | ❌ No |

@@ -1,5 +1,8 @@
 # Restaurant OS Documentation
 
+
+**Last Updated:** 2025-11-01
+
 **Version:** 6.0.14 | **Last Updated:** October 30, 2025
 
 Welcome to the Restaurant OS documentation. This guide helps you navigate our comprehensive documentation system.
@@ -50,7 +53,7 @@ Our documentation follows the [Diátaxis framework](https://diataxis.fr/) - a sy
 
 **Troubleshooting?**
 1. [Troubleshooting Guide](./how-to/troubleshooting/TROUBLESHOOTING.md) - Common issues
-2. [Investigation Reports](./investigations/) - Incident analysis
+2. [Investigation Reports](./investigations/README.md) - Incident analysis
 3. [Post-Mortems](./archive/incidents/) - Historical incidents
 
 ## 🗺️ Documentation Sitemap
@@ -152,6 +155,33 @@ docs/
 - [ROADMAP.md](./ROADMAP.md) - Future plans
 - [Contributing Guide](./how-to/development/CONTRIBUTING.md) - How to contribute
 - [Naming Standards](./naming/) - Terminology and conventions
+
+## 🔍 Audit Reports
+
+Recent documentation and codebase audit reports:
+
+- [Overnight Audit Report (2025-10-31)](../OVERNIGHT_AUDIT_REPORT_2025-10-31.md) - Latest overnight documentation audit
+- [Comprehensive Documentation Audit](../COMPREHENSIVE_DOCUMENTATION_AUDIT_REPORT.md) - Full documentation system audit
+- [Audit Executive Summary](../AUDIT_EXECUTIVE_SUMMARY.md) - Executive overview of audit findings
+- [Documentation Simplification Report](../DOCS_SIMPLIFICATION_REPORT.md) - Documentation optimization analysis
+- [Documentation System Architecture Map](../DOCUMENTATION_SYSTEM_ARCHITECTURE_MAP.md) - Documentation structure overview
+- [Documentation Fix Execution Plan](../DOCUMENTATION_FIX_EXECUTION_PLAN.md) - Remediation roadmap
+- [Documentation Architecture Summary](../DOCUMENTATION_ARCHITECTURE_SUMMARY.md) - Architecture documentation summary
+- [Plain English What's Happening](../PLAIN_ENGLISH_WHATS_HAPPENING.md) - Simplified audit explanation
+- [Agent 4 Deliverables Index](../AGENT_4_DELIVERABLES_INDEX.md) - Agent work product index
+- [Version Reference Audit Report](./VERSION_REFERENCE_AUDIT_REPORT.md) - Version consistency audit
+- [CI Infrastructure Issues](./CI_INFRASTRUCTURE_ISSUES.md) - CI/CD infrastructure analysis
+- [Migration Reconciliation (2025-10-20)](./MIGRATION_RECONCILIATION_2025-10-20.md) - Database migration reconciliation
+
+## 📚 Specialized Documentation
+
+Additional documentation categories:
+
+- [Audit Reports](./audit/README.md) - Codebase audits and improvement tracking
+- [Investigations](./investigations/README.md) - Incident investigations and root cause analysis
+- [Incidents](./incidents/README.md) - Historical incident reports
+- [Research](./research/README.md) - Best practices and technology research
+- [Meta](./meta/README.md) - Documentation about documentation
 
 ## 🗂️ Archive
 

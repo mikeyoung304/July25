@@ -56,7 +56,7 @@ role TEXT NOT NULL CHECK (role IN ('owner', 'manager', 'server', 'cashier', 'kit
 ### Role-Based Permissions Matrix
 
 | Role | API Scopes | Route Access |
-|------|-----------|--------------|
+| --- | --- | --- |
 | **owner** | ALL scopes (full system access) | ALL routes including AdminRoute |
 | **manager** | All except `system:config` | ALL routes including AdminRoute (same as owner) |
 | **server** | orders:*, payments:*, tables:manage | ServerRoute |
@@ -83,7 +83,7 @@ AdminRoute    → requiredRoles: ['owner']
 ### Protected Routes Map
 
 | Route | Guard | Required Roles | Manager Access? |
-|-------|-------|----------------|-----------------|
+| --- | --- | --- | --- |
 | `/` | ProtectedRoute | NONE (just auth) | ✅ YES |
 | `/home` | ProtectedRoute | NONE (just auth) | ✅ YES |
 | `/login` | Public | NONE | ✅ YES |

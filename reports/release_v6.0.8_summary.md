@@ -84,7 +84,7 @@ Heavy workflows now skip for docs-only PRs:
 ### Timeline
 
 | Time | Event | Status |
-|------|-------|--------|
+| --- | --- | --- |
 | 02:58 UTC | PR #99 created | ✅ |
 | 02:59 UTC | PR #100 created | ✅ |
 | 03:08 UTC | Workflow fixes pushed to main | ✅ |

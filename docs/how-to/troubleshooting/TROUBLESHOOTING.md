@@ -1,5 +1,8 @@
 # Troubleshooting Guide
 
+
+**Last Updated:** 2025-11-01
+
 [Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Troubleshooting](./README.md) > Troubleshooting Guide
 
 **Last Updated**: October 30, 2025
@@ -62,7 +65,7 @@ grep "broadcastNewOrder" logs/server.log
 **Common Causes & Fixes**:
 
 | Cause | Fix |
-|-------|-----|
+| --- | --- |
 | **WebSocket disconnected** | Refresh kitchen display, check network |
 | **Wrong restaurant_id** | Verify JWT token contains correct restaurant_id |
 | **Order status skip** | Order created with status='completed' (skipped kitchen) |
@@ -203,7 +206,7 @@ console.log('Last message:', ws?.lastMessage);
 **Common Causes**:
 
 | Cause | Diagnosis | Fix |
-|-------|-----------|-----|
+| --- | --- | --- |
 | **WebSocket closed** | `readyState === 3` | Implement auto-reconnect |
 | **Wrong restaurant_id** | `ws.restaurantId !== actual` | Fix JWT token claim |
 | **Firewall blocking** | Network tab shows failed upgrade | Configure firewall/proxy |
@@ -332,7 +335,7 @@ navigator.mediaDevices.enumerateDevices()
 **Common Fixes**:
 
 | Issue | Fix |
-|-------|-----|
+| --- | --- |
 | **Permission denied** | Browser Settings → Privacy → Microphone → Allow |
 | **No microphone detected** | Check system settings, plug in mic |
 | **HTTPS required** | Microphone only works on HTTPS or localhost |
@@ -425,7 +428,7 @@ pc.onconnectionstatechange = () => {
 **Common Causes**:
 
 | Cause | Fix |
-|-------|-----|
+| --- | --- |
 | **Ephemeral token expired** | Token has 60s TTL, implement refresh |
 | **Network switch** | WiFi → Cellular, connection lost |
 | **Firewall blocking** | Some firewalls block WebRTC, use VPN or different network |
@@ -530,7 +533,7 @@ fetch('/api/v1/payments/create', {
 **Common Causes**:
 
 | Cause | Fix |
-|-------|-----|
+| --- | --- |
 | **Invalid access token** | Check `VITE_SQUARE_ACCESS_TOKEN` environment variable |
 | **Sandbox vs Production mismatch** | Use sandbox token with sandbox mode |
 | **CORS blocking** | Add Square domain to CORS whitelist |
@@ -649,7 +652,7 @@ if (session?.access_token) {
 **Common Causes & Fixes**:
 
 | Cause | Diagnosis | Fix |
-|-------|-----------|-----|
+| --- | --- | --- |
 | **localStorage session expired** | `expiresAt < Date.now() / 1000` | Re-login with demo/PIN |
 | **Wrong localStorage format** | Parse error or missing fields | Clear localStorage, re-login |
 | **Demo endpoint disabled** | `DEMO_LOGIN_ENABLED=false` on server | Set env var to `true` |
@@ -680,7 +683,7 @@ grep -A 20 "Check Supabase session" client/src/services/http/httpClient.ts
 
 **Related Documentation**:
 - [ADR-006: Dual Authentication Pattern](./ADR-006-dual-authentication-pattern.md)
-- [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md#dual-authentication-architecture-adr-006)
+- [AUTHENTICATION_ARCHITECTURE.md](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#dual-authentication-pattern-adr-006)
 
 ---
 
@@ -710,7 +713,7 @@ cat server/src/routes/payments.routes.ts:104-109
 **Common Causes**:
 
 | Cause | Symptom | Fix |
-|-------|---------|-----|
+| --- | --- | --- |
 | **Wrong middleware order** | requireScopes before validateRestaurantAccess | Reorder: validateRestaurantAccess must run first |
 | **Missing validateRestaurantAccess** | Only authenticate + requireScopes | Add validateRestaurantAccess middleware |
 | **Missing X-Restaurant-ID header** | Client not sending header | Add header to HTTP client |
@@ -777,9 +780,9 @@ grep "RBAC check passed" logs/server.log            # ✅ requireScopes passed
 ```
 
 **Related Documentation**:
-- [AUTHENTICATION_ARCHITECTURE.md - Middleware Patterns](./AUTHENTICATION_ARCHITECTURE.md#middleware-patterns--ordering)
-- [CONTRIBUTING.md - Adding Protected Routes](./CONTRIBUTING.md#adding-protected-routes)
-- [Investigation Case Study](./investigations/workspace-auth-fix-2025-10-29.md) - Real debugging example
+- [AUTHENTICATION_ARCHITECTURE.md - Middleware Patterns](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#middleware-patterns--ordering)
+- [CONTRIBUTING.md - Adding Protected Routes](../development/CONTRIBUTING.md#adding-protected-routes)
+- [Investigation Case Study](../../investigations/workspace-auth-fix-2025-10-29.md) - Real debugging example
 
 ---
 
@@ -812,7 +815,7 @@ grep "requireScopes" server/src/routes/orders.routes.ts
 **Common Causes**:
 
 | Cause | Diagnosis | Fix |
-|-------|-----------|-----|
+| --- | --- | --- |
 | **User has wrong role** | Kitchen user trying to create orders | Assign correct role (server, not kitchen) |
 | **Database scope missing** | Code has scope, database doesn't | Run migration to sync scopes |
 | **Scope naming mismatch** | Database has `orders.write`, code checks `orders:create` | Update database to use colon notation |
@@ -873,19 +876,19 @@ DELETE FROM api_scopes WHERE scope LIKE '%.%';
 TOKEN=$(curl -X POST http://localhost:3001/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"server@restaurant.com","password":"Demo123!"}' \
-  | jq -r '.session.accessToken')
+  | jq -r '.session.accessToken') |
 
 curl -X POST http://localhost:3001/api/v1/orders \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Restaurant-ID: $RESTAURANT_ID" \
   -H "Content-Type: application/json" \
   -d '{"items":[...]}' \
-  | jq
+  | jq |
 ```
 
 **Related Documentation**:
 - [RBAC Sync Procedure](../server/src/middleware/rbac.ts) - See comment at line 43-102
-- [Investigation Case Study - Round 3](./investigations/workspace-auth-fix-2025-10-29.md#round-3-database-scope-sync)
+- [Investigation Case Study - Round 3](../../investigations/workspace-auth-fix-2025-10-29.md#round-3-database-scope-sync)
 
 ---
 
@@ -938,7 +941,7 @@ WHERE user_id = 'USER_ID_HERE'
 curl -X GET http://localhost:3001/api/v1/auth/me \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Restaurant-ID: $RESTAURANT_ID" \
-  | jq
+  | jq |
 
 # Should return user with role
 ```
@@ -970,7 +973,7 @@ if (session?.access_token) {
 **Common Causes**:
 
 | Cause | Fix |
-|-------|-----|
+| --- | --- |
 | **Token expired** | `exp` timestamp in past → Refresh token |
 | **Token not sent** | Missing `Authorization` header → Check axios config |
 | **Wrong restaurant_id** | JWT `restaurant_id` doesn't match resource |
@@ -1081,7 +1084,7 @@ ws.onclose = (event) => console.log('Closed:', event.code, event.reason);
 **Common Error Codes**:
 
 | Code | Meaning | Fix |
-|------|---------|-----|
+| --- | --- | --- |
 | 1000 | Normal closure | Expected, no action |
 | 1001 | Going away (server restart) | Auto-reconnect |
 | 1006 | Abnormal closure (network) | Check firewall/proxy |
@@ -1151,7 +1154,7 @@ curl -H "Origin: https://your-frontend.com" \
 **Common Causes**:
 
 | Cause | Fix |
-|-------|-----|
+| --- | --- |
 | **Frontend URL not in allowlist** | Add to `ALLOWED_ORIGINS` env var |
 | **Credentials not allowed** | Enable `credentials: true` in CORS config |
 | **Wrong HTTP method** | Add method to `allowedMethods` array |
@@ -1292,7 +1295,7 @@ ORDER BY n_distinct DESC;
 **Common Issues**:
 
 | Issue | Fix |
-|-------|-----|
+| --- | --- |
 | **Missing index on restaurant_id** | `CREATE INDEX idx_orders_restaurant ON orders(restaurant_id);` |
 | **Sequential scan on large table** | Add index on frequently filtered columns |
 | **Complex RLS policies** | Simplify `USING` clause or use materialized views |
@@ -1399,7 +1402,7 @@ app.use(express.json({ limit: '1mb' }));
 **Common Fixes**:
 
 | Issue | Fix |
-|-------|-----|
+| --- | --- |
 | **Missing dependency** | Add to `package.json` and commit |
 | **Build timeout** | Increase build timeout in Render settings |
 | **Environment variable missing** | Add in Render Dashboard → Environment |
@@ -1466,7 +1469,7 @@ git push origin main
 ### Logs Locations
 
 | Service | Log Location |
-|---------|-------------|
+| --- | --- |
 | **Render (Server)** | Dashboard → Service → Logs |
 | **Vercel (Client)** | Dashboard → Deployments → Function Logs |
 | **Supabase (DB)** | Dashboard → Logs → Database |

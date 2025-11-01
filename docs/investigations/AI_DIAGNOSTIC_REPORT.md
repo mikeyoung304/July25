@@ -101,7 +101,7 @@ test('should enforce RLS policies', () => {
 ### 3.1 Critical Discrepancies
 
 | Document | Claim | Reality | Gap |
-|----------|-------|---------|-----|
+| --- | --- | --- | --- |
 | STABILITY_AUDIT_PROGRESS.md | "ALL 164 TESTS PASSING" | 146 tests + 19 files quarantined | 18 tests unaccounted |
 | README.md | "Version 6.0.8, 98% Ready" | Version conflicts, 50% client tests | 48% overstatement |
 | Phase 2 Report | "Quick Wins in 2 hours" | 1 fix after multiple hours | 87.5% failure rate |

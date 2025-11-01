@@ -55,7 +55,7 @@ Created automated **Reality Auditor v3** system for continuous documentation-to-
 The auditor validates 6 critical implementation claims:
 
 | # | Check | Documentation Claim | Code Evidence Pattern |
-|---|-------|---------------------|----------------------|
+| --- | --- | --- | --- |
 | 1 | CORS allowlist | No wildcard origins | `allowedOrigins.*\[` in server/src |
 | 2 | WebSocket JWT auth | JWT required for WS connections | `verifyWebSocketAuth` in server/src |
 | 3 | RLS policies | Row-level security enabled | `ENABLE ROW LEVEL SECURITY` in supabase/migrations |

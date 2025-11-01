@@ -192,12 +192,12 @@ interface OrderGroup {
 **Status Transitions**:
 ```typescript
 type PickupStatus =
-  | 'pending'      // Just received
-  | 'preparing'    // Kitchen started
-  | 'ready'        // Done, waiting for customer
-  | 'called'       // Customer notified (SMS/display)
-  | 'picked-up'    // Customer collected
-  | 'completed'    // Archived
+  | 'pending'      // Just received |
+  | 'preparing'    // Kitchen started |
+  | 'ready'        // Done, waiting for customer |
+  | 'called'       // Customer notified (SMS/display) |
+  | 'picked-up'    // Customer collected |
+  | 'completed'    // Archived |
 ```
 
 **UI Components**:
@@ -480,7 +480,7 @@ const groupedByOrder = orders.reduce((acc, order) => {
 ## 📊 Comparison: Your System vs Competitors
 
 | Feature | Your System | Square KDS | Toast KDS |
-|---------|-------------|------------|-----------|
+| --- | --- | --- | --- |
 | **Order Grouping** | ✅ Custom | ✅ Built-in | ✅ Built-in |
 | **Drive-Thru Focus** | ✅ Optimized | ⚠️ Basic | ⚠️ Basic |
 | **SMS Notifications** | 🔄 Coming | ❌ No | ❌ No |

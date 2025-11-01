@@ -9,7 +9,7 @@
 All reality greps validated against codebase. Each check includes file:line evidence demonstrating the implementation exists as documented.
 
 | # | Check | Status | Key Evidence |
-|---|-------|--------|--------------|
+| --- | --- | --- | --- |
 | 1 | CORS allowlist (not wildcard) | ✅ PASS | `server/src/server.ts:64` |
 | 2 | WebSocket JWT authentication | ✅ PASS | `server/src/utils/websocket.ts:52` |
 | 3 | RLS (Row Level Security) enabled | ✅ PASS | `supabase/migrations/20250130_auth_tables.sql:181-183` |
@@ -200,7 +200,7 @@ pnpm docs:check
 ## Cross-Reference: Documentation Claims
 
 | Implementation | Documented In | Verified |
-|----------------|---------------|----------|
+| --- | --- | --- |
 | CORS allowlist | DEPLOYMENT.md (line 66-79) | ✅ |
 | WebSocket JWT auth | DEPLOYMENT.md (line 373-396), AUTHENTICATION_ARCHITECTURE.md (line 550+) | ✅ |
 | RLS policies | DEPLOYMENT.md, DATABASE.md | ✅ |

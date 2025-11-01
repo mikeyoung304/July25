@@ -18,7 +18,7 @@ Successfully simplified the documentation automation system from **15 files to 2
 ### Before vs After
 
 | Category | Before | After | Reduction |
-|----------|--------|-------|-----------|
+| --- | --- | --- | --- |
 | **GitHub Workflows** | 3 files | 1 file | -67% |
 | **Claude Commands** | 5 files | 1 file | -80% |
 | **Bash Scripts** | 5 files | 0 files | -100% |
@@ -28,7 +28,7 @@ Successfully simplified the documentation automation system from **15 files to 2
 ### File Size Comparison
 
 | Metric | Before | After | Change |
-|--------|--------|-------|--------|
+| --- | --- | --- | --- |
 | Total automation code | ~3,500 lines | ~180 lines | -95% |
 | External dependencies | 5 bash scripts | 0 scripts | -100% |
 | Workflow complexity | 3 separate jobs | 1 unified job | -67% |
@@ -271,7 +271,7 @@ Workflow runs automatically on:
 ## 🎯 SUCCESS CRITERIA
 
 | Criterion | Target | Actual | Status |
-|-----------|--------|--------|--------|
+| --- | --- | --- | --- |
 | File count reduction | >70% | 87% | ✅ EXCEEDED |
 | Validation preserved | 100% | 100% | ✅ MET |
 | No broken links | 0 | 0 | ✅ MET |

@@ -32,8 +32,8 @@ jobs:
           echo "🔗 Checking internal markdown links..."
           BROKEN_LINKS=0
 
-          find docs -name "*.md" -type f 2>/dev/null | while read file; do
-            grep -oE '\]\([^)]+\)' "$file" 2>/dev/null | sed 's/](\(.*\))/\1/' | while read link; do
+          find docs -name "*.md" -type f 2>/dev/null | while read -r file; do
+            grep -oE '\]\([^)]+\)' "$file" 2>/dev/null | sed 's/](\(.*\))/\1/' | while read -r link; do
               # Skip external URLs, mailto, and anchor-only links
               [[ "$link" =~ ^https?:// ]] && continue
               [[ "$link" =~ ^mailto: ]] && continue
@@ -91,9 +91,9 @@ jobs:
 
           # Count files missing Last Updated
           MISSING_DATES=$(find docs -name "*.md" -type f -not -path "docs/archive/*" 2>/dev/null | \
-            while read f; do grep -L "Last Updated" "$f" 2>/dev/null; done | wc -l)
+            while read -r f; do grep -L "Last Updated" "$f" 2>/dev/null; done | wc -l)
 
-          if [ $MISSING_DATES -gt 10 ]; then
+          if [ "$MISSING_DATES" -gt 10 ]; then
             echo "::warning::$MISSING_DATES files missing 'Last Updated' date"
           fi
 
@@ -114,9 +114,10 @@ jobs:
             grep -E "^[A-Z_]+=" .env.example | sed 's/=.*//' | sort > /tmp/env_vars.txt
             ENV_COUNT=$(wc -l < /tmp/env_vars.txt | tr -d ' ')
 
-            # Extract documented vars
+            # Extract documented vars (DOC_COUNT exported for external use)
             grep -E "^\| [A-Z_]+ \|" docs/reference/config/ENVIRONMENT.md | \
               sed -E 's/^\| ([A-Z_]+) \|.*/\1/' | sort > /tmp/doc_vars.txt
+            export DOC_COUNT
             DOC_COUNT=$(wc -l < /tmp/doc_vars.txt | tr -d ' ')
 
             # Find undocumented
@@ -165,15 +166,17 @@ jobs:
       - name: Generate summary
         if: always()
         run: |
-          echo "## 📊 Documentation Quality Check" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Status:** Automated validation complete" >> $GITHUB_STEP_SUMMARY
-          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Checks Performed" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Internal link validation" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Diátaxis structure verification" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Environment variable drift detection" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Documentation bloat detection" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "*Consolidated workflow - single file, no external dependencies*" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📊 Documentation Quality Check"
+            echo ""
+            echo "**Status:** Automated validation complete"
+            echo "**Triggered by:** ${{ github.event_name }}"
+            echo ""
+            echo "### Checks Performed"
+            echo "- ✅ Internal link validation"
+            echo "- ✅ Diátaxis structure verification"
+            echo "- ✅ Environment variable drift detection"
+            echo "- ✅ Documentation bloat detection"
+            echo ""
+            echo "*Consolidated workflow - single file, no external dependencies*"
+          } >> "$GITHUB_STEP_SUMMARY"

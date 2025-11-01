@@ -66,7 +66,7 @@ Also updated version link: docs/VERSION.md
 These are older versions superseded by canonical `docs/*` files:
 
 | Root File | Lines | Canonical Version | Lines | Action |
-|-----------|-------|-------------------|-------|--------|
+| --- | --- | --- | --- | --- |
 | ARCHITECTURE.md | ? | docs/ARCHITECTURE.md | ? | Archive root |
 | AUTHENTICATION_ARCHITECTURE.md | ? | docs/AUTHENTICATION_ARCHITECTURE.md | ? | Archive root |
 | CHANGELOG.md | ? | docs/CHANGELOG.md | ? | Archive root |

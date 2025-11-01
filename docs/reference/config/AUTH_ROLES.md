@@ -1,5 +1,8 @@
 # Authentication Roles
 
+
+**Last Updated:** 2025-10-30
+
 **Version**: 6.0.14 (Originally documented in v6.0.8)
 **Last Updated**: October 30, 2025
 

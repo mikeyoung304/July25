@@ -282,7 +282,7 @@ Failed authentication results in connection closure with code 1008.
 ## Error Codes
 
 | Code | Description |
-|------|-------------|
+| --- | --- |
 | 1000 | Normal closure |
 | 1008 | Policy violation (auth failed) |
 | 1009 | Message too big |

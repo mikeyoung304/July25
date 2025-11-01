@@ -13,6 +13,16 @@ High-level system design and architectural patterns:
 - [Architecture Overview](./architecture/ARCHITECTURE.md) - System design and voice ordering architecture
 - [Authentication Architecture](./architecture/AUTHENTICATION_ARCHITECTURE.md) - Auth flows, session management, and security
 
+### Architecture Diagrams
+
+Visual representations of system architecture:
+
+- [C4 Context Diagram](./architecture/diagrams/c4-context.md) - System context and external interactions
+- [C4 Container Diagram](./architecture/diagrams/c4-container.md) - High-level technical building blocks
+- [Authentication Flow](./architecture/diagrams/auth-flow.md) - Authentication sequence diagrams
+- [Payment Flow](./architecture/diagrams/payment-flow.md) - Payment processing flows
+- [Voice Ordering](./architecture/diagrams/voice-ordering.md) - Voice ordering architecture
+
 ## Architecture Decision Records (ADRs)
 
 Documents that capture important architectural decisions and their rationale:

@@ -48,10 +48,10 @@ const { order_id, token, amount, idempotency_key } = req.body; // ADR-001: snake
 
 ### Role Definitions Table
 
-| Role      | Who/Where                           | Typical Scopes                         | Can Update Orders? |
-|-----------|-------------------------------------|----------------------------------------|--------------------|
-| customer  | Public self-service/online/kiosk    | menu:read, orders:create, orders:read, payments:process, ai.voice:chat | No                 |
-| server    | In-restaurant staff (ServerView)    | menu:read, orders:create, orders:read, orders:update, orders:status, payments:process, tables:manage | Yes                |
+| Role | Who/Where | Typical Scopes | Can Update Orders? |
+| --- | --- | --- | --- |
+| customer | Public self-service/online/kiosk | menu:read, orders:create, orders:read, payments:process, ai.voice:chat | No |
+| server | In-restaurant staff (ServerView) | menu:read, orders:create, orders:read, orders:update, orders:status, payments:process, tables:manage | Yes |
 
 **Note:** Additional roles (owner, manager, kitchen, expo, cashier) exist for staff operations. See `server/src/middleware/rbac.ts:60-138` for complete role-scope mappings.
 
@@ -405,7 +405,7 @@ STRICT_AUTH=true  # Disable test tokens in production
 ### Token Expiry
 
 | Auth Method | Access Token TTL | Refresh Token TTL | Auto-Refresh |
-|-------------|------------------|-------------------|--------------|
+| --- | --- | --- | --- |
 | Email/Password | 1 hour | 30 days | ✅ Supabase auto-refresh |
 | PIN Login | 12 hours | N/A | ❌ Re-login required |
 | Station Login | 7 days | N/A | ❌ Re-login required |
@@ -603,7 +603,7 @@ grep "Restaurant context required" logs/server.log  # Middleware order issue
 TOKEN=$(curl -X POST http://localhost:3001/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"server@restaurant.com","password":"Demo123!"}' \
-  | jq -r '.session.accessToken')
+  | jq -r '.session.accessToken') |
 
 # Test endpoint WITH proper headers
 curl -X POST http://localhost:3001/api/v1/orders \
@@ -682,7 +682,7 @@ const response = await httpClient.get('/api/v1/auth/me');
 Seeded in Supabase Auth + database:
 
 | Email | Password | Role | Use Case |
-|-------|----------|------|----------|
+| --- | --- | --- | --- |
 | manager@restaurant.com | Demo123! | manager | Dashboard access, staff management |
 | server@restaurant.com | Demo123! | server | Table management, order taking |
 | kitchen@restaurant.com | Demo123! | kitchen | Kitchen queue display |

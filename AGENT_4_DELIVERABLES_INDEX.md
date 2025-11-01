@@ -284,7 +284,7 @@ Key Scripts:
 ## Comprehensive Metrics
 
 | Metric | Value |
-|--------|-------|
+| --- | --- |
 | **Total Files** | 126 markdown |
 | **Total Size** | 2.0 MB |
 | **Root Level** | 19 files |

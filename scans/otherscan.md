@@ -33,7 +33,7 @@ Your codebase demonstrates **solid architectural foundations** with enterprise-g
 
 ### Priority Rating by Issue
 | Severity | Count | Impact | Must Fix Before |
-|----------|-------|--------|-----------------|
+| --- | --- | --- | --- |
 | **CRITICAL** | 5 | Data breach, financial loss | Production launch |
 | **HIGH** | 12 | Feature breakage, compliance | Public beta |
 | **MEDIUM** | 18 | Tech debt, maintainability | Scaling |
@@ -408,7 +408,7 @@ switch (order.status) {
 
 **Coverage Breakdown:**
 | Category | Coverage | Status |
-|----------|----------|--------|
+| --- | --- | --- |
 | **Routes** | 2/12 (17%) | ❌ CRITICAL |
 | **Services** | 0/8 (0%) | ❌ CRITICAL |
 | **Client Services** | 20/35 (57%) | ⚠️ MEDIUM |
@@ -584,7 +584,7 @@ logger.error('[WebRTC] Connection failed', { error })
 
 **Statistics:**
 | Workspace | Files | 'any' Count | Avg/File |
-|-----------|-------|-------------|----------|
+| --- | --- | --- | --- |
 | **Client** | 322 | 129 | 0.40 |
 | **Server** | 117 | 237 | 2.03 |
 | **Shared** | 37 | 41 | 1.11 |
@@ -685,7 +685,7 @@ router.post('/session', authenticate, validateRestaurantAccess, async (req: Auth
 
 **Logging Usage Analysis:**
 | Logger Type | Count | Percentage |
-|-------------|-------|------------|
+| --- | --- | --- |
 | Centralized Logger | 147 | 43% |
 | Console.log | 98 | 29% |
 | Console.error | 72 | 21% |
@@ -1242,48 +1242,48 @@ CREATE POLICY "menu_items_restaurant_isolation" ON menu_items
 **Do NOT deploy to production until complete**
 
 | Priority | Task | Effort | Impact | Owner |
-|----------|------|--------|--------|-------|
+| --- | --- | --- | --- | --- |
 | P0 | Add RLS policies for orders and tables | 2 hours | Data protection | DBA |
 | P0 | Fix client-side database mutation bypass | 1 day | Critical security | Backend |
 | P0 | Implement refund processing on cancellation | 2 days | Financial integrity | Backend |
 | P0 | Make tax rate configurable per restaurant | 1 day | Legal compliance | Backend |
 | P0 | Remove deprecated test-token auth | 1 day | Security | Backend |
-| **Total** | | **5.5 days** | **Blocks production** | |
+| **Total** | - | **5.5 days** | **Blocks production** | - |
 
 ### 🟠 **WEEK 2-3: HIGH PRIORITY FIXES**
 
 | Priority | Task | Effort | Impact | Owner |
-|----------|------|--------|--------|-------|
+| --- | --- | --- | --- | --- |
 | P1 | Resolve ADR-001 violation (disable transform) | 1 hour | Architecture | Tech Lead |
 | P1 | Fix order status specification mismatch | 2 days | Bug prevention | Backend |
 | P1 | Add tests for auth.routes.ts | 3 days | Quality | QA/Backend |
 | P1 | Add tests for orders.service.ts | 3 days | Quality | QA/Backend |
 | P1 | Consolidate kitchen display pages | 3 days | Maintainability | Frontend |
 | P1 | Fix realtime endpoint validation | 1 day | Security | Backend |
-| **Total** | | **12 days** | **Quality improvement** | |
+| **Total** | - | **12 days** | **Quality improvement** | - |
 
 ### 🟡 **MONTH 1: MEDIUM PRIORITY**
 
 | Priority | Task | Effort | Impact | Owner |
-|----------|------|--------|--------|-------|
+| --- | --- | --- | --- | --- |
 | P2 | Complete CartContext migration | 2 days | Tech debt | Frontend |
 | P2 | Consolidate Error Boundaries | 2 days | Maintainability | Frontend |
 | P2 | Replace console.log (top 20 files) | 3 days | Production hygiene | Full Stack |
 | P2 | Add monitoring integration (DataDog/Sentry) | 2 days | Observability | DevOps |
 | P2 | WebSocket service consolidation | 5 days | Architecture | Backend |
 | P2 | Add tests for payment.service.ts | 2 days | Quality | QA/Backend |
-| **Total** | | **16 days** | **Long-term health** | |
+| **Total** | - | **16 days** | **Long-term health** | - |
 
 ### 🟢 **QUARTER 1: ONGOING IMPROVEMENTS**
 
 | Priority | Task | Effort | Impact | Owner |
-|----------|------|--------|--------|-------|
+| --- | --- | --- | --- | --- |
 | P3 | Complete ADR-001 migration to snake_case | 15 days | Architecture | Full Stack |
 | P3 | Reach 70% test coverage | 20 days | Quality | QA/Full Stack |
 | P3 | Resolve all TODO/FIXME items | 10 days | Tech debt | Full Stack |
 | P3 | Logger interface standardization | 2 days | Consistency | Full Stack |
 | P3 | Reduce 'any' usage to <200 | 5 days | Type safety | Full Stack |
-| **Total** | | **52 days** | **Excellence** | |
+| **Total** | - | **52 days** | **Excellence** | - |
 
 ---
 
@@ -1291,7 +1291,7 @@ CREATE POLICY "menu_items_restaurant_isolation" ON menu_items
 
 ### Current State
 | Metric | Current | Target | Grade |
-|--------|---------|--------|-------|
+| --- | --- | --- | --- |
 | **Security Vulnerabilities** | 2 critical, 3 high | 0 | 🔴 F |
 | **Test Coverage** | 21.3% | >70% | 🔴 F |
 | **Code Duplication** | 15+ instances | <5 | 🟡 D |
@@ -1301,11 +1301,11 @@ CREATE POLICY "menu_items_restaurant_isolation" ON menu_items
 | **Technical Debt (TODOs)** | 35 items | <10 | 🟡 C |
 | **Console.log Pollution** | 601 statements | <50 | 🔴 F |
 | **Database RLS Coverage** | 60% tables | 100% | 🟡 C+ |
-| **Overall Grade** | | | **C+ (73/100)** |
+| **Overall Grade** | - | - | **C+ (73/100)** |
 
 ### Target State (3 Months)
 | Metric | Target | Expected Grade |
-|--------|--------|----------------|
+| --- | --- | --- |
 | **Security Vulnerabilities** | 0 critical, 0 high | ✅ A+ |
 | **Test Coverage** | >70% | ✅ A |
 | **Code Duplication** | <5 instances | ✅ A |
@@ -1315,7 +1315,7 @@ CREATE POLICY "menu_items_restaurant_isolation" ON menu_items
 | **Technical Debt** | <10 TODOs | ✅ A- |
 | **Console.log Pollution** | <50 statements | ✅ A |
 | **Database RLS Coverage** | 100% tables | ✅ A+ |
-| **Overall Grade** | | **A (92/100)** |
+| **Overall Grade** | - | **A (92/100)** |
 
 ---
 
@@ -1326,7 +1326,7 @@ CREATE POLICY "menu_items_restaurant_isolation" ON menu_items
 **Total Effort Required:** 85.5 developer days (~17 weeks at 5 days/week)
 
 | Phase | Effort | Cost @ $800/day | Timeline |
-|-------|--------|-----------------|----------|
+| --- | --- | --- | --- |
 | Critical fixes (Week 1) | 5.5 days | $4,400 | Week 1 |
 | High priority (Week 2-3) | 12 days | $9,600 | Weeks 2-3 |
 | Medium priority (Month 1) | 16 days | $12,800 | Month 1 |

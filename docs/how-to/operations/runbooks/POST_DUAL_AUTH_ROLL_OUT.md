@@ -1,5 +1,8 @@
 # Runbook: Post Dual-Auth Rollout
 
+
+**Last Updated:** 2025-10-30
+
 **Status**: ACTIVE
 **Owner**: Platform Team
 **Last Updated**: 2025-10-18

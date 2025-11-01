@@ -1,5 +1,8 @@
 # Architecture Overview
 
+
+**Last Updated:** 2025-10-31
+
 [Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](./README.md) > Architecture Overview
 
 **Last Updated:** October 30, 2025

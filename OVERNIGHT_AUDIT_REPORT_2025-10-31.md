@@ -379,7 +379,7 @@ Commit pattern analysis:
 ### Immediate Actions (This Week)
 
 | # | Action | Priority | Effort | Impact |
-|---|--------|----------|--------|--------|
+| --- | --- | --- | --- | --- |
 | 1 | Fix .claude/commands/ script paths | P0 | 15 min | Unblock slash commands |
 | 2 | Remove hardcoded path in drift-check.sh | P0 | 5 min | Fix CI/CD compatibility |
 | 3 | Remove API key fragment from archive | P0 | 5 min | Eliminate security risk |
@@ -389,7 +389,7 @@ Commit pattern analysis:
 ### Short Term (Next 2 Weeks)
 
 | # | Action | Priority | Effort | Impact |
-|---|--------|----------|--------|--------|
+| --- | --- | --- | --- | --- |
 | 6 | Audit and reduce TypeScript `any` usage | P1 | 8-16 hrs | Type safety |
 | 7 | Condense CHANGELOG and ROADMAP | P1 | 2-3 hrs | Reduce bloat |
 | 8 | Add "Last Updated" to 54 missing files | P1 | 1-2 hrs | Compliance |
@@ -399,7 +399,7 @@ Commit pattern analysis:
 ### Medium Term (Next Month)
 
 | # | Action | Priority | Effort | Impact |
-|---|--------|----------|--------|--------|
+| --- | --- | --- | --- | --- |
 | 11 | Increase test coverage to 70% | P1 | 20-40 hrs | Quality |
 | 12 | Implement archive retention policy | P2 | 2-3 hrs | Cleanup |
 | 13 | Convert source code TODOs to issues | P2 | 1 hr | Tracking |

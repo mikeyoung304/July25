@@ -421,7 +421,7 @@ if (allPaid) {
 ### Common Error Codes
 
 | HTTP Status | Error Code | Description | Retry? |
-|------------|------------|-------------|--------|
+| --- | --- | --- | --- |
 | 400 | INSUFFICIENT_PAYMENT | Cash amount < order total | No |
 | 400 | ALREADY_PAID | Order already marked as paid | No |
 | 400 | CARD_DECLINED | Card payment declined by issuer | Yes (different card) |
@@ -555,7 +555,7 @@ async function processCardPayment(orderId: string, card: any, tableId?: string) 
 ### Test Cards (Square Sandbox)
 
 | Card Number | Brand | Result |
-|------------|-------|--------|
+| --- | --- | --- |
 | 4111 1111 1111 1111 | Visa | Success |
 | 5555 5555 5555 4444 | Mastercard | Success |
 | 3782 822463 10005 | Amex | Success |

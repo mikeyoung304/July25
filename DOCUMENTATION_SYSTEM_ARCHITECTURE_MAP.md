@@ -54,7 +54,7 @@ These are the ONLY files allowed at repository root per DOCUMENTATION_STANDARDS.
 Root-level docs directory contains core operational and status documents:
 
 | File | Purpose | Last Updated | Type |
-|------|---------|--------------|------|
+| --- | --- | --- | --- |
 | README.md | Comprehensive doc navigation hub | 10/30/25 | Navigation |
 | NAVIGATION.md | Role/task-based navigation guide | 10/30/25 | Navigation |
 | VERSION.md | Single source of truth for all versions | 10/30/25 | Reference |
@@ -511,7 +511,7 @@ Every documentation file MUST include:
 #### File Naming Conventions
 
 | Pattern | Usage | Example |
-|---------|-------|---------|
+| --- | --- | --- |
 | UPPERCASE_WITH_UNDERSCORES.md | Major guides | GETTING_STARTED.md |
 | LOWERCASE_WITH_HYPHENS.md | Sub-documents | database-schema.md |
 | ADR-###-TOPIC.md | Architecture decisions | ADR-006-dual-authentication-pattern.md |
@@ -549,7 +549,7 @@ Every documentation file MUST include:
 **Internal Links**: Use relative paths
 ```markdown
 [Link Text](./RELATED_DOC.md)
-[Section Link](./DOC.md#section-name)
+[Section Link](./EXAMPLE_DOC.md#section-name)
 ```
 
 **Code References**: Point to actual implementation
@@ -596,7 +596,7 @@ This uses React (see [VERSION.md](VERSION.md))
 ### 3.4 Diátaxis Framework Application
 
 | Category | Purpose | Reader Type | Content Style |
-|----------|---------|-------------|----------------|
+| --- | --- | --- | --- |
 | **Tutorials** | Learning | Beginners | Task-driven, numbered steps |
 | **How-To** | Problem-solving | Experienced users | Goal-oriented, recipes |
 | **Reference** | Facts/lookup | Any user | Structured, tables, complete |
@@ -762,7 +762,7 @@ npm run env:check     # Environment variable checks
 ### 5.3 Update Triggers & Schedules
 
 | Trigger | Frequency | Owner | Action |
-|---------|-----------|-------|--------|
+| --- | --- | --- | --- |
 | Feature release | Per version | Developer | Update CHANGELOG, VERSION.md |
 | Security issue | Immediate | Security team | Update SECURITY.md |
 | Production incident | ASAP | DevOps/Dev | Create investigation post-mortem |
@@ -1170,7 +1170,7 @@ npm run env:check     # Environment variable checks
 ## 12. GLOSSARY & KEY TERMS
 
 | Term | Definition | Location |
-|------|-----------|----------|
+| --- | --- | --- |
 | **Diátaxis** | Framework organizing docs by purpose (tutorials, how-to, reference, explanation) | Various |
 | **ADR** | Architecture Decision Record - documents key architectural choices | docs/explanation/architecture-decisions/ |
 | **RLS** | Row Level Security - Supabase security policy | ADR-002 |

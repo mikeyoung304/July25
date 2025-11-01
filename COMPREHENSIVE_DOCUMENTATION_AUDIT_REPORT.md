@@ -17,7 +17,7 @@ The Restaurant OS documentation system is **well-architected with excellent auto
 ### Key Metrics Dashboard
 
 | Category | Score | Status |
-|----------|-------|--------|
+| --- | --- | --- |
 | **Infrastructure Health** | 95/100 | ✅ Excellent |
 | **Content Quality** | 35/100 | ⚠️ Needs Work |
 | **Documentation Coverage** | 65/100 | ⚠️ Moderate |
@@ -726,7 +726,7 @@ payment_amount DECIMAL(10,2)
 **Guardrail Results:**
 
 | Guardrail | Status | Findings |
-|-----------|--------|----------|
+| --- | --- | --- |
 | 1. Orphan Detector | ✅ Working | 60 orphaned files |
 | 2. Stub Detector | ✅ Working | 5 valid stubs |
 | 3. Risk Linter | ✅ Working | 0 security risks ✅ |
@@ -781,7 +781,7 @@ payment_amount DECIMAL(10,2)
 **Execution Times:**
 
 | Tool | Average Time | Assessment |
-|------|--------------|------------|
+| --- | --- | --- |
 | docs-check.js | 0.12s | ⚠️ Excellent |
 | /docs-check bash | ~2s | ✅ Good |
 | OpenAPI validation | 0.5s | ✅ Fast |
@@ -837,7 +837,7 @@ payment_amount DECIMAL(10,2)
 **Scoring Breakdown:**
 
 | Category | Weight | Score | Weighted |
-|----------|--------|-------|----------|
+| --- | --- | --- | --- |
 | Coverage | 30% | 65/100 | 19.5 |
 | Accuracy | 40% | 70/100 | 28.0 |
 | Freshness | 20% | 60/100 | 12.0 |
@@ -851,7 +851,7 @@ payment_amount DECIMAL(10,2)
 **Component Coverage:**
 
 | Component | Coverage | Score | Status |
-|-----------|----------|-------|--------|
+| --- | --- | --- | --- |
 | **API Endpoints** | 75% | 75/100 | ⚠️ Partial |
 | **Database Schema** | 60% | 60/100 | ⚠️ Outdated |
 | **Environment Variables** | 95% | 95/100 | ✅ Excellent |
@@ -1314,7 +1314,7 @@ The 2-day lag between migrations (Oct 29) and documentation "last updated" (Oct 
 ### Summary of Effort Estimates
 
 | Priority | Tasks | Total Time | Timeframe |
-|----------|-------|------------|-----------|
+| --- | --- | --- | --- |
 | **P0 (Immediate)** | 4 tasks | 8-11 hours | Today |
 | **P1 (Short-term)** | 4 tasks | 12-15 hours | This week |
 | **P2 (Medium-term)** | 4 tasks | 5-8 days | This month |
@@ -1520,7 +1520,7 @@ The 2-day lag between migrations (Oct 29) and documentation "last updated" (Oct 
 **Confidence Breakdown:**
 
 | Area | Confidence | Justification |
-|------|------------|---------------|
+| --- | --- | --- |
 | **Infrastructure** | 95/100 | All automation tested and working |
 | **Architecture** | 90/100 | Well-designed, industry-standard |
 | **Content Accuracy** | 60/100 | Known drift issues, but fixable |

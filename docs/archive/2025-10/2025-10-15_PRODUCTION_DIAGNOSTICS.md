@@ -139,7 +139,7 @@ In Vercel Dashboard:
 ## 📈 SYSTEM HEALTH STATUS
 
 | Component | Status | Details |
-|-----------|--------|---------|
+| --- | --- | --- |
 | **Frontend (Vercel)** | 🔴 CRITICAL | No env vars, CORS blocked, auth protected |
 | **Backend (Render)** | 🟡 DEGRADED | Running but missing auth secrets |
 | **Database (Supabase)** | ✅ HEALTHY | Fully functional, 26 menu items |

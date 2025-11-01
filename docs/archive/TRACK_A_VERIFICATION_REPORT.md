@@ -9,7 +9,7 @@
 ## Executive Summary
 
 | Category | Status |
-|----------|--------|
+| --- | --- |
 | Database Schema | ✅ PASS |
 | Code Consistency | ❌ FAIL |
 | Test Suite | ❌ FAIL |

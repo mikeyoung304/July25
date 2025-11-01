@@ -1,5 +1,8 @@
 # Documentation Navigation Guide
 
+
+**Last Updated:** 2025-11-01
+
 **Last Updated:** October 30, 2025
 
 This guide helps you find documentation quickly based on what you need to accomplish.
@@ -174,7 +177,7 @@ grep -r "order flow" docs/archive --include="*.md"
 
 ### Cross-References
 - Use relative paths: `[Link](./OTHER_DOC.md)`
-- Include section anchors: `[Link](./DOC.md#section-name)`
+- Include section anchors: `[Link](./EXAMPLE_DOC.md#section-name)`
 
 ### Maintenance
 - All major docs have "Last Updated" date

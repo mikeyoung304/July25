@@ -232,7 +232,7 @@
 ## 📅 Timeline Summary
 
 | Phase | Duration | Completion Date | Status |
-|-------|----------|-----------------|--------|
+| --- | --- | --- | --- |
 | Week 1 Auth | 1 week | Oct 10, 2025 | ✅ Complete |
 | Week 2 Integration | 1 week | Oct 11, 2025 | ✅ Complete |
 | Fall Menu Deployment | 1-2 days | Awaiting menu items | ⏳ Pending user |
