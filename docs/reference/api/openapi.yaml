@@ -1,7 +1,8 @@
 openapi: 3.0.3
 info:
   title: Restaurant OS API
-  version: 6.0.8
+  version: 6.0.14
+  x-last-updated: "2025-10-31"
   description: |
     Restaurant OS provides a comprehensive API for managing restaurant operations including:
     - Point of Sale (POS)
@@ -274,6 +275,7 @@ components:
         status:
           type: string
           enum: [new, pending, confirmed, preparing, ready, picked-up, completed, cancelled]
+          description: Order lifecycle status
         items:
           type: array
           items:
@@ -296,7 +298,8 @@ components:
           description: Grand total (subtotal + tax + tip)
         payment_status:
           type: string
-          enum: [pending, paid, refunded, failed]
+          enum: [unpaid, paid, failed, refunded]
+          description: Payment lifecycle status (matches database CHECK constraint)
         payment_method:
           type: string
           enum: [cash, card, online, other]
@@ -478,6 +481,17 @@ components:
         created_at:
           type: string
           format: date-time
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required or failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid email or password"
+            code: "UNAUTHORIZED"
 
 paths:
   /health:
@@ -814,6 +828,33 @@ paths:
                           type: array
                           items:
                             $ref: '#/components/schemas/MenuItem'
+
+    post:
+      summary: Sync menu to AI service
+      tags: [Menu]
+      description: |
+        Loads menu from database and syncs to AI processing service.
+        Requires admin or manager role.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      responses:
+        '200':
+          description: Menu synced successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  restaurantId:
+                    type: string
+        '503':
+          description: AI service unavailable
 
   /menu/items:
     get:
@@ -1631,14 +1672,922 @@ paths:
                 items:
                   $ref: '#/components/schemas/Table'
 
-components:
-  responses:
-    UnauthorizedError:
-      description: Authentication required or failed
-      content:
-        application/json:
+  /login:
+    post:
+      deprecated: true
+      summary: Email/password login (deprecated - use /auth/login)
+      description: This endpoint has been moved to /auth/login and will be removed in v7.0
+      tags: [Authentication]
+      security: []
+      responses:
+        '301':
+          description: Moved Permanently to /auth/login
+
+  /pin-login:
+    post:
+      deprecated: true
+      summary: PIN login (deprecated - use /auth/pin-login)
+      description: This endpoint has been moved to /auth/pin-login and will be removed in v7.0
+      tags: [Authentication]
+      security: []
+      responses:
+        '301':
+          description: Moved Permanently to /auth/pin-login
+
+  /station-login:
+    post:
+      deprecated: true
+      summary: Station login (deprecated - use /auth/station-login)
+      description: This endpoint has been moved to /auth/station-login and will be removed in v7.0
+      tags: [Authentication]
+      security: []
+      responses:
+        '301':
+          description: Moved Permanently to /auth/station-login
+
+  /me:
+    get:
+      deprecated: true
+      summary: Get current user (deprecated - use /auth/me)
+      description: This endpoint has been moved to /auth/me and will be removed in v7.0
+      tags: [Authentication]
+      responses:
+        '301':
+          description: Moved Permanently to /auth/me
+
+  /logout:
+    post:
+      deprecated: true
+      summary: Logout (deprecated - use /auth/logout)
+      description: This endpoint has been moved to /auth/logout and will be removed in v7.0
+      tags: [Authentication]
+      responses:
+        '301':
+          description: Moved Permanently to /auth/logout
+
+  /refresh:
+    post:
+      deprecated: true
+      summary: Refresh token (deprecated - use /auth/refresh)
+      description: This endpoint has been moved to /auth/refresh and will be removed in v7.0
+      tags: [Authentication]
+      security: []
+      responses:
+        '301':
+          description: Moved Permanently to /auth/refresh
+
+  /demo-session:
+    post:
+      deprecated: true
+      summary: Create demo session (deprecated - use /auth/demo-session)
+      description: This endpoint has been moved to /auth/demo-session and will be removed in v7.0
+      tags: [Authentication]
+      security: []
+      responses:
+        '301':
+          description: Moved Permanently to /auth/demo-session
+
+  /set-pin:
+    post:
+      deprecated: true
+      summary: Set user PIN (deprecated - use /auth/set-pin)
+      description: This endpoint has been moved to /auth/set-pin and will be removed in v7.0
+      tags: [Authentication]
+      responses:
+        '301':
+          description: Moved Permanently to /auth/set-pin
+
+  /revoke-stations:
+    post:
+      deprecated: true
+      summary: Revoke station tokens (deprecated - use /auth/revoke-stations)
+      description: This endpoint has been moved to /auth/revoke-stations and will be removed in v7.0
+      tags: [Authentication]
+      responses:
+        '301':
+          description: Moved Permanently to /auth/revoke-stations
+
+  /inventory:
+    post:
+      summary: Update inventory levels (admin only)
+      tags: [Menu]
+      description: Batch update inventory levels for menu items
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      menu_item_id:
+                        type: string
+                        format: uuid
+                      in_stock:
+                        type: boolean
+      responses:
+        '200':
+          description: Inventory updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  updated_count:
+                    type: integer
+
+  /menu/cache/clear:
+    post:
+      summary: Clear menu cache
+      tags: [Menu]
+      description: Clears the menu cache for a specific restaurant
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      responses:
+        '200':
+          description: Cache cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /menu/sync-ai:
+    post:
+      summary: Sync menu to AI gateway
+      tags: [Menu]
+      description: Synchronizes menu data to AI processing service
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      responses:
+        '200':
+          description: Menu synced to AI
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /categories:
+    get:
+      deprecated: true
+      summary: Get menu categories (deprecated - use /menu/categories)
+      description: This endpoint has been moved to /menu/categories and will be removed in v7.0
+      tags: [Menu]
+      security: []
+      responses:
+        '301':
+          description: Moved Permanently to /menu/categories
+
+  /items:
+    get:
+      deprecated: true
+      summary: Get menu items (deprecated - use /menu/items)
+      description: This endpoint has been moved to /menu/items and will be removed in v7.0
+      tags: [Menu]
+      security: []
+      responses:
+        '301':
+          description: Moved Permanently to /menu/items
+
+  /items/{id}:
+    get:
+      deprecated: true
+      summary: Get menu item (deprecated - use /menu/items/{id})
+      description: This endpoint has been moved to /menu/items/{id} and will be removed in v7.0
+      tags: [Menu]
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
           schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: "Invalid email or password"
-            code: "UNAUTHORIZED"
+            type: string
+            format: uuid
+      responses:
+        '301':
+          description: Moved Permanently to /menu/items/{id}
+
+  /payments:
+    post:
+      deprecated: true
+      summary: Process payment (deprecated - use /payments/create)
+      description: This endpoint has been moved to /payments/create and will be removed in v7.0
+      tags: [Payments]
+      responses:
+        '301':
+          description: Moved Permanently to /payments/create
+
+  /cash:
+    post:
+      deprecated: true
+      summary: Process cash payment (deprecated - use /payments/cash)
+      description: This endpoint has been moved to /payments/cash and will be removed in v7.0
+      tags: [Payments]
+      responses:
+        '301':
+          description: Moved Permanently to /payments/cash
+
+  /{paymentId}:
+    get:
+      deprecated: true
+      summary: Get payment (deprecated - use /payments/{paymentId})
+      description: This endpoint has been moved to /payments/{paymentId} and will be removed in v7.0
+      tags: [Payments]
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '301':
+          description: Moved Permanently to /payments/{paymentId}
+
+  /{paymentId}/refund:
+    post:
+      deprecated: true
+      summary: Refund payment (deprecated - use /payments/{paymentId}/refund)
+      description: This endpoint has been moved to /payments/{paymentId}/refund and will be removed in v7.0
+      tags: [Payments]
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '301':
+          description: Moved Permanently to /payments/{paymentId}/refund
+
+  /chat:
+    post:
+      summary: Chat with AI assistant
+      tags: [Voice & AI]
+      description: |
+        Text-based chat with AI assistant using menu context.
+        Uses OpenAI with restaurant-specific menu knowledge.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  example: "What do you have for lunch?"
+      responses:
+        '200':
+          description: Chat response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  restaurantId:
+                    type: string
+        '503':
+          description: AI service unavailable
+
+  /transcribe:
+    post:
+      summary: Transcribe audio to text
+      tags: [Voice & AI]
+      description: |
+        Transcribes audio file to text using OpenAI Whisper.
+        Supports WAV, MP3, and OGG formats.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio file to transcribe
+      responses:
+        '200':
+          description: Audio processed
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        '503':
+          description: AI service unavailable
+
+  /transcribe-with-metadata:
+    post:
+      summary: Transcribe audio with metadata
+      tags: [Voice & AI]
+      description: |
+        Transcribes audio and returns both transcription text and metadata.
+        Returns JSON instead of audio response.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Transcription successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  text:
+                    type: string
+                  transcript:
+                    type: string
+                  duration:
+                    type: number
+                  restaurantId:
+                    type: string
+
+  /voice-chat:
+    post:
+      summary: Voice chat with AI (audio in, audio out)
+      tags: [Voice & AI]
+      description: |
+        Complete voice chat flow: transcribe, chat, and generate audio response.
+        Combines transcription and TTS in one endpoint.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Voice chat response (format depends on Accept header)
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+                description: TTS audio response
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  transcript:
+                    type: string
+                  response:
+                    type: string
+                  orderData:
+                    type: object
+                  restaurantId:
+                    type: string
+
+  /parse-order:
+    post:
+      summary: Parse order from text using AI
+      tags: [Voice & AI]
+      description: |
+        Parses natural language text into structured order data.
+        Returns matched menu items with quantities and modifications.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  example: "I want two Soul Bowls and a Greek Salad"
+      responses:
+        '200':
+          description: Order parsed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  items:
+                    type: array
+                    items:
+                      type: object
+                  restaurantId:
+                    type: string
+        '422':
+          description: Unknown menu items
+
+  /voice:
+    post:
+      deprecated: true
+      summary: Process voice order (deprecated - use /orders/voice)
+      description: This endpoint has been moved to /orders/voice and will be removed in v7.0
+      tags: [Voice & AI]
+      responses:
+        '301':
+          description: Moved Permanently to /orders/voice
+
+  /session:
+    post:
+      summary: Create WebRTC voice session
+      tags: [Voice & AI]
+      description: |
+        Creates ephemeral token for OpenAI Realtime API (WebRTC).
+        Token expires after 1 minute. Used for real-time voice ordering.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - restaurantId
+              properties:
+                restaurantId:
+                  type: string
+                  format: uuid
+                userId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Session token created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Ephemeral WebRTC token
+                  restaurant_id:
+                    type: string
+                  menu_context:
+                    type: string
+                  expires_at:
+                    type: integer
+
+  /test-tts:
+    post:
+      summary: Test text-to-speech endpoint
+      tags: [Voice & AI]
+      description: |
+        Development/testing endpoint for TTS.
+        Converts text to audio for testing purposes.
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  default: "Hello, this is a test of text to speech."
+      responses:
+        '200':
+          description: Audio generated
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+
+  /test-transcribe:
+    post:
+      summary: Test transcription endpoint
+      tags: [Voice & AI]
+      description: |
+        Development/testing endpoint for transcription.
+        Upload audio, get text back.
+      security: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Transcription successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  text:
+                    type: string
+                  duration:
+                    type: number
+
+  /test/error:
+    post:
+      summary: Test error handling
+      tags: [Health]
+      description: Development endpoint to test error handling and monitoring
+      security: []
+      responses:
+        '500':
+          description: Intentional error for testing
+
+  /terminal/checkout:
+    post:
+      summary: Create Square Terminal checkout
+      tags: [Payments]
+      description: |
+        Creates a payment checkout on a Square Terminal device.
+        Used for card-present transactions.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+                - deviceId
+              properties:
+                orderId:
+                  type: string
+                  format: uuid
+                deviceId:
+                  type: string
+                  description: Square Terminal device ID
+      responses:
+        '200':
+          description: Terminal checkout created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  checkout:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                      createdAt:
+                        type: string
+                      updatedAt:
+                        type: string
+
+  /terminal/checkout/{checkoutId}:
+    get:
+      summary: Get terminal checkout status
+      tags: [Payments]
+      description: Retrieves status of a Square Terminal checkout
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: checkoutId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Checkout status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  checkout:
+                    type: object
+                  payment:
+                    type: object
+
+  /terminal/checkout/{checkoutId}/cancel:
+    post:
+      summary: Cancel terminal checkout
+      tags: [Payments]
+      description: Cancels an in-progress Square Terminal checkout
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: checkoutId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Checkout cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  checkout:
+                    type: object
+
+  /terminal/checkout/{checkoutId}/complete:
+    post:
+      summary: Complete order after terminal payment
+      tags: [Payments]
+      description: |
+        Updates order status after successful terminal payment.
+        Links payment to order and marks as paid.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: checkoutId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order payment completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  order:
+                    $ref: '#/components/schemas/Order'
+                  payment:
+                    type: object
+
+  /terminal/devices:
+    get:
+      summary: List Square Terminal devices
+      tags: [Payments]
+      description: |
+        Lists all paired Square Terminal devices for the location.
+        Used to select device for terminal checkout.
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      responses:
+        '200':
+          description: Devices retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  devices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        deviceId:
+                          type: string
+                        status:
+                          type: string
+
+  /health/detailed:
+    get:
+      summary: Detailed health check with all services
+      tags: [Health]
+      security: []
+      responses:
+        '200':
+          description: Detailed health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+                  services:
+                    type: object
+
+  /healthz:
+    get:
+      summary: Simple liveness check
+      tags: [Health]
+      description: Kubernetes liveness probe endpoint
+      security: []
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  uptime:
+                    type: number
+                  version:
+                    type: string
+
+  /ready:
+    get:
+      summary: Readiness probe
+      tags: [Health]
+      description: |
+        Kubernetes readiness probe.
+        Checks if service is ready to accept traffic (DB and AI services healthy).
+      security: []
+      responses:
+        '200':
+          description: Service ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ready:
+                    type: boolean
+        '503':
+          description: Service not ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ready:
+                    type: boolean
+                  reason:
+                    type: string
+
+  /live:
+    get:
+      summary: Liveness probe
+      tags: [Health]
+      description: Kubernetes liveness probe - checks if process is alive
+      security: []
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alive:
+                    type: boolean
+
+  /config:
+    get:
+      summary: Get client configuration
+      tags: [Health]
+      description: |
+        Returns configuration needed by client applications.
+        Includes feature flags and environment settings.
+      security: []
+      responses:
+        '200':
+          description: Configuration retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  environment:
+                    type: string
+                  features:
+                    type: object
+
+  /stats:
+    get:
+      summary: Get system statistics
+      tags: [Health]
+      description: Returns system performance and usage statistics
+      responses:
+        '200':
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uptime:
+                    type: number
+                  memory:
+                    type: object
+                  requests:
+                    type: object
+
+  /events:
+    get:
+      summary: Get system events stream
+      tags: [Health]
+      description: Server-sent events endpoint for real-time system events
+      responses:
+        '200':
+          description: Event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /metrics:
+    post:
+      summary: Log client metrics
+      tags: [Health]
+      description: Endpoint for clients to send telemetry and metrics
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                data:
+                  type: object
+      responses:
+        '200':
+          description: Metrics logged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+

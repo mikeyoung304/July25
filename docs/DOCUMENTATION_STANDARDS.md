@@ -1,6 +1,6 @@
 # Documentation Standards
 
-**Last Updated**: 2025-10-17
+**Last Updated**: 2025-10-31
 **Version**: See [VERSION.md](VERSION.md)
 
 ## Purpose
@@ -190,7 +190,7 @@ Include link text that describes destination:
 ### Anchors
 Use lowercase with hyphens:
 ```markdown
-[Security Section](#security-configuration)
+[Configuration Section](#configuration)
 ```
 
 ## Tables
@@ -238,21 +238,38 @@ When updating documentation:
 
 ## Automation
 
-### CI Checks
-The CI pipeline checks:
-- No hardcoded versions
-- Links are valid
-- Required headers present
-- .env.example is complete
+### Simplified Validation System
 
-### Scripts
+**Philosophy**: Keep automation simple and maintainable for solo development.
+
+### CI Workflow
+
+Single consolidated workflow at `.github/workflows/docs-check.yml` runs on PR/push:
+- ✅ Internal link validation
+- ✅ Diátaxis structure verification
+- ✅ Environment variable drift detection
+- ✅ Documentation bloat warnings
+
+**No external script dependencies** - all validation is inline for simplicity.
+
+### Local Pre-Commit Check
+
+Use the `/docs-check` command for quick local validation:
+
 ```bash
-# Check environment documentation
-npm run env:check
-
-# Validate environment setup
-npm run env:validate
+/docs-check
 ```
+
+This performs a fast check of:
+- Broken internal links
+- Missing "Last Updated" dates
+- Files >1000 lines (bloat warning)
+
+### Best Practices
+
+- **KISS**: Keep automation simple - inline bash over external scripts
+- **DRY**: Don't duplicate validation logic
+- **Maintainable**: One person should understand entire system in 10 minutes
 
 ## Common Patterns
 

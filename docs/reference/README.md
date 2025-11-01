@@ -1,5 +1,7 @@
 # Reference
 
+**Last Updated:** 2025-10-31
+
 **Information-oriented documentation for looking up facts, APIs, schemas, and configurations.**
 
 Reference documentation provides accurate, detailed information about the system. It's organized for quick lookup when you need specific technical details.

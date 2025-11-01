@@ -1,5 +1,7 @@
 # Codebase Audit Report - October 19, 2025
 
+**Last Updated:** 2025-10-31
+
 ## 📋 Report Files
 
 - **`codebase-audit-2025-10-19.json`** - Summary report with all 8 agent conclusions (50 lines)
@@ -233,7 +235,7 @@ npm run type-check
 
 - **Architecture Decision Records**: `/docs/adr/`
 - **Authentication Architecture**: `/docs/AUTHENTICATION_ARCHITECTURE.md`
-- **Deployment Guide**: `/docs/DEPLOYMENT.md`
+- **Deployment Guide**: `/docs/how-to/operations/DEPLOYMENT.md`
 - **Contributing Guidelines**: `/CONTRIBUTING.md` (create if missing)
 
 ## 🤝 Next Steps

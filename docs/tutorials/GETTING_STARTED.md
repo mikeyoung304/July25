@@ -1,5 +1,7 @@
 # Getting Started
 
+**Last Updated:** 2025-10-31
+
 [Home](../../index.md) > [Docs](../README.md) > [Tutorials](./README.md) > Getting Started
 
 This guide will help you set up and run Restaurant OS locally.
@@ -51,7 +53,7 @@ July25/
 └── tests/          # Test files
 ```
 
-## Auth Quickstart (v6.0.8+)
+## Auth Quickstart (v6.0.14+)
 
 Restaurant OS uses dual authentication (Supabase + localStorage). For local development:
 

@@ -1,5 +1,7 @@
 # Voice Ordering Architecture
 
+**Last Updated:** 2025-10-31
+
 ## Service-Based Architecture (v6.0.14)
 
 ```mermaid

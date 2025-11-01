@@ -1,7 +1,7 @@
 {
   "name": "restaurant-os",
   "private": true,
-  "version": "6.0.8",
+  "version": "6.0.14",
   "type": "module",
   "description": "Restaurant OS - Intelligent Restaurant Management System",
   "workspaces": [
@@ -37,7 +37,7 @@
     "test:watch": "NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' cd client && npm run test:watch",
     "test:debug": "NODE_OPTIONS='--max-old-space-size=4096 --expose-gc --inspect' cd client && npm test",
     "test:coverage": "NODE_OPTIONS='--max-old-space-size=4096' cd client && npm run test:coverage",
-    "test:e2e": "concurrently -k \"NODE_ENV=test npm run dev\" \"wait-on tcp:3001 && npx playwright test tests/e2e/**\"",
+    "test:e2e": "npx playwright test --project=chromium",
     "test:affected": "nx affected:test",
     "test:quick": "vitest --run --reporter=dot --passWithNoTests --no-color",
     "clean": "rm -rf node_modules/.vite client/dist server/dist",
@@ -70,7 +70,6 @@
     "test:a11y": "npx playwright test --project=accessibility",
     "test:api": "npx playwright test --project=api",
     "test:performance": "npx playwright test --project=performance",
-    "test:e2e": "npx playwright test --project=chromium",
     "test:e2e:smoke": "./scripts/run-smoke-tests.sh",
     "voice:smoke": "curl -s http://localhost:3001/api/v1/ai/voice/handshake | jq .",
     "memory:check": "ps aux | grep -E 'node|vite' | awk '{sum+=$6} END {printf \"Memory: %.0f MB\\n\", sum/1024}'",
@@ -84,7 +83,7 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "^12.0.0",
+    "@apidevtools/swagger-parser": "^12.1.0",
     "@axe-core/playwright": "^4.10.2",
     "@babel/preset-env": "^7.28.0",
     "@commitlint/cli": "^19.8.1",

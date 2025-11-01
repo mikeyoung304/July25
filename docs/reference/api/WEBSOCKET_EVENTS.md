@@ -1,5 +1,7 @@
 # WebSocket Events Documentation
 
+**Last Updated:** 2025-10-31
+
 **Status**: ✅ Merged into [DEPLOYMENT.md](./DEPLOYMENT.md#websockets)
 
 **Merged**: October 15, 2025

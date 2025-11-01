@@ -551,9 +551,9 @@ After configuring Square API:
 5. **Document**: Keep track of which tokens are used where
 
 For more information:
-- See [DEPLOYMENT.md](./docs/DEPLOYMENT.md#square-integration) for deployment details
-- See [ENVIRONMENT.md](./docs/ENVIRONMENT.md) for all environment variables
-- See [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) for common issues
+- See [DEPLOYMENT.md](../../../how-to/operations/DEPLOYMENT.md#square-integration) for deployment details
+- See [ENVIRONMENT.md](../../config/ENVIRONMENT.md) for all environment variables
+- See [TROUBLESHOOTING.md](../../../how-to/troubleshooting/TROUBLESHOOTING.md) for common issues
 
 ---
 

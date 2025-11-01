@@ -281,7 +281,7 @@ const quantityMap: Record<string, number> = {
 
 ### Database Schema State
 
-**File**: `docs/DATABASE.md` (Documentation)
+**File**: `docs/reference/schema/DATABASE.md` (Documentation)
 
 **Lines 30, 172, 248**: Schema inconsistencies
 
@@ -519,7 +519,7 @@ const items = processor.parseTranscriptForItems(transcript);
 **Impact**: None (runtime) - Causes confusion for developers
 
 **Evidence (Signals)**:
-- `docs/DATABASE.md` says `customer_info JSONB`, reality is `customer_name VARCHAR`
+- `docs/reference/schema/DATABASE.md` says `customer_info JSONB`, reality is `customer_name VARCHAR`
 - Docs say `total`, reality is `total_amount`
 - Docs say `tip` column, reality is tip stored in metadata
 
@@ -535,7 +535,7 @@ FROM information_schema.columns
 WHERE table_name = 'orders'
 ORDER BY ordinal_position;
 
--- Compare with docs/DATABASE.md documentation
+-- Compare with docs/reference/schema/DATABASE.md documentation
 ```
 
 **Fix**: Update DATABASE.md to match actual schema
@@ -944,7 +944,7 @@ Monitor:
 | `client/src/modules/voice/services/VoiceOrderProcessor.ts` | 191 | Hardcoded tax 8% |
 | `shared/cart.ts` | 42, 50 | Hardcoded tax 8.25% |
 | `client/src/pages/CheckoutPage.tsx` | 72-75 | Sends totals to server |
-| `docs/DATABASE.md` | 30, 172, 248 | Documentation drift |
+| `docs/reference/schema/DATABASE.md` | 30, 172, 248 | Documentation drift |
 
 ### B. Commit References
 

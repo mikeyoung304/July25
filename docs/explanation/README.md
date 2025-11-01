@@ -1,5 +1,7 @@
 # Explanation
 
+**Last Updated:** 2025-10-31
+
 **Understanding-oriented documentation that clarifies and deepens knowledge.**
 
 Explanations help you understand the reasoning, design decisions, and concepts behind Restaurant OS. They provide context and illuminate the "why" behind technical choices.

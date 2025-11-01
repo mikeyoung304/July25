@@ -2,8 +2,9 @@
 
 **Status**: ACCEPTED
 **Date**: 2025-10-17
+**Last Updated:** 2025-10-31
 **Deciders**: Technical Lead
-**Related**: [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md)
+**Related**: [AUTHENTICATION_ARCHITECTURE.md](../architecture/AUTHENTICATION_ARCHITECTURE.md)
 
 ---
 
@@ -362,8 +363,8 @@ Track these metrics to inform production decision:
 - **Implementation**: `client/src/services/http/httpClient.ts:109-148`
 - **Auth Context**: `client/src/contexts/AuthContext.tsx:328-375`
 - **Demo Auth Service**: `client/src/services/auth/demoAuth.ts`
-- **Architecture Doc**: [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md)
-- **Production Status**: [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md)
+- **Architecture Doc**: [AUTHENTICATION_ARCHITECTURE.md](../architecture/AUTHENTICATION_ARCHITECTURE.md)
+- **Production Status**: [PRODUCTION_STATUS.md](../../PRODUCTION_STATUS.md)
 
 ---
 

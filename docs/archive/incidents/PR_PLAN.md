@@ -918,7 +918,7 @@ describe('Order Creation Flows - Integration', () => {
 
 ### Files to Update
 
-1. **docs/DATABASE.md**
+1. **docs/reference/schema/DATABASE.md**
    - Update orders table schema to match reality
    - Fix: `customer_info` → `customer_name`
    - Fix: `total` → `total_amount`

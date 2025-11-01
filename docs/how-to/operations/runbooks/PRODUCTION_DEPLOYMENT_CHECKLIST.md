@@ -1,7 +1,7 @@
 # Production Deployment Checklist - Demo Payments Mode
 
 **Date:** October 27, 2025
-**Version:** v6.0.12
+**Version:** v6.0.14
 **Deployment Mode:** Demo Payments (Safe Production Test)
 
 ## Pre-Deployment Verification
@@ -286,4 +286,4 @@ curl https://july25.onrender.com/api/health
 
 **Prepared by:** Claude Code
 **Date:** October 27, 2025
-**Version:** v6.0.12
+**Version:** v6.0.14

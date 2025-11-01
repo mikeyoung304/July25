@@ -1,5 +1,7 @@
 # C4 Container Diagram - Restaurant OS
 
+**Last Updated:** 2025-10-31
+
 **Level**: Container (Level 2)
 **Purpose**: Shows high-level technical architecture
 

@@ -36,9 +36,9 @@ git push origin main → GitHub Actions detects migrations → Deploy migrations
 6. Done! CI/CD handles the rest.
 
 **Related Documentation:**
-- Standard deployment → [DEPLOYMENT.md](./DEPLOYMENT.md)
-- Database connection/troubleshooting → [SUPABASE_CONNECTION_GUIDE.md](./SUPABASE_CONNECTION_GUIDE.md)
-- Migration system → [../supabase/MIGRATION_BASELINE.md](../supabase/MIGRATION_BASELINE.md)
+- Standard deployment → [DEPLOYMENT.md](../operations/DEPLOYMENT.md)
+- Database connection/troubleshooting → [SUPABASE_CONNECTION_GUIDE.md](../../SUPABASE_CONNECTION_GUIDE.md)
+- Migration system → [../supabase/MIGRATION_BASELINE.md](../../../supabase/MIGRATION_BASELINE.md)
 
 ---
 

@@ -171,13 +171,22 @@ Customer orders with embedded items and payment info.
 | status | VARCHAR(50) | pending → confirmed → preparing → ready → completed OR cancelled |
 | type | VARCHAR(50) | dine-in, takeout, delivery, drive-thru |
 | table_number | INTEGER | Table number (if dine-in) |
+| seat_number | INTEGER | Seat number for multi-seat orders (nullable) |
 | **customer_info** | **JSONB** | **Customer contact details** |
 | **items** | **JSONB** | **Order line items (embedded)** |
 | subtotal | DECIMAL(10,2) | Pre-tax total |
 | tax | DECIMAL(10,2) | Tax amount (8.25%) |
 | tip | DECIMAL(10,2) | Tip amount |
 | total | DECIMAL(10,2) | Final total (subtotal + tax + tip) |
-| **payment_info** | **JSONB** | **Payment method & transaction details** |
+| payment_status | VARCHAR(20) | Payment status: 'unpaid', 'paid', 'failed', 'refunded' (default: 'unpaid') |
+| payment_method | VARCHAR(20) | Payment method: 'cash', 'card', 'house_account', 'gift_card', 'other' |
+| payment_amount | DECIMAL(10,2) | Amount paid (may differ from total for partial payments) |
+| cash_received | DECIMAL(10,2) | Cash amount received (for cash payments) |
+| change_given | DECIMAL(10,2) | Change returned to customer |
+| payment_id | VARCHAR(255) | External payment processor reference ID (e.g., Square payment ID) |
+| check_closed_at | TIMESTAMPTZ | When the check was closed/paid |
+| closed_by_user_id | UUID | User who closed the check (FK to users) |
+| **payment_info** | **JSONB** | **Payment method & transaction details (legacy)** |
 | **metadata** | **JSONB** | **Flexible additional data** |
 | created_at | TIMESTAMPTZ | Order creation time |
 | updated_at | TIMESTAMPTZ | Last status update |
@@ -234,11 +243,11 @@ Customer orders with embedded items and payment info.
 }
 ```
 
-**Order Status Flow** (7 required states):
+**Order Status Flow** (8 required states):
 ```
-pending → confirmed → preparing → ready → served → completed
+new → pending → confirmed → preparing → ready → picked-up → completed
 ↓
-cancelled
+cancelled (at any point)
 ```
 
 **RLS Policy**:
@@ -400,10 +409,12 @@ audit_logs → users, restaurants (N:1)
 - expo
 
 **Order Status:**
+- new
 - pending
+- confirmed
 - preparing
 - ready
-- delivered
+- picked-up
 - completed
 - cancelled
 
@@ -418,16 +429,18 @@ audit_logs → users, restaurants (N:1)
 - terminal
 
 **Payment Status:**
-- pending
-- completed
+- unpaid
+- paid
 - failed
 - refunded
 
 ### Monetary Values
 
-All monetary values are stored as **integers in cents** to avoid floating-point precision issues.
-- $10.00 = 1000
-- $0.99 = 99
+All monetary values (subtotal, tax, total, payment_amount, etc.) are stored as `DECIMAL(10,2)` to represent dollars with two decimal places.
+
+**Example:** $10.00 is stored as `10.00` (not 1000)
+
+**Important:** Do NOT multiply prices by 100. The values are stored in dollars, not cents.
 
 ### Timestamps
 
@@ -509,9 +522,45 @@ CREATE OR REPLACE FUNCTION create_order_with_audit(
   p_notes TEXT DEFAULT NULL,
   p_customer_name VARCHAR DEFAULT NULL,
   p_table_number VARCHAR DEFAULT NULL,
+  p_seat_number INTEGER DEFAULT NULL,
   p_metadata JSONB DEFAULT '{}'::jsonb
 )
-RETURNS TABLE (...) -- Returns full order record
+RETURNS TABLE (
+  -- Returns full order record including all payment fields
+  id UUID,
+  restaurant_id UUID,
+  order_number VARCHAR,
+  type VARCHAR,
+  status VARCHAR,
+  items JSONB,
+  subtotal DECIMAL,
+  tax DECIMAL,
+  total_amount DECIMAL,
+  notes TEXT,
+  customer_name VARCHAR,
+  table_number VARCHAR,
+  seat_number INTEGER,
+  metadata JSONB,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  preparing_at TIMESTAMPTZ,
+  ready_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  cancelled_at TIMESTAMPTZ,
+  scheduled_pickup_time TIMESTAMPTZ,
+  auto_fire_time TIMESTAMPTZ,
+  is_scheduled BOOLEAN,
+  manually_fired BOOLEAN,
+  version INTEGER,
+  payment_status VARCHAR,
+  payment_method VARCHAR,
+  payment_amount DECIMAL,
+  cash_received DECIMAL,
+  change_given DECIMAL,
+  payment_id VARCHAR,
+  check_closed_at TIMESTAMPTZ,
+  closed_by_user_id UUID
+)
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
@@ -561,6 +610,7 @@ interface CreateOrderParams {
   p_notes?: string | null;
   p_customer_name?: string | null;
   p_table_number?: string | null;
+  p_seat_number?: number | null;
   p_metadata?: Record<string, any>;
 }
 

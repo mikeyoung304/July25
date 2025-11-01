@@ -1,5 +1,7 @@
 # Voice Ordering — Moved to Canonical Documentation
 
+**Last Updated:** 2025-10-31
+
 **This file has been merged into canonical documentation.**
 
 ## Voice Authentication & WebRTC

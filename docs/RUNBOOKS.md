@@ -1,13 +1,15 @@
 # Operational Runbooks
 
+**Last Updated:** 2025-10-31
+
 Quick-reference incident response procedures. Each runbook is a step-by-step guide requiring no additional context.
 
 ## Table of Contents
-1. [Order Submission Fails with 500 Error](#order-submission-500)
-2. [Order Submission Fails with 403 Error](#order-submission-403)
-3. [Schema Drift Detected](#schema-drift)
-4. [Vercel Build Failures](#vercel-build-fail)
-5. [WebSocket Connection Issues](#websocket-issues)
+1. [Order Submission Fails with 500 Error](#1-order-submission-fails-with-500-error)
+2. [Order Submission Fails with 403 Error](#2-order-submission-fails-with-403-error)
+3. [Schema Drift Detected](#3-schema-drift-detected)
+4. [Vercel Build Failures](#4-vercel-build-failures)
+5. [WebSocket Connection Issues](#5-websocket-connection-issues)
 
 ---
 
@@ -41,7 +43,7 @@ Quick-reference incident response procedures. Each runbook is a step-by-step gui
    ```
 6. Test order submission again
 
-**See also:** [Schema Drift Runbook](#schema-drift)
+**See also:** [Schema Drift Runbook](#3-schema-drift-detected)
 
 ---
 

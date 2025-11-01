@@ -1,0 +1,272 @@
+================================================================================
+           RESTAURANT OS 6.0 - DOCUMENTATION SYSTEM ARCHITECTURE
+================================================================================
+
+COMPLETE SYSTEM OVERVIEW (126 FILES, 2.0 MB)
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          PROJECT ROOT STRUCTURE                              │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  README.md ─────────────────┬──────────────────────────────────────────────┐ │
+│  index.md                   │  DOCUMENTATION SYSTEM                        │ │
+│  SECURITY.md                │  (Diátaxis Framework)                        │ │
+│  CONTRIBUTING.md            │                                              │ │
+│                             │  • Tutorials (Learning-Oriented)             │ │
+│  ┌──────────────────────────┴──────────────────────────────────────────┐   │ │
+│  │                                                                      │   │ │
+│  │                         /docs/ (126 files)                         │   │ │
+│  │                                                                      │   │ │
+│  ├─ Root Level (19 files)                                             │   │ │
+│  │  ├─ VERSION.md                 ◄─── SOURCE OF TRUTH               │   │ │
+│  │  ├─ CHANGELOG.md                                                   │   │ │
+│  │  ├─ DOCUMENTATION_STANDARDS.md ◄─── ALL REQUIREMENTS              │   │ │
+│  │  └─ ... (16 other core files)                                     │   │ │
+│  │                                                                      │   │ │
+│  ├─ tutorials/                    ◄─── Learning-Oriented              │   │ │
+│  │  └─ GETTING_STARTED.md                                             │   │ │
+│  │                                                                      │   │ │
+│  ├─ how-to/                       ◄─── Goal-Oriented                  │   │ │
+│  │  ├─ operations/ (deployment, KDS, runbooks)                        │   │ │
+│  │  ├─ development/ (CI/CD, contributing)                             │   │ │
+│  │  └─ troubleshooting/ (issues, auth debugging)                      │   │ │
+│  │                                                                      │   │ │
+│  ├─ reference/                    ◄─── Information-Oriented           │   │ │
+│  │  ├─ api/ (REST, WebSocket, Square, OpenAPI)                        │   │ │
+│  │  ├─ schema/ (database)                                             │   │ │
+│  │  └─ config/ (environment, auth roles)                              │   │ │
+│  │                                                                      │   │ │
+│  ├─ explanation/                  ◄─── Understanding-Oriented         │   │ │
+│  │  ├─ architecture/ (system, auth, diagrams)                         │   │ │
+│  │  ├─ architecture-decisions/ (ADR-001 to ADR-009)                   │   │ │
+│  │  └─ concepts/ (menu, orders, Square, auth)                         │   │ │
+│  │                                                                      │   │ │
+│  ├─ naming/          Terminology standards & guardrails                │   │ │
+│  ├─ voice/           Voice ordering implementation                     │   │ │
+│  ├─ investigations/   Incident analysis (8 files)                      │   │ │
+│  ├─ incidents/       Historical incidents                              │   │ │
+│  ├─ meta/            Documentation meta (SOURCE_OF_TRUTH.md)           │   │ │
+│  ├─ audit/           Quality audits & checklists                       │   │ │
+│  ├─ research/        Research documents                                │   │ │
+│  ├─ strategy/        Strategic planning                                │   │ │
+│  └─ archive/         Historical documentation (30+ files)              │   │ │
+│                                                                         │   │ │
+│  └──────────────────────────────────────────────────────────────────┘   │ │
+│                                                                          │ │
+│ ┌────────────────────────────────────────────────────────────────────┐ │ │
+│ │              AUTOMATION & VALIDATION SYSTEMS                       │ │ │
+│ ├────────────────────────────────────────────────────────────────────┤ │ │
+│ │                                                                    │ │ │
+│ │ CI/CD Workflows                    Local Commands                │ │ │
+│ │ ├─ .github/workflows/docs-check.yml    ├─ /docs-check            │ │ │
+│ │ │  • Link validation                   │  (Claude Code)          │ │ │
+│ │ │  • Structure checks                  │  • Quick pre-commit     │ │ │
+│ │ │  • Env var drift                     └─ npm run docs:check     │ │ │
+│ │ │  • Bloat detection                      (Full validation)      │ │ │
+│ │ │                                                                  │ │ │
+│ │ └─ .github/workflows/docs-ci.yml                                  │ │ │
+│ │    • Node.js 20 integration                                       │ │ │
+│ │    • npm script invocation                                        │ │ │
+│ │                                                                    │ │ │
+│ │ Validation Scripts                                                │ │ │
+│ │ └─ scripts/docs-check.js (437 lines, 5 guardrails)               │ │ │
+│ │    1. Orphan Detector ─────────► finds unlisted files            │ │ │
+│ │    2. Stub Detector ──────────► validates navigation stubs       │ │ │
+│ │    3. Risk Linter ───────────► finds security issues             │ │ │
+│ │    4. Anchor Linter ─────────► verifies link targets             │ │ │
+│ │    5. Reality Greps ─────────► checks code matches docs          │ │ │
+│ │                                                                    │ │ │
+│ └────────────────────────────────────────────────────────────────────┘ │ │
+│                                                                          │ │
+│ ┌────────────────────────────────────────────────────────────────────┐ │ │
+│ │                    STANDARDS & POLICIES                           │ │ │
+│ ├────────────────────────────────────────────────────────────────────┤ │ │
+│ │                                                                    │ │ │
+│ │ Required Metadata (every file):                                   │ │ │
+│ │ • Last Updated: YYYY-MM-DD                                        │ │ │
+│ │ • Version: [Link to VERSION.md]                                   │ │ │
+│ │                                                                    │ │ │
+│ │ File Naming:                                                       │ │ │
+│ │ • UPPERCASE_WITH_UNDERSCORES.md  ─► Major guides                 │ │ │
+│ │ • lowercase-with-hyphens.md      ─► Sub-documents                │ │ │
+│ │ • ADR-###-topic.md               ─► Architecture decisions       │ │ │
+│ │                                                                    │ │ │
+│ │ Root Directory Policy (4 files only):                             │ │ │
+│ │ • README.md, index.md, SECURITY.md, CONTRIBUTING.md              │ │ │
+│ │   (Prevents clutter, follows industry best practices)             │ │ │
+│ │                                                                    │ │ │
+│ │ All files must be linked from index.md (orphan detection)         │ │ │
+│ │                                                                    │ │ │
+│ └────────────────────────────────────────────────────────────────────┘ │ │
+│                                                                          │ │
+│ ┌────────────────────────────────────────────────────────────────────┐ │ │
+│ │                   CONTENT LIFECYCLE                               │ │ │
+│ ├────────────────────────────────────────────────────────────────────┤ │ │
+│ │                                                                    │ │ │
+│ │  Issue/Feature Identified                                         │ │ │
+│ │        ↓                                                           │ │ │
+│ │  Create/Update Documentation                                      │ │ │
+│ │   • Follow DOCUMENTATION_STANDARDS.md                             │ │ │
+│ │   • Add "Last Updated" date                                       │ │ │
+│ │   • Link to VERSION.md                                            │ │ │
+│ │   • Test code examples                                            │ │ │
+│ │        ↓                                                           │ │ │
+│ │  Local Pre-Commit Check (npm run docs:check)                      │ │ │
+│ │        ↓                                                           │ │ │
+│ │  Create Pull Request                                              │ │ │
+│ │        ↓                                                           │ │ │
+│ │  CI Validation (automatic)                                        │ │ │
+│ │   • docs-check.yml (link validation)                              │ │ │
+│ │   • docs-ci.yml (npm integration)                                 │ │ │
+│ │   • scripts/docs-check.js (5 guardrails)                          │ │ │
+│ │        ↓                                                           │ │ │
+│ │  Merge (if all checks pass)                                       │ │ │
+│ │        ↓                                                           │ │ │
+│ │  Quarterly Review                                                 │ │ │
+│ │   • Audit accuracy against code                                   │ │ │
+│ │   • Move stale docs to archive/                                   │ │ │
+│ │                                                                    │ │ │
+│ └────────────────────────────────────────────────────────────────────┘ │ │
+│                                                                          │ │
+└──────────────────────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+KEY INTEGRATION POINTS
+════════════════════════════════════════════════════════════════════════════════
+
+  VERSION.md (Source of Truth)
+       │
+       ├─► package.json (version sync)
+       │        │
+       │        └─► CI/CD Workflows
+       │              │
+       │              ├─► docs-check.yml (validation)
+       │              │        │
+       │              │        ├─► Link checking
+       │              │        ├─► Diátaxis structure
+       │              │        ├─► Env var drift
+       │              │        └─► Bloat detection
+       │              │
+       │              └─► docs-ci.yml (npm integration)
+       │
+       ├─► All Documentation Files (link to VERSION.md)
+       │        │
+       │        └─► scripts/docs-check.js (validation)
+       │              │
+       │              ├─► Orphan detection (index.md)
+       │              ├─► Stub validation
+       │              ├─► Risk linting
+       │              ├─► Anchor linting
+       │              └─► Reality greps
+       │
+       └─► GitHub Integration
+              │
+              ├─► SECURITY.md (Security Policy tab)
+              ├─► CONTRIBUTING.md (PR interface)
+              └─► Status badges
+
+
+METRICS & STATISTICS
+════════════════════════════════════════════════════════════════════════════════
+
+  Total Files:           126 markdown files
+  Total Size:            2.0 MB
+  
+  By Category:
+  • Root level:          19 files
+  • Tutorials:           2 files
+  • How-To:              8 files
+  • Reference:           12 files
+  • Explanation:         18 files
+  • Naming:              3 files
+  • Voice:               1 file
+  • Investigations:      8 files
+  • Incidents:           1 file
+  • Meta:                1 file
+  • Audit:               3 files
+  • Research:            1 file
+  • Strategy:            1 file
+  • Archive:             30+ files
+  
+  Metadata Coverage:
+  • Files with "Last Updated":  85+ (67%)
+  • Files with version links:   High
+  • Files in index.md:          High
+  
+  Validation Coverage:
+  • Link validation:     Comprehensive
+  • Anchor validation:   Complete
+  • Risk patterns:       5 categories scanned
+  • Reality checks:      6 patterns verified
+
+
+STRENGTHS & WEAKNESSES
+════════════════════════════════════════════════════════════════════════════════
+
+  ✅ STRENGTHS                          ⚠️  WEAKNESSES
+  ─────────────────────────────────────────────────────────────
+  • Well-organized                      • Metadata compliance (67%)
+  • Multiple automation layers          • Manual maintenance burden
+  • Single source of truth             • Documentation drift risk
+  • Clear standards                    • Limited search capability
+  • Developer-friendly                 • Script complexity
+  • Comprehensive validation           • Archive growth
+  • Historical preservation            • Testing gaps
+
+
+TOP 5 RECOMMENDATIONS (WITH EFFORT ESTIMATES)
+════════════════════════════════════════════════════════════════════════════════
+
+  PRIORITY 1 (Immediate - 2-3 weeks)
+  ──────────────────────────────────
+  1. Enforce Metadata Compliance        ▸ 2-3 hours
+     Fail on missing "Last Updated" dates
+  
+  2. Auto-Generate API Documentation   ▸ 4-6 hours
+     Extract from openapi.yaml → markdown
+  
+  3. Implement Documentation Search    ▸ 3-4 hours
+     Add GitHub/lunr.js search integration
+
+  PRIORITY 2 (Next Sprint - 6-8 weeks)
+  ────────────────────────────────────
+  4. Code Example Validation            ▸ 6-8 hours
+     Extract & verify code blocks
+  
+  5. External Link Checking            ▸ 2-3 hours
+     Validate and alert on 404s
+
+  PRIORITY 3 (Roadmap - 3+ months)
+  ────────────────────────────────
+  • Documentation versioning per release
+  • Built-in documentation server
+  • Metrics dashboard
+  • Automated compliance checks
+
+
+FOR COMPLETE DETAILS, SEE
+════════════════════════════════════════════════════════════════════════════════
+
+  DOCUMENTATION_SYSTEM_ARCHITECTURE_MAP.md     (1,237 lines)
+  • Complete directory descriptions
+  • All workflows explained in detail
+  • Standards fully documented
+  • Integration architecture
+  • Comprehensive analysis
+  • Specific recommendations
+
+  DOCUMENTATION_ARCHITECTURE_SUMMARY.md        (268 lines)
+  • Quick reference guide
+  • Key facts and figures
+  • Strengths and weaknesses
+  • Top recommendations
+  • Critical policies
+
+
+Project: Restaurant OS 6.0
+Generated: November 1, 2025
+Framework: Diátaxis (tutorials, how-to guides, reference, explanation)
+Status: Comprehensive documentation system with strong foundations
+
+================================================================================

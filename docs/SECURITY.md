@@ -1,5 +1,7 @@
 # Security Policy
 
+**Last Updated:** 2025-10-31
+
 [Home](../index.md) > [Docs](./README.md) > Security
 
 ## Supported Versions
@@ -31,7 +33,7 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 
 ### Authentication & Authorization
 
-- **Dual Authentication Pattern** (v6.0.8+): Supports both Supabase sessions and localStorage sessions
+- **Dual Authentication Pattern** (v6.0.14+): Supports both Supabase sessions and localStorage sessions
   - See [ADR-006-dual-authentication-pattern.md](./ADR-006-dual-authentication-pattern.md)
   - Production: Supabase email/password authentication
   - Development: Demo/PIN/station login

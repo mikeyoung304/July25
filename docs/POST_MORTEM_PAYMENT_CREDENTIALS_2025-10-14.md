@@ -1,5 +1,7 @@
 # Post-Mortem: Square Payment Integration Credential Mismatch
 
+**Last Updated:** 2025-10-31
+
 **Status**: ✅ Merged into [DEPLOYMENT.md](./DEPLOYMENT.md#incidents-postmortems)
 
 **Merged**: October 15, 2025

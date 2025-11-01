@@ -1,5 +1,7 @@
 # Changelog
 
+**Last Updated:** 2025-10-31
+
 All notable changes to Restaurant OS will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -731,7 +733,7 @@ This release fixes **3 critical bugs** identified in the order creation failure 
   - Default: 0.0825 (8.25%)
   - Index: `idx_restaurants_tax_rate`
   - Purpose: Per-location tax rate for compliance with local jurisdictions
-  - **File**: `docs/DATABASE.md`
+  - **File**: `docs/reference/schema/DATABASE.md`
 
 ### 🔄 Critical Data Consistency Fixes
 
@@ -747,7 +749,7 @@ This release fixes **3 critical bugs** identified in the order creation failure 
     - Migration: `supabase/migrations/20251019_add_create_order_with_audit_rpc.sql`
     - Service: `server/src/services/orders.service.ts` (updated to use RPC)
     - ADR: `docs/ADR-003-embedded-orders-pattern.md` (added transaction requirements)
-    - Docs: `docs/DATABASE.md` (added RPC function pattern section)
+    - Docs: `docs/reference/schema/DATABASE.md` (added RPC function pattern section)
   - **Issue**: Closes #117, Resolves #111 (STAB-001 verification)
   - **ACID Guarantees**: Full atomicity, consistency, isolation, durability
 
@@ -777,7 +779,7 @@ This release fixes **3 critical bugs** identified in the order creation failure 
   - Performance benchmarks (RPC vs multiple queries)
   - What should NOT be in RPC functions (WebSocket, external APIs)
   - Future RPC functions roadmap
-  - **File**: `docs/DATABASE.md`
+  - **File**: `docs/reference/schema/DATABASE.md`
 
 ###  🔒 Critical Concurrency Safety Fixes
 
@@ -793,7 +795,7 @@ This release fixes **3 critical bugs** identified in the order creation failure 
     - Migration: `supabase/migrations/20251019_add_version_to_orders.sql`
     - Service: `server/src/services/orders.service.ts` (added version checking)
     - ADR: `docs/ADR-003-embedded-orders-pattern.md` (added optimistic locking section)
-    - Docs: `docs/DATABASE.md` (added optimistic locking pattern section)
+    - Docs: `docs/reference/schema/DATABASE.md` (added optimistic locking pattern section)
   - **Issue**: Closes #118, Resolves #112 (STAB-002 verification)
   - **Pattern**: Version-based updates with automatic conflict detection
 
@@ -834,7 +836,7 @@ This release fixes **3 critical bugs** identified in the order creation failure 
   - Performance characteristics (conflict rates, overhead)
   - Monitoring queries for high-contention orders
   - Optimistic vs Pessimistic locking comparison table
-  - **File**: `docs/DATABASE.md`
+  - **File**: `docs/reference/schema/DATABASE.md`
 
 ### 📊 Impact
 - **PCI DSS Compliance**: Restored - audit log failures now properly enforced
@@ -1321,7 +1323,7 @@ it('clears interval on unmount', () => {
     - Migration: `supabase/migrations/20251019_add_batch_update_tables_rpc.sql`
     - Routes: `server/src/routes/tables.routes.ts` (RPC integration)
     - Routes: `server/src/api/routes/tables.ts` (RPC integration)
-    - Docs: `docs/DATABASE.md` (added Bulk Operations Pattern section)
+    - Docs: `docs/reference/schema/DATABASE.md` (added Bulk Operations Pattern section)
   - **Issue**: Closes #121, Resolves #108 (OPT-002 verification)
   - **Performance**: 40x faster (1000ms → 25ms for 50 tables)
 
@@ -1356,7 +1358,7 @@ it('clears interval on unmount', () => {
   - Security considerations (RLS enforcement)
   - Error handling patterns
   - When NOT to use bulk updates
-  - **File**: `docs/DATABASE.md` (lines 627-941)
+  - **File**: `docs/reference/schema/DATABASE.md` (lines 627-941)
 
 ### 🔨 Code Quality & Maintainability Fixes
 
@@ -1487,7 +1489,7 @@ it('clears interval on unmount', () => {
 - **DEPLOYMENT.md** - Added CORS configuration documentation
   - Documented all custom headers permitted in CORS requests
   - Added critical notice about header registration requirements
-  - Location: `docs/DEPLOYMENT.md:598-608`
+  - Location: `docs/how-to/operations/DEPLOYMENT.md:598-608`
 
 - **GETTING_STARTED.md** - Updated auth quickstart examples
   - Replaced deprecated roleHelpers pattern with AuthContext

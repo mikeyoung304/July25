@@ -28,14 +28,14 @@ Successfully reconciled diverged migration histories by archiving conflicting lo
 
 ## Table of Contents
 
-1. [Background: What Happened in July 2025](#background)
-2. [Discovery: October 20, 2025](#discovery)
-3. [Root Cause Analysis](#root-cause)
-4. [Reconciliation Strategy](#strategy)
-5. [Execution Timeline](#execution)
-6. [Verification & Validation](#verification)
-7. [Lessons Learned](#lessons)
-8. [Preventive Measures](#prevention)
+1. [Background: What Happened in July 2025](#background-what-happened-in-july-2025)
+2. [Discovery: October 20, 2025](#discovery-october-20-2025)
+3. [Root Cause Analysis](#root-cause-analysis)
+4. [Reconciliation Strategy](#reconciliation-strategy)
+5. [Execution Timeline](#execution-timeline)
+6. [Verification & Validation](#verification-validation)
+7. [Lessons Learned](#lessons-learned)
+8. [Preventive Measures](#preventive-measures)
 9. [References](#references)
 
 ---

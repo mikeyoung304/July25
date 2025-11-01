@@ -5,7 +5,7 @@
 ## Security Rails
 
 For security requirements and RLS enforcement, see:
-→ **[SECURITY.md#agent-operator-safety](./SECURITY.md#agent--operator-safety)**
+→ **[SECURITY.md#agent-operator-safety](./SECURITY.md#agent-operator-safety)**
 
 ## Original Content
 

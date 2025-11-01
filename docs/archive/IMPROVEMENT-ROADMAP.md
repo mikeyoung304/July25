@@ -11,7 +11,7 @@
 ## Table of Contents
 
 1. [Executive Summary](#executive-summary)
-2. [Application Purpose & Requirements](#application-purpose--requirements)
+2. [Application Purpose & Requirements](#application-purpose-requirements)
 3. [Current Architecture Deep Dive](#current-architecture-deep-dive)
 4. [Production Readiness Assessment](#production-readiness-assessment)
 5. [Restaurant-Specific Database Challenges](#restaurant-specific-database-challenges)

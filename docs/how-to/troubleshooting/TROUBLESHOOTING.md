@@ -18,7 +18,7 @@ This guide helps diagnose and resolve common issues in the Restaurant OS.
 5. [Authentication Problems](#authentication-problems)
 6. [WebSocket Connection Issues](#websocket-connection-issues)
 7. [CORS Errors](#cors-errors)
-8. [Database & RLS Problems](#database--rls-problems)
+8. [Database & RLS Problems](#database-rls-problems)
 9. [Performance Issues](#performance-issues)
 10. [Deployment Issues](#deployment-issues)
 
@@ -653,7 +653,7 @@ if (session?.access_token) {
 | **localStorage session expired** | `expiresAt < Date.now() / 1000` | Re-login with demo/PIN |
 | **Wrong localStorage format** | Parse error or missing fields | Clear localStorage, re-login |
 | **Demo endpoint disabled** | `DEMO_LOGIN_ENABLED=false` on server | Set env var to `true` |
-| **httpClient using old version** | No localStorage fallback code | Update to v6.0.8+ |
+| **httpClient using old version** | No localStorage fallback code | Update to v6.0.14+ |
 
 **Fix - Re-authenticate**:
 
@@ -672,7 +672,7 @@ console.log('New session expires:', new Date(newSession.session.expiresAt * 1000
 **Fix - Check httpClient version**:
 
 ```bash
-# Verify httpClient has dual auth support (v6.0.8+)
+# Verify httpClient has dual auth support (v6.0.14+)
 grep -A 20 "Check Supabase session" client/src/services/http/httpClient.ts
 
 # Should see both Supabase check AND localStorage fallback
@@ -1248,8 +1248,8 @@ app.use(cors({
 **CRITICAL**: If you add a new custom header to client requests, you MUST add it to the `allowedHeaders` array in `server/src/server.ts:145` to prevent CORS blocking.
 
 **Related Documentation**:
-- [DEPLOYMENT.md - CORS Configuration](./DEPLOYMENT.md#production-diagnostics)
-- [CHANGELOG.md - v6.0.9](./CHANGELOG.md#609---2025-10-18---online-order-flow-fix-cors--auth)
+- [DEPLOYMENT.md - CORS Configuration](../operations/DEPLOYMENT.md#production-diagnostics)
+- [CHANGELOG.md - v6.0.9](../../CHANGELOG.md#609-2025-10-18-online-order-flow-fix-cors-auth)
 
 ---
 

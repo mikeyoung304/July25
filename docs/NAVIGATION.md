@@ -23,7 +23,7 @@ This guide helps you find documentation quickly based on what you need to accomp
 ### I'm a Frontend Developer
 1. [Getting Started](./tutorials/GETTING_STARTED.md) - Setup environment
 2. [Architecture Overview](./explanation/architecture/ARCHITECTURE.md) - System design
-3. [API Reference](./reference/api/README.md) - API endpoints
+3. [API Reference](./reference/api/api/README.md) - API endpoints
 4. [Voice Ordering](./voice/VOICE_ORDERING_EXPLAINED.md) - Voice UI
 5. [Authentication](./explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) - Auth flows
 
@@ -31,7 +31,7 @@ This guide helps you find documentation quickly based on what you need to accomp
 1. [Getting Started](./tutorials/GETTING_STARTED.md) - Setup environment
 2. [Architecture Overview](./explanation/architecture/ARCHITECTURE.md) - System design
 3. [Database Guide](./reference/schema/DATABASE.md) - Schema
-4. [API Reference](./reference/api/README.md) - Endpoints
+4. [API Reference](./reference/api/api/README.md) - Endpoints
 5. [ADR-002: Supabase RLS](./explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md) - Security
 
 ## Navigation by Task
@@ -56,8 +56,8 @@ This guide helps you find documentation quickly based on what you need to accomp
 → [Authentication Architecture](./explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
 
 ### Integrating APIs
-→ [API Reference](./reference/api/README.md)
-→ [Square API Setup](./reference/api/SQUARE_API_SETUP.md)
+→ [API Reference](./reference/api/api/README.md)
+→ [Square API Setup](./reference/api/api/SQUARE_API_SETUP.md)
 → [WebSocket Guide](./reference/api/WEBSOCKET_EVENTS.md)
 
 ### Writing Tests
@@ -76,7 +76,7 @@ This guide helps you find documentation quickly based on what you need to accomp
 - **Node/Backend:** [Getting Started](./tutorials/GETTING_STARTED.md)
 - **Supabase/Database:** [DATABASE.md](./reference/schema/DATABASE.md), [ADR-002](./explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md)
 - **WebRTC/Voice:** [ARCHITECTURE.md](./explanation/architecture/ARCHITECTURE.md#voice-ordering-architecture), [ADR-005](./explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md)
-- **Square/Payments:** [SQUARE_API_SETUP.md](./reference/api/SQUARE_API_SETUP.md)
+- **Square/Payments:** [SQUARE_API_SETUP.md](./reference/api/api/SQUARE_API_SETUP.md)
 
 ## Documentation Structure (Diátaxis Framework)
 
@@ -136,7 +136,7 @@ grep -r "order flow" docs/archive --include="*.md"
 ### Where do I find...
 
 **API Documentation?**
-→ `/docs/reference/api/README.md`
+→ `/docs/reference/api/api/README.md`
 
 **Authentication Setup?**
 → `/docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md` and `/docs/explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md`

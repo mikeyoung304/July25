@@ -1,12 +1,14 @@
 # Naming Lexicon
 
+**Last Updated:** 2025-10-31
+
 **Version:** 2025-10-18
 **Format:** Canonical term registry
 
 ## Roles (Application Identity)
 
 ### customer
-- **Status:** ✅ Stable (v6.0.8+)
+- **Status:** ✅ Stable (v6.0.14+)
 - **Definition:** Public-facing self-service user (online orders, kiosk)
 - **Use Cases:** CheckoutPage, KioskCheckoutPage, online ordering
 - **Aliases:** `kiosk_demo` (DEPRECATED, remove after migration)

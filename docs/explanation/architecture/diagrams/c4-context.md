@@ -1,5 +1,7 @@
 # C4 Context Diagram - Restaurant OS
 
+**Last Updated:** 2025-10-31
+
 **Level**: Context (Level 1)
 **Purpose**: Shows Restaurant OS in context of users and external systems
 

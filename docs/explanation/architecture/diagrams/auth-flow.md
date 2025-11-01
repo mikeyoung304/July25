@@ -1,5 +1,7 @@
 # Authentication Flow Diagrams
 
+**Last Updated:** 2025-10-31
+
 ## Production Authentication (Supabase JWT)
 
 ```mermaid

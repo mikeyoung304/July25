@@ -1,5 +1,7 @@
 # Tutorials
 
+**Last Updated:** 2025-10-31
+
 **Learning-oriented guides to help you get started with Restaurant OS.**
 
 Tutorials are lessons that take you through a series of steps to complete a project. They are learning-oriented and help you acquire basic skills through hands-on experience.

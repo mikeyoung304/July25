@@ -1,5 +1,7 @@
 # Restaurant OS v6.0 - Production Roadmap
 
+**Last Updated:** 2025-10-31
+
 ## Current Status: 92% Production Ready ✅
 - **Version**: 6.0.14
 - **Stage**: Production Ready (Voice Refactoring Complete)
@@ -288,7 +290,7 @@
 7. [ ] Test online ordering
 8. [ ] Verify images load correctly
 
-**Documentation**: See [MENU_SYSTEM.md](./MENU_SYSTEM.md) for complete guide
+**Documentation**: See [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) for complete guide
 
 ---
 
@@ -312,10 +314,10 @@
 ## 📚 Documentation Created (Oct 11, 2025)
 
 New comprehensive documentation:
-- [MENU_SYSTEM.md](./MENU_SYSTEM.md) - Menu architecture & fall menu guide
-- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration) - Complete payment flow
-- [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer ordering journey (updated)
-- [DATABASE.md](./DATABASE.md) - Supabase schema with JSONB examples (updated)
+- [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) - Menu architecture & fall menu guide
+- [SQUARE_INTEGRATION.md](./how-to/operations/DEPLOYMENT.md#square-integration) - Complete payment flow
+- [ORDER_FLOW.md](./explanation/concepts/ORDER_FLOW.md) - Customer ordering journey (updated)
+- [DATABASE.md](./reference/schema/DATABASE.md) - Supabase schema with JSONB examples (updated)
 - [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - Current readiness assessment
 - [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - Fall menu testing guide (updated)
 

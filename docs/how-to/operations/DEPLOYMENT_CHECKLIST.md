@@ -1,5 +1,7 @@
 # Production Deployment Checklist
 
+**Last Updated:** 2025-10-31
+
 Use this checklist for every production deployment to ensure nothing is missed.
 
 ## Pre-Deployment

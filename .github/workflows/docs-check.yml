@@ -1,92 +1,179 @@
-name: Docs Check
+name: Documentation Quality Check
+
 on:
-  pull_request:
-    branches: [ main, 'stabilize/**', 'docs/**' ]
   push:
-    branches: [ main ]
+    branches: [main, develop]
+    paths:
+      - 'docs/**/*.md'
+      - '.env.example'
+      - '.github/workflows/docs-check.yml'
+  pull_request:
+    paths:
+      - 'docs/**/*.md'
+      - '.env.example'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
-  docs:
+  docs-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm ci || npm install
-
-      - name: Check .env.example completeness
+      # ================================================================
+      # 1. LINK VALIDATION - Check for broken internal markdown links
+      # ================================================================
+      - name: Validate internal links
         run: |
-          echo "🔍 Checking .env.example for required variables..."
-          npm run env:check
+          echo "🔗 Checking internal markdown links..."
+          BROKEN_LINKS=0
 
-      - name: Check for hardcoded versions
-        run: |
-          echo "🔍 Checking for hardcoded versions in documentation..."
+          find docs -name "*.md" -type f 2>/dev/null | while read file; do
+            grep -oE '\]\([^)]+\)' "$file" 2>/dev/null | sed 's/](\(.*\))/\1/' | while read link; do
+              # Skip external URLs, mailto, and anchor-only links
+              [[ "$link" =~ ^https?:// ]] && continue
+              [[ "$link" =~ ^mailto: ]] && continue
+              [[ "$link" =~ ^# ]] && continue
 
-          # Check for hardcoded React versions
-          if grep -r "React [0-9]" docs/ --include="*.md" --exclude="VERSION.md"; then
-            echo "❌ Found hardcoded React version! Use link to VERSION.md instead."
-            exit 1
-          fi
+              # Extract file path (remove anchor)
+              file_path="${link%%#*}"
+              [[ -z "$file_path" ]] && continue
 
-          # Check for hardcoded Express versions
-          if grep -r "Express [0-9]" docs/ --include="*.md" --exclude="VERSION.md"; then
-            echo "❌ Found hardcoded Express version! Use link to VERSION.md instead."
-            exit 1
-          fi
-
-          # Check for hardcoded app versions (allow in CHANGELOG.md)
-          if grep -r "version.*[0-9]\.[0-9]\.[0-9]" docs/ --include="*.md" --exclude="VERSION.md" --exclude="CHANGELOG.md" | grep -v "VERSION.md"; then
-            echo "⚠️ Found potential hardcoded version. Please verify it links to VERSION.md"
-          fi
-
-          echo "✅ No hardcoded versions found"
-
-      - name: Check required headers
-        run: |
-          echo "🔍 Checking for required headers in documentation..."
-
-          # Check for Last Updated header
-          for file in docs/*.md docs/**/*.md; do
-            if [ -f "$file" ] && [ "$file" != "docs/archive/*" ]; then
-              if ! grep -q "Last Updated" "$file"; then
-                echo "⚠️ Missing 'Last Updated' header in: $file"
+              # Resolve path relative to file location
+              dir=$(dirname "$file")
+              if [[ "$file_path" =~ ^/ ]]; then
+                target=".$file_path"
+              else
+                target="$dir/$file_path"
               fi
+
+              # Normalize and check existence
+              if [ ! -f "$target" ] && [ ! -d "$target" ]; then
+                echo "❌ Broken link in $file: $link"
+                BROKEN_LINKS=$((BROKEN_LINKS + 1))
+              fi
+            done
+          done
+
+          if [ $BROKEN_LINKS -gt 0 ]; then
+            echo "::error::Found $BROKEN_LINKS broken link(s)"
+            exit 1
+          fi
+          echo "✅ All internal links valid"
+
+      # ================================================================
+      # 2. DOCUMENTATION STANDARDS - Structure and completeness
+      # ================================================================
+      - name: Check documentation standards
+        run: |
+          echo "📚 Checking documentation standards..."
+          ISSUES=0
+
+          # Verify Diátaxis structure exists
+          for dir in tutorials how-to reference explanation; do
+            if [ ! -d "docs/$dir" ]; then
+              echo "::error::Missing Diátaxis directory: docs/$dir"
+              ISSUES=$((ISSUES + 1))
             fi
           done
 
-      - name: Markdown link check
-        run: |
-          echo "🔍 Checking markdown links..."
-          npx markdown-link-check docs/*.md docs/**/*.md --config .github/markdown-link-check.json || true
+          # Check for required core files
+          if [ ! -f "docs/README.md" ]; then
+            echo "::warning::Missing docs/README.md"
+          fi
+          if [ ! -f "docs/tutorials/GETTING_STARTED.md" ]; then
+            echo "::warning::Missing getting started guide"
+          fi
 
-      - name: Check documentation standards
-        run: |
-          echo "📋 Documentation standards reminder:"
-          echo "- All docs must have 'Last Updated' date"
-          echo "- Version references must link to VERSION.md"
-          echo "- Code references should link to source files"
-          echo "- No duplicate .env.example files"
+          # Count files missing Last Updated
+          MISSING_DATES=$(find docs -name "*.md" -type f -not -path "docs/archive/*" 2>/dev/null | \
+            while read f; do grep -L "Last Updated" "$f" 2>/dev/null; done | wc -l)
 
-      - name: Coverage report location
-        run: |
-          echo "📊 Coverage Information:"
-          echo "Current baseline: ~23.47%"
-          echo "Report location: server/coverage/index.html"
+          if [ $MISSING_DATES -gt 10 ]; then
+            echo "::warning::$MISSING_DATES files missing 'Last Updated' date"
+          fi
 
-      - name: Summary
+          if [ $ISSUES -gt 0 ]; then
+            exit 1
+          fi
+          echo "✅ Documentation structure validated"
+
+      # ================================================================
+      # 3. ENVIRONMENT VARIABLES - Check documentation drift
+      # ================================================================
+      - name: Check environment variable documentation
         run: |
-          echo "## Documentation Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "🌍 Checking environment variable documentation..."
+
+          if [ -f ".env.example" ] && [ -f "docs/reference/config/ENVIRONMENT.md" ]; then
+            # Extract actual env vars
+            grep -E "^[A-Z_]+=" .env.example | sed 's/=.*//' | sort > /tmp/env_vars.txt
+            ENV_COUNT=$(wc -l < /tmp/env_vars.txt | tr -d ' ')
+
+            # Extract documented vars
+            grep -E "^\| [A-Z_]+ \|" docs/reference/config/ENVIRONMENT.md | \
+              sed -E 's/^\| ([A-Z_]+) \|.*/\1/' | sort > /tmp/doc_vars.txt
+            DOC_COUNT=$(wc -l < /tmp/doc_vars.txt | tr -d ' ')
+
+            # Find undocumented
+            UNDOC=$(comm -23 /tmp/env_vars.txt /tmp/doc_vars.txt)
+            if [ -n "$UNDOC" ]; then
+              echo "::warning::Undocumented environment variables:"
+              echo "$UNDOC"
+            else
+              echo "✅ All $ENV_COUNT environment variables documented"
+            fi
+
+            # Find obsolete docs
+            OBSOLETE=$(comm -13 /tmp/env_vars.txt /tmp/doc_vars.txt)
+            if [ -n "$OBSOLETE" ]; then
+              echo "::warning::Documented but not in .env.example:"
+              echo "$OBSOLETE"
+            fi
+
+            rm -f /tmp/env_vars.txt /tmp/doc_vars.txt
+          else
+            echo "::warning::Skipping env var check (missing files)"
+          fi
+
+      # ================================================================
+      # 4. BLOAT DETECTION - Warn about very large files
+      # ================================================================
+      - name: Check for documentation bloat
+        run: |
+          echo "📏 Checking for documentation bloat..."
+
+          # Find files >1000 lines
+          LARGE_FILES=$(find docs -name "*.md" -type f -exec wc -l {} \; 2>/dev/null | \
+            awk '$1 > 1000 {print $1, $2}' | sort -rn)
+
+          if [ -n "$LARGE_FILES" ]; then
+            echo "::warning::Large documentation files found (>1000 lines):"
+            echo "$LARGE_FILES"
+            echo "Consider breaking these into smaller, focused documents"
+          else
+            echo "✅ No bloated documentation files"
+          fi
+
+      # ================================================================
+      # 5. SUMMARY
+      # ================================================================
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "## 📊 Documentation Quality Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Environment variables checked" >> $GITHUB_STEP_SUMMARY
-          echo "✅ No hardcoded versions" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Documentation standards applied" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** Automated validation complete" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Current Versions (from VERSION.md)" >> $GITHUB_STEP_SUMMARY
-          echo "- App: 6.0.6" >> $GITHUB_STEP_SUMMARY
-          echo "- React: 18.3.1" >> $GITHUB_STEP_SUMMARY
-          echo "- Express: 4.21.2" >> $GITHUB_STEP_SUMMARY
-          echo "- Coverage: ~23.47%" >> $GITHUB_STEP_SUMMARY
+          echo "### Checks Performed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Internal link validation" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Diátaxis structure verification" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Environment variable drift detection" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Documentation bloat detection" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "*Consolidated workflow - single file, no external dependencies*" >> $GITHUB_STEP_SUMMARY

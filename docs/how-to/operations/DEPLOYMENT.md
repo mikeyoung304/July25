@@ -1,5 +1,7 @@
 # Deployment Guide
 
+**Last Updated:** 2025-10-31
+
 [Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Operations](./README.md) > Deployment
 
 This guide covers deploying Restaurant OS to production environments.

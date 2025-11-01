@@ -1,5 +1,7 @@
 # Auth Diagnostic Guide - Server Login "Access Denied" Issue
 
+**Last Updated:** 2025-10-31
+
 ## Problem
 Clicking "Server" demo button on production (`https://july25-client.vercel.app`) shows "Access Denied"
 

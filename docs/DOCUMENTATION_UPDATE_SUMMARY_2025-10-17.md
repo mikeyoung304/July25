@@ -199,7 +199,7 @@ Before launching to production, review ADR-006 and answer:
 - `/client/src/services/http/httpClient.ts` (code fix)
 
 **Pending Updates**:
-- `/docs/TROUBLESHOOTING.md`
+- `/docs/how-to/troubleshooting/TROUBLESHOOTING.md`
 - `/docs/CHANGELOG.md`
 - `/docs/VERSION.md`
 - `/docs/archive/CLAUDE.md`

@@ -132,7 +132,7 @@ The Restaurant OS is **92% enterprise-grade production ready**. All core systems
 
 **Known Issues**: None
 
-**Documentation**: [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md)
+**Documentation**: [AUTHENTICATION_ARCHITECTURE.md](./explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
 
 ---
 
@@ -195,7 +195,7 @@ The Restaurant OS is **92% enterprise-grade production ready**. All core systems
 - Sub-100ms order updates
 - Handles 50+ concurrent orders smoothly
 
-**Documentation**: [KDS-BIBLE.md](./KDS-BIBLE.md)
+**Documentation**: [KDS-BIBLE.md](./how-to/operations/KDS-BIBLE.md)
 
 ---
 
@@ -237,8 +237,8 @@ The Restaurant OS is **92% enterprise-grade production ready**. All core systems
 - [ ] Verify webhook delivery (if enabled)
 
 **Documentation**:
-- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration)
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems)
+- [SQUARE_INTEGRATION.md](./how-to/operations/DEPLOYMENT.md#square-integration)
+- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./how-to/operations/DEPLOYMENT.md#incidents-post-mortems)
 
 ---
 
@@ -283,7 +283,7 @@ Menu items cached for 5 minutes (TTL 300 seconds).
 6. POST `/api/v1/menu/sync-ai`
 7. Test voice + online ordering
 
-**Documentation**: [MENU_SYSTEM.md](./MENU_SYSTEM.md)
+**Documentation**: [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md)
 
 ---
 
@@ -310,7 +310,7 @@ Menu items cached for 5 minutes (TTL 300 seconds).
 - Payment audit trail
 - Real-time kitchen updates
 
-**Documentation**: [ORDER_FLOW.md](./ORDER_FLOW.md)
+**Documentation**: [ORDER_FLOW.md](./explanation/concepts/ORDER_FLOW.md)
 
 ---
 
@@ -336,7 +336,7 @@ Menu items cached for 5 minutes (TTL 300 seconds).
 - Connection pooling enabled
 - Cache layer (5-minute TTL for menus)
 
-**Documentation**: [DATABASE.md](./DATABASE.md)
+**Documentation**: [DATABASE.md](./reference/schema/DATABASE.md)
 
 ---
 
@@ -804,27 +804,27 @@ The Restaurant OS is **production ready at 92%**. All core systems are functiona
 
 ### Core Documentation
 - [README.md](./README.md) - Documentation navigation index
-- [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - Common issues and solutions
+- [TROUBLESHOOTING.md](./how-to/troubleshooting/TROUBLESHOOTING.md) - Common issues and solutions
 - [ROADMAP.md](./ROADMAP.md) - Project timeline
 
 ### Architecture Decision Records (ADRs)
-- [ADR-001: Full snake_case Convention](./ADR-001-snake-case-convention.md)
-- [ADR-002: Multi-Tenancy Architecture](./ADR-002-multi-tenancy-architecture.md)
-- [ADR-003: Embedded Orders Pattern](./ADR-003-embedded-orders-pattern.md)
-- [ADR-004: WebSocket Real-Time Architecture](./ADR-004-websocket-realtime-architecture.md)
-- [ADR-005: Client-Side Voice Ordering](./ADR-005-client-side-voice-ordering.md)
+- [ADR-001: Full snake_case Convention](./explanation/architecture-decisions/ADR-001-snake-case-convention.md)
+- [ADR-002: Multi-Tenancy Architecture](./explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md)
+- [ADR-003: Embedded Orders Pattern](./explanation/architecture-decisions/ADR-003-embedded-orders-pattern.md)
+- [ADR-004: WebSocket Real-Time Architecture](./explanation/architecture-decisions/ADR-004-websocket-realtime-architecture.md)
+- [ADR-005: Client-Side Voice Ordering](./explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md)
 
 ### Feature Documentation
-- [MENU_SYSTEM.md](./MENU_SYSTEM.md) - Menu management & fall menu guide
-- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration) - Payment integration (Updated Oct 14)
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./DEPLOYMENT.md#incidents-postmortems) - Payment incident analysis
-- [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer ordering journey
+- [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) - Menu management & fall menu guide
+- [SQUARE_INTEGRATION.md](./how-to/operations/DEPLOYMENT.md#square-integration) - Payment integration (Updated Oct 14)
+- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./how-to/operations/DEPLOYMENT.md#incidents-post-mortems) - Payment incident analysis
+- [ORDER_FLOW.md](./explanation/concepts/ORDER_FLOW.md) - Customer ordering journey
 - [DATABASE.md](./reference/schema/DATABASE.md) - Supabase schema
 - [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - Testing procedures
 
 ---
 
-## Related Documentation
+## Additional References
 
 - [Deployment Guide](./how-to/operations/DEPLOYMENT.md) - Production deployment
 - [Deployment Checklist](./how-to/operations/runbooks/PRODUCTION_DEPLOYMENT_CHECKLIST.md) - Pre-flight checklist

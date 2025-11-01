@@ -1,5 +1,7 @@
 # Role-Scope Matrix
 
+**Last Updated:** 2025-10-31
+
 **Source:** `server/src/middleware/rbac.ts:60-138`
 **Last Synced:** 2025-10-18
 

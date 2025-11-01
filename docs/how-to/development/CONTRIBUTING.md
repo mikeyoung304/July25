@@ -1,5 +1,7 @@
 # Contributing to Restaurant OS
 
+**Last Updated:** 2025-10-31
+
 Thank you for your interest in contributing to Restaurant OS! This document provides guidelines and instructions for contributing to the project.
 
 ## Code of Conduct
@@ -119,13 +121,13 @@ All PRs must pass the following automated checks:
 
 All features must support multi-tenant operation with `restaurant_id` scoping. Every database operation and API endpoint must enforce tenant isolation.
 
-**See:** [DEPLOYMENT.md#multi-tenancy-requirement](./DEPLOYMENT.md#multi-tenancy-requirement) for implementation patterns.
+**See:** [DEPLOYMENT.md#multi-tenant-architecture](../operations/DEPLOYMENT.md#multi-tenant-architecture) for implementation patterns.
 
 ### Contributor Ops Handoff
 
 Operational and deployment procedures have been moved to the canonical deployment guide for single-source-of-truth maintenance.
 
-**For operational procedures, see [DEPLOYMENT.md#contributor-ops-handoff](./DEPLOYMENT.md#contributor-ops-handoff):**
+**For operational procedures, see [DEPLOYMENT.md#contributor-operations-handoff](../operations/DEPLOYMENT.md#contributor-operations-handoff):**
 - Environment configuration
 - Release and rollback procedures
 - Payment integration setup
@@ -413,7 +415,7 @@ Update documentation when you:
 
 ## Release Process
 
-For release procedures, rollback steps, and deployment workflows, see [DEPLOYMENT.md#release-flow](./DEPLOYMENT.md#release-flow).
+For release procedures, rollback steps, and deployment workflows, see [DEPLOYMENT.md#normal-production-deployment-flow](../operations/DEPLOYMENT.md#normal-production-deployment-flow).
 
 Releases follow [Semantic Versioning](https://semver.org/):
 - **Major** (X.0.0): Breaking changes

@@ -20,7 +20,7 @@
 5. [Phase 0: STABILIZATION SPRINT (NEW)](#phase-0-stabilization-sprint-new)
 6. [Phase 1: Production Launch (REVISED)](#phase-1-production-launch-revised)
 7. [Phase 2: Production Hardening (REVISED)](#phase-2-production-hardening-revised)
-8. [Phase 3: Optimization (ADJUSTED)](#phase-3-optimization-adjusted)
+8. [Phase 3: Infrastructure Investment (ADJUSTED)](#phase-3-infrastructure-investment-adjusted)
 9. [Phase 4: Innovation (MAINTAINED)](#phase-4-innovation-maintained)
 10. [Success Metrics](#success-metrics)
 11. [Risk Assessment](#risk-assessment)

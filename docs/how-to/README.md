@@ -1,5 +1,7 @@
 # How-To Guides
 
+**Last Updated:** 2025-10-31
+
 **Goal-oriented guides for solving specific problems and accomplishing tasks.**
 
 How-to guides are recipes that show you how to solve common problems. They are practical, focused, and assume you have some basic knowledge of Restaurant OS.

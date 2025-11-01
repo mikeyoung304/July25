@@ -1,5 +1,7 @@
 # Authentication Architecture v6.0
 
+**Last Updated:** 2025-10-31
+
 [Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](./README.md) > Authentication Architecture
 
 ## Overview
@@ -37,12 +39,12 @@ const { order_id, token, amount, idempotency_key } = req.body; // ADR-001: snake
 
 1. **Single Source of Truth**: Supabase manages production user authentication and session state
 2. **Zero Redundancy**: Frontend authenticates directly with Supabase for email/password (no backend proxy)
-3. **Dual Authentication Support** ([ADR-006](./ADR-006-dual-authentication-pattern.md)): httpClient checks Supabase sessions (primary) OR localStorage sessions (demo/PIN/station fallback)
+3. **Dual Authentication Support** ([ADR-006](../architecture-decisions/ADR-006-dual-authentication-pattern.md)): httpClient checks Supabase sessions (primary) OR localStorage sessions (demo/PIN/station fallback)
 4. **Separation of Concerns**: Different auth methods for different use cases (production vs development/shared devices)
 
 ---
 
-## Roles & Scopes (v6.0.8+)
+## Roles & Scopes (v6.0.14+)
 
 ### Role Definitions Table
 
@@ -199,7 +201,7 @@ httpClient reads from localStorage on API calls (dual auth pattern)
 **Key Difference from Email/Password**:
 - Email/Password: Uses Supabase Auth, stores in Supabase localStorage
 - Demo: Uses custom JWT, stores in custom localStorage format
-- httpClient supports both via dual authentication pattern ([ADR-006](./ADR-006-dual-authentication-pattern.md))
+- httpClient supports both via dual authentication pattern ([ADR-006](../architecture-decisions/ADR-006-dual-authentication-pattern.md))
 
 ---
 
@@ -301,7 +303,7 @@ async request(endpoint, options) {
 
 **Implementation Details**:
 - Lines 109-148 in `client/src/services/http/httpClient.ts`
-- See [ADR-006](./ADR-006-dual-authentication-pattern.md) for rationale and tradeoffs
+- See [ADR-006](../architecture-decisions/ADR-006-dual-authentication-pattern.md) for rationale and tradeoffs
 
 ---
 
@@ -624,7 +626,7 @@ curl -X POST http://localhost:3001/api/v1/orders \
 
 - **RBAC Dual-Source Architecture:** See section "Database Schema" above (line 334-368)
 - **Investigation Report:** `docs/investigations/workspace-auth-fix-2025-10-29.md`
-- **Troubleshooting:** `docs/TROUBLESHOOTING.md` (403 Errors section)
+- **Troubleshooting:** `docs/how-to/troubleshooting/TROUBLESHOOTING.md` (403 Errors section)
 
 ---
 
@@ -789,7 +791,7 @@ npm run seed:demo-users
 
 Restaurant OS implements a dual authentication system to support both production and development environments.
 
-**For complete details, see [ADR-006: Dual Authentication Pattern](../../ADR-006-dual-authentication-pattern.md)**
+**For complete details, see [ADR-006: Dual Authentication Pattern](../architecture-decisions/ADR-006-dual-authentication-pattern.md)**
 
 ### Quick Summary
 - **Production**: Supabase JWT (secure, RLS-enforced)

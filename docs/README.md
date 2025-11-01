@@ -41,12 +41,12 @@ Our documentation follows the [Diátaxis framework](https://diataxis.fr/) - a sy
 **New to Restaurant OS?**
 1. [Getting Started Guide](./tutorials/GETTING_STARTED.md) - Setup and first steps
 2. [Architecture Overview](./explanation/architecture/ARCHITECTURE.md) - System design
-3. [API Reference](./reference/api/README.md) - REST API documentation
+3. [API Reference](./reference/api/api/README.md) - REST API documentation
 
 **Deploying to Production?**
 1. [Deployment Guide](./how-to/operations/DEPLOYMENT.md) - Production deployment
 2. [Production Status](./PRODUCTION_STATUS.md) - Readiness assessment
-3. [Deployment Checklist](./how-to/operations/DEPLOYMENT_CHECKLIST.md) - Pre-flight checklist
+3. [Deployment Checklist](./how-to/operations/runbooks/PRODUCTION_DEPLOYMENT_CHECKLIST.md) - Pre-flight checklist
 
 **Troubleshooting?**
 1. [Troubleshooting Guide](./how-to/troubleshooting/TROUBLESHOOTING.md) - Common issues
@@ -111,8 +111,8 @@ docs/
 - [ADR-002: Multi-Tenancy Architecture](./explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md) - Multi-tenant security
 
 **API & Integration**
-- [API Reference](./reference/api/README.md) - REST endpoints
-- [Square API Setup](./reference/api/SQUARE_API_SETUP.md) - Payment integration
+- [API Reference](./reference/api/api/README.md) - REST endpoints
+- [Square API Setup](./reference/api/api/SQUARE_API_SETUP.md) - Payment integration
 - [WebSocket Events](./reference/api/WEBSOCKET_EVENTS.md) - Real-time updates
 
 ## 🎯 Documentation by User Journey
@@ -131,8 +131,8 @@ docs/
 3. [AUTH_ROLES.md](./reference/config/AUTH_ROLES.md) - Role definitions
 
 ### "I need API documentation"
-1. [api/README.md](./reference/api/README.md) - API reference
-2. [Square API Setup](./reference/api/SQUARE_API_SETUP.md) - Payment integration
+1. [api/README.md](./reference/api/api/README.md) - API reference
+2. [Square API Setup](./reference/api/api/SQUARE_API_SETUP.md) - Payment integration
 3. [WebSocket Events](./reference/api/WEBSOCKET_EVENTS.md) - Real-time events
 
 ### "I'm debugging an issue"
@@ -156,14 +156,14 @@ docs/
 ## 🗂️ Archive
 
 Historical documentation is preserved in:
-- [archive/moved/](./archive/moved/) - Consolidated docs from Oct 15, 2025
-- [archive/legacy-root/](./archive/legacy-root/) - Previous root directory docs
+- [archive/](./archive/) - Historical documentation and analysis
 - [archive/incidents/](./archive/incidents/) - Historical incident reports
+- [archive/2025-10/](./archive/2025-10/) - October 2025 snapshots
 
 ## ❓ Need Help?
 
 - **General Questions**: See [index.md](../index.md) for complete sitemap
-- **Contributing**: See [CONTRIBUTING.md](../CONTRIBUTING.md)
+- **Contributing**: See [CONTRIBUTING.md](./how-to/development/CONTRIBUTING.md)
 - **Security Issues**: See [SECURITY.md](./SECURITY.md) for reporting process
 
 ---

@@ -7,7 +7,7 @@
 **Local Viewer**: [index.html](../index.html) - Open in browser for interactive documentation
 
 **Last Updated**: October 31, 2025
-**Version**: 6.0.8
+**Version**: 6.0.14
 **Base URL**: `http://localhost:3001/api/v1` (development) | `https://july25.onrender.com/api/v1` (production)
 
 ---

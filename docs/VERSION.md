@@ -68,10 +68,84 @@ Version information is sourced from:
   - See docs/audit/P0-FIX-ROADMAP.md for complete progress tracking
   - See docs/CHANGELOG.md v6.0.10 for technical details
   - Commits: `b072908`, `f349a04`, `7473fb7`
+- 2025-10-18: Version 6.0.9 - Online Order Flow Fix (CORS & Auth)
+  - **Critical Fix**: Added `X-Client-Flow` header to CORS allowedHeaders
+  - Resolved "failed to fetch" errors on checkout for online orders
+  - Header identifies order origin: `online`, `kiosk`, or `server`
+  - See docs/CHANGELOG.md v6.0.9 for details
+
 - 2025-10-17: Version 6.0.8 - KDS Authentication Fix & Documentation Cleanup
   - Fixed critical authentication bug in httpClient (dual auth pattern implementation)
   - Created ADR-006: Dual Authentication Architecture Pattern
   - Comprehensive documentation updates across AUTHENTICATION_ARCHITECTURE, PRODUCTION_STATUS, TROUBLESHOOTING, and CHANGELOG
   - See docs/CHANGELOG.md for complete details
   - Commit: `94b6ea4`
+
+- 2025-10-14: Version 6.0.7 - Payment System Operational
+  - **Square Payment Integration Complete**: Payment processing fully operational end-to-end
+  - Square SDK v43 Migration: Updated authentication format and API method names
+  - Updated `accessToken` to `token` property, `createPayment()` to `create()`
+  - Removed `.result` wrapper from responses
+  - See docs/CHANGELOG.md v6.0.7 for details
+
+- 2025-09-13: Version 6.0.6 - Performance & Stability Sprint
+  - **WebSocket Memory Leak Fixes**: Fixed server/client-side heartbeat interval memory leaks
+  - Added proper cleanup on server shutdown, implemented exponential backoff with jitter
+  - Fixed WebRTC voice client memory leaks
+  - **Image Optimization**: Performance improvements
+  - See docs/CHANGELOG.md v6.0.6 for details
+
+- 2025-09-12: Version 6.0.5 - Critical Security Sprint
+  - **Fixed JWT Authentication Bypass** (CVE-pending): Removed fallback to public `anonKey`
+  - Now requires proper `jwtSecret` configuration
+  - **Fixed 11 XSS Vulnerabilities**: Added HTML escaping for all user inputs
+  - Implemented `escapeHtml()` sanitization function in voice debug dashboard
+  - See docs/CHANGELOG.md v6.0.5 for details
+
+- 2025-09-01: Version 6.0.3 - Critical Loading Fix & Guard Systems
+  - **Runtime Smoke Gate**: Production-ready health check (`scripts/smoke.mjs`)
+  - **TypeScript Freeze Check**: Prevents regression with `tools/check-ts-freeze.mjs`
+  - **Shared Directory Guard**: Automated check to prevent compiled JS in /shared
+  - **Puppeteer E2E Suite**: Comprehensive browser testing (10/10 tests passing)
+  - See docs/CHANGELOG.md v6.0.3 for details
+
+- 2025-02-01: Version 6.0.3 - Authentication & RBAC MVP Complete
+  - **Complete Authentication System**: JWT token infrastructure via Supabase with RS256 signing
+  - Email/password login with MFA support for managers
+  - PIN-based authentication for servers/cashiers (bcrypt + pepper)
+  - Station login for kitchen/expo staff (device-bound tokens)
+  - Protected route wrapper components with role validation
+  - See docs/CHANGELOG.md v6.0.3 for details
+
+- 2025-01-30: Version 6.0.2 - TypeScript & Documentation Overhaul
+  - Comprehensive security documentation (SECURITY.md)
+  - Complete API reference documentation with examples
+  - Architecture documentation with diagrams
+  - CSRF protection, rate limiting documentation
+  - Naming convention guidelines (snake_case DB, camelCase API)
+  - See docs/CHANGELOG.md v6.0.2 for details
+
+- 2025-01-27: Version 6.0.1 - Order Flow Stability Update
+  - Fixed Dashboard navigation links to valid routes
+  - Fixed KioskCheckoutPage payment button props
+  - Added proper type casting for Square Terminal
+  - Ensured all 7 order statuses handled
+  - Fixed WebSocket real-time order propagation
+  - See docs/CHANGELOG.md v6.0.1 for details
+
+- 2025-01-26: Version 6.0.0 - Major Release - Complete Rebuild
+  - **Unified Backend Architecture**: Single Express server on port 3001
+  - **AI Voice Ordering**: WebRTC + OpenAI Realtime API integration
+  - **UnifiedCartContext**: Single source of truth for cart operations
+  - **Multi-tenant Support**: Restaurant context isolation
+  - **Real-time WebSocket**: Live order updates and kitchen display
+  - See docs/CHANGELOG.md v6.0.0 for details
+
+- 2024-12-15: Version 5.0.0 - Previous Major Version
+  - Legacy multi-server architecture
+  - Separate WebSocket server
+  - Multiple cart providers
+  - Mixed naming conventions
+  - See docs/CHANGELOG.md v5.0.0 for details
+
 - 2025-09-26: Initial version truth established
