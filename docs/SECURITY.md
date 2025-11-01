@@ -64,7 +64,7 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 
 - **Environment Variables**: Secrets never in code
   - **Required Secrets** (server-side only, never exposed to client):
-    - `SUPABASE_SERVICE_KEY` - Database service access
+    - `SUPABASE_SERVICE_KEY` - Database service access (single required secret for production)
     - `KIOSK_JWT_SECRET` - JWT signing for kiosk/customer sessions
     - `JWT_SECRET` - General JWT signing (optional, falls back to KIOSK_JWT_SECRET)
   - Production: Must set all required secrets (no fallbacks)

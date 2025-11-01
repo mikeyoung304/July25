@@ -377,7 +377,7 @@ curl -H "Authorization: Bearer $TOKEN" ...
 
 ### Related Documentation
 
-- **Middleware Patterns:** [AUTHENTICATION_ARCHITECTURE.md - Middleware Patterns & Ordering](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#middleware-patterns--ordering)
+- **Middleware Patterns:** [AUTHENTICATION_ARCHITECTURE.md - Middleware Patterns & Ordering](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#backend-express-middleware)
 - **RBAC Architecture:** [AUTHENTICATION_ARCHITECTURE.md - Database Schema](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#database-schema)
 - **Investigation Case Study:** [docs/investigations/workspace-auth-fix-2025-10-29.md](./investigations/workspace-auth-fix-2025-10-29.md)
 - **Troubleshooting 403 Errors:** [TROUBLESHOOTING.md - 403 Forbidden Errors](#) (if added)

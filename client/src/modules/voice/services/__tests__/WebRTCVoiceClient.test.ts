@@ -73,7 +73,8 @@ describe('WebRTCVoiceClient - Session Configuration', () => {
     client = new WebRTCVoiceClient(defaultConfig)
 
     // Spy on sendEvent to capture session config
-    sendEventSpy = vi.spyOn(client, 'sendEvent')
+    // eventHandler is private, so we access it via bracket notation
+    sendEventSpy = vi.spyOn(client['eventHandler'], 'sendEvent')
   })
 
   afterEach(() => {

@@ -780,7 +780,7 @@ grep "RBAC check passed" logs/server.log            # ✅ requireScopes passed
 ```
 
 **Related Documentation**:
-- [AUTHENTICATION_ARCHITECTURE.md - Middleware Patterns](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#middleware-patterns--ordering)
+- [AUTHENTICATION_ARCHITECTURE.md - Middleware Patterns](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#backend-express-middleware)
 - [CONTRIBUTING.md - Adding Protected Routes](../development/CONTRIBUTING.md#adding-protected-routes)
 - [Investigation Case Study](../../investigations/workspace-auth-fix-2025-10-29.md) - Real debugging example
 

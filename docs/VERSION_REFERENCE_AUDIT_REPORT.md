@@ -35,7 +35,7 @@ These are **legitimate historical documentation** that correctly document WHEN e
 ✅ **docs/investigations/online-ordering-checkout-fix-oct27-2025.md**
 - Line 4: `**Version**: 6.0.13`
 - Line 36: `| **13:45 PM** | CHANGELOG.md updated with v6.0.13 details |`
-- Line 510: `- [CHANGELOG.md](../../CHANGELOG.md) - v6.0.13`
+- Line 510: `- [CHANGELOG.md](./CHANGELOG.md) - v6.0.13`
 - Justification: Investigation report documenting specific version incident
 - Action: KEEP (all 3 references)
 
@@ -125,7 +125,7 @@ These are **legitimate historical documentation** that correctly document WHEN e
 ### Troubleshooting Historical Fixes
 ✅ **docs/how-to/troubleshooting/TROUBLESHOOTING.md**
 - Line 476: `**Status**: ✅ **FIXED in v6.0.13** (October 27, 2025)`
-- Line 1252: `- [CHANGELOG.md - v6.0.9](../../CHANGELOG.md#609-2025-10-18-online-order-flow-fix-cors-auth)`
+- Line 1252: `- [CHANGELOG.md - v6.0.9](./CHANGELOG.md#609-2025-10-18-online-order-flow-fix-cors-auth)`
 - Justification: Documents WHEN issues were fixed
 - Action: KEEP (both references)
 

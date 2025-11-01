@@ -176,8 +176,8 @@ grep -r "order flow" docs/archive --include="*.md"
 - ADR-###-topic.md for architecture decisions
 
 ### Cross-References
-- Use relative paths: `[Link](./OTHER_DOC.md)`
-- Include section anchors: `[Link](./EXAMPLE_DOC.md#section-name)`
+- Use relative paths: `[Link](./SECURITY.md)`
+- Include section anchors: `[Link](./SECURITY.md#section-name)`
 
 ### Maintenance
 - All major docs have "Last Updated" date

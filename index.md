@@ -41,6 +41,7 @@
 - [How-To Guides](./docs/how-to/README.md) — Goal-oriented task guides
 - [Reference](./docs/reference/README.md) — Information-oriented technical details
   - [API Reference](./docs/reference/api/api/README.md) — REST API endpoints
+  - [Database Schema](./docs/reference/schema/DATABASE.md) — Complete schema with RLS policies
 - [Explanation](./docs/explanation/README.md) — Understanding-oriented concepts
 - [Research](./docs/research/README.md) — Best practices and technology research
   - [Table Ordering Payment Best Practices](./docs/research/table-ordering-payment-best-practices.md)
@@ -49,9 +50,9 @@
 
 **Quick Links:**
 - [Getting Started](./docs/tutorials/GETTING_STARTED.md) — First run locally
-- [Deployment Guide](./docs/how-to/operations/DEPLOYMENT.md) — Production deploy
+- [Deployment Guide](./docs/DEPLOYMENT.md) — Production deploy (navigation stub)
 - [Architecture Overview](./docs/explanation/architecture/ARCHITECTURE.md) — System design & components
-- [Database Schema](./docs/reference/schema/DATABASE.md) — Data model & row-level security
+- [Database Schema](./docs/DATABASE.md) — Data model & row-level security (navigation stub)
 
 ### Architecture Decision Records (ADRs)
 - [ADR-001: Snake Case Convention](./docs/explanation/architecture-decisions/ADR-001-snake-case-convention.md) — Unified data layer format
@@ -139,11 +140,11 @@
   - [P0 Fix Roadmap](./docs/audit/P0-FIX-ROADMAP.md) — Critical fixes roadmap
   - [Tracking Quick Reference](./docs/audit/TRACKING-QUICK-REFERENCE.md) — Progress tracking
 - [Overnight Audit Report (2025-10-31)](./docs/audit/OVERNIGHT_AUDIT_REPORT_2025-10-31.md) — Latest overnight audit
-- [Comprehensive Documentation Audit](./docs/audit/COMPREHENSIVE_DOCUMENTATION_AUDIT_REPORT.md) — Full documentation system audit
+- [Comprehensive Documentation Audit](./docs/archive/2025-10/COMPREHENSIVE_DOCUMENTATION_AUDIT_REPORT.md) — Full documentation system audit
 - [Audit Executive Summary](./docs/audit/AUDIT_EXECUTIVE_SUMMARY.md) — Executive overview
 - [Documentation Simplification Report](./docs/audit/DOCS_SIMPLIFICATION_REPORT.md) — Optimization analysis
-- [Documentation System Architecture Map](./docs/audit/DOCUMENTATION_SYSTEM_ARCHITECTURE_MAP.md) — Structure overview
-- [Documentation Fix Execution Plan](./docs/audit/DOCUMENTATION_FIX_EXECUTION_PLAN.md) — Remediation roadmap
+- [Documentation System Architecture Map](./docs/archive/2025-10/DOCUMENTATION_SYSTEM_ARCHITECTURE_MAP.md) — Structure overview
+- [Documentation Fix Execution Plan](./docs/archive/2025-10/DOCUMENTATION_FIX_EXECUTION_PLAN.md) — Remediation roadmap
 - [Documentation Architecture Summary](./docs/audit/DOCUMENTATION_ARCHITECTURE_SUMMARY.md) — Architecture summary
 - [Plain English What's Happening](./docs/audit/PLAIN_ENGLISH_WHATS_HAPPENING.md) — Simplified audit explanation
 - [Agent 4 Deliverables Index](./docs/audit/AGENT_4_DELIVERABLES_INDEX.md) — Agent work products

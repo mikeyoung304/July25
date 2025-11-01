@@ -3,6 +3,7 @@
  * Part of: Workspace-Based Landing Flow
  */
 
+import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
