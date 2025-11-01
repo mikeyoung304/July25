@@ -24,13 +24,13 @@
 ## Learning Path
 
 **Structured onboarding guides for new developers:**
-- [01: App Overview](./01_APP_OVERVIEW.md) — Understanding the Restaurant OS architecture
-- [02: Documentation Organization](./02_DOCUMENTATION_ORGANIZATION.md) — Navigating the documentation system
-- [03: GitHub Workflows & CI/CD](./03_GITHUB_WORKFLOWS_CICD.md) — Understanding automation and deployment
-- [04: Environment Setup](./04_ENVIRONMENT_SETUP.md) — Setting up your development environment
-- [05: Git History & Milestones](./05_GIT_HISTORY_MILESTONES.md) — Key commits and project evolution
-- [06: Git Patterns & Improvements](./06_GIT_PATTERNS_IMPROVEMENTS.md) — Git workflow best practices
-- [07: Learning Path README](./07_LEARNING_PATH_README.md) — Complete learning path overview
+- [01: App Overview](./docs/learning-path/01_APP_OVERVIEW.md) — Understanding the Restaurant OS architecture
+- [02: Documentation Organization](./docs/learning-path/02_DOCUMENTATION_ORGANIZATION.md) — Navigating the documentation system
+- [03: GitHub Workflows & CI/CD](./docs/learning-path/03_GITHUB_WORKFLOWS_CICD.md) — Understanding automation and deployment
+- [04: Environment Setup](./docs/learning-path/04_ENVIRONMENT_SETUP.md) — Setting up your development environment
+- [05: Git History & Milestones](./docs/learning-path/05_GIT_HISTORY_MILESTONES.md) — Key commits and project evolution
+- [06: Git Patterns & Improvements](./docs/learning-path/06_GIT_PATTERNS_IMPROVEMENTS.md) — Git workflow best practices
+- [Learning Path Guide](./docs/learning-path/README.md) — Complete learning path overview
 
 ---
 
@@ -138,19 +138,19 @@
   - [Action Checklist](./docs/audit/ACTION_CHECKLIST.md) — Prioritized action items
   - [P0 Fix Roadmap](./docs/audit/P0-FIX-ROADMAP.md) — Critical fixes roadmap
   - [Tracking Quick Reference](./docs/audit/TRACKING-QUICK-REFERENCE.md) — Progress tracking
-- [Overnight Audit Report (2025-10-31)](./OVERNIGHT_AUDIT_REPORT_2025-10-31.md) — Latest overnight audit
-- [Comprehensive Documentation Audit](./COMPREHENSIVE_DOCUMENTATION_AUDIT_REPORT.md) — Full documentation system audit
-- [Audit Executive Summary](./AUDIT_EXECUTIVE_SUMMARY.md) — Executive overview
-- [Documentation Simplification Report](./DOCS_SIMPLIFICATION_REPORT.md) — Optimization analysis
-- [Documentation System Architecture Map](./DOCUMENTATION_SYSTEM_ARCHITECTURE_MAP.md) — Structure overview
-- [Documentation Fix Execution Plan](./DOCUMENTATION_FIX_EXECUTION_PLAN.md) — Remediation roadmap
-- [Documentation Architecture Summary](./DOCUMENTATION_ARCHITECTURE_SUMMARY.md) — Architecture summary
-- [Plain English What's Happening](./PLAIN_ENGLISH_WHATS_HAPPENING.md) — Simplified audit explanation
-- [Agent 4 Deliverables Index](./AGENT_4_DELIVERABLES_INDEX.md) — Agent work products
-- [Timestamp Update Report](./TIMESTAMP_UPDATE_REPORT.md) — Documentation timestamp update analysis
-- [Table Fix Report](./TABLE_FIX_REPORT.md) — Table-related bug fixes analysis
-- [Table Fix Examples](./TABLE_FIX_EXAMPLES.md) — Table fix implementation examples
-- [Drift Detection Report](./DRIFT_DETECTION_REPORT.md) — Automated documentation drift detection
+- [Overnight Audit Report (2025-10-31)](./docs/audit/OVERNIGHT_AUDIT_REPORT_2025-10-31.md) — Latest overnight audit
+- [Comprehensive Documentation Audit](./docs/audit/COMPREHENSIVE_DOCUMENTATION_AUDIT_REPORT.md) — Full documentation system audit
+- [Audit Executive Summary](./docs/audit/AUDIT_EXECUTIVE_SUMMARY.md) — Executive overview
+- [Documentation Simplification Report](./docs/audit/DOCS_SIMPLIFICATION_REPORT.md) — Optimization analysis
+- [Documentation System Architecture Map](./docs/audit/DOCUMENTATION_SYSTEM_ARCHITECTURE_MAP.md) — Structure overview
+- [Documentation Fix Execution Plan](./docs/audit/DOCUMENTATION_FIX_EXECUTION_PLAN.md) — Remediation roadmap
+- [Documentation Architecture Summary](./docs/audit/DOCUMENTATION_ARCHITECTURE_SUMMARY.md) — Architecture summary
+- [Plain English What's Happening](./docs/audit/PLAIN_ENGLISH_WHATS_HAPPENING.md) — Simplified audit explanation
+- [Agent 4 Deliverables Index](./docs/audit/AGENT_4_DELIVERABLES_INDEX.md) — Agent work products
+- [Timestamp Update Report](./docs/audit/TIMESTAMP_UPDATE_REPORT.md) — Documentation timestamp update analysis
+- [Table Fix Report](./docs/audit/TABLE_FIX_REPORT.md) — Table-related bug fixes analysis
+- [Table Fix Examples](./docs/audit/TABLE_FIX_EXAMPLES.md) — Table fix implementation examples
+- [Drift Detection Report](./docs/audit/DRIFT_DETECTION_REPORT.md) — Automated documentation drift detection
 - [Version Reference Audit](./docs/VERSION_REFERENCE_AUDIT_REPORT.md) — Version consistency audit
 - [CI Infrastructure Issues](./docs/CI_INFRASTRUCTURE_ISSUES.md) — CI/CD infrastructure analysis
 - [Migration Reconciliation](./docs/MIGRATION_RECONCILIATION_2025-10-20.md) — Database migration reconciliation
