@@ -1,11 +1,15 @@
 # Security Policy
 
+**Last Updated:** 2025-10-31
+
+[Home](../index.md) > [Docs](./README.md) > Security
+
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 6.0.x   | :white_check_mark: |
-| < 6.0   | :x:                |
+| Version | Supported |
+| --- | --- |
+| 6.0.x | :white_check_mark: |
+| < 6.0 | :x: |
 
 ## Reporting a Vulnerability
 
@@ -29,9 +33,13 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 
 ### Authentication & Authorization
 
+- **Dual Authentication Pattern** (v6.0.14+): Supports both Supabase sessions and localStorage sessions
+  - See [ADR-006-dual-authentication-pattern.md](./ADR-006-dual-authentication-pattern.md)
+  - Production: Supabase email/password authentication
+  - Development: Demo/PIN/station login
 - **JWT Tokens**: RS256 signed with secure keys
 - **PIN Security**: bcrypt with pepper, rate-limited attempts
-- **Session Management**: 
+- **Session Management**:
   - Managers: 8-hour sessions
   - Staff: 12-hour sessions
   - Automatic logout on inactivity
@@ -55,7 +63,12 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 ### Infrastructure
 
 - **Environment Variables**: Secrets never in code
-  - The single required secret is SUPABASE_SERVICE_KEY (server-side only, never exposed to client)
+  - **Required Secrets** (server-side only, never exposed to client):
+    - `SUPABASE_SERVICE_KEY` - Database service access (single required secret for production)
+    - `KIOSK_JWT_SECRET` - JWT signing for kiosk/customer sessions
+    - `JWT_SECRET` - General JWT signing (optional, falls back to KIOSK_JWT_SECRET)
+  - Production: Must set all required secrets (no fallbacks)
+  - Development: Demo mode available with `DEMO_LOGIN_ENABLED=true`
 - **Dependency Scanning**: Regular vulnerability audits
 - **Access Logs**: All API access logged with user context
 - **Error Handling**: No sensitive data in error messages
@@ -290,5 +303,15 @@ Bug Bounty Program: Coming soon
 
 ---
 
-Last Updated: September 1, 2025
-Version: 6.0.3
+## Related Documentation
+
+- [Authentication Architecture](./explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) - Auth flows and security
+- [ADR-006: Dual Authentication](./explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md) - Auth pattern
+- [Deployment Guide](./how-to/operations/DEPLOYMENT.md) - Production security
+- [Database Schema](./reference/schema/DATABASE.md) - RLS policies
+- [Production Status](./PRODUCTION_STATUS.md) - Security readiness
+
+---
+
+Last Updated: October 30, 2025
+Version: 6.0.14

@@ -1,5 +1,8 @@
 # Server - Restaurant OS Backend API
 
+
+**Last Updated:** 2025-08-26
+
 Production-ready Express.js backend for Restaurant OS 6.0 - A revolutionary restaurant management system with real-time order processing, AI-powered voice ordering, and Square payment integration.
 
 ## 🚀 Quick Start

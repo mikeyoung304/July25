@@ -1,5 +1,7 @@
 # 🎯 Audit Action Checklist - Week by Week
 
+**Last Updated:** 2025-10-31
+
 **Start Date**: ____________
 **Team Lead**: ____________
 **Sprint**: ____________
@@ -94,10 +96,10 @@
 
 - [ ] **[5m]** Add missing order status to docs
   - Add 'picked-up' status
-  - File: `docs/DEPLOYMENT.md:543-559`
+  - File: `docs/how-to/operations/DEPLOYMENT.md:543-559`
 
 - [ ] **[10m]** Sync package.json versions
-  - Root: 6.0.8, Client: 6.0.6
+  - Root: 6.0.14, Client: 6.0.14
   - Decide on versioning strategy
 
 **Week 2 Total**: ~20 hours
@@ -240,11 +242,11 @@
 ## 📈 Progress Tracking
 
 | Week | Planned | Completed | Blocked | Notes |
-|------|---------|-----------|---------|-------|
-| 1    | 8 items | ___ / 8   | ___     |       |
-| 2    | 8 items | ___ / 8   | ___     |       |
-| 3-4  | 9 items | ___ / 9   | ___     |       |
-| 5-8  | 8 items | ___ / 8   | ___     |       |
+| --- | --- | --- | --- | --- |
+| 1 | 8 items | ___ / 8 | ___ | - |
+| 2 | 8 items | ___ / 8 | ___ | - |
+| 3-4 | 9 items | ___ / 9 | ___ | - |
+| 5-8 | 8 items | ___ / 8 | ___ | - |
 
 ## 🎯 Success Metrics
 
@@ -273,14 +275,14 @@
 ## 🚨 Blockers & Risks
 
 | Issue | Impact | Owner | Status | Resolution |
-|-------|--------|-------|--------|------------|
-|       |        |       |        |            |
+| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 
 ## 💡 Lessons Learned
 
 | Date | Lesson | Action Taken |
-|------|--------|--------------|
-|      |        |              |
+| --- | --- | --- |
+| --- | --- | --- |
 
 ---
 

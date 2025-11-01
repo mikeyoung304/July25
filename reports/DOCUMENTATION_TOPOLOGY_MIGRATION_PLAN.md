@@ -96,7 +96,7 @@ GitHub gives special treatment to these files at root:
 ### Current Root Files (18 MD files)
 
 | File | Size | Type | Action | Destination |
-|------|------|------|--------|-------------|
+| --- | --- | --- | --- | --- |
 | README.md | 1.6K | Real | **KEEP** | / (update links) |
 | index.md | 3.4K | Real | **KEEP** | / (update links) |
 | AUTH_DIAGNOSTIC_GUIDE.md | 3.8K | Real | **MOVE** | docs/ |
@@ -314,10 +314,10 @@ For comprehensive security documentation, see:
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 6.0.x   | :white_check_mark: |
-| < 6.0   | :x:                |
+| Version | Supported |
+| --- | --- |
+| 6.0.x | :white_check_mark: |
+| < 6.0 | :x: |
 EOF
 ```
 
@@ -788,7 +788,7 @@ Docs: 73 files (fully organized)
 ### Metrics
 
 | Metric | Before | After | Change |
-|--------|--------|-------|--------|
+| --- | --- | --- | --- |
 | Root MD files | 18 | 4 | -78% |
 | Redirect stubs | 12 | 0 | -100% |
 | docs/ files | 71 | 73 | +2 |
@@ -908,7 +908,7 @@ index.md (3.4K)
 ## Appendix B: Link Update Matrix
 
 | File | Links to Update | Count |
-|------|----------------|-------|
+| --- | --- | --- |
 | README.md | DEPLOYMENT, SECURITY, DATABASE, TROUBLESHOOTING, VERSION | 5 |
 | index.md | AUTH_DIAGNOSTIC_GUIDE, TESTING_CHECKLIST | 2 |
 | docs/PRODUCTION_STATUS.md | TBD (audit) | 1-2 |
@@ -968,7 +968,7 @@ index.md (3.4K)
 ## Timeline Estimate (For Reference)
 
 | Phase | Activity | Estimated Time |
-|-------|----------|----------------|
+| --- | --- | --- |
 | 1 | Preparation & Audit | 30 minutes |
 | 2 | Update All Links | 45 minutes |
 | 3 | Move Files | 10 minutes |

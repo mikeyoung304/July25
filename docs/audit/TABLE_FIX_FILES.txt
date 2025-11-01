@@ -1,0 +1,126 @@
+FILES MODIFIED BY TABLE FORMATTING FIX
+======================================
+
+Root Level Files (7):
+- SECURITY.md
+- OVERNIGHT_AUDIT_REPORT_2025-10-31.md
+- DOCUMENTATION_SYSTEM_ARCHITECTURE_MAP.md
+- DOCUMENTATION_FIX_EXECUTION_PLAN.md
+- DOCUMENTATION_ARCHITECTURE_SUMMARY.md
+- DOCS_SIMPLIFICATION_REPORT.md
+- COMPREHENSIVE_DOCUMENTATION_AUDIT_REPORT.md
+- AGENT_4_DELIVERABLES_INDEX.md
+
+Shared Package (1):
+- shared/README.md
+
+Scans Directory (6):
+- scans/otherscan.md
+- scans/SOLUTION_SUMMARY.md
+- scans/ROLE_PERMISSIONS_AUDIT_REPORT.md
+- scans/README.md
+- scans/DIAGNOSTIC_REPORT.md
+- scans/AUTH_FIX_REPORT.md
+
+Scan Reports (9):
+- scans/reports/2025-10-14-22-02-28/performance-profiler.md
+- scans/reports/2025-10-14-22-02-28/multi-tenancy-guardian.md
+- scans/reports/2025-10-14-22-02-28/convention-enforcer.md
+- scans/reports/2025-10-14-22-02-28/complexity-analyzer.md
+- scans/reports/2025-10-14-22-02-28/SUMMARY.md
+- scans/reports/2025-10-14-22-02-28/README.md
+- scans/reports/2025-10-14-22-02-28/QUICK-REFERENCE.md
+- scans/reports/2025-10-14-22-02-28/INDEX.md
+- scans/reports/2025-10-14-22-02-28/EXECUTIVE_SUMMARY.md
+- scans/reports/2025-10-14-22-02-28/EXECUTIVE-SUMMARY.md
+
+Reports Directory (30):
+- reports/release_v6.0.8_summary.md
+- reports/reality_greps_evidence.md
+- reports/reality_auditor_v3_setup.md
+- reports/orphan_triage_result.md
+- reports/guardrails_hotfix_result.md
+- reports/docs_stragglers.md
+- reports/docs_revalidate_summary.md
+- reports/docs_merge_plan.md
+- reports/docs_guarded_merge_evidence.md
+- reports/docs_critical_fixes.md
+- reports/TS-BURNDOWN.md
+- reports/LINT-BURNDOWN.md
+- reports/DOCUMENTATION_TOPOLOGY_MIGRATION_PLAN.md
+- reports/DOCUMENTATION_AUDIT_2025-10-17.md
+- reports/COMPREHENSIVE_ACTION_PLAN_2025-10-17.md
+- reports/05_ai-bloat.md
+- reports/04_order-flow.md
+- reports/03_security-auth.md
+- reports/02_naming-alignment.md
+- reports/scans/AGENT_PROMPT_MASTER.md
+- reports/scans/2025-10-17-22-00-00/08-architecture-analyst.md
+- reports/scans/2025-10-17-22-00-00/07-error-handling-guardian.md
+- reports/scans/2025-10-17-22-00-00/06-convention-enforcer.md
+- reports/scans/2025-10-17-22-00-00/03-typescript-enforcer.md
+- reports/scans/2025-10-17-22-00-00/02-security-auditor.md
+- reports/e2e/voice/findings.md
+
+Documentation Directory (48):
+- docs/VERSION_REFERENCE_AUDIT_REPORT.md
+- docs/VERSION.md
+- docs/SUPABASE_CONNECTION_GUIDE.md
+- docs/SECURITY.md
+- docs/ROADMAP.md
+- docs/PRODUCTION_STATUS.md
+- docs/MIGRATION_RECONCILIATION_2025-10-20.md
+- docs/DOCUMENTATION_STANDARDS.md
+- docs/CHANGELOG.md
+- docs/research/table-ordering-payment-best-practices.md
+- docs/reference/schema/DATABASE.md
+- docs/reference/config/ENVIRONMENT.md
+- docs/reference/api/api/SQUARE_API_SETUP.md
+- docs/reference/api/api/README.md
+- docs/reference/api/api/PAYMENT_API_DOCUMENTATION.md
+- docs/naming/ROLE_SCOPE_MATRIX.md
+- docs/investigations/workspace-auth-fix-2025-10-29.md
+- docs/investigations/online-ordering-checkout-fix-oct27-2025.md
+- docs/investigations/comprehensive-root-cause-analysis-oct27-2025.md
+- docs/investigations/AI_DIAGNOSTIC_REPORT.md
+- docs/how-to/troubleshooting/TROUBLESHOOTING.md
+- docs/how-to/operations/KDS-BIBLE.md
+- docs/how-to/development/CI_CD_WORKFLOWS.md
+- docs/explanation/architecture-decisions/ADR-009-error-handling-philosophy.md
+- docs/explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md
+- docs/explanation/architecture-decisions/ADR-004-websocket-realtime-architecture.md
+- docs/explanation/architecture-decisions/ADR-003-embedded-orders-pattern.md
+- docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md
+- docs/audit/TRACKING-QUICK-REFERENCE.md
+- docs/audit/README.md
+- docs/audit/P0-FIX-ROADMAP.md
+- docs/audit/ACTION_CHECKLIST.md
+
+Archive Directory (13):
+- docs/archive/oct18plan.md
+- docs/archive/VERCEL.md
+- docs/archive/TRACK_A_VERIFICATION_REPORT.md
+- docs/archive/TEST_SUITE_RESTORATION_SUMMARY.md
+- docs/archive/STABILITY_AUDIT_PROGRESS.md
+- docs/archive/ROOT_CAUSE_SYNTHESIS.md
+- docs/archive/PRODUCTION_TEST_RESULTS.md
+- docs/archive/PAYMENT_FIX_STATUS.md
+- docs/archive/PAYMENT_500_ERROR_DIAGNOSIS.md
+- docs/archive/ORDER_FAILURE_INCIDENT_REPORT.md
+- docs/archive/KDS_COMPETITIVE_ANALYSIS_2025.md
+- docs/archive/JSDOM_ENVIRONMENT_FAILURE_ANALYSIS.md
+- docs/archive/IMPROVEMENT-ROADMAP.md
+- docs/archive/incidents/PR_PLAN.md
+- docs/archive/incidents/AUTHENTICATION_DIAGNOSTIC_COMPLETE.md
+- docs/archive/incidents/2025-10-15_KITCHEN_DISPLAY_UPGRADE.md
+
+Archive 2025-10 Directory (5):
+- docs/archive/2025-10/2025-10-15_voice_VOICE_ORDERING_EXPLAINED.md
+- docs/archive/2025-10/2025-10-15_WEBSOCKET_EVENTS.md
+- docs/archive/2025-10/2025-10-15_SQUARE_INTEGRATION.md
+- docs/archive/2025-10/2025-10-15_PRODUCTION_DIAGNOSTICS.md
+- docs/archive/2025-10/2025-10-15_ORDER_FLOW.md
+- docs/archive/2025-10/2025-10-15_MIGRATION_V6_AUTH.md
+- docs/archive/2025-10/2025-10-15_MENU_SYSTEM.md
+
+TOTAL: 106 files modified

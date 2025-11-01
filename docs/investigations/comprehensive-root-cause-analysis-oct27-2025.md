@@ -1,5 +1,7 @@
 # Comprehensive Root Cause Analysis - October 27, 2025
 
+**Last Updated:** 2025-10-31
+
 **Investigation Date:** October 27, 2025
 **Issues Investigated:**
 1. Server user cannot access Server workspace
@@ -57,7 +59,7 @@ WHERE user_id = 'b764e66c-0524-4d9b-bd62-bae0de920cdb';
 **Test Results:**
 
 | Step | Expected Behavior | Actual Behavior | Status |
-|------|------------------|-----------------|--------|
+| --- | --- | --- | --- |
 | Click Server tile | Open auth modal | Modal flashes briefly | ⚠️ Partial |
 | User fills credentials | Login form visible | Modal disappears immediately | ❌ Failed |
 | Submit login | POST /api/v1/auth/login | NO API CALL MADE | ❌ Failed |
@@ -162,7 +164,7 @@ WHERE restaurant_id = '11111111-1111-1111-1111-111111111111';
 **Test Results:**
 
 | Metric | Value | Status |
-|--------|-------|--------|
+| --- | --- | --- |
 | API Call: /api/v1/menu/categories | 200 OK, 365ms | ✅ Success |
 | API Call: /api/v1/menu/items | 200 OK, 149ms | ✅ Success |
 | Response: Category count | 7 categories | ✅ Correct |

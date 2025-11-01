@@ -8,7 +8,7 @@
 ## Quick Stats
 
 | Metric | Value | Status |
-|--------|-------|--------|
+| --- | --- | --- |
 | Total Issues | 24 | ⚠️ |
 | High Priority | 8 | 🔴 |
 | Medium Priority | 10 | 🟡 |

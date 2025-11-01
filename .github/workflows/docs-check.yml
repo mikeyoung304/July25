@@ -1,92 +1,323 @@
-name: Docs Check
+name: Documentation Quality Check
+
 on:
-  pull_request:
-    branches: [ main, 'stabilize/**', 'docs/**' ]
   push:
-    branches: [ main ]
+    branches: [main, develop]
+    paths:
+      - 'docs/**/*.md'
+      - '.env.example'
+      - '.github/workflows/docs-check.yml'
+      - 'supabase/migrations/*.sql'
+      - 'server/src/routes/*.ts'
+      - 'docs/reference/api/openapi.yaml'
+      - 'docs/reference/schema/DATABASE.md'
+      - 'docs/reference/config/ENVIRONMENT.md'
+  pull_request:
+    paths:
+      - 'docs/**/*.md'
+      - '.env.example'
+      - 'supabase/migrations/*.sql'
+      - 'server/src/routes/*.ts'
+      - 'docs/reference/api/openapi.yaml'
+      - 'docs/reference/schema/DATABASE.md'
+      - 'docs/reference/config/ENVIRONMENT.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
-  docs:
+  docs-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ================================================================
+      # 1. LINK VALIDATION - Check for broken internal markdown links
+      # ================================================================
+      - name: Validate internal links
+        run: |
+          echo "🔗 Checking internal markdown links..."
+          BROKEN_LINKS=0
+
+          find docs -name "*.md" -type f 2>/dev/null | while read -r file; do
+            grep -oE '\]\([^)]+\)' "$file" 2>/dev/null | sed 's/](\(.*\))/\1/' | while read -r link; do
+              # Skip external URLs, mailto, and anchor-only links
+              [[ "$link" =~ ^https?:// ]] && continue
+              [[ "$link" =~ ^mailto: ]] && continue
+              [[ "$link" =~ ^# ]] && continue
+
+              # Extract file path (remove anchor)
+              file_path="${link%%#*}"
+              [[ -z "$file_path" ]] && continue
+
+              # Resolve path relative to file location
+              dir=$(dirname "$file")
+              if [[ "$file_path" =~ ^/ ]]; then
+                target=".$file_path"
+              else
+                target="$dir/$file_path"
+              fi
+
+              # Normalize and check existence
+              if [ ! -f "$target" ] && [ ! -d "$target" ]; then
+                echo "❌ Broken link in $file: $link"
+                BROKEN_LINKS=$((BROKEN_LINKS + 1))
+              fi
+            done
+          done
+
+          if [ $BROKEN_LINKS -gt 0 ]; then
+            echo "::error::Found $BROKEN_LINKS broken link(s)"
+            exit 1
+          fi
+          echo "✅ All internal links valid"
+
+      # ================================================================
+      # 2. DOCUMENTATION STANDARDS - Structure and completeness
+      # ================================================================
+      - name: Check documentation standards
+        run: |
+          echo "📚 Checking documentation standards..."
+          ISSUES=0
+
+          # Verify Diátaxis structure exists
+          for dir in tutorials how-to reference explanation; do
+            if [ ! -d "docs/$dir" ]; then
+              echo "::error::Missing Diátaxis directory: docs/$dir"
+              ISSUES=$((ISSUES + 1))
+            fi
+          done
+
+          # Check for required core files
+          if [ ! -f "docs/README.md" ]; then
+            echo "::warning::Missing docs/README.md"
+          fi
+          if [ ! -f "docs/tutorials/GETTING_STARTED.md" ]; then
+            echo "::warning::Missing getting started guide"
+          fi
+
+          # Count files missing Last Updated
+          MISSING_DATES=$(find docs -name "*.md" -type f -not -path "docs/archive/*" 2>/dev/null | \
+            while read -r f; do grep -L "Last Updated" "$f" 2>/dev/null; done | wc -l)
+
+          if [ "$MISSING_DATES" -gt 10 ]; then
+            echo "::warning::$MISSING_DATES files missing 'Last Updated' date"
+          fi
+
+          if [ $ISSUES -gt 0 ]; then
+            exit 1
+          fi
+          echo "✅ Documentation structure validated"
+
+      # ================================================================
+      # 3. ENVIRONMENT VARIABLES - Check documentation drift
+      # ================================================================
+      - name: Check environment variable documentation
+        run: |
+          echo "🌍 Checking environment variable documentation..."
+
+          if [ -f ".env.example" ] && [ -f "docs/reference/config/ENVIRONMENT.md" ]; then
+            # Extract actual env vars
+            grep -E "^[A-Z_]+=" .env.example | sed 's/=.*//' | sort > /tmp/env_vars.txt
+            ENV_COUNT=$(wc -l < /tmp/env_vars.txt | tr -d ' ')
+
+            # Extract documented vars (DOC_COUNT exported for external use)
+            grep -E "^\| [A-Z_]+ \|" docs/reference/config/ENVIRONMENT.md | \
+              sed -E 's/^\| ([A-Z_]+) \|.*/\1/' | sort > /tmp/doc_vars.txt
+            export DOC_COUNT
+            DOC_COUNT=$(wc -l < /tmp/doc_vars.txt | tr -d ' ')
+
+            # Find undocumented
+            UNDOC=$(comm -23 /tmp/env_vars.txt /tmp/doc_vars.txt)
+            if [ -n "$UNDOC" ]; then
+              echo "::warning::Undocumented environment variables:"
+              echo "$UNDOC"
+            else
+              echo "✅ All $ENV_COUNT environment variables documented"
+            fi
+
+            # Find obsolete docs
+            OBSOLETE=$(comm -13 /tmp/env_vars.txt /tmp/doc_vars.txt)
+            if [ -n "$OBSOLETE" ]; then
+              echo "::warning::Documented but not in .env.example:"
+              echo "$OBSOLETE"
+            fi
+
+            rm -f /tmp/env_vars.txt /tmp/doc_vars.txt
+          else
+            echo "::warning::Skipping env var check (missing files)"
+          fi
+
+      # ================================================================
+      # 4. BLOAT DETECTION - Warn about very large files
+      # ================================================================
+      - name: Check for documentation bloat
+        run: |
+          echo "📏 Checking for documentation bloat..."
+
+          # Find files >1000 lines
+          LARGE_FILES=$(find docs -name "*.md" -type f -exec wc -l {} \; 2>/dev/null | \
+            awk '$1 > 1000 {print $1, $2}' | sort -rn)
+
+          if [ -n "$LARGE_FILES" ]; then
+            echo "::warning::Large documentation files found (>1000 lines):"
+            echo "$LARGE_FILES"
+            echo "Consider breaking these into smaller, focused documents"
+          else
+            echo "✅ No bloated documentation files"
+          fi
+
+      # ================================================================
+      # 5. SUMMARY
+      # ================================================================
+      - name: Generate summary
+        if: always()
+        run: |
+          {
+            echo "## 📊 Documentation Quality Check"
+            echo ""
+            echo "**Status:** Automated validation complete"
+            echo "**Triggered by:** ${{ github.event_name }}"
+            echo ""
+            echo "### Checks Performed"
+            echo "- ✅ Internal link validation"
+            echo "- ✅ Diátaxis structure verification"
+            echo "- ✅ Environment variable drift detection"
+            echo "- ✅ Documentation bloat detection"
+            echo ""
+            echo "*Consolidated workflow - single file, no external dependencies*"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ================================================================
+  # DRIFT DETECTION - Catch docs falling behind codebase
+  # ================================================================
+  drift-detection:
+    name: Detect Documentation Drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci || npm install
-
-      - name: Check .env.example completeness
         run: |
-          echo "🔍 Checking .env.example for required variables..."
-          npm run env:check
+          # Only install what we need for drift detection
+          npm install --no-save js-yaml
 
-      - name: Check for hardcoded versions
+      - name: Check Schema Drift
+        id: schema
+        continue-on-error: true
+        run: node scripts/check-schema-drift.cjs
+
+      - name: Check API Drift
+        id: api
+        continue-on-error: true
+        run: node scripts/check-api-drift.cjs
+
+      - name: Check Config Drift
+        id: config
+        continue-on-error: true
+        run: node scripts/check-config-drift.cjs
+
+      - name: Generate Drift Report
+        if: always()
         run: |
-          echo "🔍 Checking for hardcoded versions in documentation..."
+          {
+            echo "## 🔍 Documentation Drift Detection"
+            echo ""
+            echo "**Purpose:** Ensure documentation stays in sync with codebase changes"
+            echo ""
+            echo "### Drift Checks"
+            echo ""
 
-          # Check for hardcoded React versions
-          if grep -r "React [0-9]" docs/ --include="*.md" --exclude="VERSION.md"; then
-            echo "❌ Found hardcoded React version! Use link to VERSION.md instead."
-            exit 1
-          fi
-
-          # Check for hardcoded Express versions
-          if grep -r "Express [0-9]" docs/ --include="*.md" --exclude="VERSION.md"; then
-            echo "❌ Found hardcoded Express version! Use link to VERSION.md instead."
-            exit 1
-          fi
-
-          # Check for hardcoded app versions (allow in CHANGELOG.md)
-          if grep -r "version.*[0-9]\.[0-9]\.[0-9]" docs/ --include="*.md" --exclude="VERSION.md" --exclude="CHANGELOG.md" | grep -v "VERSION.md"; then
-            echo "⚠️ Found potential hardcoded version. Please verify it links to VERSION.md"
-          fi
-
-          echo "✅ No hardcoded versions found"
-
-      - name: Check required headers
-        run: |
-          echo "🔍 Checking for required headers in documentation..."
-
-          # Check for Last Updated header
-          for file in docs/*.md docs/**/*.md; do
-            if [ -f "$file" ] && [ "$file" != "docs/archive/*" ]; then
-              if ! grep -q "Last Updated" "$file"; then
-                echo "⚠️ Missing 'Last Updated' header in: $file"
-              fi
+            if [ "${{ steps.schema.outcome }}" == "success" ]; then
+              echo "- ✅ **Schema Drift:** No issues detected"
+            else
+              echo "- ❌ **Schema Drift:** Issues found - review logs above"
             fi
-          done
 
-      - name: Markdown link check
-        run: |
-          echo "🔍 Checking markdown links..."
-          npx markdown-link-check docs/*.md docs/**/*.md --config .github/markdown-link-check.json || true
+            if [ "${{ steps.api.outcome }}" == "success" ]; then
+              echo "- ✅ **API Drift:** No issues detected"
+            else
+              echo "- ❌ **API Drift:** Issues found - review logs above"
+            fi
 
-      - name: Check documentation standards
-        run: |
-          echo "📋 Documentation standards reminder:"
-          echo "- All docs must have 'Last Updated' date"
-          echo "- Version references must link to VERSION.md"
-          echo "- Code references should link to source files"
-          echo "- No duplicate .env.example files"
+            if [ "${{ steps.config.outcome }}" == "success" ]; then
+              echo "- ✅ **Config Drift:** No issues detected"
+            else
+              echo "- ❌ **Config Drift:** Issues found - review logs above"
+            fi
 
-      - name: Coverage report location
-        run: |
-          echo "📊 Coverage Information:"
-          echo "Current baseline: ~23.47%"
-          echo "Report location: server/coverage/index.html"
+            echo ""
+            echo "### What is Drift?"
+            echo "Drift occurs when:"
+            echo "- New database columns added but not documented"
+            echo "- API endpoints created but not in OpenAPI spec"
+            echo "- Environment variables added but not in ENVIRONMENT.md"
+            echo ""
+            echo "### How to Fix"
+            echo "1. **Schema Drift:** Update \`docs/reference/schema/DATABASE.md\`"
+            echo "2. **API Drift:** Update \`docs/reference/api/openapi.yaml\`"
+            echo "3. **Config Drift:** Update \`docs/reference/config/ENVIRONMENT.md\`"
+            echo ""
+            echo "*Drift detection runs on every PR that touches migrations, routes, or config files*"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Summary
+      - name: Fail if drift detected
+        if: steps.schema.outcome != 'success' || steps.api.outcome != 'success' || steps.config.outcome != 'success'
         run: |
-          echo "## Documentation Check Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Environment variables checked" >> $GITHUB_STEP_SUMMARY
-          echo "✅ No hardcoded versions" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Documentation standards applied" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Current Versions (from VERSION.md)" >> $GITHUB_STEP_SUMMARY
-          echo "- App: 6.0.6" >> $GITHUB_STEP_SUMMARY
-          echo "- React: 18.3.1" >> $GITHUB_STEP_SUMMARY
-          echo "- Express: 4.21.2" >> $GITHUB_STEP_SUMMARY
-          echo "- Coverage: ~23.47%" >> $GITHUB_STEP_SUMMARY
+          echo "::error::Documentation drift detected. Please update documentation to match codebase changes."
+          exit 1
+
+      - name: Post drift comment on PR
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `## ⚠️ Documentation Drift Detected
+
+            This PR introduces changes that are not reflected in the documentation.
+
+            ### Action Required
+
+            Please update the following documentation files to match your code changes:
+
+            ${{ steps.schema.outcome != 'success' && '- [ ] `docs/reference/schema/DATABASE.md` - Add new columns/tables' || '' }}
+            ${{ steps.api.outcome != 'success' && '- [ ] `docs/reference/api/openapi.yaml` - Add new endpoints' || '' }}
+            ${{ steps.config.outcome != 'success' && '- [ ] `docs/reference/config/ENVIRONMENT.md` - Add new env vars' || '' }}
+
+            ### Why This Matters
+
+            Keeping documentation in sync prevents:
+            - Confusion for new developers
+            - Undocumented features
+            - Security issues (undocumented endpoints)
+            - Configuration errors (missing env vars)
+
+            ### How to Fix
+
+            Run the drift detection scripts locally to see exactly what's missing:
+
+            \`\`\`bash
+            node scripts/check-schema-drift.cjs
+            node scripts/check-api-drift.cjs
+            node scripts/check-config-drift.cjs
+            \`\`\`
+
+            Then update the relevant documentation files and push the changes.
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

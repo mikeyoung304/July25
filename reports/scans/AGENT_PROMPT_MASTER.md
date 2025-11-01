@@ -41,7 +41,7 @@
 **Copy this entire prompt into a new Claude Code window. At the start of your session, you will be assigned one of 8 agents:**
 
 | Agent # | Name | Domain |
-|---------|------|--------|
+| --- | --- | --- |
 | **1** | Multi-Tenancy Guardian | Data isolation & restaurant_id enforcement |
 | **2** | Security & Authentication Auditor | Vulnerabilities, auth, secrets |
 | **3** | TypeScript & Type Safety Enforcer | Type errors, any types, strict mode |

@@ -1,18 +1,20 @@
 # Production System Diagnostic Report
 
-**Status**: ✅ Merged into [DEPLOYMENT.md](./DEPLOYMENT.md#production-diagnostics)
+**Last Updated:** 2025-10-31
+
+**Status**: ✅ Merged into [DEPLOYMENT.md](./how-to/operations/DEPLOYMENT.md#production-diagnostics)
 
 **Merged**: October 15, 2025
-**Original**: Archived in `docs/archive/moved/2025-10-15_PRODUCTION_DIAGNOSTICS.md`
+**Original**: Archived in `docs/archive/2025-10/2025-10-15_PRODUCTION_DIAGNOSTICS.md`
 
 This historical incident report's verified findings have been integrated into the canonical deployment documentation.
 
 ## Quick Links
 
-- **Production Diagnostics**: See [DEPLOYMENT.md#production-diagnostics](./DEPLOYMENT.md#production-diagnostics)
-- **CORS Configuration**: See [DEPLOYMENT.md#production-diagnostics](./DEPLOYMENT.md#production-diagnostics)
-- **WebSocket Authentication**: See [DEPLOYMENT.md#websockets](./DEPLOYMENT.md#websockets)
-- **Historical Incidents**: See [DEPLOYMENT.md#production-diagnostics](./DEPLOYMENT.md#production-diagnostics)
+- **Production Diagnostics**: See [DEPLOYMENT.md#production-diagnostics](./how-to/operations/DEPLOYMENT.md#production-diagnostics)
+- **CORS Configuration**: See [DEPLOYMENT.md#production-diagnostics](./how-to/operations/DEPLOYMENT.md#production-diagnostics)
+- **WebSocket Authentication**: See [DEPLOYMENT.md#websockets](./how-to/operations/DEPLOYMENT.md#websockets)
+- **Historical Incidents**: See [DEPLOYMENT.md#production-diagnostics](./how-to/operations/DEPLOYMENT.md#production-diagnostics)
 
 ## Historical Context
 
@@ -26,6 +28,6 @@ The verified technical details have been extracted and merged into the canonical
 ## Archived Content
 
 The complete incident report with step-by-step recovery procedures and lessons learned has been preserved at:
-`docs/archive/moved/2025-10-15_PRODUCTION_DIAGNOSTICS.md`
+`docs/archive/2025-10/2025-10-15_PRODUCTION_DIAGNOSTICS.md`
 
-This stub remains for backward compatibility. All new production diagnostics documentation should be added to [DEPLOYMENT.md#production-diagnostics](./DEPLOYMENT.md#production-diagnostics).
+This stub remains for backward compatibility. All new production diagnostics documentation should be added to [DEPLOYMENT.md#production-diagnostics](./how-to/operations/DEPLOYMENT.md#production-diagnostics).

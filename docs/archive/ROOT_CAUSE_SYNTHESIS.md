@@ -114,11 +114,11 @@ if (req.user.id?.startsWith('demo:')) {
 
 **What Happened:**
 ```
-BEFORE (sk-svcacct key):
-OPENAI_API_KEY=sk-svcacct-zYHPI9dJL...rYPZ (155 chars) ❌ INVALID
+BEFORE (service account key):
+OPENAI_API_KEY=sk-svcacct-[REDACTED] (155 chars) ❌ INVALID
 
-AFTER (sk-proj key):
-OPENAI_API_KEY=sk-proj-WCGmZJlvkAY4...wcsA (164 chars) ✅ VALID
+AFTER (project key):
+OPENAI_API_KEY=sk-proj-[REDACTED] (164 chars) ✅ VALID
 ```
 
 **Root Cause:** Environment mismatch, not code change or key rotation
@@ -202,7 +202,7 @@ if (!jwtSecret) {
 ## ✅ **Bug Attribution Matrix**
 
 | Bug | Introduced | Discovered | Fixed Locally | Deployed to Prod |
-|-----|------------|------------|---------------|------------------|
+| --- | --- | --- | --- | --- |
 | **RBAC** | Oct 18 (5 days ago) | Today | ✅ Yes | ❌ No |
 | **OpenAI Key** | N/A (env mismatch) | Today | ✅ Yes | N/A (local only) |
 | **Missing JWT_SECRET** | N/A (never set) | Today | 📋 Documented | ❌ No |

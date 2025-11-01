@@ -118,7 +118,7 @@ Duration    2.81s
 ### Test Coverage by Category
 
 | Category | Files | Tests Passing | Status |
-|----------|-------|---------------|--------|
+| --- | --- | --- | --- |
 | **Hook Tests** | 6 | 45+ | ✅ All passing |
 | **Component Tests** | 4 | 38+ | ✅ All passing |
 | **Service Tests** | 5 | 50+ | ✅ All passing |

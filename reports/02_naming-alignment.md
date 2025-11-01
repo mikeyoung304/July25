@@ -10,11 +10,11 @@
 
 ### Overall Distribution
 | Component | camelCase | snake_case | Consistency |
-|-----------|-----------|------------|-------------|
-| Client    | 75 files (76%) | 23 files (24%) | ⚠️ MIXED |
-| Server    | 47 files (65%) | 25 files (35%) | ⚠️ MIXED |
-| Shared    | 5 files (20%)  | 20 files (80%) | ✅ SNAKE |
-| Database  | 0 fields       | ALL fields     | ✅ SNAKE |
+| --- | --- | --- | --- |
+| Client | 75 files (76%) | 23 files (24%) | ⚠️ MIXED |
+| Server | 47 files (65%) | 25 files (35%) | ⚠️ MIXED |
+| Shared | 5 files (20%) | 20 files (80%) | ✅ SNAKE |
+| Database | 0 fields | ALL fields | ✅ SNAKE |
 
 ### Field Naming Conflicts
 - **150+ field name mismatches** across boundaries

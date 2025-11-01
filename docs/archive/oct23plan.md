@@ -522,7 +522,7 @@ chmod +x scripts/validate-production-env.sh
 
 **Task 5: Update Deployment Docs (5 min)**
 
-File: `docs/DEPLOYMENT.md`
+File: `docs/how-to/operations/DEPLOYMENT.md`
 
 Add CRITICAL section at top:
 ```markdown

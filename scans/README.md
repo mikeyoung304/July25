@@ -387,7 +387,7 @@ For issues or questions:
 ## Quick Reference: Agent Comparison
 
 | Agent | Priority | Runtime | Focus Area | Key Metrics |
-|-------|----------|---------|------------|-------------|
+| --- | --- | --- | --- | --- |
 | 1. Multi-Tenancy Guardian | CRITICAL | 30-45min | Data isolation | restaurant_id violations |
 | 2. Convention Enforcer | HIGH | 30-40min | Naming standards | ADR-001 compliance % |
 | 3. Race Condition Detective | HIGH | 40-50min | Async bugs | Race conditions found |

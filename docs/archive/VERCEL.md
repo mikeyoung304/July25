@@ -44,7 +44,7 @@ npm run vercel:check
 Set these in Vercel Dashboard (Settings → Environment Variables):
 
 | Variable | Production Value |
-|----------|-----------------|
+| --- | --- |
 | VITE_API_BASE_URL | https://july25.onrender.com |
 | VITE_SUPABASE_URL | [Your Supabase URL] |
 | VITE_SUPABASE_ANON_KEY | [Your Supabase Key] |

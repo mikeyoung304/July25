@@ -66,7 +66,7 @@ const migratedItem = {
 
 ### 2. Missing Error Boundaries
 | Component | Has Error Boundary | Risk Level |
-|-----------|-------------------|------------|
+| --- | --- | --- |
 | CustomerOrderPage | ❌ No | HIGH |
 | CheckoutPage | ⚠️ Payment only | MEDIUM |
 | UnifiedCartContext | ❌ No | HIGH |
@@ -234,7 +234,7 @@ const reconnect = () => {
 ## 📊 Flow Success Metrics
 
 | Step | Success Rate | Drop-off |
-|------|--------------|----------|
+| --- | --- | --- |
 | Menu View | 100% | 0% |
 | Add to Cart | 85% | 15% |
 | Checkout Start | 70% | 15% |

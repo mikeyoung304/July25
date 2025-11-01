@@ -1,5 +1,8 @@
 # Payment Components
 
+
+**Last Updated:** 2025-10-29
+
 Complete checkout flow components for table-based ordering with cash and card payment support.
 
 ## Components

@@ -39,3 +39,40 @@ if git diff --cached --name-only | grep -q "^supabase/migrations/.*\.sql$"; then
     echo "   Install: brew install supabase/tap/supabase"
   fi
 fi
+
+# Documentation validation (fast checks only)
+if git diff --cached --name-only | grep -q "\.md$"; then
+  echo ""
+  echo "📚 Validating documentation..."
+
+  # Check for orphaned files (critical - blocks commit)
+  echo "  → Checking for orphaned files..."
+  if ! node scripts/docs-check.js --orphans-only; then
+    echo ""
+    echo "❌ Orphaned documentation files detected!"
+    echo "   Please link these files in index.md or move to docs/archive/"
+    echo "   To commit anyway: git commit --no-verify"
+    echo ""
+    exit 1
+  fi
+
+  # Check timestamps on modified docs (warning only - doesn't block)
+  echo "  → Checking timestamps on staged files..."
+  node scripts/check-timestamps.js --staged
+
+  # Check table formatting on modified docs (critical - blocks commit)
+  echo "  → Checking table formatting..."
+  STAGED_MD_FILES=$(git diff --cached --name-only | grep "\.md$" | tr '\n' ' ')
+  if [ ! -z "$STAGED_MD_FILES" ]; then
+    if ! node scripts/check-tables.js $STAGED_MD_FILES; then
+      echo ""
+      echo "❌ Malformed tables detected in staged files!"
+      echo "   Please fix table formatting before committing"
+      echo "   To commit anyway: git commit --no-verify"
+      echo ""
+      exit 1
+    fi
+  fi
+
+  echo "  ✅ Documentation validation passed"
+fi

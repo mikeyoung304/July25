@@ -8,7 +8,7 @@
 
 ## ⚠️ Important: Read This First
 
-**🤖 AI Agents:** If you're looking for deployment instructions, you want **[DEPLOYMENT.md](./DEPLOYMENT.md)** instead. This document is for **troubleshooting and manual database access only**.
+**🤖 AI Agents:** If you're looking for deployment instructions, you want **[DEPLOYMENT.md](./how-to/operations/DEPLOYMENT.md)** instead. This document is for **troubleshooting and manual database access only**.
 
 ### Normal Workflow (What You Probably Want):
 1. Test migrations locally: `./scripts/deploy-migration.sh <file>`
@@ -24,7 +24,7 @@
 - Emergency manual operations
 
 **🚀 For normal deployment, see:**
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Standard deployment workflow
+- [DEPLOYMENT.md](./how-to/operations/DEPLOYMENT.md) - Standard deployment workflow
 - [CI_CD_WORKFLOWS.md](./CI_CD_WORKFLOWS.md) - CI/CD automation
 - [../supabase/MIGRATION_BASELINE.md](../supabase/MIGRATION_BASELINE.md) - Migration system overview
 
@@ -769,7 +769,7 @@ SELECT * FROM orders;  -- Returns only allowed rows
 ## Connection Summary
 
 | Method | Primary Use | Auth Required | When to Use |
-|--------|-------------|---------------|-------------|
+| --- | --- | --- | --- |
 | `supabase` CLI | Migrations, schema management | Project link | Deploying changes, managing migrations |
 | `psql` | Diagnostics, queries | Password | Verification, one-off queries |
 | Supabase Dashboard | Monitoring, manual changes | OAuth | Viewing data, emergency fixes |
@@ -785,8 +785,8 @@ SELECT * FROM orders;  -- Returns only allowed rows
 - **Migration Guide:** https://supabase.com/docs/guides/cli/local-development#database-migrations
 - **PostgreSQL Connection Strings:** https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
 - **Internal Docs:**
-  - [`DATABASE.md`](./DATABASE.md) - Schema reference
-  - [`DEPLOYMENT.md`](./DEPLOYMENT.md) - Deployment procedures
+  - [`DATABASE.md`](./reference/schema/DATABASE.md) - Schema reference
+  - [`DEPLOYMENT.md`](./how-to/operations/DEPLOYMENT.md) - Deployment procedures
   - [`MIGRATION_RECONCILIATION_2025-10-20.md`](./MIGRATION_RECONCILIATION_2025-10-20.md) - July 2025 incident resolution
 
 ---

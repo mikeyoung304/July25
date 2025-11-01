@@ -223,7 +223,7 @@ const { error } = await supabase
 ### Query Compliance by File Type
 
 | File Type | Total Queries | Compliant | Violations | Compliance % |
-|-----------|---------------|-----------|------------|--------------|
+| --- | --- | --- | --- | --- |
 | Routes | 48 | 48 | 0 | 100% |
 | Services | 71 | 68 | 3 | 95.8% |
 | Middleware | 8 | 8 | 0 | 100% |

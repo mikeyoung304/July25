@@ -10,7 +10,7 @@ Successfully achieved **zero ESLint errors** (down from 37). Remaining warnings 
 ## Warning Distribution
 
 | Rule | Count | Priority | Impact |
-|------|-------|----------|--------|
+| --- | --- | --- | --- |
 | `@typescript-eslint/no-explicit-any` | 315 | Medium | Type safety |
 | `@typescript-eslint/no-unused-vars` | 121 | Low | Code cleanliness |
 | `no-console` | 20 | Low | Production logging |

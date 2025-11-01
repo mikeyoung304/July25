@@ -59,8 +59,8 @@ jobs:
           # Manual trigger case
           if [ -n "${{ inputs.migration_file }}" ]; then
             echo "Manual deployment requested: ${{ inputs.migration_file }}"
-            echo "migrations=${{ inputs.migration_file }}" >> $GITHUB_OUTPUT
-            echo "count=1" >> $GITHUB_OUTPUT
+            echo "migrations=${{ inputs.migration_file }}" >> "$GITHUB_OUTPUT"
+            echo "count=1" >> "$GITHUB_OUTPUT"
             echo "::endgroup::"
             exit 0
           fi
@@ -70,8 +70,8 @@ jobs:
 
           if [ -z "$NEW_MIGRATIONS" ]; then
             echo "No new migrations detected"
-            echo "migrations=" >> $GITHUB_OUTPUT
-            echo "count=0" >> $GITHUB_OUTPUT
+            echo "migrations=" >> "$GITHUB_OUTPUT"
+            echo "count=0" >> "$GITHUB_OUTPUT"
           else
             echo "New migrations detected:"
             echo "$NEW_MIGRATIONS" | while read -r file; do
@@ -80,10 +80,10 @@ jobs:
 
             # Convert to space-separated list for iteration
             MIGRATIONS_LIST=$(echo "$NEW_MIGRATIONS" | tr '\n' ' ')
-            echo "migrations=$MIGRATIONS_LIST" >> $GITHUB_OUTPUT
+            echo "migrations=$MIGRATIONS_LIST" >> "$GITHUB_OUTPUT"
 
             COUNT=$(echo "$NEW_MIGRATIONS" | wc -l)
-            echo "count=$COUNT" >> $GITHUB_OUTPUT
+            echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           fi
 
           echo "::endgroup::"
@@ -109,7 +109,7 @@ jobs:
 
             if ./scripts/deploy-migration.sh "$migration"; then
               EXIT_CODE=$?
-              if [ $EXIT_CODE -eq 2 ]; then
+              if [ "$EXIT_CODE" -eq 2 ]; then
                 echo "Migration already applied (skipped)"
                 SKIPPED_MIGRATIONS+=("$migration")
               else
@@ -132,16 +132,18 @@ jobs:
           echo ""
 
           # Save results for next steps
-          echo "successful=${SUCCESSFUL_MIGRATIONS[*]}" >> $GITHUB_OUTPUT
-          echo "skipped=${SKIPPED_MIGRATIONS[*]}" >> $GITHUB_OUTPUT
-          echo "failed=${FAILED_MIGRATIONS[*]}" >> $GITHUB_OUTPUT
-          echo "failed_count=${#FAILED_MIGRATIONS[@]}" >> $GITHUB_OUTPUT
+          {
+            echo "successful=${SUCCESSFUL_MIGRATIONS[*]}"
+            echo "skipped=${SKIPPED_MIGRATIONS[*]}"
+            echo "failed=${FAILED_MIGRATIONS[*]}"
+            echo "failed_count=${#FAILED_MIGRATIONS[@]}"
+          } >> "$GITHUB_OUTPUT"
 
           if [ ${#FAILED_MIGRATIONS[@]} -gt 0 ]; then
-            echo "failed=true" >> $GITHUB_OUTPUT
+            echo "failed=true" >> "$GITHUB_OUTPUT"
             exit 1
           else
-            echo "failed=false" >> $GITHUB_OUTPUT
+            echo "failed=false" >> "$GITHUB_OUTPUT"
           fi
 
           echo "::endgroup::"
@@ -158,39 +160,47 @@ jobs:
       - name: Create deployment summary
         if: steps.detect.outputs.count > 0
         run: |
-          echo "## 🚀 Migration Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🚀 Migration Deployment Summary"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
 
           if [ "${{ steps.deploy.outputs.failed }}" == "true" ]; then
-            echo "### ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Failed migrations:**" >> $GITHUB_STEP_SUMMARY
+            {
+              echo "### ❌ Deployment Failed"
+              echo ""
+              echo "**Failed migrations:**"
+            } >> "$GITHUB_STEP_SUMMARY"
             for migration in ${{ steps.deploy.outputs.failed }}; do
-              echo "- \`$migration\`" >> $GITHUB_STEP_SUMMARY
+              echo "- \`$migration\`" >> "$GITHUB_STEP_SUMMARY"
             done
           else
-            echo "### ✅ Deployment Successful" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
+            {
+              echo "### ✅ Deployment Successful"
+              echo ""
+            } >> "$GITHUB_STEP_SUMMARY"
 
             if [ -n "${{ steps.deploy.outputs.successful }}" ]; then
-              echo "**Successfully deployed:**" >> $GITHUB_STEP_SUMMARY
+              echo "**Successfully deployed:**" >> "$GITHUB_STEP_SUMMARY"
               for migration in ${{ steps.deploy.outputs.successful }}; do
-                echo "- \`$migration\`" >> $GITHUB_STEP_SUMMARY
+                echo "- \`$migration\`" >> "$GITHUB_STEP_SUMMARY"
               done
-              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "" >> "$GITHUB_STEP_SUMMARY"
             fi
 
             if [ -n "${{ steps.deploy.outputs.skipped }}" ]; then
-              echo "**Skipped (already applied):**" >> $GITHUB_STEP_SUMMARY
+              echo "**Skipped (already applied):**" >> "$GITHUB_STEP_SUMMARY"
               for migration in ${{ steps.deploy.outputs.skipped }}; do
-                echo "- \`$migration\`" >> $GITHUB_STEP_SUMMARY
+                echo "- \`$migration\`" >> "$GITHUB_STEP_SUMMARY"
               done
             fi
           fi
 
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "*Deployment completed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')*" >> $GITHUB_STEP_SUMMARY
+          {
+            echo ""
+            echo "---"
+            echo "*Deployment completed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')*"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Create issue on failure
         if: failure() && steps.deploy.outputs.failed == 'true'

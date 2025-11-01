@@ -8,6 +8,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+const orphansOnly = args.includes('--orphans-only');
+const quickMode = args.includes('--quick');
+
 // Load version from package.json
 const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const VERSION = packageJson.version;
@@ -29,12 +34,15 @@ function mustContain(file, needle, description = null) {
   }
 }
 
-// Check that README contains version from package.json
-mustContain('README.md', `v${VERSION}`);
-mustContain('index.md', 'Documentation Index');
-mustContain('docs/SECURITY.md', 'single required secret');
-mustContain('docs/DEPLOYMENT.md', 'CORS');
-mustContain('docs/DATABASE.md', 'RLS');
+// Skip basic content checks in orphans-only mode
+if (!orphansOnly) {
+  // Check that README contains version from package.json
+  mustContain('README.md', `v${VERSION}`);
+  mustContain('index.md', 'Documentation Index');
+  mustContain('docs/SECURITY.md', 'single required secret');
+  mustContain('docs/DEPLOYMENT.md', 'CORS');
+  mustContain('docs/DATABASE.md', 'RLS');
+}
 
 // ============================================================================
 // GUARDRAIL 1: ORPHAN DETECTOR
@@ -145,6 +153,22 @@ console.log(`  ✓ Checked ${allMarkdownFiles.length} markdown files`);
 // ============================================================================
 // GUARDRAIL 2: STUB DETECTOR
 // ============================================================================
+if (orphansOnly) {
+  // Skip remaining checks in orphans-only mode
+  console.log('\n✅ ORPHAN CHECK COMPLETE (--orphans-only mode)');
+  console.log('='.repeat(70));
+  if (errors.length === 0) {
+    console.log('✅ No orphaned files found');
+    process.exit(0);
+  } else {
+    console.log(`❌ Found ${errors.length} orphaned file(s):`);
+    console.log('='.repeat(70));
+    errors.forEach(err => console.log(`  • ${err}`));
+    console.log('='.repeat(70));
+    process.exit(1);
+  }
+}
+
 console.log('\n[2/5] Stub Detector: checking stub files are properly archived...');
 
 const stubPattern = /Moved to Canonical Documentation/i;
@@ -305,6 +329,10 @@ console.log(`  ✓ Verified ${anchorChecks} anchor links (${anchorErrors} errors
 // ============================================================================
 // GUARDRAIL 5: REALITY GREPS
 // ============================================================================
+if (quickMode) {
+  // Skip reality greps in quick mode (they're slow)
+  console.log('\n[5/5] Reality Greps: SKIPPED (--quick mode)');
+} else {
 console.log('\n[5/5] Reality Greps: verifying critical implementation details...');
 
 const realityChecks = [
@@ -418,6 +446,7 @@ for (const check of realityChecks) {
 }
 
 console.log(`  ✓ Completed ${realityChecks.length} reality checks`);
+}
 
 // ============================================================================
 // SUMMARY

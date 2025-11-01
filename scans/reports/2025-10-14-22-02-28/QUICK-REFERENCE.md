@@ -7,8 +7,8 @@
 ## Bundle Size Targets
 
 | Target | Limit | Current | Status |
-|--------|-------|---------|--------|
-| Main Chunk | <100KB | 114KB |   WATCH |
+| --- | --- | --- | --- |
+| Main Chunk | <100KB | 114KB | ï¿½ WATCH |
 | Any Chunk | <500KB | 167KB |  GOOD |
 | Total JS | <2MB | 1.1MB |  GOOD |
 | Total Build | <20MB | 16MB |  GOOD |
@@ -244,11 +244,11 @@ find client/dist/js -name "*.js" -exec ls -lh {} \; | sort -k5 -hr | head -10
 
 ## Quick Wins Reference
 
-1. **Add React.memo** (15 min) ’ 30% fewer renders
-2. **Fix inline functions** (5 min) ’ 15% fewer child renders
-3. **Audit timer cleanup** (10 min) ’ Prevent memory leaks
-4. **Optimize DB queries** (10 min) ’ 20% less data transfer
-5. **Reduce polling** (2 min) ’ Lower CPU usage
+1. **Add React.memo** (15 min) ï¿½ 30% fewer renders
+2. **Fix inline functions** (5 min) ï¿½ 15% fewer child renders
+3. **Audit timer cleanup** (10 min) ï¿½ Prevent memory leaks
+4. **Optimize DB queries** (10 min) ï¿½ 20% less data transfer
+5. **Reduce polling** (2 min) ï¿½ Lower CPU usage
 
 **Total time**: 42 minutes
 **Total impact**: 35-45% performance improvement

@@ -76,7 +76,7 @@ Created comprehensive diagnostic script that checks:
 ### Demo Users Status
 
 | Email | Role | User ID | Scopes | Status |
-|-------|------|---------|--------|--------|
+| --- | --- | --- | --- | --- |
 | manager@restaurant.com | manager | 660dc0b2-... | 15 permissions | ✅ Working |
 | server@restaurant.com | server | b764e66c-... | 7 permissions | ✅ Working |
 | kitchen@restaurant.com | kitchen | 425634bf-... | 2 permissions | ✅ Working |

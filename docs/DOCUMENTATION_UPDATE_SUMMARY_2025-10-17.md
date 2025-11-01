@@ -1,5 +1,8 @@
 # Documentation Update Summary - v6.0.8 KDS Auth Fix
 
+
+**Last Updated:** 2025-11-01
+
 **Date**: October 17, 2025
 **Event**: Fixed KDS authentication bug and updated documentation
 **Impact**: CRITICAL - Prevents future bugs, enables informed production decisions
@@ -199,7 +202,7 @@ Before launching to production, review ADR-006 and answer:
 - `/client/src/services/http/httpClient.ts` (code fix)
 
 **Pending Updates**:
-- `/docs/TROUBLESHOOTING.md`
+- `/docs/how-to/troubleshooting/TROUBLESHOOTING.md`
 - `/docs/CHANGELOG.md`
 - `/docs/VERSION.md`
 - `/docs/archive/CLAUDE.md`

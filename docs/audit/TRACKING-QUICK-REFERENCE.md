@@ -1,5 +1,7 @@
 # P0 Audit Fixes - Tracking Quick Reference
 
+**Last Updated:** 2025-10-31
+
 ## 📍 Tracking Locations
 
 ### GitHub Milestone
@@ -29,7 +31,7 @@ Maps audit finding IDs to verification issues.
 
 ### 🚨 Critical Stability (STAB)
 | Issue | Title | Priority | Effort |
-|-------|-------|----------|--------|
+| --- | --- | --- | --- |
 | [#117](https://github.com/mikeyoung304/July25/issues/117) | Transaction wrapping for createOrder | P0 | 2-3h |
 | [#118](https://github.com/mikeyoung304/July25/issues/118) | Optimistic locking for updateOrderStatus | P0 | 2-3h |
 | [#119](https://github.com/mikeyoung304/July25/issues/119) | **CRITICAL** Hardcoded tax rates | P0 | 3-4h |
@@ -37,13 +39,13 @@ Maps audit finding IDs to verification issues.
 
 ### ⚡ Optimization (OPT)
 | Issue | Title | Priority | Effort |
-|-------|-------|----------|--------|
+| --- | --- | --- | --- |
 | [#121](https://github.com/mikeyoung304/July25/issues/121) | Batch table updates optimization | P0 | 2-3h |
 | [#122](https://github.com/mikeyoung304/July25/issues/122) | ElapsedTimer useMemo fix | P0 | 1-2h |
 
 ### 🔨 Refactoring (REF)
 | Issue | Title | Priority | Effort |
-|-------|-------|----------|--------|
+| --- | --- | --- | --- |
 | [#123](https://github.com/mikeyoung304/July25/issues/123) | FloorPlanEditor refactor | P0 | 4-6h |
 | [#124](https://github.com/mikeyoung304/July25/issues/124) | WebRTCVoiceClient refactor | P0 High | 8-12h |
 

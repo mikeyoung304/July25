@@ -32,7 +32,7 @@ Investigation identified **7 distinct bugs** spanning schema migrations, busines
 ### Critical Findings
 
 | # | Root Cause | Confidence | Impact | Evidence |
-|---|------------|------------|--------|----------|
+| --- | --- | --- | --- | --- |
 | **1** | RPC missing `version` column in RETURNS | **95%** | 500 errors, undefined version | Migration mismatch |
 | **2** | Voice order total missing tax | **100%** | Incorrect totals | useVoiceOrderWebRTC.ts:185-188 |
 | **3** | Triple tax rate hardcoding | **100%** | Inconsistent calculations | 3 different values (7%, 8%, 8.25%) |
@@ -281,12 +281,12 @@ const quantityMap: Record<string, number> = {
 
 ### Database Schema State
 
-**File**: `docs/DATABASE.md` (Documentation)
+**File**: `docs/reference/schema/DATABASE.md` (Documentation)
 
 **Lines 30, 172, 248**: Schema inconsistencies
 
 | Doc Says | Reality | Location |
-|----------|---------|----------|
+| --- | --- | --- |
 | `customer_info JSONB` | `customer_name VARCHAR` | orders table |
 | `total` | `total_amount` | orders table |
 | `tip` column | No `tip` column, stored in metadata | orders table |
@@ -519,7 +519,7 @@ const items = processor.parseTranscriptForItems(transcript);
 **Impact**: None (runtime) - Causes confusion for developers
 
 **Evidence (Signals)**:
-- `docs/DATABASE.md` says `customer_info JSONB`, reality is `customer_name VARCHAR`
+- `docs/reference/schema/DATABASE.md` says `customer_info JSONB`, reality is `customer_name VARCHAR`
 - Docs say `total`, reality is `total_amount`
 - Docs say `tip` column, reality is tip stored in metadata
 
@@ -535,7 +535,7 @@ FROM information_schema.columns
 WHERE table_name = 'orders'
 ORDER BY ordinal_position;
 
--- Compare with docs/DATABASE.md documentation
+-- Compare with docs/reference/schema/DATABASE.md documentation
 ```
 
 **Fix**: Update DATABASE.md to match actual schema
@@ -934,7 +934,7 @@ Monitor:
 ### A. File Reference Index
 
 | File | Lines | Issue |
-|------|-------|-------|
+| --- | --- | --- |
 | `supabase/migrations/20251019_add_create_order_with_audit_rpc.sql` | 40-64 | Missing version in RETURNS |
 | `supabase/migrations/20251019_add_version_to_orders.sql` | 9-10 | Added version column |
 | `server/src/services/orders.service.ts` | 134 | Accepts unvalidated totals |
@@ -944,7 +944,7 @@ Monitor:
 | `client/src/modules/voice/services/VoiceOrderProcessor.ts` | 191 | Hardcoded tax 8% |
 | `shared/cart.ts` | 42, 50 | Hardcoded tax 8.25% |
 | `client/src/pages/CheckoutPage.tsx` | 72-75 | Sends totals to server |
-| `docs/DATABASE.md` | 30, 172, 248 | Documentation drift |
+| `docs/reference/schema/DATABASE.md` | 30, 172, 248 | Documentation drift |
 
 ### B. Commit References
 

@@ -1,12 +1,14 @@
 # Role-Scope Matrix
 
+**Last Updated:** 2025-10-31
+
 **Source:** `server/src/middleware/rbac.ts:60-138`
 **Last Synced:** 2025-10-18
 
 ## Customer (Public Self-Service)
 
 | Scope | Description | Required For |
-|-------|-------------|--------------|
+| --- | --- | --- |
 | `orders:create` | Create new orders | Checkout flow |
 | `orders:read` | View own orders | Order history |
 | `payments:process` | Complete payments | Payment submission |
@@ -18,7 +20,7 @@
 ## Server (In-Restaurant Staff)
 
 | Scope | Description | Required For |
-|-------|-------------|--------------|
+| --- | --- | --- |
 | `orders:create` | Create orders for customers | ServerView |
 | `orders:read` | View all orders | Order monitoring |
 | `orders:update` | Modify orders | Edit order items |

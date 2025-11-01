@@ -52,7 +52,7 @@ Added exemptions for:
 ## Before/After Metrics
 
 | Guardrail | Before | After | Notes |
-|-----------|--------|-------|-------|
+| --- | --- | --- | --- |
 | **Orphans** | 40 | 32 | -8 (workspace READMEs, ADRs exempt) |
 | **Stubs** | 4 violations | 0 violations | All 4 recognized as valid in-place stubs |
 | **Risk Patterns** | 0 | 0 | No dangerous patterns (maintained) |

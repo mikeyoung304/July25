@@ -1,5 +1,8 @@
 # Shared - Common Types and Utilities
 
+
+**Last Updated:** 2025-08-26
+
 ## Overview
 
 The shared directory contains TypeScript types, interfaces, and utility functions used across both client and server applications. This ensures type safety and consistency throughout the entire restaurant OS system.
@@ -32,26 +35,26 @@ shared/
 ```typescript
 // Order statuses - ALL must be handled
 export type OrderStatus = 
-  | 'new'
-  | 'pending'
-  | 'confirmed' 
-  | 'preparing'
-  | 'ready'
-  | 'completed'
-  | 'cancelled';
+  | 'new' |
+  | 'pending' |
+  | 'confirmed' |
+  | 'preparing' |
+  | 'ready' |
+  | 'completed' |
+  | 'cancelled'; |
 
 // Database-valid order types
 export type OrderType = 'online' | 'pickup' | 'delivery';
 
 // UI-friendly order types
 export type UIOrderType = 
-  | 'dine-in' 
-  | 'takeout' 
-  | 'delivery' 
-  | 'online' 
-  | 'drive-thru' 
-  | 'kiosk' 
-  | 'voice';
+  | 'dine-in' |
+  | 'takeout' |
+  | 'delivery' |
+  | 'online' |
+  | 'drive-thru' |
+  | 'kiosk' |
+  | 'voice'; |
 
 export interface Order {
   id: string;
@@ -131,12 +134,12 @@ export interface MenuModifier {
 }
 
 export type KitchenStation = 
-  | 'grill' 
-  | 'saute' 
-  | 'salad' 
-  | 'fry' 
-  | 'dessert' 
-  | 'beverage';
+  | 'grill' |
+  | 'saute' |
+  | 'salad' |
+  | 'fry' |
+  | 'dessert' |
+  | 'beverage'; |
 ```
 
 ## Utility Functions

@@ -19,7 +19,7 @@
 ## 📊 Security Findings Overview
 
 | Severity | Count | Status |
-|----------|-------|--------|
+| --- | --- | --- |
 | 🔴 Critical | 0 | ✅ None Found |
 | 🟠 High | 3 | ⚠️ Fix Before Production |
 | 🟡 Medium | 5 | ⚠️ Fix in Next Sprint |
@@ -100,7 +100,7 @@
 ## 📈 Security Scorecard
 
 | Category | Score | Grade |
-|----------|-------|-------|
+| --- | --- | --- |
 | Code Quality | 8.5/10 | 🟢 A |
 | Authentication | 9.0/10 | 🟢 A |
 | Data Protection | 9.0/10 | 🟢 A |
@@ -148,7 +148,7 @@
 ## 🔒 Compliance Status
 
 | Standard | Status | Notes |
-|----------|--------|-------|
+| --- | --- | --- |
 | **GDPR** | ⚠️ PARTIAL | Fix PII logging (Finding #3) |
 | **PCI-DSS** | ✅ COMPLIANT | Payment delegated to Square |
 | **SOC 2** | ⚠️ PARTIAL | Need audit logging |

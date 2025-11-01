@@ -28,7 +28,7 @@
 ## Guarded Merge Matrix
 
 | File | Target | Status | Evidence Summary | Risk Flags | Action |
-|------|--------|--------|------------------|------------|--------|
+| --- | --- | --- | --- | --- | --- |
 | **SQUARE_INTEGRATION.md** | DEPLOYMENT.md | **PASS** | Square SDK v43 code exists, payment routes validated, credential validation scripts found | None | Safe to merge |
 | **WEBSOCKET_EVENTS.md** | DEPLOYMENT.md | **PASS** | WebSocket auth verified, JWT validation exists, production checks confirmed | None | Safe to merge |
 | **PRODUCTION_DIAGNOSTICS.md** | DEPLOYMENT.md | **PARTIAL** | CORS config verified, but references outdated deployment URLs | Stale URLs | Update URLs before merge |
@@ -598,7 +598,7 @@ File structure validated, paths are accurate
 ### DEPLOYMENT Overlaps
 
 | Rule | Evidence Found | Status |
-|------|----------------|--------|
+| --- | --- | --- |
 | **[CORS]** Explicit allowlist (no '*'), using FRONTEND_URL/ALLOWED_ORIGINS | ✅ `server/src/server.ts:64-126`, allowedOrigins Set, no wildcard | **PASS** |
 | **[WS auth]** Production WS path rejects missing/invalid JWT | ✅ `server/src/middleware/auth.ts:113-155`, `verifyWebSocketAuth()` | **PASS** |
 | **[Square]** Integration code in server/** (payments, webhooks, env keys) | ✅ Found in `routes/payments.routes.ts`, `routes/terminal.routes.ts`, env config | **PASS** |
@@ -608,7 +608,7 @@ File structure validated, paths are accurate
 ### SECURITY/AUTH Overlaps
 
 | Rule | Evidence Found | Status |
-|------|----------------|--------|
+| --- | --- | --- |
 | **[JWT secret]** Single required secret; startup fail-fast if unset; no fallback string | ⚠️ JWT_SECRET usage found, but explicit startup fail-fast not clearly evident | **PARTIAL** |
 | **[PII redaction]** Logger redact list; auth routes use it | ⚠️ `requestSanitizer.ts` exists with token sanitization, but full redaction list not confirmed | **PARTIAL** |
 | **[Refresh latch]** Client AuthContext has refreshInProgressRef + single timer + cleanup | ✅ `client/src/contexts/AuthContext.tsx:60`, refreshInProgressRef confirmed | **PASS** |
@@ -617,7 +617,7 @@ File structure validated, paths are accurate
 ### ROADMAP/STATUS Overlaps
 
 | Rule | Evidence Found | Status |
-|------|----------------|--------|
+| --- | --- | --- |
 | **Mentions map to actual files/services/components that exist now** | ✅ Validated: menu system, voice ordering, KDS components, order services all exist | **PASS** |
 
 ---
@@ -655,7 +655,7 @@ None identified.
 ## Files Not Found / Missing Evidence
 
 | Claim | Expected Location | Status |
-|-------|-------------------|--------|
+| --- | --- | --- |
 | Explicit JWT_SECRET startup fail-fast | server/src/config/env.ts or middleware/auth.ts | Not clearly evident, but JWT validation exists |
 | Complete PII redaction list | server/src/middleware/ or services/ | Sanitizer exists, but full list not confirmed |
 | `/scripts/validate-square-credentials.sh` | scripts/ directory | Not found, but validation logic exists in routes |
@@ -726,7 +726,7 @@ None identified.
 ### Claims Classification Summary
 
 | File | Total Claims | ✅ Verified | ⚠️ Weak | ❌ No Evidence | Quality |
-|------|--------------|-------------|---------|----------------|---------|
+| --- | --- | --- | --- | --- | --- |
 | SQUARE_INTEGRATION.md | 10 | 8 | 1 | 1 | 85.0% |
 | WEBSOCKET_EVENTS.md | 6 | 3 | 2 | 1 | 66.7% |
 | PRODUCTION_DIAGNOSTICS.md | 4 | 3 | 1 | 0 | 87.5% |

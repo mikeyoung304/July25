@@ -267,7 +267,7 @@ This will make demo logins work immediately without requiring Supabase setup.
 ## Test Results Summary
 
 | Endpoint | Status | Response |
-|----------|--------|----------|
+| --- | --- | --- |
 | `/health` | ✅ Working | 200 OK |
 | `/api/v1/auth/kiosk` | ✅ Working | 200 OK + JWT |
 | `/api/v1/auth/login` | ⚠️ Failing | 400 Bad Request |

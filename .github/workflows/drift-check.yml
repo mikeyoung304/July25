@@ -56,18 +56,18 @@ jobs:
           if diff /tmp/schema-before.prisma prisma/schema.prisma > /tmp/schema-diff.txt; then
             echo "✅ No schema drift detected"
             echo "Production database matches git schema"
-            echo "drift=false" >> $GITHUB_OUTPUT
+            echo "drift=false" >> "$GITHUB_OUTPUT"
           else
             echo "❌ Schema drift detected!"
             echo ""
             echo "Differences found between production and git:"
             cat /tmp/schema-diff.txt
             echo ""
-            echo "drift=true" >> $GITHUB_OUTPUT
+            echo "drift=true" >> "$GITHUB_OUTPUT"
 
             # Count number of changes
             CHANGES=$(wc -l < /tmp/schema-diff.txt)
-            echo "change_count=$CHANGES" >> $GITHUB_OUTPUT
+            echo "change_count=$CHANGES" >> "$GITHUB_OUTPUT"
           fi
 
           echo "::endgroup::"
@@ -202,21 +202,29 @@ jobs:
       - name: Create summary
         if: always()
         run: |
-          echo "## 🔍 Drift Detection Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🔍 Drift Detection Summary"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
 
           if [ "${{ steps.drift-check.outputs.drift }}" == "true" ]; then
-            echo "### ❌ Drift Detected" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Changes:** ${{ steps.drift-check.outputs.change_count }} lines different" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "A GitHub issue has been created with details and remediation steps." >> $GITHUB_STEP_SUMMARY
+            {
+              echo "### ❌ Drift Detected"
+              echo ""
+              echo "**Changes:** ${{ steps.drift-check.outputs.change_count }} lines different"
+              echo ""
+              echo "A GitHub issue has been created with details and remediation steps."
+            } >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "### ✅ No Drift" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Production database schema matches git repository." >> $GITHUB_STEP_SUMMARY
+            {
+              echo "### ✅ No Drift"
+              echo ""
+              echo "Production database schema matches git repository."
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
 
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "*Checked at $(date -u '+%Y-%m-%d %H:%M:%S UTC')*" >> $GITHUB_STEP_SUMMARY
+          {
+            echo ""
+            echo "---"
+            echo "*Checked at $(date -u '+%Y-%m-%d %H:%M:%S UTC')*"
+          } >> "$GITHUB_STEP_SUMMARY"

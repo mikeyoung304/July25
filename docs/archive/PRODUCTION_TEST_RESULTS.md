@@ -19,7 +19,7 @@
 ## Test Results Summary
 
 | Test | Status | Details |
-|------|--------|---------|
+| --- | --- | --- |
 | **1. Server Health** | ✅ PASS | Server responding healthy, uptime 17+ hours |
 | **2. Authentication** | ✅ PASS | Demo login works, tokens generated |
 | **3. Order Creation** | ✅ PASS | Orders can be created successfully |
@@ -143,7 +143,7 @@ if (req.user.id?.startsWith('demo:')) {
 ## Comparison: Local vs Production
 
 | Feature | Local (Fixed) | Production (Broken) |
-|---------|---------------|---------------------|
+| --- | --- | --- |
 | Demo Auth | ✅ Working | ✅ Working |
 | Order Creation | ✅ Working | ✅ Working |
 | **Payment Access** | ✅ **Working** | ❌ **403 Forbidden** |

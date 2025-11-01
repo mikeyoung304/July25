@@ -1,5 +1,7 @@
 # Restaurant OS - Testing Checklist
 
+**Last Updated:** 2025-10-31
+
 ## ✅ Status: 99% Production Ready (E2E Tests Added)
 
 **Latest Update**: 2025-10-22 - Added E2E smoke tests for production launch
@@ -882,16 +884,16 @@ All fall menu tests pass when:
 ## Documentation
 
 ### Architecture & Systems
-- **Production Status**: [docs/PRODUCTION_STATUS.md](docs/PRODUCTION_STATUS.md) - 98% ready assessment
-- **Menu System**: [docs/MENU_SYSTEM.md](docs/MENU_SYSTEM.md) - Fall menu deployment guide
-- **Square Integration**: [DEPLOYMENT.md#square-integration](docs/DEPLOYMENT.md#square-integration) - Payment flow
-- **Order Flow**: [docs/ORDER_FLOW.md](docs/ORDER_FLOW.md) - Customer journey
-- **Database**: [docs/DATABASE.md](docs/DATABASE.md) - Supabase schema
-- **Roadmap**: [docs/ROADMAP.md](docs/ROADMAP.md) - Project timeline
+- **Production Status**: [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - 98% ready assessment
+- **Menu System**: [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) - Fall menu deployment guide
+- **Square Integration**: [DEPLOYMENT.md#square-integration](./how-to/operations/DEPLOYMENT.md#square-integration) - Payment flow
+- **Order Flow**: [ORDER_FLOW.md](./explanation/concepts/ORDER_FLOW.md) - Customer journey
+- **Database**: [DATABASE.md](./reference/schema/DATABASE.md) - Supabase schema
+- **Roadmap**: [ROADMAP.md](./ROADMAP.md) - Project timeline
 
 ### Authentication
-- **Architecture**: [docs/AUTHENTICATION_ARCHITECTURE.md](docs/AUTHENTICATION_ARCHITECTURE.md)
-- **Migration Guide**: [DEPLOYMENT.md#authentication-migration](docs/DEPLOYMENT.md#authentication-migration) - Auth migration details
+- **Architecture**: [AUTHENTICATION_ARCHITECTURE.md](./explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
+- **Migration Guide**: [DEPLOYMENT.md#authentication-migration](./how-to/operations/DEPLOYMENT.md#authentication-migration) - Auth migration details
 - **Code**: `client/src/contexts/AuthContext.tsx` (see inline comments)
 
 ---

@@ -84,7 +84,7 @@ const fileEnv = loadEnv(mode, envDir, 'VITE_'); // Only VITE_ vars
 ### Variable Naming Convention
 
 | Variable Type | Example | Accessible Where |
-|--------------|---------|------------------|
+| --- | --- | --- |
 | Server-only | `DATABASE_URL` | Server ✅, Browser ❌ |
 | Client-only | `VITE_API_BASE_URL` | Server ✅, Browser ✅ |
 | Shared value | Add both: `X` and `VITE_X` | Both ✅ |

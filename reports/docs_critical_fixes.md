@@ -11,7 +11,7 @@
 Investigated 3 critical discrepancies identified in guarded merge evidence:
 
 | Issue | Status | Verdict | Action Required |
-|-------|--------|---------|-----------------|
+| --- | --- | --- | --- |
 | **A) Heartbeat Interval Conflict** | ✅ RESOLVED | Doc Fix | Update WEBSOCKET_EVENTS claim |
 | **B) Missing Square Script** | ✅ RESOLVED | Claim Error | Script exists, update evidence |
 | **C) Cache Service Reference** | ✅ RESOLVED | Doc Fix | Update claim wording |

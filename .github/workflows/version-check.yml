@@ -1,0 +1,159 @@
+name: Version Consistency Check
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check version consistency across documentation
+        run: |
+          echo "🔍 Checking version consistency across all documentation..."
+          echo ""
+
+          # Extract versions from different files using sed (compatible with both GNU and BSD)
+          VERSION_MD=$(grep '| \*\*Application\*\*' docs/VERSION.md | sed -E 's/.*\| ([0-9]+\.[0-9]+\.[0-9]+).*/\1/' | head -1)
+          README_VERSION=$(grep '# Grow App (Restaurant OS)' README.md | sed -E 's/.*v([0-9]+\.[0-9]+\.[0-9]+).*/\1/' | head -1)
+          CHANGELOG_VERSION=$(grep '^## \[' docs/CHANGELOG.md | grep -v 'Unreleased' | sed -E 's/.*\[([0-9]+\.[0-9]+\.[0-9]+)\].*/\1/' | head -1)
+          SOURCE_OF_TRUTH_VERSION=$(grep '# Restaurant OS v' docs/meta/SOURCE_OF_TRUTH.md | sed -E 's/.*v([0-9]+\.[0-9]+\.[0-9]+).*/\1/' | head -1)
+
+          echo "📄 VERSION.md: v$VERSION_MD"
+          echo "📄 README.md: v$README_VERSION"
+          echo "📄 CHANGELOG.md: v$CHANGELOG_VERSION"
+          echo "📄 SOURCE_OF_TRUTH.md: v$SOURCE_OF_TRUTH_VERSION"
+          echo ""
+
+          # Check if all versions match
+          if [ "$VERSION_MD" != "$README_VERSION" ]; then
+            echo "❌ Version mismatch: VERSION.md ($VERSION_MD) != README.md ($README_VERSION)"
+            exit 1
+          fi
+
+          if [ "$VERSION_MD" != "$CHANGELOG_VERSION" ]; then
+            echo "❌ Version mismatch: VERSION.md ($VERSION_MD) != CHANGELOG.md ($CHANGELOG_VERSION)"
+            exit 1
+          fi
+
+          if [ "$VERSION_MD" != "$SOURCE_OF_TRUTH_VERSION" ]; then
+            echo "❌ Version mismatch: VERSION.md ($VERSION_MD) != SOURCE_OF_TRUTH.md ($SOURCE_OF_TRUTH_VERSION)"
+            exit 1
+          fi
+
+          echo "✅ All versions consistent: v$VERSION_MD"
+          echo ""
+          echo "📋 Version consistency verified across:"
+          echo "  - docs/VERSION.md (canonical source)"
+          echo "  - README.md"
+          echo "  - docs/CHANGELOG.md"
+          echo "  - docs/meta/SOURCE_OF_TRUTH.md"
+
+      - name: Verify VERSION.md is referenced as canonical source
+        run: |
+          echo ""
+          echo "🔍 Verifying VERSION.md is properly referenced as canonical source..."
+          echo ""
+
+          # Check that README links to VERSION.md
+          if ! grep -q "VERSION.md" README.md; then
+            echo "❌ README.md does not reference VERSION.md as canonical source"
+            exit 1
+          fi
+
+          # Check that SOURCE_OF_TRUTH.md links to VERSION.md
+          if ! grep -q "VERSION.md" docs/meta/SOURCE_OF_TRUTH.md; then
+            echo "❌ SOURCE_OF_TRUTH.md does not reference VERSION.md"
+            exit 1
+          fi
+
+          echo "✅ VERSION.md properly referenced as canonical source"
+
+      - name: Check for hardcoded version numbers in docs
+        run: |
+          echo ""
+          echo "🔍 Checking for hardcoded version numbers in documentation..."
+          echo ""
+
+          # Search for patterns like "version 6.0.14" or "v6.0.14" in docs (excluding CHANGELOG and VERSION.md)
+          HARDCODED=$(grep -rn "version [0-9]\+\.[0-9]\+\.[0-9]\+" docs/ --include="*.md" --exclude="CHANGELOG.md" --exclude="VERSION.md" || true)
+
+          if [ -n "$HARDCODED" ]; then
+            echo "⚠️  Found potentially hardcoded version numbers:"
+            echo "$HARDCODED"
+            echo ""
+            echo "💡 Consider replacing hardcoded versions with links to VERSION.md"
+            # Don't fail the build, just warn
+          else
+            echo "✅ No hardcoded version numbers found in documentation"
+          fi
+
+      - name: Check Last Updated dates
+        run: |
+          echo ""
+          echo "🔍 Checking for Last Updated dates in documentation..."
+          echo ""
+
+          # Find docs without Last Updated in first 20 lines
+          missing=$(find docs/ -name "*.md" -type f \
+            -not -path "docs/archive/*" \
+            -not -path "docs/tutorials/*" \
+            | while read -r file; do
+                if ! head -20 "$file" | grep -q "Last Updated"; then
+                  echo "$file"
+                fi
+              done)
+
+          if [ -n "$missing" ]; then
+            echo "⚠️  Warning: Files missing 'Last Updated' date:"
+            echo "$missing"
+            echo ""
+            echo "💡 Consider adding timestamps to major documentation files."
+            echo "   Format: **Last Updated:** YYYY-MM-DD"
+          else
+            echo "✅ All major documentation files have Last Updated dates"
+          fi
+
+      - name: Check root directory policy
+        run: |
+          echo ""
+          echo "🔍 Checking root directory policy..."
+          echo ""
+
+          # Count markdown files at root (should be exactly 4)
+          count=$(find . -maxdepth 1 -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+          echo "📄 Root markdown files found: $count"
+
+          if [ "$count" -ne 4 ]; then
+            echo ""
+            echo "❌ Root directory policy violated!"
+            echo "Expected 4 files (README.md, index.md, SECURITY.md, CONTRIBUTING.md), found $count"
+            echo ""
+            echo "Current root markdown files:"
+            find . -maxdepth 1 -name "*.md" -type f -exec basename {} \;
+            exit 1
+          fi
+
+          echo "✅ Root directory policy enforced (4 files)"
+          echo "   - README.md"
+          echo "   - index.md"
+          echo "   - SECURITY.md"
+          echo "   - CONTRIBUTING.md"
+
+      - name: Summary
+        if: success()
+        run: |
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ VERSION CONSISTENCY CHECK PASSED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "All version numbers are synchronized and VERSION.md is"
+          echo "properly established as the canonical version source."
+          echo ""

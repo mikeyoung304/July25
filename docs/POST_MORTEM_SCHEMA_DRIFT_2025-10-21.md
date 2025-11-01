@@ -1,5 +1,7 @@
 # Post-Mortem: Schema Drift Production Incidents (2025-10-21)
 
+**Last Updated:** 2025-10-31
+
 **Incident Date:** October 21, 2025
 **Severity:** P0 - Production outage (two separate incidents, same root cause)
 **Total Duration:** ~4.5 hours across two incidents

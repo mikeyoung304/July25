@@ -70,7 +70,7 @@
 ## Violation Breakdown
 
 | Severity | Count | Description |
-|----------|-------|-------------|
+| --- | --- | --- |
 | CRITICAL | 12 | Transformation utilities |
 | HIGH | 18 | API boundary violations |
 | MEDIUM | 11 | Type inconsistencies |
@@ -103,7 +103,7 @@
 ## Migration Timeline
 
 | Week | Phase | Deliverables |
-|------|-------|--------------|
+| --- | --- | --- |
 | **Week 1** | Stop the Bleeding | Disable middleware, fix auth routes |
 | **Week 2** | API Boundary | Fix all route responses, update shared types |
 | **Week 3** | Delete Dead Code | Remove 984 lines of transformations |

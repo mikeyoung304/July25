@@ -21,7 +21,7 @@ The client/.env.local file contains environment variables without the required `
 ## System Status
 
 | Component | Status | Notes |
-|-----------|--------|-------|
+| --- | --- | --- |
 | Server (Backend) | ✅ HEALTHY | Running on port 3001, database connected |
 | Client (Frontend) | ❌ BROKEN | Vite serving but app crashes on load |
 | Database Connection | ✅ HEALTHY | Supabase connected successfully |
@@ -137,7 +137,7 @@ TypeError: process.on is not a function
 ### Expected vs Actual Behavior
 
 | Action | Expected API Call | Actual Result |
-|--------|-------------------|---------------|
+| --- | --- | --- |
 | Page Load | GET /api/v1/auth/session | ❌ Never called |
 | Demo Button Click | POST /api/v1/auth/kiosk | ❌ Can't click (no button) |
 | Email/Password Login | POST /api/v1/auth/login | ❌ Can't submit (no form) |
@@ -172,7 +172,7 @@ TypeError: process.on is not a function
 
 ### Auth Endpoint Availability
 | Endpoint | Status | Rate Limit |
-|----------|--------|-----------|
+| --- | --- | --- |
 | POST /api/v1/auth/login | ✅ Ready | 5 per 15min |
 | POST /api/v1/auth/kiosk | ✅ Ready | 20 per 5min |
 | POST /api/v1/auth/pin | ✅ Ready | 3 per 5min |

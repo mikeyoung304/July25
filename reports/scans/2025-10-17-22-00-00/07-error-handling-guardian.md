@@ -1363,7 +1363,7 @@ npm install opossum
 **Priority:** P0 items MUST be fixed before next production deployment
 
 | Item | Effort | Risk if Delayed | Owner |
-|------|--------|----------------|-------|
+| --- | --- | --- | --- |
 | P0-1: Payment rollback | 4h | Critical - financial loss | Backend |
 | P0-2: Square API timeout | 2h | High - poor UX, resource leak | Backend |
 | P0-3: DB retry logic | 2h | High - deployment failures | Backend |
@@ -1374,7 +1374,7 @@ npm install opossum
 **Priority:** Improves reliability and prevents cascading failures
 
 | Item | Effort | Impact | Owner |
-|------|--------|--------|-------|
+| --- | --- | --- | --- |
 | P1-1: WebSocket backoff | 3h | High - reduces server load | Full-stack |
 | P1-2: Voice error boundaries | 2h | Medium - isolates voice failures | Backend |
 | P1-4: Type error handling | 4h | Medium - better debugging | Backend |
@@ -1389,7 +1389,7 @@ npm install opossum
 **Priority:** Production hardening and observability
 
 | Item | Effort | Impact | Owner |
-|------|--------|--------|-------|
+| --- | --- | --- | --- |
 | P2-1: Audit log alerting | 2h | Medium - compliance | Backend |
 | P2-2: Optimistic locking | 6h | Medium - race condition prevention | Backend |
 | P2-3: Health check timeout | 1h | Low - monitoring reliability | Backend |
@@ -1402,7 +1402,7 @@ npm install opossum
 **Priority:** Code quality and maintainability
 
 | Category | Effort | Impact |
-|----------|--------|--------|
+| --- | --- | --- |
 | P3-1: Error message improvement | 2h | Low - UX |
 | P3-2: Error code constants | 2h | Low - maintainability |
 | Remaining P3 items | 4h | Low - polish |

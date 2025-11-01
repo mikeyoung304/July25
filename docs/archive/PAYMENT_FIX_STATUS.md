@@ -147,7 +147,7 @@ bash ./scripts/test-payment-properly.sh
 ## 📊 Progress Summary
 
 | Phase | Task | Status | Blocker |
-|-------|------|--------|---------|
+| --- | --- | --- | --- |
 | 1 | Create payment_audit_logs migration | ✅ Complete | None |
 | 1 | Deploy migration to production | ✅ Complete | None |
 | 1 | Update migration history | ✅ Complete | None |

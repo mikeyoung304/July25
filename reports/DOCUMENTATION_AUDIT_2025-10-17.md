@@ -31,7 +31,7 @@ Your documentation system is **well-organized** with intentional architectural p
 ### Total: 157 Tracked MD Files
 
 | Category | Count | Status |
-|----------|-------|--------|
+| --- | --- | --- |
 | **Root Level** | 18 | ✅ Redirect stubs (intentional pattern) |
 | **docs/** | 71 | ✅ Current canonical documentation |
 | **docs/archive/** | 30 | ✅ Historical preservation |
@@ -135,7 +135,7 @@ docs/archive/
 **Files to Delete**:
 
 | File | Date | Age | Superseded By |
-|------|------|-----|---------------|
+| --- | --- | --- | --- |
 | `BLACKLIGHT-changemap.md` | Sept 19 | 4 weeks | Current ADRs, auth docs |
 | `BLACKLIGHT-e2e-audit.md` | Sept 19 | 4 weeks | Current test coverage |
 | `LINT-BURNDOWN.md` | Sept 19 | 4 weeks | `quality_baseline_summary.md` (Oct 16) |
@@ -380,7 +380,7 @@ git commit -m "docs: move KDS competitive analysis to strategy folder"
 
 ### Before Cleanup
 | Metric | Value |
-|--------|-------|
+| --- | --- |
 | Total MD files | 157 |
 | Outdated files | 13 (8.3%) |
 | Properly organized | 144 (91.7%) |
@@ -389,7 +389,7 @@ git commit -m "docs: move KDS competitive analysis to strategy folder"
 
 ### After Cleanup (Projected)
 | Metric | Value |
-|--------|-------|
+| --- | --- |
 | Total MD files | 144 |
 | Outdated files | 0 (0%) |
 | Properly organized | 144 (100%) |

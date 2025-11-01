@@ -21,7 +21,7 @@
 ## 📊 Scan Results Overview
 
 | Agent | Priority | Grade | Issues | Status |
-|-------|----------|-------|--------|--------|
+| --- | --- | --- | --- | --- |
 | **Multi-Tenancy Guardian** | CRITICAL | A (97.6%) | 3 | ✅ Excellent |
 | **Security Auditor** | CRITICAL | A- (8.5/10) | 8 | ⚠️ 4 Blockers |
 | **Race Condition Detective** | HIGH | B (12 issues) | 12 | ⚠️ Fix KDS Bug |
@@ -376,7 +376,7 @@ All detailed reports are available in:
 ### Individual Reports
 
 | Report | Size | Read Time | Priority |
-|--------|------|-----------|----------|
+| --- | --- | --- | --- |
 | **EXECUTIVE-SUMMARY.md** | 8KB | 5 min | ⭐⭐⭐⭐⭐ |
 | security-auditor.md | 17KB | 15 min | ⭐⭐⭐⭐⭐ |
 | race-condition-detective.md | 12KB | 10 min | ⭐⭐⭐⭐ |

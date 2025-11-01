@@ -1,5 +1,8 @@
 # Client - Restaurant OS Frontend
 
+
+**Last Updated:** 2025-10-27
+
 ## Overview
 
 The client application is a modern React-based restaurant management system featuring a revolutionary Kitchen Display System (KDS), Point of Sale (POS), and Expo station with advanced table consolidation.
@@ -212,9 +215,13 @@ npm run typecheck
 NODE_OPTIONS="--max-old-space-size=4096" npm run build
 ```
 
+## Project Documentation
+
+- [Phase 2 Quick Wins Summary](./PHASE_2_QUICK_WINS_SUMMARY.md) - Summary of Phase 2 optimization improvements
+
 ## Contributing
 
-See [CONTRIBUTING.md](../docs/06-development/contributing.md) for development guidelines.
+See [CONTRIBUTING.md](../docs/how-to/development/CONTRIBUTING.md) for development guidelines.
 
 ## License
 

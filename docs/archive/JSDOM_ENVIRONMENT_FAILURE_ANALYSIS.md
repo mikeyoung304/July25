@@ -149,7 +149,7 @@ ReferenceError: document is not defined
       4| describe('useAsyncState', () => {
       5|   it('initializes with default state', () => {
       6|     const { result } = renderHook(() => useAsyncState<string>())
-       |                        ^
+       | ^ |
       7|
       8|     expect(result.current.data).toBeUndefined()
 ```
@@ -161,7 +161,7 @@ ReferenceError: document is not defined
      19|    ]))
      20|
      21|    fireEvent.keyDown(document, { key: 'a' })
-       |                      ^
+       | ^ |
      22|    expect(mockAction1).toHaveBeenCalledTimes(1)
 ```
 
@@ -175,7 +175,7 @@ ReferenceError: document is not defined
      71|
      72|    const { rerender } = render(
      73|      <AuthProvider>
-       |                        ^
+       | ^ |
      74|        <TestComponent />
 ```
 

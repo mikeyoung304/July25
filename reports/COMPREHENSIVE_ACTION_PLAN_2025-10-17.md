@@ -475,7 +475,7 @@ constructor(private tokenManager: EphemeralTokenManager)
 ### Critical Path (Production Blockers)
 
 | Week | Phase | Hours | Focus |
-|------|-------|-------|-------|
+| --- | --- | --- | --- |
 | **Week 1** | P0 Critical | 27h | Security, TypeScript errors, Error handling basics, Dual WebSocket |
 | **Week 2-3** | P1 High | 182h | Testing critical paths, Convention fixes, Advanced error handling |
 | **Week 4-7** | P2 Medium | 252h | Client testing, Performance, Architecture refactoring |
@@ -512,7 +512,7 @@ constructor(private tokenManager: EphemeralTokenManager)
 ### Compressed Timeline with 5-Person Team
 
 | Phase | Duration | Outcome |
-|-------|----------|---------|
+| --- | --- | --- |
 | **Sprint 1** | 1 week | All P0 issues resolved, system stable |
 | **Sprint 2-3** | 2 weeks | P1 security/testing complete, 40% coverage |
 | **Sprint 4-6** | 3 weeks | Convention fixes, architecture cleanup, 60% coverage |

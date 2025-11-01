@@ -1,18 +1,20 @@
 # Restaurant OS v6.0 - Production Roadmap
 
-## Current Status: 90% Production Ready ✅
-- **Version**: 6.0.12
-- **Stage**: Production Ready (Phase 2 Test Restoration Complete)
-- **Production Readiness**: 90% (launch-ready)
+**Last Updated:** 2025-10-31
+
+## Current Status: 92% Production Ready ✅
+- **Version**: 6.0.14
+- **Stage**: Production Ready (Voice Refactoring Complete)
+- **Production Readiness**: 92% (enterprise-grade)
 - **Code Quality**: 0 ESLint errors, 0 TypeScript errors (CI passing)
-- **Test Coverage**: ~85% pass rate (365+ tests passing, only 2 quarantined)
+- **Test Coverage**: ~87% pass rate (520+ tests passing, 155 new tests added)
+- **Voice Ordering**: ✅ REFACTORED (70% complexity reduction, service extraction complete)
 - **Phase 2 Test Restoration**: ✅ 98.5% COMPLETE (135 of 137 tests restored)
 - **P0 Audit Fixes**: ✅ 7/8 COMPLETE (87.5%) - All critical issues resolved
 - **Authentication**: ✅ COMPLETE (Pure Supabase JWT + RBAC)
-- **Voice Ordering**: ✅ FIXED (Drive-thru orders working)
 - **Kitchen Display**: ✅ UPGRADED (Table grouping + dual view modes)
 - **Payment Integration**: ✅ CONFIGURED (Demo mode active, Square ready)
-- **Last Updated**: October 27, 2025
+- **Last Updated**: October 30, 2025
 
 ---
 
@@ -52,14 +54,15 @@
 - [x] **Fix #122 (OPT-005)**: ElapsedTimer useMemo fix (critical UX) ✅
 - [x] **Fix #121 (OPT-002)**: Batch table updates (40x performance) ✅
 - [x] **Fix #123 (REF-001)**: FloorPlanEditor refactor (76% size reduction) ✅
-- [ ] **Fix #124 (REF-002)**: WebRTCVoiceClient refactor (8-12 hours, non-blocking)
+- [x] **Fix #124 (REF-002)**: WebRTCVoiceClient refactor (COMPLETE - 70% complexity reduction) ✅
 
 **Achievements**:
 - Security: PCI compliance restored, centralized tax rates
 - Performance: 40x improvement on table updates (1000ms → 25ms)
 - Stability: Transaction wrapping, optimistic locking
-- Code Quality: FloorPlanEditor from 940 → 225 lines
+- Code Quality: FloorPlanEditor from 940 → 225 lines, WebRTCVoiceClient from 1,312 → 396 lines
 - Documentation: Created ADR-007, ADR-009
+- Voice Ordering: Service extraction complete (4 focused services vs 1 God Class)
 
 **Status**: All critical issues resolved - ready for production launch
 
@@ -83,13 +86,29 @@
 
 **Status**: Test suite dramatically improved - production deployment confidence high
 
+### Week 6: Voice Ordering Refactoring ✅ **COMPLETE** (Oct 30, 2025)
+- [x] **WebRTCVoiceClient Extraction**: 1,312 → 396 lines (70% complexity reduction) ✅
+- [x] **Service Architecture**: Extracted 4 focused services (Connection, Audio, Conversation, Event Management) ✅
+- [x] **Regression Prevention**: 37 new regression tests covering Oct 28-30 bug patterns ✅
+- [x] **Unit Test Coverage**: 118 new unit tests for service layer ✅
+- [x] **Memory Leak Prevention**: 6 cleanup validation tests ✅
+- [x] **Technical Debt Reduction**: God Class pattern eliminated ✅
+
+**Achievements**:
+- Code Complexity: 70% reduction in WebRTCVoiceClient
+- Test Coverage: 155 new tests added (37 regression + 118 unit)
+- Architecture: Service extraction complete (single responsibility principle)
+- Maintainability: 4 focused services vs 1 God Class
+- Documentation: Updated voice ordering architecture docs
+
+**Status**: Voice ordering refactoring complete - technical debt sprint successful
+
 ### Remaining Tasks Before Production 🎯
 - [ ] Deploy fall menu (when user provides items)
 - [ ] Integration test suite (E2E order flow)
 - [ ] Load testing (100 concurrent users)
 - [ ] Switch Square to production credentials
 - [ ] Monitor production for 48 hours
-- [ ] *(Optional)* Complete Fix #124 (WebRTCVoiceClient) - can be done post-launch
 
 **Status**: System ready for immediate production launch
 
@@ -151,9 +170,10 @@
 - Group ordering support
 
 **Technical Components:**
-- `WebRTCVoiceClient.ts` - Core voice engine (1,264 lines)
+- `WebRTCVoiceClient.ts` - Core voice engine (396 lines, refactored Oct 30)
 - `VoiceControlWebRTC.tsx` - UI component
 - `useWebRTCVoice.ts` - React integration
+- `voice/services/` - Extracted services (Connection, Audio, Conversation, Event Management)
 
 ### Future Features:
 - [ ] AI-powered demand forecasting
@@ -212,7 +232,7 @@
 ## 📅 Timeline Summary
 
 | Phase | Duration | Completion Date | Status |
-|-------|----------|-----------------|--------|
+| --- | --- | --- | --- |
 | Week 1 Auth | 1 week | Oct 10, 2025 | ✅ Complete |
 | Week 2 Integration | 1 week | Oct 11, 2025 | ✅ Complete |
 | Fall Menu Deployment | 1-2 days | Awaiting menu items | ⏳ Pending user |
@@ -270,17 +290,19 @@
 7. [ ] Test online ordering
 8. [ ] Verify images load correctly
 
-**Documentation**: See [MENU_SYSTEM.md](./MENU_SYSTEM.md) for complete guide
+**Documentation**: See [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) for complete guide
 
 ---
 
 ## 📝 Notes
 
-- **Current Status**: 90% production ready - awaiting fall menu items
+- **Current Status**: 92% production ready - awaiting fall menu items
 - **Current Blockers**: User needs to upload fall menu items
 - **Main Achievements**:
   - Pure Supabase auth (no race conditions)
-  - Voice ordering fixed and working
+  - Voice ordering refactored (70% complexity reduction)
+  - 155 new tests added (37 regression + 118 unit)
+  - Technical debt reduction sprint complete
   - Kitchen display upgraded with table grouping
   - Square Terminal integration tested
   - Complete documentation suite created
@@ -292,15 +314,15 @@
 ## 📚 Documentation Created (Oct 11, 2025)
 
 New comprehensive documentation:
-- [MENU_SYSTEM.md](./MENU_SYSTEM.md) - Menu architecture & fall menu guide
-- [SQUARE_INTEGRATION.md](./DEPLOYMENT.md#square-integration) - Complete payment flow
-- [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer ordering journey (updated)
-- [DATABASE.md](./DATABASE.md) - Supabase schema with JSONB examples (updated)
+- [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) - Menu architecture & fall menu guide
+- [SQUARE_INTEGRATION.md](./how-to/operations/DEPLOYMENT.md#square-integration) - Complete payment flow
+- [ORDER_FLOW.md](./explanation/concepts/ORDER_FLOW.md) - Customer ordering journey (updated)
+- [DATABASE.md](./reference/schema/DATABASE.md) - Supabase schema with JSONB examples (updated)
 - [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - Current readiness assessment
 - [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - Fall menu testing guide (updated)
 
 ---
 
-*Last Updated: October 19, 2025*
-*Version: 6.0.10*
-*Production Ready: 98%*
+*Last Updated: October 30, 2025*
+*Version: 6.0.14*
+*Production Ready: 92%*

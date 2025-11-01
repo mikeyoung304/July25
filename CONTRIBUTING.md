@@ -1,5 +1,8 @@
 # Contributing to Restaurant OS
 
+
+**Last Updated:** 2025-10-22
+
 Thank you for your interest in contributing to Restaurant OS!
 
 ## Quick Start

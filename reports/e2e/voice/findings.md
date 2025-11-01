@@ -84,7 +84,7 @@ From Puppeteer screenshots:
 All artifacts saved to `reports/e2e/voice/`:
 
 | Artifact | Description | Size |
-|----------|-------------|------|
+| --- | --- | --- |
 | `playwright.junit.xml` | JUnit test results (2 failures) | 8.7KB |
 | `playwright_run.log` | Full console output from Playwright run | 7.4KB |
 | `playwright_console_pass1_normal.ndjson` | Console logs (normal network) | 1.0KB |
@@ -185,7 +185,7 @@ Screenshot evidence shows `/login` route does have traditional email/password fo
 ## Failure Bucket Classification
 
 | Category | Status | Evidence |
-|----------|--------|----------|
+| --- | --- | --- |
 | **AUTH/WS** | ❌ Failed | Incorrect auth flow assumptions; WebSocket not tested |
 | **MIC/WEBRTC** | ⚠️  Not Tested | Did not reach voice interface |
 | **VOICE/ASR** | ⚠️  Not Tested | Audio not injected; no transcripts observed |
