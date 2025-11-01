@@ -18,6 +18,7 @@
 - [Architecture](./docs/explanation/architecture/ARCHITECTURE.md) - System design and voice ordering
 - [Deployment](./docs/how-to/operations/DEPLOYMENT.md) - Production deployment
 - [Troubleshooting](./docs/how-to/troubleshooting/TROUBLESHOOTING.md) - Common issues and fixes
+- [Test Bad Table](./test-bad-table.md) - Test file for pre-commit hooks
 
 ---
 
