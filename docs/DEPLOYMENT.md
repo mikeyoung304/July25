@@ -14,7 +14,7 @@ This navigation stub ensures compatibility with documentation tooling that expec
 
 ## Quick Links
 
-- [Production Deployment Guide](./how-to/operations/DEPLOYMENT.md) - Complete deployment procedures
+- [Production Deployment Guide](./how-to/operations/DEPLOYMENT.md) - Complete deployment procedures including CORS configuration
 - [Deployment Checklist](./how-to/operations/DEPLOYMENT_CHECKLIST.md) - Pre-deployment verification
 - [Production Status](./PRODUCTION_STATUS.md) - Current production readiness
 

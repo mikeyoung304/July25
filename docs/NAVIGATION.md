@@ -177,7 +177,7 @@ grep -r "order flow" docs/archive --include="*.md"
 
 ### Cross-References
 - Use relative paths: `[Link](./SECURITY.md)`
-- Include section anchors: `[Link](./SECURITY.md#section-name)`
+- Include section anchors: `[Link](./SECURITY.md#infrastructure)`
 
 ### Maintenance
 - All major docs have "Last Updated" date
