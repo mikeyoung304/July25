@@ -1,7 +1,7 @@
 # Grow App Documentation Index
 
 
-**Last Updated:** 2025-10-30
+**Last Updated:** 2025-11-01
 
 [![Docs CI](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml)
 
@@ -18,6 +18,19 @@
 - [Architecture](./docs/explanation/architecture/ARCHITECTURE.md) - System design and voice ordering
 - [Deployment](./docs/how-to/operations/DEPLOYMENT.md) - Production deployment
 - [Troubleshooting](./docs/how-to/troubleshooting/TROUBLESHOOTING.md) - Common issues and fixes
+
+---
+
+## Learning Path
+
+**Structured onboarding guides for new developers:**
+- [01: App Overview](./01_APP_OVERVIEW.md) — Understanding the Restaurant OS architecture
+- [02: Documentation Organization](./02_DOCUMENTATION_ORGANIZATION.md) — Navigating the documentation system
+- [03: GitHub Workflows & CI/CD](./03_GITHUB_WORKFLOWS_CICD.md) — Understanding automation and deployment
+- [04: Environment Setup](./04_ENVIRONMENT_SETUP.md) — Setting up your development environment
+- [05: Git History & Milestones](./05_GIT_HISTORY_MILESTONES.md) — Key commits and project evolution
+- [06: Git Patterns & Improvements](./06_GIT_PATTERNS_IMPROVEMENTS.md) — Git workflow best practices
+- [07: Learning Path README](./07_LEARNING_PATH_README.md) — Complete learning path overview
 
 ---
 
