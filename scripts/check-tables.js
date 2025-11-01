@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /* eslint-disable no-console */
 import fs from 'fs';
 import path from 'path';
@@ -7,6 +8,9 @@ import { glob } from 'glob';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
+
+// Parse command line arguments
+const args = process.argv.slice(2);
 
 const issues = [];
 
@@ -117,22 +121,42 @@ function checkTableFormatting(filePath, content) {
   }
 }
 
-// Find all markdown files
-const allMarkdownFiles = glob.sync('**/*.md', {
-  cwd: ROOT,
-  ignore: [
-    'node_modules/**',
-    '**/node_modules/**',
-    'client/dist/**',
-    'server/dist/**',
-    '.vercel/**',
-  ],
-  absolute: true,
-});
+let allMarkdownFiles;
 
-console.log(`\nChecking ${allMarkdownFiles.length} markdown files for table formatting issues...\n`);
+// Check if file arguments were provided
+if (args.length > 0) {
+  // Use provided files (convert to absolute paths)
+  allMarkdownFiles = args.map(f => {
+    const absPath = path.isAbsolute(f) ? f : path.join(ROOT, f);
+    return absPath;
+  }).filter(f => fs.existsSync(f));
+
+  if (allMarkdownFiles.length === 0) {
+    console.log('✅ No valid markdown files to check');
+    process.exit(0);
+  }
+} else {
+  // Find all markdown files
+  allMarkdownFiles = glob.sync('**/*.md', {
+    cwd: ROOT,
+    ignore: [
+      'node_modules/**',
+      '**/node_modules/**',
+      'client/dist/**',
+      'server/dist/**',
+      '.vercel/**',
+    ],
+    absolute: true,
+  });
+}
+
+console.log(`\nChecking ${allMarkdownFiles.length} markdown file(s) for table formatting issues...\n`);
 
 for (const file of allMarkdownFiles) {
+  if (!fs.existsSync(file)) {
+    console.log(`⚠️  Skipping non-existent file: ${file}`);
+    continue;
+  }
   const content = fs.readFileSync(file, 'utf8');
   checkTableFormatting(file, content);
 }

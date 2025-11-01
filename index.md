@@ -18,7 +18,6 @@
 - [Architecture](./docs/explanation/architecture/ARCHITECTURE.md) - System design and voice ordering
 - [Deployment](./docs/how-to/operations/DEPLOYMENT.md) - Production deployment
 - [Troubleshooting](./docs/how-to/troubleshooting/TROUBLESHOOTING.md) - Common issues and fixes
-- [Test Bad Table](./test-bad-table.md) - Test file for pre-commit hooks
 
 ---
 
@@ -138,6 +137,7 @@
 - [Timestamp Update Report](./TIMESTAMP_UPDATE_REPORT.md) — Documentation timestamp update analysis
 - [Table Fix Report](./TABLE_FIX_REPORT.md) — Table-related bug fixes analysis
 - [Table Fix Examples](./TABLE_FIX_EXAMPLES.md) — Table fix implementation examples
+- [Drift Detection Report](./DRIFT_DETECTION_REPORT.md) — Automated documentation drift detection
 - [Version Reference Audit](./docs/VERSION_REFERENCE_AUDIT_REPORT.md) — Version consistency audit
 - [CI Infrastructure Issues](./docs/CI_INFRASTRUCTURE_ISSUES.md) — CI/CD infrastructure analysis
 - [Migration Reconciliation](./docs/MIGRATION_RECONCILIATION_2025-10-20.md) — Database migration reconciliation
@@ -148,6 +148,7 @@
 - [Supabase Configuration](./supabase/README.md) — Database and backend configuration
   - [Migrations](./supabase/migrations/README.md) — Database migration management
   - [Migration Baseline](./supabase/MIGRATION_BASELINE.md) — Migration baseline and reconciliation
+- [Scripts & Developer Tools](./scripts/README.md) — Automation scripts and drift detection tools
 
 ## Archive
 - Incidents: [docs/incidents/README.md](./docs/incidents/README.md)

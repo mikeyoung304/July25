@@ -7,10 +7,20 @@ on:
       - 'docs/**/*.md'
       - '.env.example'
       - '.github/workflows/docs-check.yml'
+      - 'supabase/migrations/*.sql'
+      - 'server/src/routes/*.ts'
+      - 'docs/reference/api/openapi.yaml'
+      - 'docs/reference/schema/DATABASE.md'
+      - 'docs/reference/config/ENVIRONMENT.md'
   pull_request:
     paths:
       - 'docs/**/*.md'
       - '.env.example'
+      - 'supabase/migrations/*.sql'
+      - 'server/src/routes/*.ts'
+      - 'docs/reference/api/openapi.yaml'
+      - 'docs/reference/schema/DATABASE.md'
+      - 'docs/reference/config/ENVIRONMENT.md'
   workflow_dispatch:
 
 permissions:
@@ -180,3 +190,134 @@ jobs:
             echo ""
             echo "*Consolidated workflow - single file, no external dependencies*"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # ================================================================
+  # DRIFT DETECTION - Catch docs falling behind codebase
+  # ================================================================
+  drift-detection:
+    name: Detect Documentation Drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          # Only install what we need for drift detection
+          npm install --no-save js-yaml
+
+      - name: Check Schema Drift
+        id: schema
+        continue-on-error: true
+        run: node scripts/check-schema-drift.cjs
+
+      - name: Check API Drift
+        id: api
+        continue-on-error: true
+        run: node scripts/check-api-drift.cjs
+
+      - name: Check Config Drift
+        id: config
+        continue-on-error: true
+        run: node scripts/check-config-drift.cjs
+
+      - name: Generate Drift Report
+        if: always()
+        run: |
+          {
+            echo "## 🔍 Documentation Drift Detection"
+            echo ""
+            echo "**Purpose:** Ensure documentation stays in sync with codebase changes"
+            echo ""
+            echo "### Drift Checks"
+            echo ""
+
+            if [ "${{ steps.schema.outcome }}" == "success" ]; then
+              echo "- ✅ **Schema Drift:** No issues detected"
+            else
+              echo "- ❌ **Schema Drift:** Issues found - review logs above"
+            fi
+
+            if [ "${{ steps.api.outcome }}" == "success" ]; then
+              echo "- ✅ **API Drift:** No issues detected"
+            else
+              echo "- ❌ **API Drift:** Issues found - review logs above"
+            fi
+
+            if [ "${{ steps.config.outcome }}" == "success" ]; then
+              echo "- ✅ **Config Drift:** No issues detected"
+            else
+              echo "- ❌ **Config Drift:** Issues found - review logs above"
+            fi
+
+            echo ""
+            echo "### What is Drift?"
+            echo "Drift occurs when:"
+            echo "- New database columns added but not documented"
+            echo "- API endpoints created but not in OpenAPI spec"
+            echo "- Environment variables added but not in ENVIRONMENT.md"
+            echo ""
+            echo "### How to Fix"
+            echo "1. **Schema Drift:** Update \`docs/reference/schema/DATABASE.md\`"
+            echo "2. **API Drift:** Update \`docs/reference/api/openapi.yaml\`"
+            echo "3. **Config Drift:** Update \`docs/reference/config/ENVIRONMENT.md\`"
+            echo ""
+            echo "*Drift detection runs on every PR that touches migrations, routes, or config files*"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail if drift detected
+        if: steps.schema.outcome != 'success' || steps.api.outcome != 'success' || steps.config.outcome != 'success'
+        run: |
+          echo "::error::Documentation drift detected. Please update documentation to match codebase changes."
+          exit 1
+
+      - name: Post drift comment on PR
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `## ⚠️ Documentation Drift Detected
+
+            This PR introduces changes that are not reflected in the documentation.
+
+            ### Action Required
+
+            Please update the following documentation files to match your code changes:
+
+            ${{ steps.schema.outcome != 'success' && '- [ ] `docs/reference/schema/DATABASE.md` - Add new columns/tables' || '' }}
+            ${{ steps.api.outcome != 'success' && '- [ ] `docs/reference/api/openapi.yaml` - Add new endpoints' || '' }}
+            ${{ steps.config.outcome != 'success' && '- [ ] `docs/reference/config/ENVIRONMENT.md` - Add new env vars' || '' }}
+
+            ### Why This Matters
+
+            Keeping documentation in sync prevents:
+            - Confusion for new developers
+            - Undocumented features
+            - Security issues (undocumented endpoints)
+            - Configuration errors (missing env vars)
+
+            ### How to Fix
+
+            Run the drift detection scripts locally to see exactly what's missing:
+
+            \`\`\`bash
+            node scripts/check-schema-drift.cjs
+            node scripts/check-api-drift.cjs
+            node scripts/check-config-drift.cjs
+            \`\`\`
+
+            Then update the relevant documentation files and push the changes.
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
