@@ -15,6 +15,9 @@ import { toast } from 'react-hot-toast'
 vi.mock('@/contexts/auth.hooks')
 vi.mock('react-hot-toast')
 
+// Get the mocked toast object
+const mockToast = vi.mocked(toast)
+
 describe('WorkspaceAuthModal', () => {
   const mockLogin = vi.fn()
   const mockLogout = vi.fn()
@@ -187,18 +190,18 @@ describe('WorkspaceAuthModal', () => {
       fireEvent.click(submitButton)
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith(expect.stringContaining(errorMessage))
+        expect(mockToast.error).toHaveBeenCalledWith(expect.stringContaining(errorMessage))
       })
     })
 
     it('shows validation error if email or password is empty', async () => {
       renderComponent()
 
-      const submitButton = screen.getByRole('button', { name: /sign in/i })
-      fireEvent.click(submitButton)
+      const form = screen.getByRole('dialog').querySelector('form') as HTMLFormElement
+      fireEvent.submit(form)
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Please enter email and password')
+        expect(mockToast.error).toHaveBeenCalledWith('Please enter email and password')
       })
       expect(mockLogin).not.toHaveBeenCalled()
     })
