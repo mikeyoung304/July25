@@ -314,7 +314,7 @@ describe('WorkspaceAuthModal', () => {
     it('closes when backdrop is clicked', () => {
       renderComponent()
 
-      const backdrop = screen.getByRole('dialog').previousSibling as HTMLElement
+      const backdrop = screen.getByTestId('modal-backdrop')
       fireEvent.click(backdrop)
 
       expect(mockOnClose).toHaveBeenCalled()

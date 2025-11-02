@@ -28,6 +28,58 @@ const CORE_TABLES = [
   'audit_logs'
 ];
 
+// Columns from initial schema (not tracked in migrations)
+// These are from the baseline schema and don't appear in migration files
+const INITIAL_SCHEMA_COLUMNS = {
+  users: [
+    // Supabase auth.users table columns
+    'instance_id', 'aud', 'role', 'email', 'encrypted_password',
+    'email_confirmed_at', 'invited_at', 'confirmation_token',
+    'confirmation_sent_at', 'recovery_token', 'recovery_sent_at',
+    'email_change_token_new', 'email_change', 'email_change_sent_at',
+    'last_sign_in_at', 'raw_app_meta_data', 'raw_user_meta_data',
+    'is_super_admin', 'phone', 'phone_confirmed_at', 'phone_change',
+    'phone_change_token', 'phone_change_sent_at', 'confirmed_at',
+    'email_change_token_current', 'email_change_confirm_status',
+    'banned_until', 'reauthentication_token', 'reauthentication_sent_at',
+    'is_sso_user', 'deleted_at', 'is_anonymous',
+    // Supabase relations
+    'identities', 'mfa_factors', 'oauth_authorizations',
+    'oauth_consents', 'one_time_tokens', 'sessions',
+    'payment_audit_logs', 'user_pins', 'user_profiles', 'user_restaurants'
+  ],
+  menu_items: [
+    'restaurant_id', 'category_id', 'name', 'description', 'price',
+    'active', 'available', 'dietary_flags', 'modifiers', 'aliases',
+    'prep_time_minutes', 'image_url', 'external_id'
+  ],
+  orders: [
+    'restaurant_id', 'order_number', 'type', 'status', 'items',
+    'subtotal', 'tax', 'total_amount', 'notes', 'customer_name',
+    'table_number', 'metadata', 'preparing_at', 'ready_at',
+    'completed_at', 'cancelled_at', 'auto_fire_time', 'is_scheduled',
+    'manually_fired', 'order_status_history', 'payment_audit_logs',
+    'tables', 'voice_order_logs'
+  ],
+  restaurants: [
+    'name', 'slug', 'timezone', 'settings', 'active',
+    'menu_categories', 'menu_items', 'order_status_history',
+    'orders', 'station_tokens', 'tables', 'user_pins',
+    'user_restaurants', 'voice_order_logs'
+  ],
+  tables: [
+    'restaurant_id', 'label', 'seats', 'x_pos', 'y_pos',
+    'width', 'height', 'rotation', 'shape', 'status',
+    'current_order_id', 'active', 'z_index'
+  ],
+  payment_audit_logs: [
+    'order_id', 'user_id', 'restaurant_id', 'amount',
+    'payment_method', 'payment_id', 'status', 'error_code',
+    'error_detail', 'ip_address', 'user_agent', 'idempotency_key',
+    'metadata'
+  ]
+};
+
 // Parse documented tables from DATABASE.md
 function parseDocumentedSchema() {
   const content = fs.readFileSync(DOCS_PATH, 'utf-8');
@@ -186,6 +238,12 @@ function checkDrift() {
     docColumns.forEach(col => {
       // Skip auto-generated columns
       if (['id', 'created_at', 'updated_at'].includes(col.name)) {
+        return;
+      }
+
+      // Skip columns from initial schema
+      const initialColumns = INITIAL_SCHEMA_COLUMNS[tableName] || [];
+      if (initialColumns.includes(col.name)) {
         return;
       }
 

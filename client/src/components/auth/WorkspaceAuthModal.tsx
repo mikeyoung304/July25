@@ -200,6 +200,7 @@ export function WorkspaceAuthModal({
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={() => !isLoading && onClose()}
         aria-hidden="true"
+        data-testid="modal-backdrop"
       />
 
       {/* Modal */}
