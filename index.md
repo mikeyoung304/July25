@@ -92,7 +92,7 @@
 - [Voice Integration](./server/src/voice/INTEGRATION.md) — Voice ordering system
 
 ## 4. Development Health
-- [Test Health Dashboard](./TEST_HEALTH.md) — Test quarantine status and remediation plan
+- [Test Health Dashboard](./docs/reference/testing/TEST_HEALTH.md) — Test quarantine status and remediation plan
 - [Test Health Registry](./test-quarantine/test-health.json) — Detailed test failure tracking
 
 ## 5. Operational Guides
