@@ -1,12 +1,12 @@
 {
-  "version": "1.0.1",
-  "last_updated": "2025-11-02T17:10:00Z",
+  "version": "1.0.3",
+  "last_updated": "2025-11-02T21:07:00Z",
   "summary": {
     "total_tests": 377,
-    "passing": 368,
-    "quarantined": 9,
-    "skipped": 9,
-    "pass_rate": 97.6,
+    "passing": 376,
+    "quarantined": 1,
+    "skipped": 1,
+    "pass_rate": 99.7,
     "health_score": "HEALTHY"
   },
   "quarantined_tests": [
@@ -36,20 +36,6 @@
       "status": "SKIPPED",
       "github_issue": null,
       "fix_strategy": "Fix keyboard event handling in WorkspaceTile component"
-    },
-    {
-      "id": "auth-005",
-      "file": "server/tests/routes/orders.auth.test.ts.skip",
-      "test_name": "Multiple auth permission tests",
-      "module": "auth",
-      "test_count": 6,
-      "reason": "403 Forbidden instead of 201 Created. Auth middleware not allowing customer/server roles to create orders.",
-      "failure_type": "RBAC_PERMISSION",
-      "last_working_commit": "2025-10-30",
-      "priority": 1,
-      "status": "SKIPPED",
-      "github_issue": null,
-      "fix_strategy": "Review RBAC changes from Oct 30-31. Restore proper role permissions or update test expectations."
     },
     {
       "id": "voice-001",
@@ -160,27 +146,13 @@
       "status": "SKIPPED",
       "github_issue": null,
       "fix_strategy": "Update E2E test to match current page structure and text"
-    },
-    {
-      "id": "orders-005",
-      "file": "server/tests/contracts/order.contract.test.ts.skip",
-      "test_name": "2 schema validation tests",
-      "module": "orders",
-      "test_count": 2,
-      "reason": "OrderPayload schema doesn't accept snake_case per ADR-001. Schema validation mismatch.",
-      "failure_type": "SCHEMA_VALIDATION",
-      "last_working_commit": "2025-10-30",
-      "priority": 2,
-      "status": "SKIPPED",
-      "github_issue": null,
-      "fix_strategy": "Align OrderPayload Zod schema with ADR-001 snake_case convention"
     }
   ],
   "modules": {
     "auth": {
       "total_tests": 120,
-      "passing": 118,
-      "quarantined": 2,
+      "passing": 120,
+      "quarantined": 0,
       "health": "HEALTHY"
     },
     "voice": {
@@ -191,9 +163,9 @@
     },
     "orders": {
       "total_tests": 87,
-      "passing": 81,
-      "quarantined": 6,
-      "health": "DEGRADED"
+      "passing": 83,
+      "quarantined": 4,
+      "health": "HEALTHY"
     },
     "shared": {
       "total_tests": 75,
@@ -205,8 +177,8 @@
   "priority_levels": {
     "1_CRITICAL": {
       "description": "Security/auth tests blocking production deployment",
-      "count": 1,
-      "completed": 2
+      "count": 0,
+      "completed": 3
     },
     "2_HIGH": {
       "description": "Order flow tests affecting revenue path",
@@ -221,19 +193,36 @@
     "phase_1": {
       "name": "Critical Auth Fixes",
       "target_date": "2025-11-03",
-      "status": "IN_PROGRESS",
-      "tests": ["auth-005"],
-      "completed": ["auth-001", "auth-002"]
+      "status": "COMPLETED",
+      "tests": [],
+      "completed": [
+        "auth-001",
+        "auth-002",
+        "auth-005"
+      ]
     },
     "phase_2": {
       "name": "Order Flow Restoration",
       "target_date": "2025-11-05",
-      "tests": ["orders-001", "orders-002", "orders-004", "orders-005"]
+      "status": "IN_PROGRESS",
+      "tests": [
+        "orders-001",
+        "orders-002",
+        "orders-004"
+      ],
+      "completed": [
+        "orders-005"
+      ]
     },
     "phase_3": {
       "name": "Voice Integration Rehabilitation",
       "target_date": "2025-11-07",
-      "tests": ["voice-001", "voice-002", "voice-003", "voice-004"]
+      "tests": [
+        "voice-001",
+        "voice-002",
+        "voice-003",
+        "voice-004"
+      ]
     }
   },
   "metadata": {

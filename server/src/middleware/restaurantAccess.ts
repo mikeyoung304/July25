@@ -21,11 +21,14 @@ export async function validateRestaurantAccess(
       throw Unauthorized('Authentication required');
     }
 
-    // Get restaurant ID from header (NEVER from req.restaurantId at this point - it shouldn't be set yet)
-    const requestedRestaurantId = req.headers['x-restaurant-id'] as string;
+    // First check if auth middleware already set req.restaurantId from JWT
+    // This allows demo users and authenticated requests to skip header requirement
+    const requestedRestaurantId =
+      req.restaurantId ||
+      (req.headers['x-restaurant-id'] as string);
 
     if (!requestedRestaurantId) {
-      throw Forbidden('Restaurant ID is required (X-Restaurant-ID header)');
+      throw Forbidden('Restaurant ID is required (X-Restaurant-ID header or JWT)');
     }
 
     // For admin users, allow access to any restaurant
