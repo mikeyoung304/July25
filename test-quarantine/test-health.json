@@ -1,41 +1,15 @@
 {
-  "version": "1.0.0",
-  "last_updated": "2025-11-02T16:30:00Z",
+  "version": "1.0.1",
+  "last_updated": "2025-11-02T17:10:00Z",
   "summary": {
     "total_tests": 377,
-    "passing": 329,
-    "quarantined": 24,
-    "skipped": 24,
-    "pass_rate": 87.3,
-    "health_score": "DEGRADED"
+    "passing": 368,
+    "quarantined": 9,
+    "skipped": 9,
+    "pass_rate": 97.6,
+    "health_score": "HEALTHY"
   },
   "quarantined_tests": [
-    {
-      "id": "auth-001",
-      "file": "client/src/hooks/__tests__/useWorkspaceAccess.test.ts.skip",
-      "module": "auth",
-      "test_count": 1,
-      "reason": "Parser error: Unterminated regular expression at line 38. JSX syntax causing parse failure before tests run.",
-      "failure_type": "SYNTAX_ERROR",
-      "last_working_commit": "2025-10-30",
-      "priority": 1,
-      "status": "QUARANTINED",
-      "github_issue": null,
-      "fix_strategy": "Rewrite test without JSX syntax issues or convert to plain function components"
-    },
-    {
-      "id": "auth-002",
-      "file": "client/src/components/auth/__tests__/WorkspaceAuthModal.test.tsx.skip",
-      "module": "auth",
-      "test_count": 8,
-      "reason": "Multiple password field elements found. Component structure changed to have duplicate password fields.",
-      "failure_type": "SELECTOR_MISMATCH",
-      "last_working_commit": "2025-10-30",
-      "priority": 1,
-      "status": "QUARANTINED",
-      "github_issue": null,
-      "fix_strategy": "Use data-testid selectors instead of text matching. Add unique IDs to password fields."
-    },
     {
       "id": "auth-003",
       "file": "server/tests/middleware/auth-restaurant-id.test.ts.skip",
@@ -205,9 +179,9 @@
   "modules": {
     "auth": {
       "total_tests": 120,
-      "passing": 111,
-      "quarantined": 9,
-      "health": "DEGRADED"
+      "passing": 118,
+      "quarantined": 2,
+      "health": "HEALTHY"
     },
     "voice": {
       "total_tests": 95,
@@ -231,7 +205,8 @@
   "priority_levels": {
     "1_CRITICAL": {
       "description": "Security/auth tests blocking production deployment",
-      "count": 3
+      "count": 1,
+      "completed": 2
     },
     "2_HIGH": {
       "description": "Order flow tests affecting revenue path",
@@ -239,14 +214,16 @@
     },
     "3_MEDIUM": {
       "description": "Feature tests for voice and UI components",
-      "count": 4
+      "count": 2
     }
   },
   "remediation_plan": {
     "phase_1": {
       "name": "Critical Auth Fixes",
       "target_date": "2025-11-03",
-      "tests": ["auth-001", "auth-002", "auth-005"]
+      "status": "IN_PROGRESS",
+      "tests": ["auth-005"],
+      "completed": ["auth-001", "auth-002"]
     },
     "phase_2": {
       "name": "Order Flow Restoration",
