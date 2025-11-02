@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Restaurant OS API
   version: 6.0.14
-  x-last-updated: "2025-10-31"
+  x-last-updated: '2025-10-31'
   description: |
     Restaurant OS provides a comprehensive API for managing restaurant operations including:
     - Point of Sale (POS)
@@ -23,23 +23,18 @@ info:
     Multi-tenant requests also require `X-Restaurant-ID` header.
 
     See [Authentication Architecture](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) for details.
-
   contact:
     name: Restaurant OS Team
     url: https://github.com/mikeyoung304/rebuild-6.0
-
   license:
     name: Proprietary
-
 servers:
   - url: http://localhost:3001/api/v1
     description: Local development server
   - url: https://production-url/api/v1
     description: Production server
-
 security:
   - BearerAuth: []
-
 tags:
   - name: Authentication
     description: User authentication and session management
@@ -55,7 +50,6 @@ tags:
     description: Table management for dine-in service
   - name: Health
     description: Health checks and monitoring
-
 components:
   securitySchemes:
     BearerAuth:
@@ -65,7 +59,6 @@ components:
       description: |
         Supabase JWT (production) or custom JWT (demo/PIN/station).
         Include in header: `Authorization: Bearer <token>`
-
   parameters:
     RestaurantIdHeader:
       name: X-Restaurant-ID
@@ -75,8 +68,7 @@ components:
       schema:
         type: string
         format: uuid
-        example: "11111111-1111-1111-1111-111111111111"
-
+        example: 11111111-1111-1111-1111-111111111111
     ClientFlowHeader:
       name: X-Client-Flow
       in: header
@@ -84,9 +76,11 @@ components:
       description: Client flow for telemetry and flow-specific logic
       schema:
         type: string
-        enum: [online, kiosk, server]
-        example: "online"
-
+        enum:
+          - online
+          - kiosk
+          - server
+        example: online
   schemas:
     Error:
       type: object
@@ -96,19 +90,18 @@ components:
         error:
           type: string
           description: Error message
-          example: "Invalid request"
+          example: Invalid request
         message:
           type: string
           description: Detailed error message
-          example: "Order ID is required"
+          example: Order ID is required
         code:
           type: string
           description: Error code
-          example: "VALIDATION_ERROR"
+          example: VALIDATION_ERROR
         detail:
           type: string
           description: Additional error details
-
     User:
       type: object
       required:
@@ -128,15 +121,24 @@ components:
           description: User display name
         role:
           type: string
-          enum: [customer, server, kitchen, expo, cashier, manager, owner]
+          enum:
+            - customer
+            - server
+            - kitchen
+            - expo
+            - cashier
+            - manager
+            - owner
           description: User role in restaurant
         scopes:
           type: array
           items:
             type: string
           description: User permissions/scopes
-          example: ["orders:create", "orders:read", "payments:process"]
-
+          example:
+            - orders:create
+            - orders:read
+            - payments:process
     AuthSession:
       type: object
       required:
@@ -152,7 +154,6 @@ components:
           type: integer
           description: Token expiration time in seconds
           example: 3600
-
     MenuItem:
       type: object
       required:
@@ -166,17 +167,17 @@ components:
           format: uuid
         name:
           type: string
-          example: "Soul Bowl"
+          example: Soul Bowl
         description:
           type: string
-          example: "Fresh greens with grilled chicken and house dressing"
+          example: Fresh greens with grilled chicken and house dressing
         price:
           type: number
           format: float
           example: 12.99
         category:
           type: string
-          example: "Bowls"
+          example: Bowls
         available:
           type: boolean
           default: true
@@ -187,7 +188,6 @@ components:
           type: string
           format: uri
           description: Menu item image URL
-
     OrderItem:
       type: object
       required:
@@ -205,7 +205,7 @@ components:
           description: Reference to menu_items table
         name:
           type: string
-          example: "Soul Bowl"
+          example: Soul Bowl
         quantity:
           type: integer
           minimum: 1
@@ -234,8 +234,7 @@ components:
           description: Item modifiers (e.g., "Extra Cheese")
         special_instructions:
           type: string
-          example: "No onions"
-
+          example: No onions
     Order:
       type: object
       required:
@@ -258,23 +257,34 @@ components:
           format: uuid
         order_number:
           type: string
-          example: "ORD-1001"
+          example: ORD-1001
         customer_name:
           type: string
-          example: "John Doe"
+          example: John Doe
         customer_phone:
           type: string
-          example: "+1-555-123-4567"
+          example: +1-555-123-4567
         customer_email:
           type: string
           format: email
         type:
           type: string
-          enum: [online, pickup, delivery]
+          enum:
+            - online
+            - pickup
+            - delivery
           description: Database-valid order type
         status:
           type: string
-          enum: [new, pending, confirmed, preparing, ready, picked-up, completed, cancelled]
+          enum:
+            - new
+            - pending
+            - confirmed
+            - preparing
+            - ready
+            - picked-up
+            - completed
+            - cancelled
           description: Order lifecycle status
         items:
           type: array
@@ -298,20 +308,28 @@ components:
           description: Grand total (subtotal + tax + tip)
         payment_status:
           type: string
-          enum: [unpaid, paid, failed, refunded]
+          enum:
+            - unpaid
+            - paid
+            - failed
+            - refunded
           description: Payment lifecycle status (matches database CHECK constraint)
         payment_method:
           type: string
-          enum: [cash, card, online, other]
+          enum:
+            - cash
+            - card
+            - online
+            - other
         table_number:
           type: string
-          example: "T5"
+          example: T5
         seat_number:
           type: integer
           description: Seat number for multi-seat ordering
         notes:
           type: string
-          example: "Extra napkins please"
+          example: Extra napkins please
         created_at:
           type: string
           format: date-time
@@ -331,7 +349,6 @@ components:
         is_scheduled:
           type: boolean
           description: Whether order is scheduled for future
-
     CreateOrderRequest:
       type: object
       required:
@@ -369,7 +386,10 @@ components:
           format: email
         type:
           type: string
-          enum: [online, pickup, delivery]
+          enum:
+            - online
+            - pickup
+            - delivery
           default: online
         table_number:
           type: string
@@ -379,11 +399,14 @@ components:
           type: string
         payment_method:
           type: string
-          enum: [cash, card, online, other]
+          enum:
+            - cash
+            - card
+            - online
+            - other
         scheduled_pickup_time:
           type: string
           format: date-time
-
     PaymentRequest:
       type: object
       required:
@@ -411,7 +434,6 @@ components:
         verification_token:
           type: string
           description: 3D Secure verification token (if applicable)
-
     CashPaymentRequest:
       type: object
       required:
@@ -425,12 +447,11 @@ components:
           type: number
           format: float
           description: Amount of cash received from customer
-          example: 20.00
+          example: 20
         table_id:
           type: string
           format: uuid
           description: Table ID (if dine-in payment)
-
     Table:
       type: object
       required:
@@ -447,30 +468,37 @@ components:
           format: uuid
         label:
           type: string
-          example: "T5"
+          example: T5
         capacity:
           type: integer
           minimum: 1
           example: 4
         status:
           type: string
-          enum: [available, occupied, reserved, cleaning]
+          enum:
+            - available
+            - occupied
+            - reserved
+            - cleaning
         x:
           type: number
           description: X position for floor plan (frontend property)
-        y:
+        'y':
           type: number
           description: Y position for floor plan (frontend property)
         type:
           type: string
-          enum: [rectangle, circle, square]
+          enum:
+            - rectangle
+            - circle
+            - square
           description: Table shape (frontend property, maps to 'shape' in DB)
         z_index:
           type: integer
           description: Z-index for layering
         section:
           type: string
-          example: "Patio"
+          example: Patio
         current_order_id:
           type: string
           format: uuid
@@ -481,7 +509,6 @@ components:
         created_at:
           type: string
           format: date-time
-
   responses:
     UnauthorizedError:
       description: Authentication required or failed
@@ -490,14 +517,14 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Invalid email or password"
-            code: "UNAUTHORIZED"
-
+            error: Invalid email or password
+            code: UNAUTHORIZED
 paths:
   /health:
     get:
       summary: Basic health check
-      tags: [Health]
+      tags:
+        - Health
       security: []
       responses:
         '200':
@@ -509,7 +536,10 @@ paths:
                 properties:
                   status:
                     type: string
-                    enum: [healthy, degraded, unhealthy]
+                    enum:
+                      - healthy
+                      - degraded
+                      - unhealthy
                   timestamp:
                     type: string
                     format: date-time
@@ -518,10 +548,10 @@ paths:
                     description: Server uptime in seconds
                   environment:
                     type: string
-                    example: "production"
+                    example: production
                   version:
                     type: string
-                    example: "6.0.8"
+                    example: 6.0.8
                   services:
                     type: object
                     properties:
@@ -530,13 +560,17 @@ paths:
                         properties:
                           status:
                             type: string
-                            enum: [ok, error]
+                            enum:
+                              - ok
+                              - error
                       database:
                         type: object
                         properties:
                           status:
                             type: string
-                            enum: [ok, error]
+                            enum:
+                              - ok
+                              - error
                           latency:
                             type: number
                             description: DB latency in ms
@@ -545,24 +579,29 @@ paths:
                         properties:
                           status:
                             type: string
-                            enum: [ok, error, n/a]
+                            enum:
+                              - ok
+                              - error
+                              - n/a
                           provider:
                             type: string
-                            example: "square"
+                            example: square
                           environment:
                             type: string
-                            enum: [sandbox, production]
+                            enum:
+                              - sandbox
+                              - production
         '503':
           description: Service unhealthy
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
   /status:
     get:
       summary: Detailed status check (includes AI service)
-      tags: [Health]
+      tags:
+        - Health
       security: []
       responses:
         '200':
@@ -574,7 +613,10 @@ paths:
                 properties:
                   status:
                     type: string
-                    enum: [healthy, degraded, unhealthy]
+                    enum:
+                      - healthy
+                      - degraded
+                      - unhealthy
                   services:
                     type: object
                     properties:
@@ -583,15 +625,20 @@ paths:
                         properties:
                           status:
                             type: string
-                            enum: [healthy, degraded, unhealthy]
+                            enum:
+                              - healthy
+                              - degraded
+                              - unhealthy
                           provider:
                             type: string
-                            enum: [openai, stubs]
-
+                            enum:
+                              - openai
+                              - stubs
   /auth/login:
     post:
       summary: Email/password login
-      tags: [Authentication]
+      tags:
+        - Authentication
       security: []
       requestBody:
         required: true
@@ -607,11 +654,11 @@ paths:
                 email:
                   type: string
                   format: email
-                  example: "server@restaurant.com"
+                  example: server@restaurant.com
                 password:
                   type: string
                   format: password
-                  example: "Demo123!"
+                  example: Demo123!
                 restaurantId:
                   type: string
                   format: uuid
@@ -632,11 +679,11 @@ paths:
                     format: uuid
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-
   /auth/pin-login:
     post:
       summary: PIN-based login (for staff on shared devices)
-      tags: [Authentication]
+      tags:
+        - Authentication
       security: []
       requestBody:
         required: true
@@ -650,7 +697,7 @@ paths:
               properties:
                 pin:
                   type: string
-                  example: "1234"
+                  example: '1234'
                 restaurantId:
                   type: string
                   format: uuid
@@ -675,11 +722,11 @@ paths:
                     format: uuid
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-
   /auth/demo-session:
     post:
       summary: Create demo session (development only)
-      tags: [Authentication]
+      tags:
+        - Authentication
       security: []
       description: |
         Issues a short-lived JWT for demo sessions. Replaces client-side credentials.
@@ -696,11 +743,18 @@ paths:
               properties:
                 role:
                   type: string
-                  enum: [customer, server, kitchen, expo, cashier, manager, owner]
+                  enum:
+                    - customer
+                    - server
+                    - kitchen
+                    - expo
+                    - cashier
+                    - manager
+                    - owner
                 restaurantId:
                   type: string
                   format: uuid
-                  example: "11111111-1111-1111-1111-111111111111"
+                  example: 11111111-1111-1111-1111-111111111111
       responses:
         '200':
           description: Demo session created
@@ -714,7 +768,7 @@ paths:
                     properties:
                       id:
                         type: string
-                        example: "demo:server:abc123"
+                        example: demo:server:abc123
                       role:
                         type: string
                       scopes:
@@ -729,11 +783,11 @@ paths:
                   restaurantId:
                     type: string
                     format: uuid
-
   /auth/me:
     get:
       summary: Get current user information
-      tags: [Authentication]
+      tags:
+        - Authentication
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
       responses:
@@ -751,11 +805,11 @@ paths:
                     format: uuid
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-
   /auth/logout:
     post:
       summary: Logout and cleanup session
-      tags: [Authentication]
+      tags:
+        - Authentication
       responses:
         '200':
           description: Logout successful
@@ -768,12 +822,12 @@ paths:
                     type: boolean
                   message:
                     type: string
-                    example: "Logged out successfully"
-
+                    example: Logged out successfully
   /auth/refresh:
     post:
       summary: Refresh authentication token
-      tags: [Authentication]
+      tags:
+        - Authentication
       security: []
       requestBody:
         required: true
@@ -798,11 +852,11 @@ paths:
                     $ref: '#/components/schemas/AuthSession'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-
   /menu:
     get:
       summary: Get full menu with categories
-      tags: [Menu]
+      tags:
+        - Menu
       security: []
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -828,10 +882,10 @@ paths:
                           type: array
                           items:
                             $ref: '#/components/schemas/MenuItem'
-
     post:
       summary: Sync menu to AI service
-      tags: [Menu]
+      tags:
+        - Menu
       description: |
         Loads menu from database and syncs to AI processing service.
         Requires admin or manager role.
@@ -855,11 +909,11 @@ paths:
                     type: string
         '503':
           description: AI service unavailable
-
   /menu/items:
     get:
       summary: Get all menu items
-      tags: [Menu]
+      tags:
+        - Menu
       security: []
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -877,11 +931,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MenuItem'
-
   /menu/items/{id}:
     get:
       summary: Get single menu item
-      tags: [Menu]
+      tags:
+        - Menu
       security: []
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -900,11 +954,11 @@ paths:
                 $ref: '#/components/schemas/MenuItem'
         '404':
           description: Menu item not found
-
   /menu/categories:
     get:
       summary: Get menu categories
-      tags: [Menu]
+      tags:
+        - Menu
       security: []
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -925,23 +979,34 @@ paths:
                       type: string
                     display_order:
                       type: integer
-
   /orders:
     get:
       summary: List orders with filters
-      tags: [Orders]
+      tags:
+        - Orders
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
         - name: status
           in: query
           schema:
             type: string
-            enum: [new, pending, confirmed, preparing, ready, picked-up, completed, cancelled]
+            enum:
+              - new
+              - pending
+              - confirmed
+              - preparing
+              - ready
+              - picked-up
+              - completed
+              - cancelled
         - name: type
           in: query
           schema:
             type: string
-            enum: [online, pickup, delivery]
+            enum:
+              - online
+              - pickup
+              - delivery
         - name: startDate
           in: query
           schema:
@@ -971,10 +1036,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Order'
-
     post:
       summary: Create new order
-      tags: [Orders]
+      tags:
+        - Orders
       description: |
         Create a new order. Server validates and recalculates all amounts.
         Requires `orders:create` scope.
@@ -1000,11 +1065,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
   /orders/{id}:
     get:
       summary: Get order by ID
-      tags: [Orders]
+      tags:
+        - Orders
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
         - name: id
@@ -1022,10 +1087,10 @@ paths:
                 $ref: '#/components/schemas/Order'
         '404':
           description: Order not found
-
     delete:
       summary: Cancel order
-      tags: [Orders]
+      tags:
+        - Orders
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
         - name: id
@@ -1042,7 +1107,7 @@ paths:
               properties:
                 reason:
                   type: string
-                  example: "Customer requested cancellation"
+                  example: Customer requested cancellation
       responses:
         '200':
           description: Order cancelled
@@ -1050,11 +1115,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
-
   /orders/{id}/status:
     patch:
       summary: Update order status
-      tags: [Orders]
+      tags:
+        - Orders
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
         - name: id
@@ -1074,7 +1139,15 @@ paths:
               properties:
                 status:
                   type: string
-                  enum: [new, pending, confirmed, preparing, ready, picked-up, completed, cancelled]
+                  enum:
+                    - new
+                    - pending
+                    - confirmed
+                    - preparing
+                    - ready
+                    - picked-up
+                    - completed
+                    - cancelled
                 notes:
                   type: string
       responses:
@@ -1086,11 +1159,12 @@ paths:
                 $ref: '#/components/schemas/Order'
         '400':
           description: Invalid status
-
   /orders/voice:
     post:
       summary: Process voice order (AI parsing)
-      tags: [Orders, Voice & AI]
+      tags:
+        - Orders
+        - Voice & AI
       description: |
         Process voice-to-text order using AI. Returns parsed order with confidence score.
         Uses hybrid AI approach: OpenAI Realtime API for parsing + menu validation.
@@ -1107,7 +1181,7 @@ paths:
               properties:
                 transcription:
                   type: string
-                  example: "I'd like a Soul Bowl and a Greek Salad"
+                  example: I'd like a Soul Bowl and a Greek Salad
                 audioUrl:
                   type: string
                   format: uri
@@ -1135,17 +1209,17 @@ paths:
                     example: 0.85
                   message:
                     type: string
-                    example: "Perfect! Your Soul Bowl will be ready in about 10 minutes."
+                    example: Perfect! Your Soul Bowl will be ready in about 10 minutes.
                   suggestions:
                     type: array
                     items:
                       type: string
                     description: Suggestions if parsing failed
-
   /payments/create:
     post:
       summary: Process card payment via Square
-      tags: [Payments]
+      tags:
+        - Payments
       description: |
         Process payment via Square. Server validates amounts - clients should NOT send calculated totals.
         Payment validation is server-authoritative for security.
@@ -1172,7 +1246,9 @@ paths:
                     description: Square payment ID
                   status:
                     type: string
-                    enum: [COMPLETED, PENDING]
+                    enum:
+                      - COMPLETED
+                      - PENDING
                   receiptUrl:
                     type: string
                     format: uri
@@ -1194,12 +1270,12 @@ paths:
                     type: string
                   code:
                     type: string
-                    example: "CARD_DECLINED"
-
+                    example: CARD_DECLINED
   /payments/cash:
     post:
       summary: Process cash payment
-      tags: [Payments]
+      tags:
+        - Payments
       description: |
         Process cash payment. Server validates amount is sufficient and calculates change.
       parameters:
@@ -1247,18 +1323,18 @@ paths:
                     example: false
                   error:
                     type: string
-                    example: "Insufficient payment"
+                    example: Insufficient payment
                   order_total:
                     type: number
                   amount_received:
                     type: number
                   shortage:
                     type: number
-
   /payments/{paymentId}:
     get:
       summary: Get payment details
-      tags: [Payments]
+      tags:
+        - Payments
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
         - name: paymentId
@@ -1282,11 +1358,11 @@ paths:
                     description: Square payment object
         '404':
           description: Payment not found
-
   /payments/{paymentId}/refund:
     post:
       summary: Refund payment
-      tags: [Payments]
+      tags:
+        - Payments
       description: Requires `payments:refund` scope
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -1307,7 +1383,7 @@ paths:
                   description: Refund amount (omit for full refund)
                 reason:
                   type: string
-                  example: "Customer requested refund"
+                  example: Customer requested refund
       responses:
         '200':
           description: Refund processed
@@ -1321,11 +1397,11 @@ paths:
                   refund:
                     type: object
                     description: Square refund object
-
   /ai/voice/session:
     post:
       summary: Create voice ordering session (WebRTC)
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: |
         Get ephemeral token for OpenAI Realtime API (voice ordering via WebRTC).
         Token expires after session ends.
@@ -1361,11 +1437,11 @@ paths:
                   expires_at:
                     type: string
                     format: date-time
-
   /ai/transcribe:
     post:
       summary: Transcribe audio to text
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: Returns transcription of uploaded audio
       requestBody:
         required: true
@@ -1398,11 +1474,11 @@ paths:
                     type: number
                   restaurantId:
                     type: string
-
   /ai/chat:
     post:
       summary: Chat with AI assistant
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: Text-based chat with AI (uses menu context)
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -1417,7 +1493,7 @@ paths:
               properties:
                 message:
                   type: string
-                  example: "What bowls do you have?"
+                  example: What bowls do you have?
       responses:
         '200':
           description: Chat response
@@ -1430,14 +1506,14 @@ paths:
                     type: boolean
                   message:
                     type: string
-                    example: "We've got Soul Bowl, Greek Bowl, and Mediterranean Bowl!"
+                    example: We've got Soul Bowl, Greek Bowl, and Mediterranean Bowl!
                   restaurantId:
                     type: string
-
   /ai/health:
     get:
       summary: AI service health check
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       security: []
       responses:
         '200':
@@ -1451,11 +1527,11 @@ paths:
                     type: boolean
         '503':
           description: AI service unavailable
-
   /tables:
     get:
       summary: Get all tables
-      tags: [Tables]
+      tags:
+        - Tables
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
       responses:
@@ -1467,10 +1543,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Table'
-
     post:
       summary: Create new table
-      tags: [Tables]
+      tags:
+        - Tables
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
       requestBody:
@@ -1484,17 +1560,20 @@ paths:
               properties:
                 label:
                   type: string
-                  example: "T10"
+                  example: T10
                 capacity:
                   type: integer
                   example: 4
                 x:
                   type: number
-                y:
+                'y':
                   type: number
                 type:
                   type: string
-                  enum: [rectangle, circle, square]
+                  enum:
+                    - rectangle
+                    - circle
+                    - square
                 section:
                   type: string
       responses:
@@ -1504,11 +1583,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Table'
-
   /tables/{id}:
     get:
       summary: Get single table
-      tags: [Tables]
+      tags:
+        - Tables
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
         - name: id
@@ -1526,10 +1605,10 @@ paths:
                 $ref: '#/components/schemas/Table'
         '404':
           description: Table not found
-
     put:
       summary: Update table
-      tags: [Tables]
+      tags:
+        - Tables
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
         - name: id
@@ -1550,7 +1629,7 @@ paths:
                   type: integer
                 x:
                   type: number
-                y:
+                'y':
                   type: number
                 type:
                   type: string
@@ -1563,10 +1642,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Table'
-
     delete:
       summary: Delete table (soft delete)
-      tags: [Tables]
+      tags:
+        - Tables
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
         - name: id
@@ -1587,11 +1666,11 @@ paths:
                     type: boolean
                   id:
                     type: string
-
   /tables/{id}/status:
     patch:
       summary: Update table status
-      tags: [Tables]
+      tags:
+        - Tables
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
         - name: id
@@ -1611,7 +1690,11 @@ paths:
               properties:
                 status:
                   type: string
-                  enum: [available, occupied, reserved, cleaning]
+                  enum:
+                    - available
+                    - occupied
+                    - reserved
+                    - cleaning
                 orderId:
                   type: string
                   format: uuid
@@ -1623,11 +1706,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Table'
-
   /tables/batch:
     put:
       summary: Batch update tables (floor plan editor)
-      tags: [Tables]
+      tags:
+        - Tables
       description: |
         Optimized bulk update for floor plan editor.
         Uses PostgreSQL RPC for performance (~40x faster than sequential updates).
@@ -1654,7 +1737,7 @@ paths:
                         format: uuid
                       x:
                         type: number
-                      y:
+                      'y':
                         type: number
                       type:
                         type: string
@@ -1671,106 +1754,106 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Table'
-
   /login:
     post:
       deprecated: true
       summary: Email/password login (deprecated - use /auth/login)
       description: This endpoint has been moved to /auth/login and will be removed in v7.0
-      tags: [Authentication]
+      tags:
+        - Authentication
       security: []
       responses:
         '301':
           description: Moved Permanently to /auth/login
-
   /pin-login:
     post:
       deprecated: true
       summary: PIN login (deprecated - use /auth/pin-login)
       description: This endpoint has been moved to /auth/pin-login and will be removed in v7.0
-      tags: [Authentication]
+      tags:
+        - Authentication
       security: []
       responses:
         '301':
           description: Moved Permanently to /auth/pin-login
-
   /station-login:
     post:
       deprecated: true
       summary: Station login (deprecated - use /auth/station-login)
       description: This endpoint has been moved to /auth/station-login and will be removed in v7.0
-      tags: [Authentication]
+      tags:
+        - Authentication
       security: []
       responses:
         '301':
           description: Moved Permanently to /auth/station-login
-
   /me:
     get:
       deprecated: true
       summary: Get current user (deprecated - use /auth/me)
       description: This endpoint has been moved to /auth/me and will be removed in v7.0
-      tags: [Authentication]
+      tags:
+        - Authentication
       responses:
         '301':
           description: Moved Permanently to /auth/me
-
   /logout:
     post:
       deprecated: true
       summary: Logout (deprecated - use /auth/logout)
       description: This endpoint has been moved to /auth/logout and will be removed in v7.0
-      tags: [Authentication]
+      tags:
+        - Authentication
       responses:
         '301':
           description: Moved Permanently to /auth/logout
-
   /refresh:
     post:
       deprecated: true
       summary: Refresh token (deprecated - use /auth/refresh)
       description: This endpoint has been moved to /auth/refresh and will be removed in v7.0
-      tags: [Authentication]
+      tags:
+        - Authentication
       security: []
       responses:
         '301':
           description: Moved Permanently to /auth/refresh
-
   /demo-session:
     post:
       deprecated: true
       summary: Create demo session (deprecated - use /auth/demo-session)
       description: This endpoint has been moved to /auth/demo-session and will be removed in v7.0
-      tags: [Authentication]
+      tags:
+        - Authentication
       security: []
       responses:
         '301':
           description: Moved Permanently to /auth/demo-session
-
   /set-pin:
     post:
       deprecated: true
       summary: Set user PIN (deprecated - use /auth/set-pin)
       description: This endpoint has been moved to /auth/set-pin and will be removed in v7.0
-      tags: [Authentication]
+      tags:
+        - Authentication
       responses:
         '301':
           description: Moved Permanently to /auth/set-pin
-
   /revoke-stations:
     post:
       deprecated: true
       summary: Revoke station tokens (deprecated - use /auth/revoke-stations)
       description: This endpoint has been moved to /auth/revoke-stations and will be removed in v7.0
-      tags: [Authentication]
+      tags:
+        - Authentication
       responses:
         '301':
           description: Moved Permanently to /auth/revoke-stations
-
   /inventory:
     post:
       summary: Update inventory levels (admin only)
-      tags: [Menu]
+      tags:
+        - Menu
       description: Batch update inventory levels for menu items
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -1803,11 +1886,11 @@ paths:
                     type: boolean
                   updated_count:
                     type: integer
-
   /menu/cache/clear:
     post:
       summary: Clear menu cache
-      tags: [Menu]
+      tags:
+        - Menu
       description: Clears the menu cache for a specific restaurant
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -1826,11 +1909,11 @@ paths:
                   timestamp:
                     type: string
                     format: date-time
-
   /menu/sync-ai:
     post:
       summary: Sync menu to AI gateway
-      tags: [Menu]
+      tags:
+        - Menu
       description: Synchronizes menu data to AI processing service
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -1849,35 +1932,35 @@ paths:
                   timestamp:
                     type: string
                     format: date-time
-
   /categories:
     get:
       deprecated: true
       summary: Get menu categories (deprecated - use /menu/categories)
       description: This endpoint has been moved to /menu/categories and will be removed in v7.0
-      tags: [Menu]
+      tags:
+        - Menu
       security: []
       responses:
         '301':
           description: Moved Permanently to /menu/categories
-
   /items:
     get:
       deprecated: true
       summary: Get menu items (deprecated - use /menu/items)
       description: This endpoint has been moved to /menu/items and will be removed in v7.0
-      tags: [Menu]
+      tags:
+        - Menu
       security: []
       responses:
         '301':
           description: Moved Permanently to /menu/items
-
   /items/{id}:
     get:
       deprecated: true
       summary: Get menu item (deprecated - use /menu/items/{id})
       description: This endpoint has been moved to /menu/items/{id} and will be removed in v7.0
-      tags: [Menu]
+      tags:
+        - Menu
       security: []
       parameters:
         - name: id
@@ -1889,33 +1972,33 @@ paths:
       responses:
         '301':
           description: Moved Permanently to /menu/items/{id}
-
   /payments:
     post:
       deprecated: true
       summary: Process payment (deprecated - use /payments/create)
       description: This endpoint has been moved to /payments/create and will be removed in v7.0
-      tags: [Payments]
+      tags:
+        - Payments
       responses:
         '301':
           description: Moved Permanently to /payments/create
-
   /cash:
     post:
       deprecated: true
       summary: Process cash payment (deprecated - use /payments/cash)
       description: This endpoint has been moved to /payments/cash and will be removed in v7.0
-      tags: [Payments]
+      tags:
+        - Payments
       responses:
         '301':
           description: Moved Permanently to /payments/cash
-
   /{paymentId}:
     get:
       deprecated: true
       summary: Get payment (deprecated - use /payments/{paymentId})
       description: This endpoint has been moved to /payments/{paymentId} and will be removed in v7.0
-      tags: [Payments]
+      tags:
+        - Payments
       parameters:
         - name: paymentId
           in: path
@@ -1925,13 +2008,13 @@ paths:
       responses:
         '301':
           description: Moved Permanently to /payments/{paymentId}
-
   /{paymentId}/refund:
     post:
       deprecated: true
       summary: Refund payment (deprecated - use /payments/{paymentId}/refund)
       description: This endpoint has been moved to /payments/{paymentId}/refund and will be removed in v7.0
-      tags: [Payments]
+      tags:
+        - Payments
       parameters:
         - name: paymentId
           in: path
@@ -1941,11 +2024,11 @@ paths:
       responses:
         '301':
           description: Moved Permanently to /payments/{paymentId}/refund
-
   /chat:
     post:
       summary: Chat with AI assistant
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: |
         Text-based chat with AI assistant using menu context.
         Uses OpenAI with restaurant-specific menu knowledge.
@@ -1962,7 +2045,7 @@ paths:
               properties:
                 message:
                   type: string
-                  example: "What do you have for lunch?"
+                  example: What do you have for lunch?
       responses:
         '200':
           description: Chat response
@@ -1979,11 +2062,11 @@ paths:
                     type: string
         '503':
           description: AI service unavailable
-
   /transcribe:
     post:
       summary: Transcribe audio to text
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: |
         Transcribes audio file to text using OpenAI Whisper.
         Supports WAV, MP3, and OGG formats.
@@ -2010,11 +2093,11 @@ paths:
                 format: binary
         '503':
           description: AI service unavailable
-
   /transcribe-with-metadata:
     post:
       summary: Transcribe audio with metadata
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: |
         Transcribes audio and returns both transcription text and metadata.
         Returns JSON instead of audio response.
@@ -2048,11 +2131,11 @@ paths:
                     type: number
                   restaurantId:
                     type: string
-
   /voice-chat:
     post:
       summary: Voice chat with AI (audio in, audio out)
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: |
         Complete voice chat flow: transcribe, chat, and generate audio response.
         Combines transcription and TTS in one endpoint.
@@ -2093,11 +2176,11 @@ paths:
                     type: object
                   restaurantId:
                     type: string
-
   /parse-order:
     post:
       summary: Parse order from text using AI
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: |
         Parses natural language text into structured order data.
         Returns matched menu items with quantities and modifications.
@@ -2114,7 +2197,7 @@ paths:
               properties:
                 text:
                   type: string
-                  example: "I want two Soul Bowls and a Greek Salad"
+                  example: I want two Soul Bowls and a Greek Salad
       responses:
         '200':
           description: Order parsed
@@ -2133,21 +2216,21 @@ paths:
                     type: string
         '422':
           description: Unknown menu items
-
   /voice:
     post:
       deprecated: true
       summary: Process voice order (deprecated - use /orders/voice)
       description: This endpoint has been moved to /orders/voice and will be removed in v7.0
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       responses:
         '301':
           description: Moved Permanently to /orders/voice
-
   /session:
     post:
       summary: Create WebRTC voice session
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: |
         Creates ephemeral token for OpenAI Realtime API (WebRTC).
         Token expires after 1 minute. Used for real-time voice ordering.
@@ -2185,11 +2268,11 @@ paths:
                     type: string
                   expires_at:
                     type: integer
-
   /test-tts:
     post:
       summary: Test text-to-speech endpoint
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: |
         Development/testing endpoint for TTS.
         Converts text to audio for testing purposes.
@@ -2202,7 +2285,7 @@ paths:
               properties:
                 text:
                   type: string
-                  default: "Hello, this is a test of text to speech."
+                  default: Hello, this is a test of text to speech.
       responses:
         '200':
           description: Audio generated
@@ -2211,11 +2294,11 @@ paths:
               schema:
                 type: string
                 format: binary
-
   /test-transcribe:
     post:
       summary: Test transcription endpoint
-      tags: [Voice & AI]
+      tags:
+        - Voice & AI
       description: |
         Development/testing endpoint for transcription.
         Upload audio, get text back.
@@ -2246,21 +2329,21 @@ paths:
                     type: string
                   duration:
                     type: number
-
   /test/error:
     post:
       summary: Test error handling
-      tags: [Health]
+      tags:
+        - Health
       description: Development endpoint to test error handling and monitoring
       security: []
       responses:
         '500':
           description: Intentional error for testing
-
   /terminal/checkout:
     post:
       summary: Create Square Terminal checkout
-      tags: [Payments]
+      tags:
+        - Payments
       description: |
         Creates a payment checkout on a Square Terminal device.
         Used for card-present transactions.
@@ -2303,11 +2386,11 @@ paths:
                         type: string
                       updatedAt:
                         type: string
-
   /terminal/checkout/{checkoutId}:
     get:
       summary: Get terminal checkout status
-      tags: [Payments]
+      tags:
+        - Payments
       description: Retrieves status of a Square Terminal checkout
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -2330,11 +2413,11 @@ paths:
                     type: object
                   payment:
                     type: object
-
   /terminal/checkout/{checkoutId}/cancel:
     post:
       summary: Cancel terminal checkout
-      tags: [Payments]
+      tags:
+        - Payments
       description: Cancels an in-progress Square Terminal checkout
       parameters:
         - $ref: '#/components/parameters/RestaurantIdHeader'
@@ -2355,11 +2438,11 @@ paths:
                     type: boolean
                   checkout:
                     type: object
-
   /terminal/checkout/{checkoutId}/complete:
     post:
       summary: Complete order after terminal payment
-      tags: [Payments]
+      tags:
+        - Payments
       description: |
         Updates order status after successful terminal payment.
         Links payment to order and marks as paid.
@@ -2384,11 +2467,11 @@ paths:
                     $ref: '#/components/schemas/Order'
                   payment:
                     type: object
-
   /terminal/devices:
     get:
       summary: List Square Terminal devices
-      tags: [Payments]
+      tags:
+        - Payments
       description: |
         Lists all paired Square Terminal devices for the location.
         Used to select device for terminal checkout.
@@ -2417,11 +2500,11 @@ paths:
                           type: string
                         status:
                           type: string
-
   /health/detailed:
     get:
       summary: Detailed health check with all services
-      tags: [Health]
+      tags:
+        - Health
       security: []
       responses:
         '200':
@@ -2433,7 +2516,10 @@ paths:
                 properties:
                   status:
                     type: string
-                    enum: [healthy, degraded, unhealthy]
+                    enum:
+                      - healthy
+                      - degraded
+                      - unhealthy
                   timestamp:
                     type: string
                     format: date-time
@@ -2441,11 +2527,11 @@ paths:
                     type: number
                   services:
                     type: object
-
   /healthz:
     get:
       summary: Simple liveness check
-      tags: [Health]
+      tags:
+        - Health
       description: Kubernetes liveness probe endpoint
       security: []
       responses:
@@ -2462,11 +2548,11 @@ paths:
                     type: number
                   version:
                     type: string
-
   /ready:
     get:
       summary: Readiness probe
-      tags: [Health]
+      tags:
+        - Health
       description: |
         Kubernetes readiness probe.
         Checks if service is ready to accept traffic (DB and AI services healthy).
@@ -2492,11 +2578,11 @@ paths:
                     type: boolean
                   reason:
                     type: string
-
   /live:
     get:
       summary: Liveness probe
-      tags: [Health]
+      tags:
+        - Health
       description: Kubernetes liveness probe - checks if process is alive
       security: []
       responses:
@@ -2509,11 +2595,11 @@ paths:
                 properties:
                   alive:
                     type: boolean
-
   /config:
     get:
       summary: Get client configuration
-      tags: [Health]
+      tags:
+        - Health
       description: |
         Returns configuration needed by client applications.
         Includes feature flags and environment settings.
@@ -2530,11 +2616,11 @@ paths:
                     type: string
                   features:
                     type: object
-
   /stats:
     get:
       summary: Get system statistics
-      tags: [Health]
+      tags:
+        - Health
       description: Returns system performance and usage statistics
       responses:
         '200':
@@ -2550,11 +2636,11 @@ paths:
                     type: object
                   requests:
                     type: object
-
   /events:
     get:
       summary: Get system events stream
-      tags: [Health]
+      tags:
+        - Health
       description: Server-sent events endpoint for real-time system events
       responses:
         '200':
@@ -2563,11 +2649,11 @@ paths:
             text/event-stream:
               schema:
                 type: string
-
   /metrics:
     post:
       summary: Log client metrics
-      tags: [Health]
+      tags:
+        - Health
       description: Endpoint for clients to send telemetry and metrics
       security: []
       requestBody:
@@ -2590,4 +2676,895 @@ paths:
                 properties:
                   success:
                     type: boolean
-
+  /api/v1/menu:
+    post:
+      tags:
+        - Ai
+      summary: Create menu
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+    get:
+      tags:
+        - Ai
+      summary: Get menu
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/transcribe:
+    post:
+      tags:
+        - Ai
+      summary: Create transcribe
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/transcribe-with-metadata:
+    post:
+      tags:
+        - Ai
+      summary: Create transcribe-with-metadata
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/parse-order:
+    post:
+      tags:
+        - Ai
+      summary: Create parse-order
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/voice-chat:
+    post:
+      tags:
+        - Ai
+      summary: Create voice-chat
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/chat:
+    post:
+      tags:
+        - Ai
+      summary: Create chat
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/health:
+    get:
+      tags:
+        - Ai
+      summary: Get health
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/test-tts:
+    post:
+      tags:
+        - Ai
+      summary: Create test-tts
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/test-transcribe:
+    post:
+      tags:
+        - Ai
+      summary: Create test-transcribe
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/demo-session:
+    post:
+      tags:
+        - Auth
+      summary: Create demo-session
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/login:
+    post:
+      tags:
+        - Auth
+      summary: Create login
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/pin-login:
+    post:
+      tags:
+        - Auth
+      summary: Create pin-login
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/station-login:
+    post:
+      tags:
+        - Auth
+      summary: Create station-login
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/logout:
+    post:
+      tags:
+        - Auth
+      summary: Create logout
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/me:
+    get:
+      tags:
+        - Auth
+      summary: Get me
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Create refresh
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/set-pin:
+    post:
+      tags:
+        - Auth
+      summary: Create set-pin
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/revoke-stations:
+    post:
+      tags:
+        - Auth
+      summary: Create revoke-stations
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/:
+    get:
+      tags:
+        - Health
+      summary: Get resource
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - Orders
+      summary: Create resource
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/status:
+    get:
+      tags:
+        - Health
+      summary: Get status
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/ready:
+    get:
+      tags:
+        - Health
+      summary: Get ready
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/live:
+    get:
+      tags:
+        - Health
+      summary: Get live
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/healthz:
+    get:
+      tags:
+        - Health
+      summary: Get healthz
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/items:
+    get:
+      tags:
+        - Menu
+      summary: Get items
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/items/{id}:
+    get:
+      tags:
+        - Menu
+      summary: Get items
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/categories:
+    get:
+      tags:
+        - Menu
+      summary: Get categories
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/sync-ai:
+    post:
+      tags:
+        - Menu
+      summary: Create sync-ai
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/cache/clear:
+    post:
+      tags:
+        - Menu
+      summary: Create clear
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/metrics:
+    post:
+      tags:
+        - Metrics
+      summary: Create metrics
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/health/detailed:
+    get:
+      tags:
+        - Metrics
+      summary: Get detailed
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/test/error:
+    post:
+      tags:
+        - Metrics
+      summary: Create error
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/voice:
+    post:
+      tags:
+        - Orders
+      summary: Create voice
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Get resource
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - Orders
+      summary: Delete resource
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - Tables
+      summary: Update resource
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/{id}/status:
+    patch:
+      tags:
+        - Orders
+      summary: Modify status
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/create:
+    post:
+      tags:
+        - Payments
+      summary: Create create
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/cash:
+    post:
+      tags:
+        - Payments
+      summary: Create cash
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/{paymentId}:
+    get:
+      tags:
+        - Payments
+      summary: Get resource
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/{paymentId}/refund:
+    post:
+      tags:
+        - Payments
+      summary: Create refund
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/session:
+    post:
+      tags:
+        - Realtime
+      summary: Create session
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/events:
+    get:
+      tags:
+        - Security
+      summary: Get events
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/stats:
+    get:
+      tags:
+        - Security
+      summary: Get stats
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/test:
+    post:
+      tags:
+        - Security
+      summary: Create test
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/config:
+    get:
+      tags:
+        - Security
+      summary: Get config
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/batch:
+    put:
+      tags:
+        - Tables
+      summary: Update batch
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/checkout:
+    post:
+      tags:
+        - Terminal
+      summary: Create checkout
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/checkout/{checkoutId}:
+    get:
+      tags:
+        - Terminal
+      summary: Get checkout
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/checkout/{checkoutId}/cancel:
+    post:
+      tags:
+        - Terminal
+      summary: Create cancel
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/checkout/{checkoutId}/complete:
+    post:
+      tags:
+        - Terminal
+      summary: Create complete
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/devices:
+    get:
+      tags:
+        - Terminal
+      summary: Get devices
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/payments:
+    post:
+      tags:
+        - Webhook
+      summary: Create payments
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/orders:
+    post:
+      tags:
+        - Webhook
+      summary: Create orders
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/inventory:
+    post:
+      tags:
+        - Webhook
+      summary: Create inventory
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
