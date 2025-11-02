@@ -34,7 +34,7 @@
 For complete role-scope mappings (owner, manager, kitchen, expo, cashier), see:
 - **Code:** `server/src/middleware/rbac.ts:60-138`
 - **Database:** `supabase/migrations/20251018_add_customer_role_scopes.sql`
-- **Documentation:** [AUTHENTICATION_ARCHITECTURE.md](../AUTHENTICATION_ARCHITECTURE.md)
+- **Documentation:** [AUTHENTICATION_ARCHITECTURE.md](../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
 
 ## Dual-Source Architecture Warning
 

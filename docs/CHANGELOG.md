@@ -559,7 +559,7 @@ WHERE tax_rate = 0.0825;
 
 ### 🚨 Critical Bug Fixes (Production Order Failures)
 
-This release fixes **3 critical bugs** identified in the order creation failure investigation (Oct 20, 2025). See [ORDER_FAILURE_INCIDENT_REPORT.md](../ORDER_FAILURE_INCIDENT_REPORT.md) for complete incident analysis.
+This release fixes **3 critical bugs** identified in the order creation failure investigation (Oct 20, 2025). See [ORDER_FAILURE_INCIDENT_REPORT.md](archive/ORDER_FAILURE_INCIDENT_REPORT.md) for complete incident analysis.
 
 #### Fixed - RPC Missing Version Column (Critical)
 - **CRITICAL: create_order_with_audit RPC didn't return version field** (500 errors)
@@ -649,7 +649,7 @@ This release fixes **3 critical bugs** identified in the order creation failure 
 
 - **PR #125**: fix/track-a-code-fixes-p0 (order failures + tests)
 - **PR #126**: fix/ci-infrastructure-smoke-and-timing (CI fixes)
-- **Incident Report**: [ORDER_FAILURE_INCIDENT_REPORT.md](../ORDER_FAILURE_INCIDENT_REPORT.md)
+- **Incident Report**: [ORDER_FAILURE_INCIDENT_REPORT.md](archive/ORDER_FAILURE_INCIDENT_REPORT.md)
 - **Migration Reconciliation**: [MIGRATION_RECONCILIATION_2025-10-20.md](./MIGRATION_RECONCILIATION_2025-10-20.md)
 - **CI Issues Analysis**: [CI_INFRASTRUCTURE_ISSUES.md](./CI_INFRASTRUCTURE_ISSUES.md)
 
@@ -2076,4 +2076,4 @@ Console errors showed CORS blocking `X-Client-Flow` header sent during order sub
 
 **Repository**: https://github.com/restaurant-os/rebuild-6.0  
 **Issues**: https://github.com/restaurant-os/rebuild-6.0/issues  
-**Documentation**: [./docs/](./docs/)
+**Documentation**: [./](./)
