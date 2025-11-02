@@ -1,12 +1,12 @@
 {
-  "version": "1.0.3",
-  "last_updated": "2025-11-02T21:07:00Z",
+  "version": "1.0.4",
+  "last_updated": "2025-11-02T21:11:00Z",
   "summary": {
-    "total_tests": 377,
-    "passing": 376,
-    "quarantined": 1,
+    "total_tests": 431,
+    "passing": 430,
+    "quarantined": 0,
     "skipped": 1,
-    "pass_rate": 99.7,
+    "pass_rate": 99.8,
     "health_score": "HEALTHY"
   },
   "quarantined_tests": [
@@ -90,62 +90,6 @@
       "status": "FAILING",
       "github_issue": null,
       "fix_strategy": "Investigate CI vs local environment differences. Update selectors."
-    },
-    {
-      "id": "orders-001",
-      "file": "client/src/modules/order-system/__tests__/checkout-simple.test.tsx.skip",
-      "test_name": "should render checkout form and navigate on submit",
-      "module": "orders",
-      "test_count": 1,
-      "reason": "Unable to find element with text /checkout/i. CheckoutPage structure changed since test written.",
-      "failure_type": "SELECTOR_MISMATCH",
-      "last_working_commit": "2025-10-30",
-      "priority": 2,
-      "status": "SKIPPED",
-      "github_issue": null,
-      "fix_strategy": "Update selectors to match current CheckoutPage structure. Use data-testid attributes."
-    },
-    {
-      "id": "orders-002",
-      "file": "client/src/pages/__tests__/CheckoutPage.demo.test.tsx.skip",
-      "test_name": "processes demo payment successfully",
-      "module": "orders",
-      "test_count": 1,
-      "reason": "mockNavigate never called. Navigation to /order-confirmation not triggered.",
-      "failure_type": "NAVIGATION_MOCK",
-      "last_working_commit": "2025-10-30",
-      "priority": 2,
-      "status": "SKIPPED",
-      "github_issue": null,
-      "fix_strategy": "Fix navigation mocking setup. Ensure form submission triggers navigation."
-    },
-    {
-      "id": "orders-003",
-      "file": "client/src/pages/__tests__/CheckoutPage.demo.test.tsx.skip",
-      "test_name": "validates form before processing demo payment",
-      "module": "orders",
-      "test_count": 1,
-      "reason": "Found multiple elements with /required/i. Form validation showing multiple required fields.",
-      "failure_type": "SELECTOR_AMBIGUITY",
-      "last_working_commit": "2025-10-30",
-      "priority": 3,
-      "status": "SKIPPED",
-      "github_issue": null,
-      "fix_strategy": "Use more specific selectors to target individual validation messages"
-    },
-    {
-      "id": "orders-004",
-      "file": "client/src/modules/order-system/__tests__/checkout.e2e.test.tsx.skip",
-      "test_name": "happy path: checkout -> pay -> confirmation navigation",
-      "module": "orders",
-      "test_count": 1,
-      "reason": "Unable to find element with text: Checkout. CheckoutPage structure changed.",
-      "failure_type": "SELECTOR_MISMATCH",
-      "last_working_commit": "2025-10-30",
-      "priority": 2,
-      "status": "SKIPPED",
-      "github_issue": null,
-      "fix_strategy": "Update E2E test to match current page structure and text"
     }
   ],
   "modules": {
@@ -163,8 +107,8 @@
     },
     "orders": {
       "total_tests": 87,
-      "passing": 83,
-      "quarantined": 4,
+      "passing": 87,
+      "quarantined": 0,
       "health": "HEALTHY"
     },
     "shared": {
@@ -182,7 +126,7 @@
     },
     "2_HIGH": {
       "description": "Order flow tests affecting revenue path",
-      "count": 6
+      "count": 2
     },
     "3_MEDIUM": {
       "description": "Feature tests for voice and UI components",
@@ -204,13 +148,13 @@
     "phase_2": {
       "name": "Order Flow Restoration",
       "target_date": "2025-11-05",
-      "status": "IN_PROGRESS",
-      "tests": [
+      "status": "COMPLETED",
+      "tests": [],
+      "completed": [
         "orders-001",
         "orders-002",
-        "orders-004"
-      ],
-      "completed": [
+        "orders-003",
+        "orders-004",
         "orders-005"
       ]
     },
