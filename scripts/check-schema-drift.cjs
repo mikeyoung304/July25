@@ -88,8 +88,8 @@ function parseMigrationSchema() {
   files.forEach(file => {
     const content = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf-8');
 
-    // Look for ALTER TABLE ADD COLUMN statements
-    const alterRegex = /ALTER TABLE\s+(\w+)\s+ADD COLUMN\s+(\w+)\s+([^;,\n]+)/gi;
+    // Look for ALTER TABLE ADD COLUMN statements (with optional IF NOT EXISTS)
+    const alterRegex = /ALTER TABLE\s+(\w+)\s+ADD COLUMN\s+(?:IF NOT EXISTS\s+)?(\w+)\s+([^;,\n]+)/gi;
     let match;
 
     while ((match = alterRegex.exec(content)) !== null) {
