@@ -346,7 +346,7 @@ The database uses PostgreSQL with Row-Level Security (RLS) policies for multi-te
 | sessions | sessions | sessions (required) |
 | payment_audit_logs | payment_audit_logs | payment audit logs (required) |
 | user_pins | user_pins | user pins (required) |
-| ignore | user_profiles | ignore (required) |
+| user_profiles | user_profiles | user profiles |
 | user_restaurants | user_restaurants | user restaurants (required) |
 
 ### api_scopes

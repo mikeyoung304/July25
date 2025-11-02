@@ -389,7 +389,7 @@ model users {
   one_time_tokens             one_time_tokens[]
   sessions                    sessions[]
   payment_audit_logs          payment_audit_logs[]
-  user_pins                   user_pins[]            @ignore
+  user_pins                   user_pins[]
   user_profiles               user_profiles?
   user_restaurants            user_restaurants[]
 
@@ -502,12 +502,12 @@ model orders {
   is_scheduled          Boolean?               @default(false)
   manually_fired        Boolean?               @default(false)
   version               Int                    @default(1)
-  payment_status        String?                @default("unpaid") @db.VarChar(20)
-  payment_method        String?                @db.VarChar(20)
+  payment_status        String?                @default("unpaid")
+  payment_method        String?
   payment_amount        Decimal?               @db.Decimal(10, 2)
   cash_received         Decimal?               @db.Decimal(10, 2)
   change_given          Decimal?               @db.Decimal(10, 2)
-  payment_id            String?                @db.VarChar(255)
+  payment_id            String?
   check_closed_at       DateTime?              @db.Timestamp(6)
   closed_by_user_id     String?                @db.Uuid
   seat_number           Int?
@@ -547,7 +547,7 @@ model restaurants {
   orders               orders[]
   station_tokens       station_tokens[]
   tables               tables[]
-  user_pins            user_pins[]            @ignore
+  user_pins            user_pins[]
   user_restaurants     user_restaurants[]
   voice_order_logs     voice_order_logs[]
 
