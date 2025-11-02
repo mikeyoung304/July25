@@ -59,11 +59,7 @@ jobs:
       - name: Tests (quick)
         env:
           CI: '1'
-          RUN_VISUAL: '0'
-          RUN_PERF: '0'
-          RUN_E2E: '0'
-          FORCE_COLOR: '0'
-        run: npm run test:quick --workspaces
+        run: npm run test:healthy
 
       - name: Build shared package
         run: npm run build --workspace shared
