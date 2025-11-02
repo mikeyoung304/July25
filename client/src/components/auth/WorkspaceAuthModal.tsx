@@ -271,7 +271,7 @@ export function WorkspaceAuthModal({
                   <div>
                     <p className="text-sm font-medium text-blue-900">Demo Mode</p>
                     <p className="text-xs text-blue-700 mt-1">
-                      Pre-filled with {demoCredentials.role} credentials
+                      Pre-filled with {workspace} credentials
                     </p>
                   </div>
                   <button
