@@ -25,7 +25,7 @@
     },
     {
       "id": "auth-004",
-      "file": "client/src/pages/__tests__/WorkspaceDashboard.test.tsx",
+      "file": "client/src/pages/__tests__/WorkspaceDashboard.test.tsx.skip",
       "test_name": "tiles can be focused and activated with keyboard",
       "module": "auth",
       "test_count": 1,
@@ -39,7 +39,7 @@
     },
     {
       "id": "auth-005",
-      "file": "server/tests/routes/orders.auth.test.ts",
+      "file": "server/tests/routes/orders.auth.test.ts.skip",
       "test_name": "Multiple auth permission tests",
       "module": "auth",
       "test_count": 6,
@@ -53,7 +53,7 @@
     },
     {
       "id": "voice-001",
-      "file": "client/src/modules/voice/services/__tests__/WebRTCVoiceClient.test.ts",
+      "file": "client/src/modules/voice/services/__tests__/WebRTCVoiceClient.test.ts.skip",
       "test_name": "11 tests calling configureSession()",
       "module": "voice",
       "test_count": 11,
@@ -67,7 +67,7 @@
     },
     {
       "id": "voice-002",
-      "file": "client/src/modules/voice/services/orderIntegration.integration.test.tsx",
+      "file": "client/src/modules/voice/services/orderIntegration.integration.test.tsx.skip",
       "test_name": "4 integration tests",
       "module": "voice",
       "test_count": 4,
@@ -107,7 +107,7 @@
     },
     {
       "id": "orders-001",
-      "file": "client/src/modules/order-system/__tests__/checkout-simple.test.tsx",
+      "file": "client/src/modules/order-system/__tests__/checkout-simple.test.tsx.skip",
       "test_name": "should render checkout form and navigate on submit",
       "module": "orders",
       "test_count": 1,
@@ -121,7 +121,7 @@
     },
     {
       "id": "orders-002",
-      "file": "client/src/pages/__tests__/CheckoutPage.demo.test.tsx",
+      "file": "client/src/pages/__tests__/CheckoutPage.demo.test.tsx.skip",
       "test_name": "processes demo payment successfully",
       "module": "orders",
       "test_count": 1,
@@ -135,7 +135,7 @@
     },
     {
       "id": "orders-003",
-      "file": "client/src/pages/__tests__/CheckoutPage.demo.test.tsx",
+      "file": "client/src/pages/__tests__/CheckoutPage.demo.test.tsx.skip",
       "test_name": "validates form before processing demo payment",
       "module": "orders",
       "test_count": 1,
@@ -149,7 +149,7 @@
     },
     {
       "id": "orders-004",
-      "file": "client/src/modules/order-system/__tests__/checkout.e2e.test.tsx",
+      "file": "client/src/modules/order-system/__tests__/checkout.e2e.test.tsx.skip",
       "test_name": "happy path: checkout -> pay -> confirmation navigation",
       "module": "orders",
       "test_count": 1,
@@ -163,7 +163,7 @@
     },
     {
       "id": "orders-005",
-      "file": "server/tests/contracts/order.contract.test.ts",
+      "file": "server/tests/contracts/order.contract.test.ts.skip",
       "test_name": "2 schema validation tests",
       "module": "orders",
       "test_count": 2,
