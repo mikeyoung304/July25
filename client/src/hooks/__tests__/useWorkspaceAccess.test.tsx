@@ -13,19 +13,18 @@ import { WorkspaceType } from '@/config/demoCredentials'
 
 // Mock dependencies
 vi.mock('@/contexts/auth.hooks')
+
+// Mock react-router-dom
+const mockNavigate = vi.fn()
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
   return {
     ...actual,
-    useNavigate: () => vi.fn()
+    useNavigate: () => mockNavigate
   }
 })
 
-describe.skip('useWorkspaceAccess', () => {
-  // TODO: Test suite has "Unterminated regular expression" error at line 38
-  // Despite adding React import, the syntax error persists
-  // This is a pre-existing bug unrelated to documentation PR
-  // Needs investigation into test setup or TypeScript configuration
+describe('useWorkspaceAccess', () => {
   const mockUseAuth = {
     isAuthenticated: false,
     canAccess: vi.fn(),
@@ -35,6 +34,7 @@ describe.skip('useWorkspaceAccess', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockNavigate.mockClear()
     vi.spyOn(authHooks, 'useAuth').mockReturnValue(mockUseAuth as any)
   })
 
@@ -60,8 +60,7 @@ describe.skip('useWorkspaceAccess', () => {
     })
 
     it('navigates directly when handleAccess is called on public workspace', () => {
-      const mockNavigate = vi.fn()
-      vi.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNavigate)
+      mockNavigate.mockClear()
 
       const { result } = renderHook(() => useWorkspaceAccess('kiosk' as WorkspaceType), { wrapper })
 
@@ -130,8 +129,7 @@ describe.skip('useWorkspaceAccess', () => {
     })
 
     it('navigates directly when handleAccess is called', () => {
-      const mockNavigate = vi.fn()
-      vi.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNavigate)
+      mockNavigate.mockClear()
 
       const { result } = renderHook(() => useWorkspaceAccess('server' as WorkspaceType), { wrapper })
 

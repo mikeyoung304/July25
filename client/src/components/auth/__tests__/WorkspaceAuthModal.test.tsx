@@ -15,11 +15,7 @@ import { toast } from 'react-hot-toast'
 vi.mock('@/contexts/auth.hooks')
 vi.mock('react-hot-toast')
 
-describe.skip('WorkspaceAuthModal', () => {
-  // TODO: Entire test suite systematically failing with password field selector issues
-  // "Found multiple elements with the text of: /password/i" across all test suites
-  // Component likely has duplicate password fields or structure has changed since tests written
-  // Pre-existing bugs unrelated to documentation PR - needs comprehensive investigation
+describe('WorkspaceAuthModal', () => {
   const mockLogin = vi.fn()
   const mockLogout = vi.fn()
   const mockOnClose = vi.fn()
@@ -57,14 +53,12 @@ describe.skip('WorkspaceAuthModal', () => {
   }
 
   describe('Rendering', () => {
-    it.skip('renders when isOpen is true', () => {
-      // TODO: Test failing - cannot find text "Please sign in to access server workspace"
-      // Component may have changed or test expectations are outdated
-      // Pre-existing bug unrelated to documentation PR
+    it('renders when isOpen is true', () => {
       renderComponent()
 
       expect(screen.getByText('Authentication Required')).toBeInTheDocument()
-      expect(screen.getByText(/Please sign in to access server workspace/i)).toBeInTheDocument()
+      expect(screen.getByText(/Please sign in to access/i)).toBeInTheDocument()
+      expect(screen.getByText(/server/i)).toBeInTheDocument()
     })
 
     it('does not render when isOpen is false', () => {
@@ -73,14 +67,11 @@ describe.skip('WorkspaceAuthModal', () => {
       expect(screen.queryByText('Authentication Required')).not.toBeInTheDocument()
     })
 
-    it.skip('renders email and password fields', () => {
-      // TODO: Test failing - "Found multiple elements with the text of: /password/i"
-      // Component may have multiple password fields or label text changed
-      // Pre-existing bug unrelated to documentation PR
+    it('renders email and password fields', () => {
       renderComponent()
 
-      expect(screen.getByLabelText(/email address/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
+      expect(screen.getByTestId('workspace-auth-email')).toBeInTheDocument()
+      expect(screen.getByTestId('workspace-auth-password')).toBeInTheDocument()
     })
 
     it('renders Sign In button', () => {
@@ -97,10 +88,7 @@ describe.skip('WorkspaceAuthModal', () => {
     })
   })
 
-  describe.skip('Demo Mode', () => {
-    // TODO: All tests in this suite failing with "Found multiple elements with /password/i"
-    // Component may have duplicate password fields or structure changed
-    // Pre-existing bugs unrelated to documentation PR
+  describe('Demo Mode', () => {
     beforeEach(() => {
       vi.stubEnv('VITE_DEMO_PANEL', '1')
     })
@@ -108,8 +96,8 @@ describe.skip('WorkspaceAuthModal', () => {
     it('pre-fills credentials for role-specific workspace', () => {
       renderComponent({ workspace: 'server' })
 
-      const emailInput = screen.getByLabelText(/email address/i) as HTMLInputElement
-      const passwordInput = screen.getByLabelText(/password/i) as HTMLInputElement
+      const emailInput = screen.getByTestId('workspace-auth-email') as HTMLInputElement
+      const passwordInput = screen.getByTestId('workspace-auth-password') as HTMLInputElement
 
       expect(emailInput.value).toBe('server@restaurant.com')
       expect(passwordInput.value).toBe('Demo123!')
@@ -128,8 +116,8 @@ describe.skip('WorkspaceAuthModal', () => {
       const clearButton = screen.getByText(/use different account/i)
       fireEvent.click(clearButton)
 
-      const emailInput = screen.getByLabelText(/email address/i) as HTMLInputElement
-      const passwordInput = screen.getByLabelText(/password/i) as HTMLInputElement
+      const emailInput = screen.getByTestId('workspace-auth-email') as HTMLInputElement
+      const passwordInput = screen.getByTestId('workspace-auth-password') as HTMLInputElement
 
       expect(emailInput.value).toBe('')
       expect(passwordInput.value).toBe('')
@@ -138,24 +126,21 @@ describe.skip('WorkspaceAuthModal', () => {
     it('does NOT pre-fill for public workspaces', () => {
       renderComponent({ workspace: 'kiosk' })
 
-      const emailInput = screen.getByLabelText(/email address/i) as HTMLInputElement
-      const passwordInput = screen.getByLabelText(/password/i) as HTMLInputElement
+      const emailInput = screen.getByTestId('workspace-auth-email') as HTMLInputElement
+      const passwordInput = screen.getByTestId('workspace-auth-password') as HTMLInputElement
 
       expect(emailInput.value).toBe('')
       expect(passwordInput.value).toBe('')
     })
   })
 
-  describe.skip('Form Submission', () => {
-    // TODO: All tests in this suite failing with password field selector issues
-    // "Found multiple elements with the text of: /password/i"
-    // Pre-existing bugs unrelated to documentation PR
+  describe('Form Submission', () => {
     it('calls login with correct credentials on submit', async () => {
       mockLogin.mockResolvedValue(undefined)
       renderComponent()
 
-      const emailInput = screen.getByLabelText(/email address/i)
-      const passwordInput = screen.getByLabelText(/password/i)
+      const emailInput = screen.getByTestId('workspace-auth-email')
+      const passwordInput = screen.getByTestId('workspace-auth-password')
       const submitButton = screen.getByRole('button', { name: /sign in/i })
 
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
@@ -175,8 +160,8 @@ describe.skip('WorkspaceAuthModal', () => {
       mockLogin.mockResolvedValue(undefined)
       renderComponent()
 
-      const emailInput = screen.getByLabelText(/email address/i)
-      const passwordInput = screen.getByLabelText(/password/i)
+      const emailInput = screen.getByTestId('workspace-auth-email')
+      const passwordInput = screen.getByTestId('workspace-auth-password')
       const submitButton = screen.getByRole('button', { name: /sign in/i })
 
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
@@ -193,8 +178,8 @@ describe.skip('WorkspaceAuthModal', () => {
       mockLogin.mockRejectedValue(new Error(errorMessage))
       renderComponent()
 
-      const emailInput = screen.getByLabelText(/email address/i)
-      const passwordInput = screen.getByLabelText(/password/i)
+      const emailInput = screen.getByTestId('workspace-auth-email')
+      const passwordInput = screen.getByTestId('workspace-auth-password')
       const submitButton = screen.getByRole('button', { name: /sign in/i })
 
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
@@ -222,8 +207,8 @@ describe.skip('WorkspaceAuthModal', () => {
       mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
       renderComponent()
 
-      const emailInput = screen.getByLabelText(/email address/i)
-      const passwordInput = screen.getByLabelText(/password/i)
+      const emailInput = screen.getByTestId('workspace-auth-email')
+      const passwordInput = screen.getByTestId('workspace-auth-password')
       const submitButton = screen.getByRole('button', { name: /sign in/i })
 
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
@@ -307,8 +292,8 @@ describe.skip('WorkspaceAuthModal', () => {
       mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
       renderComponent()
 
-      const emailInput = screen.getByLabelText(/email address/i)
-      const passwordInput = screen.getByLabelText(/password/i)
+      const emailInput = screen.getByTestId('workspace-auth-email')
+      const passwordInput = screen.getByTestId('workspace-auth-password')
       const submitButton = screen.getByRole('button', { name: /sign in/i })
 
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
@@ -344,7 +329,7 @@ describe.skip('WorkspaceAuthModal', () => {
     it('toggles password visibility', () => {
       renderComponent()
 
-      const passwordInput = screen.getByLabelText(/password/i) as HTMLInputElement
+      const passwordInput = screen.getByTestId('workspace-auth-password') as HTMLInputElement
       const toggleButton = screen.getByLabelText(/show password/i)
 
       expect(passwordInput.type).toBe('password')
@@ -387,8 +372,8 @@ describe.skip('WorkspaceAuthModal', () => {
       mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
       renderComponent()
 
-      const emailInput = screen.getByLabelText(/email address/i)
-      const passwordInput = screen.getByLabelText(/password/i)
+      const emailInput = screen.getByTestId('workspace-auth-email')
+      const passwordInput = screen.getByTestId('workspace-auth-password')
       const submitButton = screen.getByRole('button', { name: /sign in/i })
 
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })

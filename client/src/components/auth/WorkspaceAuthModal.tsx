@@ -300,6 +300,7 @@ export function WorkspaceAuthModal({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
+                data-testid="workspace-auth-email"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                 placeholder="your@email.com"
               />
@@ -320,6 +321,7 @@ export function WorkspaceAuthModal({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
+                  data-testid="workspace-auth-password"
                   className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
                   placeholder="Enter password"
                 />
