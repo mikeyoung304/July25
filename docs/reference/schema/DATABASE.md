@@ -434,6 +434,30 @@ The database uses PostgreSQL with Row-Level Security (RLS) policies for multi-te
 | customer_name | TEXT | customer name |
 | table_number | TEXT | table number |
 | metadata | JSONB | metadata |
+| created_at | TIMESTAMP | Timestamp |
+| updated_at | TIMESTAMP | Timestamp |
+| preparing_at | TIMESTAMP | Timestamp |
+| ready_at | TIMESTAMP | Timestamp |
+| completed_at | TIMESTAMP | Timestamp |
+| cancelled_at | TIMESTAMP | Timestamp |
+| scheduled_pickup_time | TIMESTAMP | scheduled pickup time |
+| auto_fire_time | TIMESTAMP | auto fire time |
+| is_scheduled | BOOLEAN | is scheduled |
+| manually_fired | BOOLEAN | manually fired |
+| version | INTEGER | version |
+| payment_status | TEXT | payment status |
+| payment_method | TEXT | payment method |
+| payment_amount | NUMERIC | payment amount |
+| cash_received | NUMERIC | cash received |
+| change_given | NUMERIC | change given |
+| payment_id | TEXT | payment id |
+| check_closed_at | TIMESTAMP | Timestamp |
+| closed_by_user_id | TEXT | closed by user id |
+| seat_number | INTEGER | seat number |
+| order_status_history | order_status_history | order status history (required) |
+| payment_audit_logs | payment_audit_logs | payment audit logs (required) |
+| tables | tables | tables (required) |
+| voice_order_logs | voice_order_logs | voice order logs (required) |
 
 ### restaurants
 
@@ -446,6 +470,19 @@ The database uses PostgreSQL with Row-Level Security (RLS) policies for multi-te
 | slug | TEXT | Unique identifier (required) |
 | timezone | TEXT | timezone |
 | settings | JSONB | settings |
+| active | BOOLEAN | active |
+| created_at | TIMESTAMP | Timestamp |
+| updated_at | TIMESTAMP | Timestamp |
+| tax_rate | NUMERIC | tax rate |
+| menu_categories | menu_categories | menu categories (required) |
+| menu_items | menu_items | menu items (required) |
+| order_status_history | order_status_history | order status history (required) |
+| orders | orders | orders (required) |
+| station_tokens | station_tokens | station tokens (required) |
+| tables | tables | tables (required) |
+| user_pins | user_pins | user pins (required) |
+| user_restaurants | user_restaurants | user restaurants (required) |
+| voice_order_logs | voice_order_logs | voice order logs (required) |
 
 ### role_scopes
 
@@ -561,6 +598,8 @@ The database uses PostgreSQL with Row-Level Security (RLS) policies for multi-te
 | user_agent | TEXT | user agent |
 | idempotency_key | TEXT | Unique identifier |
 | metadata | JSONB | metadata |
+| created_at | TIMESTAMP | Timestamp |
+| updated_at | TIMESTAMP | Timestamp |
 
 ## Row-Level Security (RLS)
 

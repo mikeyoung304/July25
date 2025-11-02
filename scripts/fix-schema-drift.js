@@ -31,13 +31,26 @@ function parsePrismaSchema() {
   const content = fs.readFileSync(PRISMA_SCHEMA_PATH, 'utf-8');
   const models = [];
 
-  // Extract model definitions
-  const modelRegex = /model\s+(\w+)\s*{([^}]+)}/g;
+  // Extract model definitions with proper brace matching
+  const modelStartRegex = /model\s+(\w+)\s*{/g;
   let match;
 
-  while ((match = modelRegex.exec(content)) !== null) {
+  while ((match = modelStartRegex.exec(content)) !== null) {
     const modelName = match[1];
-    const modelBody = match[2];
+    const modelStartIndex = match.index + match[0].length;
+
+    // Find matching closing brace by counting nesting level
+    let braceCount = 1;
+    let modelEndIndex = modelStartIndex;
+
+    while (braceCount > 0 && modelEndIndex < content.length) {
+      const char = content[modelEndIndex];
+      if (char === '{') braceCount++;
+      if (char === '}') braceCount--;
+      modelEndIndex++;
+    }
+
+    const modelBody = content.substring(modelStartIndex, modelEndIndex - 1);
 
     // Parse fields
     const fields = [];
