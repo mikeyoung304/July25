@@ -247,7 +247,7 @@ This comprehensive guide provides:
 
 ### No Hardcoded Versions
 ❌ "This requires React 18.3.1"  
-✅ "This requires React (see [VERSION.md](./docs/VERSION.md))"
+✅ "This requires React (see [VERSION.md](../VERSION.md))"
 
 **Why**: Prevents documentation drift
 

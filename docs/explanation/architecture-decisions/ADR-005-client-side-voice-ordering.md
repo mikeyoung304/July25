@@ -645,7 +645,7 @@ ROI: 3,478% ($1.60 / $0.046)
 
 ## Related Documentation
 
-- [voice/VOICE_ORDERING_EXPLAINED.md](../voice/VOICE_ORDERING_EXPLAINED.md) - Voice system guide
+- [voice/VOICE_ORDERING_EXPLAINED.md](../../voice/VOICE_ORDERING_EXPLAINED.md) - Voice system guide
 - [WebRTCVoiceClient.ts](../../client/src/modules/voice/services/WebRTCVoiceClient.ts) - Implementation
 - [realtime.routes.ts](../../server/src/routes/realtime.routes.ts) - Ephemeral token API
 - ADR-001 - snake_case convention (affects order payloads)

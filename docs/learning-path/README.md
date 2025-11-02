@@ -146,8 +146,8 @@ git --version     # Any recent version
 
 **Core Concepts:**
 1. **Documentation Organization:** [02_DOCUMENTATION_ORGANIZATION.md](./02_DOCUMENTATION_ORGANIZATION.md)
-2. **Architecture:** [docs/explanation/architecture/ARCHITECTURE.md](./docs/explanation/architecture/ARCHITECTURE.md)
-3. **Authentication:** [docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md](./docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
+2. **Architecture:** [docs/explanation/architecture/ARCHITECTURE.md](../explanation/architecture/ARCHITECTURE.md)
+3. **Authentication:** [docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md](../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
 
 **Outcome:** Understand system architecture, documentation structure, and security patterns.
 
@@ -155,7 +155,7 @@ git --version     # Any recent version
 
 **Get It Running:**
 1. **Environment Setup:** [04_ENVIRONMENT_SETUP.md](./04_ENVIRONMENT_SETUP.md)
-2. **Getting Started:** [docs/tutorials/GETTING_STARTED.md](./docs/tutorials/GETTING_STARTED.md)
+2. **Getting Started:** [docs/tutorials/GETTING_STARTED.md](../tutorials/GETTING_STARTED.md)
 
 **Outcome:** Application running locally on your machine.
 
@@ -164,9 +164,9 @@ git --version     # Any recent version
 **Advanced Topics:**
 1. **GitHub Workflows:** [03_GITHUB_WORKFLOWS_CICD.md](./03_GITHUB_WORKFLOWS_CICD.md)
 2. **Key ADRs:**
-   - [ADR-002: Multi-Tenancy](./docs/explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md)
-   - [ADR-003: Embedded Orders](./docs/explanation/architecture-decisions/ADR-003-embedded-orders-pattern.md)
-   - [ADR-006: Dual Authentication](./docs/explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md)
+   - [ADR-002: Multi-Tenancy](../explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md)
+   - [ADR-003: Embedded Orders](../explanation/architecture-decisions/ADR-003-embedded-orders-pattern.md)
+   - [ADR-006: Dual Authentication](../explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md)
 3. **Git Patterns:** [06_GIT_PATTERNS_IMPROVEMENTS.md](./06_GIT_PATTERNS_IMPROVEMENTS.md)
 
 **Outcome:** Understand design decisions, CI/CD pipeline, and common pitfalls.
@@ -174,10 +174,10 @@ git --version     # Any recent version
 ### 3.5 Reference Material (Ongoing)
 
 **Look Up as Needed:**
-- [API Reference](./docs/reference/api/api/README.md)
-- [Database Schema](./docs/reference/schema/DATABASE.md)
-- [Environment Variables](./docs/reference/config/ENVIRONMENT.md)
-- [WebSocket Events](./docs/reference/api/WEBSOCKET_EVENTS.md)
+- [API Reference](../../README.md)
+- [Database Schema](../DATABASE.md)
+- [Environment Variables](../reference/config/ENVIRONMENT.md)
+- [WebSocket Events](../reference/api/WEBSOCKET_EVENTS.md)
 
 **Outcome:** Know where to find technical details when implementing features.
 
@@ -216,7 +216,7 @@ You can explain Restaurant OS to a non-technical friend in 2 minutes.
 
 **Documents to Read:**
 1. [02_DOCUMENTATION_ORGANIZATION.md](./02_DOCUMENTATION_ORGANIZATION.md)
-2. [docs/README.md](./docs/README.md)
+2. [docs/README.md](../../README.md)
 
 **Key Questions to Answer:**
 - What is the Diátaxis framework?
@@ -239,7 +239,7 @@ Given a question, you can quickly find the right documentation category.
 
 **Documents to Read:**
 1. [04_ENVIRONMENT_SETUP.md](./04_ENVIRONMENT_SETUP.md)
-2. [docs/tutorials/GETTING_STARTED.md](./docs/tutorials/GETTING_STARTED.md)
+2. [docs/tutorials/GETTING_STARTED.md](../tutorials/GETTING_STARTED.md)
 
 **Key Questions to Answer:**
 - What services do I need to set up?
@@ -273,11 +273,11 @@ Given a question, you can quickly find the right documentation category.
 **Goal:** Understand how the system is designed and why.
 
 **Documents to Read:**
-1. [docs/explanation/architecture/ARCHITECTURE.md](./docs/explanation/architecture/ARCHITECTURE.md)
-2. [docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md](./docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
-3. [ADR-002: Multi-Tenancy](./docs/explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md)
-4. [ADR-003: Embedded Orders](./docs/explanation/architecture-decisions/ADR-003-embedded-orders-pattern.md)
-5. [ADR-006: Dual Authentication](./docs/explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md)
+1. [docs/explanation/architecture/ARCHITECTURE.md](../explanation/architecture/ARCHITECTURE.md)
+2. [docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md](../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
+3. [ADR-002: Multi-Tenancy](../explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md)
+4. [ADR-003: Embedded Orders](../explanation/architecture-decisions/ADR-003-embedded-orders-pattern.md)
+5. [ADR-006: Dual Authentication](../explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md)
 
 **Key Questions to Answer:**
 - How does multi-tenancy work?
@@ -305,8 +305,8 @@ You can explain:
 **Goal:** Make your first code changes and understand the development workflow.
 
 **Documents to Read:**
-1. [docs/how-to/development/DEVELOPMENT_PROCESS.md](./docs/how-to/development/DEVELOPMENT_PROCESS.md)
-2. [docs/how-to/development/CONTRIBUTING.md](./docs/how-to/development/CONTRIBUTING.md)
+1. [docs/how-to/development/DEVELOPMENT_PROCESS.md](../how-to/development/DEVELOPMENT_PROCESS.md)
+2. [docs/how-to/development/CONTRIBUTING.md](../../CONTRIBUTING.md)
 
 **Activities:**
 See [Hands-On Exercises](#5-hands-on-exercises) section below
@@ -327,7 +327,7 @@ See [Hands-On Exercises](#5-hands-on-exercises) section below
 **Documents to Read:**
 1. [03_GITHUB_WORKFLOWS_CICD.md](./03_GITHUB_WORKFLOWS_CICD.md)
 2. [06_GIT_PATTERNS_IMPROVEMENTS.md](./06_GIT_PATTERNS_IMPROVEMENTS.md)
-3. [scripts/README.md](./scripts/README.md)
+3. [scripts/README.md](../../README.md)
 
 **Key Questions to Answer:**
 - What happens when I push code?
@@ -748,8 +748,8 @@ You're ready to:
 ### 8.2 Continuing Education
 
 **Advanced Topics to Explore:**
-- Voice ordering implementation ([ADR-005](./docs/explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md))
-- Production deployment ([DEPLOYMENT.md](./docs/how-to/operations/DEPLOYMENT.md))
+- Voice ordering implementation ([ADR-005](../explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md))
+- Production deployment ([DEPLOYMENT.md](../DEPLOYMENT.md))
 - Incident investigations ([docs/investigations/](./docs/investigations/))
 - Performance optimization
 - Security hardening
@@ -769,14 +769,14 @@ You're ready to:
 - Optimize performance
 - Share knowledge with others
 
-**See:** [CONTRIBUTING.md](./docs/how-to/development/CONTRIBUTING.md) for contribution guidelines
+**See:** [CONTRIBUTING.md](../../CONTRIBUTING.md) for contribution guidelines
 
 ---
 
 ## 9. Questions & Support
 
 **Getting Help:**
-- Check [Troubleshooting Guide](./docs/how-to/troubleshooting/TROUBLESHOOTING.md)
+- Check [Troubleshooting Guide](../how-to/troubleshooting/TROUBLESHOOTING.md)
 - Search [GitHub Issues](https://github.com/your-org/restaurant-os/issues)
 - Ask in team chat/Slack
 - Open a new issue with details

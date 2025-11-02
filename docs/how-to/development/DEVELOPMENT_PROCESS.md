@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-10-31
 
-[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Development](./README.md) > Development Process
+[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Development](../../../README.md) > Development Process
 
 ## Database Migration Best Practices
 

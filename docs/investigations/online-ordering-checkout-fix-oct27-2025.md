@@ -505,9 +505,9 @@ SELECT COUNT(*) FROM payment_audit_logs;
 
 ## Related Documentation
 
-- [ADR-006: Dual Authentication Pattern](../ADR-006-dual-authentication-pattern.md)
-- [ADR-009: Error Handling Philosophy](../ADR-009-error-handling-philosophy.md)
-- [AUTHENTICATION_ARCHITECTURE.md](../AUTHENTICATION_ARCHITECTURE.md)
+- [ADR-006: Dual Authentication Pattern](../explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md)
+- [ADR-009: Error Handling Philosophy](../explanation/architecture-decisions/ADR-009-error-handling-philosophy.md)
+- [AUTHENTICATION_ARCHITECTURE.md](../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
 - [SECURITY.md](../SECURITY.md)
 - [TROUBLESHOOTING.md](../how-to/troubleshooting/TROUBLESHOOTING.md#payment-failures)
 - [CHANGELOG.md](../CHANGELOG.md) - v6.0.13

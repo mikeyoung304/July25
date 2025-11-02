@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-11-01
 
-[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Development](./README.md) > GitHub Workflows & CI/CD
+[Home](../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Development](./README.md) > GitHub Workflows & CI/CD
 
 **Purpose:** Comprehensive guide to Restaurant OS's automated testing, validation, and deployment infrastructure
 
@@ -1850,11 +1850,11 @@ Scheduled (Drift Detection, Security Audits)
 
 ## Related Documentation
 
-- [CI/CD Workflows](./CI_CD_WORKFLOWS.md) - Migration-focused CI/CD guide
-- [Deployment Guide](../operations/DEPLOYMENT.md) - Production deployment procedures
-- [Development Process](./DEVELOPMENT_PROCESS.md) - Development workflow
-- [Contributing Guide](./CONTRIBUTING.md) - How to contribute
-- [Supabase Connection Guide](../../SUPABASE_CONNECTION_GUIDE.md) - Database workflows
+- [CI/CD Workflows](../how-to/development/CI_CD_WORKFLOWS.md) - Migration-focused CI/CD guide
+- [Deployment Guide](../DEPLOYMENT.md) - Production deployment procedures
+- [Development Process](../how-to/development/DEVELOPMENT_PROCESS.md) - Development workflow
+- [Contributing Guide](../../CONTRIBUTING.md) - How to contribute
+- [Supabase Connection Guide](../SUPABASE_CONNECTION_GUIDE.md) - Database workflows
 
 ---
 

@@ -997,9 +997,9 @@ FRONTEND_URL=https://your-frontend.vercel.app
 ### 8.7 Getting Help
 
 **Documentation:**
-- [Troubleshooting Guide](./docs/how-to/troubleshooting/TROUBLESHOOTING.md)
-- [Auth Diagnostic Guide](./docs/how-to/troubleshooting/AUTH_DIAGNOSTIC_GUIDE.md)
-- [API Reference](./docs/reference/api/api/README.md)
+- [Troubleshooting Guide](../how-to/troubleshooting/TROUBLESHOOTING.md)
+- [Auth Diagnostic Guide](../how-to/troubleshooting/AUTH_DIAGNOSTIC_GUIDE.md)
+- [API Reference](../../README.md)
 
 **Check Logs:**
 ```bash
@@ -1030,9 +1030,9 @@ npm run docs:check
 
 ## Additional Resources
 
-- **Environment Variables Reference:** [ENVIRONMENT.md](./docs/reference/config/ENVIRONMENT.md)
-- **Deployment Guide:** [DEPLOYMENT.md](./docs/how-to/operations/DEPLOYMENT.md)
-- **Getting Started:** [GETTING_STARTED.md](./docs/tutorials/GETTING_STARTED.md)
+- **Environment Variables Reference:** [ENVIRONMENT.md](../reference/config/ENVIRONMENT.md)
+- **Deployment Guide:** [DEPLOYMENT.md](../DEPLOYMENT.md)
+- **Getting Started:** [GETTING_STARTED.md](../tutorials/GETTING_STARTED.md)
 - **Supabase Docs:** https://supabase.com/docs
 - **Square Developer:** https://developer.squareup.com
 - **Vercel Docs:** https://vercel.com/docs

@@ -337,9 +337,9 @@ If multi-tenancy needs to be modified:
 
 ## Related Documentation
 
-- [DATABASE.md](./DATABASE.md) - PostgreSQL schema with restaurant_id columns
+- [DATABASE.md](../../DATABASE.md) - PostgreSQL schema with restaurant_id columns
 - [JWT_AUTHENTICATION_FLOW.md](./JWT_AUTHENTICATION_FLOW.md) - JWT token structure
-- [SECURITY.md](../SECURITY.md) - Security best practices
+- [SECURITY.md](../../../SECURITY.md) - Security best practices
 - [TESTING_GUIDE.md](./TESTING_GUIDE.md) - Multi-tenant testing patterns
 - ADR-001 - snake_case convention (affects restaurant_id naming)
 

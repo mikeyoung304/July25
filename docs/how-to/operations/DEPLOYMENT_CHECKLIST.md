@@ -61,4 +61,4 @@ Use this checklist for every production deployment to ensure nothing is missed.
 ---
 
 **Last Updated:** 2025-10-21
-**See also:** [DEPLOYMENT.md](./DEPLOYMENT.md), [SUPABASE_CONNECTION_GUIDE.md](./SUPABASE_CONNECTION_GUIDE.md)
+**See also:** [DEPLOYMENT.md](./DEPLOYMENT.md), [SUPABASE_CONNECTION_GUIDE.md](../../SUPABASE_CONNECTION_GUIDE.md)

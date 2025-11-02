@@ -49,4 +49,4 @@ sequenceDiagram
 **Key Differences:**
 - Production: Supabase handles auth, RLS enforced at database level
 - Development: API server handles auth, filtering done in application code
-- See [ADR-006](../../ADR-006-dual-authentication-pattern.md) for migration strategy
+- See [ADR-006](../../architecture-decisions/ADR-006-dual-authentication-pattern.md) for migration strategy

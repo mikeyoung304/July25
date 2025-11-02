@@ -180,10 +180,10 @@ If this decision needs to be reversed:
 
 ## Related Documentation
 
-- [CLAUDE.md](../CLAUDE.md) - Updated data layer conventions (section 2)
-- [DATABASE.md](./DATABASE.md) - PostgreSQL schema (all snake_case)
-- [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - Production readiness
-- [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer order journey
+- [CLAUDE.md](../../archive/CLAUDE.md) - Updated data layer conventions (section 2)
+- [DATABASE.md](../../DATABASE.md) - PostgreSQL schema (all snake_case)
+- [PRODUCTION_STATUS.md](../../PRODUCTION_STATUS.md) - Production readiness
+- [ORDER_FLOW.md](../concepts/ORDER_FLOW.md) - Customer order journey
 - Git commit c812f34 - Original incomplete camelCase boundary transform attempt
 
 ---

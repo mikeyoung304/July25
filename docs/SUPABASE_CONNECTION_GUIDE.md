@@ -25,7 +25,7 @@
 
 **🚀 For normal deployment, see:**
 - [DEPLOYMENT.md](./how-to/operations/DEPLOYMENT.md) - Standard deployment workflow
-- [CI_CD_WORKFLOWS.md](./CI_CD_WORKFLOWS.md) - CI/CD automation
+- [CI_CD_WORKFLOWS.md](./how-to/development/CI_CD_WORKFLOWS.md) - CI/CD automation
 - [../supabase/MIGRATION_BASELINE.md](../supabase/MIGRATION_BASELINE.md) - Migration system overview
 
 ---

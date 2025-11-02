@@ -3,14 +3,14 @@
 
 **Last Updated:** 2025-10-31
 
-[Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](./README.md) > Architecture Overview
+[Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](../../../README.md) > Architecture Overview
 
 **Last Updated:** October 30, 2025
 **Version:** 6.0.14
 
 **For detailed authentication and security architecture, see:**
 - [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md) - Complete auth flows, session management, RLS
-- [SECURITY.md](./SECURITY.md) - Security measures, compliance, agent safety
+- [SECURITY.md](../../../SECURITY.md) - Security measures, compliance, agent safety
 
 ## Architecture Diagrams
 

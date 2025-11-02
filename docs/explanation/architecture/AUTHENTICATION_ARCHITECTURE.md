@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-10-31
 
-[Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](./README.md) > Authentication Architecture
+[Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](../../../README.md) > Authentication Architecture
 
 ## Overview
 
@@ -77,7 +77,7 @@ All order creation requests include:
 - Controlled by `AUTH_ACCEPT_KIOSK_DEMO_ALIAS` environment variable (default: `true`)
 - When enabled: Tokens with `role: "kiosk_demo"` automatically aliased to `customer` with WARN log
 - **Removal timeline:** After 30 consecutive days of zero kiosk_demo token usage, disable alias and remove from codebase
-- **Migration status:** See [AUTH_ROLES.md](./AUTH_ROLES.md) for phase tracking
+- **Migration status:** See [AUTH_ROLES.md](../../reference/config/AUTH_ROLES.md) for phase tracking
 
 ---
 
@@ -921,9 +921,9 @@ The voice ordering system has comprehensive test coverage:
 ## Related Documentation
 
 - [ADR-006: Dual Authentication Pattern](../architecture-decisions/ADR-006-dual-authentication-pattern.md) - Dual auth decision
-- [Auth Roles](../../AUTH_ROLES.md) - Role definitions
+- [Auth Roles](../../reference/config/AUTH_ROLES.md) - Role definitions
 - [Security Policies](../../SECURITY.md) - Security practices
-- [API Reference](../../reference/api/README.md) - API authentication
+- [API Reference](../../reference/api/api/README.md) - API authentication
 - [Troubleshooting Auth Issues](../../how-to/troubleshooting/AUTH_DIAGNOSTIC_GUIDE.md) - Auth debugging
 
 ---

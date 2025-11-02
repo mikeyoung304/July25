@@ -704,8 +704,8 @@ const wss = new WebSocketServer({
 ## Related Documentation
 
 - [server/src/utils/websocket.ts](../server/src/utils/websocket.ts) - WebSocket implementation
-- [KDS-BIBLE.md](./KDS-BIBLE.md) - Kitchen Display System guide
-- [ORDER_FLOW.md](./ORDER_FLOW.md) - Order lifecycle and events
+- [KDS-BIBLE.md](../../how-to/operations/KDS-BIBLE.md) - Kitchen Display System guide
+- [ORDER_FLOW.md](../concepts/ORDER_FLOW.md) - Order lifecycle and events
 - ADR-002 - Multi-tenancy architecture (affects WebSocket filtering)
 - ADR-003 - Embedded orders pattern (affects message payload)
 

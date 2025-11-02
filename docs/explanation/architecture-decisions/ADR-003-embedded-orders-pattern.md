@@ -852,8 +852,8 @@ describe('Embedded Orders Pattern', () => {
 
 ## Related Documentation
 
-- [DATABASE.md](./DATABASE.md) - Full database schema with JSONB fields
-- [ORDER_FLOW.md](./ORDER_FLOW.md) - Customer order journey
+- [DATABASE.md](../../DATABASE.md) - Full database schema with JSONB fields
+- [ORDER_FLOW.md](../concepts/ORDER_FLOW.md) - Customer order journey
 - [OrdersService](../server/src/services/orders.service.ts) - Implementation
 - ADR-001 - snake_case convention (affects JSONB field naming)
 - ADR-002 - Multi-tenancy architecture (affects RLS policies)

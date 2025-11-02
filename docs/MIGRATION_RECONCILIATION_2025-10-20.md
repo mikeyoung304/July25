@@ -958,8 +958,8 @@ git commit -m "docs: update schema snapshot $(date +%Y-%m-%d)"
 - **[SUPABASE_CONNECTION_GUIDE.md](./SUPABASE_CONNECTION_GUIDE.md)** - Complete migration workflow guide
 - **[DATABASE.md](./DATABASE.md)** - Schema reference (updated Oct 20)
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment procedures (updated Oct 20)
-- **[ORDER_FAILURE_INCIDENT_REPORT.md](./ORDER_FAILURE_INCIDENT_REPORT.md)** - Incident that triggered discovery
-- **[PR_PLAN.md](./PR_PLAN.md)** - P0 audit fix deployment plan
+- **[ORDER_FAILURE_INCIDENT_REPORT.md](./archive/ORDER_FAILURE_INCIDENT_REPORT.md)** - Incident that triggered discovery
+- **[PR_PLAN.md](./archive/incidents/PR_PLAN.md)** - P0 audit fix deployment plan
 
 ### Archived Files
 

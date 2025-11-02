@@ -66,7 +66,7 @@ Quick-reference incident response procedures. Each runbook is a step-by-step gui
    - Verify `SUPABASE_ANON_KEY` matches client and server
 5. Test with fresh login
 
-**See also:** [AUTH_DIAGNOSTIC_GUIDE.md](./AUTH_DIAGNOSTIC_GUIDE.md)
+**See also:** [AUTH_DIAGNOSTIC_GUIDE.md](./how-to/troubleshooting/AUTH_DIAGNOSTIC_GUIDE.md)
 
 ---
 
@@ -153,7 +153,7 @@ Quick-reference incident response procedures. Each runbook is a step-by-step gui
    - Check server logs for WebSocket errors
    - Verify CORS allows WebSocket origin
 
-**See also:** [ADR-004-websocket-realtime-architecture.md](./ADR-004-websocket-realtime-architecture.md)
+**See also:** [ADR-004-websocket-realtime-architecture.md](./explanation/architecture-decisions/ADR-004-websocket-realtime-architecture.md)
 
 ---
 

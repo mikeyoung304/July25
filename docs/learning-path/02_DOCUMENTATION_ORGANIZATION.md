@@ -437,9 +437,9 @@ This guide will help you...
 - Use `../` for parent directories
 
 ```markdown
-✅ GOOD: [API Reference](../reference/api/README.md)
-✅ GOOD: [Getting Started](./GETTING_STARTED.md)
-❌ BAD: [API Reference](/docs/reference/api/README.md)  # Absolute path
+✅ GOOD: [API Reference](../reference/api/api/README.md)
+✅ GOOD: [Getting Started](../tutorials/GETTING_STARTED.md)
+❌ BAD: [API Reference](../reference/api/api/README.md)  # Absolute path
 ❌ BAD: [API Reference](../reference/api)  # Missing .md
 ```
 
@@ -489,8 +489,8 @@ npm install
 
 **Instead, link to VERSION.md:**
 ```markdown
-✅ GOOD: See [VERSION.md](./VERSION.md) for current version
-✅ GOOD: **Version:** [6.0.14](./VERSION.md)
+✅ GOOD: See [VERSION.md](../VERSION.md) for current version
+✅ GOOD: **Version:** [6.0.14](../VERSION.md)
 ❌ BAD: **Version:** 6.0.14
 ❌ BAD: Restaurant OS v6.0.14
 ```
@@ -898,7 +898,7 @@ ADR-003-embedded-orders-pattern.md
 
 **Solution:** Link to VERSION.md instead:
 ```markdown
-✅ See [VERSION.md](./VERSION.md)
+✅ See [VERSION.md](../VERSION.md)
 ❌ Version 6.0.14
 ```
 
@@ -950,9 +950,9 @@ ADR-003-embedded-orders-pattern.md
 - [GitHub Flavored Markdown](https://github.github.com/gfm/) - GFM specification
 
 ### Internal Documentation
-- [DOCUMENTATION_STANDARDS.md](./DOCUMENTATION_STANDARDS.md) - Writing guidelines
-- [SOURCE_OF_TRUTH.md](./meta/SOURCE_OF_TRUTH.md) - Canonical references
-- [scripts/README.md](../scripts/README.md) - Automation script documentation
+- [DOCUMENTATION_STANDARDS.md](../DOCUMENTATION_STANDARDS.md) - Writing guidelines
+- [SOURCE_OF_TRUTH.md](../meta/SOURCE_OF_TRUTH.md) - Canonical references
+- [scripts/README.md](../../README.md) - Automation script documentation
 
 ### Tools
 - [VS Code](https://code.visualstudio.com/) - Recommended editor
@@ -963,4 +963,4 @@ ADR-003-embedded-orders-pattern.md
 
 **Document Version:** 1.0
 **Maintained By:** Restaurant OS Documentation Team
-**Questions?** Open an issue on GitHub or see [CONTRIBUTING.md](./how-to/development/CONTRIBUTING.md)
+**Questions?** Open an issue on GitHub or see [CONTRIBUTING.md](../../CONTRIBUTING.md)

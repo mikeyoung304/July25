@@ -11,7 +11,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 ## Getting Started
 
 1. **Fork the repository** and clone your fork locally
-2. **Set up the development environment** following the instructions in [README.md](README.md)
+2. **Set up the development environment** following the instructions in [README.md](../../../README.md)
 3. **Create a feature branch** from `main` for your changes
 4. **Make your changes** following our coding standards
 5. **Test your changes** thoroughly
@@ -379,7 +379,7 @@ curl -H "Authorization: Bearer $TOKEN" ...
 
 - **Middleware Patterns:** [AUTHENTICATION_ARCHITECTURE.md - Middleware Patterns & Ordering](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#backend-express-middleware)
 - **RBAC Architecture:** [AUTHENTICATION_ARCHITECTURE.md - Database Schema](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#database-schema)
-- **Investigation Case Study:** [docs/investigations/workspace-auth-fix-2025-10-29.md](./investigations/workspace-auth-fix-2025-10-29.md)
+- **Investigation Case Study:** [docs/investigations/workspace-auth-fix-2025-10-29.md](../../investigations/workspace-auth-fix-2025-10-29.md)
 - **Troubleshooting 403 Errors:** [TROUBLESHOOTING.md - 403 Forbidden Errors](#) (if added)
 
 ---

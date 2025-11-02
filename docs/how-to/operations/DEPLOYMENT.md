@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-10-31
 
-[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Operations](./README.md) > Deployment
+[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Operations](./runbooks/README.md) > Deployment
 
 This guide covers deploying Restaurant OS to production environments.
 
@@ -36,9 +36,9 @@ git push origin main → GitHub Actions → Database Migrations → Render (Back
 - `docs/SUPABASE_CONNECTION_GUIDE.md` - Reference for troubleshooting only
 
 **Related Documentation:**
-- Database troubleshooting → [SUPABASE_CONNECTION_GUIDE.md](./SUPABASE_CONNECTION_GUIDE.md)
-- CI/CD workflows → [CI_CD_WORKFLOWS.md](./CI_CD_WORKFLOWS.md)
-- Migration system → [supabase/MIGRATION_BASELINE.md](../supabase/MIGRATION_BASELINE.md)
+- Database troubleshooting → [SUPABASE_CONNECTION_GUIDE.md](../../SUPABASE_CONNECTION_GUIDE.md)
+- CI/CD workflows → [CI_CD_WORKFLOWS.md](../development/CI_CD_WORKFLOWS.md)
+- Migration system → [supabase/MIGRATION_BASELINE.md](../../../supabase/MIGRATION_BASELINE.md)
 
 ---
 
@@ -348,7 +348,7 @@ render deploy --service-id your-service-id
 
 ## Square API Configuration
 
-**For complete Square setup instructions, see [SQUARE_API_SETUP.md](../SQUARE_API_SETUP.md)**
+**For complete Square setup instructions, see [SQUARE_API_SETUP.md](../../reference/api/api/SQUARE_API_SETUP.md)**
 
 This section provides a quick reference. For step-by-step instructions, troubleshooting, and testing, refer to the comprehensive Square API Setup Guide.
 
@@ -439,7 +439,7 @@ The server validates Square credentials on startup:
 ./scripts/test-payment-flow.sh
 ```
 
-**For detailed troubleshooting and testing instructions, see [SQUARE_API_SETUP.md](../SQUARE_API_SETUP.md)**
+**For detailed troubleshooting and testing instructions, see [SQUARE_API_SETUP.md](../../reference/api/api/SQUARE_API_SETUP.md)**
 
 ---
 
@@ -793,7 +793,7 @@ Historical incident documenting production system failures due to missing enviro
 - [Deployment Success Report](./runbooks/PRODUCTION_DEPLOYMENT_SUCCESS.md) - Verification
 - [CI/CD Workflows](../development/CI_CD_WORKFLOWS.md) - Automation
 - [Supabase Connection Guide](../../SUPABASE_CONNECTION_GUIDE.md) - Database migrations
-- [Square API Setup](../../reference/api/SQUARE_API_SETUP.md) - Payment configuration
+- [Square API Setup](../../reference/api/api/SQUARE_API_SETUP.md) - Payment configuration
 
 ---
 

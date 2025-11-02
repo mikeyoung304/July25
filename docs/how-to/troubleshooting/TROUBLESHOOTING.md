@@ -3,7 +3,7 @@
 
 **Last Updated:** 2025-11-01
 
-[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Troubleshooting](./README.md) > Troubleshooting Guide
+[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Troubleshooting](../../../README.md) > Troubleshooting Guide
 
 **Last Updated**: October 30, 2025
 **Version**: 6.0.14
@@ -463,7 +463,7 @@ setInterval(async () => {
 
 ## Payment Failures
 
-**For comprehensive Square setup and troubleshooting, see [SQUARE_API_SETUP.md](../SQUARE_API_SETUP.md)**
+**For comprehensive Square setup and troubleshooting, see [SQUARE_API_SETUP.md](../../reference/api/api/SQUARE_API_SETUP.md)**
 
 ### Problem: Online Ordering Checkout Fails with "Internal server error"
 
@@ -567,7 +567,7 @@ curl -X GET \
   -H 'Authorization: Bearer YOUR_ACCESS_TOKEN'
 ```
 
-**See [SQUARE_API_SETUP.md](../SQUARE_API_SETUP.md) for detailed troubleshooting steps.**
+**See [SQUARE_API_SETUP.md](../../reference/api/api/SQUARE_API_SETUP.md) for detailed troubleshooting steps.**
 
 ---
 
@@ -682,7 +682,7 @@ grep -A 20 "Check Supabase session" client/src/services/http/httpClient.ts
 ```
 
 **Related Documentation**:
-- [ADR-006: Dual Authentication Pattern](./ADR-006-dual-authentication-pattern.md)
+- [ADR-006: Dual Authentication Pattern](../../explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md)
 - [AUTHENTICATION_ARCHITECTURE.md](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md#dual-authentication-pattern-adr-006)
 
 ---

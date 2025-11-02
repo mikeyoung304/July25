@@ -87,7 +87,7 @@ For complete version history and component versions, see [VERSION.md](../VERSION
 
 ## Version Management
 
-**Canonical Source:** [VERSION.md](./docs/VERSION.md)
+**Canonical Source:** [VERSION.md](../VERSION.md)
 
 All version numbers should reference VERSION.md. Do not hardcode version numbers in documentation.
 
@@ -116,5 +116,5 @@ All version numbers should reference VERSION.md. Do not hardcode version numbers
 ---
 
 **Document Owner:** This is a living document. Update as actual work is completed and verified.
-**For Version History:** See [VERSION.md](./docs/VERSION.md)
-**For Technical Details:** See [CHANGELOG.md](./docs/CHANGELOG.md)
+**For Version History:** See [VERSION.md](../VERSION.md)
+**For Technical Details:** See [CHANGELOG.md](../CHANGELOG.md)

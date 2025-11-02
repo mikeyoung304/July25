@@ -3,7 +3,7 @@
 
 **Last Updated:** 2025-11-01
 
-[Home](../../../../index.md) > [Docs](../../../README.md) > [Reference](../../README.md) > [API](../README.md) > API Reference
+[Home](../../../../index.md) > [Docs](../../../README.md) > [Reference](../../README.md) > [API](./README.md) > API Reference
 
 **OpenAPI Specification**: [openapi.yaml](../openapi.yaml)
 **Interactive Docs**: [View in Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/mikeyoung304/rebuild-6.0/main/docs/reference/api/openapi.yaml)
@@ -255,8 +255,8 @@ Client implementations:
 ## Related Documentation
 
 - [Authentication Architecture](../../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) - Auth flows
-- [Square API Setup](../SQUARE_API_SETUP.md) - Payment integration
-- [WebSocket Events](../../../WEBSOCKET_EVENTS.md) - Real-time updates
+- [Square API Setup](./SQUARE_API_SETUP.md) - Payment integration
+- [WebSocket Events](../WEBSOCKET_EVENTS.md) - Real-time updates
 - [Getting Started](../../../tutorials/GETTING_STARTED.md) - Development setup
 - [Deployment Guide](../../../how-to/operations/DEPLOYMENT.md) - Production deployment
 

@@ -3,7 +3,7 @@
 
 **Last Updated:** 2025-11-01
 
-[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Development](./README.md) > CI/CD Workflows
+[Home](../../../index.md) > [Docs](../../README.md) > [How-To](../README.md) > [Development](../../../README.md) > CI/CD Workflows
 
 **Part of:** Phase 2 - Stable CI/CD Automation
 **Created:** 2025-10-22
@@ -542,7 +542,7 @@ git push
 - [Supabase Connection Guide](../../SUPABASE_CONNECTION_GUIDE.md) - Database workflows
 - [Development Process](./DEVELOPMENT_PROCESS.md) - Development workflows
 - [Testing Checklist](../../TESTING_CHECKLIST.md) - QA procedures
-- [Post-Mortem: Schema Drift](../../archive/incidents/POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md) - Incident analysis
+- [Post-Mortem: Schema Drift](../../POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md) - Incident analysis
 
 ---
 

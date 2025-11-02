@@ -118,7 +118,7 @@
 # Document Title
 
 **Last Updated**: YYYY-MM-DD
-**Version**: See [VERSION.md](VERSION.md)
+**Version**: See [VERSION.md](../VERSION.md)
 ```
 
 **File Naming**:
@@ -210,7 +210,7 @@ Feature/Issue → Create/Update Docs → Local Check → PR → CI Validation �
 
 ### No Hardcoded Versions
 ❌ "This requires React 18.3.1"  
-✅ "This requires React (see [VERSION.md](./docs/VERSION.md))"
+✅ "This requires React (see [VERSION.md](../VERSION.md))"
 
 **Rationale**: Prevents documentation drift
 

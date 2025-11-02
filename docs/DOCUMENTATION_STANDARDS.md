@@ -180,7 +180,7 @@ const ws = new WebSocket('ws://localhost:3001', {
 ### Internal Links
 Use relative paths:
 ```markdown
-[API Documentation](api/README.md)
+[API Documentation](../README.md)
 [Database Schema](DATABASE.md)
 ```
 
@@ -339,7 +339,7 @@ This performs a fast check of:
 - Check existing docs in `/docs/`
 - Review these standards
 - Ask in PR comments
-- Consult [CONTRIBUTING.md](CONTRIBUTING.md)
+- Consult [CONTRIBUTING.md](./how-to/development/CONTRIBUTING.md)
 
 ## Future Improvements
 

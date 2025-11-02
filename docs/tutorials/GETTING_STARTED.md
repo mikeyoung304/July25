@@ -29,7 +29,7 @@ cp .env.example .env
 # Edit .env with your configuration
 ```
 
-**For complete environment variable documentation, see [ENVIRONMENT.md](../reference/ENVIRONMENT.md)**
+**For complete environment variable documentation, see [ENVIRONMENT.md](../reference/config/ENVIRONMENT.md)**
 
 ### 3. Start Development
 ```bash
@@ -112,7 +112,7 @@ const ServerView = () => {
 
 **Deprecated (v6.0.9)**: `getCustomerToken()` and `getServerToken()` from `@/services/auth/roleHelpers` store tokens in sessionStorage which is incompatible with httpClient's dual auth pattern. Use `AuthContext.loginAsDemo()` instead.
 
-See [AUTHENTICATION_ARCHITECTURE.md](./docs/AUTHENTICATION_ARCHITECTURE.md) for complete auth documentation.
+See [AUTHENTICATION_ARCHITECTURE.md](../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) for complete auth documentation.
 
 ## Development Workflow
 
@@ -172,7 +172,7 @@ npm run dev:clean
 - Read [Architecture Overview](../explanation/architecture/ARCHITECTURE.md) for system design
 - See [Development Process](../how-to/development/DEVELOPMENT_PROCESS.md) for workflows
 - Check [Deployment Guide](../how-to/operations/DEPLOYMENT.md) for production deployment
-- Review [API documentation](../reference/api/README.md) for backend integration
+- Review [API documentation](../reference/api/api/README.md) for backend integration
 
 ---
 

@@ -6,7 +6,7 @@
 **Status**: ACTIVE
 **Owner**: Platform Team
 **Last Updated**: 2025-10-18
-**Related**: [ADR-006](../ADR-006-dual-authentication-pattern.md), PR #102
+**Related**: [ADR-006](../../../explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md), PR #102
 
 ---
 
@@ -573,9 +573,9 @@ head -20 $LOG_DIR/app.log
 3. Technical Lead: @tech-lead (emergency only)
 
 **Related Documentation**:
-- [ADR-006: Dual Authentication Pattern](../ADR-006-dual-authentication-pattern.md)
-- [AUTHENTICATION_ARCHITECTURE.md](../AUTHENTICATION_ARCHITECTURE.md)
-- [TROUBLESHOOTING.md](../TROUBLESHOOTING.md)
+- [ADR-006: Dual Authentication Pattern](../../../explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md)
+- [AUTHENTICATION_ARCHITECTURE.md](../../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)
+- [TROUBLESHOOTING.md](../../troubleshooting/TROUBLESHOOTING.md)
 
 ---
 

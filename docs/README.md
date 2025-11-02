@@ -160,15 +160,15 @@ docs/
 
 Recent documentation and codebase audit reports:
 
-- [Overnight Audit Report (2025-10-31)](../OVERNIGHT_AUDIT_REPORT_2025-10-31.md) - Latest overnight documentation audit
-- [Comprehensive Documentation Audit](../COMPREHENSIVE_DOCUMENTATION_AUDIT_REPORT.md) - Full documentation system audit
-- [Audit Executive Summary](../AUDIT_EXECUTIVE_SUMMARY.md) - Executive overview of audit findings
-- [Documentation Simplification Report](../DOCS_SIMPLIFICATION_REPORT.md) - Documentation optimization analysis
-- [Documentation System Architecture Map](../DOCUMENTATION_SYSTEM_ARCHITECTURE_MAP.md) - Documentation structure overview
-- [Documentation Fix Execution Plan](../DOCUMENTATION_FIX_EXECUTION_PLAN.md) - Remediation roadmap
-- [Documentation Architecture Summary](../DOCUMENTATION_ARCHITECTURE_SUMMARY.md) - Architecture documentation summary
-- [Plain English What's Happening](../PLAIN_ENGLISH_WHATS_HAPPENING.md) - Simplified audit explanation
-- [Agent 4 Deliverables Index](../AGENT_4_DELIVERABLES_INDEX.md) - Agent work product index
+- [Overnight Audit Report (2025-10-31)](./audit/OVERNIGHT_AUDIT_REPORT_2025-10-31.md) - Latest overnight documentation audit
+- [Comprehensive Documentation Audit](./archive/2025-10/COMPREHENSIVE_DOCUMENTATION_AUDIT_REPORT.md) - Full documentation system audit
+- [Audit Executive Summary](./audit/AUDIT_EXECUTIVE_SUMMARY.md) - Executive overview of audit findings
+- [Documentation Simplification Report](./audit/DOCS_SIMPLIFICATION_REPORT.md) - Documentation optimization analysis
+- [Documentation System Architecture Map](./archive/2025-10/DOCUMENTATION_SYSTEM_ARCHITECTURE_MAP.md) - Documentation structure overview
+- [Documentation Fix Execution Plan](./archive/2025-10/DOCUMENTATION_FIX_EXECUTION_PLAN.md) - Remediation roadmap
+- [Documentation Architecture Summary](./audit/DOCUMENTATION_ARCHITECTURE_SUMMARY.md) - Architecture documentation summary
+- [Plain English What's Happening](./audit/PLAIN_ENGLISH_WHATS_HAPPENING.md) - Simplified audit explanation
+- [Agent 4 Deliverables Index](./audit/AGENT_4_DELIVERABLES_INDEX.md) - Agent work product index
 - [Version Reference Audit Report](./VERSION_REFERENCE_AUDIT_REPORT.md) - Version consistency audit
 - [CI Infrastructure Issues](./CI_INFRASTRUCTURE_ISSUES.md) - CI/CD infrastructure analysis
 - [Migration Reconciliation (2025-10-20)](./MIGRATION_RECONCILIATION_2025-10-20.md) - Database migration reconciliation
