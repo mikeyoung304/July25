@@ -49,4 +49,5 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
       - run: npm run build --workspace shared
       - run: echo "CI=1" >> $GITHUB_ENV
-      - run: npm run test:quick --workspaces
+      - name: Run healthy tests (excluding quarantined)
+        run: npm run test:healthy

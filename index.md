@@ -91,7 +91,11 @@
 - [KDS Bible](./docs/how-to/operations/KDS-BIBLE.md) — Kitchen Display System guide
 - [Voice Integration](./server/src/voice/INTEGRATION.md) — Voice ordering system
 
-## 4. Operational Guides
+## 4. Development Health
+- [Test Health Dashboard](./TEST_HEALTH.md) — Test quarantine status and remediation plan
+- [Test Health Registry](./test-quarantine/test-health.json) — Detailed test failure tracking
+
+## 5. Operational Guides
 - [Production Status](./docs/PRODUCTION_STATUS.md) — Current readiness metrics
 - [Production Diagnostics](./docs/PRODUCTION_DIAGNOSTICS.md) — Troubleshooting production
 - [Runbooks](./docs/how-to/operations/runbooks/README.md) — Operational procedures and playbooks

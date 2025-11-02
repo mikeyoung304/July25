@@ -1,0 +1,268 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-11-02T16:30:00Z",
+  "summary": {
+    "total_tests": 377,
+    "passing": 329,
+    "quarantined": 24,
+    "skipped": 24,
+    "pass_rate": 87.3,
+    "health_score": "DEGRADED"
+  },
+  "quarantined_tests": [
+    {
+      "id": "auth-001",
+      "file": "client/src/hooks/__tests__/useWorkspaceAccess.test.ts.skip",
+      "module": "auth",
+      "test_count": 1,
+      "reason": "Parser error: Unterminated regular expression at line 38. JSX syntax causing parse failure before tests run.",
+      "failure_type": "SYNTAX_ERROR",
+      "last_working_commit": "2025-10-30",
+      "priority": 1,
+      "status": "QUARANTINED",
+      "github_issue": null,
+      "fix_strategy": "Rewrite test without JSX syntax issues or convert to plain function components"
+    },
+    {
+      "id": "auth-002",
+      "file": "client/src/components/auth/__tests__/WorkspaceAuthModal.test.tsx.skip",
+      "module": "auth",
+      "test_count": 8,
+      "reason": "Multiple password field elements found. Component structure changed to have duplicate password fields.",
+      "failure_type": "SELECTOR_MISMATCH",
+      "last_working_commit": "2025-10-30",
+      "priority": 1,
+      "status": "QUARANTINED",
+      "github_issue": null,
+      "fix_strategy": "Use data-testid selectors instead of text matching. Add unique IDs to password fields."
+    },
+    {
+      "id": "auth-003",
+      "file": "server/tests/middleware/auth-restaurant-id.test.ts.skip",
+      "module": "auth",
+      "test_count": 1,
+      "reason": "Spy assertion failure - expected call not received. Pre-existing regression from Oct 30 fix.",
+      "failure_type": "ASSERTION_FAILURE",
+      "last_working_commit": "2025-10-30",
+      "priority": 2,
+      "status": "QUARANTINED",
+      "github_issue": null,
+      "fix_strategy": "Review middleware implementation changes. Update spy expectations."
+    },
+    {
+      "id": "auth-004",
+      "file": "client/src/pages/__tests__/WorkspaceDashboard.test.tsx",
+      "test_name": "tiles can be focused and activated with keyboard",
+      "module": "auth",
+      "test_count": 1,
+      "reason": "Spy not called on Enter key press. handleAccess not being triggered by keyboard events.",
+      "failure_type": "EVENT_HANDLER",
+      "last_working_commit": "2025-10-30",
+      "priority": 3,
+      "status": "SKIPPED",
+      "github_issue": null,
+      "fix_strategy": "Fix keyboard event handling in WorkspaceTile component"
+    },
+    {
+      "id": "auth-005",
+      "file": "server/tests/routes/orders.auth.test.ts",
+      "test_name": "Multiple auth permission tests",
+      "module": "auth",
+      "test_count": 6,
+      "reason": "403 Forbidden instead of 201 Created. Auth middleware not allowing customer/server roles to create orders.",
+      "failure_type": "RBAC_PERMISSION",
+      "last_working_commit": "2025-10-30",
+      "priority": 1,
+      "status": "SKIPPED",
+      "github_issue": null,
+      "fix_strategy": "Review RBAC changes from Oct 30-31. Restore proper role permissions or update test expectations."
+    },
+    {
+      "id": "voice-001",
+      "file": "client/src/modules/voice/services/__tests__/WebRTCVoiceClient.test.ts",
+      "test_name": "11 tests calling configureSession()",
+      "module": "voice",
+      "test_count": 11,
+      "reason": "Method configureSession() does not exist on WebRTCVoiceClient class. Tests written against API that was never implemented.",
+      "failure_type": "MISSING_API",
+      "last_working_commit": "2025-10-30",
+      "priority": 2,
+      "status": "SKIPPED",
+      "github_issue": null,
+      "fix_strategy": "Either implement configureSession() method or rewrite tests to use sessionConfig property directly"
+    },
+    {
+      "id": "voice-002",
+      "file": "client/src/modules/voice/services/orderIntegration.integration.test.tsx",
+      "test_name": "4 integration tests",
+      "module": "voice",
+      "test_count": 4,
+      "reason": "useAuth must be used within an AuthProvider. Missing AuthProvider wrapper in test setup.",
+      "failure_type": "MISSING_PROVIDER",
+      "last_working_commit": "2025-10-30",
+      "priority": 2,
+      "status": "SKIPPED",
+      "github_issue": null,
+      "fix_strategy": "Add AuthProvider wrapper to renderWithRouter test utility"
+    },
+    {
+      "id": "voice-003",
+      "file": "client/src/modules/voice/components/HoldToRecordButton.test.tsx.skip",
+      "module": "voice",
+      "test_count": 8,
+      "reason": "Multiple failures: text assertions (LISTENING..., PROCESSING...) and event handler spies not called.",
+      "failure_type": "COMPONENT_CHANGE",
+      "last_working_commit": "2025-10-30",
+      "priority": 3,
+      "status": "QUARANTINED",
+      "github_issue": null,
+      "fix_strategy": "Update text assertions to match current component state. Fix event handler mocking."
+    },
+    {
+      "id": "voice-004",
+      "file": "client/src/modules/voice/components/RecordingIndicator.test.tsx",
+      "module": "voice",
+      "test_count": 1,
+      "reason": "CI-specific failure not caught locally. Component structure mismatch.",
+      "failure_type": "CI_ENVIRONMENT",
+      "last_working_commit": "2025-10-30",
+      "priority": 3,
+      "status": "FAILING",
+      "github_issue": null,
+      "fix_strategy": "Investigate CI vs local environment differences. Update selectors."
+    },
+    {
+      "id": "orders-001",
+      "file": "client/src/modules/order-system/__tests__/checkout-simple.test.tsx",
+      "test_name": "should render checkout form and navigate on submit",
+      "module": "orders",
+      "test_count": 1,
+      "reason": "Unable to find element with text /checkout/i. CheckoutPage structure changed since test written.",
+      "failure_type": "SELECTOR_MISMATCH",
+      "last_working_commit": "2025-10-30",
+      "priority": 2,
+      "status": "SKIPPED",
+      "github_issue": null,
+      "fix_strategy": "Update selectors to match current CheckoutPage structure. Use data-testid attributes."
+    },
+    {
+      "id": "orders-002",
+      "file": "client/src/pages/__tests__/CheckoutPage.demo.test.tsx",
+      "test_name": "processes demo payment successfully",
+      "module": "orders",
+      "test_count": 1,
+      "reason": "mockNavigate never called. Navigation to /order-confirmation not triggered.",
+      "failure_type": "NAVIGATION_MOCK",
+      "last_working_commit": "2025-10-30",
+      "priority": 2,
+      "status": "SKIPPED",
+      "github_issue": null,
+      "fix_strategy": "Fix navigation mocking setup. Ensure form submission triggers navigation."
+    },
+    {
+      "id": "orders-003",
+      "file": "client/src/pages/__tests__/CheckoutPage.demo.test.tsx",
+      "test_name": "validates form before processing demo payment",
+      "module": "orders",
+      "test_count": 1,
+      "reason": "Found multiple elements with /required/i. Form validation showing multiple required fields.",
+      "failure_type": "SELECTOR_AMBIGUITY",
+      "last_working_commit": "2025-10-30",
+      "priority": 3,
+      "status": "SKIPPED",
+      "github_issue": null,
+      "fix_strategy": "Use more specific selectors to target individual validation messages"
+    },
+    {
+      "id": "orders-004",
+      "file": "client/src/modules/order-system/__tests__/checkout.e2e.test.tsx",
+      "test_name": "happy path: checkout -> pay -> confirmation navigation",
+      "module": "orders",
+      "test_count": 1,
+      "reason": "Unable to find element with text: Checkout. CheckoutPage structure changed.",
+      "failure_type": "SELECTOR_MISMATCH",
+      "last_working_commit": "2025-10-30",
+      "priority": 2,
+      "status": "SKIPPED",
+      "github_issue": null,
+      "fix_strategy": "Update E2E test to match current page structure and text"
+    },
+    {
+      "id": "orders-005",
+      "file": "server/tests/contracts/order.contract.test.ts",
+      "test_name": "2 schema validation tests",
+      "module": "orders",
+      "test_count": 2,
+      "reason": "OrderPayload schema doesn't accept snake_case per ADR-001. Schema validation mismatch.",
+      "failure_type": "SCHEMA_VALIDATION",
+      "last_working_commit": "2025-10-30",
+      "priority": 2,
+      "status": "SKIPPED",
+      "github_issue": null,
+      "fix_strategy": "Align OrderPayload Zod schema with ADR-001 snake_case convention"
+    }
+  ],
+  "modules": {
+    "auth": {
+      "total_tests": 120,
+      "passing": 111,
+      "quarantined": 9,
+      "health": "DEGRADED"
+    },
+    "voice": {
+      "total_tests": 95,
+      "passing": 71,
+      "quarantined": 24,
+      "health": "CRITICAL"
+    },
+    "orders": {
+      "total_tests": 87,
+      "passing": 81,
+      "quarantined": 6,
+      "health": "DEGRADED"
+    },
+    "shared": {
+      "total_tests": 75,
+      "passing": 66,
+      "quarantined": 0,
+      "health": "HEALTHY"
+    }
+  },
+  "priority_levels": {
+    "1_CRITICAL": {
+      "description": "Security/auth tests blocking production deployment",
+      "count": 3
+    },
+    "2_HIGH": {
+      "description": "Order flow tests affecting revenue path",
+      "count": 6
+    },
+    "3_MEDIUM": {
+      "description": "Feature tests for voice and UI components",
+      "count": 4
+    }
+  },
+  "remediation_plan": {
+    "phase_1": {
+      "name": "Critical Auth Fixes",
+      "target_date": "2025-11-03",
+      "tests": ["auth-001", "auth-002", "auth-005"]
+    },
+    "phase_2": {
+      "name": "Order Flow Restoration",
+      "target_date": "2025-11-05",
+      "tests": ["orders-001", "orders-002", "orders-004", "orders-005"]
+    },
+    "phase_3": {
+      "name": "Voice Integration Rehabilitation",
+      "target_date": "2025-11-07",
+      "tests": ["voice-001", "voice-002", "voice-003", "voice-004"]
+    }
+  },
+  "metadata": {
+    "created_by": "Claude Code",
+    "trigger_event": "PR #132 documentation update",
+    "root_cause": "Oct 30-31 refactoring without test updates",
+    "documentation": "See TEST_HEALTH.md for dashboard view"
+  }
+}
