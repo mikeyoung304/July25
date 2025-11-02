@@ -7,14 +7,16 @@
  * to include all implemented route endpoints
  *
  * Usage:
- *   node scripts/fix-api-drift.js [--dry-run] [--commit]
+ *   node scripts/fix-api-drift.js [--dry-run] [--commit] [--remove-obsolete]
  *
  * Options:
- *   --dry-run   Show what would be changed without writing
- *   --commit    Auto-commit changes after fixing
+ *   --dry-run         Show what would be changed without writing
+ *   --commit          Auto-commit changes after fixing
+ *   --remove-obsolete Remove documented endpoints not in code (use with caution)
  *
- * Note: This script ADDS missing endpoints to openapi.yaml
- *       but does NOT remove obsolete ones (to avoid data loss)
+ * Note: By default, this script ADDS missing endpoints to openapi.yaml
+ *       but does NOT remove obsolete ones (to avoid data loss).
+ *       Use --remove-obsolete to enable bidirectional sync.
  */
 
 import fs from 'fs';
@@ -192,12 +194,60 @@ function mergeEndpoints(spec, endpoints) {
 }
 
 /**
+ * Remove obsolete endpoints from OpenAPI spec
+ */
+function removeObsoleteEndpoints(spec, implementedEndpoints) {
+  let removedCount = 0;
+  const removed = [];
+
+  // Build a set of implemented endpoints for fast lookup
+  const implementedSet = new Set(
+    implementedEndpoints.map(ep => `${ep.method}:${ep.path}`)
+  );
+
+  // Check each documented endpoint
+  const pathsToRemove = [];
+  Object.keys(spec.paths || {}).forEach(path => {
+    const methodsToRemove = [];
+
+    Object.keys(spec.paths[path]).forEach(method => {
+      const key = `${method}:${path}`;
+
+      if (!implementedSet.has(key)) {
+        // This endpoint is documented but not implemented
+        methodsToRemove.push(method);
+        removed.push({ method: method.toUpperCase(), path, summary: spec.paths[path][method]?.summary || 'No summary' });
+        removedCount++;
+      }
+    });
+
+    // Remove obsolete methods
+    methodsToRemove.forEach(method => {
+      delete spec.paths[path][method];
+    });
+
+    // If path has no methods left, mark for removal
+    if (Object.keys(spec.paths[path]).length === 0) {
+      pathsToRemove.push(path);
+    }
+  });
+
+  // Remove empty paths
+  pathsToRemove.forEach(path => {
+    delete spec.paths[path];
+  });
+
+  return { removedCount, removed };
+}
+
+/**
  * Main execution
  */
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
   const autoCommit = args.includes('--commit');
+  const removeObsolete = args.includes('--remove-obsolete');
 
   console.log('🔧 API Drift Auto-Fix\n');
 
@@ -217,8 +267,19 @@ async function main() {
   const addedCount = mergeEndpoints(spec, endpoints);
   console.log(`   Added ${addedCount} new endpoint(s)\n`);
 
-  if (addedCount === 0) {
-    console.log('✅ No new endpoints to add. OpenAPI spec is up to date.\n');
+  // Remove obsolete endpoints if requested
+  let removedCount = 0;
+  let removed = [];
+  if (removeObsolete) {
+    console.log('🧹 Removing obsolete endpoints...');
+    const result = removeObsoleteEndpoints(spec, endpoints);
+    removedCount = result.removedCount;
+    removed = result.removed;
+    console.log(`   Removed ${removedCount} obsolete endpoint(s)\n`);
+  }
+
+  if (addedCount === 0 && removedCount === 0) {
+    console.log('✅ No changes needed. OpenAPI spec is up to date.\n');
     return 0;
   }
 
@@ -230,13 +291,28 @@ async function main() {
   });
 
   if (dryRun) {
-    console.log('\n📋 DRY RUN - Would add these paths:\n');
-    endpoints.forEach(ep => {
-      if (!spec.paths[ep.path]?.[ep.method]) {
-        console.log(`  ${ep.method.toUpperCase()} ${ep.path} - ${ep.summary}`);
-      }
-    });
-    console.log(`\n✅ Dry run complete. File not modified.`);
+    console.log('\n📋 DRY RUN - Changes that would be made:\n');
+
+    if (addedCount > 0) {
+      console.log('➕ Would ADD these endpoints:\n');
+      endpoints.forEach(ep => {
+        if (!spec.paths[ep.path]?.[ep.method]) {
+          console.log(`  ${ep.method.toUpperCase()} ${ep.path} - ${ep.summary}`);
+        }
+      });
+      console.log();
+    }
+
+    if (removedCount > 0) {
+      console.log('➖ Would REMOVE these endpoints:\n');
+      removed.forEach(ep => {
+        console.log(`  ${ep.method} ${ep.path} - ${ep.summary}`);
+      });
+      console.log();
+    }
+
+    console.log(`✅ Dry run complete. File not modified.`);
+    console.log(`   ${addedCount} would be added, ${removedCount} would be removed.`);
     return 0;
   }
 
