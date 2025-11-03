@@ -1,6 +1,6 @@
 # Changelog
 
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-02
 
 All notable changes to Restaurant OS will be documented in this file.
 
@@ -8,6 +8,108 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [6.0.15] - 2025-11-02 - Production-Ready Workspace Authentication
+
+### 🎯 Overview
+
+Eliminated demo-session infrastructure (422 lines of technical debt) and migrated all workspace users to real Supabase authentication. Fixed VITE_DEMO_PANEL environment variable handling in production builds to enable credential auto-fill on Vercel deployments.
+
+### ✅ All Changes Backward Compatible - Zero Breaking Changes
+
+### 📊 Impact Summary
+
+- **Demo Debt Eliminated**: Removed 422 lines of demo-session infrastructure
+- **Security Improved**: All workspace users now use real Supabase Auth (no custom JWT tokens)
+- **Production Verified**: Tested credential auto-fill on https://july25-client.vercel.app
+- **Environment Config Fixed**: vite.config.ts now respects VITE_DEMO_PANEL in production builds
+
+### 🔐 Authentication Changes
+
+#### Changed - Workspace Users to Real Supabase Auth
+- **BREAKING (Internal Only)**: Demo-session custom JWT tokens removed
+- **Migration**: All workspace users (server, manager, kitchen, cook, expo) migrated to Supabase Auth
+- **New Credentials**:
+  - `server@restaurant.com` / `ServerPass123!`
+  - `manager@restaurant.com` / `ManagerPass123!`
+  - `kitchen@restaurant.com` / `KitchenPass123!`
+  - `cook@restaurant.com` / `CookPass123!`
+  - `expo@restaurant.com` / `ExpoPass123!`
+  - `cashier@restaurant.com` / `CashierPass123!`
+- **Impact**: Stronger security model, eliminates dual-auth complexity
+- **Files**:
+  - `client/src/contexts/AuthContext.tsx` - Removed `loginAsDemo()` function
+  - `client/src/config/demoCredentials.ts` - Changed from demo tokens to real credentials
+  - `server/src/routes/auth.routes.ts` - Removed `/api/v1/auth/demo-session` endpoint
+- **Rationale**: Demo sessions were technical debt bypassing proper authentication flow
+
+#### Fixed - VITE_DEMO_PANEL Environment Variable Override
+- **Problem**: `vite.config.ts` hardcoded `VITE_DEMO_PANEL='0'` in production builds, ignoring Vercel environment variables
+- **Root Cause**: Logic was `mode === 'production' ? '0' : (env.VITE_DEMO_PANEL || '1')`
+- **Solution**: Changed to `env.VITE_DEMO_PANEL || (mode === 'development' ? '1' : '0')`
+- **Impact**: Enables credential auto-fill on Vercel by setting `VITE_DEMO_PANEL=1` in dashboard
+- **File**: `client/vite.config.ts:194`
+- **Commit**: `e7ec1698`
+- **Verified**: Tested on https://july25-client.vercel.app with Puppeteer automation
+
+#### Fixed - Credential Pre-Fill After Switch Account Logout
+- **Problem**: After clicking "Use different account" and logging out, credential pre-fill stopped working
+- **Root Cause**: `showInsufficientPermissions` state persisted after logout
+- **Solution**: Clear insufficient permissions state when workspace modal closes
+- **Impact**: Ensures consistent user experience when switching accounts
+- **File**: `client/src/components/auth/WorkspaceAuthModal.tsx:96-100`
+- **Commit**: `6f3e1077`
+
+### 🧹 Code Cleanup
+
+#### Removed - Demo-Session Infrastructure (422 Lines)
+- **Deleted Files**:
+  - `client/src/services/auth/demoAuth.ts` (57 lines)
+  - `client/src/components/auth/DemoAuthPanel.tsx` (122 lines)
+  - `client/src/pages/DemoLanding.tsx` (84 lines)
+  - `server/src/routes/demo.routes.ts` (159 lines)
+- **Impact**: Reduced codebase complexity, eliminated maintenance burden
+- **Commit**: `5dc74903`
+- **Files Removed**: 4 files, 422 lines total
+- **Rationale**: Demo sessions were never used in production, only development shortcut
+
+### 📚 Documentation
+
+#### Updated - Client README
+- Updated environment variable documentation for `VITE_DEMO_PANEL`
+- Added note about Vercel environment variable requirement
+- Updated workspace credentials to reflect real Supabase accounts
+- **File**: `client/README.md:124-145`
+
+#### Updated - CHANGELOG
+- Added v6.0.15 release entry
+- Documented all authentication changes and fixes
+- **File**: `docs/CHANGELOG.md`
+
+### 🧪 Testing
+
+#### Verified - Credential Auto-Fill on Vercel
+- **Method**: Puppeteer browser automation
+- **URL**: https://july25-client.vercel.app
+- **Workspaces Tested**:
+  - ✅ Server: `server@restaurant.com` / `ServerPass123!` (14 chars)
+  - ✅ Kitchen: `kitchen@restaurant.com` / `KitchenPass123!` (15 chars)
+  - ✅ Admin: `manager@restaurant.com` / `ManagerPass123!` (15 chars)
+- **Verified Elements**:
+  - ✅ Blue "Demo Mode" badge visible
+  - ✅ "Pre-filled with {workspace} credentials" message
+  - ✅ Email and password fields populated
+  - ✅ "Use different account" link present
+
+### 🚀 Deployment
+
+#### Vercel Configuration Required
+To enable credential auto-fill on Vercel deployments:
+1. Go to Vercel Dashboard → Project Settings → Environment Variables
+2. Add: `VITE_DEMO_PANEL=1` for Production environment
+3. Redeploy the application
+
+**Note**: The fix in `vite.config.ts` allows this environment variable to work in production builds.
 
 ## [6.0.14] - 2025-10-30 - Technical Debt Reduction & Test Coverage Sprint
 

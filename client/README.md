@@ -1,7 +1,7 @@
 # Client - Restaurant OS Frontend
 
 
-**Last Updated:** 2025-10-27
+**Last Updated:** 2025-11-02
 
 ## Overview
 
@@ -121,8 +121,10 @@ VITE_API_BASE_URL=http://localhost:3001
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_key
 VITE_WEBSOCKET_URL=ws://localhost:3001
-VITE_DEMO_PANEL=0                    # Enable demo mode (default: 0)
+VITE_DEMO_PANEL=0                    # Enable demo mode: 1=enabled, 0=disabled (default: 0 in prod, 1 in dev)
 ```
+
+**IMPORTANT**: For production builds (Vercel), `VITE_DEMO_PANEL` must be set as an environment variable in Vercel dashboard. The vite.config.ts respects environment variables in production mode (as of v6.0.15).
 
 ## Workspace Landing
 
@@ -133,12 +135,14 @@ The application uses a workspace-based landing page that presents 6 workspace ti
 - **Protected Workspaces**: Server, Kitchen, Admin, Expo (require authentication via modal)
 - **Public Workspaces**: Kiosk, Online Order (immediate access, no authentication)
 
-### Demo Mode
-When `VITE_DEMO_PANEL=1`, clicking protected workspace tiles pre-fills role-specific credentials:
-- Server → server@restaurant.com / Demo123!
-- Kitchen → kitchen@restaurant.com / Demo123!
-- Expo → expo@restaurant.com / Demo123!
-- Admin → manager@restaurant.com / Demo123!
+### Demo Mode (Production-Ready)
+When `VITE_DEMO_PANEL=1`, clicking protected workspace tiles pre-fills **real Supabase user credentials**:
+- Server → server@restaurant.com / ServerPass123!
+- Kitchen → kitchen@restaurant.com / KitchenPass123!
+- Expo → expo@restaurant.com / ExpoPass123!
+- Admin → manager@restaurant.com / ManagerPass123!
+
+**Note**: As of v6.0.15, all workspace users are real Supabase Auth accounts (not demo tokens). The demo panel simply pre-fills credentials for faster onboarding.
 
 ## Testing
 

@@ -1,6 +1,6 @@
 # Authentication Architecture v6.0
 
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-02
 
 [Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](../../../README.md) > Authentication Architecture
 
