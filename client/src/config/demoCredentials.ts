@@ -9,6 +9,7 @@ export interface WorkspaceConfig {
   route: string
   requiresAuth: boolean
   requiredRoles: string[]
+  demoRole?: string // Role to use for demo-session authentication
   demoCredentials: {
     email: string
     password: string
@@ -23,6 +24,7 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     route: '/server',
     requiresAuth: true,
     requiredRoles: ['owner', 'manager', 'server'],
+    demoRole: 'server', // Use 'server' role for demo-session
     demoCredentials: {
       email: 'server@restaurant.com',
       password: 'Demo123!'
@@ -32,6 +34,7 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     route: '/kitchen',
     requiresAuth: true,
     requiredRoles: ['owner', 'manager', 'kitchen'],
+    demoRole: 'kitchen', // Use 'kitchen' role for demo-session
     demoCredentials: {
       email: 'kitchen@restaurant.com',
       password: 'Demo123!'
@@ -41,6 +44,7 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     route: '/expo',
     requiresAuth: true,
     requiredRoles: ['owner', 'manager', 'kitchen', 'expo'],
+    demoRole: 'expo', // Use 'expo' role for demo-session
     demoCredentials: {
       email: 'expo@restaurant.com',
       password: 'Demo123!'
@@ -50,6 +54,7 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     route: '/admin',
     requiresAuth: true,
     requiredRoles: ['owner', 'manager'],
+    demoRole: 'manager', // Use 'manager' role for demo-session (admin role doesn't exist in RBAC)
     demoCredentials: {
       email: 'manager@restaurant.com',
       password: 'Demo123!'
