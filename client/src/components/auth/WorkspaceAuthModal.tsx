@@ -54,15 +54,32 @@ export function WorkspaceAuthModal({
 
   // Pre-fill demo credentials if available
   useEffect(() => {
+    logger.info('WorkspaceAuthModal pre-fill check', {
+      isOpen,
+      demoMode,
+      hasDemoCredentials: !!demoCredentials,
+      demoCredentials,
+      showInsufficientPermissions,
+      workspace,
+      VITE_DEMO_PANEL: import.meta.env.VITE_DEMO_PANEL
+    })
+
     if (isOpen && demoMode && demoCredentials && !showInsufficientPermissions) {
       setEmail(demoCredentials.email)
       setPassword(demoCredentials.password)
       setUseDemoCredentials(true)
-      logger.info('Pre-filled demo credentials for workspace', { workspace })
+      logger.info('✅ Pre-filled demo credentials for workspace', { workspace, email: demoCredentials.email })
     } else {
       setEmail('')
       setPassword('')
       setUseDemoCredentials(false)
+      logger.info('❌ NOT pre-filling credentials', {
+        reason: !isOpen ? 'modal not open' :
+                !demoMode ? 'demo mode disabled' :
+                !demoCredentials ? 'no demo credentials' :
+                showInsufficientPermissions ? 'showing insufficient permissions' :
+                'unknown'
+      })
     }
   }, [isOpen, demoMode, demoCredentials, workspace, showInsufficientPermissions])
 
