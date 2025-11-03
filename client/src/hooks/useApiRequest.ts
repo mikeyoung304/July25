@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { useRestaurant } from '@/core/restaurant-hooks';
 import { useAsyncState } from './useAsyncState';
 import { supabase } from '@/core/supabase';
-import { getDemoToken } from '@/services/auth/demoAuth';
 
 export interface ApiRequestOptions extends RequestInit {
   skipAuth?: boolean;
@@ -62,30 +61,17 @@ export function useApiRequest<T = unknown>(): ApiRequestReturn<T> {
     // Add authentication unless explicitly skipped
     if (!options?.skipAuth) {
       try {
-        // Try Supabase auth first (if supabase is available)
         if (supabase) {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
             headers.set('Authorization', `Bearer ${session.access_token}`);
-          } else {
-            // Fall back to demo token
-            const demoToken = await getDemoToken();
-            if (demoToken) {
-              headers.set('Authorization', `Bearer ${demoToken}`);
-            }
           }
-        } else {
-          // No supabase available, use demo token
-          const demoToken = await getDemoToken();
-          if (demoToken) {
-            headers.set('Authorization', `Bearer ${demoToken}`);
-          } else if (import.meta.env.DEV) {
-            headers.set('Authorization', 'Bearer test-token');
-          }
+          // If no session, request will proceed without auth header
+          // Protected routes will return 401 and trigger login flow
         }
       } catch (err) {
         console.error('Failed to get auth token:', err);
-        // Continue without auth header
+        // Continue without auth header - let the API return 401 if needed
       }
     }
     

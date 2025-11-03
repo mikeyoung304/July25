@@ -1,37 +1,26 @@
 import { supabase } from '@/core/supabase';
 import { logger } from '@/services/logger'
-import { getDemoToken } from './demoAuth';
 
 /**
- * Get the current authentication token
- * Returns a demo token in development or the Supabase JWT in production
+ * Get the current authentication token from Supabase session
+ * All users (workspace and customers) are real Supabase users with proper sessions
  */
 export async function getAuthToken(): Promise<string> {
   try {
-    // In development/demo mode, use demo token
-    if (import.meta.env.DEV || import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-      logger.info('[Auth] Getting demo token...');
-      const token = await getDemoToken();
-      logger.info('[Auth] Demo token obtained:', token ? 'yes' : 'no');
-      return token;
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
     }
 
-    // In production, get Supabase session token
-    if (supabase) {
-      logger.info('[Auth] Getting Supabase session...');
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.access_token) {
-        logger.info('[Auth] Supabase token obtained: yes');
-        return session.access_token;
-      }
-      logger.info('[Auth] No Supabase session, falling back to demo token');
+    logger.info('[Auth] Getting Supabase session...');
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session?.access_token) {
+      logger.info('[Auth] Supabase token obtained: yes');
+      return session.access_token;
     }
 
-    // Fallback to demo token if no auth available
-    logger.info('[Auth] Falling back to demo token...');
-    const token = await getDemoToken();
-    logger.info('[Auth] Fallback demo token obtained:', token ? 'yes' : 'no');
-    return token;
+    logger.warn('[Auth] No active session - user needs to log in');
+    throw new Error('No active authentication session');
   } catch (error) {
     console.error('[Auth] Error getting auth token:', error);
     throw error;

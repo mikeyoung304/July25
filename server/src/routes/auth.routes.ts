@@ -7,98 +7,13 @@ import { validatePin, createOrUpdatePin } from '../services/auth/pinAuth';
 import { createStationToken, validateStationToken as _validateStationToken, revokeAllStationTokens } from '../services/auth/stationAuth';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
-import { requireScopes, ApiScope, getRoleScopesArray } from '../middleware/rbac';
+import { requireScopes, ApiScope } from '../middleware/rbac';
 import {
   authRateLimiters,
   resetFailedAttempts
 } from '../middleware/authRateLimiter';
 
 const router = Router();
-
-// Constants for demo auth
-const ALLOWED_DEMO_RESTAURANTS = [
-  '11111111-1111-1111-1111-111111111111' // Default demo restaurant
-];
-
-/**
- * POST /api/v1/auth/demo-session
- * Issues a short-lived JWT for demo sessions (replaces client-side credentials)
- */
-router.post('/demo-session',
-  authRateLimiters.checkSuspicious,
-  authRateLimiters.kiosk,
-  async (req: Request, res: Response) => {
-  try {
-    const { role, restaurantId } = req.body;
-
-    // Validate inputs
-    if (!role || !restaurantId) {
-      throw BadRequest('role and restaurantId are required');
-    }
-
-    if (!ALLOWED_DEMO_RESTAURANTS.includes(restaurantId)) {
-      throw BadRequest('Invalid restaurant ID for demo');
-    }
-
-    // Get role-specific scopes from RBAC configuration
-    const roleScopes = getRoleScopesArray(role);
-
-    // Validate that the role exists in RBAC configuration
-    if (roleScopes.length === 0) {
-      logger.warn('demo_session_invalid_role', {
-        role,
-        restaurant_id: restaurantId
-      });
-      throw BadRequest(`Invalid role: ${role}. Role not configured in RBAC.`);
-    }
-
-    // Get JWT secret (no fallbacks for security)
-    const jwtSecret = process.env['SUPABASE_JWT_SECRET'];
-    if (!jwtSecret) {
-      logger.error('⛔ JWT_SECRET not configured - demo auth cannot proceed');
-      throw new Error('Server authentication not configured');
-    }
-
-    // Generate random demo user ID
-    const randomId = Math.random().toString(36).substring(2, 15);
-    const demoUserId = `demo:${role}:${randomId}`;
-
-    // Create JWT payload with role-specific scopes
-    const payload = {
-      sub: demoUserId,
-      role: role,
-      restaurant_id: restaurantId,
-      scope: roleScopes,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour
-    };
-
-    // Sign the token
-    const token = jwt.sign(payload, jwtSecret, { algorithm: 'HS256' });
-
-    logger.info('demo_session_created', {
-      user_id: demoUserId,
-      role: role,
-      scopes: roleScopes,
-      restaurant_id: restaurantId
-    });
-
-    res.json({
-      user: {
-        id: demoUserId,
-        role: role,
-        scopes: roleScopes
-      },
-      token,
-      expiresIn: 3600,
-      restaurantId
-    });
-
-  } catch (error) {
-    logger.error('Demo session creation failed:', error);
-    throw error;
-  }
-});
 
 /**
  * POST /api/v1/auth/login

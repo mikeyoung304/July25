@@ -34,7 +34,7 @@ export function WorkspaceAuthModal({
   intendedDestination,
   showInsufficientPermissions = false
 }: WorkspaceAuthModalProps) {
-  const { login, loginAsDemo, isAuthenticated, user, logout } = useAuth()
+  const { login, isAuthenticated, user, logout } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -60,15 +60,22 @@ export function WorkspaceAuthModal({
       hasDemoCredentials: !!demoCredentials,
       demoCredentials,
       showInsufficientPermissions,
+      isAuthenticated,
       workspace,
       VITE_DEMO_PANEL: import.meta.env.VITE_DEMO_PANEL
     })
 
-    if (isOpen && demoMode && demoCredentials && !showInsufficientPermissions) {
+    // Allow pre-fill when:
+    // 1. Normal case: not showing insufficient permissions
+    // 2. After logout: showing insufficient permissions but user is no longer authenticated
+    const shouldPreFill = isOpen && demoMode && demoCredentials &&
+                         (!showInsufficientPermissions || !isAuthenticated)
+
+    if (shouldPreFill) {
       setEmail(demoCredentials.email)
       setPassword(demoCredentials.password)
       setUseDemoCredentials(true)
-      logger.info('✅ Pre-filled demo credentials for workspace', { workspace, email: demoCredentials.email })
+      logger.info('✅ Pre-filled workspace credentials', { workspace, email: demoCredentials.email })
     } else {
       setEmail('')
       setPassword('')
@@ -77,11 +84,11 @@ export function WorkspaceAuthModal({
         reason: !isOpen ? 'modal not open' :
                 !demoMode ? 'demo mode disabled' :
                 !demoCredentials ? 'no demo credentials' :
-                showInsufficientPermissions ? 'showing insufficient permissions' :
+                (showInsufficientPermissions && isAuthenticated) ? 'showing insufficient permissions (user still logged in)' :
                 'unknown'
       })
     }
-  }, [isOpen, demoMode, demoCredentials, workspace, showInsufficientPermissions])
+  }, [isOpen, demoMode, demoCredentials, workspace, showInsufficientPermissions, isAuthenticated])
 
   // Focus management
   useEffect(() => {
@@ -167,27 +174,12 @@ export function WorkspaceAuthModal({
     setIsLoading(true)
 
     try {
-      // In demo mode, use demo-session endpoint (no database users required)
-      if (demoMode && useDemoCredentials && demoCredentials) {
-        const workspaceConfig = WORKSPACE_CONFIG[workspace]
-        const demoRole = workspaceConfig.demoRole
-
-        if (!demoRole) {
-          throw new Error(`No demo role configured for workspace: ${workspace}`)
-        }
-
-        logger.info('Using demo-session authentication', { workspace, role: demoRole })
-        await loginAsDemo(demoRole)
-        toast.success(`Logged in as ${workspace}!`)
-        logger.info('Demo session created successfully', { workspace, role: demoRole })
-        onSuccess()
-      } else {
-        // Use regular Supabase authentication
-        await login(email, password, restaurantId)
-        toast.success('Login successful!')
-        logger.info('Workspace authentication successful', { workspace, email })
-        onSuccess()
-      }
+      // Use regular Supabase authentication for ALL workspace users
+      // These are now REAL Supabase users, not fake demo sessions
+      await login(email, password, restaurantId)
+      toast.success(`Logged in as ${workspace}!`)
+      logger.info('Workspace authentication successful', { workspace, email })
+      onSuccess()
     } catch (error: any) {
       logger.error('Workspace authentication failed:', error)
       toast.error(error.message || 'Login failed. Please check your credentials.')
