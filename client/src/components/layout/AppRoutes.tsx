@@ -24,7 +24,6 @@ const PerformanceDashboard = lazy(() => import('@/pages/PerformanceDashboard'))
 const ServerView = lazy(() => import('@/pages/ServerView').then(m => ({ default: m.ServerView })))
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'))
 const ExpoPage = lazy(() => import('@/pages/ExpoPage'))
-const ExpoPageDebug = lazy(() => import('@/pages/ExpoPageDebug'))
 const KioskPage = lazy(() => import('@/pages/KioskPage'))
 const DriveThruPage = lazy(() => import('@/pages/DriveThruPage'))
 const CustomerOrderPage = lazy(() => import('@/modules/order-system/components').then(m => ({ default: m.CustomerOrderPage })))
@@ -177,17 +176,6 @@ export function AppRoutes() {
                   <Profiler id="ExpoPage" onRender={onRenderCallback}>
                     <Suspense fallback={<RouteLoader />}>
                       <ExpoPage />
-                    </Suspense>
-                  </Profiler>
-                </ErrorBoundary>
-              </KitchenRoute>
-            } />
-            <Route path="/expo-debug" element={
-              <KitchenRoute>
-                <ErrorBoundary level="section">
-                  <Profiler id="ExpoPageDebug" onRender={onRenderCallback}>
-                    <Suspense fallback={<RouteLoader />}>
-                      <ExpoPageDebug />
                     </Suspense>
                   </Profiler>
                 </ErrorBoundary>
