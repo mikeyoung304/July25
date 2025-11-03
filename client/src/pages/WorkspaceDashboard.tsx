@@ -41,13 +41,18 @@ function WorkspaceTile({ title, workspace, icon, color, delay = 0 }: WorkspaceTi
   const handleSuccess = () => {
     closeModal()
     // Navigate directly to intended destination after successful authentication
-    // Don't call handleAccess() again to avoid race condition with stale auth state
+    // CRITICAL: Add small delay to allow React state update to propagate
+    // The login() function calls setUser(), but React state updates are async
+    // Without this delay, ProtectedRoute might check canAccess() before user state updates
     if (intendedDestination) {
       logger.info('Navigating to workspace after auth success', {
         workspace,
         destination: intendedDestination
       })
-      navigate(intendedDestination)
+      // 150ms delay ensures AuthContext user state has propagated to ProtectedRoute
+      setTimeout(() => {
+        navigate(intendedDestination)
+      }, 150)
     }
   }
 
