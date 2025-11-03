@@ -34,7 +34,7 @@ export function WorkspaceAuthModal({
   intendedDestination,
   showInsufficientPermissions = false
 }: WorkspaceAuthModalProps) {
-  const { login, loginAsDemo, isAuthenticated, user, logout } = useAuth()
+  const { login, isAuthenticated, user, logout } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -167,27 +167,12 @@ export function WorkspaceAuthModal({
     setIsLoading(true)
 
     try {
-      // In demo mode, use demo-session endpoint (no database users required)
-      if (demoMode && useDemoCredentials && demoCredentials) {
-        const workspaceConfig = WORKSPACE_CONFIG[workspace]
-        const demoRole = workspaceConfig.demoRole
-
-        if (!demoRole) {
-          throw new Error(`No demo role configured for workspace: ${workspace}`)
-        }
-
-        logger.info('Using demo-session authentication', { workspace, role: demoRole })
-        await loginAsDemo(demoRole)
-        toast.success(`Logged in as ${workspace}!`)
-        logger.info('Demo session created successfully', { workspace, role: demoRole })
-        onSuccess()
-      } else {
-        // Use regular Supabase authentication
-        await login(email, password, restaurantId)
-        toast.success('Login successful!')
-        logger.info('Workspace authentication successful', { workspace, email })
-        onSuccess()
-      }
+      // Use regular Supabase authentication for ALL workspace users
+      // These are now REAL Supabase users, not fake demo sessions
+      await login(email, password, restaurantId)
+      toast.success(`Logged in as ${workspace}!`)
+      logger.info('Workspace authentication successful', { workspace, email })
+      onSuccess()
     } catch (error: any) {
       logger.error('Workspace authentication failed:', error)
       toast.error(error.message || 'Login failed. Please check your credentials.')

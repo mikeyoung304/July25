@@ -1,6 +1,12 @@
 /**
  * Workspace Configuration - Single Source of Truth
- * Maps workspace types to routes, permissions, and demo credentials
+ * Maps workspace types to routes, permissions, and REAL user credentials
+ *
+ * IMPORTANT: These are REAL Supabase user accounts, not fake demo sessions.
+ * They work exactly like production customer accounts.
+ *
+ * Auto-fill is enabled when VITE_DEMO_PANEL=1 for development convenience.
+ * In production (VITE_DEMO_PANEL=0), auto-fill is disabled.
  */
 
 export type WorkspaceType = 'server' | 'kitchen' | 'kiosk' | 'online-order' | 'admin' | 'expo'
@@ -9,8 +15,7 @@ export interface WorkspaceConfig {
   route: string
   requiresAuth: boolean
   requiredRoles: string[]
-  demoRole?: string // Role to use for demo-session authentication
-  demoCredentials: {
+  workspaceCredentials: {
     email: string
     password: string
   } | null
@@ -24,62 +29,65 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     route: '/server',
     requiresAuth: true,
     requiredRoles: ['owner', 'manager', 'server'],
-    demoRole: 'server', // Use 'server' role for demo-session
-    demoCredentials: {
+    workspaceCredentials: {
       email: 'server@restaurant.com',
-      password: 'Demo123!'
+      password: 'ServerPass123!' // Real Supabase user password
     }
   },
   kitchen: {
     route: '/kitchen',
     requiresAuth: true,
     requiredRoles: ['owner', 'manager', 'kitchen'],
-    demoRole: 'kitchen', // Use 'kitchen' role for demo-session
-    demoCredentials: {
+    workspaceCredentials: {
       email: 'kitchen@restaurant.com',
-      password: 'Demo123!'
+      password: 'KitchenPass123!' // Real Supabase user password
     }
   },
   expo: {
     route: '/expo',
     requiresAuth: true,
     requiredRoles: ['owner', 'manager', 'kitchen', 'expo'],
-    demoRole: 'expo', // Use 'expo' role for demo-session
-    demoCredentials: {
+    workspaceCredentials: {
       email: 'expo@restaurant.com',
-      password: 'Demo123!'
+      password: 'ExpoPass123!' // Real Supabase user password
     }
   },
   admin: {
     route: '/admin',
     requiresAuth: true,
     requiredRoles: ['owner', 'manager'],
-    demoRole: 'manager', // Use 'manager' role for demo-session (admin role doesn't exist in RBAC)
-    demoCredentials: {
+    workspaceCredentials: {
       email: 'manager@restaurant.com',
-      password: 'Demo123!'
+      password: 'ManagerPass123!' // Real Supabase user password
     }
   },
   kiosk: {
     route: '/kiosk',
     requiresAuth: false,
     requiredRoles: [],
-    demoCredentials: null
+    workspaceCredentials: null
   },
   'online-order': {
     route: '/order',
     requiresAuth: false,
     requiredRoles: [],
-    demoCredentials: null
+    workspaceCredentials: null
   }
 }
 
 /**
- * Get demo credentials for a workspace (only if demo panel is enabled)
+ * Get workspace credentials for auto-fill (only if demo panel is enabled)
+ *
+ * IMPORTANT: These are REAL user credentials, not fake demo tokens.
+ * When VITE_DEMO_PANEL=1, credentials are auto-filled for development convenience.
+ * When VITE_DEMO_PANEL=0 (production), this returns null and users must enter credentials manually.
  */
-export function getDemoCredentials(workspace: WorkspaceType) {
+export function getWorkspaceCredentials(workspace: WorkspaceType) {
   if (import.meta.env.VITE_DEMO_PANEL !== '1') {
     return null
   }
-  return WORKSPACE_CONFIG[workspace].demoCredentials
+  return WORKSPACE_CONFIG[workspace].workspaceCredentials
 }
+
+// Backward compatibility alias (DEPRECATED: Use getWorkspaceCredentials instead)
+export const getDemoCredentials = getWorkspaceCredentials
