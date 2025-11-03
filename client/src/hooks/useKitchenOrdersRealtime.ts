@@ -15,7 +15,6 @@ interface UseKitchenOrdersRealtimeReturn {
 
 /**
  * Shared hook for real-time order management
- * Extracted from KitchenDisplaySimple to enable DRY principle
  * Used by both Kitchen Display and Expo Station
  */
 export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {

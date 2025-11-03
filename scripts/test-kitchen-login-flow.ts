@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 /**
  * Test Kitchen User Login Flow
- * Simulates the exact flow from the LandingPage kitchen button
+ * Simulates the kitchen user authentication flow
  */
 
 import { createClient } from '@supabase/supabase-js';
