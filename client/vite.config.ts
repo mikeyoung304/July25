@@ -189,9 +189,10 @@ export default defineConfig(({ mode }) => {
 
     // Define global constants
     define: {
-      // SECURITY: Only enable demo panel in development, never in production
+      // Demo panel: enabled by default in dev, opt-in for production via VITE_DEMO_PANEL=1
+      // This allows demo mode on staging/preview deployments while keeping production secure
       'import.meta.env.VITE_DEMO_PANEL': JSON.stringify(
-        mode === 'production' ? '0' : (env.VITE_DEMO_PANEL || '1')
+        env.VITE_DEMO_PANEL || (mode === 'development' ? '1' : '0')
       ),
       'globalThis.process': JSON.stringify({ env: {} }),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || mode)
