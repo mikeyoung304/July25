@@ -84,13 +84,6 @@ import { useFormValidation, validators } from '@/utils/validation'
 const form = useFormValidation(initialValues, validationRules)
 ```
 
-#### useModal Hook
-```typescript
-import { useModal } from '@/hooks/useModal'
-
-const modal = useModal({ closeOnEscape: true })
-```
-
 ## Performance Optimizations
 
 - **Bundle Size**: Main chunk reduced to 93KB (from 1MB)
