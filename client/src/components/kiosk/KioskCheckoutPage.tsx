@@ -7,7 +7,6 @@ import { useApiRequest } from '@/hooks/useApiRequest';
 import { useSquareTerminal } from '@/hooks/useSquareTerminal';
 import { useFormValidation, validators } from '@/utils/validation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
-import { getCustomerToken } from '@/services/auth/roleHelpers';
 import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BrandHeader } from '@/components/layout/BrandHeader';
@@ -150,9 +149,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     form.clearErrors();
 
     try {
-      // Ensure we have a valid customer token
-      await getCustomerToken();
-
+      // Auth is handled automatically by useApiRequest via Supabase session
       // Create the order
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'kiosk',

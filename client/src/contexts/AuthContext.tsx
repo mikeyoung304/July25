@@ -31,7 +31,6 @@ export interface AuthContextType {
   login: (email: string, password: string, restaurantId: string) => Promise<void>;
   loginWithPin: (pin: string, restaurantId: string) => Promise<void>;
   loginAsStation: (stationType: string, stationName: string, restaurantId: string) => Promise<void>;
-  loginAsDemo: (role: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   setPin: (pin: string) => Promise<void>;
@@ -334,57 +333,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // Demo login - requests a short-lived demo token from the server
-  const loginAsDemo = async (role: string) => {
-    // Only available when demo panel is explicitly enabled
-    if (import.meta.env.VITE_DEMO_PANEL !== '1') {
-      throw new Error('Demo login requires VITE_DEMO_PANEL=1');
-    }
-
-    setIsLoading(true);
-    try {
-      const defaultRestaurantId = '11111111-1111-1111-1111-111111111111';
-
-      // Request demo session from server (no credentials in client)
-      const response = await httpClient.post<{
-        user: User;
-        token: string;
-        expiresIn: number;
-        restaurantId: string;
-      }>('/api/v1/auth/demo-session', {
-        role,
-        restaurantId: defaultRestaurantId
-      });
-
-      setUser(response.user);
-      setRestaurantId(response.restaurantId);
-      setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
-
-      const expiresAt = Math.floor(Date.now() / 1000) + response.expiresIn;
-      const sessionData = {
-        accessToken: response.token,
-        expiresIn: response.expiresIn,
-        expiresAt
-      };
-
-      setSession(sessionData);
-
-      // Save demo session to localStorage
-      localStorage.setItem('auth_session', JSON.stringify({
-        user: response.user,
-        session: sessionData,
-        restaurantId: response.restaurantId
-      }));
-
-      logger.info('Demo session started');
-    } catch (error) {
-      logger.error('Demo login failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Logout
   const logout = async () => {
     setIsLoading(true);
@@ -579,7 +527,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     loginWithPin,
     loginAsStation,
-    loginAsDemo,
     logout,
     refreshSession,
     setPin,
