@@ -391,11 +391,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       logger.info('🚪 Starting logout sequence...');
 
-      // CRITICAL FIX: Sign out from Supabase FIRST
-      // This ensures SIGNED_OUT event fires before we manually clear state
-      // Prevents race condition where new login happens before old SIGNED_OUT event
-      await supabase.auth.signOut();
-      logger.info('✅ Supabase signOut complete');
+      // CRITICAL FIX: Sign out from Supabase with timeout
+      // Add timeout to prevent hanging on WebSocket cleanup or network issues
+      const signOutPromise = supabase.auth.signOut();
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Logout timeout')), 5000)
+      );
+
+      try {
+        await Promise.race([signOutPromise, timeoutPromise]);
+        logger.info('✅ Supabase signOut complete');
+      } catch (timeoutError) {
+        logger.warn('⚠️ Supabase signOut timed out, forcing local cleanup');
+      }
 
       // NOTE: We don't call backend /logout endpoint because:
       // 1. supabase.auth.signOut() already invalidated the session
