@@ -60,15 +60,22 @@ export function WorkspaceAuthModal({
       hasDemoCredentials: !!demoCredentials,
       demoCredentials,
       showInsufficientPermissions,
+      isAuthenticated,
       workspace,
       VITE_DEMO_PANEL: import.meta.env.VITE_DEMO_PANEL
     })
 
-    if (isOpen && demoMode && demoCredentials && !showInsufficientPermissions) {
+    // Allow pre-fill when:
+    // 1. Normal case: not showing insufficient permissions
+    // 2. After logout: showing insufficient permissions but user is no longer authenticated
+    const shouldPreFill = isOpen && demoMode && demoCredentials &&
+                         (!showInsufficientPermissions || !isAuthenticated)
+
+    if (shouldPreFill) {
       setEmail(demoCredentials.email)
       setPassword(demoCredentials.password)
       setUseDemoCredentials(true)
-      logger.info('✅ Pre-filled demo credentials for workspace', { workspace, email: demoCredentials.email })
+      logger.info('✅ Pre-filled workspace credentials', { workspace, email: demoCredentials.email })
     } else {
       setEmail('')
       setPassword('')
@@ -77,11 +84,11 @@ export function WorkspaceAuthModal({
         reason: !isOpen ? 'modal not open' :
                 !demoMode ? 'demo mode disabled' :
                 !demoCredentials ? 'no demo credentials' :
-                showInsufficientPermissions ? 'showing insufficient permissions' :
+                (showInsufficientPermissions && isAuthenticated) ? 'showing insufficient permissions (user still logged in)' :
                 'unknown'
       })
     }
-  }, [isOpen, demoMode, demoCredentials, workspace, showInsufficientPermissions])
+  }, [isOpen, demoMode, demoCredentials, workspace, showInsufficientPermissions, isAuthenticated])
 
   // Focus management
   useEffect(() => {
