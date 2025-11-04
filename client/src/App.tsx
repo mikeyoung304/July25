@@ -54,12 +54,22 @@ function App() {
     let connectionPromise: Promise<void> | null = null // Guard against double init
     let isMounted = true // Track component mount state
 
-    // Initialize WebSocket for ALL users (including demo/friends & family)
+    // Initialize WebSocket for authenticated users only
+    // NOTE: Anonymous customers (checkout/kiosk) don't need real-time updates
     const initializeWebSocket = async () => {
       // Guard: prevent double initialization
       if (isConnecting || isConnected) {
         logger.info('🔌 WebSocket already connecting/connected, skipping...')
         return connectionPromise
+      }
+
+      // Check if user is authenticated before connecting
+      const { data: { session } } = await supabase.auth.getSession()
+      const hasLocalSession = localStorage.getItem('auth_session')
+
+      if (!session && !hasLocalSession) {
+        logger.info('🔌 Skipping WebSocket connection - user not authenticated (anonymous customer)')
+        return
       }
 
       // Only connect in development mode or when we have a real backend
