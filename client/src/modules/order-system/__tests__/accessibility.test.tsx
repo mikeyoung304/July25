@@ -34,12 +34,12 @@ vi.mock('@/contexts/cart.hooks', () => ({
 }));
 
 // Mock auth hooks
+// NOTE: Customer orders don't require authentication (v6.0.15+)
 vi.mock('@/contexts/auth.hooks', () => ({
   useAuth: () => ({
     user: null,
     login: vi.fn(),
     logout: vi.fn(),
-    loginAsDemo: vi.fn(),
     isAuthenticated: false
   })
 }));

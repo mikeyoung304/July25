@@ -6,7 +6,6 @@ import CheckoutPage from '../CheckoutPage';
 import { DemoAuthService } from '@/services/auth/demoAuth';
 
 // Create mock functions before vi.mock calls
-const mockLoginAsDemo = vi.fn().mockResolvedValue({ token: 'demo-token-123', user: { id: 'demo:customer:test', role: 'customer' } });
 const mockPost = vi.fn().mockResolvedValue({
   id: 'order-123',
   order_number: 'ORD-001'
@@ -121,13 +120,13 @@ vi.mock('@/services/auth/demoAuth', () => ({
 }));
 
 // Mock AuthContext hooks
+// NOTE: Customer orders don't require authentication (v6.0.15+)
 vi.mock('@/contexts/auth.hooks', () => ({
   useAuth: () => ({
     user: null,
     login: vi.fn(),
     logout: vi.fn(),
-    isAuthenticated: false,
-    loginAsDemo: mockLoginAsDemo
+    isAuthenticated: false
   })
 }));
 
@@ -207,8 +206,8 @@ describe('CheckoutPage - Demo Mode', () => {
       });
     });
 
-    // Verify loginAsDemo was called
-    expect(mockLoginAsDemo).toHaveBeenCalledWith('customer');
+    // NOTE: No authentication required for customer orders (v6.0.15+)
+    // Orders are placed anonymously with just contact info
   });
 
   it('validates form before processing demo payment', async () => {
