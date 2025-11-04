@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, optionalAuth, AuthenticatedRequest } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
 import { OrdersService } from '../services/orders.service';
-import { BadRequest, NotFound } from '../middleware/errorHandler';
+import { BadRequest, NotFound, Unauthorized } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { ai } from '../ai';
 import { MenuService } from '../services/menu.service';
@@ -37,8 +37,39 @@ router.get('/', authenticate, validateRestaurantAccess, async (req: Authenticate
 });
 
 // POST /api/v1/orders - Create new order
-router.post('/', authenticate, validateRestaurantAccess, requireScopes(ApiScope.ORDERS_CREATE), validateBody(OrderPayload), async (req: AuthenticatedRequest, res, next) => {
+// NOTE: Supports both authenticated staff orders and anonymous customer orders
+router.post('/', optionalAuth, validateBody(OrderPayload), async (req: AuthenticatedRequest, res, next) => {
   try {
+    // Check X-Client-Flow header to identify customer vs staff orders
+    const clientFlow = (req.headers['x-client-flow'] as string)?.toLowerCase();
+    const isCustomerOrder = clientFlow === 'online' || clientFlow === 'kiosk';
+
+    // For customer orders (online/kiosk), allow anonymous access
+    if (isCustomerOrder) {
+      routeLogger.info('Processing anonymous customer order', { clientFlow });
+
+      // Require restaurant ID from header for anonymous orders
+      if (!req.restaurantId) {
+        throw BadRequest('Restaurant ID is required for customer orders');
+      }
+    } else {
+      // For staff orders, require authentication
+      if (!req.user) {
+        throw Unauthorized('Authentication required for staff orders');
+      }
+
+      // Validate restaurant access for authenticated users
+      if (!req.restaurantId) {
+        throw BadRequest('Restaurant ID not found in token or headers');
+      }
+
+      // Check scopes for staff users
+      const userScopes = req.user.scopes || [];
+      if (!userScopes.includes(ApiScope.ORDERS_CREATE)) {
+        throw Unauthorized('Missing required scope: orders:create');
+      }
+    }
+
     const restaurantId = req.restaurantId!;
     const orderData = (req as any).validated;
 
@@ -46,8 +77,13 @@ router.post('/', authenticate, validateRestaurantAccess, requireScopes(ApiScope.
       throw BadRequest('Order must contain at least one item');
     }
 
-    routeLogger.info('Creating order', { restaurantId, itemCount: orderData.items.length });
-    
+    routeLogger.info('Creating order', {
+      restaurantId,
+      itemCount: orderData.items.length,
+      isCustomerOrder,
+      isAuthenticated: !!req.user
+    });
+
     const order = await OrdersService.createOrder(restaurantId, orderData);
     res.status(201).json(order);
   } catch (error) {
