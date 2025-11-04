@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { authenticate, AuthenticatedRequest } from '../middleware/auth';
+import { authenticate, optionalAuth, AuthenticatedRequest } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
-import { BadRequest } from '../middleware/errorHandler';
+import { BadRequest, Unauthorized } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 import { SquareClient, SquareEnvironment } from 'square';
 import { randomUUID } from 'crypto';
@@ -102,13 +102,42 @@ const paymentsApi = client.payments;
 })();
 
 // POST /api/v1/payments/create - Process payment
+// NOTE: Supports both authenticated staff payments and anonymous customer payments
 router.post('/create',
-  authenticate,
-  validateRestaurantAccess,
-  requireScopes(ApiScope.PAYMENTS_PROCESS),
+  optionalAuth,
   validateBody(PaymentPayload),
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
+    // Check X-Client-Flow header to identify customer vs staff payments
+    const clientFlow = (req.headers['x-client-flow'] as string)?.toLowerCase();
+    const isCustomerPayment = clientFlow === 'online' || clientFlow === 'kiosk';
+
+    // For customer payments (online/kiosk), allow anonymous access
+    if (isCustomerPayment) {
+      routeLogger.info('Processing anonymous customer payment', { clientFlow });
+
+      // Require restaurant ID from header for anonymous payments
+      if (!req.restaurantId) {
+        throw BadRequest('Restaurant ID is required for customer payments');
+      }
+    } else {
+      // For staff payments, require authentication and scopes
+      if (!req.user) {
+        throw Unauthorized('Authentication required for staff payments');
+      }
+
+      // Validate restaurant access
+      if (!req.restaurantId) {
+        throw BadRequest('Restaurant ID not found in token or headers');
+      }
+
+      // Check scopes for staff users
+      const userScopes = req.user.scopes || [];
+      if (!userScopes.includes(ApiScope.PAYMENTS_PROCESS)) {
+        throw Unauthorized('Missing required scope: payments:process');
+      }
+    }
+
     const restaurantId = req.restaurantId!;
     const { order_id, token, amount, idempotency_key } = req.body; // ADR-001: snake_case
 
