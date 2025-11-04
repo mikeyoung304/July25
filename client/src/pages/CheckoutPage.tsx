@@ -9,7 +9,6 @@ import { SquarePaymentForm } from '@/modules/order-system/components/SquarePayme
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useFormValidation, validators } from '@/utils/validation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
-import { useAuth } from '@/contexts/auth.hooks';
 
 const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +16,10 @@ const CheckoutPageContent: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const orderApi = useApiRequest();
   const paymentApi = useApiRequest();
-  const { loginAsDemo, isAuthenticated } = useAuth();
+
+  // NOTE: Customer orders do NOT require authentication
+  // Anonymous customers can place orders using just contact info (email, phone)
+  // This ensures staff users accessing customer pages are treated as anonymous customers
   
   // Check if we're in demo mode
   const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN || 
@@ -49,12 +51,8 @@ const CheckoutPageContent: React.FC = () => {
     form.clearErrors();
 
     try {
-      // Ensure customer is authenticated (demo mode)
-      if (!isAuthenticated) {
-        await loginAsDemo('customer');
-      }
-
       // Create the order (using snake_case per ADR-001)
+      // No authentication required - orders are placed anonymously with contact info
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
@@ -135,12 +133,8 @@ const CheckoutPageContent: React.FC = () => {
     form.clearErrors();
 
     try {
-      // Ensure customer is authenticated (production mode)
-      if (!isAuthenticated) {
-        await loginAsDemo('customer');
-      }
-
       // First, create the order using snake_case (per ADR-001)
+      // No authentication required - orders are placed anonymously with contact info
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({

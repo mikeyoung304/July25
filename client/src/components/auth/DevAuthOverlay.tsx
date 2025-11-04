@@ -7,12 +7,14 @@ import { Users, ChefHat, Package, CreditCard, Settings, ShoppingCart } from 'luc
 import { logger } from '@/services/logger';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { WORKSPACE_CONFIG } from '@/config/demoCredentials';
 
 interface DemoRole {
   id: string;
   name: string;
   icon: React.ReactNode;
   iconBg: string;
+  workspaceType: 'server' | 'kitchen' | 'expo' | 'admin';
 }
 
 const demoRoles: DemoRole[] = [
@@ -20,45 +22,40 @@ const demoRoles: DemoRole[] = [
     id: 'manager',
     name: 'Manager',
     icon: <Settings className="h-6 w-6" />,
-    iconBg: 'bg-gray-500/10 text-gray-600'
+    iconBg: 'bg-gray-500/10 text-gray-600',
+    workspaceType: 'admin'
   },
   {
     id: 'server',
     name: 'Server',
     icon: <Users className="h-6 w-6" />,
-    iconBg: 'bg-blue-500/10 text-blue-600'
+    iconBg: 'bg-blue-500/10 text-blue-600',
+    workspaceType: 'server'
   },
   {
     id: 'kitchen',
     name: 'Kitchen',
     icon: <ChefHat className="h-6 w-6" />,
-    iconBg: 'bg-orange-500/10 text-orange-600'
+    iconBg: 'bg-orange-500/10 text-orange-600',
+    workspaceType: 'kitchen'
   },
   {
     id: 'expo',
     name: 'Expo',
     icon: <Package className="h-6 w-6" />,
-    iconBg: 'bg-purple-500/10 text-purple-600'
-  },
-  {
-    id: 'cashier',
-    name: 'Cashier',
-    icon: <CreditCard className="h-6 w-6" />,
-    iconBg: 'bg-green-500/10 text-green-600'
-  },
-  {
-    id: 'orders',
-    name: 'Orders',
-    icon: <ShoppingCart className="h-6 w-6" />,
-    iconBg: 'bg-indigo-500/10 text-indigo-600'
+    iconBg: 'bg-purple-500/10 text-purple-600',
+    workspaceType: 'expo'
   }
 ];
 
 export function DevAuthOverlay() {
   const navigate = useNavigate();
-  const { loginAsDemo } = useAuth();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+
+  // Default restaurant ID (from environment or hardcoded for dev)
+  const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
 
   // Only render when demo panel is explicitly enabled
   if (import.meta.env.VITE_DEMO_PANEL !== '1') {
@@ -71,16 +68,26 @@ export function DevAuthOverlay() {
     setSelectedRole(role.id);
 
     try {
-      console.log('🎯 [DevAuth] Step 2: Requesting demo session for', role.id);
+      // Get workspace credentials for this role
+      const workspace = WORKSPACE_CONFIG[role.workspaceType];
+      if (!workspace.workspaceCredentials) {
+        throw new Error(`No credentials configured for ${role.name}`);
+      }
+
+      console.log('🎯 [DevAuth] Step 2: Logging in with workspace credentials for', role.name);
       const loginStart = Date.now();
 
-      // Request demo session from server (no credentials in client)
-      await loginAsDemo(role.id);
+      // Login with real Supabase credentials (v6.0.15+)
+      await login(
+        workspace.workspaceCredentials.email,
+        workspace.workspaceCredentials.password,
+        restaurantId
+      );
 
       const loginDuration = Date.now() - loginStart;
-      console.log(`🎯 [DevAuth] Step 3: loginAsDemo() completed in ${loginDuration}ms`);
+      console.log(`🎯 [DevAuth] Step 3: login() completed in ${loginDuration}ms`);
 
-      logger.info(`✅ Demo login completed for ${role.name}, session ready`);
+      logger.info(`✅ Workspace login completed for ${role.name}, session ready`);
       toast.success(`Logged in as ${role.name}`);
 
       // Navigate to staff home page (navigation hub)
@@ -98,7 +105,7 @@ export function DevAuthOverlay() {
       console.log('🎯 [DevAuth] Step 6: Navigation called, handleRoleSelect complete');
     } catch (error) {
       console.error('🎯 [DevAuth] ERROR in handleRoleSelect:', error);
-      logger.error(`Demo login failed for ${role.name}:`, error);
+      logger.error(`Workspace login failed for ${role.name}:`, error);
       toast.error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       console.log('🎯 [DevAuth] Step 7: Cleaning up loading state');
@@ -125,10 +132,10 @@ export function DevAuthOverlay() {
             </div>
           </div>
           <p className="text-gray-600 mt-4 text-sm">
-            Select a role to request demo access
+            Select a workspace to login with real credentials
           </p>
           <div className="mt-2 inline-flex items-center gap-2 text-xs bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
-            Demo Mode • Temporary Access
+            Dev Mode • Real Supabase Auth
           </div>
         </motion.div>
 
