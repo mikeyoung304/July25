@@ -90,6 +90,10 @@ const CheckoutPageContent: React.FC = () => {
         order_id: order.id,  // ✅ snake_case per ADR-001
         token: 'demo-token',
         idempotency_key: `demo-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,  // ✅ snake_case per ADR-001
+      }, {
+        headers: {
+          'X-Client-Flow': 'online'
+        }
       });
 
       if (!paymentResponse) {
@@ -173,6 +177,10 @@ const CheckoutPageContent: React.FC = () => {
         order_id: order.id,  // ✅ snake_case per ADR-001
         token,
         idempotency_key: `checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,  // ✅ snake_case per ADR-001
+      }, {
+        headers: {
+          'X-Client-Flow': 'online'
+        }
       });
 
       if (!paymentResponse) {
