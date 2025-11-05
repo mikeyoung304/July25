@@ -12,7 +12,7 @@ import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 
 const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, updateCartItem, removeFromCart, updateTip, clearCart } = useCart();
+  const { cart, updateCartItem, removeFromCart, updateTip, clearCart, restaurantId } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const orderApi = useApiRequest();
   const paymentApi = useApiRequest();
@@ -99,15 +99,15 @@ const CheckoutPageContent: React.FC = () => {
 
       // Clear cart and navigate to confirmation
       clearCart();
-      navigate('/order-confirmation', { 
-        state: { 
+      navigate(`/order-confirmation/${restaurantId}`, {
+        state: {
           orderId: order.id,
           order_number: order.order_number,
           estimatedTime: '15-20 minutes',
           items: cart.items,
           total: cart.total,
           paymentId: payment.id || payment.paymentId,
-        } 
+        }
       });
 
     } catch (error) {
@@ -181,15 +181,15 @@ const CheckoutPageContent: React.FC = () => {
 
       // Clear cart and navigate to confirmation
       clearCart();
-      navigate('/order-confirmation', { 
-        state: { 
+      navigate(`/order-confirmation/${restaurantId}`, {
+        state: {
           orderId: order.id,
           order_number: order.order_number,
           estimatedTime: '15-20 minutes',
           items: cart.items,
           total: cart.total,
           paymentId: payment.id || payment.paymentId,
-        } 
+        }
       });
 
     } catch (error) {

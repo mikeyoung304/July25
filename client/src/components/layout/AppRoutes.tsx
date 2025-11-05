@@ -195,7 +195,7 @@ export function AppRoutes() {
                 </Profiler>
               </ErrorBoundary>
             } />
-            <Route path="/checkout" element={
+            <Route path="/checkout/:restaurantId" element={
               <ErrorBoundary level="section">
                 <Profiler id="Checkout" onRender={onRenderCallback}>
                   <Suspense fallback={<RouteLoader />}>
@@ -204,7 +204,7 @@ export function AppRoutes() {
                 </Profiler>
               </ErrorBoundary>
             } />
-            <Route path="/order-confirmation" element={
+            <Route path="/order-confirmation/:restaurantId" element={
               <ErrorBoundary level="section">
                 <Profiler id="OrderConfirmation" onRender={onRenderCallback}>
                   <Suspense fallback={<RouteLoader />}>

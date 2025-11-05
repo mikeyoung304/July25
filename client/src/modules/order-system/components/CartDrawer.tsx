@@ -8,11 +8,11 @@ import { useUnifiedCart } from '@/contexts/cart.hooks';
 
 export const CartDrawer: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, updateCartItem, removeFromCart, isCartOpen, setIsCartOpen } = useUnifiedCart();
-  
+  const { cart, updateCartItem, removeFromCart, isCartOpen, setIsCartOpen, restaurantId } = useUnifiedCart();
+
   const handleCheckout = () => {
     setIsCartOpen(false);
-    navigate('/checkout');
+    navigate(`/checkout/${restaurantId}`);
   };
 
   return (
