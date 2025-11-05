@@ -29,6 +29,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
 }) => {
   const [showDebug, setShowDebug] = useState(debug);
   const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied'>('prompt');
+  const [shouldStartRecording, setShouldStartRecording] = useState(false);
 
   const {
     connect,
@@ -57,6 +58,14 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   useEffect(() => {
     onRecordingStateChange?.(isRecording);
   }, [isRecording, onRecordingStateChange]);
+
+  // Auto-start recording when connection completes (if user is still holding button)
+  useEffect(() => {
+    if (shouldStartRecording && isConnected && !isRecording) {
+      startRecording();
+      setShouldStartRecording(false);
+    }
+  }, [shouldStartRecording, isConnected, isRecording, startRecording]);
   
   // Check microphone permission - store connect in ref to avoid dep loop
   const connectRef = React.useRef(connect);
@@ -109,31 +118,40 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     } catch (err) {
       console.error('Microphone permission denied:', err);
       setPermissionState('denied');
+      setShouldStartRecording(false); // Clear flag on error
     }
   };
-  
-  // Handle recording button - request permission and connect if needed
+
+  // Handle recording button - auto-chain permission → connection → recording
   const handleRecordStart = async () => {
-    // If permission not granted yet, request it first (will auto-connect after)
+    // Set flag to start recording (will trigger when connected)
+    setShouldStartRecording(true);
+
+    // If permission not granted yet, request it
     if (permissionState === 'prompt') {
       await handleRequestPermission();
+      // Don't return - the useEffect will start recording when connected
       return;
     }
 
-    // If permission granted but not connected, connect first
+    // If permission granted but not connected, connect
     if (permissionState === 'granted' && !isConnected && connectionState !== 'connecting') {
       await connect();
-      // Connection started, user can try again to record
+      // Don't return - the useEffect will start recording when connected
       return;
     }
 
-    // If connected, start recording
+    // If already connected, start recording immediately
     if (isConnected && !isRecording) {
       startRecording();
+      setShouldStartRecording(false);
     }
   };
 
   const handleRecordStop = () => {
+    // Clear the flag to prevent auto-start if connection completes after release
+    setShouldStartRecording(false);
+
     if (isRecording) {
       stopRecording();
     }

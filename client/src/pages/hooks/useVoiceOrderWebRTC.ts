@@ -104,10 +104,12 @@ export function useVoiceOrderWebRTC() {
     logger.info('[useVoiceOrderWebRTC] Voice transcript', { text, isFinal })
 
     // Update transcript for live display
+    // Show both interim and final transcripts so users see what was recognized
+    setCurrentTranscript(text)
+
+    // Clear transcript after a delay if it's final (to prepare for next utterance)
     if (isFinal) {
-      setCurrentTranscript('') // Clear after finalized
-    } else {
-      setCurrentTranscript(text) // Show interim transcript
+      setTimeout(() => setCurrentTranscript(''), 3000)
     }
 
     // DO NOT parse transcripts here - OpenAI Realtime API handles parsing

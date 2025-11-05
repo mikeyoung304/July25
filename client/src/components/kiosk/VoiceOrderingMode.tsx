@@ -162,17 +162,15 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   const handleVoiceTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
     const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text;
     const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal;
-    
+
+    // Display transcript for user feedback
     setLastTranscript(text);
-    
-    if (isFinal && orderParser && text.trim()) {
-      const parsedItems = orderParser.parseUserTranscript(text);
-      
-      if (parsedItems.length > 0) {
-        processParsedItems(parsedItems);
-      }
-    }
-  }, [orderParser, processParsedItems]);
+
+    // NOTE: Do NOT parse transcripts manually here
+    // OpenAI Realtime API handles parsing via function calls
+    // and emits order.detected events processed by handleOrderData
+    // Manual parsing would cause duplicate item additions
+  }, []);
 
   const handleOrderData = useCallback((orderData: any) => {
     // Handle function call format from WebRTC: { items: [{ name, quantity, modifications }] }
