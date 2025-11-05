@@ -56,7 +56,8 @@ const CheckoutPageContent: React.FC = () => {
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
-          menu_item_id: item.id,
+          id: item.id,  // Item UUID (required per OrderItem schema)
+          menu_item_id: item.id,  // Menu item reference (required per OrderItem schema)
           name: item.name,
           quantity: item.quantity,
           price: item.price,
@@ -138,7 +139,8 @@ const CheckoutPageContent: React.FC = () => {
       const orderResponse = await orderApi.post('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
-          menu_item_id: item.id,
+          id: item.id,  // Item UUID (required per OrderItem schema)
+          menu_item_id: item.id,  // Menu item reference (required per OrderItem schema)
           name: item.name,
           quantity: item.quantity,
           price: item.price,
