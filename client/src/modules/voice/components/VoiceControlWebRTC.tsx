@@ -83,10 +83,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
         // Add listener with cleanup tracking
         result.addEventListener('change', handlePermissionChange);
 
-        // Auto-connect if permission already granted
-        if (result.state === 'granted' && connectRef.current) {
-          connectRef.current().catch(console.error);
-        }
+        // Don't auto-connect - let user initiate by clicking the button
       })
       .catch((err) => {
         console.warn('Cannot query microphone permission:', err);
@@ -115,48 +112,37 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     }
   };
   
-  // Handle recording button - no event params needed
-  const handleRecordStart = () => {
+  // Handle recording button - request permission and connect if needed
+  const handleRecordStart = async () => {
+    // If permission not granted yet, request it first (will auto-connect after)
+    if (permissionState === 'prompt') {
+      await handleRequestPermission();
+      return;
+    }
+
+    // If permission granted but not connected, connect first
+    if (permissionState === 'granted' && !isConnected && connectionState !== 'connecting') {
+      await connect();
+      // Connection started, user can try again to record
+      return;
+    }
+
+    // If connected, start recording
     if (isConnected && !isRecording) {
       startRecording();
     }
   };
-  
+
   const handleRecordStop = () => {
     if (isRecording) {
       stopRecording();
     }
   };
   
-  // Render permission prompt
-  if (permissionState === 'prompt') {
-    return (
-      <div className={`voice-control-webrtc ${className}`}>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <Mic className="w-5 h-5 text-yellow-600" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-yellow-800">Microphone Permission Required</p>
-              <p className="text-xs text-yellow-600 mt-1">
-                We need access to your microphone for voice ordering
-              </p>
-            </div>
-            <button
-              onClick={handleRequestPermission}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Enable Microphone
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  // Render permission denied
-  if (permissionState === 'denied') {
-    return (
-      <div className={`voice-control-webrtc ${className}`}>
+  return (
+    <div className={`voice-control-webrtc space-y-4 ${className}`}>
+      {/* Permission Denied Warning */}
+      {permissionState === 'denied' && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center gap-3">
             <MicOff className="w-5 h-5 text-red-600" />
@@ -168,12 +154,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
-  
-  return (
-    <div className={`voice-control-webrtc space-y-4 ${className}`}>
+      )}
       {/* Connection Status */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -225,12 +206,15 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
             onMouseUp={handleRecordStop}
             isListening={isRecording}
             isProcessing={isProcessing}
-            disabled={!isConnected || connectionState === 'error'}
+            disabled={permissionState === 'denied' || connectionState === 'error'}
           />
-          
+
           {/* Status Text */}
           <div className="text-center">
-            {!isConnected && connectionState === 'connecting' && (
+            {permissionState === 'prompt' && !isConnected && (
+              <p className="text-sm text-gray-500">Hold button to start voice ordering</p>
+            )}
+            {permissionState === 'granted' && !isConnected && connectionState === 'connecting' && (
               <p className="text-sm text-gray-500">Connecting to voice service...</p>
             )}
             {isConnected && !isRecording && !isProcessing && (
@@ -270,28 +254,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
           </div>
         )}
       </div>
-      
-      {/* Connection Controls */}
-      <div className="flex gap-2">
-        {!isConnected && connectionState !== 'connecting' && (
-          <button
-            onClick={connect}
-            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            Connect Voice
-          </button>
-        )}
-        
-        {isConnected && (
-          <button
-            onClick={disconnect}
-            className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            Disconnect
-          </button>
-        )}
-      </div>
-      
+
       {/* Debug Panel */}
       {showDebug && (
         <VoiceDebugPanel
