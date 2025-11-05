@@ -119,6 +119,7 @@
 
 ## 6. Incidents & Diagnostics
 - [Investigations](./docs/investigations/README.md) — Incident investigations and root cause analysis
+  - [Checkout Flow Fix (Nov 5, 2025)](./docs/investigations/checkout-flow-fix-nov5-2025.md)
   - [Workspace Auth Fix (2025-10-29)](./docs/investigations/workspace-auth-fix-2025-10-29.md)
   - [Menu Loading Error Fix (Oct 27)](./docs/investigations/menu-loading-error-fix-oct27-2025.md)
   - [Online Ordering Checkout Fix (Oct 27)](./docs/investigations/online-ordering-checkout-fix-oct27-2025.md)

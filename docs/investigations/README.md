@@ -1,10 +1,14 @@
 # Investigation Reports
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-05
 
 Incident investigations, bug analyses, and diagnostic reports documenting issues and their resolutions.
 
 ## Recent Investigations (2025)
+
+### November 2025
+
+- [Checkout Flow Fix (Nov 5, 2025)](./checkout-flow-fix-nov5-2025.md) - Customer checkout flow complete fix (5 cascading issues)
 
 ### October 2025
 

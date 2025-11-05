@@ -1,6 +1,6 @@
 # Changelog
 
-**Last Updated:** 2025-11-02
+**Last Updated:** 2025-11-05
 
 All notable changes to Restaurant OS will be documented in this file.
 
@@ -8,6 +8,194 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [6.0.16] - 2025-11-05 - Customer Order Flow Complete Fix
+
+### 🎯 Overview
+
+Fixed critical issues preventing staff users and anonymous customers from completing online orders. Implemented 5 cascading fixes addressing authentication, cart persistence, validation, database schema, and flow detection. Complete end-to-end checkout flow now working for all user types.
+
+### 📊 Impact Summary
+
+- **Customer Experience**: Staff users can now place customer orders without authentication errors
+- **Cart Persistence**: Restaurant ID propagation prevents cart emptying during checkout
+- **Order Creation**: Fixed validation schema and database RPC function
+- **Payment Processing**: Anonymous customer payments now work correctly
+- **Production Verified**: Full checkout flow tested on https://july25-client.vercel.app
+
+### 🔧 Critical Fixes (5 Cascading Issues)
+
+#### Fix 1: Payment Authentication for Anonymous Customers
+- **Problem**: Payment endpoint required authentication, blocking all customer orders
+- **Root Cause**: `authenticate` middleware on `/api/v1/payments/create` rejected anonymous requests
+- **Solution**: Changed to `optionalAuth` with X-Client-Flow header detection
+- **Impact**: Enables both staff-as-customer and anonymous customer payments
+- **Files**:
+  - `server/src/routes/payments.routes.ts:105-145`
+- **Commit**: `cb013764`
+- **Pattern**: Conditional authentication based on client flow type
+  ```typescript
+  const isCustomerPayment = clientFlow === 'online' || clientFlow === 'kiosk';
+  if (isCustomerPayment) {
+    // No auth required
+  } else {
+    // Require auth + scopes for staff payments
+  }
+  ```
+
+#### Fix 2: Restaurant ID Propagation Through Checkout
+- **Problem**: Cart emptying when navigating from order page to checkout
+- **Root Cause**: CartDrawer navigated to `/checkout` without restaurant ID parameter
+- **Diagnosis**: UnifiedCartContext validates `restaurantId` match - mismatch returns empty cart
+- **Solution**: Pass restaurantId through URL params in all checkout navigation
+- **Impact**: Cart items persist through entire checkout flow
+- **Files**:
+  - `client/src/modules/order-system/components/CartDrawer.tsx:15` - Added restaurantId to navigation
+  - `client/src/pages/CheckoutPage.tsx:15` - Added restaurantId to cart destructuring
+  - `client/src/components/layout/AppRoutes.tsx:198,207` - Updated route params
+- **Commit**: `6f28ec51`
+- **Pattern**: URL-based restaurant context propagation
+  ```typescript
+  navigate(`/checkout/${restaurantId}`)
+  navigate(`/order-confirmation/${restaurantId}`)
+  ```
+
+#### Fix 3: Order Item Schema Validation
+- **Problem**: Order creation failing with "items Required" validation error
+- **Root Cause**: OrderItem schema requires both `id` and `menu_item_id` fields (per ADR-003)
+- **Diagnosis**: CheckoutPage only sent `menu_item_id`, missing required `id` field
+- **Solution**: Added `id` field to order items in both payment flows
+- **Impact**: Order items pass validation, orders create successfully
+- **Files**:
+  - `client/src/pages/CheckoutPage.tsx:59,142` - Added id field to item mapping
+  - `shared/contracts/order.ts:6-8` - Schema definition reference
+- **Commit**: `2b29faf9`
+- **Pattern**: Dual-ID pattern for menu item references
+  ```typescript
+  {
+    id: item.id,              // Item UUID (required)
+    menu_item_id: item.id,    // Menu reference (required)
+    // ... other fields
+  }
+  ```
+
+#### Fix 4: Database RPC Function Type Mismatch
+- **Problem 1**: Duplicate function versions causing PostgreSQL ambiguity error
+- **Problem 2**: TIMESTAMP type mismatch - error 42804 in column 32 (check_closed_at)
+- **Root Cause 1**: Migration 20251029150000 didn't drop old 12-parameter version
+- **Root Cause 2**: Function returns TIMESTAMPTZ but column is TIMESTAMP
+- **Solution**:
+  - Manually dropped old function: `create_order_with_audit(12 params)`
+  - Created migration fixing timestamp type: `20251105003000_fix_check_closed_at_type.sql`
+- **Impact**: RPC function executes successfully, orders save to database
+- **Files**:
+  - `supabase/migrations/20251105003000_fix_check_closed_at_type.sql`
+- **Database Operations** (manual):
+  ```sql
+  DROP FUNCTION IF EXISTS create_order_with_audit(uuid, text, ..., jsonb); -- 12 params
+  -- Function recreated with check_closed_at as TIMESTAMP (not TIMESTAMPTZ)
+  ```
+
+#### Fix 5: Payment Flow Header (X-Client-Flow)
+- **Problem**: Payment requests missing X-Client-Flow header, treated as staff payments
+- **Root Cause**: Header added to order creation but not payment creation
+- **Diagnosis**: optionalAuth middleware checks this header to determine auth requirement
+- **Solution**: Added `X-Client-Flow: 'online'` header to both payment calls
+- **Impact**: Payments correctly identified as customer flow, no auth required
+- **Files**:
+  - `client/src/pages/CheckoutPage.tsx:93-97,180-184` - Added headers to payment requests
+- **Commit**: `3c25b838`
+- **Pattern**: Flow-type header for conditional authentication
+  ```typescript
+  headers: {
+    'X-Client-Flow': 'online'
+  }
+  ```
+
+### 🧪 Testing & Validation
+
+#### End-to-End Checkout Flow (Puppeteer)
+- **URL**: https://july25-client.vercel.app
+- **Test Scenario**: Anonymous customer order with demo payment
+- **Results**:
+  - ✅ Order Created: `20251105-0003` (ID: `7322b3c2-b6b7-4eb9-92c1-d56316a369f6`)
+  - ✅ Payment Processed: `demo-payment-484fb849-d9ce-4123-ba12-10bf7d248120` (COMPLETED)
+  - ✅ Navigation: Successfully reached `/order-confirmation/11111111-1111-1111-1111-111111111111`
+  - ✅ Cart Items: All 5 items persisted through flow
+  - ✅ Customer Flow: Anonymous order placed without authentication
+- **Verified API Responses**:
+  - POST `/api/v1/orders` - 201 Created
+  - POST `/api/v1/payments/create` - 200 OK with payment details
+
+### 🏗️ Architecture Decisions
+
+#### Pattern: Conditional Authentication (optionalAuth)
+- **When**: Endpoints serving both authenticated staff and anonymous customers
+- **How**: Use `optionalAuth` middleware + X-Client-Flow header detection
+- **Why**: Single endpoint, different auth requirements based on context
+- **Example**: Payment processing, order creation for online/kiosk flows
+
+#### Pattern: Restaurant Context Propagation
+- **When**: Multi-tenant operations requiring restaurant scope
+- **How**: Pass restaurantId through URL parameters, not session/localStorage alone
+- **Why**: Cart validation requires ID match, prevents cross-restaurant data leakage
+- **Example**: `/checkout/:restaurantId`, `/order-confirmation/:restaurantId`
+
+#### Pattern: Dual-ID Menu Item References
+- **When**: Order items referencing menu items
+- **How**: Include both `id` (item UUID) and `menu_item_id` (menu reference)
+- **Why**: ADR-003 requires both for proper relationships and tracking
+- **Schema**: See `shared/contracts/order.ts` OrderItem
+
+### 📚 Documentation Updates
+
+#### Updated Files
+- `docs/CHANGELOG.md` - This entry (v6.0.16)
+- `docs/VERSION.md` - Updated to 6.0.16
+- `docs/explanation/concepts/ORDER_FLOW.md` - Added anonymous customer flow
+- `docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md` - Documented optionalAuth pattern
+
+#### Investigation Created
+- `docs/investigations/checkout-flow-fix-nov5-2025.md` - Complete diagnostic journey
+
+### ⚙️ Migration Notes
+
+#### Database Migration Required
+Apply migration `20251105003000_fix_check_closed_at_type.sql`:
+```bash
+psql -h <host> -U <user> -d <database> -f supabase/migrations/20251105003000_fix_check_closed_at_type.sql
+```
+
+#### Manual Database Cleanup (One-Time)
+If you encounter "function not unique" errors, manually drop old function:
+```sql
+DROP FUNCTION IF EXISTS create_order_with_audit(
+  uuid, text, text, text, jsonb, numeric, numeric, numeric, text, text, text, jsonb
+);
+```
+
+### 🔍 Troubleshooting
+
+#### Symptom: Cart empties on checkout
+- **Cause**: Restaurant ID not propagated through navigation
+- **Fix**: Ensure CartDrawer, CheckoutPage use `navigate(\`/checkout/${restaurantId}\`)`
+- **Verify**: Check URL contains restaurant ID: `/checkout/11111111-...`
+
+#### Symptom: "Missing required scope: payments:process"
+- **Cause**: X-Client-Flow header missing from payment request
+- **Fix**: Add headers to payment API call: `{ 'X-Client-Flow': 'online' }`
+- **Verify**: Check request headers in network tab
+
+#### Symptom: PostgreSQL error 42804
+- **Cause**: RPC function type mismatch or duplicate functions
+- **Fix**: Apply migration 20251105003000, drop old function versions
+- **Verify**: Query `SELECT proname, pronargs FROM pg_proc WHERE proname = 'create_order_with_audit'`
+
+### 🎯 Related Issues & Commits
+
+- Issue: Staff users couldn't place customer orders
+- Commits: `cb013764`, `6f28ec51`, `2b29faf9`, `3c25b838`
+- Related ADRs: ADR-001 (snake_case), ADR-003 (menu item relationships)
 
 ## [6.0.15] - 2025-11-02 - Production-Ready Workspace Authentication
 

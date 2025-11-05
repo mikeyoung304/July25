@@ -1,9 +1,6 @@
 # Version Information
 
-
-**Last Updated:** 2025-11-01
-
-**Last Updated**: 2025-10-30
+**Last Updated:** 2025-11-05
 
 This document serves as the single source of truth for all version information in the Restaurant OS system.
 
@@ -11,7 +8,7 @@ This document serves as the single source of truth for all version information i
 
 | Component | Version | Notes |
 | --- | --- | --- |
-| **Application** | 6.0.14 | Main application version (Technical Debt Reduction & Test Coverage Sprint) |
+| **Application** | 6.0.16 | Main application version (Customer Order Flow Complete Fix) |
 | **Client (React)** | 18.3.1 | Frontend framework |
 | **Server (Express)** | 4.21.2 | Backend framework |
 | **Node.js** | 20.x | Runtime requirement |
@@ -32,6 +29,24 @@ Version information is sourced from:
 - Node.js version: `package.json` engines field
 
 ## Update History
+
+- 2025-11-05: Version 6.0.16 - Customer Order Flow Complete Fix
+  - **Critical Fix**: 5 cascading issues preventing customer checkout
+  - **Authentication**: optionalAuth with X-Client-Flow header for conditional auth
+  - **Cart Persistence**: Restaurant ID propagation through checkout flow
+  - **Validation**: Fixed OrderItem schema (id + menu_item_id dual requirement)
+  - **Database**: Fixed RPC function type mismatch (TIMESTAMP vs TIMESTAMPTZ)
+  - **End-to-End**: Complete checkout flow verified on production
+  - **Production Tested**: Anonymous customer orders working on Vercel
+  - See docs/CHANGELOG.md v6.0.16 for complete technical details
+  - Commits: `cb013764`, `6f28ec51`, `2b29faf9`, `3c25b838`
+
+- 2025-11-02: Version 6.0.15 - Production-Ready Workspace Authentication
+  - **Demo Debt**: Eliminated 422 lines of demo-session infrastructure
+  - **Security**: All workspace users migrated to real Supabase Auth
+  - **Environment Config**: Fixed VITE_DEMO_PANEL override in production builds
+  - **Credential Auto-Fill**: Working on Vercel deployments
+  - See docs/CHANGELOG.md v6.0.15 for details
 
 - 2025-10-30: Version 6.0.14 - Technical Debt Reduction & Test Coverage Sprint
   - **Test Coverage**: Added 155 new tests (37 regression + 118 unit tests)
