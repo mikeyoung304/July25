@@ -529,7 +529,7 @@ export class OrderParser {
     return 1; // Default quantity
   }
   
-  private findBestMenuMatch(text: string): { item: MenuItem | null; confidence: number } {
+  public findBestMenuMatch(text: string): { item: MenuItem | null; confidence: number } {
     let bestMatch = { item: null as MenuItem | null, confidence: 0 };
     
     // Clean text for better matching

@@ -83,11 +83,73 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
     this.isConnectingFlag = true;
 
+    // Set up connection timeout (15 seconds)
+    const CONNECTION_TIMEOUT = 15000;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Connection timeout after 15 seconds'));
+      }, CONNECTION_TIMEOUT);
+    });
+
     try {
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Starting connection...');
+        console.log('[WebRTCConnection] Starting connection with 15s timeout...');
       }
       this.setConnectionState('connecting');
+
+      // Race between actual connection and timeout
+      await Promise.race([
+        this._connectInternal(ephemeralToken),
+        timeoutPromise
+      ]);
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      // Emit specific timeout event for UI handling
+      if (errorMessage.includes('timeout')) {
+        console.error('[WebRTCConnection] Connection timeout');
+        this.emit('connection.timeout', { duration: CONNECTION_TIMEOUT });
+      }
+
+      console.error('[WebRTCConnection] Connection failed:', error);
+      this.isConnectingFlag = false;
+      this.setConnectionState('error');
+      this.emit('error', error);
+
+      // Clean up failed connection
+      this.cleanupConnection();
+
+      // Attempt reconnection with proper delay
+      this.reconnectAttempts++;
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        const delay = Math.min(5000, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
+        if (this.config.debug) {
+          console.log(`[WebRTCConnection] Will retry connection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+        }
+        setTimeout(() => {
+          if (this.connectionState !== 'connected') {
+            // Note: reconnect needs new token, so caller should handle this
+            this.emit('reconnect.needed');
+          }
+        }, delay);
+      } else {
+        console.error('[WebRTCConnection] Max reconnection attempts reached');
+        this.emit('error', new Error('Max reconnection attempts reached'));
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Internal connection logic (extracted for timeout handling)
+   */
+  private async _connectInternal(ephemeralToken: string): Promise<void> {
+    try {
+      if (this.config.debug) {
+        console.log('[WebRTCConnection] Starting internal connection...');
+      }
 
       // Step 1: Create RTCPeerConnection
       this.pc = new RTCPeerConnection({
@@ -189,34 +251,8 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       if (this.config.debug) {
         console.log('[WebRTCConnection] WebRTC connection established');
       }
-
     } catch (error) {
-      console.error('[WebRTCConnection] Connection failed:', error);
-      this.isConnectingFlag = false;
-      this.setConnectionState('error');
-      this.emit('error', error);
-
-      // Clean up failed connection
-      this.cleanupConnection();
-
-      // Attempt reconnection with proper delay
-      this.reconnectAttempts++;
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        const delay = Math.min(5000, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
-        if (this.config.debug) {
-          console.log(`[WebRTCConnection] Will retry connection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-        }
-        setTimeout(() => {
-          if (this.connectionState !== 'connected') {
-            // Note: reconnect needs new token, so caller should handle this
-            this.emit('reconnect.needed');
-          }
-        }, delay);
-      } else {
-        console.error('[WebRTCConnection] Max reconnection attempts reached');
-        this.emit('error', new Error('Max reconnection attempts reached'));
-      }
-
+      // Re-throw error to be caught by outer connect() method
       throw error;
     }
   }

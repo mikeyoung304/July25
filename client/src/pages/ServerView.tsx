@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { useServerView } from './hooks/useServerView'
 import { useTableInteraction } from './hooks/useTableInteraction'
 import { useVoiceOrderWebRTC } from './hooks/useVoiceOrderWebRTC'
+import { useAuth } from '@/contexts/auth.hooks'
 import { ServerFloorPlan } from './components/ServerFloorPlan'
 import { SeatSelectionModal } from './components/SeatSelectionModal'
 import { VoiceOrderModal } from './components/VoiceOrderModal'
@@ -23,9 +24,11 @@ export const ServerView = memo(() => {
     stats,
     restaurant
   } = useServerView()
-  
+
   const { handleTableClick } = useTableInteraction(tables, setSelectedTableId)
   const voiceOrder = useVoiceOrderWebRTC()
+  const { hasScope } = useAuth()
+  const canCreateOrders = hasScope('orders:create')
   const [showSeatSelection, setShowSeatSelection] = useState(false)
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null)
 
@@ -122,6 +125,7 @@ export const ServerView = memo(() => {
               } : null}
               selectedSeat={selectedSeat}
               orderedSeats={voiceOrder.orderedSeats}
+              canCreateOrders={canCreateOrders}
               onSeatSelect={setSelectedSeat}
               onStartVoiceOrder={handleStartVoiceOrder}
               onFinishTable={handleFinishTableFromSeatModal}

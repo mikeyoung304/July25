@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Users, Check, CheckCircle2 } from 'lucide-react'
+import { X, Users, Check, CheckCircle2, MicOff } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ActionButton } from '@/components/ui/ActionButton'
@@ -11,6 +11,7 @@ interface SeatSelectionModalProps {
   table: Table | null | undefined
   selectedSeat: number | null
   orderedSeats?: number[]
+  canCreateOrders?: boolean
   onSeatSelect: (seat: number) => void
   onStartVoiceOrder: () => void
   onFinishTable?: () => void
@@ -22,6 +23,7 @@ export function SeatSelectionModal({
   table,
   selectedSeat,
   orderedSeats = [],
+  canCreateOrders = true,
   onSeatSelect,
   onStartVoiceOrder,
   onFinishTable,
@@ -136,15 +138,33 @@ export function SeatSelectionModal({
                   >
                     Cancel
                   </Button>
-                  <ActionButton
-                    onClick={onStartVoiceOrder}
-                    disabled={!selectedSeat}
-                    color="#4ECDC4"
-                    size="medium"
-                    fullWidth
-                  >
-                    Start Voice Order
-                  </ActionButton>
+                  {canCreateOrders ? (
+                    <ActionButton
+                      onClick={onStartVoiceOrder}
+                      disabled={!selectedSeat}
+                      color="#4ECDC4"
+                      size="medium"
+                      fullWidth
+                    >
+                      Start Voice Order
+                    </ActionButton>
+                  ) : (
+                    <div className="flex-1 relative group">
+                      <ActionButton
+                        onClick={() => {}}
+                        disabled={true}
+                        color="#999999"
+                        size="medium"
+                        fullWidth
+                      >
+                        <MicOff className="h-4 w-4 mr-2" />
+                        Voice Order (No Permission)
+                      </ActionButton>
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                        You don't have permission to create orders. Contact your manager.
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Finish Table Button - shown when there are ordered seats */}

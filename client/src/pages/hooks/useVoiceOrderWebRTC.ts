@@ -7,6 +7,7 @@ import type { Table } from '@/modules/floor-plan/types'
 import { logger } from '@/services/monitoring/logger'
 import { useTaxRate } from '@/hooks/useTaxRate'
 import { supabase } from '@/core/supabase'
+import { useRestaurant } from '@/core/restaurant-hooks'
 
 // Helper to resolve absolute API URLs for production
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -24,11 +25,13 @@ export function useVoiceOrderWebRTC() {
   const { toast } = useToast()
   const { items: menuItems } = useMenuItems()
   const taxRate = useTaxRate()
+  const { restaurant } = useRestaurant()
   const [showVoiceOrder, setShowVoiceOrder] = useState(false)
   const [currentTranscript, setCurrentTranscript] = useState('')
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [isVoiceActive, setIsVoiceActive] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const orderParserRef = useRef<OrderParser | null>(null)
 
   // Multi-seat ordering state
@@ -40,7 +43,7 @@ export function useVoiceOrderWebRTC() {
   useEffect(() => {
     if (menuItems.length > 0) {
       orderParserRef.current = new OrderParser(menuItems)
-      logger.info('[useVoiceOrderWebRTC] OrderParser initialized with', menuItems.length, 'items')
+      logger.info('[useVoiceOrderWebRTC] OrderParser initialized', { itemCount: menuItems.length })
     }
   }, [menuItems])
 
@@ -189,7 +192,7 @@ export function useVoiceOrderWebRTC() {
     }
 
     if (unmatchedItems.length > 0) {
-      logger.error('[handleOrderData] Unmatched items:', unmatchedItems)
+      logger.error('[handleOrderData] Unmatched items:', { unmatchedItems })
       toast.error(
         `Could not find menu items: ${unmatchedItems.join(', ')}. ` +
         `Please try again or choose from the menu.`
@@ -204,10 +207,18 @@ export function useVoiceOrderWebRTC() {
 
   // Submit order to backend
   const submitOrder = useCallback(async (selectedTable: Table | null, selectedSeat: number | null) => {
+    // Guard clause: prevent duplicate submissions
+    if (isSubmitting) {
+      logger.warn('[submitOrder] Submit already in progress, ignoring duplicate call')
+      return false
+    }
+
     if (orderItems.length === 0 || !selectedTable || !selectedSeat) {
       toast.error('No order items to submit')
       return false
     }
+
+    setIsSubmitting(true)
 
     // CRITICAL: Validate all items have menuItemId before submission
     // Items without menuItemId are raw text from failed parsing and will cause 400/500 errors
@@ -235,12 +246,20 @@ export function useVoiceOrderWebRTC() {
         return false
       }
 
+      // Get restaurant ID from context (fix for P0 multi-tenant data corruption bug)
+      const restaurantId = restaurant?.id
+      if (!restaurantId) {
+        logger.error('[submitOrder] No restaurant ID available')
+        toast.error('Restaurant context not loaded. Please refresh the page.')
+        return false
+      }
+
       const response = await fetch(apiUrl('/api/v1/orders'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-          'X-Restaurant-ID': '11111111-1111-1111-1111-111111111111',
+          'X-Restaurant-ID': restaurantId,
           'X-Client-Flow': 'server'
         },
         body: JSON.stringify({
@@ -292,8 +311,11 @@ export function useVoiceOrderWebRTC() {
       console.error('Error submitting order:', error)
       toast.error('Failed to submit order. Please try again.')
       return false
+    } finally {
+      // Always reset submitting flag, even on error
+      setIsSubmitting(false)
     }
-  }, [orderItems, menuItems, toast, taxRate])
+  }, [orderItems, menuItems, toast, taxRate, isSubmitting])
 
   // Handler for "Add Next Seat" button
   const handleAddNextSeat = useCallback(() => {
