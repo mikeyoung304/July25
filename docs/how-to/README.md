@@ -1,6 +1,6 @@
 # How-To Guides
 
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-05
 
 **Goal-oriented guides for solving specific problems and accomplishing tasks.**
 
@@ -22,6 +22,7 @@ Guides for developing features and contributing to Restaurant OS:
 - [Development Process](./development/DEVELOPMENT_PROCESS.md) - Development workflow and best practices
 - [CI/CD Workflows](./development/CI_CD_WORKFLOWS.md) - Continuous integration and deployment
 - [Contributing Guide](./development/CONTRIBUTING.md) - How to contribute to the project
+- [Feature Flags Guide](./development/FEATURE_FLAGS.md) - Using feature flags for gradual rollout and A/B testing
 
 ## Troubleshooting
 
