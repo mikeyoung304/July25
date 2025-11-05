@@ -1,8 +1,8 @@
 # Feature Flags Guide
 
-**Last Updated**: 2025-11-05
+**Last Updated**: 2025-11-05 (Security Hardening Complete)
 **Owner**: Engineering Team
-**Status**: Active
+**Status**: Production-Ready ✅
 
 ---
 
@@ -13,8 +13,10 @@ Feature flags enable gradual rollout, A/B testing, and safe deployment of new fe
 - ✅ Environment-based configuration (`.env` files)
 - ✅ Percentage-based rollouts (0-100%)
 - ✅ User/restaurant targeting
-- ✅ Local overrides for testing
+- ✅ Local overrides for testing (development only)
 - ✅ TypeScript type safety
+- ✅ **Cryptographic hashing (SHA-256)** for uniform distribution
+- ✅ **Production security hardening** (XSS protection)
 
 ---
 
@@ -59,8 +61,8 @@ function MyComponent() {
 ```typescript
 import { featureFlagService, FEATURE_FLAGS } from '@/services/featureFlags';
 
-function processOrder(order: Order, userId: string, restaurantId: string) {
-  const useNewFlow = featureFlagService.isEnabled(
+async function processOrder(order: Order, userId: string, restaurantId: string) {
+  const useNewFlow = await featureFlagService.isEnabled(
     FEATURE_FLAGS.NEW_CUSTOMER_ID_FLOW,
     userId,
     restaurantId
@@ -73,6 +75,56 @@ function processOrder(order: Order, userId: string, restaurantId: string) {
   return processOrderV1(order);
 }
 ```
+
+**Note**: `isEnabled()` is async because it uses SHA-256 for cryptographic hashing.
+
+---
+
+## Security Features
+
+### SHA-256 Cryptographic Hashing
+
+Feature flags use **SHA-256** (Web Crypto API) for consistent hashing to ensure:
+
+1. **Uniform Distribution**: Users are evenly distributed across percentage buckets
+2. **No Collision Attacks**: Cryptographically secure against hash manipulation
+3. **Consistent Bucketing**: Same user always gets same result for A/B testing
+
+**Implementation**:
+```typescript
+// Internal implementation (FeatureFlagService.ts)
+private async cryptoHash(str: string): Promise<number> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = new Uint8Array(hashBuffer);
+  const hash = (hashArray[0] << 24) | (hashArray[1] << 16) |
+               (hashArray[2] << 8) | hashArray[3];
+  return Math.abs(hash);
+}
+```
+
+### Production Security Hardening
+
+**localStorage overrides are DISABLED in production** to prevent XSS attacks:
+
+```typescript
+// ✅ Development: localStorage overrides work
+if (import.meta.env.PROD === false) {
+  featureFlagService.setLocalOverride('MY_FLAG', { enabled: true });
+}
+
+// ❌ Production: localStorage overrides blocked (logs warning)
+if (import.meta.env.PROD === true) {
+  featureFlagService.setLocalOverride('MY_FLAG', { enabled: true });
+  // Warning logged: "Local overrides disabled in production"
+}
+```
+
+**Why this matters**:
+- Prevents XSS attacks from enabling experimental features
+- Prevents malicious users from manipulating feature flags via browser console
+- Ensures production rollout percentages are accurate
 
 ---
 
@@ -147,9 +199,11 @@ VITE_FEATURE_NEW_FEATURE=true
 
 ## Testing Feature Flags
 
-### Local Override (Development)
+### Local Override (Development Only)
 
-Open browser console:
+**⚠️ Note**: localStorage overrides only work in development (`import.meta.env.PROD === false`). They are disabled in production for security.
+
+Open browser console in **development environment**:
 ```javascript
 // Enable a feature locally
 featureFlagService.setLocalOverride('NEW_CUSTOMER_ID_FLOW', {
@@ -168,6 +222,8 @@ featureFlagService.clearLocalOverrides();
 // Reload page to see changes
 window.location.reload();
 ```
+
+**In production**: Use environment variables (`.env.production`) to control flags.
 
 ### Environment-Specific Configs
 
@@ -198,8 +254,14 @@ VITE_FEATURE_NEW_CUSTOMER_ID_FLOW=10
 
 | Flag | Purpose | Status | Rollout |
 |------|---------|--------|---------|
-| `NEW_CUSTOMER_ID_FLOW` | Use dynamic restaurant ID from context instead of hardcoded UUID | ✅ Implemented | 🔄 Pending |
+| `NEW_CUSTOMER_ID_FLOW` | Use dynamic restaurant ID from context instead of hardcoded UUID | ✅ **INTEGRATED** | 🚀 **Ready: 0% → 100%** |
 | `IDEMPOTENCY_ENABLED` | Server-side idempotency key checking | ⏳ Phase 2A | - |
+
+**NEW_CUSTOMER_ID_FLOW Details**:
+- **File**: `client/src/pages/hooks/useVoiceOrderWebRTC.ts:253-255`
+- **Current**: 0% (feature flag disabled, uses fallback hardcoded ID)
+- **Rollout Plan**: 0% → 10% → 25% → 50% → 100% over 4 weeks
+- **Fallback**: Safely falls back to hardcoded ID when disabled
 
 ### Phase 2A: Backend Reliability
 
