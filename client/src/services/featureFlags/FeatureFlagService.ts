@@ -107,9 +107,15 @@ export class FeatureFlagService {
 
   /**
    * Load feature flag overrides from localStorage (for testing)
+   * SECURITY: Disabled in production to prevent unauthorized feature flag manipulation
    */
   private loadFromLocalStorage(): Map<string, FeatureFlagConfig> {
     const flags = new Map<string, FeatureFlagConfig>();
+
+    // Disable localStorage overrides in production
+    if (import.meta.env.PROD) {
+      return flags;
+    }
 
     try {
       const overridesJson = localStorage.getItem(this.STORAGE_KEY);
@@ -134,11 +140,11 @@ export class FeatureFlagService {
    * @param restaurantId - Optional restaurant ID for targeting
    * @returns true if feature is enabled
    */
-  isEnabled(
+  async isEnabled(
     flagName: string,
     userId?: string,
     restaurantId?: string
-  ): boolean {
+  ): Promise<boolean> {
     const config = this.flags.get(flagName);
 
     // Flag not defined - default to disabled
@@ -163,7 +169,7 @@ export class FeatureFlagService {
 
     // Check percentage rollout
     if (config.rolloutPercentage !== undefined) {
-      return this.isInRolloutPercentage(flagName, userId || restaurantId || '', config.rolloutPercentage);
+      return await this.isInRolloutPercentage(flagName, userId || restaurantId || '', config.rolloutPercentage);
     }
 
     // No targeting - enabled for all
@@ -175,25 +181,32 @@ export class FeatureFlagService {
    *
    * This ensures the same user/restaurant always gets the same result for a given flag,
    * which is critical for A/B testing.
+   *
+   * Uses SHA-256 for cryptographically secure, uniform distribution.
    */
-  private isInRolloutPercentage(flagName: string, id: string, percentage: number): boolean {
-    // Simple hash function (could use crypto for production)
-    const hash = this.simpleHash(`${flagName}:${id}`);
+  private async isInRolloutPercentage(flagName: string, id: string, percentage: number): Promise<boolean> {
+    const hash = await this.cryptoHash(`${flagName}:${id}`);
     const bucket = hash % 100;
 
     return bucket < percentage;
   }
 
   /**
-   * Simple hash function for consistent bucketing
+   * Cryptographically secure hash function using SHA-256
+   * Provides uniform distribution for feature flag bucketing
    */
-  private simpleHash(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
+  private async cryptoHash(str: string): Promise<number> {
+    // Convert string to bytes
+    const encoder = new TextEncoder();
+    const data = encoder.encode(str);
+
+    // Generate SHA-256 hash
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+    // Convert first 4 bytes to a number
+    const hashArray = new Uint8Array(hashBuffer);
+    const hash = (hashArray[0] << 24) | (hashArray[1] << 16) | (hashArray[2] << 8) | hashArray[3];
+
     return Math.abs(hash);
   }
 
@@ -207,8 +220,15 @@ export class FeatureFlagService {
   /**
    * Override a feature flag locally (for testing)
    * This is stored in localStorage and persists across page reloads
+   * SECURITY: Disabled in production to prevent unauthorized feature flag manipulation
    */
   setLocalOverride(flagName: string, config: FeatureFlagConfig): void {
+    // Prevent overrides in production
+    if (import.meta.env.PROD) {
+      logger.warn('[FeatureFlags] Local overrides disabled in production', { flagName });
+      return;
+    }
+
     this.flags.set(flagName, config);
 
     // Save to localStorage

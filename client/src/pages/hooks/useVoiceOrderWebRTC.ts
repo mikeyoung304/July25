@@ -8,6 +8,8 @@ import { logger } from '@/services/monitoring/logger'
 import { useTaxRate } from '@/hooks/useTaxRate'
 import { supabase } from '@/core/supabase'
 import { useRestaurant } from '@/core/restaurant-hooks'
+import { useFeatureFlag, FEATURE_FLAGS } from '@/services/featureFlags'
+import { useVoiceOrderingMetrics } from '@/services/metrics'
 
 // Helper to resolve absolute API URLs for production
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -26,12 +28,15 @@ export function useVoiceOrderWebRTC() {
   const { items: menuItems } = useMenuItems()
   const taxRate = useTaxRate()
   const { restaurant } = useRestaurant()
+  const useNewCustomerIdFlow = useFeatureFlag(FEATURE_FLAGS.NEW_CUSTOMER_ID_FLOW)
+  const metrics = useVoiceOrderingMetrics()
   const [showVoiceOrder, setShowVoiceOrder] = useState(false)
   const [currentTranscript, setCurrentTranscript] = useState('')
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [isVoiceActive, setIsVoiceActive] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [orderSessionId, setOrderSessionId] = useState<string | null>(null)
   const orderParserRef = useRef<OrderParser | null>(null)
 
   // Multi-seat ordering state
@@ -46,6 +51,15 @@ export function useVoiceOrderWebRTC() {
       logger.info('[useVoiceOrderWebRTC] OrderParser initialized', { itemCount: menuItems.length })
     }
   }, [menuItems])
+
+  // Track order session started when voice order modal opens
+  useEffect(() => {
+    if (showVoiceOrder && !orderSessionId) {
+      const sessionId = metrics.trackOrderStarted('voice-order', 1)
+      setOrderSessionId(sessionId)
+      logger.info('[useVoiceOrderWebRTC] Order session started', { sessionId })
+    }
+  }, [showVoiceOrder, orderSessionId, metrics])
 
   // Process parsed menu items and add to order
   const processParsedItems = useCallback((parsedItems: ParsedOrderItem[]) => {
@@ -247,8 +261,12 @@ export function useVoiceOrderWebRTC() {
       }
 
       // Get restaurant ID from context (fix for P0 multi-tenant data corruption bug)
-      const restaurantId = restaurant?.id
-      if (!restaurantId) {
+      // Feature flag controls gradual rollout of dynamic restaurant ID
+      const restaurantId = useNewCustomerIdFlow
+        ? restaurant?.id
+        : '11111111-1111-1111-1111-111111111111' // Fallback to hardcoded ID if flag disabled
+
+      if (useNewCustomerIdFlow && !restaurantId) {
         logger.error('[submitOrder] No restaurant ID available')
         toast.error('Restaurant context not loaded. Please refresh the page.')
         return false
@@ -291,7 +309,16 @@ export function useVoiceOrderWebRTC() {
       })
 
       if (response.ok) {
+        const responseData = await response.json()
+        const orderId = responseData.id || 'unknown'
+
         toast.success(`Order submitted for ${selectedTable.label}, Seat ${selectedSeat}!`)
+
+        // Track order completion
+        if (orderSessionId) {
+          metrics.trackOrderCompleted(orderSessionId, orderId, orderItems.length)
+          logger.info('[submitOrder] Order completed', { sessionId: orderSessionId, orderId })
+        }
 
         // Track ordered seat and show post-order prompt
         setOrderedSeats(prev => [...prev, selectedSeat])
@@ -300,6 +327,9 @@ export function useVoiceOrderWebRTC() {
 
         // Clear current order items for next seat
         setOrderItems([])
+
+        // Reset session ID for next order
+        setOrderSessionId(null)
 
         return true
       } else {
@@ -315,7 +345,7 @@ export function useVoiceOrderWebRTC() {
       // Always reset submitting flag, even on error
       setIsSubmitting(false)
     }
-  }, [orderItems, menuItems, toast, taxRate, isSubmitting])
+  }, [orderItems, menuItems, toast, taxRate, isSubmitting, useNewCustomerIdFlow, restaurant?.id, orderSessionId, metrics])
 
   // Handler for "Add Next Seat" button
   const handleAddNextSeat = useCallback(() => {
@@ -341,14 +371,21 @@ export function useVoiceOrderWebRTC() {
 
   // Reset voice order state (called when canceling or closing)
   const resetVoiceOrder = useCallback(() => {
+    // Track order abandoned if there were items and an active session
+    if (orderSessionId && orderItems.length > 0) {
+      metrics.trackOrderAbandoned(orderSessionId, 'user_closed_modal')
+      logger.info('[resetVoiceOrder] Order abandoned', { sessionId: orderSessionId, itemCount: orderItems.length })
+    }
+
     setShowVoiceOrder(false)
     setCurrentTranscript('')
     setOrderItems([])
     setIsVoiceActive(false)
     setIsProcessing(false)
     setShowPostOrderPrompt(false)
+    setOrderSessionId(null)
     // Keep orderedSeats intact unless explicitly finishing table
-  }, [])
+  }, [orderSessionId, orderItems, metrics])
 
   // Complete reset for starting fresh with a new table
   const resetAllState = useCallback(() => {

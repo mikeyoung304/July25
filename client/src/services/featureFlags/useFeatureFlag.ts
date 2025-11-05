@@ -13,7 +13,7 @@
  * ```
  */
 
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/auth.hooks';
 import { useRestaurant } from '@/core/restaurant-hooks';
 import { featureFlagService } from './FeatureFlagService';
@@ -27,14 +27,27 @@ import { featureFlagService } from './FeatureFlagService';
 export function useFeatureFlag(flagName: string): boolean {
   const { user } = useAuth();
   const { restaurant } = useRestaurant();
+  const [isEnabled, setIsEnabled] = useState(false);
 
-  return useMemo(() => {
-    return featureFlagService.isEnabled(
+  useEffect(() => {
+    let mounted = true;
+
+    featureFlagService.isEnabled(
       flagName,
       user?.id,
       restaurant?.id
-    );
+    ).then(enabled => {
+      if (mounted) {
+        setIsEnabled(enabled);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
   }, [flagName, user?.id, restaurant?.id]);
+
+  return isEnabled;
 }
 
 /**
