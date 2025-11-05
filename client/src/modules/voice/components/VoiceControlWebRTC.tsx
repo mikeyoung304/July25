@@ -9,6 +9,7 @@ import { AlertCircle, Mic, MicOff } from 'lucide-react';
 interface VoiceControlWebRTCProps {
   onTranscript?: (event: { text: string; isFinal: boolean }) => void;
   onOrderDetected?: (order: any) => void;
+  onRecordingStateChange?: (isRecording: boolean) => void;
   debug?: boolean;
   className?: string;
   muteAudioOutput?: boolean; // Option to disable voice responses
@@ -21,6 +22,7 @@ interface VoiceControlWebRTCProps {
 export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   onTranscript,
   onOrderDetected,
+  onRecordingStateChange,
   debug = false,
   className = '',
   muteAudioOutput = false,
@@ -50,6 +52,11 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     },
     onOrderDetected,
   });
+
+  // Notify parent when recording state changes
+  useEffect(() => {
+    onRecordingStateChange?.(isRecording);
+  }, [isRecording, onRecordingStateChange]);
   
   // Check microphone permission - store connect in ref to avoid dep loop
   const connectRef = React.useRef(connect);

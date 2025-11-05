@@ -55,7 +55,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   const navigate = useNavigate();
   
   const [orderParser, setOrderParser] = useState<OrderParser | null>(null);
-  const [isListening] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [lastTranscript, setLastTranscript] = useState('');
   const [recentlyAdded, setRecentlyAdded] = useState<string[]>([]);
   const [voiceFeedback, setVoiceFeedback] = useState('');
@@ -340,6 +340,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                 <VoiceControlWebRTC
                   onTranscript={handleVoiceTranscript}
                   onOrderDetected={handleOrderData}
+                  onRecordingStateChange={setIsListening}
                   debug={false}
                 />
               </Suspense>
