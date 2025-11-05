@@ -114,6 +114,11 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
     handleStop();
   }, [handleStop]);
 
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    // Prevent context menu (long-press menu) on mobile
+    e.preventDefault();
+  }, []);
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -138,6 +143,7 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
           'relative w-32 h-32 rounded-full text-sm font-semibold text-white transition-all duration-300',
           'hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-2',
           'focus:outline-none focus:ring-4 focus:ring-offset-2',
+          'select-none', // Prevent text selection on long press
           isListening
             ? 'bg-danger shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:bg-danger-dark focus:ring-danger'
             : 'bg-primary shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:bg-primary-dark focus:ring-primary',
@@ -146,6 +152,12 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
           disabled && 'opacity-50 cursor-not-allowed',
           className
         )}
+        style={{
+          WebkitTouchCallout: 'none', // Prevent iOS callout menu
+          WebkitUserSelect: 'none',   // Prevent text selection on iOS
+          userSelect: 'none',          // Prevent text selection
+          touchAction: 'none'          // Prevent default touch behaviors
+        }}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
@@ -153,6 +165,7 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
+        onContextMenu={handleContextMenu}
         disabled={disabled}
         aria-label={getAriaLabel()}
         aria-pressed={isListening}
