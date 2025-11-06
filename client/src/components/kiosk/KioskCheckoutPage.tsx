@@ -5,7 +5,8 @@ import { SquarePaymentForm } from '@/modules/order-system/components/SquarePayme
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
 import { useApiRequest } from '@/hooks/useApiRequest';
 import { useSquareTerminal } from '@/hooks/useSquareTerminal';
-import { useFormValidation, validators } from '@/utils/validation';
+import { useFormValidation } from '@/utils/validation';
+import { checkoutValidationRules } from '@/config/checkoutValidation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
@@ -118,24 +119,15 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     }
   }, [voiceCheckoutOrchestrator]);
   
-  // Use form validation hook with kiosk-friendly validation
+  // Use form validation hook with shared validation rules
   const form = useFormValidation({
     customerEmail: '',
     customerPhone: '',
     customerName: '',
   }, {
-    customerEmail: {
-      rules: [validators.required, validators.email],
-      validateOnBlur: true,
-    },
-    customerPhone: {
-      rules: [validators.required, validators.phone],
-      validateOnBlur: true,
-    },
-    customerName: {
-      rules: [validators.required],
-      validateOnBlur: true,
-    },
+    customerEmail: checkoutValidationRules.customerEmail,
+    customerPhone: checkoutValidationRules.customerPhone,
+    customerName: checkoutValidationRules.customerName,
   });
 
   // Create order function (shared by all payment methods)

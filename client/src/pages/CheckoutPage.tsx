@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BackToDashboard } from '@/components/navigation/BackToDashboard';
-import { useCart } from '@/contexts/cart.hooks';
+import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { CartItem } from '@/modules/order-system/components/CartItem';
 import { CartSummary } from '@/modules/order-system/components/CartSummary';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
 import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
 import { useApiRequest } from '@/hooks/useApiRequest';
-import { useFormValidation, validators } from '@/utils/validation';
+import { useFormValidation } from '@/utils/validation';
+import { checkoutValidationRules } from '@/config/checkoutValidation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 
 const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, updateCartItem, removeFromCart, updateTip, clearCart, restaurantId } = useCart();
+  const { cart, updateCartItem, removeFromCart, updateTip, clearCart, restaurantId } = useUnifiedCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const orderApi = useApiRequest();
   const paymentApi = useApiRequest();
@@ -26,19 +27,13 @@ const CheckoutPageContent: React.FC = () => {
                      import.meta.env.VITE_SQUARE_ACCESS_TOKEN === 'demo' || 
                      import.meta.env.DEV;
   
-  // Use form validation hook
+  // Use form validation hook with shared validation rules
   const form = useFormValidation({
     customerEmail: '',
     customerPhone: '',
   }, {
-    customerEmail: {
-      rules: [validators.required, validators.email],
-      validateOnBlur: true,
-    },
-    customerPhone: {
-      rules: [validators.required, validators.phone],
-      validateOnBlur: true,
-    },
+    customerEmail: checkoutValidationRules.customerEmail,
+    customerPhone: checkoutValidationRules.customerPhone,
   });
 
   const handleDemoPayment = async () => {
