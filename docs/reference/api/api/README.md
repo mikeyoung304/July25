@@ -38,8 +38,8 @@ Authorization: Bearer <your-jwt-token>
 | Method | Path | Auth | Description | Source |
 | --- | --- | --- | --- | --- |
 | GET | `/health` | No | Health check endpoint | [health.routes.ts](../../server/src/routes/health.routes.ts) |
-| GET | `/health/ready` | No | Kubernetes readiness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
-| GET | `/health/live` | No | Kubernetes liveness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
+| GET | `/api/v1/health/ready` | No | Kubernetes readiness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
+| GET | `/api/v1/health/live` | No | Kubernetes liveness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
 | GET | `/metrics` | No | Prometheus metrics | [metrics.ts](../../server/src/routes/metrics.ts) |
 
 ### Authentication
@@ -96,7 +96,7 @@ Authorization: Bearer <your-jwt-token>
 
 | Method | Path | Auth | Description | Source |
 | --- | --- | --- | --- | --- |
-| POST | `/api/payments/process` | Yes | Process payment | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
+| POST | `/api/v1/payments/create` | Yes | Process card payment | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
 | POST | `/api/v1/payments/cash` | Yes | Process cash payment | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
 | POST | `/api/payments/refund` | Yes | Process refund | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
 | GET | `/api/payments/:id` | Yes | Get payment details | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
@@ -129,7 +129,7 @@ Authorization: Bearer <your-jwt-token>
 
 | Method | Path | Auth | Description | Source |
 | --- | --- | --- | --- | --- |
-| GET | `/api/security/audit` | Yes | Get audit logs | [security.routes.ts](../../server/src/routes/security.routes.ts) |
+| GET | `/api/v1/security/events` | Yes | Get security events | [security.routes.ts](../../server/src/routes/security.routes.ts) |
 | GET | `/api/security/sessions` | Yes | Active sessions | [security.routes.ts](../../server/src/routes/security.routes.ts) |
 | POST | `/api/security/validate` | Yes | Validate permissions | [security.routes.ts](../../server/src/routes/security.routes.ts) |
 
@@ -137,8 +137,9 @@ Authorization: Bearer <your-jwt-token>
 
 | Method | Path | Auth | Description | Source |
 | --- | --- | --- | --- | --- |
-| POST | `/api/webhooks/square` | No* | Square webhooks | [webhook.routes.ts](../../server/src/routes/webhook.routes.ts) |
-| POST | `/api/webhooks/stripe` | No* | Stripe webhooks | [webhook.routes.ts](../../server/src/routes/webhook.routes.ts) |
+| POST | `/api/v1/webhooks/payments` | No* | Payment webhook handler | [webhook.routes.ts](../../server/src/routes/webhook.routes.ts) |
+| POST | `/api/v1/webhooks/orders` | No* | Order webhook handler | [webhook.routes.ts](../../server/src/routes/webhook.routes.ts) |
+| POST | `/api/v1/webhooks/inventory` | No* | Inventory webhook handler | [webhook.routes.ts](../../server/src/routes/webhook.routes.ts) |
 
 *Webhooks use signature verification instead of JWT auth
 

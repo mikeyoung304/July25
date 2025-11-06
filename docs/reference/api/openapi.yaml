@@ -990,7 +990,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /health/ready:
+  /api/v1/health/ready:
     get:
       tags:
         - Health
@@ -1026,7 +1026,7 @@ paths:
                         enum: [ok, degraded]
         '503':
           description: Application not ready
-  /health/live:
+  /api/v1/health/live:
     get:
       tags:
         - Health
@@ -1227,7 +1227,7 @@ paths:
                   type: string
                   description: Voice transcription text from client
                   example: "I'd like a Soul Bowl with extra tzatziki"
-                audio_url:
+                audioUrl:
                   type: string
                   format: uri
                   description: Optional URL to audio file for audit/playback
@@ -1334,11 +1334,11 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/create:
+  /api/v1/payments/create:
     post:
       tags:
         - Payments
-      summary: Create create
+      summary: Process card payment
       responses:
         '200':
           description: Successful response
@@ -1707,11 +1707,11 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/payments:
+  /api/v1/webhooks/payments:
     post:
       tags:
         - Webhook
-      summary: Create payments
+      summary: Payment webhook handler
       responses:
         '200':
           description: Successful response
@@ -1723,11 +1723,11 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/orders:
+  /api/v1/webhooks/orders:
     post:
       tags:
         - Webhook
-      summary: Create orders
+      summary: Order webhook handler
       responses:
         '200':
           description: Successful response
@@ -1739,11 +1739,11 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/inventory:
+  /api/v1/webhooks/inventory:
     post:
       tags:
         - Webhook
-      summary: Create inventory
+      summary: Inventory webhook handler
       responses:
         '200':
           description: Successful response
