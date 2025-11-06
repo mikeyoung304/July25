@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { VIEWPORTS, CHROME_LAUNCH_ARGS, createLaunchOptions } from './tests/config/viewport.config';
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -24,15 +25,25 @@ export default defineConfig({
     // Desktop browsers
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: VIEWPORTS.desktop,
+        launchOptions: createLaunchOptions(CHROME_LAUNCH_ARGS.desktop),
+      },
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+        viewport: VIEWPORTS.desktop,
+      },
     },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: {
+        ...devices['Desktop Safari'],
+        viewport: VIEWPORTS.desktop,
+      },
     },
 
     // Mobile devices
@@ -50,7 +61,8 @@ export default defineConfig({
       name: 'visual-regression',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 720 },
+        viewport: VIEWPORTS.desktopHD,
+        launchOptions: createLaunchOptions(CHROME_LAUNCH_ARGS.desktopHD),
       },
       testDir: './tests/visual',
     },
@@ -58,7 +70,11 @@ export default defineConfig({
     // Accessibility tests
     {
       name: 'accessibility',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: VIEWPORTS.desktop,
+        launchOptions: createLaunchOptions(CHROME_LAUNCH_ARGS.desktop),
+      },
       testDir: './tests/a11y',
     },
 
@@ -76,9 +92,8 @@ export default defineConfig({
       name: 'performance',
       use: {
         ...devices['Desktop Chrome'],
-        launchOptions: {
-          args: ['--no-sandbox', '--disable-web-security']
-        }
+        viewport: VIEWPORTS.desktop,
+        launchOptions: createLaunchOptions(CHROME_LAUNCH_ARGS.performance),
       },
       testDir: './tests/performance',
     },
@@ -89,7 +104,8 @@ export default defineConfig({
       testMatch: /.*\.smoke\.spec\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        viewport: { width: 1920, height: 1080 },
+        viewport: VIEWPORTS.desktop,
+        launchOptions: createLaunchOptions(CHROME_LAUNCH_ARGS.desktop),
       },
       testDir: './tests/e2e',
     },
