@@ -26,6 +26,7 @@ import { authenticate, requireRole } from './middleware/auth';
 import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
 import { applySecurity } from './middleware/security';
 import { sanitizeRequest } from './middleware/requestSanitizer';
+import { slugResolver } from './middleware/slugResolver';
 // Disabled per ADR-001: import { responseTransformMiddleware } from './middleware/responseTransform';
 
 const app: Express = express();
@@ -169,6 +170,9 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Request sanitization (after body parsing, before other middleware)
 app.use(sanitizeRequest);
+
+// Slug resolver middleware (resolves restaurant slugs to UUIDs in headers)
+app.use(slugResolver);
 
 // Response transformation middleware - DISABLED per ADR-001 (full snake_case convention)
 // Rationale: Database uses snake_case, frontend expects snake_case, transformation adds overhead
