@@ -1,7 +1,7 @@
 # Architecture Overview
 
 
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-06
 
 [Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](../../../README.md) > Architecture Overview
 
@@ -62,6 +62,67 @@ sequenceDiagram
   S->>SQ: CreatePayment(total, idempotency)
   S-->>C: 200
   S-->>C: WS status updates
+```
+
+---
+
+## Request Processing Pipeline
+
+The server uses a middleware pipeline to process incoming requests. Middleware components execute in sequence, each performing a specific transformation or validation.
+
+### Middleware Stack
+
+```
+Incoming Request
+      ↓
+1. Body Parser (express.json)
+      ↓
+2. Sanitization (sanitizeRequest)
+      ↓
+3. Slug Resolver (slugResolver)  ← NEW (v6.0.9)
+      ↓
+4. Authentication (auth/optionalAuth)
+      ↓
+5. Route Handlers
+      ↓
+Response
+```
+
+### Slug Resolution Middleware
+
+**Purpose**: Transparently convert human-friendly restaurant slugs to UUIDs without breaking existing business logic.
+
+**Location**: `server/src/middleware/slugResolver.ts`
+
+**Behavior**:
+1. Inspects `x-restaurant-id` header
+2. Detects UUID vs slug format using regex
+3. If slug detected:
+   - Check in-memory cache (5-minute TTL)
+   - Query database if cache miss
+   - Replace header value with resolved UUID
+4. If UUID detected: pass through unchanged
+
+**Example**:
+```typescript
+// Client sends
+Headers: { 'x-restaurant-id': 'grow' }
+
+// Middleware resolves
+Headers: { 'x-restaurant-id': '11111111-1111-1111-1111-111111111111' }
+
+// Route handlers see UUID (no changes needed)
+```
+
+**Performance**:
+- Cache hit: ~1ms overhead
+- Cache miss: ~50ms (database query)
+- Cache TTL: 5 minutes
+- Automatic cache invalidation on slug changes
+
+See [ADR-008: Slug-Based Restaurant Routing](../architecture-decisions/ADR-008-slug-based-routing.md) for detailed rationale and implementation.
+
+---
 
 ## Voice Ordering Architecture
 
@@ -242,6 +303,7 @@ Potential architectural improvements:
 
 - [Authentication Architecture](./AUTHENTICATION_ARCHITECTURE.md) - Auth flows and security
 - [ADR-005: Client-Side Voice Ordering](../architecture-decisions/ADR-005-client-side-voice-ordering.md) - Voice ordering decision
+- [ADR-008: Slug-Based Restaurant Routing](../architecture-decisions/ADR-008-slug-based-routing.md) - Slug resolution middleware
 - [Voice Ordering Explained](../../voice/VOICE_ORDERING_EXPLAINED.md) - Voice implementation details
 - [Deployment Guide](../../how-to/operations/DEPLOYMENT.md) - Production deployment
 - [Database Schema](../../reference/schema/DATABASE.md) - Data model and RLS

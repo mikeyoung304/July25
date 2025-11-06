@@ -1,6 +1,6 @@
 # Environment Variables
 
-**Last Updated:** 2025-11-02
+**Last Updated:** 2025-11-06
 
 This document describes all environment variables used in the Restaurant OS application.
 
@@ -36,7 +36,7 @@ The following variables are optional and have sensible defaults:
 | -------- | ---- | -------- | ------- | ----------- |
 | NODE_ENV | String | No | development | ====================. Server Configuration. ==================== |
 | PORT | Number | No | 3001 | port |
-| DEFAULT_RESTAURANT_ID | String | No | 11111111-1111-1111-1111-111111111111 | default restaurant id |
+| DEFAULT_RESTAURANT_ID | String | No | grow | Default restaurant identifier. Supports both UUID format (11111111-1111-1111-1111-111111111111) and slug format (grow). See [ADR-008](../../explanation/architecture-decisions/ADR-008-slug-based-routing.md) |
 | DATABASE_URL | URL | No | postgresql://user:password@localhost:5432/dbname | Database URL (Cloud Supabase). Get from: Supabase Dashboard > Settings > Database > Connection string. Format: postgresql://postgres.[project-ref]:[password]@aws-0-us-east-1.pooler.supabase.com:5432/postgres |
 | SQUARE_ENVIRONMENT | String | No | sandbox # 'sandbox' for testing, 'production' for live payments | square environment |
 | FRONTEND_URL | URL | No | http://localhost:5173 # Required for CORS | frontend url |
@@ -48,7 +48,7 @@ The following variables are optional and have sensible defaults:
 | RATE_LIMIT_WINDOW_MS | Number | No | 60000 | rate limit window ms |
 | RATE_LIMIT_MAX_REQUESTS | Number | No | 100 | rate limit max requests |
 | VITE_API_BASE_URL | URL | No | http://localhost:3001 | REQUIRED: Core Client Variables (app will fail without these) |
-| VITE_DEFAULT_RESTAURANT_ID | String | No | 11111111-1111-1111-1111-111111111111 | vite default restaurant id |
+| VITE_DEFAULT_RESTAURANT_ID | String | No | grow | Client-side default restaurant identifier. Supports both UUID and slug formats. Used in customer-facing URLs (e.g., /order/grow). See [ADR-008](../../explanation/architecture-decisions/ADR-008-slug-based-routing.md) |
 | VITE_ENVIRONMENT | String | No | development | vite environment |
 | VITE_SQUARE_ENVIRONMENT | String | No | sandbox # Must match SQUARE_ENVIRONMENT | vite square environment |
 | VITE_USE_MOCK_DATA | String | No | false | Optional client features |
@@ -83,6 +83,31 @@ The following variables are optional and have sensible defaults:
 - `NODE_ENV` - Environment mode (development, production, test)
 - `CLIENT_URL` - Frontend application URL
 - `ENABLE_REALTIME_STREAMING` - Enable WebSocket streaming
+
+### Restaurant Identification
+- `DEFAULT_RESTAURANT_ID` - Server-side default restaurant (supports UUID or slug)
+- `VITE_DEFAULT_RESTAURANT_ID` - Client-side default restaurant (supports UUID or slug)
+
+**Slug-Based Routing** (Since v6.0.9):
+Restaurant identifiers support both UUID and human-friendly slug formats:
+
+- **UUID Format**: `11111111-1111-1111-1111-111111111111`
+- **Slug Format**: `grow` (recommended for customer-facing URLs)
+
+The backend middleware transparently resolves slugs to UUIDs, so business logic continues to work with UUIDs while customers see clean URLs.
+
+**Examples**:
+```bash
+# Customer-facing URLs (use slug)
+VITE_DEFAULT_RESTAURANT_ID=grow
+# Results in: /order/grow, /checkout/grow
+
+# Internal/legacy (UUID still supported)
+VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
+# Results in: /order/11111111-1111-1111-1111-111111111111
+```
+
+See [ADR-008: Slug-Based Restaurant Routing](../explanation/architecture-decisions/ADR-008-slug-based-routing.md) for architecture details.
 
 ## Security Notes
 

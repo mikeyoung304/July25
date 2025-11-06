@@ -62,6 +62,7 @@
 - [ADR-005: Client-Side Voice Ordering](./docs/explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md) — Voice integration approach
 - [ADR-006: Dual Authentication Pattern](./docs/explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md) — Supabase + localStorage auth (v6.0.8)
 - [ADR-007: Per-Restaurant Configuration](./docs/explanation/architecture-decisions/ADR-007-per-restaurant-configuration.md) — Restaurant-specific settings
+- [ADR-008: Slug-Based Restaurant Routing](./docs/explanation/architecture-decisions/ADR-008-slug-based-routing.md) — Human-friendly URL slugs
 - [ADR-009: Error Handling Philosophy](./docs/explanation/architecture-decisions/ADR-009-error-handling-philosophy.md) — Error handling approach
 
 ### Architecture Diagrams
