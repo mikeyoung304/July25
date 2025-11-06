@@ -9,7 +9,7 @@
 
 import { test, expect } from '@playwright/test';
 
-const DEFAULT_RESTAURANT_ID = '1111-111111-11111';
+const DEFAULT_RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
 const RESTAURANT_NAME = 'Grow Fresh Local Food';
 
 // Demo data that should be auto-filled in demo mode
