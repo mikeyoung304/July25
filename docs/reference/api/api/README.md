@@ -1,7 +1,7 @@
 # API Documentation
 
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-06
 
 [Home](../../../../index.md) > [Docs](../../../README.md) > [Reference](../../README.md) > [API](./README.md) > API Reference
 
@@ -9,8 +9,8 @@
 **Interactive Docs**: [View in Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/mikeyoung304/rebuild-6.0/main/docs/reference/api/openapi.yaml)
 **Local Viewer**: [index.html](../index.html) - Open in browser for interactive documentation
 
-**Last Updated**: October 31, 2025
-**Version**: 6.0.14
+**Last Updated**: November 6, 2025
+**Version**: 6.0.17
 **Base URL**: `http://localhost:3001/api/v1` (development) | `https://july25.onrender.com/api/v1` (production)
 
 ---
@@ -38,6 +38,8 @@ Authorization: Bearer <your-jwt-token>
 | Method | Path | Auth | Description | Source |
 | --- | --- | --- | --- | --- |
 | GET | `/health` | No | Health check endpoint | [health.routes.ts](../../server/src/routes/health.routes.ts) |
+| GET | `/health/ready` | No | Kubernetes readiness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
+| GET | `/health/live` | No | Kubernetes liveness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
 | GET | `/metrics` | No | Prometheus metrics | [metrics.ts](../../server/src/routes/metrics.ts) |
 
 ### Authentication
@@ -47,6 +49,7 @@ Authorization: Bearer <your-jwt-token>
 | POST | `/api/auth/login` | No | Email/password login | [auth.routes.ts](../../server/src/routes/auth.routes.ts) |
 | POST | `/api/auth/pin` | No | PIN-based login | [auth.routes.ts](../../server/src/routes/auth.routes.ts) |
 | POST | `/api/auth/station` | No | Station device login | [auth.routes.ts](../../server/src/routes/auth.routes.ts) |
+| GET | `/api/v1/auth/me` | Yes | Get current user profile | [auth.routes.ts](../../server/src/routes/auth.routes.ts) |
 | POST | `/api/auth/refresh` | Yes | Refresh JWT token | [auth.routes.ts](../../server/src/routes/auth.routes.ts) |
 | POST | `/api/auth/logout` | Yes | Logout user | [auth.routes.ts](../../server/src/routes/auth.routes.ts) |
 
@@ -75,6 +78,7 @@ Authorization: Bearer <your-jwt-token>
 | GET | `/api/orders` | Yes | List orders | [orders.routes.ts](../../server/src/routes/orders.routes.ts) |
 | GET | `/api/orders/:id` | Yes | Get order details | [orders.routes.ts](../../server/src/routes/orders.routes.ts) |
 | POST | `/api/orders` | Yes | Create order | [orders.routes.ts](../../server/src/routes/orders.routes.ts) |
+| POST | `/api/v1/orders/voice` | Yes | Create order via voice | [orders.routes.ts](../../server/src/routes/orders.routes.ts) |
 | PUT | `/api/orders/:id` | Yes | Update order | [orders.routes.ts](../../server/src/routes/orders.routes.ts) |
 | POST | `/api/orders/:id/status` | Yes | Update order status | [orders.routes.ts](../../server/src/routes/orders.routes.ts) |
 
@@ -86,12 +90,14 @@ Authorization: Bearer <your-jwt-token>
 | GET | `/api/tables/:id` | Yes | Get table details | [tables.routes.ts](../../server/src/routes/tables.routes.ts) |
 | POST | `/api/tables` | Yes | Create table | [tables.routes.ts](../../server/src/routes/tables.routes.ts) |
 | PUT | `/api/tables/:id` | Yes | Update table | [tables.routes.ts](../../server/src/routes/tables.routes.ts) |
+| PUT | `/api/v1/tables/batch` | Yes | Batch update tables | [tables.routes.ts](../../server/src/routes/tables.routes.ts) |
 
 ### Payment Processing
 
 | Method | Path | Auth | Description | Source |
 | --- | --- | --- | --- | --- |
 | POST | `/api/payments/process` | Yes | Process payment | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
+| POST | `/api/v1/payments/cash` | Yes | Process cash payment | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
 | POST | `/api/payments/refund` | Yes | Process refund | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
 | GET | `/api/payments/:id` | Yes | Get payment details | [payments.routes.ts](../../server/src/routes/payments.routes.ts) |
 
@@ -100,6 +106,8 @@ Authorization: Bearer <your-jwt-token>
 | Method | Path | Auth | Description | Source |
 | --- | --- | --- | --- | --- |
 | POST | `/api/v1/ai/voice/handshake` | Yes | Initialize voice session | [ai.routes.ts](../../server/src/routes/ai.routes.ts) |
+| POST | `/api/v1/ai/transcribe` | No | Transcribe audio to text | [ai.routes.ts](../../server/src/routes/ai.routes.ts) |
+| POST | `/api/v1/ai/parse-order` | Yes | Parse order from text | [ai.routes.ts](../../server/src/routes/ai.routes.ts) |
 | POST | `/api/ai/voice/process` | Yes | Process voice command | [ai.routes.ts](../../server/src/routes/ai.routes.ts) |
 | GET | `/api/ai/voice/status` | Yes | Voice system status | [ai.routes.ts](../../server/src/routes/ai.routes.ts) |
 
@@ -262,5 +270,5 @@ Client implementations:
 
 ---
 
-**Last Updated**: October 30, 2025
-**Version**: 6.0.14
+**Last Updated**: November 6, 2025
+**Version**: 6.0.17

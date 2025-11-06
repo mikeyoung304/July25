@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: Restaurant OS API
-  version: 6.0.14
-  x-last-updated: '2025-10-31'
+  version: 6.0.17
+  x-last-updated: '2025-11-06'
   description: |
     Restaurant OS provides a comprehensive API for managing restaurant operations including:
     - Point of Sale (POS)
@@ -319,8 +319,10 @@ components:
           enum:
             - cash
             - card
-            - online
+            - house_account
+            - gift_card
             - other
+          description: Payment method (matches database CHECK constraint)
         table_number:
           type: string
           example: T5
@@ -402,8 +404,10 @@ components:
           enum:
             - cash
             - card
-            - online
+            - house_account
+            - gift_card
             - other
+          description: Payment method (matches database CHECK constraint)
         scheduled_pickup_time:
           type: string
           format: date-time
@@ -551,22 +555,52 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/transcribe:
+  /api/v1/ai/transcribe:
     post:
       tags:
-        - Ai
-      summary: Create transcribe
+        - Voice & AI
+      summary: Transcribe audio to text
+      description: |
+        Process audio file through OpenAI Whisper for transcription.
+        Returns MP3 audio response for direct playback.
+        Used by voice ordering system.
+
+        **Authentication:** Not required (supports anonymous)
+        **Rate Limit:** 100 requests/minute
+      operationId: transcribeAudio
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio file (WAV, MP3, M4A, WebM)
       responses:
         '200':
-          description: Successful response
+          description: Audio processed successfully
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+                description: MP3 audio response
         '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+          description: Bad request (missing audio file)
+        '503':
+          description: AI provider unavailable
+          headers:
+            x-ai-degraded:
+              schema:
+                type: string
+                enum: ['true']
   /api/v1/transcribe-with-metadata:
     post:
       tags:
@@ -583,22 +617,70 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/parse-order:
+  /api/v1/ai/parse-order:
     post:
       tags:
-        - Ai
-      summary: Create parse-order
+        - Voice & AI
+      summary: Parse order from text
+      description: |
+        Use AI to parse natural language order text into structured menu items.
+        Matches against restaurant menu, validates items, and returns parsed order.
+
+        **Authentication:** Required
+        **Scope:** `orders:create`
+      operationId: parseOrder
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  description: Natural language order text
+                  example: "I want two Greek Bowls with extra tzatziki and a Soul Bowl"
+            example:
+              text: "I want two Greek Bowls with extra tzatziki and a Soul Bowl"
       responses:
         '200':
-          description: Successful response
+          description: Order parsed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        menu_item_id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        quantity:
+                          type: integer
+                        price:
+                          type: number
+                        modifications:
+                          type: array
+                          items:
+                            type: string
+                  confidence:
+                    type: number
+                    format: float
         '400':
           description: Bad request
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
   /api/v1/voice-chat:
     post:
       tags:
@@ -759,22 +841,60 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/me:
+  /api/v1/auth/me:
     get:
       tags:
-        - Auth
-      summary: Get me
+        - Authentication
+      summary: Get current user profile
+      description: |
+        Retrieve the authenticated user's profile information including
+        role, scopes, and restaurant access.
+
+        **Authentication:** Required
+      operationId: getCurrentUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      email:
+                        type: string
+                        format: email
+                      role:
+                        type: string
+                        enum: [admin, manager, staff, customer]
+                      scopes:
+                        type: array
+                        items:
+                          type: string
+                        example: ["orders:create", "orders:read", "payments:process"]
+                      display_name:
+                        type: string
+                  restaurant:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      slug:
+                        type: string
         '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+          description: Unauthorized (missing or invalid token)
   /api/v1/refresh:
     post:
       tags:
@@ -870,38 +990,67 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/ready:
+  /health/ready:
     get:
       tags:
         - Health
-      summary: Get ready
+      summary: Kubernetes readiness probe
+      description: |
+        Readiness probe for Kubernetes. Checks if the application is ready
+        to receive traffic (database connected, dependencies healthy).
+
+        **Authentication:** Not required
+      operationId: healthReadiness
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
-  /api/v1/live:
+          description: Application is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ready]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  checks:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                        enum: [ok, degraded]
+                      ai_service:
+                        type: string
+                        enum: [ok, degraded]
+        '503':
+          description: Application not ready
+  /health/live:
     get:
       tags:
         - Health
-      summary: Get live
+      summary: Kubernetes liveness probe
+      description: |
+        Liveness probe for Kubernetes. Checks if the application process is alive.
+        If this fails, Kubernetes will restart the container.
+
+        **Authentication:** Not required
+      operationId: healthLiveness
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+          description: Application is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [alive]
+                  uptime:
+                    type: number
+                    description: Seconds since startup
   /api/v1/healthz:
     get:
       tags:
@@ -1046,22 +1195,83 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/voice:
+  /api/v1/orders/voice:
     post:
       tags:
         - Orders
-      summary: Create voice
+        - Voice & AI
+      summary: Create order via voice
+      description: |
+        Process voice-based order creation using OpenAI Realtime API.
+        Accepts audio transcription, parses items using AI, validates against menu,
+        and creates an order. Returns confidence score and formatted response.
+
+        **Authentication:** Required
+        **Scope:** `orders:create`
+        **Rate Limit:** 10 requests/minute
+      operationId: createVoiceOrder
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - transcription
+              properties:
+                transcription:
+                  type: string
+                  description: Voice transcription text from client
+                  example: "I'd like a Soul Bowl with extra tzatziki"
+                audio_url:
+                  type: string
+                  format: uri
+                  description: Optional URL to audio file for audit/playback
+                metadata:
+                  type: object
+                  description: Optional metadata (session ID, client info)
       responses:
         '200':
-          description: Successful response
+          description: Order processed (success or failure)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  order:
+                    $ref: '#/components/schemas/Order'
+                  confidence:
+                    type: number
+                    format: float
+                    description: AI confidence score (0.0-1.0)
+                  message:
+                    type: string
+                    description: User-friendly response message
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    description: Suggested alternatives if parsing failed
+              example:
+                success: true
+                order:
+                  id: "uuid"
+                  order_number: "ORD-1234"
+                  items: [...]
+                confidence: 0.85
+                message: "Perfect! Your Soul Bowl will be ready in about 12 minutes."
         '400':
-          description: Bad request
+          description: Bad request (missing transcription)
         '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+          description: Unauthorized (missing/invalid token)
+        '403':
+          description: Forbidden (missing scope)
   /api/v1/{id}:
     get:
       tags:
@@ -1140,22 +1350,81 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/cash:
+  /api/v1/payments/cash:
     post:
       tags:
         - Payments
-      summary: Create cash
-      responses:
-        '200':
-          description: Successful response
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
+      summary: Process cash payment
+      description: |
+        Record a cash payment for an order. Tracks amount received, change given,
+        and closes the check. Does not integrate with Square (cash-only).
+
+        **Authentication:** Required
+        **Scope:** `payments:process`
+      operationId: createCashPayment
       security:
-        - bearerAuth: []
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+                - cash_received
+              properties:
+                order_id:
+                  type: string
+                  format: uuid
+                cash_received:
+                  type: number
+                  format: float
+                  description: Amount of cash received from customer (in dollars)
+                  example: 20.00
+            example:
+              order_id: "uuid"
+              cash_received: 20.00
+      responses:
+        '201':
+          description: Cash payment processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  order:
+                    $ref: '#/components/schemas/Order'
+                  payment:
+                    type: object
+                    properties:
+                      payment_amount:
+                        type: number
+                        description: Actual order total
+                      cash_received:
+                        type: number
+                      change_given:
+                        type: number
+                        description: Change returned to customer
+                      payment_status:
+                        type: string
+                        enum: [paid]
+              example:
+                success: true
+                order: {...}
+                payment:
+                  payment_amount: 15.50
+                  cash_received: 20.00
+                  change_given: 4.50
+                  payment_status: "paid"
+        '400':
+          description: Bad request (missing order_id or insufficient cash)
+        '404':
+          description: Order not found
   /api/v1/{paymentId}:
     get:
       tags:
@@ -1268,22 +1537,96 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/batch:
+  /api/v1/tables/batch:
     put:
       tags:
         - Tables
-      summary: Update batch
+      summary: Batch update tables
+      description: |
+        Update multiple tables in a single optimized database operation.
+        Used by Floor Plan Editor to save layout changes efficiently.
+        Uses PostgreSQL RPC function for 40x performance improvement vs sequential updates.
+
+        **Authentication:** Required
+        **Scope:** `tables:write`
+        **Performance:** ~2ms per table (vs 80ms sequential)
+      operationId: batchUpdateTables
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tables
+              properties:
+                tables:
+                  type: array
+                  description: Array of table objects to update
+                  items:
+                    type: object
+                    required:
+                      - id
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      label:
+                        type: string
+                      seats:
+                        type: integer
+                      x:
+                        type: number
+                        description: X position on canvas
+                      y:
+                        type: number
+                        description: Y position on canvas
+                      width:
+                        type: number
+                      height:
+                        type: number
+                      rotation:
+                        type: integer
+                        description: Rotation in degrees (0-360)
+                      type:
+                        type: string
+                        enum: [circle, square, rectangle, chip_monkey]
+                      status:
+                        type: string
+                        enum: [available, occupied, reserved, cleaning, unavailable]
+                      z_index:
+                        type: integer
+                        description: Layer order for overlapping elements
+            example:
+              tables:
+                - id: "uuid-1"
+                  label: "T1"
+                  seats: 4
+                  x: 100
+                  y: 200
+                  width: 80
+                  height: 80
+                  rotation: 0
+                  type: "circle"
+                  status: "available"
+                  z_index: 1
       responses:
         '200':
-          description: Successful response
+          description: Tables updated successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Table'
         '400':
-          description: Bad request
+          description: Bad request (invalid table data or duplicate names)
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
   /api/v1/checkout:
     post:
       tags:
