@@ -264,7 +264,7 @@ export function useVoiceOrderWebRTC() {
       // Feature flag controls gradual rollout of dynamic restaurant ID
       const restaurantId = useNewCustomerIdFlow
         ? restaurant?.id
-        : '11111111-1111-1111-1111-111111111111' // Fallback to hardcoded ID if flag disabled
+        : 'grow' // Fallback to hardcoded ID if flag disabled
 
       if (useNewCustomerIdFlow && !restaurantId) {
         logger.error('[submitOrder] No restaurant ID available')

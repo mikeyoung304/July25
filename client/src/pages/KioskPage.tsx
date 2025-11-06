@@ -19,7 +19,7 @@ const KioskPageContent: React.FC = () => {
   // Set default restaurant context for kiosk
   React.useEffect(() => {
     setRestaurant({
-      id: import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111',
+      id: import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'grow',
       name: 'Restaurant Kiosk',
       timezone: 'America/New_York',
       currency: 'USD'

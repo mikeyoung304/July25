@@ -55,7 +55,7 @@ export function DevAuthOverlay() {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
   // Default restaurant ID (from environment or hardcoded for dev)
-  const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
+  const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'grow';
 
   // Only render when demo panel is explicitly enabled
   if (import.meta.env.VITE_DEMO_PANEL !== '1') {

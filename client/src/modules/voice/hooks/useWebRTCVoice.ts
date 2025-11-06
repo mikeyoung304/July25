@@ -40,7 +40,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   const { autoConnect: _autoConnect = true, debug = false, muteAudioOutput = false, onTranscript, onOrderDetected, onError } = options;
 
   // Get restaurant ID from environment or use default
-  const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
+  const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'grow';
 
   const clientRef = useRef<WebRTCVoiceClient | null>(null);
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');

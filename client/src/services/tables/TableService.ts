@@ -18,7 +18,7 @@ export class TableService implements ITableService {
 
   private getHeaders() {
     // Restaurant ID can be provided at construction or via environment
-    const restaurantId = this.restaurantId || env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+    const restaurantId = this.restaurantId || env.VITE_DEFAULT_RESTAURANT_ID || 'grow'
     return { 'x-restaurant-id': restaurantId }
   }
 

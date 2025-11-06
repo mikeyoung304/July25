@@ -182,9 +182,9 @@ export function AppRoutes() {
               </KitchenRoute>
             } />
             {/* Default order redirect to Grow Fresh Local Food */}
-            <Route 
-              path="/order" 
-              element={<Navigate to={`/order/${env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'}`} replace />} 
+            <Route
+              path="/order"
+              element={<Navigate to={`/order/${env.VITE_DEFAULT_RESTAURANT_ID || 'grow'}`} replace />}
             />
             <Route path="/order/:restaurantId" element={
               <ErrorBoundary level="section">

@@ -213,7 +213,7 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       const wsCall = (global.WebSocket as unknown as vi.Mock).mock.calls[0]
       const url = new URL(wsCall[0])
 
-      expect(url.searchParams.get('restaurant_id')).toBe('11111111-1111-1111-1111-111111111111')
+      expect(url.searchParams.get('restaurant_id')).toBe('grow')
 
       getCurrentMock().simulateOpen()
       await connectPromise

@@ -106,7 +106,7 @@ export class WebSocketService extends EventEmitter {
       }
 
       // Get restaurant ID with fallback for development
-      const restaurantId = getCurrentRestaurantId() || '11111111-1111-1111-1111-111111111111'
+      const restaurantId = getCurrentRestaurantId() || 'grow'
 
       // Build WebSocket URL with auth params
       const wsUrl = new URL(this.config.url)

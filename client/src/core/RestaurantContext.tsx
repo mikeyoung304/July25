@@ -9,7 +9,7 @@ function createRestaurantData(restaurantId: string | null): Restaurant {
   const id = restaurantId ||
              env.VITE_DEFAULT_RESTAURANT_ID ||
              import.meta.env.VITE_DEFAULT_RESTAURANT_ID ||
-             '11111111-1111-1111-1111-111111111111'
+             'grow'
 
   return {
     id,

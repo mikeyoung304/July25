@@ -47,7 +47,7 @@ export function WorkspaceAuthModal({
   const emailInputRef = useRef<HTMLInputElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
-  const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+  const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'grow'
   const demoMode = import.meta.env.VITE_DEMO_PANEL === '1'
   const demoCredentials = getDemoCredentials(workspace)
   const requiredRoles = WORKSPACE_CONFIG[workspace].requiredRoles

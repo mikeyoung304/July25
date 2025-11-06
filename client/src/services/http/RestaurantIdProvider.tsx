@@ -14,7 +14,7 @@ export function RestaurantIdProvider({ children }: { children: React.ReactNode }
     // Set default restaurant ID immediately for demo/friends & family mode
     // This ensures API calls work even before RestaurantContext loads
     if (!restaurant?.id) {
-      setCurrentRestaurantId('11111111-1111-1111-1111-111111111111')
+      setCurrentRestaurantId('grow')
     } else {
       // Update the HTTP client when the actual restaurant loads
       setCurrentRestaurantId(restaurant.id)

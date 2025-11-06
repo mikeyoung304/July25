@@ -52,7 +52,7 @@ export default function StationLogin() {
   const [selectedStation, setSelectedStation] = useState<StationType | null>(null);
   const [stationName, setStationName] = useState('');
   const [restaurantId] = useState(
-    import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111'
+    import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'grow'
   );
   const [isLoading, setIsLoading] = useState(false);
 
