@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-11-06T20:36:54.642Z",
+  "coverage": 100,
+  "totalRoutes": 62,
+  "documentedRoutes": 57,
+  "productionRoutes": 57,
+  "documentedProductionRoutes": 57,
+  "issues": [],
+  "summary": {
+    "missing": 0,
+    "extra": 0,
+    "mismatches": 0
+  }
+}

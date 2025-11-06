@@ -1,0 +1,694 @@
+{
+  "totalRoutes": 62,
+  "productionRoutes": 57,
+  "devRoutes": 4,
+  "testRoutes": 3,
+  "routes": [
+    {
+      "method": "POST",
+      "path": "/menu",
+      "fullPath": "/api/v1/ai/menu",
+      "file": "ai.routes.ts",
+      "line": 22,
+      "middleware": [
+        "authenticate"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/menu",
+      "fullPath": "/api/v1/ai/menu",
+      "file": "ai.routes.ts",
+      "line": 62,
+      "middleware": [
+        "authenticate"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/transcribe",
+      "fullPath": "/api/v1/ai/transcribe",
+      "file": "ai.routes.ts",
+      "line": 89,
+      "middleware": [
+        "transcriptionLimiter",
+        "trackAIMetrics"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/transcribe-with-metadata",
+      "fullPath": "/api/v1/ai/transcribe-with-metadata",
+      "file": "ai.routes.ts",
+      "line": 143,
+      "middleware": [
+        "transcriptionLimiter",
+        "trackAIMetrics"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/parse-order",
+      "fullPath": "/api/v1/ai/parse-order",
+      "file": "ai.routes.ts",
+      "line": 200,
+      "middleware": [
+        "authenticate",
+        "trackAIMetrics"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/voice-chat",
+      "fullPath": "/api/v1/ai/voice-chat",
+      "file": "ai.routes.ts",
+      "line": 250,
+      "middleware": [
+        "authenticate",
+        "trackAIMetrics"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/chat",
+      "fullPath": "/api/v1/ai/chat",
+      "file": "ai.routes.ts",
+      "line": 432,
+      "middleware": [
+        "authenticate",
+        "trackAIMetrics"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "fullPath": "/api/v1/ai/health",
+      "file": "ai.routes.ts",
+      "line": 517,
+      "middleware": [
+        "trackAIMetrics"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/test-tts",
+      "fullPath": "/api/v1/ai/test-tts",
+      "file": "ai.routes.ts",
+      "line": 546,
+      "middleware": [],
+      "isDev": true,
+      "isTest": true
+    },
+    {
+      "method": "POST",
+      "path": "/test-transcribe",
+      "fullPath": "/api/v1/ai/test-transcribe",
+      "file": "ai.routes.ts",
+      "line": 587,
+      "middleware": [],
+      "isDev": true,
+      "isTest": true
+    },
+    {
+      "method": "POST",
+      "path": "/login",
+      "fullPath": "/api/v1/auth/login",
+      "file": "auth.routes.ts",
+      "line": 22,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/pin-login",
+      "fullPath": "/api/v1/auth/pin-login",
+      "file": "auth.routes.ts",
+      "line": 120,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/station-login",
+      "fullPath": "/api/v1/auth/station-login",
+      "file": "auth.routes.ts",
+      "line": 197,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/logout",
+      "fullPath": "/api/v1/auth/logout",
+      "file": "auth.routes.ts",
+      "line": 243,
+      "middleware": [
+        "authenticate"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/me",
+      "fullPath": "/api/v1/auth/me",
+      "file": "auth.routes.ts",
+      "line": 287,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/refresh",
+      "fullPath": "/api/v1/auth/refresh",
+      "file": "auth.routes.ts",
+      "line": 343,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/set-pin",
+      "fullPath": "/api/v1/auth/set-pin",
+      "file": "auth.routes.ts",
+      "line": 384,
+      "middleware": [
+        "authenticate"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/revoke-stations",
+      "fullPath": "/api/v1/auth/revoke-stations",
+      "file": "auth.routes.ts",
+      "line": 420,
+      "middleware": [
+        "authenticate",
+        "requireScopes"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "fullPath": "/api/v1/health",
+      "file": "health.routes.ts",
+      "line": 167,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "fullPath": "/api/v1/",
+      "file": "health.routes.ts",
+      "line": 227,
+      "middleware": [],
+      "isDev": true,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/status",
+      "fullPath": "/api/v1/status",
+      "file": "health.routes.ts",
+      "line": 237,
+      "middleware": [],
+      "isDev": true,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/ready",
+      "fullPath": "/api/v1/ready",
+      "file": "health.routes.ts",
+      "line": 302,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/live",
+      "fullPath": "/api/v1/live",
+      "file": "health.routes.ts",
+      "line": 327,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/healthz",
+      "fullPath": "/api/v1/healthz",
+      "file": "health.routes.ts",
+      "line": 332,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "fullPath": "/api/v1/menu/",
+      "file": "menu.routes.ts",
+      "line": 11,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/items",
+      "fullPath": "/api/v1/menu/items",
+      "file": "menu.routes.ts",
+      "line": 24,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/items/:id",
+      "fullPath": "/api/v1/menu/items/:id",
+      "file": "menu.routes.ts",
+      "line": 35,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/categories",
+      "fullPath": "/api/v1/menu/categories",
+      "file": "menu.routes.ts",
+      "line": 57,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/sync-ai",
+      "fullPath": "/api/v1/menu/sync-ai",
+      "file": "menu.routes.ts",
+      "line": 74,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/cache/clear",
+      "fullPath": "/api/v1/menu/cache/clear",
+      "file": "menu.routes.ts",
+      "line": 96,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "fullPath": "/api/v1/orders/",
+      "file": "orders.routes.ts",
+      "line": 18,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "fullPath": "/api/v1/orders/",
+      "file": "orders.routes.ts",
+      "line": 41,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/voice",
+      "fullPath": "/api/v1/orders/voice",
+      "file": "orders.routes.ts",
+      "line": 95,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess",
+        "requireScopes"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/:id",
+      "fullPath": "/api/v1/orders/:id",
+      "file": "orders.routes.ts",
+      "line": 220,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/:id/status",
+      "fullPath": "/api/v1/orders/:id/status",
+      "file": "orders.routes.ts",
+      "line": 238,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/:id",
+      "fullPath": "/api/v1/orders/:id",
+      "file": "orders.routes.ts",
+      "line": 263,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/create",
+      "fullPath": "/api/v1/payments/create",
+      "file": "payments.routes.ts",
+      "line": 106,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/cash",
+      "fullPath": "/api/v1/payments/cash",
+      "file": "payments.routes.ts",
+      "line": 355,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/:paymentId",
+      "fullPath": "/api/v1/payments/:paymentId",
+      "file": "payments.routes.ts",
+      "line": 507,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/:paymentId/refund",
+      "fullPath": "/api/v1/payments/:paymentId/refund",
+      "file": "payments.routes.ts",
+      "line": 546,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/session",
+      "fullPath": "/api/v1/realtime/session",
+      "file": "realtime.routes.ts",
+      "line": 14,
+      "middleware": [
+        "authenticate"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "fullPath": "/api/v1/realtime/health",
+      "file": "realtime.routes.ts",
+      "line": 167,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/:id",
+      "fullPath": "/api/v1/restaurants/:id",
+      "file": "restaurants.routes.ts",
+      "line": 11,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/events",
+      "fullPath": "/api/v1/security/events",
+      "file": "security.routes.ts",
+      "line": 13,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/stats",
+      "fullPath": "/api/v1/security/stats",
+      "file": "security.routes.ts",
+      "line": 35,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/test",
+      "fullPath": "/api/v1/security/test",
+      "file": "security.routes.ts",
+      "line": 49,
+      "middleware": [],
+      "isDev": false,
+      "isTest": true
+    },
+    {
+      "method": "GET",
+      "path": "/config",
+      "fullPath": "/api/v1/security/config",
+      "file": "security.routes.ts",
+      "line": 82,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "fullPath": "/api/v1/tables/",
+      "file": "tables.routes.ts",
+      "line": 390,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/:id",
+      "fullPath": "/api/v1/tables/:id",
+      "file": "tables.routes.ts",
+      "line": 391,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/",
+      "fullPath": "/api/v1/tables/",
+      "file": "tables.routes.ts",
+      "line": 392,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "PUT",
+      "path": "/batch",
+      "fullPath": "/api/v1/tables/batch",
+      "file": "tables.routes.ts",
+      "line": 393,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "PUT",
+      "path": "/:id",
+      "fullPath": "/api/v1/tables/:id",
+      "file": "tables.routes.ts",
+      "line": 394,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/:id",
+      "fullPath": "/api/v1/tables/:id",
+      "file": "tables.routes.ts",
+      "line": 395,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/:id/status",
+      "fullPath": "/api/v1/tables/:id/status",
+      "file": "tables.routes.ts",
+      "line": 396,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/checkout",
+      "fullPath": "/api/v1/terminal/checkout",
+      "file": "terminal.routes.ts",
+      "line": 24,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/checkout/:checkoutId",
+      "fullPath": "/api/v1/terminal/checkout/:checkoutId",
+      "file": "terminal.routes.ts",
+      "line": 135,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/checkout/:checkoutId/cancel",
+      "fullPath": "/api/v1/terminal/checkout/:checkoutId/cancel",
+      "file": "terminal.routes.ts",
+      "line": 203,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/checkout/:checkoutId/complete",
+      "fullPath": "/api/v1/terminal/checkout/:checkoutId/complete",
+      "file": "terminal.routes.ts",
+      "line": 253,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "GET",
+      "path": "/devices",
+      "fullPath": "/api/v1/terminal/devices",
+      "file": "terminal.routes.ts",
+      "line": 320,
+      "middleware": [
+        "authenticate",
+        "validateRestaurantAccess"
+      ],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/payments",
+      "fullPath": "/api/v1/webhooks/payments",
+      "file": "webhook.routes.ts",
+      "line": 14,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/orders",
+      "fullPath": "/api/v1/webhooks/orders",
+      "file": "webhook.routes.ts",
+      "line": 63,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    },
+    {
+      "method": "POST",
+      "path": "/inventory",
+      "fullPath": "/api/v1/webhooks/inventory",
+      "file": "webhook.routes.ts",
+      "line": 95,
+      "middleware": [],
+      "isDev": false,
+      "isTest": false
+    }
+  ],
+  "scannedFiles": 12,
+  "timestamp": "2025-11-06T20:26:26.277Z"
+}

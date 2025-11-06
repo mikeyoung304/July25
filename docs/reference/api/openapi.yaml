@@ -524,7 +524,7 @@ components:
             error: Invalid email or password
             code: UNAUTHORIZED
 paths:
-  /api/v1/menu:
+  /api/v1/ai/menu:
     post:
       tags:
         - Ai
@@ -601,7 +601,7 @@ paths:
               schema:
                 type: string
                 enum: ['true']
-  /api/v1/transcribe-with-metadata:
+  /api/v1/ai/transcribe-with-metadata:
     post:
       tags:
         - Ai
@@ -681,7 +681,7 @@ paths:
           description: Bad request
         '401':
           description: Unauthorized
-  /api/v1/voice-chat:
+  /api/v1/ai/voice-chat:
     post:
       tags:
         - Ai
@@ -697,7 +697,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/chat:
+  /api/v1/ai/chat:
     post:
       tags:
         - Ai
@@ -713,7 +713,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/health:
+  /api/v1/ai/health:
     get:
       tags:
         - Ai
@@ -729,7 +729,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/test-tts:
+  /api/v1/ai/test-tts:
     post:
       tags:
         - Ai
@@ -745,7 +745,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/test-transcribe:
+  /api/v1/ai/test-transcribe:
     post:
       tags:
         - Ai
@@ -761,23 +761,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/demo-session:
-    post:
-      tags:
-        - Auth
-      summary: Create demo-session
-      responses:
-        '200':
-          description: Successful response
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
-  /api/v1/login:
+  /api/v1/auth/login:
     post:
       tags:
         - Auth
@@ -793,7 +777,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/pin-login:
+  /api/v1/auth/pin-login:
     post:
       tags:
         - Auth
@@ -809,7 +793,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/station-login:
+  /api/v1/auth/station-login:
     post:
       tags:
         - Auth
@@ -825,7 +809,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/logout:
+  /api/v1/auth/logout:
     post:
       tags:
         - Auth
@@ -895,7 +879,7 @@ paths:
                         type: string
         '401':
           description: Unauthorized (missing or invalid token)
-  /api/v1/refresh:
+  /api/v1/auth/refresh:
     post:
       tags:
         - Auth
@@ -911,7 +895,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/set-pin:
+  /api/v1/auth/set-pin:
     post:
       tags:
         - Auth
@@ -927,7 +911,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/revoke-stations:
+  /api/v1/auth/revoke-stations:
     post:
       tags:
         - Auth
@@ -943,11 +927,27 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/:
+  /api/v1/menu/:
     get:
       tags:
-        - Health
-      summary: Get resource
+        - Menu
+      summary: Get menu
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/orders/:
+    get:
+      tags:
+        - Orders
+      summary: Get orders
       responses:
         '200':
           description: Successful response
@@ -962,7 +962,7 @@ paths:
     post:
       tags:
         - Orders
-      summary: Create resource
+      summary: Create order
       responses:
         '200':
           description: Successful response
@@ -974,11 +974,11 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/status:
+  /api/v1/tables/:
     get:
       tags:
-        - Health
-      summary: Get status
+        - Tables
+      summary: Get tables
       responses:
         '200':
           description: Successful response
@@ -990,7 +990,22 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/health/ready:
+    post:
+      tags:
+        - Tables
+      summary: Create table
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/ready:
     get:
       tags:
         - Health
@@ -1026,7 +1041,7 @@ paths:
                         enum: [ok, degraded]
         '503':
           description: Application not ready
-  /api/v1/health/live:
+  /api/v1/live:
     get:
       tags:
         - Health
@@ -1051,23 +1066,76 @@ paths:
                   uptime:
                     type: number
                     description: Seconds since startup
+  /api/v1/health:
+    get:
+      tags:
+        - Health
+      summary: General health check
+      description: |
+        General application health check endpoint.
+
+        **Authentication:** Not required
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  timestamp:
+                    type: string
+                    format: date-time
   /api/v1/healthz:
     get:
       tags:
         - Health
-      summary: Get healthz
+      summary: Kubernetes health check
+      description: |
+        Kubernetes-compatible health check endpoint.
+
+        **Authentication:** Not required
+      operationId: healthz
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
-  /api/v1/items:
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+  /api/v1/realtime/health:
+    get:
+      tags:
+        - Realtime
+      summary: Realtime service health check
+      description: |
+        Health check for WebSocket/Realtime service.
+
+        **Authentication:** Not required
+      operationId: realtimeHealth
+      responses:
+        '200':
+          description: Realtime service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  connections:
+                    type: number
+                    description: Active WebSocket connections
+  /api/v1/menu/items:
     get:
       tags:
         - Menu
@@ -1083,7 +1151,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/items/{id}:
+  /api/v1/menu/items/{id}:
     get:
       tags:
         - Menu
@@ -1099,7 +1167,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/categories:
+  /api/v1/menu/categories:
     get:
       tags:
         - Menu
@@ -1115,7 +1183,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/sync-ai:
+  /api/v1/menu/sync-ai:
     post:
       tags:
         - Menu
@@ -1131,59 +1199,11 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/cache/clear:
+  /api/v1/menu/cache/clear:
     post:
       tags:
         - Menu
       summary: Create clear
-      responses:
-        '200':
-          description: Successful response
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
-  /api/v1/metrics:
-    post:
-      tags:
-        - Metrics
-      summary: Create metrics
-      responses:
-        '200':
-          description: Successful response
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
-  /api/v1/health/detailed:
-    get:
-      tags:
-        - Metrics
-      summary: Get detailed
-      responses:
-        '200':
-          description: Successful response
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
-  /api/v1/test/error:
-    post:
-      tags:
-        - Metrics
-      summary: Create error
       responses:
         '200':
           description: Successful response
@@ -1272,11 +1292,11 @@ paths:
           description: Unauthorized (missing/invalid token)
         '403':
           description: Forbidden (missing scope)
-  /api/v1/{id}:
+  /api/v1/orders/{id}:
     get:
       tags:
         - Orders
-      summary: Get resource
+      summary: Get order
       responses:
         '200':
           description: Successful response
@@ -1291,7 +1311,39 @@ paths:
     delete:
       tags:
         - Orders
-      summary: Delete resource
+      summary: Delete order
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/orders/{id}/status:
+    patch:
+      tags:
+        - Orders
+      summary: Update order status
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/tables/{id}:
+    get:
+      tags:
+        - Tables
+      summary: Get table
       responses:
         '200':
           description: Successful response
@@ -1306,7 +1358,7 @@ paths:
     put:
       tags:
         - Tables
-      summary: Update resource
+      summary: Update table
       responses:
         '200':
           description: Successful response
@@ -1318,11 +1370,42 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/{id}/status:
+    delete:
+      tags:
+        - Tables
+      summary: Delete table
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/tables/{id}/status:
     patch:
       tags:
-        - Orders
-      summary: Modify status
+        - Tables
+      summary: Update table status
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+      security:
+        - bearerAuth: []
+  /api/v1/restaurants/{id}:
+    get:
+      tags:
+        - Restaurants
+      summary: Get restaurant
       responses:
         '200':
           description: Successful response
@@ -1425,7 +1508,7 @@ paths:
           description: Bad request (missing order_id or insufficient cash)
         '404':
           description: Order not found
-  /api/v1/{paymentId}:
+  /api/v1/payments/{paymentId}:
     get:
       tags:
         - Payments
@@ -1441,7 +1524,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/{paymentId}/refund:
+  /api/v1/payments/{paymentId}/refund:
     post:
       tags:
         - Payments
@@ -1457,7 +1540,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/session:
+  /api/v1/realtime/session:
     post:
       tags:
         - Realtime
@@ -1473,7 +1556,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/events:
+  /api/v1/security/events:
     get:
       tags:
         - Security
@@ -1489,7 +1572,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/stats:
+  /api/v1/security/stats:
     get:
       tags:
         - Security
@@ -1505,7 +1588,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/test:
+  /api/v1/security/test:
     post:
       tags:
         - Security
@@ -1521,7 +1604,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/config:
+  /api/v1/security/config:
     get:
       tags:
         - Security
@@ -1627,7 +1710,7 @@ paths:
           description: Bad request (invalid table data or duplicate names)
         '401':
           description: Unauthorized
-  /api/v1/checkout:
+  /api/v1/terminal/checkout:
     post:
       tags:
         - Terminal
@@ -1643,7 +1726,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/checkout/{checkoutId}:
+  /api/v1/terminal/checkout/{checkoutId}:
     get:
       tags:
         - Terminal
@@ -1659,7 +1742,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/checkout/{checkoutId}/cancel:
+  /api/v1/terminal/checkout/{checkoutId}/cancel:
     post:
       tags:
         - Terminal
@@ -1675,7 +1758,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/checkout/{checkoutId}/complete:
+  /api/v1/terminal/checkout/{checkoutId}/complete:
     post:
       tags:
         - Terminal
@@ -1691,7 +1774,7 @@ paths:
           description: Server error
       security:
         - bearerAuth: []
-  /api/v1/devices:
+  /api/v1/terminal/devices:
     get:
       tags:
         - Terminal

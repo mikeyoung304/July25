@@ -75,6 +75,9 @@
     "docs:drift:schema": "node scripts/check-schema-drift.cjs",
     "docs:drift:api": "node scripts/check-api-drift.cjs",
     "docs:drift:config": "node scripts/check-config-drift.cjs",
+    "docs:api:scan": "node scripts/scan-api-routes.ts",
+    "docs:api:validate": "node scripts/validate-openapi.ts",
+    "docs:api:check": "npm run docs:api:scan && npm run docs:api:validate",
     "dev:setup": "./scripts/dev-setup.sh",
     "db:seed": "tsx scripts/seed-database.ts",
     "test:enhanced": "npx playwright test",
@@ -154,6 +157,7 @@
   "packageManager": "npm@10.7.0",
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
+    "js-yaml": "^4.1.0",
     "node-fetch": "^3.3.2",
     "validator": "^13.15.15",
     "ws": "^8.18.3",
