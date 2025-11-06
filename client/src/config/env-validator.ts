@@ -63,13 +63,14 @@ export function validateEnvironment(): ValidatedEnv {
     });
   }
 
-  // Validate UUID format for restaurant ID
+  // Validate restaurant ID format (UUID or slug)
   const restaurantId = requiredVars.VITE_DEFAULT_RESTAURANT_ID;
   const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (restaurantId && !uuidPattern.test(restaurantId)) {
+  const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+  if (restaurantId && !uuidPattern.test(restaurantId) && !slugPattern.test(restaurantId)) {
     invalid.push({
       key: 'VITE_DEFAULT_RESTAURANT_ID',
-      reason: `Invalid UUID format: "${restaurantId}"`
+      reason: `Invalid format: "${restaurantId}". Must be either a UUID (e.g., 11111111-1111-1111-1111-111111111111) or a slug (e.g., grow, my-restaurant)`
     });
   }
 
@@ -103,7 +104,7 @@ export function validateEnvironment(): ValidatedEnv {
     errorParts.push('   VITE_API_BASE_URL=http://localhost:3001');
     errorParts.push('   VITE_SUPABASE_URL=https://xxx.supabase.co');
     errorParts.push('   VITE_SUPABASE_ANON_KEY=eyJhbGci...');
-    errorParts.push('   VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111');
+    errorParts.push('   VITE_DEFAULT_RESTAURANT_ID=grow (or UUID: 11111111-1111-1111-1111-111111111111)');
 
     const errorMessage = errorParts.join('\n');
     console.error(errorMessage);
