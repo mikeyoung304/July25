@@ -37,7 +37,7 @@ export interface UnifiedCartContextType {
 
 export const UnifiedCartContext = createContext<UnifiedCartContextType | undefined>(undefined);
 
-const DEFAULT_RESTAURANT_ID = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '11111111-1111-1111-1111-111111111111';
+const DEFAULT_RESTAURANT_ID = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || '1111-111111-11111';
 const _TAX_RATE = 0.0875; // 8.75% tax rate - reserved for future use
 
 interface UnifiedCartProviderProps {
