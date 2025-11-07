@@ -138,6 +138,7 @@ export function useVoiceOrderWebRTC() {
   // AI provides: { items: [{ name: "Greek Salad", quantity: 1, modifiers: ["extra feta"] }] }
   // We need to: find menuItemId from name, transform to our OrderItem format
   const handleOrderData = useCallback((orderData: any) => {
+    console.log('[useVoiceOrderWebRTC] handleOrderData CALLED with:', orderData);
     logger.info('[handleOrderData] Received AI order data:', { orderData })
 
     // AI emits items without menuItemId - only human-readable names

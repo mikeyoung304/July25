@@ -42,7 +42,8 @@ export const getTables = async (req: AuthenticatedRequest, res: Response, next: 
       ...table,
       x: table['x_pos'],
       y: table['y_pos'],
-      type: table['shape']
+      type: table['shape'],
+      capacity: table['seats']  // FIX: Transform seats to capacity for client
     }));
     
     return res.json(transformedData);
@@ -117,9 +118,10 @@ export const createTable = async (req: AuthenticatedRequest & { body: CreateTabl
       ...data,
       x: (data as any).x_pos,
       y: (data as any).y_pos,
-      type: (data as any).shape
+      type: (data as any).shape,
+      capacity: (data as any).seats  // FIX: Transform seats to capacity for client
     };
-    
+
     res.status(201).json(transformedData);
   } catch (error) {
     next(error);
@@ -181,9 +183,10 @@ export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTabl
       ...data,
       x: (data as any).x_pos,
       y: (data as any).y_pos,
-      type: (data as any).shape
+      type: (data as any).shape,
+      capacity: (data as any).seats  // FIX: Transform seats to capacity for client
     };
-    
+
     return res.json(transformedData);
   } catch (error) {
     next(error);
@@ -375,7 +378,8 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
       ...table,
       x: table['x_pos'],
       y: table['y_pos'],
-      type: table['shape']
+      type: table['shape'],
+      capacity: table['seats']  // FIX: Transform seats to capacity for client
     }));
     
     logger.info(`✅ Batch update response: ${data.length} tables transformed and returned`);

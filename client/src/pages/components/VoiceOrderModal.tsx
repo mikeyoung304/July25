@@ -88,9 +88,15 @@ export function VoiceOrderModal({
               <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 250px)' }}>
                 <div className="flex justify-center mb-6">
                   <VoiceControlWebRTC
-                    onTranscript={(event) => voiceOrder.handleVoiceTranscript(event)}
-                    onOrderDetected={voiceOrder.handleOrderData}
-                    debug={false}
+                    onTranscript={(event) => {
+                      console.log('[VoiceOrderModal] Transcript received:', event);
+                      voiceOrder.handleVoiceTranscript(event);
+                    }}
+                    onOrderDetected={(orderData) => {
+                      console.log('[VoiceOrderModal] Order detected:', orderData);
+                      voiceOrder.handleOrderData?.(orderData);
+                    }}
+                    debug={true}
                     muteAudioOutput={true}
                   />
                 </div>

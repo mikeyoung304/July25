@@ -689,7 +689,7 @@ export class OrdersService {
       // Fetch table by label (table_number maps to label column)
       const { data: table, error } = await supabase
         .from('tables')
-        .select('capacity')
+        .select('seats')  // FIX: Database column is 'seats' not 'capacity'
         .eq('restaurant_id', restaurantId)
         .eq('label', tableNumber)
         .eq('active', true)
@@ -708,10 +708,10 @@ export class OrdersService {
         throw error;
       }
 
-      // Validate seat number against capacity
-      if (table && table.capacity && seatNumber > table.capacity) {
+      // Validate seat number against capacity (seats column)
+      if (table && table.seats && seatNumber > table.seats) {
         throw new Error(
-          `Seat number ${seatNumber} exceeds table capacity of ${table.capacity} for table ${tableNumber}`
+          `Seat number ${seatNumber} exceeds table capacity of ${table.seats} for table ${tableNumber}`
         );
       }
 
@@ -719,7 +719,7 @@ export class OrdersService {
         restaurantId,
         tableNumber,
         seatNumber,
-        capacity: table?.capacity
+        capacity: table?.seats  // FIX: Use seats field
       });
     } catch (error) {
       ordersLogger.error('Seat validation failed', {
