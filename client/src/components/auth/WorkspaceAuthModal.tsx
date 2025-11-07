@@ -174,6 +174,19 @@ export function WorkspaceAuthModal({
     setIsLoading(true)
 
     try {
+      // CRITICAL FIX: If switching users (email is different from current user),
+      // logout first to clear existing Supabase session
+      // This prevents session conflicts and login hangs
+      if (isAuthenticated && user?.email && user.email !== email) {
+        logger.info('Switching users - logging out first', {
+          from: user.email,
+          to: email
+        })
+        await logout()
+        // Brief delay to ensure cleanup completes
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
+
       // Use regular Supabase authentication for ALL workspace users
       // These are now REAL Supabase users, not fake demo sessions
       await login(email, password, restaurantId)
