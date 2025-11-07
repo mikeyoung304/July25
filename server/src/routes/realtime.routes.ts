@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { AuthenticatedRequest, authenticate } from '../middleware/auth';
+import { AuthenticatedRequest, optionalAuth } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import fetch from 'node-fetch';
 import { MenuService } from '../services/menu.service';
@@ -11,8 +11,9 @@ const realtimeLogger = logger.child({ module: 'realtime-routes' });
 /**
  * Create ephemeral token for WebRTC real-time voice connection
  * This token expires after 1 minute and should only be used by the requesting client
+ * Supports both authenticated and anonymous (kiosk demo) usage
  */
-router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const restaurantId = req.restaurantId || req.headers['x-restaurant-id'] || 'default';
     

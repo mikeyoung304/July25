@@ -40,6 +40,32 @@ export async function getCurrentUser() {
 }
 
 /**
+ * Get optional authentication token (doesn't throw if not authenticated)
+ * Used for endpoints that support both authenticated and anonymous access
+ */
+export async function getOptionalAuthToken(): Promise<string | null> {
+  try {
+    if (!supabase) {
+      logger.warn('[Auth] Supabase client not initialized - returning null');
+      return null;
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session?.access_token) {
+      logger.info('[Auth] Optional token obtained: yes');
+      return session.access_token;
+    }
+
+    logger.info('[Auth] No session - proceeding as anonymous');
+    return null;
+  } catch (error) {
+    logger.warn('[Auth] Error getting optional auth token:', error);
+    return null;
+  }
+}
+
+/**
  * Check if user is authenticated
  */
 export async function isAuthenticated(): Promise<boolean> {

@@ -62,28 +62,40 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
 
   constructor(
     private config: WebRTCVoiceConfig,
-    private authService: { getAuthToken: () => Promise<string> }
+    private authService: { getAuthToken: () => Promise<string>; getOptionalAuthToken?: () => Promise<string | null> }
   ) {}
 
   /**
    * Fetch ephemeral token from backend
    * Also retrieves menu context if available
+   * Supports both authenticated and anonymous (kiosk demo) access
    */
   async fetchEphemeralToken(): Promise<void> {
-    const authToken = await this.authService.getAuthToken();
+    // Try optional auth first (for kiosk demos), fall back to required auth
+    const authToken = this.authService.getOptionalAuthToken
+      ? await this.authService.getOptionalAuthToken()
+      : await this.authService.getAuthToken();
+
     const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
     if (this.config.debug) {
       console.log('[VoiceSessionConfig] Fetching ephemeral token from:', `${apiBase}/api/v1/realtime/session`);
+      console.log('[VoiceSessionConfig] Auth mode:', authToken ? 'authenticated' : 'anonymous');
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'x-restaurant-id': this.config.restaurantId,
+    };
+
+    // Only add Authorization header if we have a token
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
 
     const response = await fetch(`${apiBase}/api/v1/realtime/session`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json',
-        'x-restaurant-id': this.config.restaurantId,
-      },
+      headers,
     });
 
     if (!response.ok) {

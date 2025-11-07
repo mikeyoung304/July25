@@ -1,6 +1,6 @@
 /* eslint-env browser */
 import { EventEmitter } from '../../../services/utils/EventEmitter';
-import { getAuthToken } from '../../../services/auth';
+import { getAuthToken, getOptionalAuthToken } from '../../../services/auth';
 import { VoiceSessionConfig } from './VoiceSessionConfig';
 import { WebRTCConnection } from './WebRTCConnection';
 import { VoiceEventHandler } from './VoiceEventHandler';
@@ -74,7 +74,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     }
 
     // Create services
-    this.sessionConfig = new VoiceSessionConfig(config, { getAuthToken });
+    this.sessionConfig = new VoiceSessionConfig(config, { getAuthToken, getOptionalAuthToken });
     this.connection = new WebRTCConnection(config);
     this.eventHandler = new VoiceEventHandler(config);
 
