@@ -64,10 +64,19 @@ export function UserMenu({
     }
   };
 
-  const handleSwitchUser = () => {
-    // For quick switching without full logout
-    setIsOpen(false);
-    navigate('/pin-login');
+  const handleSwitchUser = async () => {
+    try {
+      logger.info('User initiated switch user', { userId: user.id, role: user.role });
+      // Clear current session before switching
+      await logout();
+      setIsOpen(false);
+      navigate('/pin-login');
+    } catch (error) {
+      logger.error('Switch user failed', error);
+      // Still navigate even if logout fails
+      setIsOpen(false);
+      navigate('/pin-login');
+    }
   };
 
   // Format display name and role
