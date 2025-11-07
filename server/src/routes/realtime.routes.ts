@@ -3,6 +3,7 @@ import { AuthenticatedRequest, authenticate } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import fetch from 'node-fetch';
 import { MenuService } from '../services/menu.service';
+import { env } from '../config/env';
 
 const router = Router();
 const realtimeLogger = logger.child({ module: 'realtime-routes' });
@@ -104,17 +105,41 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
       });
       // Continue without menu context
     }
-    
+
+    // Validate OpenAI API key before making request
+    const apiKey = env.OPENAI_API_KEY;
+    if (!apiKey) {
+      realtimeLogger.error('OPENAI_API_KEY is not configured');
+      return res.status(500).json({
+        error: 'Voice ordering service is not configured',
+        details: 'OPENAI_API_KEY environment variable is missing'
+      });
+    }
+
+    // Detect malformed API keys (e.g., containing literal newlines from Vercel CLI)
+    if (apiKey.includes('\n') || apiKey.includes('\\n') || apiKey.includes('\r')) {
+      realtimeLogger.error('OPENAI_API_KEY contains invalid characters (newlines)', {
+        keyLength: apiKey.length,
+        hasNewline: apiKey.includes('\n'),
+        hasLiteralNewline: apiKey.includes('\\n'),
+        hasCarriageReturn: apiKey.includes('\r')
+      });
+      return res.status(500).json({
+        error: 'Voice ordering service is misconfigured',
+        details: 'OPENAI_API_KEY contains invalid characters. This may be caused by Vercel CLI adding newlines. Fix: Use "echo -n" when setting environment variables.'
+      });
+    }
+
     // Request ephemeral token from OpenAI
     // IMPORTANT: Only specify model, let client configure everything else
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env['OPENAI_API_KEY']}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: process.env['OPENAI_REALTIME_MODEL'] || 'gpt-4o-realtime-preview-2025-06-03'
+        model: env.OPENAI_REALTIME_MODEL
         // DO NOT configure session parameters here - client will configure after connection
       }),
     });
@@ -165,19 +190,32 @@ router.post('/session', authenticate, async (req: AuthenticatedRequest, res: Res
  * Health check for real-time service
  */
 router.get('/health', (_req, res: Response) => {
-  const apiKeyPresent = !!process.env['OPENAI_API_KEY'];
-  const modelConfigured = !!process.env['OPENAI_REALTIME_MODEL'];
-  
+  const apiKey = env.OPENAI_API_KEY;
+  const apiKeyPresent = !!apiKey;
+  const apiKeyValid = apiKeyPresent && !apiKey.includes('\n') && !apiKey.includes('\\n') && !apiKey.includes('\r');
+  const modelConfigured = !!env.OPENAI_REALTIME_MODEL;
+
   const health = {
-    status: apiKeyPresent && modelConfigured ? 'healthy' : 'unhealthy',
+    status: apiKeyPresent && apiKeyValid && modelConfigured ? 'healthy' : 'unhealthy',
     checks: {
       api_key: apiKeyPresent,
+      api_key_valid: apiKeyValid,
       model_configured: modelConfigured,
-      model: process.env['OPENAI_REALTIME_MODEL'] || 'not-configured'
+      model: env.OPENAI_REALTIME_MODEL || 'not-configured'
     },
     timestamp: new Date().toISOString()
   };
-  
+
+  // Log unhealthy state with details
+  if (health.status === 'unhealthy') {
+    realtimeLogger.warn('Realtime service health check failed', {
+      apiKeyPresent,
+      apiKeyValid,
+      modelConfigured,
+      apiKeyContainsNewline: apiKeyPresent && !apiKeyValid
+    });
+  }
+
   res.status(health.status === 'healthy' ? 200 : 503).json(health);
 });
 

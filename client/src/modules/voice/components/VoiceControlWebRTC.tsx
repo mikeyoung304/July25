@@ -127,24 +127,30 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     // Set flag to start recording (will trigger when connected)
     setShouldStartRecording(true);
 
-    // If permission not granted yet, request it
-    if (permissionState === 'prompt') {
-      await handleRequestPermission();
-      // Don't return - the useEffect will start recording when connected
-      return;
-    }
+    try {
+      // If permission not granted yet, request it
+      if (permissionState === 'prompt') {
+        await handleRequestPermission();
+        // Don't return - the useEffect will start recording when connected
+        return;
+      }
 
-    // If permission granted but not connected, connect
-    if (permissionState === 'granted' && !isConnected && connectionState !== 'connecting') {
-      await connect();
-      // Don't return - the useEffect will start recording when connected
-      return;
-    }
+      // If permission granted but not connected, connect
+      if (permissionState === 'granted' && !isConnected && connectionState !== 'connecting') {
+        await connect();
+        // Don't return - the useEffect will start recording when connected
+        return;
+      }
 
-    // If already connected, start recording immediately
-    if (isConnected && !isRecording) {
-      startRecording();
-      setShouldStartRecording(false);
+      // If already connected, start recording immediately
+      if (isConnected && !isRecording) {
+        startRecording();
+        setShouldStartRecording(false);
+      }
+    } catch (err) {
+      console.error('Failed to start recording:', err);
+      setShouldStartRecording(false); // Clear flag on error
+      // Error will be displayed via the error state from useWebRTCVoice
     }
   };
 
@@ -202,14 +208,26 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
           <div className="flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-red-800">Connection Error</p>
+              <p className="text-sm font-medium text-red-800">Voice Service Error</p>
               <p className="text-xs text-red-600 mt-1">{error.message}</p>
-              <button
-                onClick={() => connect()}
-                className="text-xs text-red-700 underline mt-2 hover:text-red-800"
-              >
-                Try reconnecting
-              </button>
+              {error.message.includes('configuration') || error.message.includes('API') ? (
+                <p className="text-xs text-red-500 mt-2 italic">
+                  This is a system configuration issue. Please contact support or check the server logs.
+                </p>
+              ) : (
+                <button
+                  onClick={async () => {
+                    try {
+                      await connect();
+                    } catch (err) {
+                      console.error('Reconnection failed:', err);
+                    }
+                  }}
+                  className="text-xs text-red-700 underline mt-2 hover:text-red-800"
+                >
+                  Try reconnecting
+                </button>
+              )}
             </div>
           </div>
         </div>

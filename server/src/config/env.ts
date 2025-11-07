@@ -10,12 +10,16 @@ const rawEnv = process.env;
 
 const getString = (key: string, fallback = ''): string => {
   const value = rawEnv[key];
-  return value !== undefined && value !== '' ? value : fallback;
+  // Trim to remove any whitespace or newline characters (e.g., from Vercel CLI)
+  const trimmed = value?.trim();
+  return trimmed !== undefined && trimmed !== '' ? trimmed : fallback;
 };
 
 const getOptionalString = (key: string): string | undefined => {
   const value = rawEnv[key];
-  return value === undefined || value === '' ? undefined : value;
+  // Trim to remove any whitespace or newline characters (e.g., from Vercel CLI)
+  const trimmed = value?.trim();
+  return trimmed === undefined || trimmed === '' ? undefined : trimmed;
 };
 
 const getNumber = (key: string, fallback: number): number => {
