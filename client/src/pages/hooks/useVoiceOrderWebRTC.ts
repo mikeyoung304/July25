@@ -21,6 +21,8 @@ interface OrderItem {
   name: string
   quantity: number
   modifications?: OrderModification[]
+  source?: 'voice' | 'touch'
+  price?: number
 }
 
 export function useVoiceOrderWebRTC() {
@@ -37,6 +39,7 @@ export function useVoiceOrderWebRTC() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderSessionId, setOrderSessionId] = useState<string | null>(null)
+  const [orderNotes, setOrderNotes] = useState('')
   const orderParserRef = useRef<OrderParser | null>(null)
 
   // Multi-seat ordering state
@@ -180,6 +183,8 @@ export function useVoiceOrderWebRTC() {
             menuItemId: match.item.id, // Found the UUID!
             name: match.item.name, // Use actual menu name
             quantity: aiItem.quantity || 1,
+            source: 'voice', // Mark as voice-added item
+            price: match.item.price,
             modifications: (aiItem.modifiers || aiItem.modifications || []).map((mod: string | any) => ({
               id: typeof mod === 'string' ? `mod-${mod}` : mod.id,
               name: typeof mod === 'string' ? mod : mod.name,
@@ -291,15 +296,19 @@ export function useVoiceOrderWebRTC() {
               menu_item_id: item.menuItemId,
               name: item.name,
               quantity: item.quantity,
-              price: menuItem?.price || 12.99, // Required by OrderItem schema
+              price: menuItem?.price || item.price || 12.99, // Required by OrderItem schema
               modifications: item.modifications?.map(mod => mod.name) || []
             }
           }),
-          notes: `Voice order from ${selectedTable.label}, Seat ${selectedSeat}`,
+          notes: orderNotes
+            ? `${orderNotes}\n\n(Voice order from ${selectedTable.label}, Seat ${selectedSeat})`
+            : `Voice order from ${selectedTable.label}, Seat ${selectedSeat}`,
           total_amount: (() => {
             const subtotal = orderItems.reduce((sum, item) => {
               const menuItem = menuItems.find(m => m.id === item.menuItemId)
-              return sum + (menuItem?.price || 12.99) * item.quantity
+              const itemPrice = menuItem?.price || item.price || 12.99
+              const modifiersTotal = (item.modifications || []).reduce((modSum, mod) => modSum + (mod.price || 0), 0)
+              return sum + ((itemPrice + modifiersTotal) * item.quantity)
             }, 0);
             const tax = subtotal * taxRate; // Use restaurant-specific tax rate
             return subtotal + tax;
@@ -326,8 +335,9 @@ export function useVoiceOrderWebRTC() {
         setLastCompletedSeat(selectedSeat)
         setShowPostOrderPrompt(true)
 
-        // Clear current order items for next seat
+        // Clear current order items and notes for next seat
         setOrderItems([])
+        setOrderNotes('')
 
         // Reset session ID for next order
         setOrderSessionId(null)
@@ -381,6 +391,7 @@ export function useVoiceOrderWebRTC() {
     setShowVoiceOrder(false)
     setCurrentTranscript('')
     setOrderItems([])
+    setOrderNotes('')
     setIsVoiceActive(false)
     setIsProcessing(false)
     setShowPostOrderPrompt(false)
@@ -393,6 +404,7 @@ export function useVoiceOrderWebRTC() {
     setShowVoiceOrder(false)
     setCurrentTranscript('')
     setOrderItems([])
+    setOrderNotes('')
     setIsVoiceActive(false)
     setIsProcessing(false)
     setShowPostOrderPrompt(false)
@@ -410,6 +422,9 @@ export function useVoiceOrderWebRTC() {
     isVoiceActive,
     isProcessing,
     setIsProcessing,
+    isSubmitting,
+    orderNotes,
+    setOrderNotes,
 
     // Multi-seat state
     orderedSeats,

@@ -139,6 +139,7 @@ export const ServerView = memo(() => {
               voiceOrder={voiceOrder}
               onSubmit={handleSubmitOrder}
               onClose={handleCloseModals}
+              isSubmitting={voiceOrder.isSubmitting}
             />
 
             <PostOrderPrompt

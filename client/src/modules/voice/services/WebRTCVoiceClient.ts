@@ -5,9 +5,12 @@ import { VoiceSessionConfig } from './VoiceSessionConfig';
 import { WebRTCConnection } from './WebRTCConnection';
 import { VoiceEventHandler } from './VoiceEventHandler';
 
+export type VoiceContext = 'kiosk' | 'server';
+
 export interface WebRTCVoiceConfig {
   restaurantId: string;
   userId?: string;
+  context?: VoiceContext;
   debug?: boolean;
   enableVAD?: boolean; // Optional: enable server VAD mode
   muteAudioOutput?: boolean; // Optional: mute AI voice responses (transcription only)

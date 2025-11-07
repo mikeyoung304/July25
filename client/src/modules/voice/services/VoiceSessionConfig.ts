@@ -12,9 +12,12 @@
  * - Manage menu context
  */
 
+export type VoiceContext = 'kiosk' | 'server';
+
 export interface WebRTCVoiceConfig {
   restaurantId: string;
   userId?: string;
+  context?: VoiceContext;
   debug?: boolean;
   enableVAD?: boolean;
   muteAudioOutput?: boolean;
@@ -59,11 +62,14 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
   private tokenExpiresAt: number = 0;
   private tokenRefreshTimer: NodeJS.Timeout | null = null;
   private menuContext: string = '';
+  private context: VoiceContext;
 
   constructor(
     private config: WebRTCVoiceConfig,
     private authService: { getAuthToken: () => Promise<string>; getOptionalAuthToken?: () => Promise<string | null> }
-  ) {}
+  ) {
+    this.context = config.context || 'kiosk'; // Default to kiosk for backward compatibility
+  }
 
   /**
    * Fetch ephemeral token from backend
@@ -207,7 +213,47 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
       };
     }
 
-    // Build instructions with menu context
+    // Use context-specific instruction and tool builders
+    const instructions = this.context === 'server'
+      ? this.buildServerInstructions()
+      : this.buildKioskInstructions();
+
+    const tools = this.context === 'server'
+      ? this.buildServerTools()
+      : this.buildKioskTools();
+
+    // Server context uses shorter max tokens for efficiency
+    const maxTokens = this.context === 'server' ? 200 : 500;
+
+    const sessionConfig: RealtimeSessionConfig = {
+      modalities: ['text', 'audio'],
+      instructions,
+      voice: 'alloy',
+      input_audio_format: 'pcm16',
+      output_audio_format: 'pcm16',
+      input_audio_transcription: {
+        model: 'whisper-1',
+        language: 'en'  // Force English transcription
+      },
+      turn_detection: turnDetection,
+      temperature: 0.6, // Minimum temperature for Realtime API
+      max_response_output_tokens: maxTokens
+    };
+
+    // Only add tools if they exist and are non-empty
+    if (tools && tools.length > 0) {
+      sessionConfig.tools = tools;
+      sessionConfig.tool_choice = 'auto'; // Enable automatic function calling
+    }
+
+    return sessionConfig;
+  }
+
+  /**
+   * Build kiosk-specific AI instructions
+   * Customer-facing, friendly, educational tone
+   */
+  private buildKioskInstructions(): string {
     let instructions = `You are Grow Restaurant's friendly, fast, and accurate customer service agent. You MUST speak in English only. Never respond in any other language.
 
 🎯 YOUR JOB:
@@ -277,8 +323,78 @@ ENTRÉES → Ask:
       instructions += `\n\nNote: Menu information is currently unavailable. Please ask the customer what they'd like and I'll do my best to help.`;
     }
 
-    // Define tools/functions for structured order extraction
-    const tools = [
+    return instructions;
+  }
+
+  /**
+   * Build server-specific AI instructions
+   * Professional, concise, staff-oriented tone
+   */
+  private buildServerInstructions(): string {
+    let instructions = `You are Grow Restaurant's staff ordering assistant. Fast, accurate, professional.
+
+🎯 CORE FUNCTION:
+- Take rapid-fire orders from trained staff
+- Add items immediately when mentioned
+- Minimal confirmations (staff will catch errors)
+- Support multi-item batches: "3 Greek, 2 Soul Bowl, 1 sandwich"
+
+⚡ SPEED RULES:
+1. NEVER explain menu items (staff knows the menu)
+2. Add items with standard defaults, ask modifiers ONLY if staff pauses
+3. Confirmations: item count + total ONLY
+4. Response length: 5-10 words max
+5. Skip pleasantries ("Got it", "Added", "Done")
+
+🎤 TRANSCRIPTION SHORTCUTS:
+- "Soul Bowl" / "sobo" / "solo" → Soul Bowl
+- "Peach" → Peach Arugula Salad
+- "Greek" → Greek Salad
+- "Jalapeño" / "pimento" → Jalapeño Pimento Bites
+- "Succotash" → Succotash Bowl
+
+⚠️ CRITICAL CHECKS:
+- Allergies mentioned? → Capture in specialInstructions
+- "Rush" or "ASAP"? → Set rushOrder: true
+- Staff says "next seat" → call confirm_seat_order with action: 'next_seat'
+- Staff says "done" or "that's it" → call confirm_seat_order with action: 'submit'
+
+📋 SMART DEFAULTS BY CATEGORY:
+SALADS → Greek dressing (change if staff specifies)
+SANDWICHES → Wheat bread, potato salad (change if staff specifies)
+BOWLS → Standard prep (staff will specify modifications)
+ENTREES → Standard 2 sides (staff will specify which)
+
+💬 EXAMPLE EXCHANGES:
+Staff: "3 Greek salads, one with chicken, one no feta"
+AI: "Added. 3 Greek. $42."
+
+Staff: "Soul bowl, allergy to pork"
+AI: "Soul Bowl, noted pork allergy. $14."
+
+Staff: "2 sandwiches, both white bread, fruit side"
+AI: "2 sandwiches. $24."
+
+Staff: "That's it"
+AI: "Submitting 6 items, $80 total."
+
+⚠️ LANGUAGE: English only. If non-English detected: "English only."`;
+
+    // Add menu context if available
+    if (this.menuContext) {
+      instructions += this.menuContext;
+    } else {
+      instructions += `\n\nNote: Menu information is currently unavailable.`;
+    }
+
+    return instructions;
+  }
+
+  /**
+   * Build kiosk-specific function tools
+   */
+  private buildKioskTools(): any[] {
+    return [
       {
         type: 'function',
         name: 'add_to_order',
@@ -359,28 +475,101 @@ ENTRÉES → Ask:
         }
       }
     ];
+  }
 
-    const sessionConfig: RealtimeSessionConfig = {
-      modalities: ['text', 'audio'],
-      instructions,
-      voice: 'alloy',
-      input_audio_format: 'pcm16',
-      output_audio_format: 'pcm16',
-      input_audio_transcription: {
-        model: 'whisper-1',
-        language: 'en'  // Force English transcription
+  /**
+   * Build server-specific function tools
+   * Includes enhanced fields for staff workflow (allergyNotes, rushOrder)
+   */
+  private buildServerTools(): any[] {
+    return [
+      {
+        type: 'function',
+        name: 'add_to_order',
+        description: 'Add items to seat order (staff context - assume menu knowledge)',
+        parameters: {
+          type: 'object',
+          properties: {
+            items: {
+              type: 'array',
+              description: 'Array of items to add to the seat order',
+              items: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    description: 'The menu item name'
+                  },
+                  quantity: {
+                    type: 'integer',
+                    minimum: 1,
+                    default: 1,
+                    description: 'Number of this item'
+                  },
+                  modifications: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Modifications like "no onions", "extra cheese"'
+                  },
+                  specialInstructions: {
+                    type: 'string',
+                    description: 'Special preparation instructions'
+                  },
+                  allergyNotes: {
+                    type: 'string',
+                    description: 'Customer allergy information (e.g., "allergic to pork")'
+                  },
+                  rushOrder: {
+                    type: 'boolean',
+                    description: 'Flag if staff says "rush" or "ASAP"'
+                  }
+                },
+                required: ['name', 'quantity'],
+                additionalProperties: false
+              }
+            }
+          },
+          required: ['items'],
+          additionalProperties: false
+        }
       },
-      turn_detection: turnDetection,
-      temperature: 0.6, // Minimum temperature for Realtime API
-      max_response_output_tokens: 500 // Sufficient for complete responses
-    };
-
-    // Only add tools if they exist and are non-empty
-    if (tools && tools.length > 0) {
-      sessionConfig.tools = tools;
-      sessionConfig.tool_choice = 'auto'; // Enable automatic function calling
-    }
-
-    return sessionConfig;
+      {
+        type: 'function',
+        name: 'confirm_seat_order',
+        description: 'Confirm order for current seat (staff workflow)',
+        parameters: {
+          type: 'object',
+          properties: {
+            action: {
+              type: 'string',
+              enum: ['submit', 'review', 'next_seat', 'finish_table'],
+              description: 'Action to take: submit (finish seat), review (check items), next_seat (move to next), finish_table (complete table)'
+            }
+          },
+          required: ['action'],
+          additionalProperties: false
+        }
+      },
+      {
+        type: 'function',
+        name: 'remove_from_order',
+        description: 'Remove items from seat order',
+        parameters: {
+          type: 'object',
+          properties: {
+            itemName: {
+              type: 'string',
+              description: 'Name of the item to remove'
+            },
+            quantity: {
+              type: 'integer',
+              description: 'Number to remove (optional, removes all if not specified)'
+            }
+          },
+          required: ['itemName'],
+          additionalProperties: false
+        }
+      }
+    ];
   }
 }

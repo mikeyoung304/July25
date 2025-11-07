@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { WebRTCVoiceClient, ConnectionState, TranscriptEvent, OrderEvent } from '../services/WebRTCVoiceClient';
+import type { VoiceContext } from '../services/VoiceSessionConfig';
 
 export interface UseWebRTCVoiceOptions {
   autoConnect?: boolean;
+  context?: VoiceContext;
   debug?: boolean;
   muteAudioOutput?: boolean;
   onTranscript?: (transcript: TranscriptEvent) => void;
@@ -37,7 +39,7 @@ export interface UseWebRTCVoiceReturn {
  * React hook for WebRTC voice integration with OpenAI Realtime API
  */
 export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVoiceReturn {
-  const { autoConnect: _autoConnect = true, debug = false, muteAudioOutput = false, onTranscript, onOrderDetected, onError } = options;
+  const { autoConnect: _autoConnect = true, context, debug = false, muteAudioOutput = false, onTranscript, onOrderDetected, onError } = options;
 
   // Get restaurant ID from environment or use default
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'grow';
@@ -69,6 +71,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     const client = new WebRTCVoiceClient({
       restaurantId,
       userId: undefined, // Can be added later when auth is properly integrated
+      context, // Pass context to configure kiosk vs server mode
       debug,
       muteAudioOutput,
     });
@@ -81,7 +84,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       client.removeAllListeners();
       clientRef.current = null;
     };
-  }, [restaurantId, debug, muteAudioOutput]); // Stable deps - client recreated if these change
+  }, [restaurantId, context, debug, muteAudioOutput]); // Stable deps - client recreated if these change
 
   // Attach/detach event listeners in separate effect
   useEffect(() => {

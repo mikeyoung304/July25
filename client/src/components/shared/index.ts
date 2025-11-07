@@ -11,6 +11,12 @@ export type { ErrorDisplayProps } from './ErrorDisplay';
 export { IconButton } from './IconButton';
 export type { IconButtonProps } from './IconButton';
 
+export { OrderInputSelector } from './OrderInputSelector';
+export type { OrderInputSelectorProps, OrderInputMode } from './OrderInputSelector';
+
+export { MenuItemGrid, MenuItemCard, MenuCategoryFilter } from './MenuItemGrid';
+export type { MenuItemGridProps, MenuItemCardProps, MenuCategoryFilterProps } from './MenuItemGrid';
+
 // Badges
 export * from './badges';
 

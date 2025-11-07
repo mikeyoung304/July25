@@ -92,6 +92,8 @@ docs/
 - [Auth Roles](./reference/config/AUTH_ROLES.md) - Role definitions and permissions
 
 **Voice Ordering**
+- [Server Touch + Voice Ordering System](./SERVER_TOUCH_VOICE_ORDERING.md) - Complete guide to hybrid ordering (NEW)
+- [Touch + Voice Quick Reference](./TOUCH_VOICE_QUICK_REF.md) - Fast lookup for developers (NEW)
 - [Voice Ordering Architecture](./explanation/architecture/ARCHITECTURE.md#voice-ordering-architecture) - Service-oriented design
 - [ADR-005: Client-Side Voice Ordering](./explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md) - Voice integration approach
 - [Voice Ordering Explained](./voice/VOICE_ORDERING_EXPLAINED.md) - Implementation details
