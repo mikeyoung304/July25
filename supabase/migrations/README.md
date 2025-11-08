@@ -22,7 +22,10 @@ migrations/
 
 ## Migration Workflow
 
-**⚠️ CRITICAL: Migrations must be deployed to Supabase cloud BEFORE committing to git.**
+**⚠️ CRITICAL: Migrations must be tested locally BEFORE pushing to main.**
+
+**Modern Workflow (CI/CD Automated):**
+- Test locally → Commit to git → Push to main → CI/CD auto-deploys to Supabase
 
 ### Step-by-Step Process:
 
@@ -37,23 +40,39 @@ migrations/
    ADD COLUMN IF NOT EXISTS tax_rate DECIMAL(5,4) DEFAULT 0.08;
    ```
 
-3. **Deploy to Supabase cloud:**
+3. **Test locally (REQUIRED):**
    ```bash
-   supabase db push --linked
+   ./scripts/deploy-migration.sh supabase/migrations/XXXXX_*.sql
    ```
 
-4. **Verify deployment:**
+4. **Verify local deployment:**
    ```bash
    supabase db diff --linked  # Should show no changes
+   psql $DATABASE_URL -c "SELECT column_name FROM information_schema.columns WHERE table_name='restaurants' AND column_name='tax_rate';"
    ```
 
-5. **Commit to git:**
+5. **Sync Prisma schema:**
    ```bash
-   git add supabase/migrations/XXXXX_*.sql
+   ./scripts/post-migration-sync.sh
+   ```
+
+6. **Commit to git:**
+   ```bash
+   git add supabase/migrations/XXXXX_*.sql prisma/schema.prisma
    git commit -m "feat(db): add tax_rate column to restaurants"
    ```
 
-6. **Never edit deployed migrations** - Create new ones instead
+7. **Push to main:**
+   ```bash
+   git push origin main
+   ```
+
+   **GitHub Actions will automatically:**
+   - Deploy migration to production Supabase
+   - Run schema validation
+   - Deploy updated code to Vercel/Render
+
+8. **Never edit deployed migrations** - Create new ones instead
 
 ## Authoritative Guide
 

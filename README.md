@@ -33,6 +33,28 @@
 - Payments: [Square API Setup](./docs/reference/api/api/SQUARE_API_SETUP.md) · Env Vars: [ENVIRONMENT](./docs/reference/config/ENVIRONMENT.md)
 - Troubleshoot: [TROUBLESHOOTING](./docs/how-to/troubleshooting/TROUBLESHOOTING.md) · Version: [VERSION](./docs/VERSION.md)
 
+## Database Architecture: Remote-First Approach
+
+**Key Principle:** The remote Supabase database is the single source of truth for schema state.
+
+**What This Means:**
+- Migration files document change HISTORY, not current state
+- Prisma schema is GENERATED from remote database via `npx prisma db pull`
+- Schema changes flow: Remote DB → Prisma Schema → TypeScript Types → Git
+
+**Workflow:**
+1. Create migration: `supabase/migrations/YYYYMMDDHHmmss_description.sql`
+2. Deploy to remote: `supabase db push --linked`
+3. Sync Prisma schema: `./scripts/post-migration-sync.sh`
+4. Commit both migration + updated schema
+
+**Why Remote-First:**
+- Production database is always authoritative
+- Prevents drift from manual Dashboard changes
+- TypeScript types always match production reality
+
+See: [SUPABASE_CONNECTION_GUIDE.md](./docs/SUPABASE_CONNECTION_GUIDE.md) for detailed workflow
+
 ## Auth Roles at a Glance
 
 **Public Orders:** `customer` role (self-service checkout, kiosk)

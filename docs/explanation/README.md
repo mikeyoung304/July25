@@ -1,6 +1,6 @@
 # Explanation
 
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-08
 
 **Understanding-oriented documentation that clarifies and deepens knowledge.**
 
@@ -34,7 +34,9 @@ Documents that capture important architectural decisions and their rationale:
 - [ADR-005: Client-Side Voice Ordering](./architecture-decisions/ADR-005-client-side-voice-ordering.md)
 - [ADR-006: Dual Authentication Pattern](./architecture-decisions/ADR-006-dual-authentication-pattern.md)
 - [ADR-007: Per-Restaurant Configuration](./architecture-decisions/ADR-007-per-restaurant-configuration.md)
+- [ADR-008: Slug-Based Routing](./architecture-decisions/ADR-008-slug-based-routing.md)
 - [ADR-009: Error Handling Philosophy](./architecture-decisions/ADR-009-error-handling-philosophy.md)
+- [ADR-010: Remote Database as Single Source of Truth](./architecture-decisions/ADR-010-remote-database-source-of-truth.md)
 
 ## Concepts
 

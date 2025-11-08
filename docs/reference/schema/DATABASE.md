@@ -639,11 +639,28 @@ To apply migrations:
 npm run db:push
 ```
 
-## Schema Validation
+## Schema Management & Source of Truth
 
-The Prisma schema file (`server/prisma/schema.prisma`) is the source of truth.
-TypeScript types are generated from this schema.
+The remote Supabase database (`xiwfhcikfdoshxwbtjxt.supabase.co`) is the **authoritative source of truth** for the actual database schema state.
 
----
+The Prisma schema file (`server/prisma/schema.prisma`) is automatically generated from the remote database using `npx prisma db pull`. It provides:
+- TypeScript type definitions for all database tables
+- Compile-time safety for database queries
+- Auto-completion in your IDE
 
-*This file is auto-generated from `server/prisma/schema.prisma` by `scripts/fix-schema-drift.js`*
+**The Schema Chain:**
+```
+Remote Database (Source) → npx prisma db pull → schema.prisma (Types) → TypeScript Code
+```
+
+**When the schema changes:**
+1. Write migration: `supabase/migrations/YYYYMMDDHHmmss_description.sql`
+2. Test locally: `./scripts/deploy-migration.sh supabase/migrations/XXXXX.sql`
+3. Deploy to remote: Push to main → CI/CD auto-deploys
+4. Introspect remote: `npx prisma db pull` (via `./scripts/post-migration-sync.sh`)
+5. Commit updated schema to git
+
+**Current state of this documentation:**
+This file is auto-generated from the actual remote database schema (via `npx prisma db pull` → `scripts/fix-schema-drift.js`).
+
+See: [SUPABASE_CONNECTION_GUIDE.md](../../SUPABASE_CONNECTION_GUIDE.md) for detailed workflow.
