@@ -1,10 +1,11 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Users, Check, CheckCircle2, MicOff } from 'lucide-react'
+import { X, Users, Check, CheckCircle2, MicOff, Mic, Hand } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ActionButton } from '@/components/ui/ActionButton'
 import type { Table } from '@/types/table'
+import type { OrderInputMode } from '@/components/shared/OrderInputSelector'
 
 interface SeatSelectionModalProps {
   show: boolean
@@ -13,7 +14,7 @@ interface SeatSelectionModalProps {
   orderedSeats?: number[]
   canCreateOrders?: boolean
   onSeatSelect: (seat: number) => void
-  onStartVoiceOrder: () => void
+  onStartVoiceOrder: (mode: OrderInputMode) => void
   onFinishTable?: () => void
   onClose: () => void
 }
@@ -139,15 +140,28 @@ export function SeatSelectionModal({
                     Cancel
                   </Button>
                   {canCreateOrders ? (
-                    <ActionButton
-                      onClick={onStartVoiceOrder}
-                      disabled={!selectedSeat}
-                      color="#4ECDC4"
-                      size="medium"
-                      fullWidth
-                    >
-                      Start Voice Order
-                    </ActionButton>
+                    <div className="flex gap-3 flex-1">
+                      <ActionButton
+                        onClick={() => onStartVoiceOrder('voice')}
+                        disabled={!selectedSeat}
+                        color="#4ECDC4"
+                        size="medium"
+                        fullWidth
+                      >
+                        <Mic className="h-4 w-4 mr-2" />
+                        Voice Order
+                      </ActionButton>
+                      <ActionButton
+                        onClick={() => onStartVoiceOrder('touch')}
+                        disabled={!selectedSeat}
+                        color="#4CAF50"
+                        size="medium"
+                        fullWidth
+                      >
+                        <Hand className="h-4 w-4 mr-2" />
+                        Touch Order
+                      </ActionButton>
+                    </div>
                   ) : (
                     <div className="flex-1 relative group">
                       <ActionButton

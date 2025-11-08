@@ -13,6 +13,7 @@ import { PostOrderPrompt } from './components/PostOrderPrompt'
 import { ServerStats } from './components/ServerStats'
 import { ServerHeader } from './components/ServerHeader'
 import { Info } from 'lucide-react'
+import type { OrderInputMode } from '@/components/shared/OrderInputSelector'
 
 export const ServerView = memo(() => {
   const {
@@ -31,14 +32,16 @@ export const ServerView = memo(() => {
   const canCreateOrders = hasScope('orders:create')
   const [showSeatSelection, setShowSeatSelection] = useState(false)
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null)
+  const [initialInputMode, setInitialInputMode] = useState<OrderInputMode>('voice')
 
   const handleTableSelection = useCallback((tableId: string) => {
     handleTableClick(tableId)
     setShowSeatSelection(true)
   }, [handleTableClick])
 
-  const handleStartVoiceOrder = useCallback(() => {
+  const handleStartVoiceOrder = useCallback((mode: OrderInputMode) => {
     if (selectedTableId && selectedSeat) {
+      setInitialInputMode(mode)
       setShowSeatSelection(false)
       voiceOrder.setShowVoiceOrder(true)
     }
@@ -140,6 +143,7 @@ export const ServerView = memo(() => {
               onSubmit={handleSubmitOrder}
               onClose={handleCloseModals}
               isSubmitting={voiceOrder.isSubmitting}
+              initialInputMode={initialInputMode}
             />
 
             <PostOrderPrompt
