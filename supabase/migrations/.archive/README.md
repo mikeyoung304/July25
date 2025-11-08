@@ -1,13 +1,52 @@
 # Archived Migrations
 
-**Date Archived:** 2025-10-20
-**Reason:** Schema conflict with remote database migrations
+**Last Updated:** 2025-11-08
 
 ## Why These Migrations Were Archived
 
-These local migrations conflicted with schema changes made directly in the remote Supabase database during July-September 2025. The remote database contains more advanced versions of these features, making these local migrations obsolete.
+This archive contains migrations that were created locally but never deployed to production, or were superseded by alternative implementations. All archived migrations are documented with rationale and recovery instructions if needed.
 
 ### Archived Files
+
+---
+
+## November 2025 Archives (Date Archived: 2025-11-08)
+
+**Reason:** Duplicate migrations with invalid 8-digit timestamps, superseded by proper 14-digit versions
+
+These 4 migrations violate Supabase's required naming convention (14-digit `YYYYMMDDHHmmss` format) and have proper 14-digit equivalents that were deployed to production.
+
+#### `20251019_add_create_order_with_audit_rpc.sql` (October 19, 2025)
+**Status:** SUPERSEDED by `20251019180800_add_create_order_with_audit_rpc.sql`
+**Why archived:** 8-digit timestamp violates Supabase naming convention (requires 14 digits)
+**Deployed equivalent:** `20251019180800_*` (deployed to production)
+**Safe to archive:** Yes - proper version deployed
+
+#### `20251019_add_batch_update_tables_rpc.sql` (October 19, 2025)
+**Status:** SUPERSEDED by `20251019202700_add_batch_update_tables_rpc.sql`
+**Why archived:** 8-digit timestamp violates naming convention
+**Deployed equivalent:** `20251019202700_*` (deployed to production)
+**Safe to archive:** Yes - proper version deployed
+
+#### `20251019_add_tax_rate_to_restaurants.sql` (October 19, 2025)
+**Status:** SUPERSEDED by `20251019180000_add_tax_rate_to_restaurants.sql`
+**Why archived:** 8-digit timestamp violates naming convention
+**Deployed equivalent:** `20251019180000_*` (deployed to production)
+**Safe to archive:** Yes - proper version deployed
+
+#### `20251019_add_version_to_orders.sql` (October 19, 2025)
+**Status:** SUPERSEDED by `20251019183600_add_version_to_orders.sql`
+**Why archived:** 8-digit timestamp violates naming convention
+**Deployed equivalent:** `20251019183600_*` (deployed to production)
+**Safe to archive:** Yes - proper version deployed
+
+**Recovery:** Do NOT restore - use the 14-digit equivalents already in production
+
+---
+
+## October 2025 Archives (Date Archived: 2025-10-20)
+
+**Reason:** Schema conflict with remote database migrations during July-September 2025 bifurcation
 
 #### `20250130_auth_tables.sql` (January 30, 2025)
 **Status:** SUPERSEDED by remote migrations
