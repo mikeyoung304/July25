@@ -1,0 +1,202 @@
+================================================================================
+DATABASE ROLE_SCOPES SYNCHRONIZATION - QUICK REFERENCE
+================================================================================
+
+REPORT LOCATION: /Users/mikeyoung/CODING/rebuild-6.0/
+  - DATABASE_ROLE_SCOPES_SYNC_INVESTIGATION.md (Full detailed report)
+  - DATABASE_SYNC_EXECUTIVE_SUMMARY.txt (This summary)
+  - ROLE_SCOPE_CODE_VS_DATABASE_COMPARISON.md (Detailed role comparison)
+
+================================================================================
+CRITICAL FINDINGS AT A GLANCE
+================================================================================
+
+1. COLUMN NAME MISMATCH
+   Prisma uses 'scope' but migrations 20251013 & 20251018 use 'scope_name'
+   Impact: Data may not be inserting correctly
+
+2. SERVER ROLE - CRITICAL MISMATCH
+   Code: 6 scopes (NO tables:manage)
+   DB:   7 scopes (YES tables:manage) ← CONFLICT
+   Impact: Server users may have unexpected permissions
+
+3. CUSTOMER ROLE - MISMATCH
+   Code: 4 scopes with specific names (menu:manage)
+   DB:   5 scopes with different names (menu:read, ai.voice:chat)
+   Impact: Customer permissions may not work as intended
+
+4. INCOMPLETE MIGRATIONS
+   Only 2 of 8 roles covered in latest migration (20251029)
+   Missing: owner, manager, cashier, expo
+
+5. NO AUTOMATED VERIFICATION
+   No script validates code ↔ database sync
+   Risk: Silent mismatches accumulate
+
+================================================================================
+THE MAIN PROBLEM
+================================================================================
+
+There are THREE different column naming conventions being used:
+
+  Original (2025-01-30, archived)    →  'scope_name' column
+  Emergency migrations (10-13, 10-18) →  'scope_name' column  (WRONG)
+  Latest migration (10-29)            →  'scope' column       (CORRECT)
+  Prisma schema (current)             →  'scope' column       (CORRECT)
+
+Migrations using the WRONG column name will fail to insert data!
+
+================================================================================
+IMMEDIATE ACTIONS REQUIRED
+================================================================================
+
+Step 1: Query Production Database
+  Command: psql $DATABASE_URL
+  
+  Check schema:
+    SELECT column_name FROM information_schema.columns 
+    WHERE table_name = 'role_scopes' AND table_schema = 'public';
+  
+  Check actual data:
+    SELECT role, COUNT(*) as count FROM role_scopes GROUP BY role;
+    SELECT scope FROM role_scopes WHERE role = 'server' ORDER BY scope;
+
+Step 2: Determine Migration Status
+  If database has 'scope_name' column:
+    → Migrations 20251013/20251018 may have run
+    → Migration 20251029 would fail
+    → Schema is NOT synced with Prisma
+  
+  If database has 'scope' column:
+    → Only migration 20251029 ran (or baseline was used)
+    → Schema matches Prisma
+    → But server role has wrong scopes
+
+Step 3: Fix Server Role
+  DELETE FROM role_scopes 
+  WHERE role = 'server' AND scope = 'tables:manage';
+
+Step 4: Comprehensive Migration
+  Create new migration to sync all 8 roles:
+  - owner (15 scopes)
+  - manager (14 scopes)
+  - server (6 scopes) - already fixed
+  - kitchen (2 scopes)
+  - cashier (3 scopes)
+  - expo (2 scopes)
+  - customer (4 scopes - fix to use correct scope names)
+  - kiosk_demo (4 scopes - deprecated but keep for backwards compat)
+
+================================================================================
+ROLE SCOPE SYNC STATUS
+================================================================================
+
+Owner:    ⚠️ UNKNOWN - Missing from recent migrations
+Manager:  ⚠️ UNKNOWN - Missing from recent migrations (but has tables:manage in code)
+Server:   ✗ OUT OF SYNC - DB has 'tables:manage', code removed it
+Kitchen:  ✓ IN SYNC - Both have 2 scopes (orders:read, orders:status)
+Cashier:  ⚠️ UNKNOWN - Missing from recent migrations
+Expo:     ⚠️ UNKNOWN - Missing from recent migrations
+Customer: ✗ OUT OF SYNC - Different scope names and extra scopes
+Kiosk:    ✗ PROBLEMATIC - Migration uses wrong column name
+
+================================================================================
+KEY FILES
+================================================================================
+
+Code Definition:
+  /Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/rbac.ts
+  - Lines 12-41: ApiScope enum (all available scopes)
+  - Lines 103-181: ROLE_SCOPES constant (role definitions)
+  - Lines 43-102: Detailed sync procedures and warnings
+
+Database Schema (Prisma):
+  /Users/mikeyoung/CODING/rebuild-6.0/prisma/schema.prisma
+  - Lines 403-409: api_scopes model
+  - Lines 595-604: role_scopes model
+
+Migrations (Most Recent to Oldest):
+  /supabase/migrations/20251029_sync_role_scopes_with_rbac_v2.sql (Partial fix)
+  /supabase/migrations/20251018_add_customer_role_scopes.sql (Wrong column)
+  /supabase/migrations/20251013_emergency_kiosk_demo_scopes.sql (Wrong column)
+  /supabase/migrations/.archive/20250130_auth_tables.sql (Original, archived)
+
+================================================================================
+NAMING CONVENTION RULES
+================================================================================
+
+Correct Format:   'resource:action' (with COLON)
+  Examples: 'orders:create', 'tables:manage', 'menu:read'
+
+Wrong Format:     'resource.action' (with DOT) ← NEVER USE!
+  Examples: 'orders.write', 'menu.read', 'tables.manage'
+
+Scope Action Types:
+  - create: Create new records
+  - read: View records
+  - update: Modify existing records
+  - delete: Remove records
+  - status: Update status only
+  - manage: Full management of resource
+  - process: Process operations (e.g., payments:process)
+  - refund: Refund operations
+  - schedule: Scheduling operations
+
+================================================================================
+RISK ASSESSMENT
+================================================================================
+
+Current Risk Level: HIGH
+
+Potential Issues:
+  1. API requests fail with 403 Forbidden (scope mismatch)
+  2. Users see UI elements for features they don't have access to
+  3. JWT tokens have scopes that don't match API checks
+  4. Server users may access features they shouldn't
+  5. Some roles may be missing required permissions
+
+Impact on Users:
+  - Managers might have unexpected table management permissions
+  - Servers might have unexpected table management permissions
+  - Customers might see voice ordering options that don't work
+  - Some roles entirely missing their permissions (owner, expo, etc.)
+
+================================================================================
+LONG-TERM SOLUTIONS
+================================================================================
+
+1. Create Automated Verification Script
+   Location: scripts/verify-rbac-sync.sh
+   Purpose: Compare code ROLE_SCOPES with database after each deployment
+   
+2. Add CI/CD Check
+   Integrate verification into deployment pipeline
+   Fail deployment if code ↔ database mismatch detected
+   
+3. Update RBAC Documentation
+   Document dual-source architecture clearly
+   Add sync procedures to developer guide
+   Include troubleshooting section
+   
+4. Monitor Permissions
+   Add logging when permissions are checked
+   Alert on any scope mismatches
+   Track API access denied events
+
+================================================================================
+FOR DETAILED ANALYSIS, SEE:
+================================================================================
+
+DATABASE_ROLE_SCOPES_SYNC_INVESTIGATION.md
+  - Complete root cause analysis
+  - Detailed issue breakdown
+  - Evidence and references
+  - Step-by-step recommendations
+
+ROLE_SCOPE_CODE_VS_DATABASE_COMPARISON.md
+  - Role-by-role comparison
+  - Code vs migration definitions
+  - Scope count verification
+  - Summary table showing all discrepancies
+
+================================================================================

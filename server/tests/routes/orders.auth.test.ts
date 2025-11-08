@@ -128,13 +128,12 @@ describe('Orders Routes - Auth Integration Tests', () => {
     app = express();
     app.use(express.json());
 
-    // Load auth middleware and orders routes
-    const { authenticate } = await import('../../src/middleware/auth');
+    // Load orders routes and error handler
     const { orderRoutes } = await import('../../src/routes/orders.routes');
     const { errorHandler } = await import('../../src/middleware/errorHandler');
 
-    // Mount routes with auth
-    app.use('/api/v1/orders', authenticate, orderRoutes);
+    // Mount routes WITHOUT global auth (routes handle auth internally with optionalAuth)
+    app.use('/api/v1/orders', orderRoutes);
 
     // Add error handler (must be after routes)
     app.use(errorHandler);
@@ -159,17 +158,20 @@ describe('Orders Routes - Auth Integration Tests', () => {
   });
 
   describe('Test 1: customer role → POST /api/v1/orders → 201', () => {
-    it.skip('should allow customer role to create orders', async () => {
-      // TODO: Auth test failing with 403 Forbidden instead of 201 Created
-      // Needs investigation into auth middleware and role permissions
-      // Unrelated to documentation PR - track separately
+    it('should allow customer role to create orders', async () => {
       const token = createTestToken({ role: 'customer' });
 
       const response = await request(app)
         .post('/api/v1/orders')
         .set('Authorization', `Bearer ${token}`)
         .send({
-          items: [{ name: 'Margherita Pizza', quantity: 1, price: 12.99 }],
+          items: [{
+            id: 'item-uuid-1',
+            menu_item_id: 'menu-item-pizza',
+            name: 'Margherita Pizza',
+            quantity: 1,
+            price: 12.99
+          }],
           type: 'online',
           customer_name: 'Test Customer'
         });
@@ -181,17 +183,20 @@ describe('Orders Routes - Auth Integration Tests', () => {
   });
 
   describe('Test 2: server role → POST /api/v1/orders → 201', () => {
-    it.skip('should allow server role to create orders', async () => {
-      // TODO: Auth test failing with 403 Forbidden instead of 201 Created
-      // Needs investigation into auth middleware and role permissions
-      // Unrelated to documentation PR - track separately
+    it('should allow server role to create orders', async () => {
       const token = createTestToken({ role: 'server' });
 
       const response = await request(app)
         .post('/api/v1/orders')
         .set('Authorization', `Bearer ${token}`)
         .send({
-          items: [{ name: 'Caesar Salad', quantity: 1, price: 9.99 }],
+          items: [{
+            id: 'item-uuid-2',
+            menu_item_id: 'menu-item-salad',
+            name: 'Caesar Salad',
+            quantity: 1,
+            price: 9.99
+          }],
           type: 'dine-in',
           table_number: 5
         });
@@ -203,10 +208,7 @@ describe('Orders Routes - Auth Integration Tests', () => {
   });
 
   describe('Test 3: kiosk_demo with AUTH_ACCEPT_KIOSK_DEMO_ALIAS=true → 201 + WARN', () => {
-    it.skip('should accept kiosk_demo as customer alias and log warning', async () => {
-      // TODO: Auth test failing with 403 Forbidden instead of 201 Created
-      // kiosk_demo role not being accepted even with flag enabled
-      // Pre-existing bug unrelated to documentation PR
+    it('should accept kiosk_demo as customer alias and log warning', async () => {
       // Enable the alias flag (default behavior)
       process.env['AUTH_ACCEPT_KIOSK_DEMO_ALIAS'] = 'true';
 
@@ -216,7 +218,13 @@ describe('Orders Routes - Auth Integration Tests', () => {
         .post('/api/v1/orders')
         .set('Authorization', `Bearer ${token}`)
         .send({
-          items: [{ name: 'Greek Bowl', quantity: 1, price: 11.99 }],
+          items: [{
+            id: 'item-uuid-3',
+            menu_item_id: 'menu-item-bowl',
+            name: 'Greek Bowl',
+            quantity: 1,
+            price: 11.99
+          }],
           type: 'online'
         });
 
@@ -257,10 +265,7 @@ describe('Orders Routes - Auth Integration Tests', () => {
     });
   });
 
-  describe.skip('Test 5: X-Client-Flow header is captured/logged', () => {
-    // TODO: All tests in this suite failing with 403 Forbidden instead of 201 Created
-    // Auth middleware not allowing customer/server roles to create orders
-    // Pre-existing bugs unrelated to documentation PR
+  describe('Test 5: X-Client-Flow header is captured/logged', () => {
     it('should capture and respect X-Client-Flow header', async () => {
       const token = createTestToken({ role: 'customer' });
 
@@ -269,7 +274,13 @@ describe('Orders Routes - Auth Integration Tests', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('X-Client-Flow', 'kiosk')
         .send({
-          items: [{ name: 'Test Item', quantity: 1, price: 5.00 }],
+          items: [{
+            id: 'item-uuid-4',
+            menu_item_id: 'menu-item-test',
+            name: 'Test Item',
+            quantity: 1,
+            price: 5.00
+          }],
           type: 'kiosk'
         });
 
@@ -295,7 +306,13 @@ describe('Orders Routes - Auth Integration Tests', () => {
           .set('Authorization', `Bearer ${token}`)
           .set('X-Client-Flow', flow)
           .send({
-            items: [{ name: 'Test', quantity: 1, price: 1.00 }],
+            items: [{
+              id: `item-uuid-flow-${flow}`,
+              menu_item_id: 'menu-item-test',
+              name: 'Test',
+              quantity: 1,
+              price: 1.00
+            }],
             type: 'dine-in'
           });
 
