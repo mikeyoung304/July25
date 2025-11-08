@@ -13,10 +13,18 @@ Use this checklist for every production deployment to ensure nothing is missed.
 
 ## Database Changes (if applicable)
 
+### Local Testing (REQUIRED)
 - [ ] Migrations created with timestamp naming: `YYYYMMDDHHMMSS_verb_object.sql`
 - [ ] SQL uses idempotent patterns (`IF NOT EXISTS`, `ON CONFLICT DO NOTHING`)
-- [ ] **Migrations deployed to Supabase cloud:** `supabase db push --linked`
+- [ ] **Local testing completed:** `./scripts/deploy-migration.sh supabase/migrations/XXXXX_*.sql`
+- [ ] Verify no errors in console output
+- [ ] Schema changes verified locally: Query database to confirm expected changes
+- [ ] (If applicable) Rollback plan tested locally
+
+### Cloud Deployment
+- [ ] **Migrations deployed to Supabase cloud:** Push to main → CI/CD auto-deploys
 - [ ] **Deployment verified:** `supabase db diff --linked` shows no changes
+- [ ] Prisma schema synced: `./scripts/post-migration-sync.sh` (or verify CI/CD ran it)
 - [ ] Migration file committed to git
 - [ ] CHANGELOG.md updated with migration details
 - [ ] Rollback plan documented (if needed)

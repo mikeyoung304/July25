@@ -248,6 +248,20 @@ const supabase = createClient(
 - ❌ **Always complete** - May be missing if changes made via UI
 - ❌ **Always applied** - Local files may differ from remote applied set
 
+### Prisma Schema: Generated from Remote
+
+The Prisma schema file (`prisma/schema.prisma`) is **automatically generated from the remote database** via `npx prisma db pull` (introspection). It provides:
+- TypeScript type definitions for all database tables
+- Compile-time safety for database queries
+- Auto-completion in your IDE
+
+**Key Points:**
+- Prisma schema is **generated FROM remote**, not the source
+- Run `./scripts/post-migration-sync.sh` after migrations to keep it in sync
+- TypeScript types always match production when schema is up to date
+
+**See:** [ADR-010: Remote Database as Source of Truth](./explanation/architecture-decisions/ADR-010-remote-database-source-of-truth.md) for architectural rationale and decision matrix.
+
 ### How to Determine Current Schema State
 
 **Method 1: Query Remote Database (Most Reliable)**

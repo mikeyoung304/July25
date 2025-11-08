@@ -71,6 +71,7 @@ DEMO_LOGIN_ENABLED=true            # Enables /api/v1/auth/demo-session
 npm run db:push
 
 # Verify customer role exists
+# (DATABASE_URL from your .env file - Supabase connection string)
 psql $DATABASE_URL -c "SELECT role, scope_name FROM role_scopes WHERE role='customer';"
 ```
 
