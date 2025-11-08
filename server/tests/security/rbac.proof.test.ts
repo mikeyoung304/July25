@@ -254,9 +254,10 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
       expect(decoded1.restaurant_id).not.toBe(decoded2.restaurant_id);
     });
 
-    it.skip('should reject tokens without restaurant context', async () => {
-      // TODO: Enable this test when STRICT_AUTH enforces restaurant_id requirement
-      // Currently auth middleware sets default restaurant_id if missing
+    it('should reject tokens without restaurant context when STRICT_AUTH enabled', async () => {
+      // Set STRICT_AUTH for this test
+      process.env.STRICT_AUTH = 'true';
+
       const tokenWithoutRestaurant = jwt.sign(
         {
           id: 'manager123',
@@ -268,12 +269,16 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
         process.env.SUPABASE_JWT_SECRET || 'test-jwt-secret-for-testing-only'
       );
 
-      await request(app)
+      const response = await request(app)
         .get('/api/manager')
         .set('Authorization', `Bearer ${tokenWithoutRestaurant}`)
         .expect(401);
 
-      // expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('restaurant context');
+
+      // Cleanup
+      delete process.env.STRICT_AUTH;
     });
   });
 

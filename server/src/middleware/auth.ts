@@ -38,12 +38,6 @@ export async function authenticate(
     // STRICT_AUTH mode - no bypasses allowed
     const strictAuth = process.env['STRICT_AUTH'] === 'true';
 
-    // In strict auth mode, never allow test tokens
-    if (strictAuth && token === 'test-token') {
-      logger.error('⛔ STRICT_AUTH enabled - test token rejected');
-      throw Unauthorized('Test tokens not allowed in strict auth mode');
-    }
-
     // Test tokens are no longer supported for security reasons
     // Use proper JWT tokens in all environments
 
@@ -87,6 +81,16 @@ export async function authenticate(
       }
     }
 
+    // STRICT_AUTH enforcement: Reject tokens without restaurant_id
+    if (strictAuth && !decoded.restaurant_id) {
+      logger.error('⛔ STRICT_AUTH enabled - token missing restaurant_id rejected', {
+        userId: decoded.sub,
+        path: req.path,
+        role: userRole
+      });
+      throw Unauthorized('Token missing restaurant context in strict auth mode');
+    }
+
     // Set user info
     req.user = {
       id: decoded.sub,
@@ -98,8 +102,11 @@ export async function authenticate(
 
     // Set req.restaurantId from JWT for menu/public endpoints
     // restaurantAccess middleware will validate multi-tenancy permissions for protected routes
-    // Fallback to X-Restaurant-ID header if not in JWT
-    req.restaurantId = decoded.restaurant_id || (req.headers['x-restaurant-id'] as string);
+    // In STRICT_AUTH mode, only use restaurant_id from token (no header fallback)
+    // In normal mode, fallback to X-Restaurant-ID header if not in JWT
+    req.restaurantId = strictAuth
+      ? decoded.restaurant_id
+      : (decoded.restaurant_id || (req.headers['x-restaurant-id'] as string));
 
     next();
   } catch (error) {

@@ -1,0 +1,195 @@
+================================================================================
+DATABASE ROLE_SCOPES SYNCHRONIZATION - EXECUTIVE SUMMARY
+================================================================================
+
+CRITICAL FINDINGS:
+==================
+
+1. COLUMN NAME MISMATCH
+   ┌─────────────────────────────────────────────────┐
+   │ Prisma (Current Schema):     'scope'             │
+   │ Migration 20251013/20251018:  'scope_name' (BAD) │
+   │ Migration 20251029:           'scope' (CORRECT)  │
+   └─────────────────────────────────────────────────┘
+   
+   IMPACT: Migrations 20251013 & 20251018 are inserting into wrong columns!
+
+2. SERVER ROLE SCOPE MISMATCH
+   ┌────────────────────────────────────────────────────────────────┐
+   │ RBAC Code (rbac.ts line 146):                                  │
+   │   "TABLES_MANAGE removed - servers should only update table    │
+   │    status during service, not create/delete tables"            │
+   │                                                                 │
+   │ Server Code Definition: [6 scopes, NO tables:manage]           │
+   │   - orders:create                                              │
+   │   - orders:read                                                │
+   │   - orders:update                                              │
+   │   - orders:status                                              │
+   │   - payments:process                                           │
+   │   - payments:read                                              │
+   │                                                                 │
+   │ Migration 20251029 (lines 30-38): [7 scopes, WITH tables:manage]
+   │   - (all 6 above) PLUS:                                        │
+   │   - tables:manage  <-- THIS IS WRONG!                          │
+   └────────────────────────────────────────────────────────────────┘
+   
+   IMPACT: Database and code define SERVER differently!
+
+3. MANAGER ROLE - STATUS CHECK
+   ┌────────────────────────────────────────────────┐
+   │ Both Code and Database Have 'tables:manage'    │
+   │ ✓ Manager: IN SYNC (14 scopes, includes management capabilities) │
+   └────────────────────────────────────────────────┘
+
+4. INCOMPLETE MIGRATION (20251029)
+   ┌────────────────────────────────────────────────────────────────┐
+   │ Only handles 2 of 8 roles:                                     │
+   │   - server  (7 scopes, 1 extra)                                │
+   │   - kitchen (2 scopes, correct)                                │
+   │                                                                 │
+   │ Missing role scope assignments:                                │
+   │   - owner (should have all scopes)                             │
+   │   - manager (may or may not have all scopes)                   │
+   │   - cashier (3 scopes needed)                                  │
+   │   - expo (2 scopes needed)                                     │
+   │   - customer (4 scopes needed)                                 │
+   │   - kiosk_demo (5 scopes, deprecated)                          │
+   └────────────────────────────────────────────────────────────────┘
+
+5. NAMING CONVENTION ISSUES
+   ┌────────────────────────────────────────────────────────────────┐
+   │ Correct Format (used in code):    'resource:action'            │
+   │   Examples: 'orders:create', 'tables:manage'                   │
+   │                                                                 │
+   │ Wrong Format (in old migration):  'resource.action'            │
+   │   Examples: 'orders.write', 'menu.read' (NEVER USE THIS!)     │
+   │                                                                 │
+   │ Migration 20251029 Comment mentions:                           │
+   │   "Database has 'orders.write' but code checks for 'orders:create'"
+   │   This suggests a major naming convention issue was partially fixed
+   └────────────────────────────────────────────────────────────────┘
+
+TIMELINE OF MIGRATIONS:
+=======================
+
+2025-10-13: 20251013_emergency_kiosk_demo_scopes.sql
+   Status: PROBLEMATIC ❌
+   Issue: Uses 'scope_name' column (doesn't exist)
+   Data: kiosk_demo scopes (5 scopes)
+
+2025-10-18: 20251018_add_customer_role_scopes.sql
+   Status: PROBLEMATIC ❌
+   Issue: Uses 'scope_name' column (doesn't exist)
+   Data: customer scopes (5 scopes)
+
+2025-10-29: 20251029_sync_role_scopes_with_rbac_v2.sql
+   Status: PARTIALLY CORRECT ⚠️
+   Uses: Correct 'scope' column
+   Issue: Adds 'tables:manage' to server (contradicts code)
+   Data: server (7 scopes), kitchen (2 scopes)
+   Missing: owner, manager, cashier, expo, customer, kiosk_demo
+
+SCHEMA STRUCTURE:
+=================
+
+api_scopes table:
+   scope (TEXT, PRIMARY KEY)
+   description (TEXT, nullable)
+   role_scopes[] (relationship)
+
+role_scopes table:
+   role (TEXT)
+   scope (TEXT, FOREIGN KEY → api_scopes.scope)
+   @@id([role, scope])  ← Composite primary key
+   Indexes: idx_role_scopes_role, idx_role_scopes_scope
+
+MANAGER ROLE SCOPE VERIFICATION:
+=================================
+
+Expected (from RBAC code):
+   1. orders:create
+   2. orders:read
+   3. orders:update
+   4. orders:delete
+   5. orders:status
+   6. payments:process
+   7. payments:refund
+   8. payments:read
+   9. reports:view
+   10. reports:export
+   11. staff:manage
+   12. staff:schedule
+   13. menu:manage
+   14. tables:manage  ✓ INCLUDED
+
+Status: Manager appears to be correctly defined with tables:manage
+
+DUAL-SOURCE ARCHITECTURE:
+==========================
+
+Database Source (Client-side):
+   ├─ Queried during login
+   ├─ Embedded in JWT token
+   ├─ Used to show/hide UI elements
+   └─ Location: api_scopes + role_scopes tables
+
+Code Source (Server-side):
+   ├─ No database query per request (performance)
+   ├─ Checks JWT scopes with requireScopes() middleware
+   ├─ Defined as ROLE_SCOPES constant
+   └─ Location: server/src/middleware/rbac.ts (lines 103-181)
+
+MUST STAY IN SYNC: Currently NOT in sync for server role!
+
+RISK ASSESSMENT:
+================
+
+⚠️  CRITICAL ISSUES:
+   1. Migrations 20251013 & 20251018 likely failed (wrong columns)
+   2. Server role defined differently in code vs migration
+   3. No verification that database matches code
+   4. No automated sync mechanism
+
+Impact if Database is out of sync:
+   - API requests may fail with 403 Forbidden
+   - JWT scopes won't match API checks
+   - Server users may lose access to features
+   - Managers may have unexpected permissions
+
+REQUIRED ACTIONS:
+=================
+
+IMMEDIATE (Today):
+   □ Query production database to determine actual column names
+   □ Check what scopes are actually in database for each role
+   □ Verify which migrations actually executed
+
+SHORT-TERM (This Week):
+   □ Fix server role: remove 'tables:manage' scope
+   □ Create comprehensive role scope migration
+   □ Ensure all roles have complete scope definitions
+   □ Test each role to verify correct permissions
+
+LONG-TERM:
+   □ Create automated sync verification script
+   □ Add CI/CD step to validate code ↔ database sync
+   □ Document the dual-source architecture clearly
+   □ Update RBAC procedures to prevent future mismatches
+
+KEY FILES:
+==========
+
+Code Definition:
+   /Users/mikeyoung/CODING/rebuild-6.0/server/src/middleware/rbac.ts
+   Lines: 12-41 (scopes), 43-102 (docs), 103-181 (role definitions)
+
+Database Schema:
+   /Users/mikeyoung/CODING/rebuild-6.0/prisma/schema.prisma
+   Lines: 403-409 (api_scopes), 595-604 (role_scopes)
+
+Problematic Migrations:
+   /supabase/migrations/20251013_emergency_kiosk_demo_scopes.sql
+   /supabase/migrations/20251018_add_customer_role_scopes.sql
+   /supabase/migrations/20251029_sync_role_scopes_with_rbac_v2.sql
+
+================================================================================
