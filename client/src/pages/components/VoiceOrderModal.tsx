@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mic, ShoppingCart, Trash2, Edit2, Plus, Minus, CheckCircle } from 'lucide-react'
 import { Card } from '@/components/ui/card'
@@ -68,6 +68,11 @@ export function VoiceOrderModal({
   const [showRemoveConfirm, setShowRemoveConfirm] = useState<string | null>(null)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [orderNotes, setOrderNotes] = useState('')
+
+  // Sync inputMode with initialInputMode prop changes
+  useEffect(() => {
+    setInputMode(initialInputMode)
+  }, [initialInputMode])
 
   const { items: menuItems } = useMenuItems()
 
