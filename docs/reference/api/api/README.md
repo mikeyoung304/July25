@@ -38,8 +38,8 @@ Authorization: Bearer <your-jwt-token>
 | Method | Path | Auth | Description | Source |
 | --- | --- | --- | --- | --- |
 | GET | `/health` | No | Health check endpoint | [health.routes.ts](../../server/src/routes/health.routes.ts) |
-| GET | `/api/v1/health/ready` | No | Kubernetes readiness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
-| GET | `/api/v1/health/live` | No | Kubernetes liveness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
+| GET | `/api/v1/ready` | No | Kubernetes readiness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
+| GET | `/api/v1/live` | No | Kubernetes liveness probe | [health.routes.ts](../../server/src/routes/health.routes.ts) |
 | GET | `/metrics` | No | Prometheus metrics | [metrics.ts](../../server/src/routes/metrics.ts) |
 
 ### Authentication

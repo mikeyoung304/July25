@@ -13,7 +13,6 @@ export class EnhancedOpenAIAdapter extends OpenAIAdapter {
   private isSpeaking = false;
   private audioFormat: AudioFormat = 'pcm16';
   private functionTools = menuFunctionTools;
-  private debugMode = process.env['VOICE_DEBUG'] === 'true';
   private metrics = {
     audioChunksReceived: 0,
     audioChunksSent: 0,
@@ -88,14 +87,12 @@ export class EnhancedOpenAIAdapter extends OpenAIAdapter {
     };
 
     this.sendToOpenAI(sessionConfig);
-    
-    if (this.debugMode) {
-      logger.debug('[EnhancedAdapter] Session initialized', {
-        sessionId: this.sessionId,
-        tools: tools.map(t => t.function.name),
-        audioFormat: this.audioFormat
-      });
-    }
+
+    logger.debug('[EnhancedAdapter] Session initialized', {
+      sessionId: this.sessionId,
+      tools: tools.map(t => t.function.name),
+      audioFormat: this.audioFormat
+    });
   }
 
   /**

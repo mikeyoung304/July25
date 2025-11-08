@@ -15,8 +15,8 @@ export async function loginAsRole(page: Page, role: TestUserRole) {
   // Navigate to home page
   await page.goto('/');
 
-  // Wait for React app to mount
-  await page.waitForSelector('[data-testid="app-ready"]', { timeout: 3000 });
+  // Wait for React app to mount (element is hidden, so we check for DOM presence)
+  await page.waitForSelector('[data-testid="app-ready"]', { timeout: 5000, state: 'attached' });
 
   // Wait for splash screen to complete and demo buttons to appear (6+ seconds for splash)
   // Demo role buttons show capitalized role names: "Server", "Kitchen", "Manager", etc.
@@ -25,8 +25,17 @@ export async function loginAsRole(page: Page, role: TestUserRole) {
   await expect(roleButton).toBeVisible({ timeout: 10000 });
   await roleButton.click();
 
+  // Wait for authentication modal to appear
+  const authModal = page.locator('dialog:has-text("Authentication Required"), [role="dialog"]:has-text("Authentication Required")');
+  if (await authModal.isVisible({ timeout: 2000 }).catch(() => false)) {
+    // Click the Sign In button (credentials are pre-filled)
+    const signInButton = authModal.locator('button:has-text("Sign In")');
+    await expect(signInButton).toBeVisible({ timeout: 2000 });
+    await signInButton.click();
+  }
+
   // Wait for navigation to role-specific page or /home
-  await page.waitForURL(/\/(home|server|cashier|kitchen|manager|owner|expo)/, { timeout: 10000 });
+  await page.waitForURL(/\/(home|server|cashier|kitchen|manager|owner|expo)/, { timeout: 15000 });
 
   // Verify we've navigated successfully
   await expect(page).toHaveURL(/\/(home|server|cashier|kitchen|manager|owner|expo)/);

@@ -15,7 +15,6 @@ interface ProcessEnv {
   LOG_LEVEL?: string;
   LOG_FORMAT?: string;
   AI_DEGRADED_MODE?: string;
-  VOICE_DEBUG?: string;
   VOICE_PERSONALITY?: string;
   VITE_SUPABASE_URL?: string;
   VITE_SUPABASE_ANON_KEY?: string;

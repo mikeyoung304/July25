@@ -36,7 +36,6 @@ export class LocalStorageManager {
   // Debug flags to clear on startup
   private static readonly DEBUG_FLAGS = [
     'WEBRTC_DEBUG',
-    'VOICE_DEBUG',
     'debug_mode',
     'enable_logging'
   ];

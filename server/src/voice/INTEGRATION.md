@@ -26,7 +26,6 @@ SUPABASE_SERVICE_KEY=your_service_key
 RESTAURANT_ID=your_restaurant_id
 
 # Debug
-VOICE_DEBUG=true
 VOICE_RECORD_AUDIO=false
 ```
 
