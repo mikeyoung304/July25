@@ -35,6 +35,10 @@ git push origin main → GitHub Actions → Database Migrations → Render (Back
 - `scripts/post-migration-sync.sh` - Syncs Prisma schema after migrations
 - `docs/SUPABASE_CONNECTION_GUIDE.md` - Reference for troubleshooting only
 
+**Visual Diagrams:**
+- Database migration flow → [Migration Workflow Diagram](../../explanation/architecture/diagrams/migration-workflow.md)
+- Complete deployment pipeline → [Deployment Pipeline Diagram](../../explanation/architecture/diagrams/deployment-pipeline.md)
+
 **Related Documentation:**
 - Database troubleshooting → [SUPABASE_CONNECTION_GUIDE.md](../../SUPABASE_CONNECTION_GUIDE.md)
 - CI/CD workflows → [CI_CD_WORKFLOWS.md](../development/CI_CD_WORKFLOWS.md)

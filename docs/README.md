@@ -56,6 +56,9 @@ Our documentation follows the [Diátaxis framework](https://diataxis.fr/) - a sy
 2. [Investigation Reports](./investigations/README.md) - Incident analysis
 3. [Post-Mortems](./archive/incidents/) - Historical incidents
 
+**Not sure where to find documentation?**
+→ [Documentation Navigation Decision Tree](./explanation/architecture/diagrams/documentation-navigation.md) - Interactive guide to finding the right docs
+
 ## 🗺️ Documentation Sitemap
 
 Our documentation is organized using the Diátaxis framework:

@@ -74,6 +74,12 @@ migrations/
 
 8. **Never edit deployed migrations** - Create new ones instead
 
+## Visual Workflow Diagram
+
+For a complete visual representation of the migration workflow from local testing through production deployment:
+
+**→ See: [Migration Workflow Diagram](../docs/explanation/architecture/diagrams/migration-workflow.md)**
+
 ## Authoritative Guide
 
 For complete workflow, troubleshooting, and best practices:
