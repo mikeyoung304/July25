@@ -46,7 +46,6 @@ interface VoiceOrderModalProps {
   onSubmit: () => void
   onClose: () => void
   isSubmitting?: boolean
-  initialInputMode?: OrderInputMode
 }
 
 export function VoiceOrderModal({
@@ -56,10 +55,9 @@ export function VoiceOrderModal({
   voiceOrder,
   onSubmit,
   onClose,
-  isSubmitting = false,
-  initialInputMode = 'voice'
+  isSubmitting = false
 }: VoiceOrderModalProps) {
-  const [inputMode, setInputMode] = useState<OrderInputMode>(initialInputMode)
+  const [inputMode, setInputMode] = useState<OrderInputMode>('voice')
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null)
   const [isItemModalOpen, setIsItemModalOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
