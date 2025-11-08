@@ -74,7 +74,7 @@ BEGIN
     FROM jsonb_array_elements(p_tables)
   )
   AND restaurant_id = p_restaurant_id
-  ORDER BY table_number;
+  ORDER BY label;
 
   -- Warn if some tables were not updated (likely wrong restaurant_id)
   IF v_update_count < v_table_count THEN
