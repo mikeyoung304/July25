@@ -75,14 +75,14 @@ router.post('/login',
     // Fetch user scopes from role_scopes table
     const { data: scopesData, error: scopesError } = await supabase
       .from('role_scopes')
-      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
+      .select('scope_name')  // Database column is 'scope_name'
       .eq('role', userRole.role);
 
     if (scopesError) {
       logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
     }
 
-    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
+    const scopes = scopesData?.map(s => s.scope_name) || [];
 
     logger.info('auth_success', {
       user_id: authData.user.id,
@@ -159,14 +159,14 @@ router.post('/pin-login',
     // Fetch user scopes from role_scopes table
     const { data: scopesData, error: scopesError } = await supabase
       .from('role_scopes')
-      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
+      .select('scope_name')  // Database column is 'scope_name'
       .eq('role', result.role);
 
     if (scopesError) {
       logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
     }
 
-    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
+    const scopes = scopesData?.map(s => s.scope_name) || [];
 
     logger.info('auth_success', {
       user_id: result.userId,
@@ -309,14 +309,14 @@ router.get('/me', authenticate, validateRestaurantAccess, async (req: Authentica
     const role = userRole?.role || req.user!.role;
     const { data: scopesData, error: scopesError } = await supabase
       .from('role_scopes')
-      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
+      .select('scope_name')  // Database column is 'scope_name'
       .eq('role', role);
 
     if (scopesError) {
       logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
     }
 
-    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
+    const scopes = scopesData?.map(s => s.scope_name) || [];
 
     res.json({
       user: {
