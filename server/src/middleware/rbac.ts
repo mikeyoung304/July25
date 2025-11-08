@@ -142,8 +142,8 @@ const ROLE_SCOPES: Record<string, ApiScope[]> = {
     ApiScope.ORDERS_UPDATE,
     ApiScope.ORDERS_STATUS,
     ApiScope.PAYMENTS_PROCESS,
-    ApiScope.PAYMENTS_READ,
-    ApiScope.TABLES_MANAGE
+    ApiScope.PAYMENTS_READ
+    // TABLES_MANAGE removed - servers should only update table status during service, not create/delete tables
   ],
   
   cashier: [

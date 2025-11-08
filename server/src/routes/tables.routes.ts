@@ -1,7 +1,8 @@
 import { Router, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger'
 import { supabase } from '../config/database';
-import { validateRestaurantAccess, AuthenticatedRequest } from '../middleware/auth';
+import { validateRestaurantAccess, AuthenticatedRequest, authenticate } from '../middleware/auth';
+import { requireScopes, ApiScope } from '../middleware/rbac';
 import { getConfig } from '../config/environment';
 import { TableStatus } from '../../../shared/types/table.types';
 
@@ -393,10 +394,10 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
 // Set up routes
 router.get('/', getTables);
 router.get('/:id', getTable);
-router.post('/', createTable);
-router.put('/batch', batchUpdateTables);
-router.put('/:id', updateTable);
-router.delete('/:id', deleteTable);
-router.patch('/:id/status', updateTableStatus);
+router.post('/', authenticate, requireScopes(ApiScope.TABLES_MANAGE), createTable);
+router.put('/batch', authenticate, requireScopes(ApiScope.TABLES_MANAGE), batchUpdateTables);
+router.put('/:id', authenticate, requireScopes(ApiScope.TABLES_MANAGE), updateTable);
+router.delete('/:id', authenticate, requireScopes(ApiScope.TABLES_MANAGE), deleteTable);
+router.patch('/:id/status', authenticate, requireScopes(ApiScope.TABLES_MANAGE), updateTableStatus);
 
 export { router as tableRoutes };

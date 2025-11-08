@@ -90,6 +90,7 @@
 - [Payment API Documentation](./docs/reference/api/api/PAYMENT_API_DOCUMENTATION.md) — Payment processing API
 - [Square API Setup](./docs/reference/api/api/SQUARE_API_SETUP.md) — Square integration setup
 - [KDS Bible](./docs/how-to/operations/KDS-BIBLE.md) — Kitchen Display System guide
+- [Floor Plan Management](./docs/how-to/operations/FLOOR_PLAN_MANAGEMENT.md) — Table layout and floor plan editor
 - [Voice Integration](./server/src/voice/INTEGRATION.md) — Voice ordering system
 
 ### Voice Ordering Implementation (2025-01)

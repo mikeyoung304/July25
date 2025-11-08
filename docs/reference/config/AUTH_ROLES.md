@@ -1,10 +1,7 @@
 # Authentication Roles
 
-
-**Last Updated:** 2025-10-30
-
-**Version**: 6.0.14 (Originally documented in v6.0.8)
-**Last Updated**: October 30, 2025
+**Last Updated:** 2025-11-07
+**Version**: 6.0.15 (Originally documented in v6.0.8)
 
 ## Role Definitions
 
@@ -31,16 +28,38 @@ if (!isAuthenticated) {
 
 **Deprecated (v6.0.9)**: `getCustomerToken()` from `roleHelpers` stores tokens in sessionStorage (incompatible with httpClient). Use `AuthContext.loginAsDemo('customer')` instead.
 
-### server (Staff Operations)
-**Use Cases**: Staff servers placing orders for customers, table management, voice ordering for dine-in
-**Permissions**:
+### owner (Restaurant Owner)
+**Use Cases**: Full administrative access, system configuration, financial oversight
+**Permissions**: All 15 scopes
+- `orders:create`, `orders:read`, `orders:update`, `orders:delete`, `orders:status`
+- `payments:process`, `payments:refund`, `payments:read`
+- `reports:view`, `reports:export`
+- `staff:manage`, `staff:schedule`
+- `system:config` - System-level configuration (owner only)
+- `menu:manage` - Manage menu items
+- `tables:manage` - Manage floor plan and table layout
+
+### manager (Operations Manager)
+**Use Cases**: Day-to-day operations, staff management, financial operations
+**Permissions**: All except `system:config` (14 scopes)
+- `orders:create`, `orders:read`, `orders:update`, `orders:delete`, `orders:status`
+- `payments:process`, `payments:refund`, `payments:read`
+- `reports:view`, `reports:export`
+- `staff:manage`, `staff:schedule`
+- `menu:manage` - Manage menu items
+- `tables:manage` - Manage floor plan and table layout
+
+### server (Wait Staff)
+**Use Cases**: Taking orders, processing payments, table service, voice ordering
+**Permissions**: 6 scopes
 - `orders:create` - Create orders for customers
 - `orders:read` - View orders
 - `orders:update` - Modify orders
 - `orders:status` - Update order status
 - `payments:process` - Process payments
 - `payments:read` - View payment details
-- `tables:manage` - Manage table assignments
+
+**Note**: Servers can view tables but cannot modify floor plan layout (no `tables:manage` scope)
 
 **Client Usage**:
 ```typescript
@@ -54,6 +73,25 @@ await loginAsDemo('server');
 ```
 
 **Deprecated (v6.0.9)**: `getServerToken()` from `roleHelpers` stores tokens in sessionStorage (incompatible with httpClient). Use `AuthContext.loginAsDemo('server')` instead.
+
+### kitchen (Kitchen Staff)
+**Use Cases**: Kitchen display system, order preparation, status updates
+**Permissions**: 2 scopes
+- `orders:read` - View incoming orders
+- `orders:status` - Update order preparation status (e.g., preparing, ready)
+
+### expo (Expeditor)
+**Use Cases**: Order coordination, quality control, expediting orders to servers
+**Permissions**: 2 scopes
+- `orders:read` - View orders ready for service
+- `orders:status` - Update order delivery status
+
+### cashier (Cashier/Host)
+**Use Cases**: Payment processing, customer checkout
+**Permissions**: 3 scopes
+- `orders:read` - View orders for checkout
+- `payments:process` - Process payments
+- `payments:read` - View payment details
 
 ### kiosk_demo (DEPRECATED - Alias to 'customer')
 **Status**: DEPRECATED in v6.0.8

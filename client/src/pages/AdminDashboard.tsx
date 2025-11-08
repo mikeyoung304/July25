@@ -86,8 +86,8 @@ function AdminDashboard() {
   }
 
   return (
-    <RoleGuard 
-      suggestedRoles={['admin']} 
+    <RoleGuard
+      suggestedRoles={['admin', 'manager']}
       pageTitle="Admin Dashboard"
     >
       <div className="min-h-screen bg-macon-background">
