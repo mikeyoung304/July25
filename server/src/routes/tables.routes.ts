@@ -1,28 +1,12 @@
 import { Router, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger'
 import { supabase } from '../config/database';
-import { validateRestaurantAccess, AuthenticatedRequest, authenticate } from '../middleware/auth';
+import { AuthenticatedRequest, authenticate } from '../middleware/auth';
+import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
-import { getConfig } from '../config/environment';
 import { TableStatus } from '../../../shared/types/table.types';
 
 const router = Router();
-const config = getConfig();
-
-// Apply restaurant validation to all routes (skip in development for testing)
-if (config.nodeEnv !== 'development') {
-  router.use(validateRestaurantAccess);
-} else {
-  // Development middleware - just ensure restaurant ID is present
-  router.use((req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
-    const restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
-    if (!restaurantId) {
-      return next(new Error('Restaurant ID is required'));
-    }
-    req.restaurantId = restaurantId;
-    next();
-  });
-}
 
 // Get all tables for a restaurant
 export const getTables = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
@@ -391,13 +375,14 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
   }
 };
 
-// Set up routes
-router.get('/', getTables);
-router.get('/:id', getTable);
-router.post('/', authenticate, requireScopes(ApiScope.TABLES_MANAGE), createTable);
-router.put('/batch', authenticate, requireScopes(ApiScope.TABLES_MANAGE), batchUpdateTables);
-router.put('/:id', authenticate, requireScopes(ApiScope.TABLES_MANAGE), updateTable);
-router.delete('/:id', authenticate, requireScopes(ApiScope.TABLES_MANAGE), deleteTable);
-router.patch('/:id/status', authenticate, requireScopes(ApiScope.TABLES_MANAGE), updateTableStatus);
+// Set up routes with proper middleware chain
+// Order: authenticate -> validateRestaurantAccess -> requireScopes (for mutations)
+router.get('/', authenticate, validateRestaurantAccess, getTables);
+router.get('/:id', authenticate, validateRestaurantAccess, getTable);
+router.post('/', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), createTable);
+router.put('/batch', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), batchUpdateTables);
+router.put('/:id', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), updateTable);
+router.delete('/:id', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), deleteTable);
+router.patch('/:id/status', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), updateTableStatus);
 
 export { router as tableRoutes };
