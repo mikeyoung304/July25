@@ -28,7 +28,8 @@ export function csrfMiddleware() {
       '/api/v1/auth/',             // All auth endpoints (login, kiosk, pin, etc.) - protected by rate limiting
       '/api/v1/realtime/session',  // WebRTC doesn't need CSRF
       '/api/v1/orders',            // Order creation API - protected by JWT auth
-      '/api/v1/payments'           // Payment API - protected by JWT auth + Square validation
+      '/api/v1/payments',          // Payment API - protected by JWT auth + Square validation
+      '/api/v1/tables'             // Table management API - protected by JWT auth + RBAC (tables:manage scope)
     ];
 
     if (skipPaths.some(path => req.path.startsWith(path))) {
