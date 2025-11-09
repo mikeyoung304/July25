@@ -1,5 +1,5 @@
 import { EventEmitter } from '../../../services/utils/EventEmitter';
-import { useApiRequest } from '@/hooks/useApiRequest';
+import { useHttpClient } from '@/services/http';
 import { useToast } from '@/hooks/useToast';
 import { useNavigate } from 'react-router-dom';
 import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
@@ -53,9 +53,9 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
   private checkoutState: CheckoutState = 'idle';
   private currentCart: KioskCartItem[] = [];
   private currentTotals = { subtotal: 0, tax: 0, total: 0 };
-  
+
   // Dependencies - these will be injected at runtime
-  private apiClient: ReturnType<typeof useApiRequest> | null = null;
+  private apiClient: ReturnType<typeof useHttpClient> | null = null;
   private toast: ReturnType<typeof useToast> | null = null;
   private navigate: ReturnType<typeof useNavigate> | null = null;
 
@@ -73,7 +73,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
    * Called from the React component that uses this service
    */
   initialize(
-    apiClient: ReturnType<typeof useApiRequest>,
+    apiClient: ReturnType<typeof useHttpClient>,
     toast: ReturnType<typeof useToast>,
     navigate: ReturnType<typeof useNavigate>
   ): void {
@@ -122,7 +122,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
         this.cancelOrder();
         break;
       default:
-        console.warn(`${logPrefix} Unknown action: ${event.action}`);
+        logger.warn(`${logPrefix} Unknown action: ${event.action}`);
     }
   }
 
@@ -137,7 +137,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     }
 
     if (this.checkoutState !== 'idle' && this.checkoutState !== 'reviewing') {
-      console.warn('[VoiceCheckoutOrchestrator] Cannot checkout in state:', this.checkoutState);
+      logger.warn('[VoiceCheckoutOrchestrator] Cannot checkout in state:', this.checkoutState);
       return;
     }
 
@@ -161,7 +161,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
    */
   private navigateToCheckout(): void {
     if (!this.navigate) {
-      console.error('[VoiceCheckoutOrchestrator] Navigate function not available');
+      logger.error('[VoiceCheckoutOrchestrator] Navigate function not available');
       return;
     }
 

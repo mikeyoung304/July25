@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
-import { useApiRequest } from '@/hooks/useApiRequest';
+import { useHttpClient } from '@/services/http';
 import { useSquareTerminal } from '@/hooks/useSquareTerminal';
 import { useFormValidation } from '@/utils/validation';
 import { checkoutValidationRules } from '@/config/checkoutValidation';
@@ -26,8 +26,8 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('card');
   const [_createdOrderId, _setCreatedOrderId] = useState<string | null>(null);
-  const orderApi = useApiRequest();
-  const paymentApi = useApiRequest();
+  const { post: createOrder } = useHttpClient();
+  const { post: processPayment } = useHttpClient();
   
   // Square Terminal integration
   const terminal = useSquareTerminal({
@@ -153,9 +153,9 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     form.clearErrors();
 
     try {
-      // Auth is handled automatically by useApiRequest via Supabase session
+      // Auth is handled automatically by useHttpClient via Supabase session
       // Create the order
-      const orderResponse = await orderApi.post('/api/v1/orders', {
+      const orderResponse = await createOrder('/api/v1/orders', {
         type: 'kiosk',
         items: cart.items.map(item => ({
           menu_item_id: item.menuItemId || item.menuItem?.id,
@@ -228,7 +228,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     
     try {
       // Process the payment
-      const paymentResponse = await paymentApi.post('/api/v1/payments/create', {
+      const paymentResponse = await processPayment('/api/v1/payments/create', {
         orderId: order.id,
         token,
         amount: cart.total,

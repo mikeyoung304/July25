@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
-import { useApiRequest } from '@/hooks/useApiRequest';
+import { useHttpClient } from '@/services/http';
 import { useNavigate } from 'react-router-dom';
 import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
 import { useTaxRate } from '@/hooks/useTaxRate';
+import { logger } from '@/services/logger';
 
 // Type alias for compatibility
 type KioskOrderItem = UnifiedCartItem;
@@ -18,7 +19,7 @@ interface OrderSubmissionResult {
 export function useKioskOrderSubmission() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const orderApi = useApiRequest();
+  const { post: createOrder } = useHttpClient();
   const taxRate = useTaxRate();
 
   const submitOrder = useCallback(async (
@@ -61,7 +62,7 @@ export function useKioskOrderSubmission() {
         total_amount: total,
       };
 
-      const orderResponse = await orderApi.post('/api/v1/orders', orderData);
+      const orderResponse = await createOrder('/api/v1/orders', orderData);
 
       if (!orderResponse) {
         throw new Error('Failed to create order');
@@ -77,9 +78,9 @@ export function useKioskOrderSubmission() {
       };
 
     } catch (error) {
-      console.error('Order submission failed:', error);
+      logger.error('Order submission failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
+
       return {
         success: false,
         error: errorMessage
@@ -87,7 +88,7 @@ export function useKioskOrderSubmission() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [orderApi, taxRate]);
+  }, [createOrder, taxRate]);
 
   const submitOrderAndNavigate = useCallback(async (
     items: KioskOrderItem[],

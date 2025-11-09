@@ -6,17 +6,18 @@ import { CartItem } from '@/modules/order-system/components/CartItem';
 import { CartSummary } from '@/modules/order-system/components/CartSummary';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
 import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
-import { useApiRequest } from '@/hooks/useApiRequest';
+import { useHttpClient } from '@/services/http';
 import { useFormValidation } from '@/utils/validation';
 import { checkoutValidationRules } from '@/config/checkoutValidation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
+import { logger } from '@/services/logger';
 
 const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
   const { cart, updateCartItem, removeFromCart, updateTip, clearCart, restaurantId } = useUnifiedCart();
   const [isProcessing, setIsProcessing] = useState(false);
-  const orderApi = useApiRequest();
-  const paymentApi = useApiRequest();
+  const { post: createOrder } = useHttpClient();
+  const { post: processPayment } = useHttpClient();
 
   // NOTE: Customer orders do NOT require authentication
   // Anonymous customers can place orders using just contact info (email, phone)
@@ -54,7 +55,7 @@ const CheckoutPageContent: React.FC = () => {
     try {
       // Create the order (using snake_case per ADR-001)
       // No authentication required - orders are placed anonymously with contact info
-      const orderResponse = await orderApi.post('/api/v1/orders', {
+      const orderResponse = await createOrder('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
           id: item.id,  // Item UUID (required per OrderItem schema)
@@ -87,7 +88,7 @@ const CheckoutPageContent: React.FC = () => {
 
       // Process demo payment (will be mocked on server)
       // Note: Don't send 'amount' - let server calculate from order to avoid mismatch
-      const paymentResponse = await paymentApi.post('/api/v1/payments/create', {
+      const paymentResponse = await processPayment('/api/v1/payments/create', {
         order_id: order.id,  // ✅ snake_case per ADR-001
         token: 'demo-token',
         idempotency_key: `demo-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,  // ✅ snake_case per ADR-001
@@ -117,7 +118,7 @@ const CheckoutPageContent: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('Demo payment error:', error);
+      logger.error('Demo payment error:', error);
       const errorMessage = error instanceof Error
         ? error.message
         : typeof error === 'string'
@@ -141,7 +142,7 @@ const CheckoutPageContent: React.FC = () => {
     try {
       // First, create the order using snake_case (per ADR-001)
       // No authentication required - orders are placed anonymously with contact info
-      const orderResponse = await orderApi.post('/api/v1/orders', {
+      const orderResponse = await createOrder('/api/v1/orders', {
         type: 'online',
         items: cart.items.map(item => ({
           id: item.id,  // Item UUID (required per OrderItem schema)
@@ -174,7 +175,7 @@ const CheckoutPageContent: React.FC = () => {
 
       // Now process the payment using the new API hook
       // Note: Don't send 'amount' - let server calculate from order to avoid mismatch
-      const paymentResponse = await paymentApi.post('/api/v1/payments/create', {
+      const paymentResponse = await processPayment('/api/v1/payments/create', {
         order_id: order.id,  // ✅ snake_case per ADR-001
         token,
         idempotency_key: `checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,  // ✅ snake_case per ADR-001
@@ -204,7 +205,7 @@ const CheckoutPageContent: React.FC = () => {
       });
 
     } catch (error) {
-      console.error('Payment processing error:', error);
+      logger.error('Payment processing error:', error);
       const errorMessage = error instanceof Error
         ? error.message
         : typeof error === 'string'

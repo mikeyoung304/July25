@@ -3,7 +3,7 @@ import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderPar
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
 import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { useKioskOrderSubmission } from '@/hooks/kiosk/useKioskOrderSubmission';
-import { useApiRequest } from '@/hooks/useApiRequest';
+import { useHttpClient } from '@/services/http';
 import { useToast } from '@/hooks/useToast';
 import { useNavigate } from 'react-router-dom';
 import { VoiceCheckoutOrchestrator } from '@/modules/voice/services/VoiceCheckoutOrchestrator';
@@ -50,7 +50,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   const { cart, addItem, removeFromCart, clearCart } = useUnifiedCart();
   const { items: menuItems, loading } = useMenuItems();
   const { submitOrderAndNavigate, isSubmitting } = useKioskOrderSubmission();
-  const apiClient = useApiRequest();
+  const httpClient = useHttpClient();
   const toast = useToast();
   const navigate = useNavigate();
   
@@ -73,7 +73,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
       });
 
       // Initialize with React hooks
-      checkoutOrchestratorRef.current.initialize(apiClient, toast, navigate);
+      checkoutOrchestratorRef.current.initialize(httpClient, toast, navigate);
       
       // Notify parent that orchestrator is ready
       if (onOrchestratorReady) {
@@ -122,7 +122,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         checkoutOrchestratorRef.current = null;
       }
     };
-  }, [apiClient, toast, navigate, onOrchestratorReady]);
+  }, [httpClient, toast, navigate, onOrchestratorReady]);
 
   // Update orchestrator when cart changes
   useEffect(() => {
@@ -180,7 +180,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
       orderData.items.forEach((item: any) => {
         // Skip invalid items
         if (!item || !item.name) {
-          console.warn('[VoiceOrderingMode] Skipping item with missing name:', item);
+          // Skipping item with missing name
           return;
         }
         

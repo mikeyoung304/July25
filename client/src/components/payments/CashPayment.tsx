@@ -2,8 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { ArrowLeft, DollarSign, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useApiRequest } from '@/hooks/useApiRequest';
+import { useHttpClient } from '@/services/http';
 import { useToast } from '@/hooks/useToast';
+import { logger } from '@/services/logger';
 
 interface CashPaymentProps {
   orderId: string;
@@ -23,7 +24,7 @@ export const CashPayment: React.FC<CashPaymentProps> = ({
   const [cashReceived, setCashReceived] = useState<number>(0);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const api = useApiRequest();
+  const { post } = useHttpClient();
   const { toast } = useToast();
 
   const change = cashReceived - total;
@@ -50,7 +51,7 @@ export const CashPayment: React.FC<CashPaymentProps> = ({
     setIsProcessing(true);
     try {
       // Call the cash payment API
-      const response = await api.post('/api/v1/payments/cash', {
+      const response = await post('/api/v1/payments/cash', {
         order_id: orderId,
         amount_received: cashReceived,
         amount_due: total,
@@ -76,7 +77,7 @@ export const CashPayment: React.FC<CashPaymentProps> = ({
       // Call success handler
       onSuccess();
     } catch (error) {
-      console.error('Cash payment error:', error);
+      logger.error('Cash payment error:', error);
       const errorMessage = error instanceof Error
         ? error.message
         : 'Failed to process cash payment';
@@ -84,7 +85,7 @@ export const CashPayment: React.FC<CashPaymentProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  }, [orderId, cashReceived, total, change, isSufficient, api, toast, onSuccess, onUpdateTableStatus]);
+  }, [orderId, cashReceived, total, change, isSufficient, post, toast, onSuccess, onUpdateTableStatus]);
 
   return (
     <div className="flex flex-col h-full bg-white">

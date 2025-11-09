@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useApiRequest } from './useApiRequest';
+import { useHttpClient } from '@/services/http';
 import { useToast } from './useToast';
+import { logger } from '@/services/logger';
 
 export interface TerminalDevice {
   id: string;
@@ -113,7 +114,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
   const [error, setError] = useState<string | null>(null);
 
   // Hooks
-  const api = useApiRequest();
+  const { get, post } = useHttpClient();
   const { toast } = useToast();
 
   // Refs for cleanup
@@ -150,7 +151,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
 
       // Loading terminal devices...
 
-      const response = await api.get('/api/v1/terminal/devices') as TerminalDevicesResponse;
+      const response = await get('/api/v1/terminal/devices') as TerminalDevicesResponse;
       
       if (!response || !response.success) {
         throw new Error('Failed to load terminal devices');
@@ -164,21 +165,21 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
       const errorMessage = err?.message || 'Failed to load terminal devices';
       setError(errorMessage);
       onError?.(errorMessage);
-      
+
       if (debug) {
-        console.error('[useSquareTerminal] Device loading error:', err);
+        logger.error('[useSquareTerminal] Device loading error:', err);
       }
     } finally {
       setIsLoading(false);
     }
-  }, [api, onError, debug]);
+  }, [get, onError, debug]);
 
   // Poll checkout status
   const pollCheckoutStatus = useCallback(async (checkoutId: string) => {
     try {
       if (isUnmountedRef.current) return;
 
-      const response = await api.get(`/api/v1/terminal/checkout/${checkoutId}`) as TerminalCheckoutResponse;
+      const response = await get(`/api/v1/terminal/checkout/${checkoutId}`) as TerminalCheckoutResponse;
       
       if (!response || !response.success) {
         throw new Error('Failed to get checkout status');
@@ -200,7 +201,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
 
         try {
           // Complete the order
-          const completionResponse = await api.post(`/api/v1/terminal/checkout/${checkoutId}/complete`);
+          const completionResponse = await post(`/api/v1/terminal/checkout/${checkoutId}/complete`);
           
           if (completionResponse && (completionResponse as any).success) {
             const paymentData: TerminalPayment = {
@@ -247,16 +248,16 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
       if (isUnmountedRef.current) return;
       
       const errorMessage = err?.message || 'Failed to check payment status';
-      
+
       if (debug) {
-        console.error('[useSquareTerminal] Polling error:', err);
+        logger.error('[useSquareTerminal] Polling error:', err);
       }
 
       // Don't immediately fail on polling errors - could be temporary
       // But log them and continue polling for now
-      console.warn('[useSquareTerminal] Polling warning:', errorMessage);
+      logger.warn('[useSquareTerminal] Polling warning:', errorMessage);
     }
-  }, [api, onSuccess, onError, onStatusChange, cleanup, toast, debug]);
+  }, [get, post, onSuccess, onError, onStatusChange, cleanup, toast, debug]);
 
   // Start terminal checkout
   const startCheckout = useCallback(async (orderId: string, deviceId: string) => {
@@ -269,7 +270,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
         // Starting checkout process
       }
 
-      const response = await api.post('/api/v1/terminal/checkout', {
+      const response = await post('/api/v1/terminal/checkout', {
         orderId,
         deviceId
       }) as TerminalCreateCheckoutResponse;
@@ -304,7 +305,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
           
           // Attempt to cancel the checkout
           cancelCheckout().catch(err => {
-            console.warn('Failed to cancel timed out checkout:', err);
+            logger.warn('Failed to cancel timed out checkout:', err);
           });
         }
       }, timeout);
@@ -316,14 +317,14 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
       setError(errorMessage);
       onError?.(errorMessage);
       toast.error(errorMessage);
-      
+
       if (debug) {
-        console.error('[useSquareTerminal] Checkout start error:', err);
+        logger.error('[useSquareTerminal] Checkout start error:', err);
       }
     } finally {
       setIsLoading(false);
     }
-  }, [api, onError, cleanup, pollCheckoutStatus, pollingInterval, timeout, toast, debug]);
+  }, [post, onError, cleanup, pollCheckoutStatus, pollingInterval, timeout, toast, debug]);
 
   // Cancel current checkout
   const cancelCheckout = useCallback(async () => {
@@ -339,7 +340,7 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
         // Cancelling checkout
       }
 
-      const response = await api.post(`/api/v1/terminal/checkout/${currentCheckout.id}/cancel`) as TerminalCheckoutResponse;
+      const response = await post(`/api/v1/terminal/checkout/${currentCheckout.id}/cancel`) as TerminalCheckoutResponse;
       
       if (response && response.success) {
         setCurrentCheckout(response.checkout);
@@ -352,15 +353,15 @@ export function useSquareTerminal(options: UseSquareTerminalOptions = {}): UseSq
 
     } catch (err: any) {
       const errorMessage = err?.message || 'Failed to cancel terminal checkout';
-      console.warn('[useSquareTerminal] Cancel error:', errorMessage);
-      
+      logger.warn('[useSquareTerminal] Cancel error:', errorMessage);
+
       // Still reset state even if cancel failed
       setCurrentCheckout(null);
       setError(null);
     } finally {
       setIsLoading(false);
     }
-  }, [currentCheckout?.id, api, cleanup, toast, debug]);
+  }, [currentCheckout?.id, post, cleanup, toast, debug]);
 
   // Reset all state
   const reset = useCallback(() => {

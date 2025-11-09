@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ArrowLeft, CreditCard, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useApiRequest } from '@/hooks/useApiRequest';
+import { useHttpClient } from '@/services/http';
 import { useToast } from '@/hooks/useToast';
+import { logger } from '@/services/logger';
 
 interface CardPaymentProps {
   orderId: string;
@@ -32,7 +33,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
   const [card, setCard] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const cardContainerRef = useRef<HTMLDivElement>(null);
-  const api = useApiRequest();
+  const { post } = useHttpClient();
   const { toast } = useToast();
 
   // Check if we should use demo mode
@@ -62,7 +63,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       // Set a timeout to detect if script is blocked
       loadTimeout = setTimeout(() => {
         if (!window.Square) {
-          console.error('Square SDK load timeout - likely blocked by browser extension');
+          logger.error('Square SDK load timeout - likely blocked by browser extension');
           setError('Payment system blocked. Switching to demo mode.');
           setIsInitializing(false);
         }
@@ -79,7 +80,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       };
       script.onerror = () => {
         clearTimeout(loadTimeout);
-        console.error('Failed to load Square SDK - switching to demo mode');
+        logger.error('Failed to load Square SDK - switching to demo mode');
         setError('Payment system unavailable. Using demo mode.');
         setIsInitializing(false);
       };
@@ -107,7 +108,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         setIsInitializing(false);
 
       } catch (error) {
-        console.error('Square initialization error:', error);
+        logger.error('Square initialization error:', error);
         setError('Payment system initialization failed');
         setIsInitializing(false);
       }
@@ -145,7 +146,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       }
 
       // Process payment via API
-      const response = await api.post('/api/v1/payments/create', {
+      const response = await post('/api/v1/payments/create', {
         order_id: orderId,
         token: result.token,
         idempotency_key: `card-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -164,7 +165,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       onSuccess();
 
     } catch (error) {
-      console.error('Card payment error:', error);
+      logger.error('Card payment error:', error);
       const errorMessage = error instanceof Error
         ? error.message
         : 'Payment processing failed';
@@ -173,7 +174,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  }, [card, squarePayments, orderId, api, toast, onSuccess, onUpdateTableStatus]);
+  }, [card, squarePayments, orderId, post, toast, onSuccess, onUpdateTableStatus]);
 
   const handleDemoPayment = useCallback(async () => {
     try {
@@ -181,7 +182,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       setIsProcessing(true);
 
       // Process demo payment via API
-      const response = await api.post('/api/v1/payments/create', {
+      const response = await post('/api/v1/payments/create', {
         order_id: orderId,
         token: 'demo-nonce-' + Date.now(),
         idempotency_key: `demo-card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -200,7 +201,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       onSuccess();
 
     } catch (error) {
-      console.error('Demo payment error:', error);
+      logger.error('Demo payment error:', error);
       const errorMessage = error instanceof Error
         ? error.message
         : 'Demo payment failed';
@@ -209,7 +210,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  }, [orderId, api, toast, onSuccess, onUpdateTableStatus]);
+  }, [orderId, post, toast, onSuccess, onUpdateTableStatus]);
 
   return (
     <div className="flex flex-col h-full bg-white">
