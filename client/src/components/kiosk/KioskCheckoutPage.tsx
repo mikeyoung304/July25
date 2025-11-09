@@ -26,7 +26,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('card');
   const [_createdOrderId, _setCreatedOrderId] = useState<string | null>(null);
-  const { post: createOrder } = useHttpClient();
+  const { post: createOrderRequest } = useHttpClient();
   const { post: processPayment } = useHttpClient();
   
   // Square Terminal integration
@@ -155,7 +155,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     try {
       // Auth is handled automatically by useHttpClient via Supabase session
       // Create the order
-      const orderResponse = await createOrder('/api/v1/orders', {
+      const orderResponse = await createOrderRequest('/api/v1/orders', {
         type: 'kiosk',
         items: cart.items.map(item => ({
           menu_item_id: item.menuItemId || item.menuItem?.id,

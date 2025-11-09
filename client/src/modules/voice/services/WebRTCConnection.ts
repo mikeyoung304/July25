@@ -1,6 +1,6 @@
 /* eslint-env browser */
 import { EventEmitter } from '../../../services/utils/EventEmitter';
-import { logger } from 'utils/logger';
+import { logger } from '@/services/logger';
 
 /**
  * Connection states for WebRTC
