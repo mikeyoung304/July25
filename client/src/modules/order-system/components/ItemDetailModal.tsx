@@ -5,6 +5,9 @@ import { ModifierSelector } from './ModifierSelector';
 import { QuantitySelector } from './QuantitySelector';
 import { CartItem, CartModifier } from '../types';
 
+// Counter for generating unique IDs (avoids Date.now() hydration issues)
+let itemDetailCounter = 0;
+
 interface ItemDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -43,7 +46,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
   const handleAddToCart = () => {
     const cartItem: CartItem = {
-      id: `${item.id}-${Date.now()}`,
+      id: `${item.id}-${++itemDetailCounter}`,
       menuItemId: item.id,
       name: item.name,
       price: item.price,
@@ -52,7 +55,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       specialInstructions: specialInstructions.trim() || undefined,
       imageUrl: item.imageUrl
     };
-    
+
     onAddToCart(cartItem);
     onClose();
   };

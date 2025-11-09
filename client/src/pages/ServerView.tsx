@@ -96,8 +96,8 @@ export const ServerView = memo(() => {
           ...restaurant,
           logo_url: undefined,
           tax_rate: restaurant.tax_rate ?? 0.08, // Use restaurant-specific tax rate with fallback
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          created_at: restaurant.created_at || '',
+          updated_at: restaurant.updated_at || ''
         } : null} />
         
         <div className="max-w-7xl mx-auto px-4 py-8">

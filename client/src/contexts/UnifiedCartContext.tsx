@@ -1,6 +1,10 @@
 import React, { createContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { MenuItem, Cart, CartItem, calculateCartTotals } from '@rebuild/shared';
 import { useParams } from 'react-router-dom';
+import { logger } from '@/services/logger';
+
+// Counter for generating unique IDs (avoids Date.now() hydration issues)
+let cartItemCounter = 0;
 
 // Unified cart item interface that works for both regular and kiosk
 export interface UnifiedCartItem extends CartItem {
@@ -52,8 +56,16 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
   const params = useParams<{ restaurantId: string }>();
   const restaurantId = params.restaurantId || DEFAULT_RESTAURANT_ID;
   const [isCartOpen, setIsCartOpen] = useState(false);
-  
-  const [items, setItems] = useState<UnifiedCartItem[]>(() => {
+
+  // Initialize with empty array to avoid localStorage SSR issues
+  const [items, setItems] = useState<UnifiedCartItem[]>([]);
+  const [tip, setTip] = useState(0);
+
+  // Load cart from localStorage on client-side only (after hydration)
+  useEffect(() => {
+    // SSR guard - only run on client
+    if (typeof window === 'undefined') return;
+
     const savedCart = localStorage.getItem(persistKey);
     if (savedCart) {
       try {
@@ -71,26 +83,26 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
               modifications: (item as any).modifications || (item as any).modifiers || [],
               specialInstructions: (item as any).specialInstructions || ''
             };
-            
+
             // Only return items that have essential fields
             if (migratedItem.name && migratedItem.price >= 0 && migratedItem.quantity > 0) {
               return migratedItem;
             }
             return null;
           }).filter(Boolean);
-          
-          return validatedItems;
+
+          setItems(validatedItems);
+          if (parsed.tip) {
+            setTip(parsed.tip);
+          }
         }
       } catch (e) {
-        console.error('Failed to parse saved cart:', e);
+        logger.error('Failed to parse saved cart:', e);
         // Clear corrupted cart data
         localStorage.removeItem(persistKey);
       }
     }
-    return [];
-  });
-  
-  const [tip, setTip] = useState(0);
+  }, [persistKey, restaurantId]);
 
   // Calculate cart totals
   const cart = useMemo<UnifiedCart>(() => {
@@ -106,8 +118,10 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
     };
   }, [items, tip, restaurantId]);
 
-  // Save cart to localStorage whenever it changes
+  // Save cart to localStorage whenever it changes (client-only)
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     localStorage.setItem(persistKey, JSON.stringify({
       items,
       restaurantId,
@@ -115,8 +129,10 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
     }));
   }, [items, restaurantId, tip, persistKey]);
 
-  // Clear cart if restaurant changes
+  // Clear cart if restaurant changes (client-only)
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const savedCart = localStorage.getItem(persistKey);
     if (savedCart) {
       try {
@@ -133,13 +149,13 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
 
   // Add item with kiosk-style interface
   const addItem = useCallback((
-    menuItem: MenuItem, 
-    quantity: number = 1, 
-    modifications?: string[], 
+    menuItem: MenuItem,
+    quantity: number = 1,
+    modifications?: string[],
     specialInstructions?: string
   ) => {
     const newItem: UnifiedCartItem = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `cart-item-${++cartItemCounter}`,
       name: menuItem.name,
       price: menuItem.price,
       quantity,
@@ -147,7 +163,7 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
       specialInstructions,
       menuItemId: menuItem.id
     };
-    
+
     setItems(prev => [...prev, newItem]);
     setIsCartOpen(true); // Show cart after adding
   }, []);
@@ -156,9 +172,9 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
   const addToCart = useCallback((item: Omit<CartItem, 'id'>) => {
     const newItem: UnifiedCartItem = {
       ...item,
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      id: `cart-item-${++cartItemCounter}`
     };
-    
+
     setItems(prev => [...prev, newItem]);
     setIsCartOpen(true);
   }, []);
@@ -187,8 +203,10 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
     setItems([]);
     setTip(0);
     setIsCartOpen(false);
-    // Also clear from localStorage
-    localStorage.removeItem(persistKey);
+    // Also clear from localStorage (client-only)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(persistKey);
+    }
   }, [persistKey]);
 
   const updateTip = useCallback((newTip: number) => {
