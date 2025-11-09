@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { useOrderData } from '../useOrderData'
 import { orderService } from '@/services'
 import { Order } from '@/modules/orders/types'
-import { defaultFilters, OrderStatus, OrderFilters } from '@/types/filters'
+import { defaultFilters, OrderStatus, UIOrderFilters } from 'shared/types'
 
 // Mock the orderService
 vi.mock('@/services', () => ({
@@ -116,7 +116,7 @@ describe('useOrderData', () => {
   })
   
   it('should fetch orders with filters', async () => {
-    const filters: OrderFilters = {
+    const filters: UIOrderFilters = {
       ...defaultFilters,
       status: ['new']
     }
@@ -189,8 +189,8 @@ describe('useOrderData', () => {
   
   it('should re-fetch when filters change', async () => {
     const { result, rerender } = renderHook(
-      ({ filters }: { filters?: OrderFilters }) => useOrderData(filters),
-      { initialProps: { filters: undefined as OrderFilters | undefined } }
+      ({ filters }: { filters?: UIOrderFilters }) => useOrderData(filters),
+      { initialProps: { filters: undefined as UIOrderFilters | undefined } }
     )
 
     await waitFor(() => {

@@ -12,9 +12,10 @@ import { MenuGrid } from '@/modules/order-system/components/MenuGrid'
 import { ItemDetailModal } from '@/modules/order-system/components/ItemDetailModal'
 import { MenuItem } from '@/services/types'
 import { CartItem } from '@/modules/order-system/types'
-import type { Table } from '@/types/table'
+import type { Table } from 'shared/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import { UnifiedCartProvider } from '@/contexts/UnifiedCartContext'
+import { logger } from '@/services/logger'
 
 interface OrderItem {
   id: string
@@ -200,7 +201,7 @@ export function VoiceOrderModal({
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-xl font-semibold text-neutral-800">
-                      Order - {table.label}, Seat {seat}
+                      Order - {table.table_number}, Seat {seat}
                     </h3>
                     <p className="text-sm text-neutral-600 mt-1">
                       {inputMode === 'voice'
@@ -253,11 +254,11 @@ export function VoiceOrderModal({
                       <div className="flex justify-center mb-6">
                         <VoiceControlWebRTC
                           onTranscript={(event) => {
-                            console.log('[VoiceOrderModal] Transcript received:', event);
+                            logger.info('[VoiceOrderModal] Transcript received:', event);
                             voiceOrder.handleVoiceTranscript(event);
                           }}
                           onOrderDetected={(orderData) => {
-                            console.log('[VoiceOrderModal] Order detected:', orderData);
+                            logger.info('[VoiceOrderModal] Order detected:', orderData);
                             voiceOrder.handleOrderData?.(orderData);
                           }}
                           debug={true}

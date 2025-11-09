@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { StationBadge } from '@/components/shared/badges'
-import { StationType } from '@/types/station'
+import { StationType } from 'shared/types'
 import { stationRouting } from '@/services/stationRouting'
 
 interface StationFilterProps {

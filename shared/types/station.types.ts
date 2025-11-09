@@ -1,27 +1,32 @@
-export type StationType = 'grill' | 'fryer' | 'cold' | 'pizza' | 'pasta' | 'drinks' | 'dessert'
+/**
+ * Unified Station Types
+ * Single source of truth for all station-related types
+ */
+
+export type StationType = 'grill' | 'fryer' | 'cold' | 'pizza' | 'pasta' | 'drinks' | 'dessert';
 
 export interface Station {
-  id: string
-  name: string
-  type: StationType
-  isActive: boolean
-  currentOrders: string[] // Order IDs
+  id: string;
+  name: string;
+  type: StationType;
+  isActive: boolean;
+  currentOrders: string[]; // Order IDs
 }
 
 export interface StationAssignment {
-  orderId: string
-  itemId: string
-  stationId: string
-  assignedAt: Date
-  status: 'pending' | 'in-progress' | 'completed'
+  orderId: string;
+  itemId: string;
+  stationId: string;
+  assignedAt: Date;
+  status: 'pending' | 'in-progress' | 'completed';
 }
 
 // Station configuration with item categories
 export const STATION_CONFIG: Record<StationType, {
-  name: string
-  color: string
-  icon: string
-  itemPatterns: RegExp[]
+  name: string;
+  color: string;
+  icon: string;
+  itemPatterns: RegExp[];
 }> = {
   grill: {
     name: 'Grill Station',
@@ -65,4 +70,4 @@ export const STATION_CONFIG: Record<StationType, {
     icon: '🍰',
     itemPatterns: [/cake/i, /ice cream/i, /dessert/i, /pie/i]
   }
-}
+};

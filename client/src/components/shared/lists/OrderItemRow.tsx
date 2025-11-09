@@ -1,7 +1,7 @@
 import React from 'react'
 import { AlertCircle } from 'lucide-react'
 import { StationBadge } from '../badges'
-import { StationType } from '@/types/station'
+import { StationType } from 'shared/types'
 import { cn, escapeHtml } from '@/utils'
 
 export interface OrderItemRowProps {

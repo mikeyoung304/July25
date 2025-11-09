@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle2, Users, Check } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { ActionButton } from '@/components/ui/ActionButton'
-import type { Table } from '@/types/table'
+import type { Table } from 'shared/types'
 
 interface PostOrderPromptProps {
   show: boolean
@@ -92,7 +92,7 @@ export function PostOrderPrompt({
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-neutral-700">
-                    {table.label} Progress
+                    {table.table_number} Progress
                   </span>
                   <span className="text-sm font-semibold text-primary">
                     {orderedSeats.length} of {totalSeats} seats ordered

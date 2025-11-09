@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { Order } from '@/services/types'
-import { OrderFilters } from '@/types/filters'
+import { UIOrderFilters } from 'shared/types'
 import { orderService } from '@/services'
 import { useAsyncState } from '@/hooks/useAsyncState'
 import { useRestaurant } from '@/core'
@@ -14,7 +14,7 @@ export interface UseOrderDataReturn {
   updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>
 }
 
-export const useOrderData = (filters?: OrderFilters): UseOrderDataReturn => {
+export const useOrderData = (filters?: UIOrderFilters): UseOrderDataReturn => {
   const { data, loading, error, execute, setData } = useAsyncState<Order[]>([])
   const { restaurant: _restaurant } = useRestaurant()
   const { toast } = useToast()
