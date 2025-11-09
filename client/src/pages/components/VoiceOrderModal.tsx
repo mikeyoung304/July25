@@ -14,6 +14,7 @@ import { MenuItem } from '@/services/types'
 import { CartItem } from '@/modules/order-system/types'
 import type { Table } from 'shared/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
+import { UnifiedCartProvider } from '@/contexts/UnifiedCartContext'
 import { logger } from '@/services/logger'
 
 interface OrderItem {
@@ -235,11 +236,13 @@ export function VoiceOrderModal({
                   {inputMode === 'touch' && (
                     <div className="flex-1 lg:w-3/5">
                       <div className="border rounded-lg overflow-hidden bg-neutral-50">
-                        <MenuGrid
-                          selectedCategory={selectedCategory}
-                          searchQuery={searchQuery}
-                          onItemClick={handleTouchItemClick}
-                        />
+                        <UnifiedCartProvider persistKey="voice_order_modal_touch">
+                          <MenuGrid
+                            selectedCategory={selectedCategory}
+                            searchQuery={searchQuery}
+                            onItemClick={handleTouchItemClick}
+                          />
+                        </UnifiedCartProvider>
                       </div>
                     </div>
                   )}
