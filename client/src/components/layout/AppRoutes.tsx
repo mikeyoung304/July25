@@ -91,16 +91,7 @@ export function AppRoutes() {
             } />
             <Route path="/kitchen" element={
               <KitchenRoute>
-                <ErrorBoundary 
-                  level="section"
-                  onError={(error, errorInfo) => {
-                    console.error('🚨 [AppRoutes] Kitchen route error:', {
-                      error: error.message,
-                      componentStack: errorInfo.componentStack,
-                      errorStack: error.stack
-                    })
-                  }}
-                >
+                <ErrorBoundary level="section">
                   <Profiler id="KitchenDisplay" onRender={onRenderCallback}>
                     <Suspense fallback={<RouteLoader />}>
                       <KitchenDisplayOptimized />

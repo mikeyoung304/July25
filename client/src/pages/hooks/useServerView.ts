@@ -60,20 +60,20 @@ export function useServerView() {
       }
       
     } catch (error) {
-      console.error('❌ ServerView: Failed to load floor plan:', {
+      logger.error('❌ ServerView: Failed to load floor plan:', {
         error: error.message,
         status: error.status,
         isInitial: isInitialLoad.current
       })
-      
+
       setTables([])
-      
+
       // Only show error toast on initial load failure
       if (isInitialLoad.current) {
         toast.error('Failed to load floor plan. Please configure in Admin.')
       } else {
         // Just log refresh failures
-        console.warn('Floor plan refresh failed - will retry on next interval')
+        logger.warn('Floor plan refresh failed - will retry on next interval')
       }
     } finally {
       loadingRef.current = false

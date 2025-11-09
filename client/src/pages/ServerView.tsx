@@ -119,7 +119,7 @@ export const ServerView = memo(() => {
               table={selectedTable ? {
                 id: selectedTable.id,
                 restaurant_id: selectedTable.restaurant_id || '',
-                label: selectedTable.label,
+                table_number: selectedTable.label,
                 capacity: selectedTable.seats,
                 status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
                 current_order_id: selectedTable.current_order_id,
@@ -137,7 +137,16 @@ export const ServerView = memo(() => {
 
             <VoiceOrderModal
               show={voiceOrder.showVoiceOrder && !!selectedTable}
-              table={selectedTable as any}
+              table={selectedTable ? {
+                id: selectedTable.id,
+                restaurant_id: selectedTable.restaurant_id || '',
+                table_number: selectedTable.label,
+                capacity: selectedTable.seats,
+                status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
+                current_order_id: selectedTable.current_order_id,
+                created_at: selectedTable.created_at || new Date().toISOString(),
+                updated_at: selectedTable.updated_at || new Date().toISOString()
+              } : null}
               seat={selectedSeat}
               voiceOrder={voiceOrder}
               onSubmit={handleSubmitOrder}
@@ -151,7 +160,7 @@ export const ServerView = memo(() => {
               table={selectedTable ? {
                 id: selectedTable.id,
                 restaurant_id: selectedTable.restaurant_id || '',
-                label: selectedTable.label,
+                table_number: selectedTable.label,
                 capacity: selectedTable.seats,
                 status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
                 current_order_id: selectedTable.current_order_id,
