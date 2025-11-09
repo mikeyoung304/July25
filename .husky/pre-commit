@@ -31,14 +31,77 @@ if git diff --cached --name-only | grep -q "^\.github/workflows/.*\.yml$"; then
   npm run validate:workflows
 fi
 
-# Check for schema drift if staging migration files
+# Check for schema drift and RPC types if staging migration files
 if git diff --cached --name-only | grep -q "^supabase/migrations/.*\.sql$"; then
-  echo "🔍 Migration files detected, checking schema sync..."
+  echo "🔍 Migration files detected, running validation..."
 
+  # Get list of migration files being committed
+  MIGRATION_FILES=$(git diff --cached --name-only | grep "^supabase/migrations/.*\.sql$")
+
+  # Check for common RPC type mistakes (Per Technical Roadmap Phase 1)
+  echo "  → Checking RPC function types..."
+  RPC_ERRORS=()
+
+  for file in $MIGRATION_FILES; do
+    # Skip rollback files
+    if [[ "$file" == *"rollback"* ]]; then
+      continue
+    fi
+
+    # Check if file contains RPC function
+    if grep -q "CREATE.*FUNCTION\|CREATE OR REPLACE FUNCTION" "$file"; then
+      # Check for VARCHAR (should be TEXT)
+      if grep -q "RETURNS TABLE" "$file" && grep -q "VARCHAR" "$file"; then
+        RPC_ERRORS+=("$file: Uses VARCHAR - should be TEXT for Prisma compatibility")
+      fi
+
+      # Check for TIMESTAMP without TZ (should be TIMESTAMPTZ)
+      if grep -q "RETURNS TABLE" "$file" && grep -P "\\bTIMESTAMP\\b(?!TZ)" "$file"; then
+        RPC_ERRORS+=("$file: Uses TIMESTAMP - should be TIMESTAMPTZ")
+      fi
+    fi
+  done
+
+  # Report RPC type errors
+  if [ ${#RPC_ERRORS[@]} -gt 0 ]; then
+    echo ""
+    echo "❌ RPC type errors found:"
+    printf '  - %s\n' "${RPC_ERRORS[@]}"
+    echo ""
+    echo "Common fixes:"
+    echo "  - Change VARCHAR to TEXT"
+    echo "  - Change TIMESTAMP to TIMESTAMPTZ"
+    echo ""
+    echo "To commit anyway: git commit --no-verify"
+    echo ""
+    exit 1
+  fi
+  echo "  ✅ RPC types valid"
+
+  # Check for Prisma schema sync
+  echo "  → Checking Prisma schema sync..."
+  if ! git diff --cached --name-only | grep -q "^prisma/schema.prisma$"; then
+    echo ""
+    echo "⚠️  WARNING: Migration files staged but Prisma schema not updated!"
+    echo ""
+    echo "Action required:"
+    echo "  1. Run: ./scripts/post-migration-sync.sh"
+    echo "  2. Review changes: git diff prisma/schema.prisma"
+    echo "  3. Stage schema: git add prisma/schema.prisma"
+    echo "  4. Retry commit"
+    echo ""
+    echo "To commit anyway: git commit --no-verify"
+    echo ""
+    exit 1
+  fi
+  echo "  ✅ Prisma schema included"
+
+  # Check for schema drift
   if command -v supabase &> /dev/null; then
+    echo "  → Checking for schema drift..."
     if ! supabase db diff --linked > /dev/null 2>&1; then
       echo ""
-      echo "⚠️  WARNING: You are committing migration files, but schema drift detected!"
+      echo "⚠️  WARNING: Schema drift detected!"
       echo ""
       echo "Migrations should be deployed BEFORE committing:"
       echo "  supabase db push --linked"
@@ -47,11 +110,13 @@ if git diff --cached --name-only | grep -q "^supabase/migrations/.*\.sql$"; then
       echo ""
       exit 1
     fi
-    echo "✅ Schema in sync"
+    echo "  ✅ Schema in sync"
   else
-    echo "⚠️  Supabase CLI not found, skipping schema check"
-    echo "   Install: brew install supabase/tap/supabase"
+    echo "  ⚠️  Supabase CLI not found, skipping schema drift check"
+    echo "     Install: brew install supabase/tap/supabase"
   fi
+
+  echo "✅ All migration checks passed"
 fi
 
 # Documentation validation (fast checks only)

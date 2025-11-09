@@ -1,0 +1,601 @@
+name: Migration Integration Tests
+
+# Purpose: Test migrations in isolation before merging to prevent production failures
+# Part of: Phase 2.3 - Stable CI/CD Automation
+# Critical: Catches migration failures early, validates RPC functions, ensures schema consistency
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/*.sql'
+      - 'supabase/migrations/**/*.sql'
+    types: [opened, synchronize, reopened]
+
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      migration_file:
+        description: 'Specific migration file to test (e.g., supabase/migrations/20251108_test.sql)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write  # Comment test results on PR
+
+jobs:
+  test-migrations:
+    name: Test Migration Integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # PostgreSQL service container for testing
+    services:
+      postgres:
+        image: supabase/postgres:15.1.0.117
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      PGPASSWORD: postgres
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history to detect migration changes
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+        run: npm ci
+
+      - name: Setup PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client jq
+
+      - name: Verify database connection
+        run: |
+          echo "::group::Database Connection Test"
+          psql -h localhost -U postgres -d postgres -c "SELECT version();"
+          echo "::endgroup::"
+
+      - name: Detect modified migrations
+        id: detect
+        run: |
+          echo "::group::Detecting Modified Migrations"
+
+          # Manual trigger case
+          if [ -n "${{ inputs.migration_file }}" ]; then
+            echo "Manual test requested: ${{ inputs.migration_file }}"
+            echo "migrations=${{ inputs.migration_file }}" >> "$GITHUB_OUTPUT"
+            echo "count=1" >> "$GITHUB_OUTPUT"
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          # PR case: detect all modified migration files
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          MODIFIED_MIGRATIONS=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | \
+            grep '^supabase/migrations/.*\.sql$' | \
+            grep -v 'README' | \
+            grep -v '\.rollback\.sql$' || true)
+
+          if [ -z "$MODIFIED_MIGRATIONS" ]; then
+            echo "No migrations detected (this shouldn't happen due to path filter)"
+            echo "migrations=" >> "$GITHUB_OUTPUT"
+            echo "count=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "Modified migrations detected:"
+            echo "$MODIFIED_MIGRATIONS" | while read -r file; do
+              echo "  - $file"
+            done
+
+            # Convert to space-separated list
+            MIGRATIONS_LIST=$(echo "$MODIFIED_MIGRATIONS" | tr '\n' ' ')
+            echo "migrations=$MIGRATIONS_LIST" >> "$GITHUB_OUTPUT"
+
+            COUNT=$(echo "$MODIFIED_MIGRATIONS" | wc -l | xargs)
+            echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "::endgroup::"
+
+      - name: Get all migration files (sorted)
+        id: all-migrations
+        run: |
+          echo "::group::Collecting All Migrations"
+
+          # Get all migration files sorted by timestamp
+          ALL_MIGRATIONS=$(find supabase/migrations -name "*.sql" -type f | \
+            grep -v 'README' | \
+            grep -v '\.rollback\.sql$' | \
+            grep -v '\.archive/' | \
+            sort)
+
+          echo "Total migrations to apply: $(echo "$ALL_MIGRATIONS" | wc -l | xargs)"
+
+          # Save to file for later steps
+          echo "$ALL_MIGRATIONS" > /tmp/all_migrations.txt
+
+          echo "::endgroup::"
+
+      - name: Apply all migrations sequentially
+        id: apply-migrations
+        continue-on-error: true
+        run: |
+          echo "::group::Applying Migrations"
+
+          FAILED_MIGRATIONS=()
+          SUCCESSFUL_MIGRATIONS=()
+          MIGRATION_COUNT=0
+
+          while IFS= read -r migration; do
+            MIGRATION_COUNT=$((MIGRATION_COUNT + 1))
+            echo ""
+            echo "================================================"
+            echo "[$MIGRATION_COUNT] Applying: $migration"
+            echo "================================================"
+
+            if psql -h localhost -U postgres -d postgres -f "$migration" > /tmp/migration_output.log 2>&1; then
+              echo "✅ Success"
+              SUCCESSFUL_MIGRATIONS+=("$migration")
+
+              # Show any NOTICE messages (useful for debugging)
+              if grep -q "NOTICE:" /tmp/migration_output.log; then
+                echo "Notices:"
+                grep "NOTICE:" /tmp/migration_output.log || true
+              fi
+            else
+              echo "❌ Failed"
+              echo "Error output:"
+              cat /tmp/migration_output.log
+              FAILED_MIGRATIONS+=("$migration")
+            fi
+          done < /tmp/all_migrations.txt
+
+          echo ""
+          echo "================================================"
+          echo "Migration Application Summary"
+          echo "================================================"
+          echo "Total: $MIGRATION_COUNT"
+          echo "Successful: ${#SUCCESSFUL_MIGRATIONS[@]}"
+          echo "Failed: ${#FAILED_MIGRATIONS[@]}"
+
+          # Save results
+          {
+            echo "successful=${#SUCCESSFUL_MIGRATIONS[@]}"
+            echo "failed=${#FAILED_MIGRATIONS[@]}"
+            echo "total=$MIGRATION_COUNT"
+          } >> "$GITHUB_OUTPUT"
+
+          # Save failed migrations to file
+          if [ ${#FAILED_MIGRATIONS[@]} -gt 0 ]; then
+            printf '%s\n' "${FAILED_MIGRATIONS[@]}" > /tmp/failed_migrations.txt
+            echo "has_failures=true" >> "$GITHUB_OUTPUT"
+            exit 1
+          else
+            echo "has_failures=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "::endgroup::"
+
+      - name: Test rollback scripts
+        id: test-rollbacks
+        if: always() && steps.detect.outputs.count > 0
+        continue-on-error: true
+        run: |
+          echo "::group::Testing Rollback Scripts"
+
+          ROLLBACK_TESTED=0
+          ROLLBACK_FAILED=0
+          ROLLBACK_MISSING=0
+
+          for migration in ${{ steps.detect.outputs.migrations }}; do
+            # Check for corresponding rollback file
+            MIGRATION_BASE="${migration%.sql}"
+            ROLLBACK_FILE="${MIGRATION_BASE}_rollback.sql"
+
+            if [ -f "$ROLLBACK_FILE" ]; then
+              echo ""
+              echo "Testing rollback: $ROLLBACK_FILE"
+
+              if psql -h localhost -U postgres -d postgres -f "$ROLLBACK_FILE" > /tmp/rollback_output.log 2>&1; then
+                echo "✅ Rollback successful"
+                ROLLBACK_TESTED=$((ROLLBACK_TESTED + 1))
+              else
+                echo "❌ Rollback failed"
+                cat /tmp/rollback_output.log
+                ROLLBACK_FAILED=$((ROLLBACK_FAILED + 1))
+              fi
+            else
+              echo "⚠️  No rollback script found for: $migration"
+              ROLLBACK_MISSING=$((ROLLBACK_MISSING + 1))
+            fi
+          done
+
+          echo ""
+          echo "Rollback Summary:"
+          echo "  Tested: $ROLLBACK_TESTED"
+          echo "  Failed: $ROLLBACK_FAILED"
+          echo "  Missing: $ROLLBACK_MISSING"
+
+          {
+            echo "tested=$ROLLBACK_TESTED"
+            echo "failed=$ROLLBACK_FAILED"
+            echo "missing=$ROLLBACK_MISSING"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "::endgroup::"
+
+      - name: Create test data
+        id: test-data
+        if: steps.apply-migrations.outputs.has_failures != 'true'
+        run: |
+          echo "::group::Creating Test Data"
+
+          psql -h localhost -U postgres -d postgres << 'EOF'
+          -- Create test restaurant
+          INSERT INTO restaurants (id, name, slug, active, created_at, updated_at)
+          VALUES (
+            '00000000-0000-0000-0000-000000000001',
+            'Test Restaurant',
+            'test-restaurant',
+            true,
+            NOW(),
+            NOW()
+          ) ON CONFLICT (id) DO NOTHING;
+
+          -- Create test user
+          INSERT INTO users (id, email, role, restaurant_id, active, created_at, updated_at)
+          VALUES (
+            '00000000-0000-0000-0000-000000000002',
+            'test@example.com',
+            'server',
+            '00000000-0000-0000-0000-000000000001',
+            true,
+            NOW(),
+            NOW()
+          ) ON CONFLICT (id) DO NOTHING;
+
+          SELECT 'Test data created successfully' as result;
+          EOF
+
+          echo "::endgroup::"
+
+      - name: Test RPC functions
+        id: test-rpcs
+        if: steps.apply-migrations.outputs.has_failures != 'true'
+        continue-on-error: true
+        run: |
+          echo "::group::Testing RPC Functions"
+
+          RPC_PASSED=0
+          RPC_FAILED=0
+
+          # Test create_order_with_audit if it exists
+          echo ""
+          echo "Testing: create_order_with_audit"
+          if psql -h localhost -U postgres -d postgres << 'EOF' > /tmp/rpc_test.log 2>&1
+          SELECT * FROM create_order_with_audit(
+            p_restaurant_id := '00000000-0000-0000-0000-000000000001'::UUID,
+            p_order_number := 'TEST-001',
+            p_type := 'dine_in',
+            p_status := 'pending',
+            p_items := '[{"name": "Test Item", "price": 10.00}]'::jsonb,
+            p_subtotal := 10.00,
+            p_tax := 0.80,
+            p_total_amount := 10.80
+          );
+          EOF
+          then
+            echo "✅ create_order_with_audit works"
+            RPC_PASSED=$((RPC_PASSED + 1))
+          else
+            echo "❌ create_order_with_audit failed"
+            cat /tmp/rpc_test.log
+            RPC_FAILED=$((RPC_FAILED + 1))
+          fi
+
+          # Test batch_update_tables if it exists
+          echo ""
+          echo "Testing: batch_update_tables"
+
+          # First create a test table
+          psql -h localhost -U postgres -d postgres << 'EOF' > /dev/null 2>&1
+          INSERT INTO tables (id, restaurant_id, table_number, x_pos, y_pos, shape, active, created_at, updated_at)
+          VALUES (
+            '00000000-0000-0000-0000-000000000003',
+            '00000000-0000-0000-0000-000000000001',
+            '1',
+            100.0,
+            100.0,
+            'rectangle',
+            true,
+            NOW(),
+            NOW()
+          ) ON CONFLICT (id) DO NOTHING;
+          EOF
+
+          if psql -h localhost -U postgres -d postgres << 'EOF' > /tmp/rpc_test.log 2>&1
+          SELECT * FROM batch_update_tables(
+            '00000000-0000-0000-0000-000000000001'::UUID,
+            '[{"id": "00000000-0000-0000-0000-000000000003", "x_pos": 150.0, "y_pos": 150.0}]'::jsonb
+          );
+          EOF
+          then
+            echo "✅ batch_update_tables works"
+            RPC_PASSED=$((RPC_PASSED + 1))
+          else
+            echo "❌ batch_update_tables failed"
+            cat /tmp/rpc_test.log
+            RPC_FAILED=$((RPC_FAILED + 1))
+          fi
+
+          echo ""
+          echo "RPC Test Summary:"
+          echo "  Passed: $RPC_PASSED"
+          echo "  Failed: $RPC_FAILED"
+
+          {
+            echo "passed=$RPC_PASSED"
+            echo "failed=$RPC_FAILED"
+          } >> "$GITHUB_OUTPUT"
+
+          [ $RPC_FAILED -eq 0 ] || exit 1
+
+          echo "::endgroup::"
+
+      - name: Verify schema consistency
+        id: verify-schema
+        if: steps.apply-migrations.outputs.has_failures != 'true'
+        continue-on-error: true
+        run: |
+          echo "::group::Verifying Schema Consistency"
+
+          # Export current schema
+          pg_dump -h localhost -U postgres -d postgres --schema-only --no-owner --no-privileges > /tmp/current_schema.sql
+
+          echo "Schema exported successfully"
+          echo "Size: $(wc -l < /tmp/current_schema.sql) lines"
+
+          # Check for common issues
+          echo ""
+          echo "Checking for potential issues..."
+
+          ISSUES_FOUND=0
+
+          # Check for tables without primary keys
+          TABLES_WITHOUT_PK=$(psql -h localhost -U postgres -d postgres -t -c "
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+            AND table_type = 'BASE TABLE'
+            AND table_name NOT IN (
+              SELECT table_name
+              FROM information_schema.table_constraints
+              WHERE constraint_type = 'PRIMARY KEY'
+            );
+          " | grep -v '^$' | wc -l | xargs)
+
+          if [ "$TABLES_WITHOUT_PK" -gt 0 ]; then
+            echo "⚠️  Found $TABLES_WITHOUT_PK tables without primary keys"
+            ISSUES_FOUND=$((ISSUES_FOUND + 1))
+          else
+            echo "✅ All tables have primary keys"
+          fi
+
+          # Check for columns without NOT NULL constraints (excluding text/json fields)
+          NULLABLE_COLUMNS=$(psql -h localhost -U postgres -d postgres -t -c "
+            SELECT COUNT(*)
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+            AND is_nullable = 'YES'
+            AND column_name IN ('id', 'created_at', 'updated_at', 'restaurant_id');
+          " | xargs)
+
+          if [ "$NULLABLE_COLUMNS" -gt 0 ]; then
+            echo "⚠️  Found $NULLABLE_COLUMNS critical columns that are nullable"
+            ISSUES_FOUND=$((ISSUES_FOUND + 1))
+          else
+            echo "✅ Critical columns have NOT NULL constraints"
+          fi
+
+          echo "issues_found=$ISSUES_FOUND" >> "$GITHUB_OUTPUT"
+
+          echo "::endgroup::"
+
+      - name: Generate test report
+        id: report
+        if: always()
+        run: |
+          echo "::group::Generating Test Report"
+
+          # Create detailed report
+          cat > /tmp/test_report.md << 'REPORT_EOF'
+          # 🧪 Migration Integration Test Report
+
+          ## Summary
+
+          **Status:** ${{ steps.apply-migrations.outputs.has_failures == 'true' && '❌ FAILED' || '✅ PASSED' }}
+
+          **Modified Migrations:** ${{ steps.detect.outputs.count }}
+
+          ## Migration Application
+
+          - **Total migrations:** ${{ steps.apply-migrations.outputs.total || 'N/A' }}
+          - **Successful:** ${{ steps.apply-migrations.outputs.successful || 'N/A' }}
+          - **Failed:** ${{ steps.apply-migrations.outputs.failed || '0' }}
+
+          ## Rollback Testing
+
+          - **Tested:** ${{ steps.test-rollbacks.outputs.tested || '0' }}
+          - **Failed:** ${{ steps.test-rollbacks.outputs.failed || '0' }}
+          - **Missing rollback scripts:** ${{ steps.test-rollbacks.outputs.missing || '0' }}
+
+          ## RPC Function Tests
+
+          - **Passed:** ${{ steps.test-rpcs.outputs.passed || 'N/A' }}
+          - **Failed:** ${{ steps.test-rpcs.outputs.failed || 'N/A' }}
+
+          ## Schema Consistency
+
+          - **Issues found:** ${{ steps.verify-schema.outputs.issues_found || 'N/A' }}
+
+          REPORT_EOF
+
+          # Add failures section if there are any
+          if [ -f /tmp/failed_migrations.txt ]; then
+            echo "" >> /tmp/test_report.md
+            echo "## ❌ Failed Migrations" >> /tmp/test_report.md
+            echo "" >> /tmp/test_report.md
+            while IFS= read -r migration; do
+              echo "- \`$migration\`" >> /tmp/test_report.md
+            done < /tmp/failed_migrations.txt
+          fi
+
+          # Add remediation steps if needed
+          if [ "${{ steps.apply-migrations.outputs.has_failures }}" == "true" ]; then
+            cat >> /tmp/test_report.md << 'REMEDIATION_EOF'
+
+          ## 🔧 Remediation Steps
+
+          ### Immediate Actions
+
+          1. **Review error logs** in the "Apply all migrations sequentially" step above
+          2. **Fix SQL syntax** or logic errors in the migration file
+          3. **Test locally** using:
+             ```bash
+             psql $DATABASE_URL -f supabase/migrations/YOUR_MIGRATION.sql
+             ```
+          4. **Push fix** and re-run this workflow
+
+          ### Common Issues
+
+          - **Syntax errors:** Check for missing semicolons, quotes, or SQL keywords
+          - **Dependency errors:** Ensure tables/columns referenced exist in prior migrations
+          - **Type mismatches:** Verify data types match between tables and RPC functions
+          - **Permission errors:** Check GRANT statements for proper roles
+
+          ### Testing Checklist
+
+          - [ ] Migration runs without errors locally
+          - [ ] Rollback script exists and works
+          - [ ] RPC functions execute successfully
+          - [ ] No schema drift introduced
+          - [ ] Performance acceptable (EXPLAIN ANALYZE for complex queries)
+
+          REMEDIATION_EOF
+          fi
+
+          # Add best practices reminder
+          cat >> /tmp/test_report.md << 'BEST_PRACTICES_EOF'
+
+          ## 📋 Best Practices Reminder
+
+          - ✅ Use `IF NOT EXISTS` / `IF EXISTS` for idempotency
+          - ✅ Create rollback scripts (YYYYMMDD_HHMMSS_rollback_description.sql)
+          - ✅ Test RPC functions with sample data
+          - ✅ Add comments explaining WHY, not just WHAT
+          - ✅ Keep migrations small and focused (one concern per file)
+          - ✅ Use transactions for multi-step operations
+
+          BEST_PRACTICES_EOF
+
+          cat /tmp/test_report.md
+
+          echo "::endgroup::"
+
+      - name: Comment PR with results
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('/tmp/test_report.md', 'utf8');
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Migration Integration Test Report')
+            );
+
+            const commentBody = report +
+              `\n\n---\n*Workflow run: [#${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})*`;
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-test-results
+          path: |
+            /tmp/test_report.md
+            /tmp/current_schema.sql
+            /tmp/failed_migrations.txt
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Final status check
+        if: always()
+        run: |
+          echo "::group::Final Status"
+
+          if [ "${{ steps.apply-migrations.outputs.has_failures }}" == "true" ]; then
+            echo "❌ Migration tests FAILED"
+            echo "Review the test report and fix migration issues before merging"
+            exit 1
+          fi
+
+          if [ "${{ steps.test-rpcs.outputs.failed }}" != "0" ] && [ -n "${{ steps.test-rpcs.outputs.failed }}" ]; then
+            echo "⚠️  Some RPC tests failed"
+            echo "Review RPC function errors above"
+            exit 1
+          fi
+
+          echo "✅ All migration tests PASSED"
+          echo "Safe to merge!"
+
+          echo "::endgroup::"

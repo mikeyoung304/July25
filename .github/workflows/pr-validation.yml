@@ -94,10 +94,10 @@ jobs:
           echo "::group::Prisma Schema Sync Check"
 
           if [ -z "$DATABASE_URL" ]; then
-            echo "⚠️  DATABASE_URL not set - skipping sync check"
-            echo "skipped=true" >> "$GITHUB_OUTPUT"
-            echo "::endgroup::"
-            exit 0
+            echo "❌ DATABASE_URL is required for schema validation"
+            echo "Please set DATABASE_URL secret in repository settings"
+            echo "synced=false" >> "$GITHUB_OUTPUT"
+            exit 1
           fi
 
           # Pull latest schema from database
@@ -115,6 +115,149 @@ jobs:
             echo ""
             echo "Action required: Run './scripts/post-migration-sync.sh' and commit the result"
             echo "synced=false" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Validate RPC type signatures
+        id: rpc-types
+        run: |
+          echo "::group::RPC Type Signature Validation"
+
+          TYPE_VIOLATIONS=()
+
+          for file in supabase/migrations/*.sql; do
+            filename=$(basename "$file")
+
+            # Skip README
+            if [[ "$filename" == "README.md" ]]; then
+              continue
+            fi
+
+            # Check for VARCHAR in RPC functions (should be TEXT)
+            if grep -i "CREATE.*FUNCTION\|CREATE.*OR.*REPLACE.*FUNCTION" "$file" > /dev/null; then
+              if grep -i "VARCHAR" "$file" > /dev/null; then
+                TYPE_VIOLATIONS+=("$filename: Uses VARCHAR instead of TEXT in RPC function")
+              fi
+
+              # Check for TIMESTAMP without TZ (should be TIMESTAMPTZ)
+              if grep -E "TIMESTAMP[^Z]|TIMESTAMP\s*[,)]" "$file" > /dev/null; then
+                TYPE_VIOLATIONS+=("$filename: Uses TIMESTAMP without timezone (should be TIMESTAMPTZ)")
+              fi
+            fi
+          done
+
+          if [ ${#TYPE_VIOLATIONS[@]} -eq 0 ]; then
+            echo "✅ No RPC type signature violations detected"
+            echo "valid=true" >> "$GITHUB_OUTPUT"
+            echo "violations=" >> "$GITHUB_OUTPUT"
+          else
+            echo "❌ RPC type signature violations found:"
+            printf '  - %s\n' "${TYPE_VIOLATIONS[@]}"
+            echo ""
+            echo "Remediation:"
+            echo "  1. Replace VARCHAR with TEXT for string types"
+            echo "  2. Replace TIMESTAMP with TIMESTAMPTZ for timestamp types"
+            echo "  3. Ensure consistent type usage across all RPC functions"
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+
+            # Store violations for PR comment (escape newlines)
+            VIOLATIONS_STR=$(printf '%s\\n' "${TYPE_VIOLATIONS[@]}")
+            echo "violations<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$VIOLATIONS_STR" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Validate RPC dependencies
+        id: rpc-deps
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "::group::RPC Dependency Validation"
+
+          if [ -z "$DATABASE_URL" ]; then
+            echo "❌ DATABASE_URL is required for RPC dependency validation"
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+          DEP_VIOLATIONS=()
+
+          for file in supabase/migrations/*.sql; do
+            filename=$(basename "$file")
+
+            # Skip README
+            if [[ "$filename" == "README.md" ]]; then
+              continue
+            fi
+
+            # Find RPC functions with INSERT statements
+            if grep -i "CREATE.*FUNCTION\|CREATE.*OR.*REPLACE.*FUNCTION" "$file" > /dev/null; then
+              if grep -i "INSERT INTO" "$file" > /dev/null; then
+                # Extract table names from INSERT statements
+                TABLES=$(grep -i "INSERT INTO" "$file" | sed -E 's/.*INSERT INTO\s+([a-z_]+).*/\1/i')
+
+                # Extract column names from INSERT statements (simplified check)
+                # Look for (column1, column2) patterns
+                COLUMNS=$(grep -i "INSERT INTO" "$file" | grep -oE '\([a-z_,\s]+\)' | head -1)
+
+                if [ -n "$TABLES" ]; then
+                  # Check if tables exist in Prisma schema
+                  for table in $TABLES; do
+                    if ! grep -i "model.*$table" prisma/schema.prisma > /dev/null; then
+                      DEP_VIOLATIONS+=("$filename: RPC references non-existent table: $table")
+                    fi
+                  done
+                fi
+
+                # Basic column check - look for common column name patterns
+                if echo "$COLUMNS" | grep -E "id|created_at|updated_at|deleted_at" > /dev/null; then
+                  for table in $TABLES; do
+                    # Extract model block from schema
+                    MODEL_BLOCK=$(sed -n "/model $table {/,/^}/p" prisma/schema.prisma 2>/dev/null)
+
+                    if [ -n "$MODEL_BLOCK" ]; then
+                      # Check for created_at if mentioned in INSERT
+                      if echo "$COLUMNS" | grep -i "created_at" > /dev/null; then
+                        if ! echo "$MODEL_BLOCK" | grep -i "created_at" > /dev/null; then
+                          DEP_VIOLATIONS+=("$filename: RPC inserts into $table.created_at but column not in Prisma schema")
+                        fi
+                      fi
+
+                      # Check for updated_at if mentioned in INSERT
+                      if echo "$COLUMNS" | grep -i "updated_at" > /dev/null; then
+                        if ! echo "$MODEL_BLOCK" | grep -i "updated_at" > /dev/null; then
+                          DEP_VIOLATIONS+=("$filename: RPC inserts into $table.updated_at but column not in Prisma schema")
+                        fi
+                      fi
+                    fi
+                  done
+                fi
+              fi
+            fi
+          done
+
+          if [ ${#DEP_VIOLATIONS[@]} -eq 0 ]; then
+            echo "✅ No RPC dependency violations detected"
+            echo "valid=true" >> "$GITHUB_OUTPUT"
+            echo "violations=" >> "$GITHUB_OUTPUT"
+          else
+            echo "❌ RPC dependency violations found:"
+            printf '  - %s\n' "${DEP_VIOLATIONS[@]}"
+            echo ""
+            echo "Remediation:"
+            echo "  1. Ensure all tables referenced in RPC functions exist in Prisma schema"
+            echo "  2. Ensure all columns referenced in INSERT statements are defined"
+            echo "  3. Run './scripts/post-migration-sync.sh' after adding missing columns"
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+
+            # Store violations for PR comment (escape newlines)
+            VIOLATIONS_STR=$(printf '%s\\n' "${DEP_VIOLATIONS[@]}")
+            echo "violations<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$VIOLATIONS_STR" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
             exit 1
           fi
           echo "::endgroup::"
@@ -190,6 +333,10 @@ jobs:
           NAMING_VALID: ${{ steps.naming-check.outputs.valid }}
           SCHEMA_SYNCED: ${{ steps.schema-sync.outputs.synced }}
           SCHEMA_SKIPPED: ${{ steps.schema-sync.outputs.skipped }}
+          RPC_TYPES_VALID: ${{ steps.rpc-types.outputs.valid }}
+          RPC_TYPES_VIOLATIONS: ${{ steps.rpc-types.outputs.violations }}
+          RPC_DEPS_VALID: ${{ steps.rpc-deps.outputs.valid }}
+          RPC_DEPS_VIOLATIONS: ${{ steps.rpc-deps.outputs.violations }}
           HISTORY_VALID: ${{ steps.history-check.outputs.valid }}
           HISTORY_SKIPPED: ${{ steps.history-check.outputs.skipped }}
           SQL_VALID: ${{ steps.sql-syntax.outputs.valid }}
@@ -199,11 +346,15 @@ jobs:
             const namingValid = process.env.NAMING_VALID === 'true';
             const schemaSynced = process.env.SCHEMA_SYNCED === 'true';
             const schemaSkipped = process.env.SCHEMA_SKIPPED === 'true';
+            const rpcTypesValid = process.env.RPC_TYPES_VALID === 'true';
+            const rpcTypesViolations = process.env.RPC_TYPES_VIOLATIONS || '';
+            const rpcDepsValid = process.env.RPC_DEPS_VALID === 'true';
+            const rpcDepsViolations = process.env.RPC_DEPS_VIOLATIONS || '';
             const historyValid = process.env.HISTORY_VALID === 'true';
             const historySkipped = process.env.HISTORY_SKIPPED === 'true';
             const sqlValid = process.env.SQL_VALID === 'true';
 
-            const allPassed = prismaValid && namingValid && (schemaSynced || schemaSkipped) && (historyValid || historySkipped) && sqlValid;
+            const allPassed = prismaValid && namingValid && schemaSynced && rpcTypesValid && rpcDepsValid && (historyValid || historySkipped) && sqlValid;
 
             let body = `## 🔍 Migration Validation Results\n\n`;
 
@@ -212,6 +363,8 @@ jobs:
             body += `| Prisma Schema Validity | ${prismaValid ? '✅ Pass' : '❌ Fail'} |\n`;
             body += `| Migration Naming Convention | ${namingValid ? '✅ Pass' : '❌ Fail'} |\n`;
             body += `| Schema Sync | ${schemaSkipped ? '⚠️ Skipped (no DATABASE_URL)' : (schemaSynced ? '✅ Synced' : '❌ Out of sync')} |\n`;
+            body += `| RPC Type Signatures | ${rpcTypesValid ? '✅ Pass' : '❌ Fail'} |\n`;
+            body += `| RPC Dependencies | ${rpcDepsValid ? '✅ Pass' : '❌ Fail'} |\n`;
             body += `| Migration History | ${historySkipped ? '⚠️ Skipped (no DATABASE_URL)' : (historyValid ? '✅ Valid' : '❌ Invalid')} |\n`;
             body += `| SQL Syntax | ${sqlValid ? '✅ Pass' : '❌ Fail'} |\n`;
             body += `\n`;
@@ -225,6 +378,18 @@ jobs:
 
               if (!schemaSynced && !schemaSkipped) {
                 body += `**Action Required:** Run \`./scripts/post-migration-sync.sh\` locally and commit the updated Prisma schema.\n\n`;
+              }
+
+              if (!rpcTypesValid && rpcTypesViolations) {
+                body += `**RPC Type Violations:**\n`;
+                body += `\`\`\`\n${rpcTypesViolations}\`\`\`\n`;
+                body += `**Fix:** Replace VARCHAR with TEXT, TIMESTAMP with TIMESTAMPTZ\n\n`;
+              }
+
+              if (!rpcDepsValid && rpcDepsViolations) {
+                body += `**RPC Dependency Violations:**\n`;
+                body += `\`\`\`\n${rpcDepsViolations}\`\`\`\n`;
+                body += `**Fix:** Ensure all referenced tables/columns exist in Prisma schema\n\n`;
               }
             }
 

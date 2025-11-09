@@ -27,6 +27,17 @@ AUTH CHECKLIST (if auth changes)
 - [ ] Server auth tests updated (orders.auth.test.ts)
 - [ ] If MIGRATION_STAGE=post, grep gate passes
 
+DATABASE MIGRATION CHECKLIST (if migrations included)
+- [ ] Tested locally: `supabase db push --dry-run`
+- [ ] Rollback script created (for destructive changes)
+- [ ] RPC types validated: TEXT (not VARCHAR), TIMESTAMPTZ (not TIMESTAMP)
+- [ ] RPC dependencies verified (all columns exist)
+- [ ] Ran `./scripts/post-migration-sync.sh`
+- [ ] `git diff prisma/schema.prisma` shows expected changes only
+- [ ] CI checks passing: pr-validation.yml + migration-integration.yml
+- [ ] Uses `IF NOT EXISTS` / `IF EXISTS` for idempotency
+- [ ] Migration naming: `YYYYMMDDHHMMSS_description.sql`
+
 RISK & ROLLBACK
 Risks:
 

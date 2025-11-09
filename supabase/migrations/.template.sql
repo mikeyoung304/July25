@@ -1,4 +1,30 @@
 -- ============================================================================
+-- 🔴 CRITICAL PRE-DEPLOYMENT CHECKLIST
+-- ============================================================================
+-- Complete ALL items before committing this migration:
+--
+-- [ ] Tested locally: supabase db push --dry-run
+-- [ ] If destructive: Rollback script created (YYYYMMDD_rollback_*.sql)
+-- [ ] If RPC function:
+--     [ ] All RETURNS TABLE types use TEXT (not VARCHAR)
+--     [ ] All RETURNS TABLE types use TIMESTAMPTZ (not TIMESTAMP)
+--     [ ] All column names match Prisma schema EXACTLY
+-- [ ] If RPC with INSERT:
+--     [ ] Verified ALL columns exist in target table
+--     [ ] Table schema migration deployed BEFORE this RPC
+-- [ ] Prisma sync: Ran ./scripts/post-migration-sync.sh
+-- [ ] No drift: git diff prisma/schema.prisma shows no changes
+-- [ ] CI passing: All pr-validation checks green
+--
+-- ⚠️  COMMON MISTAKES THAT CAUSE PRODUCTION FAILURES:
+--   - Using VARCHAR instead of TEXT (PostgreSQL strict type matching)
+--   - Using TIMESTAMP instead of TIMESTAMPTZ
+--   - RPC references columns that don't exist yet
+--   - Forgetting to run post-migration-sync.sh
+--   - Committing migration but not deploying to database
+-- ============================================================================
+
+-- ============================================================================
 -- Migration: YYYYMMDDHHMMSS_verb_object_description
 -- ============================================================================
 -- Purpose: [What does this migration accomplish?]
