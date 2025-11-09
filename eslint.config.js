@@ -108,11 +108,25 @@ export default [
       'react-hooks/exhaustive-deps': 'warn',
       
       // General
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-console': 'error', // ENFORCED: Use logger from 'utils/logger' instead
       'no-debugger': 'error',
       'prefer-const': 'warn',
       'no-var': 'error',
       'no-unused-vars': 'off', // Use TypeScript's no-unused-vars instead
+
+      // Type Import Enforcement - Per Technical Roadmap Phase 0
+      'no-restricted-imports': ['error', {
+        patterns: [
+          {
+            group: ['../types', '../types/*', '../../types', '../../types/*', './types', './types/*'],
+            message: 'Import types from "shared/types" only. This is enforced per Technical Roadmap Phase 0.'
+          },
+          {
+            group: ['client/src/types', 'client/src/types/*', 'server/src/types', 'server/src/types/*'],
+            message: 'These type folders have been deleted. Use "shared/types" instead.'
+          }
+        ]
+      }]
     },
     settings: {
       react: {

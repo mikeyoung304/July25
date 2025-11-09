@@ -1,4 +1,5 @@
 import { env, validateEnv } from './env';
+import { logger } from '../utils/logger';
 
 export interface EnvironmentConfig {
   port: number;
@@ -69,7 +70,7 @@ export function validateEnvironment(): void {
     // Check for base64 format (optional but recommended warning)
     const base64Regex = /^[A-Za-z0-9+/]+=*$/;
     if (!base64Regex.test(jwtSecret)) {
-      console.warn(
+      logger.warn(
         '⚠️  SUPABASE_JWT_SECRET format warning: expected base64-encoded string.\n' +
         'If authentication fails, verify the JWT Secret from Supabase Dashboard.'
       );
@@ -80,12 +81,12 @@ export function validateEnvironment(): void {
     }
 
     if (!env.OPENAI_API_KEY) {
-      console.warn('⚠️  OpenAI API key not configured - AI features will use stub implementations');
+      logger.warn('⚠️  OpenAI API key not configured - AI features will use stub implementations');
     } else {
-      console.warn('✅ OpenAI configured');
+      logger.info('✅ OpenAI configured');
     }
 
-    console.warn('✅ JWT authentication configured');
+    logger.info('✅ JWT authentication configured');
   } catch (error) {
     throw new Error(`Environment validation failed: ${error instanceof Error ? error.message : String(error)}`);
   }

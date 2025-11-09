@@ -19,17 +19,26 @@ export function getVoiceServer(): VoiceWebSocketServer | undefined {
 export const voiceRoutes = Router();
 
 // Add basic middleware for all voice routes
-voiceRoutes.use((_req, res, next) => {
-  // Add CORS headers for voice endpoints
-  res.header('Access-Control-Allow-Origin', '*');
+voiceRoutes.use((req, res, next) => {
+  // Add CORS headers for voice endpoints - SECURE VERSION with allowlist
+  const allowedOrigins = process.env['ALLOWED_ORIGINS']?.split(',') || [
+    'http://localhost:5173',
+    'http://localhost:5174'
+  ];
+
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-restaurant-id');
-  
+
   // Add cache control
   res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.header('Pragma', 'no-cache');
   res.header('Expires', '0');
-  
+
   next();
 });
 

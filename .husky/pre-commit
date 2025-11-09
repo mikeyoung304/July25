@@ -11,6 +11,20 @@ fi
 
 npm run lint --workspaces --silent || exit 1
 
+# Check for console.log statements (Per Technical Roadmap Phase 0)
+echo "[husky] Checking for console.log statements..."
+if git diff --cached --name-only | grep -E '\.(js|jsx|ts|tsx)$' | xargs grep -l 'console\.\(log\|debug\)' 2>/dev/null; then
+  echo ""
+  echo "❌ ERROR: console.log or console.debug found in staged files!"
+  echo "   Use 'logger' from 'utils/logger' instead"
+  echo "   This is enforced per Technical Roadmap Phase 0"
+  echo ""
+  echo "To fix: Replace console.log with logger.info"
+  echo "To commit anyway (NOT recommended): git commit --no-verify"
+  echo ""
+  exit 1
+fi
+
 # Validate GitHub Actions workflows
 if git diff --cached --name-only | grep -q "^\.github/workflows/.*\.yml$"; then
   echo "🔍 Workflow files detected, validating..."
