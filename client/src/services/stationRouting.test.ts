@@ -1,5 +1,5 @@
 import { stationRouting } from './stationRouting'
-import { Order } from './api'
+import { Order } from './types'
 
 describe('stationRouting', () => {
   describe('getStationTypeForItem', () => {

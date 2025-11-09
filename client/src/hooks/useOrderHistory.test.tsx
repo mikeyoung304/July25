@@ -1,12 +1,14 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
 import { useOrderHistory } from './useOrderHistory'
-import { api } from '@/services/api'
+import { orderHistoryService, orderStatisticsService } from '@/services'
 
-// Mock the API
-vi.mock('@/services/api', () => ({
-  api: {
-    getOrderHistory: vi.fn(),
+// Mock the services
+vi.mock('@/services', () => ({
+  orderHistoryService: {
+    getOrderHistory: vi.fn()
+  },
+  orderStatisticsService: {
     getOrderStatistics: vi.fn()
   }
 }))
@@ -48,8 +50,8 @@ describe('useOrderHistory', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(api.getOrderHistory as any).mockResolvedValue(mockHistoryResponse)
-    ;(api.getOrderStatistics as any).mockResolvedValue(mockStatsResponse)
+    ;(orderHistoryService.getOrderHistory as any).mockResolvedValue(mockHistoryResponse)
+    ;(orderStatisticsService.getOrderStatistics as any).mockResolvedValue(mockStatsResponse)
   })
 
   it('should fetch order history on mount', async () => {
@@ -61,7 +63,7 @@ describe('useOrderHistory', () => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    expect(api.getOrderHistory).toHaveBeenCalledWith({
+    expect(orderHistoryService.getOrderHistory).toHaveBeenCalledWith({
       page: 1,
       pageSize: 20,
       startDate: expect.any(Date),
@@ -77,7 +79,7 @@ describe('useOrderHistory', () => {
       expect(result.current.statistics).toEqual(mockStatsResponse)
     })
 
-    expect(api.getOrderStatistics).toHaveBeenCalled()
+    expect(orderStatisticsService.getOrderStatistics).toHaveBeenCalled()
   })
 
   it('should handle page changes', async () => {
@@ -92,7 +94,7 @@ describe('useOrderHistory', () => {
     })
 
     await waitFor(() => {
-      expect(api.getOrderHistory).toHaveBeenCalledWith(
+      expect(orderHistoryService.getOrderHistory).toHaveBeenCalledWith(
         expect.objectContaining({ page: 2 })
       )
     })
@@ -110,7 +112,7 @@ describe('useOrderHistory', () => {
     })
 
     await waitFor(() => {
-      expect(api.getOrderHistory).toHaveBeenCalledWith(
+      expect(orderHistoryService.getOrderHistory).toHaveBeenCalledWith(
         expect.objectContaining({ searchQuery: 'pizza' })
       )
     })
@@ -131,7 +133,7 @@ describe('useOrderHistory', () => {
     })
 
     await waitFor(() => {
-      expect(api.getOrderHistory).toHaveBeenCalledWith(
+      expect(orderHistoryService.getOrderHistory).toHaveBeenCalledWith(
         expect.objectContaining({
           startDate: newStartDate,
           endDate: newEndDate
@@ -153,13 +155,13 @@ describe('useOrderHistory', () => {
       result.current.refresh()
     })
 
-    expect(api.getOrderHistory).toHaveBeenCalled()
-    expect(api.getOrderStatistics).toHaveBeenCalled()
+    expect(orderHistoryService.getOrderHistory).toHaveBeenCalled()
+    expect(orderStatisticsService.getOrderStatistics).toHaveBeenCalled()
   })
 
   it('should handle errors gracefully', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
-    ;(api.getOrderHistory as any).mockRejectedValue(new Error('API Error'))
+    ;(orderHistoryService.getOrderHistory as any).mockRejectedValue(new Error('API Error'))
 
     const { result } = renderHook(() => useOrderHistory())
 

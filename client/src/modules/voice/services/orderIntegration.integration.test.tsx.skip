@@ -2,10 +2,14 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom'
 import { KioskDemo } from '@/pages/KioskDemo'
-import { api } from '@/services/api'
+import { orderService } from '@/services'
 import { RestaurantProvider } from '@/core'
 
-vi.mock('@/services/api')
+vi.mock('@/services', () => ({
+  orderService: {
+    submitOrder: vi.fn()
+  }
+}))
 vi.mock('@/hooks/useToast', () => ({
   useToast: () => ({
     toast: {
@@ -25,14 +29,14 @@ vi.mock('@/modules/voice/components/VoiceCapture', () => ({
   )
 }))
 
-const mockApi = api as vi.Mocked<typeof api>
+const mockOrderService = orderService as vi.Mocked<typeof orderService>
 
 // TODO(luis): enable when Playwright pipeline runs
 describe('Voice Order to KDS Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
-    mockApi.submitOrder.mockResolvedValue({
+
+    mockOrderService.submitOrder.mockResolvedValue({
       success: true,
       orderId: 'order-123',
       order: {
@@ -99,7 +103,7 @@ describe('Voice Order to KDS Integration', () => {
     fireEvent.click(confirmButton)
     
     await waitFor(() => {
-      expect(mockApi.submitOrder).toHaveBeenCalledWith({
+      expect(mockOrderService.submitOrder).toHaveBeenCalledWith({
         tableNumber: 'K1',
         items: expect.arrayContaining([
           expect.objectContaining({
@@ -142,7 +146,7 @@ describe('Voice Order to KDS Integration', () => {
 
   it.skip('handles API errors gracefully', async () => {
     // TODO: useAuth error - must be used within AuthProvider - pre-existing failure
-    mockApi.submitOrder.mockRejectedValueOnce(new Error('Network error'))
+    mockOrderService.submitOrder.mockRejectedValueOnce(new Error('Network error'))
     
     renderWithRouter(<KioskDemo />)
     

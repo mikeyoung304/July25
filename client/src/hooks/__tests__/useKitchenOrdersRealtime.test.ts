@@ -10,7 +10,7 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { useKitchenOrdersRealtime } from '../useKitchenOrdersRealtime'
 import { webSocketService } from '@/services/websocket'
 import { connectionManager } from '@/services/websocket/ConnectionManager'
-import { api } from '@/services/api'
+import { orderService } from '@/services'
 
 // Mock dependencies using Vitest
 vi.mock('@/services/websocket', () => ({
@@ -27,8 +27,8 @@ vi.mock('@/services/websocket/ConnectionManager', () => ({
   }
 }))
 
-vi.mock('@/services/api', () => ({
-  api: {
+vi.mock('@/services', () => ({
+  orderService: {
     getOrders: vi.fn(() => Promise.resolve([]))
   }
 }))
@@ -146,7 +146,7 @@ describe('useKitchenOrdersRealtime - Race Condition Prevention', () => {
   })
 
   test('should properly cleanup loadOrders effect', async () => {
-    const mockGetOrders = api.getOrders as ReturnType<typeof vi.fn>
+    const mockGetOrders = orderService.getOrders as ReturnType<typeof vi.fn>
     mockGetOrders.mockResolvedValue([])
 
     // Mount and unmount rapidly multiple times
