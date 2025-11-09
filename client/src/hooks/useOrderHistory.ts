@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { api } from '@/services/api'
-import type { Order } from '@/services/api'
+import { orderHistoryService, orderStatisticsService } from '@/services'
+import { logger } from '@/services/logger'
+import type { Order } from '@/services/types'
 
 interface OrderStatistics {
   totalOrders: number
@@ -51,9 +52,9 @@ export const useOrderHistory = (): UseOrderHistoryReturn => {
       setIsLoading(true)
       setError(null)
 
-      const response = await api.getOrderHistory({
+      const response = await orderHistoryService.getOrderHistory({
         page,
-        pageSize: 20,
+        limit: 20,
         searchQuery: searchQuery || undefined,
         startDate,
         endDate
@@ -62,7 +63,7 @@ export const useOrderHistory = (): UseOrderHistoryReturn => {
       setOrders(response.orders)
       setTotalPages(response.totalPages)
     } catch (err) {
-      console.error('Failed to fetch order history:', err)
+      logger.error('Failed to fetch order history:', err)
       setError('Failed to load order history')
       setOrders([])
     } finally {
@@ -73,13 +74,13 @@ export const useOrderHistory = (): UseOrderHistoryReturn => {
   // Fetch statistics
   const fetchStatistics = useCallback(async () => {
     try {
-      const stats = await api.getOrderStatistics({
+      const stats = await orderStatisticsService.getOrderStatistics({
         startDate,
         endDate
       })
       setStatistics(stats)
     } catch (err) {
-      console.error('Failed to fetch statistics:', err)
+      logger.error('Failed to fetch statistics:', err)
     }
   }, [startDate, endDate])
 

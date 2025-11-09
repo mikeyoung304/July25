@@ -1,4 +1,4 @@
-import { api } from '@/services/api'
+import { orderService } from '@/services'
 import { Order, OrderType } from '@rebuild/shared'
 
 export interface ParsedVoiceItem {
@@ -187,8 +187,8 @@ export const submitVoiceOrder = async (voiceOrder: VoiceOrder) => {
     total: calculateTotal(voiceOrder.items),
     type: (voiceOrder.type || 'voice') as OrderType
   }
-  
-  return api.submitOrder(orderData)
+
+  return orderService.submitOrder(orderData)
 }
 
 const calculateItemPrice = (itemName: string): number => {

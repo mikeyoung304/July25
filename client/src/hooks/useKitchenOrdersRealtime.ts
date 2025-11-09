@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRestaurant } from '@/core'
 import { webSocketService } from '@/services/websocket'
 import { connectionManager } from '@/services/websocket/ConnectionManager'
-import { api } from '@/services/api'
+import { orderService } from '@/services'
+import { logger } from '@/services/logger'
 import { useOrderActions } from '@/modules/orders/hooks/useOrderActions'
 import type { Order } from '@rebuild/shared'
 
@@ -30,7 +31,7 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
     try {
       setIsLoading(true)
       setError(null)
-      const result = await api.getOrders()
+      const result = await orderService.getOrders()
 
       if (Array.isArray(result)) {
         setOrders(result)
@@ -88,7 +89,7 @@ export const useKitchenOrdersRealtime = (): UseKitchenOrdersRealtimeReturn => {
 
     // Connect to WebSocket using connection manager
     connectionManager.connect().catch((error) => {
-      console.error('❌ [KDS] WebSocket connection failed:', error)
+      logger.error('❌ [KDS] WebSocket connection failed:', error)
     })
 
     const unsubscribeCreated = webSocketService.subscribe('order:created', (payload: unknown) => {

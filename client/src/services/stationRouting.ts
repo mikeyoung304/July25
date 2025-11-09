@@ -1,4 +1,4 @@
-import { Order, OrderItem } from '@/services/api'
+import type { Order, OrderItem } from '@/services/types'
 import { Station, StationType, StationAssignment, STATION_CONFIG } from 'shared/types'
 
 // Mock stations data

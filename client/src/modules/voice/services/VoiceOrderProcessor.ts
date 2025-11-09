@@ -3,7 +3,7 @@
  * Handles the voice -> order system integration
  */
 
-import { api } from '@/services/api';
+import { menuService, orderService } from '@/services'
 import { logger } from '@/services/logger'
 import { MenuItem } from '@/modules/menu/types';
 import { Order, OrderItem, uiOrderTypeToDb } from '@rebuild/shared';
@@ -24,10 +24,10 @@ export class VoiceOrderProcessor {
    */
   async loadMenuItems(_restaurantId: string): Promise<void> {
     try {
-      this.menuItems = await api.getMenuItems();
+      this.menuItems = await menuService.getMenuItems();
       logger.info('[VoiceOrderProcessor] Loaded menu items:', this.menuItems.length);
     } catch (error) {
-      console.error('[VoiceOrderProcessor] Failed to load menu items:', error);
+      logger.error('[VoiceOrderProcessor] Failed to load menu items:', error);
     }
   }
   
@@ -207,12 +207,12 @@ export class VoiceOrderProcessor {
     };
     
     try {
-      const order = await api.submitOrder(orderData);
+      const order = await orderService.submitOrder(orderData);
       logger.info('[VoiceOrderProcessor] Order submitted:', order.order_number);
       this.clearCurrentOrder();
       return order;
     } catch (error) {
-      console.error('[VoiceOrderProcessor] Failed to submit order:', error);
+      logger.error('[VoiceOrderProcessor] Failed to submit order:', error);
       throw error;
     }
   }

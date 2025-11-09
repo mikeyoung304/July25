@@ -2,7 +2,7 @@ import React from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import type { Order } from '@/services/api'
+import type { Order } from '@/services/types'
 
 interface OrderHistoryTableProps {
   orders: Order[]
