@@ -219,9 +219,10 @@ export const batchedGet = <T>(url: string, params?: unknown): Promise<T> =>
 export const batchedPost = <T>(url: string, data?: unknown): Promise<T> => 
   requestBatcher.batch<T>('POST', url, data);
 
-// Auto-flush on page unload
+// Auto-flush and cleanup on page unload
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', () => {
     requestBatcher.flushAll();
+    requestBatcher.clear(); // Cleanup timers to prevent memory leaks
   });
 }

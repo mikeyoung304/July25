@@ -34,7 +34,7 @@
   "dependencies": {
     "@sentry/node": "^10.22.0",
     "@sentry/profiling-node": "^10.22.0",
-    "@supabase/supabase-js": "2.39.7",
+    "@supabase/supabase-js": "^2.52.1",
     "bcryptjs": "^3.0.2",
     "chalk": "5.3.0",
     "cookie-parser": "^1.4.7",

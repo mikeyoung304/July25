@@ -44,13 +44,13 @@ export class ResponseCache {
   constructor(config: Partial<CacheConfig> = {}) {
     this.config = {
       defaultTTL: config.defaultTTL || 5 * 60 * 1000, // 5 minutes
-      maxSize: config.maxSize || 100,
-      maxMemory: config.maxMemory || 10 * 1024 * 1024, // 10MB
+      maxSize: config.maxSize || 50, // Reduced from 100 for memory optimization
+      maxMemory: config.maxMemory || 5 * 1024 * 1024, // 5MB (reduced from 10MB)
       enableCompression: config.enableCompression || false,
     };
 
     // Periodic cleanup - store reference for proper cleanup
-    this.cleanupInterval = setInterval(() => this.cleanup(), 60 * 1000);
+    this.cleanupInterval = setInterval(() => this.cleanup(), 30 * 1000); // 30s (more frequent)
   }
 
   /**

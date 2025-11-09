@@ -1,5 +1,6 @@
 /* eslint-env browser */
 import { EventEmitter } from '../../../services/utils/EventEmitter';
+import { logger } from 'utils/logger';
 
 /**
  * Connection states for WebRTC
@@ -76,7 +77,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
     // Prevent duplicate connections
     if (this.isConnectingFlag || this.connectionState === 'connected') {
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Already connecting or connected, skipping...');
+        logger.info('[WebRTCConnection] Already connecting or connected, skipping...');
       }
       return;
     }
@@ -93,7 +94,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
     try {
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Starting connection with 15s timeout...');
+        logger.info('[WebRTCConnection] Starting connection with 15s timeout...');
       }
       this.setConnectionState('connecting');
 
@@ -108,11 +109,11 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
       // Emit specific timeout event for UI handling
       if (errorMessage.includes('timeout')) {
-        console.error('[WebRTCConnection] Connection timeout');
+        logger.error('[WebRTCConnection] Connection timeout');
         this.emit('connection.timeout', { duration: CONNECTION_TIMEOUT });
       }
 
-      console.error('[WebRTCConnection] Connection failed:', error);
+      logger.error('[WebRTCConnection] Connection failed:', error);
       this.isConnectingFlag = false;
       this.setConnectionState('error');
       this.emit('error', error);
@@ -125,7 +126,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       if (this.reconnectAttempts < this.maxReconnectAttempts) {
         const delay = Math.min(5000, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
         if (this.config.debug) {
-          console.log(`[WebRTCConnection] Will retry connection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+          logger.info(`[WebRTCConnection] Will retry connection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
         }
         setTimeout(() => {
           if (this.connectionState !== 'connected') {
@@ -134,7 +135,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
           }
         }, delay);
       } else {
-        console.error('[WebRTCConnection] Max reconnection attempts reached');
+        logger.error('[WebRTCConnection] Max reconnection attempts reached');
         this.emit('error', new Error('Max reconnection attempts reached'));
       }
 
@@ -148,7 +149,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
   private async _connectInternal(ephemeralToken: string): Promise<void> {
     try {
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Starting internal connection...');
+        logger.info('[WebRTCConnection] Starting internal connection...');
       }
 
       // Step 1: Create RTCPeerConnection
@@ -175,7 +176,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
       this.pc.ontrack = (event) => {
         if (this.config.debug) {
-          console.log('[WebRTCConnection] Received remote audio track:', event.streams);
+          logger.info('[WebRTCConnection] Received remote audio track:', event.streams);
         }
         if (this.audioElement && event.streams[0]) {
           this.audioElement.srcObject = event.streams[0];
@@ -199,7 +200,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       if (this.config.debug) {
         // Log the m-lines in the offer to debug ordering
         const mLines = offer.sdp?.match(/m=.*/g);
-        console.log('[WebRTCConnection] SDP m-lines in offer:', mLines);
+        logger.info('[WebRTCConnection] SDP m-lines in offer:', mLines);
       }
 
       // Step 6: Send SDP to OpenAI
@@ -230,7 +231,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
       // Check if we're in the correct state to set remote description
       if (this.pc.signalingState !== 'have-local-offer') {
-        console.error('[WebRTCConnection] Wrong signaling state for setting answer:', this.pc.signalingState);
+        logger.error('[WebRTCConnection] Wrong signaling state for setting answer:', this.pc.signalingState);
         throw new Error(`Cannot set remote answer in state: ${this.pc.signalingState}`);
       }
 
@@ -240,7 +241,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       };
 
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Setting remote description...');
+        logger.info('[WebRTCConnection] Setting remote description...');
       }
       await this.pc.setRemoteDescription(answer);
 
@@ -249,7 +250,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       this.isConnectingFlag = false;
 
       if (this.config.debug) {
-        console.log('[WebRTCConnection] WebRTC connection established');
+        logger.info('[WebRTCConnection] WebRTC connection established');
       }
     } catch (error) {
       // Re-throw error to be caught by outer connect() method
@@ -274,25 +275,25 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       if (this.pc && audioTrack) {
         // CRITICAL: Ensure track is MUTED before adding to connection
         if (this.config.debug) {
-          console.log('[WebRTCConnection] Audio track initial state - enabled:', audioTrack.enabled);
+          logger.info('[WebRTCConnection] Audio track initial state - enabled:', audioTrack.enabled);
         }
         audioTrack.enabled = false;
         if (this.config.debug) {
-          console.log('[WebRTCConnection] Audio track after muting - enabled:', audioTrack.enabled);
+          logger.info('[WebRTCConnection] Audio track after muting - enabled:', audioTrack.enabled);
         }
 
         // Add the track to peer connection
         this.pc.addTrack(audioTrack, this.mediaStream);
         if (this.config.debug) {
-          console.log('[WebRTCConnection] Audio track added to peer connection in MUTED state');
+          logger.info('[WebRTCConnection] Audio track added to peer connection in MUTED state');
         }
 
         if (this.config.debug) {
-          console.log('[WebRTCConnection] Microphone connected but muted - will only transmit when enabled');
+          logger.info('[WebRTCConnection] Microphone connected but muted - will only transmit when enabled');
         }
       }
     } catch (error) {
-      console.error('[WebRTCConnection] Microphone setup failed:', error);
+      logger.error('[WebRTCConnection] Microphone setup failed:', error);
       throw new Error('Microphone access denied or unavailable');
     }
   }
@@ -302,7 +303,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
    */
   enableMicrophone(): void {
     if (!this.mediaStream) {
-      console.error('[WebRTCConnection] No media stream available');
+      logger.error('[WebRTCConnection] No media stream available');
       return;
     }
 
@@ -310,7 +311,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
     if (audioTrack) {
       audioTrack.enabled = true;
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Microphone ENABLED - transmitting audio');
+        logger.info('[WebRTCConnection] Microphone ENABLED - transmitting audio');
       }
     }
   }
@@ -320,7 +321,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
    */
   disableMicrophone(): void {
     if (!this.mediaStream) {
-      console.error('[WebRTCConnection] No media stream available');
+      logger.error('[WebRTCConnection] No media stream available');
       return;
     }
 
@@ -328,7 +329,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
     if (audioTrack) {
       audioTrack.enabled = false;
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Microphone DISABLED - stopped transmitting');
+        logger.info('[WebRTCConnection] Microphone DISABLED - stopped transmitting');
       }
     }
   }
@@ -348,7 +349,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
     this.dc.onopen = () => {
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Data channel opened');
+        logger.info('[WebRTCConnection] Data channel opened');
       }
 
       this.setConnectionState('connected');
@@ -358,13 +359,13 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
     };
 
     this.dc.onerror = (error) => {
-      console.error('[WebRTCConnection] Data channel error:', error);
+      logger.error('[WebRTCConnection] Data channel error:', error);
       this.emit('error', error);
     };
 
     this.dc.onclose = () => {
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Data channel closed');
+        logger.info('[WebRTCConnection] Data channel closed');
       }
       this.handleDisconnection();
     };
@@ -378,7 +379,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
     this.pc.oniceconnectionstatechange = () => {
       if (this.config.debug) {
-        console.log('[WebRTCConnection] ICE connection state:', this.pc?.iceConnectionState);
+        logger.info('[WebRTCConnection] ICE connection state:', this.pc?.iceConnectionState);
       }
 
       if (this.pc?.iceConnectionState === 'failed' || this.pc?.iceConnectionState === 'disconnected') {
@@ -388,7 +389,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
     this.pc.onconnectionstatechange = () => {
       if (this.config.debug) {
-        console.log('[WebRTCConnection] Connection state:', this.pc?.connectionState);
+        logger.info('[WebRTCConnection] Connection state:', this.pc?.connectionState);
       }
     };
   }
@@ -409,7 +410,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
    */
   async reconnect(): Promise<void> {
     if (this.config.debug) {
-      console.log(`[WebRTCConnection] Reconnecting... attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+      logger.info(`[WebRTCConnection] Reconnecting... attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
     }
 
     // Clean up existing connection
@@ -455,7 +456,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
           this.pc.close();
         }
       } catch (e) {
-        console.warn('[WebRTCConnection] Error cleaning up peer connection:', e);
+        logger.warn('[WebRTCConnection] Error cleaning up peer connection:', e);
       }
       this.pc = null;
     }
@@ -486,6 +487,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
         // Clear the source to release media resources
         this.audioElement.srcObject = null;
         this.audioElement.src = '';
+        this.audioElement.load(); // Force release of media buffers
 
         // Remove all event listeners
         this.audioElement.onloadedmetadata = null;
@@ -501,7 +503,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
           this.audioElement.parentNode.removeChild(this.audioElement);
         }
       } catch (e) {
-        console.warn('[WebRTCConnection] Error cleaning up audio element:', e);
+        logger.warn('[WebRTCConnection] Error cleaning up audio element:', e);
       }
       this.audioElement = null;
     }
@@ -521,7 +523,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
     this.setConnectionState('disconnected');
 
     if (this.config.debug) {
-      console.log('[WebRTCConnection] Disconnected');
+      logger.info('[WebRTCConnection] Disconnected');
     }
   }
 
