@@ -71,6 +71,9 @@
 - [Authentication Flow](./docs/explanation/architecture/diagrams/auth-flow.md) — Authentication sequence diagrams
 - [Payment Flow](./docs/explanation/architecture/diagrams/payment-flow.md) — Payment processing flows
 - [Voice Ordering](./docs/explanation/architecture/diagrams/voice-ordering.md) — Voice ordering architecture
+- [Deployment Pipeline](./docs/explanation/architecture/diagrams/deployment-pipeline.md) — CI/CD deployment flow
+- [Documentation Navigation](./docs/explanation/architecture/diagrams/documentation-navigation.md) — Documentation structure
+- [Migration Workflow](./docs/explanation/architecture/diagrams/migration-workflow.md) — Database migration process
 
 ### Naming Guardrails
 - [Naming Charter](./docs/naming/NAMING_CHARTER.md) — Conventions & deprecation policy
@@ -101,9 +104,11 @@
 - [Voice Order Workflow Analysis](./docs/VOICE_ORDER_WORKFLOW_ANALYSIS.md) — Detailed workflow documentation
 - [Voice Order Analysis Summary](./VOICE_ORDER_ANALYSIS_SUMMARY.md) — Analysis summary and findings
 
-## 4. Development Health
+## 4. Development Health & Testing
 - [Test Health Dashboard](./docs/reference/testing/TEST_HEALTH.md) — Test quarantine status and remediation plan
 - [Test Health Registry](./test-quarantine/test-health.json) — Detailed test failure tracking
+- [E2E Quick Start Guide](./tests/e2e/QUICK_START_GUIDE.md) — Getting started with E2E tests
+- [Server Touch Voice Tests](./tests/e2e/SERVER_TOUCH_VOICE_TESTS.md) — Touch and voice mode testing
 
 ## 5. Operational Guides
 - [Production Status](./docs/PRODUCTION_STATUS.md) — Current readiness metrics
@@ -122,10 +127,12 @@
 - [Contributing Guide](./docs/how-to/development/CONTRIBUTING.md) — Development workflow & standards
 - [Development Process](./docs/how-to/development/DEVELOPMENT_PROCESS.md) — Development workflows and best practices
 - [CI/CD Workflows](./docs/how-to/development/CI_CD_WORKFLOWS.md) — Continuous integration and deployment
+- [Feature Flags](./docs/how-to/development/FEATURE_FLAGS.md) — Feature flag system and usage
 - [Documentation Standards](./docs/DOCUMENTATION_STANDARDS.md) — Doc writing guidelines
 - [Supabase Connection Guide](./docs/SUPABASE_CONNECTION_GUIDE.md) — Database migrations & workflows
 - [Deployment Checklist](./docs/how-to/operations/DEPLOYMENT_CHECKLIST.md) — Production deployment procedures
 - [Testing Checklist](./docs/TESTING_CHECKLIST.md) — QA & testing procedures
+- [Viewport Configuration](./docs/testing/VIEWPORT_CONFIGURATION.md) — Test viewport settings
 
 ## 6. Incidents & Diagnostics
 - [Investigations](./docs/investigations/README.md) — Incident investigations and root cause analysis
@@ -138,6 +145,13 @@
   - [Auth State Bug Analysis](./docs/investigations/auth-state-bug-analysis.md)
   - [Auth Bypass Root Cause (FINAL)](./docs/investigations/auth-bypass-root-cause-FINAL.md)
   - [AI Diagnostic Report](./docs/investigations/AI_DIAGNOSTIC_REPORT.md)
+  - [API Route Inventory](./docs/investigations/api-route-inventory.md)
+  - [API Endpoint Inventory (2025-11-06)](./docs/investigations/api-endpoint-inventory-2025-11-06.md)
+  - [API Documentation Strategy (2025-11-06)](./docs/investigations/api-documentation-strategy-2025-11-06.md)
+  - [API Validation Report](./docs/investigations/api-validation-report.md)
+  - [OpenAPI Path Fixes Needed](./docs/investigations/openapi-path-fixes-needed.md)
+  - [Phase 1 OpenAPI Updates Required](./docs/investigations/phase1-openapi-updates-required.md)
+  - [Phase 1 Validation and Fixes (2025-11-06)](./docs/investigations/phase1-validation-and-fixes-2025-11-06.md)
 - [Incidents](./docs/incidents/README.md) — Historical incident reports
   - [Oct 23 Bug Investigation Results](./docs/incidents/oct23-bug-investigation-results.md)
 - [Post-Mortem: Schema Drift (2025-10-21)](./docs/POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md) — v6.0.13 order submission failures
@@ -178,6 +192,28 @@
   - [Migrations](./supabase/migrations/README.md) — Database migration management
   - [Migration Baseline](./supabase/MIGRATION_BASELINE.md) — Migration baseline and reconciliation
 - [Scripts & Developer Tools](./scripts/README.md) — Automation scripts and drift detection tools
+
+## 10. Phase 2 - Technical Debt Reduction (2025-11)
+
+### API Client Consolidation
+- [API Client Consolidation Report](./docs/API_CLIENT_CONSOLIDATION_REPORT.md) — Detailed analysis of 3 API clients
+- [API Client Summary](./docs/API_CLIENT_SUMMARY.md) — Executive summary and metrics
+- [API Consolidation Timeline](./docs/API_CONSOLIDATION_IMPLEMENTATION_TIMELINE.md) — 5-7 day implementation plan
+- [API Consolidation Index](./docs/API_CONSOLIDATION_INDEX.md) — Navigation guide for consolidation work
+
+### Error Boundary Consolidation
+- [Error Boundary Consolidation Analysis](./docs/ERROR_BOUNDARY_CONSOLIDATION_ANALYSIS.md) — Detailed analysis of 8 error boundaries
+- [Error Boundary Executive Summary](./docs/ERROR_BOUNDARY_EXECUTIVE_SUMMARY.md) — High-level business case
+- [Error Boundary Quick Reference](./docs/ERROR_BOUNDARY_QUICK_REFERENCE.md) — Implementation quick-start
+- [Error Boundary Index](./docs/ERROR_BOUNDARY_INDEX.md) — Navigation guide
+
+### Technical Roadmap
+- [Technical Roadmap 2025-11-08](./docs/TECHNICAL_ROADMAP_2025-11-08.md) — Phase 1-3 implementation plan
+- [Corrected Action Plan 2025-11-08](./docs/CORRECTED_ACTION_PLAN_2025-11-08.md) — Prioritized action items
+- [Enterprise Architecture Assessment](./docs/ENTERPRISE_ARCHITECTURE_ASSESSMENT_2025-11-08.md) — System-wide assessment
+- [Gatekeeper Review 2025-11-08](./docs/GATEKEEPER_REVIEW_2025-11-08.md) — Code quality review
+- [Floor Plan RBAC Investigation](./docs/FLOOR_PLAN_RBAC_INVESTIGATION.md) — Authorization analysis
+- [Vercel Deployment Test Report](./docs/VERCEL_DEPLOYMENT_TEST_REPORT.md) — Deployment testing results
 
 ## Archive
 - Incidents: [docs/incidents/README.md](./docs/incidents/README.md)
