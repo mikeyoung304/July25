@@ -49,17 +49,18 @@ export const ElapsedTimer: React.FC<ElapsedTimerProps> = ({
   }
 
   // State to hold current elapsed time
-  const [elapsed, setElapsed] = useState(() => calculateElapsed(startTime))
+  // Initialize with empty string to avoid hydration mismatch from Date.now()
+  // The useEffect will set the correct value after client-side mount
+  const [elapsed, setElapsed] = useState<string>('')
 
   // Effect to update elapsed time every second
   useEffect(() => {
-    // Update immediately when startTime or format changes
-    setElapsed(calculateElapsed(startTime))
+    // Calculate and set elapsed time immediately on mount
+    const updateElapsed = () => setElapsed(calculateElapsed(startTime))
+    updateElapsed()
 
     // Set up interval to update every second
-    const intervalId = setInterval(() => {
-      setElapsed(calculateElapsed(startTime))
-    }, 1000)
+    const intervalId = setInterval(updateElapsed, 1000)
 
     // Cleanup: clear interval on unmount or when dependencies change
     return () => {
