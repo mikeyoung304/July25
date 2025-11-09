@@ -123,8 +123,8 @@ export const ServerView = memo(() => {
                 capacity: selectedTable.seats,
                 status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
                 current_order_id: selectedTable.current_order_id,
-                created_at: selectedTable.created_at || new Date().toISOString(),
-                updated_at: selectedTable.updated_at || new Date().toISOString()
+                created_at: selectedTable.created_at || '',
+                updated_at: selectedTable.updated_at || ''
               } : null}
               selectedSeat={selectedSeat}
               orderedSeats={voiceOrder.orderedSeats}
@@ -144,8 +144,8 @@ export const ServerView = memo(() => {
                 capacity: selectedTable.seats,
                 status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
                 current_order_id: selectedTable.current_order_id,
-                created_at: selectedTable.created_at || new Date().toISOString(),
-                updated_at: selectedTable.updated_at || new Date().toISOString()
+                created_at: selectedTable.created_at || '',
+                updated_at: selectedTable.updated_at || ''
               } : null}
               seat={selectedSeat}
               voiceOrder={voiceOrder}
@@ -164,8 +164,8 @@ export const ServerView = memo(() => {
                 capacity: selectedTable.seats,
                 status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
                 current_order_id: selectedTable.current_order_id,
-                created_at: selectedTable.created_at || new Date().toISOString(),
-                updated_at: selectedTable.updated_at || new Date().toISOString()
+                created_at: selectedTable.created_at || '',
+                updated_at: selectedTable.updated_at || ''
               } : null}
               completedSeat={voiceOrder.lastCompletedSeat || 1}
               orderedSeats={voiceOrder.orderedSeats}

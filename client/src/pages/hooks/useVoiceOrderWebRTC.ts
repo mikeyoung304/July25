@@ -15,6 +15,9 @@ import { useVoiceOrderingMetrics } from '@/services/metrics'
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const apiUrl = (path: string) => `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
 
+// Counter for generating unique voice order IDs (avoids Date.now() timing issues)
+let voiceOrderCounter = 0;
+
 interface OrderItem {
   id: string
   menuItemId?: string
@@ -73,7 +76,7 @@ export function useVoiceOrderWebRTC() {
         switch (parsed.action) {
           case 'add':
             newItems.push({
-              id: `voice-${Date.now()}-${Math.random()}`,
+              id: `voice-order-${++voiceOrderCounter}`,
               menuItemId: parsed.menuItem.id,
               name: parsed.menuItem.name,
               quantity: parsed.quantity,
@@ -141,7 +144,6 @@ export function useVoiceOrderWebRTC() {
   // AI provides: { items: [{ name: "Greek Salad", quantity: 1, modifiers: ["extra feta"] }] }
   // We need to: find menuItemId from name, transform to our OrderItem format
   const handleOrderData = useCallback((orderData: any) => {
-    console.log('[useVoiceOrderWebRTC] handleOrderData CALLED with:', orderData);
     logger.info('[handleOrderData] Received AI order data:', { orderData })
 
     // AI emits items without menuItemId - only human-readable names
@@ -179,7 +181,7 @@ export function useVoiceOrderWebRTC() {
           })
 
           matchedItems.push({
-            id: `voice-${Date.now()}-${Math.random()}`,
+            id: `voice-order-${++voiceOrderCounter}`,
             menuItemId: match.item.id, // Found the UUID!
             name: match.item.name, // Use actual menu name
             quantity: aiItem.quantity || 1,
@@ -345,11 +347,11 @@ export function useVoiceOrderWebRTC() {
         return true
       } else {
         const errorText = await response.text()
-        console.error('Order submission failed:', errorText)
+        logger.error('Order submission failed:', errorText)
         throw new Error('Failed to submit order')
       }
     } catch (error) {
-      console.error('Error submitting order:', error)
+      logger.error('Error submitting order:', error)
       toast.error('Failed to submit order. Please try again.')
       return false
     } finally {
