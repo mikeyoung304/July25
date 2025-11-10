@@ -1,0 +1,222 @@
+[
+  {
+    "date": "2025-11-10T09:36:42Z",
+    "commit_sha": "3949d61a",
+    "issue_type": "mistake",
+    "category": "React SSR/Hydration",
+    "summary": "React Error #318 - Early return before AnimatePresence wrapper caused 3-day debugging session for 2-line fix. Voice and touch ordering completely broken.",
+    "lesson_learned": "NEVER use early returns before AnimatePresence, Suspense, or other stable wrappers. Server must render the same DOM structure as client. Always test production builds locally (npm run build && npm run start) - dev mode hides hydration errors. Trust error messages: React #318 specifically indicates hydration mismatch. Remove all suppressHydrationWarning usage - it masks real bugs.",
+    "file_location": "client/src/pages/components/VoiceOrderModal.tsx:81",
+    "time_lost": "3+ days",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-10-25T21:27:00Z",
+    "commit_sha": "df228afd",
+    "issue_type": "security_vulnerability",
+    "category": "Multi-tenancy Security",
+    "summary": "Critical security vulnerability: Auth middleware set req.restaurantId from X-Restaurant-ID header BEFORE validation, allowing cross-restaurant data access by header manipulation.",
+    "lesson_learned": "Header validation must occur BEFORE using header values in business logic. Multi-tenancy requires proper access control at middleware level - verify user has permission to access the restaurant. Never trust client-provided headers for authorization decisions. Comprehensive test coverage caught the vulnerability before production.",
+    "file_location": "server/src/middleware/auth.ts, server/src/middleware/restaurantAccess.ts",
+    "time_lost": "2-3 days",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-10-27T20:56:00Z",
+    "commit_sha": "60e76993, 3aacbfd5, 55640a06",
+    "issue_type": "technical_debt",
+    "category": "Race Condition",
+    "summary": "Auth race condition: logout() and onAuthStateChange SIGNED_OUT event raced, causing SIGNED_OUT to clear state AFTER new login completed. Dual state management (manual + automatic) caused async conflicts.",
+    "lesson_learned": "Avoid dual state management patterns - choose either manual OR automatic, not both. Call async cleanup operations BEFORE state changes, not after. For auth: call supabase.auth.signOut() BEFORE clearing React state. Comprehensive logging essential for debugging async issues. Document race conditions thoroughly in investigation files.",
+    "file_location": "client/src/contexts/AuthContext.tsx",
+    "time_lost": "2+ days",
+    "severity": "high"
+  },
+  {
+    "date": "2025-11-02T11:44:00Z",
+    "commit_sha": "3121734502",
+    "issue_type": "technical_debt",
+    "category": "Test Infrastructure",
+    "summary": "Test Quarantine Crisis: 137 tests quarantined at peak (73% pass rate). Whack-a-mole test skipping became unsustainable. Systematic tracking system recovered to 98.5% pass rate.",
+    "lesson_learned": "Systematic tracking beats whack-a-mole fixing. Build infrastructure for test health monitoring (test-quarantine system with test-health.json registry). Never let test failures accumulate - fix immediately or delete. Test pass rate below 85% indicates systemic issues requiring infrastructure investment. Clear priorities and phases for remediation.",
+    "file_location": "test-quarantine/, test-health.json, test-quarantine.js, TEST_HEALTH.md",
+    "time_lost": "4+ days",
+    "severity": "high"
+  },
+  {
+    "date": "2025-10-29T21:54:00Z",
+    "commit_sha": "554d7d56, cb02f9ad",
+    "issue_type": "unresolved_fix",
+    "category": "Database Schema Sync",
+    "summary": "RPC Schema Mismatch (recurring): Migration added payment fields to orders table but create_order_with_audit RPC not updated. Multiple incidents: VARCHAR vs TEXT, payment fields missing, timestamp type mismatch.",
+    "lesson_learned": "When you modify a table, you MUST check all RPC functions that touch it. Create step-by-step workflow for identifying affected RPCs. Add validation checklist for RPC migrations. Use database ORM to auto-generate RPC signatures from schema. Standardize types: always TEXT (not VARCHAR), always TIMESTAMPTZ (not TIMESTAMP).",
+    "file_location": "prisma/schema.prisma, supabase/migrations/20251030010000_add_payment_fields_to_create_order_rpc.sql",
+    "time_lost": "3+ days (across multiple incidents)",
+    "severity": "high"
+  },
+  {
+    "date": "2025-11-04T19:31:00Z",
+    "commit_sha": "6f28ec51, 2b29faf9, 3c25b838",
+    "issue_type": "unresolved_fix",
+    "category": "State Management",
+    "summary": "Checkout Flow 3-fix chain: Cart items disappearing when navigating to checkout. Required 3 sequential fixes (restaurant ID propagation, order item schema, X-Client-Flow header) in 16 minutes.",
+    "lesson_learned": "Test the entire user flow end-to-end, not just individual components. Schema validation passing doesn't mean runtime validation passes - check database types match RPC signatures. Authentication headers matter: optionalAuth needs X-Client-Flow to distinguish customer vs staff. Restaurant ID must propagate through complete navigation chain.",
+    "file_location": "client/src/components/layout/AppRoutes.tsx, client/src/modules/order-system/components/CartDrawer.tsx, client/src/pages/CheckoutPage.tsx",
+    "time_lost": "1-2 days",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-11-08T15:28:00Z",
+    "commit_sha": "982c7cd2",
+    "issue_type": "mistake",
+    "category": "React Hooks",
+    "summary": "Infinite loop bug: useToast hook returned new object every render causing infinite re-render. Floor plan loading never completed.",
+    "lesson_learned": "Always wrap hook return values in useMemo if they're objects or arrays. Hook instability cascades through entire component tree via useEffect dependencies. Use React DevTools Profiler to catch re-render loops. Add ESLint react-hooks/exhaustive-deps to catch unstable dependencies.",
+    "file_location": "client/src/hooks/useToast.ts, client/src/pages/components/VoiceOrderModal.tsx",
+    "time_lost": "1 day",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-11-07T00:00:00Z",
+    "commit_sha": "03011ced",
+    "issue_type": "misleading_symptom",
+    "category": "Environment Variables",
+    "summary": "Voice ordering silent failure: OPENAI_API_KEY contained literal \\n from Render CLI, causing 401/403 errors with no user feedback.",
+    "lesson_learned": "Always .trim() all environment variables on read. Validate API key format before using (regex check). Add health check endpoint to validate configuration on deployment. Silent failures are unacceptable - log malformed keys with actionable error messages. Show configuration errors to users, not silent failures.",
+    "file_location": "server/src/config/env.ts",
+    "time_lost": "1-2 days",
+    "severity": "high"
+  },
+  {
+    "date": "2025-11-08T15:09:00Z",
+    "commit_sha": "129257ed, 07b77e41",
+    "issue_type": "unresolved_fix",
+    "category": "Commit Discipline",
+    "summary": "Auth scopes fix + UX enhancement bundled in single commit, forced immediate revert. Auth fix was correct but lost in revert.",
+    "lesson_learned": "Atomic commits: one logical change per commit. Never bundle P0 fixes with P2 enhancements - separate concerns. Don't bundle critical fixes with features. Test in staging environment before production. Feature flags allow toggling features without reverting bug fixes.",
+    "file_location": "server/src/routes/auth.routes.ts, client/src/pages/components/SeatSelectionModal.tsx",
+    "time_lost": "<1 hour",
+    "severity": "medium"
+  },
+  {
+    "date": "2025-10-29T00:00:00Z",
+    "commit_sha": "Multiple",
+    "issue_type": "misleading_symptom",
+    "category": "AI Agent Mistakes",
+    "summary": "AI parsing confusion: Used wrong API method (parseOrder vs parse), fixed wrong code path (server-side vs client-side), treated documentation as ground truth instead of verifying actual state.",
+    "lesson_learned": "Trace full execution paths - don't assume one implementation. Verify database schema before assuming types. Test SSR in production builds - dev mode hides issues. Document reality, not aspirations - verify actual state. Don't let AI treat documentation as ground truth without verification.",
+    "file_location": "server/src/services/ai/, client/src/modules/voice/",
+    "time_lost": "Multiple incidents, cumulative 2-3 days",
+    "severity": "high"
+  },
+  {
+    "date": "2025-09-01T00:00:00Z",
+    "commit_sha": "Multiple",
+    "issue_type": "technical_debt",
+    "category": "Documentation Bloat",
+    "summary": "Documentation tsunami: 89,387 lines written then deleted. AI-generated docs without organizational structure. 56,491 lines deleted in September cleanup, 32,896 lines of investigation reports archived.",
+    "lesson_learned": "AI-generated documentation needs human curation and organization. Investigation reports should be archived immediately after resolution, not left in main docs. Document decisions (ADRs), not investigations. Create clear taxonomy: how-to, reference, explanation, tutorials. 20% sprint time for tech debt prevents accumulation.",
+    "file_location": "docs/, multiple investigation files",
+    "time_lost": "79 hours ($7,900 value)",
+    "severity": "medium"
+  },
+  {
+    "date": "2025-11-09T00:00:00Z",
+    "commit_sha": "dcdbe072, 5dad6f56",
+    "issue_type": "technical_debt",
+    "category": "API Consolidation",
+    "summary": "API client proliferation: 3 HTTP clients coexisting (httpClient, useApiRequest, api facade). 67% reduction achieved by consolidating to single httpClient.",
+    "lesson_learned": "Migrate consumers before deleting APIs - stage the changes. Mark APIs as deprecated before removal. Major version bump for breaking changes. Use TypeScript compilation to verify no active imports before deletion. Document breaking changes in changelog. Enforce single HTTP client pattern via ADR.",
+    "file_location": "client/src/lib/http/, client/src/hooks/useApiRequest.ts",
+    "time_lost": "50 hours (prevented future waste)",
+    "severity": "medium"
+  },
+  {
+    "date": "2025-09-24T00:00:00Z",
+    "commit_sha": "4fbe62b3",
+    "issue_type": "mistake",
+    "category": "Dependency Management",
+    "summary": "React production crash: Upgraded to React 19.1.0 (unstable) instead of stable 18.3.1. Multiple React versions in dependency tree caused 'React.forwardRef is undefined' crash.",
+    "lesson_learned": "Only stable releases in production (no canary/beta/rc tags). Review package-lock.json changes in PRs. Use npm overrides to enforce single versions of critical dependencies. Test production builds in CI, not just dev builds. Check dependency changelog for breaking changes before upgrading.",
+    "file_location": "client/package.json, client/package-lock.json",
+    "time_lost": "1 day (site completely down)",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-08-13T00:00:00Z",
+    "commit_sha": "adffcfb5",
+    "issue_type": "mistake",
+    "category": "Build System",
+    "summary": "Blank page in production: Compiled .js files in shared/ using CommonJS format. Browser loaded CommonJS files causing 'require is not defined' error.",
+    "lesson_learned": "Add shared/**/*.js to .gitignore - only commit .ts source. Ensure shared/ outputs ES modules, not CommonJS. Add CI validation: no CommonJS in client build. Test production preview before deploying. Explicitly configure module format in tsconfig.json. Pre-commit hook to prevent committing compiled files.",
+    "file_location": "shared/types/*.js, shared/utils/*.js",
+    "time_lost": "1 day (production site blank)",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-10-05T00:00:00Z",
+    "commit_sha": "2fa772a4",
+    "issue_type": "mistake",
+    "category": "Environment Configuration",
+    "summary": "Login page blank: Monorepo + Vite requires VITE_ prefix for client-accessible variables. Developer created client/.env.local without VITE_ prefix, causing silent failure.",
+    "lesson_learned": "Add env-validator.ts that fails fast with clear errors on startup. Single source of truth: ONE root .env file, not per-package. Configure Vite envDir and envPrefix explicitly. Add .env.example with warnings about VITE_ prefix. Provide clear error messages, not silent failures. Validate all required env vars exist on startup.",
+    "file_location": "client/.env.local (incorrect), root .env (correct)",
+    "time_lost": "1 day (login completely broken)",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-10-21T00:00:00Z",
+    "commit_sha": "44d1f481",
+    "issue_type": "unresolved_fix",
+    "category": "Database Deployment",
+    "summary": "Schema drift: Migration files committed to git but never deployed to production. Code expected tax_rate column that didn't exist, causing order submission failures (403/500 errors).",
+    "lesson_learned": "Add schema validation step in CI comparing code expectations vs production schema. Auto-deploy migrations via GitHub Actions on merge to main. Add smoke tests for critical flows in production. Verify all migrations applied before code deployment. Prevent code deployment if schema drift detected. All migrations must be idempotent.",
+    "file_location": "Database restaurants table, order submission endpoints",
+    "time_lost": "1-2 days (order submission broken)",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-08-15T00:00:00Z",
+    "commit_sha": "bfd25924, 212568dd",
+    "issue_type": "security_vulnerability",
+    "category": "Security Bypass",
+    "summary": "test-token security bypass left in production: Anyone could authenticate as admin using 'test-token'. Rate limiting and CSRF protection disabled in development mode, left enabled in production.",
+    "lesson_learned": "Mandatory security audit before every production deployment. Scan for development bypasses in auth/security middleware (process.env.NODE_ENV checks). Use centralized config with feature flags, not inline environment checks. Separate auth systems for dev vs production. Pre-production testing in staging with production-like security. Security checklist: no test tokens, rate limiting enabled, CSRF active, no dev bypasses.",
+    "file_location": "server/src/middleware/auth.ts",
+    "time_lost": "Ongoing vulnerability until discovery",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-10-13T00:00:00Z",
+    "commit_sha": "47e7d53c",
+    "issue_type": "mistake",
+    "category": "Database Schema",
+    "summary": "Critical 401 errors: Server queried scope_name column but database has scope column. All authentication requests failed.",
+    "lesson_learned": "Use Prisma/Drizzle ORM for type safety, not raw SQL strings. Generate TypeScript types from database schema. Add integration tests with actual database, not mocks. Enforce snake_case naming convention with linter. Document database schema with canonical column names. Review schema changes for renamed columns in migrations.",
+    "file_location": "server/src/routes/auth.routes.ts",
+    "time_lost": "1-2 days (complete auth failure)",
+    "severity": "critical"
+  },
+  {
+    "date": "2025-11-02T00:00:00Z",
+    "commit_sha": "Multiple",
+    "issue_type": "technical_debt",
+    "category": "Dead Code",
+    "summary": "Dead code accumulation: 3,491 lines across 15 abandoned files with zero imports (WebSocketServiceV2, useModal, ExpoPageDebug). 'Keep it just in case' mentality created bloat.",
+    "lesson_learned": "Delete unused code immediately - git preserves history. Add automated dead code detection (ts-prune, knip). Review imports before assuming files are needed. ADR enforcement prevents competing patterns. Monthly code health review to identify orphaned files. No 'just in case' code - if it's not imported, delete it.",
+    "file_location": "Multiple abandoned service files, hooks, debug components",
+    "time_lost": "123 hours maintaining unused code",
+    "severity": "medium"
+  },
+  {
+    "date": "2025-11-06T12:56:00Z",
+    "commit_sha": "8e6c42c2, 392240a4",
+    "issue_type": "unresolved_fix",
+    "category": "Configuration Error",
+    "summary": "Restaurant ID revert: Changed from correct UUID to malformed UUID (3-minute turnaround). Eventually fixed with slug-based routing to eliminate UUID confusion.",
+    "lesson_learned": "Add UUID format validation to env variables. Run E2E checkout tests in CI to catch 404s. Quick revert (3 minutes) prevented production issues - good feedback loop. Follow-up improvement: slug routing eliminated UUID confusion entirely. Don't change production configurations without database verification.",
+    "file_location": ".env.example, client/src/contexts/UnifiedCartContext.tsx",
+    "time_lost": "<1 hour (caught quickly)",
+    "severity": "medium"
+  }
+]

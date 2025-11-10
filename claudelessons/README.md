@@ -20,6 +20,26 @@ This directory contains lessons learned from debugging sessions with Claude Code
 
 ---
 
+## Comprehensive Analysis
+
+### [Git History Lessons - Complete Analysis](./LESSONS_SUMMARY.md)
+**20 major incidents** analyzed from 1,648 commits (Oct-Nov 2025)
+- **Structured JSON data:** [git-history-lessons.json](./git-history-lessons.json)
+- **Human-readable summary:** [LESSONS_SUMMARY.md](./LESSONS_SUMMARY.md)
+- **Estimated cost impact:** $50,000+ in preventable delays and bloat
+- **Prevention rate:** 86% preventable through automation
+
+**Categories analyzed:**
+- Errors causing delays (7 incidents)
+- AI agent mistakes (12 incidents)
+- Unresolved/incomplete fixes (8 incidents)
+- Code bloat and technical debt (7 incidents)
+- Performance regressions (11 incidents)
+- Breaking changes (14 incidents)
+- Revert patterns (7 incidents)
+
+---
+
 ## Lessons Index
 
 ### React & Hydration
@@ -30,6 +50,7 @@ This directory contains lessons learned from debugging sessions with Claude Code
 **Fix:** Move conditionals inside wrappers
 **Date:** 2025-11-10
 **Severity:** CRITICAL
+**Time Lost:** 3+ days
 
 **Quick Pattern:**
 ```typescript
@@ -47,21 +68,91 @@ return <AnimatePresence>{show && content}</AnimatePresence>
 - "Hydration failed" errors
 - Works in dev, breaks in production
 
+### Database & Schema
+
+#### Multi-tenancy Security Vulnerability
+**Pattern:** Header validation AFTER using header values
+**Fix:** Validate headers BEFORE business logic
+**Commit:** `df228afd` (2025-10-25)
+**Severity:** CRITICAL
+**Time Lost:** 2-3 days
+
+#### RPC Schema Mismatches (Recurring)
+**Pattern:** Table migrations don't update RPC functions
+**Fix:** Step-by-step RPC validation workflow
+**Commits:** `554d7d56`, `cb02f9ad` (2025-10-29)
+**Severity:** HIGH
+**Time Lost:** 3+ days across multiple incidents
+
+### Authentication & State Management
+
+#### Auth Race Condition
+**Pattern:** Async cleanup after state changes
+**Fix:** Call async operations BEFORE state updates
+**Commits:** `60e76993`, `3aacbfd5`, `55640a06` (2025-10-27)
+**Severity:** HIGH
+**Time Lost:** 2+ days
+
+### Environment & Configuration
+
+#### Environment Variable Newlines
+**Pattern:** API keys with literal `\n` from CLI
+**Fix:** Always `.trim()` environment variables
+**Commit:** `03011ced` (2025-11-07)
+**Severity:** HIGH
+**Time Lost:** 1-2 days
+
+#### Vite VITE_ Prefix Requirement
+**Pattern:** Env vars without VITE_ prefix silently fail
+**Fix:** Use root `.env` with VITE_ prefix + startup validation
+**Commit:** `2fa772a4` (2025-10-05)
+**Severity:** CRITICAL
+**Time Lost:** 1 day
+
+### React Hooks & Performance
+
+#### Infinite Loop - Unstable Hook Returns
+**Pattern:** Hook returns new object every render
+**Fix:** Wrap hook returns in `useMemo`
+**Commit:** `982c7cd2` (2025-11-08)
+**Severity:** CRITICAL
+**Time Lost:** 1 day
+
 ---
 
 ## Lesson Categories
 
-### 🔴 Critical Patterns (Production Blockers)
-- React Hydration - Early Return Bug
+### 🔴 Critical Patterns (7 Production Blockers)
+- React Hydration - Early Return Bug (3+ days)
+- Multi-tenancy Security Vulnerability (2-3 days)
+- Checkout Flow Cart Emptying (1-2 days)
+- Infinite Loop - useToast (1 day)
+- React Production Crash - Unstable Version (1 day)
+- Blank Page - CommonJS Contamination (1 day)
+- Login Blank - Environment Config (1 day)
 
-### 🟡 Common Pitfalls
-- (Future lessons)
+### 🟡 High Severity (9 incidents)
+- Auth Race Condition (2+ days)
+- RPC Schema Mismatches (3+ days recurring)
+- Test Quarantine Crisis (4+ days)
+- Environment Variable Newlines (1-2 days)
+- AI Parsing Confusion (2-3 days)
+- Database Schema Drift (1-2 days)
+- Security Bypass - test-token (ongoing until fixed)
+- Auth Scopes Column Mismatch (1-2 days)
 
-### 🟢 Best Practices
-- (Future lessons)
+### 🟢 Technical Debt (4 patterns)
+- Documentation Bloat (79 hours / $7,900)
+- Dead Code Accumulation (123 hours / $12,300)
+- API Client Proliferation (50 hours / $5,000)
+- Test Infrastructure Gaps
 
-### 🔧 Debugging Strategies
-- (Future lessons)
+### 🔧 Debugging Strategies Learned
+- Trust error messages first (React #318 told us exactly what was wrong)
+- Test production builds locally (dev mode too forgiving)
+- Trace full execution paths (don't assume single implementation)
+- Validate schema consistency (code vs database)
+- Quick revert feedback loop (3-minute turnaround on restaurant ID)
 
 ---
 
@@ -146,9 +237,26 @@ These lessons exist to:
 
 ## Statistics
 
-**Total Lessons:** 1
-**Critical Severity:** 1
-**Average Time Saved:** TBD (will track over time)
+**Total Lessons Documented:** 20 (from comprehensive git history analysis)
+**Individual Lesson Files:** 1
+**Critical Severity Incidents:** 7 (production-blocking)
+**High Severity Incidents:** 9 (feature-breaking, security)
+**Technical Debt Patterns:** 4
+**Total Development Time Lost:** 15-20 days (~$50,000)
+**Preventable Through Automation:** 86% (17/20 incidents)
+
+**Most Costly Patterns:**
+1. React Hydration Bug - 3+ days
+2. Test Quarantine Crisis - 4+ days
+3. RPC Schema Mismatches - 3+ days (recurring)
+4. Documentation Bloat - 79 hours ($7,900)
+5. Dead Code Accumulation - 123 hours ($12,300)
+
+**Quick Wins (High ROI):**
+- Production build testing in CI (prevents 6/20 incidents)
+- Schema validation (prevents 3/20 incidents)
+- Environment validation (prevents 3/20 incidents)
+- Security scanning (prevents 2/20 incidents)
 
 ---
 

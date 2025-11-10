@@ -61,11 +61,19 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
 
   // Auto-start recording when connection completes (if user is still holding button)
   useEffect(() => {
+    if (debug) {
+      console.log('[VoiceControlWebRTC] Auto-start effect triggered', {
+        shouldStartRecording,
+        isConnected,
+        isRecording
+      });
+    }
     if (shouldStartRecording && isConnected && !isRecording) {
+      if (debug) console.log('[VoiceControlWebRTC] Auto-starting recording via useEffect');
       startRecording();
       setShouldStartRecording(false);
     }
-  }, [shouldStartRecording, isConnected, isRecording, startRecording]);
+  }, [shouldStartRecording, isConnected, isRecording, startRecording, debug]);
   
   // Check microphone permission - store connect in ref to avoid dep loop
   const connectRef = React.useRef(connect);
@@ -124,12 +132,23 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
 
   // Handle recording button - auto-chain permission → connection → recording
   const handleRecordStart = async () => {
+    if (debug) {
+      // Debug logging for troubleshooting recording flow
+      console.log('[VoiceControlWebRTC] handleRecordStart called', {
+        permissionState,
+        isConnected,
+        connectionState,
+        isRecording
+      });
+    }
+
     // Set flag to start recording (will trigger when connected)
     setShouldStartRecording(true);
 
     try {
       // If permission not granted yet, request it
       if (permissionState === 'prompt') {
+        if (debug) console.log('[VoiceControlWebRTC] Requesting permission...');
         await handleRequestPermission();
         // Don't return - the useEffect will start recording when connected
         return;
@@ -137,6 +156,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
 
       // If permission granted but not connected, connect
       if (permissionState === 'granted' && !isConnected && connectionState !== 'connecting') {
+        if (debug) console.log('[VoiceControlWebRTC] Permission granted, connecting...');
         await connect();
         // Don't return - the useEffect will start recording when connected
         return;
@@ -144,11 +164,18 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
 
       // If already connected, start recording immediately
       if (isConnected && !isRecording) {
+        if (debug) console.log('[VoiceControlWebRTC] Already connected, starting recording immediately');
         startRecording();
         setShouldStartRecording(false);
+      } else if (debug) {
+        console.log('[VoiceControlWebRTC] NOT starting recording', {
+          isConnected,
+          isRecording,
+          shouldStartRecording: true
+        });
       }
     } catch (err) {
-      console.error('Failed to start recording:', err);
+      console.error('[VoiceControlWebRTC] Failed to start recording:', err);
       setShouldStartRecording(false); // Clear flag on error
       // Error will be displayed via the error state from useWebRTCVoice
     }

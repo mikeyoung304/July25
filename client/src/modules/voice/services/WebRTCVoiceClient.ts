@@ -63,6 +63,7 @@ export class WebRTCVoiceClient extends EventEmitter {
   private turnState: TurnState = 'idle';
   private isRecording = false;
   private lastCommitTime = 0;
+  private turnStateTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Connection state tracking
   private connectionState: ConnectionState = 'disconnected';
@@ -137,6 +138,15 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.eventHandler.sendEvent({
         type: 'input_audio_buffer.clear'
       });
+    });
+
+    // Handle transcript completion to clear timeout and transition states
+    this.eventHandler.on('transcript', (event: any) => {
+      if (event.isFinal && this.turnState === 'waiting_user_final') {
+        // Clear timeout since we received the transcript
+        this.clearTurnStateTimeout();
+        // Note: VoiceEventHandler handles state transition to waiting_response
+      }
     });
 
     // Handle reconnection events
@@ -296,6 +306,16 @@ export class WebRTCVoiceClient extends EventEmitter {
     if (this.config.debug) {
       console.log('[WebRTCVoiceClient] Waiting for user transcript to finalize...');
     }
+
+    // Safety timeout: Reset to idle if no transcript received within 10 seconds
+    // This prevents the state machine from getting stuck if OpenAI doesn't send a transcript
+    this.clearTurnStateTimeout();
+    this.turnStateTimeout = setTimeout(() => {
+      if (this.turnState === 'waiting_user_final') {
+        console.warn('[WebRTCVoiceClient] Timeout waiting for transcript, resetting to idle');
+        this.resetTurnState();
+      }
+    }, 10000); // 10 second timeout
   }
 
   /**
@@ -352,9 +372,20 @@ export class WebRTCVoiceClient extends EventEmitter {
   }
 
   /**
+   * Clear turn state timeout
+   */
+  private clearTurnStateTimeout(): void {
+    if (this.turnStateTimeout) {
+      clearTimeout(this.turnStateTimeout);
+      this.turnStateTimeout = null;
+    }
+  }
+
+  /**
    * Reset turn state
    */
   private resetTurnState(): void {
+    this.clearTurnStateTimeout();
     this.turnState = 'idle';
     this.isRecording = false;
     this.eventHandler.setTurnState('idle');
@@ -367,6 +398,9 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Clear all state flags
     this.isRecording = false;
     this.isConnecting = false;
+
+    // Clear any pending timeouts
+    this.clearTurnStateTimeout();
 
     // Disconnect services
     this.connection.disconnect();

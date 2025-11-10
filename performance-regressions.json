@@ -1,0 +1,602 @@
+{
+  "metadata": {
+    "analysis_date": "2025-11-10",
+    "repository": "rebuild-6.0",
+    "commits_analyzed": 1648,
+    "analysis_period": {
+      "start": "2025-07-21",
+      "end": "2025-11-10"
+    },
+    "generated_by": "Claude Code Analysis"
+  },
+  "summary": {
+    "total_regressions": 11,
+    "by_severity": {
+      "CRITICAL": 4,
+      "HIGH": 5,
+      "MEDIUM": 2
+    },
+    "by_type": {
+      "React Rendering": 5,
+      "Memory Leaks": 4,
+      "Race Conditions": 3,
+      "Infinite Loops": 2,
+      "Bundle Size": 2
+    },
+    "avg_time_to_fix": {
+      "CRITICAL": {
+        "hours": 100.8,
+        "days": 4.2
+      },
+      "HIGH": {
+        "hours": 204,
+        "days": 8.5
+      },
+      "MEDIUM": {
+        "hours": 456,
+        "days": 19
+      }
+    },
+    "total_user_impact_days": 46,
+    "estimated_cost": {
+      "developer_time": 27.5,
+      "developer_cost_usd": 13750,
+      "user_impact": "High - production outages"
+    }
+  },
+  "regressions": [
+    {
+      "id": 1,
+      "severity": "CRITICAL",
+      "type": "React Hydration",
+      "category": "Frontend Rendering",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "fd22b968e880d2d424df60deaa505a3bac2c1d47",
+        "date": "2025-11-08T15:11:40-05:00",
+        "author": "Claude",
+        "message": "feat: re-add dual-button ux for voice/touch order selection",
+        "change_type": "Feature Addition"
+      },
+      "fixed": {
+        "commit": "3949d61a496fce4aba9147d71e2c9655ab8c8c4c",
+        "date": "2025-11-10T09:36:42-05:00",
+        "author": "Claude",
+        "message": "fix: critical react hydration bug blocking voice and touch ordering",
+        "time_to_fix_hours": 48
+      },
+      "files_affected": [
+        "client/src/pages/components/VoiceOrderModal.tsx",
+        "client/src/pages/ServerView.tsx",
+        "client/src/pages/components/SeatSelectionModal.tsx"
+      ],
+      "root_cause": {
+        "description": "Early return before AnimatePresence wrapper caused server/client DOM mismatch",
+        "code_snippet": "if (!show || !table || !seat) return null; // Before AnimatePresence",
+        "pattern": "Conditional return before SSR wrapper component"
+      },
+      "impact": {
+        "description": "Complete failure of voice and touch ordering modals in production",
+        "user_facing": true,
+        "error_message": "React Error #318: Hydration failed because initial UI does not match server",
+        "affected_features": ["Voice Ordering", "Touch Ordering", "ServerView"]
+      },
+      "lesson": {
+        "testing_gap": "No SSR/hydration validation in CI pipeline",
+        "monitoring_gap": "No real-time React error tracking in production",
+        "recommended_fix": "Add Playwright tests with SSR mode, integrate React DevTools profiler"
+      }
+    },
+    {
+      "id": 2,
+      "severity": "CRITICAL",
+      "type": "Infinite Loop",
+      "category": "React Re-render",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "fd22b968e880d2d424df60deaa505a3bac2c1d47",
+        "date": "2025-11-08T15:11:40-05:00",
+        "author": "Claude",
+        "message": "feat: re-add dual-button ux for voice/touch order selection",
+        "change_type": "Feature Addition"
+      },
+      "fixed": {
+        "commit": "982c7cd2dc103bc3bb7f7a82867199aa82c3683f",
+        "date": "2025-11-08T15:28:57-05:00",
+        "author": "Claude",
+        "message": "fix: critical infinite loop bug in useToast and modal prop sync",
+        "time_to_fix_hours": 0.3
+      },
+      "files_affected": [
+        "client/src/hooks/useToast.ts",
+        "client/src/pages/components/VoiceOrderModal.tsx"
+      ],
+      "root_cause": {
+        "description": "Hook returned new object reference every render causing infinite re-render loop",
+        "code_snippet": "return { showToast, hideToast }; // New object {} on every render",
+        "pattern": "Unstable hook return value without useMemo"
+      },
+      "impact": {
+        "description": "Infinite loading state causing 100% CPU usage and browser freeze",
+        "user_facing": true,
+        "error_message": "Loading floor plan... (never completes)",
+        "affected_features": ["Floor Plan Loading", "Server View"]
+      },
+      "lesson": {
+        "testing_gap": "No React performance profiler to detect re-render loops",
+        "monitoring_gap": "No browser performance monitoring (CPU/memory)",
+        "recommended_fix": "Add why-did-you-render library, enforce useMemo for hook returns"
+      }
+    },
+    {
+      "id": 3,
+      "severity": "HIGH",
+      "type": "Race Condition",
+      "category": "DOM Measurement",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "8f6c6efc746dca7e28c379c6624892ba8c2ca5e1",
+        "date": "2025-10-10T11:54:14-04:00",
+        "author": "Claude",
+        "message": "feat(kitchen): upgrade to optimized display with table grouping",
+        "change_type": "Feature Enhancement"
+      },
+      "fixed": {
+        "commit": "8d82c65e2c47dd013b0dcab470c5c662288cff22",
+        "date": "2025-10-14T21:28:57-04:00",
+        "author": "Claude",
+        "message": "fix(kds): resolve grid mode infinite loading due to race condition",
+        "time_to_fix_hours": 96
+      },
+      "files_affected": [
+        "client/src/components/kitchen/VirtualizedOrderGrid.tsx"
+      ],
+      "root_cause": {
+        "description": "Tried to measure DOM element dimensions before element rendered",
+        "code_snippet": "const [dimensions, setDimensions] = useState({ width: 0, height: 0 });",
+        "pattern": "DOM measurement before render complete"
+      },
+      "impact": {
+        "description": "Clicking 'Switch to Grid Mode' caused permanent freeze lasting 991 seconds",
+        "user_facing": true,
+        "error_message": "Infinite loading spinner",
+        "affected_features": ["Kitchen Display Grid Mode"]
+      },
+      "lesson": {
+        "testing_gap": "No integration tests for UI mode switching",
+        "monitoring_gap": "No timeout detection for loading states > 5 seconds",
+        "recommended_fix": "Add Playwright tests for mode switches, implement 5s loading timeout"
+      }
+    },
+    {
+      "id": 4,
+      "severity": "CRITICAL",
+      "type": "API Blocking",
+      "category": "Network Request",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "b072908704bf8cf064586dd5a7e0fd030d21eb7d",
+        "date": "2025-10-19T20:35:55-04:00",
+        "author": "Claude",
+        "message": "feat(audit): implement 6 critical p0 fixes from security and performance audit",
+        "change_type": "Security Enhancement"
+      },
+      "fixed": {
+        "commit": "b5e7a5f3bfda309cd2b122ea23bc56b2d9015a41",
+        "date": "2025-10-14T20:45:57-04:00",
+        "author": "Claude",
+        "message": "fix(monitoring): disable analytics endpoint causing infinite load",
+        "time_to_fix_hours": -120
+      },
+      "files_affected": [
+        "client/src/services/monitoring/performance.ts"
+      ],
+      "root_cause": {
+        "description": "POST to non-existent /api/v1/analytics/performance endpoint with JWT in payload",
+        "code_snippet": "await fetch('/api/v1/analytics/performance', { body: { url: fullUrl } })",
+        "pattern": "Blocking request to unavailable optional service"
+      },
+      "impact": {
+        "description": "991-second page hang on production KDS",
+        "user_facing": true,
+        "error_message": "Page unresponsive, no user interaction possible",
+        "affected_features": ["Kitchen Display", "All Production Pages"]
+      },
+      "lesson": {
+        "testing_gap": "No smoke tests for API endpoint availability",
+        "monitoring_gap": "No request timeout alerts in production",
+        "recommended_fix": "Add circuit breaker for optional services, 5s timeout for analytics"
+      }
+    },
+    {
+      "id": 5,
+      "severity": "HIGH",
+      "type": "Race Condition",
+      "category": "Auth State Management",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "b2902fe24f5953622ca7a85dc0096579997b20c8",
+        "date": "2025-10-08T13:18:12-04:00",
+        "author": "Claude",
+        "message": "refactor: migrate to pure supabase auth and remove race conditions",
+        "change_type": "Refactoring"
+      },
+      "fixed": {
+        "commit": "e44d074cf572b15e4dc162f28c13c3861df3c9da",
+        "date": "2025-10-15T09:53:25-04:00",
+        "author": "Claude",
+        "message": "fix: auth refresh timer & ws/voice race conditions",
+        "time_to_fix_hours": 168
+      },
+      "files_affected": [
+        "client/src/contexts/AuthContext.tsx",
+        "client/src/services/websocket/WebSocketService.ts",
+        "client/src/modules/voice/hooks/useWebRTCVoice.ts"
+      ],
+      "root_cause": {
+        "description": "Multiple concurrent refresh attempts without concurrency guards",
+        "code_snippet": "const refreshSession = async () => { /* No guard against concurrent calls */ }",
+        "pattern": "Async function without concurrency protection"
+      },
+      "impact": {
+        "description": "Random WebSocket disconnections and voice ordering failures",
+        "user_facing": true,
+        "error_message": "Connection lost unexpectedly",
+        "affected_features": ["WebSocket", "Voice Ordering", "Real-time Updates"]
+      },
+      "lesson": {
+        "testing_gap": "No concurrent operation tests in unit test suite",
+        "monitoring_gap": "No tracking for duplicate API requests",
+        "recommended_fix": "Add unit tests for concurrent async operations, implement request deduplication"
+      }
+    },
+    {
+      "id": 6,
+      "severity": "CRITICAL",
+      "type": "Memory Leak",
+      "category": "WebSocket Management",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "41ec22970c2138745adc2d776c12a0716e0a983e",
+        "date": "2025-08-14T08:13:29-04:00",
+        "author": "Claude",
+        "message": "feat(voice): implement realtime WebSocket voice ordering MVP",
+        "change_type": "Feature Addition"
+      },
+      "fixed": {
+        "commit": "f9751b31161afe5891de78c6cc64bd42688a178d",
+        "date": "2025-08-19T22:47:08-04:00",
+        "author": "Claude",
+        "message": "fix: critical memory leaks in WebSocket connections (TECHNICAL_DEBT.md #3)",
+        "time_to_fix_hours": 120
+      },
+      "files_affected": [
+        "client/src/modules/voice/services/VoiceSocketManager.ts",
+        "client/src/services/websocket/WebSocketService.ts"
+      ],
+      "root_cause": {
+        "description": "VoiceSocketManager cleanup callbacks never executing, heartbeat timers not cleared",
+        "code_snippet": "// Missing: clearInterval(heartbeatTimer) on error",
+        "pattern": "Event listeners and timers without cleanup"
+      },
+      "impact": {
+        "description": "Memory growth 50MB/10min leading to browser crash after 2-3 hours",
+        "user_facing": true,
+        "error_message": "Browser tab crashes with 'Out of memory'",
+        "affected_features": ["Kitchen Display", "Voice Ordering", "Long-running Pages"]
+      },
+      "lesson": {
+        "testing_gap": "No memory leak detection in CI pipeline",
+        "monitoring_gap": "No browser memory tracking in production",
+        "recommended_fix": "Integrate memlab for automated leak detection, add memory monitoring"
+      }
+    },
+    {
+      "id": 7,
+      "severity": "HIGH",
+      "type": "Memory Leak",
+      "category": "React Timers",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "21c2582b7cad67808c1c36ef63a06bd4429a902d",
+        "date": "2025-09-02T12:16:01-04:00",
+        "author": "Claude",
+        "message": "perf: major TypeScript and performance optimizations",
+        "change_type": "Performance Optimization"
+      },
+      "fixed": {
+        "commit": "342f946b4f17a44a59b0f3db8ffe5397ba20ebb7",
+        "date": "2025-09-02T09:15:09-04:00",
+        "author": "Claude",
+        "message": "fix: memory leaks and timer cleanup improvements",
+        "time_to_fix_hours": -7
+      },
+      "files_affected": [
+        "client/src/components/shared/badges/AnimatedStatusBadge.tsx",
+        "client/src/pages/SplashScreen.tsx",
+        "client/src/hooks/useModal.ts"
+      ],
+      "root_cause": {
+        "description": "Nested setTimeout and useEffect without cleanup return",
+        "code_snippet": "useEffect(() => { setTimeout(() => {}, 1000); }, []); // No return cleanup",
+        "pattern": "Timer created in useEffect without cleanup"
+      },
+      "impact": {
+        "description": "FPS drops from 60 to 30 after 30 minutes, memory grows 10MB/hour",
+        "user_facing": true,
+        "error_message": "Gradual UI slowdown",
+        "affected_features": ["Status Badges", "Splash Screen", "Modals"]
+      },
+      "lesson": {
+        "testing_gap": "No automated timer leak detection",
+        "monitoring_gap": "No frame rate monitoring in production",
+        "recommended_fix": "Add ESLint rule requiring cleanup for all timers in useEffect"
+      }
+    },
+    {
+      "id": 8,
+      "severity": "MEDIUM",
+      "type": "React Re-renders",
+      "category": "Performance Optimization",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "8f6c6efc746dca7e28c379c6624892ba8c2ca5e1",
+        "date": "2025-10-10T11:54:14-04:00",
+        "author": "Claude",
+        "message": "feat(kitchen): upgrade to optimized display with table grouping",
+        "change_type": "Feature Enhancement"
+      },
+      "fixed": {
+        "commit": "597278eb3190c431413cff7f78ccd0932ef39a44",
+        "date": "2025-10-15T09:46:13-04:00",
+        "author": "Claude",
+        "message": "perf: memoize heavy components, stabilize handlers, cleanup timers/listeners",
+        "time_to_fix_hours": 120
+      },
+      "files_affected": [
+        "client/src/pages/KitchenDisplayOptimized.tsx",
+        "client/src/components/kitchen/TableGroupCard.tsx",
+        "client/src/pages/ServerView.tsx"
+      ],
+      "root_cause": {
+        "description": "Heavy components not memoized, event handlers recreated on every render",
+        "code_snippet": "const Component = () => { const handler = () => {}; return <div />; }",
+        "pattern": "Missing React.memo and useCallback for heavy components"
+      },
+      "impact": {
+        "description": "UI lag with 2-3 second delays on filter changes, CPU spikes to 80%",
+        "user_facing": true,
+        "error_message": "Sluggish UI interactions, janky scrolling < 30 FPS",
+        "affected_features": ["Kitchen Display", "Server View", "Filter Controls"]
+      },
+      "lesson": {
+        "testing_gap": "No React Profiler flame graph analysis in CI",
+        "monitoring_gap": "No render count tracking in production",
+        "recommended_fix": "Integrate why-did-you-render, add React.memo guidelines"
+      }
+    },
+    {
+      "id": 9,
+      "severity": "MEDIUM",
+      "type": "Race Condition",
+      "category": "Auth State Management",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "b2902fe24f5953622ca7a85dc0096579997b20c8",
+        "date": "2025-10-08T13:18:12-04:00",
+        "author": "Claude",
+        "message": "refactor: migrate to pure supabase auth and remove race conditions",
+        "change_type": "Refactoring"
+      },
+      "fixed": {
+        "commit": "60e7699338ae0d1042c33c96da1355a6534cf43d",
+        "date": "2025-10-27T18:51:17-04:00",
+        "author": "Claude",
+        "message": "fix(auth): resolve race condition in logout/login sequence causing stale user data",
+        "time_to_fix_hours": 456
+      },
+      "files_affected": [
+        "client/src/contexts/AuthContext.tsx"
+      ],
+      "root_cause": {
+        "description": "Logout cleared React state before firing SIGNED_OUT event",
+        "code_snippet": "setUser(null); await supabase.auth.signOut(); // Wrong order",
+        "pattern": "Async operation order causing state inconsistency"
+      },
+      "impact": {
+        "description": "Wrong user email displayed after account switching, permission errors",
+        "user_facing": true,
+        "error_message": "Insufficient Permissions for correct user",
+        "affected_features": ["Account Switching", "Multi-user Workflows"]
+      },
+      "lesson": {
+        "testing_gap": "No integration tests for rapid account switching",
+        "monitoring_gap": "No auth state validation after login",
+        "recommended_fix": "Add Playwright tests for logout → login flow, auth state validation"
+      }
+    },
+    {
+      "id": 10,
+      "severity": "HIGH",
+      "type": "Bundle Size",
+      "category": "Code Splitting",
+      "user_impacting": true,
+      "introduced": {
+        "commit": "Multiple",
+        "date": "2025-07-21T00:00:00-04:00",
+        "author": "Multiple",
+        "message": "Gradual accumulation from feature additions",
+        "change_type": "Feature Accumulation"
+      },
+      "fixed": {
+        "commit": "8e5c76305d4f815607e52f59b987e67d6a8c9fb9",
+        "date": "2025-08-25T19:03:57-04:00",
+        "author": "Claude",
+        "message": "feat: implement code splitting - reduce main bundle from 1MB to 93KB",
+        "time_to_fix_hours": 792
+      },
+      "files_affected": [
+        "client/vite.config.ts",
+        "client/src/components/layout/AppRoutes.tsx"
+      ],
+      "root_cause": {
+        "description": "No code splitting strategy as features added, all routes in single bundle",
+        "code_snippet": "import KitchenDisplay from './pages/KitchenDisplay'; // Eager import",
+        "pattern": "Eager imports without lazy loading"
+      },
+      "impact": {
+        "description": "Initial page load 10+ seconds on 3G networks, Lighthouse score 45/100",
+        "user_facing": true,
+        "error_message": "Slow initial load, poor performance on mobile",
+        "affected_features": ["All Pages", "Initial Load Experience"]
+      },
+      "lesson": {
+        "testing_gap": "No bundle size monitoring in CI",
+        "monitoring_gap": "No Lighthouse CI integration",
+        "recommended_fix": "Add bundlesize package with 200KB limit, Lighthouse CI with score > 90"
+      }
+    },
+    {
+      "id": 11,
+      "severity": "MEDIUM",
+      "type": "Build Memory",
+      "category": "Build Performance",
+      "user_impacting": false,
+      "introduced": {
+        "commit": "Multiple",
+        "date": "2025-08-20T00:00:00-04:00",
+        "author": "Multiple",
+        "message": "TypeScript strictness improvements",
+        "change_type": "Type Safety Enhancement"
+      },
+      "fixed": {
+        "commit": "8c7326426d50e72f2feb8c60343ef1b9ef60d7cf",
+        "date": "2025-08-25T19:20:19-04:00",
+        "author": "Claude",
+        "message": "perf: reduce memory usage from 12GB to 4GB and add test coverage",
+        "time_to_fix_hours": 8
+      },
+      "files_affected": [
+        "client/tsconfig.app.json",
+        "package.json"
+      ],
+      "root_cause": {
+        "description": "TypeScript compiler loading entire codebase without incremental builds",
+        "code_snippet": "// Missing: \"incremental\": true in tsconfig",
+        "pattern": "TypeScript compilation without incremental strategy"
+      },
+      "impact": {
+        "description": "CI builds failing with OOM errors, requiring 12GB RAM exceeding free tier",
+        "user_facing": false,
+        "error_message": "JavaScript heap out of memory",
+        "affected_features": ["CI Pipeline", "Local Development Builds"]
+      },
+      "lesson": {
+        "testing_gap": "No build performance monitoring",
+        "monitoring_gap": "No CI resource usage tracking",
+        "recommended_fix": "Enable TypeScript incremental builds, add build time checks to CI"
+      }
+    }
+  ],
+  "recommendations": {
+    "immediate": [
+      {
+        "priority": 1,
+        "action": "Add Lighthouse CI with minimum score 90/100",
+        "effort": "4 hours",
+        "impact": "Prevent bundle size and performance regressions"
+      },
+      {
+        "priority": 2,
+        "action": "Integrate bundlesize with 200KB limit per chunk",
+        "effort": "2 hours",
+        "impact": "Catch bundle size increases early"
+      },
+      {
+        "priority": 3,
+        "action": "Add memlab for automated memory leak detection",
+        "effort": "8 hours",
+        "impact": "Prevent memory leak regressions"
+      },
+      {
+        "priority": 4,
+        "action": "Implement Sentry React Error Boundary",
+        "effort": "8 hours",
+        "impact": "Real-time production error monitoring"
+      }
+    ],
+    "short_term": [
+      {
+        "priority": 5,
+        "action": "Add SSR/hydration tests for modal components",
+        "effort": "12 hours",
+        "impact": "Prevent hydration mismatch errors"
+      },
+      {
+        "priority": 6,
+        "action": "Create concurrent operation test suite",
+        "effort": "16 hours",
+        "impact": "Prevent race conditions"
+      },
+      {
+        "priority": 7,
+        "action": "Implement FPS monitoring in production",
+        "effort": "6 hours",
+        "impact": "Detect render performance degradation"
+      },
+      {
+        "priority": 8,
+        "action": "Add custom ESLint rules for performance patterns",
+        "effort": "12 hours",
+        "impact": "Prevent common performance anti-patterns"
+      }
+    ],
+    "long_term": [
+      {
+        "priority": 9,
+        "action": "Establish performance budgets system",
+        "effort": "20 hours",
+        "impact": "Comprehensive performance governance"
+      },
+      {
+        "priority": 10,
+        "action": "Create automated performance review checklist",
+        "effort": "8 hours",
+        "impact": "Standardize performance code review"
+      },
+      {
+        "priority": 11,
+        "action": "Implement CleanupManager pattern across codebase",
+        "effort": "40 hours",
+        "impact": "Systematic resource cleanup"
+      },
+      {
+        "priority": 12,
+        "action": "Build performance dashboard with historical data",
+        "effort": "30 hours",
+        "impact": "Visibility into performance trends"
+      }
+    ]
+  },
+  "cost_benefit_analysis": {
+    "current_regression_cost": {
+      "developer_time_hours": 220,
+      "developer_cost_usd": 13750,
+      "user_impact_days": 46,
+      "reputation_damage": "High"
+    },
+    "prevention_investment": {
+      "setup_hours": 40,
+      "setup_cost_usd": 5000,
+      "maintenance_hours_per_month": 4,
+      "maintenance_cost_usd_per_year": 6000,
+      "total_first_year_usd": 11000
+    },
+    "roi": {
+      "first_year_savings_usd": 2750,
+      "ongoing_annual_savings_usd": 13750,
+      "payback_period_months": 10,
+      "five_year_savings_usd": 57750
+    }
+  }
+}

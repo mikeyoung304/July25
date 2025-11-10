@@ -196,18 +196,26 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   
   // Start recording
   const startRecording = useCallback(() => {
+    if (debug) {
+      console.log('[useWebRTCVoice] startRecording called', {
+        hasClient: !!clientRef.current,
+        connectionState
+      });
+    }
+
     if (!clientRef.current) {
       console.warn('[useWebRTCVoice] Cannot start recording: client not initialized');
       return;
     }
-    
+
     if (connectionState !== 'connected') {
       console.warn('[useWebRTCVoice] Cannot start recording: not connected');
       return;
     }
-    
+
+    if (debug) console.log('[useWebRTCVoice] Calling client.startRecording()');
     clientRef.current.startRecording();
-  }, [connectionState]);
+  }, [connectionState, debug]);
   
   // Stop recording
   const stopRecording = useCallback(() => {
