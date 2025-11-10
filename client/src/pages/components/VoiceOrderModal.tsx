@@ -78,8 +78,6 @@ export function VoiceOrderModal({
 
   const { items: menuItems } = useMenuItems()
 
-  if (!show || !table || !seat) return null
-
   // Calculate order totals
   const orderTotals = useMemo(() => {
     const subtotal = voiceOrder.orderItems.reduce((sum, item) => {
@@ -180,7 +178,7 @@ export function VoiceOrderModal({
 
   return (
     <AnimatePresence>
-      {show && (
+      {show && table && seat && (
         <>
           <motion.div
             initial={{ opacity: 0 }}
