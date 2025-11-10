@@ -234,7 +234,7 @@ export function VoiceOrderModal({
                   {inputMode === 'touch' && (
                     <div className="flex-1 lg:w-3/5">
                       <div className="border rounded-lg overflow-hidden bg-neutral-50">
-                        <UnifiedCartProvider persistKey="voice_order_modal_touch">
+                        <UnifiedCartProvider persistKey="cart_current">
                           <MenuGrid
                             selectedCategory={selectedCategory}
                             searchQuery={searchQuery}
