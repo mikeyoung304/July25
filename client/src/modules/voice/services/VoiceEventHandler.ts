@@ -140,7 +140,21 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
   }
 
   /**
+   * Handle raw message from data channel
+   * Called by WebRTCConnection's onmessage handler (prevents race condition)
+   */
+  handleRawMessage(data: string): void {
+    try {
+      const parsed = JSON.parse(data);
+      this.handleRealtimeEvent(parsed);
+    } catch (error) {
+      console.error('[VoiceEventHandler] Failed to parse message:', error);
+    }
+  }
+
+  /**
    * Set up data channel event handlers
+   * NOTE: onmessage is now handled by WebRTCConnection to prevent race condition
    */
   private setupDataChannel(): void {
     if (!this.dc) return;
@@ -162,14 +176,8 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       }
     };
 
-    this.dc.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        this.handleRealtimeEvent(data);
-      } catch (error) {
-        console.error('[VoiceEventHandler] Failed to parse message:', error);
-      }
-    };
+    // NOTE: onmessage removed - now handled by WebRTCConnection
+    // This prevents race condition where messages arrive before handler is attached
 
     this.dc.onerror = (error) => {
       console.error('[VoiceEventHandler] Data channel error:', error);
@@ -395,8 +403,17 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    */
   private handleTranscriptDelta(event: any, logPrefix: string): void {
     if (event.item_id && event.delta) {
-      const entry = this.transcriptMap.get(event.item_id);
-      if (entry && entry.role === 'user') {
+      let entry = this.transcriptMap.get(event.item_id);
+
+      // DEFENSIVE: Create missing entry if conversation.item.created was lost
+      if (!entry) {
+        console.warn(`[VoiceEventHandler] DEFENSIVE: Creating missing transcript entry for ${event.item_id}`);
+        entry = { text: '', final: false, role: 'user' };
+        this.transcriptMap.set(event.item_id, entry);
+        this.currentUserItemId = event.item_id;
+      }
+
+      if (entry.role === 'user') {
         entry.text += event.delta;
         // Debug: `${logPrefix} User transcript delta (len=${event.delta.length})`
 
@@ -418,8 +435,17 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    */
   private handleTranscriptCompleted(event: any, logPrefix: string): void {
     if (event.item_id && event.transcript) {
-      const entry = this.transcriptMap.get(event.item_id);
-      if (entry && entry.role === 'user') {
+      let entry = this.transcriptMap.get(event.item_id);
+
+      // DEFENSIVE: Create missing entry if conversation.item.created was lost
+      if (!entry) {
+        console.warn(`[VoiceEventHandler] DEFENSIVE: Creating missing transcript entry for ${event.item_id}`);
+        entry = { text: event.transcript, final: true, role: 'user' };
+        this.transcriptMap.set(event.item_id, entry);
+        this.currentUserItemId = event.item_id;
+      }
+
+      if (entry.role === 'user') {
         entry.text = event.transcript; // Use full transcript, not accumulation
         entry.final = true;
 

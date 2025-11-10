@@ -1,4 +1,5 @@
 /* eslint-env browser */
+import { logger } from '../../../services/utils/logger';
 
 /**
  * VoiceSessionConfig Service
@@ -85,8 +86,8 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
     if (this.config.debug) {
-      console.log('[VoiceSessionConfig] Fetching ephemeral token from:', `${apiBase}/api/v1/realtime/session`);
-      console.log('[VoiceSessionConfig] Auth mode:', authToken ? 'authenticated' : 'anonymous');
+      logger.info('[VoiceSessionConfig] Fetching ephemeral token from:', `${apiBase}/api/v1/realtime/session`);
+      logger.info('[VoiceSessionConfig] Auth mode:', authToken ? 'authenticated' : 'anonymous');
     }
 
     const headers: Record<string, string> = {
@@ -116,7 +117,7 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     if (data.menu_context) {
       this.menuContext = data.menu_context;
       if (this.config.debug) {
-        console.log('[VoiceSessionConfig] Menu context loaded:', this.menuContext.split('\n').length, 'lines');
+        logger.info('[VoiceSessionConfig] Menu context loaded:', this.menuContext.split('\n').length, 'lines');
       }
     }
 
@@ -124,7 +125,7 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     this.scheduleTokenRefresh();
 
     if (this.config.debug) {
-      console.log('[VoiceSessionConfig] Got ephemeral token, expires at:', new Date(this.tokenExpiresAt));
+      logger.info('[VoiceSessionConfig] Got ephemeral token, expires at:', new Date(this.tokenExpiresAt));
     }
   }
 
@@ -144,14 +145,14 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     if (refreshTime > 0) {
       this.tokenRefreshTimer = setTimeout(async () => {
         if (this.config.debug) {
-          console.log('[VoiceSessionConfig] Refreshing ephemeral token...');
+          logger.info('[VoiceSessionConfig] Refreshing ephemeral token...');
         }
         try {
           await this.fetchEphemeralToken();
           // Note: We can't update an active WebRTC session token
           // This is for the next connection
         } catch (error) {
-          console.error('[VoiceSessionConfig] Token refresh failed:', error);
+          logger.error('[VoiceSessionConfig] Token refresh failed:', error);
         }
       }, refreshTime);
     }
@@ -208,7 +209,7 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
         type: 'server_vad',
         threshold: 0.5,
         prefix_padding_ms: 300,
-        silence_duration_ms: 250,
+        silence_duration_ms: 1500, // Increased from 250ms - allow longer pauses
         create_response: false, // Still manually trigger responses
       };
     }

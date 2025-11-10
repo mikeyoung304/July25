@@ -4,6 +4,7 @@ import { getAuthToken, getOptionalAuthToken } from '../../../services/auth';
 import { VoiceSessionConfig } from './VoiceSessionConfig';
 import { WebRTCConnection } from './WebRTCConnection';
 import { VoiceEventHandler } from './VoiceEventHandler';
+import { logger } from '../../../services/utils/logger';
 
 export type VoiceContext = 'kiosk' | 'server';
 
@@ -74,7 +75,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     this.config = config;
 
     if (this.config.debug) {
-      console.log('[WebRTCVoiceClient] Initializing orchestrator with services');
+      logger.info('[WebRTCVoiceClient] Initializing orchestrator with services');
     }
 
     // Create services
@@ -95,9 +96,16 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Wire data channel ready event
     this.connection.on('dataChannelReady', (dc: RTCDataChannel) => {
       if (this.config.debug) {
-        console.log('[WebRTCVoiceClient] Data channel ready, attaching to event handler');
+        logger.info('[WebRTCVoiceClient] Data channel ready, attaching to event handler');
       }
       this.eventHandler.setDataChannel(dc);
+    });
+
+    // Wire data channel messages - forward to event handler
+    // CRITICAL FIX: Messages are now handled by WebRTCConnection's onmessage
+    // before emitting dataChannelReady, preventing race condition
+    this.connection.on('dataChannelMessage', (data: string) => {
+      this.eventHandler.handleRawMessage(data);
     });
 
     // Wire event handler events - proxy all to external listeners
@@ -126,14 +134,14 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Handle session.created event to send session configuration
     this.eventHandler.on('session.created', () => {
       if (this.config.debug) {
-        console.warn('[WebRTCVoiceClient] Session created, sending configuration');
+        logger.warn('[WebRTCVoiceClient] Session created, sending configuration');
       }
       const sessionConfigObj = this.sessionConfig.buildSessionConfig();
 
       // CRITICAL: Always log session config size to diagnose oversized messages
       const sessionConfigJson = JSON.stringify(sessionConfigObj);
       const configSizeKB = (sessionConfigJson.length / 1024).toFixed(2);
-      console.warn('[WebRTCVoiceClient] Sending session.update config:', {
+      logger.warn('[WebRTCVoiceClient] Sending session.update config:', {
         sizeKB: configSizeKB,
         instructionsLength: sessionConfigObj.instructions?.length || 0,
         toolsCount: sessionConfigObj.tools?.length || 0,
@@ -142,7 +150,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       });
 
       if (sessionConfigJson.length > 50000) {
-        console.error('[WebRTCVoiceClient] WARNING: Session config is very large (>50KB), may cause connection issues');
+        logger.error('[WebRTCVoiceClient] WARNING: Session config is very large (>50KB), may cause connection issues');
       }
 
       this.eventHandler.sendEvent({
@@ -168,26 +176,26 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Handle reconnection events
     this.connection.on('reconnect.needed', async () => {
       if (this.config.debug) {
-        console.log('[WebRTCVoiceClient] Reconnection needed, fetching new token');
+        logger.info('[WebRTCVoiceClient] Reconnection needed, fetching new token');
       }
       await this.handleReconnect();
     });
 
     this.connection.on('disconnection', () => {
       if (this.config.debug) {
-        console.log('[WebRTCVoiceClient] Connection lost, cleaning up');
+        logger.info('[WebRTCVoiceClient] Connection lost, cleaning up');
       }
       this.handleDisconnection();
     });
 
     // Handle specific error types from event handler
     this.eventHandler.on('rate_limit_error', () => {
-      console.warn('[WebRTCVoiceClient] Rate limit exceeded');
+      logger.warn('[WebRTCVoiceClient] Rate limit exceeded');
       // Let external listeners handle this
     });
 
     this.eventHandler.on('session_expired', async () => {
-      console.warn('[WebRTCVoiceClient] Session expired, reconnecting');
+      logger.warn('[WebRTCVoiceClient] Session expired, reconnecting');
       await this.handleSessionExpired();
     });
   }
@@ -199,7 +207,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Prevent duplicate connections
     if (this.isConnecting || this.connectionState === 'connected') {
       if (this.config.debug) {
-        console.log('[WebRTCVoiceClient] Already connecting or connected, skipping...');
+        logger.info('[WebRTCVoiceClient] Already connecting or connected, skipping...');
       }
       return;
     }
@@ -208,7 +216,7 @@ export class WebRTCVoiceClient extends EventEmitter {
 
     try {
       if (this.config.debug) {
-        console.log('[WebRTCVoiceClient] Starting connection sequence...');
+        logger.info('[WebRTCVoiceClient] Starting connection sequence...');
       }
 
       // Step 1: Fetch ephemeral token via session config service
@@ -225,11 +233,11 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.isConnecting = false;
 
       if (this.config.debug) {
-        console.log('[WebRTCVoiceClient] Connection established successfully');
+        logger.info('[WebRTCVoiceClient] Connection established successfully');
       }
 
     } catch (error) {
-      console.error('[WebRTCVoiceClient] Connection failed:', error);
+      logger.error('[WebRTCVoiceClient] Connection failed:', error);
       this.isConnecting = false;
       this.emit('error', error);
       throw error;
@@ -242,12 +250,12 @@ export class WebRTCVoiceClient extends EventEmitter {
   startRecording(): void {
     // State machine guard: only allow from idle state
     if (this.turnState !== 'idle') {
-      console.warn(`[WebRTCVoiceClient] Cannot start recording in state: ${this.turnState}`);
+      logger.warn(`[WebRTCVoiceClient] Cannot start recording in state: ${this.turnState}`);
       return;
     }
 
     if (this.config.debug) {
-      console.log('[WebRTCVoiceClient] Turn state: idle → recording');
+      logger.info('[WebRTCVoiceClient] Turn state: idle → recording');
     }
     this.turnState = 'recording';
 
@@ -270,7 +278,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     this.emit('transcript', { text: '', isFinal: false, confidence: 0, timestamp: Date.now() });
 
     if (this.config.debug) {
-      console.log('[WebRTCVoiceClient] Recording started - hold button to continue');
+      logger.info('[WebRTCVoiceClient] Recording started - hold button to continue');
     }
   }
 
@@ -280,19 +288,19 @@ export class WebRTCVoiceClient extends EventEmitter {
   stopRecording(): void {
     // State machine guard: only allow from recording state
     if (this.turnState !== 'recording') {
-      console.warn(`[WebRTCVoiceClient] Cannot stop recording in state: ${this.turnState}`);
+      logger.warn(`[WebRTCVoiceClient] Cannot stop recording in state: ${this.turnState}`);
       return;
     }
 
     // Debounce protection
     const now = Date.now();
     if (now - this.lastCommitTime < 250) {
-      console.warn('[WebRTCVoiceClient] Ignoring rapid stop - debouncing');
+      logger.warn('[WebRTCVoiceClient] Ignoring rapid stop - debouncing');
       return;
     }
 
     if (this.config.debug) {
-      console.log('[WebRTCVoiceClient] Turn state: recording → committing');
+      logger.info('[WebRTCVoiceClient] Turn state: recording → committing');
     }
 
     // IMMEDIATELY mute microphone to stop transmission
@@ -312,7 +320,7 @@ export class WebRTCVoiceClient extends EventEmitter {
 
     // State transition: committing → waiting_user_final
     if (this.config.debug) {
-      console.log('[WebRTCVoiceClient] Turn state: committing → waiting_user_final');
+      logger.info('[WebRTCVoiceClient] Turn state: committing → waiting_user_final');
     }
     this.turnState = 'waiting_user_final';
     this.eventHandler.setTurnState('waiting_user_final');
@@ -320,7 +328,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     this.emit('recording.stopped');
 
     if (this.config.debug) {
-      console.log('[WebRTCVoiceClient] Waiting for user transcript to finalize...');
+      logger.info('[WebRTCVoiceClient] Waiting for user transcript to finalize...');
     }
 
     // Safety timeout: Reset to idle if no transcript received within 10 seconds
@@ -328,7 +336,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     this.clearTurnStateTimeout();
     this.turnStateTimeout = setTimeout(() => {
       if (this.turnState === 'waiting_user_final') {
-        console.warn('[WebRTCVoiceClient] Timeout waiting for transcript, resetting to idle');
+        logger.warn('[WebRTCVoiceClient] Timeout waiting for transcript, resetting to idle');
         this.resetTurnState();
       }
     }, 10000); // 10 second timeout
@@ -349,7 +357,7 @@ export class WebRTCVoiceClient extends EventEmitter {
         await this.connection.connect(token);
       }
     } catch (error) {
-      console.error('[WebRTCVoiceClient] Reconnection failed:', error);
+      logger.error('[WebRTCVoiceClient] Reconnection failed:', error);
       this.emit('error', error);
     }
   }
@@ -359,7 +367,7 @@ export class WebRTCVoiceClient extends EventEmitter {
    */
   private async handleSessionExpired(): Promise<void> {
     if (this.config.debug) {
-      console.log('[WebRTCVoiceClient] Handling session expiration...');
+      logger.info('[WebRTCVoiceClient] Handling session expiration...');
     }
 
     try {
@@ -374,7 +382,7 @@ export class WebRTCVoiceClient extends EventEmitter {
         await this.connection.connect(token);
       }
     } catch (error) {
-      console.error('[WebRTCVoiceClient] Failed to recover from session expiration:', error);
+      logger.error('[WebRTCVoiceClient] Failed to recover from session expiration:', error);
       this.emit('error', error);
     }
   }
@@ -429,7 +437,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     this.connectionState = 'disconnected';
 
     if (this.config.debug) {
-      console.log('[WebRTCVoiceClient] Disconnected');
+      logger.info('[WebRTCVoiceClient] Disconnected');
     }
   }
 

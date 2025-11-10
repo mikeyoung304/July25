@@ -409,6 +409,14 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
   private setupDataChannel(): void {
     if (!this.dc) return;
 
+    // CRITICAL FIX: Set onmessage handler BEFORE DataChannel opens
+    // This prevents race condition where initial OpenAI events (session.created)
+    // arrive before VoiceEventHandler can attach its handler
+    this.dc.onmessage = (event: MessageEvent) => {
+      // Forward raw message to VoiceEventHandler via event emission
+      this.emit('dataChannelMessage', event.data);
+    };
+
     this.dc.onopen = () => {
       if (this.config.debug) {
         logger.info('[WebRTCConnection] Data channel opened');
