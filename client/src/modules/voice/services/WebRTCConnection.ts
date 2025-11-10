@@ -302,17 +302,47 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
    * Enable microphone (unmute audio track)
    */
   enableMicrophone(): void {
+    // ALWAYS log critical diagnostic info regardless of debug flag
+    console.warn('[WebRTCConnection] enableMicrophone() called', {
+      hasMediaStream: !!this.mediaStream,
+      streamId: this.mediaStream?.id,
+      trackCount: this.mediaStream?.getTracks().length
+    });
+
     if (!this.mediaStream) {
-      logger.error('[WebRTCConnection] No media stream available');
+      logger.error('[WebRTCConnection] No media stream available - cannot enable microphone');
+      console.error('[WebRTCConnection] CRITICAL: mediaStream is NULL - microphone setup may have failed');
       return;
     }
 
     const audioTrack = this.mediaStream.getAudioTracks()[0];
-    if (audioTrack) {
-      audioTrack.enabled = true;
-      if (this.config.debug) {
-        logger.info('[WebRTCConnection] Microphone ENABLED - transmitting audio');
-      }
+
+    // ALWAYS log track state
+    console.warn('[WebRTCConnection] Audio track state', {
+      hasTrack: !!audioTrack,
+      trackId: audioTrack?.id,
+      enabled: audioTrack?.enabled,
+      readyState: audioTrack?.readyState,
+      muted: audioTrack?.muted
+    });
+
+    if (!audioTrack) {
+      logger.error('[WebRTCConnection] No audio track found in media stream');
+      console.error('[WebRTCConnection] CRITICAL: No audio track - check getUserMedia permissions');
+      return;
+    }
+
+    audioTrack.enabled = true;
+
+    // ALWAYS log after enabling
+    console.warn('[WebRTCConnection] Microphone ENABLED', {
+      enabled: audioTrack.enabled,
+      readyState: audioTrack.readyState,
+      muted: audioTrack.muted
+    });
+
+    if (this.config.debug) {
+      logger.info('[WebRTCConnection] Microphone ENABLED - transmitting audio');
     }
   }
 
