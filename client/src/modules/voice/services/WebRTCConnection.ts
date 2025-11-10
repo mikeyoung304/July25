@@ -341,6 +341,38 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       muted: audioTrack.muted
     });
 
+    // Check WebRTC stats to verify audio is actually being transmitted
+    if (this.pc) {
+      setTimeout(async () => {
+        try {
+          const stats = await this.pc!.getStats();
+          let audioBytesSent = 0;
+          let outboundAudioFound = false;
+
+          stats.forEach((stat) => {
+            if (stat.type === 'outbound-rtp' && stat.kind === 'audio') {
+              outboundAudioFound = true;
+              audioBytesSent = stat.bytesSent || 0;
+              console.warn('[WebRTCConnection] Audio transmission stats (after 2s)', {
+                bytesSent: audioBytesSent,
+                packetsSent: stat.packetsSent,
+                trackId: stat.trackId
+              });
+            }
+          });
+
+          if (!outboundAudioFound) {
+            console.error('[WebRTCConnection] CRITICAL: No outbound-rtp audio track found in stats!');
+            console.warn('[WebRTCConnection] All stats:', Array.from(stats.entries()).map(([id, stat]) => ({id, type: stat.type, kind: (stat as any).kind})));
+          } else if (audioBytesSent === 0) {
+            console.error('[WebRTCConnection] CRITICAL: Audio track exists but ZERO bytes sent!');
+          }
+        } catch (err) {
+          console.error('[WebRTCConnection] Failed to get stats:', err);
+        }
+      }, 2000); // Check after 2 seconds of recording
+    }
+
     if (this.config.debug) {
       logger.info('[WebRTCConnection] Microphone ENABLED - transmitting audio');
     }
