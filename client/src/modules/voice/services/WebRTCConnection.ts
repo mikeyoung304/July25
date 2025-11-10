@@ -420,15 +420,31 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       this.emit('dataChannelReady', this.dc);
     };
 
-    this.dc.onerror = (error) => {
-      logger.error('[WebRTCConnection] Data channel error:', error);
-      this.emit('error', error);
+    this.dc.onerror = (event: Event) => {
+      // CRITICAL: Always log data channel errors regardless of debug mode
+      console.error('[WebRTCConnection] Data channel error event:', {
+        type: event.type,
+        target: event.target,
+        timestamp: Date.now(),
+        readyState: this.dc?.readyState,
+        bufferedAmount: this.dc?.bufferedAmount,
+        error: event
+      });
+      this.emit('error', event);
     };
 
-    this.dc.onclose = () => {
-      if (this.config.debug) {
-        logger.info('[WebRTCConnection] Data channel closed');
-      }
+    this.dc.onclose = (event: Event) => {
+      // CRITICAL: Always log data channel close regardless of debug mode
+      // CloseEvent has code, reason, wasClean properties but types as Event
+      const closeEvent = event as any;
+      console.error('[WebRTCConnection] Data channel closed:', {
+        code: closeEvent.code,
+        reason: closeEvent.reason,
+        wasClean: closeEvent.wasClean,
+        readyState: this.dc?.readyState,
+        timestamp: Date.now(),
+        sessionActive: this.sessionActive
+      });
       this.handleDisconnection();
     };
   }

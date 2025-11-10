@@ -91,18 +91,32 @@ router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Res
         menuContext += `• Sandwiches → bread + side choice\n`;
         menuContext += `• Entrées → 2 side choices\n`;
         menuContext += `• All orders → dine-in or to-go?`;
-        
+
+        // CRITICAL: Limit menu context size to prevent OpenAI session.update rejection
+        const MAX_MENU_CONTEXT_LENGTH = 5000; // Conservative limit (5KB)
+        if (menuContext.length > MAX_MENU_CONTEXT_LENGTH) {
+          realtimeLogger.warn('Menu context too large, truncating', {
+            restaurantId,
+            originalLength: menuContext.length,
+            truncatedLength: MAX_MENU_CONTEXT_LENGTH,
+            itemCount: menuItems.length
+          });
+          menuContext = menuContext.substring(0, MAX_MENU_CONTEXT_LENGTH) +
+            '\n\n[Menu truncated - complete menu available on screen]';
+        }
+
         realtimeLogger.info('Loaded menu for voice context', {
           restaurantId,
           itemCount: menuItems.length,
-          categories: Object.keys(menuByCategory)
+          categories: Object.keys(menuByCategory),
+          menuContextLength: menuContext.length
         });
       }
     } catch (error: any) {
-      realtimeLogger.warn('Failed to load menu context', { 
+      realtimeLogger.warn('Failed to load menu context', {
         error: error.message || 'Unknown error',
         stack: error.stack,
-        restaurantId 
+        restaurantId
       });
       // Continue without menu context
     }
@@ -161,11 +175,13 @@ router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Res
     const data = await response.json() as Record<string, any>;
 
     // Add restaurant and menu context to the response
+    // Use OpenAI's actual expires_at if provided, otherwise default to 60 seconds
     const sessionData = {
       ...data,
       restaurant_id: restaurantId,
       menu_context: menuContext, // Pass menu context to client
-      expires_at: Date.now() + 60000, // Token expires in 1 minute
+      // CRITICAL: Use OpenAI's actual token expiry, don't overwrite it
+      expires_at: data['expires_at'] || (Date.now() + 60000),
     };
 
     realtimeLogger.info('Ephemeral token created successfully', {

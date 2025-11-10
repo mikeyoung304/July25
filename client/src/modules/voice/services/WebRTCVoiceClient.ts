@@ -126,9 +126,25 @@ export class WebRTCVoiceClient extends EventEmitter {
     // Handle session.created event to send session configuration
     this.eventHandler.on('session.created', () => {
       if (this.config.debug) {
-        console.log('[WebRTCVoiceClient] Session created, sending configuration');
+        console.warn('[WebRTCVoiceClient] Session created, sending configuration');
       }
       const sessionConfigObj = this.sessionConfig.buildSessionConfig();
+
+      // CRITICAL: Always log session config size to diagnose oversized messages
+      const sessionConfigJson = JSON.stringify(sessionConfigObj);
+      const configSizeKB = (sessionConfigJson.length / 1024).toFixed(2);
+      console.warn('[WebRTCVoiceClient] Sending session.update config:', {
+        sizeKB: configSizeKB,
+        instructionsLength: sessionConfigObj.instructions?.length || 0,
+        toolsCount: sessionConfigObj.tools?.length || 0,
+        hasMenuContext: this.sessionConfig.getMenuContext().length > 0,
+        menuContextLength: this.sessionConfig.getMenuContext().length
+      });
+
+      if (sessionConfigJson.length > 50000) {
+        console.error('[WebRTCVoiceClient] WARNING: Session config is very large (>50KB), may cause connection issues');
+      }
+
       this.eventHandler.sendEvent({
         type: 'session.update',
         session: sessionConfigObj

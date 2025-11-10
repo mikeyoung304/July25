@@ -630,7 +630,21 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
   private handleError(event: any, logPrefix: string): void {
     console.error('[VoiceEventHandler] API error:', JSON.stringify(event.error, null, 2));
     console.error('[VoiceEventHandler] Full error event:', JSON.stringify(event, null, 2));
+
     const errorMessage = event.error?.message || event.error?.error?.message || 'OpenAI API error';
+
+    // CRITICAL: Detect session configuration errors
+    if (errorMessage.toLowerCase().includes('session') ||
+        errorMessage.toLowerCase().includes('configuration') ||
+        errorMessage.toLowerCase().includes('invalid') ||
+        errorMessage.toLowerCase().includes('too large') ||
+        errorMessage.toLowerCase().includes('exceeded')) {
+      console.error('[VoiceEventHandler] CRITICAL: Session configuration error detected');
+      console.error('[VoiceEventHandler] This may be due to oversized instructions, invalid parameters, or API limits');
+      console.error('[VoiceEventHandler] Error code:', event.error?.code);
+      console.error('[VoiceEventHandler] Error type:', event.error?.type);
+    }
+
     const error = new Error(errorMessage);
     this.emit('error', error);
 
