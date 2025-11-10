@@ -7,12 +7,14 @@ interface MenuGridProps {
   selectedCategory: string | null;
   searchQuery: string;
   onItemClick: (item: MenuItem) => void;
+  onQuickAdd?: (item: MenuItem) => void; // Optional: direct add handler
 }
 
 export const MenuGrid = React.memo(({
   selectedCategory,
   searchQuery,
-  onItemClick
+  onItemClick,
+  onQuickAdd
 }: MenuGridProps) => {
   const { items, loading, error } = useMenuItems();
 
@@ -58,6 +60,7 @@ export const MenuGrid = React.memo(({
           key={item.id}
           item={item}
           onClick={() => onItemClick(item)}
+          onQuickAdd={onQuickAdd}
         />
       ))}
     </div>

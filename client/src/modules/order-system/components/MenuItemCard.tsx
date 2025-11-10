@@ -6,11 +6,13 @@ import { OptimizedImage } from '@/components/shared/OptimizedImage';
 
 interface MenuItemCardProps {
   item: MenuItem;
-  onClick?: () => void; // Make optional since we're not using it
+  onClick?: () => void;
+  onQuickAdd?: (item: MenuItem) => void; // Optional: direct add handler (bypasses UnifiedCart)
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onClick }) => {
-  const { cart, addToCart } = useUnifiedCart();
+export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onClick, onQuickAdd }) => {
+  // Always call hook (React rules), but use onQuickAdd if provided
+  const { cart, addToCart: unifiedCartAdd } = useUnifiedCart();
   const [localQuantity, setLocalQuantity] = useState(0);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
   const [showAddedFeedback, setShowAddedFeedback] = useState(false);
@@ -40,19 +42,23 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onCl
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
-    // Add item to cart
-    addToCart({
-      menuItemId: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: 1
-    });
+
+    // Use onQuickAdd if provided (VoiceOrderModal context), otherwise use UnifiedCart
+    if (onQuickAdd) {
+      onQuickAdd(item);
+    } else {
+      unifiedCartAdd({
+        menuItemId: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: 1
+      });
+    }
 
     // Update local state
     setLocalQuantity(prev => prev + 1);
     setShowQuantitySelector(true);
-    
+
     // Show feedback
     setShowAddedFeedback(true);
     setTimeout(() => setShowAddedFeedback(false), 1500);
@@ -60,18 +66,22 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onCl
 
   const handleQuantityChange = (delta: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (delta > 0) {
-      // Add one more item to cart
-      addToCart({
-        menuItemId: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: 1
-      });
+      // Add one more item
+      if (onQuickAdd) {
+        onQuickAdd(item);
+      } else {
+        unifiedCartAdd({
+          menuItemId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: 1
+        });
+      }
     } else if (delta < 0 && localQuantity > 0) {
       // For now, just decrease local counter
-      // TODO: Implement remove from cart functionality
+      // TODO: Implement remove from cart/order functionality
       setLocalQuantity(prev => Math.max(0, prev - 1));
       if (localQuantity === 1) {
         setShowQuantitySelector(false);

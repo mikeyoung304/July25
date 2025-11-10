@@ -14,7 +14,6 @@ import { MenuItem } from '@/services/types'
 import { CartItem } from '@/modules/order-system/types'
 import type { Table } from 'shared/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
-import { UnifiedCartProvider } from '@/contexts/UnifiedCartContext'
 import { logger } from '@/services/logger'
 
 interface OrderItem {
@@ -137,6 +136,21 @@ export function VoiceOrderModal({
     setEditingItemId(null)
   }
 
+  const handleQuickAdd = (menuItem: MenuItem) => {
+    // Quick add: Add item directly to order without opening modal
+    const orderItem: OrderItem = {
+      id: `${menuItem.id}-${Date.now()}`, // Generate unique ID
+      menuItemId: menuItem.id,
+      name: menuItem.name,
+      quantity: 1,
+      price: menuItem.price,
+      source: inputMode,
+      modifications: []
+    }
+
+    voiceOrder.setOrderItems([...voiceOrder.orderItems, orderItem])
+  }
+
   const handleQuantityChange = (itemId: string, delta: number) => {
     voiceOrder.setOrderItems(
       voiceOrder.orderItems.map(item => {
@@ -234,13 +248,12 @@ export function VoiceOrderModal({
                   {inputMode === 'touch' && (
                     <div className="flex-1 lg:w-3/5">
                       <div className="border rounded-lg overflow-hidden bg-neutral-50">
-                        <UnifiedCartProvider persistKey="cart_current">
-                          <MenuGrid
-                            selectedCategory={selectedCategory}
-                            searchQuery={searchQuery}
-                            onItemClick={handleTouchItemClick}
-                          />
-                        </UnifiedCartProvider>
+                        <MenuGrid
+                          selectedCategory={selectedCategory}
+                          searchQuery={searchQuery}
+                          onItemClick={handleTouchItemClick}
+                          onQuickAdd={handleQuickAdd}
+                        />
                       </div>
                     </div>
                   )}
