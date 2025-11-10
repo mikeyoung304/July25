@@ -1,5 +1,5 @@
 /* eslint-env browser */
-import { logger } from '../../../services/utils/logger';
+import { logger } from '../../../services/logger';
 
 /**
  * VoiceSessionConfig Service

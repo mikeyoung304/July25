@@ -4,7 +4,7 @@ import { getAuthToken, getOptionalAuthToken } from '../../../services/auth';
 import { VoiceSessionConfig } from './VoiceSessionConfig';
 import { WebRTCConnection } from './WebRTCConnection';
 import { VoiceEventHandler } from './VoiceEventHandler';
-import { logger } from '../../../services/utils/logger';
+import { logger } from '../../../services/logger';
 
 export type VoiceContext = 'kiosk' | 'server';
 
