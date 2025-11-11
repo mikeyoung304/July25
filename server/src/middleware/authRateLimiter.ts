@@ -13,6 +13,9 @@ import { logger } from '../utils/logger';
 const suspiciousIPs = new Map<string, number>();
 const blockedIPs = new Set<string>();
 
+// Cleanup interval reference for proper shutdown
+let cleanupInterval: NodeJS.Timeout | null = null;
+
 // Helper to get client identifier
 const getClientId = (req: Request): string => {
   // Use multiple factors for fingerprinting
@@ -245,15 +248,50 @@ export const authRateLimiters = {
   checkSuspicious: suspiciousActivityCheck
 };
 
-// Cleanup old entries periodically (every hour)
-setInterval(() => {
-  
-  // Clean up old suspicious IPs (reset counts after 1 hour of no activity)
-  for (const [clientId, attempts] of suspiciousIPs.entries()) {
-    if (attempts < 3) { // Only clean up low-attempt entries
-      suspiciousIPs.delete(clientId);
-    }
+/**
+ * Start the rate limiter cleanup interval
+ * IMPORTANT: Called during server initialization
+ */
+export function startRateLimiterCleanup(): void {
+  if (cleanupInterval) {
+    logger.warn('[SECURITY] Rate limiter cleanup already started');
+    return;
   }
-  
-  logger.info(`[SECURITY] Rate limiter cleanup: ${suspiciousIPs.size} suspicious IPs tracked`);
-}, 60 * 60 * 1000);
+
+  // Cleanup old entries periodically (every hour)
+  cleanupInterval = setInterval(() => {
+    // Clean up old suspicious IPs (reset counts after 1 hour of no activity)
+    for (const [clientId, attempts] of suspiciousIPs.entries()) {
+      if (attempts < 3) { // Only clean up low-attempt entries
+        suspiciousIPs.delete(clientId);
+      }
+    }
+
+    logger.info(`[SECURITY] Rate limiter cleanup: Suspicious IPs: ${suspiciousIPs.size}, Blocked IPs: ${blockedIPs.size}`);
+  }, 60 * 60 * 1000);
+
+  logger.info('[SECURITY] Rate limiter cleanup interval started');
+}
+
+/**
+ * Stop the rate limiter cleanup and clear all tracked IPs
+ * CRITICAL: Must be called during server shutdown to prevent memory leaks
+ */
+export function stopRateLimiterCleanup(): void {
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval);
+    cleanupInterval = null;
+    logger.info('[SECURITY] Rate limiter cleanup interval stopped');
+  }
+
+  // Clear all tracked data
+  const suspiciousCount = suspiciousIPs.size;
+  const blockedCount = blockedIPs.size;
+  suspiciousIPs.clear();
+  blockedIPs.clear();
+
+  logger.info(`[SECURITY] Rate limiter data cleared: ${suspiciousCount} suspicious IPs, ${blockedCount} blocked IPs`);
+}
+
+// Start cleanup on module load
+startRateLimiterCleanup();

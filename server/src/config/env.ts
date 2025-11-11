@@ -219,7 +219,10 @@ export function validateEnv(): void {
 
   if (warnings.length > 0) {
     // Log warnings but don't block startup
+    // Note: Using console.warn here because this runs during module initialization,
+    // before logger is available. This is intentional for fail-fast validation.
     for (const warning of warnings) {
+      // eslint-disable-next-line no-console
       console.warn(`⚠️  VALIDATION WARNING: ${warning}`);
     }
   }

@@ -18,6 +18,8 @@ import { aiService } from './services/ai.service';
 import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocket';
 import { setupAIWebSocket } from './ai/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
+import { stopRateLimiterCleanup } from './middleware/authRateLimiter';
+import { getVoiceServer } from './voice/voice-routes';
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
 import { realtimeRoutes } from './routes/realtime.routes';
@@ -276,26 +278,45 @@ let isShuttingDown = false;
 async function gracefulShutdown(signal: string) {
   if (isShuttingDown) return;
   isShuttingDown = true;
-  
+
   logger.info(`${signal} received, shutting down gracefully...`);
-  
+
   // Clean up WebSocket heartbeat interval FIRST
   cleanupWebSocketServer();
-  
-  // Close WebSocket server 
+
+  // Close WebSocket server
   wss.clients.forEach((ws) => {
     ws.close(1001, 'Server shutting down');
   });
   wss.close();
-  
+
+  // Clean up Voice WebSocket server
+  try {
+    const voiceServer = getVoiceServer();
+    if (voiceServer) {
+      voiceServer.shutdown();
+      logger.info('Voice server shutdown complete');
+    }
+  } catch (error) {
+    logger.error('Error shutting down voice server:', error);
+  }
+
+  // Clean up auth rate limiter
+  try {
+    stopRateLimiterCleanup();
+    logger.info('Auth rate limiter cleanup complete');
+  } catch (error) {
+    logger.error('Error stopping rate limiter cleanup:', error);
+  }
+
   // Close HTTP server
   httpServer.close(() => {
-    logger.info('Server closed');
+    logger.info('HTTP server closed');
   });
-  
+
   // Clean up AI service connections
   // Note: AIService doesn't have cleanup method
-  
+
   // Clean up AI connections
   try {
     // const { buildPanelServiceInstance } = await import('./services/buildpanel.service');
@@ -305,12 +326,12 @@ async function gracefulShutdown(signal: string) {
   } catch (error) {
     logger.debug('AI cleanup not needed:', error instanceof Error ? error.message : String(error));
   }
-  
-  // Force exit after 3 seconds (tsx watch needs faster exit)
+
+  // Force exit after 5 seconds (increased from 3s to allow cleanup)
   setTimeout(() => {
     logger.info('Force shutdown after timeout');
     process.exit(0);
-  }, 3000);
+  }, 5000);
 }
 
 // Only add listeners once

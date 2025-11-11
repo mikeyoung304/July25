@@ -26,10 +26,11 @@ export class VoiceWebSocketServer {
   private sessions = new Map<string, VoiceSession>();
   private heartbeatInterval = 30000; // 30 seconds
   private sessionTimeout = 300000; // 5 minutes
+  private cleanupInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     // Cleanup inactive sessions every minute
-    setInterval(() => this.cleanupInactiveSessions(), 60000);
+    this.cleanupInterval = setInterval(() => this.cleanupInactiveSessions(), 60000);
   }
 
   async handleConnection(ws: WebSocket, request: any) {
@@ -308,7 +309,7 @@ export class VoiceWebSocketServer {
   private handleError(ws: WebSocket, error: Error) {
     const session = this.getSessionByWebSocket(ws);
     logger.error('Voice WebSocket error:', error);
-    
+
     if (session) {
       session.metrics.error_count++;
       this.sendError(ws, {
@@ -317,6 +318,8 @@ export class VoiceWebSocketServer {
         session_id: session.id,
         details: error.message,
       });
+      // Clean up the session on error to prevent leaks
+      this.stopSession(session.id);
     }
   }
 
@@ -394,5 +397,30 @@ export class VoiceWebSocketServer {
       metrics.push(session.metrics);
     });
     return metrics;
+  }
+
+  /**
+   * Shutdown the voice server and clean up all resources
+   * CRITICAL: Must be called during server shutdown to prevent memory leaks
+   */
+  shutdown(): void {
+    logger.info('[VoiceWebSocket] Shutting down voice server...');
+
+    // Stop the cleanup interval
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+      logger.info('[VoiceWebSocket] Cleanup interval cleared');
+    }
+
+    // Stop all active sessions
+    const sessionIds = Array.from(this.sessions.keys());
+    logger.info(`[VoiceWebSocket] Stopping ${sessionIds.length} active sessions`);
+
+    for (const sessionId of sessionIds) {
+      this.stopSession(sessionId);
+    }
+
+    logger.info('[VoiceWebSocket] Voice server shutdown complete');
   }
 }
