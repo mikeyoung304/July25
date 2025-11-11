@@ -121,6 +121,15 @@ export async function optionalAuth(
   next: NextFunction
 ): Promise<void> {
   try {
+    // Per ADR-009, fail-fast on misconfiguration (consistent with authenticate())
+    // Configuration errors should fail loudly rather than silently degrade security
+    const config = getConfig();
+    const jwtSecret = config.supabase.jwtSecret;
+    if (!jwtSecret) {
+      logger.error('⛔ JWT_SECRET not configured - authentication cannot proceed');
+      throw new Error('Server authentication not configured');
+    }
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -168,17 +177,14 @@ export async function verifyWebSocketAuth(
     const token = url.searchParams.get('token');
 
     if (!token) {
-      // In production, always reject connections without token
-      if (config.nodeEnv === 'production') {
-        logger.warn('WebSocket auth rejected: no token in production');
-        return null;
-      }
-      // In development/test, allow anonymous connections with warning
-      logger.warn('⚠️ WebSocket: Anonymous connection (no token) - non-production only');
-      return {
-        userId: 'anonymous',
-        restaurantId: config.restaurant.defaultId,
-      };
+      // Always reject connections without token (all environments)
+      // Security fix P0.9: Removed anonymous connection bypass for dev/test
+      // Tests must provide valid JWT tokens via ?token=xxx query parameter
+      logger.warn('WebSocket auth rejected: no token provided', {
+        environment: config.nodeEnv,
+        path: request.url
+      });
+      return null;
     }
 
     // Verify JWT with single configured secret (no fallbacks for security)
@@ -192,7 +198,24 @@ export async function verifyWebSocketAuth(
     try {
       decoded = jwt.verify(token, jwtSecret) as any;
     } catch (error) {
-      logger.warn('WebSocket auth rejected: invalid token');
+      // Distinguish between expired vs invalid vs malformed tokens for better observability
+      // This matches the pattern used in authenticate() function (lines 54-61)
+      if (error instanceof jwt.TokenExpiredError) {
+        logger.warn('WebSocket auth rejected: token expired', {
+          expiredAt: error.expiredAt,
+          path: request.url
+        });
+      } else if (error instanceof jwt.JsonWebTokenError) {
+        logger.warn('WebSocket auth rejected: invalid token', {
+          message: error.message,
+          path: request.url
+        });
+      } else {
+        logger.error('WebSocket auth rejected: unexpected error', {
+          error,
+          path: request.url
+        });
+      }
       return null;
     }
 

@@ -1,4 +1,7 @@
 import bcrypt from 'bcryptjs';
+import { randomInt } from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import { supabase } from '../../config/database';
 import { logger } from '../../utils/logger';
 import { BadRequest } from '../../middleware/errorHandler';
@@ -212,7 +215,7 @@ export async function validatePin(
       
       if (isMatch) {
         // Reset attempts on successful validation
-        await supabase
+        const { error: resetError } = await supabase
           .from('user_pins')
           .update({
             attempts: 0,
@@ -221,30 +224,52 @@ export async function validatePin(
           })
           .eq('id', record.id)
           .eq('restaurant_id', restaurantId);
-        
-        // Get user's role for this restaurant
-        const { data: userRole } = await supabase
+
+        // Task 2: Log reset failure but don't block authentication
+        // User authenticated successfully - allow login despite reset failure (will self-correct on next login)
+        if (resetError) {
+          pinLogger.error('CRITICAL: Failed to reset PIN attempts after successful authentication', {
+            error: resetError,
+            userId: record.user_id,
+            restaurantId
+          });
+        }
+
+        // Task 3: Get user's role for this restaurant - MUST succeed for RBAC
+        const { data: userRole, error: roleError } = await supabase
           .from('user_restaurants')
           .select('role')
           .eq('user_id', record.user_id)
           .eq('restaurant_id', restaurantId)
           .eq('is_active', true)
           .single();
-        
+
+        if (roleError || !userRole) {
+          pinLogger.error('CRITICAL: Failed to load user permissions', {
+            error: roleError,
+            userId: record.user_id,
+            restaurantId
+          });
+          return {
+            isValid: false,
+            error: 'Failed to load user permissions'
+          };
+        }
+
         // Log successful PIN authentication
         await logAuthEvent(record.user_id, restaurantId, 'pin_success');
-        
+
         pinLogger.info('PIN validation successful', {
           userId: record.user_id,
           restaurantId,
-          role: userRole?.role
+          role: userRole.role
         });
-        
+
         return {
           isValid: true,
           userId: record.user_id,
           userEmail: (record as unknown as { users?: { email: string } }).users?.email,
-          role: userRole?.role,
+          role: userRole.role,
           restaurantId
         };
       } else {
@@ -254,27 +279,39 @@ export async function validatePin(
           attempts: newAttempts,
           last_attempt_at: new Date().toISOString()
         };
-        
+
         // Lock account if max attempts reached
         if (newAttempts >= MAX_PIN_ATTEMPTS) {
           const lockUntil = new Date();
           lockUntil.setMinutes(lockUntil.getMinutes() + LOCKOUT_DURATION_MINUTES);
           updates['locked_until'] = lockUntil.toISOString();
-          
+
           pinLogger.warn('Account locked due to failed PIN attempts', {
             userId: record.user_id,
             attempts: newAttempts,
             lockedUntil: lockUntil
           });
-          
+
           await logAuthEvent(record.user_id, restaurantId, 'pin_locked');
         }
-        
-        await supabase
+
+        // Task 1: CRITICAL - Must update attempt counter for brute force protection
+        const { error: attemptError } = await supabase
           .from('user_pins')
           .update(updates)
           .eq('id', record.id)
           .eq('restaurant_id', restaurantId);
+
+        if (attemptError) {
+          pinLogger.error('CRITICAL: Failed to update PIN attempt counter', {
+            error: attemptError,
+            userId: record.user_id,
+            restaurantId,
+            attempts: newAttempts
+          });
+          // Cannot allow authentication to proceed without tracking attempts
+          throw new Error('Authentication system unavailable');
+        }
 
         await logAuthEvent(record.user_id, restaurantId, 'pin_failed');
       }
@@ -352,6 +389,8 @@ export async function isPinLocked(userId: string, restaurantId: string): Promise
 
 /**
  * Log authentication event
+ * Tasks 4 & 5: Implements fail-safe pattern per ADR-009
+ * Auth logging may fail-safe with file fallback to maintain audit trail
  */
 async function logAuthEvent(
   userId: string,
@@ -360,7 +399,7 @@ async function logAuthEvent(
   metadata?: Record<string, unknown>
 ): Promise<void> {
   try {
-    await supabase
+    const { error } = await supabase
       .from('auth_logs')
       .insert({
         user_id: userId,
@@ -368,29 +407,70 @@ async function logAuthEvent(
         event_type: eventType,
         metadata: metadata || {}
       });
+
+    if (error) {
+      throw error;
+    }
   } catch (error) {
-    pinLogger.error('Failed to log auth event:', error);
-    // Don't throw - logging failure shouldn't break auth flow
+    // Fail-safe: Fall back to file logging to maintain audit trail
+    pinLogger.error('Auth log DB failed, falling back to file', { error });
+
+    try {
+      const logEntry = {
+        timestamp: new Date().toISOString(),
+        user_id: userId,
+        restaurant_id: restaurantId,
+        event_type: eventType,
+        metadata: metadata || {},
+        error: 'Database logging failed'
+      };
+
+      const logDir = path.join(process.cwd(), 'logs');
+      const logFile = path.join(logDir, 'auth_failures.log');
+
+      // Ensure log directory exists
+      await fs.promises.mkdir(logDir, { recursive: true });
+
+      // Append to log file
+      await fs.promises.appendFile(
+        logFile,
+        JSON.stringify(logEntry) + '\n'
+      );
+
+      pinLogger.info('Auth event logged to file successfully', { eventType, userId });
+    } catch (fileError) {
+      // Last resort: log to console
+      pinLogger.error('CRITICAL: Both DB and file logging failed for auth event', {
+        originalError: error,
+        fileError,
+        eventType,
+        userId,
+        restaurantId
+      });
+    }
   }
 }
 
 /**
  * Generate a random PIN for initial setup
+ * Uses cryptographically secure random number generation (Node.js crypto.randomInt)
  */
 export function generateRandomPin(length: number = 4): string {
   if (length < PIN_LENGTH_MIN || length > PIN_LENGTH_MAX) {
     length = PIN_LENGTH_MIN;
   }
-  
+
+  // Use crypto.randomInt() for cryptographically secure random generation
+  // This prevents PRNG prediction attacks that are possible with Math.random()
   let pin = '';
   for (let i = 0; i < length; i++) {
-    pin += Math.floor(Math.random() * 10).toString();
+    pin += randomInt(0, 10).toString();
   }
-  
-  // Ensure it's not too simple
+
+  // Ensure it's not too simple (all same digit, sequential, common patterns)
   if (/^(\d)\1+$/.test(pin) || pin === '1234' || pin === '0000') {
     return generateRandomPin(length); // Recursively generate a new one
   }
-  
+
   return pin;
 }

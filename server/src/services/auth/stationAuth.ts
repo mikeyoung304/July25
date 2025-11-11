@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import fs from 'fs';
 import { supabase } from '../../config/database';
 import { logger } from '../../utils/logger';
 import { BadRequest } from '../../middleware/errorHandler';
@@ -217,13 +218,22 @@ export async function validateStationToken(
     }
     
     // Update last activity
-    await supabase
+    // Activity tracking failed - log but allow auth to proceed (monitoring will alert)
+    const { error: activityError } = await supabase
       .from('station_tokens')
       .update({
         last_activity_at: new Date().toISOString()
       })
       .eq('id', storedToken.id);
-    
+
+    if (activityError) {
+      stationLogger.error('Failed to update station token activity', {
+        tokenId: storedToken.id,
+        error: activityError
+      });
+      // Don't throw - validation already succeeded, activity tracking is non-critical
+    }
+
     return {
       isValid: true,
       stationType: decoded.station_type,
@@ -396,6 +406,7 @@ export async function cleanupExpiredTokens(): Promise<number> {
 
 /**
  * Log authentication event
+ * Uses fail-safe pattern per ADR-009: DB failure falls back to file logging
  */
 async function logAuthEvent(
   userId: string,
@@ -404,7 +415,7 @@ async function logAuthEvent(
   metadata?: Record<string, unknown>
 ): Promise<void> {
   try {
-    await supabase
+    const { error } = await supabase
       .from('auth_logs')
       .insert({
         user_id: userId,
@@ -412,8 +423,34 @@ async function logAuthEvent(
         event_type: eventType,
         metadata: metadata || {}
       });
+
+    // Fail-safe: If DB insert fails, fall back to file logging
+    if (error) {
+      throw error; // Trigger catch block for file fallback
+    }
   } catch (error) {
-    stationLogger.error('Failed to log auth event:', error);
-    // Don't throw - logging failure shouldn't break auth flow
+    stationLogger.error('Auth log DB failed, falling back to file', { error });
+
+    // Fail-safe fallback: Write to file to preserve audit trail
+    try {
+      const logEntry = {
+        timestamp: new Date().toISOString(),
+        user_id: userId,
+        restaurant_id: restaurantId,
+        event_type: eventType,
+        metadata: metadata || {}
+      };
+
+      await fs.promises.appendFile(
+        '/var/log/grow/auth_failures.log',
+        JSON.stringify(logEntry) + '\n'
+      );
+    } catch (fileError) {
+      stationLogger.error('CRITICAL: Failed to write auth log to file fallback', {
+        originalError: error,
+        fileError
+      });
+      // Last resort: Don't throw - logging failure shouldn't break auth flow
+    }
   }
 }
