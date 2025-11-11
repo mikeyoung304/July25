@@ -6,6 +6,9 @@ import { supabase } from '../config/database';
 
 const accessLogger = logger.child({ module: 'restaurant-access' });
 
+// Database query timeout in milliseconds
+const DB_QUERY_TIMEOUT_MS = 5000;
+
 /**
  * Validates that the authenticated user has access to the requested restaurant
  * This prevents users from accessing data from other restaurants by spoofing the restaurant ID
@@ -47,12 +50,22 @@ export async function validateRestaurantAccess(
     }
 
     // For non-admin users, verify they have access to this restaurant
-    const { data: userRestaurant, error } = await supabase
+    // CRITICAL: Wrap database query with timeout to prevent login hangs
+    const queryPromise = supabase
       .from('user_restaurants')
       .select('restaurant_id, role')
       .eq('user_id', req.user.id)
       .eq('restaurant_id', requestedRestaurantId)
       .single();
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(
+        () => reject(new Error('Database query timeout - user_restaurants lookup exceeded 5s')),
+        DB_QUERY_TIMEOUT_MS
+      )
+    );
+
+    const { data: userRestaurant, error } = await Promise.race([queryPromise, timeoutPromise]);
 
     if (error || !userRestaurant) {
       accessLogger.warn('Restaurant access denied', {
