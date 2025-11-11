@@ -79,6 +79,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             setUser(response.user);
             setRestaurantId(response.restaurantId);
+            setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
             setSession({
               accessToken: supabaseSession.access_token,
               refreshToken: supabaseSession.refresh_token,
@@ -148,6 +149,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
           setUser(response.user);
           setRestaurantId(response.restaurantId);
+          setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
           setSession({
             accessToken: session.access_token,
             refreshToken: session.refresh_token,
@@ -222,6 +224,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logger.info('🔐 Step 3: Setting user state in React context');
       setUser(response.user);
       setRestaurantId(response.restaurantId);
+      setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
       setSession({
         accessToken: authData.session.access_token,
         refreshToken: authData.session.refresh_token,
@@ -257,7 +260,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setUser(response.user);
       setRestaurantId(response.restaurantId);
-      
+      setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
+
       const expiresAt = Math.floor(Date.now() / 1000) + response.expiresIn;
       const sessionData = {
         accessToken: response.token,
@@ -308,7 +312,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setUser(stationUser);
       setRestaurantId(response.restaurantId);
-      
+      setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
+
       const expiresAt = Math.floor(new Date(response.expiresAt).getTime() / 1000);
       const sessionData = {
         accessToken: response.token,
