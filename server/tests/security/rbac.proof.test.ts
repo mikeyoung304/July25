@@ -3,6 +3,7 @@ import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { authenticate, requireRole } from '../../src/middleware/auth';
+import { errorHandler } from '../../src/middleware/errorHandler';
 
 describe('Security Proof: Role-Based Access Control (RBAC)', () => {
   let app: express.Application;
@@ -67,6 +68,9 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
     app.delete('/api/user/:id', authenticate, requireRole(['admin', 'owner']), (req, res) => {
       res.json({ success: true, deleted: req.params.id });
     });
+
+    // Add error handler middleware (must be last)
+    app.use(errorHandler);
   });
 
   describe('Role Hierarchy Enforcement', () => {
@@ -275,7 +279,8 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
         .expect(401);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('restaurant context');
+      expect(response.body.error).toHaveProperty('message');
+      expect(response.body.error.message).toContain('restaurant context');
 
       // Cleanup
       delete process.env.STRICT_AUTH;

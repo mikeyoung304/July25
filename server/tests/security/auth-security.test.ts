@@ -131,7 +131,7 @@ describe('Auth Security Tests', () => {
       expect(result).toBeNull();
     });
 
-    it('should allow anonymous WebSocket in development with warning', async () => {
+    it('should reject WebSocket without token even in development (P0.9 security fix)', async () => {
       // Set development environment
       process.env.NODE_ENV = 'development';
 
@@ -144,10 +144,11 @@ describe('Auth Security Tests', () => {
 
       const result = await verifyWebSocketAuth(request);
 
-      expect(result).toBeDefined();
-      expect(result?.userId).toBe('anonymous');
+      // P0.9: Anonymous connections removed for security
+      expect(result).toBeNull();
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Anonymous connection')
+        expect.stringContaining('no token provided'),
+        expect.objectContaining({ environment: 'development' })
       );
     });
 
@@ -167,7 +168,8 @@ describe('Auth Security Tests', () => {
 
       expect(result).toBeNull();
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('invalid token')
+        expect.stringContaining('invalid token'),
+        expect.objectContaining({ path: expect.any(String) })
       );
     });
   });
