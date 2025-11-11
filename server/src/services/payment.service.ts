@@ -82,13 +82,15 @@ export class PaymentService {
     // Calculate subtotal from items
     for (const item of order.items) {
       const itemPrice = Number(item.price) || 0;
-      const quantity = Number(item.quantity) || 1;
+      // Convert quantity, but don't default yet - validate first
+      const quantity = Number(item.quantity);
 
       if (itemPrice < 0) {
         throw BadRequest(`Invalid price for item ${item.name}`);
       }
 
-      if (quantity < 1) {
+      // Validate quantity before using (catches 0, negative, NaN)
+      if (!quantity || quantity < 1 || !Number.isFinite(quantity)) {
         throw BadRequest(`Invalid quantity for item ${item.name}`);
       }
 
