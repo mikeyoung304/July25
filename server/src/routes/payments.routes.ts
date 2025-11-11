@@ -35,6 +35,34 @@ const client = new SquareClient({
 
 const paymentsApi = client.payments;
 
+/**
+ * Timeout wrapper for Square API calls
+ *
+ * P0.5: Prevents infinite hangs by adding 30-second timeout to all Square API calls.
+ * This protects against network issues, Square API outages, or slow responses that
+ * could leave customers waiting indefinitely.
+ *
+ * @param promise - The Square API promise to wrap
+ * @param timeoutMs - Timeout in milliseconds (default: 30000ms = 30 seconds)
+ * @param operation - Description of operation for error logging
+ * @returns Promise that resolves/rejects with API result or timeout error
+ */
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number = 30000,
+  operation: string = 'Square API call'
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(
+        () => reject(new Error(`${operation} timed out after ${timeoutMs}ms`)),
+        timeoutMs
+      )
+    )
+  ]);
+}
+
 // STARTUP VALIDATION: Verify Square credentials match
 // This prevents runtime payment failures due to misconfigured credentials
 (async () => {
@@ -238,8 +266,12 @@ router.post('/create',
           }
         };
       } else {
-        // Process real payment with Square
-        paymentResult = await paymentsApi.create(paymentRequest);
+        // Process real payment with Square (with 30-second timeout per P0.5)
+        paymentResult = await withTimeout(
+          paymentsApi.create(paymentRequest),
+          30000,
+          'Payment creation'
+        );
       }
 
       if (paymentResult.payment?.status !== 'COMPLETED') {
@@ -556,7 +588,11 @@ router.get('/:paymentId',
 
     routeLogger.info('Retrieving payment details', { paymentId });
 
-    const paymentResponse = await paymentsApi.get({ paymentId });
+    const paymentResponse = await withTimeout(
+      paymentsApi.get({ paymentId }),
+      30000,
+      'Get payment details'
+    );
 
     res.json({
       success: true,
@@ -596,8 +632,12 @@ router.post('/:paymentId/refund',
 
     routeLogger.info('Processing refund', { paymentId, amount, reason });
 
-    // Get payment details first
-    const paymentResult = await paymentsApi.get({ paymentId });
+    // Get payment details first (with 30-second timeout per P0.5)
+    const paymentResult = await withTimeout(
+      paymentsApi.get({ paymentId }),
+      30000,
+      'Get payment for refund'
+    );
     const payment = paymentResult.payment;
 
     if (!payment) {
@@ -618,7 +658,11 @@ router.post('/:paymentId/refund',
       reason: reason || 'Restaurant initiated refund',
     };
 
-    const refundResponse = await client.refunds.refundPayment(refundRequest as any);
+    const refundResponse = await withTimeout(
+      client.refunds.refundPayment(refundRequest as any),
+      30000,
+      'Refund payment'
+    );
     const refundResult = (refundResponse as any).result;
 
     // Log refund for audit trail
