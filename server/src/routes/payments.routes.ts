@@ -156,6 +156,9 @@ router.post('/create',
       clientProvidedIdempotency: idempotency_key
     });
 
+    // Declare idempotency key at function scope for error handlers
+    let serverIdempotencyKey: string | undefined;
+
     try {
       // SECURITY: Server-side payment validation
       // Never trust client-provided amounts
@@ -168,7 +171,7 @@ router.post('/create',
 
       // Use server-calculated amount and idempotency key
       const serverAmount = validation.amount;
-      const serverIdempotencyKey = validation.idempotencyKey;
+      serverIdempotencyKey = validation.idempotencyKey;
 
       routeLogger.info('Payment validated', {
         order_id,
@@ -179,7 +182,31 @@ router.post('/create',
 
       // Get order for reference
       const order = await OrdersService.getOrder(restaurantId, order_id);
-      
+
+      // COMPLIANCE: Phase 1 - Log payment 'initiated' BEFORE charging customer
+      // Per ADR-009 and SECURITY.md, this ensures no charges occur without audit trail
+      await PaymentService.logPaymentAttempt({
+        orderId: order_id,
+        amount: validation.orderTotal,
+        status: 'initiated', // Two-phase logging: log before charging
+        restaurantId: restaurantId,
+        paymentMethod: 'card',
+        userAgent: req.headers['user-agent'] as string,
+        idempotencyKey: serverIdempotencyKey,
+        metadata: {
+          orderNumber: (order as any).order_number,
+          userRole: req.user?.role,
+          ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
+        },
+        ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
+        ...(req.ip && { ipAddress: req.ip })
+      });
+
+      routeLogger.info('Payment audit log created with status=initiated', {
+        order_id,
+        idempotencyKey: serverIdempotencyKey
+      });
+
       // Create payment request with server-validated amount
       const paymentRequest = {
         sourceId: token,
@@ -197,7 +224,7 @@ router.post('/create',
 
       // Check if we're in demo mode (no Square credentials)
       let paymentResult: any;
-      
+
       if (!process.env['SQUARE_ACCESS_TOKEN'] || process.env['SQUARE_ACCESS_TOKEN'] === 'demo' || process.env['NODE_ENV'] === 'development') {
         // Mock successful payment in demo/development mode
         routeLogger.info('Demo mode: Mocking successful payment');
@@ -220,7 +247,16 @@ router.post('/create',
           status: paymentResult.payment?.status,
           order_id
         });
-        
+
+        // COMPLIANCE: Phase 2a - Update audit log to 'failed' for incomplete payments
+        await PaymentService.updatePaymentAuditStatus(
+          serverIdempotencyKey,
+          'failed',
+          undefined, // No payment ID for failed payments
+          paymentResult.payment?.status || 'UNKNOWN',
+          'Payment not completed by processor'
+        );
+
         return res.status(400).json({
           success: false,
           error: 'Payment not completed',
@@ -240,24 +276,12 @@ router.post('/create',
         req.user?.id // closedByUserId
       );
 
-      // Log successful payment for audit trail with user context
-      await PaymentService.logPaymentAttempt({
-        orderId: order_id,
-        amount: validation.orderTotal,
-        status: 'success',
-        restaurantId: restaurantId,
-        paymentMethod: 'card',
-        paymentId: paymentResult.payment.id,
-        userAgent: req.headers['user-agent'] as string,
-        idempotencyKey: serverIdempotencyKey,
-        metadata: {
-          orderNumber: (order as any).order_number,
-          userRole: req.user?.role,
-          ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
-        },
-        ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
-        ...(req.ip && { ipAddress: req.ip })
-      });
+      // COMPLIANCE: Phase 2b - Update audit log to 'success' with payment ID
+      await PaymentService.updatePaymentAuditStatus(
+        serverIdempotencyKey,
+        'success',
+        paymentResult.payment.id
+      );
 
       routeLogger.info('Payment successful', {
         order_id,
@@ -281,26 +305,26 @@ router.post('/create',
           errors: errors.map((e: any) => ({ category: e.category, code: e.code, detail: e.detail }))
         });
 
-        // Log failed payment attempt
+        // COMPLIANCE: Update audit log to 'failed' for Square errors
+        // Only update if we've already logged 'initiated' (serverIdempotencyKey exists)
         const firstError = errors[0];
-        await PaymentService.logPaymentAttempt({
-          orderId: order_id,
-          amount: req.body.amount || 0,
-          status: 'failed',
-          restaurantId: restaurantId,
-          paymentMethod: 'card',
-          userAgent: req.headers['user-agent'] as string,
-          idempotencyKey: idempotency_key || randomUUID(),
-          metadata: {
-            userRole: req.user?.role,
-            errorCategory: firstError?.category,
-            ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
-          },
-          ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
-          ...(firstError?.code && { errorCode: firstError.code }),
-          ...(firstError?.detail && { errorDetail: firstError.detail }),
-          ...(req.ip && { ipAddress: req.ip })
-        });
+        if (serverIdempotencyKey) {
+          try {
+            await PaymentService.updatePaymentAuditStatus(
+              serverIdempotencyKey,
+              'failed',
+              undefined, // No payment ID for failed payments
+              firstError?.code || 'SQUARE_ERROR',
+              firstError?.detail || 'Unknown Square error'
+            );
+          } catch (auditError) {
+            // Log audit update failure but don't mask the original Square error
+            routeLogger.error('Failed to update audit log after Square error', {
+              auditError,
+              originalSquareError: firstError
+            });
+          }
+        }
 
         // Handle specific Square error types
         if (firstError?.code === 'CVV_FAILURE' || firstError?.code === 'ADDRESS_VERIFICATION_FAILURE') {
@@ -410,6 +434,35 @@ router.post('/cash',
       change
     });
 
+    // Generate idempotency key for two-phase audit logging
+    const cashIdempotencyKey = `cash-${order_id}-${Date.now()}`;
+
+    // COMPLIANCE: Phase 1 - Log payment 'initiated' BEFORE processing
+    await PaymentService.logPaymentAttempt({
+      orderId: order_id,
+      amount: orderTotal,
+      status: 'initiated', // Two-phase logging: log before processing
+      restaurantId: restaurantId,
+      paymentMethod: 'cash',
+      userAgent: req.headers['user-agent'] as string,
+      idempotencyKey: cashIdempotencyKey,
+      metadata: {
+        orderNumber: (order as any).order_number,
+        userRole: req.user?.role,
+        cashReceived: amount_received,
+        changeGiven: change,
+        ...(table_id && { tableId: table_id }),
+        ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
+      },
+      ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
+      ...(req.ip && { ipAddress: req.ip })
+    });
+
+    routeLogger.info('Cash payment audit log created with status=initiated', {
+      order_id,
+      idempotencyKey: cashIdempotencyKey
+    });
+
     // Update order with cash payment details
     const updatedOrder = await OrdersService.updateOrderPayment(
       restaurantId,
@@ -425,26 +478,11 @@ router.post('/cash',
       req.user?.id // closedByUserId
     );
 
-    // Log successful cash payment for audit trail
-    await PaymentService.logPaymentAttempt({
-      orderId: order_id,
-      amount: orderTotal,
-      status: 'success',
-      restaurantId: restaurantId,
-      paymentMethod: 'cash',
-      userAgent: req.headers['user-agent'] as string,
-      idempotencyKey: `cash-${order_id}-${Date.now()}`,
-      metadata: {
-        orderNumber: (order as any).order_number,
-        userRole: req.user?.role,
-        cashReceived: amount_received,
-        changeGiven: change,
-        ...(table_id && { tableId: table_id }),
-        ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
-      },
-      ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
-      ...(req.ip && { ipAddress: req.ip })
-    });
+    // COMPLIANCE: Phase 2 - Update audit log to 'success'
+    await PaymentService.updatePaymentAuditStatus(
+      cashIdempotencyKey,
+      'success'
+    );
 
     // Update table status if table_id provided
     if (table_id) {

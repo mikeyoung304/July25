@@ -192,6 +192,10 @@ export class PaymentService {
 
   /**
    * Create payment audit log entry with full context
+   *
+   * COMPLIANCE NOTE: Per ADR-009 and SECURITY.md, this function MUST be called
+   * BEFORE processing payments (with status='initiated') to ensure no customer
+   * charges occur without an audit trail.
    */
   static async logPaymentAttempt(entry: PaymentAuditLogEntry): Promise<void> {
     const auditLog = {
@@ -241,6 +245,98 @@ export class PaymentService {
       });
       // FAIL-FAST: Same as above - audit logging is mandatory for PCI compliance
       throw new Error('Payment processing unavailable - audit system failure. Please try again later.');
+    }
+  }
+
+  /**
+   * Update existing payment audit log status (two-phase logging)
+   *
+   * This function updates an 'initiated' audit log to its final status after
+   * payment processing completes. This ensures:
+   * 1. No customer charges without initial audit trail (compliance)
+   * 2. Complete audit history from initiation to completion
+   * 3. No "charged but unrecorded" scenarios
+   *
+   * COMPLIANCE NOTE: Per ADR-009, this function also uses fail-fast error handling.
+   * If we cannot update the audit log, the payment flow is considered incomplete
+   * and an error is thrown to prevent silent failures.
+   *
+   * @param idempotencyKey - Unique key to identify the audit log entry
+   * @param status - Final status: 'success' or 'failed'
+   * @param paymentId - Payment processor ID (for successful payments)
+   * @param errorCode - Error code (for failed payments)
+   * @param errorDetail - Error details (for failed payments)
+   */
+  static async updatePaymentAuditStatus(
+    idempotencyKey: string,
+    status: 'success' | 'failed',
+    paymentId?: string,
+    errorCode?: string,
+    errorDetail?: string
+  ): Promise<void> {
+    try {
+      const updateData: any = {
+        status,
+        updated_at: new Date().toISOString()
+      };
+
+      // Add optional fields only if provided
+      if (paymentId) updateData.payment_id = paymentId;
+      if (errorCode) updateData.error_code = errorCode;
+      if (errorDetail) updateData.error_detail = errorDetail;
+
+      logger.info('Updating payment audit status', {
+        idempotencyKey,
+        status,
+        paymentId,
+        errorCode
+      });
+
+      const { error, count } = await supabase
+        .from('payment_audit_logs')
+        .update(updateData)
+        .eq('idempotency_key', idempotencyKey);
+
+      if (error) {
+        logger.error('CRITICAL: Failed to update payment audit status - compliance requirement violated', {
+          idempotencyKey,
+          status,
+          paymentId,
+          error: error.message
+        });
+        // FAIL-FAST: Incomplete audit trail is a compliance violation
+        throw new Error('Payment audit system failure - unable to update status. Please contact support.');
+      }
+
+      // Verify that exactly one row was updated
+      if (count === 0) {
+        logger.error('CRITICAL: Payment audit log not found for update', {
+          idempotencyKey,
+          status,
+          paymentId
+        });
+        throw new Error('Payment audit system failure - audit log not found. Please contact support.');
+      }
+
+      logger.info('Payment audit status updated successfully', {
+        idempotencyKey,
+        status,
+        paymentId,
+        rowsUpdated: count
+      });
+    } catch (error) {
+      // Re-throw if already our error
+      if (error instanceof Error && error.message.includes('Payment audit system failure')) {
+        throw error;
+      }
+
+      // Log and throw for unexpected errors
+      logger.error('CRITICAL: Exception updating payment audit status', {
+        idempotencyKey,
+        status,
+        error
+      });
+      throw new Error('Payment audit system failure - unexpected error. Please contact support.');
     }
   }
 
