@@ -163,7 +163,16 @@
 - [KDS Strategic Plan 2025](./docs/strategy/KDS_STRATEGIC_PLAN_2025.md) — Kitchen system evolution
 - [Changelog](./docs/CHANGELOG.md) — Version history & release notes
 
-## 8. Audit Reports & Analysis
+## 8. P0.9 Auth Stabilization Initiative (Nov 2025)
+- [Phase 2B Deployment Sign-Off](./P0.9_PHASE_2B_FINAL_DEPLOYMENT_SIGNOFF.md) — Ready for deployment (800 lines)
+- [Deployment Runbook](./P0.9_PHASE_2B_DEPLOYMENT_RUNBOOK.md) — 45-minute deployment procedure (500 lines)
+- [Database Forensic Audit](./P0.9_DATABASE_SCHEMA_FORENSIC_AUDIT.md) — Schema analysis (600 lines)
+- [Deployment Complete Summary](./P0.9_DEPLOYMENT_COMPLETE_SUMMARY.md) — Technical execution status
+- [Phase 2 Punchlist](./P0.9_PHASE_2_PUNCHLIST.md) — Strategic roadmap (updated 2025-11-11)
+- [Stabilization Progress](./docs/investigations/STABILIZATION_PROGRESS.md) — Branch status (90% complete)
+- [Documentation Cleanup Report](./DOCUMENTATION_CLEANUP_REPORT.md) — Nov 2025 documentation audit
+
+## 9. Audit Reports & Analysis
 - [Audit Reports Index](./docs/audit/README.md) — Codebase audit reports and action plans
   - [Action Checklist](./docs/audit/ACTION_CHECKLIST.md) — Prioritized action items
   - [P0 Fix Roadmap](./docs/audit/P0-FIX-ROADMAP.md) — Critical fixes roadmap
@@ -216,6 +225,8 @@
 - [Vercel Deployment Test Report](./docs/VERCEL_DEPLOYMENT_TEST_REPORT.md) — Deployment testing results
 
 ## Archive
+- **2025-11**: [docs/archive/2025-11/](./docs/archive/2025-11/) — P0.9 Phase 1, Phase 2A, Auth audits, investigations (24 files archived)
+- **2025-10**: [docs/archive/2025-10/](./docs/archive/2025-10/) — Historical documentation
 - Incidents: [docs/incidents/README.md](./docs/incidents/README.md)
 - Investigations: [docs/investigations/README.md](./docs/investigations/README.md)
 - Audit Reports: [docs/audit/README.md](./docs/audit/README.md)

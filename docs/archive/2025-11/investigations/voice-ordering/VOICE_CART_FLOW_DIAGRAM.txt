@@ -1,0 +1,268 @@
+================================================================================
+VOICE ORDERING vs TOUCH ORDERING - COMPLETE FLOW COMPARISON
+================================================================================
+
+TOUCH ORDERING (Inside VoiceOrderModal):
+================================================================================
+
+User clicks menu item
+    |
+    v
+MenuGrid receives click (wrapped in UnifiedCartProvider)
+    |
+    v
+ItemDetailModal opens
+    |
+    v
+User confirms selection
+    |
+    v
+handleAddToCart(CartItem) called
+    |
+    v
+VoiceOrderModal.handleAddToOrder(CartItem)
+    |
+    +---> Converts CartItem → OrderItem
+    |
+    +---> voiceOrder.setOrderItems([...prev, orderItem])  [LOCAL STATE]
+    |
+    v
+Item appears in Order Items List
+    |
+    v
+submitOrder() → POST /api/v1/orders
+    |
+    v
+SUCCESS
+
+
+VOICE ORDERING (Inside VoiceOrderModal):
+================================================================================
+
+User holds microphone button
+    |
+    v
+Audio recorded & sent to OpenAI Realtime API
+    |
+    v
+AI transcribes → parses → calls add_to_order function
+    |
+    v
+OpenAI returns: { items: [{ name, quantity, modifiers }] }
+    |
+    v
+WebRTCVoiceClient receives data
+    |
+    v
+VoiceEventHandler.handleFunctionCallDone()
+    |
+    +---> Validates item has name
+    |
+    +---> Emits: order.detected event with OrderEvent
+    |
+    v
+useVoiceOrderWebRTC.handleOrderData() receives OrderEvent
+    |
+    +---> Checks menu loaded
+    |
+    +---> OrderParser.findBestMenuMatch(itemName)
+    |       |
+    |       +---> Fuzzy matching: exact, contains, variations
+    |       |
+    |       +---> Returns: { item: MenuItem, confidence: float }
+    |
+    +---> If confidence > 0.5:
+    |       |
+    |       +---> Creates OrderItem with:
+    |           - menuItemId (from menu match)
+    |           - name (from menu)
+    |           - quantity, modifiers, price
+    |           - source: 'voice'
+    |
+    +---> setOrderItems([...prev, ...matchedItems])  [LOCAL STATE]
+    |
+    +---> IF confidence <= 0.5:
+    |       |
+    |       +---> toast.error("Could not find menu items")
+    |
+    v
+Item appears in Order Items List
+    |
+    v
+submitOrder() → POST /api/v1/orders
+    |
+    v
+SUCCESS
+
+
+KEY DIFFERENCE:
+================================================================================
+
+TOUCH:     Menu → CartItem → OrderItem → submitOrder
+VOICE:     Voice → OrderEvent → OrderItem → submitOrder
+
+Both converge at OrderItem state array, but take different routes.
+
+
+IMPORTANT: Cart System Status
+================================================================================
+
+UnifiedCartContext (for touch items):
+    |
+    +---> ONLY used by MenuGrid in touch mode
+    |
+    +---> NOT connected to voice ordering
+    |
+    +---> Items stored in: voiceOrder.orderItems[] (LOCAL)
+    |
+    +---> NOT persisted to localStorage
+    |
+    +---> NOT used by submitOrder() function
+
+Result: Voice items and touch items are separate until submission.
+
+
+CRITICAL CODE FLOWS:
+================================================================================
+
+1. VOICE TRANSCRIPT → ORDER DETECTED
+   File: client/src/modules/voice/services/VoiceEventHandler.ts (572-625)
+   Event: order.detected
+   Data: { items: [{ name, quantity, modifiers }], confidence, timestamp }
+
+2. ORDER DETECTED → HANDLER
+   File: client/src/pages/hooks/useVoiceOrderWebRTC.ts (146-223)
+   Function: handleOrderData()
+   Action: OrderParser matching → setOrderItems()
+
+3. ORDER ITEMS → SUBMISSION
+   File: client/src/pages/hooks/useVoiceOrderWebRTC.ts (231-361)
+   Function: submitOrder()
+   API: POST /api/v1/orders
+   Body: { table_number, seat_number, items[], notes, total_amount, ... }
+
+4. ITEM VALIDATION
+   File: client/src/pages/hooks/useVoiceOrderWebRTC.ts (247-258)
+   Check: All items must have menuItemId
+   Fail: Shows error, prevents submission
+
+
+COMPARISON WITH KIOSK VOICE:
+================================================================================
+
+ServerView VoiceOrderModal:
+    - Maintains separate orderItems[] state
+    - Does NOT call useUnifiedCart().addItem()
+    - Works fine for temporary order modal
+
+Kiosk VoiceOrderingMode:
+    - DOES call useUnifiedCart().addItem()
+    - Updates persistent cart
+    - Integrates with UnifiedCartContext
+
+Why the difference? Different UX patterns:
+    - ServerView: Modal closes after submission
+    - Kiosk: Cart is persistent across operations
+
+
+POTENTIAL ISSUES:
+================================================================================
+
+1. UNMATCHED ITEMS:
+   Voice item → OrderParser.findBestMenuMatch() → confidence <= 0.5
+   Result: Item rejected, user sees error, item NOT added to order
+
+2. MISSING MENU ITEMS:
+   handleOrderData() called → menuItems.length === 0
+   Result: Full function returns early, items NOT processed
+
+3. PARSER NOT READY:
+   handleOrderData() called → !orderParserRef.current
+   Result: Full function returns early, items NOT processed
+
+4. MENU ITEM MISMATCH:
+   Voice says "coke" → Menu has "Coca Cola"
+   OrderParser attempts fuzzy match
+   If not confident enough: Item rejected
+
+5. BACKEND CART UPDATE BUG:
+   Items submitted with correct structure
+   Backend processes order creation
+   BUT: If cart update at backend fails → order stuck/partially created
+
+The context mentioned "cart update issue as touch ordering" - this likely
+refers to #5: Backend cart update logic that affects both voice and touch.
+
+
+ERROR HANDLING LAYERS:
+================================================================================
+
+Layer 1: Voice Event Handler
+  - Validates items have names
+  - Detects API errors
+  - Emits error events
+
+Layer 2: Order Handler (useVoiceOrderWebRTC)
+  - Validates menu loaded
+  - Validates OrderParser ready
+  - Validates matches have confidence > 0.5
+  - Shows toast errors to user
+
+Layer 3: Submission Validation
+  - Validates all items have menuItemId
+  - Validates auth token exists
+  - Validates table/seat selected
+  - Shows toast errors to user
+
+Layer 4: Backend API
+  - Processes order creation
+  - Updates cart/inventory
+  - Returns error if fails
+
+
+LOGGING POINTS:
+================================================================================
+
+VoiceEventHandler:
+  - '[VoiceEventHandler] Emitting order.detected with N items'
+  - '[VoiceEventHandler] API error: ...'
+  - '[VoiceEventHandler] CRITICAL: Session configuration error'
+
+useVoiceOrderWebRTC:
+  - '[handleOrderData] Received AI order data: {...}'
+  - '[handleOrderData] Matched AI item: ...'
+  - '[handleOrderData] Could not match item: ...'
+  - '[submitOrder] Invalid items without menuItemId'
+  - '[submitOrder] Order completed'
+
+VoiceOrderModal:
+  - '[VoiceOrderModal] Transcript received: {...}'
+  - '[VoiceOrderModal] Order detected: {...}'
+
+
+TO DEBUG VOICE ORDERING ISSUES:
+================================================================================
+
+1. Check browser console for logs with prefixes:
+   - [VoiceEventHandler]
+   - [handleOrderData]
+   - [submitOrder]
+
+2. Verify menuItems loaded:
+   console.log(menuItems.length > 0)
+
+3. Check order matching:
+   orderParserRef.current?.findBestMenuMatch(itemName)
+
+4. Check items before submission:
+   console.log(orderItems)
+
+5. Check network request:
+   POST /api/v1/orders with full payload
+
+6. Check backend response:
+   Check server logs for cart update errors
+
+
+END OF FLOW DIAGRAM
+================================================================================

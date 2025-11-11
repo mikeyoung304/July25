@@ -10,11 +10,20 @@ import {
 } from '../../../shared/src/voice-types';
 import { OpenAIAdapter } from './openai-adapter';
 import { verifyWebSocketAuth } from '../middleware/auth';
+import { supabase } from '../config/database';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Extend WebSocket type to store authenticated restaurant ID
+interface AuthenticatedWebSocket extends WebSocket {
+  authenticatedRestaurantId?: string;
+  authenticatedUserId?: string;
+}
 
 interface VoiceSession {
   id: string;
   restaurantId: string;
-  ws: WebSocket;
+  ws: AuthenticatedWebSocket;
   openaiAdapter?: OpenAIAdapter;
   state: SessionState;
   metrics: VoiceMetrics;
@@ -22,15 +31,181 @@ interface VoiceSession {
   lastActivity: number;
 }
 
+interface SecurityViolation {
+  type: string;
+  userId: string;
+  authenticatedRestaurant: string;
+  attemptedRestaurant: string;
+  sessionId?: string | undefined;
+  ipAddress?: string | undefined;
+  userAgent?: string | undefined;
+}
+
 export class VoiceWebSocketServer {
   private sessions = new Map<string, VoiceSession>();
   private heartbeatInterval = 30000; // 30 seconds
   private sessionTimeout = 300000; // 5 minutes
   private cleanupInterval: NodeJS.Timeout | null = null;
+  private securityLogPath = '/var/log/grow/security_violations.log';
 
   constructor() {
     // Cleanup inactive sessions every minute
     this.cleanupInterval = setInterval(() => this.cleanupInactiveSessions(), 60000);
+
+    // Ensure security log directory exists (fallback logging)
+    this.ensureSecurityLogDirectory();
+  }
+
+  /**
+   * CRITICAL SECURITY: Log multi-tenancy violations to database with file fallback
+   * Phase 2B: P0.9 Auth Stabilization - Multi-tenancy isolation
+   */
+  private async logSecurityViolation(violation: SecurityViolation): Promise<void> {
+    const timestamp = new Date().toISOString();
+    const logEntry = {
+      ...violation,
+      timestamp,
+      severity: 'CRITICAL' as const,
+    };
+
+    // Primary: Try database logging
+    try {
+      const { error } = await supabase.from('security_audit_logs').insert({
+        event_type: violation.type,
+        user_id: violation.userId,
+        authenticated_restaurant_id: violation.authenticatedRestaurant,
+        attempted_restaurant_id: violation.attemptedRestaurant,
+        session_id: violation.sessionId,
+        ip_address: violation.ipAddress,
+        user_agent: violation.userAgent,
+        severity: 'CRITICAL',
+        created_at: timestamp,
+      });
+
+      if (error) {
+        logger.error('Failed to write security violation to database', { error, violation });
+        // Fall through to file logging
+      } else {
+        logger.info('Security violation logged to database', { violation });
+        return;
+      }
+    } catch (error) {
+      logger.error('Exception writing security violation to database', { error, violation });
+      // Fall through to file logging
+    }
+
+    // Fallback: File logging if database fails
+    try {
+      await fs.promises.appendFile(
+        this.securityLogPath,
+        JSON.stringify(logEntry) + '\n'
+      );
+      logger.info('Security violation logged to file (DB unavailable)', { violation });
+    } catch (fileError) {
+      logger.error('CRITICAL: Failed to log security violation to both DB and file', {
+        violation,
+        fileError,
+      });
+    }
+  }
+
+  /**
+   * Ensure security log directory exists for fallback logging
+   */
+  private ensureSecurityLogDirectory(): void {
+    try {
+      const logDir = path.dirname(this.securityLogPath);
+      if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+        logger.info('Created security log directory', { path: logDir });
+      }
+    } catch (error) {
+      logger.warn('Failed to create security log directory, using /tmp fallback', { error });
+      this.securityLogPath = '/tmp/grow_security_violations.log';
+    }
+  }
+
+  /**
+   * CRITICAL SECURITY: Validate restaurant isolation
+   * Ensures authenticated restaurant matches requested restaurant
+   * Phase 2B: P0.9 Auth Stabilization - Multi-tenancy isolation
+   */
+  private validateRestaurantIsolation(
+    ws: AuthenticatedWebSocket,
+    requestedRestaurantId: string | undefined,
+    operation: string,
+    sessionId?: string
+  ): boolean {
+    // Normalize restaurant IDs to lowercase for comparison (edge case: case sensitivity)
+    const authenticatedRestaurantId = ws.authenticatedRestaurantId?.toLowerCase();
+    const normalizedRequestedId = requestedRestaurantId?.toLowerCase();
+
+    // STRICT PERIMETER CONTROL: Reject if no restaurant ID in session
+    if (!normalizedRequestedId) {
+      logger.error('🚨 SECURITY VIOLATION: No restaurant ID in session config', {
+        operation,
+        sessionId,
+        userId: ws.authenticatedUserId,
+        timestamp: new Date().toISOString(),
+      });
+
+      this.logSecurityViolation({
+        type: 'missing_restaurant_id',
+        userId: ws.authenticatedUserId || 'unknown',
+        authenticatedRestaurant: authenticatedRestaurantId || 'none',
+        attemptedRestaurant: 'missing',
+        sessionId,
+      });
+
+      ws.send(JSON.stringify({
+        type: 'error',
+        event_id: uuidv4(),
+        timestamp: Date.now(),
+        error: {
+          code: 'MULTI_TENANCY_VIOLATION',
+          message: 'Access denied: Restaurant context required',
+        },
+      }));
+
+      ws.close(1008, 'Security policy violation: missing restaurant context');
+      return false;
+    }
+
+    // CRITICAL: Validate restaurant isolation - authenticated must match requested
+    if (normalizedRequestedId !== authenticatedRestaurantId) {
+      logger.error('🚨 SECURITY VIOLATION: Cross-restaurant access attempt', {
+        operation,
+        authenticated: authenticatedRestaurantId,
+        requested: normalizedRequestedId,
+        userId: ws.authenticatedUserId,
+        sessionId,
+        timestamp: new Date().toISOString(),
+      });
+
+      this.logSecurityViolation({
+        type: 'cross_restaurant_access',
+        userId: ws.authenticatedUserId || 'unknown',
+        authenticatedRestaurant: authenticatedRestaurantId || 'none',
+        attemptedRestaurant: normalizedRequestedId,
+        sessionId,
+      });
+
+      // Don't leak information about other restaurants in error message
+      ws.send(JSON.stringify({
+        type: 'error',
+        event_id: uuidv4(),
+        timestamp: Date.now(),
+        error: {
+          code: 'MULTI_TENANCY_VIOLATION',
+          message: 'Access denied: Restaurant context mismatch',
+        },
+      }));
+
+      ws.close(1008, 'Security policy violation: cross-restaurant access');
+      return false;
+    }
+
+    return true;
   }
 
   async handleConnection(ws: WebSocket, request: any) {
@@ -39,6 +214,9 @@ export class VoiceWebSocketServer {
       headers: request.headers,
       origin: request.headers?.origin
     });
+
+    // Cast to AuthenticatedWebSocket to store auth context
+    const authWs = ws as AuthenticatedWebSocket;
 
     // Authenticate WebSocket connection
     // In production, authentication is REQUIRED for voice connections
@@ -49,6 +227,22 @@ export class VoiceWebSocketServer {
         ws.close(1008, 'Authentication required');
         return;
       }
+
+      // CRITICAL SECURITY: Validate restaurant context in JWT
+      // Phase 2B: P0.9 Auth Stabilization - Multi-tenancy isolation
+      if (!auth.restaurantId) {
+        logger.error('🚨 SECURITY VIOLATION: JWT missing restaurant_id - rejecting connection', {
+          userId: auth.userId,
+          timestamp: new Date().toISOString(),
+        });
+        ws.close(1008, 'Authentication failed: missing restaurant context');
+        return;
+      }
+
+      // Store authenticated restaurant ID with connection for validation
+      authWs.authenticatedRestaurantId = auth.restaurantId.toLowerCase();
+      authWs.authenticatedUserId = auth.userId;
+
       logger.info('[VoiceWebSocket] Connection authenticated', {
         userId: auth.userId,
         restaurantId: auth.restaurantId
@@ -113,12 +307,20 @@ export class VoiceWebSocketServer {
 
   private async startSession(ws: WebSocket, event: any) {
     const sessionId = uuidv4();
+    const authWs = ws as AuthenticatedWebSocket;
     const { restaurant_id, loopback = false } = event.session_config;
+
+    // CRITICAL SECURITY: Validate restaurant isolation before creating session
+    // Phase 2B: P0.9 Auth Stabilization - Multi-tenancy isolation
+    if (!this.validateRestaurantIsolation(authWs, restaurant_id, 'session.start', sessionId)) {
+      // validateRestaurantIsolation already logged and closed connection
+      return;
+    }
 
     const session: VoiceSession = {
       id: sessionId,
       restaurantId: restaurant_id,
-      ws,
+      ws: authWs,
       state: {
         session_id: sessionId,
         restaurant_id,
@@ -221,9 +423,17 @@ export class VoiceWebSocketServer {
   }
 
   private async processAudio(session: VoiceSession, event: any) {
+    // CRITICAL SECURITY: Validate restaurant isolation before processing audio
+    // Phase 2B: P0.9 Auth Stabilization - Multi-tenancy isolation
+    const authWs = session.ws as AuthenticatedWebSocket;
+    if (!this.validateRestaurantIsolation(authWs, session.restaurantId, 'audio.process', session.id)) {
+      // validateRestaurantIsolation already logged and closed connection
+      return;
+    }
+
     // Handle both formats: event.audio (direct) or event.data.chunk (from client)
     const audioData = event.audio || event.data?.chunk;
-    
+
     if (!audioData) {
       logger.error('[VoiceWebSocket] No audio data in event:', event);
       this.sendError(session.ws, {
@@ -362,9 +572,28 @@ export class VoiceWebSocketServer {
   }
 
   private getSessionByWebSocket(ws: WebSocket): VoiceSession | undefined {
+    const authWs = ws as AuthenticatedWebSocket;
     let foundSession: VoiceSession | undefined;
+
     this.sessions.forEach(session => {
       if (session.ws === ws) {
+        // CRITICAL SECURITY: Defense-in-depth validation
+        // Verify session restaurant matches authenticated restaurant
+        // This should never fail if earlier validations worked, but provides extra safety
+        const sessionRestaurantId = session.restaurantId?.toLowerCase();
+        const authRestaurantId = authWs.authenticatedRestaurantId?.toLowerCase();
+
+        if (sessionRestaurantId !== authRestaurantId) {
+          logger.error('🚨 SECURITY ALERT: Session restaurant mismatch in getSessionByWebSocket', {
+            sessionRestaurant: sessionRestaurantId,
+            authenticatedRestaurant: authRestaurantId,
+            sessionId: session.id,
+            userId: authWs.authenticatedUserId,
+          });
+          // Don't return this session - it's a security violation
+          return;
+        }
+
         foundSession = session;
       }
     });

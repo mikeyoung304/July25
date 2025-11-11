@@ -73,6 +73,11 @@ This guide helps you find documentation quickly based on what you need to accomp
 → [Supabase Connection Guide](./SUPABASE_CONNECTION_GUIDE.md)
 → [Development Process](./how-to/development/DEVELOPMENT_PROCESS.md) - Migration best practices
 
+### P0.9 Auth Stabilization (Nov 2025)
+→ [Phase 2B Deployment Sign-Off](../P0.9_PHASE_2B_FINAL_DEPLOYMENT_SIGNOFF.md) - Ready for deployment
+→ [Deployment Runbook](../P0.9_PHASE_2B_DEPLOYMENT_RUNBOOK.md) - 45-minute procedure
+→ [Stabilization Progress](./investigations/STABILIZATION_PROGRESS.md) - Branch status (90% complete)
+
 ## Navigation by Technology
 
 - **React/Frontend:** [Getting Started](./tutorials/GETTING_STARTED.md)
@@ -155,6 +160,10 @@ grep -r "order flow" docs/archive --include="*.md"
 
 **Recent Incidents?**
 → `/docs/investigations/` for detailed analysis
+
+**P0.9 Auth Stabilization Status?**
+→ `/docs/investigations/STABILIZATION_PROGRESS.md` for branch status
+→ `/P0.9_PHASE_2B_FINAL_DEPLOYMENT_SIGNOFF.md` for deployment readiness
 
 **Operational Runbooks?**
 → `/docs/how-to/operations/runbooks/`
