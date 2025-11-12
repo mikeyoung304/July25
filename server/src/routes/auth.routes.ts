@@ -84,15 +84,37 @@ router.post('/login',
 
     const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
 
+    // Generate custom JWT with scopes (instead of using Supabase's token)
+    // This ensures scopes are embedded in the token for authorization checks
+    const jwtSecret = process.env['SUPABASE_JWT_SECRET'];
+    if (!jwtSecret) {
+      logger.error('⛔ JWT_SECRET not configured - login cannot proceed');
+      throw new Error('Server authentication not configured');
+    }
+
+    const payload = {
+      sub: authData.user.id,
+      email: authData.user.email,
+      role: userRole.role,
+      restaurant_id: restaurantId,
+      scope: scopes,  // ✅ CRITICAL FIX: Include scopes in JWT payload
+      auth_method: 'email',
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + (8 * 60 * 60) // 8 hours for email login
+    };
+
+    const customToken = jwt.sign(payload, jwtSecret, { algorithm: 'HS256' });
+
     logger.info('auth_success', {
       user_id: authData.user.id,
-      restaurant_id: restaurantId
+      restaurant_id: restaurantId,
+      scopes_count: scopes.length
     });
 
     // Reset rate limiting on successful auth
     resetFailedAttempts(req);
 
-    // Return session data
+    // Return session data with custom JWT that includes scopes
     res.json({
       user: {
         id: authData.user.id,
@@ -101,9 +123,9 @@ router.post('/login',
         scopes
       },
       session: {
-        access_token: authData.session?.access_token,
+        access_token: customToken,  // ✅ Use custom JWT with scopes instead of Supabase's token
         refresh_token: authData.session?.refresh_token,
-        expires_in: authData.session?.expires_in
+        expires_in: 8 * 60 * 60  // 8 hours in seconds
       },
       restaurantId
     });
@@ -137,6 +159,18 @@ router.post('/pin-login',
       throw Unauthorized(result.error || 'Invalid PIN');
     }
 
+    // Fetch user scopes from role_scopes table BEFORE creating JWT
+    const { data: scopesData, error: scopesError } = await supabase
+      .from('role_scopes')
+      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
+      .eq('role', result.role);
+
+    if (scopesError) {
+      logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
+    }
+
+    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
+
     // Generate JWT token for PIN user (no fallbacks for security)
     const jwtSecret = process.env['SUPABASE_JWT_SECRET'];
     if (!jwtSecret) {
@@ -149,6 +183,7 @@ router.post('/pin-login',
       email: result.userEmail,
       role: result.role,
       restaurant_id: restaurantId,
+      scope: scopes,  // ✅ CRITICAL FIX: Include scopes in JWT payload
       auth_method: 'pin',
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60) // 12 hours for staff
@@ -156,21 +191,10 @@ router.post('/pin-login',
 
     const token = jwt.sign(payload, jwtSecret, { algorithm: 'HS256' });
 
-    // Fetch user scopes from role_scopes table
-    const { data: scopesData, error: scopesError } = await supabase
-      .from('role_scopes')
-      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
-      .eq('role', result.role);
-
-    if (scopesError) {
-      logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
-    }
-
-    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
-
     logger.info('auth_success', {
       user_id: result.userId,
-      restaurant_id: restaurantId
+      restaurant_id: restaurantId,
+      scopes_count: scopes.length
     });
 
     res.json({
