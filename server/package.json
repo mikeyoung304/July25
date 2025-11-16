@@ -37,6 +37,7 @@
     "@sentry/profiling-node": "^10.22.0",
     "@supabase/supabase-js": "^2.52.1",
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "2.8.17",
     "@types/express": "4.17.21",
     "@types/jsonwebtoken": "9.0.5",

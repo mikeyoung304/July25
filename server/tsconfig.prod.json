@@ -28,9 +28,10 @@
     "noPropertyAccessFromIndexSignature": false,
     "incremental": false,
     "types": ["node"],
+    "baseUrl": ".",
     "paths": {
-      "@rebuild/shared": ["../shared/types"],
-      "@rebuild/shared/*": ["../shared/types/*"]
+      "@rebuild/shared": ["../shared/index"],
+      "@rebuild/shared/*": ["../shared/*"]
     }
   },
   "include": [
@@ -53,6 +54,10 @@
     "../shared/utils/memory-monitoring.ts",
     "../shared/utils/websocket-pool.browser.ts",
     "../shared/utils/websocket-pool.ts",
-    "../shared/config/browser.ts"
+    "../shared/config/browser.ts",
+    "../shared/monitoring/error-tracker.ts",
+    "../shared/monitoring/performance-monitor.ts",
+    "../shared/monitoring/web-vitals.ts",
+    "../shared/config/index.ts"
   ]
 }
