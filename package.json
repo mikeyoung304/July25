@@ -105,6 +105,7 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "typescript": "^5.3.3",
     "@apidevtools/swagger-parser": "^12.1.0",
     "@axe-core/playwright": "^4.10.2",
     "@babel/preset-env": "^7.28.0",
