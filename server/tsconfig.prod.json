@@ -47,6 +47,7 @@
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
     "../shared/utils/browser-only.ts",
+    "../shared/utils/error-handling.ts",
     "../shared/utils/websocket-pool.browser.ts",
     "../shared/utils/react-performance.ts",
     "../shared/utils/performance-hooks.ts",

@@ -5,8 +5,7 @@
     "rootDirs": ["./src", "../shared"]
   },
   "include": [
-    "src/**/*",
-    "../shared/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
@@ -20,6 +19,17 @@
     "src/test-utils/**/*",
     "tests/**/*",
     "scripts/**/*",
-    "../shared/config/browser.ts"
+    "../shared/config/browser.ts",
+    "../shared/utils/browser-only.ts",
+    "../shared/utils/error-handling.ts",
+    "../shared/utils/websocket-pool.browser.ts",
+    "../shared/utils/react-performance.ts",
+    "../shared/utils/performance-hooks.ts",
+    "../shared/utils/cleanup-manager.ts",
+    "../shared/utils/memory-monitoring.ts",
+    "../shared/monitoring/error-tracker.ts",
+    "../shared/monitoring/performance-monitor.ts",
+    "../shared/monitoring/web-vitals.ts",
+    "../shared/config/index.ts"
   ]
 }
