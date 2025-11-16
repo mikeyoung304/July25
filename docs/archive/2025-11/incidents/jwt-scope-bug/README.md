@@ -1,0 +1,37 @@
+# JWT Scope Bug Investigation
+
+**Archived**: 2025-11-14
+**Category**: Complete investigation of JWT scope field bug (Nov 12-13, 2025)
+
+---
+
+## Files in This Archive
+
+- [ARCHIVED](./AUTH_BUG_ROOT_CAUSE_ANALYSIS.md)
+- [ARCHIVED](./AUTH_FIX_DEPLOYMENT_SUMMARY.md)
+- [ARCHIVED](./AUTH_FIX_DEPLOYMENT_VERIFICATION.md)
+- [ARCHIVED](./AUTH_FIX_TESTED_SUCCESSFULLY.md)
+- [ARCHIVED](./AUTH_FIX_VERIFICATION_COMPLETE.md)
+- [ARCHIVED](./AUTH_SCOPE_DETAILED_FLOW.md)
+- [ARCHIVED](./AUTH_SCOPE_DOCUMENTATION_INDEX.md)
+- [ARCHIVED](./AUTH_SCOPE_FLOW_TRACE.md)
+- [ARCHIVED](./AUTH_SCOPE_QUICK_REFERENCE.md)
+- [ARCHIVED](./CRITICAL_AUTH_FIX_COMPLETED.md)
+- [ARCHIVED](./JWT_SCOPE_BUG_ANALYSIS_INDEX.md)
+- [ARCHIVED](./JWT_SCOPE_BUG_LESSON_IMPLEMENTATION_SUMMARY.md)
+- [ARCHIVED](./JWT_SCOPE_BUG_PATTERNS_AND_SOLUTIONS.md)
+- [ARCHIVED](./JWT_SCOPE_BUG_ROOT_CAUSE_ANALYSIS.md)
+- [ARCHIVED](./JWT_SCOPE_BUG_TECHNICAL_SUMMARY.md)
+- [ARCHIVED](./JWT_SCOPE_FIX_COMPLETE_SUMMARY.md)
+
+---
+
+## Retention
+
+These files are retained for historical reference and audit purposes.
+Review date: 2026-02-14
+
+## Related Documentation
+
+- [Documentation Home](/docs/README.md)
+- [Archive Index](/docs/archive/README.md)

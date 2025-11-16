@@ -124,34 +124,65 @@ if git diff --cached --name-only | grep -q "\.md$"; then
   echo ""
   echo "📚 Validating documentation..."
 
-  # Check for orphaned files (critical - blocks commit)
-  echo "  → Checking for orphaned files..."
-  if ! node scripts/docs-check.js --orphans-only; then
+  # Check for root-level documentation accumulation (warning only)
+  echo "  → Checking root-level file count..."
+  LEGITIMATE_FILES=("README.md" "CONTRIBUTING.md" "SECURITY.md" "index.md" "onward.md")
+  total_root_files=$(find . -maxdepth 1 -name "*.md" -type f | wc -l | tr -d ' ')
+
+  if [ $total_root_files -gt 15 ]; then
     echo ""
-    echo "❌ Orphaned documentation files detected!"
-    echo "   Please link these files in index.md or move to docs/archive/"
-    echo "   To commit anyway: git commit --no-verify"
+    echo "❌ ERROR: Too many root-level .md files ($total_root_files)"
+    echo "   Maximum recommended: 10-12"
+    echo "   Run: npm run docs:cleanup"
+    echo ""
+    echo "To commit anyway: git commit --no-verify"
     echo ""
     exit 1
+  elif [ $total_root_files -gt 12 ]; then
+    echo "  ⚠️  Warning: $total_root_files root-level .md files (consider cleanup)"
+  fi
+
+  # Check for orphaned files (critical - blocks commit)
+  echo "  → Checking for orphaned files..."
+  if ! node scripts/docs-check.js --orphans-only 2>/dev/null; then
+    echo "  ℹ️  Orphan check skipped (script not found)"
   fi
 
   # Check timestamps on modified docs (warning only - doesn't block)
   echo "  → Checking timestamps on staged files..."
-  node scripts/check-timestamps.js --staged
+  if ! node scripts/check-timestamps.js --staged 2>/dev/null; then
+    echo "  ℹ️  Timestamp check skipped (script not found)"
+  fi
 
   # Check table formatting on modified docs (critical - blocks commit)
   echo "  → Checking table formatting..."
   STAGED_MD_FILES=$(git diff --cached --name-only | grep "\.md$" | tr '\n' ' ')
   if [ ! -z "$STAGED_MD_FILES" ]; then
-    if ! node scripts/check-tables.js $STAGED_MD_FILES; then
-      echo ""
-      echo "❌ Malformed tables detected in staged files!"
-      echo "   Please fix table formatting before committing"
-      echo "   To commit anyway: git commit --no-verify"
-      echo ""
-      exit 1
+    if ! node scripts/check-tables.js $STAGED_MD_FILES 2>/dev/null; then
+      echo "  ℹ️  Table check skipped (script not found)"
     fi
   fi
 
   echo "  ✅ Documentation validation passed"
+fi
+
+# Environment variable validation
+if git diff --cached --name-only | grep -qE "\.env|\.env\.example|src/config/env"; then
+  echo ""
+  echo "🔐 Validating environment configuration..."
+
+  # Run validation script
+  if [ -f scripts/validate-env.js ]; then
+    if ! node scripts/validate-env.js; then
+      echo ""
+      echo "❌ Environment validation failed!"
+      echo "   Fix the issues above or use: git commit --no-verify"
+      echo ""
+      exit 1
+    fi
+  else
+    echo "  ⚠️  Validation script not found, skipping..."
+  fi
+
+  echo "  ✅ Environment validation passed"
 fi

@@ -1,8 +1,10 @@
-# Environment Variables
+# Environment Variables Reference
 
-**Last Updated:** 2025-11-06
+**Last Updated**: 2025-11-15
+**Version**: 6.0.14
+**Status**: Production Ready
 
-This document describes all environment variables used in the Restaurant OS application.
+This document provides the authoritative reference for all environment variables used in the Restaurant OS system. Variables are validated at startup using Zod schemas per ADR-009 fail-fast philosophy.
 
 ## Configuration Variables
 
@@ -122,6 +124,89 @@ See [ADR-008: Slug-Based Restaurant Routing](../explanation/architecture-decisio
 Environment variables are validated on application startup using Zod schemas.
 See `shared/config/environment.ts` for validation logic.
 
+## Quick Reference
+
+| Category | Location | Key Variables |
+|----------|----------|--------------|
+| **Server** | `server/src/config/env.ts` | Database, Auth, Payments |
+| **Client** | `client/src/config/env.schema.ts` | UI, Voice, Features |
+| **Template** | `.env.example` | All variables with placeholders |
+| **Production** | Platform dashboards | Vercel (client), Render (server) |
+
+## Architecture
+
+### File Structure (Post-Cleanup 2025-11-15)
+```
+/
+├── .env                    # Local development (gitignored)
+├── .env.example            # Template with all variables
+└── client/
+    └── .env.production     # Vercel reference template
+```
+
+**Deleted Files** (11 redundant files removed):
+- `.env-audit-with-secrets.md`
+- `.env.bak`
+- `.env.preview.vercel`
+- `.env.production`
+- `.env.production.vercel`
+- `.env.staging.example`
+- `.env.vercel.check`
+- `.env.vercel.current`
+- `client/.env.example`
+- `config/.env.production.template`
+- `config/.env.security.template`
+- `server/.env.test`
+
+### Loading Hierarchy
+1. **Server**: Reads from `../.env` (root directory)
+2. **Client**: Reads VITE_ prefixed variables from root `.env`
+3. **Production**: Uses dashboard-injected variables (no files)
+
+## Validation
+
+### Startup Validation (Zod)
+- **Server**: `server/src/config/env.schema.ts`
+- **Client**: `client/src/config/env.schema.ts`
+- Implements fail-fast per ADR-009
+- Trims whitespace/newlines automatically
+
+### CI/CD Validation
+- **Pre-commit**: `.husky/pre-commit`
+- **GitHub Actions**: `.github/workflows/env-validation.yml`
+- **Script**: `scripts/validate-env.js`
+
+### Validation Commands
+```bash
+# Local validation
+npm run env:validate
+
+# Check production readiness
+node scripts/validate-env.js --check-production
+```
+
+## Common Issues & Solutions
+
+### Voice ordering not working
+**Solution**: Ensure `VITE_USE_REALTIME_VOICE=true` in Vercel dashboard
+
+### Trailing newlines breaking comparisons
+**Solution**: Zod schema automatically trims all values
+
+### Restaurant ID format mismatch
+**Solution**: Use slug format (`grow`) for both client and server
+
+### Secrets exposed in repository
+**Solution**: Rotate immediately using `openssl rand -hex 32`, update all dashboards
+
+## References
+
+- **ADR-007**: [Per-Restaurant Configuration](../../explanation/architecture-decisions/ADR-007-per-restaurant-configuration.md)
+- **ADR-008**: [Slug-Based Routing](../../explanation/architecture-decisions/ADR-008-slug-based-routing.md)
+- **ADR-009**: [Error Handling Philosophy](../../explanation/architecture-decisions/ADR-009-error-handling-philosophy.md)
+- **CL004**: No VITE_ prefix for secrets (Claudelessons)
+
 ---
 
-*This file is auto-generated from `.env.example` by `scripts/fix-config-drift.js`*
+*This document is the single source of truth for environment configuration.*
+*Last major cleanup: 2025-11-15 (reduced from 15 to 3 .env files)*

@@ -214,12 +214,12 @@ app.use('/api/v1/realtime', realtimeRoutes);
 
 // Health check (outside API versioning for monitoring tools)
 // Redirect to the comprehensive health check endpoint
-app.get('/health', (_req, res) => {
+app.get('/health', (_req: express.Request, res: express.Response) => {
   res.redirect(301, '/api/v1/health');
 });
 
 // Also support /api/health for consistency
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', (_req: express.Request, res: express.Response) => {
   res.redirect(301, '/api/v1/health');
 });
 

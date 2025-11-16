@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { VoiceWebSocketServer } from './websocket-server';
 import { VoiceServerHealthSchema } from './types';
 import { WebSocket } from 'ws';
@@ -19,7 +19,7 @@ export function getVoiceServer(): VoiceWebSocketServer | undefined {
 export const voiceRoutes = Router();
 
 // Add basic middleware for all voice routes
-voiceRoutes.use((req, res, next) => {
+voiceRoutes.use((req: Request, res: Response, next: NextFunction) => {
   // Add CORS headers for voice endpoints - SECURE VERSION with allowlist
   const allowedOrigins = process.env['ALLOWED_ORIGINS']?.split(',') || [
     'http://localhost:5173',

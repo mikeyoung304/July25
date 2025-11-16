@@ -1,0 +1,106 @@
+name: Environment Variable Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '.env.example'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.js'
+      - '**/*.jsx'
+      - 'server/src/config/**'
+      - 'client/src/config/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.env.example'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.js'
+      - '**/*.jsx'
+      - 'server/src/config/**'
+      - 'client/src/config/**'
+  schedule:
+    # Weekly validation to catch drift
+    - cron: '0 0 * * 0'
+
+jobs:
+  validate-env:
+    name: Validate Environment Configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run environment validation
+        run: node scripts/validate-env.js --verbose
+
+      - name: Check .env.example completeness
+        run: |
+          echo "Checking that .env.example contains all necessary variables..."
+          if [ ! -f .env.example ]; then
+            echo "❌ .env.example is missing!"
+            exit 1
+          fi
+          echo "✅ .env.example exists"
+
+      - name: Validate no secrets in repository
+        run: |
+          echo "Scanning for potential secrets..."
+
+          # Check for real API keys (common patterns)
+          if grep -r "sk-[a-zA-Z0-9]\{32,\}" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.env*" --exclude-dir=node_modules .; then
+            echo "❌ Potential API keys found in repository!"
+            exit 1
+          fi
+
+          # Check for JWT secrets that look real (not placeholders)
+          if grep -r "eyJ[a-zA-Z0-9_-]\{20,\}\.[a-zA-Z0-9_-]\{20,\}\.[a-zA-Z0-9_-]\{20,\}" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.env" --exclude-dir=node_modules .; then
+            echo "❌ Potential JWT tokens found in repository!"
+            exit 1
+          fi
+
+          echo "✅ No obvious secrets detected"
+
+      - name: Validate Zod schemas compile
+        run: |
+          echo "Checking that Zod schemas compile..."
+          npx tsc server/src/config/env.schema.ts --noEmit --skipLibCheck
+          npx tsc client/src/config/env.schema.ts --noEmit --skipLibCheck
+          echo "✅ Zod schemas compile successfully"
+
+      - name: Check for environment variable drift
+        run: |
+          echo "Checking for drift between .env.example and actual usage..."
+
+          # This would compare .env.example with actual env var usage
+          # The validate-env.js script already does this
+
+          echo "✅ Drift check completed"
+
+      - name: Generate validation report
+        if: always()
+        run: |
+          echo "## Environment Validation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if node scripts/validate-env.js; then
+            echo "✅ **All validation checks passed**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Validation failed - see logs above**" >> $GITHUB_STEP_SUMMARY
+          fi

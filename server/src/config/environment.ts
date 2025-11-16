@@ -127,16 +127,16 @@ export function getConfig(): EnvironmentConfig {
       defaultId: env.DEFAULT_RESTAURANT_ID,
     },
     auth: {
-      kioskJwtSecret: env.KIOSK_JWT_SECRET,
-      stationTokenSecret: env.STATION_TOKEN_SECRET,
-      pinPepper: env.PIN_PEPPER,
-      deviceFingerprintSalt: env.DEVICE_FINGERPRINT_SALT,
+      kioskJwtSecret: env.KIOSK_JWT_SECRET || '',
+      stationTokenSecret: env.STATION_TOKEN_SECRET || '',
+      pinPepper: env.PIN_PEPPER || '',
+      deviceFingerprintSalt: env.DEVICE_FINGERPRINT_SALT || '',
     },
     square: {
-      accessToken: env.SQUARE_ACCESS_TOKEN,
+      accessToken: env.SQUARE_ACCESS_TOKEN || '',
       environment: env.SQUARE_ENVIRONMENT,
-      locationId: env.SQUARE_LOCATION_ID,
-      appId: env.SQUARE_APP_ID,
+      locationId: env.SQUARE_LOCATION_ID || '',
+      appId: env.SQUARE_APP_ID || '',
     },
   };
 }

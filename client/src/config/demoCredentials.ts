@@ -31,7 +31,7 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     requiredRoles: ['owner', 'manager', 'server'],
     workspaceCredentials: {
       email: 'server@restaurant.com',
-      password: 'ServerPass123!' // Real Supabase user password
+      password: 'Demo123!' // Aligned with database seed script
     }
   },
   kitchen: {
@@ -40,7 +40,7 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     requiredRoles: ['owner', 'manager', 'kitchen'],
     workspaceCredentials: {
       email: 'kitchen@restaurant.com',
-      password: 'KitchenPass123!' // Real Supabase user password
+      password: 'Demo123!' // Aligned with database seed script
     }
   },
   expo: {
@@ -49,7 +49,7 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     requiredRoles: ['owner', 'manager', 'kitchen', 'expo'],
     workspaceCredentials: {
       email: 'expo@restaurant.com',
-      password: 'ExpoPass123!' // Real Supabase user password
+      password: 'Demo123!' // Aligned with database seed script
     }
   },
   admin: {
@@ -58,7 +58,7 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     requiredRoles: ['owner', 'manager'],
     workspaceCredentials: {
       email: 'manager@restaurant.com',
-      password: 'ManagerPass123!' // Real Supabase user password
+      password: 'Demo123!' // Aligned with database seed script
     }
   },
   kiosk: {

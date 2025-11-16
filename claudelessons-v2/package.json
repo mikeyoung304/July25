@@ -1,0 +1,102 @@
+{
+  "name": "@growfresh/claudelessons",
+  "version": "2.0.0",
+  "description": "Living Knowledge System - Preventing recurring issues through automated enforcement and continuous learning",
+  "main": "index.js",
+  "bin": {
+    "claudelessons": "./integration/cli-tools/claudelessons-cli.ts"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "check": "ts-node integration/cli-tools/claudelessons-cli.ts check",
+    "prevent": "ts-node integration/cli-tools/claudelessons-cli.ts prevent",
+    "stats": "ts-node integration/cli-tools/claudelessons-cli.ts stats",
+    "validate:rpc": "ts-node enforcement/ci-checks/rpc-sync-validator.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write .",
+    "doctor": "node scripts/doctor.js",
+    "migrate": "node scripts/migrate-from-v1.js"
+  },
+  "keywords": [
+    "knowledge-management",
+    "debugging",
+    "automation",
+    "eslint",
+    "ci-cd",
+    "developer-tools",
+    "ai-assistant",
+    "pattern-detection",
+    "technical-debt",
+    "code-quality"
+  ],
+  "author": "Grow Fresh Local Food Team",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0",
+    "eslint": "^8.50.0",
+    "glob": "^10.3.0",
+    "minimatch": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/eslint": "^8.44.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.2.0"
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "eslint:recommended"
+    ],
+    "rules": {
+      "no-console": "warn",
+      "no-unused-vars": "error"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "printWidth": 100
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-node/register"
+    }
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/growfresh/claudelessons"
+  },
+  "bugs": {
+    "url": "https://github.com/growfresh/claudelessons/issues"
+  },
+  "homepage": "https://github.com/growfresh/claudelessons#readme",
+  "claudelessons": {
+    "version": "2.0.0",
+    "basedOn": {
+      "incidents": 20,
+      "cost": "$50,000+",
+      "timeLost": "15-20 days"
+    },
+    "impact": {
+      "preventionRate": "86%",
+      "falsePositiveRate": "<5%",
+      "timeToResolution": "-75%"
+    }
+  }
+}

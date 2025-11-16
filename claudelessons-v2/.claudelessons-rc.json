@@ -1,0 +1,184 @@
+{
+  "version": "2.0.0",
+  "description": "Living Knowledge System - Preventing issues before they occur",
+  "created": "2025-11-10",
+  "basedOn": "20 major incidents, $50,000+ prevented costs, 15-20 days debugging",
+
+  "enforcement": {
+    "eslint": {
+      "enabled": true,
+      "autoFix": true,
+      "customRulesPath": "./enforcement/eslint-rules"
+    },
+    "preCommit": {
+      "enabled": true,
+      "hooks": [
+        "no-early-return-check",
+        "rpc-sync-validator",
+        "env-var-validator",
+        "middleware-validator"
+      ]
+    },
+    "ci": {
+      "enabled": true,
+      "blockOnViolation": true,
+      "checks": [
+        "production-build-test",
+        "schema-drift-detection",
+        "security-scan",
+        "test-coverage-threshold"
+      ]
+    }
+  },
+
+  "patterns": {
+    "no-early-return-before-wrapper": {
+      "id": "CL001",
+      "severity": "error",
+      "category": "React SSR/Hydration",
+      "components": ["AnimatePresence", "Suspense", "ErrorBoundary", "QueryClientProvider"],
+      "autoFix": true,
+      "timeLost": "3+ days",
+      "costImpact": "$1,875",
+      "message": "Early return before {{component}} causes React #318 hydration error",
+      "documentation": "./knowledge/incidents/react-hydration-early-return-bug.md",
+      "testCase": "./enforcement/eslint-rules/__tests__/no-early-return-before-wrapper.test.js"
+    },
+
+    "validate-rpc-sync": {
+      "id": "CL002",
+      "severity": "error",
+      "category": "Database Schema Sync",
+      "checkOn": ["migration", "schema-change", "pre-deploy"],
+      "preventDeploy": true,
+      "timeLost": "3+ days recurring",
+      "costImpact": "$1,875",
+      "message": "RPC function {{rpc}} not synced with table {{table}} schema",
+      "documentation": "./knowledge/incidents/database-schema-mismatches.md",
+      "validator": "./enforcement/ci-checks/rpc-sync-validator.ts"
+    },
+
+    "require-dual-middleware": {
+      "id": "CL003",
+      "severity": "error",
+      "category": "Multi-tenancy Security",
+      "routes": ["/api/v1/*", "/api/protected/*"],
+      "required": ["authenticate", "validateRestaurantAccess"],
+      "timeLost": "2-3 days",
+      "costImpact": "$1,563",
+      "message": "Route {{route}} missing required middleware: {{missing}}",
+      "documentation": "./knowledge/incidents/auth-multi-tenancy-security.md",
+      "validator": "./enforcement/ast-analyzers/middleware-validator.ts"
+    },
+
+    "no-vite-prefix-secrets": {
+      "id": "CL004",
+      "severity": "critical",
+      "category": "Security",
+      "pattern": "VITE_.*(?:KEY|SECRET|TOKEN|PASSWORD)",
+      "message": "VITE_ prefix exposes {{variable}} to browser bundle",
+      "autoFix": false,
+      "documentation": "./knowledge/incidents/configuration-environment-errors.md"
+    },
+
+    "usememo-hook-returns": {
+      "id": "CL005",
+      "severity": "error",
+      "category": "React Performance",
+      "timeLost": "1 day",
+      "message": "Hook {{hook}} returns unstable object/array causing infinite re-renders",
+      "autoFix": true,
+      "documentation": "./knowledge/incidents/react-infinite-loop.md"
+    },
+
+    "component-size-limit": {
+      "id": "CL006",
+      "severity": "warning",
+      "category": "Code Complexity",
+      "maxLines": 200,
+      "message": "Component {{name}} exceeds 200 lines (currently {{lines}}). Large components hide bugs.",
+      "documentation": "./knowledge/incidents/code-complexity-debt.md"
+    },
+
+    "demo-user-compatibility": {
+      "id": "CL007",
+      "severity": "error",
+      "category": "Database Schema",
+      "message": "UUID NOT NULL constraint breaks demo users. Use nullable UUID + demo_user_info JSONB",
+      "documentation": "./knowledge/incidents/database-schema-mismatches.md"
+    }
+  },
+
+  "monitoring": {
+    "errorTracking": {
+      "enabled": true,
+      "providers": ["sentry"],
+      "patternExtraction": true,
+      "alertThreshold": 3
+    },
+    "patternMining": {
+      "enabled": true,
+      "schedule": "daily",
+      "minOccurrences": 2,
+      "autoCreateLesson": true
+    },
+    "impactMetrics": {
+      "enabled": true,
+      "track": ["violations_prevented", "time_saved", "false_positives"],
+      "reportingInterval": "weekly"
+    }
+  },
+
+  "ai": {
+    "contextualGuidance": {
+      "enabled": true,
+      "triggerOn": ["error", "file_open", "commit"],
+      "maxSuggestions": 5
+    },
+    "proactiveWarnings": {
+      "enabled": true,
+      "checkOn": ["save", "pre-commit"],
+      "showInline": true
+    },
+    "autoLearn": {
+      "enabled": true,
+      "requireConfirmation": true,
+      "minConfidence": 0.8
+    }
+  },
+
+  "thresholds": {
+    "testCoverage": {
+      "overall": 80,
+      "critical": {
+        "auth": 100,
+        "payments": 100,
+        "orders": 100
+      }
+    },
+    "passRate": {
+      "minimum": 85,
+      "alert": 90,
+      "target": 98
+    },
+    "performanceRegression": {
+      "p50": 10,
+      "p95": 20,
+      "p99": 30
+    }
+  },
+
+  "reporting": {
+    "weekly": {
+      "enabled": true,
+      "recipients": ["team@growfreshlocalfood.com"],
+      "includeMetrics": true,
+      "includeNewPatterns": true
+    },
+    "incidents": {
+      "autoDocument": true,
+      "requirePostMortem": true,
+      "extractLessons": true
+    }
+  }
+}

@@ -1,0 +1,227 @@
+name: Documentation Validation
+
+on:
+  pull_request:
+    paths:
+      - '**.md'
+      - 'docs/**'
+      - '.github/workflows/documentation-validation.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - '**.md'
+      - 'docs/**'
+
+jobs:
+  validate-documentation:
+    name: Validate Documentation Standards
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check root-level file count
+        id: root-check
+        run: |
+          # Count root-level .md files (excluding legitimate ones)
+          LEGITIMATE_FILES=(
+            "README.md"
+            "CONTRIBUTING.md"
+            "SECURITY.md"
+            "index.md"
+            "onward.md"
+          )
+
+          # Get all root-level .md files
+          all_files=$(find . -maxdepth 1 -name "*.md" -type f)
+          count=0
+          problem_files=()
+
+          while IFS= read -r file; do
+            basename=$(basename "$file")
+            is_legitimate=false
+
+            # Check if file is in legitimate list
+            for legit in "${LEGITIMATE_FILES[@]}"; do
+              if [ "$basename" == "$legit" ]; then
+                is_legitimate=true
+                break
+              fi
+            done
+
+            # Check if file is recent (< 7 days old)
+            if [ "$is_legitimate" = false ]; then
+              file_age=$(find "$file" -mtime +7 2>/dev/null | wc -l | tr -d ' ')
+              if [ "$file_age" -gt 0 ]; then
+                problem_files+=("$basename (> 7 days old)")
+                count=$((count + 1))
+              fi
+            fi
+          done <<< "$all_files"
+
+          echo "old_file_count=$count" >> $GITHUB_OUTPUT
+
+          # Output problem files
+          if [ $count -gt 0 ]; then
+            echo "::warning::Found $count old root-level .md files that should be archived:"
+            for file in "${problem_files[@]}"; do
+              echo "::warning::  - $file"
+            done
+          fi
+
+          # Fail if more than 3 old files
+          if [ $count -gt 3 ]; then
+            echo "::error::Too many old root-level files ($count). Maximum allowed: 3"
+            echo "::error::Run './scripts/cleanup-root-documentation.sh' to fix"
+            exit 1
+          fi
+
+      - name: Check for ARCHIVED banners
+        run: |
+          # Check that archived files have ARCHIVED banner
+          missing_banners=()
+
+          for file in docs/archive/**/*.md; do
+            if [ -f "$file" ] && [ "$(basename "$file")" != "README.md" ]; then
+              if ! head -n 5 "$file" | grep -q "ARCHIVED"; then
+                missing_banners+=("$file")
+              fi
+            fi
+          done
+
+          if [ ${#missing_banners[@]} -gt 0 ]; then
+            echo "::warning::Found ${#missing_banners[@]} archived files missing ARCHIVED banner"
+            for file in "${missing_banners[@]}"; do
+              echo "::warning::  - $file"
+            done
+          fi
+
+      - name: Check Last Updated timestamps
+        run: |
+          # Check for "Last Updated" in documentation files
+          missing_timestamp=()
+
+          # Check active documentation (not in archive)
+          for file in docs/**/*.md; do
+            # Skip archive and specific directories
+            if [[ "$file" == *"/archive/"* ]] || [[ "$file" == *"/meta/"* ]]; then
+              continue
+            fi
+
+            if [ -f "$file" ]; then
+              if ! head -n 30 "$file" | grep -qi "Last Updated\|Last Modified\|Updated:"; then
+                missing_timestamp+=("$file")
+              fi
+            fi
+          done
+
+          if [ ${#missing_timestamp[@]} -gt 0 ]; then
+            echo "::warning::Found ${#missing_timestamp[@]} documentation files missing 'Last Updated' timestamp"
+            # Only show first 10 to avoid too much output
+            count=0
+            for file in "${missing_timestamp[@]}"; do
+              if [ $count -lt 10 ]; then
+                echo "::warning::  - $file"
+                count=$((count + 1))
+              fi
+            done
+            if [ ${#missing_timestamp[@]} -gt 10 ]; then
+              echo "::warning::  ... and $((${#missing_timestamp[@]} - 10)) more"
+            fi
+          fi
+
+      - name: Check for broken internal links
+        run: |
+          # Simple check for broken internal markdown links
+          broken_links=()
+
+          for file in docs/**/*.md; do
+            if [ -f "$file" ]; then
+              # Extract markdown links
+              while IFS= read -r link; do
+                # Check if it's a relative link (not http/https)
+                if [[ ! "$link" =~ ^https?:// ]]; then
+                  # Remove anchor
+                  link_path="${link%%#*}"
+
+                  # Resolve relative to file's directory
+                  dir=$(dirname "$file")
+
+                  # Check if target exists
+                  if [ -n "$link_path" ] && [ ! -f "$dir/$link_path" ] && [ ! -f "$link_path" ]; then
+                    broken_links+=("$file -> $link_path")
+                  fi
+                fi
+              done < <(grep -oP '\]\(\K[^)]+' "$file" 2>/dev/null || true)
+            fi
+          done
+
+          if [ ${#broken_links[@]} -gt 0 ]; then
+            echo "::warning::Found ${#broken_links[@]} potential broken internal links"
+            # Only show first 5
+            count=0
+            for link in "${broken_links[@]}"; do
+              if [ $count -lt 5 ]; then
+                echo "::warning::  - $link"
+                count=$((count + 1))
+              fi
+            done
+          fi
+
+      - name: Documentation quality report
+        if: always()
+        run: |
+          echo "## Documentation Quality Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Count documentation files
+          total_docs=$(find docs -name "*.md" -type f | wc -l | tr -d ' ')
+          echo "- Total documentation files: $total_docs" >> $GITHUB_STEP_SUMMARY
+
+          # Count root files
+          root_files=$(find . -maxdepth 1 -name "*.md" -type f | wc -l | tr -d ' ')
+          echo "- Root-level markdown files: $root_files" >> $GITHUB_STEP_SUMMARY
+
+          # Count archive files
+          archive_files=$(find docs/archive -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+          echo "- Archived files: $archive_files" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Status" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.root-check.outputs.old_file_count }}" -gt 3 ]; then
+            echo "- ❌ Too many old root-level files" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ✅ Root-level file count acceptable" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && steps.root-check.outputs.old_file_count > 3
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const count = ${{ steps.root-check.outputs.old_file_count }};
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 📋 Documentation Validation Warning
+
+              Found **${count} old root-level .md files** that should be archived.
+
+              **Action Required**: Run the cleanup script to organize documentation:
+              \`\`\`bash
+              ./scripts/cleanup-root-documentation.sh
+              \`\`\`
+
+              This will move old documentation to appropriate archive directories.
+
+              See [Documentation Standards](docs/meta/DOCUMENTATION_STANDARDS.md) for more information.`
+            })

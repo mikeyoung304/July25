@@ -34,6 +34,7 @@ server/dist/
 
 # Secrets and sensitive files
 secrets.txt
+.env-audit-with-secrets.md
 
 *storybook.log
 storybook-static

@@ -1,0 +1,232 @@
+# Phase 2B Security Monitoring Alerts
+# Deploy these alerts AFTER Phase 2B deployment complete
+# Platform: Prometheus + Alertmanager (or equivalent)
+
+groups:
+  - name: phase_2b_security
+    interval: 30s
+    rules:
+      # ========================================================================
+      # CRITICAL: Security Violation Detection
+      # ========================================================================
+      - alert: SecurityViolationDetected
+        expr: increase(security_violations_total[1m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: websocket
+          phase: p0.9_phase_2b
+        annotations:
+          summary: "🚨 Cross-restaurant access attempt detected"
+          description: |
+            User {{ $labels.user_id }} attempted to access {{ $labels.attempted_restaurant }}
+            while authenticated for {{ $labels.authenticated_restaurant }}.
+
+            Event Type: {{ $labels.event_type }}
+            Timestamp: {{ $value }}
+
+            **Immediate Action Required**:
+            1. Check security_audit_logs table for details
+            2. Verify if legitimate user error or attack
+            3. If attack: Review access logs, consider IP blocking
+            4. If user error: Provide user training on multi-restaurant access
+          runbook_url: "https://docs.internal/runbooks/security-violation-response"
+          dashboard_url: "https://grafana.internal/d/phase-2b-security"
+
+      # ========================================================================
+      # CRITICAL: PIN Attempt Counter Failure (Phase 2A)
+      # ========================================================================
+      - alert: PINAttemptCounterFailure
+        expr: increase(auth_pin_attempt_counter_failures_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: auth
+          phase: p0.9_phase_2a
+        annotations:
+          summary: "🔒 Brute force protection broken - PIN attempt counter failing"
+          description: |
+            Failed to update PIN attempt counter {{ $value }} times in the last 5 minutes.
+
+            **Impact**: Unlimited brute force attempts possible
+
+            **Immediate Action Required**:
+            1. Check database connectivity
+            2. Review database error logs
+            3. Verify user_pins table accessible
+            4. Consider temporary rate limiting at load balancer
+          runbook_url: "https://docs.internal/runbooks/pin-counter-failure"
+
+      # ========================================================================
+      # CRITICAL: Failed to Load User Permissions
+      # ========================================================================
+      - alert: FailedToLoadUserPermissions
+        expr: increase(auth_permission_load_failures_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: auth
+          phase: p0.9_phase_2a
+        annotations:
+          summary: "🛡️ RBAC enforcement broken - permission load failures"
+          description: |
+            Failed to load user permissions {{ $value }} times in the last 5 minutes.
+
+            **Impact**: Users may get undefined roles, breaking RBAC
+
+            **Immediate Action Required**:
+            1. Check database connectivity
+            2. Verify user_restaurants table accessible
+            3. Check for missing foreign key references
+            4. Review application logs for SQL errors
+          runbook_url: "https://docs.internal/runbooks/rbac-failure"
+
+      # ========================================================================
+      # ERROR: Auth Log Database Fallback
+      # ========================================================================
+      - alert: AuthLogDatabaseFallback
+        expr: rate(auth_log_fallback_total[15m]) > 0.01
+        for: 5m
+        labels:
+          severity: error
+          component: auth
+          phase: p0.9_phase_2a
+        annotations:
+          summary: "📁 Auth logging falling back to file system"
+          description: |
+            Database inserts for auth_logs or security_audit_logs are failing.
+            Rate: {{ $value }} failures per second.
+
+            **Impact**: Audit trail using file-based fallback (compliance risk)
+
+            **Action Required**:
+            1. Check database disk space
+            2. Verify table permissions
+            3. Check for database connection pool exhaustion
+            4. Plan manual reconciliation of file logs to database
+          runbook_url: "https://docs.internal/runbooks/auth-log-fallback"
+
+      # ========================================================================
+      # WARNING: Station Token Activity Update Failure
+      # ========================================================================
+      - alert: StationTokenActivityUpdateFailure
+        expr: increase(station_token_activity_update_failures_total[1h]) > 5
+        for: 10m
+        labels:
+          severity: warning
+          component: auth
+          phase: p0.9_phase_2a
+        annotations:
+          summary: "🖥️ Station token activity tracking degraded"
+          description: |
+            Failed to update station token last_activity_at {{ $value }} times in the last hour.
+
+            **Impact**: Stale station tokens may not expire correctly
+
+            **Action Required**:
+            1. Create ticket for investigation
+            2. Check database performance
+            3. Review station_tokens table for locking issues
+            4. Consider increasing connection pool size
+
+      # ========================================================================
+      # INFO: Security Violation Rate Anomaly
+      # ========================================================================
+      - alert: SecurityViolationRateAnomaly
+        expr: rate(security_violations_total[10m]) > 0.1
+        for: 15m
+        labels:
+          severity: warning
+          component: websocket
+          phase: p0.9_phase_2b
+        annotations:
+          summary: "📊 Unusual security violation rate detected"
+          description: |
+            Security violations occurring at {{ $value }} per second (sustained 15+ minutes).
+
+            **Possible Causes**:
+            - Attack in progress (coordinated or distributed)
+            - Misconfigured client (wrong restaurant ID in requests)
+            - User error (attempting to access wrong restaurant)
+            - Test traffic (if in staging)
+
+            **Action Required**:
+            1. Review security_audit_logs for patterns
+            2. Check if violations from single user or distributed
+            3. If attack: Consider rate limiting or IP blocking
+            4. If misconfiguration: Contact client team
+
+  - name: phase_2b_operational
+    interval: 60s
+    rules:
+      # ========================================================================
+      # WARNING: Database Query Performance
+      # ========================================================================
+      - alert: SecurityAuditLogQuerySlow
+        expr: histogram_quantile(0.95, rate(db_query_duration_seconds_bucket{table="security_audit_logs"}[5m])) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+          phase: p0.9_phase_2b
+        annotations:
+          summary: "🐌 security_audit_logs queries slow (p95 > 500ms)"
+          description: |
+            95th percentile query time: {{ $value }}s
+
+            **Possible Causes**:
+            - Missing index utilization
+            - Table scan instead of index scan
+            - Too many rows (table growing large)
+            - Database resource contention
+
+            **Action Required**:
+            1. Run EXPLAIN ANALYZE on slow queries
+            2. Verify indexes being used
+            3. Consider table partitioning if > 1M rows
+            4. Review query patterns in application code
+
+      # ========================================================================
+      # WARNING: Log File Size Growth
+      # ========================================================================
+      - alert: SecurityViolationLogFileGrowth
+        expr: rate(node_filesystem_size_bytes{mountpoint="/var/log"}[1h]) > 10485760
+        for: 30m
+        labels:
+          severity: warning
+          component: filesystem
+          phase: p0.9_phase_2b
+        annotations:
+          summary: "📈 Security violation log file growing rapidly"
+          description: |
+            /var/log partition growing at {{ $value | humanize }}B/s
+
+            **Possible Causes**:
+            - Database unavailable (all logging to file)
+            - High volume of security violations
+            - Log rotation not configured
+
+            **Action Required**:
+            1. Check database availability
+            2. Review security_violations.log size
+            3. Verify logrotate configuration
+            4. Consider archiving old logs
+
+      # ========================================================================
+      # INFO: No Security Violations (Baseline)
+      # ========================================================================
+      - alert: SecurityViolationBaseline
+        expr: increase(security_violations_total[24h]) == 0
+        for: 1h
+        labels:
+          severity: info
+          component: websocket
+          phase: p0.9_phase_2b
+        annotations:
+          summary: "✅ Zero security violations in 24 hours (baseline healthy)"
+          description: |
+            No cross-restaurant access attempts detected in the last 24 hours.
+
+            **Expected Behavior**: This is the normal/healthy state
+
+            **Use Case**: Confirms monitoring is working and Phase 2B security is effective
