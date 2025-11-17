@@ -47,7 +47,7 @@ info() {
 }
 
 echo "1. Pulling environment variables from Vercel..."
-vercel env pull ".env.${ENVIRONMENT}.temp" --environment="${ENVIRONMENT}" > /dev/null 2>&1
+vercel env pull ".env.${ENVIRONMENT}.temp" --environment="${ENVIRONMENT}" --scope mikeyoung304-gmailcoms-projects --yes > /dev/null 2>&1
 success "Environment variables pulled"
 echo ""
 
