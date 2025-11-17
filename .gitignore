@@ -67,3 +67,4 @@ test-results/
 .env.vercel*
 
 /generated/prisma
+.vercel
