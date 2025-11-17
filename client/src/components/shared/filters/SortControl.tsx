@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { SortBy, SortDirection } from 'shared/types'
+import type { SortBy, SortDirection } from '@shared'
 import { cn } from '@/utils'
 
 interface SortControlProps {

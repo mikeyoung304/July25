@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { useOrderData } from '../useOrderData'
 import { orderService } from '@/services'
 import { Order } from '@/modules/orders/types'
-import { defaultFilters, OrderStatus, UIOrderFilters } from 'shared/types'
+import { defaultFilters, OrderStatus, UIOrderFilters } from '@shared'
 
 // Mock the orderService
 vi.mock('@/services', () => ({

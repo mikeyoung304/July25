@@ -1,5 +1,5 @@
 import type { Order, OrderItem } from '@/services/types'
-import { Station, StationType, StationAssignment, STATION_CONFIG } from 'shared/types'
+import { Station, StationType, StationAssignment, STATION_CONFIG } from '@shared'
 
 // Mock stations data
 const mockStations: Station[] = [

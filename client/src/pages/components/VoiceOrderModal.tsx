@@ -12,7 +12,7 @@ import { MenuGrid } from '@/modules/order-system/components/MenuGrid'
 import { ItemDetailModal } from '@/modules/order-system/components/ItemDetailModal'
 import { MenuItem } from '@/services/types'
 import { CartItem } from '@/modules/order-system/types'
-import type { Table } from 'shared/types'
+import type { Table } from '@shared'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import { logger } from '@/services/logger'
 

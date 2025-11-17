@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
-import { StationType, STATION_CONFIG } from 'shared/types'
+import { StationType, STATION_CONFIG } from '@shared'
 import { cn } from '@/utils'
 
 // Station Badge

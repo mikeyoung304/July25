@@ -65,7 +65,8 @@ describe('useOrderHistory', () => {
 
     expect(orderHistoryService.getOrderHistory).toHaveBeenCalledWith({
       page: 1,
-      pageSize: 20,
+      limit: 20,
+      searchQuery: undefined,
       startDate: expect.any(Date),
       endDate: expect.any(Date)
     })
