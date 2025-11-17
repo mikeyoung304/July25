@@ -24,16 +24,16 @@
     "./*": null
   },
   "scripts": {
-    "build": "../node_modules/.bin/tsc",
-    "typecheck": "../node_modules/.bin/tsc --noEmit",
-    "typecheck:quick": "../node_modules/.bin/tsc --noEmit",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "typecheck:quick": "tsc --noEmit",
     "lint": "eslint config/index.ts config/browser.ts config/node.ts",
     "test:quick": "echo \"no quick tests\""
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
   },
   "dependencies": {
+    "typescript": "^5.3.3",
     "date-fns": "^2.30.0",
     "dotenv": "^16.4.1",
     "zod": "^3.25.76"
