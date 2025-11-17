@@ -24,9 +24,9 @@
     "./*": null
   },
   "scripts": {
-    "build": "npm exec -- tsc",
-    "typecheck": "npm exec -- tsc --noEmit",
-    "typecheck:quick": "npm exec -- tsc --noEmit",
+    "build": "npx tsc",
+    "typecheck": "npx tsc --noEmit",
+    "typecheck:quick": "npx tsc --noEmit",
     "lint": "eslint config/index.ts config/browser.ts config/node.ts",
     "test:quick": "echo \"no quick tests\""
   },
