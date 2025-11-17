@@ -2,10 +2,9 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(async ({ mode }) => {
   // IMPORTANT: Load .env from ROOT directory (monorepo setup)
   // This allows ONE .env file to serve both server and client
   const envDir = fileURLToPath(new URL('../', import.meta.url))
@@ -42,16 +41,23 @@ export default defineConfig(({ mode }) => {
     console.warn('   Production builds on Vercel will still enforce strict validation');
   }
   
+  // Conditionally load visualizer only when ANALYZE is set
+  const analyzePlugins = [];
+  if (process.env.ANALYZE) {
+    const { visualizer } = await import('rollup-plugin-visualizer');
+    analyzePlugins.push(visualizer({
+      filename: './dist/stats.html',
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+    }));
+  }
+
   return {
     plugins: [
       react(),
       // Bundle size visualization (only in analyze mode)
-      ...(process.env.ANALYZE ? [visualizer({
-        filename: './dist/stats.html',
-        open: true,
-        gzipSize: true,
-        brotliSize: true,
-      })] : []),
+      ...analyzePlugins,
     ],
     
     build: {
