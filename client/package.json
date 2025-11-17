@@ -6,7 +6,7 @@
     "dev": "vite",
     "dev:clean": "npx kill-port 5173 && vite",
     "verify": "node verify-setup.js",
-    "build": "NODE_ENV=production ROLLUP_NO_NATIVE=1 vite build",
+    "build": "NODE_ENV=production ROLLUP_NO_NATIVE=1 npm exec -- vite build",
     "lint": "eslint src/config/index.ts src/utils/env.ts",
     "lint:fix": "eslint src/config/index.ts src/utils/env.ts --fix",
     "preview": "vite preview --port 4173",
