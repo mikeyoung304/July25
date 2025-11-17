@@ -172,8 +172,8 @@ if git diff --cached --name-only | grep -qE "\.env|\.env\.example|src/config/env
   echo "🔐 Validating environment configuration..."
 
   # Run validation script
-  if [ -f scripts/validate-env.js ]; then
-    if ! node scripts/validate-env.js; then
+  if [ -f scripts/validate-env.cjs ]; then
+    if ! node scripts/validate-env.cjs; then
       echo ""
       echo "❌ Environment validation failed!"
       echo "   Fix the issues above or use: git commit --no-verify"

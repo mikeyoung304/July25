@@ -44,7 +44,7 @@ jobs:
         run: npm ci
 
       - name: Run environment validation
-        run: node scripts/validate-env.js --verbose
+        run: node scripts/validate-env.cjs --verbose
 
       - name: Check .env.example completeness
         run: |
@@ -99,7 +99,7 @@ jobs:
           echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if node scripts/validate-env.js; then
+          if node scripts/validate-env.cjs; then
             echo "✅ **All validation checks passed**" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **Validation failed - see logs above**" >> $GITHUB_STEP_SUMMARY
