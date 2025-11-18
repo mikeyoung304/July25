@@ -133,30 +133,35 @@ export class WebRTCVoiceClient extends EventEmitter {
 
     // Handle session.created event to send session configuration
     this.eventHandler.on('session.created', () => {
-      if (this.config.debug) {
-        logger.warn('[WebRTCVoiceClient] Session created, sending configuration');
-      }
+      console.log('🎯 [WebRTCVoiceClient] Session created event received');
+
       const sessionConfigObj = this.sessionConfig.buildSessionConfig();
 
       // CRITICAL: Always log session config size to diagnose oversized messages
       const sessionConfigJson = JSON.stringify(sessionConfigObj);
       const configSizeKB = (sessionConfigJson.length / 1024).toFixed(2);
-      logger.warn('[WebRTCVoiceClient] Sending session.update config:', {
+
+      // FORCE console.log for production debugging
+      console.log('📤 [WebRTCVoiceClient] Sending session.update:', {
         sizeKB: configSizeKB,
         instructionsLength: sessionConfigObj.instructions?.length || 0,
         toolsCount: sessionConfigObj.tools?.length || 0,
+        toolNames: sessionConfigObj.tools?.map((t: any) => t.name) || [],
         hasMenuContext: this.sessionConfig.getMenuContext().length > 0,
-        menuContextLength: this.sessionConfig.getMenuContext().length
+        menuContextLength: this.sessionConfig.getMenuContext().length,
+        hasMenuInInstructions: sessionConfigObj.instructions.includes('📋 FULL MENU')
       });
 
       if (sessionConfigJson.length > 50000) {
-        logger.error('[WebRTCVoiceClient] WARNING: Session config is very large (>50KB), may cause connection issues');
+        console.error('🚨 [WebRTCVoiceClient] Session config TOO LARGE (>50KB)!');
       }
 
+      console.log('🚀 [WebRTCVoiceClient] Sending session.update to OpenAI now...');
       this.eventHandler.sendEvent({
         type: 'session.update',
         session: sessionConfigObj
       });
+      console.log('✅ [WebRTCVoiceClient] session.update sent');
 
       // Clear audio buffer immediately after session config
       this.eventHandler.sendEvent({
