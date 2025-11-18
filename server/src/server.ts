@@ -16,10 +16,8 @@ import { requestLogger } from './middleware/requestLogger';
 import { setupRoutes } from './routes';
 import { aiService } from './services/ai.service';
 import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocket';
-import { setupAIWebSocket } from './ai/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { stopRateLimiterCleanup } from './middleware/authRateLimiter';
-import { getVoiceServer } from './voice/voice-routes';
 import { OrdersService } from './services/orders.service';
 import { aiRoutes } from './routes/ai.routes';
 import { realtimeRoutes } from './routes/realtime.routes';
@@ -234,7 +232,6 @@ app.use(errorHandler);
 
 // WebSocket setup
 setupWebSocketHandlers(wss);
-setupAIWebSocket(wss);
 
 // Start server
 async function startServer() {
@@ -290,16 +287,6 @@ async function gracefulShutdown(signal: string) {
   });
   wss.close();
 
-  // Clean up Voice WebSocket server
-  try {
-    const voiceServer = getVoiceServer();
-    if (voiceServer) {
-      voiceServer.shutdown();
-      logger.info('Voice server shutdown complete');
-    }
-  } catch (error) {
-    logger.error('Error shutting down voice server:', error);
-  }
 
   // Clean up auth rate limiter
   try {

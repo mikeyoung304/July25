@@ -8,7 +8,6 @@ import { aiServiceLimiter, transcriptionLimiter } from '../middleware/rateLimite
 import { validateRequest } from '../middleware/validation';
 import { menuUploadSchema, parseOrderSchema } from '../validation/ai.validation';
 import { trackAIMetrics } from '../middleware/metrics';
-import { voiceRoutes } from '../voice/voice-routes';
 import { MenuService } from '../services/menu.service';
 
 const router = Router();
@@ -622,8 +621,5 @@ router.post('/test-transcribe', audioUpload.single('audio'), async (req: Request
     });
   }
 });
-
-// Mount voice routes
-router.use('/voice', voiceRoutes);
 
 export { router as aiRoutes };

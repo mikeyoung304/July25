@@ -336,6 +336,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                 </div>
               }>
                 <VoiceControlWebRTC
+                  context="kiosk"
                   onTranscript={handleVoiceTranscript}
                   onOrderDetected={handleOrderData}
                   onRecordingStateChange={setIsListening}
