@@ -244,10 +244,68 @@ last_seen: "2025-11-12"
 related_patterns: ["CL005"]
 ```
 
-### EPL-007: React Hydration Error (Early Return Before Wrapper)
+### EPL-007: Authentication Loop (Supabase Direct Auth with STRICT_AUTH)
 
 ```yaml
 id: EPL-007
+pattern: "401.*Unauthorized|No token provided|Authentication.*Required"
+misleading_message: "Error: 401 Unauthorized / No token provided"
+real_cause: "Frontend using Supabase direct auth (JWT missing restaurant_id), backend STRICT_AUTH=true requires it"
+
+symptoms:
+  - Login succeeds but immediate 401 on next request
+  - "Authentication Required" modal loops forever
+  - Works locally (STRICT_AUTH=false) fails production (STRICT_AUTH=true)
+  - Credentials are correct
+  - Token exists in browser but backend rejects it
+
+test_commands:
+  - command: |
+      # Decode JWT and check for restaurant_id
+      TOKEN=$(localStorage.getItem('auth_session') | jq -r '.session.accessToken')
+      echo $TOKEN | cut -d'.' -f2 | base64 -d | jq '.restaurant_id'
+    expected: "null (field missing from Supabase JWT)"
+  - command: grep -r "supabase.auth.signInWithPassword" client/src/
+    expected: "Shows login using Supabase direct auth"
+  - command: grep "STRICT_AUTH" server/.env
+    expected: "true (requires restaurant_id in JWT)"
+
+fix_commands:
+  - command: |
+      # Replace Supabase direct auth with custom endpoint
+      # In AuthContext.tsx login() function:
+      const response = await httpClient.post('/api/v1/auth/login', {
+        email,
+        password,
+        restaurantId: RESTAURANT_UUID  // NOT slug!
+      });
+
+      # Store session in localStorage for httpClient access
+      localStorage.setItem('auth_session', JSON.stringify({
+        user: response.user,
+        session: { accessToken, refreshToken, expiresIn, expiresAt },
+        restaurantId: response.restaurantId
+      }));
+    description: "Migrate to custom auth endpoint with restaurant_id"
+  - command: |
+      # Hardcode slug-to-UUID resolution
+      const GROW_RESTAURANT_UUID = '11111111-1111-1111-1111-111111111111';
+      const resolvedId = restaurantId === 'grow' ? GROW_RESTAURANT_UUID : restaurantId;
+    description: "Resolve slug to UUID before auth call"
+
+confidence: 0.98
+occurrences: 40+
+time_saved: "40+ hours cumulative"
+first_seen: "2025-10-01"
+last_seen: "2025-11-18"
+related_patterns: ["EPL-006", "CL-AUTH-001"]
+incident_file: "CL-AUTH-001-supabase-direct-auth-strict-mode.md"
+```
+
+### EPL-008: React Hydration Error (Early Return Before Wrapper)
+
+```yaml
+id: EPL-009
 pattern: "Text content does not match.*Hydration|Minified React error #418|#423"
 misleading_message: "Error: Text content does not match server-rendered HTML"
 real_cause: "Early return before AnimatePresence/Transition wrapper"
@@ -281,10 +339,10 @@ last_seen: "2025-10-22"
 related_patterns: ["CL001"]
 ```
 
-### EPL-008: VITE_ Prefix Exposes Secrets
+### EPL-009: VITE_ Prefix Exposes Secrets
 
 ```yaml
-id: EPL-008
+id: EPL-009
 pattern: "API.*key.*exposed|secret.*in bundle"
 misleading_message: "Security Warning: API key found in client bundle"
 real_cause: "VITE_ prefix makes server-side secret available to browser"
@@ -320,7 +378,7 @@ severity: "CRITICAL"
 related_patterns: ["CL004"]
 ```
 
-### EPL-009: TypeScript Error After Dependency Update
+### EPL-010: TypeScript Error After Dependency Update
 
 ```yaml
 id: EPL-009
@@ -355,7 +413,7 @@ first_seen: "2025-08-10"
 last_seen: "2025-11-08"
 ```
 
-### EPL-010: Build Succeeds Locally, Fails in CI
+### EPL-011: Build Succeeds Locally, Fails in CI
 
 ```yaml
 id: EPL-010
