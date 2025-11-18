@@ -218,17 +218,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         scopes: response.user?.scopes?.length
       });
 
-      // 3. Store custom JWT in React state
+      // 3. Store custom JWT in React state AND localStorage
       logger.info('🔐 Step 3: Storing custom JWT in auth context');
-      setUser(response.user);
-      setRestaurantId(response.restaurantId);
-      setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
-      setSession({
+      const sessionData = {
         accessToken: response.session.access_token,
         refreshToken: response.session.refresh_token,
         expiresIn: response.session.expires_in,
         expiresAt: Date.now() / 1000 + response.session.expires_in
-      });
+      };
+
+      setUser(response.user);
+      setRestaurantId(response.restaurantId);
+      setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
+      setSession(sessionData);
+
+      // CRITICAL FIX: Store in localStorage so httpClient can access it
+      // This ensures httpClient has the token even if Supabase session sync fails
+      localStorage.setItem('auth_session', JSON.stringify({
+        user: response.user,
+        session: sessionData,
+        restaurantId: response.restaurantId
+      }));
 
       // 4. Sync with Supabase for Realtime subscriptions
       logger.info('🔐 Step 4: Syncing custom JWT with Supabase session');
