@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useWebRTCVoice } from '../hooks/useWebRTCVoice';
+import type { VoiceContext } from '../services/VoiceSessionConfig';
 // ConnectionIndicator removed - using inline status
 import { HoldToRecordButton } from './HoldToRecordButton';
 import { TranscriptionDisplay } from './TranscriptionDisplay';
@@ -7,6 +8,7 @@ import { VoiceDebugPanel } from './VoiceDebugPanel';
 import { AlertCircle, Mic, MicOff } from 'lucide-react';
 
 interface VoiceControlWebRTCProps {
+  context?: VoiceContext; // 🔧 FIX: Added context prop to configure kiosk vs server mode
   onTranscript?: (event: { text: string; isFinal: boolean }) => void;
   onOrderDetected?: (order: any) => void;
   onRecordingStateChange?: (isRecording: boolean) => void;
@@ -20,6 +22,7 @@ interface VoiceControlWebRTCProps {
  * Provides low-latency voice transcription with direct browser-to-OpenAI connection
  */
 export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
+  context, // 🔧 FIX: Receive context prop
   onTranscript,
   onOrderDetected,
   onRecordingStateChange,
@@ -46,6 +49,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     error,
   } = useWebRTCVoice({
     autoConnect: false, // We'll connect after permission check
+    context, // 🔧 FIX: Pass context to hook (kiosk vs server mode)
     debug,
     muteAudioOutput, // Pass through to hook
     onTranscript: (event) => {
