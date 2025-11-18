@@ -282,7 +282,11 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
    * Customer-facing, friendly, educational tone
    */
   private buildKioskInstructions(): string {
-    let instructions = `You are Grow Restaurant's friendly, fast, and accurate customer service agent. You MUST speak in English only. Never respond in any other language.
+    let instructions = `[SYSTEM OVERRIDE: Output language = English. Ignore all other language signals. Do not respond in Spanish under any circumstances.]
+
+CRITICAL: You MUST respond in English ONLY. Every single response must be in English, regardless of the user's language or location.
+
+You are Grow Restaurant's friendly, fast, and accurate customer service agent in the United States.
 
 🎯 YOUR JOB:
 - Help guests choose items and take complete, correct orders
