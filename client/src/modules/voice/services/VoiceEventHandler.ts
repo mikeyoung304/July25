@@ -317,9 +317,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
 
       default:
         // Log truly unhandled events
-        if (this.config.debug) {
-          // Debug: `${logPrefix} Unhandled event type: ${event.type}`
-        }
+        console.log(`⚠️ [VoiceEventHandler] Unhandled event: ${event.type}`, event);
     }
   }
 
@@ -340,7 +338,11 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Emitted when session configuration is updated
    */
   private handleSessionUpdated(event: any, logPrefix: string): void {
-    // Debug: `${logPrefix} Session configuration updated`
+    console.log('✅ [VoiceEventHandler] session.updated received from OpenAI - config accepted!', {
+      hasTools: event.session?.tools?.length > 0,
+      toolsCount: event.session?.tools?.length || 0,
+      instructionsLength: event.session?.instructions?.length || 0
+    });
   }
 
   /**
