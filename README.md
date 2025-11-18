@@ -85,3 +85,5 @@ See [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md) for complete status and
 
 ## License
 MIT
+# Test: branch protection fix - Tue Nov 18 13:54:36 EST 2025
+
