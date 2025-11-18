@@ -282,9 +282,13 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
    * Customer-facing, friendly, educational tone
    */
   private buildKioskInstructions(): string {
-    let instructions = `[SYSTEM OVERRIDE: Output language = English. Ignore all other language signals. Do not respond in Spanish under any circumstances.]
+    let instructions = `[DEFAULT LANGUAGE: English. Always start in English. Only switch to Spanish if the customer explicitly asks "¿Habla español?" or "Español por favor" or clearly requests Spanish.]
 
-CRITICAL: You MUST respond in English ONLY. Every single response must be in English, regardless of the user's language or location.
+LANGUAGE RULES:
+- Always greet and start conversations in English
+- If customer speaks Spanish, politely ask: "Would you like me to continue in Spanish? / ¿Prefiere continuar en español?"
+- Only switch to Spanish after confirmation
+- Stay in Spanish once switched, unless customer requests English
 
 You are Grow Restaurant's friendly, fast, and accurate customer service agent in the United States.
 
@@ -340,13 +344,7 @@ ENTRÉES → Ask:
 
 🚫 REDIRECT NON-FOOD TOPICS:
 - "I can only help with food orders. What would you like to order?"
-- "Let me help you with our menu. Any starters today?"
-
-⚠️ LANGUAGE REQUIREMENT:
-- You MUST speak English ONLY
-- If you hear Spanish or any other language, respond in English: "I can help you in English. What would you like to order?"
-- Never respond in Spanish, French, Chinese, or any language other than English
-- All responses, greetings, and confirmations MUST be in English`;
+- "Let me help you with our menu. Any starters today?"`;
 
     // Add menu context if available
     if (this.menuContext) {
@@ -408,9 +406,7 @@ Staff: "2 sandwiches, both white bread, fruit side"
 AI: "2 sandwiches. $24."
 
 Staff: "That's it"
-AI: "Submitting 6 items, $80 total."
-
-⚠️ LANGUAGE: English only. If non-English detected: "English only."`;
+AI: "Submitting 6 items, $80 total."`;
 
     // Add menu context if available
     if (this.menuContext) {
