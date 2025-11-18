@@ -157,10 +157,29 @@ export class WebRTCVoiceClient extends EventEmitter {
       }
 
       console.log('🚀 [WebRTCVoiceClient] Sending session.update to OpenAI now...');
-      this.eventHandler.sendEvent({
+
+      const sessionUpdatePayload = {
         type: 'session.update',
         session: sessionConfigObj
+      };
+
+      // Log the ACTUAL payload being sent
+      console.log('📨 [WebRTCVoiceClient] ACTUAL session.update payload:', {
+        type: sessionUpdatePayload.type,
+        session: {
+          modalities: sessionConfigObj.modalities,
+          instructions: sessionConfigObj.instructions?.substring(0, 200) + '...',
+          instructionsLength: sessionConfigObj.instructions?.length,
+          toolsCount: sessionConfigObj.tools?.length,
+          toolNames: sessionConfigObj.tools?.map((t: any) => t.name),
+          voice: sessionConfigObj.voice,
+          turnDetection: sessionConfigObj.turn_detection,
+          temperature: sessionConfigObj.temperature,
+          maxTokens: sessionConfigObj.max_response_output_tokens
+        }
       });
+
+      this.eventHandler.sendEvent(sessionUpdatePayload);
       console.log('✅ [WebRTCVoiceClient] session.update sent');
 
       // Clear audio buffer immediately after session config
