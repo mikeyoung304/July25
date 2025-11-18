@@ -181,63 +181,83 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, []);
 
-  // Email/password login (Pure Supabase Auth)
+  // Email/password login (Custom JWT with restaurant_id + scopes)
   const login = async (email: string, password: string, restaurantId: string) => {
     logger.info('🔐 login() START', { email, restaurantId });
     setIsLoading(true);
     try {
-      // 1. Authenticate with Supabase directly
-      logger.info('🔐 Step 1: Calling supabase.auth.signInWithPassword');
-      const supabaseStart = Date.now();
+      // PERMANENT FIX: Use custom /api/v1/auth/login endpoint
+      // Returns JWT with restaurant_id + scopes embedded → works with STRICT_AUTH=true forever
 
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      // 1. Resolve slug to UUID (hardcoded for now - we only have one restaurant)
+      const GROW_RESTAURANT_UUID = '11111111-1111-1111-1111-111111111111';
+      const resolvedRestaurantId = restaurantId === 'grow' ? GROW_RESTAURANT_UUID : restaurantId;
+      logger.info('🔐 Step 1: Resolved restaurant identifier', {
+        input: restaurantId,
+        resolved: resolvedRestaurantId
+      });
+
+      // 2. Call custom backend auth endpoint
+      logger.info('🔐 Step 2: Calling POST /api/v1/auth/login');
+      const loginStart = Date.now();
+
+      const response = await httpClient.post<{
+        user: User;
+        session: { access_token: string; refresh_token: string; expires_in: number };
+        restaurantId: string;
+      }>('/api/v1/auth/login', {
         email,
-        password
+        password,
+        restaurantId: resolvedRestaurantId
       });
 
-      const supabaseDuration = Date.now() - supabaseStart;
-      logger.info(`🔐 Step 1 complete: Supabase auth (${supabaseDuration}ms)`);
-
-      if (authError || !authData.session) {
-        logger.error('❌ Supabase authentication failed:', authError);
-        throw new Error(authError?.message || 'Login failed');
-      }
-
-      // 2. Fetch user profile and role from backend
-      logger.info('🔐 Step 2: Fetching user from /api/v1/auth/me');
-      const authMeStart = Date.now();
-
-      // NOTE: This will trigger onAuthStateChange SIGNED_IN event asynchronously
-      // Both this manual fetch and onAuthStateChange will call /auth/me
-      // This is intentional for immediate UI update, onAuthStateChange ensures consistency
-      const response = await httpClient.get<{ user: User; restaurantId: string }>(
-        '/api/v1/auth/me'
-      );
-
-      const authMeDuration = Date.now() - authMeStart;
-      logger.info(`🔐 Step 2 complete: User fetched (${authMeDuration}ms)`, {
+      const loginDuration = Date.now() - loginStart;
+      logger.info(`🔐 Step 2 complete: Custom JWT obtained (${loginDuration}ms)`, {
         email: response.user?.email,
-        role: response.user?.role
+        role: response.user?.role,
+        scopes: response.user?.scopes?.length
       });
 
-      // 3. Update React state immediately (don't wait for onAuthStateChange)
-      logger.info('🔐 Step 3: Setting user state in React context');
+      // 3. Store custom JWT in React state
+      logger.info('🔐 Step 3: Storing custom JWT in auth context');
       setUser(response.user);
       setRestaurantId(response.restaurantId);
       setCurrentRestaurantId(response.restaurantId); // Sync with httpClient
       setSession({
-        accessToken: authData.session.access_token,
-        refreshToken: authData.session.refresh_token,
-        expiresIn: authData.session.expires_in,
-        expiresAt: authData.session.expires_at
+        accessToken: response.session.access_token,
+        refreshToken: response.session.refresh_token,
+        expiresIn: response.session.expires_in,
+        expiresAt: Date.now() / 1000 + response.session.expires_in
       });
 
-      logger.info('✅ login() COMPLETE', { email: response.user?.email });
+      // 4. Sync with Supabase for Realtime subscriptions
+      logger.info('🔐 Step 4: Syncing custom JWT with Supabase session');
+      try {
+        await supabase.auth.setSession({
+          access_token: response.session.access_token,
+          refresh_token: response.session.refresh_token
+        });
+        logger.debug('✅ Supabase session synced for Realtime support');
+      } catch (syncError) {
+        // Non-fatal: Realtime won't work but auth is fine
+        logger.warn('⚠️ Failed to sync Supabase session (Realtime may not work):', syncError);
+      }
+
+      logger.info('✅ login() COMPLETE - JWT contains restaurant_id + scopes', {
+        email: response.user?.email,
+        restaurantId: response.restaurantId,
+        scopeCount: response.user?.scopes?.length,
+        tokenType: 'custom_jwt_with_restaurant_context'
+      });
 
     } catch (error) {
       logger.error('❌ login() FAILED:', error);
-      // Clean up on error
-      await supabase.auth.signOut();
+      // Clean up on error (both custom session and Supabase)
+      try {
+        await supabase.auth.signOut();
+      } catch (cleanupError) {
+        logger.debug('Supabase cleanup failed (expected if not logged in):', cleanupError);
+      }
       throw error;
     } finally {
       setIsLoading(false);
