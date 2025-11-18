@@ -25,17 +25,27 @@ router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Res
     // Load menu context for the restaurant
     let menuContext = '';
     try {
-      const menuData = await MenuService.getItems(restaurantId as string);
+      // CRITICAL FIX: Fetch categories first to map category IDs to names
+      const [menuData, categories] = await Promise.all([
+        MenuService.getItems(restaurantId as string),
+        MenuService.getCategories(restaurantId as string)
+      ]);
+
+      // Create category ID → name lookup map
+      const categoryMap = new Map(
+        categories.map(cat => [cat.id, cat.name])
+      );
+
       if (menuData && menuData.length > 0) {
-        // Format menu items for AI context
+        // Format menu items for AI context WITH human-readable category names
         const menuItems = menuData.map(item => ({
           name: item.name,
           price: item.price,
-          category: item.categoryId || 'Other',
+          category: item.categoryId ? (categoryMap.get(item.categoryId) || 'Other') : 'Other',
           description: item.description || '',
           available: item.available !== false
         })).filter(item => item.available);
-        
+
         // Group by category (keep full item objects)
         const menuByCategory = menuItems.reduce((acc, item) => {
           if (!acc[item.category]) acc[item.category] = [];

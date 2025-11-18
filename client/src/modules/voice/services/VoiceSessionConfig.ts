@@ -116,9 +116,13 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     // Store menu context if provided
     if (data.menu_context) {
       this.menuContext = data.menu_context;
-      if (this.config.debug) {
-        logger.info('[VoiceSessionConfig] Menu context loaded:', this.menuContext.split('\n').length, 'lines');
-      }
+      logger.warn('[VoiceSessionConfig] ✅ Menu context loaded:', {
+        lines: this.menuContext.split('\n').length,
+        length: this.menuContext.length,
+        preview: this.menuContext.substring(0, 200)
+      });
+    } else {
+      logger.error('[VoiceSessionConfig] ❌ NO MENU CONTEXT received from backend!');
     }
 
     // Schedule token refresh 10 seconds before expiry
@@ -202,6 +206,12 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
    * Returns a pure configuration object (no side effects)
    */
   buildSessionConfig(): RealtimeSessionConfig {
+    logger.warn('[VoiceSessionConfig] 🔨 Building session config...', {
+      context: this.context,
+      hasMenuContext: this.menuContext.length > 0,
+      menuContextLength: this.menuContext.length
+    });
+
     // Determine turn detection mode
     let turnDetection: any = null; // Default: manual PTT
     if (this.config.enableVAD) {
@@ -222,6 +232,13 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     const tools = this.context === 'server'
       ? this.buildServerTools()
       : this.buildKioskTools();
+
+    logger.warn('[VoiceSessionConfig] 📋 Config built:', {
+      instructionsLength: instructions.length,
+      toolsCount: tools.length,
+      toolNames: tools.map((t: any) => t.name),
+      hasMenuInInstructions: instructions.includes('📋 FULL MENU')
+    });
 
     // Server context uses shorter max tokens for efficiency
     const maxTokens = this.context === 'server' ? 200 : 500;
@@ -245,7 +262,17 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     if (tools && tools.length > 0) {
       sessionConfig.tools = tools;
       sessionConfig.tool_choice = 'auto'; // Enable automatic function calling
+      logger.warn('[VoiceSessionConfig] ✅ Tools added to session config');
+    } else {
+      logger.error('[VoiceSessionConfig] ❌ NO TOOLS to add to session config!');
     }
+
+    const configSize = JSON.stringify(sessionConfig).length;
+    logger.warn('[VoiceSessionConfig] 📦 Final config size:', {
+      bytes: configSize,
+      kb: (configSize / 1024).toFixed(2),
+      tooLarge: configSize > 50000
+    });
 
     return sessionConfig;
   }
