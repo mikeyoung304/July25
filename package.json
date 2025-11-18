@@ -37,7 +37,7 @@
     "build:render": "cd server && npm run build",
     "build:client": "NODE_OPTIONS='--max-old-space-size=3072' cd client && npm run build",
     "build:server": "NODE_OPTIONS='--max-old-space-size=3072' cd server && npm run build",
-    "build:vercel": "npm run build --workspace=@rebuild/shared --if-present && cd client && ROLLUP_NO_NATIVE=1 npm run build",
+    "build:vercel": "npm run build --workspace=@rebuild/shared --if-present && ROLLUP_NO_NATIVE=1 npm run build --workspace=restaurant-os-client",
     "test": "NODE_OPTIONS='--max-old-space-size=3072 --expose-gc' npm run test:client && npm run test:server",
     "test:client": "NODE_OPTIONS='--max-old-space-size=3072 --expose-gc' cd client && npm test",
     "test:server": "NODE_OPTIONS='--max-old-space-size=3072 --expose-gc' cd server && npm test",
