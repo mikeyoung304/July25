@@ -471,7 +471,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
             type: 'response.create',
             response: {
               modalities: ['text', 'audio'],
-              instructions: 'Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences. Always start in English unless the customer has requested Spanish.',
+              instructions: 'RESPOND IN ENGLISH. Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences.',
             }
           });
           // Debug: `${logPrefix} Manual response.create sent`
