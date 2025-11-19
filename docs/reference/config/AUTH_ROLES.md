@@ -1,7 +1,7 @@
 # Authentication Roles
 
-**Last Updated:** 2025-11-07
-**Version**: 6.0.15 (Originally documented in v6.0.8)
+**Last Updated:** 2025-11-19
+**Version**: 6.0.14 (Originally documented in v6.0.8)
 
 ## Role Definitions
 

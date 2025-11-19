@@ -18,6 +18,16 @@ This authentication system is the result of **three complete rewrites over four 
 
 ---
 
+
+## Authentication Evolution Note
+
+This system has undergone 3 major authentication rewrites:
+1. **Phase 1**: Custom JWT + RLS (July-Sept 2025)
+2. **Phase 2**: Pure Supabase Auth (Oct 2025, failed)
+3. **Phase 3**: Dual Authentication Pattern (Nov 2025, current)
+
+See [ADR-011: Authentication Evolution](../architecture-decisions/ADR-011-authentication-evolution.md) for complete history.
+
 ## Overview
 
 Restaurant OS v6.0 uses a **dual authentication pattern**:

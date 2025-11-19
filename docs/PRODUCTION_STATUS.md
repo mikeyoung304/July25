@@ -1,11 +1,11 @@
 # Production Readiness Status
 
-**Last Updated:** 2025-11-02
+**Last Updated:** 2025-11-19
 
 [Home](../index.md) > [Docs](./README.md) > Production Status
 
 **Last Updated**: November 2, 2025
-**Version**: 6.0.15
+**Version**: 6.0.14
 **Overall Readiness**: 99% (Enterprise-Grade)
 **Status**: ✅ PRODUCTION READY - Critical Blockers Eliminated
 
@@ -19,7 +19,7 @@ The Restaurant OS is **99% enterprise-grade production ready**. All critical pro
 
 ### Recent Milestones
 
-**Production Readiness Sprint** ✅ (November 2, 2025 - v6.0.15):
+**Production Readiness Sprint** ✅ (November 2, 2025 - v6.0.14):
 - ✅ **Auth-005 Critical Blocker**: Fixed RBAC middleware - customers can now place orders
 - ✅ **Checkout Test Coverage**: Restored 4 revenue-critical tests (100% checkout coverage)
 - ✅ **Schema Validation**: Fixed 2 contract tests (API integrity verified)
@@ -395,7 +395,7 @@ Menu items cached for 5 minutes (TTL 300 seconds).
 
 **None** - All critical blockers eliminated ✅
 
-**Recently Resolved** (November 2, 2025 - v6.0.15):
+**Recently Resolved** (November 2, 2025 - v6.0.14):
 - ✅ **Auth-005: Customer Order Permissions** (CRITICAL)
   - Fixed RBAC middleware header precedence logic
   - Customers and servers can now place orders (was 403 Forbidden)
@@ -876,7 +876,7 @@ The remaining 1% consists of:
 ---
 
 **Last Updated**: November 2, 2025
-**Version**: 6.0.15
+**Version**: 6.0.14
 **Production Ready**: 99% ✅
 **Status**: CLEARED FOR IMMEDIATE LAUNCH
 **Next Milestone**: Production Deployment

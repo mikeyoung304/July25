@@ -1,5 +1,7 @@
 # Environment Variables Reference
 
+**Last Updated:** 2025-11-19
+
 **Last Updated**: 2025-11-15
 **Version**: 6.0.14
 **Status**: Production Ready

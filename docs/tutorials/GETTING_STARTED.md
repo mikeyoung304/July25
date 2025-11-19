@@ -1,6 +1,6 @@
 # Getting Started
 
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-19
 
 [Home](../../index.md) > [Docs](../README.md) > [Tutorials](./README.md) > Getting Started
 
@@ -111,7 +111,7 @@ const ServerView = () => {
 };
 ```
 
-**Deprecated (v6.0.9)**: `getCustomerToken()` and `getServerToken()` from `@/services/auth/roleHelpers` store tokens in sessionStorage which is incompatible with httpClient's dual auth pattern. Use `AuthContext.loginAsDemo()` instead.
+**Deprecated (v6.0.14)**: `getCustomerToken()` and `getServerToken()` from `@/services/auth/roleHelpers` store tokens in sessionStorage which is incompatible with httpClient's dual auth pattern. Use `AuthContext.loginAsDemo()` instead.
 
 See [AUTHENTICATION_ARCHITECTURE.md](../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) for complete auth documentation.
 

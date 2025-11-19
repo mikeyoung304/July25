@@ -2,7 +2,7 @@
 
 **Version:** 6.0.14
 **Target Audience:** CS Majors Learning the System
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-19
 
 ---
 
@@ -784,5 +784,5 @@ After understanding this overview, explore:
 ---
 
 **Document Version:** 1.0
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-19
 **Maintained By:** Restaurant OS Team
