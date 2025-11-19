@@ -1,17 +1,56 @@
 # Voice Ordering Issue - Quick Summary for New Chat
-**Date:** 2025-01-18
-**Status:** 🔴 BROKEN - Agent has no menu knowledge or function calling
+**Date:** 2025-01-18 (Last Updated: 2025-01-18 21:00 UTC)
+**Status:** ⏸️ PAUSED - Transcription events not received from OpenAI
 
 ---
 
-## The Problem
+## Current Status (After 8+ Hours of Debugging)
+
+### ✅ What's Fixed:
+1. **Context Prop Missing (CL-VOICE-001)** - Agent now has menu knowledge
+   - Added `context="kiosk"` prop to VoiceControlWebRTC
+   - Agent receives 2934 char menu context
+   - Function tools configured (add_to_order, confirm_order, remove_from_order)
+   - See: [CL-VOICE-001 Incident Report](../../../claudelessons-v2/knowledge/incidents/CL-VOICE-001-context-prop-missing.md)
+
+2. **Language Policy** - English default, Spanish on request
+   - System-level directive added
+   - Agent responds in English unless explicitly requested
+
+3. **Removed Dead Code** - ~2,685 lines of abandoned architectures
+   - Server-side WebSocket proxy (1,665 lines)
+   - Twilio phone integration (1,020 lines)
+
+### ❌ Current Blocker (CL-VOICE-002):
+**NO transcription events received from OpenAI**
+
+Despite:
+- ✅ Audio transmitted (68KB+, 1668 packets verified)
+- ✅ Agent responds with voice (response.text.done events)
+- ✅ Session configured correctly
+- ✅ Menu knowledge loaded
+
+We get:
+- ❌ NO `conversation.item.input_audio_transcription.delta` events
+- ❌ NO `conversation.item.input_audio_transcription.completed` events
+- ❌ Timeout waiting for transcript (10s)
+- ❌ Agent can't call functions without transcript
+- ❌ Cart never updates from voice
+
+**Root Cause:** OpenAI deprecated `whisper-1` model for Realtime API (2025). New model `gpt-4o-transcribe` may require account enablement.
+
+**See:** [CL-VOICE-002 Incident Report](../../../claudelessons-v2/knowledge/incidents/CL-VOICE-002-transcription-missing.md)
+
+---
+
+## The Original Problem (Resolved)
 
 Voice ordering agent connects successfully but:
-- ❌ Has NO knowledge of restaurant menu
-- ❌ Cannot execute function calls (add_to_order, confirm_order, remove_from_order)
-- ❌ Chats generically about food instead of accessing menu
+- ✅ FIXED: Agent now has menu knowledge
+- ✅ FIXED: Function tools configured
+- ⏸️ BLOCKED: Cannot execute functions (no transcription)
 
-**User can talk to agent, agent responds, but cannot place orders.**
+**User can talk to agent, agent responds with text, but cannot add items to cart.**
 
 ---
 
