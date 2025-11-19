@@ -259,10 +259,12 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
         break;
 
       case 'conversation.item.input_audio_transcription.delta':
+        console.log(`📝 [VoiceEventHandler] Got transcript delta:`, event.delta);
         this.handleTranscriptDelta(event, logPrefix);
         break;
 
       case 'conversation.item.input_audio_transcription.completed':
+        console.log(`✅ [VoiceEventHandler] Got transcript completed:`, event.transcript);
         this.handleTranscriptCompleted(event, logPrefix);
         break;
 
@@ -286,6 +288,11 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
         this.handleResponseAudioDelta(event, logPrefix);
         break;
 
+      case 'response.audio.done':
+        // Audio playback completed - this is handled via WebRTC audio track
+        // Debug: `${logPrefix} Audio playback done`
+        break;
+
       case 'response.done':
         this.handleResponseDone(event, logPrefix);
         break;
@@ -295,6 +302,12 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       case 'response.content_part.added':
       case 'response.content_part.done':
       case 'rate_limits.updated':
+      case 'output_audio_buffer.started':
+      case 'output_audio_buffer.stopped':
+      case 'output_audio_buffer.speech_started':
+      case 'output_audio_buffer.speech_stopped':
+      case 'output_audio_buffer.committed':
+      case 'output_audio_buffer.cleared':
         // Known benign events - log but don't warn
         // Debug: `${logPrefix} ${event.type}`
         break;
