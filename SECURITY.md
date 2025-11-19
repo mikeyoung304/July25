@@ -1,7 +1,7 @@
 # Security Policy
 
 
-**Last Updated:** 2025-10-16
+**Last Updated:** 2025-11-18
 
 ## Supported Versions
 
@@ -41,5 +41,5 @@ See: [docs/SECURITY.md](./docs/SECURITY.md)
 
 ---
 
-**Last Updated**: October 17, 2025
-**Version**: 6.0.8
+**Last Updated**: November 18, 2025
+**Version**: 6.0.14

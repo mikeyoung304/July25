@@ -23,9 +23,10 @@
 2. Test payment endpoint:
    ```bash
    ./scripts/validate-square-credentials.sh
-   curl -X POST http://localhost:3001/api/payments/process \
+   curl -X POST http://localhost:3001/api/v1/payments/create \
      -H "Content-Type: application/json" \
-     -d '{"amount": 100, "source_id": "cnon:card-nonce-ok"}'
+     -H "Authorization: Bearer YOUR_TOKEN" \
+     -d '{"amount": 100, "source_id": "cnon:card-nonce-ok", "order_id": "test-order-id"}'
    ```
    **Success:** Returns 200 with payment confirmation
 

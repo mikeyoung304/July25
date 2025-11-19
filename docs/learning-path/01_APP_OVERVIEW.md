@@ -229,9 +229,11 @@ Client initiates payment
 - Idempotency keys prevent duplicate charges
 
 **API Endpoints:**
-- `POST /api/payments/process` - Process payment
-- `GET /api/payments/terminal/devices` - List Square Terminal devices
-- `POST /api/payments/terminal/checkout` - Create Terminal checkout
+- `POST /api/v1/payments/create` - Process card payment
+- `POST /api/v1/payments/cash` - Process cash payment
+- `POST /api/v1/payments/:paymentId/refund` - Process refund
+- `GET /api/v1/payments/terminal/devices` - List Square Terminal devices
+- `POST /api/v1/payments/terminal/checkout` - Create Terminal checkout
 
 ### 3.5 Voice Ordering
 

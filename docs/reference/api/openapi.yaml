@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: Restaurant OS API
-  version: 6.0.17
-  x-last-updated: '2025-11-06'
+  version: 6.0.14
+  x-last-updated: '2025-11-18'
   description: |
     Restaurant OS provides a comprehensive API for managing restaurant operations including:
     - Point of Sale (POS)

@@ -28,7 +28,6 @@ The following variables MUST be set for the application to function:
 | VITE_SUPABASE_ANON_KEY | String | Yes | - | vite supabase anon key |
 | VITE_SQUARE_APP_ID | String | Yes | - | Square frontend configuration |
 | VITE_SQUARE_LOCATION_ID | String | Yes | - | vite square location id |
-| VITE_OPENAI_API_KEY | String | Yes | - | vite openai api key |
 
 ### Optional Variables
 

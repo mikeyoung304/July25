@@ -1,11 +1,24 @@
 # WebSocket Events Documentation
 
-**Last Updated:** 2025-11-06
-**Status:** ✅ Active Documentation
+**Last Updated:** 2025-11-18
+**Status:** ⚠️ Partial Implementation
+**Version:** 6.0.14
+
+## Implementation Status
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Order Events (`order:created`, `order:updated`, `order:status`) | ✅ Working | Fully implemented |
+| Payment Events (`payment:processed`) | ✅ Working | Fully implemented |
+| KDS Updates (`kds:update`) | ✅ Working | Batch updates implemented |
+| Table Events (`table:updated`) | ⚠️ **PLANNED** | Event schema defined, broadcasting NOT implemented |
+| Notification Events (kitchen, customer, refund) | ⚠️ **PLANNED (Phase 3)** | See outstanding work: notifications are stubbed |
 
 ## Overview
 
-Restaurant OS uses WebSockets for real-time communication between server and clients. The WebSocket server handles order updates, kitchen display synchronization, and real-time notifications.
+Restaurant OS uses WebSockets for real-time communication between server and clients. The WebSocket server handles order updates, kitchen display synchronization, and payment processing events.
+
+**Note:** Some features documented below are planned for future releases. Check the Implementation Status table above for current availability.
 
 **WebSocket URLs:**
 - Development: `ws://localhost:3001`
