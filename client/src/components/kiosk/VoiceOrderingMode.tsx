@@ -340,7 +340,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                   onTranscript={handleVoiceTranscript}
                   onOrderDetected={handleOrderData}
                   onRecordingStateChange={setIsListening}
-                  debug={false}
+                  debug={true}
                 />
               </Suspense>
               <div className="mt-8">

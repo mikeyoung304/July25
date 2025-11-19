@@ -284,6 +284,14 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
         this.handleResponseTextDelta(event, logPrefix);
         break;
 
+      case 'response.text.done':
+        console.log(`📄 [VoiceEventHandler] Got response.text.done:`, event.text);
+        // Text response completed - emit for display
+        if (event.text) {
+          this.emit('response.text', event.text);
+        }
+        break;
+
       case 'response.audio.delta':
         this.handleResponseAudioDelta(event, logPrefix);
         break;
