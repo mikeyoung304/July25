@@ -59,6 +59,29 @@ components:
       description: |
         Supabase JWT (production) or custom JWT (demo/PIN/station).
         Include in header: `Authorization: Bearer <token>`
+
+        **Available Scopes (RBAC):**
+        - `orders:create` - Create new orders
+        - `orders:read` - View orders
+        - `orders:update` - Modify order status
+        - `payments:process` - Process payments (card and cash)
+        - `payments:read` - View payment details
+        - `payments:refund` - Refund payments
+        - `tables:read` - View table layout
+        - `tables:write` - Modify tables and floor plan
+        - `menu:read` - View menu items
+        - `menu:write` - Modify menu items
+        - `staff:manage` - Manage staff and stations
+        - `reports:view` - View analytics and reports
+
+        **Roles:**
+        - `customer` - Limited access for online orders
+        - `server` - Take orders, process payments
+        - `kitchen` - View kitchen orders
+        - `expo` - Manage order fulfillment
+        - `cashier` - Process payments only
+        - `manager` - Full operational access
+        - `owner` - Full system access including security
   parameters:
     RestaurantIdHeader:
       name: X-Restaurant-ID
@@ -684,19 +707,51 @@ paths:
   /api/v1/ai/voice-chat:
     post:
       tags:
-        - Ai
-      summary: Create voice-chat
+        - Voice & AI
+      summary: Voice chat interaction
+      description: |
+        Combined voice ordering endpoint that handles transcription, chat interaction,
+        and text-to-speech response generation in a single request. Used by voice
+        ordering kiosk and mobile apps.
+
+        **Authentication:** Required
+        **Rate Limit:** 10 requests/minute
+      operationId: voiceChat
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio file containing customer's voice order
+                sessionId:
+                  type: string
+                  description: Session ID for conversation continuity
       responses:
         '200':
-          description: Successful response
+          description: Voice chat processed successfully
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+                description: MP3 audio response with AI assistant reply
         '400':
-          description: Bad request
+          description: Bad request (missing audio file)
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '503':
+          description: AI provider unavailable
   /api/v1/ai/chat:
     post:
       tags:
@@ -898,35 +953,111 @@ paths:
   /api/v1/auth/set-pin:
     post:
       tags:
-        - Auth
-      summary: Create set-pin
+        - Authentication
+      summary: Set or update user PIN
+      description: |
+        Create or update a 4-6 digit PIN for the authenticated user.
+        PINs enable fast authentication for servers and cashiers without
+        requiring email/password login.
+
+        **Authentication:** Required
+        **Scope:** None required (users can set their own PIN)
+      operationId: setUserPin
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pin
+                - restaurantId
+              properties:
+                pin:
+                  type: string
+                  pattern: '^\d{4,6}$'
+                  description: 4-6 digit PIN code
+                  example: "1234"
+                restaurantId:
+                  type: string
+                  format: uuid
+                  description: Restaurant context for PIN
+            example:
+              pin: "1234"
+              restaurantId: "11111111-1111-1111-1111-111111111111"
       responses:
         '200':
-          description: Successful response
+          description: PIN set successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "PIN set successfully"
         '400':
-          description: Bad request
+          description: Bad request (invalid PIN format or missing fields)
         '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+          description: Unauthorized (authentication required)
   /api/v1/auth/revoke-stations:
     post:
       tags:
-        - Auth
-      summary: Create revoke-stations
+        - Authentication
+      summary: Revoke all station tokens
+      description: |
+        Revoke all active station tokens for a restaurant. Used for security
+        when devices are compromised or staff changes occur. Requires management
+        role and staff:manage scope.
+
+        **Authentication:** Required
+        **Scope:** `staff:manage`
+        **Role:** owner or manager
+      operationId: revokeStationTokens
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - restaurantId
+              properties:
+                restaurantId:
+                  type: string
+                  format: uuid
+                  description: Restaurant ID to revoke station tokens for
+            example:
+              restaurantId: "11111111-1111-1111-1111-111111111111"
       responses:
         '200':
-          description: Successful response
+          description: Station tokens revoked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Revoked 5 station tokens"
         '400':
-          description: Bad request
+          description: Bad request (missing restaurant ID)
         '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+          description: Unauthorized (missing or invalid token)
+        '403':
+          description: Forbidden (missing required scope or role)
   /api/v1/menu/:
     get:
       tags:
@@ -1187,34 +1318,81 @@ paths:
     post:
       tags:
         - Menu
-      summary: Create sync-ai
+        - Voice & AI
+      summary: Sync menu to AI service
+      description: |
+        Synchronize restaurant menu data to the AI Gateway for voice ordering
+        and natural language processing. This updates the AI's knowledge of
+        available menu items, prices, and categories.
+
+        **Authentication:** Required
+        **Use Case:** Call after menu updates to refresh AI context
+      operationId: syncMenuToAI
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
       responses:
         '200':
-          description: Successful response
+          description: Menu synced successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Menu synced to AI service"
+                  timestamp:
+                    type: string
+                    format: date-time
         '400':
-          description: Bad request
+          description: Bad request (authentication required)
         '401':
           description: Unauthorized
         '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+          description: Server error (AI service unavailable)
   /api/v1/menu/cache/clear:
     post:
       tags:
         - Menu
-      summary: Create clear
+      summary: Clear menu cache
+      description: |
+        Clear the in-memory menu cache for a restaurant. Forces next menu
+        request to fetch fresh data from database. Useful after menu updates
+        or when troubleshooting stale data issues.
+
+        **Authentication:** Required
+        **Use Case:** Call after menu modifications to ensure fresh data
+      operationId: clearMenuCache
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
       responses:
         '200':
-          description: Successful response
+          description: Cache cleared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Menu cache cleared"
+                  timestamp:
+                    type: string
+                    format: date-time
         '400':
-          description: Bad request
+          description: Bad request (authentication required)
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
   /api/v1/orders/voice:
     post:
       tags:
@@ -1421,18 +1599,98 @@ paths:
     post:
       tags:
         - Payments
-      summary: Process card payment
+      summary: Process card payment via Square
+      description: |
+        Process a credit/debit card payment through Square Payments API.
+        Supports both authenticated staff payments and anonymous customer payments
+        (online ordering, kiosk).
+
+        **Security Features:**
+        - Server-side amount validation (never trusts client amounts)
+        - Idempotency key generation (prevents duplicate charges)
+        - Two-phase audit logging (initiated → success/failed)
+        - 30-second timeout protection
+
+        **Authentication:** Optional (use X-Client-Flow header)
+        - `online` or `kiosk`: Anonymous customer payment allowed
+        - Staff payments: Authentication required with `payments:process` scope
+
+        **Integration:** Square Payments API
+      operationId: createCardPayment
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - $ref: '#/components/parameters/ClientFlowHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+            example:
+              order_id: "uuid"
+              token: "cnon:card-nonce-ok"
+              amount: 15.50
       responses:
         '200':
-          description: Successful response
+          description: Payment processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - paymentId
+                  - status
+                  - order
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  paymentId:
+                    type: string
+                    description: Square payment ID
+                    example: "sq_payment_abc123"
+                  status:
+                    type: string
+                    enum: [COMPLETED, PENDING]
+                    description: Payment status from Square
+                  receiptUrl:
+                    type: string
+                    format: uri
+                    description: URL to payment receipt
+                  order:
+                    $ref: '#/components/schemas/Order'
+              example:
+                success: true
+                paymentId: "sq_payment_abc123"
+                status: "COMPLETED"
+                receiptUrl: "https://squareup.com/receipt/..."
+                order: {}
         '400':
-          description: Bad request
+          description: Bad request (invalid token, insufficient funds, card declined)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Card declined"
+                  code:
+                    type: string
+                    example: "CARD_DECLINED"
+                  detail:
+                    type: string
         '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+          description: Unauthorized (staff payment without authentication)
+        '404':
+          description: Order not found
+        '503':
+          description: Square API unavailable
   /api/v1/payments/cash:
     post:
       tags:
@@ -1543,83 +1801,282 @@ paths:
   /api/v1/realtime/session:
     post:
       tags:
+        - Voice & AI
         - Realtime
-      summary: Create session
+      summary: Create WebRTC realtime session
+      description: |
+        Creates an ephemeral OpenAI Realtime API session for WebRTC voice ordering.
+        Returns a session token and pre-loaded menu context for the AI assistant.
+
+        **Critical Details:**
+        - Ephemeral token expires in 60 seconds (use immediately)
+        - Menu context pre-loaded (max 5KB to prevent OpenAI rejection)
+        - Supports anonymous kiosk usage (authentication optional)
+        - WebRTC connection for low-latency voice interaction
+
+        **Authentication:** Optional (supports anonymous kiosk mode)
+        **Model:** gpt-4o-realtime-preview
+      operationId: createRealtimeSession
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - client_secret
+                  - restaurant_id
+                  - menu_context
+                properties:
+                  id:
+                    type: string
+                    description: OpenAI session ID
+                    example: sess_abc123xyz
+                  client_secret:
+                    type: object
+                    properties:
+                      value:
+                        type: string
+                        description: Ephemeral token for WebRTC connection
+                      expires_at:
+                        type: integer
+                        description: Unix timestamp when token expires
+                        example: 1700000060
+                  restaurant_id:
+                    type: string
+                    format: uuid
+                    description: Restaurant context for this session
+                  menu_context:
+                    type: string
+                    description: Pre-formatted menu for AI assistant context
+                    example: "FULL MENU:\nBOWLS:\n  • Soul Bowl - $12.99\n  • Greek Bowl - $11.99"
+              example:
+                id: "sess_abc123xyz"
+                client_secret:
+                  value: "eph_sk_abc123..."
+                  expires_at: 1700000060
+                restaurant_id: "11111111-1111-1111-1111-111111111111"
+                menu_context: "FULL MENU:\nBOWLS:\n  • Soul Bowl - $12.99\n"
         '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+          description: Failed to create session (OpenAI API error)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to create real-time session"
+                  details:
+                    type: string
+                    description: Detailed error message from OpenAI
   /api/v1/security/events:
     get:
       tags:
         - Security
-      summary: Get events
+      summary: Get security events
+      description: |
+        Retrieve security events log for auditing and monitoring. Events include
+        failed login attempts, suspicious activity, rate limit violations, and
+        unauthorized access attempts.
+
+        **Authentication:** Required
+        **Role:** owner or manager
+        **Use Case:** Security auditing and incident investigation
+      operationId: getSecurityEvents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [suspicious_activity, failed_login, rate_limit, unauthorized_access]
+          description: Filter by event type
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Filter by user ID
+        - name: ip
+          in: query
+          schema:
+            type: string
+          description: Filter by IP address
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+            maximum: 1000
+          description: Maximum number of events to return
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
+          description: Security events retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                        timestamp:
+                          type: string
+                          format: date-time
+                        userId:
+                          type: string
+                        ip:
+                          type: string
+                        details:
+                          type: object
+                  total:
+                    type: integer
+                    description: Total number of events matching filter
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '403':
+          description: Forbidden (insufficient role)
   /api/v1/security/stats:
     get:
       tags:
         - Security
-      summary: Get stats
+      summary: Get security statistics
+      description: |
+        Retrieve aggregated security statistics including failed login counts,
+        suspicious activity patterns, and security health metrics.
+
+        **Authentication:** Required
+        **Role:** owner or manager
+      operationId: getSecurityStats
+      security:
+        - BearerAuth: []
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    type: object
+                    properties:
+                      failedLogins24h:
+                        type: integer
+                      suspiciousActivity24h:
+                        type: integer
+                      rateLimitViolations24h:
+                        type: integer
+                      uniqueIps24h:
+                        type: integer
+                  timestamp:
+                    type: string
+                    format: date-time
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '403':
+          description: Forbidden (insufficient role)
   /api/v1/security/test:
     post:
       tags:
         - Security
-      summary: Create test
+      summary: Test security monitoring (dev only)
+      description: |
+        Create a test security event to verify monitoring is working correctly.
+        This endpoint is disabled in production environments for security.
+
+        **Authentication:** Required
+        **Role:** owner
+        **Environment:** Development/staging only
+      operationId: testSecurityMonitoring
+      security:
+        - BearerAuth: []
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
+          description: Test event logged successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Test security event logged"
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '403':
+          description: Forbidden (production environment or insufficient role)
   /api/v1/security/config:
     get:
       tags:
         - Security
-      summary: Get config
+      summary: Get security configuration
+      description: |
+        Retrieve current security configuration settings including enabled
+        features, timeouts, and environment details.
+
+        **Authentication:** Required
+        **Role:** owner only
+      operationId: getSecurityConfig
+      security:
+        - BearerAuth: []
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
+          description: Configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  environment:
+                    type: string
+                    enum: [development, production]
+                  security:
+                    type: object
+                    properties:
+                      csrf:
+                        type: boolean
+                      rateLimit:
+                        type: boolean
+                      helmet:
+                        type: boolean
+                      cors:
+                        type: boolean
+                      sessionTimeout:
+                        type: string
+                        example: "8h"
+                      squareEnvironment:
+                        type: string
+                        enum: [sandbox, production]
+                  features:
+                    type: object
+                    properties:
+                      suspiciousActivityDetection:
+                        type: boolean
+                      securityEventLogging:
+                        type: boolean
+                      requestSizeLimit:
+                        type: string
+                        example: "10mb"
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '403':
+          description: Forbidden (insufficient role)
   /api/v1/tables/batch:
     put:
       tags:
@@ -1713,83 +2170,259 @@ paths:
   /api/v1/terminal/checkout:
     post:
       tags:
+        - Payments
         - Terminal
-      summary: Create checkout
+      summary: Create Square Terminal checkout
+      description: |
+        Initiate a payment on a Square Terminal device. This creates a checkout
+        request that displays on the terminal, prompting the customer to insert
+        or tap their card. Supports tipping and signature capture.
+
+        **Authentication:** Required
+        **Scope:** `payments:process`
+        **Integration:** Square Terminal API
+      operationId: createTerminalCheckout
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+                - deviceId
+              properties:
+                orderId:
+                  type: string
+                  format: uuid
+                  description: Order ID to process payment for
+                deviceId:
+                  type: string
+                  description: Square Terminal device ID
+                  example: "9fa5a25d-25c9-4eae-b21e-9bbf6f1d8e39"
+            example:
+              orderId: "uuid"
+              deviceId: "9fa5a25d-25c9-4eae-b21e-9bbf6f1d8e39"
       responses:
         '200':
-          description: Successful response
+          description: Checkout created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  checkout:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Square checkout ID
+                      status:
+                        type: string
+                        enum: [PENDING, IN_PROGRESS, CANCEL_REQUESTED, CANCELED, COMPLETED]
+                        description: Current checkout status
+                      createdAt:
+                        type: string
+                        format: date-time
         '400':
-          description: Bad request
+          description: Bad request (missing orderId or deviceId)
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '404':
+          description: Order not found
   /api/v1/terminal/checkout/{checkoutId}:
     get:
       tags:
+        - Payments
         - Terminal
-      summary: Get checkout
+      summary: Get checkout status
+      description: |
+        Retrieve the current status of a Square Terminal checkout. Use this
+        endpoint to poll for payment completion. Recommended polling interval:
+        every 2-3 seconds.
+
+        **Authentication:** Required
+        **Use Case:** Poll this endpoint to detect when customer completes payment
+      operationId: getTerminalCheckout
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: checkoutId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Square checkout ID
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
+          description: Checkout status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  checkout:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                        enum: [PENDING, IN_PROGRESS, CANCEL_REQUESTED, CANCELED, COMPLETED]
+                      paymentId:
+                        type: string
+                        description: Square payment ID (only present when COMPLETED)
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '404':
+          description: Checkout not found
   /api/v1/terminal/checkout/{checkoutId}/cancel:
     post:
       tags:
+        - Payments
         - Terminal
-      summary: Create cancel
+      summary: Cancel terminal checkout
+      description: |
+        Request cancellation of an in-progress Square Terminal checkout.
+        The terminal will display "Payment Cancelled" and return to idle state.
+
+        **Authentication:** Required
+        **Use Case:** Cancel checkout if customer walks away or changes mind
+      operationId: cancelTerminalCheckout
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: checkoutId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Square checkout ID to cancel
       responses:
         '200':
-          description: Successful response
+          description: Checkout cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  checkout:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                        enum: [CANCELED]
         '400':
-          description: Bad request
+          description: Bad request (checkout already completed)
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '404':
+          description: Checkout not found
   /api/v1/terminal/checkout/{checkoutId}/complete:
     post:
       tags:
+        - Payments
         - Terminal
-      summary: Create complete
+      summary: Complete order after terminal payment
+      description: |
+        Mark an order as paid and completed after successful Square Terminal
+        payment. This endpoint updates the order's payment_status to 'paid'
+        and closes the check.
+
+        **Authentication:** Required
+        **Use Case:** Call after detecting checkout status=COMPLETED
+      operationId: completeTerminalOrder
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
+        - name: checkoutId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Square checkout ID
       responses:
         '200':
-          description: Successful response
+          description: Order completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  order:
+                    $ref: '#/components/schemas/Order'
         '400':
-          description: Bad request
+          description: Bad request (checkout not completed or already processed)
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '404':
+          description: Checkout or order not found
   /api/v1/terminal/devices:
     get:
       tags:
         - Terminal
-      summary: Get devices
+      summary: List paired Square Terminal devices
+      description: |
+        Retrieve list of Square Terminal devices paired to this restaurant's
+        Square account. Use device IDs to initiate checkouts.
+
+        **Authentication:** Required
+        **Use Case:** Get available terminals for payment processing
+      operationId: listTerminalDevices
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RestaurantIdHeader'
       responses:
         '200':
-          description: Successful response
-        '400':
-          description: Bad request
+          description: Devices retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  devices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Device ID
+                        name:
+                          type: string
+                          description: Device name
+                          example: "Register 1"
+                        status:
+                          type: string
+                          enum: [PAIRED, UNPAIRED]
         '401':
           description: Unauthorized
-        '500':
-          description: Server error
-      security:
-        - bearerAuth: []
+        '503':
+          description: Square API unavailable
   /api/v1/webhooks/payments:
     post:
       tags:

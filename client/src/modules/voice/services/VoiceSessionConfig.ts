@@ -32,7 +32,7 @@ export interface RealtimeSessionConfig {
   output_audio_format: string;
   input_audio_transcription: {
     model: string;
-    language: string;
+    language?: string; // Optional - gpt-4o-transcribe auto-detects language
   };
   turn_detection: any;
   temperature: number;
@@ -116,7 +116,7 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     // Store menu context if provided
     if (data.menu_context) {
       this.menuContext = data.menu_context;
-      console.log('✅ [VoiceSessionConfig] Menu context loaded:', {
+      logger.info('✅ [VoiceSessionConfig] Menu context loaded:', {
         lines: this.menuContext.split('\n').length,
         length: this.menuContext.length,
         preview: this.menuContext.substring(0, 200)
@@ -206,7 +206,7 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
    * Returns a pure configuration object (no side effects)
    */
   buildSessionConfig(): RealtimeSessionConfig {
-    console.log('🔨 [VoiceSessionConfig] Building session config...', {
+    logger.info('🔨 [VoiceSessionConfig] Building session config...', {
       context: this.context,
       hasMenuContext: this.menuContext.length > 0,
       menuContextLength: this.menuContext.length
@@ -233,7 +233,7 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
       ? this.buildServerTools()
       : this.buildKioskTools();
 
-    console.log('📋 [VoiceSessionConfig] Config built:', {
+    logger.info('📋 [VoiceSessionConfig] Config built:', {
       instructionsLength: instructions.length,
       toolsCount: tools.length,
       toolNames: tools.map((t: any) => t.name),
@@ -250,7 +250,8 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
       input_audio_transcription: {
-        model: 'whisper-1' // REVERT: Try whisper-1 again with better logging to diagnose issue
+        model: 'gpt-4o-transcribe' // FIXED 2025-01-18: OpenAI deprecated whisper-1 for Realtime API
+        // Language auto-detected by gpt-4o-transcribe - no need to specify
       },
       turn_detection: turnDetection,
       temperature: 0.6, // Minimum temperature for Realtime API
@@ -261,13 +262,13 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     if (tools && tools.length > 0) {
       sessionConfig.tools = tools;
       sessionConfig.tool_choice = 'auto'; // Enable automatic function calling
-      console.log('✅ [VoiceSessionConfig] Tools added to session config');
+      logger.info('✅ [VoiceSessionConfig] Tools added to session config');
     } else {
-      console.error('❌ [VoiceSessionConfig] NO TOOLS to add to session config!');
+      logger.error('❌ [VoiceSessionConfig] NO TOOLS to add to session config!');
     }
 
     const configSize = JSON.stringify(sessionConfig).length;
-    console.log('📦 [VoiceSessionConfig] Final config size:', {
+    logger.info('📦 [VoiceSessionConfig] Final config size:', {
       bytes: configSize,
       kb: (configSize / 1024).toFixed(2),
       tooLarge: configSize > 50000

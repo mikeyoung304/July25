@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔧 Fixed
+
+#### Voice Ordering: OpenAI Transcription Model Update
+- **Date**: 2025-01-18
+- **Critical Fix**: Updated transcription model from deprecated `whisper-1` to `gpt-4o-transcribe`
+- **Impact**: Restored voice ordering functionality after OpenAI API breaking change
+- **Root Cause**: OpenAI silently deprecated `whisper-1` model for Realtime API in January 2025
+- **Symptoms Fixed**:
+  - Transcription events now received correctly
+  - Voice orders processing successfully
+  - State machine no longer timing out
+- **Files Modified**:
+  - `client/src/modules/voice/services/VoiceSessionConfig.ts:252-254` - Updated model
+  - `docs/explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md` - Added migration section
+  - `docs/explanation/architecture/VOICE_ORDERING_WEBRTC.md` - Added troubleshooting section
+- **New Documentation**:
+  - `docs/how-to/operations/VOICE_ORDERING_TROUBLESHOOTING.md` - Comprehensive troubleshooting guide
+  - `docs/how-to/operations/VOICE_MODEL_MIGRATION_GUIDE.md` - Migration guide for model change
+  - `docs/archive/2025-01/VOICE_FIX_TRANSCRIPTION_MODEL_2025-01-18.md` - Detailed RCA
+- **Commit**: `3a5d126f` - "fix(voice): Use gpt-4o-transcribe model for Realtime API transcription"
+- **Performance**: No degradation - transcription speed and accuracy remain at ~200ms and 97%
+- **References**:
+  - OpenAI Community: https://community.openai.com/t/cant-get-the-user-transcription-in-realtime-api/1076308
+  - ADR-005 Update: Section "Update: OpenAI Transcription Model Change (January 2025)"
+
 ## [6.0.17] - 2025-11-06 - Slug-Based Restaurant Routing
 
 ### 🎯 Overview

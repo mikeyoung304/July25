@@ -1,12 +1,30 @@
 # Authentication Architecture v6.0
 
-**Last Updated:** 2025-11-02
+**Last Updated:** 2025-11-19
+**Architecture Evolution**: See [ADR-011: Authentication Evolution](../architecture-decisions/ADR-011-authentication-evolution.md) for the journey through 3 rewrites
 
 [Home](../../../index.md) > [Docs](../../README.md) > [Explanation](../README.md) > [Architecture](../../../README.md) > Authentication Architecture
 
+---
+
+## 🚨 Important: Read This First
+
+This authentication system is the result of **three complete rewrites over four months**. If you're modifying authentication code:
+
+1. **Read [ADR-011: Authentication Evolution](../architecture-decisions/ADR-011-authentication-evolution.md)** to understand why the current architecture exists
+2. **Review incident documentation** before making changes (especially CL-AUTH-001)
+3. **Test both Supabase and localStorage auth paths** - we support both
+4. **Never assume one auth method works for all use cases** - that's what caused Phase 2 to fail
+
+---
+
 ## Overview
 
-Restaurant OS v6.0 uses **Supabase Auth** as the primary authentication system for web users, with custom JWT tokens for specialized use cases (kiosks, kitchen displays).
+Restaurant OS v6.0 uses a **dual authentication pattern**:
+- **Primary**: Supabase Auth for production web users (managers, owners, staff)
+- **Secondary**: Custom JWT in localStorage for specialized use cases (voice ordering, demo mode, anonymous customers)
+
+This hybrid approach emerged after discovering that no single authentication system can serve all restaurant OS requirements. See [ADR-011](../architecture-decisions/ADR-011-authentication-evolution.md) for the complete evolution story.
 
 ## System Architecture Context
 
@@ -918,19 +936,86 @@ The voice ordering system has comprehensive test coverage:
 
 ---
 
-## Related Documentation
+## Authentication Evolution History
 
-- [ADR-006: Dual Authentication Pattern](../architecture-decisions/ADR-006-dual-authentication-pattern.md) - Dual auth decision
-- [Auth Roles](../../reference/config/AUTH_ROLES.md) - Role definitions
-- [Security Policies](../../SECURITY.md) - Security practices
-- [API Reference](../../reference/api/api/README.md) - API authentication
-- [Troubleshooting Auth Issues](../../how-to/troubleshooting/AUTH_DIAGNOSTIC_GUIDE.md) - Auth debugging
+The current architecture is **Version 3** of the authentication system. Understanding this evolution helps explain architectural decisions:
+
+### Version 1 (July-September 2025): Custom JWT + RLS
+- **Approach**: Custom JWT generation, backend-controlled sessions
+- **Problems**: Race conditions, demo mode complexity, security vulnerabilities
+- **Key Issues**: Multi-tenancy breach (October 25), WebSocket auth gaps, test token bypasses
+- **Outcome**: Failed - too many security incidents
+
+### Version 2 (October 8, 2025): Pure Supabase Auth
+- **Approach**: Eliminate custom JWT, use Supabase exclusively
+- **Benefits**: No race conditions, simpler codebase, secure by default
+- **Problems**: Broke voice ordering, blocked anonymous customers, no PIN auth support
+- **Duration**: 3 weeks (October 8 - November 2)
+- **Outcome**: Failed - couldn't support all use cases
+
+### Version 3 (November 2-18, 2025): Dual Authentication Pattern (Current)
+- **Approach**: Supabase for staff + Custom JWT for specialized cases
+- **Implementation**: httpClient checks both auth sources with priority fallback
+- **Benefits**: Supports all use cases, production-ready security, no race conditions
+- **Trade-offs**: Slightly more complex, requires clear boundaries
+- **Status**: ✅ Production-ready (90% system readiness)
+
+**📚 Complete Story**: [ADR-011: Authentication Evolution](../architecture-decisions/ADR-011-authentication-evolution.md) documents the full 4-month journey with detailed lessons learned.
 
 ---
 
-## Contact
+## Critical Lessons from 3 Rewrites
+
+### ⚠️ Lesson 1: One Auth System Cannot Serve All Use Cases
+**Failed Assumption**: "Use Supabase Auth exclusively for simplicity"
+**Reality**: Different use cases require different auth approaches (staff vs. customers vs. devices)
+**Current Approach**: Multiple auth methods with clear boundaries
+
+### ⚠️ Lesson 2: Demo Mode Must Mirror Production
+**Failed Pattern**: Parallel demo infrastructure with different code paths
+**Problem**: Demo bugs didn't appear until production
+**Current Approach**: Demo uses real Supabase users with pre-filled credentials
+
+### ⚠️ Lesson 3: WebSocket Authentication Is Not an Afterthought
+**Security Gap**: HTTP middleware doesn't apply to WebSocket connections
+**Incident**: Kitchen Display WebSocket connections allowed without JWT validation (October 24, 2025)
+**Current Approach**: Dedicated WebSocket auth middleware at connection establishment
+
+### ⚠️ Lesson 4: Multi-Tenancy Requires Defense in Depth
+**Security Incident**: Users could access other restaurants' data (October 25, 2025)
+**Root Cause**: Missing restaurant_id validation in middleware
+**Current Approach**: Validation at JWT, middleware, and RLS policy layers
+
+### ⚠️ Lesson 5: Test Tokens in Production Are Dangerous
+**Anti-Pattern**: `if (token === 'test-token') { /* skip validation */ }`
+**Risk**: Forgotten environment variables can enable security backdoors
+**Current Approach**: Real JWTs in all environments, STRICT_AUTH enforced
+
+**📚 Full Analysis**: See [ADR-011](../architecture-decisions/ADR-011-authentication-evolution.md) sections "Lessons Learned" and "Production Security Posture"
+
+---
+
+## Related Documentation
+
+- **[ADR-011: Authentication Evolution](../architecture-decisions/ADR-011-authentication-evolution.md)** - Complete 3-rewrite history (MUST READ)
+- **[ADR-006: Dual Authentication Pattern](../architecture-decisions/ADR-006-dual-authentication-pattern.md)** - Current implementation details
+- **[Auth Roles](../../reference/config/AUTH_ROLES.md)** - Role definitions and scope mappings
+- **[Security Policies](../../SECURITY.md)** - Security practices and incident response
+- **[API Reference](../../reference/api/api/README.md)** - API authentication endpoints
+- **[Troubleshooting Auth Issues](../../how-to/troubleshooting/AUTH_DIAGNOSTIC_GUIDE.md)** - Auth debugging guide
+- **[Git History Narrative](../../nov18scan/01_git_history_narrative.md)** - Complete commit analysis
+
+---
+
+## Contact & Contributing
 
 For questions about authentication architecture:
-- **Tech Lead**: [Your Name]
-- **Documentation**: This file + inline code comments
+- **Documentation**: This file, ADR-011, and inline code comments
 - **Issues**: GitHub Issues with `auth` label
+- **Security Concerns**: See [SECURITY.md](../../SECURITY.md) for vulnerability reporting
+
+**Before Modifying Authentication**:
+1. Read [ADR-011](../architecture-decisions/ADR-011-authentication-evolution.md) to understand the evolution
+2. Review relevant incidents (CL-AUTH-001, multi-tenancy breach, WebSocket gaps)
+3. Test both Supabase and localStorage auth paths
+4. Update this documentation if making architectural changes
