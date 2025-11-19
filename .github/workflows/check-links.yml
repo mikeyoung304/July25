@@ -1,0 +1,221 @@
+name: Check Documentation Links
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+      - '*.md'
+      - 'nov18scan/**/*.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+      - '*.md'
+      - 'nov18scan/**/*.md'
+  workflow_dispatch: # Allow manual trigger
+  schedule:
+    - cron: '0 8 * * 1' # Weekly on Monday at 8am UTC
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.py
+
+      - name: Run Link Validator
+        id: validate
+        run: |
+          python scripts/validate_links.py > link_validation.txt 2>&1
+          exit_code=$?
+          cat link_validation.txt
+          echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Extract Link Health
+        id: health
+        if: always()
+        run: |
+          health=$(grep "Link health:" link_validation.txt | awk '{print $3}' | tr -d '%')
+          broken=$(grep "Broken links:" link_validation.txt | awk '{print $3}')
+          echo "health=$health" >> $GITHUB_OUTPUT
+          echo "broken=$broken" >> $GITHUB_OUTPUT
+          echo "Link Health: ${health}%"
+          echo "Broken Links: $broken"
+
+      - name: Comment PR Status
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const health = '${{ steps.health.outputs.health }}';
+            const broken = '${{ steps.health.outputs.broken }}';
+            const emoji = health >= 95 ? '✅' : health >= 90 ? '⚠️' : '❌';
+
+            const comment = `## ${emoji} Documentation Link Check
+
+            **Link Health:** ${health}%
+            **Broken Links:** ${broken}
+
+            ${health >= 95
+              ? '✅ Documentation links are healthy!'
+              : health >= 90
+              ? '⚠️ Some broken links detected. Please review the validation output.'
+              : '❌ Many broken links detected. Please fix before merging.'}
+
+            <details>
+            <summary>Link Validation Standards</summary>
+
+            - 🟢 **95%+** - Excellent (merge allowed)
+            - 🟡 **90-94%** - Good (review recommended)
+            - 🔴 **<90%** - Poor (fixes required)
+
+            Run \`python scripts/validate_links.py\` locally to see details.
+            </details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Set Status Check
+        if: github.event_name == 'pull_request'
+        run: |
+          health=${{ steps.health.outputs.health }}
+          if [ "$health" -lt "90" ]; then
+            echo "❌ Link health below 90% threshold"
+            exit 1
+          elif [ "$health" -lt "95" ]; then
+            echo "⚠️ Link health below optimal 95% threshold"
+            exit 0  # Warning but don't block
+          else
+            echo "✅ Link health excellent"
+            exit 0
+          fi
+
+      - name: Upload Validation Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: link-validation-report
+          path: link_validation.txt
+          retention-days: 30
+
+      - name: Create Issue for Weekly Check
+        if: |
+          github.event_name == 'schedule' &&
+          steps.health.outputs.broken != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const broken = '${{ steps.health.outputs.broken }}';
+            const health = '${{ steps.health.outputs.health }}';
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📚 Weekly Docs Check: ${broken} broken links found`,
+              body: `## Weekly Documentation Link Check
+
+              The automated weekly documentation check found issues:
+
+              - **Link Health:** ${health}%
+              - **Broken Links:** ${broken}
+
+              ### Action Required
+
+              1. Run \`python scripts/validate_links.py\` locally
+              2. Run \`python scripts/fix_broken_links.py\` to auto-fix
+              3. Manually fix any remaining issues
+              4. Commit fixes to improve link health
+
+              ### Target
+              Maintain link health above 95% for production documentation.
+
+              ---
+              *This issue was automatically created by the weekly documentation check.*`,
+              labels: ['documentation', 'maintenance', 'good first issue']
+            });
+
+  # Optional: Auto-fix broken links on main branch
+  auto-fix-links:
+    runs-on: ubuntu-latest
+    needs: check-links
+    if: |
+      github.event_name == 'schedule' &&
+      failure() &&
+      github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Run Auto-Fix Script
+        run: |
+          chmod +x scripts/fix_broken_links.py
+          python scripts/fix_broken_links.py --auto-fix
+
+      - name: Check for Changes
+        id: changes
+        run: |
+          git diff --name-only > changed_files.txt
+          if [ -s changed_files.txt ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Files changed:"
+            cat changed_files.txt
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes needed"
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'fix: auto-fix broken documentation links'
+          title: '🔧 Auto-fix broken documentation links'
+          body: |
+            ## Automated Link Fix
+
+            This PR was automatically created to fix broken documentation links detected in the weekly check.
+
+            ### Changes
+            - Automatically fixed broken internal links
+            - Updated relative paths where needed
+            - Preserved all anchors and external links
+
+            ### Validation
+            Please review the changes before merging. Run:
+            ```bash
+            python scripts/validate_links.py
+            ```
+
+            To verify all links are working correctly.
+
+            ---
+            *This PR was automatically created by the documentation CI/CD pipeline.*
+          branch: auto-fix/broken-links
+          delete-branch: true
+          labels: |
+            documentation
+            automated

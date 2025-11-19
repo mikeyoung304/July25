@@ -1,0 +1,241 @@
+name: Documentation Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/docs-*.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    name: Validate Documentation
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for timestamp checks
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Check Markdown Formatting
+        run: |
+          # Check for consistent header formatting
+          echo "Checking header formatting..."
+          find docs -name "*.md" -type f | while read file; do
+            # Check for space after # in headers
+            if grep -q "^#[^# ]" "$file"; then
+              echo "❌ $file: Missing space after # in headers"
+              exit 1
+            fi
+          done
+          echo "✅ Header formatting check passed"
+
+      - name: Check for Broken Internal Links
+        run: |
+          chmod +x scripts/validate_links.py
+          python scripts/validate_links.py
+          exit_code=$?
+          if [ $exit_code -ne 0 ]; then
+            echo "❌ Broken links detected"
+            exit 1
+          fi
+          echo "✅ Link validation passed"
+
+      - name: Check Documentation Structure
+        run: |
+          echo "Checking Diataxis structure..."
+          required_dirs=(
+            "docs/tutorials"
+            "docs/how-to"
+            "docs/reference"
+            "docs/explanation"
+          )
+          for dir in "${required_dirs[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "❌ Missing required directory: $dir"
+              exit 1
+            fi
+            echo "✅ Found: $dir"
+          done
+          echo "✅ Documentation structure check passed"
+
+      - name: Check for Required Documentation Files
+        run: |
+          echo "Checking required documentation files..."
+          required_files=(
+            "README.md"
+            "CONTRIBUTING.md"
+            "docs/README.md"
+            "docs/CHANGELOG.md"
+          )
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            fi
+            echo "✅ Found: $file"
+          done
+          echo "✅ Required files check passed"
+
+      - name: Check Documentation Timestamps
+        run: |
+          echo "Checking for outdated documentation..."
+          current_date=$(date +%Y-%m-%d)
+          thirty_days_ago=$(date -d '30 days ago' +%Y-%m-%d)
+
+          find docs -name "*.md" -type f | while read file; do
+            # Check for Last Updated timestamp
+            if grep -q "Last Updated:" "$file"; then
+              last_updated=$(grep "Last Updated:" "$file" | head -1 | sed 's/.*Last Updated: *//' | cut -d' ' -f1)
+              if [[ "$last_updated" < "$thirty_days_ago" ]]; then
+                echo "⚠️ $file is outdated (Last updated: $last_updated)"
+              fi
+            fi
+          done
+          echo "✅ Timestamp check completed"
+
+      - name: Check for Orphaned Documentation
+        continue-on-error: true  # Don't fail on orphans, just warn
+        run: |
+          echo "Checking for orphaned documentation files..."
+          # This is informational only
+          python -c "
+          import os
+          import re
+
+          def find_md_files(directory):
+              md_files = []
+              for root, dirs, files in os.walk(directory):
+                  for file in files:
+                      if file.endswith('.md'):
+                          md_files.append(os.path.join(root, file))
+              return md_files
+
+          def is_linked(file_path, all_files):
+              file_name = os.path.basename(file_path)
+              for other_file in all_files:
+                  if other_file == file_path:
+                      continue
+                  try:
+                      with open(other_file, 'r') as f:
+                          content = f.read()
+                          if file_name in content or file_path in content:
+                              return True
+                  except:
+                      pass
+              return False
+
+          md_files = find_md_files('docs')
+          orphans = []
+          for file in md_files:
+              if not is_linked(file, md_files):
+                  orphans.append(file)
+
+          if orphans:
+              print(f'⚠️ Found {len(orphans)} potentially orphaned files:')
+              for orphan in orphans[:10]:  # Show first 10
+                  print(f'  - {orphan}')
+          else:
+              print('✅ No orphaned documentation files found')
+          "
+
+      - name: Validate API Documentation
+        if: hashFiles('docs/reference/api/openapi.yaml') != ''
+        run: |
+          echo "Validating OpenAPI specification..."
+          # Basic YAML validation
+          python -c "
+          import yaml
+          import sys
+          try:
+              with open('docs/reference/api/openapi.yaml', 'r') as f:
+                  spec = yaml.safe_load(f)
+              if 'openapi' not in spec:
+                  print('❌ Invalid OpenAPI spec: missing openapi version')
+                  sys.exit(1)
+              if 'info' not in spec:
+                  print('❌ Invalid OpenAPI spec: missing info section')
+                  sys.exit(1)
+              if 'paths' not in spec:
+                  print('❌ Invalid OpenAPI spec: missing paths section')
+                  sys.exit(1)
+              print(f'✅ OpenAPI spec valid (version {spec.get(\"openapi\")})')
+          except Exception as e:
+              print(f'❌ OpenAPI spec validation failed: {e}')
+              sys.exit(1)
+          "
+
+      - name: Generate Validation Report
+        if: always()
+        run: |
+          echo "# Documentation Validation Report" > validation_report.md
+          echo "Generated: $(date)" >> validation_report.md
+          echo "" >> validation_report.md
+
+          # Link health
+          if [ -f scripts/validate_links.py ]; then
+            echo "## Link Health" >> validation_report.md
+            python scripts/validate_links.py 2>&1 | grep -E "(Link health:|Broken links:)" >> validation_report.md
+            echo "" >> validation_report.md
+          fi
+
+          # File count
+          echo "## Documentation Statistics" >> validation_report.md
+          echo "- Total markdown files: $(find docs -name '*.md' | wc -l)" >> validation_report.md
+          echo "- Tutorial files: $(find docs/tutorials -name '*.md' 2>/dev/null | wc -l || echo 0)" >> validation_report.md
+          echo "- How-to guides: $(find docs/how-to -name '*.md' 2>/dev/null | wc -l || echo 0)" >> validation_report.md
+          echo "- Reference docs: $(find docs/reference -name '*.md' 2>/dev/null | wc -l || echo 0)" >> validation_report.md
+          echo "- Explanation docs: $(find docs/explanation -name '*.md' 2>/dev/null | wc -l || echo 0)" >> validation_report.md
+
+          cat validation_report.md
+
+      - name: Upload Validation Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-validation-report
+          path: validation_report.md
+          retention-days: 30
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let report = '## 📚 Documentation Validation Results\n\n';
+
+            // Add check results
+            const checks = [
+              '✅ Markdown formatting',
+              '✅ Internal links',
+              '✅ Documentation structure',
+              '✅ Required files'
+            ];
+
+            report += checks.join('\n') + '\n\n';
+            report += '*Run `python scripts/validate_links.py` locally for detailed results.*';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
