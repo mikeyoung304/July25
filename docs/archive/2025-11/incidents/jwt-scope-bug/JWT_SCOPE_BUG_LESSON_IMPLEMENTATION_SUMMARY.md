@@ -2,7 +2,7 @@
 
 > **⚠️ ARCHIVED DOCUMENTATION**
 > This file has been archived on 2025-11-14.
-> For current documentation, see [docs/README.md](/docs/README.md)
+> For current documentation, see [docs/README.md](../../../../README.md)
 > Category: JWT Scope Bug Investigation
 
 ---
@@ -206,14 +206,14 @@ The JWT scope bug that caused a 10-day production outage has been transformed in
 - [ESLint Rule](claudelessons-v2/enforcement/eslint-rules/jwt-payload-completeness.js)
 
 ### Documentation
-- [Post-mortem](docs/postmortems/2025-11-12-jwt-scope-bug.md)
-- [ADR-010](docs/explanation/architecture-decisions/ADR-010-jwt-payload-standards.md)
-- [Auth Dev Guide](docs/how-to/development/AUTH_DEVELOPMENT_GUIDE.md)
-- [Debug Runbook](docs/how-to/operations/runbooks/AUTH_DEBUGGING_RUNBOOK.md)
+- [Post-mortem](../../../../postmortems/2025-11-12-jwt-scope-bug.md)
+- [ADR-010](../../../../explanation/architecture-decisions/ADR-010-jwt-payload-standards.md)
+- [Auth Dev Guide](../../../../how-to/development/AUTH_DEVELOPMENT_GUIDE.md)
+- [Debug Runbook](../../../../how-to/operations/runbooks/AUTH_DEBUGGING_RUNBOOK.md)
 
 ### Knowledge Base
-- [Incident Pattern](claudelessons-v2/knowledge/incidents/jwt-scope-mismatch.md)
-- [AI Guidelines](claudelessons-v2/guidelines/ai-auth-checks.md)
+- [Incident Pattern](../../../../../claudelessons-v2/knowledge/incidents/jwt-scope-mismatch.md)
+- [AI Guidelines](../../../../../claudelessons-v2/guidelines/ai-auth-checks.md)
 
 ---
 

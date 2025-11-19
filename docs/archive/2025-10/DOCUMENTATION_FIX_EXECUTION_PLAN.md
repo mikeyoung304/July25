@@ -332,21 +332,21 @@ Fix all content discovery, navigation, and quality issues.
 4. Create logical groupings:
    ```markdown
    ## Reference Documentation
-   - [Database Schema](reference/schema/DATABASE.md)
-   - [Environment Variables](reference/config/ENVIRONMENT.md)
-   - [API Documentation](reference/api/README.md)
+   - [Database Schema](../../reference/schema/DATABASE.md)
+   - [Environment Variables](../../reference/config/ENVIRONMENT.md)
+   - [API Documentation](../../reference/api/api/README.md)
 
    ## Architecture
    - [Architecture Diagrams](explanation/architecture/diagrams/)
-     - [C4 Context](explanation/architecture/diagrams/c4-context.md)
-     - [C4 Container](explanation/architecture/diagrams/c4-container.md)
-     - [Authentication Flow](explanation/architecture/diagrams/auth-flow.md)
-     - [Payment Flow](explanation/architecture/diagrams/payment-flow.md)
-     - [Voice Ordering](explanation/architecture/diagrams/voice-ordering.md)
+     - [C4 Context](../../explanation/architecture/diagrams/c4-context.md)
+     - [C4 Container](../../explanation/architecture/diagrams/c4-container.md)
+     - [Authentication Flow](../../explanation/architecture/diagrams/auth-flow.md)
+     - [Payment Flow](../../explanation/architecture/diagrams/payment-flow.md)
+     - [Voice Ordering](../../explanation/architecture/diagrams/voice-ordering.md)
 
    ## Investigation Reports
-   - [Comprehensive Root Cause Analysis (Oct 27)](investigations/comprehensive-root-cause-analysis-oct27-2025.md)
-   - [Menu Loading Error Fix (Oct 27)](investigations/menu-loading-error-fix-oct27-2025.md)
+   - [Comprehensive Root Cause Analysis (Oct 27)](../../investigations/comprehensive-root-cause-analysis-oct27-2025.md)
+   - [Menu Loading Error Fix (Oct 27)](../../investigations/menu-loading-error-fix-oct27-2025.md)
    - [... 6 more reports ...]
    ```
 5. Ensure clear hierarchy and easy navigation
@@ -429,7 +429,7 @@ Fixes navigation issues. All internal links now functional.
 2. For each file, add at top (after title):
    ```markdown
    **Last Updated:** 2025-11-01
-   **Version:** [6.0.14](VERSION.md)
+   **Version:** [6.0.14](../../VERSION.md)
    ```
 3. Use consistent format across all files
 4. Ensure placement is after main title, before content
@@ -757,7 +757,7 @@ Implement automated enforcement to prevent future documentation drift.
        const lines = content.split('\n');
        const titleIndex = lines.findIndex(l => l.startsWith('#'));
        if (titleIndex !== -1) {
-         lines.splice(titleIndex + 1, 0, `**Last Updated:** ${today}  `, `**Version:** [6.0.14](VERSION.md)`, '');
+         lines.splice(titleIndex + 1, 0, `**Last Updated:** ${today}  `, `**Version:** [6.0.14](../../VERSION.md)`, '');
          content = lines.join('\n');
        }
      }

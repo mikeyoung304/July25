@@ -33,5 +33,5 @@ Review date: 2026-02-14
 
 ## Related Documentation
 
-- [Documentation Home](/docs/README.md)
-- [Archive Index](/docs/archive/README.md)
+- [Documentation Home](../../../README.md)
+- [Archive Index](../../../README.md)

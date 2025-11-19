@@ -611,8 +611,8 @@ Adapt salvaged dashboard for WebRTC monitoring:
 
 ## Related Documentation
 - [Salvaged Voice Code](../../archive/2025-01/VOICE_CODE_SALVAGE.md)
-- [OpenAI Realtime API](../../reference/api/openai-realtime/README.md)
-- [Voice Ordering How-To](../VOICE_ORDERING_WEBRTC.md)
+- [OpenAI Realtime API](../../reference/api/api/README.md)
+- [Voice Ordering How-To](VOICE_ORDERING_WEBRTC.md)
 
 ---
 

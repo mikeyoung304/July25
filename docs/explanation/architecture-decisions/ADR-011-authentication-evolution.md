@@ -1413,7 +1413,7 @@ if (process.env.NODE_ENV === 'production' && process.env.DEMO_LOGIN_ENABLED === 
 
 - **[ADR-006: Dual Authentication Pattern](ADR-006-dual-authentication-pattern.md)** - Detailed implementation of current auth system
 - **[AUTHENTICATION_ARCHITECTURE.md](../architecture/AUTHENTICATION_ARCHITECTURE.md)** - Current architecture reference
-- **[Git History Narrative](../../nov18scan/01_git_history_narrative.md)** - Complete commit history analysis
+- **[Git History Narrative](../../../nov18scan/01_git_history_narrative.md)** - Complete commit history analysis
 - **[Claude Lessons: CL-AUTH-001](../claudelessons/CL-AUTH-001-voice-ordering-auth.md)** - Voice ordering authentication incident
 - **[Production Status](../../PRODUCTION_STATUS.md)** - Overall system readiness
 - **[Security Audit](../../security/SECURITY_AUDIT_2025-10.md)** - October 2025 security assessment

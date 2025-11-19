@@ -3,7 +3,7 @@
 **Last Updated:** 2025-11-19
 **Version:** 1.0.0
 
-[Home](../../../../index.md) > [Docs](../../../README.md) > [How-To](../../README.md) > [Operations](../README.md) > [Runbooks](./README.md) > Rollback Procedures
+[Home](../../../../index.md) > [Docs](../../../README.md) > [How-To](../../README.md) > [Operations](../../../README.md) > [Runbooks](./README.md) > Rollback Procedures
 
 ---
 

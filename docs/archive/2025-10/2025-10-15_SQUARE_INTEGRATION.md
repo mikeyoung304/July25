@@ -25,7 +25,7 @@ Payment processing is **fully operational** as of October 14, 2025. After resolv
 - ✅ Fixed database constraint violations
 - ✅ Created comprehensive post-mortem
 
-**See**: [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md) for incident details.
+**See**: [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](../../POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md) for incident details.
 
 ---
 
@@ -579,7 +579,7 @@ The server automatically validates credentials on startup:
 
 On October 14, 2025, we spent 4 hours debugging payment failures that were ultimately caused by a single-character typo in `SQUARE_LOCATION_ID` (`L3` instead of `L1`). This safeguard prevents that from happening again.
 
-**See**: [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
+**See**: [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](../../POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)
 
 ---
 
@@ -885,11 +885,11 @@ npm run test:e2e
 
 ## Related Documentation
 
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md) - October 14 incident analysis
-- [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - System readiness status
-- [ORDER_FLOW.md](./ORDER_FLOW.md) - Complete order lifecycle
-- [DATABASE.md](./DATABASE.md) - Supabase schema
-- [ADR-001: snake_case Convention](./ADR-001-snake-case-convention.md) - API naming standards
+- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](../../POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md) - October 14 incident analysis
+- [PRODUCTION_STATUS.md](../../PRODUCTION_STATUS.md) - System readiness status
+- [ORDER_FLOW.md](../../explanation/concepts/ORDER_FLOW.md) - Complete order lifecycle
+- [DATABASE.md](../../DATABASE.md) - Supabase schema
+- [ADR-001: snake_case Convention](../../explanation/architecture-decisions/ADR-001-snake-case-convention.md) - API naming standards
 
 ---
 

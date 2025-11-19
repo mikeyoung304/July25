@@ -375,7 +375,7 @@ Each type has specific rendering:
 ## Related Documentation
 
 - [Getting Started Guide](../../tutorials/GETTING_STARTED.md)
-- [API Reference](../../reference/api/README.md)
+- [API Reference](../../reference/api/api/README.md)
 - [WebSocket Events](../../reference/api/WEBSOCKET_EVENTS.md)
 - [Database Schema - Tables](../../reference/schema/DATABASE.md#tables)
 

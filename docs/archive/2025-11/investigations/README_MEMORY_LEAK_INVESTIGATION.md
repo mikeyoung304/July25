@@ -2,7 +2,7 @@
 
 > **⚠️ ARCHIVED DOCUMENTATION**
 > This file has been archived on 2025-11-14.
-> For current documentation, see [docs/README.md](/docs/README.md)
+> For current documentation, see [docs/README.md](../../../README.md)
 > Category: Investigations
 
 ---
@@ -21,11 +21,11 @@ This investigation identified **10 distinct memory leak vectors** across **13 fi
 - **[INVESTIGATION_COMPLETE.md](./INVESTIGATION_COMPLETE.md)** - Overview and next steps
 
 ### For Management/Decision Makers
-- **[AI_SERVICES_MEMORY_LEAK_SUMMARY.md](./AI_SERVICES_MEMORY_LEAK_SUMMARY.md)** - Executive summary, risks, timeline
+- **[AI_SERVICES_MEMORY_LEAK_SUMMARY.md](ai-services/AI_SERVICES_MEMORY_LEAK_SUMMARY.md)** - Executive summary, risks, timeline
 
 ### For Engineers (Fixing Issues)
 - **[AFFECTED_FILES_INDEX.md](./AFFECTED_FILES_INDEX.md)** - File-by-file breakdown with exact line numbers
-- **[AI_SERVICES_MEMORY_LEAK_REPORT.md](./AI_SERVICES_MEMORY_LEAK_REPORT.md)** - Complete technical deep dive with code examples
+- **[AI_SERVICES_MEMORY_LEAK_REPORT.md](ai-services/AI_SERVICES_MEMORY_LEAK_REPORT.md)** - Complete technical deep dive with code examples
 
 ## The 4 Critical Issues
 
@@ -112,7 +112,7 @@ TOTAL: 15-18 hours
 ## How to Use These Reports
 
 ### If you're the Project Manager:
-1. Read [AI_SERVICES_MEMORY_LEAK_SUMMARY.md](./AI_SERVICES_MEMORY_LEAK_SUMMARY.md)
+1. Read [AI_SERVICES_MEMORY_LEAK_SUMMARY.md](ai-services/AI_SERVICES_MEMORY_LEAK_SUMMARY.md)
 2. Check the timeline and effort estimates
 3. Schedule 15-18 hours for engineering team
 4. Require Phase 1 completion before production

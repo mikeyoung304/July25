@@ -613,10 +613,10 @@ GET /api/v1/menu/items
 
 ## Related Documentation
 
-- [Order Flow](./ORDER_FLOW.md) - Complete order lifecycle
-- [Database Schema](./DATABASE.md) - Supabase table structures
-- [Voice Ordering](./voice/VOICE_ORDERING_EXPLAINED.md) - Voice AI deep dive
-- [API Reference](./api/README.md) - All API endpoints
+- [Order Flow](../../explanation/concepts/ORDER_FLOW.md) - Complete order lifecycle
+- [Database Schema](../../DATABASE.md) - Supabase table structures
+- [Voice Ordering](../../voice/VOICE_ORDERING_EXPLAINED.md) - Voice AI deep dive
+- [API Reference](../../reference/api/api/README.md) - All API endpoints
 
 ---
 

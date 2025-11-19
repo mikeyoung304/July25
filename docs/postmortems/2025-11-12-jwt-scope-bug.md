@@ -363,9 +363,9 @@ const payload: Required<JWTPayload> = {
 ## Appendix
 
 ### Related Documentation
-- [Root Cause Analysis](../JWT_SCOPE_BUG_ROOT_CAUSE_ANALYSIS.md) - 1,039 lines
-- [Technical Summary](../JWT_SCOPE_BUG_TECHNICAL_SUMMARY.md) - 271 lines
-- [Patterns & Solutions](../JWT_SCOPE_BUG_PATTERNS_AND_SOLUTIONS.md) - 575 lines
+- [Root Cause Analysis](../archive/2025-11/incidents/jwt-scope-bug/JWT_SCOPE_BUG_ROOT_CAUSE_ANALYSIS.md) - 1,039 lines
+- [Technical Summary](../archive/2025-11/incidents/jwt-scope-bug/JWT_SCOPE_BUG_TECHNICAL_SUMMARY.md) - 271 lines
+- [Patterns & Solutions](../archive/2025-11/incidents/jwt-scope-bug/JWT_SCOPE_BUG_PATTERNS_AND_SOLUTIONS.md) - 575 lines
 - [Historical Pattern Analysis](../HISTORICAL_PATTERN_ANALYSIS.md) - 1,427 lines
 
 ### Affected Files

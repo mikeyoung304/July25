@@ -102,7 +102,7 @@
 - [Phase 1 E2E Test Report](./docs/PHASE_1_E2E_TEST_REPORT.md) — End-to-end production testing results
 - [Voice Order Analysis Index](./docs/VOICE_ORDER_ANALYSIS_INDEX.md) — Comprehensive analysis index
 - [Voice Order Workflow Analysis](./docs/VOICE_ORDER_WORKFLOW_ANALYSIS.md) — Detailed workflow documentation
-- [Voice Order Analysis Summary](./VOICE_ORDER_ANALYSIS_SUMMARY.md) — Analysis summary and findings
+- [Voice Order Analysis Summary](docs/archive/2025-11/voice-websocket/VOICE_ORDER_ANALYSIS_SUMMARY.md) — Analysis summary and findings
 
 ## 4. Development Health & Testing
 - [Test Health Dashboard](./docs/reference/testing/TEST_HEALTH.md) — Test quarantine status and remediation plan
@@ -164,13 +164,13 @@
 - [Changelog](./docs/CHANGELOG.md) — Version history & release notes
 
 ## 8. P0.9 Auth Stabilization Initiative (Nov 2025)
-- [Phase 2B Deployment Sign-Off](./P0.9_PHASE_2B_FINAL_DEPLOYMENT_SIGNOFF.md) — Ready for deployment (800 lines)
-- [Deployment Runbook](./P0.9_PHASE_2B_DEPLOYMENT_RUNBOOK.md) — 45-minute deployment procedure (500 lines)
-- [Database Forensic Audit](./P0.9_DATABASE_SCHEMA_FORENSIC_AUDIT.md) — Schema analysis (600 lines)
-- [Deployment Complete Summary](./P0.9_DEPLOYMENT_COMPLETE_SUMMARY.md) — Technical execution status
-- [Phase 2 Punchlist](./P0.9_PHASE_2_PUNCHLIST.md) — Strategic roadmap (updated 2025-11-11)
+- [Phase 2B Deployment Sign-Off](docs/archive/2025-11/phases/p0.9-phase-2b/P0.9_PHASE_2B_FINAL_DEPLOYMENT_SIGNOFF.md) — Ready for deployment (800 lines)
+- [Deployment Runbook](docs/archive/2025-11/phases/p0.9-phase-2b/P0.9_PHASE_2B_DEPLOYMENT_RUNBOOK.md) — 45-minute deployment procedure (500 lines)
+- [Database Forensic Audit](docs/archive/2025-11/phases/p0.9-phase-2b/P0.9_DATABASE_SCHEMA_FORENSIC_AUDIT.md) — Schema analysis (600 lines)
+- [Deployment Complete Summary](docs/archive/2025-11/phases/p0.9-phase-2b/P0.9_DEPLOYMENT_COMPLETE_SUMMARY.md) — Technical execution status
+- [Phase 2 Punchlist](docs/archive/2025-11/phases/p0.9-phase-2b/P0.9_PHASE_2_PUNCHLIST.md) — Strategic roadmap (updated 2025-11-11)
 - [Stabilization Progress](./docs/investigations/STABILIZATION_PROGRESS.md) — Branch status (90% complete)
-- [Documentation Cleanup Report](./DOCUMENTATION_CLEANUP_REPORT.md) — Nov 2025 documentation audit
+- [Documentation Cleanup Report](docs/archive/2025-11/investigations/DOCUMENTATION_CLEANUP_REPORT.md) — Nov 2025 documentation audit
 
 ## 9. Audit Reports & Analysis
 - [Audit Reports Index](./docs/audit/README.md) — Codebase audit reports and action plans

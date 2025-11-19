@@ -10,7 +10,7 @@
 >
 > **Current System Status**: ✅ Operational
 >
-> For current operational status and monitoring, see [README.md](README.md)
+> For current operational status and monitoring, see [README.md](../../README.md)
 
 ---
 

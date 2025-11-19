@@ -2003,9 +2003,9 @@ export async function waitForWebSocketMessage(
 - [Supabase Testing Guide](https://supabase.com/docs/guides/testing)
 
 **Internal Docs:**
-- [JWT Scope Bug Postmortem](/docs/postmortems/2025-11-12-jwt-scope-bug.md)
-- [Auth Debugging Runbook](/docs/how-to/operations/runbooks/AUTH_DEBUGGING_RUNBOOK.md)
-- [Testing Gap Analysis](/docs/archive/2025-11/TESTING_GAP_ANALYSIS.md)
+- [JWT Scope Bug Postmortem](../../../postmortems/2025-11-12-jwt-scope-bug.md)
+- [Auth Debugging Runbook](../../../how-to/operations/runbooks/AUTH_DEBUGGING_RUNBOOK.md)
+- [Testing Gap Analysis](../TESTING_GAP_ANALYSIS.md)
 
 **Tools:**
 - [JWT Decoder](https://jwt.io/)

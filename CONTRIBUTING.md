@@ -31,7 +31,7 @@ Thank you for your interest in contributing to Restaurant OS!
   - PR validation passed (automated checks on schema sync)
   - After merge: CI/CD auto-deploys migration before code
   - Never edited deployed migrations (created new ones instead)
-  - See [CI_CD_WORKFLOWS.md](./docs/CI_CD_WORKFLOWS.md) for full workflow
+  - See [CI_CD_WORKFLOWS.md](docs/how-to/development/CI_CD_WORKFLOWS.md) for full workflow
 
 ## Important Guidelines
 
@@ -49,7 +49,7 @@ For detailed contributing guidelines including:
 - Release process and deployment procedures
 - Documentation structure
 
-See: [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md)
+See: [docs/CONTRIBUTING.md](docs/how-to/development/CONTRIBUTING.md)
 
 ## Getting Help
 

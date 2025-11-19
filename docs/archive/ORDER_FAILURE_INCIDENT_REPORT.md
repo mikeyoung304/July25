@@ -983,7 +983,7 @@ Monitor:
 5. Deployed all October P0 audit migrations successfully
 6. Verified deployment with comprehensive checks
 
-**See**: [MIGRATION_RECONCILIATION_2025-10-20.md](./docs/MIGRATION_RECONCILIATION_2025-10-20.md) for complete details
+**See**: [MIGRATION_RECONCILIATION_2025-10-20.md](../MIGRATION_RECONCILIATION_2025-10-20.md) for complete details
 
 ### Deployment Verification (All Checks Passed ✅)
 

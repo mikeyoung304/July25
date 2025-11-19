@@ -426,21 +426,21 @@ alerts:
 ## 📚 REFERENCE
 
 ### ADRs (Architecture Decision Records)
-- [ADR-001](docs/explanation/architecture-decisions/ADR-001-snake-case-convention.md): Snake case convention
-- [ADR-002](docs/explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md): Multi-tenancy
-- [ADR-003](docs/explanation/architecture-decisions/ADR-003-embedded-orders-pattern.md): Embedded orders
-- [ADR-004](docs/explanation/architecture-decisions/ADR-004-websocket-realtime-architecture.md): WebSocket
-- [ADR-005](docs/explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md): Voice ordering
-- [ADR-006](docs/explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md): Dual auth
-- [ADR-007](docs/explanation/architecture-decisions/ADR-007-per-restaurant-configuration.md): Config
-- [ADR-008](docs/explanation/architecture-decisions/ADR-008-slug-based-routing.md): Routing
-- [ADR-009](docs/explanation/architecture-decisions/ADR-009-error-handling-philosophy.md): Error handling
-- [ADR-010](docs/explanation/architecture-decisions/ADR-010-remote-database-source-of-truth.md): Database
+- [ADR-001](../../explanation/architecture-decisions/ADR-001-snake-case-convention.md): Snake case convention
+- [ADR-002](../../explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md): Multi-tenancy
+- [ADR-003](../../explanation/architecture-decisions/ADR-003-embedded-orders-pattern.md): Embedded orders
+- [ADR-004](../../explanation/architecture-decisions/ADR-004-websocket-realtime-architecture.md): WebSocket
+- [ADR-005](../../explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md): Voice ordering
+- [ADR-006](../../explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md): Dual auth
+- [ADR-007](../../explanation/architecture-decisions/ADR-007-per-restaurant-configuration.md): Config
+- [ADR-008](../../explanation/architecture-decisions/ADR-008-slug-based-routing.md): Routing
+- [ADR-009](../../explanation/architecture-decisions/ADR-009-error-handling-philosophy.md): Error handling
+- [ADR-010](../../explanation/architecture-decisions/ADR-010-remote-database-source-of-truth.md): Database
 
 ### Key Documents
-- [Enterprise Assessment](docs/ENTERPRISE_ARCHITECTURE_ASSESSMENT_2025-11-08.md)
-- [Technical Roadmap](docs/TECHNICAL_ROADMAP_2025-11-08.md)
-- [Gatekeeper Review](docs/GATEKEEPER_REVIEW_2025-11-08.md)
+- [Enterprise Assessment](../../ENTERPRISE_ARCHITECTURE_ASSESSMENT_2025-11-08.md)
+- [Technical Roadmap](../../TECHNICAL_ROADMAP_2025-11-08.md)
+- [Gatekeeper Review](../../GATEKEEPER_REVIEW_2025-11-08.md)
 
 ### Templates
 - [Post-mortem Template](docs/templates/post-mortem.md)

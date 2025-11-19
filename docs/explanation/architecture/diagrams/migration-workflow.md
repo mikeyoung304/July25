@@ -178,6 +178,6 @@ flowchart TD
 ## See Also
 
 - [../../SUPABASE_CONNECTION_GUIDE.md](../../../SUPABASE_CONNECTION_GUIDE.md) - Connection methods and troubleshooting
-- [../../../supabase/migrations/README.md](../../../supabase/migrations/README.md) - Migration file conventions
+- [../../../supabase/migrations/README.md](../../../../supabase/migrations/README.md) - Migration file conventions
 - [ADR-010](../../../explanation/architecture-decisions/ADR-010-remote-database-source-of-truth.md) - Source of truth architecture
 - [CI/CD Workflows](../../../how-to/development/CI_CD_WORKFLOWS.md) - Automation details

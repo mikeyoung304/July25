@@ -80,7 +80,7 @@ cancelled
 
 ### 5. Authentication Architecture (DUAL PATTERN - ADR-006)
 
-See [ADR-006: Dual Authentication Pattern](../ADR-006-dual-authentication-pattern.md) for complete documentation.
+See [ADR-006: Dual Authentication Pattern](../explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md) for complete documentation.
 
 Quick reference: Production uses Supabase JWT, Development uses JWT fallback.
 

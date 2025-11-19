@@ -74,8 +74,8 @@ This guide helps you find documentation quickly based on what you need to accomp
 → [Development Process](./how-to/development/DEVELOPMENT_PROCESS.md) - Migration best practices
 
 ### P0.9 Auth Stabilization (Nov 2025)
-→ [Phase 2B Deployment Sign-Off](../P0.9_PHASE_2B_FINAL_DEPLOYMENT_SIGNOFF.md) - Ready for deployment
-→ [Deployment Runbook](../P0.9_PHASE_2B_DEPLOYMENT_RUNBOOK.md) - 45-minute procedure
+→ [Phase 2B Deployment Sign-Off](archive/2025-11/phases/p0.9-phase-2b/P0.9_PHASE_2B_FINAL_DEPLOYMENT_SIGNOFF.md) - Ready for deployment
+→ [Deployment Runbook](archive/2025-11/phases/p0.9-phase-2b/P0.9_PHASE_2B_DEPLOYMENT_RUNBOOK.md) - 45-minute procedure
 → [Stabilization Progress](./investigations/STABILIZATION_PROGRESS.md) - Branch status (90% complete)
 
 ## Navigation by Technology

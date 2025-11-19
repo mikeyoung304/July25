@@ -391,7 +391,7 @@ Closing planning artifact.
 
 **Status:** Goals achieved incrementally
 **Completion:** v{version} - {date}
-**Reference:** See [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md) for current status
+**Reference:** See [SOURCE_OF_TRUTH.md](../../meta/SOURCE_OF_TRUTH.md) for current status
 
 **What was delivered:**
 - [Key deliverable 1]

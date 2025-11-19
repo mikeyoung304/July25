@@ -1003,7 +1003,7 @@ The current architecture is **Version 3** of the authentication system. Understa
 - **[Security Policies](../../SECURITY.md)** - Security practices and incident response
 - **[API Reference](../../reference/api/api/README.md)** - API authentication endpoints
 - **[Troubleshooting Auth Issues](../../how-to/troubleshooting/AUTH_DIAGNOSTIC_GUIDE.md)** - Auth debugging guide
-- **[Git History Narrative](../../nov18scan/01_git_history_narrative.md)** - Complete commit analysis
+- **[Git History Narrative](../../../nov18scan/01_git_history_narrative.md)** - Complete commit analysis
 
 ---
 

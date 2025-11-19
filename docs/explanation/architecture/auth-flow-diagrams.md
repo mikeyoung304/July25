@@ -1152,7 +1152,7 @@ Phase 3: Security + Flexibility → Acceptable Complexity ✅
 - **[ADR-011: Authentication Evolution](../architecture-decisions/ADR-011-authentication-evolution.md)** - Complete 3-rewrite history
 - **[ADR-006: Dual Authentication Pattern](../architecture-decisions/ADR-006-dual-authentication-pattern.md)** - Implementation details
 - **[AUTHENTICATION_ARCHITECTURE.md](AUTHENTICATION_ARCHITECTURE.md)** - Current architecture reference
-- **[Git History Narrative](../../nov18scan/01_git_history_narrative.md)** - Complete commit analysis
+- **[Git History Narrative](../../../nov18scan/01_git_history_narrative.md)** - Complete commit analysis
 
 ---
 

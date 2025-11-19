@@ -494,7 +494,7 @@ Every documentation file MUST include:
 # Document Title
 
 **Last Updated**: YYYY-MM-DD
-**Version**: See [VERSION.md](VERSION.md)
+**Version**: See [VERSION.md](../../VERSION.md)
 ```
 
 **Exceptions**: 
@@ -559,7 +559,7 @@ For details, see [`server/src/routes/auth.routes.ts`](../server/src/routes/auth.
 
 **Version References**: Always link to VERSION.md
 ```markdown
-This uses React (see [VERSION.md](VERSION.md))
+This uses React (see [VERSION.md](../../VERSION.md))
 ```
 
 ---

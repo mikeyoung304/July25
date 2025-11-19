@@ -2,13 +2,13 @@
 
 **This guide is outdated and conflicts with current practices.**
 
-**→ See authoritative guide:** [/docs/SUPABASE_CONNECTION_GUIDE.md](../docs/SUPABASE_CONNECTION_GUIDE.md)
+**→ See authoritative guide:** [/docs/SUPABASE_CONNECTION_GUIDE.md](../SUPABASE_CONNECTION_GUIDE.md)
 
 **Why deprecated:** This guide incorrectly stated migrations were "reference only" (line 75) and encouraged cloud-first manual changes via Supabase Dashboard. The correct workflow uses Supabase CLI migrations deployed via `supabase db push --linked`. This conflicting documentation led to a production incident (v6.0.13) where migrations were committed to git but never deployed, causing schema drift and 500 errors.
 
 **Archived:** 2025-10-21
 **Replaced by:** /docs/SUPABASE_CONNECTION_GUIDE.md (Oct 20, 2025)
-**See incident:** [POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md](../docs/POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md)
+**See incident:** [POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md](../POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md)
 
 ---
 

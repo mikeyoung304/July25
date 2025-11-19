@@ -9,7 +9,7 @@
 **Correction (2025-10-15):** Heartbeat interval is 30 seconds; earlier draft incorrectly stated 60 seconds. Verified against code.
 
 **Last Updated**: 2025-09-26
-**Version**: See [VERSION.md](VERSION.md)
+**Version**: See [VERSION.md](../../VERSION.md)
 **WebSocket URL**: `ws://localhost:3001` (dev) | `wss://july25.onrender.com` (prod)
 
 ## Overview
@@ -414,6 +414,6 @@ Key metrics:
 
 ## Related Documentation
 
-- [API Documentation](api/README.md)
-- [Real-time Features](ORDER_FLOW.md)
-- [Voice Ordering](voice/VOICE_ORDERING_EXPLAINED.md)
+- [API Documentation](../../reference/api/api/README.md)
+- [Real-time Features](../../explanation/concepts/ORDER_FLOW.md)
+- [Voice Ordering](../../voice/VOICE_ORDERING_EXPLAINED.md)

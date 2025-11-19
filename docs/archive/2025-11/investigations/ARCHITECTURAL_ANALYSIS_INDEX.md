@@ -2,7 +2,7 @@
 
 > **⚠️ ARCHIVED DOCUMENTATION**
 > This file has been archived on 2025-11-14.
-> For current documentation, see [docs/README.md](/docs/README.md)
+> For current documentation, see [docs/README.md](../../../README.md)
 > Category: Investigations
 
 ---

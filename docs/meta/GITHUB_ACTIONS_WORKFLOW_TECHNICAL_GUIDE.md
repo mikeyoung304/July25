@@ -473,7 +473,7 @@ Found **${count} old root-level .md files** that should be archived.
 
 This will move old documentation to appropriate archive directories.
 
-See [Documentation Standards](docs/meta/DOCUMENTATION_STANDARDS.md) for more information.
+See [Documentation Standards](../DOCUMENTATION_STANDARDS.md) for more information.
 ```
 
 #### API Call
@@ -1142,7 +1142,7 @@ jobs:
 
 - [Team Workflow Announcement](./TEAM_DOCUMENTATION_WORKFLOW_ANNOUNCEMENT.md) - High-level overview for team
 - [CI/CD Setup Guide](./DOCUMENTATION_CI_CD_SETUP.md) - Installation and configuration
-- [Documentation Standards](./DOCUMENTATION_STANDARDS.md) - Style guide and conventions
+- [Documentation Standards](../DOCUMENTATION_STANDARDS.md) - Style guide and conventions
 - [Documentation Audit](./DOCUMENTATION_AUDIT_2025-11-14.md) - Comprehensive system analysis
 
 ---
