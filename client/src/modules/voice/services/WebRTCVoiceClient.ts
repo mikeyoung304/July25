@@ -173,11 +173,16 @@ export class WebRTCVoiceClient extends EventEmitter {
           toolsCount: sessionConfigObj.tools?.length,
           toolNames: sessionConfigObj.tools?.map((t: any) => t.name),
           voice: sessionConfigObj.voice,
+          inputAudioFormat: sessionConfigObj.input_audio_format,
+          outputAudioFormat: sessionConfigObj.output_audio_format,
+          inputAudioTranscription: sessionConfigObj.input_audio_transcription,
           turnDetection: sessionConfigObj.turn_detection,
           temperature: sessionConfigObj.temperature,
           maxTokens: sessionConfigObj.max_response_output_tokens
         }
       });
+
+      console.log('🔍 [WebRTCVoiceClient] CRITICAL: input_audio_transcription setting:', sessionConfigObj.input_audio_transcription);
 
       this.eventHandler.sendEvent(sessionUpdatePayload);
       console.log('✅ [WebRTCVoiceClient] session.update sent');
