@@ -1,7 +1,7 @@
 # Database Migration Workflow
 
 **Last Updated:** 2025-11-08
-**Related:** [CI/CD Workflows](../../how-to/development/CI_CD_WORKFLOWS.md) | [Deployment Guide](../../how-to/operations/DEPLOYMENT.md) | [Supabase Connection Guide](../../SUPABASE_CONNECTION_GUIDE.md)
+**Related:** [CI/CD Workflows](../../../how-to/development/CI_CD_WORKFLOWS.md) | [Deployment Guide](../../../how-to/operations/DEPLOYMENT.md) | [Supabase Connection Guide](../../../SUPABASE_CONNECTION_GUIDE.md)
 
 ## Complete Migration Flow: Local to Production
 
@@ -17,7 +17,7 @@ This diagram shows the entire database migration workflow from local development
 flowchart TD
     Start([Developer Creates Migration]) --> Local{Test Locally?}
 
-    Local -->|Recommended| CreateFile[Create Migration File<br/>supabase/migrations/YYYYMMDD_*.sql]
+    Local -->|Recommended| CreateFile[Create Migration File<br/>../../../supabase/migrations/YYYYMMDD_*.sql]
     Local -->|Skip at own risk| CreateFile
 
     CreateFile --> TestLocal[./scripts/deploy-migration.sh migration.sql]
@@ -177,7 +177,7 @@ flowchart TD
 
 ## See Also
 
-- [SUPABASE_CONNECTION_GUIDE.md](../../SUPABASE_CONNECTION_GUIDE.md) - Connection methods and troubleshooting
-- [supabase/migrations/README.md](../../../supabase/migrations/README.md) - Migration file conventions
-- [ADR-010](../architecture-decisions/ADR-010-remote-database-source-of-truth.md) - Source of truth architecture
-- [CI/CD Workflows](../../how-to/development/CI_CD_WORKFLOWS.md) - Automation details
+- [../../SUPABASE_CONNECTION_GUIDE.md](../../../SUPABASE_CONNECTION_GUIDE.md) - Connection methods and troubleshooting
+- [../../../supabase/migrations/README.md](../../../supabase/migrations/README.md) - Migration file conventions
+- [ADR-010](../../../explanation/architecture-decisions/ADR-010-remote-database-source-of-truth.md) - Source of truth architecture
+- [CI/CD Workflows](../../../how-to/development/CI_CD_WORKFLOWS.md) - Automation details

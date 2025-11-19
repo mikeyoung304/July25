@@ -1,7 +1,7 @@
 # CI/CD Deployment Pipeline
 
 **Last Updated:** 2025-11-08
-**Related:** [CI/CD Workflows](../../how-to/development/CI_CD_WORKFLOWS.md) | [Migration Workflow](./migration-workflow.md) | [Deployment Guide](../../how-to/operations/DEPLOYMENT.md)
+**Related:** [CI/CD Workflows](../../../how-to/development/CI_CD_WORKFLOWS.md) | [Migration Workflow](./migration-workflow.md) | [Deployment Guide](../../../how-to/operations/DEPLOYMENT.md)
 
 ## Complete Deployment Pipeline Architecture
 
@@ -244,6 +244,6 @@ Post-deployment validation ensures services are operational:
 ## See Also
 
 - [Migration Workflow Diagram](./migration-workflow.md) - Detailed migration flow
-- [CI/CD Workflows Documentation](../../how-to/development/CI_CD_WORKFLOWS.md) - Workflow configuration
-- [Deployment Guide](../../how-to/operations/DEPLOYMENT.md) - Manual deployment procedures
-- [Deployment Checklist](../../how-to/operations/DEPLOYMENT_CHECKLIST.md) - Pre-deployment verification
+- [CI/CD Workflows Documentation](../../../how-to/development/CI_CD_WORKFLOWS.md) - Workflow configuration
+- [Deployment Guide](../../../how-to/operations/DEPLOYMENT.md) - Manual deployment procedures
+- [Deployment Checklist](../../../how-to/operations/DEPLOYMENT_CHECKLIST.md) - Pre-deployment verification

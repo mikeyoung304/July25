@@ -431,7 +431,7 @@ Key metrics to monitor:
 
 ## Related Documentation
 
-- [API Documentation](README.md)
+- [API Documentation](./api/README.md)
 - [Kitchen Display System](../../how-to/operations/KDS-BIBLE.md)
 - [Deployment Guide](../../how-to/operations/DEPLOYMENT.md)
 - [Authentication Architecture](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md)

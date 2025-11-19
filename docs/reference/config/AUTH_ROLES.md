@@ -179,6 +179,6 @@ curl -X POST http://localhost:3001/api/v1/auth/demo-session \
 ```
 
 ## See Also
-- [oct18plan.md](../../archive/oct18plan.md) - Complete dual-auth architecture analysis
+- [October 18 Plan - Archived] - Complete dual-auth architecture analysis
 - [docs/AUTHENTICATION_ARCHITECTURE.md](../../explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) - Full authentication documentation
 - [.env.example](../.env.example) - AUTH_ACCEPT_KIOSK_DEMO_ALIAS configuration

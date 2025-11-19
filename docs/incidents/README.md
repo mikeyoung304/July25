@@ -34,7 +34,7 @@ This directory tracks production incidents and their initial response documentat
 - **Impact:** Production schema diverged from git
 - **Root Cause:** Manual schema changes in Supabase Dashboard
 - **Resolution:** Implemented automated drift detection workflow
-- **Post-mortem:** [2025-10-21-schema-drift.md](../postmortems/2025-10-21-schema-drift.md)
+- **Post-mortem:** [2025-10-21 - Schema Drift - TODO: link to correct file]
 
 **Oct 14, 2025 - Square Payment Credentials Mismatch**
 - **Duration:** 4 hours

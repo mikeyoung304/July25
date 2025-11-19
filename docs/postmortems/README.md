@@ -20,12 +20,12 @@ This directory contains blameless post-mortem analyses of production incidents.
 
 ### 2025-10
 
-**[2025-10-21 - Schema Drift](2025-10-21-schema-drift.md)**
+**[2025-10-21 - Schema Drift](../POST_MORTEM_SCHEMA_DRIFT_2025-10-21.md)**
 - Production schema diverged from git for 2 weeks
 - Root cause: Manual Supabase Dashboard changes
 - Fix: Automated drift detection workflow
 
-**[2025-10-14 - Square Payment Credentials Mismatch](POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)**
+**[2025-10-14 - Square Payment Credentials Mismatch](../POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md)**
 - All payments failing (production using sandbox credentials)
 - Root cause: Manual credential update without environment verification
 - Fix: Proper credential rotation protocol

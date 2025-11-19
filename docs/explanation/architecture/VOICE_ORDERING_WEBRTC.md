@@ -1,6 +1,7 @@
 # Voice Ordering Architecture (WebRTC)
 **Last Updated:** 2025-01-18
 **Status:** ACTIVE (Production)
+**Critical Update:** OpenAI transcription model changed from `whisper-1` to `gpt-4o-transcribe` (Jan 2025)
 
 ## Overview
 Voice ordering uses OpenAI's Realtime API via direct browser-to-OpenAI WebRTC connections for low-latency, natural voice interactions.
@@ -610,8 +611,8 @@ Adapt salvaged dashboard for WebRTC monitoring:
 
 ## Related Documentation
 - [Salvaged Voice Code](../../archive/2025-01/VOICE_CODE_SALVAGE.md)
-- [OpenAI Realtime API](../../reference/api/OPENAI_REALTIME.md)
-- [Voice Ordering How-To](../../how-to/voice/VOICE_ORDERING.md)
+- [OpenAI Realtime API](../../reference/api/openai-realtime/README.md)
+- [Voice Ordering How-To](../VOICE_ORDERING_WEBRTC.md)
 
 ---
 
@@ -622,10 +623,36 @@ Adapt salvaged dashboard for WebRTC monitoring:
 **Cause:** Missing `context="kiosk"` prop
 **Fix:** Add prop to VoiceControlWebRTC component
 
-### Transcript never appears
-**Symptom:** Recording indicator shows, but no text
-**Cause:** Audio buffer not committed or token expired
-**Fix:** Check browser console for `input_audio_buffer.commit` events
+### Transcript never appears (CRITICAL - Jan 2025 Issue)
+**Symptom:** Recording indicator shows, audio transmits, but no transcript text appears
+**Causes:**
+1. **Using deprecated `whisper-1` model** (Most Common - Fixed Jan 2025)
+   - OpenAI deprecated `whisper-1` for Realtime API in early 2025
+   - Fix: Update to `gpt-4o-transcribe` model in VoiceSessionConfig.ts
+   - See: `docs/archive/2025-01/VOICE_FIX_TRANSCRIPTION_MODEL_2025-01-18.md`
+2. Audio buffer not committed or token expired
+3. Network interruption during transmission
+
+**Diagnostic Steps:**
+1. Check browser console for transcription events:
+   - `conversation.item.input_audio_transcription.delta` (should appear during speech)
+   - `conversation.item.input_audio_transcription.completed` (should appear after speech ends)
+2. If NO transcription events appear:
+   - Verify model is `gpt-4o-transcribe` (NOT `whisper-1`)
+   - Check console for `session.update` logs showing correct model
+3. Check for `input_audio_buffer.commit` events
+4. Verify token hasn't expired (check timestamp)
+
+**Expected Console Output (After Fix):**
+```
+📤 [WebRTCVoiceClient] Sending session.update:
+  model: "gpt-4o-transcribe"
+
+📝 [VoiceEventHandler] Got transcript delta: "I'd like"
+📝 [VoiceEventHandler] Got transcript delta: " a greek"
+📝 [VoiceEventHandler] Got transcript delta: " salad"
+✅ [VoiceEventHandler] Got transcript completed: "I'd like a greek salad"
+```
 
 ### Cart doesn't update
 **Symptom:** AI confirms order but cart unchanged
@@ -636,6 +663,51 @@ Adapt salvaged dashboard for WebRTC monitoring:
 **Symptom:** Connection works for ~60s then fails
 **Cause:** Ephemeral token expired (60s lifespan)
 **Fix:** Normal - client auto-reconnects with new token
+
+---
+
+## OpenAI API Breaking Change (January 2025)
+
+**CRITICAL:** On approximately January 2025, OpenAI silently deprecated the `whisper-1` model for Realtime API transcription, causing complete voice ordering failure.
+
+**Symptoms:**
+- ✅ Session connects successfully
+- ✅ Audio transmits (49KB+ sent)
+- ✅ Agent responds with voice
+- ❌ NO transcription events received
+- ❌ State machine stuck in `waiting_user_final` (10s timeout)
+- ❌ Orders cannot be processed
+
+**Root Cause:**
+OpenAI deprecated `whisper-1` without advance notice. The configuration was accepted without error, but transcription was silently ignored.
+
+**Fix (Applied Jan 18, 2025):**
+```typescript
+// BEFORE (Broken)
+input_audio_transcription: {
+  model: 'whisper-1',
+  language: 'en'
+}
+
+// AFTER (Fixed)
+input_audio_transcription: {
+  model: 'gpt-4o-transcribe'  // Auto-detects language
+}
+```
+
+**Files Updated:**
+- `client/src/modules/voice/services/VoiceSessionConfig.ts:252-254`
+- Commit: `3a5d126f`
+
+**References:**
+- Detailed RCA: `docs/archive/2025-01/VOICE_FIX_TRANSCRIPTION_MODEL_2025-01-18.md`
+- OpenAI Community: https://community.openai.com/t/cant-get-the-user-transcription-in-realtime-api/1076308
+
+**Monitoring Recommendations:**
+1. Add alerts for missing transcription events
+2. Monitor OpenAI community forums for API changes
+3. Log all transcription event timestamps for analysis
+4. Test transcription after any OpenAI API updates
 
 ---
 

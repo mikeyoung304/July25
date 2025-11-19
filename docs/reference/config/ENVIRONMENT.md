@@ -108,7 +108,7 @@ VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
 # Results in: /order/11111111-1111-1111-1111-111111111111
 ```
 
-See [ADR-008: Slug-Based Restaurant Routing](../explanation/architecture-decisions/ADR-008-slug-based-routing.md) for architecture details.
+See [ADR-008: Slug-Based Restaurant Routing](../../explanation/architecture-decisions/ADR-008-slug-based-routing.md) for architecture details.
 
 ## Security Notes
 

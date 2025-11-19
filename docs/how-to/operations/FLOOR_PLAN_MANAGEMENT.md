@@ -374,8 +374,8 @@ Each type has specific rendering:
 
 ## Related Documentation
 
-- [Admin Dashboard Guide](../../tutorials/getting-started/ADMIN_GUIDE.md)
-- [Table Management API](../../reference/api/README.md#table-management)
+- [Getting Started Guide](../../tutorials/GETTING_STARTED.md)
+- [API Reference](../../reference/api/README.md)
 - [WebSocket Events](../../reference/api/WEBSOCKET_EVENTS.md)
 - [Database Schema - Tables](../../reference/schema/DATABASE.md#tables)
 

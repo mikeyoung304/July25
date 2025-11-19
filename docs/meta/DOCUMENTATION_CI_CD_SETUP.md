@@ -122,7 +122,7 @@ All files in `docs/archive/` must have:
 
 > **⚠️ ARCHIVED DOCUMENTATION**
 > This file has been archived on YYYY-MM-DD.
-> For current documentation, see [docs/README.md](/docs/README.md)
+> For current documentation, see [Documentation README](../README.md)
 > Category: [category-name]
 
 ---
@@ -442,7 +442,7 @@ LEGITIMATE_FILES+=(
 
 ## 🔗 RELATED DOCUMENTATION
 
-- [Documentation Standards](DOCUMENTATION_STANDARDS.md)
+- [Documentation Standards](../DOCUMENTATION_STANDARDS.md)
 - [Documentation Audit Report](DOCUMENTATION_AUDIT_2025-11-14.md)
 - [Cleanup Script README](../../scripts/cleanup-root-documentation.sh)
 

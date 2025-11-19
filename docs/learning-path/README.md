@@ -136,7 +136,7 @@ git --version     # Any recent version
 ### 3.1 Quick Start (1-2 hours)
 
 **For Absolute Beginners:**
-1. **Start Here:** [07_LEARNING_PATH_README.md](./07_LEARNING_PATH_README.md) ← You are here!
+1. **Start Here:**  ← You are here!
 2. **App Overview:** [01_APP_OVERVIEW.md](./01_APP_OVERVIEW.md)
 3. **Git History:** [05_GIT_HISTORY_MILESTONES.md](./05_GIT_HISTORY_MILESTONES.md)
 
@@ -190,7 +190,7 @@ git --version     # Any recent version
 **Goal:** Grasp the big picture before diving into code.
 
 **Documents to Read:**
-1. [07_LEARNING_PATH_README.md](./07_LEARNING_PATH_README.md) ← Start here
+1.  ← Start here
 2. [01_APP_OVERVIEW.md](./01_APP_OVERVIEW.md) - What is Restaurant OS?
 3. [05_GIT_HISTORY_MILESTONES.md](./05_GIT_HISTORY_MILESTONES.md) - How did it evolve?
 
