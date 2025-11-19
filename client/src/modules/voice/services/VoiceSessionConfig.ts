@@ -250,7 +250,7 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
       input_audio_transcription: {
-        model: 'gpt-4o-transcribe' // CRITICAL FIX: Use gpt-4o-transcribe instead of whisper-1 (OpenAI API change in 2025)
+        model: 'whisper-1' // REVERT: Try whisper-1 again with better logging to diagnose issue
       },
       turn_detection: turnDetection,
       temperature: 0.6, // Minimum temperature for Realtime API

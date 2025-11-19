@@ -224,6 +224,9 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
     this.eventIndex++;
     const logPrefix = `[RT] t=${this.turnId}#${String(this.eventIndex).padStart(2, '0')}`;
 
+    // CRITICAL: Log EVERY event to diagnose transcription issue
+    console.log(`🔔 [VoiceEventHandler] ${event.type}`, event);
+
     if (this.config.debug) {
       // Debug: `${logPrefix} ${event.type}`, event
     }
