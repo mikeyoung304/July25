@@ -1,0 +1,28 @@
+#!/bin/bash
+# Auto sign-in when debugging with Uncle Claude
+
+# This hook is called by Uncle Claude when starting a debugging session
+# Usage: .claude/hooks/pre-debug "issue description"
+
+SIGN_IN_SHEET="claude-lessons3/SIGN_IN_SHEET.md"
+ISSUE="$1"
+
+if [ -f "$SIGN_IN_SHEET" ] && [ -n "$ISSUE" ]; then
+  TIMESTAMP=$(date "+%Y-%m-%d %H:%M")
+
+  # Get next ID
+  NEXT_ID=$(grep -E "^\| [0-9]+" "$SIGN_IN_SHEET" | tail -1 | awk -F'|' '{print $2}' | tr -d ' ')
+  NEXT_ID=$((NEXT_ID + 1))
+
+  # Create entry
+  ENTRY="| $(printf "%03d" $NEXT_ID) | $TIMESTAMP | Uncle Claude | $ISSUE | | | IN_PROGRESS | | |"
+
+  # Add to current sessions
+  sed -i '' "/^\| \*No active sessions\*/d" "$SIGN_IN_SHEET" 2>/dev/null
+  sed -i '' "/^## 🟢 Current Sessions/,/^##/ {
+    /^|----/a\\
+$ENTRY
+  }" "$SIGN_IN_SHEET"
+
+  echo "$NEXT_ID" # Return the session ID for tracking
+fi

@@ -186,3 +186,85 @@ if git diff --cached --name-only | grep -qE "\.env|\.env\.example|src/config/env
 
   echo "  ✅ Environment validation passed"
 fi
+
+# Claude Lessons 3.0 Integration
+echo ""
+echo "🎓 Checking for relevant lessons..."
+
+# Get staged files
+STAGED_FILES=$(git diff --cached --name-only)
+
+if [ -n "$STAGED_FILES" ]; then
+  # Check if lessons CLI exists
+  if [ -f claude-lessons3/scripts/lessons-cli.cjs ]; then
+    # Initialize counters
+    CRITICAL_FILES=0
+    HIGH_FILES=0
+
+    # Check each staged file
+    while IFS= read -r file; do
+      # Run lessons find for each file
+      LESSON_OUTPUT=$(node claude-lessons3/scripts/lessons-cli.cjs find "$file" 2>/dev/null)
+
+      # Check if lessons were found
+      if echo "$LESSON_OUTPUT" | grep -q "Risk Level"; then
+        echo ""
+        echo "  📖 Lessons for: $file"
+        echo "$LESSON_OUTPUT" | grep -E "Risk Level:|Lessons:|Estimated Cost:|Key Anti-Patterns:" | sed 's/^/    /'
+
+        # Count by risk level
+        if echo "$LESSON_OUTPUT" | grep -q "Risk Level:.*critical"; then
+          CRITICAL_FILES=$((CRITICAL_FILES + 1))
+        elif echo "$LESSON_OUTPUT" | grep -q "Risk Level:.*high"; then
+          HIGH_FILES=$((HIGH_FILES + 1))
+        fi
+      fi
+    done <<< "$STAGED_FILES"
+
+    # Show summary if critical files detected
+    if [ $CRITICAL_FILES -gt 0 ] || [ $HIGH_FILES -gt 0 ]; then
+      echo ""
+      echo "  ⚠️  Summary: $CRITICAL_FILES critical, $HIGH_FILES high-risk files"
+      echo "     Review relevant lessons before committing"
+      echo "     Run: node claude-lessons3/scripts/lessons-cli.cjs find <file>"
+    fi
+
+    echo ""
+    echo "  ℹ️  Lessons are advisory (non-blocking)"
+  else
+    echo "  ℹ️  Lessons CLI not found, skipping lesson suggestions"
+  fi
+else
+  echo "  ℹ️  No files staged"
+fi
+
+echo ""
+echo "✅ Pre-commit checks complete"
+
+# ============================================================================
+# STRICT MODE: Critical File Protection (BLOCKING)
+# ============================================================================
+if [ -f claude-lessons3/.file-mappings.json ]; then
+  CRITICAL_FOUND=""
+  for file in $(git diff --cached --name-only); do
+    if grep -q "\"$file\"" claude-lessons3/.file-mappings.json 2>/dev/null; then
+      if grep -A3 "\"$file\"" claude-lessons3/.file-mappings.json | grep -q '"risk_level": "critical"'; then
+        CRITICAL_FOUND="$CRITICAL_FOUND\n  🔴 $file"
+      fi
+    fi
+  done
+  
+  if [ -n "$CRITICAL_FOUND" ]; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "⛔ CRITICAL FILES DETECTED - Review required"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo -e "$CRITICAL_FOUND"
+    echo ""
+    echo "To commit: LESSONS_ACK=1 git commit -m \"message\""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    [ -z "$LESSONS_ACK" ] && exit 1
+    echo "✅ Acknowledged"
+  fi
+fi
+

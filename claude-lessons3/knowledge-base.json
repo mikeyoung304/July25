@@ -1,0 +1,264 @@
+{
+  "version": "3.3.0",
+  "last_updated": "2025-11-19",
+  "description": "Unified knowledge base for Claude Lessons system",
+  "structure": {
+    "categories": "10 top-level folders for different problem domains",
+    "documentation": "2-3 markdown files per category (README, LESSONS, PREVENTION)",
+    "automation": "CLI tools, ESLint rules, git hooks"
+  },
+  "categories": [
+    {
+      "id": "01",
+      "name": "authentication-authorization",
+      "debugging_days": 48,
+      "risk_level": "critical",
+      "key_problems": [
+        "JWT missing required fields (restaurant_id, scope, user_id)",
+        "STRICT_AUTH environment variable mismatch",
+        "Wrong middleware order",
+        "Supabase direct auth instead of custom endpoint"
+      ],
+      "key_files": [
+        "server/src/middleware/auth.ts",
+        "server/src/routes/auth.routes.ts",
+        "client/src/contexts/AuthContext.tsx"
+      ],
+      "solution_pattern": "Always use custom /api/v1/auth/login endpoint, ensure JWT has all required fields, test with STRICT_AUTH=true"
+    },
+    {
+      "id": "02",
+      "name": "database-supabase",
+      "debugging_days": 30,
+      "risk_level": "critical",
+      "key_problems": [
+        "Schema drift between local and production",
+        "Migrations not deployed to production",
+        "Manual Prisma schema editing",
+        "RPC function evolution failures"
+      ],
+      "key_files": [
+        "supabase/migrations/*.sql",
+        "prisma/schema.prisma",
+        "server/src/services/supabase.ts"
+      ],
+      "solution_pattern": "Remote-first database approach, never edit Prisma manually, always run 'supabase db push --linked' after migrations"
+    },
+    {
+      "id": "03",
+      "name": "react-ui-ux",
+      "debugging_days": 5,
+      "risk_level": "medium",
+      "key_problems": [
+        "Hydration mismatches",
+        "Infinite render loops",
+        "Missing useEffect cleanup"
+      ],
+      "key_files": [
+        "client/src/components/**/*.tsx",
+        "client/src/hooks/*.ts"
+      ],
+      "solution_pattern": "Always cleanup useEffect timers/subscriptions, avoid conditional hooks, use React.memo for expensive components"
+    },
+    {
+      "id": "04",
+      "name": "realtime-websocket",
+      "debugging_days": 7,
+      "risk_level": "high",
+      "key_problems": [
+        "Memory leaks from uncleared timers",
+        "Connection pooling missing",
+        "Event listener leaks"
+      ],
+      "key_files": [
+        "server/src/services/websocket.ts",
+        "client/src/hooks/useWebSocket.ts"
+      ],
+      "solution_pattern": "Store all timer references for cleanup, use connection pooling, remove event listeners on unmount"
+    },
+    {
+      "id": "05",
+      "name": "build-deployment",
+      "debugging_days": 10,
+      "risk_level": "medium",
+      "key_problems": [
+        "Environment variable mismatches",
+        "Missing build steps",
+        "Wrong Node version"
+      ],
+      "key_files": [
+        ".github/workflows/*.yml",
+        "vercel.json",
+        "render.yaml"
+      ],
+      "solution_pattern": "Document all env vars, use .env.example, specify Node version explicitly"
+    },
+    {
+      "id": "06",
+      "name": "testing-quality",
+      "debugging_days": 3,
+      "risk_level": "low",
+      "key_problems": [
+        "Tests skipped without quarantine tracking",
+        "Missing cleanup causing flaky tests",
+        "Timing dependencies"
+      ],
+      "key_files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "vitest.config.ts"
+      ],
+      "solution_pattern": "Use quarantine comments for skipped tests, always cleanup in afterEach, avoid fixed timeouts"
+    },
+    {
+      "id": "07",
+      "name": "api-integration",
+      "debugging_days": 14,
+      "risk_level": "high",
+      "key_problems": [
+        "Missing timeouts on external API calls",
+        "No retry logic",
+        "Improper error handling"
+      ],
+      "key_files": [
+        "server/src/services/square.ts",
+        "server/src/services/openai.ts"
+      ],
+      "solution_pattern": "Always set 30s timeout, implement exponential backoff retry, handle all error cases"
+    },
+    {
+      "id": "08",
+      "name": "performance-optimization",
+      "debugging_days": 5,
+      "risk_level": "medium",
+      "key_problems": [
+        "Memory leaks",
+        "Bundle size bloat",
+        "Unnecessary re-renders"
+      ],
+      "key_files": [
+        "vite.config.ts",
+        "client/src/main.tsx"
+      ],
+      "solution_pattern": "Profile memory usage, lazy load components, use production builds for testing"
+    },
+    {
+      "id": "09",
+      "name": "security-compliance",
+      "debugging_days": 60,
+      "risk_level": "critical",
+      "key_problems": [
+        "Multi-tenancy violations (missing restaurant_id filter)",
+        "Exposed credentials in code",
+        "Missing RLS policies"
+      ],
+      "key_files": [
+        "supabase/migrations/*_rls.sql",
+        "server/src/middleware/security.ts"
+      ],
+      "solution_pattern": "Every query must filter by restaurant_id, use env vars for secrets, enable RLS on all tables"
+    },
+    {
+      "id": "10",
+      "name": "documentation-drift",
+      "debugging_days": 8,
+      "risk_level": "low",
+      "key_problems": [
+        "Broken links",
+        "Outdated examples",
+        "Missing API documentation"
+      ],
+      "key_files": [
+        "docs/**/*.md",
+        "README.md",
+        "CLAUDE.md"
+      ],
+      "solution_pattern": "Run link validator weekly, update examples with code changes, generate API docs from code"
+    }
+  ],
+  "eslint_rules": [
+    {
+      "name": "custom/require-jwt-fields",
+      "prevents": "JWT missing required fields",
+      "config": {
+        "requiredFields": ["restaurant_id", "scope", "user_id"],
+        "allowSubForUserId": true
+      }
+    },
+    {
+      "name": "custom/require-multi-tenant-filter",
+      "prevents": "Multi-tenancy violations",
+      "config": {
+        "exemptTables": ["profiles", "restaurant_users", "system_config"],
+        "requireComment": true
+      }
+    },
+    {
+      "name": "custom/no-uncleared-timers",
+      "prevents": "Memory leaks from timers",
+      "config": {}
+    },
+    {
+      "name": "custom/require-api-timeout",
+      "prevents": "API calls hanging forever",
+      "config": {
+        "timeout": 30000,
+        "allowedWrappers": ["withTimeout", "withRetry"]
+      }
+    },
+    {
+      "name": "custom/no-skip-without-quarantine",
+      "prevents": "Untracked test skipping",
+      "config": {}
+    }
+  ],
+  "cli_commands": [
+    {
+      "command": "lessons:find",
+      "usage": "lessons:find <file>",
+      "description": "Find lessons for a specific file"
+    },
+    {
+      "command": "lessons:search",
+      "usage": "lessons:search <keyword>",
+      "description": "Search lessons by keyword"
+    },
+    {
+      "command": "lessons:category",
+      "usage": "lessons:category <id>",
+      "description": "View specific category details"
+    },
+    {
+      "command": "lessons:signin",
+      "usage": "lessons:signin",
+      "description": "Sign into the tracking sheet"
+    },
+    {
+      "command": "lessons:signout",
+      "usage": "lessons:signout",
+      "description": "Sign out of the tracking sheet"
+    }
+  ],
+  "file_risk_mappings": {
+    "server/src/middleware/auth.ts": {
+      "category": "01",
+      "risk_level": "critical",
+      "debugging_days": 48
+    },
+    "supabase/migrations/*.sql": {
+      "category": "02",
+      "risk_level": "critical",
+      "debugging_days": 30
+    },
+    "server/src/services/websocket.ts": {
+      "category": "04",
+      "risk_level": "high",
+      "debugging_days": 7
+    },
+    "server/src/services/square.ts": {
+      "category": "07",
+      "risk_level": "high",
+      "debugging_days": 14
+    }
+  }
+}

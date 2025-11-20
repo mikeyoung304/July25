@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "version": "3.3.0",
+    "generated": "2025-11-19T00:00:00Z",
+    "last_updated": "2025-11-19",
+    "total_categories": 10,
+    "total_documents": 62,
+    "total_incidents": 50,
+    "total_patterns": 80,
+    "total_debugging_days": 120,
+    "total_commits": 1750,
+    "total_hours": 600
+  },
+  "summary": {
+    "engineering_hours_saved": 600,
+    "commits_analyzed": 1750,
+    "severity_distribution": {
+      "P0": 22,
+      "P1": 18,
+      "P2": 10
+    },
+    "stability_improvements": {
+      "authentication": "48 days debugging eliminated",
+      "database": "30 days schema drift resolved",
+      "react_ui": "5 days hydration fixes",
+      "realtime": "7 days memory leak hunting",
+      "build_deployment": "10 days CI/CD stabilization",
+      "testing": "3 days flaky test resolution",
+      "api_integration": "14 days timeout debugging",
+      "performance": "5 days optimization work",
+      "security": "Critical multi-tenancy vulnerabilities fixed",
+      "documentation": "8 days link repair work"
+    }
+  },
+  "categories": [
+    {
+      "id": "01",
+      "name": "authentication-authorization",
+      "path": "01-auth-authorization-issues",
+      "debugging_days": 48,
+      "total_commits": 127,
+      "total_rewrites": 3,
+      "incident_count": 5,
+      "pattern_count": 8,
+      "severity": {
+        "P0": 4,
+        "P1": 1
+      },
+      "risk_level": "critical",
+      "key_anti_patterns": [
+        "Supabase direct auth",
+        "JWT missing fields",
+        "Wrong middleware order",
+        "STRICT_AUTH misconfiguration"
+      ],
+      "key_files": [
+        "server/src/middleware/auth.ts",
+        "server/src/routes/auth.routes.ts",
+        "client/src/contexts/AuthContext.tsx"
+      ]
+    },
+    {
+      "id": "02",
+      "name": "database-supabase",
+      "path": "02-database-supabase-issues",
+      "debugging_days": 30,
+      "total_commits": 89,
+      "incident_count": 6,
+      "pattern_count": 10,
+      "severity": {
+        "P0": 3,
+        "P1": 3
+      },
+      "risk_level": "critical",
+      "key_anti_patterns": [
+        "Schema drift",
+        "Manual Prisma editing",
+        "Missing migrations",
+        "RPC evolution failures"
+      ],
+      "key_files": [
+        "supabase/migrations/*.sql",
+        "prisma/schema.prisma",
+        "server/src/services/supabase.ts"
+      ]
+    },
+    {
+      "id": "03",
+      "name": "react-ui-ux",
+      "path": "03-react-ui-ux-issues",
+      "debugging_days": 5,
+      "total_commits": 42,
+      "incident_count": 5,
+      "pattern_count": 7,
+      "severity": {
+        "P0": 0,
+        "P1": 3,
+        "P2": 2
+      },
+      "risk_level": "medium",
+      "key_anti_patterns": [
+        "Hydration mismatches",
+        "Infinite render loops",
+        "useEffect cleanup missing"
+      ],
+      "key_files": [
+        "client/src/components/**/*.tsx",
+        "client/src/hooks/*.ts"
+      ]
+    },
+    {
+      "id": "04",
+      "name": "realtime-websocket",
+      "path": "04-realtime-websocket-issues",
+      "debugging_days": 7,
+      "total_commits": 28,
+      "incident_count": 4,
+      "pattern_count": 6,
+      "severity": {
+        "P0": 2,
+        "P1": 2
+      },
+      "risk_level": "high",
+      "key_anti_patterns": [
+        "Uncleared timers",
+        "Connection pooling missing",
+        "Event listener leaks"
+      ],
+      "key_files": [
+        "server/src/services/websocket.ts",
+        "client/src/hooks/useWebSocket.ts"
+      ]
+    },
+    {
+      "id": "05",
+      "name": "build-deployment",
+      "path": "05-build-deployment-issues",
+      "debugging_days": 10,
+      "total_commits": 312,
+      "incident_count": 8,
+      "pattern_count": 12,
+      "severity": {
+        "P0": 1,
+        "P1": 4,
+        "P2": 3
+      },
+      "risk_level": "medium",
+      "key_anti_patterns": [
+        "Environment variable mismatches",
+        "Missing build steps",
+        "Wrong Node version"
+      ],
+      "key_files": [
+        ".github/workflows/*.yml",
+        "vercel.json",
+        "render.yaml"
+      ]
+    },
+    {
+      "id": "06",
+      "name": "testing-quality",
+      "path": "06-testing-quality-issues",
+      "debugging_days": 3,
+      "total_commits": 867,
+      "incident_count": 5,
+      "pattern_count": 8,
+      "severity": {
+        "P0": 1,
+        "P1": 2,
+        "P2": 2
+      },
+      "risk_level": "low",
+      "key_anti_patterns": [
+        "Skipping without quarantine",
+        "Missing cleanup",
+        "Flaky timing dependencies"
+      ],
+      "key_files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "vitest.config.ts"
+      ]
+    },
+    {
+      "id": "07",
+      "name": "api-integration",
+      "path": "07-api-integration-issues",
+      "debugging_days": 14,
+      "total_commits": 45,
+      "incident_count": 6,
+      "pattern_count": 9,
+      "severity": {
+        "P0": 2,
+        "P1": 3,
+        "P2": 1
+      },
+      "risk_level": "high",
+      "key_anti_patterns": [
+        "Missing timeouts",
+        "No retry logic",
+        "Improper error handling"
+      ],
+      "key_files": [
+        "server/src/services/square.ts",
+        "server/src/services/openai.ts",
+        "server/src/services/toast.ts"
+      ]
+    },
+    {
+      "id": "08",
+      "name": "performance-optimization",
+      "path": "08-performance-optimization-issues",
+      "debugging_days": 5,
+      "total_commits": 23,
+      "incident_count": 4,
+      "pattern_count": 6,
+      "severity": {
+        "P0": 0,
+        "P1": 2,
+        "P2": 2
+      },
+      "risk_level": "medium",
+      "key_anti_patterns": [
+        "Memory leaks",
+        "Bundle size bloat",
+        "Unnecessary re-renders"
+      ],
+      "key_files": [
+        "vite.config.ts",
+        "client/src/main.tsx"
+      ]
+    },
+    {
+      "id": "09",
+      "name": "security-compliance",
+      "path": "09-security-compliance-issues",
+      "debugging_days": 60,
+      "total_commits": 234,
+      "incident_count": 5,
+      "pattern_count": 10,
+      "severity": {
+        "P0": 5
+      },
+      "risk_level": "critical",
+      "key_anti_patterns": [
+        "Multi-tenancy violations",
+        "Exposed credentials",
+        "Missing RLS policies"
+      ],
+      "key_files": [
+        "supabase/migrations/*_rls.sql",
+        "server/src/middleware/security.ts"
+      ]
+    },
+    {
+      "id": "10",
+      "name": "documentation-drift",
+      "path": "10-documentation-drift-issues",
+      "debugging_days": 8,
+      "total_commits": 56,
+      "incident_count": 3,
+      "pattern_count": 5,
+      "severity": {
+        "P0": 1,
+        "P1": 1,
+        "P2": 1
+      },
+      "risk_level": "low",
+      "key_anti_patterns": [
+        "Broken links",
+        "Outdated examples",
+        "Missing API documentation"
+      ],
+      "key_files": [
+        "docs/**/*.md",
+        "README.md",
+        "CLAUDE.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+#!/bin/bash
+# Automated sign-in sheet tracking for Claude Lessons usage
+
+SIGN_IN_SHEET="claude-lessons3/SIGN_IN_SHEET.md"
+KNOWLEDGE_BASE="claude-lessons3/knowledge-base.json"
+
+# Check if we're working on lesson-related files
+LESSON_FILES=$(git diff --cached --name-only | grep -E "(claude-lessons3/|server/src/middleware/auth|supabase/migrations|websocket|square|openai)")
+
+if [ -n "$LESSON_FILES" ]; then
+  # Get current timestamp
+  TIMESTAMP=$(date "+%Y-%m-%d %H:%M")
+
+  # Get commit message
+  COMMIT_MSG=$(git log -1 --pretty=%B)
+
+  # Extract category if mentioned
+  CATEGORY=""
+  if echo "$COMMIT_MSG" | grep -q "auth"; then
+    CATEGORY="01"
+  elif echo "$COMMIT_MSG" | grep -q "database\|supabase\|migration"; then
+    CATEGORY="02"
+  elif echo "$COMMIT_MSG" | grep -q "react\|ui\|component"; then
+    CATEGORY="03"
+  elif echo "$COMMIT_MSG" | grep -q "websocket\|realtime"; then
+    CATEGORY="04"
+  elif echo "$COMMIT_MSG" | grep -q "build\|deploy\|ci"; then
+    CATEGORY="05"
+  elif echo "$COMMIT_MSG" | grep -q "test"; then
+    CATEGORY="06"
+  elif echo "$COMMIT_MSG" | grep -q "api\|square\|openai"; then
+    CATEGORY="07"
+  elif echo "$COMMIT_MSG" | grep -q "performance\|memory"; then
+    CATEGORY="08"
+  elif echo "$COMMIT_MSG" | grep -q "security\|tenant\|rls"; then
+    CATEGORY="09"
+  elif echo "$COMMIT_MSG" | grep -q "doc"; then
+    CATEGORY="10"
+  fi
+
+  # Auto-append to sign-in sheet (if it exists)
+  if [ -f "$SIGN_IN_SHEET" ]; then
+    # Get next ID
+    NEXT_ID=$(grep -E "^\| [0-9]+" "$SIGN_IN_SHEET" | tail -1 | awk -F'|' '{print $2}' | tr -d ' ')
+    NEXT_ID=$((NEXT_ID + 1))
+
+    # Create entry
+    ENTRY="| $(printf "%03d" $NEXT_ID) | $TIMESTAMP | git-hook | $COMMIT_MSG | $CATEGORY | $(echo "$LESSON_FILES" | head -1) | auto-tracked | - | - |"
+
+    # Append to current sessions section
+    sed -i '' "/^\| \*No active sessions\*/d" "$SIGN_IN_SHEET" 2>/dev/null
+    awk -v entry="$ENTRY" '
+      /^## 🟢 Current Sessions/ {p=1}
+      /^## ✅ Completed Sessions/ {if(p) print entry; p=0}
+      {print}
+    ' "$SIGN_IN_SHEET" > "$SIGN_IN_SHEET.tmp" && mv "$SIGN_IN_SHEET.tmp" "$SIGN_IN_SHEET"
+  fi
+fi

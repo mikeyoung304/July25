@@ -1,0 +1,289 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "generated": "2025-11-19T00:00:00Z",
+    "description": "Maps code files to relevant claude-lessons3 categories for proactive lesson suggestions",
+    "total_mappings": 45
+  },
+  "mappings": {
+    "server/src/middleware/auth.ts": {
+      "lessons": ["01-auth-authorization-issues"],
+      "risk_level": "critical",
+      "required_reading": true,
+      "documents": ["AI-AGENT-GUIDE.md", "PATTERNS.md", "PREVENTION.md"],
+      "key_anti_patterns": ["JWT structure", "middleware ordering", "STRICT_AUTH"],
+      "estimated_cost_if_broken": 20000
+    },
+    "server/src/routes/auth.routes.ts": {
+      "lessons": ["01-auth-authorization-issues"],
+      "risk_level": "critical",
+      "required_reading": true,
+      "documents": ["PATTERNS.md", "PREVENTION.md"],
+      "key_anti_patterns": ["JWT scope fetch before sign", "missing restaurant_id"],
+      "estimated_cost_if_broken": 48000
+    },
+    "client/src/contexts/AuthContext.tsx": {
+      "lessons": ["01-auth-authorization-issues"],
+      "risk_level": "critical",
+      "required_reading": true,
+      "documents": ["PATTERNS.md", "QUICK-REFERENCE.md"],
+      "key_anti_patterns": ["localStorage sync", "restaurant_id sync"],
+      "estimated_cost_if_broken": 12000
+    },
+    "client/src/services/http/httpClient.ts": {
+      "lessons": ["01-auth-authorization-issues", "07-api-integration-issues"],
+      "risk_level": "critical",
+      "required_reading": true,
+      "documents": ["PATTERNS.md"],
+      "key_anti_patterns": ["dual auth pattern", "token retrieval"],
+      "estimated_cost_if_broken": 20000
+    },
+    "server/src/middleware/restaurantAccess.ts": {
+      "lessons": ["01-auth-authorization-issues", "09-security-compliance-issues"],
+      "risk_level": "critical",
+      "required_reading": true,
+      "documents": ["PATTERNS.md", "PREVENTION.md"],
+      "key_anti_patterns": ["multi-tenancy validation", "header trust"],
+      "estimated_cost_if_broken": 1000000
+    },
+    "supabase/migrations/*.sql": {
+      "lessons": ["02-database-supabase-issues"],
+      "risk_level": "high",
+      "required_reading": true,
+      "documents": ["AI-AGENT-GUIDE.md", "PREVENTION.md"],
+      "key_anti_patterns": ["migration timestamp", "RPC function types"],
+      "estimated_cost_if_broken": 100000
+    },
+    "prisma/schema.prisma": {
+      "lessons": ["02-database-supabase-issues"],
+      "risk_level": "high",
+      "required_reading": true,
+      "documents": ["PATTERNS.md", "PREVENTION.md"],
+      "key_anti_patterns": ["manual schema edits"],
+      "estimated_cost_if_broken": 50000
+    },
+    "scripts/post-migration-sync.sh": {
+      "lessons": ["02-database-supabase-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["PATTERNS.md"],
+      "key_anti_patterns": ["missing post-migration sync"],
+      "estimated_cost_if_broken": 20000
+    },
+    "client/src/components/**/*.tsx": {
+      "lessons": ["03-react-ui-ux-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["AI-AGENT-GUIDE.md", "PATTERNS.md"],
+      "key_anti_patterns": ["early return before AnimatePresence", "unstable hook returns", "non-deterministic renders"],
+      "estimated_cost_if_broken": 8000
+    },
+    "client/src/pages/**/*.tsx": {
+      "lessons": ["03-react-ui-ux-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["PATTERNS.md"],
+      "key_anti_patterns": ["hydration errors", "infinite loops"],
+      "estimated_cost_if_broken": 5000
+    },
+    "client/src/hooks/**/*.ts": {
+      "lessons": ["03-react-ui-ux-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["PATTERNS.md"],
+      "key_anti_patterns": ["unstable returns", "missing memoization"],
+      "estimated_cost_if_broken": 3000
+    },
+    "server/src/ai/websocket.ts": {
+      "lessons": ["04-realtime-websocket-issues", "08-performance-optimization-issues"],
+      "risk_level": "high",
+      "required_reading": true,
+      "documents": ["AI-AGENT-GUIDE.md", "PATTERNS.md"],
+      "key_anti_patterns": ["event handler timing", "memory leaks", "interval cleanup"],
+      "estimated_cost_if_broken": 15000
+    },
+    "client/src/services/websocket/**/*.ts": {
+      "lessons": ["04-realtime-websocket-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["PATTERNS.md", "PREVENTION.md"],
+      "key_anti_patterns": ["race conditions", "connection guards"],
+      "estimated_cost_if_broken": 10000
+    },
+    "server/src/services/websocket/**/*.ts": {
+      "lessons": ["04-realtime-websocket-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["PATTERNS.md"],
+      "key_anti_patterns": ["memory leaks", "cleanup"],
+      "estimated_cost_if_broken": 8000
+    },
+    "vercel.json": {
+      "lessons": ["05-build-deployment-issues"],
+      "risk_level": "high",
+      "required_reading": true,
+      "documents": ["AI-AGENT-GUIDE.md", "PATTERNS.md"],
+      "key_anti_patterns": ["missing --production=false", "build order"],
+      "estimated_cost_if_broken": 9000
+    },
+    "package.json": {
+      "lessons": ["05-build-deployment-issues", "08-performance-optimization-issues"],
+      "risk_level": "high",
+      "required_reading": true,
+      "documents": ["PATTERNS.md"],
+      "key_anti_patterns": ["NODE_OPTIONS", "build scripts", "workspace order"],
+      "estimated_cost_if_broken": 15000
+    },
+    ".github/workflows/**/*.yml": {
+      "lessons": ["05-build-deployment-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["PREVENTION.md"],
+      "key_anti_patterns": ["env validation", "migration checks"],
+      "estimated_cost_if_broken": 5000
+    },
+    "scripts/test-quarantine.js": {
+      "lessons": ["06-testing-quality-issues"],
+      "risk_level": "medium",
+      "required_reading": true,
+      "documents": ["AI-AGENT-GUIDE.md", "PATTERNS.md"],
+      "key_anti_patterns": ["test skipping", "quarantine tracking"],
+      "estimated_cost_if_broken": 10000
+    },
+    "**/*.test.ts": {
+      "lessons": ["06-testing-quality-issues"],
+      "risk_level": "low",
+      "required_reading": false,
+      "documents": ["PREVENTION.md"],
+      "key_anti_patterns": ["test.skip without tracking"],
+      "estimated_cost_if_broken": 2000
+    },
+    "**/*.test.tsx": {
+      "lessons": ["06-testing-quality-issues"],
+      "risk_level": "low",
+      "required_reading": false,
+      "documents": ["PREVENTION.md"],
+      "key_anti_patterns": ["test.skip without tracking"],
+      "estimated_cost_if_broken": 2000
+    },
+    "server/src/services/openai/**/*.ts": {
+      "lessons": ["07-api-integration-issues"],
+      "risk_level": "high",
+      "required_reading": true,
+      "documents": ["AI-AGENT-GUIDE.md", "PATTERNS.md"],
+      "key_anti_patterns": ["missing timeouts", "no env trim", "model deprecation"],
+      "estimated_cost_if_broken": 8000
+    },
+    "server/src/services/square/**/*.ts": {
+      "lessons": ["07-api-integration-issues"],
+      "risk_level": "high",
+      "required_reading": true,
+      "documents": ["AI-AGENT-GUIDE.md", "PATTERNS.md"],
+      "key_anti_patterns": ["missing timeouts", "audit logging sequence"],
+      "estimated_cost_if_broken": 10000
+    },
+    "server/src/middleware/timeout.ts": {
+      "lessons": ["07-api-integration-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["PATTERNS.md"],
+      "key_anti_patterns": ["timeout configuration"],
+      "estimated_cost_if_broken": 5000
+    },
+    "vite.config.ts": {
+      "lessons": ["08-performance-optimization-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["PATTERNS.md"],
+      "key_anti_patterns": ["bundle size", "lazy loading"],
+      "estimated_cost_if_broken": 3000
+    },
+    "client/src/utils/lazy.ts": {
+      "lessons": ["08-performance-optimization-issues"],
+      "risk_level": "low",
+      "required_reading": false,
+      "documents": ["PATTERNS.md"],
+      "key_anti_patterns": ["lazy loading patterns"],
+      "estimated_cost_if_broken": 2000
+    },
+    "scripts/memory-check.sh": {
+      "lessons": ["08-performance-optimization-issues"],
+      "risk_level": "low",
+      "required_reading": false,
+      "documents": ["PREVENTION.md"],
+      "key_anti_patterns": ["memory monitoring"],
+      "estimated_cost_if_broken": 1000
+    },
+    "server/src/middleware/rbac.ts": {
+      "lessons": ["09-security-compliance-issues"],
+      "risk_level": "critical",
+      "required_reading": true,
+      "documents": ["AI-AGENT-GUIDE.md", "PATTERNS.md"],
+      "key_anti_patterns": ["scope validation", "role enforcement"],
+      "estimated_cost_if_broken": 500000
+    },
+    "supabase/rls-policies/**/*.sql": {
+      "lessons": ["09-security-compliance-issues"],
+      "risk_level": "critical",
+      "required_reading": true,
+      "documents": ["PATTERNS.md", "PREVENTION.md"],
+      "key_anti_patterns": ["RLS bypass", "multi-tenancy"],
+      "estimated_cost_if_broken": 1000000
+    },
+    ".env.example": {
+      "lessons": ["07-api-integration-issues", "09-security-compliance-issues"],
+      "risk_level": "medium",
+      "required_reading": false,
+      "documents": ["PREVENTION.md"],
+      "key_anti_patterns": ["credential exposure"],
+      "estimated_cost_if_broken": 100000
+    },
+    "docs/**/*.md": {
+      "lessons": ["10-documentation-drift-issues"],
+      "risk_level": "low",
+      "required_reading": false,
+      "documents": ["PATTERNS.md", "PREVENTION.md"],
+      "key_anti_patterns": ["link rot", "stale docs", "sync issues"],
+      "estimated_cost_if_broken": 15000
+    },
+    "scripts/validate_links.py": {
+      "lessons": ["10-documentation-drift-issues"],
+      "risk_level": "low",
+      "required_reading": false,
+      "documents": ["PREVENTION.md"],
+      "key_anti_patterns": ["link validation"],
+      "estimated_cost_if_broken": 5000
+    }
+  },
+  "risk_level_definitions": {
+    "critical": {
+      "description": "Changes to these files can cause production outages or security breaches",
+      "requires_review": true,
+      "requires_lesson_acknowledgment": true,
+      "estimated_cost_range": "50K - 1M USD"
+    },
+    "high": {
+      "description": "Changes can cause significant bugs or deployment failures",
+      "requires_review": true,
+      "requires_lesson_acknowledgment": true,
+      "estimated_cost_range": "10K - 50K USD"
+    },
+    "medium": {
+      "description": "Changes can cause moderate bugs or quality issues",
+      "requires_review": false,
+      "requires_lesson_acknowledgment": false,
+      "estimated_cost_range": "2K - 10K USD"
+    },
+    "low": {
+      "description": "Changes have minimal risk impact",
+      "requires_review": false,
+      "requires_lesson_acknowledgment": false,
+      "estimated_cost_range": "0 - 2K USD"
+    }
+  },
+  "usage_instructions": {
+    "cli": "Use `lessons find <file>` to get relevant lessons for a file",
+    "pre_commit": "Pre-commit hooks will suggest lessons based on changed files",
+    "ci_cd": "CI/CD workflows will comment on PRs with relevant lessons"
+  }
+}
