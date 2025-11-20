@@ -2162,7 +2162,127 @@ npm run health:fix
 
 ---
 
-**Last Updated:** 2025-11-19
+## New Patterns Discovered (2025-11-20)
+
+### CL-TEST-007: process.exit() Breaks Test Expectations
+
+**Symptom:** Tests using `expect().toThrow()` fail with "process.exit unexpectedly called"
+
+**Root Cause:** Validation code calls `process.exit(1)` instead of throwing errors. Vitest cannot catch process exits.
+
+**Solution:**
+```typescript
+// ❌ BAD: Untestable
+if (error) {
+  console.error(error.message);
+  process.exit(1);
+}
+
+// ✅ GOOD: Testable
+export class EnvValidationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'EnvValidationError'
+  }
+}
+
+if (error) {
+  console.error(error.message);
+  throw new EnvValidationError(error.message);
+}
+
+// Application startup catches and exits
+try {
+  await startServer()
+} catch (error) {
+  if (error instanceof EnvValidationError) {
+    process.exit(1)  // Fail-fast at top level
+  }
+  throw error
+}
+```
+
+**Files:** server/src/config/env.ts, server/src/server.ts
+
+---
+
+### CL-TEST-008: Performance Marks ≠ DOM Elements
+
+**Symptom:** E2E tests timeout waiting for `[data-testid="app-ready"]` selector
+
+**Root Cause:** Performance monitoring creates marks (`performanceMonitor.mark('app-ready')`) which are NOT DOM elements. Tests cannot select performance marks.
+
+**Solution:**
+```typescript
+// Performance mark alone is invisible to tests
+performanceMonitor.mark('app-ready')
+
+// Create actual DOM element for E2E detection
+const appReadyMarker = document.createElement('div')
+appReadyMarker.setAttribute('data-testid', 'app-ready')
+appReadyMarker.style.display = 'none'  // Hidden, no UI impact
+document.body.appendChild(appReadyMarker)
+```
+
+**Files:** client/src/App.tsx, tests/e2e/fixtures/test-helpers.ts
+
+---
+
+### CL-TEST-009: Playwright webServer Disabled in CI
+
+**Symptom:** E2E tests work locally but fail in CI with connection errors
+
+**Root Cause:** Conditional config `webServer: process.env.CI ? undefined : {...}` disables server startup in CI environments.
+
+**Solution:**
+```typescript
+// ❌ BAD: Breaks CI
+webServer: process.env.CI ? undefined : {
+  command: 'npm run dev',
+  ...
+}
+
+// ✅ GOOD: Works everywhere
+webServer: {
+  command: 'npm run dev:e2e',  // Starts BOTH servers
+  port: 5173,
+  reuseExistingServer: !process.env.CI,  // Fresh servers in CI
+  timeout: 120 * 1000,
+  env: { NODE_ENV: 'test' }
+}
+```
+
+**Files:** playwright.config.ts, package.json (dev:e2e script)
+
+---
+
+### CL-TEST-010: E2E Backend Not Started
+
+**Symptom:** WebSocket connection timeouts, API call failures in E2E tests
+
+**Root Cause:** Default `npm run dev` only starts frontend (port 5173). E2E tests need backend (port 3001) for WebSocket and API calls.
+
+**Solution:**
+```json
+// package.json
+"dev:e2e": "NODE_OPTIONS='--max-old-space-size=3072' concurrently -n server,client \"npm run dev:server\" \"npm run dev:client\" --kill-others-on-fail"
+```
+
+**Verification:**
+```bash
+# Check both servers running
+lsof -i :5173  # Frontend
+lsof -i :3001  # Backend
+
+# Health check
+curl http://localhost:3001/api/v1/health
+```
+
+**Files:** package.json, playwright.config.ts
+
+---
+
+**Last Updated:** 2025-11-20
 **Pass Rate:** 85%+ (365+ passing tests)
 **Health Score:** HEALTHY 
 

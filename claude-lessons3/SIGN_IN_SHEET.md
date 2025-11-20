@@ -50,6 +50,7 @@ This sign-in sheet tracks when AI agents access the lessons system, what problem
 | ID | Date/Time | Agent | Issue Summary | Categories | Files | Resolution | Effectiveness | Duration |
 |----|-----------|-------|---------------|------------|-------|------------|---------------|----------|
 | 001 | 2025-11-19 10:00 | Claude Code | Phase 2 automation build | 02, 04, 07 | Multiple | ✅ Built CLI tool, 3 ESLint rules, pre-commit integration | ⭐⭐⭐⭐⭐ Lessons guided anti-pattern rule priorities | 6hrs |
+| 002 | 2025-11-20 08:00 | Claude Code | Test infrastructure fixes (env validation + E2E) | 06 | env.ts, App.tsx, playwright.config.ts, test-helpers.ts | ✅ Fixed 14 server tests (100%), 3 E2E blockers, documented 4 new patterns | ⭐⭐⭐⭐ Would have been ⭐⭐⭐⭐⭐ if lessons consulted first | 4hrs |
 
 **Example Entry Explanation**:
 - **ID**: Sequential number (increment from last entry)

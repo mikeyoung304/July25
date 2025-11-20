@@ -10,6 +10,9 @@ interface HoldToRecordButtonProps {
   isPlayingAudio?: boolean;
   disabled?: boolean;
   className?: string;
+  mode?: 'hold' | 'toggle'; // Interaction mode: hold to talk or tap to toggle
+  showDebounceWarning?: boolean; // Show debounce warning to users (default: false)
+  size?: 'normal' | 'large'; // Button size: normal (128px) or large (160px for kiosk)
 }
 
 export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
@@ -20,29 +23,33 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   isPlayingAudio = false,
   disabled = false,
   className,
+  mode = 'hold',
+  showDebounceWarning: showDebounceWarningProp = false,
+  size = 'normal',
 }) => {
   const isHoldingRef = useRef(false);
+  const [isToggled, setIsToggled] = useState(false);
   const lastActionTimeRef = useRef(0);
-  const [showDebounceWarning, setShowDebounceWarning] = useState(false);
+  const [debounceWarning, setDebounceWarning] = useState(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const handleStart = useCallback(() => {
-    if (disabled || isHoldingRef.current) return;
+    if (disabled || (mode === 'hold' && isHoldingRef.current)) return;
 
     // Debounce rapid starts
     const now = Date.now();
     if (now - lastActionTimeRef.current < 100) {
-      // Show feedback when debounce blocks action
-      setShowDebounceWarning(true);
+      // Show feedback when debounce blocks action (if enabled)
+      setDebounceWarning(true);
       if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-      debounceTimeoutRef.current = setTimeout(() => setShowDebounceWarning(false), 1000);
+      debounceTimeoutRef.current = setTimeout(() => setDebounceWarning(false), 1000);
       return;
     }
 
     isHoldingRef.current = true;
     lastActionTimeRef.current = now;
     onMouseDown();
-  }, [disabled, onMouseDown]);
+  }, [disabled, mode, onMouseDown]);
 
   const handleStop = useCallback(() => {
     if (!isHoldingRef.current) return;
@@ -50,10 +57,10 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
     // Debounce rapid stops
     const now = Date.now();
     if (now - lastActionTimeRef.current < 100) {
-      // Show feedback when debounce blocks action
-      setShowDebounceWarning(true);
+      // Show feedback when debounce blocks action (if enabled)
+      setDebounceWarning(true);
       if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-      debounceTimeoutRef.current = setTimeout(() => setShowDebounceWarning(false), 1000);
+      debounceTimeoutRef.current = setTimeout(() => setDebounceWarning(false), 1000);
       return;
     }
 
@@ -62,15 +69,52 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
     onMouseUp();
   }, [onMouseUp]);
 
+  // Toggle mode: click to start/stop
+  const handleToggleClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+
+    if (disabled) return;
+
+    // Debounce rapid clicks
+    const now = Date.now();
+    if (now - lastActionTimeRef.current < 100) {
+      setDebounceWarning(true);
+      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+      debounceTimeoutRef.current = setTimeout(() => setDebounceWarning(false), 1000);
+      return;
+    }
+
+    lastActionTimeRef.current = now;
+
+    if (isToggled) {
+      // Stop recording
+      setIsToggled(false);
+      isHoldingRef.current = false;
+      onMouseUp();
+    } else {
+      // Start recording
+      setIsToggled(true);
+      isHoldingRef.current = true;
+      onMouseDown();
+    }
+  }, [disabled, isToggled, onMouseDown, onMouseUp]);
+
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    handleStart();
-  }, [handleStart]);
+    if (mode === 'toggle') {
+      handleToggleClick(e);
+    } else {
+      handleStart();
+    }
+  }, [mode, handleToggleClick, handleStart]);
 
   const handleMouseUp = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    handleStop();
-  }, [handleStop]);
+    if (mode === 'hold') {
+      handleStop();
+    }
+    // In toggle mode, mouseUp doesn't stop recording
+  }, [mode, handleStop]);
   
   const handleMouseLeave = useCallback(() => {
     // Release if mouse leaves while holding
@@ -81,8 +125,12 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    handleStart();
-  }, [handleStart]);
+    if (mode === 'toggle') {
+      handleToggleClick(e);
+    } else {
+      handleStart();
+    }
+  }, [mode, handleToggleClick, handleStart]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isHoldingRef.current) return;
@@ -111,8 +159,11 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    handleStop();
-  }, [handleStop]);
+    if (mode === 'hold') {
+      handleStop();
+    }
+    // In toggle mode, touchEnd doesn't stop recording
+  }, [mode, handleStop]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     // Prevent context menu (long-press menu) on mobile
@@ -130,25 +181,33 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
 
   const getAriaLabel = () => {
     if (isPlayingAudio) return 'AI is speaking';
-    if (isListening) return 'Release to stop recording';
-    if (isProcessing) return 'Processing your voice order';
-    if (disabled) return 'Voice recording unavailable';
-    return 'Hold to record your voice order';
+    if (mode === 'toggle') {
+      if (isListening) return 'Tap to stop recording';
+      if (isProcessing) return 'Processing your voice order';
+      if (disabled) return 'Voice recording unavailable';
+      return 'Tap to start recording your voice order';
+    } else {
+      if (isListening) return 'Release to stop recording';
+      if (isProcessing) return 'Processing your voice order';
+      if (disabled) return 'Voice recording unavailable';
+      return 'Hold to record your voice order';
+    }
   };
 
   return (
     <div className="relative inline-block">
       <button
         className={cn(
-          'relative w-32 h-32 rounded-full text-sm font-semibold text-white transition-all duration-300',
+          'relative rounded-full text-sm font-semibold text-white transition-all duration-300',
           'hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-2',
           'focus:outline-none focus:ring-4 focus:ring-offset-2',
           'select-none', // Prevent text selection on long press
-          isListening
+          size === 'large' ? 'w-40 h-40' : 'w-32 h-32', // Larger for kiosk (160px vs 128px)
+          isListening || isToggled
             ? 'bg-danger shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:bg-danger-dark focus:ring-danger'
             : 'bg-primary shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:bg-primary-dark focus:ring-primary',
           isProcessing && 'animate-pulse',
-          showDebounceWarning && 'ring-4 ring-yellow-400',
+          debounceWarning && showDebounceWarningProp && 'ring-4 ring-yellow-400',
           disabled && 'opacity-50 cursor-not-allowed',
           className
         )}
@@ -174,15 +233,15 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
       >
         <Mic className="w-8 h-8" />
         <span>
-          {isPlayingAudio ? 'PONTIFICATING...' :
-           isListening ? 'EAVESDROPPING...' :
-           isProcessing ? 'COGITATING...' :
-           'HOLD ME'}
+          {isPlayingAudio ? 'AI Speaking...' :
+           isListening || isToggled ? 'Listening...' :
+           isProcessing ? 'Processing...' :
+           mode === 'toggle' ? 'Tap to Start' : 'Hold to Speak'}
         </span>
       </button>
 
-      {/* Debounce Warning Tooltip */}
-      {showDebounceWarning && (
+      {/* Debounce Warning Tooltip - Only shown if explicitly enabled */}
+      {debounceWarning && showDebounceWarningProp && (
         <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
           <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-3 py-1 rounded-md text-xs font-medium shadow-lg animate-bounce">
             Too fast! Wait a moment

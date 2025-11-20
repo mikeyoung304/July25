@@ -1,6 +1,6 @@
 {
-  "version": "3.3.0",
-  "last_updated": "2025-11-19",
+  "version": "3.4.0",
+  "last_updated": "2025-11-20",
   "description": "Unified knowledge base for Claude Lessons system",
   "structure": {
     "categories": "10 top-level folders for different problem domains",
@@ -101,14 +101,21 @@
       "key_problems": [
         "Tests skipped without quarantine tracking",
         "Missing cleanup causing flaky tests",
-        "Timing dependencies"
+        "Timing dependencies",
+        "process.exit() breaks test expectations (use custom errors instead)",
+        "Performance marks invisible to E2E tests (need DOM elements)",
+        "Playwright webServer disabled in CI (conditional config breaks)",
+        "E2E backend not started (need both servers for WebSocket/API)"
       ],
       "key_files": [
         "**/*.test.ts",
         "**/*.test.tsx",
-        "vitest.config.ts"
+        "vitest.config.ts",
+        "playwright.config.ts",
+        "server/src/config/env.ts",
+        "client/src/App.tsx"
       ],
-      "solution_pattern": "Use quarantine comments for skipped tests, always cleanup in afterEach, avoid fixed timeouts"
+      "solution_pattern": "Use quarantine comments for skipped tests, always cleanup in afterEach, avoid fixed timeouts. For E2E: throw errors (not exit), create DOM markers (not just perf marks), always-on webServer config, start both frontend+backend servers"
     },
     {
       "id": "07",

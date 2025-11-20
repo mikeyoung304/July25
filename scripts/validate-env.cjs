@@ -190,6 +190,10 @@ function validateVitePrefixes(clientDir) {
     // Skip built-in Vite variables
     if (['MODE', 'BASE_URL', 'PROD', 'DEV', 'SSR'].includes(ref)) continue;
 
+    // Skip build-time variables (not runtime env vars)
+    const buildTimeVars = ['ANALYZE', 'CI', 'DEBUG_TESTS', 'NODE_ENV'];
+    if (buildTimeVars.includes(ref)) continue;
+
     // Check if server-only variable is used in client
     if (serverOnlyVars.includes(ref)) {
       issues.push({
@@ -199,7 +203,7 @@ function validateVitePrefixes(clientDir) {
     }
 
     // Check if non-VITE_ prefixed variable is used
-    if (!ref.startsWith('VITE_') && ref !== 'NODE_ENV') {
+    if (!ref.startsWith('VITE_')) {
       issues.push({
         variable: ref,
         issue: 'Non-VITE_ prefixed variable used in client (will be undefined)'
@@ -244,7 +248,75 @@ function validate() {
   const missingInExample = allRefs.filter(ref => {
     // Skip Vite built-ins and Node built-ins
     const builtins = ['NODE_ENV', 'MODE', 'BASE_URL', 'PROD', 'DEV', 'SSR'];
-    return !builtins.includes(ref) && !exampleVars.hasOwnProperty(ref);
+
+    // Platform auto-injected variables (not in .env.example by design)
+    const platformVars = [
+      'CI',                    // GitHub Actions / CI platforms
+      'RENDER',                // Render.com platform
+      'RENDER_EXTERNAL_URL',   // Render.com auto-injected
+      'VERCEL',                // Vercel platform
+      'VERCEL_URL',            // Vercel auto-injected
+      'VERCEL_BRANCH_URL',     // Vercel auto-injected
+      'VERCEL_DEPLOYMENT_URL', // Vercel auto-injected
+      'NEXT_PUBLIC_VERCEL_URL',// Vercel auto-injected
+      'npm_package_version',   // npm runtime
+      'npm_lifecycle_event',   // npm runtime
+      'npm_node_execpath',     // npm runtime
+    ];
+
+    // Build/test-time only variables (not app config)
+    const buildTimeVars = [
+      'ANALYZE',               // Webpack bundle analyzer
+      'DEBUG_TESTS',           // Test debugging
+      'FORCE_COLOR',           // Terminal color forcing
+      'TZ',                    // Timezone for tests
+      'PRODUCTION',            // Legacy, use NODE_ENV
+      'DEFAULT_TIMEOUT_MS',    // Test timeout
+      'ENABLE_RESPONSE_TRANSFORM', // Test feature flag
+    ];
+
+    // Deprecated/renamed variables (cleanup pending)
+    const deprecatedVars = [
+      'API_BASE',              // → VITE_API_BASE_URL
+      'API_BASE_URL',          // → VITE_API_BASE_URL
+      'CLIENT_URL',            // → FRONTEND_URL
+      'VITE_API_BASE',         // → VITE_API_BASE_URL
+      'VITE_APP_URL',          // → FRONTEND_URL
+      'TEST_EMAIL',            // → Use fixtures
+      'TEST_PASSWORD',         // → Use fixtures
+      'TEST_TOKEN',            // → Use fixtures
+      'SUPABASE_SERVICE_ROLE_KEY', // → SUPABASE_SERVICE_KEY
+      'VITE_OPENAI_API_KEY',   // REMOVED for security (server-side only)
+      'VITE_SQUARE_ACCESS_TOKEN', // NEVER expose payment tokens to client
+    ];
+
+    // Security/policy configs (hardcoded by design per ADR-009)
+    const securityPolicyVars = [
+      'CSP_DIRECTIVES',        // Code-configured
+      'CSP_ENABLED',           // Code-configured
+      'HSTS_ENABLED',          // Code-configured
+      'HSTS_MAX_AGE',          // Code-configured
+    ];
+
+    // Unimplemented features (placeholders)
+    const unimplementedVars = [
+      'VOICE_ENABLED',         // Voice feature flag
+      'PAYMENTS_WEBHOOKS_ENABLED', // Webhook feature flag
+      'APP_VERSION',           // Version tracking
+      'AI_DEGRADED_MODE',      // Degraded mode flag
+    ];
+
+    // Combine all exclusions
+    const allExclusions = [
+      ...builtins,
+      ...platformVars,
+      ...buildTimeVars,
+      ...deprecatedVars,
+      ...securityPolicyVars,
+      ...unimplementedVars
+    ];
+
+    return !allExclusions.includes(ref) && !exampleVars.hasOwnProperty(ref);
   });
 
   if (missingInExample.length > 0) {

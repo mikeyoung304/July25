@@ -59,7 +59,8 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   const [lastTranscript, setLastTranscript] = useState('');
   const [recentlyAdded, setRecentlyAdded] = useState<string[]>([]);
   const [voiceFeedback, setVoiceFeedback] = useState('');
-  
+  const [voiceConnectionState, setVoiceConnectionState] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+
   // Voice checkout orchestrator
   const checkoutOrchestratorRef = useRef<VoiceCheckoutOrchestrator | null>(null);
 
@@ -340,10 +341,25 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                   onTranscript={handleVoiceTranscript}
                   onOrderDetected={handleOrderData}
                   onRecordingStateChange={setIsListening}
+                  onConnectionStateChange={setVoiceConnectionState}
                   debug={true}
                 />
               </Suspense>
               <div className="mt-8">
+                {/* Connection State Indicator */}
+                {voiceConnectionState === 'connecting' && (
+                  <div className="mb-4 flex items-center justify-center text-blue-600">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-2"></div>
+                    <span className="text-sm font-medium">Connecting to voice service...</span>
+                  </div>
+                )}
+                {voiceConnectionState === 'connected' && !isListening && (
+                  <div className="mb-4 flex items-center justify-center text-green-600">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span className="text-sm font-medium">Voice ordering ready</span>
+                  </div>
+                )}
+
                 <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center">
                   {isListening ? (
                     <>
@@ -353,14 +369,16 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                   ) : (
                     <>
                       <MicOff className="w-8 h-8 mr-3 text-gray-400" />
-                      Press and Hold to Speak
+                      Tap to Start
                     </>
                   )}
                 </h2>
                 <p className="text-xl text-gray-600">
-                  {isListening 
+                  {isListening
                     ? "I'm listening to your order..."
-                    : "Hold the microphone button and tell me what you'd like to order"
+                    : voiceConnectionState === 'connected'
+                      ? "Tap the button and tell me what you'd like to order"
+                      : "Voice service is preparing..."
                   }
                 </p>
               </div>

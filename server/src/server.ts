@@ -1,6 +1,7 @@
 // IMPORTANT: Environment must be loaded FIRST via env.ts
 // The import of ./config/environment will trigger ./config/env.ts
 import { validateEnvironment, getConfig } from './config/environment';
+import { EnvValidationError } from './config/env';
 import { initializeDatabase } from './config/database';
 import { initializeSentry, getSentryRequestHandler, getSentryTracingHandler, getSentryErrorHandler } from './config/sentry';
 
@@ -264,6 +265,11 @@ async function startServer() {
       logger.info(`🏢 Default Restaurant: ${config.restaurant.defaultId}`);
     });
   } catch (error) {
+    // Handle environment validation errors per ADR-009 fail-fast policy
+    if (error instanceof EnvValidationError) {
+      console.error(error.message);
+      process.exit(1);
+    }
     logger.error('Failed to start server:', error);
     process.exit(1);
   }

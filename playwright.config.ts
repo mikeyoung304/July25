@@ -111,10 +111,13 @@ export default defineConfig({
     },
   ],
 
-  webServer: process.env.CI ? undefined : {
-    command: 'npm run dev',
+  webServer: {
+    command: 'npm run dev:e2e',
     port: 5173,
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      NODE_ENV: 'test',
+    },
   },
 });

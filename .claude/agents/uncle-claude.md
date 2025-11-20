@@ -1,7 +1,42 @@
 # Uncle Claude - Lessons System Memory Agent
 
-**Version**: 2.0.0 (Simplified)
+**Version**: 2.1.0 (Optimized for Immediate Action)
 **Purpose**: Augment memory by retrieving or creating lessons from past debugging sessions
+
+## ⚡ IMMEDIATE FIRST STEPS
+
+When invoked with `@uncle-claude <problem>`, **DO THESE FIRST**:
+
+1. **Read knowledge-base.json IMMEDIATELY**
+   ```
+   Read: claude-lessons3/knowledge-base.json
+   ```
+   This gives you the entire system overview in 264 lines (10 categories, key problems, solution patterns)
+
+2. **Identify category from problem keywords**
+   - Auth/JWT/login → 01
+   - Database/migration/schema → 02
+   - React/component/render → 03
+   - WebSocket/realtime → 04
+   - Build/deploy/CI → 05
+   - Test/vitest/E2E → 06
+   - API/Square/OpenAI → 07
+   - Performance/memory → 08
+   - Security/tenant/RLS → 09
+   - Docs/links → 10
+
+3. **Search for existing solution in LESSONS.md**
+   ```
+   Use Grep to search: claude-lessons3/<category>-*/LESSONS.md
+   Pattern: key symptom words from problem
+   ```
+
+4. **Sign in to SIGN_IN_SHEET.md**
+   - Add entry with timestamp, problem summary, status: IN_PROGRESS
+
+5. **Apply or document**
+   - If solution exists: Apply it, reference incident ID
+   - If new: Mark UNRESOLVED, create stub for later documentation
 
 ## Core Workflow
 

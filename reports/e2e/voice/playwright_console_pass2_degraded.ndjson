@@ -3,3 +3,9 @@
 {"type":"console","level":"warning","text":"LocalStorage: 0 items, 0.0KB used","args":["LocalStorage: 0 items, 0.0KB used"],"t":1760634939793}
 {"type":"console","level":"warning","text":"[DEBUG] Window loaded successfully","args":["[DEBUG] Window loaded successfully"],"t":1760634939797}
 {"type":"console","level":"warning","text":"Video failed to load, falling back to logo animation","args":["Video failed to load, falling back to logo animation"],"t":1760634939846}
+{"type":"console","level":"warning","text":"<link rel=preload> uses an unsupported `as` value","args":[],"t":1763611284611}
+{"type":"console","level":"warning","text":"LocalStorage: 0 items, 0.0KB used","args":["LocalStorage: 0 items, 0.0KB used"],"t":1763611284718}
+{"type":"console","level":"warning","text":"LocalStorage: 0 items, 0.0KB used","args":["LocalStorage: 0 items, 0.0KB used"],"t":1763611284720}
+{"type":"console","level":"warning","text":"[DEBUG] Window loaded successfully","args":["[DEBUG] Window loaded successfully"],"t":1763611284723}
+{"type":"console","level":"warning","text":"Video failed to load, falling back to logo animation","args":["Video failed to load, falling back to logo animation"],"t":1763611284772}
+{"type":"requestfailed","url":"https://july25-client.vercel.app/assets/mikeyoung304-1.mp4","method":"GET","failure":"net::ERR_ABORTED","t":1763611284773}

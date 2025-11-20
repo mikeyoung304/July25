@@ -40,6 +40,12 @@ function App() {
     // Mark app ready for performance tracking
     performanceMonitor.mark('app-ready')
     performanceMonitor.measure('app-init', 'navigationStart', 'app-ready')
+
+    // Create DOM element for E2E tests to detect app readiness
+    const appReadyMarker = document.createElement('div')
+    appReadyMarker.setAttribute('data-testid', 'app-ready')
+    appReadyMarker.style.display = 'none'
+    document.body.appendChild(appReadyMarker)
   }
   
   // Initialize WebSocket connection when authenticated
