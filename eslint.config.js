@@ -3,6 +3,9 @@ import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const customPlugin = require('./eslint-plugin-custom/index.js');
 
 export default [
   {
@@ -80,6 +83,7 @@ export default [
       '@typescript-eslint': tsPlugin,
       'react': reactPlugin,
       'react-hooks': reactHooksPlugin,
+      'custom': customPlugin,
     },
     rules: {
       ...js.configs.recommended.rules,
@@ -126,7 +130,22 @@ export default [
             message: 'These type folders have been deleted. Use "shared/types" instead.'
           }
         ]
-      }]
+      }],
+
+      // Claude Lessons v3 - Anti-Pattern Detection
+      'custom/require-jwt-fields': ['error', {
+        requiredFields: ['restaurant_id', 'scope', 'user_id'],
+        allowSubForUserId: true
+      }],
+      'custom/require-multi-tenant-filter': ['error', {
+        exemptTables: ['profiles', 'restaurant_users', 'system_config']
+      }],
+      'custom/no-uncleared-timers': 'error',
+      'custom/require-api-timeout': ['error', {
+        timeout: 30000,
+        allowedWrappers: ['withTimeout', 'withRetry']
+      }],
+      'custom/no-skip-without-quarantine': 'error',
     },
     settings: {
       react: {
