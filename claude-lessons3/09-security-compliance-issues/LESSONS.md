@@ -1,5 +1,7 @@
 # Lessons: security compliance issues
 
+> **💡 Debugging Unknown Issues?** If you're encountering an error not documented here, check the [Debugging Protocols](../00-debugging-protocols/) for systematic troubleshooting methods (HTF, EPL, CSP, DDT, PIT).
+
 ## Key Incidents
 
 # Major Security Incidents - Detailed Reports

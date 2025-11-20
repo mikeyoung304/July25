@@ -276,8 +276,10 @@ fix:
 
 confidence: 0.98
 time_saved: "48 days (CL-AUTH-001)"
-reference: "claude-lessons3/01-auth-authorization-issues/"
+domain_lesson: "../01-auth-authorization-issues/LESSONS.md#cl-auth-001-strict_auth-environment-drift-48-days"
 ```
+
+**🔗 After fixing**: See [Auth Lessons - CL-AUTH-001](../01-auth-authorization-issues/LESSONS.md#cl-auth-001-strict_auth-environment-drift-48-days) for complete incident details and prevention rules.
 
 ### How to Use EPL
 

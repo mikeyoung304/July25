@@ -32,6 +32,7 @@
 - Deploy: [DEPLOYMENT](./docs/how-to/operations/DEPLOYMENT.md) · Security: [SECURITY](./docs/SECURITY.md) · DB: [DATABASE](./docs/reference/schema/DATABASE.md)
 - Payments: [Square API Setup](./docs/reference/api/api/SQUARE_API_SETUP.md) · Env Vars: [ENVIRONMENT](./docs/reference/config/ENVIRONMENT.md)
 - Troubleshoot: [TROUBLESHOOTING](./docs/how-to/troubleshooting/TROUBLESHOOTING.md) · Version: [VERSION](./docs/VERSION.md)
+- **Debugging:** [Claude Lessons v3](./claude-lessons3/) · [Debugging Protocols](./claude-lessons3/00-debugging-protocols/) (systematic methodologies for unknown issues)
 
 ## Database Architecture: Remote-First Approach
 
