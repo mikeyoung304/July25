@@ -1,0 +1,175 @@
+[2025-11-21T15:25:37.099Z] INFO: === FAST MODE: 2-Hour Multi-Tenant Test === {}
+[2025-11-21T15:25:37.100Z] INFO: Restaurant A: 11111111-1111-1111-1111-111111111111 {}
+[2025-11-21T15:25:37.100Z] INFO: Restaurant B: 22222222-2222-2222-2222-222222222222 {}
+[2025-11-21T15:25:37.100Z] INFO: Check interval: 2 minutes {}
+[2025-11-21T15:25:37.100Z] INFO: Test duration: 2 hours {}
+[2025-11-21T15:25:37.100Z] INFO: Running order isolation check... {}
+[2025-11-21T15:25:38.350Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:25:38.350Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:27:38.352Z] INFO: === Check 2 (2.0 min elapsed) === {}
+[2025-11-21T15:27:38.353Z] INFO: Running order isolation check... {}
+[2025-11-21T15:27:39.333Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:27:39.333Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:29:38.354Z] INFO: === Check 3 (4.0 min elapsed) === {}
+[2025-11-21T15:29:38.355Z] INFO: Running order isolation check... {}
+[2025-11-21T15:29:39.360Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:29:39.360Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:31:38.356Z] INFO: === Check 4 (6.0 min elapsed) === {}
+[2025-11-21T15:31:38.357Z] INFO: Running order isolation check... {}
+[2025-11-21T15:31:38.944Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:31:38.944Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:33:38.358Z] INFO: === Check 5 (8.0 min elapsed) === {}
+[2025-11-21T15:33:38.359Z] INFO: Running order isolation check... {}
+[2025-11-21T15:33:39.616Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:33:39.616Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:35:38.360Z] INFO: === Check 6 (10.0 min elapsed) === {}
+[2025-11-21T15:35:38.361Z] INFO: Running order isolation check... {}
+[2025-11-21T15:35:44.093Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:35:44.093Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:37:38.363Z] INFO: === Check 7 (12.0 min elapsed) === {}
+[2025-11-21T15:37:38.364Z] INFO: Running order isolation check... {}
+[2025-11-21T15:37:40.428Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:37:40.428Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:39:38.365Z] INFO: === Check 8 (14.0 min elapsed) === {}
+[2025-11-21T15:39:38.366Z] INFO: Running order isolation check... {}
+[2025-11-21T15:39:38.966Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:39:38.966Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:41:38.368Z] INFO: === Check 9 (16.0 min elapsed) === {}
+[2025-11-21T15:41:38.369Z] INFO: Running order isolation check... {}
+[2025-11-21T15:41:38.957Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:41:38.957Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:43:38.369Z] INFO: === Check 10 (18.0 min elapsed) === {}
+[2025-11-21T15:43:38.370Z] INFO: Running order isolation check... {}
+[2025-11-21T15:43:39.175Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:43:39.175Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:45:38.372Z] INFO: === Check 11 (20.0 min elapsed) === {}
+[2025-11-21T15:45:38.373Z] INFO: Running order isolation check... {}
+[2025-11-21T15:45:39.047Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:45:39.047Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:47:38.375Z] INFO: === Check 12 (22.0 min elapsed) === {}
+[2025-11-21T15:47:38.376Z] INFO: Running order isolation check... {}
+[2025-11-21T15:47:38.997Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:47:38.997Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:49:38.378Z] INFO: === Check 13 (24.0 min elapsed) === {}
+[2025-11-21T15:49:38.379Z] INFO: Running order isolation check... {}
+[2025-11-21T15:49:40.483Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:49:40.483Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:51:38.301Z] INFO: === Check 14 (26.0 min elapsed) === {}
+[2025-11-21T15:51:38.301Z] INFO: Running order isolation check... {}
+[2025-11-21T15:51:39.381Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:51:39.381Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:53:38.301Z] INFO: === Check 15 (28.0 min elapsed) === {}
+[2025-11-21T15:53:38.302Z] INFO: Running order isolation check... {}
+[2025-11-21T15:53:38.960Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:53:38.960Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:55:38.301Z] INFO: === Check 16 (30.0 min elapsed) === {}
+[2025-11-21T15:55:38.302Z] INFO: Running order isolation check... {}
+[2025-11-21T15:55:39.004Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:55:39.004Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:57:38.301Z] INFO: === Check 17 (32.0 min elapsed) === {}
+[2025-11-21T15:57:38.301Z] INFO: Running order isolation check... {}
+[2025-11-21T15:57:38.928Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:57:38.928Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T15:59:38.301Z] INFO: === Check 18 (34.0 min elapsed) === {}
+[2025-11-21T15:59:38.302Z] INFO: Running order isolation check... {}
+[2025-11-21T15:59:38.873Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T15:59:38.873Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:01:38.301Z] INFO: === Check 19 (36.0 min elapsed) === {}
+[2025-11-21T16:01:38.303Z] INFO: Running order isolation check... {}
+[2025-11-21T16:01:39.356Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:01:39.356Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:03:38.300Z] INFO: === Check 20 (38.0 min elapsed) === {}
+[2025-11-21T16:03:38.301Z] INFO: Running order isolation check... {}
+[2025-11-21T16:03:39.133Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:03:39.133Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:05:38.300Z] INFO: === Check 21 (40.0 min elapsed) === {}
+[2025-11-21T16:05:38.301Z] INFO: Running order isolation check... {}
+[2025-11-21T16:05:39.218Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:05:39.218Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:07:38.300Z] INFO: === Check 22 (42.0 min elapsed) === {}
+[2025-11-21T16:07:38.301Z] INFO: Running order isolation check... {}
+[2025-11-21T16:07:39.133Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:07:39.133Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:09:38.300Z] INFO: === Check 23 (44.0 min elapsed) === {}
+[2025-11-21T16:09:38.302Z] INFO: Running order isolation check... {}
+[2025-11-21T16:09:39.071Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:09:39.071Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:11:38.302Z] INFO: === Check 24 (46.0 min elapsed) === {}
+[2025-11-21T16:11:38.304Z] INFO: Running order isolation check... {}
+[2025-11-21T16:11:39.120Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:11:39.120Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:13:38.302Z] INFO: === Check 25 (48.0 min elapsed) === {}
+[2025-11-21T16:13:38.303Z] INFO: Running order isolation check... {}
+[2025-11-21T16:13:38.979Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:13:38.979Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:15:38.301Z] INFO: === Check 26 (50.0 min elapsed) === {}
+[2025-11-21T16:15:38.302Z] INFO: Running order isolation check... {}
+[2025-11-21T16:15:38.946Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:15:38.945Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:17:38.300Z] INFO: === Check 27 (52.0 min elapsed) === {}
+[2025-11-21T16:17:38.302Z] INFO: Running order isolation check... {}
+[2025-11-21T16:17:39.019Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:17:39.019Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:19:38.300Z] INFO: === Check 28 (54.0 min elapsed) === {}
+[2025-11-21T16:19:38.301Z] INFO: Running order isolation check... {}
+[2025-11-21T16:19:39.672Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:19:39.672Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:21:38.300Z] INFO: === Check 29 (56.0 min elapsed) === {}
+[2025-11-21T16:21:38.301Z] INFO: Running order isolation check... {}
+[2025-11-21T16:21:39.024Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:21:39.024Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:23:38.300Z] INFO: === Check 30 (58.0 min elapsed) === {}
+[2025-11-21T16:23:38.301Z] INFO: Running order isolation check... {}
+[2025-11-21T16:23:39.104Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:23:39.104Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:25:38.301Z] INFO: === Check 31 (60.0 min elapsed) === {}
+[2025-11-21T16:25:38.301Z] INFO: Running order isolation check... {}
+[2025-11-21T16:25:38.981Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:25:38.981Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:27:38.301Z] INFO: === Check 32 (62.0 min elapsed) === {}
+[2025-11-21T16:27:38.302Z] INFO: Running order isolation check... {}
+[2025-11-21T16:27:38.967Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:27:38.967Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:29:38.301Z] INFO: === Check 33 (64.0 min elapsed) === {}
+[2025-11-21T16:29:38.303Z] INFO: Running order isolation check... {}
+[2025-11-21T16:29:38.933Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:29:38.933Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:31:38.301Z] INFO: === Check 34 (66.0 min elapsed) === {}
+[2025-11-21T16:31:38.302Z] INFO: Running order isolation check... {}
+[2025-11-21T16:31:39.800Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:31:39.800Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:33:38.298Z] INFO: === Check 35 (68.0 min elapsed) === {}
+[2025-11-21T16:33:38.299Z] INFO: Running order isolation check... {}
+[2025-11-21T16:33:38.947Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:33:38.946Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:35:38.297Z] INFO: === Check 36 (70.0 min elapsed) === {}
+[2025-11-21T16:35:38.299Z] INFO: Running order isolation check... {}
+[2025-11-21T16:35:39.006Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:35:39.006Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:37:38.296Z] INFO: === Check 37 (72.0 min elapsed) === {}
+[2025-11-21T16:37:38.297Z] INFO: Running order isolation check... {}
+[2025-11-21T16:37:39.084Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:37:39.084Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:39:38.295Z] INFO: === Check 38 (74.0 min elapsed) === {}
+[2025-11-21T16:39:38.304Z] INFO: Running order isolation check... {}
+[2025-11-21T16:39:39.302Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:39:39.302Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:41:38.295Z] INFO: === Check 39 (76.0 min elapsed) === {}
+[2025-11-21T16:41:38.296Z] INFO: Running order isolation check... {}
+[2025-11-21T16:41:39.177Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:41:39.177Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:43:38.295Z] INFO: === Check 40 (78.0 min elapsed) === {}
+[2025-11-21T16:43:38.296Z] INFO: Running order isolation check... {}
+[2025-11-21T16:43:39.349Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:43:39.349Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:45:38.296Z] INFO: === Check 41 (80.0 min elapsed) === {}
+[2025-11-21T16:45:38.297Z] INFO: Running order isolation check... {}
+[2025-11-21T16:45:39.137Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:45:39.137Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:47:38.329Z] INFO: === Check 42 (82.0 min elapsed) === {}
+[2025-11-21T16:47:38.334Z] INFO: Running order isolation check... {}
+[2025-11-21T16:47:38.979Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:47:38.979Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:49:38.346Z] INFO: === Check 43 (84.0 min elapsed) === {}
+[2025-11-21T16:49:38.347Z] INFO: Running order isolation check... {}
+[2025-11-21T16:49:39.026Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:49:39.026Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:51:38.347Z] INFO: === Check 44 (86.0 min elapsed) === {}
+[2025-11-21T16:51:38.348Z] INFO: Running order isolation check... {}
+[2025-11-21T16:51:39.369Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:51:39.369Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:53:38.348Z] INFO: === Check 45 (88.0 min elapsed) === {}
+[2025-11-21T16:53:38.350Z] INFO: Running order isolation check... {}
+[2025-11-21T16:53:39.283Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:53:39.283Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:55:38.349Z] INFO: === Check 46 (90.0 min elapsed) === {}
+[2025-11-21T16:55:38.350Z] INFO: Running order isolation check... {}
+[2025-11-21T16:55:39.097Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:55:39.097Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:57:38.350Z] INFO: === Check 47 (92.0 min elapsed) === {}
+[2025-11-21T16:57:38.350Z] INFO: Running order isolation check... {}
+[2025-11-21T16:57:39.960Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:57:39.960Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T16:59:38.351Z] INFO: === Check 48 (94.0 min elapsed) === {}
+[2025-11-21T16:59:38.352Z] INFO: Running order isolation check... {}
+[2025-11-21T16:59:38.972Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T16:59:38.972Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:01:38.351Z] INFO: === Check 49 (96.0 min elapsed) === {}
+[2025-11-21T17:01:38.352Z] INFO: Running order isolation check... {}
+[2025-11-21T17:01:39.237Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T17:01:39.237Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:03:38.353Z] INFO: === Check 50 (98.0 min elapsed) === {}
+[2025-11-21T17:03:38.355Z] INFO: Running order isolation check... {}
+[2025-11-21T17:03:42.419Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T17:03:42.419Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:05:38.354Z] INFO: === Check 51 (100.0 min elapsed) === {}
+[2025-11-21T17:05:38.355Z] INFO: Running order isolation check... {}
+[2025-11-21T17:05:39.145Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T17:05:39.145Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:07:38.354Z] INFO: === Check 52 (102.0 min elapsed) === {}
+[2025-11-21T17:07:38.355Z] INFO: Running order isolation check... {}
+[2025-11-21T17:07:38.907Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T17:07:38.907Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:09:38.356Z] INFO: === Check 53 (104.0 min elapsed) === {}
+[2025-11-21T17:09:38.360Z] INFO: Running order isolation check... {}
+[2025-11-21T17:09:38.982Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T17:09:38.982Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:11:38.359Z] INFO: === Check 54 (106.0 min elapsed) === {}
+[2025-11-21T17:11:38.492Z] INFO: Running order isolation check... {}
+[2025-11-21T17:11:39.419Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T17:11:39.419Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:13:40.838Z] INFO: === Check 55 (108.1 min elapsed) === {}
+[2025-11-21T17:14:01.184Z] INFO: Running order isolation check... {}
+[2025-11-21T17:22:01.548Z] INFO: === FAST MODE: 2-Hour Multi-Tenant Test === {}
+[2025-11-21T17:22:01.549Z] INFO: Restaurant A: 11111111-1111-1111-1111-111111111111 {}
+[2025-11-21T17:22:01.549Z] INFO: Restaurant B: 22222222-2222-2222-2222-222222222222 {}
+[2025-11-21T17:22:01.549Z] INFO: Check interval: 2 minutes {}
+[2025-11-21T17:22:01.549Z] INFO: Test duration: 2 hours {}
+[2025-11-21T17:22:01.549Z] INFO: Running order isolation check... {}
+[2025-11-21T17:22:02.274Z] SUCCESS: Order isolation check passed {"timestamp":"2025-11-21T17:22:02.274Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}

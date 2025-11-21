@@ -1,0 +1,128 @@
+[2025-11-21T17:23:43.948Z] INFO: === SPRINT MODE: 20-Minute Test (60 checks) === {}
+[2025-11-21T17:23:43.949Z] INFO: Restaurant A: 11111111-1111-1111-1111-111111111111 {}
+[2025-11-21T17:23:43.949Z] INFO: Restaurant B: 22222222-2222-2222-2222-222222222222 {}
+[2025-11-21T17:23:43.949Z] INFO: Check interval: 20 seconds {}
+[2025-11-21T17:23:43.949Z] INFO: Total checks: 60 {}
+[2025-11-21T17:23:44.616Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:23:44.616Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:24:04.618Z] INFO: Check 2/60 (2%, 0.3m) {}
+[2025-11-21T17:24:05.136Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:24:05.136Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:24:24.619Z] INFO: Check 3/60 (3%, 0.7m) {}
+[2025-11-21T17:24:25.057Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:24:25.057Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:24:44.620Z] INFO: Check 4/60 (5%, 1.0m) {}
+[2025-11-21T17:24:45.310Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:24:45.310Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:25:04.622Z] INFO: Check 5/60 (7%, 1.3m) {}
+[2025-11-21T17:25:05.197Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:25:05.197Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:25:24.622Z] INFO: Check 6/60 (8%, 1.7m) {}
+[2025-11-21T17:25:25.015Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:25:25.015Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:25:44.624Z] INFO: Check 7/60 (10%, 2.0m) {}
+[2025-11-21T17:25:45.142Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:25:45.142Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:26:04.625Z] INFO: Check 8/60 (12%, 2.3m) {}
+[2025-11-21T17:26:05.241Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:26:05.241Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:26:24.627Z] INFO: Check 9/60 (13%, 2.7m) {}
+[2025-11-21T17:26:25.005Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:26:25.005Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:26:44.629Z] INFO: Check 10/60 (15%, 3.0m) {}
+[2025-11-21T17:26:45.202Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:26:45.202Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:27:04.630Z] INFO: Check 11/60 (17%, 3.3m) {}
+[2025-11-21T17:27:05.315Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:27:05.315Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:27:24.631Z] INFO: Check 12/60 (18%, 3.7m) {}
+[2025-11-21T17:27:25.013Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:27:25.012Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:27:44.632Z] INFO: Check 13/60 (20%, 4.0m) {}
+[2025-11-21T17:27:45.071Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:27:45.071Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:28:04.634Z] INFO: Check 14/60 (22%, 4.3m) {}
+[2025-11-21T17:28:04.972Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:28:04.972Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:28:24.636Z] INFO: Check 15/60 (23%, 4.7m) {}
+[2025-11-21T17:28:24.942Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:28:24.942Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:28:44.639Z] INFO: Check 16/60 (25%, 5.0m) {}
+[2025-11-21T17:28:45.074Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:28:45.074Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:29:04.641Z] INFO: Check 17/60 (27%, 5.3m) {}
+[2025-11-21T17:29:05.048Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:29:05.048Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:29:24.642Z] INFO: Check 18/60 (28%, 5.7m) {}
+[2025-11-21T17:29:25.050Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:29:25.050Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:29:44.644Z] INFO: Check 19/60 (30%, 6.0m) {}
+[2025-11-21T17:29:45.098Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:29:45.098Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:30:04.646Z] INFO: Check 20/60 (32%, 6.3m) {}
+[2025-11-21T17:30:05.017Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:30:05.017Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:30:24.646Z] INFO: Check 21/60 (33%, 6.7m) {}
+[2025-11-21T17:30:24.998Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:30:24.998Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:30:44.647Z] INFO: Check 22/60 (35%, 7.0m) {}
+[2025-11-21T17:30:45.028Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:30:45.028Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:31:04.647Z] INFO: Check 23/60 (37%, 7.3m) {}
+[2025-11-21T17:31:05.120Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:31:05.120Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:31:24.648Z] INFO: Check 24/60 (38%, 7.7m) {}
+[2025-11-21T17:31:25.083Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:31:25.083Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:31:44.650Z] INFO: Check 25/60 (40%, 8.0m) {}
+[2025-11-21T17:31:45.239Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:31:45.239Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:32:04.651Z] INFO: Check 26/60 (42%, 8.3m) {}
+[2025-11-21T17:32:05.018Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:32:05.018Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:32:24.652Z] INFO: Check 27/60 (43%, 8.7m) {}
+[2025-11-21T17:32:25.051Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:32:25.051Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:32:44.653Z] INFO: Check 28/60 (45%, 9.0m) {}
+[2025-11-21T17:32:45.255Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:32:45.255Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:33:04.654Z] INFO: Check 29/60 (47%, 9.3m) {}
+[2025-11-21T17:33:05.083Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:33:05.083Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:33:24.656Z] INFO: Check 30/60 (48%, 9.7m) {}
+[2025-11-21T17:33:25.008Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:33:25.008Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:33:44.657Z] INFO: Check 31/60 (50%, 10.0m) {}
+[2025-11-21T17:33:45.091Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:33:45.091Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:34:04.658Z] INFO: Check 32/60 (52%, 10.3m) {}
+[2025-11-21T17:34:04.991Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:34:04.991Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:34:24.659Z] INFO: Check 33/60 (53%, 10.7m) {}
+[2025-11-21T17:34:25.102Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:34:25.102Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:34:44.661Z] INFO: Check 34/60 (55%, 11.0m) {}
+[2025-11-21T17:34:44.979Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:34:44.979Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:35:04.662Z] INFO: Check 35/60 (57%, 11.3m) {}
+[2025-11-21T17:35:05.129Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:35:05.129Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:35:24.662Z] INFO: Check 36/60 (58%, 11.7m) {}
+[2025-11-21T17:35:25.067Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:35:25.067Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:35:44.663Z] INFO: Check 37/60 (60%, 12.0m) {}
+[2025-11-21T17:35:45.600Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:35:45.600Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:36:04.666Z] INFO: Check 38/60 (62%, 12.3m) {}
+[2025-11-21T17:36:05.024Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:36:05.024Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:36:24.668Z] INFO: Check 39/60 (63%, 12.7m) {}
+[2025-11-21T17:36:25.067Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:36:25.067Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:36:44.670Z] INFO: Check 40/60 (65%, 13.0m) {}
+[2025-11-21T17:36:45.016Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:36:45.016Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:37:04.670Z] INFO: Check 41/60 (67%, 13.3m) {}
+[2025-11-21T17:37:05.017Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:37:05.017Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:37:24.672Z] INFO: Check 42/60 (68%, 13.7m) {}
+[2025-11-21T17:37:24.983Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:37:24.983Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:37:44.675Z] INFO: Check 43/60 (70%, 14.0m) {}
+[2025-11-21T17:37:45.101Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:37:45.101Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:38:04.677Z] INFO: Check 44/60 (72%, 14.3m) {}
+[2025-11-21T17:38:04.996Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:38:04.996Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:38:24.679Z] INFO: Check 45/60 (73%, 14.7m) {}
+[2025-11-21T17:38:25.030Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:38:25.030Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:38:44.680Z] INFO: Check 46/60 (75%, 15.0m) {}
+[2025-11-21T17:38:45.034Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:38:45.034Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:39:04.682Z] INFO: Check 47/60 (77%, 15.3m) {}
+[2025-11-21T17:39:05.119Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:39:05.119Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:39:24.684Z] INFO: Check 48/60 (78%, 15.7m) {}
+[2025-11-21T17:39:25.075Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:39:25.075Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:39:44.686Z] INFO: Check 49/60 (80%, 16.0m) {}
+[2025-11-21T17:39:45.294Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:39:45.294Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:40:04.688Z] INFO: Check 50/60 (82%, 16.3m) {}
+[2025-11-21T17:40:05.096Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:40:05.096Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:40:24.689Z] INFO: Check 51/60 (83%, 16.7m) {}
+[2025-11-21T17:40:25.130Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:40:25.130Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:40:44.690Z] INFO: Check 52/60 (85%, 17.0m) {}
+[2025-11-21T17:40:45.089Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:40:45.089Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:41:04.691Z] INFO: Check 53/60 (87%, 17.3m) {}
+[2025-11-21T17:41:05.478Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:41:05.478Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:41:24.693Z] INFO: Check 54/60 (88%, 17.7m) {}
+[2025-11-21T17:41:25.053Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:41:25.053Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:41:44.694Z] INFO: Check 55/60 (90%, 18.0m) {}
+[2025-11-21T17:41:45.153Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:41:45.153Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:42:04.695Z] INFO: Check 56/60 (92%, 18.3m) {}
+[2025-11-21T17:42:05.293Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:42:05.293Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:42:24.696Z] INFO: Check 57/60 (93%, 18.7m) {}
+[2025-11-21T17:42:25.112Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:42:25.112Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:42:44.697Z] INFO: Check 58/60 (95%, 19.0m) {}
+[2025-11-21T17:42:45.062Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:42:45.062Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:43:04.698Z] INFO: Check 59/60 (97%, 19.3m) {}
+[2025-11-21T17:43:05.077Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:43:05.077Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:43:24.699Z] INFO: Check 60/60 (98%, 19.7m) {}
+[2025-11-21T17:43:25.002Z] SUCCESS: Check passed {"timestamp":"2025-11-21T17:43:25.002Z","ordersA":0,"ordersB":0,"invalidOrders":0,"passed":true}
+[2025-11-21T17:43:25.005Z] INFO: === SPRINT TEST COMPLETE === {}
+[2025-11-21T17:43:25.005Z] INFO: Results {"totalChecks":60,"passedChecks":60,"failedChecks":0,"passRate":"100.0%","overallPassed":true,"duration":{"start":"2025-11-21T17:23:43.948Z","end":"2025-11-21T17:43:25.003Z","minutes":"19.7"}}
+[2025-11-21T17:43:25.005Z] SUCCESS: ✅ ALL CHECKS PASSED - P0 FIXES VERIFIED {}
+[2025-11-21T17:43:25.006Z] INFO: Full report: /Users/mikeyoung/CODING/rebuild-6.0/tests/multi-tenant/sprint-test-results.json {}

@@ -1,5 +1,6 @@
 /* eslint-env browser */
 import { EventEmitter } from '../../../services/utils/EventEmitter';
+import { LRUCache } from 'lru-cache';
 
 /**
  * Interface for event types from OpenAI Realtime API
@@ -113,11 +114,18 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
   private seenEventIds = new Set<string>();
   private turnId: number = 0;
   private eventIndex: number = 0;
-  private transcriptMap = new Map<string, {
+  private transcriptMap = new LRUCache<string, {
     text: string;
     final: boolean;
     role: 'user' | 'assistant'
-  }>();
+  }>({
+    max: 50, // Keep last 50 conversation items
+    dispose: (value, key, reason) => {
+      if (this.config.debug) {
+        console.log('[VoiceEventHandler] Evicting old transcript', { key, reason });
+      }
+    }
+  });
 
   // State tracking for event handling
   private turnState: TurnState = 'idle';

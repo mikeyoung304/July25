@@ -1,5 +1,6 @@
 /* eslint-env browser */
 import { logger } from '../../../services/logger';
+import { EventEmitter } from '../../../services/utils/EventEmitter';
 
 /**
  * VoiceSessionConfig Service
@@ -58,7 +59,7 @@ export interface IVoiceSessionConfig {
 /**
  * VoiceSessionConfig implementation
  */
-export class VoiceSessionConfig implements IVoiceSessionConfig {
+export class VoiceSessionConfig extends EventEmitter implements IVoiceSessionConfig {
   private ephemeralToken: string | null = null;
   private tokenExpiresAt: number = 0;
   private tokenRefreshTimer: NodeJS.Timeout | null = null;
@@ -69,6 +70,7 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
     private config: WebRTCVoiceConfig,
     private authService: { getAuthToken: () => Promise<string>; getOptionalAuthToken?: () => Promise<string | null> }
   ) {
+    super();
     this.context = config.context || 'kiosk'; // Default to kiosk for backward compatibility
   }
 
@@ -157,6 +159,7 @@ export class VoiceSessionConfig implements IVoiceSessionConfig {
           // This is for the next connection
         } catch (error) {
           logger.error('[VoiceSessionConfig] Token refresh failed:', error);
+          this.emit('token.refresh.failed', { error }); // ✅ Notify UI
         }
       }, refreshTime);
     }

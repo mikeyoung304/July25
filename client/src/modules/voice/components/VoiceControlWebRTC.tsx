@@ -7,6 +7,7 @@ import { TranscriptionDisplay } from './TranscriptionDisplay';
 import { VoiceDebugPanel } from './VoiceDebugPanel';
 import { AlertCircle, Mic, MicOff } from 'lucide-react';
 import { logger } from '@/utils/logger';
+import { toast } from 'react-hot-toast';
 
 interface VoiceControlWebRTCProps {
   context?: VoiceContext; // 🔧 FIX: Added context prop to configure kiosk vs server mode
@@ -59,6 +60,9 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
       onTranscript?.({ text: event.text, isFinal: event.isFinal });
     },
     onOrderDetected,
+    onTokenRefreshFailed: () => {
+      toast.error('Voice connection lost. Please refresh the page.');
+    },
   });
 
   // Notify parent when recording state changes

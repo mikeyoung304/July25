@@ -8,7 +8,6 @@ import { logger } from '@/services/monitoring/logger'
 import { useTaxRate } from '@/hooks/useTaxRate'
 import { supabase } from '@/core/supabase'
 import { useRestaurant } from '@/core/restaurant-hooks'
-import { useFeatureFlag, FEATURE_FLAGS } from '@/services/featureFlags'
 import { useVoiceOrderingMetrics } from '@/services/metrics'
 
 // Helper to resolve absolute API URLs for production
@@ -33,7 +32,6 @@ export function useVoiceOrderWebRTC() {
   const { items: menuItems } = useMenuItems()
   const taxRate = useTaxRate()
   const { restaurant } = useRestaurant()
-  const useNewCustomerIdFlow = useFeatureFlag(FEATURE_FLAGS.NEW_CUSTOMER_ID_FLOW)
   const metrics = useVoiceOrderingMetrics()
   const [showVoiceOrder, setShowVoiceOrder] = useState(false)
   const [currentTranscript, setCurrentTranscript] = useState('')
@@ -269,14 +267,11 @@ export function useVoiceOrderWebRTC() {
       }
 
       // Get restaurant ID from context (fix for P0 multi-tenant data corruption bug)
-      // Feature flag controls gradual rollout of dynamic restaurant ID
-      const restaurantId = useNewCustomerIdFlow
-        ? restaurant?.id
-        : 'grow' // Fallback to hardcoded ID if flag disabled
+      const restaurantId = restaurant?.id
 
-      if (useNewCustomerIdFlow && !restaurantId) {
+      if (!restaurantId) {
         logger.error('[submitOrder] No restaurant ID available')
-        toast.error('Restaurant context not loaded. Please refresh the page.')
+        toast.error('Restaurant context not loaded. Please refresh.')
         return false
       }
 
@@ -358,7 +353,7 @@ export function useVoiceOrderWebRTC() {
       // Always reset submitting flag, even on error
       setIsSubmitting(false)
     }
-  }, [orderItems, menuItems, toast, taxRate, isSubmitting, useNewCustomerIdFlow, restaurant?.id, orderSessionId, metrics])
+  }, [orderItems, menuItems, toast, taxRate, isSubmitting, restaurant?.id, orderSessionId, metrics, orderNotes])
 
   // Handler for "Add Next Seat" button
   const handleAddNextSeat = useCallback(() => {

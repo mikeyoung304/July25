@@ -60,6 +60,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   const [recentlyAdded, setRecentlyAdded] = useState<string[]>([]);
   const [voiceFeedback, setVoiceFeedback] = useState('');
   const [voiceConnectionState, setVoiceConnectionState] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   // Voice checkout orchestrator
   const checkoutOrchestratorRef = useRef<VoiceCheckoutOrchestrator | null>(null);
@@ -174,6 +175,12 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   }, []);
 
   const handleOrderData = useCallback((orderData: any) => {
+    // Guard: Block voice orders during checkout to prevent cart race condition
+    if (isCheckingOut) {
+      toast.toast.error('Please complete checkout first');
+      return;
+    }
+
     // Handle function call format from WebRTC: { items: [{ name, quantity, modifications }] }
     if (orderData?.items?.length > 0) {
       const addedItems: string[] = [];
@@ -273,7 +280,12 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         }
       });
     }
-  }, [menuItems, addItem, cart.items, onCheckout]);
+  }, [menuItems, addItem, cart.items, onCheckout, isCheckingOut, toast]);
+
+  const handleCheckout = useCallback(() => {
+    setIsCheckingOut(true);
+    onCheckout();
+  }, [onCheckout]);
 
   const handleQuickOrder = useCallback(async () => {
     const result = await submitOrderAndNavigate(cart.items);
@@ -314,7 +326,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
           
           {cart.itemCount > 0 && (
             <ActionButton
-              onClick={onCheckout}
+              onClick={handleCheckout}
               size="large"
               className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3"
             >
@@ -494,7 +506,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                     
                     <div className="space-y-3 mt-6">
                       <ActionButton
-                        onClick={onCheckout}
+                        onClick={handleCheckout}
                         disabled={isSubmitting}
                         size="large"
                         className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white py-6 text-xl font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"

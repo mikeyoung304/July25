@@ -10,6 +10,7 @@ export interface UseWebRTCVoiceOptions {
   onTranscript?: (transcript: TranscriptEvent) => void;
   onOrderDetected?: (order: OrderEvent) => void;
   onError?: (error: Error) => void;
+  onTokenRefreshFailed?: () => void;
 }
 
 export interface UseWebRTCVoiceReturn {
@@ -39,7 +40,7 @@ export interface UseWebRTCVoiceReturn {
  * React hook for WebRTC voice integration with OpenAI Realtime API
  */
 export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVoiceReturn {
-  const { autoConnect: _autoConnect = true, context, debug = false, muteAudioOutput = false, onTranscript, onOrderDetected, onError } = options;
+  const { autoConnect: _autoConnect = true, context, debug = false, muteAudioOutput = false, onTranscript, onOrderDetected, onError, onTokenRefreshFailed } = options;
 
   // Get restaurant ID from environment or use default
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'grow';
@@ -58,13 +59,15 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   const onTranscriptRef = useRef(onTranscript);
   const onOrderDetectedRef = useRef(onOrderDetected);
   const onErrorRef = useRef(onError);
+  const onTokenRefreshFailedRef = useRef(onTokenRefreshFailed);
 
   // Update callback refs when they change
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
     onOrderDetectedRef.current = onOrderDetected;
     onErrorRef.current = onError;
-  }, [onTranscript, onOrderDetected, onError]);
+    onTokenRefreshFailedRef.current = onTokenRefreshFailed;
+  }, [onTranscript, onOrderDetected, onError, onTokenRefreshFailed]);
 
   // Initialize client ONCE with stable dependencies
   useEffect(() => {
@@ -152,6 +155,10 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       onErrorRef.current?.(err);
     };
 
+    const handleTokenRefreshFailed = () => {
+      onTokenRefreshFailedRef.current?.();
+    };
+
     // Attach all listeners
     client.on('connection.change', handleConnectionChange);
     client.on('transcript', handleTranscript);
@@ -163,6 +170,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     client.on('recording.started', handleRecordingStarted);
     client.on('recording.stopped', handleRecordingStopped);
     client.on('error', handleError);
+    client.on('token.refresh.failed', handleTokenRefreshFailed);
 
     // Cleanup: detach all listeners
     return () => {
@@ -176,6 +184,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       client.off('recording.started', handleRecordingStarted);
       client.off('recording.stopped', handleRecordingStopped);
       client.off('error', handleError);
+      client.off('token.refresh.failed', handleTokenRefreshFailed);
     };
   }, []); // Empty deps - only attach/detach once
   

@@ -93,6 +93,11 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.emit('error', error);
     });
 
+    // Wire session config events
+    this.sessionConfig.on('token.refresh.failed', (data: { error: any }) => {
+      this.emit('token.refresh.failed', data);
+    });
+
     // Wire data channel ready event
     this.connection.on('dataChannelReady', (dc: RTCDataChannel) => {
       if (this.config.debug) {
