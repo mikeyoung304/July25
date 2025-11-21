@@ -47,7 +47,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: mockToken },
-            expires_at: mockExpiresAt
+            expires_at: mockExpiresAt,
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -108,8 +109,9 @@ describe('VoiceSessionConfig', () => {
         ;(global.fetch as any).mockResolvedValue({
           ok: true,
           json: async () => ({
-            client_secret: { value: 'token' }
+            client_secret: { value: 'token' },
             // No expires_at provided
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -129,7 +131,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: 'token' },
-            expires_at: mockExpiresAt
+            expires_at: mockExpiresAt,
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -158,7 +161,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: 'token-1' },
-            expires_at: mockExpiresAt
+            expires_at: mockExpiresAt,
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -172,7 +176,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: 'token-2' },
-            expires_at: Date.now() - 1000 // Expired, won't schedule another refresh
+            expires_at: Date.now() - 1000, // Expired, won't schedule another refresh
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -192,7 +197,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: 'token' },
-            expires_at: Date.now() + 30000
+            expires_at: Date.now() + 30000,
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -211,7 +217,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: 'token' },
-            expires_at: Date.now() - 5000 // Already expired
+            expires_at: Date.now() - 5000, // Already expired
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -229,7 +236,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: 'token' },
-            expires_at: Date.now() + 30000
+            expires_at: Date.now() + 30000,
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -260,7 +268,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: 'token' },
-            expires_at: Date.now() + 5000 // 5 seconds from now
+            expires_at: Date.now() + 5000, // 5 seconds from now
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -284,7 +293,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: 'token' },
-            expires_at: Date.now() + 60000
+            expires_at: Date.now() + 60000,
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -303,7 +313,8 @@ describe('VoiceSessionConfig', () => {
           ok: true,
           json: async () => ({
             client_secret: { value: mockToken },
-            expires_at: Date.now() + 60000
+            expires_at: Date.now() + 60000,
+            menu_context: '**MENU**\nTest Menu'
           })
         })
 
@@ -552,7 +563,8 @@ describe('VoiceSessionConfig', () => {
         ok: true,
         json: async () => ({
           client_secret: { value: 'token' },
-          expires_at: Date.now() + 60000
+          expires_at: Date.now() + 60000,
+          menu_context: '**MENU**\nTest Menu'
         })
       })
 
@@ -571,7 +583,8 @@ describe('VoiceSessionConfig', () => {
         ok: true,
         json: async () => ({
           client_secret: { value: 'token' },
-          expires_at: Date.now() + 60000
+          expires_at: Date.now() + 60000,
+          menu_context: '**MENU**\nTest Menu'
         })
       })
 
@@ -595,7 +608,8 @@ describe('VoiceSessionConfig', () => {
         ok: true,
         json: async () => ({
           client_secret: { value: 'token' },
-          expires_at: Date.now() + 60000
+          expires_at: Date.now() + 60000,
+          menu_context: '**MENU**\nTest Menu'
         })
       })
 

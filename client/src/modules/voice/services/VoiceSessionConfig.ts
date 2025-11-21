@@ -112,20 +112,49 @@ export class VoiceSessionConfig extends EventEmitter implements IVoiceSessionCon
     }
 
     const data = await response.json();
+
+    // Validate response structure
+    if (this.config.debug) {
+      logger.info('[VoiceSessionConfig] Response structure:', {
+        keys: Object.keys(data),
+        hasClientSecret: !!data.client_secret,
+        hasExpiresAt: !!data.expires_at,
+        hasMenuContext: !!data.menu_context,
+        menuContextType: typeof data.menu_context,
+        menuContextLength: data.menu_context?.length || 0
+      });
+    }
+
+    // Check for required fields
+    if (!data.client_secret?.value) {
+      throw new Error('Backend response missing client_secret.value');
+    }
+
     this.ephemeralToken = data.client_secret.value;
     this.tokenExpiresAt = data.expires_at || Date.now() + 60000;
 
-    // Store menu context if provided
-    if (data.menu_context) {
-      this.menuContext = data.menu_context;
-      logger.info('✅ [VoiceSessionConfig] Menu context loaded:', {
-        lines: this.menuContext.split('\n').length,
-        length: this.menuContext.length,
-        preview: this.menuContext.substring(0, 200)
+    // CRITICAL: Validate menu context exists
+    if (!data.menu_context || data.menu_context.trim().length === 0) {
+      logger.error('❌ [VoiceSessionConfig] CRITICAL ERROR - Backend response details:', {
+        responseKeys: Object.keys(data),
+        menuContext: data.menu_context,
+        menuContextType: typeof data.menu_context,
+        restaurantId: this.config.restaurantId,
+        context: this.context
       });
-    } else {
-      console.error('❌ [VoiceSessionConfig] NO MENU CONTEXT received from backend!');
+      throw new Error(
+        'CRITICAL: Backend returned no menu context - voice ordering unavailable. ' +
+        'The AI cannot take orders without menu information.'
+      );
     }
+
+    // Store menu context
+    this.menuContext = data.menu_context;
+    logger.info('✅ [VoiceSessionConfig] Menu context loaded:', {
+      lines: this.menuContext.split('\n').length,
+      length: this.menuContext.length,
+      preview: this.menuContext.substring(0, 200)
+    });
 
     // Schedule token refresh 10 seconds before expiry
     this.scheduleTokenRefresh();

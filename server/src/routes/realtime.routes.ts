@@ -1,12 +1,175 @@
-import { Router, Response } from 'express';
+import { Router, Response, Request } from 'express';
 import { AuthenticatedRequest, optionalAuth } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import fetch from 'node-fetch';
 import { MenuService } from '../services/menu.service';
 import { env } from '../config/env';
+import { supabase } from '../config/database';
 
 const router = Router();
 const realtimeLogger = logger.child({ module: 'realtime-routes' });
+
+/**
+ * Resolves restaurant ID from slug or UUID format
+ * Maps common slugs to their UUID equivalents, validates UUID format
+ *
+ * @param input - Restaurant slug (e.g., "grow") or UUID
+ * @returns UUID format restaurant ID
+ */
+function resolveRestaurantId(input: string | undefined): string {
+  // Handle undefined or empty input
+  if (!input || input === 'default') {
+    return env.DEFAULT_RESTAURANT_ID;
+  }
+
+  // Check if already in UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (uuidRegex.test(input)) {
+    return input;
+  }
+
+  // Map common slugs to UUIDs
+  const slugToUuidMap: Record<string, string> = {
+    'grow': '11111111-1111-1111-1111-111111111111'
+  };
+
+  // Check slug mapping
+  const normalizedInput = input.toLowerCase();
+  if (slugToUuidMap[normalizedInput]) {
+    return slugToUuidMap[normalizedInput]!;
+  }
+
+  // Fallback to default restaurant ID from environment
+  return env.DEFAULT_RESTAURANT_ID;
+}
+
+/**
+ * Helper function for structured menu load failure logging
+ * Includes all diagnostic context for debugging production issues
+ */
+function logMenuLoadFailure(error: Error, context: {
+  restaurantId: string;
+  userId?: string;
+  attemptedOperation: string;
+}) {
+  realtimeLogger.error('Menu load failure detected', {
+    error: {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    },
+    context: {
+      restaurantId: context.restaurantId,
+      userId: context.userId || 'anonymous',
+      operation: context.attemptedOperation,
+      timestamp: new Date().toISOString()
+    },
+    diagnostics: {
+      // Cache status would be checked here if we had access to the cache
+      // Database connection status inferred from error type
+      dbConnectionLikely: !error.message.includes('connect') && !error.message.includes('timeout'),
+      errorType: error.constructor.name
+    }
+  });
+}
+
+/**
+ * Menu health check endpoint
+ * Tests menu loading capability for a specific restaurant
+ * Supports both UUID and slug format for restaurant identification
+ * Returns menu statistics or error details for monitoring/alerting
+ *
+ * GET /api/v1/realtime/menu-check/:restaurantId
+ */
+router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
+  try {
+    let restaurantId = req.params['restaurantId'];
+
+    // Resolve slug to UUID if needed
+    const isUUID = restaurantId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(restaurantId);
+
+    if (!isUUID) {
+      // Treat as slug and resolve to UUID
+      realtimeLogger.debug('Resolving restaurant slug for health check', { slug: restaurantId });
+
+      const { data: restaurant, error } = await supabase
+        .from('restaurants')
+        .select('id')
+        .eq('slug', restaurantId)
+        .single();
+
+      if (error || !restaurant) {
+        realtimeLogger.warn('Restaurant slug not found', { slug: restaurantId, error: error?.message });
+        return res.status(404).json({
+          status: 'unhealthy',
+          error: 'Restaurant not found',
+          details: `No restaurant found with slug: ${restaurantId}`,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      restaurantId = restaurant.id;
+      realtimeLogger.debug('Resolved restaurant slug', { slug: req.params['restaurantId'], uuid: restaurantId });
+    }
+
+    // Ensure restaurantId is defined
+    if (!restaurantId) {
+      return res.status(400).json({
+        status: 'unhealthy',
+        error: 'Restaurant ID required',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Attempt to load menu data (uses cache if available)
+    const [menuItems, categories] = await Promise.all([
+      MenuService.getItems(restaurantId),
+      MenuService.getCategories(restaurantId)
+    ]);
+
+    // Calculate statistics
+    const availableItems = menuItems.filter(item => item.available !== false);
+    const categoriesWithItems = new Set(
+      menuItems
+        .filter(item => item.categoryId)
+        .map(item => item.categoryId)
+    ).size;
+
+    const health = {
+      status: 'healthy',
+      restaurant_id: restaurantId,
+      item_count: menuItems.length,
+      available_item_count: availableItems.length,
+      category_count: categories.length,
+      categories_with_items: categoriesWithItems,
+      timestamp: new Date().toISOString()
+    };
+
+    realtimeLogger.info('Menu health check passed', health);
+
+    return res.status(200).json(health);
+
+  } catch (error) {
+    const err = error as Error;
+
+    realtimeLogger.error('Menu health check failed', {
+      error: {
+        message: err.message,
+        stack: err.stack,
+        name: err.name
+      },
+      restaurantId: req.params['restaurantId'],
+      timestamp: new Date().toISOString()
+    });
+
+    return res.status(503).json({
+      status: 'unhealthy',
+      error: 'Failed to load menu data',
+      details: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
 
 /**
  * Create ephemeral token for WebRTC real-time voice connection
@@ -15,11 +178,26 @@ const realtimeLogger = logger.child({ module: 'realtime-routes' });
  */
 router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const restaurantId = req.restaurantId || req.headers['x-restaurant-id'] || 'default';
-    
+    const rawRestaurantId = (req.restaurantId || req.headers['x-restaurant-id'] || undefined) as string | undefined;
+    const restaurantId = resolveRestaurantId(rawRestaurantId);
+
+    // Validate resolved restaurant ID (should always be valid UUID from resolver)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!restaurantId || !uuidRegex.test(restaurantId)) {
+      realtimeLogger.error('Invalid restaurant ID after resolution', {
+        rawInput: rawRestaurantId,
+        resolved: restaurantId
+      });
+      return res.status(400).json({
+        error: 'Invalid restaurant identifier',
+        details: 'Restaurant ID must be provided as either UUID or valid slug'
+      });
+    }
+
     realtimeLogger.info('Creating ephemeral token for real-time session', {
       userId: req.user?.id,
-      restaurantId
+      restaurantId,
+      rawRestaurantId: rawRestaurantId !== restaurantId ? rawRestaurantId : undefined
     });
 
     // Load menu context for the restaurant
@@ -121,14 +299,50 @@ router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Res
           categories: Object.keys(menuByCategory),
           menuContextLength: menuContext.length
         });
+      } else {
+        // CRITICAL FIX: Menu data is empty - fail fast
+        // This handles cases where MenuService returns empty array instead of throwing
+        const userId = req.user?.id;
+        logMenuLoadFailure(new Error('No menu items found for restaurant'), {
+          restaurantId: restaurantId,
+          ...(userId && { userId }),
+          attemptedOperation: 'load_menu_for_voice_session'
+        });
+
+        realtimeLogger.error('Menu data empty - cannot proceed with voice session', {
+          restaurantId,
+          itemCount: menuData?.length || 0,
+          categoryCount: categories?.length || 0
+        });
+
+        return res.status(503).json({
+          error: 'Menu temporarily unavailable',
+          code: 'MENU_LOAD_FAILED',
+          details: 'No menu items found for this restaurant. Voice ordering requires menu data.'
+        });
       }
     } catch (error: any) {
-      realtimeLogger.warn('Failed to load menu context', {
+      // CRITICAL FIX: Fail fast instead of continuing with empty menu
+      // Enhanced error logging with full diagnostic context
+      const userId = req.user?.id;
+      logMenuLoadFailure(error, {
+        restaurantId: restaurantId,
+        ...(userId && { userId }),
+        attemptedOperation: 'load_menu_for_voice_session'
+      });
+
+      realtimeLogger.error('Failed to load menu context - cannot proceed', {
         error: error.message || 'Unknown error',
         stack: error.stack,
         restaurantId
       });
-      // Continue without menu context
+
+      // Return 503 Service Unavailable instead of continuing with empty menu
+      return res.status(503).json({
+        error: 'Menu temporarily unavailable',
+        code: 'MENU_LOAD_FAILED',
+        details: error.message || 'Unable to load restaurant menu data'
+      });
     }
 
     // Validate OpenAI API key before making request
@@ -205,10 +419,30 @@ router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Res
     
     return res.json(sessionData);
   } catch (error) {
-    realtimeLogger.error('Error creating ephemeral token:', error);
+    const err = error as Error;
+
+    // Enhanced structured error logging for session creation failures
+    realtimeLogger.error('Error creating ephemeral token', {
+      error: {
+        message: err.message,
+        stack: err.stack,
+        name: err.name
+      },
+      context: {
+        restaurantId: req.restaurantId || req.headers['x-restaurant-id'] || 'default',
+        userId: req.user?.id || 'anonymous',
+        timestamp: new Date().toISOString()
+      },
+      diagnostics: {
+        openaiKeyConfigured: !!env.OPENAI_API_KEY,
+        modelConfigured: !!env.OPENAI_REALTIME_MODEL,
+        errorType: err.constructor.name
+      }
+    });
+
     return res.status(500).json({
       error: 'Failed to create real-time session',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: err.message || 'Unknown error'
     });
   }
 });
