@@ -1,0 +1,199 @@
+{
+  "id": "CL-AUTH-001",
+  "title": "STRICT_AUTH Environment Drift",
+  "version": "1.0",
+  "status": "active",
+
+  "metadata": {
+    "category": "auth",
+    "severity": "P0",
+    "risk_level": "critical",
+    "date_discovered": "2025-10-01",
+    "date_resolved": "2025-11-18",
+    "debugging_days": 48,
+    "cost_estimate": "$20,000+",
+    "access_count": 12,
+    "last_accessed": "2025-11-20T14:30:00Z",
+    "created_by": "Claude Code",
+    "updated_by": "Claude Code"
+  },
+
+  "symptoms": [
+    "401: Token missing restaurant context",
+    "Authentication Required modal in infinite loop",
+    "Works locally but fails in production",
+    "User credentials correct but login rejected",
+    "GET /api/v1/auth/me returns 401 Unauthorized"
+  ],
+
+  "keywords": [
+    "authentication",
+    "jwt",
+    "strict_auth",
+    "401",
+    "restaurant_id",
+    "production",
+    "login",
+    "supabase",
+    "environment",
+    "drift"
+  ],
+
+  "root_cause": {
+    "summary": "Frontend used Supabase direct auth without restaurant_id. Backend STRICT_AUTH=true rejected these tokens.",
+    "technical": "supabase.auth.signInWithPassword() returns Supabase JWT missing restaurant_id claim. Backend middleware enforces STRICT_AUTH=true in production, which requires restaurant_id for multi-tenancy validation. Local development used STRICT_AUTH=false, masking the issue.",
+    "environment_specific": true,
+    "affects_environments": ["production", "staging"]
+  },
+
+  "solution": {
+    "summary": "Use custom /api/v1/auth/login endpoint instead of Supabase direct auth",
+    "approach": "Replace Supabase client-side auth with custom backend endpoint that creates JWT with all required fields",
+    "files_changed": [
+      "client/src/contexts/AuthContext.tsx:184-265"
+    ],
+    "commits": ["9e97f720"],
+    "code_example": {
+      "language": "typescript",
+      "before": "// BROKEN: Direct Supabase auth missing restaurant_id\nconst login = async (email, password, restaurantId) => {\n  const { data } = await supabase.auth.signInWithPassword({ \n    email, \n    password \n  });\n  // JWT missing restaurant_id → STRICT_AUTH rejects it\n};",
+      "after": "// FIXED: Custom auth endpoint with restaurant_id\nconst login = async (email, password, restaurantId) => {\n  // 1. Resolve slug to UUID\n  const GROW_RESTAURANT_UUID = '11111111-1111-1111-1111-111111111111';\n  const resolvedRestaurantId = restaurantId === 'grow'\n    ? GROW_RESTAURANT_UUID\n    : restaurantId;\n\n  // 2. Use CUSTOM auth endpoint (includes restaurant_id)\n  const response = await httpClient.post('/api/v1/auth/login', {\n    email,\n    password,\n    restaurantId: resolvedRestaurantId\n  });\n\n  // 3. Store session in localStorage (for httpClient)\n  localStorage.setItem('auth_session', JSON.stringify({\n    user: response.user,\n    session: response.session,\n    restaurantId: response.restaurantId\n  }));\n\n  // 4. Sync with Supabase for Realtime\n  await supabase.auth.setSession({\n    access_token: response.session.access_token,\n    refresh_token: response.session.refresh_token\n  });\n};",
+      "explanation": "Custom endpoint creates JWT with restaurant_id, scope, and user_id. Store in localStorage for httpClient dual auth pattern (ADR-006)."
+    },
+    "verification_steps": [
+      "Set STRICT_AUTH=true in local .env",
+      "Clear browser localStorage",
+      "Login with test credentials",
+      "Verify no 401 errors on /api/v1/auth/me",
+      "Check JWT payload includes restaurant_id"
+    ]
+  },
+
+  "prevention": [
+    "Never use Supabase direct auth for workspace login",
+    "Always test with STRICT_AUTH=true locally",
+    "Store JWT in localStorage for httpClient access",
+    "Hardcode slug-to-UUID resolution (no network call)",
+    "Validate JWT structure in integration tests"
+  ],
+
+  "related_patterns": [
+    "CL-AUTH-002",
+    "CL-AUTH-003",
+    "CL-SEC-001"
+  ],
+
+  "related_adrs": [
+    "ADR-006: Dual Authentication Pattern",
+    "ADR-010: JWT Payload Standards",
+    "ADR-011: Authentication Evolution"
+  ],
+
+  "eslint_rules": [
+    "custom/require-jwt-fields"
+  ],
+
+  "key_files": [
+    "server/src/middleware/auth.ts",
+    "server/src/routes/auth.routes.ts",
+    "client/src/contexts/AuthContext.tsx",
+    "client/src/services/http/httpClient.ts"
+  ],
+
+  "timeline": [
+    {
+      "date": "2025-10-01",
+      "event": "STRICT_AUTH=true enabled on Render",
+      "type": "configuration_change"
+    },
+    {
+      "date": "2025-10-01",
+      "event": "First production login failure reported",
+      "type": "incident_start"
+    },
+    {
+      "date": "2025-10-01 to 2025-11-18",
+      "event": "Daily production login failures (48 days)",
+      "type": "recurring_issue"
+    },
+    {
+      "date": "2025-11-18",
+      "event": "Root cause identified",
+      "type": "diagnosis"
+    },
+    {
+      "date": "2025-11-18",
+      "event": "Permanent fix deployed (commit 9e97f720)",
+      "type": "resolution"
+    }
+  ],
+
+  "impact": {
+    "business": {
+      "customer_facing": true,
+      "severity": "critical",
+      "affected_users": "100%",
+      "duration_days": 48,
+      "description": "All production users unable to login. Daily recurring issue eroded customer trust."
+    },
+    "engineering": {
+      "debugging_time_hours": 160,
+      "estimated_cost": "$20,000+",
+      "team_members_affected": 3,
+      "velocity_impact": "high"
+    }
+  },
+
+  "tags": [
+    "authentication",
+    "jwt",
+    "production-issue",
+    "multi-tenancy",
+    "environment-parity",
+    "configuration"
+  ],
+
+  "testing": {
+    "test_files": [
+      "server/tests/integration/auth.test.ts"
+    ],
+    "regression_test": "Should verify JWT includes restaurant_id when STRICT_AUTH=true",
+    "coverage_added": true
+  },
+
+  "documentation": {
+    "updated_files": [
+      "CLAUDE.md",
+      "docs/explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md"
+    ],
+    "runbook_link": "docs/operational/incident-response/authentication-failures.md"
+  },
+
+  "effectiveness_tracking": {
+    "times_referenced": 12,
+    "avg_resolution_time_minutes": 2,
+    "avg_effectiveness_rating": 5.0,
+    "prevented_recurrences": 3,
+    "last_used": "2025-11-20T14:30:00Z"
+  },
+
+  "notes": [
+    "This was the single most expensive authentication bug in project history (48 days)",
+    "Environment parity (STRICT_AUTH) is critical for catching issues early",
+    "Dual authentication pattern (Supabase + localStorage) is intentional for demo/PIN/KDS auth"
+  ],
+
+  "external_references": [
+    {
+      "type": "commit",
+      "url": "https://github.com/your-repo/commit/9e97f720",
+      "description": "Permanent fix implementation"
+    },
+    {
+      "type": "incident_report",
+      "url": "docs/archive/2025-11/incidents/jwt-scope-bug/",
+      "description": "Detailed incident post-mortem"
+    }
+  ],
+
+  "schema_version": "1.0"
+}

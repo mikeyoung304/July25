@@ -1,6 +1,69 @@
+---
+triggers:
+  - symptom: "test.*fail.*timeout"
+    confidence: high
+    lesson_refs: ["06-testing-quality-issues/LESSONS.md#ci-infrastructure-failures"]
+    category: "06"
+
+  - symptom: "E2E.*waiting for.*data-testid"
+    confidence: high
+    lesson_refs: ["06-testing-quality-issues/LESSONS.md#playwright-e2e"]
+    category: "06"
+
+  - symptom: "Missing.*\\.env\\.example|Missing required environment variables"
+    confidence: high
+    lesson_refs: ["05-build-deployment-issues/LESSONS.md#env-validation"]
+    category: "05"
+
+  - symptom: "process\\.exit unexpectedly called"
+    confidence: high
+    lesson_refs: ["06-testing-quality-issues/LESSONS.md#test-patterns"]
+    category: "06"
+
+  - symptom: "401.*[Uu]nauthorized|Authentication.*[Rr]equired"
+    confidence: high
+    lesson_refs: ["01-auth-authorization-issues/LESSONS.md#cl-auth-001"]
+    category: "01"
+
+  - symptom: "JWT.*missing|restaurant_id.*missing"
+    confidence: high
+    lesson_refs: ["01-auth-authorization-issues/LESSONS.md#cl-auth-001"]
+    category: "01"
+
+  - symptom: "[Ww]eb[Ss]ocket.*timeout|[Ww]eb[Ss]ocket.*connection.*fail"
+    confidence: high
+    lesson_refs: ["04-realtime-websocket-issues/LESSONS.md#websocket-patterns"]
+    category: "04"
+
+  - symptom: "hydration.*error|hydration.*mismatch"
+    confidence: high
+    lesson_refs: ["03-react-ui-ux-issues/LESSONS.md#hydration-errors"]
+    category: "03"
+
+  - symptom: "memory leak|heap.*out of memory"
+    confidence: high
+    lesson_refs: ["08-performance-optimization-issues/LESSONS.md#memory-leaks"]
+    category: "08"
+
+  - symptom: "migration.*fail|schema.*drift"
+    confidence: high
+    lesson_refs: ["02-database-supabase-issues/LESSONS.md#migration-patterns"]
+    category: "02"
+
+  - symptom: "STRICT_AUTH"
+    confidence: high
+    lesson_refs: ["01-auth-authorization-issues/LESSONS.md#cl-auth-001"]
+    category: "01"
+
+  - symptom: "build.*fail|deployment.*fail|vercel.*error"
+    confidence: high
+    lesson_refs: ["05-build-deployment-issues/LESSONS.md"]
+    category: "05"
+---
+
 # Uncle Claude - Lessons System Memory Agent
 
-**Version**: 2.1.0 (Optimized for Immediate Action)
+**Version**: 3.0.0 (v4 Enhanced with YAML Triggers)
 **Purpose**: Augment memory by retrieving or creating lessons from past debugging sessions
 
 ## ⚡ IMMEDIATE FIRST STEPS

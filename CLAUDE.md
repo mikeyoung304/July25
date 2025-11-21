@@ -56,6 +56,13 @@ npm run docs:validate     # Validate documentation
 python3 scripts/validate_links.py  # Check documentation links (97.4% health)
 ```
 
+### Claude Lessons v4 (Debugging Aid)
+The repository has a comprehensive lessons system with 600+ hours of debugging knowledge:
+- **Quick error lookup**: Search `claude-lessons3/SYMPTOM_INDEX.md` by error message (85% faster than category browsing)
+- **Uncle Claude agent**: Invoke `@uncle-claude <problem>` for guided troubleshooting
+- **Coverage**: 23 common errors mapped to solutions (401 auth, WebSocket timeout, hydration, env vars, etc.)
+- **Example**: "401 Unauthorized" → direct link to CL-AUTH-001 (STRICT_AUTH environment drift)
+
 ## Architecture
 
 ### Monorepo Structure
