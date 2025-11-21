@@ -1,6 +1,7 @@
 /* eslint-env browser */
 import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { LRUCache } from 'lru-cache';
+import { logger } from '../../../services/logger';
 
 /**
  * Interface for event types from OpenAI Realtime API
@@ -122,7 +123,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
     max: 50, // Keep last 50 conversation items
     dispose: (value, key, reason) => {
       if (this.config.debug) {
-        console.log('[VoiceEventHandler] Evicting old transcript', { key, reason });
+        logger.debug('[VoiceEventHandler] Evicting old transcript', { key, reason });
       }
     }
   });
@@ -233,7 +234,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
     const logPrefix = `[RT] t=${this.turnId}#${String(this.eventIndex).padStart(2, '0')}`;
 
     // CRITICAL: Log EVERY event to diagnose transcription issue
-    console.log(`🔔 [VoiceEventHandler] ${event.type}`, event);
+    logger.debug(`🔔 [VoiceEventHandler] ${event.type}`, event);
 
     if (this.config.debug) {
       // Debug: `${logPrefix} ${event.type}`, event
@@ -270,12 +271,12 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
         break;
 
       case 'conversation.item.input_audio_transcription.delta':
-        console.log(`📝 [VoiceEventHandler] Got transcript delta:`, event.delta);
+        logger.debug(`📝 [VoiceEventHandler] Got transcript delta:`, event.delta);
         this.handleTranscriptDelta(event, logPrefix);
         break;
 
       case 'conversation.item.input_audio_transcription.completed':
-        console.log(`✅ [VoiceEventHandler] Got transcript completed:`, event.transcript);
+        logger.debug(`✅ [VoiceEventHandler] Got transcript completed:`, event.transcript);
         this.handleTranscriptCompleted(event, logPrefix);
         break;
 
@@ -296,7 +297,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
         break;
 
       case 'response.text.done':
-        console.log(`📄 [VoiceEventHandler] Got response.text.done:`, event.text);
+        logger.debug(`📄 [VoiceEventHandler] Got response.text.done:`, event.text);
         // Text response completed - emit for display
         if (event.text) {
           this.emit('response.text', event.text);
@@ -349,7 +350,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
 
       default:
         // Log truly unhandled events
-        console.log(`⚠️ [VoiceEventHandler] Unhandled event: ${event.type}`, event);
+        logger.warn(`⚠️ [VoiceEventHandler] Unhandled event: ${event.type}`, event);
     }
   }
 
@@ -370,7 +371,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Emitted when session configuration is updated
    */
   private handleSessionUpdated(event: any, logPrefix: string): void {
-    console.log('✅ [VoiceEventHandler] session.updated received from OpenAI - config accepted!', {
+    logger.info('✅ [VoiceEventHandler] session.updated received from OpenAI - config accepted!', {
       hasTools: event.session?.tools?.length > 0,
       toolsCount: event.session?.tools?.length || 0,
       instructionsLength: event.session?.instructions?.length || 0
@@ -724,13 +725,26 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    */
   sendEvent(event: any): void {
     if (this.dcReady && this.dc && this.dc.readyState === 'open') {
-      this.dc.send(JSON.stringify(event));
+      try {
+        const payload = JSON.stringify(event);
 
-      const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
-      if (this.config.debug) {
-        // Debug: `${logPrefix} Sent: ${event.type}`
-      } else {
-        // Debug: `${logPrefix} → ${event.type}`
+        // Warn if payload is too large (OpenAI likely rejects >50KB)
+        if (payload.length > 50000) {
+          console.error(`[VoiceEventHandler] Event payload too large: ${payload.length} bytes (>50KB). OpenAI may reject this.`);
+        }
+
+        this.dc.send(payload);
+
+        const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
+        if (this.config.debug) {
+          // Debug: `${logPrefix} Sent: ${event.type}`
+        } else {
+          // Debug: `${logPrefix} → ${event.type}`
+        }
+      } catch (error) {
+        console.error('[VoiceEventHandler] Failed to send event:', error);
+        console.error('[VoiceEventHandler] Event that failed:', event.type);
+        this.emit('error', new Error(`Failed to send ${event.type}: ${error instanceof Error ? error.message : 'Unknown error'}`));
       }
     } else {
       // Queue the message for later

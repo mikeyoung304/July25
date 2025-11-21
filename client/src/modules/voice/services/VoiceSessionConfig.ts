@@ -253,8 +253,8 @@ export class VoiceSessionConfig extends EventEmitter implements IVoiceSessionCon
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
       input_audio_transcription: {
-        model: 'gpt-4o-transcribe' // FIXED 2025-01-18: OpenAI deprecated whisper-1 for Realtime API
-        // Language auto-detected by gpt-4o-transcribe - no need to specify
+        model: 'gpt-4o-transcribe', // FIXED 2025-01-18: OpenAI deprecated whisper-1 for Realtime API
+        language: 'en' // Force English transcription (prevent Spanish auto-detection)
       },
       turn_detection: turnDetection,
       temperature: 0.6, // Minimum temperature for Realtime API
