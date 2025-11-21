@@ -6,7 +6,7 @@ import { HoldToRecordButton } from './HoldToRecordButton';
 import { TranscriptionDisplay } from './TranscriptionDisplay';
 import { VoiceDebugPanel } from './VoiceDebugPanel';
 import { AlertCircle, Mic, MicOff } from 'lucide-react';
-import { logger } from '@/utils/logger';
+import { logger } from '@/services/logger';
 import { toast } from 'react-hot-toast';
 
 interface VoiceControlWebRTCProps {
