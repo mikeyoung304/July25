@@ -2,6 +2,7 @@ import { logger } from '../utils/logger';
 import { WebSocket } from 'ws';
 import { ai } from '../ai';
 import { MenuService } from './menu.service';
+import { env } from '../config/env';
 
 const aiLogger = logger.child({ service: 'AIService' });
 
@@ -86,7 +87,7 @@ export class AIService {
   /**
    * Stop recording and transcribe using OpenAI
    */
-  async stopRecording(connectionId: string, _restaurantId: string = 'default'): Promise<TranscriptionResult> {
+  async stopRecording(connectionId: string, _restaurantId?: string): Promise<TranscriptionResult> {
     const state = this.connections.get(connectionId);
     if (!state || !state.isRecording) {
       return { success: false, error: 'Not recording' };
@@ -205,7 +206,7 @@ export class AIService {
    * Transcribe audio file using OpenAI (with metadata)
    * This method is used for the /transcribe-with-metadata endpoint
    */
-  async transcribeAudioFile(audioBuffer: Buffer, mimeType: string, _restaurantId: string = 'default'): Promise<TranscriptionResult> {
+  async transcribeAudioFile(audioBuffer: Buffer, mimeType: string, _restaurantId?: string): Promise<TranscriptionResult> {
     try {
       const transcriptionResult = await ai.transcriber.transcribe(audioBuffer, {
         model: mimeType
@@ -240,7 +241,8 @@ export class AIService {
    * Process voice audio and return MP3 response
    * This method transcribes audio, generates a chat response, then converts to speech
    */
-  async processVoiceAudio(audioBuffer: Buffer, mimeType: string, restaurantId: string = 'default'): Promise<Buffer> {
+  async processVoiceAudio(audioBuffer: Buffer, mimeType: string, restaurantId?: string): Promise<Buffer> {
+    const resolvedRestaurantId = restaurantId || env.DEFAULT_RESTAURANT_ID;
     try {
       // Step 1: Transcribe the audio
       const transcriptionResult = await ai.transcriber.transcribe(audioBuffer, {
@@ -255,7 +257,7 @@ export class AIService {
       const chatResponse = await ai.chat.respond([
         { role: 'user', content: transcriptionResult.text }
       ], {
-        context: { restaurantId }
+        context: { restaurantId: resolvedRestaurantId }
       });
 
       // Step 3: Convert response to speech
@@ -264,7 +266,7 @@ export class AIService {
       });
 
       aiLogger.info('OpenAI voice processing completed', {
-        restaurantId,
+        restaurantId: resolvedRestaurantId,
         transcript: transcriptionResult.text.substring(0, 50) + '...',
         responseLength: chatResponse.message.length,
         audioSize: ttsResult.audio.length
@@ -323,13 +325,14 @@ export class AIService {
   /**
    * Process chat message using OpenAI
    */
-  async chat(message: string, restaurantId: string = 'default', userId?: string): Promise<string> {
+  async chat(message: string, restaurantId?: string, userId?: string): Promise<string> {
+    const resolvedRestaurantId = restaurantId || env.DEFAULT_RESTAURANT_ID;
     try {
       const response = await ai.chat.respond([
         { role: 'user', content: message }
       ], {
         context: {
-          restaurantId,
+          restaurantId: resolvedRestaurantId,
           ...(userId && { userId })
         }
       });

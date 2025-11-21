@@ -4,6 +4,7 @@ import { supabase } from '../config/database';
 import { AuthenticatedRequest, authenticate } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
+import { slugResolver } from '../middleware/slugResolver';
 import { TableStatus } from '../../../shared/types/table.types';
 
 const router = Router();
@@ -11,7 +12,7 @@ const router = Router();
 // Get all tables for a restaurant
 export const getTables = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
-    const restaurantId = req.headers['x-restaurant-id'] as string;
+    const restaurantId = req.restaurantId!;
     
     const { data, error } = await supabase
       .from('tables')
@@ -40,7 +41,7 @@ export const getTables = async (req: AuthenticatedRequest, res: Response, next: 
 // Get single table
 export const getTable = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
-    const restaurantId = req.headers['x-restaurant-id'] as string;
+    const restaurantId = req.restaurantId!;
     const { id } = req.params;
     
     const { data, error } = await supabase
@@ -75,7 +76,7 @@ interface CreateTableBody {
 // Create new table
 export const createTable = async (req: AuthenticatedRequest & { body: CreateTableBody }, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
-    const restaurantId = req.headers['x-restaurant-id'] as string;
+    const restaurantId = req.restaurantId!;
     const { x, y, type, z_index, ...otherData } = req.body;
     
     // Transform frontend properties to database columns
@@ -126,7 +127,7 @@ interface UpdateTableBody {
 // Update table
 export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTableBody }, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
-    const restaurantId = req.headers['x-restaurant-id'] as string;
+    const restaurantId = req.restaurantId!;
     const { id } = req.params;
     const updates = req.body;
     
@@ -181,7 +182,7 @@ export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTabl
 // Delete table (soft delete)
 export const deleteTable = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
-    const restaurantId = req.headers['x-restaurant-id'] as string;
+    const restaurantId = req.restaurantId!;
     const { id } = req.params;
     
     const { data, error } = await supabase
@@ -211,7 +212,7 @@ interface UpdateTableStatusBody {
 // Update table status
 export const updateTableStatus = async (req: AuthenticatedRequest & { body: UpdateTableStatusBody }, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
-    const restaurantId = req.headers['x-restaurant-id'] as string;
+    const restaurantId = req.restaurantId!;
     const { id } = req.params;
     const { status, orderId } = req.body;
     
@@ -256,7 +257,7 @@ interface BatchUpdateTablesBody {
 // Batch update tables (for floor plan editor)
 export const batchUpdateTables = async (req: AuthenticatedRequest & { body: BatchUpdateTablesBody }, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
-    const restaurantId = req.headers['x-restaurant-id'] as string;
+    const restaurantId = req.restaurantId!;
     
     logger.info('Batch update request received:', {
       restaurantId,
@@ -376,13 +377,13 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
 };
 
 // Set up routes with proper middleware chain
-// Order: authenticate -> validateRestaurantAccess -> requireScopes (for mutations)
-router.get('/', authenticate, validateRestaurantAccess, getTables);
-router.get('/:id', authenticate, validateRestaurantAccess, getTable);
-router.post('/', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), createTable);
-router.put('/batch', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), batchUpdateTables);
-router.put('/:id', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), updateTable);
-router.delete('/:id', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), deleteTable);
-router.patch('/:id/status', authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), updateTableStatus);
+// Order: slugResolver -> authenticate -> validateRestaurantAccess -> requireScopes (for mutations)
+router.get('/', slugResolver, authenticate, validateRestaurantAccess, getTables);
+router.get('/:id', slugResolver, authenticate, validateRestaurantAccess, getTable);
+router.post('/', slugResolver, authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), createTable);
+router.put('/batch', slugResolver, authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), batchUpdateTables);
+router.put('/:id', slugResolver, authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), updateTable);
+router.delete('/:id', slugResolver, authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), deleteTable);
+router.patch('/:id/status', slugResolver, authenticate, validateRestaurantAccess, requireScopes(ApiScope.TABLES_MANAGE), updateTableStatus);
 
 export { router as tableRoutes };

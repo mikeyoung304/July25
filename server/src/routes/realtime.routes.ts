@@ -429,7 +429,7 @@ router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Res
         name: err.name
       },
       context: {
-        restaurantId: req.restaurantId || req.headers['x-restaurant-id'] || 'default',
+        restaurantId: req.restaurantId || req.headers['x-restaurant-id'] || env.DEFAULT_RESTAURANT_ID,
         userId: req.user?.id || 'anonymous',
         timestamp: new Date().toISOString()
       },

@@ -9,6 +9,7 @@ import { validateRequest } from '../middleware/validation';
 import { menuUploadSchema, parseOrderSchema } from '../validation/ai.validation';
 import { trackAIMetrics } from '../middleware/metrics';
 import { MenuService } from '../services/menu.service';
+import { env } from '../config/env';
 
 const router = Router();
 
@@ -20,7 +21,7 @@ const aiLogger = logger.child({ module: 'ai-routes' });
  */
 router.post('/menu', aiServiceLimiter, authenticate, requireRole(['admin', 'manager']), validateRequest(menuUploadSchema), async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const restaurantId = req.restaurantId || 'default';
+    const restaurantId = req.restaurantId || env.DEFAULT_RESTAURANT_ID;
 
     // Load menu from local database for AI processing
     await aiService.syncMenuFromDatabase(restaurantId);
@@ -94,8 +95,8 @@ router.post('/transcribe', transcriptionLimiter, trackAIMetrics('transcribe'), a
       });
     }
 
-    const restaurantId = req.headers['x-restaurant-id'] as string || 'default';
-    
+    const restaurantId = req.headers['x-restaurant-id'] as string || env.DEFAULT_RESTAURANT_ID;
+
     aiLogger.info('Voice processing requested', {
       restaurantId,
       fileSize: req.file.size,
@@ -149,8 +150,8 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, trackAIMetrics('t
     }
 
     // Use AI service for metadata response (if available)
-    const restaurantId = req.headers['x-restaurant-id'] as string || 'default';
-    
+    const restaurantId = req.headers['x-restaurant-id'] as string || env.DEFAULT_RESTAURANT_ID;
+
     aiLogger.info('Voice processing with metadata requested', {
       restaurantId,
       fileSize: req.file.size,
@@ -199,7 +200,7 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, trackAIMetrics('t
 router.post('/parse-order', aiServiceLimiter, trackAIMetrics('parse-order'), authenticate, validateRequest(parseOrderSchema), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { text } = req.body; // Already validated by middleware
-    const restaurantId = req.restaurantId || 'default';
+    const restaurantId = req.restaurantId || env.DEFAULT_RESTAURANT_ID;
 
     aiLogger.info('Order parsing requested via OpenAI', {
       restaurantId,
@@ -255,8 +256,8 @@ router.post('/voice-chat', aiServiceLimiter, trackAIMetrics('voice-chat'), authe
       });
     }
 
-    const restaurantId = req.restaurantId || 'default';
-    
+    const restaurantId = req.restaurantId || env.DEFAULT_RESTAURANT_ID;
+
     aiLogger.info('Voice chat request via OpenAI', {
       restaurantId,
       userId: req.user?.id,
@@ -431,7 +432,7 @@ Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
 router.post('/chat', aiServiceLimiter, trackAIMetrics('chat'), authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { message } = req.body;
-    const restaurantId = req.restaurantId || 'default';
+    const restaurantId = req.restaurantId || env.DEFAULT_RESTAURANT_ID;
     
     if (!message || typeof message !== 'string') {
       res.set('Cache-Control', 'no-store');
