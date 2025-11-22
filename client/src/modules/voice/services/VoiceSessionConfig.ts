@@ -379,6 +379,7 @@ ENTRÉES → Ask:
 
     // Add menu context if available
     if (this.menuContext) {
+      instructions += `\n\n⚠️ CRITICAL: You have access to our COMPLETE MENU below. ONLY suggest items from this menu. DO NOT invent or suggest items not listed.`;
       instructions += this.menuContext;
     } else {
       instructions += `\n\nNote: Menu information is currently unavailable. Please ask the customer what they'd like and I'll do my best to help.`;
