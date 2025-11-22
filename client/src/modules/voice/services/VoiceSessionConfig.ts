@@ -378,6 +378,7 @@ ENTRÉES → Ask:
 - "Let me help you with our menu. Any starters today?"`;
 
     // Add menu context if available
+    // FIX 2025-11-22: Added explicit instruction to tell AI to USE the menu
     if (this.menuContext) {
       instructions += `\n\n⚠️ CRITICAL: You have access to our COMPLETE MENU below. ONLY suggest items from this menu. DO NOT invent or suggest items not listed.`;
       instructions += this.menuContext;
