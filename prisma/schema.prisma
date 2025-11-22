@@ -570,24 +570,26 @@ model payment_audit_logs {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model restaurants {
-  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                 String
-  slug                 String                 @unique
-  timezone             String?                @default("America/New_York")
-  settings             Json?                  @default("{}")
-  active               Boolean?               @default(true)
-  created_at           DateTime?              @default(now()) @db.Timestamptz(6)
-  updated_at           DateTime?              @default(now()) @db.Timestamptz(6)
-  tax_rate             Decimal                @default(0.08) @db.Decimal(5, 4)
-  menu_categories      menu_categories[]
-  menu_items           menu_items[]
-  order_status_history order_status_history[]
-  orders               orders[]
-  station_tokens       station_tokens[]
-  tables               tables[]
-  user_pins            user_pins[]            @ignore
-  user_restaurants     user_restaurants[]
-  voice_order_logs     voice_order_logs[]
+  id                                                                               String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                                                                             String
+  slug                                                                             String                 @unique
+  timezone                                                                         String?                @default("America/New_York")
+  settings                                                                         Json?                  @default("{}")
+  active                                                                           Boolean?               @default(true)
+  created_at                                                                       DateTime?              @default(now()) @db.Timestamptz(6)
+  updated_at                                                                       DateTime?              @default(now()) @db.Timestamptz(6)
+  tax_rate                                                                         Decimal                @default(0.08) @db.Decimal(5, 4)
+  menu_categories                                                                  menu_categories[]
+  menu_items                                                                       menu_items[]
+  order_status_history                                                             order_status_history[]
+  orders                                                                           orders[]
+  security_audit_logs_security_audit_logs_attempted_restaurant_idTorestaurants     security_audit_logs[]  @relation("security_audit_logs_attempted_restaurant_idTorestaurants")
+  security_audit_logs_security_audit_logs_authenticated_restaurant_idTorestaurants security_audit_logs[]  @relation("security_audit_logs_authenticated_restaurant_idTorestaurants")
+  station_tokens                                                                   station_tokens[]
+  tables                                                                           tables[]
+  user_pins                                                                        user_pins[]        @ignore
+  user_restaurants                                                                 user_restaurants[]
+  voice_order_logs                                                                 voice_order_logs[]
 
   @@index([tax_rate], map: "idx_restaurants_tax_rate")
   @@schema("public")
@@ -717,22 +719,26 @@ model voice_order_logs {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model security_audit_logs {
-  id                          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  event_type                  String
-  user_id                     String
-  authenticated_restaurant_id String
-  attempted_restaurant_id     String
-  session_id                  String?
-  ip_address                  String?
-  user_agent                  String?
-  severity                    String
-  created_at                  DateTime @default(now()) @db.Timestamptz(6)
+  id                                                                       String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  event_type                                                               String
+  user_id                                                                  String
+  authenticated_restaurant_id                                              String      @db.Uuid
+  attempted_restaurant_id                                                  String      @db.Uuid
+  session_id                                                               String?
+  ip_address                                                               String?
+  user_agent                                                               String?
+  severity                                                                 String
+  created_at                                                               DateTime    @default(now()) @db.Timestamptz(6)
+  restaurants_security_audit_logs_attempted_restaurant_idTorestaurants     restaurants @relation("security_audit_logs_attempted_restaurant_idTorestaurants", fields: [attempted_restaurant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_security_audit_attempted_restaurant")
+  restaurants_security_audit_logs_authenticated_restaurant_idTorestaurants restaurants @relation("security_audit_logs_authenticated_restaurant_idTorestaurants", fields: [authenticated_restaurant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_security_audit_authenticated_restaurant")
 
   @@index([created_at(sort: Desc)], map: "idx_security_audit_created_at")
   @@index([event_type], map: "idx_security_audit_event_type")
   @@index([authenticated_restaurant_id, created_at(sort: Desc)], map: "idx_security_audit_restaurant_time")
   @@index([severity], map: "idx_security_audit_severity")
   @@index([user_id], map: "idx_security_audit_user_id")
+  @@index([attempted_restaurant_id], map: "idx_security_audit_logs_attempted_restaurant_id")
+  @@index([authenticated_restaurant_id], map: "idx_security_audit_logs_restaurant_id")
   @@schema("public")
 }
 
