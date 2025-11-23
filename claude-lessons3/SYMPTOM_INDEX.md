@@ -1,10 +1,34 @@
 # Symptom Index - Quick Error Lookup
 
 **Version**: 1.0.0 (Phase 1 - v4 Enhancement)
-**Last Updated**: 2025-11-20
+**Last Updated**: 2025-11-23
 **Purpose**: Map error messages → direct lesson links for 85% faster retrieval
 
 > **How to Use**: Search this page (Ctrl+F / Cmd+F) for your error message or symptom. Click the lesson link for the full solution.
+
+---
+
+## Voice Ordering
+
+### "Voice agent has no menu knowledge" OR "Agent says 'what menu are you talking about?'"
+**Root Cause**: OpenAI ephemeral token created without instructions - client session.update ignored
+**Solution**: [07-api-integration-issues/LESSONS.md](./07-api-integration-issues/LESSONS.md#inc-008-openai-session-config-ignored)
+**Quick Fix**: Include instructions + menu context when creating ephemeral token on backend
+**Category**: 07 - API Integration
+**Cost if Ignored**: $2,250 + lost voice ordering revenue
+
+### "Voice agent responds in Spanish" (when business is English-only)
+**Root Cause**: Same as above - OpenAI defaults don't enforce language
+**Solution**: [07-api-integration-issues/LESSONS.md](./07-api-integration-issues/LESSONS.md#inc-008-openai-session-config-ignored)
+**Quick Fix**: Backend must configure instructions at token creation
+**Category**: 07 - API Integration
+
+### "Voice ordering button does nothing" (no network requests)
+**Root Cause**: Frontend auth check blocks kiosk mode (public users)
+**Solution**: [07-api-integration-issues/LESSONS.md](./07-api-integration-issues/LESSONS.md#inc-007-voice-authentication-blocking-kiosk)
+**Quick Fix**: Wrap auth in try/catch, allow null for kiosk context
+**Category**: 07 - API Integration
+**Cost if Ignored**: $1,350 + feature completely broken
 
 ---
 

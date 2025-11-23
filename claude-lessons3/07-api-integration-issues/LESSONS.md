@@ -23,8 +23,9 @@
 | [INC-005](#inc-005-voice-webrtc-race-condition) | Nov 10, 2025 | P0 | $1,050 | OpenAI |  Resolved |
 | [INC-006](#inc-006-environment-variable-newlines) | Nov 7, 2025 | P1 | $600 | Internal |  Resolved |
 | [INC-007](#inc-007-voice-authentication-blocking-kiosk) | Nov 23, 2025 | P0 | $1,350 | Internal |  Resolved |
+| [INC-008](#inc-008-openai-session-config-ignored) | Nov 23, 2025 | P0 | $2,250 | OpenAI |  Resolved |
 
-**Total Cost:** $11,100 for top 7 incidents
+**Total Cost:** $13,350 for top 8 incidents
 
 ---
 
@@ -823,10 +824,12 @@ if (apiKey.includes('\n') || apiKey.includes('\\n') || apiKey.includes('\r')) {
 | INC-004: Square Audit Race | 10 | $1,500 |
 | INC-005: Voice WebRTC Race | 7 | $1,050 |
 | INC-006: Env Var Newlines | 4 | $600 |
-| **Total** | **65** | **$9,750** |
+| INC-007: Voice Auth Blocking | 9 | $1,350 |
+| INC-008: Session Config Ignored | 15 | $2,250 |
+| **Total** | **89** | **$13,350** |
 
 ### Incident Categories
-- **Silent API Changes:** 1 incident (15%)
+- **Silent API Changes:** 1 incident (13%)
 - **State Synchronization:** 1 incident (15%)
 - **Timeout Issues:** 1 incident (15%)
 - **Race Conditions:** 2 incidents (31%)
@@ -2385,6 +2388,291 @@ if (voiceSessionState === 'preparing' && timeElapsed > 15000) {
 
 **Meta-Lesson:**
 Speculation costs 6 hours. Browser diagnostics cost 30 minutes. Use tools.
+
+---
+
+## INC-008: OpenAI Session Config Ignored
+
+### Overview
+| Field | Value |
+|-------|-------|
+| **Date** | November 23, 2025 |
+| **Duration** | 15 hours (9h menu debugging + 6h root cause) |
+| **Severity** | P0 - Complete feature failure |
+| **Cost** | $2,250 (15 hours × $150/hr) |
+| **Provider** | OpenAI Realtime API |
+| **Commits** | 848042cf, 8b112819, f1d98bc7, 6575f231 |
+
+### Timeline
+
+**November 22, 2025 - Evening:**
+- User reports: "voice agent has no menu knowledge and speaks Spanish"
+- Agent has full menu context loaded (5881 chars)
+- Frontend logs show `hasMenuContext: true`
+- Agent should know menu items, but asks "what menu are you talking about?"
+
+**November 23, 2025 - 8:00 AM:**
+- Agent investigates language enforcement in instructions
+- Changes from polite directive to ALL CAPS "CRITICAL SYSTEM DIRECTIVE: SPEAK ONLY IN ENGLISH"
+- Commit 848042cf - No change in behavior
+
+**8:00 AM - 11:00 AM (3 hours):**
+- Discover race condition: Users can speak BEFORE session.update sent
+- Implement `isSessionConfigured` flag to block recording until configured
+- Commit 6411f91d - Fixes race condition, but menu still unknown
+
+**11:00 AM - 2:00 PM (3 hours):**
+- Add VoiceEventHandler event emission for session.updated
+- Add production logging (console.log vs logger.debug)
+- Discover OpenAI doesn't send session.updated confirmation
+- Change to set flag immediately after sending session.update
+- Commits d850ce15, 41dc789f, 2516f111 - Still no menu knowledge
+
+**2:00 PM - 3:00 PM (1 hour):**
+- Realize problem: Agent treats menu as "reference material" not core knowledge
+- Change instructions: "THIS IS YOUR MENU - YOU ARE THE MENU EXPERT. NEVER ask 'what menu'"
+- Commit 8b112819 - Still no change
+
+**3:00 PM - 4:00 PM (1 hour):**
+- Add Jamaican greeting for deployment verification
+- "Welcome to Grow Restaurant, mon!" - will prove if new instructions load
+- Commit f1d98bc7 - Instructions grow from 5881 to 6515 chars
+- Frontend logs confirm new code deployed, but agent has no greeting
+
+**4:00 PM - CRITICAL DISCOVERY:**
+- Test backend endpoint: `curl https://july25.onrender.com/api/v1/realtime/session`
+- Response shows: `"instructions": "Your knowledge cutoff is 2023-10. You are a helpful, witty, and friendly AI..."`
+- **This is OpenAI's DEFAULT instructions, NOT our custom ones!**
+- Frontend session.update being IGNORED by OpenAI
+
+**4:00 PM - 5:00 PM (1 hour):**
+- Analyze OpenAI Realtime API behavior
+- **Root Cause**: Ephemeral tokens with NO instructions → OpenAI uses defaults
+- Client-side session.update is IGNORED when token has no instructions set
+- Backend creates token with only `model` parameter, nothing else
+
+**5:00 PM - 6:00 PM (1 hour):**
+- Move all session configuration from frontend to backend
+- Backend now builds same instructions + tools when creating ephemeral token
+- Include menu context, Jamaican greeting, all 3 function tools
+- Commit 6575f231 - Backend fix deployed
+
+**6:00 PM - 6:30 PM:**
+- Wait for Render backend auto-deployment
+- Backend still showing old code (uptime 607s, still OpenAI defaults)
+- Render typically deploys within 3-5 minutes of push to main
+
+### Root Cause
+
+**OpenAI Realtime API Behavior:**
+When creating ephemeral tokens via `/v1/realtime/sessions`, OpenAI's behavior is:
+1. If token created with NO session parameters → uses OpenAI defaults
+2. Client-side `session.update` events are IGNORED
+3. Session config must be included at token creation time
+
+**Evidence:**
+```typescript
+// OLD BACKEND CODE (lines 374-384) - Creates token with NO config
+const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: env.OPENAI_REALTIME_MODEL
+    // DO NOT configure session parameters here - client will configure after connection
+  }),
+});
+
+// Result: Token uses OpenAI defaults
+// Frontend session.update ignored
+```
+
+**Frontend Sending Config (But Being Ignored):**
+```typescript
+// client/src/modules/voice/services/WebRTCVoiceClient.ts:167-193
+const sessionUpdatePayload = {
+  type: 'session.update',
+  session: {
+    modalities: ['text', 'audio'],
+    instructions: '... 6515 chars including Jamaican greeting ...',
+    tools: [...], // 3 function tools
+    voice: 'alloy',
+    // ... full config
+  }
+};
+this.eventHandler.sendEvent(sessionUpdatePayload);
+console.log('✅ session.update sent');
+
+// But OpenAI ignores this because token already has instructions (OpenAI defaults)
+```
+
+**NEW BACKEND CODE (lines 372-403) - Includes Full Config:**
+```typescript
+const instructions = buildKioskInstructions(menuContext);
+const tools = buildKioskTools();
+
+const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
+  method: 'POST',
+  headers: { /* ... */ },
+  body: JSON.stringify({
+    model: env.OPENAI_REALTIME_MODEL,
+    // CRITICAL: Configure session HERE - client session.update is ignored!
+    modalities: ['text', 'audio'],
+    instructions,  // Includes Jamaican greeting + menu context
+    voice: 'alloy',
+    tools,
+    tool_choice: 'auto',
+    // ... full config
+  }),
+});
+```
+
+### Impact
+
+**Customer Experience:**
+- Voice agent has NO knowledge of menu items
+- Agent responds in Spanish despite English-only business
+- Agent says "I don't know the menu" or "what menu are you talking about?"
+- Completely unusable for actual ordering
+
+**Business Impact:**
+- Voice ordering feature broken despite appearing to work
+- Lost revenue from voice ordering channel
+- Customer frustration and confusion
+- Developer time: 15 hours across multiple debugging sessions
+
+**Engineering Impact:**
+- 4 separate commits trying different frontend fixes (all ineffective)
+- Multiple deployment cycles to production
+- Added Jamaican greeting as deployment marker (creative debugging)
+- Root cause was backend/API behavior, not frontend logic
+
+**Why It Was Hard to Debug:**
+1. **Frontend Logs Looked Correct** - Menu context loaded, session.update sent
+2. **No Error Messages** - OpenAI silently uses defaults, no rejection
+3. **Deployment Verification Hard** - Can't see what instructions OpenAI actually used
+4. **API Documentation Gap** - Not clear that session.update is ignored for configured tokens
+5. **Split Configuration** - Frontend and backend both tried to configure session
+
+### Fix
+
+**Phase 1: Frontend Improvements (Ineffective)**
+- Commits 848042cf, 6411f91d, d850ce15, 41dc789f, 2516f111, 8b112819, f1d98bc7
+- Language enforcement, race condition fixes, menu framing, greeting marker
+- All correct improvements, but couldn't fix root cause
+
+**Phase 2: Backend Configuration (Effective)**
+- Commit 6575f231
+- File: `/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/realtime.routes.ts`
+
+**Added:**
+1. `buildKioskInstructions(menuContext)` function (lines 12-102)
+   - Mirrors frontend instruction building
+   - Includes Jamaican greeting for deployment verification
+   - Includes menu context as "CRITICAL SYSTEM KNOWLEDGE"
+
+2. `buildKioskTools()` function (lines 104-191)
+   - Mirrors frontend tool definitions
+   - add_to_order, confirm_order, remove_from_order
+
+3. Token creation with full session config (lines 372-403)
+   - Includes all parameters frontend was trying to send
+   - Menu context embedded in instructions
+   - All 3 function tools included
+
+**Backend Changes:**
+- 204 insertions, 4 deletions
+- Keeps menu loading logic (already correct)
+- Adds session configuration at token creation
+- Frontend session.update now redundant but kept for compatibility
+
+### Prevention
+
+**1. API Behavior Documentation**
+```markdown
+# OpenAI Realtime API - Ephemeral Tokens
+
+CRITICAL: Session configuration must be included when creating ephemeral tokens.
+Client-side `session.update` events are IGNORED if token has no instructions.
+
+✅ CORRECT: Configure at token creation
+❌ WRONG: Create minimal token, configure via session.update later
+```
+
+**2. Unified Configuration Source**
+```typescript
+// Keep buildKioskInstructions() in ONE place (backend)
+// Frontend can optionally mirror for development/testing
+// Backend is source of truth for production sessions
+```
+
+**3. Deployment Verification Markers**
+```typescript
+// Add deployment-specific markers for verification
+instructions += `\n\nDEPLOYMENT_TIMESTAMP: ${Date.now()}`;
+// OR use unique greeting/behavior that changes per deployment
+```
+
+**4. Backend Testing**
+```bash
+# Test ephemeral token creation
+curl -X POST https://july25.onrender.com/api/v1/realtime/session \
+  -H "x-restaurant-id: grow"
+
+# Check instructions field in response
+# Should show custom instructions, NOT OpenAI defaults
+```
+
+**5. API Specification Testing**
+```typescript
+// Test what OpenAI actually uses (not what we think we sent)
+test('ephemeral token includes custom instructions', async () => {
+  const response = await createEphemeralToken();
+  expect(response.instructions).toContain('Grow Restaurant');
+  expect(response.instructions).not.toContain('knowledge cutoff is 2023-10');
+  expect(response.tools).toHaveLength(3);
+});
+```
+
+### Lessons Learned
+
+**For AI Agents:**
+1. **Test API Behavior, Don't Assume** - OpenAI behavior not in docs
+2. **Check What Server Actually Sends** - Not just what client tries to send
+3. **Deployment Markers Work** - Jamaican greeting proved code deployed
+4. **Frontend Logs Can Mislead** - "session.update sent" doesn't mean "used"
+5. **Creative Debugging** - Unique behaviors verify deployment
+
+**For Developers:**
+1. **Read API Behavior Carefully** - "Ephemeral token" ≠ "minimal token"
+2. **Configuration Location Matters** - Token creation vs session.update
+3. **Backend Session Config** - Must include instructions at token creation
+4. **Keep Config Synchronized** - If duplicated, use same source/logic
+5. **Test Against Real API** - Not just local/mock implementations
+
+**For API Providers (OpenAI):**
+1. **Document Precedence Rules** - Token config vs session.update
+2. **Return What Was Used** - Echo effective instructions in response
+3. **Warn on Ignored Updates** - Log when session.update ignored
+4. **Migration Guides** - When changing API behavior (like session.update)
+
+**Meta-Lesson:**
+When logs show "everything correct" but behavior is wrong, test what the REMOTE system actually received/used, not what you sent.
+
+**Cost Analysis:**
+- Frontend debugging: 9 hours ($1,350)
+- Root cause discovery: 3 hours ($450)
+- Backend fix implementation: 1 hour ($150)
+- Testing and verification: 2 hours ($300)
+- **Total: 15 hours ($2,250)**
+
+**Time Saved by Fix:**
+- Eliminates Spanish responses
+- Enables menu-aware ordering
+- Unblocks voice ordering revenue channel
+- Prevents future incidents from same root cause
 
 ---
 
