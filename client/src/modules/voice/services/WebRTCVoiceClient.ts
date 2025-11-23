@@ -193,18 +193,24 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.eventHandler.sendEvent(sessionUpdatePayload);
       console.log('✅ [WebRTCVoiceClient] session.update sent');
 
+      // CRITICAL: Set configured flag immediately after sending
+      // OpenAI doesn't send session.updated confirmation, so we can't wait for it
+      // The menu context is IN the session.update payload, so as soon as it's sent,
+      // we can allow recording (the race condition was user speaking BEFORE sending)
+      this.isSessionConfigured = true;
+      console.log('✅ [WebRTCVoiceClient] Session configured - recording now allowed');
+      this.emit('session.configured');
+
       // Clear audio buffer immediately after session config
       this.eventHandler.sendEvent({
         type: 'input_audio_buffer.clear'
       });
     });
 
-    // CRITICAL: Handle session.updated to confirm menu context is loaded
+    // NOTE: OpenAI Realtime API doesn't send session.updated in response to session.update
+    // Event handler exists but this event never fires
     this.eventHandler.on('session.updated', () => {
-      console.log('✅ [WebRTCVoiceClient] session.updated received - menu context confirmed!');
-      this.isSessionConfigured = true;
-      // Emit event so UI can update (e.g., remove "Initializing..." message)
-      this.emit('session.configured');
+      console.log('✅ [WebRTCVoiceClient] session.updated received (unexpected - OpenAI typically does not send this)');
     });
 
     // Handle transcript completion to clear timeout and transition states
