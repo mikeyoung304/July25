@@ -163,6 +163,14 @@
 **Quick Fix**: `await withTimeout(apiCall(...), 30000)`
 **Category**: 07 - API Integration
 
+### "Voice ordering stuck on 'preparing...' + zero network requests"
+**Root Cause**: Frontend auth check blocking kiosk mode (public access)
+**Solution**: [07-api-integration-issues/LESSONS.md](./07-api-integration-issues/LESSONS.md#inc-007-voice-authentication-blocking-kiosk)
+**Quick Fix**: Allow anonymous kiosk access - wrap auth in try/catch, check `context === 'kiosk'`
+**Category**: 07 - API Integration
+**Cost if Ignored**: 9 hours debugging ($1,350)
+**Diagnostic Pattern**: Zero network requests = frontend blocking request (NOT backend issue)
+
 ---
 
 ## Security & Multi-tenancy

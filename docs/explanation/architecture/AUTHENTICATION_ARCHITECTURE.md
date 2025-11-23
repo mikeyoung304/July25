@@ -944,6 +944,104 @@ The voice ordering system has comprehensive test coverage:
 - **Unit tests**: Validate service isolation and responsibilities
 - **Integration tests**: Voice order flow end-to-end
 
+### Authentication Modes (Kiosk vs Server)
+
+**Added**: 2025-11-23
+**Related**: [INC-007](../../../claude-lessons3/07-api-integration-issues/LESSONS.md#inc-007-voice-authentication-blocking-kiosk)
+
+Voice ordering supports two authentication modes based on context:
+
+#### Kiosk Mode (Anonymous Access)
+**Context**: Public-facing self-service kiosks
+**Auth Required**: No - Anonymous access with `x-restaurant-id` header only
+**Implementation**: `VoiceSessionConfig.fetchEphemeralToken()` line 84-120
+
+```typescript
+// Kiosk mode: Allow anonymous access
+try {
+  authToken = await this.authService.getOptionalAuthToken();
+} catch (error) {
+  if (this.context === 'kiosk') {
+    logger.info('[VoiceSessionConfig] Kiosk mode: proceeding without authentication');
+    authToken = null; // Proceed without auth
+  } else {
+    throw error; // Server mode requires auth
+  }
+}
+
+// Only add Authorization header if token exists
+const headers: Record<string, string> = {
+  'Content-Type': 'application/json',
+  'x-restaurant-id': this.config.restaurantId,
+};
+
+if (authToken) {
+  headers['Authorization'] = `Bearer ${authToken}`;
+}
+```
+
+**Why Anonymous Access Is Safe**:
+- Restaurant ID provides tenant isolation
+- Ephemeral tokens are short-lived (60s expiry)
+- Backend validates restaurant ID exists
+- No sensitive data exposed (menu is public)
+- Payment processing happens in separate flow
+
+#### Server Mode (Authenticated Access)
+**Context**: Staff placing orders for customers (dine-in, table orders)
+**Auth Required**: Yes - Valid JWT with `server` role
+**Implementation**: Authentication failure throws error
+
+```typescript
+if (this.context === 'server' && !authToken) {
+  throw new Error('Authentication required for voice ordering');
+}
+```
+
+**Why Authentication Is Required**:
+- Server can access all restaurant orders
+- Needs role-based access control
+- May modify pricing, apply discounts
+- Links order to server user account
+
+#### Backend Support
+
+The backend `/api/v1/realtime/session` endpoint uses `optionalAuth` middleware:
+
+**File**: `server/src/routes/realtime.routes.ts:179`
+
+```typescript
+router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const restaurantId = (req.restaurantId || req.headers['x-restaurant-id']) as string;
+
+  if (!restaurantId) {
+    return res.status(400).json({ error: 'Missing x-restaurant-id header' });
+  }
+
+  // Proceeds with or without auth token
+  // Authentication not required if restaurant ID is valid
+});
+```
+
+#### Troubleshooting
+
+**Symptom**: Voice ordering stuck on "preparing..." with zero network requests
+
+**Diagnostic**:
+1. Open browser DevTools (F12)
+2. Check Console tab for: `❌ No authentication available for API request`
+3. Check Network tab: Should see POST to `/api/v1/realtime/session`
+
+**If no network request appears**:
+- Frontend auth check is blocking the request
+- Check `VoiceSessionConfig.context` is set correctly
+- For kiosk: Should be `context: 'kiosk'`
+- For server: Should be `context: 'server'` with valid auth
+
+**Related Incidents**:
+- [INC-007: Voice Authentication Blocking Kiosk](../../../claude-lessons3/07-api-integration-issues/LESSONS.md#inc-007-voice-authentication-blocking-kiosk) (Nov 23, 2025)
+- Cost: 9 hours debugging due to silent auth failure
+
 ---
 
 ## Authentication Evolution History

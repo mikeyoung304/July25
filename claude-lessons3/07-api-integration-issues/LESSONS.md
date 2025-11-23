@@ -22,8 +22,9 @@
 | [INC-004](#inc-004-square-audit-race-condition) | Nov 10, 2025 | P0 | $1,500 | Square |  Resolved |
 | [INC-005](#inc-005-voice-webrtc-race-condition) | Nov 10, 2025 | P0 | $1,050 | OpenAI |  Resolved |
 | [INC-006](#inc-006-environment-variable-newlines) | Nov 7, 2025 | P1 | $600 | Internal |  Resolved |
+| [INC-007](#inc-007-voice-authentication-blocking-kiosk) | Nov 23, 2025 | P0 | $1,350 | Internal |  Resolved |
 
-**Total Cost:** $9,750 for top 6 incidents
+**Total Cost:** $11,100 for top 7 incidents
 
 ---
 
@@ -2143,6 +2144,247 @@ WHERE error_detail LIKE '%timed out%'
 AND created_at > NOW() - INTERVAL '1 hour'
 GROUP BY operation;
 ```
+
+---
+
+## INC-007: Voice Authentication Blocking Kiosk
+
+### Overview
+| Field | Value |
+|-------|-------|
+| **Date** | November 23, 2025 |
+| **Duration** | 9 hours (6h speculation + 3h diagnostic) |
+| **Severity** | P0 - Complete feature failure |
+| **Cost** | $1,350 (9 hours × $150/hr) |
+| **Provider** | Internal (Authentication Layer) |
+| **Commits** | 7c1dd465 |
+
+### Timeline
+
+**November 22, 2025 - Evening:**
+- Developer deploys menu fix to VoiceSessionConfig.ts (line 383-386)
+- Fix adds explicit instruction for AI to use menu context
+- Expected: Voice ordering works with menu knowledge
+- Reality: Voice ordering completely non-functional
+
+**November 23, 2025 - 8:00 AM:**
+- User reports: "No change in testing, same results in incognito with hard refresh"
+- Previous agent begins investigating cache/CDN/bundle issues
+
+**8:00 AM - 2:00 PM (6 hours):**
+- Agent investigates browser cache (not the issue)
+- Agent checks CDN cache/propagation (not the issue)
+- Agent verifies bundle deployment (correct hash deployed)
+- Agent checks backend API health (healthy, returns 200)
+- Agent checks OpenAI API accessibility (accessible)
+- **Problem**: All speculation, no actual browser diagnostics
+- **Evidence**: User kept saying "no change" but agent kept investigating cache
+
+**2:00 PM:**
+- New agent takes over, reviews handoff document
+- Identifies: Previous agent made assumptions without verification
+- Decision: Use MCP Puppeteer for actual browser diagnostics
+
+**2:00 PM - 3:30 PM (1.5 hours):**
+- Deploy 4 specialized subagents to investigate:
+  - Backend API health (✅ healthy)
+  - OpenAI Realtime API access (✅ accessible)
+  - Code deployment verification (✅ correct bundle)
+  - CORS configuration (✅ properly configured)
+- All infrastructure healthy, but voice system never initializes
+
+**3:30 PM - 4:30 PM (1 hour):**
+- Use MCP Puppeteer to navigate to production kiosk
+- Set up console logging and network monitoring
+- Click through UI: "Start Voice Order" → "Tap to Start"
+- Wait 20 seconds for initialization
+
+**4:30 PM - CRITICAL FINDING:**
+- **Zero network requests** to `/api/v1/realtime/session`
+- **Zero network requests** to `api.openai.com/v1/realtime`
+- **No JavaScript errors** (no exceptions thrown)
+- **Console warning**: `❌ No authentication available for API request (no Supabase or localStorage session)`
+
+**4:30 PM - 5:00 PM (30 minutes):**
+- Analyze VoiceSessionConfig.ts authentication flow
+- Line 86-88: Auth check blocks request if no token
+- Kiosk mode is public-facing (no logged-in user)
+- Backend already has `optionalAuth` middleware (allows anonymous)
+- **Root Cause Identified**: Frontend requires auth, but kiosk doesn't have it
+
+**5:00 PM - 5:30 PM (30 minutes):**
+- Implement fix: Wrap auth in try/catch, allow anonymous for kiosk context
+- Update logging to show auth mode (authenticated vs anonymous)
+- Test: Menu fix was CORRECT, just never executed due to auth blocking
+- Commit: 7c1dd465 (20 insertions, 5 deletions)
+
+### Root Cause
+
+Frontend authentication check blocked kiosk voice initialization. The kiosk is public-facing (no logged-in user), but VoiceSessionConfig required authentication for ALL contexts.
+
+**Evidence:**
+```typescript
+// OLD CODE (lines 84-88) - Silent Failure
+async fetchEphemeralToken(): Promise<void> {
+  // Try optional auth first (for kiosk demos), fall back to required auth
+  const authToken = this.authService.getOptionalAuthToken
+    ? await this.authService.getOptionalAuthToken()
+    : await this.authService.getAuthToken();
+
+  // If both return null → authToken = null → warning logged → request NEVER SENT
+  // ❌ No authentication available for API request
+}
+```
+
+**NEW CODE (lines 84-102) - Explicit Kiosk Support:**
+```typescript
+async fetchEphemeralToken(): Promise<void> {
+  // Try to get auth token, but allow proceeding without it for kiosk mode
+  let authToken: string | null = null;
+
+  try {
+    authToken = this.authService.getOptionalAuthToken
+      ? await this.authService.getOptionalAuthToken()
+      : await this.authService.getAuthToken();
+  } catch (error) {
+    if (this.context === 'kiosk') {
+      // Kiosk mode: allow anonymous access with just restaurant ID
+      logger.info('[VoiceSessionConfig] Kiosk mode: proceeding without authentication');
+      authToken = null;
+    } else {
+      // Server mode: authentication required
+      logger.error('[VoiceSessionConfig] Authentication required for server context');
+      throw new Error('Authentication required for voice ordering');
+    }
+  }
+
+  // Only add Authorization header if we have a token
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-restaurant-id': this.config.restaurantId,
+  };
+
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+}
+```
+
+**Why It Was Hard to Debug:**
+1. **Silent Failure** - No error thrown, just warning in console
+2. **Zero Network Requests** - Failed before fetch() even called
+3. **No User-Facing Error** - User saw "preparing..." indefinitely
+4. **Speculation vs Verification** - Previous agent assumed cache issues without testing
+5. **Menu Fix Was Correct** - Original fix worked, just never executed
+6. **Backend Already Supported Anonymous** - Had `optionalAuth` middleware
+
+### Impact
+
+**Customer Experience:**
+- Voice ordering completely non-functional on kiosk
+- Button appeared to work (showed "preparing...") but never progressed
+- No error messages shown to customer
+- Confusing UX: "Is it broken? Should I wait longer?"
+
+**Business Impact:**
+- Voice ordering unavailable for public kiosk users
+- Only worked for logged-in staff (server context)
+- Lost revenue from voice ordering feature
+- Developer time: 9 hours total (6h speculation + 3h diagnostic)
+- Menu fix deployed but ineffective due to auth blocking
+
+**Engineering Impact:**
+- Previous agent spent 6 hours investigating wrong issues
+- Demonstrates importance of diagnostic tools vs speculation
+- "No change in testing" should have triggered browser diagnostics immediately
+
+### Fix
+
+**File:** `/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/voice/services/VoiceSessionConfig.ts:84-120`
+
+**Changes:**
+1. Wrap auth token fetching in try/catch
+2. Check `this.context` - if 'kiosk', allow null auth token
+3. Only add Authorization header if token exists
+4. Add logging to show auth mode (authenticated vs anonymous)
+
+**Commit:** 7c1dd465
+
+**Backend:** No changes needed - already had `optionalAuth` middleware supporting anonymous requests with just `x-restaurant-id` header.
+
+### Prevention
+
+**1. Diagnostic Tools Over Speculation**
+```markdown
+When user reports "no change in testing":
+1. DO NOT assume cache/CDN issues
+2. DO use MCP Puppeteer to observe actual browser behavior
+3. DO check console AND network tab simultaneously
+4. DO analyze what's NOT happening (zero requests = frontend issue)
+```
+
+**2. User-Facing Error Messages**
+```typescript
+// Add to VoiceControlWebRTC.tsx or similar
+if (sessionState === 'preparing' && timeSinceStart > 10000) {
+  showError('Unable to start voice ordering. Please check your connection or try logging in.');
+}
+```
+
+**3. Test Coverage for Anonymous Access**
+```typescript
+// client/src/modules/voice/services/__tests__/VoiceSessionConfig.test.ts
+describe('fetchEphemeralToken', () => {
+  it('should allow anonymous access in kiosk context', async () => {
+    const config = new VoiceSessionConfig({ context: 'kiosk', ... });
+    // Mock auth service returning null
+    await expect(config.fetchEphemeralToken()).resolves.not.toThrow();
+  });
+
+  it('should require auth in server context', async () => {
+    const config = new VoiceSessionConfig({ context: 'server', ... });
+    // Mock auth service returning null
+    await expect(config.fetchEphemeralToken()).rejects.toThrow('Authentication required');
+  });
+});
+```
+
+**4. Monitoring for Silent Failures**
+```typescript
+// Add to analytics
+if (voiceSessionState === 'preparing' && timeElapsed > 15000) {
+  analytics.track('voice_session_stuck', {
+    context: 'kiosk',
+    has_auth: !!authToken,
+    restaurant_id: restaurantId,
+    time_elapsed: timeElapsed
+  });
+}
+```
+
+**5. Architecture Documentation**
+- Document auth requirements in VOICE_ORDERING_EXPLAINED.md
+- Create ADR-011: "Kiosk Voice Ordering Supports Anonymous Access"
+- Update troubleshooting guide with "session never initializes" diagnostic
+
+### Lessons Learned
+
+**For AI Agents:**
+1. **Use Diagnostic Tools First** - Don't speculate about cache/CDN
+2. **Zero Network Requests = Frontend Issue** - Not backend or network
+3. **Silent Failures Are Hardest** - No errors, just non-function
+4. **Check What's NOT Happening** - Absence of expected behavior
+5. **Verify Assumptions** - "Cache bust" doesn't fix frontend auth checks
+
+**For Developers:**
+1. **Auth Context Matters** - Kiosk (public) vs Server (authenticated)
+2. **Silent Failures Need User Feedback** - Show error after 10s timeout
+3. **Backend Was Correct** - Already had `optionalAuth` middleware
+4. **Test Anonymous Flows** - E2E tests in incognito mode
+5. **Menu Fix Was Valid** - Original work was correct, just blocked
+
+**Meta-Lesson:**
+Speculation costs 6 hours. Browser diagnostics cost 30 minutes. Use tools.
 
 ---
 
