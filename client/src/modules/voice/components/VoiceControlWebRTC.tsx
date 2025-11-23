@@ -15,6 +15,7 @@ interface VoiceControlWebRTCProps {
   onOrderDetected?: (order: any) => void;
   onRecordingStateChange?: (isRecording: boolean) => void;
   onConnectionStateChange?: (state: 'disconnected' | 'connecting' | 'connected' | 'error') => void;
+  onSessionReadyChange?: (isReady: boolean) => void;
   debug?: boolean;
   className?: string;
   muteAudioOutput?: boolean; // Option to disable voice responses
@@ -30,6 +31,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   onOrderDetected,
   onRecordingStateChange,
   onConnectionStateChange,
+  onSessionReadyChange,
   debug = false,
   className = '',
   muteAudioOutput = false,
@@ -43,6 +45,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     disconnect,
     isConnected,
     connectionState,
+    isSessionReady,
     startRecording,
     stopRecording,
     isRecording,
@@ -75,21 +78,27 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     onConnectionStateChange?.(connectionState);
   }, [connectionState, onConnectionStateChange]);
 
-  // Auto-start recording when connection completes (if user is still holding button)
+  // Notify parent when session ready state changes
+  useEffect(() => {
+    onSessionReadyChange?.(isSessionReady);
+  }, [isSessionReady, onSessionReadyChange]);
+
+  // Auto-start recording when connection AND session are ready (if user is still holding button)
   useEffect(() => {
     if (debug) {
       logger.debug('[VoiceControlWebRTC] Auto-start effect triggered', {
         shouldStartRecording,
         isConnected,
+        isSessionReady,
         isRecording
       });
     }
-    if (shouldStartRecording && isConnected && !isRecording) {
+    if (shouldStartRecording && isConnected && isSessionReady && !isRecording) {
       if (debug) logger.debug('[VoiceControlWebRTC] Auto-starting recording via useEffect');
       startRecording();
       setShouldStartRecording(false);
     }
-  }, [shouldStartRecording, isConnected, isRecording, startRecording, debug]);
+  }, [shouldStartRecording, isConnected, isSessionReady, isRecording, startRecording, debug]);
   
   // Check microphone permission - store connect in ref to avoid dep loop
   const connectRef = React.useRef(connect);
@@ -178,14 +187,18 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
         return;
       }
 
-      // If already connected, start recording immediately
-      if (isConnected && !isRecording) {
-        if (debug) logger.debug('[VoiceControlWebRTC] Already connected, starting recording immediately');
+      // If already connected AND session ready, start recording immediately
+      if (isConnected && isSessionReady && !isRecording) {
+        if (debug) logger.debug('[VoiceControlWebRTC] Connected and session ready, starting recording immediately');
         startRecording();
         setShouldStartRecording(false);
+      } else if (isConnected && !isSessionReady) {
+        if (debug) logger.debug('[VoiceControlWebRTC] Connected but session not ready yet, will auto-start when session configured');
+        // Keep shouldStartRecording=true, the useEffect will trigger when session is ready
       } else if (debug) {
         logger.debug('[VoiceControlWebRTC] NOT starting recording', {
           isConnected,
+          isSessionReady,
           isRecording,
           shouldStartRecording: true
         });
@@ -299,7 +312,10 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
             {permissionState === 'granted' && !isConnected && connectionState === 'connecting' && (
               <p className="text-sm text-gray-500">Connecting to voice service...</p>
             )}
-            {isConnected && !isRecording && !isProcessing && (
+            {isConnected && !isSessionReady && (
+              <p className="text-sm text-yellow-600">Initializing session...</p>
+            )}
+            {isConnected && isSessionReady && !isRecording && !isProcessing && (
               <p className="text-sm text-gray-500">Hold button to speak</p>
             )}
             {isRecording && (

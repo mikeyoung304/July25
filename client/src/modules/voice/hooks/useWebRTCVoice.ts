@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { WebRTCVoiceClient, ConnectionState, TranscriptEvent, OrderEvent } from '../services/WebRTCVoiceClient';
 import type { VoiceContext } from '../services/VoiceSessionConfig';
+import { logger } from '@/services/logger';
 
 export interface UseWebRTCVoiceOptions {
   autoConnect?: boolean;
@@ -19,18 +20,19 @@ export interface UseWebRTCVoiceReturn {
   disconnect: () => void;
   isConnected: boolean;
   connectionState: ConnectionState;
-  
+  isSessionReady: boolean;  // True when BOTH connected AND session configured
+
   // Recording
   startRecording: () => void;
   stopRecording: () => void;
   isRecording: boolean;
   isListening: boolean;
-  
+
   // Data
   transcript: string;
   lastTranscript: TranscriptEvent | null;
   responseText: string;
-  
+
   // State
   isProcessing: boolean;
   error: Error | null;
@@ -47,6 +49,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
 
   const clientRef = useRef<WebRTCVoiceClient | null>(null);
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
+  const [isSessionReady, setIsSessionReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [lastTranscript, setLastTranscript] = useState<TranscriptEvent | null>(null);
@@ -102,6 +105,19 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
         setResponseText('');
         setTranscript('');
       }
+      // Reset session ready state when disconnected
+      if (state === 'disconnected') {
+        setIsSessionReady(false);
+      }
+    };
+
+    const handleSessionConfigured = () => {
+      if (debug) logger.debug('[useWebRTCVoice] Session configured - ready for recording');
+      setIsSessionReady(true);
+    };
+
+    const handleSessionNotReady = () => {
+      if (debug) logger.debug('[useWebRTCVoice] Session not ready - still initializing');
     };
 
     const handleTranscript = (event: TranscriptEvent) => {
@@ -161,6 +177,8 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
 
     // Attach all listeners
     client.on('connection.change', handleConnectionChange);
+    client.on('session.configured', handleSessionConfigured);
+    client.on('session.not.ready', handleSessionNotReady);
     client.on('transcript', handleTranscript);
     client.on('order.detected', handleOrderDetected);
     client.on('response.text', handleResponseText);
@@ -175,6 +193,8 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     // Cleanup: detach all listeners
     return () => {
       client.off('connection.change', handleConnectionChange);
+      client.off('session.configured', handleSessionConfigured);
+      client.off('session.not.ready', handleSessionNotReady);
       client.off('transcript', handleTranscript);
       client.off('order.detected', handleOrderDetected);
       client.off('response.text', handleResponseText);
@@ -206,25 +226,32 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
   // Start recording
   const startRecording = useCallback(() => {
     if (debug) {
-      console.log('[useWebRTCVoice] startRecording called', {
+      logger.debug('[useWebRTCVoice] startRecording called', {
         hasClient: !!clientRef.current,
-        connectionState
+        connectionState,
+        isSessionReady
       });
     }
 
     if (!clientRef.current) {
-      console.warn('[useWebRTCVoice] Cannot start recording: client not initialized');
+      logger.warn('[useWebRTCVoice] Cannot start recording: client not initialized');
       return;
     }
 
     if (connectionState !== 'connected') {
-      console.warn('[useWebRTCVoice] Cannot start recording: not connected');
+      logger.warn('[useWebRTCVoice] Cannot start recording: not connected');
       return;
     }
 
-    if (debug) console.log('[useWebRTCVoice] Calling client.startRecording()');
+    if (!isSessionReady) {
+      logger.warn('[useWebRTCVoice] Cannot start recording: session not yet configured');
+      logger.warn('   Waiting for session.configured event from OpenAI...');
+      return;
+    }
+
+    if (debug) logger.debug('[useWebRTCVoice] Calling client.startRecording()');
     clientRef.current.startRecording();
-  }, [connectionState, debug]);
+  }, [connectionState, isSessionReady, debug]);
   
   // Stop recording
   const stopRecording = useCallback(() => {
@@ -237,18 +264,19 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     disconnect,
     isConnected: connectionState === 'connected',
     connectionState,
-    
+    isSessionReady,
+
     // Recording
     startRecording,
     stopRecording,
     isRecording,
     isListening,
-    
+
     // Data
     transcript,
     lastTranscript,
     responseText,
-    
+
     // State
     isProcessing,
     error,
