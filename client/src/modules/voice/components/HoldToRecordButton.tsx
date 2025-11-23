@@ -170,6 +170,16 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
     e.preventDefault();
   }, []);
 
+  // Sync toggle state with actual listening state
+  // If recording fails to start (permission denied, not connected, etc.),
+  // isListening will be false but isToggled might be true (user clicked button)
+  // Reset isToggled to match reality
+  useEffect(() => {
+    if (!isListening && isToggled) {
+      setIsToggled(false);
+    }
+  }, [isListening, isToggled]);
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
