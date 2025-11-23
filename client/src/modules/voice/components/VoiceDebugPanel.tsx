@@ -135,7 +135,7 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
         <div className="flex items-center gap-2">
           <div className={cn('flex items-center gap-1', getConnectionColor())}>
             {getConnectionIcon()}
-            <span>WebSocket:</span>
+            <span>WebRTC:</span>
           </div>
           <span className="text-gray-300">{connectionState}</span>
         </div>
