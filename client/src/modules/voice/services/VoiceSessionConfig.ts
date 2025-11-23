@@ -90,13 +90,24 @@ export class VoiceSessionConfig extends EventEmitter implements IVoiceSessionCon
         ? await this.authService.getOptionalAuthToken()
         : await this.authService.getAuthToken();
     } catch (error) {
+      // If getting auth token throws, check context
+      if (this.context !== 'kiosk') {
+        // Server mode: authentication required
+        logger.error('[VoiceSessionConfig] Authentication required for server context');
+        throw new Error('Authentication required for voice ordering');
+      }
+      // Kiosk mode: proceed with null token (caught error)
+      authToken = null;
+    }
+
+    // Check if we got a null token (getOptionalAuthToken returns null without throwing)
+    if (!authToken) {
       if (this.context === 'kiosk') {
         // Kiosk mode: allow anonymous access with just restaurant ID
         logger.info('[VoiceSessionConfig] Kiosk mode: proceeding without authentication');
-        authToken = null;
       } else {
         // Server mode: authentication required
-        logger.error('[VoiceSessionConfig] Authentication required for server context');
+        logger.error('[VoiceSessionConfig] Server mode requires authentication but none available');
         throw new Error('Authentication required for voice ordering');
       }
     }
