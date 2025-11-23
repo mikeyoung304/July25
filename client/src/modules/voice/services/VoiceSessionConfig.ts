@@ -409,10 +409,14 @@ ENTRÉES → Ask:
 - "Let me help you with our menu. Any starters today?"`;
 
     // Add menu context if available
-    // FIX 2025-11-22: Added explicit instruction to tell AI to USE the menu
+    // FIX 2025-11-23: Make menu part of agent's core knowledge, not optional reference
     if (this.menuContext) {
-      instructions += `\n\n⚠️ CRITICAL: You have access to our COMPLETE MENU below. ONLY suggest items from this menu. DO NOT invent or suggest items not listed.`;
+      instructions += `\n\n🔴 CRITICAL SYSTEM KNOWLEDGE - THIS IS YOUR MENU:\n`;
+      instructions += `You work at Grow Restaurant. The menu below is YOUR menu - you KNOW these items.\n`;
+      instructions += `When customers ask "what's on the menu" or "what do you have", list categories and popular items.\n`;
+      instructions += `NEVER say "I don't know the menu" or ask "what menu" - YOU ARE THE MENU EXPERT.\n`;
       instructions += this.menuContext;
+      instructions += `\n\n⚠️ REMINDER: Only recommend items from the menu above. If a customer asks for something not listed, say "We don't have that, but we have [similar item]."`;
     } else {
       instructions += `\n\nNote: Menu information is currently unavailable. Please ask the customer what they'd like and I'll do my best to help.`;
     }
