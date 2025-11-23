@@ -12,6 +12,8 @@ import { EventEmitter } from '../../../services/utils/EventEmitter';
  * - Schedule token refresh
  * - Build session configuration with AI instructions
  * - Manage menu context
+ *
+ * Modified: 2025-11-22 - Force bundle rehash to deploy menu fix
  */
 
 export type VoiceContext = 'kiosk' | 'server';
