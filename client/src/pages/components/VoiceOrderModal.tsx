@@ -15,6 +15,8 @@ import { CartItem } from '@/modules/order-system/types'
 import type { Table } from '@shared'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import { logger } from '@/services/logger'
+import { useVoiceCommerce } from '@/modules/voice/hooks/useVoiceCommerce'
+import { useToast } from '@/hooks/useToast'
 
 interface OrderItem {
   id: string
@@ -76,6 +78,60 @@ export function VoiceOrderModal({
   }, [initialInputMode])
 
   const { items: menuItems } = useMenuItems()
+
+  // ============================================================================
+  // VOICE COMMERCE HOOK INTEGRATION
+  // ============================================================================
+
+  /**
+   * Adapter: Convert useVoiceCommerce's onAddItem format to VoiceOrderModal's OrderItem format
+   * The hook provides MenuItem + modifications, but modal needs OrderItem with IDs
+   */
+  const handleVoiceAddItem = (
+    menuItem: MenuItem,
+    quantity: number,
+    modifications: string[],
+    specialInstructions?: string
+  ) => {
+    const orderItem: OrderItem = {
+      id: `voice-${menuItem.id}-${Date.now()}`,
+      menuItemId: menuItem.id,
+      name: menuItem.name,
+      quantity,
+      price: menuItem.price,
+      source: 'voice',
+      modifications: modifications.map((modName, idx) => ({
+        id: `mod-${idx}`,
+        name: modName,
+        price: 0 // Voice doesn't provide modifier prices yet
+      }))
+    }
+
+    // Add special instructions as a modification if provided
+    if (specialInstructions) {
+      orderItem.modifications?.push({
+        id: `special-${Date.now()}`,
+        name: `Note: ${specialInstructions}`,
+        price: 0
+      })
+    }
+
+    voiceOrder.setOrderItems([...voiceOrder.orderItems, orderItem])
+  }
+
+  // Get toast instance
+  const { toast: toastFn } = useToast()
+
+  // Initialize voice commerce hook
+  const voiceCommerce = useVoiceCommerce({
+    menuItems,
+    onAddItem: handleVoiceAddItem,
+    context: 'server',
+    toast: {
+      error: (message: string) => toastFn.error(message)
+    },
+    debug: true
+  })
 
   // Calculate order totals
   const orderTotals = useMemo(() => {
@@ -264,14 +320,7 @@ export function VoiceOrderModal({
                     {inputMode === 'voice' && (
                       <div className="flex justify-center mb-6">
                         <VoiceControlWebRTC
-                          onTranscript={(event) => {
-                            logger.info('[VoiceOrderModal] Transcript received:', event);
-                            voiceOrder.handleVoiceTranscript(event);
-                          }}
-                          onOrderDetected={(orderData) => {
-                            logger.info('[VoiceOrderModal] Order detected:', orderData);
-                            voiceOrder.handleOrderData?.(orderData);
-                          }}
+                          {...voiceCommerce.voiceControlProps}
                           debug={true}
                           muteAudioOutput={true}
                         />
@@ -279,7 +328,7 @@ export function VoiceOrderModal({
                     )}
 
                     {/* Current Transcript (voice mode only) */}
-                    {inputMode === 'voice' && voiceOrder.currentTranscript && (
+                    {inputMode === 'voice' && voiceCommerce.currentTranscript && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -287,9 +336,11 @@ export function VoiceOrderModal({
                       >
                         <div className="flex items-center gap-2">
                           <Mic className="h-4 w-4 text-accent animate-pulse" />
-                          <span className="text-sm font-medium text-accent">Listening...</span>
+                          <span className="text-sm font-medium text-accent">
+                            {voiceCommerce.isListening ? 'Listening...' : 'Ready'}
+                          </span>
                         </div>
-                        <p className="text-sm text-neutral-700 mt-2">{voiceOrder.currentTranscript}</p>
+                        <p className="text-sm text-neutral-700 mt-2">{voiceCommerce.currentTranscript}</p>
                       </motion.div>
                     )}
 
@@ -315,13 +366,19 @@ export function VoiceOrderModal({
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          {voiceOrder.orderItems.map((item, index) => (
+                          {voiceOrder.orderItems.map((item, index) => {
+                            const isRecentlyAdded = voiceCommerce.recentlyAdded.includes(item.name)
+                            return (
                             <motion.div
                               key={item.id}
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05 }}
-                              className="relative p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors border border-neutral-200"
+                              className={`relative p-3 rounded-lg hover:bg-neutral-100 transition-colors border ${
+                                isRecentlyAdded
+                                  ? 'bg-green-50 border-green-300 shadow-sm'
+                                  : 'bg-neutral-50 border-neutral-200'
+                              }`}
                             >
                               {/* Source Badge */}
                               {item.source && (
@@ -428,7 +485,8 @@ export function VoiceOrderModal({
                                 </motion.div>
                               )}
                             </motion.div>
-                          ))}
+                            )
+                          })}
                         </div>
                       )}
 
@@ -462,11 +520,21 @@ export function VoiceOrderModal({
                     </div>
 
                     {/* Processing Indicator (voice mode only) */}
-                    {inputMode === 'voice' && voiceOrder.isProcessing && (
+                    {inputMode === 'voice' && voiceCommerce.isProcessing && (
                       <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                         <div className="flex items-center gap-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent" />
                           <span className="text-sm text-blue-700">Processing voice input...</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Voice Feedback (voice mode only) */}
+                    {inputMode === 'voice' && voiceCommerce.voiceFeedback && (
+                      <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span className="text-sm text-green-700">{voiceCommerce.voiceFeedback}</span>
                         </div>
                       </div>
                     )}
@@ -485,7 +553,7 @@ export function VoiceOrderModal({
                   </Button>
                   <ActionButton
                     onClick={handleSubmit}
-                    disabled={voiceOrder.orderItems.length === 0 || voiceOrder.isProcessing || isSubmitting}
+                    disabled={voiceOrder.orderItems.length === 0 || voiceCommerce.isProcessing || isSubmitting}
                     color={submitSuccess ? "#4CAF50" : "#FF6B35"}
                     size="medium"
                     fullWidth

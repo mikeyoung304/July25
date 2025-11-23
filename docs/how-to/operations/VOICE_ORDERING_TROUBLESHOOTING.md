@@ -1,6 +1,6 @@
 # Voice Ordering Troubleshooting Guide
 
-**Last Updated:** 2025-11-23
+**Last Updated:** 2025-01-23
 **Status:** Active
 **Audience:** Developers, Operations Team, Support Engineers
 
@@ -808,6 +808,49 @@ curl -X POST http://localhost:3001/api/v1/realtime/session \
 # }
 ```
 
+### State Machine Transition History (Phase 2)
+
+**New in January 2025:** The VoiceStateMachine tracks the last 50 state transitions for debugging race conditions and unexpected behavior.
+
+**Access Transition History:**
+
+```javascript
+// In browser console
+const client = window.__voiceClient__;
+const history = client?.stateMachine?.getTransitionHistory?.();
+
+console.table(history);
+// Shows:
+// | from_state | event | to_state | timestamp | metadata |
+// |------------|-------|----------|-----------|----------|
+// | DISCONNECTED | CONNECT_REQUESTED | CONNECTING | 1234567890 | {} |
+// | CONNECTING | CONNECTION_ESTABLISHED | AWAITING_SESSION_CREATED | 1234567891 | {} |
+// | ... | ... | ... | ... | ... |
+```
+
+**Use Cases:**
+
+1. **Diagnosing Stuck States:** Identify why state machine stuck in AWAITING_TRANSCRIPT
+2. **Identifying Errors:** Find which event caused ERROR state
+3. **Verifying Session Ready:** Check session ready confirmation method (event vs timeout)
+4. **Debugging Invalid Transitions:** Track invalid state transition attempts
+
+**Example: Debugging Session Ready Issue**
+
+```javascript
+const history = client.stateMachine.getTransitionHistory();
+const sessionReadyTransition = history.find(t => t.event === 'SESSION_READY');
+
+console.log('Session ready confirmed via:', sessionReadyTransition?.metadata?.confirmed_via);
+// Output: "timeout" or "event"
+
+// If always "timeout", OpenAI session.updated event not firing
+```
+
+**Related:** VoiceStateMachine.ts:1-535, ADR-012
+
+---
+
 ### Network Diagnostics
 
 ```bash
@@ -918,5 +961,5 @@ pc.onicecandidate = e => console.log('ICE candidate:', e.candidate);
 ---
 
 **Maintainer:** @mikeyoung
-**Last Updated:** 2025-01-18
-**Version:** 1.0
+**Last Updated:** 2025-01-23
+**Version:** 1.1

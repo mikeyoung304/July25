@@ -7,6 +7,7 @@ import { useHttpClient } from '@/services/http';
 import { useToast } from '@/hooks/useToast';
 import { useNavigate } from 'react-router-dom';
 import { VoiceCheckoutOrchestrator } from '@/modules/voice/services/VoiceCheckoutOrchestrator';
+import { useVoiceCommerce } from '@/modules/voice/hooks/useVoiceCommerce';
 import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BrandHeader } from '@/components/layout/BrandHeader';
@@ -42,6 +43,15 @@ const convertApiMenuItemToShared = (apiItem: ApiMenuItem): SharedMenuItem => {
   };
 };
 
+// Menu variations for fuzzy matching
+const MENU_VARIATIONS = {
+  'soul bowl': ['soul', 'bowl', 'sobo', 'solo bowl', 'soul ball'],
+  'greek salad': ['greek', 'greek salad', 'geek salad'],
+  'peach arugula': ['peach', 'arugula', 'peach salad', 'arugula salad'],
+  'jalapeño pimento': ['jalapeno', 'pimento', 'cheese bites', 'jalapeño'],
+  'succotash': ['succotash', 'suck a toss', 'sock a tash'],
+};
+
 export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   onBack,
   onCheckout,
@@ -53,15 +63,39 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   const httpClient = useHttpClient();
   const toast = useToast();
   const navigate = useNavigate();
-  
+
   const [orderParser, setOrderParser] = useState<OrderParser | null>(null);
-  const [isListening, setIsListening] = useState(false);
-  const [lastTranscript, setLastTranscript] = useState('');
-  const [recentlyAdded, setRecentlyAdded] = useState<string[]>([]);
-  const [voiceFeedback, setVoiceFeedback] = useState('');
-  const [voiceConnectionState, setVoiceConnectionState] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
-  const [isSessionReady, setIsSessionReady] = useState(false);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  // Local state for VoiceCheckoutOrchestrator feedback (separate from voice commerce)
+  const [orchestratorFeedback, setOrchestratorFeedback] = useState('');
+
+  // Initialize useVoiceCommerce hook
+  const {
+    voiceConnectionState,
+    isSessionReady,
+    isListening,
+    currentTranscript,
+    isProcessing,
+    recentlyAdded,
+    voiceFeedback,
+    voiceControlProps,
+    isCheckingOut,
+    setIsCheckingOut,
+  } = useVoiceCommerce({
+    menuItems,
+    onAddItem: (menuItem, quantity, modifications, specialInstructions) => {
+      // Convert to SharedMenuItem before adding to cart
+      const sharedMenuItem = convertApiMenuItemToShared(menuItem as unknown as ApiMenuItem);
+      addItem(sharedMenuItem, quantity, modifications, specialInstructions);
+    },
+    onCheckout,
+    context: 'kiosk',
+    checkoutGuard: true,
+    menuVariations: MENU_VARIATIONS,
+    recentlyAddedDuration: 5000,
+    toast,
+    debug: import.meta.env.DEV,
+  });
 
   // Voice checkout orchestrator
   const checkoutOrchestratorRef = useRef<VoiceCheckoutOrchestrator | null>(null);
@@ -89,29 +123,29 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
       // Listen for checkout events
       orchestrator.on('checkout.confirmation.requested', (data) => {
         const feedbackText = `Proceeding to checkout with ${data.items.length} items totaling $${data.total.toFixed(2)}`;
-        setVoiceFeedback(feedbackText);
-        const timeoutId = setTimeout(() => setVoiceFeedback(''), 5000);
+        setOrchestratorFeedback(feedbackText);
+        const timeoutId = setTimeout(() => setOrchestratorFeedback(''), 5000);
         timeoutIds.push(timeoutId);
       });
 
       // Listen for summary requests
       orchestrator.on('summary.text', (data) => {
-        setVoiceFeedback(data.text);
-        const timeoutId = setTimeout(() => setVoiceFeedback(''), 10000);
+        setOrchestratorFeedback(data.text);
+        const timeoutId = setTimeout(() => setOrchestratorFeedback(''), 10000);
         timeoutIds.push(timeoutId);
       });
 
       // Listen for payment feedback
       orchestrator.on('payment.feedback', (data) => {
-        setVoiceFeedback(data.text);
-        const timeoutId = setTimeout(() => setVoiceFeedback(''), 5000);
+        setOrchestratorFeedback(data.text);
+        const timeoutId = setTimeout(() => setOrchestratorFeedback(''), 5000);
         timeoutIds.push(timeoutId);
       });
 
       // Listen for error feedback
       orchestrator.on('payment.error.feedback', (data) => {
-        setVoiceFeedback(data.text);
-        const timeoutId = setTimeout(() => setVoiceFeedback(''), 5000);
+        setOrchestratorFeedback(data.text);
+        const timeoutId = setTimeout(() => setOrchestratorFeedback(''), 5000);
         timeoutIds.push(timeoutId);
       });
     }
@@ -155,138 +189,12 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
         newItems.push(parsed.menuItem.name);
       }
     });
-    
-    if (newItems.length > 0) {
-      setRecentlyAdded(newItems);
-      setTimeout(() => setRecentlyAdded([]), 3000);
-    }
   }, [addItem]);
-
-  const handleVoiceTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
-    const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text;
-    const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal;
-
-    // Display transcript for user feedback
-    setLastTranscript(text);
-
-    // NOTE: Do NOT parse transcripts manually here
-    // OpenAI Realtime API handles parsing via function calls
-    // and emits order.detected events processed by handleOrderData
-    // Manual parsing would cause duplicate item additions
-  }, []);
-
-  const handleOrderData = useCallback((orderData: any) => {
-    // Guard: Block voice orders during checkout to prevent cart race condition
-    if (isCheckingOut) {
-      toast.toast.error('Please complete checkout first');
-      return;
-    }
-
-    // Handle function call format from WebRTC: { items: [{ name, quantity, modifications }] }
-    if (orderData?.items?.length > 0) {
-      const addedItems: string[] = [];
-      
-      orderData.items.forEach((item: any) => {
-        // Skip invalid items
-        if (!item || !item.name) {
-          // Skipping item with missing name
-          return;
-        }
-        
-        // Enhanced fuzzy matching for menu items
-        const menuItem = menuItems.find(m => {
-          const itemNameLower = item.name.toLowerCase();
-          const menuNameLower = m.name.toLowerCase();
-          
-          // Exact match
-          if (menuNameLower === itemNameLower) return true;
-          
-          // Contains match
-          if (menuNameLower.includes(itemNameLower) || itemNameLower.includes(menuNameLower)) return true;
-          
-          // Handle common variations
-          const variations: Record<string, string[]> = {
-            'soul bowl': ['soul', 'bowl', 'sobo', 'solo bowl'],
-            'greek salad': ['greek', 'greek salad'],
-            'peach arugula': ['peach', 'arugula', 'peach salad'],
-            'jalapeño pimento': ['jalapeno', 'pimento', 'cheese bites'],
-            'succotash': ['succotash', 'suck a toss'],
-          };
-          
-          for (const [menuKey, aliases] of Object.entries(variations)) {
-            if (menuNameLower.includes(menuKey) && aliases.some(alias => itemNameLower.includes(alias))) {
-              return true;
-            }
-          }
-          
-          return false;
-        });
-        
-        if (menuItem) {
-          // Handle modifications from function call
-          const modifications = item.modifications || item.modifiers || [];
-          
-          
-          // Convert ApiMenuItem to SharedMenuItem before adding to cart
-          const sharedMenuItem = convertApiMenuItemToShared(menuItem as ApiMenuItem);
-          addItem(
-            sharedMenuItem,
-            item.quantity || 1,
-            modifications,
-            item.specialInstructions
-          );
-          
-          addedItems.push(`${item.quantity || 1}x ${menuItem.name}`);
-        }
-      });
-      
-      // Update recently added items for visual feedback
-      if (addedItems.length > 0) {
-        setRecentlyAdded(addedItems);
-        setTimeout(() => setRecentlyAdded([]), 5000); // Show for 5 seconds
-      }
-    }
-    
-    // Handle order confirmation events via VoiceCheckoutOrchestrator
-    else if (orderData?.action) {
-      
-      if (checkoutOrchestratorRef.current) {
-        checkoutOrchestratorRef.current.handleOrderConfirmation({
-          action: orderData.action,
-          timestamp: Date.now()
-        });
-      } else {
-        // Fallback to original behavior
-        if (orderData.action === 'checkout' && cart.items.length > 0) {
-          onCheckout();
-        } else if (orderData.action === 'review') {
-          // Order review requested - cart is already visible in UI
-        }
-      }
-    }
-    
-    // Handle legacy format if it exists (different condition structure)
-    if (orderData?.success && orderData?.items?.length > 0 && !orderData?.action) {
-      orderData.items.forEach((item: any) => {
-        const menuItem = menuItems.find(m => m.id === item.menuItemId);
-        if (menuItem) {
-          const modifications = item.modifications ? item.modifications.map((mod: any) => typeof mod === 'string' ? mod : (mod?.name || mod)) : [];
-          // Convert ApiMenuItem to SharedMenuItem before adding to cart
-          const sharedMenuItem = convertApiMenuItemToShared(menuItem as ApiMenuItem);
-          addItem(
-            sharedMenuItem,
-            item.quantity || 1,
-            modifications
-          );
-        }
-      });
-    }
-  }, [menuItems, addItem, cart.items, onCheckout, isCheckingOut, toast]);
 
   const handleCheckout = useCallback(() => {
     setIsCheckingOut(true);
     onCheckout();
-  }, [onCheckout]);
+  }, [onCheckout, setIsCheckingOut]);
 
   const handleQuickOrder = useCallback(async () => {
     const result = await submitOrderAndNavigate(cart.items);
@@ -351,11 +259,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
               }>
                 <VoiceControlWebRTC
                   context="kiosk"
-                  onTranscript={handleVoiceTranscript}
-                  onOrderDetected={handleOrderData}
-                  onRecordingStateChange={setIsListening}
-                  onConnectionStateChange={setVoiceConnectionState}
-                  onSessionReadyChange={setIsSessionReady}
+                  {...voiceControlProps}
                   debug={true}
                 />
               </Suspense>
@@ -407,13 +311,13 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
             </Card>
 
             {/* Live Transcript */}
-            {lastTranscript && (
+            {currentTranscript && (
               <Card className="p-6 bg-blue-50 border-2 border-blue-200">
                 <div className="flex items-start space-x-4">
                   <Volume2 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <h3 className="text-lg font-semibold text-blue-900 mb-2">You said:</h3>
-                    <p className="text-blue-800 text-lg italic">"{lastTranscript}"</p>
+                    <p className="text-blue-800 text-lg italic">"{currentTranscript}"</p>
                   </div>
                 </div>
               </Card>
@@ -434,7 +338,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
               </Card>
             )}
 
-            {/* Voice Feedback */}
+            {/* Voice Feedback (from voice commerce hook) */}
             {voiceFeedback && (
               <Card className="p-6 bg-purple-50 border-2 border-purple-200">
                 <div className="flex items-start space-x-4">
@@ -442,6 +346,19 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                   <div>
                     <h3 className="text-lg font-semibold text-purple-900 mb-2">System:</h3>
                     <p className="text-purple-800 text-lg">{voiceFeedback}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Orchestrator Feedback (from checkout orchestrator) */}
+            {orchestratorFeedback && (
+              <Card className="p-6 bg-indigo-50 border-2 border-indigo-200">
+                <div className="flex items-start space-x-4">
+                  <Volume2 className="w-6 h-6 text-indigo-600 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-indigo-900 mb-2">Checkout:</h3>
+                    <p className="text-indigo-800 text-lg">{orchestratorFeedback}</p>
                   </div>
                 </div>
               </Card>

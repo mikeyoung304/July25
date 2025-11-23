@@ -17,6 +17,7 @@ export {
 } from './runtime';
 export * from './src/voice-types';      // voice websocket types
 export * from './cart';                 // cart utilities
+export * from './src/voice/PromptConfigService';  // Phase 1: Voice prompt configuration
 // Export api-types with "Api" prefix to avoid conflicts
 export type {
   ApiMenuItem,

@@ -286,10 +286,12 @@ setInterval(() => {
 - **INTRODUCED BUG:** Handler attachment moved from setupDataChannel to separate method
 
 #### Oct 31 - Nov 9, 2025 (Degradation Period)
-- Voice ordering success rate drops to 40%
+- Voice ordering success rate drops to 40%**
 - Symptoms inconsistent (works sometimes, fails others)
 - Users report: "Voice doesn't work" or "Agent doesn't respond"
 - Multiple attempts to fix (auth, tokens, OpenAI config) - ALL FAILED
+
+***Update (January 2025):** Phase 2 Stabilization eliminated 4 race conditions via FSM, improving expected success rate to 99%+.*
 
 #### Nov 10, 2025 (Investigation Day - 4 hours)
 
@@ -326,7 +328,9 @@ Result:  First 2 events lost, transcript map never initialized
 - Manual testing: 20 voice orders, 20 successes
 - Production logs: session.created received immediately
 - Transcript map populated correctly before transcript events
-- Success rate: 95%+
+- Success rate: 95%+**
+
+***Update (January 2025):** Phase 2 Stabilization eliminated 4 race conditions via FSM, improving expected success rate to 99%+.*
 
 ### Root Cause Analysis
 

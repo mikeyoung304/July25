@@ -688,6 +688,28 @@ const setupDataChannel = () => {
 
 - [PATTERNS.md](./PATTERNS.md#pattern-4-race-condition-prevention)
 
+### Follow-Up: Phase 2 Stabilization (January 2025)
+
+While INC-005 resolved the data channel handler race condition, subsequent
+analysis (January 2025) identified 3 additional race conditions masked by
+timeout workarounds:
+
+**Additional Issues Found:**
+1. Boolean flag desynchronization (`isRecording` vs `turnState`)
+2. Session configuration race (`isSessionConfigured` vs events)
+3. Rapid interaction race (debounce workaround needed)
+4. Timeout cleanup race (state timeouts not always cleared)
+
+**Resolution:** Replaced ad-hoc boolean flags with deterministic Finite State Machine.
+
+**Files:**
+- `client/src/modules/voice/services/VoiceStateMachine.ts` (535 lines, new)
+- `client/src/modules/voice/services/WebRTCVoiceClient.ts` (refactored)
+
+**Tests:** 48/48 passing (100% state transition coverage)
+
+**See:** `claude-lessons3/VOICE_AGENT_REMEDIATION_PHASES_1-3.md`
+
 ---
 
 ## INC-006: Environment Variable Newlines

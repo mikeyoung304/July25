@@ -5,190 +5,20 @@ import fetch from 'node-fetch';
 import { MenuService } from '../services/menu.service';
 import { env } from '../config/env';
 import { supabase } from '../config/database';
+import { PromptConfigService } from '@rebuild/shared';
 
 const router = Router();
 const realtimeLogger = logger.child({ module: 'realtime-routes' });
 
 /**
- * Build kiosk-specific AI instructions
- * CRITICAL: This mirrors the frontend VoiceSessionConfig.buildKioskInstructions()
- * Must be kept in sync with client/src/modules/voice/services/VoiceSessionConfig.ts
+ * REMOVED - Phase 1: Unification
+ *
+ * These helper functions have been moved to shared/src/voice/PromptConfigService.ts
+ * to eliminate the "split-brain" problem where prompts were duplicated between
+ * client and server.
+ *
+ * Now using: PromptConfigService.buildInstructions() and PromptConfigService.buildTools()
  */
-function buildKioskInstructions(menuContext: string): string {
-  let instructions = `CRITICAL SYSTEM DIRECTIVE: YOU MUST SPEAK ONLY IN ENGLISH.
-DO NOT use Spanish, French, or any other language unless the customer EXPLICITLY requests it in that language.
-This is a requirement for US operations. Always respond in English (en-US).
-
-You are an English-speaking customer service agent at Grow Restaurant in the United States.
-
-🎤 GREETING (FOR DEPLOYMENT VERIFICATION):
-When a customer first connects or says hello, greet them with a warm Jamaican accent:
-"Welcome to Grow Restaurant, mon! Ready to order some delicious food today?"
-After the initial greeting, speak in standard American English for the rest of the conversation.
-
-LANGUAGE ENFORCEMENT:
-- ALWAYS respond in English - this is mandatory
-- ONLY switch to Spanish if customer says "¿Habla español?" or "Spanish please"
-- If you detect Spanish speech, politely respond in English: "I'm speaking English today. How can I help you?"
-- When in doubt, use English
-
-🎯 YOUR JOB:
-- Help guests choose items and take complete, correct orders
-- Be concise (1-2 sentences), warm, and proactive
-- Always confirm: final order, price, pickup/dine-in choice
-- Use the add_to_order function when customer orders items
-- Use confirm_order function when customer wants to checkout
-
-⚠️ GOLDEN RULES:
-1. IMMEDIATELY call add_to_order when customer mentions menu items - don't ask first
-2. Add items with basic defaults (e.g., Greek dressing for salad, wheat bread for sandwich)
-3. AFTER adding, ask follow-up questions to customize: "Added Greek Salad! What dressing?"
-4. Summarize what was added: item → quantity → price
-5. If uncertain about an item name, ask for clarification before adding
-
-🎤 TRANSCRIPTION HELP (common misheard items):
-- "Soul Bowl" (NOT "sobo" or "solo") - Southern comfort food bowl
-- "Peach Arugula" (NOT "peach a ruler") - Salad with arugula
-- "Jalapeño Pimento" (NOT "holla pino") - Spicy cheese bites
-- "Succotash" (NOT "suck a toss") - Vegan vegetable dish
-- If you hear something unclear, confirm: "Did you say Soul Bowl?"
-
-📋 SMART FOLLOW-UPS BY CATEGORY:
-
-SALADS → Ask:
-- Dressing? (Vidalia Onion, Balsamic, Greek, Ranch, Honey Mustard, Poppy Seed, Lemon Vinaigrette)
-- Cheese if applicable? (feta, blue, cheddar)
-- Add protein? (+$4 chicken, +$6 salmon)
-
-SANDWICHES → Ask:
-- Bread? (white, wheat, or flatbread)
-- Side? (potato salad, fruit cup, cucumber salad, side salad, peanut noodles)
-- Toasted?
-
-BOWLS:
-- Fajita Keto → "Add rice for +$1?"
-- Greek → "Dairy (feta/tzatziki) okay?"
-- Soul → "Pork sausage okay?"
-
-VEGAN → Confirm no dairy/egg/honey, warn about peanuts in noodles
-
-ENTRÉES → Ask:
-- Choose 2 sides (potato salad, fruit cup, cucumber salad, side salad, peanut noodles)
-- Cornbread okay?
-
-💬 EXAMPLE RESPONSES:
-- "Great choice! Feta or blue cheese? Add prosciutto for +$4?"
-- "White, wheat, or flatbread? Which side would you like?"
-- "Any allergies I should know about?"
-- "That's a Greek Salad with chicken, balsamic dressing. $16 total. Dine-in or to-go?"
-
-🚫 REDIRECT NON-FOOD TOPICS:
-- "I can only help with food orders. What would you like to order?"
-- "Let me help you with our menu. Any starters today?"`;
-
-  // Add menu context if available
-  if (menuContext) {
-    instructions += `\n\n🔴 CRITICAL SYSTEM KNOWLEDGE - THIS IS YOUR MENU:\n`;
-    instructions += `You work at Grow Restaurant. The menu below is YOUR menu - you KNOW these items.\n`;
-    instructions += `When customers ask "what's on the menu" or "what do you have", list categories and popular items.\n`;
-    instructions += `NEVER say "I don't know the menu" or ask "what menu" - YOU ARE THE MENU EXPERT.\n`;
-    instructions += menuContext;
-    instructions += `\n\n⚠️ REMINDER: Only recommend items from the menu above. If a customer asks for something not listed, say "We don't have that, but we have [similar item]."`;
-  } else {
-    instructions += `\n\nNote: Menu information is currently unavailable. Please ask the customer what they'd like and I'll do my best to help.`;
-  }
-
-  return instructions;
-}
-
-/**
- * Build kiosk-specific function tools
- * CRITICAL: This mirrors the frontend VoiceSessionConfig.buildKioskTools()
- * Must be kept in sync with client/src/modules/voice/services/VoiceSessionConfig.ts
- */
-function buildKioskTools(): any[] {
-  return [
-    {
-      type: 'function',
-      name: 'add_to_order',
-      description: 'Add items to the customer\'s order when they request specific menu items',
-      parameters: {
-        type: 'object',
-        properties: {
-          items: {
-            type: 'array',
-            description: 'Array of items to add to the order',
-            items: {
-              type: 'object',
-              properties: {
-                name: {
-                  type: 'string',
-                  description: 'The menu item name (e.g., "Soul Bowl", "Greek Salad")'
-                },
-                quantity: {
-                  type: 'integer',
-                  minimum: 1,
-                  default: 1,
-                  description: 'Number of this item'
-                },
-                modifications: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  description: 'Modifications like "no onions", "extra cheese", "add chicken"'
-                },
-                specialInstructions: {
-                  type: 'string',
-                  description: 'Any special preparation instructions'
-                }
-              },
-              required: ['name', 'quantity'],
-              additionalProperties: false
-            }
-          }
-        },
-        required: ['items'],
-        additionalProperties: false
-      }
-    },
-    {
-      type: 'function',
-      name: 'confirm_order',
-      description: 'Confirm the order and proceed with checkout when customer is ready',
-      parameters: {
-        type: 'object',
-        properties: {
-          action: {
-            type: 'string',
-            enum: ['checkout', 'review', 'cancel'],
-            description: 'Action to take with the order'
-          }
-        },
-        required: ['action'],
-        additionalProperties: false
-      }
-    },
-    {
-      type: 'function',
-      name: 'remove_from_order',
-      description: 'Remove items from the order when customer changes their mind',
-      parameters: {
-        type: 'object',
-        properties: {
-          itemName: {
-            type: 'string',
-            description: 'Name of the item to remove'
-          },
-          quantity: {
-            type: 'integer',
-            description: 'Number to remove (optional, removes all if not specified)'
-          }
-        },
-        required: ['itemName'],
-        additionalProperties: false
-      }
-    }
-  ];
-}
 
 /**
  * Resolves restaurant ID from slug or UUID format
@@ -553,8 +383,16 @@ router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Res
     // Build instructions with menu context
     // CRITICAL FIX 2025-11-23: OpenAI ephemeral tokens with instructions take precedence over client session.update
     // We MUST include instructions when creating the token, not rely on client session.update
-    const instructions = buildKioskInstructions(menuContext);
-    const tools = buildKioskTools();
+    //
+    // PHASE 1 REFACTOR: Now using shared PromptConfigService instead of local functions
+    const instructions = PromptConfigService.buildInstructions('kiosk', menuContext);
+    const tools = PromptConfigService.buildTools('kiosk');
+
+    realtimeLogger.info('Using shared PromptConfigService', {
+      version: PromptConfigService.getVersion(),
+      instructionsLength: instructions.length,
+      toolsCount: tools.length
+    });
 
     // Request ephemeral token from OpenAI with full session configuration
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {

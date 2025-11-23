@@ -4,6 +4,7 @@ import { getAuthToken, getOptionalAuthToken } from '../../../services/auth';
 import { VoiceSessionConfig } from './VoiceSessionConfig';
 import { WebRTCConnection } from './WebRTCConnection';
 import { VoiceEventHandler } from './VoiceEventHandler';
+import { VoiceStateMachine, VoiceState, VoiceEvent } from './VoiceStateMachine';
 import { logger } from '../../../services/logger';
 
 export type VoiceContext = 'kiosk' | 'server';
@@ -36,6 +37,8 @@ export interface OrderEvent {
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
 
+// DEPRECATED: Legacy TurnState type - replaced by VoiceStateMachine
+// Kept for backward compatibility with external consumers
 export type TurnState =
   | 'idle'
   | 'recording'
@@ -47,10 +50,13 @@ export type TurnState =
  * WebRTC client for OpenAI Realtime API
  * Provides low-latency voice transcription and responses
  *
+ * PHASE 2 REFACTOR: Now uses VoiceStateMachine for deterministic state management
+ *
  * This is an orchestrator that delegates to specialized services:
  * - VoiceSessionConfig: Session configuration and token management
  * - WebRTCConnection: WebRTC peer connection lifecycle
  * - VoiceEventHandler: Realtime API event processing
+ * - VoiceStateMachine: Event-driven state management (NEW in Phase 2)
  */
 export class WebRTCVoiceClient extends EventEmitter {
   private config: WebRTCVoiceConfig;
@@ -59,30 +65,39 @@ export class WebRTCVoiceClient extends EventEmitter {
   private sessionConfig: VoiceSessionConfig;
   private connection: WebRTCConnection;
   private eventHandler: VoiceEventHandler;
+  private stateMachine: VoiceStateMachine; // PHASE 2: State machine replaces ad-hoc flags
 
-  // Turn state machine (managed by orchestrator)
-  private turnState: TurnState = 'idle';
-  private isRecording = false;
-  private lastCommitTime = 0;
-  private turnStateTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  // Connection state tracking
+  // Connection state tracking (kept for backward compatibility)
   private connectionState: ConnectionState = 'disconnected';
-  private isConnecting = false;
-  private isSessionConfigured = false; // Track if session.updated received from OpenAI
 
   constructor(config: WebRTCVoiceConfig) {
     super();
     this.config = config;
 
     if (this.config.debug) {
-      logger.info('[WebRTCVoiceClient] Initializing orchestrator with services');
+      logger.info('[WebRTCVoiceClient] Initializing orchestrator with services (Phase 2: State Machine)');
     }
 
     // Create services
     this.sessionConfig = new VoiceSessionConfig(config, { getAuthToken, getOptionalAuthToken });
     this.connection = new WebRTCConnection(config);
     this.eventHandler = new VoiceEventHandler(config);
+
+    // PHASE 2: Initialize state machine
+    this.stateMachine = new VoiceStateMachine({
+      onStateChange: (fromState, toState, event) => {
+        if (this.config.debug) {
+          logger.info(`[WebRTCVoiceClient] State transition: ${fromState} --[${event}]--> ${toState}`);
+        }
+        // Emit legacy connection.change events for backward compatibility
+        this.emitLegacyConnectionState(toState);
+      },
+      onTimeout: (state) => {
+        logger.warn(`[WebRTCVoiceClient] State machine timeout in state: ${state}`);
+        this.emit('state.timeout', { state });
+      },
+      maxHistorySize: 50
+    });
 
     // Wire connection events
     this.connection.on('connection.change', (state: ConnectionState) => {
@@ -137,9 +152,17 @@ export class WebRTCVoiceClient extends EventEmitter {
       });
     });
 
-    // Handle session.created event to send session configuration
+    // PHASE 2: Handle session.created event - transition to SESSION_CREATED state
     this.eventHandler.on('session.created', () => {
-      console.log('🎯 [WebRTCVoiceClient] Session created event received');
+      logger.info('🎯 [WebRTCVoiceClient] Session created event received');
+
+      // Transition state machine
+      try {
+        this.stateMachine.transition(VoiceEvent.SESSION_CREATED);
+      } catch (error) {
+        logger.error('[WebRTCVoiceClient] Invalid state transition on session.created:', error);
+        return;
+      }
 
       const sessionConfigObj = this.sessionConfig.buildSessionConfig();
 
@@ -147,8 +170,8 @@ export class WebRTCVoiceClient extends EventEmitter {
       const sessionConfigJson = JSON.stringify(sessionConfigObj);
       const configSizeKB = (sessionConfigJson.length / 1024).toFixed(2);
 
-      // FORCE console.log for production debugging
-      console.log('📤 [WebRTCVoiceClient] Sending session.update:', {
+      // Log session configuration for debugging
+      logger.info('📤 [WebRTCVoiceClient] Sending session.update:', {
         sizeKB: configSizeKB,
         instructionsLength: sessionConfigObj.instructions?.length || 0,
         toolsCount: sessionConfigObj.tools?.length || 0,
@@ -159,10 +182,10 @@ export class WebRTCVoiceClient extends EventEmitter {
       });
 
       if (sessionConfigJson.length > 50000) {
-        console.error('🚨 [WebRTCVoiceClient] Session config TOO LARGE (>50KB)!');
+        logger.error('🚨 [WebRTCVoiceClient] Session config TOO LARGE (>50KB)!');
       }
 
-      console.log('🚀 [WebRTCVoiceClient] Sending session.update to OpenAI now...');
+      logger.info('🚀 [WebRTCVoiceClient] Sending session.update to OpenAI now...');
 
       const sessionUpdatePayload = {
         type: 'session.update',
@@ -170,7 +193,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       };
 
       // Log the ACTUAL payload being sent
-      console.log('📨 [WebRTCVoiceClient] ACTUAL session.update payload:', {
+      logger.info('📨 [WebRTCVoiceClient] ACTUAL session.update payload:', {
         type: sessionUpdatePayload.type,
         session: {
           modalities: sessionConfigObj.modalities,
@@ -188,18 +211,24 @@ export class WebRTCVoiceClient extends EventEmitter {
         }
       });
 
-      console.log('🔍 [WebRTCVoiceClient] CRITICAL: input_audio_transcription setting:', sessionConfigObj.input_audio_transcription);
+      logger.info('🔍 [WebRTCVoiceClient] CRITICAL: input_audio_transcription setting:', sessionConfigObj.input_audio_transcription);
 
       this.eventHandler.sendEvent(sessionUpdatePayload);
-      console.log('✅ [WebRTCVoiceClient] session.update sent');
+      logger.info('✅ [WebRTCVoiceClient] session.update sent');
 
-      // CRITICAL: Set configured flag immediately after sending
-      // OpenAI doesn't send session.updated confirmation, so we can't wait for it
-      // The menu context is IN the session.update payload, so as soon as it's sent,
-      // we can allow recording (the race condition was user speaking BEFORE sending)
-      this.isSessionConfigured = true;
-      console.log('✅ [WebRTCVoiceClient] Session configured - recording now allowed');
-      this.emit('session.configured');
+      // PHASE 2: Use dual confirmation strategy (event + timeout fallback)
+      // Set a 3-second timeout to transition to IDLE if no session.updated received
+      setTimeout(() => {
+        if (this.stateMachine.isState(VoiceState.AWAITING_SESSION_READY)) {
+          logger.info('⏱️ [WebRTCVoiceClient] Session ready timeout - proceeding to IDLE (fallback)');
+          try {
+            this.stateMachine.transition(VoiceEvent.SESSION_READY, { confirmed_via: 'timeout' });
+            this.emit('session.configured');
+          } catch (error) {
+            logger.error('[WebRTCVoiceClient] Failed to transition to IDLE on timeout:', error);
+          }
+        }
+      }, 3000);
 
       // Clear audio buffer immediately after session config
       this.eventHandler.sendEvent({
@@ -207,18 +236,29 @@ export class WebRTCVoiceClient extends EventEmitter {
       });
     });
 
-    // NOTE: OpenAI Realtime API doesn't send session.updated in response to session.update
-    // Event handler exists but this event never fires
+    // PHASE 2: Handle session.updated event (if OpenAI sends it)
+    // This event is rare but if received, confirms session is ready immediately
     this.eventHandler.on('session.updated', () => {
-      console.log('✅ [WebRTCVoiceClient] session.updated received (unexpected - OpenAI typically does not send this)');
+      logger.info('✅ [WebRTCVoiceClient] session.updated received (explicit confirmation from OpenAI)');
+
+      if (this.stateMachine.isState(VoiceState.AWAITING_SESSION_READY)) {
+        try {
+          this.stateMachine.transition(VoiceEvent.SESSION_READY, { confirmed_via: 'event' });
+          this.emit('session.configured');
+        } catch (error) {
+          logger.error('[WebRTCVoiceClient] Failed to transition to IDLE on session.updated:', error);
+        }
+      }
     });
 
-    // Handle transcript completion to clear timeout and transition states
+    // PHASE 2: Handle transcript completion - transition to AWAITING_RESPONSE
     this.eventHandler.on('transcript', (event: any) => {
-      if (event.isFinal && this.turnState === 'waiting_user_final') {
-        // Clear timeout since we received the transcript
-        this.clearTurnStateTimeout();
-        // Note: VoiceEventHandler handles state transition to waiting_response
+      if (event.isFinal && this.stateMachine.isState(VoiceState.AWAITING_TRANSCRIPT)) {
+        try {
+          this.stateMachine.transition(VoiceEvent.TRANSCRIPT_RECEIVED);
+        } catch (error) {
+          logger.error('[WebRTCVoiceClient] Invalid state transition on transcript:', error);
+        }
       }
     });
 
@@ -251,20 +291,21 @@ export class WebRTCVoiceClient extends EventEmitter {
 
   /**
    * Connect to OpenAI Realtime API via WebRTC
+   * PHASE 2: Uses state machine for connection lifecycle
    */
   async connect(): Promise<void> {
-    // Prevent duplicate connections
-    if (this.isConnecting || this.connectionState === 'connected') {
+    // PHASE 2: Use state machine guard - prevent duplicate connections
+    if (this.stateMachine.isConnecting() || this.stateMachine.isConnected()) {
       if (this.config.debug) {
         logger.info('[WebRTCVoiceClient] Already connecting or connected, skipping...');
       }
       return;
     }
 
-    this.isConnecting = true;
-    this.isSessionConfigured = false; // Reset - will be set true when session.updated received
-
     try {
+      // Transition to CONNECTING state
+      this.stateMachine.transition(VoiceEvent.CONNECT_REQUESTED);
+
       if (this.config.debug) {
         logger.info('[WebRTCVoiceClient] Starting connection sequence...');
       }
@@ -280,15 +321,23 @@ export class WebRTCVoiceClient extends EventEmitter {
 
       await this.connection.connect(token);
 
-      this.isConnecting = false;
+      // Transition to AWAITING_SESSION_CREATED
+      this.stateMachine.transition(VoiceEvent.CONNECTION_ESTABLISHED);
 
       if (this.config.debug) {
-        logger.info('[WebRTCVoiceClient] Connection established successfully');
+        logger.info('[WebRTCVoiceClient] Connection established, awaiting session.created');
       }
 
     } catch (error) {
       logger.error('[WebRTCVoiceClient] Connection failed:', error);
-      this.isConnecting = false;
+
+      // Transition to ERROR state
+      try {
+        this.stateMachine.transition(VoiceEvent.ERROR_OCCURRED, { error: String(error) });
+      } catch (transitionError) {
+        logger.error('[WebRTCVoiceClient] Failed to transition to ERROR state:', transitionError);
+      }
+
       this.emit('error', error);
       throw error;
     }
@@ -296,119 +345,109 @@ export class WebRTCVoiceClient extends EventEmitter {
 
   /**
    * Start recording (enable microphone)
+   * PHASE 2: Uses state machine guard conditions
    */
   startRecording(): void {
-    // State machine guard: only allow from idle state
-    if (this.turnState !== 'idle') {
-      logger.warn(`[WebRTCVoiceClient] Cannot start recording in state: ${this.turnState}`);
+    // PHASE 2: Use state machine guard - only allow from IDLE state
+    if (!this.stateMachine.canStartRecording()) {
+      logger.warn(`[WebRTCVoiceClient] Cannot start recording in state: ${this.stateMachine.getState()}`);
+
+      // If not ready yet, emit special event
+      if (!this.stateMachine.isReady()) {
+        logger.warn('⚠️ [WebRTCVoiceClient] Cannot start recording - session not yet ready');
+        this.emit('session.not.ready');
+      }
       return;
     }
 
-    // CRITICAL: Block recording until session.updated received from OpenAI
-    // This prevents race condition where user speaks before menu context is loaded
-    if (!this.isSessionConfigured) {
-      console.warn('⚠️ [WebRTCVoiceClient] Cannot start recording - session config not yet confirmed by OpenAI');
-      console.warn('   Waiting for session.updated event...');
-      // Emit event so UI can show "Initializing..." message
-      this.emit('session.not.ready');
-      return;
-    }
+    try {
+      // Transition to RECORDING state
+      this.stateMachine.transition(VoiceEvent.RECORDING_STARTED);
 
-    if (this.config.debug) {
-      logger.info('[WebRTCVoiceClient] Turn state: idle → recording');
-    }
-    this.turnState = 'recording';
+      if (this.config.debug) {
+        logger.info('[WebRTCVoiceClient] Recording started');
+      }
 
-    // Update event handler turn state
-    this.eventHandler.setTurnState('recording');
+      // Update event handler turn state (for backward compatibility)
+      this.eventHandler.setTurnState('recording');
 
-    // Clear audio buffer before starting
-    this.eventHandler.sendEvent({
-      type: 'input_audio_buffer.clear'
-    });
+      // Clear audio buffer before starting
+      this.eventHandler.sendEvent({
+        type: 'input_audio_buffer.clear'
+      });
 
-    // Enable microphone to start transmitting
-    this.connection.enableMicrophone();
+      // Enable microphone to start transmitting
+      this.connection.enableMicrophone();
 
-    this.isRecording = true;
-    this.emit('recording.started');
+      this.emit('recording.started');
 
-    // Clear any response text in the UI
-    this.emit('response.text', '');
-    this.emit('transcript', { text: '', isFinal: false, confidence: 0, timestamp: Date.now() });
+      // Clear any response text in the UI
+      this.emit('response.text', '');
+      this.emit('transcript', { text: '', isFinal: false, confidence: 0, timestamp: Date.now() });
 
-    if (this.config.debug) {
-      logger.info('[WebRTCVoiceClient] Recording started - hold button to continue');
+    } catch (error) {
+      logger.error('[WebRTCVoiceClient] Failed to start recording:', error);
+      this.emit('error', error);
     }
   }
 
   /**
    * Stop recording (mute microphone and commit audio buffer)
+   * PHASE 2: Uses state machine transitions, removes debounce workaround
    */
   stopRecording(): void {
-    // State machine guard: only allow from recording state
-    if (this.turnState !== 'recording') {
-      logger.warn(`[WebRTCVoiceClient] Cannot stop recording in state: ${this.turnState}`);
+    // PHASE 2: Use state machine guard - only allow from RECORDING state
+    if (!this.stateMachine.canStopRecording()) {
+      logger.warn(`[WebRTCVoiceClient] Cannot stop recording in state: ${this.stateMachine.getState()}`);
       return;
     }
 
-    // Debounce protection
-    const now = Date.now();
-    if (now - this.lastCommitTime < 250) {
-      logger.warn('[WebRTCVoiceClient] Ignoring rapid stop - debouncing');
-      return;
-    }
-
-    if (this.config.debug) {
-      logger.info('[WebRTCVoiceClient] Turn state: recording → committing');
-    }
-
-    // IMMEDIATELY mute microphone to stop transmission
-    this.connection.disableMicrophone();
-
-    this.lastCommitTime = now;
-    this.isRecording = false;
-
-    // State transition: recording → committing
-    this.turnState = 'committing';
-    this.eventHandler.setTurnState('committing');
-
-    // Commit the audio buffer
-    this.eventHandler.sendEvent({
-      type: 'input_audio_buffer.commit'
-    });
-
-    // State transition: committing → waiting_user_final
-    if (this.config.debug) {
-      logger.info('[WebRTCVoiceClient] Turn state: committing → waiting_user_final');
-    }
-    this.turnState = 'waiting_user_final';
-    this.eventHandler.setTurnState('waiting_user_final');
-
-    this.emit('recording.stopped');
-
-    if (this.config.debug) {
-      logger.info('[WebRTCVoiceClient] Waiting for user transcript to finalize...');
-    }
-
-    // Safety timeout: Reset to idle if no transcript received within 10 seconds
-    // This prevents the state machine from getting stuck if OpenAI doesn't send a transcript
-    this.clearTurnStateTimeout();
-    this.turnStateTimeout = setTimeout(() => {
-      if (this.turnState === 'waiting_user_final') {
-        logger.warn('[WebRTCVoiceClient] Timeout waiting for transcript, resetting to idle');
-        this.resetTurnState();
+    try {
+      if (this.config.debug) {
+        logger.info('[WebRTCVoiceClient] Stopping recording...');
       }
-    }, 10000); // 10 second timeout
+
+      // IMMEDIATELY mute microphone to stop transmission
+      this.connection.disableMicrophone();
+
+      // Transition: RECORDING → COMMITTING_AUDIO
+      this.stateMachine.transition(VoiceEvent.RECORDING_STOPPED);
+
+      // Update event handler turn state (for backward compatibility)
+      this.eventHandler.setTurnState('committing');
+
+      // Commit the audio buffer
+      this.eventHandler.sendEvent({
+        type: 'input_audio_buffer.commit'
+      });
+
+      // Transition: COMMITTING_AUDIO → AWAITING_TRANSCRIPT
+      this.stateMachine.transition(VoiceEvent.AUDIO_COMMITTED);
+
+      // Update event handler turn state (for backward compatibility)
+      this.eventHandler.setTurnState('waiting_user_final');
+
+      this.emit('recording.stopped');
+
+      if (this.config.debug) {
+        logger.info('[WebRTCVoiceClient] Waiting for transcript from OpenAI...');
+      }
+
+    } catch (error) {
+      logger.error('[WebRTCVoiceClient] Failed to stop recording:', error);
+      this.emit('error', error);
+    }
   }
 
   /**
    * Handle reconnection
+   * PHASE 2: Uses state machine reset
    */
   private async handleReconnect(): Promise<void> {
-    this.isSessionConfigured = false; // Reset - will be set true when session.updated received
-
     try {
+      // Reset state machine to disconnected
+      this.stateMachine.reset();
+
       // Check if token is still valid
       if (!this.sessionConfig.isTokenValid()) {
         await this.sessionConfig.fetchEphemeralToken();
@@ -426,6 +465,7 @@ export class WebRTCVoiceClient extends EventEmitter {
 
   /**
    * Handle session expiration
+   * PHASE 2: Uses state machine reset
    */
   private async handleSessionExpired(): Promise<void> {
     if (this.config.debug) {
@@ -435,6 +475,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     try {
       // Disconnect current session
       this.connection.disconnect();
+      this.stateMachine.reset();
 
       // Fetch new token and reconnect
       await this.sessionConfig.fetchEphemeralToken();
@@ -451,50 +492,26 @@ export class WebRTCVoiceClient extends EventEmitter {
 
   /**
    * Handle disconnection
+   * PHASE 2: Uses state machine
    */
   private handleDisconnection(): void {
     this.connectionState = 'disconnected';
-    this.resetTurnState();
-  }
-
-  /**
-   * Clear turn state timeout
-   */
-  private clearTurnStateTimeout(): void {
-    if (this.turnStateTimeout) {
-      clearTimeout(this.turnStateTimeout);
-      this.turnStateTimeout = null;
-    }
-  }
-
-  /**
-   * Reset turn state
-   */
-  private resetTurnState(): void {
-    this.clearTurnStateTimeout();
-    this.turnState = 'idle';
-    this.isRecording = false;
-    this.eventHandler.setTurnState('idle');
+    this.stateMachine.reset();
+    this.eventHandler.setTurnState('idle'); // For backward compatibility
   }
 
   /**
    * Disconnect and clean up
+   * PHASE 2: Uses state machine reset
    */
   disconnect(): void {
-    // Clear all state flags
-    this.isRecording = false;
-    this.isConnecting = false;
-
-    // Clear any pending timeouts
-    this.clearTurnStateTimeout();
-
     // Disconnect services
     this.connection.disconnect();
     this.sessionConfig.clearTokenRefresh();
     this.eventHandler.reset();
 
-    // Reset turn state
-    this.resetTurnState();
+    // Reset state machine
+    this.stateMachine.reset();
 
     this.connectionState = 'disconnected';
 
@@ -512,8 +529,32 @@ export class WebRTCVoiceClient extends EventEmitter {
 
   /**
    * Check if currently recording
+   * PHASE 2: Uses state machine
    */
   isCurrentlyRecording(): boolean {
-    return this.isRecording;
+    return this.stateMachine.isState(VoiceState.RECORDING);
+  }
+
+  /**
+   * Helper method to emit legacy connection.change events for backward compatibility
+   * Maps VoiceState to ConnectionState
+   */
+  private emitLegacyConnectionState(state: VoiceState): void {
+    let legacyState: ConnectionState;
+
+    if (state === VoiceState.DISCONNECTED) {
+      legacyState = 'disconnected';
+    } else if ([VoiceState.CONNECTING, VoiceState.AWAITING_SESSION_CREATED, VoiceState.AWAITING_SESSION_READY].includes(state)) {
+      legacyState = 'connecting';
+    } else if ([VoiceState.ERROR, VoiceState.TIMEOUT].includes(state)) {
+      legacyState = 'error';
+    } else {
+      legacyState = 'connected';
+    }
+
+    if (legacyState !== this.connectionState) {
+      this.connectionState = legacyState;
+      this.emit('connection.change', legacyState);
+    }
   }
 }

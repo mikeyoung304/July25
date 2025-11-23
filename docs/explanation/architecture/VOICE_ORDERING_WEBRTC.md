@@ -1,5 +1,5 @@
 # Voice Ordering Architecture (WebRTC)
-**Last Updated:** 2025-01-18
+**Last Updated:** 2025-01-23
 **Status:** ACTIVE (Production)
 **Critical Update:** OpenAI transcription model changed from `whisper-1` to `gpt-4o-transcribe` (Jan 2025)
 
@@ -25,21 +25,44 @@ After evaluating three approaches, we selected **Client-Side WebRTC** for produc
 
 ## System Components
 
-### 1. Client-Side (Browser)
+### 1. Shared Services (Cross-Platform)
+```
+shared/src/voice/
+└── PromptConfigService.ts              # AI prompt configuration (Phase 1)
+                                        # Single source of truth for:
+                                        # - Kiosk/Server instructions
+                                        # - Function tools (add_to_order, etc.)
+                                        # - Menu context injection
+```
+
+**Why:** Eliminates 316 lines of duplication, ensures prompt consistency
+**Tests:** `shared/src/voice/__tests__/PromptConfigService.test.ts` (27 tests)
+
+### 2. Client-Side (Browser)
 ```
 client/src/modules/voice/
 ├── components/
 │   └── VoiceControlWebRTC.tsx          # Main UI component
 ├── services/
-│   ├── WebRTCVoiceClient.ts            # Orchestrator (turn state machine)
+│   ├── VoiceStateMachine.ts            # 12-state FSM (Phase 2)
+│   ├── WebRTCVoiceClient.ts            # Orchestrator (uses VoiceStateMachine FSM)
 │   ├── VoiceSessionConfig.ts           # Session config + token management
 │   ├── WebRTCConnection.ts             # RTCPeerConnection lifecycle
 │   └── VoiceEventHandler.ts            # Realtime API event processing
 └── hooks/
-    └── useWebRTCVoice.ts               # React hook wrapper
+    ├── useWebRTCVoice.ts               # React hook wrapper
+    └── useVoiceCommerce.ts             # Voice commerce logic (Phase 3)
+                                        # Shared between kiosk and server modes:
+                                        # - Fuzzy menu matching
+                                        # - Order data processing
+                                        # - Recently added feedback
+                                        # - Processing state indicators
 ```
 
-### 2. Server-Side (Backend)
+**Why:** Eliminates 40% UI duplication, standardizes cart interactions
+**Tests:** `client/src/modules/voice/hooks/__tests__/useVoiceCommerce.test.ts` (57 tests)
+
+### 3. Server-Side (Backend)
 ```
 server/src/routes/
 └── realtime.routes.ts                  # POST /api/v1/realtime/session
@@ -310,39 +333,35 @@ server/src/routes/
 
 ---
 
-## Turn State Machine
+## Voice State Machine (FSM)
 
-```
-┌─────┐  startRecording()   ┌───────────┐
-│IDLE │────────────────────▶│ RECORDING │
-└──▲──┘                      └─────┬─────┘
-   │                              │
-   │                              │ stopRecording()
-   │                              ▼
-   │                        ┌────────────┐
-   │                        │ COMMITTING │ (brief, ~10ms)
-   │                        └─────┬──────┘
-   │                              │
-   │                              │ auto-transition
-   │                              ▼
-   │                     ┌───────────────────┐
-   │                     │WAITING_USER_FINAL │ (waiting for transcript)
-   │                     └─────┬─────────────┘
-   │                           │
-   │                           │ transcript received
-   │                           ▼
-   │                     ┌───────────────────┐
-   │                     │ WAITING_RESPONSE  │ (AI thinking/speaking)
-   │                     └─────┬─────────────┘
-   │                           │
-   │                           │ response.audio.done
-   └───────────────────────────┘
-```
+**Phase 2 Architecture:** Replaced boolean flags with deterministic Finite State Machine
+
+**Implementation:** `client/src/modules/voice/services/VoiceStateMachine.ts:58-83`
+
+**All 12 States:**
+1. `DISCONNECTED` - No WebRTC connection
+2. `CONNECTING` - WebRTC connection in progress
+3. `AWAITING_SESSION_CREATED` - Waiting for OpenAI session.created event
+4. `AWAITING_SESSION_READY` - Waiting for session.updated confirmation
+5. `IDLE` - Ready for user input
+6. `RECORDING` - Actively capturing user audio
+7. `COMMITTING_AUDIO` - Finalizing audio buffer
+8. `AWAITING_TRANSCRIPT` - Waiting for transcription
+9. `AWAITING_RESPONSE` - Waiting for AI response
+10. `ERROR` - Recoverable error state
+11. `TIMEOUT` - Session timeout occurred
+12. `DISCONNECTING` - Graceful shutdown in progress
 
 **State Guards:**
-- `startRecording()` only allowed from `idle`
-- `stopRecording()` only allowed from `recording`
-- **Debouncing:** Minimum 250ms between commits
+- Enforced via `canStartRecording()` and `canStopRecording()`
+- Invalid transitions rejected before execution
+- No debouncing needed - state machine prevents race conditions
+
+**Transition History:**
+- Last 50 transitions tracked for debugging
+- Access via `client.stateMachine.getTransitionHistory()`
+- Includes timestamps and metadata for each transition
 
 ---
 
@@ -441,39 +460,38 @@ server/src/routes/
 
 ## Fuzzy Menu Matching
 
+**Extracted to useVoiceCommerce Hook (Phase 3)**
+
 **Problem:** User says "greek salad" but menu has "The Greek Salad"
 
-**Solution:** Multi-strategy fuzzy matching (`VoiceOrderingMode.tsx:175-230`)
+**Solution:** The fuzzy matching logic has been centralized in `useVoiceCommerce.ts:271-324` to eliminate duplication between kiosk and server modes.
 
+**3-Level Matching Strategy:**
+1. Exact match (case-insensitive)
+2. Contains match (bidirectional)
+3. Variations dictionary (e.g., 'sobo' → 'soul bowl')
+
+**Default Variations:**
 ```typescript
-const menuItem = menuItems.find(m => {
-  const itemNameLower = item.name.toLowerCase();
-  const menuNameLower = m.name.toLowerCase();
+export const DEFAULT_MENU_VARIATIONS: MenuVariations = {
+  'soul bowl': ['soul', 'bowl', 'sobo', 'solo bowl', 'soul ball'],
+  'greek salad': ['greek', 'greek salad', 'geek salad'],
+  'peach arugula': ['peach', 'arugula', 'peach salad'],
+  'jalapeño pimento': ['jalapeno', 'pimento', 'cheese bites'],
+  'succotash': ['succotash', 'suck a toss', 'sock a tash'],
+};
+```
 
-  // 1. Exact match
-  if (menuNameLower === itemNameLower) return true;
-
-  // 2. Contains match
-  if (menuNameLower.includes(itemNameLower) ||
-      itemNameLower.includes(menuNameLower)) return true;
-
-  // 3. Known variations
-  const variations: Record<string, string[]> = {
-    'soul bowl': ['soul', 'bowl', 'sobo', 'solo bowl'],
-    'greek salad': ['greek', 'greek salad'],
-    'peanut noodles': ['peanut', 'noodles', 'peanut noodle']
-  };
-
-  for (const [menuKey, aliases] of Object.entries(variations)) {
-    if (menuNameLower.includes(menuKey) &&
-        aliases.some(alias => itemNameLower.includes(alias))) {
-      return true;
-    }
-  }
-
-  return false;
+**Usage:**
+```typescript
+const { voiceControlProps } = useVoiceCommerce({
+  menuItems,
+  onAddItem,
+  menuVariations: CUSTOM_VARIATIONS, // Optional override
 });
 ```
+
+**Future:** Phase 4 will move variations to database (`menu_items.transcription_aliases`)
 
 ---
 
