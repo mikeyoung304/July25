@@ -371,11 +371,15 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Emitted when session configuration is updated
    */
   private handleSessionUpdated(event: any, logPrefix: string): void {
-    logger.info('✅ [VoiceEventHandler] session.updated received from OpenAI - config accepted!', {
+    // CRITICAL: Use console.log for production visibility (logger.info is silenced)
+    console.log('✅ [VoiceEventHandler] session.updated received from OpenAI - config accepted!', {
       hasTools: event.session?.tools?.length > 0,
       toolsCount: event.session?.tools?.length || 0,
       instructionsLength: event.session?.instructions?.length || 0
     });
+
+    // CRITICAL: Emit the event so WebRTCVoiceClient can set isSessionConfigured flag
+    this.emit('session.updated');
   }
 
   /**
