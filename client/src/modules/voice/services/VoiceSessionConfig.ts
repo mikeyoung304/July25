@@ -82,16 +82,31 @@ export class VoiceSessionConfig extends EventEmitter implements IVoiceSessionCon
    * Supports both authenticated and anonymous (kiosk demo) access
    */
   async fetchEphemeralToken(): Promise<void> {
-    // Try optional auth first (for kiosk demos), fall back to required auth
-    const authToken = this.authService.getOptionalAuthToken
-      ? await this.authService.getOptionalAuthToken()
-      : await this.authService.getAuthToken();
+    // Try to get auth token, but allow proceeding without it for kiosk mode
+    let authToken: string | null = null;
+
+    try {
+      authToken = this.authService.getOptionalAuthToken
+        ? await this.authService.getOptionalAuthToken()
+        : await this.authService.getAuthToken();
+    } catch (error) {
+      if (this.context === 'kiosk') {
+        // Kiosk mode: allow anonymous access with just restaurant ID
+        logger.info('[VoiceSessionConfig] Kiosk mode: proceeding without authentication');
+        authToken = null;
+      } else {
+        // Server mode: authentication required
+        logger.error('[VoiceSessionConfig] Authentication required for server context');
+        throw new Error('Authentication required for voice ordering');
+      }
+    }
 
     const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
     if (this.config.debug) {
       logger.info('[VoiceSessionConfig] Fetching ephemeral token from:', `${apiBase}/api/v1/realtime/session`);
-      logger.info('[VoiceSessionConfig] Auth mode:', authToken ? 'authenticated' : 'anonymous');
+      logger.info('[VoiceSessionConfig] Auth mode:', authToken ? 'authenticated' : 'anonymous (kiosk)');
+      logger.info('[VoiceSessionConfig] Context:', this.context);
     }
 
     const headers: Record<string, string> = {
