@@ -110,9 +110,9 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
 
   return (
     <div className={cn(
-      'fixed bottom-4 right-4 bg-black/90 text-white rounded-lg shadow-2xl',
-      'backdrop-blur-sm border border-white/10',
-      isExpanded ? 'w-96' : 'w-64',
+      'fixed bottom-2 right-2 bg-black/90 text-white rounded-lg shadow-2xl',
+      'backdrop-blur-sm border border-white/10 max-w-xs',
+      isExpanded ? 'w-72' : 'w-48',
       className
     )}>
       {/* Header */}
@@ -212,7 +212,7 @@ export const VoiceDebugPanel: React.FC<VoiceDebugPanelProps> = ({
                 Clear
               </button>
             </div>
-            <div className="h-48 overflow-y-auto text-xs font-mono space-y-1 bg-black/70 rounded p-2">
+            <div className="h-24 overflow-y-auto text-xs font-mono space-y-1 bg-black/70 rounded p-2">
               {logs.length === 0 ? (
                 <div className="text-gray-500 text-center py-4">
                   Waiting for voice logs...
