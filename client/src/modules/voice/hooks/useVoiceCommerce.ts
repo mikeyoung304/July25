@@ -19,7 +19,8 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { logger } from '../../../services/logger';
-import type { MenuItem } from '@rebuild/shared';
+import type { MenuItem, VoiceMenuConfiguration } from '@rebuild/shared';
+import { VoiceConfigService, voiceConfigService } from '../../../services/voice/VoiceConfigService';
 
 // ============================================================================
 // TYPES AND INTERFACES
@@ -141,9 +142,22 @@ export interface UseVoiceCommerceOptions {
 
   /**
    * Custom menu variations for fuzzy matching
-   * Merges with default variations
+   * Merges with default variations (unless useDynamicConfig is true)
    */
   menuVariations?: MenuVariations;
+
+  /**
+   * Fetch menu configuration dynamically from API
+   * When true, fetches aliases from database instead of using hardcoded defaults
+   * @default false
+   */
+  useDynamicConfig?: boolean;
+
+  /**
+   * Restaurant ID for fetching dynamic configuration
+   * If not provided, uses default from environment
+   */
+  restaurantId?: string;
 
   /**
    * Duration (ms) to show "recently added" feedback
@@ -223,13 +237,12 @@ export function useVoiceCommerce(options: UseVoiceCommerceOptions): UseVoiceComm
     context = 'kiosk',
     checkoutGuard = false,
     menuVariations = {},
+    useDynamicConfig = false,
+    restaurantId,
     recentlyAddedDuration = 5000,
     toast,
     debug = false,
   } = options;
-
-  // Merge custom variations with defaults
-  const allVariations = { ...DEFAULT_MENU_VARIATIONS, ...menuVariations };
 
   // ============================================================================
   // STATE
@@ -248,6 +261,67 @@ export function useVoiceCommerce(options: UseVoiceCommerceOptions): UseVoiceComm
 
   // Feedback
   const [recentlyAdded, setRecentlyAdded] = useState<string[]>([]);
+
+  // Dynamic configuration
+  const [voiceConfig, setVoiceConfig] = useState<VoiceMenuConfiguration | null>(null);
+  const [configLoading, setConfigLoading] = useState(false);
+  const [configError, setConfigError] = useState<Error | null>(null);
+
+  // ============================================================================
+  // DYNAMIC CONFIGURATION LOADING
+  // ============================================================================
+
+  /**
+   * Fetch voice configuration from API (Phase 4: Cleanup)
+   */
+  useEffect(() => {
+    if (!useDynamicConfig) return;
+
+    const loadConfiguration = async () => {
+      setConfigLoading(true);
+      setConfigError(null);
+
+      try {
+        const service = restaurantId
+          ? new VoiceConfigService(restaurantId)
+          : voiceConfigService;
+
+        const config = await service.getMenuConfiguration();
+        setVoiceConfig(config);
+
+        if (debug) {
+          logger.info('[useVoiceCommerce] Dynamic configuration loaded', {
+            itemCount: config.menu_items.length,
+            ruleCount: config.modifier_rules.length,
+            taxRate: config.tax_rate,
+          });
+        }
+      } catch (error) {
+        const err = error as Error;
+        setConfigError(err);
+        logger.error('[useVoiceCommerce] Failed to load dynamic configuration', { error: err });
+
+        if (toast) {
+          toast.error('Failed to load voice configuration. Using defaults.');
+        }
+      } finally {
+        setConfigLoading(false);
+      }
+    };
+
+    loadConfiguration();
+  }, [useDynamicConfig, restaurantId, debug, toast]);
+
+  // Build menu variations from dynamic config or use defaults
+  const allVariations: MenuVariations = useDynamicConfig && voiceConfig
+    ? voiceConfig.menu_items.reduce((acc, item) => {
+        if (item.aliases && item.aliases.length > 0) {
+          acc[item.name.toLowerCase()] = item.aliases;
+        }
+        return acc;
+      }, {} as MenuVariations)
+    : { ...DEFAULT_MENU_VARIATIONS, ...menuVariations };
+
   const [voiceFeedback, setVoiceFeedback] = useState('');
 
   // Checkout guard

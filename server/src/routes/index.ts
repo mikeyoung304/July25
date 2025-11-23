@@ -12,6 +12,7 @@ import { realtimeRoutes } from './realtime.routes';
 import metricsRoutes from './metrics';
 import securityRoutes from './security.routes';
 import { webhookRoutes } from './webhook.routes';
+import { voiceConfigRoutes } from './voice-config.routes';
 
 export function setupRoutes(): Router {
   const router = Router();
@@ -51,6 +52,9 @@ export function setupRoutes(): Router {
 
   // Real-time voice ordering routes
   router.use('/realtime', realtimeRoutes);
+
+  // Voice configuration routes
+  router.use('/voice-config', voiceConfigRoutes);
 
   // Webhook routes (authenticated with HMAC)
   router.use('/webhooks', webhookRoutes);

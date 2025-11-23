@@ -27,6 +27,9 @@ export * from './websocket.types';
 // Event types
 export * from './events.types';
 
+// Voice types
+export * from './voice.types';
+
 // Type transformation utilities
 export * from './transformers';
 

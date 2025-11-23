@@ -4,6 +4,7 @@ export * from './types/menu.types';
 export * from './types/customer.types';
 export * from './types/table.types';
 export * from './types/websocket.types';
+export * from './types/voice.types';
 export * from './types/events.types';    // event types
 export * from './types/transformers';
 export * from './types/validation';
