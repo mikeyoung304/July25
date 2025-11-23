@@ -122,7 +122,9 @@ const KioskDemo: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                <VoiceControlWebRTC 
+                <VoiceControlWebRTC
+                  context="kiosk"
+                  debug={true}
                   onTranscript={handleOrderComplete}
                   className="w-full"
                 />
