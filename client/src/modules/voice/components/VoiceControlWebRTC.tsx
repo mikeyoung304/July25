@@ -307,7 +307,9 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
           {/* Status Text */}
           <div className="text-center">
             {permissionState === 'prompt' && !isConnected && (
-              <p className="text-sm text-gray-500">Hold button to start voice ordering</p>
+              <p className="text-sm text-gray-500">
+                {context === 'kiosk' ? 'Tap' : 'Hold'} button to start voice ordering
+              </p>
             )}
             {permissionState === 'granted' && !isConnected && connectionState === 'connecting' && (
               <p className="text-sm text-gray-500">Connecting to voice service...</p>
@@ -316,7 +318,9 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
               <p className="text-sm text-yellow-600">Initializing session...</p>
             )}
             {isConnected && isSessionReady && !isRecording && !isProcessing && (
-              <p className="text-sm text-gray-500">Hold button to speak</p>
+              <p className="text-sm text-gray-500">
+                {context === 'kiosk' ? 'Tap' : 'Hold'} button to speak
+              </p>
             )}
             {isRecording && (
               <p className="text-sm text-red-600 font-medium animate-pulse">Recording...</p>
