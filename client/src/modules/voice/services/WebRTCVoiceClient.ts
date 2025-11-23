@@ -69,6 +69,7 @@ export class WebRTCVoiceClient extends EventEmitter {
   // Connection state tracking
   private connectionState: ConnectionState = 'disconnected';
   private isConnecting = false;
+  private isSessionConfigured = false; // Track if session.updated received from OpenAI
 
   constructor(config: WebRTCVoiceConfig) {
     super();
@@ -198,6 +199,14 @@ export class WebRTCVoiceClient extends EventEmitter {
       });
     });
 
+    // CRITICAL: Handle session.updated to confirm menu context is loaded
+    this.eventHandler.on('session.updated', () => {
+      console.log('✅ [WebRTCVoiceClient] session.updated received - menu context confirmed!');
+      this.isSessionConfigured = true;
+      // Emit event so UI can update (e.g., remove "Initializing..." message)
+      this.emit('session.configured');
+    });
+
     // Handle transcript completion to clear timeout and transition states
     this.eventHandler.on('transcript', (event: any) => {
       if (event.isFinal && this.turnState === 'waiting_user_final') {
@@ -247,6 +256,7 @@ export class WebRTCVoiceClient extends EventEmitter {
     }
 
     this.isConnecting = true;
+    this.isSessionConfigured = false; // Reset - will be set true when session.updated received
 
     try {
       if (this.config.debug) {
@@ -285,6 +295,16 @@ export class WebRTCVoiceClient extends EventEmitter {
     // State machine guard: only allow from idle state
     if (this.turnState !== 'idle') {
       logger.warn(`[WebRTCVoiceClient] Cannot start recording in state: ${this.turnState}`);
+      return;
+    }
+
+    // CRITICAL: Block recording until session.updated received from OpenAI
+    // This prevents race condition where user speaks before menu context is loaded
+    if (!this.isSessionConfigured) {
+      console.warn('⚠️ [WebRTCVoiceClient] Cannot start recording - session config not yet confirmed by OpenAI');
+      console.warn('   Waiting for session.updated event...');
+      // Emit event so UI can show "Initializing..." message
+      this.emit('session.not.ready');
       return;
     }
 
@@ -380,6 +400,8 @@ export class WebRTCVoiceClient extends EventEmitter {
    * Handle reconnection
    */
   private async handleReconnect(): Promise<void> {
+    this.isSessionConfigured = false; // Reset - will be set true when session.updated received
+
     try {
       // Check if token is still valid
       if (!this.sessionConfig.isTokenValid()) {
