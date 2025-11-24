@@ -20,8 +20,8 @@ const createESMWrapper = (cjsPath, esmPath, exports) => {
 // Fix browser.esm.js to properly import CommonJS
 const fixBrowserESM = () => {
   const content = `// ESM wrapper for browser config
-import configModule from './index.js';
-import simpleModule from './simple.js';
+import * as configModule from './index.js';
+import * as simpleModule from './simple.js';
 
 const { config: baseConfig } = simpleModule;
 
