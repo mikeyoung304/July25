@@ -132,10 +132,10 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 ### Orders (Grade: C-, 47 findings)
 
 **Critical Issues**:
-1. **Status Flow Divergence** - 3 different status definitions (server: 7 states, client1: 8 states, client2: 9 states)
+1. **[RESOLVED - EPIC 2]** **Status Flow Divergence** - Single canonical 8-state flow with server-side state machine enforcement ✅ (See ADR-015)
 2. **[RESOLVED - PHASE 5]** **Tax Calculation Trust Boundary** - Server now ALWAYS calculates totals, removed optional fields from CreateOrderRequest ✅
 3. **Order Validation Fragmentation** - Client validates, shared contract validates, server recalculates anyway
-4. **State Machine Bypass** - `updateOrderStatus()` doesn't use `orderStateMachine.canTransition()`
+4. **[RESOLVED - EPIC 2]** **State Machine Bypass** - All status updates validate via `OrderStateMachine.canTransition()` ✅ (See ADR-015)
 
 **Key Metrics**:
 - 900 lines of duplicated validation/calculation
@@ -256,14 +256,15 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 - ✅ Eliminated security vulnerability (client override attack)
 - **Impact**: Critical security fix, financial integrity guaranteed
 
-**Epic 2: Fix Order Status Flow** ✅ **PLANNED - READY TO EXECUTE** (1-1.5 days)
-- Consolidate 6 status definitions → 1 canonical (order.types.ts)
-- Enforce state machine in all update paths (4 bypass patterns identified)
-- Delete deprecated unified-order.types.ts (7-state version)
-- Move client helpers to shared/utils/orderStatus.ts
-- Update documentation (ORDER_FLOW.md, API docs, ADR-015)
+**Epic 2: Fix Order Status Flow** ✅ **COMPLETED** (2025-11-24 - 1 day actual)
+- ✅ Consolidated 6 status definitions → 1 canonical (shared/types/order.types.ts)
+- ✅ Enforced state machine in all update paths (orders.service.ts, scheduledOrders.service.ts)
+- ✅ Deleted deprecated unified-order.types.ts (7-state version)
+- ✅ Moved client helpers to shared/utils/orderStatus.ts
+- ✅ Updated documentation (ORDER_FLOW.md 620 lines, ADR-015 380 lines)
 - **Execution Brief**: docs/reports/EPIC_2_EXECUTION_BRIEF.md
-- **Impact**: Prevents invalid state transitions (completed → pending), data integrity guaranteed
+- **Commits**: 4b6bd36e (Phases 1-2), c6f7d6b7 (Phase 3)
+- **Impact**: Prevents invalid state transitions (completed → pending), data integrity guaranteed, audit findings Line 135 resolved
 
 **Epic 3: Consolidate Checkout Logic** (3 weeks, 2 engineers)
 - Extract useOrderCheckout hook
