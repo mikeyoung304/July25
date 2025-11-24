@@ -1,9 +1,14 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { ArrowLeft, CreditCard, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHttpClient } from '@/services/http';
 import { useToast } from '@/hooks/useToast';
 import { logger } from '@/services/logger';
+import {
+  PaymentStateMachine,
+  PaymentState,
+  PaymentEvent,
+} from '@/services/payments/PaymentStateMachine';
 
 interface CardPaymentProps {
   orderId: string;
@@ -26,9 +31,9 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
   onSuccess,
   onUpdateTableStatus,
 }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isSquareLoaded, setIsSquareLoaded] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(true);
+  // ✅ PHASE 3: Replace boolean flags with PaymentStateMachine
+  const fsm = useMemo(() => new PaymentStateMachine({ debug: true }), []);
+  const [currentState, setCurrentState] = useState<PaymentState>(fsm.getState());
   const [squarePayments, setSquarePayments] = useState<any>(null);
   const [card, setCard] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -36,22 +41,36 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
   const { post } = useHttpClient();
   const { toast } = useToast();
 
+  // Transition helper
+  const transition = useCallback((event: PaymentEvent, metadata?: Record<string, any>) => {
+    try {
+      const newState = fsm.transition(event, metadata);
+      setCurrentState(newState);
+      return newState;
+    } catch (err) {
+      logger.error('[CardPayment] Invalid transition', { event, currentState, err });
+      return currentState;
+    }
+  }, [fsm, currentState]);
+
   // Check if we should use demo mode
   const isDemoMode = !import.meta.env.VITE_SQUARE_APP_ID ||
                      import.meta.env.VITE_SQUARE_APP_ID === 'demo' ||
                      !import.meta.env.VITE_SQUARE_LOCATION_ID ||
                      import.meta.env.NODE_ENV === 'development';
 
-  // Load Square Web Payments SDK
+  // ✅ PHASE 3: Load Square Web Payments SDK with FSM
   useEffect(() => {
     let loadTimeout: NodeJS.Timeout;
 
     // If in demo mode, skip Square SDK loading
     if (isDemoMode) {
-      setIsInitializing(false);
-      setIsSquareLoaded(false);
+      // Stay in IDLE state - demo mode doesn't need SDK
       return;
     }
+
+    // Start SDK initialization
+    transition(PaymentEvent.SDK_LOAD_STARTED);
 
     const loadSquareSDK = async () => {
       // Check if Square is already loaded
@@ -65,7 +84,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         if (!window.Square) {
           logger.error('Square SDK load timeout - likely blocked by browser extension');
           setError('Payment system blocked. Switching to demo mode.');
-          setIsInitializing(false);
+          transition(PaymentEvent.SDK_FAILED, { reason: 'timeout' });
         }
       }, 5000);
 
@@ -82,7 +101,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         clearTimeout(loadTimeout);
         logger.error('Failed to load Square SDK - switching to demo mode');
         setError('Payment system unavailable. Using demo mode.');
-        setIsInitializing(false);
+        transition(PaymentEvent.SDK_FAILED, { reason: 'script_error' });
       };
       document.head.appendChild(script);
     };
@@ -99,18 +118,19 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         );
 
         setSquarePayments(payments);
-        setIsSquareLoaded(true);
 
         // Initialize card form
         const cardForm = await payments.card();
         await cardForm.attach(cardContainerRef.current);
         setCard(cardForm);
-        setIsInitializing(false);
+
+        // SDK ready!
+        transition(PaymentEvent.SDK_LOADED);
 
       } catch (error) {
         logger.error('Square initialization error:', error);
         setError('Payment system initialization failed');
-        setIsInitializing(false);
+        transition(PaymentEvent.SDK_FAILED, { reason: 'init_error', error });
       }
     };
 
@@ -125,8 +145,9 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         card.destroy();
       }
     };
-  }, [card, isDemoMode]);
+  }, [card, isDemoMode, transition]);
 
+  // ✅ PHASE 3: Handle Square payment with FSM
   const handleSquarePayment = useCallback(async () => {
     if (!card || !squarePayments) {
       setError('Payment form not ready');
@@ -135,7 +156,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
 
     try {
       setError(null);
-      setIsProcessing(true);
+      transition(PaymentEvent.TOKENIZATION_STARTED);
 
       // Tokenize the card
       const result = await card.tokenize();
@@ -144,6 +165,9 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         const errorMessage = result.errors?.[0]?.message || 'Payment failed';
         throw new Error(errorMessage);
       }
+
+      transition(PaymentEvent.TOKENIZATION_COMPLETE, { token: result.token });
+      transition(PaymentEvent.CARD_PROCESSING_STARTED);
 
       // Process payment via API
       const response = await post('/api/v1/payments/create', {
@@ -156,11 +180,15 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         throw new Error('Payment processing failed');
       }
 
+      transition(PaymentEvent.PAYMENT_CAPTURED, { paymentId: (response as any).payment?.id });
+      transition(PaymentEvent.ORDER_COMPLETION_STARTED);
+
       // Update table status if handler provided
       if (onUpdateTableStatus) {
         await onUpdateTableStatus();
       }
 
+      transition(PaymentEvent.PAYMENT_COMPLETE);
       toast.success('Payment successful!');
       onSuccess();
 
@@ -170,16 +198,17 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         ? error.message
         : 'Payment processing failed';
       setError(errorMessage);
+      transition(PaymentEvent.ERROR_OCCURRED, { error: errorMessage });
       toast.error(errorMessage);
-    } finally {
-      setIsProcessing(false);
     }
-  }, [card, squarePayments, orderId, post, toast, onSuccess, onUpdateTableStatus]);
+  }, [card, squarePayments, orderId, post, toast, onSuccess, onUpdateTableStatus, transition]);
 
+  // ✅ PHASE 3: Handle demo payment with FSM
   const handleDemoPayment = useCallback(async () => {
     try {
       setError(null);
-      setIsProcessing(true);
+      transition(PaymentEvent.DEMO_PAYMENT_REQUESTED);
+      transition(PaymentEvent.DEMO_PROCESSING_STARTED);
 
       // Process demo payment via API
       const response = await post('/api/v1/payments/create', {
@@ -192,11 +221,15 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         throw new Error('Demo payment processing failed');
       }
 
+      transition(PaymentEvent.PAYMENT_CAPTURED, { mode: 'demo' });
+      transition(PaymentEvent.ORDER_COMPLETION_STARTED);
+
       // Update table status if handler provided
       if (onUpdateTableStatus) {
         await onUpdateTableStatus();
       }
 
+      transition(PaymentEvent.PAYMENT_COMPLETE);
       toast.success('Payment successful! (Demo Mode)');
       onSuccess();
 
@@ -206,11 +239,10 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         ? error.message
         : 'Demo payment failed';
       setError(errorMessage);
+      transition(PaymentEvent.ERROR_OCCURRED, { error: errorMessage, mode: 'demo' });
       toast.error(errorMessage);
-    } finally {
-      setIsProcessing(false);
     }
-  }, [orderId, post, toast, onSuccess, onUpdateTableStatus]);
+  }, [orderId, post, toast, onSuccess, onUpdateTableStatus, transition]);
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -219,7 +251,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={onBack}
-            disabled={isProcessing}
+            disabled={fsm.isProcessing()}
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
             aria-label="Go back to tender selection"
           >
@@ -271,10 +303,10 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
           <div className="flex-1 flex flex-col justify-center">
             <Button
               onClick={handleDemoPayment}
-              disabled={isProcessing}
+              disabled={fsm.isProcessing()}
               className="h-16 text-xl font-bold bg-gradient-to-br from-[#4ECDC4] to-[#44b3ab] hover:from-[#44b3ab] hover:to-[#4ECDC4]"
             >
-              {isProcessing ? (
+              {fsm.isProcessing() ? (
                 <span className="flex items-center justify-center">
                   <svg
                     className="animate-spin -ml-1 mr-3 h-6 w-6 text-white"
@@ -317,13 +349,13 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
               <div
                 ref={cardContainerRef}
                 className={`border border-gray-300 rounded-lg p-4 min-h-[120px] bg-white transition-opacity ${
-                  isInitializing ? 'opacity-50' : 'opacity-100'
+                  currentState === PaymentState.INITIALIZING_SDK ? 'opacity-50' : 'opacity-100'
                 }`}
                 aria-label="Card payment form"
               />
 
               {/* Loading Overlay */}
-              {isInitializing && (
+              {currentState === PaymentState.INITIALIZING_SDK && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded-lg">
                   <div className="flex flex-col items-center">
                     <svg
@@ -356,10 +388,10 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
             {/* Process Button */}
             <Button
               onClick={handleSquarePayment}
-              disabled={isProcessing || !isSquareLoaded || isInitializing}
+              disabled={fsm.isProcessing() || !fsm.isSDKReady()}
               className="h-16 text-xl font-bold bg-gradient-to-br from-[#4ECDC4] to-[#44b3ab] hover:from-[#44b3ab] hover:to-[#4ECDC4]"
             >
-              {isProcessing ? (
+              {fsm.isProcessing() ? (
                 <span className="flex items-center justify-center">
                   <svg
                     className="animate-spin -ml-1 mr-3 h-6 w-6 text-white"
@@ -384,7 +416,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
                   </svg>
                   Processing payment...
                 </span>
-              ) : isInitializing ? (
+              ) : currentState === PaymentState.INITIALIZING_SDK ? (
                 <span className="flex items-center justify-center">
                   <svg
                     className="animate-pulse mr-2 h-6 w-6 text-white"
