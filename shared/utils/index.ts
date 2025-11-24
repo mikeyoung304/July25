@@ -3,6 +3,10 @@
  * Centralized export for all shared utility modules
  */
 
+// SAFE FOR ALL ENVIRONMENTS (browser + server)
+// Order constants and helpers (NO Joi, pure TypeScript)
+export * from './order-constants';
+
 // DISABLED FOR SERVER BUILD - these use browser APIs
 // Cleanup and resource management - uses EventListener
 // export * from './cleanup-manager';
@@ -16,6 +20,3 @@
 //   type ComponentMemoryProfile,
 //   type ServiceMemoryProfile
 // } from './memory-monitoring';
-
-// Placeholder export to keep this as a valid module
-export const UTILS_DISABLED_FOR_SERVER_BUILD = true;

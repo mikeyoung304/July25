@@ -1,49 +1,21 @@
 /**
- * Unified Order Validation Schema
- * Single Source of Truth for order validation across Client and Server
+ * Unified Order Validation Schema (Node.js Only - Joi)
+ *
+ * CRITICAL: This file contains Joi schemas for SERVER-SIDE validation only.
+ * Browser-safe constants and helpers live in ../utils/order-constants.ts
  *
  * Per ADR-001: All layers use snake_case
  * This schema enforces UUID validation and consistent order status flow
  */
 
 import Joi from 'joi';
-import type { OrderStatus, OrderType, PaymentStatus, PaymentMethod } from '../types/order.types';
-
-/**
- * Valid order statuses - matches shared/types/order.types.ts
- * Flow: new → pending → confirmed → preparing → ready → picked-up → completed
- *       (any status can transition to cancelled)
- */
-const ORDER_STATUSES: OrderStatus[] = [
-  'new',
-  'pending',
-  'confirmed',
-  'preparing',
-  'ready',
-  'picked-up',
-  'completed',
-  'cancelled'
-];
-
-/**
- * Database-valid order types (what goes in the database)
- */
-const DB_ORDER_TYPES: OrderType[] = ['online', 'pickup', 'delivery'];
-
-/**
- * UI order types that get mapped to DB types
- */
-const UI_ORDER_TYPES = ['kiosk', 'drive-thru', 'online', 'voice', 'dine-in', 'takeout', 'delivery'];
-
-/**
- * Valid payment statuses
- */
-const PAYMENT_STATUSES: PaymentStatus[] = ['pending', 'paid', 'refunded', 'failed'];
-
-/**
- * Valid payment methods
- */
-const PAYMENT_METHODS: PaymentMethod[] = ['cash', 'card', 'online', 'other'];
+import {
+  ORDER_STATUSES,
+  DB_ORDER_TYPES,
+  UI_ORDER_TYPES,
+  PAYMENT_STATUSES,
+  PAYMENT_METHODS
+} from '../utils/order-constants';
 
 /**
  * Order Item Modifier Schema
@@ -173,38 +145,3 @@ export const orderSchemas = {
   item: orderItemSchema,
   itemModifier: orderItemModifierSchema
 };
-
-/**
- * Helper: Validate UUID
- */
-export function isValidUUID(id: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(id);
-}
-
-/**
- * Helper: Map UI order type to DB order type
- */
-export function mapOrderTypeToDb(uiType: string): OrderType {
-  const mapping: Record<string, OrderType> = {
-    'kiosk': 'online',
-    'voice': 'online',
-    'dine-in': 'online',
-    'drive-thru': 'pickup',
-    'takeout': 'pickup',
-    'online': 'online',
-    'pickup': 'pickup',
-    'delivery': 'delivery'
-  };
-
-  return mapping[uiType] || 'online';
-}
-
-/**
- * Export constants for use in other modules
- */
-export const ORDER_STATUS_VALUES = ORDER_STATUSES;
-export const DB_ORDER_TYPE_VALUES = DB_ORDER_TYPES;
-export const UI_ORDER_TYPE_VALUES = UI_ORDER_TYPES;
-export const PAYMENT_STATUS_VALUES = PAYMENT_STATUSES;
-export const PAYMENT_METHOD_VALUES = PAYMENT_METHODS;

@@ -12,7 +12,7 @@
  * - After:  import { orderSchemas } from '@rebuild/shared';
  */
 
-// Import validation directly from the source (server-side only)
+// Import Joi validation schemas directly from the source (server-side only)
 // Client code should never import Joi validation schemas
 export {
   orderSchemas,
@@ -22,12 +22,22 @@ export {
   orderFiltersSchema,
   voiceOrderSchema,
   orderItemSchema,
-  orderItemModifierSchema,
+  orderItemModifierSchema
+} from '@rebuild/shared/validation/order.schema';
+
+// Import browser-safe helpers and constants from the utility module
+// These are safe for both client and server
+export {
   isValidUUID,
   mapOrderTypeToDb,
   ORDER_STATUS_VALUES,
   DB_ORDER_TYPE_VALUES,
   UI_ORDER_TYPE_VALUES,
   PAYMENT_STATUS_VALUES,
-  PAYMENT_METHOD_VALUES
-} from '@rebuild/shared/validation/order.schema';
+  PAYMENT_METHOD_VALUES,
+  ORDER_STATUSES,
+  DB_ORDER_TYPES,
+  UI_ORDER_TYPES,
+  PAYMENT_STATUSES,
+  PAYMENT_METHODS
+} from '@rebuild/shared/utils/order-constants';
