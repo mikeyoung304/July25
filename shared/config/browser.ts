@@ -1,4 +1,4 @@
-import * as simpleExports from './simple.js';
+import * as simpleExports from './simple';
 const { config: baseConfig } = simpleExports;
 
 // Browser-only config access (Vite / import.meta.env)
@@ -48,5 +48,8 @@ currentProcess.env = existingEnv as NodeJS.ProcessEnv;
 (globalThis as typeof globalThis & { process: MutableProcess }).process = currentProcess;
 
 export const browserConfig = baseConfig;
-export { getConfig, validateConfig, getApiUrl, getWsUrl, configService } from './index.js';
-export type { AppConfig } from './index.js';
+
+// Import CommonJS module using namespace import
+import * as configExports from '../dist/config/index.js';
+export const { getConfig, validateConfig, getApiUrl, getWsUrl, configService } = configExports;
+export type { AppConfig } from './index';

@@ -161,6 +161,11 @@ export default defineConfig(async ({ mode }) => {
       // Optimize deps
       commonjsOptions: {
         transformMixedEsModules: true,
+        include: [
+          /node_modules/,
+          /shared\/dist/,  // Include shared dist files for CommonJS transformation
+        ],
+        defaultIsModuleExports: true,
       },
     },
     
@@ -174,8 +179,10 @@ export default defineConfig(async ({ mode }) => {
         // NOTE: 'react/jsx-dev-runtime' removed - causes production build errors
         'react-router-dom',
         '@supabase/supabase-js',
+        '@rebuild/shared/constants/business',
+        '@rebuild/shared/config',
       ],
-      exclude: ['@rebuild/shared'], // Exclude workspace packages
+      exclude: [], // Remove workspace exclusion to allow CommonJS transformation
     },
     
     resolve: {

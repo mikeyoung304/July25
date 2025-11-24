@@ -1,7 +1,6 @@
 {
   "name": "@rebuild/shared",
   "version": "1.0.0",
-  "type": "module",
   "description": "Shared types and utilities for Rebuild 6.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,8 +14,8 @@
       "default": "./dist/config/index.js"
     },
     "./config/browser": {
-      "types": "./dist/config/browser.d.ts",
-      "default": "./dist/config/browser.js"
+      "types": "./config/browser.ts",
+      "default": "./config/browser.ts"
     },
     "./config/node": {
       "types": "./dist/config/node.d.ts",

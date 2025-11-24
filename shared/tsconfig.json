@@ -5,13 +5,15 @@
     "noEmit": false,
     "outDir": "dist",
     "declaration": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "target": "ES2020",
     "jsx": "react-jsx",
     "skipLibCheck": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   },
   "include": ["./**/*.ts", "./**/*.tsx"],
-  "exclude": ["dist", "node_modules", "**/__tests__/**"]
+  "exclude": ["dist", "node_modules", "**/__tests__/**", "config/browser.ts"]
 }
