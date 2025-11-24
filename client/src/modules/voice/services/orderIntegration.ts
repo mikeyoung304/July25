@@ -1,10 +1,14 @@
 import { orderService } from '@/services'
 import { Order, OrderType } from '@rebuild/shared'
+import { voiceMenuMatcher } from './VoiceMenuMatcher'
+import { logger } from '@/services/logger'
 
 export interface ParsedVoiceItem {
   id?: string
+  menu_item_id?: string
   name: string
   quantity: number
+  price?: number
   modifiers?: string[]
 }
 
@@ -17,84 +21,98 @@ export interface VoiceOrder {
 
 /**
  * Converts voice transcription to structured order data
- * In production, this would use NLP/AI for better parsing
+ *
+ * PHASE 3 UPDATE (2025-01-23):
+ * - Removed 25 hardcoded menu items
+ * - Now uses VoiceMenuMatcher for dynamic menu lookup
+ * - Enables voice ordering for ALL restaurants (multi-tenant ready)
  */
-export const parseVoiceOrder = (transcription: string): VoiceOrder | null => {
+export const parseVoiceOrder = async (transcription: string): Promise<VoiceOrder | null> => {
   const lowerText = transcription.toLowerCase()
   const items: ParsedVoiceItem[] = []
-  
-  // Grow Fresh Local Food menu patterns with Southern accent variations
-  const menuItems = [
-    // Bowls
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:soul|sole|georgia\s*soul|soul\s*food)\s*(?:bowl|bol)s?/gi, name: 'Soul Bowl' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:chicken\s*)?(?:fajita|fahita|faheta)\s*(?:keto|keeto|ketto)?(?:\s*bowl)?s?/gi, name: 'Chicken Fajita Keto' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:greek|mediterran(?:ean)?)\s*(?:bowl|chicken|bol)s?/gi, name: 'Greek Bowl' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:summer\s*)?vegan\s*(?:bowl|bol)s?/gi, name: 'Summer Vegan Bowl' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:summer\s*)?succotash(?:\s*bowl)?s?/gi, name: 'Summer Succotash' },
-    
-    // Salads
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:summer|house|seasonal)\s*salads?/gi, name: 'Summer Salad' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?peach\s*(?:arugula|salad)s?/gi, name: 'Peach Arugula Salad' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?greek\s*salads?/gi, name: 'Greek Salad' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?tuna\s*(?:salad|plate)s?/gi, name: 'Tuna Salad' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:mom'?s?|mama'?s?)\s*chicken\s*salads?/gi, name: "Mom's Chicken Salad" },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?grilled\s*chicken\s*salads?/gi, name: 'Grilled Chicken Salad' },
-    
-    // Starters
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:summer\s*)?samplers?/gi, name: 'Summer Sampler' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?peach\s*(?:and\s*)?(?:prosciutto\s*)?capreses?/gi, name: 'Peach & Prosciutto Caprese' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?watermelon\s*tatakis?/gi, name: 'Watermelon Tataki' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?tea\s*sandwich(?:es)?/gi, name: 'Tea Sandwiches' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:jalape[nñ]o\s*)?pimento\s*(?:cheese\s*)?bites?/gi, name: 'Jalapeño Pimento Bites' },
-    
-    // Entrees
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?peach\s*chickens?/gi, name: 'Peach Chicken' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:teriyaki\s*)?salmon(?:\s*over\s*rice)?s?/gi, name: 'Teriyaki Salmon Over Rice' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?hamburger\s*steaks?(?:\s*over\s*rice)?/gi, name: 'Hamburger Steak over rice' },
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?greek\s*chicken\s*thighs?(?:\s*over\s*rice)?/gi, name: 'Greek Chicken Thighs (2) Over Rice' },
-    
-    // Veggie Plate
-    { pattern: /(\d+|one|two|three|four|five)?\s*(?:x\s*)?(?:veggie|vegetable|vegetarian)\s*plates?/gi, name: 'Veggie Plate' },
-  ]
-  
-  // Extract items with quantities
-  menuItems.forEach(({ pattern, name }) => {
-    const matches = Array.from(transcription.matchAll(pattern))
-    matches.forEach(match => {
-      let quantity = 1
-      if (match[1]) {
-        // Handle numeric quantities
-        const num = parseInt(match[1])
-        if (!isNaN(num)) {
-          quantity = num
-        } else {
-          // Handle word quantities
-          const wordToNum: Record<string, number> = {
-            'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5
-          }
-          quantity = wordToNum[match[1].toLowerCase()] || 1
-        }
-      }
-      const modifiers = extractModifiers(transcription, name.toLowerCase())
-      items.push({ name, quantity, modifiers })
-    })
-  })
-  
-  if (items.length === 0) return null
-  
+
+  // ✅ PHASE 3: Dynamic menu matching (no hardcoded items)
+  if (!voiceMenuMatcher.isReady()) {
+    logger.warn('[parseVoiceOrder] VoiceMenuMatcher not initialized, initializing now...');
+    await voiceMenuMatcher.initialize();
+  }
+
+  // Extract quantity patterns from transcription
+  const quantityPattern = /(\d+|one|two|three|four|five)\s*(?:x\s*)?(.+?)(?:\s+and|\s+plus|\.|\,|$)/gi;
+  const wordToNum: Record<string, number> = {
+    'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5
+  };
+
+  let hasMatches = false;
+  let match;
+
+  while ((match = quantityPattern.exec(transcription)) !== null) {
+    const quantityStr = match[1];
+    const itemText = match[2].trim();
+
+    // Parse quantity
+    let quantity = 1;
+    const num = parseInt(quantityStr);
+    if (!isNaN(num)) {
+      quantity = num;
+    } else {
+      quantity = wordToNum[quantityStr.toLowerCase()] || 1;
+    }
+
+    // Match to menu item
+    const matchResult = voiceMenuMatcher.matchItem(itemText);
+    if (matchResult) {
+      hasMatches = true;
+      const modifiers = extractModifiers(transcription, matchResult.menuItem.name.toLowerCase());
+      items.push({
+        id: matchResult.menuItem.id,
+        menu_item_id: matchResult.menuItem.id,
+        name: matchResult.menuItem.name,
+        quantity,
+        price: matchResult.menuItem.price,
+        modifiers
+      });
+
+      logger.info('[parseVoiceOrder] Matched item', {
+        spoken: itemText,
+        matched: matchResult.menuItem.name,
+        confidence: matchResult.confidence,
+        quantity
+      });
+    }
+  }
+
+  // Fallback: Try matching the entire transcription if no quantity patterns found
+  if (!hasMatches) {
+    const matchResult = voiceMenuMatcher.matchItem(transcription);
+    if (matchResult) {
+      const modifiers = extractModifiers(transcription, matchResult.menuItem.name.toLowerCase());
+      items.push({
+        id: matchResult.menuItem.id,
+        menu_item_id: matchResult.menuItem.id,
+        name: matchResult.menuItem.name,
+        quantity: 1,
+        price: matchResult.menuItem.price,
+        modifiers
+      });
+    }
+  }
+
+  if (items.length === 0) return null;
+
   // Extract special requests
-  const specialRequests = extractSpecialRequests(transcription)
-  
+  const specialRequests = extractSpecialRequests(transcription);
+
   // Determine order type
-  const orderType = lowerText.includes('take') || lowerText.includes('to go') 
-    ? 'takeout' 
-    : 'dine-in'
-  
+  const orderType = lowerText.includes('take') || lowerText.includes('to go')
+    ? 'takeout'
+    : 'dine-in';
+
   return {
     items,
     specialRequests,
     orderType
-  }
+  };
 }
 
 const extractModifiers = (text: string, itemName: string): string[] => {
@@ -165,6 +183,10 @@ const extractSpecialRequests = (text: string): string | undefined => {
 
 /**
  * Submits a voice order to the KDS system
+ *
+ * PHASE 3 UPDATE (2025-01-23):
+ * - Removed 22 hardcoded prices
+ * - Now uses dynamic pricing from MenuService
  */
 export const submitVoiceOrder = async (voiceOrder: VoiceOrder) => {
   // Convert to API format
@@ -172,11 +194,11 @@ export const submitVoiceOrder = async (voiceOrder: VoiceOrder) => {
     table_number: 'K1', // K for Kiosk
     items: voiceOrder.items.map(item => ({
       id: `${Date.now()}-${Math.random()}`,
-      menu_item_id: item.id || `menu-${Date.now()}`,
+      menu_item_id: item.menu_item_id || item.id || `menu-${Date.now()}`,
       name: item.name,
       quantity: item.quantity,
-      price: calculateItemPrice(item.name),
-      subtotal: calculateItemPrice(item.name) * item.quantity,
+      price: item.price || 0, // ✅ Price from MenuService, not hardcoded
+      subtotal: (item.price || 0) * item.quantity,
       modifiers: item.modifiers?.map(mod => ({
         id: `mod-${Date.now()}-${Math.random()}`,
         name: mod,
@@ -191,37 +213,10 @@ export const submitVoiceOrder = async (voiceOrder: VoiceOrder) => {
   return orderService.submitOrder(orderData)
 }
 
-const calculateItemPrice = (itemName: string): number => {
-  const prices: Record<string, number> = {
-    // Starters
-    'Summer Sampler': 16,
-    'Peach & Prosciutto Caprese': 12,
-    'Watermelon Tataki': 12,
-    'Tea Sandwiches': 10,
-    'Jalapeño Pimento Bites': 10,
-    
-    // Salads
-    'Summer Salad': 12,
-    'Peach Arugula Salad': 12,
-    'Greek Salad': 12,
-    'Tuna Salad': 14,
-    "Mom's Chicken Salad": 13,
-    'Grilled Chicken Salad': 14,
-    
-    // Bowls
-    'Soul Bowl': 14,
-    'Chicken Fajita Keto': 14,
-    'Greek Bowl': 14,
-    'Summer Vegan Bowl': 14,
-    'Summer Succotash': 14
-  }
-  
-  return prices[itemName] || 10 // Default price if not found
-}
-
+// ✅ PHASE 3: Removed calculateItemPrice() - prices now from MenuService
 const calculateTotal = (items: ParsedVoiceItem[]): number => {
   return items.reduce((total, item) => {
-    const basePrice = calculateItemPrice(item.name)
+    const basePrice = item.price || 0; // Use price from menu item
     return total + (basePrice * item.quantity)
   }, 0)
 }
