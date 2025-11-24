@@ -15,8 +15,6 @@
     },
     "./config/browser": {
       "types": "./dist/config/browser.d.ts",
-      "import": "./dist/config/browser.esm.js",
-      "require": "./dist/config/browser.js",
       "default": "./dist/config/browser.js"
     },
     "./config/node": {
@@ -29,14 +27,12 @@
     },
     "./constants/business": {
       "types": "./dist/constants/business.d.ts",
-      "import": "./dist/constants/business.esm.js",
-      "require": "./dist/constants/business.js",
       "default": "./dist/constants/business.js"
     },
     "./*": null
   },
   "scripts": {
-    "build": "tsc -p tsconfig.cjs.json && node fix-esm.js",
+    "build": "tsc",
     "typecheck": "tsc --noEmit",
     "typecheck:quick": "tsc --noEmit",
     "lint": "eslint config/index.ts config/browser.ts config/node.ts",
