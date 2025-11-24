@@ -1,10 +1,10 @@
 import { parseVoiceOrder } from './orderIntegration'
 
 describe('parseVoiceOrder', () => {
-  it('parses a simple soul bowl order', () => {
+  it('parses a simple soul bowl order', async () => {
     const transcription = "I'd like a soul bowl please"
-    const result = parseVoiceOrder(transcription)
-    
+    const result = await parseVoiceOrder(transcription)
+
     expect(result).toEqual({
       items: [
         { name: 'Soul Bowl', quantity: 1, modifiers: [] }
@@ -14,10 +14,10 @@ describe('parseVoiceOrder', () => {
     })
   })
 
-  it('parses order with quantity', () => {
+  it('parses order with quantity', async () => {
     const transcription = "I want 2 greek bowls and 3 summer salads"
-    const result = parseVoiceOrder(transcription)
-    
+    const result = await parseVoiceOrder(transcription)
+
     expect(result).toEqual({
       items: [
         { name: 'Greek Bowl', quantity: 2, modifiers: [] },
@@ -28,10 +28,10 @@ describe('parseVoiceOrder', () => {
     })
   })
 
-  it('parses order with modifiers', () => {
+  it('parses order with modifiers', async () => {
     const transcription = "One soul bowl with no rice and a greek salad with add chicken"
-    const result = parseVoiceOrder(transcription)
-    
+    const result = await parseVoiceOrder(transcription)
+
     expect(result).toEqual({
       items: [
         { name: 'Soul Bowl', quantity: 1, modifiers: ['No rice'] },
@@ -42,10 +42,10 @@ describe('parseVoiceOrder', () => {
     })
   })
 
-  it('extracts special requests', () => {
+  it('extracts special requests', async () => {
     const transcription = "I'd like a summer salad please make sure no nuts"
-    const result = parseVoiceOrder(transcription)
-    
+    const result = await parseVoiceOrder(transcription)
+
     expect(result).toEqual({
       items: [
         { name: 'Summer Salad', quantity: 1, modifiers: [] }
@@ -55,22 +55,22 @@ describe('parseVoiceOrder', () => {
     })
   })
 
-  it('identifies takeout orders', () => {
+  it('identifies takeout orders', async () => {
     const transcription = "Two chicken fajita keto to go"
-    const result = parseVoiceOrder(transcription)
-    
+    const result = await parseVoiceOrder(transcription)
+
     expect(result?.orderType).toBe('takeout')
-    expect(result?.items[0]).toEqual({ 
-      name: 'Chicken Fajita Keto', 
-      quantity: 2, 
-      modifiers: [] 
+    expect(result?.items[0]).toEqual({
+      name: 'Chicken Fajita Keto',
+      quantity: 2,
+      modifiers: []
     })
   })
 
-  it('handles complex orders', () => {
+  it('handles complex orders', async () => {
     const transcription = "I'd like 2 soul bowls with extra collards, no rice, a veggie plate with three sides, and a peach arugula salad. I'm allergic to peanuts"
-    const result = parseVoiceOrder(transcription)
-    
+    const result = await parseVoiceOrder(transcription)
+
     expect(result).toEqual({
       items: [
         { name: 'Soul Bowl', quantity: 2, modifiers: ['No rice', 'Extra collards'] },
@@ -82,17 +82,17 @@ describe('parseVoiceOrder', () => {
     })
   })
 
-  it('returns null for non-food transcriptions', () => {
+  it('returns null for non-food transcriptions', async () => {
     const transcription = "Hello, how are you today?"
-    const result = parseVoiceOrder(transcription)
-    
+    const result = await parseVoiceOrder(transcription)
+
     expect(result).toBeNull()
   })
 
-  it('handles various quantity formats', () => {
+  it('handles various quantity formats', async () => {
     const transcription = "3x soul bowl, 2 x greek bowl, and 1x summer vegan bowl"
-    const result = parseVoiceOrder(transcription)
-    
+    const result = await parseVoiceOrder(transcription)
+
     expect(result?.items).toHaveLength(3)
     expect(result?.items[0]).toEqual({ name: 'Soul Bowl', quantity: 3, modifiers: [] })
     expect(result?.items[1]).toEqual({ name: 'Greek Bowl', quantity: 2, modifiers: [] })
