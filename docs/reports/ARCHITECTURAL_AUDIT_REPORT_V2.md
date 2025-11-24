@@ -74,7 +74,7 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 
 **Top 3 Offenders**:
 1. **[RESOLVED - PHASE 3]** **Payment Flow** - Replaced boolean flags with PaymentStateMachine (17 states, 21 events) ✅
-2. **Cart Persistence** - 3 useEffect hooks with race conditions
+2. **[RESOLVED - PHASE 4]** **Cart Persistence** - Replaced 3 racing useEffect hooks with deterministic sync manager (useReducer pattern) ✅
 3. **[RESOLVED - PHASE 2]** **WebSocket Subscriptions** - Replaced manual flags with AbortController (ADR-014) ✅
 
 **Impact**: Race conditions, memory leaks, "Can't perform state update on unmounted component" warnings.
@@ -85,7 +85,7 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 **Definition**: Magic numbers/strings that break multi-tenancy or require code deployment to change.
 
 **Top 3 Offenders**:
-1. **KDS Alert Thresholds** - 7 files with 6 different values (10/12/15/18/20/25/30 minutes)
+1. **[RESOLVED - PHASE 4]** **KDS Alert Thresholds** - Consolidated 3 files into shared/config/kds.ts (standard 10/15 min thresholds) ✅
 2. **[RESOLVED - PHASE 3]** **Voice Menu Items** - Removed 47 hardcoded values (25 items + 22 prices), now uses VoiceMenuMatcher ✅
 3. **Payment Timeouts** - 5 different timeout values (30s, 60s, 300s hardcoded)
 
@@ -181,7 +181,7 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 **Critical Issues**:
 1. **Checkout Flow Duplication** - KioskCheckout (690 LOC) vs OnlineCheckout (390 LOC) with 75% overlap
 2. **Payment Method Divergence** - 3 separate implementations (CardPayment component, CashPayment component, inline switch)
-3. **Terminal Polling Anti-Pattern** - 120 requests over 5 minutes instead of WebSocket
+3. **[RESOLVED - PHASE 4]** **Terminal Polling Anti-Pattern** - Replaced setInterval polling with FSM-managed lifecycle (TerminalStateMachine) ✅
 4. **Boolean Flag State Machine** - Single `isProcessing` flag for multi-step async flow (idle→validating→creating→processing→completing)
 
 **Key Metrics**:
@@ -203,7 +203,7 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 ### KDS (Grade: B, 15 findings)
 
 **Critical Issues**:
-1. **Alert Thresholds Chaos** - 7 files with 6 different urgency thresholds (10/12/15/18/20/25/30 minutes)
+1. **[RESOLVED - PHASE 4]** **Alert Thresholds Chaos** - Consolidated into shared/config/kds.ts with standard 10/15 min thresholds ✅
 2. **KitchenDisplay vs ExpoView Drift** - 40% functional overlap but completely separate implementations
 
 **Key Metrics**:
