@@ -21,10 +21,14 @@
       "types": "./dist/config/node.d.ts",
       "default": "./dist/config/node.js"
     },
+    "./constants/business": {
+      "types": "./dist/constants/business.d.ts",
+      "default": "./dist/constants/business.js"
+    },
     "./*": null
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.cjs.json",
     "typecheck": "tsc --noEmit",
     "typecheck:quick": "tsc --noEmit",
     "lint": "eslint config/index.ts config/browser.ts config/node.ts",
