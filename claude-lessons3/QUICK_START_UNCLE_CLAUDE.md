@@ -113,7 +113,7 @@ Uncle Claude updates SIGN_IN_SHEET.md:
 | 02 | Database/Supabase | Schema drift, migrations, RPC |
 | 03 | React/UI/UX | Hydration, infinite loops |
 | 04 | WebSocket/Real-time | Memory leaks, KDS issues |
-| 05 | Build/Deployment | CI failures, Vercel errors |
+| 05 | Build/Deployment | CI failures, Vercel errors, ESM/CJS, logger.child() |
 | 06 | Testing/Quality | Test failures, quarantine |
 | 07 | API Integration | Timeouts, external APIs |
 | 08 | Performance | Memory usage, optimization |
@@ -207,6 +207,6 @@ Uncle Claude will:
 
 ---
 
-**Version**: 3.2.0
+**Version**: 3.3.0
 **Agent Location**: `.claude/agents/uncle-claude.md`
-**Last Updated**: 2025-11-19
+**Last Updated**: 2025-11-24

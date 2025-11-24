@@ -19,6 +19,8 @@
 3. [Memory Optimization Journey](#incident-3-memory-optimization-journey) - Oct-Nov 2025 (3 weeks)
 4. [Render tsx Confusion](#incident-4-render-tsx-confusion) - Nov 15-16, 2025 (2 days)
 5. [Environment Variable Drift](#incident-5-environment-variable-drift) - Nov 1-15, 2025 (2 weeks)
+6. [ESM/CommonJS Module Incompatibility](#incident-6-esm-commonjs-incompatibility) - Nov 24, 2025 - See [CL-BUILD-008](./CL-BUILD-008-esm-commonjs-incompatibility.md)
+7. [Missing Logger .child() Method](#incident-7-missing-logger-child-method) - Nov 24, 2025 - See [CL-BUILD-009](./CL-BUILD-009-missing-logger-child-method.md)
 
 ---
 

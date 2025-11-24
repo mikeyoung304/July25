@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "generated": "2025-11-19T00:00:00Z",
     "description": "Maps code files to relevant claude-lessons3 categories for proactive lesson suggestions",
-    "total_mappings": 45
+    "total_mappings": 48
   },
   "mappings": {
     "server/src/middleware/auth.ts": {
@@ -253,6 +253,33 @@
       "documents": ["PREVENTION.md"],
       "key_anti_patterns": ["link validation"],
       "estimated_cost_if_broken": 5000
+    },
+    "client/src/services/logger.ts": {
+      "lessons": ["05-build-deployment-issues"],
+      "risk_level": "high",
+      "required_reading": true,
+      "documents": ["CL-BUILD-009-missing-logger-child-method.md"],
+      "key_anti_patterns": ["missing .child() method", "server/client logger parity"],
+      "estimated_cost_if_broken": 10000,
+      "incident_reference": "CL-BUILD-009"
+    },
+    "shared/package.json": {
+      "lessons": ["05-build-deployment-issues"],
+      "risk_level": "critical",
+      "required_reading": true,
+      "documents": ["CL-BUILD-008-esm-commonjs-incompatibility.md", "PATTERNS.md"],
+      "key_anti_patterns": ["type: module", "ESM/CommonJS incompatibility"],
+      "estimated_cost_if_broken": 20000,
+      "incident_reference": "CL-BUILD-008"
+    },
+    "shared/tsconfig.json": {
+      "lessons": ["05-build-deployment-issues"],
+      "risk_level": "high",
+      "required_reading": true,
+      "documents": ["CL-BUILD-008-esm-commonjs-incompatibility.md"],
+      "key_anti_patterns": ["module format", "CommonJS compilation"],
+      "estimated_cost_if_broken": 15000,
+      "incident_reference": "CL-BUILD-008"
     }
   },
   "risk_level_definitions": {

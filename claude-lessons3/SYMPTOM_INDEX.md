@@ -1,7 +1,7 @@
 # Symptom Index - Quick Error Lookup
 
-**Version**: 1.0.0 (Phase 1 - v4 Enhancement)
-**Last Updated**: 2025-11-23
+**Version**: 1.1.0 (Phase 1 - v4 Enhancement)
+**Last Updated**: 2025-11-24
 **Purpose**: Map error messages → direct lesson links for 85% faster retrieval
 
 > **How to Use**: Search this page (Ctrl+F / Cmd+F) for your error message or symptom. Click the lesson link for the full solution.
@@ -163,6 +163,14 @@
 
 ## Build & Deployment
 
+### "u.child is not a function" OR "logger.child is not a function" (Production crash)
+**Root Cause**: Client Logger class missing `.child()` method that server-style logging patterns expect
+**Solution**: [05-build-deployment-issues/CL-BUILD-009-missing-logger-child-method.md](./05-build-deployment-issues/CL-BUILD-009-missing-logger-child-method.md)
+**Quick Fix**: Add `child()` method to `client/src/services/logger.ts` that returns a new Logger with merged context
+**Category**: 05 - Build/Deployment
+**Cost if Ignored**: Complete production crash - app non-functional
+**Detection**: Minified error "u.X is not a function" usually means missing method on singleton object
+
 ### "Vercel build fails: Shared workspace not built"
 **Root Cause**: Building client before shared workspace
 **Solution**: [05-build-deployment-issues/LESSONS.md](./05-build-deployment-issues/LESSONS.md#build-order)
@@ -216,14 +224,14 @@
 | 02 - Database/Supabase | 2 | ✅ 75% (schema drift, RPC) |
 | 03 - React/UI/UX | 2 | ✅ 70% (hydration, AnimatePresence) |
 | 04 - WebSocket/Real-time | 3 | ✅ 85% (timeout, memory leak, reconnect) |
-| 05 - Build/Deployment | 3 | ✅ 90% (env vars, build order, Vercel) |
+| 05 - Build/Deployment | 4 | ✅ 95% (env vars, build order, Vercel, logger.child) |
 | 06 - Testing/Quality | 4 | ✅ 95% (E2E, timeout, process.exit, CI) |
 | 07 - API Integration | 1 | ⚠️ 50% (timeout only) |
 | 08 - Performance | 1 | ⚠️ 50% (memory limits only) |
 | 09 - Security/Compliance | 1 | ⚠️ 50% (multi-tenancy only) |
 | 10 - Documentation | 0 | ⚠️ 0% (needs expansion) |
 
-**Overall Coverage**: 23 symptoms (target: 30 for 85% coverage)
+**Overall Coverage**: 24 symptoms (target: 30 for 85% coverage)
 
 ---
 
@@ -245,6 +253,7 @@ Found an error not listed here? Add it!
 
 ## Version History
 
+- **1.1.0** (2025-11-24): Added CL-BUILD-009 (logger.child() missing method) - 24 symptoms
 - **1.0.0** (2025-11-20): Initial release with 23 symptoms across 9 categories
 - Target: 30 symptoms for 85% coverage (Phase 1 complete)
 
