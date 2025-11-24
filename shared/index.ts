@@ -8,6 +8,7 @@ export * from './types/voice.types';
 export * from './types/events.types';    // event types
 export * from './types/transformers';
 export * from './types/validation';
+export * from './validation/order.schema'; // Unified order validation (Joi)
 // Export utils but avoid conflicts with runtime
 export * from './utils';
 

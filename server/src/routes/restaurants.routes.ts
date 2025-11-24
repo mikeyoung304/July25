@@ -7,6 +7,55 @@ import { logger } from '../utils/logger';
 const router = Router();
 const routeLogger = logger.child({ route: 'restaurants' });
 
+// GET /api/v1/restaurants/:id/public - Get public restaurant config (no auth required)
+// Returns tax_rate, currency, timezone - critical for client-side cart calculations
+router.get('/:id/public', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      throw NotFound('Restaurant identifier is required');
+    }
+
+    routeLogger.info('Fetching public restaurant config', { restaurantId: id });
+
+    // Check if the parameter is a UUID
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+    // Fetch public restaurant config from database
+    const query = supabase
+      .from('restaurants')
+      .select('id, name, tax_rate, currency, timezone, default_tip_percentages');
+
+    const { data: restaurant, error } = isUUID
+      ? await query.eq('id', id).single()
+      : await query.eq('slug', id).single();
+
+    if (error || !restaurant) {
+      routeLogger.warn('Restaurant not found for public config', { restaurantId: id, error: error?.message });
+      throw NotFound('Restaurant not found');
+    }
+
+    // Validate tax_rate (critical financial data)
+    if (restaurant.tax_rate === null || restaurant.tax_rate === undefined) {
+      routeLogger.error('Restaurant tax_rate is null', { restaurantId: id });
+      throw new Error('Restaurant tax rate is not configured');
+    }
+
+    // Return public config (snake_case per ADR-001)
+    res.json({
+      id: restaurant.id,
+      name: restaurant.name,
+      tax_rate: restaurant.tax_rate,
+      currency: restaurant.currency || 'USD',
+      timezone: restaurant.timezone || 'America/Los_Angeles',
+      default_tip_percentages: restaurant.default_tip_percentages || [15, 18, 20, 25]
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /api/v1/restaurants/:id - Get restaurant basic info (supports both UUID and slug)
 router.get('/:id', optionalAuth, async (req: AuthenticatedRequest, res, next) => {
   try {

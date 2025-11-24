@@ -1,53 +1,32 @@
-import Joi from 'joi';
+/**
+ * DEPRECATED: This file is deprecated as of Phase 1 of the "Unified Truth" protocol.
+ *
+ * All order validation schemas have been moved to @rebuild/shared/validation/order.schema.ts
+ * to serve as the Single Source of Truth across Client and Server.
+ *
+ * This file now re-exports from the shared package for backward compatibility.
+ * Any imports from this file should be updated to import directly from '@rebuild/shared'.
+ *
+ * Migration Guide:
+ * - Before: import { orderSchemas } from '../models/order.model';
+ * - After:  import { orderSchemas } from '@rebuild/shared';
+ */
 
-export const orderSchemas = {
-  create: Joi.object({
-    items: Joi.array().items(
-      Joi.object({
-        id: Joi.string().uuid(),
-        name: Joi.string().required(),
-        quantity: Joi.number().min(1).default(1),
-        price: Joi.number().min(0).required(),
-        modifiers: Joi.array().items(
-          Joi.object({
-            name: Joi.string().required(),
-            price: Joi.number().min(0).default(0),
-          })
-        ).optional(),
-        notes: Joi.string().max(200).optional(),
-      })
-    ).min(1).required(),
-    type: Joi.string().valid('kiosk', 'drive-thru', 'online', 'voice').default('kiosk'),
-    customerName: Joi.string().max(100).optional(),
-    tableNumber: Joi.string().max(20).optional(),
-    seatNumber: Joi.number().integer().min(1).optional(),
-    notes: Joi.string().max(500).optional(),
-    metadata: Joi.object().optional(),
-  }),
-  
-  voice: Joi.object({
-    transcription: Joi.string().required(),
-    audioUrl: Joi.string().uri().optional(),
-    metadata: Joi.object({
-      device: Joi.string().optional(),
-      deviceId: Joi.string().optional(),
-      location: Joi.string().optional(),
-    }).optional(),
-  }),
-  
-  updateStatus: Joi.object({
-    status: Joi.string()
-      .valid('pending', 'preparing', 'ready', 'completed', 'cancelled')
-      .required(),
-    notes: Joi.string().max(500).optional(),
-  }),
-
-  filters: Joi.object({
-    status: Joi.string().valid('pending', 'preparing', 'ready', 'completed', 'cancelled'),
-    type: Joi.string().valid('kiosk', 'drive-thru', 'online', 'voice'),
-    startDate: Joi.date().iso(),
-    endDate: Joi.date().iso().greater(Joi.ref('startDate')),
-    limit: Joi.number().min(1).max(100).default(50),
-    offset: Joi.number().min(0).default(0),
-  }),
-};
+// Re-export from shared for backward compatibility
+export {
+  orderSchemas,
+  createOrderSchema,
+  updateOrderStatusSchema,
+  updateOrderSchema,
+  orderFiltersSchema,
+  voiceOrderSchema,
+  orderItemSchema,
+  orderItemModifierSchema,
+  isValidUUID,
+  mapOrderTypeToDb,
+  ORDER_STATUS_VALUES,
+  DB_ORDER_TYPE_VALUES,
+  UI_ORDER_TYPE_VALUES,
+  PAYMENT_STATUS_VALUES,
+  PAYMENT_METHOD_VALUES
+} from '@rebuild/shared';

@@ -2,9 +2,10 @@ import React, { createContext, useState, useCallback, useMemo, useEffect } from 
 import { MenuItem, Cart, CartItem, calculateCartTotals } from '@rebuild/shared';
 import { useParams } from 'react-router-dom';
 import { logger } from '@/services/logger';
+import { useRestaurantConfig } from '@/hooks/useRestaurantConfig';
 
-// Counter for generating unique IDs (avoids Date.now() hydration issues)
-let cartItemCounter = 0;
+// UUID generation for cart items (Phase 1: Unified Truth Protocol)
+// Server strictly enforces UUID v4 format - no more counter-based IDs
 
 // Unified cart item interface that works for both regular and kiosk
 export interface UnifiedCartItem extends CartItem {
@@ -42,24 +43,40 @@ export interface UnifiedCartContextType {
 export const UnifiedCartContext = createContext<UnifiedCartContextType | undefined>(undefined);
 
 const DEFAULT_RESTAURANT_ID = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'grow';
-const _TAX_RATE = 0.0875; // 8.75% tax rate - reserved for future use
+
+// REMOVED: Hardcoded tax rate (Phase 1: Unified Truth Protocol)
+// Tax rates are now fetched dynamically from the server via useRestaurantConfig
+// See: server/src/services/orders.service.ts:88-153 for server-side implementation
 
 interface UnifiedCartProviderProps {
   children: React.ReactNode;
   persistKey?: string; // Allow different persistence keys for different contexts
 }
 
-export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({ 
-  children, 
-  persistKey = 'cart_current' 
+export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
+  children,
+  persistKey = 'cart_current'
 }) => {
   const params = useParams<{ restaurantId: string }>();
   const restaurantId = params.restaurantId || DEFAULT_RESTAURANT_ID;
   const [isCartOpen, setIsCartOpen] = useState(false);
 
+  // Fetch restaurant config (tax rate, currency, etc.)
+  const { taxRate, isLoading: isConfigLoading, error: configError } = useRestaurantConfig(restaurantId);
+
   // Initialize with empty array to avoid localStorage SSR issues
   const [items, setItems] = useState<UnifiedCartItem[]>([]);
   const [tip, setTip] = useState(0);
+
+  // Log config errors (but don't block cart functionality during loading)
+  useEffect(() => {
+    if (configError) {
+      logger.error('Failed to load restaurant config for cart', {
+        error: configError,
+        restaurantId
+      });
+    }
+  }, [configError, restaurantId]);
 
   // Load cart from localStorage on client-side only (after hydration)
   useEffect(() => {
@@ -104,11 +121,12 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
     }
   }, [persistKey, restaurantId]);
 
-  // Calculate cart totals
+  // Calculate cart totals with dynamic tax rate
   const cart = useMemo<UnifiedCart>(() => {
-    const totals = calculateCartTotals(items, tip);
+    // Use fetched tax rate (0 during loading, real value when loaded)
+    const totals = calculateCartTotals(items, taxRate, tip);
     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-    
+
     return {
       items,
       itemCount,
@@ -116,7 +134,7 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
       tip,
       restaurantId
     };
-  }, [items, tip, restaurantId]);
+  }, [items, taxRate, tip, restaurantId]);
 
   // Save cart to localStorage whenever it changes (client-only)
   useEffect(() => {
@@ -154,8 +172,9 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
     modifications?: string[],
     specialInstructions?: string
   ) => {
+    // Generate UUID v4 for cart item (server enforces UUID validation)
     const newItem: UnifiedCartItem = {
-      id: `cart-item-${++cartItemCounter}`,
+      id: crypto.randomUUID(),
       name: menuItem.name,
       price: menuItem.price,
       quantity,
@@ -172,7 +191,7 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
   const addToCart = useCallback((item: Omit<CartItem, 'id'>) => {
     const newItem: UnifiedCartItem = {
       ...item,
-      id: `cart-item-${++cartItemCounter}`
+      id: crypto.randomUUID() // Generate UUID v4
     };
 
     setItems(prev => [...prev, newItem]);

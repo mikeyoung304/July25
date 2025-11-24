@@ -4,6 +4,10 @@ import { randomUUID } from 'crypto';
 import { WebSocketServer } from 'ws';
 import { broadcastOrderUpdate, broadcastNewOrder } from '../utils/websocket';
 import { NotFound } from '../middleware/errorHandler';
+// Import shared validation schemas (Single Source of Truth)
+import {
+  mapOrderTypeToDb
+} from '@rebuild/shared';
 // Removed mapOrder - returning raw snake_case data for frontend consistency
 // import { menuIdMapper } from './menu-id-mapper'; // Not currently used
 import type {
@@ -69,33 +73,78 @@ export class OrdersService {
   }
 
   /**
-   * Get restaurant tax rate
+   * Get restaurant tax rate with robust fallback chain
    * Per ADR-007: Tax rates are now configured per-restaurant
+   *
+   * CRITICAL FINANCIAL LOGIC:
+   * 1. Try DB lookup (restaurants.tax_rate)
+   * 2. If DB fails/null, try process.env.DEFAULT_TAX_RATE
+   * 3. If both fail, THROW ERROR (never silently default to magic number)
    */
   private static async getRestaurantTaxRate(restaurantId: string): Promise<number> {
     try {
+      // Step 1: Attempt DB lookup
       const { data, error } = await supabase
         .from('restaurants')
         .select('tax_rate')
         .eq('id', restaurantId)
         .single();
 
-      if (error) {
-        ordersLogger.error('Failed to fetch restaurant tax rate', { error, restaurantId });
-        // Fall back to default California rate (8.25%) if fetch fails
-        ordersLogger.warn('Using default tax rate 0.0825 (8.25%) due to fetch error');
-        return 0.0825;
+      if (!error && data && data.tax_rate !== null && data.tax_rate !== undefined) {
+        const taxRate = Number(data.tax_rate);
+        ordersLogger.debug('Using restaurant-specific tax rate', { restaurantId, taxRate });
+        return taxRate;
       }
 
-      if (!data || data.tax_rate === null || data.tax_rate === undefined) {
-        ordersLogger.warn('Restaurant tax rate not found, using default', { restaurantId });
-        return 0.0825;
+      // Step 2: DB failed or returned null - try environment variable
+      const envTaxRate = process.env['DEFAULT_TAX_RATE'];
+
+      if (envTaxRate) {
+        const parsedRate = Number(envTaxRate);
+        if (!isNaN(parsedRate) && parsedRate > 0 && parsedRate < 1) {
+          ordersLogger.warn('Restaurant tax rate not in DB, using DEFAULT_TAX_RATE from environment', {
+            restaurantId,
+            taxRate: parsedRate,
+            dbError: error?.message
+          });
+          return parsedRate;
+        } else {
+          ordersLogger.error('DEFAULT_TAX_RATE environment variable is invalid', {
+            envTaxRate,
+            parsedRate
+          });
+        }
       }
 
-      return Number(data.tax_rate);
+      // Step 3: Both DB and Env failed - CRITICAL ERROR
+      ordersLogger.error('CRITICAL: Cannot determine tax rate for restaurant', {
+        restaurantId,
+        dbError: error?.message,
+        dbData: data,
+        envTaxRate: envTaxRate || 'NOT_SET'
+      });
+
+      throw new Error(
+        `Tax rate configuration missing for restaurant ${restaurantId}. ` +
+        `Please configure tax_rate in restaurants table or set DEFAULT_TAX_RATE environment variable. ` +
+        `Financial calculations cannot proceed without a valid tax rate.`
+      );
+
     } catch (error) {
-      ordersLogger.error('Exception fetching restaurant tax rate', { error, restaurantId });
-      return 0.0825;
+      // If error is already our custom error, re-throw it
+      if (error instanceof Error && error.message.includes('Tax rate configuration missing')) {
+        throw error;
+      }
+
+      // For unexpected errors, log and throw with context
+      ordersLogger.error('Unexpected exception in getRestaurantTaxRate', {
+        error,
+        restaurantId
+      });
+
+      throw new Error(
+        `Failed to retrieve tax rate for restaurant ${restaurantId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -144,28 +193,15 @@ export class OrdersService {
       // Generate order number
       const orderNumber = await this.generateOrderNumber(restaurantId);
 
-      // Map UI order types to database-valid types
+      // Map UI order types to database-valid types using shared helper
       // Database only accepts: 'online', 'pickup', 'delivery'
-      const orderTypeMapping: Record<string, string> = {
-        'kiosk': 'online',
-        'voice': 'online',
-        'drive-thru': 'pickup',
-        'dine-in': 'online',
-        'takeout': 'pickup',
-        'online': 'online',
-        'pickup': 'pickup',
-        'delivery': 'delivery'
-      };
-      
       const uiOrderType = orderData.type || 'online';
-      const dbOrderType = orderTypeMapping[uiOrderType] || 'online';
-      
-      if (!orderTypeMapping[uiOrderType]) {
-        ordersLogger.warn('Unknown order type provided, defaulting to online', { 
-          providedType: uiOrderType,
-          mappedTo: dbOrderType
-        });
-      }
+      const dbOrderType = mapOrderTypeToDb(uiOrderType);
+
+      ordersLogger.debug('Order type mapping', {
+        uiType: uiOrderType,
+        dbType: dbOrderType
+      });
 
       const newOrder = {
         restaurant_id: restaurantId,
