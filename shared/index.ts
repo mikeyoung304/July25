@@ -8,7 +8,8 @@ export * from './types/voice.types';
 export * from './types/events.types';    // event types
 export * from './types/transformers';
 export * from './types/validation';
-export * from './validation/order.schema'; // Unified order validation (Joi)
+// DO NOT EXPORT JOI VALIDATION TO CLIENT
+// export * from './validation/order.schema'; // Joi is server-side only, causes "exports is not defined" in browser
 // Export utils but avoid conflicts with runtime
 export * from './utils';
 

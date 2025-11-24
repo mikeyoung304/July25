@@ -12,7 +12,8 @@
  * - After:  import { orderSchemas } from '@rebuild/shared';
  */
 
-// Re-export from shared for backward compatibility
+// Import validation directly from the source (server-side only)
+// Client code should never import Joi validation schemas
 export {
   orderSchemas,
   createOrderSchema,
@@ -29,4 +30,4 @@ export {
   UI_ORDER_TYPE_VALUES,
   PAYMENT_STATUS_VALUES,
   PAYMENT_METHOD_VALUES
-} from '@rebuild/shared';
+} from '@rebuild/shared/validation/order.schema';
