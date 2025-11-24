@@ -14,6 +14,7 @@ import { ServerStats } from './components/ServerStats'
 import { ServerHeader } from './components/ServerHeader'
 import { Info } from 'lucide-react'
 import type { OrderInputMode } from '@/components/shared/OrderInputSelector'
+import { DEFAULT_TAX_RATE } from '@rebuild/shared/constants/business'
 
 export const ServerView = memo(() => {
   const {
@@ -95,7 +96,7 @@ export const ServerView = memo(() => {
         <ServerHeader restaurant={restaurant ? {
           ...restaurant,
           logo_url: undefined,
-          tax_rate: restaurant.tax_rate ?? 0.08, // Use restaurant-specific tax rate with fallback
+          tax_rate: restaurant.tax_rate ?? DEFAULT_TAX_RATE, // ADR-013: Shared constant
           created_at: restaurant.created_at || '',
           updated_at: restaurant.updated_at || ''
         } : null} />

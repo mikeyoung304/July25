@@ -55,18 +55,30 @@ function App() {
       return
     }
 
-    let isConnected = false // Track connection state to prevent duplicates
-    let isConnecting = false // Prevent concurrent connection attempts
-    let connectionPromise: Promise<void> | null = null // Guard against double init
-    let isMounted = true // Track component mount state
+    // PHASE 1 FIX: Use AbortController instead of boolean flags (ADR-014)
+    const abortController = new AbortController()
+    let isConnected = false // Track connection state
+    let connectionPromise: Promise<void> | null = null
 
     // Initialize WebSocket for authenticated users only
     // NOTE: Anonymous customers (checkout/kiosk) don't need real-time updates
     const initializeWebSocket = async () => {
+      // Abort any pending initialization
+      if (connectionPromise) {
+        logger.info('🔌 Aborting previous WebSocket initialization...')
+        abortController.abort()
+      }
+
       // Guard: prevent double initialization
-      if (isConnecting || isConnected) {
-        logger.info('🔌 WebSocket already connecting/connected, skipping...')
-        return connectionPromise
+      if (isConnected) {
+        logger.info('🔌 WebSocket already connected, skipping...')
+        return
+      }
+
+      // Check for abort signal before proceeding
+      if (abortController.signal.aborted) {
+        logger.info('🔌 WebSocket initialization aborted')
+        return
       }
 
       // Check if user is authenticated before connecting
@@ -85,17 +97,23 @@ function App() {
         return
       }
 
-      isConnecting = true
       logger.info('🔌 Initializing WebSocket connection for real-time updates...')
 
       connectionPromise = (async () => {
         try {
+          // Check abort signal before connecting
+          if (abortController.signal.aborted) {
+            logger.info('🔌 WebSocket connection aborted before connect')
+            return
+          }
+
           // CRITICAL FIX: Connect WebSocket FIRST, then initialize handlers
           await connectionManager.connect()
 
-          // Check if unmounted during connection
-          if (!isMounted) {
-            logger.info('⚠️ Component unmounted during connection, aborting...')
+          // Check abort signal after connection
+          if (abortController.signal.aborted) {
+            logger.info('⚠️ WebSocket initialization aborted after connect, disconnecting...')
+            connectionManager.disconnect()
             return
           }
 
@@ -107,13 +125,18 @@ function App() {
 
           isConnected = true
         } catch (error) {
+          // Ignore errors from aborted operations
+          if (error instanceof Error && error.name === 'AbortError') {
+            logger.info('🔌 WebSocket initialization aborted (expected)')
+            return
+          }
+
           console.warn('WebSocket connection failed:', error)
           // Try to initialize handler anyway for when connection is restored
-          if (isMounted) {
+          if (!abortController.signal.aborted) {
             orderUpdatesHandler.initialize()
           }
         } finally {
-          isConnecting = false
           connectionPromise = null
         }
       })()
@@ -123,7 +146,7 @@ function App() {
 
     // Check if user is already logged in on startup
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!isMounted) return
+      if (abortController.signal.aborted) return
 
       if (session) {
         logger.info('🔐 Existing session found, initializing WebSocket...')
@@ -135,15 +158,17 @@ function App() {
 
     // Subscribe to auth state changes (for Supabase users)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, _session) => {
-      if (!isMounted) return
+      if (abortController.signal.aborted) return
 
       if (event === 'SIGNED_OUT') {
-        // Properly cleanup before reinitializing
+        // PHASE 1 FIX: Properly cleanup before reinitializing (no setTimeout)
         logger.info('🔒 User signed out, cleaning up WebSocket connections...')
+
+        // Abort any pending initialization
+        abortController.abort()
 
         // Set flags first to prevent race conditions
         isConnected = false
-        isConnecting = false
         connectionPromise = null
 
         // Cleanup in correct order
@@ -151,25 +176,19 @@ function App() {
         webSocketService.disconnect()
         connectionManager.forceDisconnect()
 
-        // Wait longer to ensure cleanup completes
-        setTimeout(() => {
-          if (!isMounted) return
-          logger.info('🔌 Reinitializing WebSocket for demo mode...')
-          initializeWebSocket()
-        }, 2000)
-      } else if (event === 'SIGNED_IN' && !isConnected && !isConnecting) {
-        // Handle sign in - reconnect with new auth
+        // Reinitialize immediately (React will batch updates)
+        logger.info('🔌 Reinitializing WebSocket for demo mode...')
+        initializeWebSocket()
+      } else if (event === 'SIGNED_IN' && !isConnected) {
+        // PHASE 1 FIX: Handle sign in - reconnect with new auth (no setTimeout)
         logger.info('🔓 User signed in, reinitializing WebSocket with auth...')
-        setTimeout(() => {
-          if (!isMounted) return
-          initializeWebSocket()
-        }, 1000)
+        initializeWebSocket()
       }
     })
 
     return () => {
-      // Mark as unmounted first
-      isMounted = false
+      // PHASE 1 FIX: Abort any pending operations
+      abortController.abort()
 
       // Cleanup on unmount
       authListener.subscription.unsubscribe()
@@ -178,7 +197,6 @@ function App() {
 
       // Reset connection state
       isConnected = false
-      isConnecting = false
       connectionPromise = null
     }
   }, [isDevelopment])

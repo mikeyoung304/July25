@@ -2,6 +2,7 @@ import { logger } from '../utils/logger';
 import { OrdersService, type Order } from './orders.service';
 import { BadRequest } from '../middleware/errorHandler';
 import { supabase } from '../config/database';
+import { DEFAULT_TAX_RATE, TAX_RATE_SOURCE } from '@rebuild/shared/constants/business';
 
 export interface PaymentValidationResult {
   amount: number;
@@ -45,20 +46,32 @@ export class PaymentService {
 
       if (error) {
         logger.error('Failed to fetch restaurant tax rate', { error, restaurantId });
-        // Fall back to default California rate (8.25%) if fetch fails
-        logger.warn('Using default tax rate 0.0825 (8.25%) due to fetch error');
-        return 0.0825;
+        logger.warn('Using fallback tax rate from shared constants', {
+          restaurantId,
+          fallback: DEFAULT_TAX_RATE,
+          source: TAX_RATE_SOURCE.FALLBACK
+        });
+        return DEFAULT_TAX_RATE;
       }
 
       if (!data || data.tax_rate === null || data.tax_rate === undefined) {
-        logger.warn('Restaurant tax rate not found, using default', { restaurantId });
-        return 0.0825;
+        logger.warn('Restaurant tax rate not found, using default', {
+          restaurantId,
+          fallback: DEFAULT_TAX_RATE,
+          source: TAX_RATE_SOURCE.FALLBACK
+        });
+        return DEFAULT_TAX_RATE;
       }
 
       return Number(data.tax_rate);
     } catch (error) {
       logger.error('Exception fetching restaurant tax rate', { error, restaurantId });
-      return 0.0825;
+      logger.warn('Using fallback tax rate due to exception', {
+        restaurantId,
+        fallback: DEFAULT_TAX_RATE,
+        source: TAX_RATE_SOURCE.FALLBACK
+      });
+      return DEFAULT_TAX_RATE;
     }
   }
 

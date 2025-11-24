@@ -3,6 +3,7 @@ import { logger } from '@/services/logger'
 import { RestaurantContext, type Restaurant } from './restaurant-types'
 import { env } from '@/utils/env'
 import { useAuth } from '@/contexts/auth.hooks'
+import { DEFAULT_TAX_RATE } from '@rebuild/shared/constants/business'
 
 // Helper to create restaurant data
 function createRestaurantData(restaurantId: string | null): Restaurant {
@@ -16,7 +17,7 @@ function createRestaurantData(restaurantId: string | null): Restaurant {
     name: 'Grow Fresh Local Food',
     timezone: 'America/New_York',
     currency: 'USD',
-    tax_rate: 0.08, // 8% sales tax - configurable per tenant
+    tax_rate: DEFAULT_TAX_RATE, // Fallback - actual rate from database (ADR-013)
     settings: {
       orderPrefix: 'GRW',
       autoAcceptOrders: true,

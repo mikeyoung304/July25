@@ -1,6 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { logger } from '../../utils/logger';
 import NodeCache from 'node-cache';
+import { DEFAULT_TAX_RATE, TAX_RATE_SOURCE } from '@rebuild/shared/constants/business';
 
 // Types
 export interface MenuItem {
@@ -86,16 +87,25 @@ async function getRestaurantTaxRate(restaurantId: string): Promise<number> {
       .single();
 
     if (error || !data) {
-      logger.warn('[MenuTools] Failed to fetch tax rate, using default 0.08', { restaurantId, error });
-      return 0.08; // Default fallback
+      logger.warn('[MenuTools] Failed to fetch tax rate, using shared constant', {
+        restaurantId,
+        error,
+        fallback: DEFAULT_TAX_RATE,
+        source: TAX_RATE_SOURCE.FALLBACK
+      });
+      return DEFAULT_TAX_RATE;
     }
 
-    const taxRate = data.tax_rate ?? 0.08;
+    const taxRate = data.tax_rate ?? DEFAULT_TAX_RATE;
     restaurantCache.set(cacheKey, taxRate);
     return taxRate;
   } catch (error) {
     logger.error('[MenuTools] Exception fetching tax rate', { restaurantId, error });
-    return 0.08; // Default fallback
+    logger.warn('[MenuTools] Using fallback tax rate', {
+      fallback: DEFAULT_TAX_RATE,
+      source: TAX_RATE_SOURCE.FALLBACK
+    });
+    return DEFAULT_TAX_RATE;
   }
 }
 
@@ -121,11 +131,24 @@ function getCart(sessionId: string, restaurantId: string): Cart {
 /**
  * Update cart totals
  * @param cart - Cart to update
- * @param taxRate - Tax rate as decimal (e.g., 0.08 for 8%)
+ * @param taxRate - Tax rate as decimal (e.g., 0.0825 for 8.25%)
+ *
+ * ADR-013: Using shared DEFAULT_TAX_RATE constant
+ *
+ * KNOWN LIMITATION (Phase 2 TODO):
+ * This implementation stores modifiers as string[] (names only), not pricing data.
+ * To properly calculate modifier prices, the CartItem interface needs to be changed
+ * to match shared/cart.ts structure with CartModifier[] containing { id, name, price }.
+ * Current impact: Voice orders with modifiers may undercharge customers.
+ * Tracked in: ARCHITECTURAL_AUDIT_REPORT.md Section 1.2
  */
-function updateCartTotals(cart: Cart, taxRate: number = 0.08): void {
-  cart.subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  cart.tax = cart.subtotal * taxRate; // Use restaurant-specific tax rate
+function updateCartTotals(cart: Cart, taxRate: number = DEFAULT_TAX_RATE): void {
+  // Calculate subtotal (base price only - modifiers not priced in this implementation)
+  cart.subtotal = cart.items.reduce((sum, item) => {
+    return sum + (item.price * item.quantity);
+  }, 0);
+
+  cart.tax = cart.subtotal * taxRate;
   cart.total = cart.subtotal + cart.tax;
   cart.updated_at = Date.now();
 }

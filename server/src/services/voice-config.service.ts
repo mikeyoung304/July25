@@ -8,6 +8,7 @@ import NodeCache from 'node-cache';
 import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
 import { getConfig } from '../config/environment';
+import { DEFAULT_TAX_RATE, TAX_RATE_SOURCE } from '@rebuild/shared/constants/business';
 import type {
   VoiceMenuConfiguration,
   VoiceModifierRule,
@@ -71,10 +72,20 @@ export class VoiceConfigService {
 
       if (rulesError) throw rulesError;
 
+      const taxRate = restaurant?.tax_rate ? Number(restaurant.tax_rate) : DEFAULT_TAX_RATE;
+
+      if (!restaurant?.tax_rate) {
+        this.logger.warn('Restaurant tax rate not found, using shared constant', {
+          restaurantId,
+          fallback: DEFAULT_TAX_RATE,
+          source: TAX_RATE_SOURCE.FALLBACK
+        });
+      }
+
       const configuration: VoiceMenuConfiguration = {
         restaurant_id: restaurantId,
         menu_items: menuItems || [],
-        tax_rate: restaurant?.tax_rate ? Number(restaurant.tax_rate) : 0.08,
+        tax_rate: taxRate,
         modifier_rules: (modifierRules || []).map(this.mapModifierRule),
       };
 
