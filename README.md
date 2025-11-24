@@ -65,6 +65,24 @@ See: [SUPABASE_CONNECTION_GUIDE.md](./docs/SUPABASE_CONNECTION_GUIDE.md) for det
 → See [AUTHENTICATION_ARCHITECTURE.md](./docs/explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) for complete auth flows
 → See [POST_DUAL_AUTH_ROLL_OUT.md](./docs/how-to/operations/runbooks/POST_DUAL_AUTH_ROLL_OUT.md) for deployment runbook
 
+## 🚨 DEPLOYMENT CHECKLIST (CRITICAL)
+
+**NEVER deploy from subdirectories!** This creates duplicate Vercel projects.
+
+Before EVERY deployment:
+- [ ] You are in repository root (`pwd` shows `/rebuild-6.0`)
+- [ ] No `.vercel` directories in subdirectories
+- [ ] All changes committed (`git status` clean)
+- [ ] Tests passing (`npm run test:quick`)
+- [ ] Build succeeds (`npm run build:client`)
+
+**Deploy command (from root only):**
+```bash
+npm run deploy  # NEVER use 'vercel --yes' directly!
+```
+
+See [DEPLOYMENT_BEST_PRACTICES.md](./docs/DEPLOYMENT_BEST_PRACTICES.md) for details.
+
 ## Quickstart (local)
 ```bash
 npm install

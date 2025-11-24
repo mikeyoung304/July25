@@ -77,7 +77,7 @@ export const createOrderSchema = Joi.object({
   restaurant_id: Joi.string().uuid().required(),
   customer_name: Joi.string().max(100).optional(),
   customer_phone: Joi.string().max(20).optional(),
-  customer_email: Joi.string().email().optional(),
+  customer_email: Joi.string().email({ tlds: { allow: false } }).optional(),
   type: Joi.string()
     .valid(...UI_ORDER_TYPES)
     .default('online'),
