@@ -130,6 +130,15 @@ import { Order, Table, User } from 'shared/types';
 // Never define types locally in components
 ```
 
+### Module System (Critical)
+The codebase uses **CommonJS** for Node.js compatibility:
+- **Shared module**: Compiles to CommonJS (no `"type": "module"`)
+- **Server**: Uses CommonJS (`require()` statements)
+- **Client**: Vite handles both ESM and CommonJS
+- **browser.ts exception**: Stays as TypeScript source (uses `import.meta`)
+
+**DO NOT** add `"type": "module"` to shared/package.json - it breaks Render deployments.
+
 ### Logging
 ```typescript
 import { logger } from 'utils/logger';

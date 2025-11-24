@@ -1380,6 +1380,69 @@ app.use(express.json({ limit: '1mb' }));
 
 ## Deployment Issues
 
+### Problem: ESM/CommonJS Module Incompatibility
+
+**Symptoms**:
+- `Error [ERR_MODULE_NOT_FOUND]: Cannot find module` on Render
+- `"X" is not exported by` errors on Vercel/Vite builds
+- Mixed module format errors between server and client
+- `import.meta` errors when compiling to CommonJS
+
+**Root Cause**:
+- Server (Node.js) requires CommonJS modules
+- Client browser files use ESM features (import.meta)
+- TypeScript compilation doesn't add `.js` extensions for ESM
+- Package.json `"type": "module"` conflicts with CommonJS compilation
+
+**Solution**:
+
+1. **Remove `"type": "module"` from shared/package.json**
+```json
+{
+  "name": "@rebuild/shared",
+  // Remove this line: "type": "module",
+  "main": "dist/index.js"
+}
+```
+
+2. **Configure TypeScript for CommonJS**
+```json
+// shared/tsconfig.json
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  }
+}
+```
+
+3. **Exclude ESM-only files from compilation**
+```json
+// shared/tsconfig.json
+{
+  "exclude": ["config/browser.ts"]  // Uses import.meta
+}
+```
+
+4. **Update Vite config for CommonJS interop**
+```javascript
+// client/vite.config.ts
+{
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      include: [/node_modules/, /shared\/dist/],
+      defaultIsModuleExports: true
+    }
+  },
+  optimizeDeps: {
+    include: ['@rebuild/shared/constants/business'],
+    exclude: []  // Don't exclude workspace packages
+  }
+}
+```
+
 ### Problem: Render Deployment Fails
 
 **Symptoms**:
