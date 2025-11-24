@@ -35,11 +35,11 @@ export interface CreateOrderRequest {
   tableNumber?: string;
   seatNumber?: number;
   notes?: string;
-  subtotal?: number;
-  tax?: number;
   tip?: number;
-  total_amount?: number;
   metadata?: Record<string, unknown>;
+  // PHASE 5: Removed subtotal, tax, total_amount from request interface
+  // Server ALWAYS calculates these values - never trusts client-provided totals
+  // This eliminates trust boundary violation and ensures financial accuracy
 }
 
 // Extend shared Order type for service layer
@@ -174,8 +174,9 @@ export class OrdersService {
         })
       );
 
-      // Calculate totals - use provided values if available, otherwise calculate
-      const subtotal = orderData.subtotal !== undefined ? orderData.subtotal : itemsWithUuids.reduce((total, item) => {
+      // PHASE 5: Server ALWAYS calculates totals (never trusts client)
+      // This eliminates trust boundary violation and ensures financial accuracy
+      const subtotal = itemsWithUuids.reduce((total, item) => {
         const itemTotal = item.price * item.quantity;
         const modifiersTotal = (item.modifiers || []).reduce(
           (modTotal, mod) => modTotal + mod.price * item.quantity,
@@ -186,9 +187,9 @@ export class OrdersService {
 
       // Get restaurant-specific tax rate (ADR-007: Per-Restaurant Configuration)
       const taxRate = await this.getRestaurantTaxRate(restaurantId);
-      const tax = orderData.tax !== undefined ? orderData.tax : subtotal * taxRate;
+      const tax = subtotal * taxRate;
       const tip = orderData.tip || 0;
-      const totalAmount = orderData.total_amount !== undefined ? orderData.total_amount : (subtotal + tax + tip);
+      const totalAmount = subtotal + tax + tip;
 
       // Generate order number
       const orderNumber = await this.generateOrderNumber(restaurantId);

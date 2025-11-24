@@ -70,10 +70,9 @@ const CheckoutPageContent: React.FC = () => {
         customer_email: form.values.customerEmail,
         customer_phone: form.values.customerPhone.replace(/\D/g, ''),
         notes: 'Demo online order',
-        subtotal: cart.subtotal,
-        tax: cart.tax,
         tip: cart.tip,
-        total_amount: cart.total,
+        // PHASE 5: Server ALWAYS calculates subtotal, tax, total_amount
+        // Client only sends tip (user-controlled input)
       }, {
         headers: {
           'X-Client-Flow': 'online'

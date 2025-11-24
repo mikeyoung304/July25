@@ -169,10 +169,9 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
         customerEmail: form.values.customerEmail,
         customerPhone: form.values.customerPhone.replace(/\D/g, ''),
         notes: 'Kiosk order',
-        subtotal: cart.subtotal,
-        tax: cart.tax,
         tip: cart.tip,
-        total_amount: cart.total,
+        // PHASE 5: Server ALWAYS calculates subtotal, tax, total_amount
+        // Client only sends tip (user-controlled input)
       }, {
         headers: {
           'X-Client-Flow': 'kiosk'

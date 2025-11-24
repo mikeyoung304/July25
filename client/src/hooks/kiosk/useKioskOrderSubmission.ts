@@ -56,10 +56,9 @@ export function useKioskOrderSubmission() {
         customerEmail: customerInfo?.email || '',
         customerPhone: customerInfo?.phone || '',
         notes: 'Self-service kiosk order',
-        subtotal: subtotal,
-        tax: tax,
         tip: 0,
-        total_amount: total,
+        // PHASE 5: Server ALWAYS calculates subtotal, tax, total_amount
+        // Client only sends tip (user-controlled input)
       };
 
       const orderResponse = await createOrder('/api/v1/orders', orderData);

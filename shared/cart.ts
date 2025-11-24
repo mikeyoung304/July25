@@ -49,13 +49,23 @@ export interface OrderConfirmation {
 /**
  * Calculate cart totals with explicit tax rate
  *
+ * ⚠️ **DISPLAY-ONLY FUNCTION** - DO NOT USE FOR ORDER SUBMISSION
+ *
+ * This function is for UI preview purposes only. The server ALWAYS recalculates
+ * all financial values and never trusts client-provided totals (Phase 5).
+ *
  * @param items - Cart items to calculate totals for
  * @param taxRate - Tax rate as decimal (e.g., 0.0825 for 8.25%)
  * @param tip - Tip amount (default: 0)
- * @returns Cart totals (subtotal, tax, tip, total)
+ * @returns Cart totals (subtotal, tax, tip, total) FOR DISPLAY ONLY
  *
- * IMPORTANT: Tax rate must be fetched from server via restaurant config endpoint.
- * Never hardcode tax rates - they are restaurant-specific and legally binding.
+ * IMPORTANT:
+ * - Tax rate must be fetched from server via restaurant config endpoint
+ * - Never hardcode tax rates - they are restaurant-specific and legally binding
+ * - Server recalculates everything on order submission (CreateOrderRequest omits financial fields)
+ * - This function exists only to show cart preview to users before checkout
+ *
+ * @see server/src/services/orders.service.ts:177-192 for authoritative calculation
  */
 export function calculateCartTotals(
   items: CartItem[],
