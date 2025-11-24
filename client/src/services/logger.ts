@@ -5,18 +5,38 @@
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
+interface LogContext {
+  [key: string]: unknown;
+}
+
 interface LogEntry {
   level: LogLevel;
   message: string;
   timestamp: string;
   data?: unknown;
   error?: Error;
+  context?: LogContext;
 }
 
 class Logger {
   private isDevelopment = import.meta.env.DEV;
   private logBuffer: LogEntry[] = [];
   private maxBufferSize = 100;
+  private context: LogContext = {};
+
+  constructor(context: LogContext = {}) {
+    this.context = context;
+  }
+
+  /**
+   * Create a child logger with additional context
+   * Follows Pino/Bunyan pattern for structured logging
+   */
+  child(additionalContext: LogContext): Logger {
+    const childLogger = new Logger({ ...this.context, ...additionalContext });
+    childLogger.logBuffer = this.logBuffer; // Share buffer with parent
+    return childLogger;
+  }
 
   private shouldLog(level: LogLevel): boolean {
     // In production, only log warnings and errors
@@ -27,11 +47,17 @@ class Logger {
   }
 
   private formatMessage(level: LogLevel, message: string, data?: unknown): void {
+    // Merge context with data
+    const mergedData = Object.keys(this.context).length > 0
+      ? { ...this.context, ...(typeof data === 'object' && data !== null ? data : { value: data }) }
+      : data;
+
     const entry: LogEntry = {
       level,
       message,
       timestamp: new Date().toISOString(),
-      data,
+      data: mergedData,
+      context: Object.keys(this.context).length > 0 ? this.context : undefined,
     };
 
     // Add to buffer for error reporting
@@ -92,12 +118,18 @@ class Logger {
   }
 
   error(message: string, error?: Error | unknown, data?: unknown): void {
+    // Merge context with data
+    const mergedData = Object.keys(this.context).length > 0
+      ? { ...this.context, ...(typeof data === 'object' && data !== null ? data : { value: data }) }
+      : data;
+
     const entry: LogEntry = {
       level: 'error',
       message,
       timestamp: new Date().toISOString(),
       error: error instanceof Error ? error : new Error(String(error)),
-      data,
+      data: mergedData,
+      context: Object.keys(this.context).length > 0 ? this.context : undefined,
     };
 
     this.logBuffer.push(entry);
