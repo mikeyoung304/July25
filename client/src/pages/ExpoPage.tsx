@@ -1,5 +1,4 @@
 import { isStatusInGroup } from '../utils/orderStatusUtils';
-import { getSafeOrderStatus } from '../utils/orderStatusValidation';
 import { Clock, Package, User, Eye, CheckCircle } from 'lucide-react';
 import React, { useMemo, useState, useEffect } from 'react'
 import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
@@ -153,22 +152,16 @@ function ExpoPage() {
     await updateOrderStatus(orderId, 'completed')
   }
 
-  // Filter orders for expo view using status validation utilities  
+  // Filter orders for expo view using status validation utilities
   const { filteredActive, filteredReady } = useMemo(() => {
-    // Ensure all orders have valid statuses
-    const safeOrders = orders.map(order => ({
-      ...order,
-      status: getSafeOrderStatus(order)
-    }))
-    
     return {
       // Show all active orders: new, pending, confirmed, preparing (everything before ready)
-      filteredActive: safeOrders.filter(o => 
+      filteredActive: orders.filter(o =>
         isStatusInGroup(o.status, 'ACTIVE')
       ).sort((a, b) => 
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       ),
-      filteredReady: safeOrders.filter(o => 
+      filteredReady: orders.filter(o =>
         isStatusInGroup(o.status, 'READY')
       ).sort((a, b) => 
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()

@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import { WebSocketServer } from 'ws';
 import { broadcastOrderUpdate, broadcastNewOrder } from '../utils/websocket';
 import { NotFound } from '../middleware/errorHandler';
+import OrderStateMachine from './orderStateMachine';
 // Import shared validation schemas (Single Source of Truth)
 import {
   mapOrderTypeToDb
@@ -372,6 +373,22 @@ export class OrdersService {
       const currentOrder = await this.getOrder(restaurantId, orderId);
       if (!currentOrder) {
         throw NotFound('Order not found');
+      }
+
+      // EPIC 2: Enforce state machine transition validation
+      if (!OrderStateMachine.canTransition(currentOrder.status, newStatus)) {
+        const validNextStatuses = OrderStateMachine.getNextValidStatuses(currentOrder.status);
+        ordersLogger.warn('Invalid order status transition attempted', {
+          orderId,
+          restaurantId,
+          currentStatus: currentOrder.status,
+          attemptedStatus: newStatus,
+          validNextStatuses
+        });
+        throw new Error(
+          `Invalid state transition: ${currentOrder.status} → ${newStatus}. ` +
+          `Valid next states: ${validNextStatuses.join(', ')}`
+        );
       }
 
       // Extract current version for optimistic locking

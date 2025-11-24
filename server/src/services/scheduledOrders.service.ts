@@ -1,6 +1,7 @@
 import { supabase } from '../config/database'
 import { logger } from '../utils/logger'
 import type { Order } from '@rebuild/shared'
+import OrderStateMachine from './orderStateMachine'
 
 /**
  * Calculate when to auto-fire a scheduled order
@@ -51,18 +52,33 @@ export async function checkAndFireScheduledOrders(
     }
 
     // Mark orders as fired (move to active queue)
-    const updates = ordersToFire.map((order: Order) =>
-      supabase
-        .from('orders')
-        .update({
-          is_scheduled: false,
-          manually_fired: false,
-          status: 'preparing',
-          updated_at: now
-        })
-        .eq('id', order.id)
-        .eq('restaurant_id', restaurantId) // Multi-tenancy guard
-    )
+    // EPIC 2: Validate state transitions before firing
+    const updates = ordersToFire
+      .filter((order: Order) => {
+        // Validate transition is allowed
+        if (!OrderStateMachine.canTransition(order.status, 'preparing')) {
+          logger.warn('Cannot auto-fire scheduled order: invalid transition', {
+            orderId: order.id,
+            currentStatus: order.status,
+            attemptedStatus: 'preparing',
+            restaurantId
+          })
+          return false // Skip this order
+        }
+        return true // Proceed with fire
+      })
+      .map((order: Order) =>
+        supabase
+          .from('orders')
+          .update({
+            is_scheduled: false,
+            manually_fired: false,
+            status: 'preparing',
+            updated_at: now
+          })
+          .eq('id', order.id)
+          .eq('restaurant_id', restaurantId) // Multi-tenancy guard
+      )
 
     await Promise.all(updates)
 
@@ -89,6 +105,31 @@ export async function manuallyFireScheduledOrder(
   const now = new Date().toISOString()
 
   try {
+    // EPIC 2: Fetch current order to validate transition
+    const { data: currentOrder, error: fetchError } = await supabase
+      .from('orders')
+      .select('id, status, is_scheduled')
+      .eq('id', orderId)
+      .eq('restaurant_id', restaurantId)
+      .eq('is_scheduled', true)
+      .single()
+
+    if (fetchError || !currentOrder) {
+      logger.error('Failed to fetch scheduled order for manual fire:', fetchError)
+      return null
+    }
+
+    // Validate transition is allowed
+    if (!OrderStateMachine.canTransition(currentOrder.status, 'preparing')) {
+      logger.warn('Cannot manually fire scheduled order: invalid transition', {
+        orderId,
+        currentStatus: currentOrder.status,
+        attemptedStatus: 'preparing',
+        restaurantId
+      })
+      return null
+    }
+
     const { data: order, error } = await supabase
       .from('orders')
       .update({

@@ -1,0 +1,486 @@
+================================================================================
+  REBUILD 6.0 - MAJOR SUBSYSTEMS QUICK REFERENCE MAP
+================================================================================
+
+SUBSYSTEM ARCHITECTURE WITH CLIENT/SERVER IMPLEMENTATIONS
+
+================================================================================
+1. AUTHENTICATION & AUTHORIZATION
+================================================================================
+
+CLIENT:
+  Location: /client/src/contexts/ + /client/src/components/auth/
+  
+  Contexts:
+  - AuthContext.tsx           ← Main auth state + Supabase/localStorage
+  - RoleContext.tsx           ← RBAC roles
+  - UnifiedCartContext.tsx    ← Cart management
+  
+  Components:
+  - DevAuthOverlay.tsx        ← Demo login UI
+  - WorkspaceAuthModal.tsx    ← Workspace selection
+  - RoleSelector.tsx          ← Role picker
+  - ProtectedRoute.tsx        ← Route guard
+  - RoleGuard.tsx             ← Render guard
+  
+  Services:
+  - httpClient.ts             ← Dual auth: Supabase + localStorage
+  
+SERVER:
+  Location: /server/src/middleware/ + /server/src/routes/ + /server/src/services/
+  
+  Routes:
+  - auth.routes.ts            ← Login/register endpoints
+  
+  Middleware:
+  - auth.ts                   ← JWT/Supabase verification
+  - rbac.ts                   ← Role-based access control
+  - restaurantAccess.ts       ← Restaurant isolation (RLS)
+  
+  Services:
+  - pinAuth.ts                ← PIN authentication
+  - stationAuth.ts            ← Station/KDS authentication
+
+  TEST COVERAGE: 2 test files (AuthContext.test.tsx, auth.test.ts)
+
+================================================================================
+2. ORDERS & CHECKOUT SYSTEM
+================================================================================
+
+CLIENT:
+  Location: /client/src/modules/orders/ + /client/src/modules/order-system/
+  
+  Order Display:
+  - OrderCard.tsx             ← Individual order UI
+  - OrderList component       ← List of orders
+  - VirtualizedOrderList.tsx  ← Optimized virtual list
+  
+  Hooks:
+  - useOrderData.ts           ← Fetch orders
+  - useOrderActions.ts        ← Update order state
+  - useOrderSubscription.ts   ← WebSocket subscriptions
+  - useOrderHistory.ts        ← Order history
+  
+  Checkout Flow:
+  - CheckoutPage.tsx          ← Main checkout UI
+  - useRestaurantData.ts      ← Restaurant config
+  - checkout.e2e.test.tsx     ← Integration tests
+  
+  Services:
+  - OrderService.ts           ← API calls (POST/PUT orders)
+  - OrderHistoryService.ts    ← History management
+  - OrderParser.ts            ← Response parsing
+  
+SERVER:
+  Location: /server/src/routes/ + /server/src/services/
+  
+  Routes:
+  - orders.routes.ts          ← GET/POST/PUT endpoints
+  
+  Services:
+  - orders.service.ts         ← CRUD operations
+  - orderStateMachine.ts      ← State transitions (pending→confirmed→preparing→ready→served→completed)
+  - OrderMatchingService.ts   ← Match orders to tables
+  - order.model.ts            ← Data model
+  
+  Mappers:
+  - cart.mapper.ts            ← Cart DTO transformation
+
+  TEST COVERAGE: 12+ test files (OrderCard, useOrderData, orders.rctx, etc.)
+
+================================================================================
+3. KITCHEN DISPLAY SYSTEM (KDS)
+================================================================================
+
+CLIENT:
+  Location: /client/src/modules/kitchen/
+  
+  Main Page:
+  - KitchenDisplayOptimized.tsx ← Primary KDS view (23KB)
+  
+  Components:
+  - VirtualizedOrderGrid.tsx   ← Virtual scrolling (large order volumes)
+  - OrderCard.tsx              ← Individual orders
+  - OrderGroupCard.tsx         ← Grouped orders
+  - TableGroupCard.tsx         ← By-table grouping
+  - TouchOptimizedOrderCard.tsx ← Touch-optimized UI
+  - StationStatusBar.tsx       ← Station status
+  - ConnectionStatusBar.tsx    ← Connection indicator
+  - ScheduledOrdersSection.tsx ← Upcoming orders
+  
+  Hooks:
+  - useKitchenOrdersRealtime.ts   ← WebSocket updates
+  - useKitchenOrdersOptimized.ts  ← Optimized fetching
+  
+SERVER:
+  Location: /server/src/routes/
+  
+  Routes:
+  - orders.routes.ts          ← Order status endpoints
+  - realtime.routes.ts        ← WebSocket handler
+  
+  Real-time via:
+  - WebSocket subscriptions   ← Push order updates
+  - OrderStateMachine.ts      ← Validates state changes
+
+  TEST COVERAGE: 4+ test files (KDSOrderCard.test.tsx, e2e-kds-realtime.spec.ts, etc.)
+
+================================================================================
+4. VOICE ORDERING SUBSYSTEM
+================================================================================
+
+CLIENT:
+  Location: /client/src/modules/voice/ (comprehensive 35+ files)
+  
+  Main Hooks:
+  - useVoiceCommerce.ts       ← Main voice ordering entry point
+  - useVoiceOrder.ts          ← Voice→Order conversion
+  - useWebRTCVoice.ts         ← WebRTC connection
+  
+  Services:
+  - WebRTCVoiceClient.ts      ← WebRTC implementation
+  - WebRTCConnection.ts       ← Connection lifecycle
+  - VoiceSessionConfig.ts     ← Session management
+  - VoiceStateMachine.ts      ← State transitions
+  - VoiceEventHandler.ts      ← Event routing
+  - VoiceCheckoutOrchestrator.ts ← Checkout flow
+  - VoiceOrderProcessor.ts    ← Order processing
+  - orderIntegration.ts       ← Order system integration
+  
+  Components:
+  - TranscriptionDisplay.tsx  ← Show transcribed text
+  - MicrophonePermission.tsx  ← Permission UI
+  
+  Pages:
+  - KioskDemo.tsx             ← Kiosk with voice
+  - VoiceOrderModal.tsx       ← Modal flow
+  
+  Types:
+  - voice types definition    ← Voice-specific types
+  
+SERVER:
+  Location: /server/src/ai/ + /server/src/routes/
+  
+  Core AI Interfaces:
+  - ai/core/chat.ts           ← Chat interface
+  - ai/core/transcriber.ts    ← Speech-to-text interface
+  - ai/core/tts.ts            ← Text-to-speech interface
+  - ai/core/order-nlp.ts      ← Natural language order parsing
+  
+  OpenAI Adapters:
+  - ai/adapters/openai/openai-chat.ts         ← GPT implementation
+  - ai/adapters/openai/openai-transcriber.ts  ← gpt-4o-transcribe
+  - ai/adapters/openai/openai-tts.ts          ← Voice synthesis
+  - ai/adapters/openai/openai-order-nlp.ts    ← Order NLP via GPT
+  
+  Functions:
+  - ai/functions/realtime-menu-tools.ts ← Menu tools for voice
+  
+  Routes:
+  - ai.routes.ts              ← Voice API endpoints
+  - voice-config.routes.ts    ← Voice configuration
+  
+  Services:
+  - ai.service.ts             ← AI orchestration
+  - voice-config.service.ts   ← Config management
+
+  TEST COVERAGE: 10+ test files (useVoiceCommerce, WebRTCConnection, ai.health.test, etc.)
+
+================================================================================
+5. MENU SYSTEM
+================================================================================
+
+CLIENT:
+  Location: /client/src/modules/menu/ + /client/src/services/menu/
+  
+  Hook:
+  - useMenuItems.ts           ← Menu data fetching
+  
+  Services:
+  - MenuService.ts            ← API calls
+  - ResponseCache.ts          ← Caching (5-minute)
+  
+  Utilities:
+  - fuzzyMenuMatcher.ts       ← Fuzzy search/matching
+  
+SERVER:
+  Location: /server/src/routes/ + /server/src/services/
+  
+  Routes:
+  - menu.routes.ts            ← GET endpoints
+  
+  Services:
+  - menu.service.ts           ← Menu CRUD
+  - menu-id-mapper.ts         ← ID mapping utility
+  
+  Mappers:
+  - menu.mapper.ts            ← DTO transformation
+
+  TEST COVERAGE: 3+ test files (menu operations, fuzzy matching)
+
+================================================================================
+6. PAYMENTS SUBSYSTEM
+================================================================================
+
+CLIENT:
+  Location: /client/src/components/payments/
+  
+  Components:
+  - TenderSelection.tsx       ← Tender type UI
+  - CardPayment.tsx           ← Card flow
+  - CashPayment.tsx           ← Cash flow
+  
+  Integrated in:
+  - CheckoutPage.tsx          ← Payment flow included
+  
+SERVER:
+  Location: /server/src/routes/ + /server/src/services/
+  
+  Routes:
+  - payments.routes.ts        ← Payment endpoints
+  - terminal.routes.ts        ← Square terminal operations
+  - webhook.routes.ts         ← Payment webhooks
+  
+  Services:
+  - payment.service.ts        ← Payment processing
+  - Webhook signature validation
+
+  TEST COVERAGE: 3+ test files (card-payment.spec.ts, cash-payment.spec.ts, payments.test.ts)
+
+================================================================================
+7. TABLES & FLOOR PLAN
+================================================================================
+
+CLIENT:
+  Location: /client/src/modules/floor-plan/
+  
+  Components:
+  - Floor plan canvas UI      ← Interactive layout
+  - Table visualization       ← Table display
+  
+  Hooks:
+  - useFloorPlanLayout.ts     ← Layout calculations
+  - useCanvasControls.ts      ← Canvas interaction
+  - useTableManagement.ts     ← Table operations
+  
+  Services:
+  - TablePersistenceService.ts ← Local persistence
+  
+  Pages:
+  - ServerView.tsx            ← Server perspective
+  - ServerFloorPlan.tsx       ← Floor plan display
+  - ServerMenuGrid.tsx        ← Menu grid for server
+  
+  APIs:
+  - TableService.ts           ← API calls
+  
+SERVER:
+  Location: /server/src/routes/ + /server/src/services/
+  
+  Routes:
+  - tables.routes.ts          ← Table CRUD
+  
+  Services:
+  - table.service.ts          ← Table operations
+  - scheduledOrders.service.ts ← Scheduled orders
+
+  TEST COVERAGE: 2+ test files (chip-monkey.test.tsx)
+
+================================================================================
+8. REAL-TIME INFRASTRUCTURE (WebSocket)
+================================================================================
+
+CLIENT:
+  Location: /client/src/services/websocket/
+  
+  Main Service:
+  - WebSocketService.ts       ← WebSocket lifecycle
+  - ConnectionManager.ts      ← Connection pooling
+  - orderUpdates.ts           ← Order update handlers
+  
+  Also:
+  - /client/src/services/realtime/orderSubscription.ts ← Subscription logic
+  
+  Usage:
+  - useWebSocketConnection.ts ← Hook wrapper
+  - Used by: Kitchen, Orders, Real-time updates
+  
+SERVER:
+  Location: /server/src/routes/
+  
+  Routes:
+  - realtime.routes.ts        ← WebSocket handler
+  
+  Utilities:
+  - /server/src/utils/websocket.ts ← WebSocket utils
+  
+  Shared:
+  - /shared/utils/websocket-pool.ts ← Connection pooling
+
+  TEST COVERAGE: 1+ test files (WebSocketService.test.ts)
+
+================================================================================
+9. CORE INFRASTRUCTURE & UTILITIES
+================================================================================
+
+HTTP CLIENT (Unified):
+  Location: /client/src/services/http/
+  - httpClient.ts             ← Single HTTP client (MANDATORY - no fetch())
+  - RequestBatcher.ts         ← Request batching
+  - Checks: Supabase auth → localStorage JWT
+
+RESTAURANT CONTEXT:
+  Location: /client/src/core/
+  - RestaurantContext.tsx     ← Restaurant isolation
+  - restaurant-hooks.ts       ← useRestaurant hook
+  - Multi-tenancy enforcement with restaurant_id
+
+CONFIGURATION:
+  Location: /client/src/config/ + /server/src/config/
+  - env.ts, env.schema.ts    ← Environment validation
+  - env-validator.ts          ← Client validator
+  - database.ts               ← DB connection
+  - sentry.ts                 ← Error tracking
+
+================================================================================
+10. SHARED CODE (Monorepo Types & Utilities)
+================================================================================
+
+TYPES:
+  Location: /shared/types/
+  - api.types.ts              ← API contract types
+  - order.types.ts            ← Order types
+  - menu.types.ts             ← Menu types
+  - table.types.ts            ← Table types
+  - voice.types.ts            ← Voice types
+  - websocket.types.ts        ← WebSocket event types
+  - customer.types.ts, events.types.ts, filters.types.ts
+
+CONTRACTS:
+  Location: /shared/contracts/
+  - order.ts                  ← Order contract/shape
+  - payment.ts                ← Payment contract/shape
+
+UTILITIES:
+  Location: /shared/utils/
+  - websocket-pool.ts         ← WebSocket pooling (browser + server)
+  - error-handling.ts         ← Error utilities
+  - memory-monitoring.ts      ← Memory checks
+  - performance-hooks.ts      ← Performance utilities
+  - react-performance.ts      ← React optimization utilities
+
+================================================================================
+11. COMPREHENSIVE TEST COVERAGE (119 FILES)
+================================================================================
+
+CLIENT TESTS (~40 files):
+  - Auth: 1 (AuthContext.test.tsx)
+  - Hooks: 8+ (useAsyncState, useSoundNotifications, etc.)
+  - Components: 10+ (OrderCard, LoadingSpinner, ErrorBoundary, etc.)
+  - Modules: 15+ (voice/*, orders/*, kitchen/*, floor-plan/*)
+  - Services: 5+ (HTTP, WebSocket, orders, etc.)
+  - Utils: 3+ (fuzzyMenuMatcher, caseTransform, etc.)
+
+SERVER TESTS (~60 files):
+  - Security: 9 (auth, CSRF, CORS, RLS, headers, rate limit, etc.)
+  - Config: 1 (env validation)
+  - Contracts: 3 (order, payment, boundary transform)
+  - Services: 3+ (payment, audit, etc.)
+  - Routes: 5+ (orders, payments, security, etc.)
+  - Middleware: 2 (auth, restaurantAccess)
+  - AI: 2 (realtime-menu-tools)
+  - Other: 10+ (memory, multi-tenancy, etc.)
+
+E2E TESTS (31 Playwright specs):
+  - Auth: 2
+  - Checkout: 3
+  - Kitchen/KDS: 2
+  - Voice Ordering: 4
+  - Payments: 2
+  - Full Flows: 6
+  - Performance: 2
+  - Other: 8
+
+================================================================================
+12. KEY ARCHITECTURAL PATTERNS
+================================================================================
+
+1. DUAL AUTHENTICATION (ADR-006)
+   - Supabase auth (primary)
+   - localStorage JWT (fallback for demo, PIN, station)
+
+2. SNAKE_CASE EVERYWHERE (ADR-001)
+   - Database, API, Client (NO camelCase)
+   - Enforced by: ResponseTransform + mappers
+
+3. REMOTE-FIRST DB (ADR-010)
+   - Supabase = single source of truth
+   - Prisma schema: npx prisma db pull
+   - Never edit schema manually
+
+4. MULTI-TENANCY
+   - Every operation includes restaurant_id
+   - Enforced at: DB (RLS), API (middleware), Client (context)
+
+5. UNIFIED HTTP CLIENT
+   - MUST use: httpClient from 'services/http/httpClient'
+   - NO direct fetch() calls
+   - Supports request batching
+
+6. WEBSOCKET POOLING
+   - Single pooled WebSocket per app
+   - Connection pooling in shared/utils
+
+================================================================================
+13. FILE ORGANIZATION SUMMARY
+================================================================================
+
+TOTAL FILES:
+  - TypeScript/TSX: 400+
+  - Type Definitions: 50+
+  - Test Files: 119
+  - API Contracts: 2
+  - Middleware: 15+
+  - Services: 25+
+  - Components: 100+
+  - Custom Hooks: 40+
+
+MAJOR MODULES:
+  - Authentication: 8 client + 3 server
+  - Orders: 45+ client + 8 server
+  - Menu: 8 client + 4 server
+  - KDS: 15 client + 2 server
+  - Voice: 35+ client + 18 server
+  - Payments: 5 client + 3 server
+  - Tables/FloorPlan: 18 client + 3 server
+  - WebSocket: 6 client + 2 server
+  - AI Core: - + 12 server
+  - Middleware: - + 15 server
+
+================================================================================
+14. COMMAND REFERENCE
+================================================================================
+
+DEVELOPMENT:
+  npm run dev                 # Start client (5173) + server (3001)
+  npm run dev:client          # Client only
+  npm run dev:server          # Server only
+
+TESTING:
+  npm test                    # Run all tests
+  npm run test:client         # Client tests only
+  npm run test:server         # Server tests only
+  npm run test:e2e            # Playwright E2E tests
+  npm run test:watch          # Watch mode
+
+DATABASE:
+  npx prisma db pull         # Sync schema from Supabase (REQUIRED)
+  npm run db:push             # Push migrations
+  npm run db:seed             # Seed data
+
+BUILD:
+  npm run build               # Build for production
+  npm run build:client        # Client build only
+  npm run build:vercel        # Vercel deployment
+
+================================================================================

@@ -1,13 +1,17 @@
 import { logger } from '../utils/logger';
 import { BadRequest } from '../middleware/errorHandler';
-import type { Order } from '@rebuild/shared';
+// ✅ PHASE 2: Import OrderStatus from shared (Single Source of Truth)
+import type { Order, OrderStatus } from '@rebuild/shared';
 
 /**
  * Order State Machine
  * Enforces valid state transitions and provides hooks for side effects
+ *
+ * PHASE 2 UPDATE (2025-01-23):
+ * - Now imports OrderStatus from @rebuild/shared to eliminate split-brain
+ * - Added support for 'picked-up' state in transition table
+ * - Enforces strict type safety across client/server boundary
  */
-
-export type OrderStatus = 'new' | 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 
 export interface StateTransition {
   from: OrderStatus;
@@ -22,12 +26,14 @@ export interface TransitionHook {
 }
 
 export class OrderStateMachine {
+  // ✅ PHASE 2: Updated to include 'picked-up' state (matches shared definition)
   private static readonly VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
     'new': ['pending', 'cancelled'],
     'pending': ['confirmed', 'cancelled'],
     'confirmed': ['preparing', 'cancelled'],
     'preparing': ['ready', 'cancelled'],
-    'ready': ['completed', 'cancelled'],
+    'ready': ['picked-up', 'completed', 'cancelled'],  // ✅ Added 'picked-up' transition
+    'picked-up': ['completed', 'cancelled'],           // ✅ New state handling
     'completed': [], // Final state
     'cancelled': []  // Final state
   };
@@ -202,6 +208,13 @@ export class OrderStateMachine {
         isFinal: false,
         canCancel: true
       },
+      'picked-up': {
+        label: 'Picked Up',
+        color: 'teal',
+        icon: '🛍️',
+        isFinal: false,
+        canCancel: false
+      },
       'completed': {
         label: 'Completed',
         color: 'gray',
@@ -226,11 +239,13 @@ export class OrderStateMachine {
    */
   static getEstimatedDuration(from: OrderStatus, to: OrderStatus): number {
     const durations: Record<string, number> = {
-      'new->pending': 30,        // 30 seconds to confirm
-      'pending->confirmed': 60,   // 1 minute to confirm
+      'new->pending': 30,          // 30 seconds to confirm
+      'pending->confirmed': 60,    // 1 minute to confirm
       'confirmed->preparing': 120, // 2 minutes to start preparing
       'preparing->ready': 900,     // 15 minutes to prepare
-      'ready->completed': 300      // 5 minutes to complete
+      'ready->picked-up': 180,     // 3 minutes for customer pickup
+      'picked-up->completed': 60,  // 1 minute to mark complete
+      'ready->completed': 300      // 5 minutes to complete (direct path)
     };
 
     return durations[`${from}->${to}`] || 60;

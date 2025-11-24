@@ -165,6 +165,11 @@ docs/
 
 Recent documentation and codebase audit reports:
 
+### Latest Architectural Audits
+- **[Architectural Audit Report V2 (2025-01-23)](./reports/ARCHITECTURAL_AUDIT_REPORT_V2.md)** - Comprehensive deep scan identifying 169 technical debt items across 6 subsystems
+- [Hardcoded Values Migration Reference](./reference/config/HARDCODED_VALUES_TO_MIGRATE.md) - Catalog of 153 hardcoded values to migrate for multi-tenant readiness
+
+### Documentation Audits
 - [Overnight Audit Report (2025-10-31)](./audit/OVERNIGHT_AUDIT_REPORT_2025-10-31.md) - Latest overnight documentation audit
 - [Comprehensive Documentation Audit](./archive/2025-10/COMPREHENSIVE_DOCUMENTATION_AUDIT_REPORT.md) - Full documentation system audit
 - [Audit Executive Summary](./audit/AUDIT_EXECUTIVE_SUMMARY.md) - Executive overview of audit findings

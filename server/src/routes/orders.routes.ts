@@ -235,6 +235,7 @@ router.get('/:id', authenticate, validateRestaurantAccess, async (req: Authentic
 });
 
 // PATCH /api/v1/orders/:id/status - Update order status
+// EPIC 2: Removed hardcoded status validation - now handled by orderStateMachine in service layer
 router.patch('/:id/status', authenticate, validateRestaurantAccess, async (req: AuthenticatedRequest, res, next) => {
   try {
     const restaurantId = req.restaurantId!;
@@ -245,13 +246,9 @@ router.patch('/:id/status', authenticate, validateRestaurantAccess, async (req: 
       throw BadRequest('Status is required');
     }
 
-    const validStatuses: OrderStatus[] = ['new', 'pending', 'confirmed', 'preparing', 'ready', 'picked-up', 'completed', 'cancelled'];
-    if (!validStatuses.includes(status as OrderStatus)) {
-      throw BadRequest(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
-    }
-
     routeLogger.info('Updating order status', { restaurantId, orderId: id, status });
 
+    // Service layer enforces state machine validation
     const order = await OrdersService.updateOrderStatus(restaurantId, id!, status, notes);
     res.json(order);
   } catch (error) {
