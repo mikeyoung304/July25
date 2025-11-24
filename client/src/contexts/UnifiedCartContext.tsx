@@ -91,8 +91,25 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
           // Validate and migrate cart items to ensure compatibility
           const validatedItems = (parsed.items || []).map((item: { id: string; name?: string; price?: number; quantity?: number; menuItem?: { name: string; price: number } }) => {
             // Handle both old (with menuItem) and new (flat) structures
+            let itemId = item.id;
+
+            // Phase 3 Fix: Validate UUID format and regenerate if legacy integer ID
+            // Server strictly enforces UUID v4 format (see orders.service.ts:616)
+            const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(itemId);
+
+            if (!isValidUUID) {
+              // Legacy integer ID detected - regenerate UUID to prevent server rejection
+              const newUUID = crypto.randomUUID();
+              logger.warn('Cart hydration: Regenerated UUID for legacy item', {
+                oldId: itemId,
+                newId: newUUID,
+                itemName: item.name || (item as any).menuItem?.name
+              });
+              itemId = newUUID;
+            }
+
             const migratedItem: UnifiedCartItem = {
-              id: item.id,
+              id: itemId,
               name: item.name || (item as any).menuItem?.name || 'Unknown Item',
               price: item.price || (item as any).menuItem?.price || 0,
               quantity: item.quantity || 1,
