@@ -4,5 +4,5 @@
     "module": "CommonJS",
     "moduleResolution": "node"
   },
-  "exclude": ["dist", "node_modules", "**/__tests__/**", "config/browser.ts", "config/browser.d.ts"]
+  "exclude": ["dist", "node_modules", "**/__tests__/**", "config/browser.ts"]
 }

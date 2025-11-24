@@ -181,7 +181,7 @@ export default defineConfig(async ({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        '@rebuild/shared': path.resolve(__dirname, '../shared/dist'),
+        // Removed @rebuild/shared alias to use package.json exports
         '/shared': path.resolve(__dirname, '../shared/src'),
         '@shared': path.resolve(__dirname, '../shared/src'),
       },

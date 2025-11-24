@@ -13,7 +13,7 @@ export * from './validation/order.schema'; // Unified order validation (Joi)
 export * from './utils';
 
 // Selectively export from runtime to avoid conflicts
-export { 
+export {
   RuntimeMemoryMonitor
   // CleanupManager and ManagedService are already exported from utils
 } from './runtime';
