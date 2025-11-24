@@ -256,11 +256,14 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 - ✅ Eliminated security vulnerability (client override attack)
 - **Impact**: Critical security fix, financial integrity guaranteed
 
-**Epic 2: Fix Order Status Flow** (1 week, 1 engineer)
-- Consolidate 3 status definitions into one
-- Enforce state machine in all update paths
-- Update documentation
-- **Impact**: API consistency, no more invalid transitions
+**Epic 2: Fix Order Status Flow** ✅ **PLANNED - READY TO EXECUTE** (1-1.5 days)
+- Consolidate 6 status definitions → 1 canonical (order.types.ts)
+- Enforce state machine in all update paths (4 bypass patterns identified)
+- Delete deprecated unified-order.types.ts (7-state version)
+- Move client helpers to shared/utils/orderStatus.ts
+- Update documentation (ORDER_FLOW.md, API docs, ADR-015)
+- **Execution Brief**: docs/reports/EPIC_2_EXECUTION_BRIEF.md
+- **Impact**: Prevents invalid state transitions (completed → pending), data integrity guaranteed
 
 **Epic 3: Consolidate Checkout Logic** (3 weeks, 2 engineers)
 - Extract useOrderCheckout hook
