@@ -1,6 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { VoiceSessionConfig, type WebRTCVoiceConfig } from '../VoiceSessionConfig'
 
+// Mock logger - using alias path
+vi.mock('@/services/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
+  }
+}))
+
 // Mock the auth service
 const mockAuthService = {
   getAuthToken: vi.fn()
@@ -342,7 +352,7 @@ describe('VoiceSessionConfig', () => {
           input_audio_format: 'pcm16',
           output_audio_format: 'pcm16',
           input_audio_transcription: {
-            model: 'whisper-1',
+            model: 'gpt-4o-transcribe', // Changed from whisper-1 for better transcription
             language: 'en'
           },
           temperature: 0.6,
@@ -374,8 +384,8 @@ describe('VoiceSessionConfig', () => {
       it('includes AI instructions', () => {
         const result = sessionConfig.buildSessionConfig()
 
-        expect(result.instructions).toContain('friendly, fast, and accurate customer service agent')
-        expect(result.instructions).toContain('MUST speak in English only')
+        expect(result.instructions).toContain('CRITICAL SYSTEM DIRECTIVE')
+        expect(result.instructions).toContain('SPEAK ONLY IN ENGLISH')
         expect(result.instructions).toContain('add_to_order')
       })
 
@@ -411,7 +421,7 @@ describe('VoiceSessionConfig', () => {
           type: 'server_vad',
           threshold: 0.5,
           prefix_padding_ms: 300,
-          silence_duration_ms: 250,
+          silence_duration_ms: 1500, // Increased from 250ms to allow longer pauses
           create_response: false
         })
       })
@@ -519,7 +529,11 @@ describe('VoiceSessionConfig', () => {
 
   describe('Debug Mode', () => {
     it('logs debug information when enabled', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      // Import logger to access the mock
+      const { logger } = await import('@/services/logger')
+
+      // Clear previous mock calls
+      vi.mocked(logger.info).mockClear()
 
       const debugConfig = new VoiceSessionConfig(
         { ...config, debug: true },
@@ -538,21 +552,20 @@ describe('VoiceSessionConfig', () => {
 
       await debugConfig.fetchEphemeralToken()
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '[VoiceSessionConfig] Fetching ephemeral token from:',
-        'http://localhost:3001/api/v1/realtime/session'
+      // Verify logger was called with debug information
+      expect(logger.info).toHaveBeenCalled()
+
+      // Check for specific log messages
+      const logCalls = vi.mocked(logger.info).mock.calls
+      const fetchingCall = logCalls.find(call =>
+        call[0]?.includes('Fetching ephemeral token')
       )
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '[VoiceSessionConfig] Menu context loaded:',
-        3,
-        'lines'
-      )
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '[VoiceSessionConfig] Got ephemeral token, expires at:',
-        expect.any(Date)
+      const expiresCall = logCalls.find(call =>
+        call[0]?.includes('Got ephemeral token')
       )
 
-      consoleSpy.mockRestore()
+      expect(fetchingCall).toBeDefined()
+      expect(expiresCall).toBeDefined()
     })
 
     it('does not log when debug disabled', async () => {

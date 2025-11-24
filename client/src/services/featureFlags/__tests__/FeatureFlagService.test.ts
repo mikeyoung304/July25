@@ -18,17 +18,11 @@ describe('FeatureFlagService', () => {
     // Clear localStorage before each test
     localStorage.clear();
 
-    // Reset import.meta.env.PROD
-    vi.stubGlobal('import', {
-      meta: {
-        env: {
-          PROD: false,
-          VITE_FEATURE_TEST_FLAG: 'true',
-          VITE_FEATURE_DISABLED_FLAG: 'false',
-          VITE_FEATURE_PERCENTAGE_FLAG: '50'
-        }
-      }
-    });
+    // Reset import.meta.env values
+    import.meta.env.PROD = false;
+    import.meta.env.VITE_FEATURE_TEST_FLAG = 'true';
+    import.meta.env.VITE_FEATURE_DISABLED_FLAG = 'false';
+    import.meta.env.VITE_FEATURE_PERCENTAGE_FLAG = '50';
   });
 
   describe('isEnabled', () => {
@@ -169,13 +163,7 @@ describe('FeatureFlagService', () => {
 
     it('should block localStorage overrides in production', () => {
       // Mock production environment
-      vi.stubGlobal('import', {
-        meta: {
-          env: {
-            PROD: true
-          }
-        }
-      });
+      import.meta.env.PROD = true;
 
       service = new FeatureFlagService();
 

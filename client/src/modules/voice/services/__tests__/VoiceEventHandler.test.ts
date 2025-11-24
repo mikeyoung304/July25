@@ -11,6 +11,7 @@ import {
 // Mock logger
 vi.mock('@/services/logger', () => ({
   logger: {
+    debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn()
@@ -662,7 +663,7 @@ describe('VoiceEventHandler', () => {
       handler.setDataChannel(mockDataChannel as RTCDataChannel)
 
       expect(mockDataChannel.onopen).toBeDefined()
-      expect(mockDataChannel.onmessage).toBeDefined()
+      // Note: onmessage intentionally not set - handled by WebRTCConnection to prevent race condition
       expect(mockDataChannel.onerror).toBeDefined()
       expect(mockDataChannel.onclose).toBeDefined()
     })
@@ -684,7 +685,7 @@ describe('VoiceEventHandler', () => {
       expect(handler.isDataChannelReady()).toBe(true)
     })
 
-    it('data channel onmessage processes events', () => {
+    it('handleRawMessage processes events', () => {
       const emitSpy = vi.spyOn(handler, 'emit')
       handler.setDataChannel(mockDataChannel as RTCDataChannel)
 
@@ -694,12 +695,8 @@ describe('VoiceEventHandler', () => {
         session: { id: 'sess_123' }
       }
 
-      // Simulate incoming message
-      if (mockDataChannel.onmessage) {
-        mockDataChannel.onmessage(new MessageEvent('message', {
-          data: JSON.stringify(event)
-        }))
-      }
+      // Use handleRawMessage directly (WebRTCConnection calls this method)
+      handler.handleRawMessage(JSON.stringify(event))
 
       expect(emitSpy).toHaveBeenCalledWith('session.created', event.session)
     })
@@ -901,15 +898,12 @@ describe('VoiceEventHandler', () => {
       consoleErrorSpy.mockRestore()
     })
 
-    it('handles invalid JSON in data channel message', () => {
+    it('handles invalid JSON in handleRawMessage', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       handler.setDataChannel(mockDataChannel as RTCDataChannel)
 
-      if (mockDataChannel.onmessage) {
-        mockDataChannel.onmessage(new MessageEvent('message', {
-          data: 'invalid json {{'
-        }))
-      }
+      // Use handleRawMessage with invalid JSON
+      handler.handleRawMessage('invalid json {{')
 
       expect(consoleErrorSpy).toHaveBeenCalled()
 
