@@ -4,6 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Clock, Package, User } from 'lucide-react'
 import { cn } from '@/utils'
 import type { Order } from '@rebuild/shared'
+import {
+  getOrderUrgency,
+  getUrgencyColorClass,
+  getUrgencyCardClass
+} from '@rebuild/shared/config/kds'
 
 export interface OrderCardProps {
   order: Order
@@ -15,24 +20,17 @@ export interface OrderCardProps {
  * Single complete button, no multi-step workflow
  */
 function OrderCardComponent({ order, onStatusChange }: OrderCardProps) {
-  // Calculate elapsed time and urgency color (industry standard: green → yellow → red)
+  // Calculate elapsed time and urgency using unified KDS config
   const { elapsedMinutes, urgencyColor, cardColor } = useMemo(() => {
     const created = new Date(order.created_at)
     const now = new Date()
     const elapsed = Math.floor((now.getTime() - created.getTime()) / 60000)
-    
-    // Industry standard timing: green (0-10min) → yellow (10-15min) → red (15+min)
-    let color = 'text-green-600'
-    let bg = 'bg-white border-gray-200'
-    
-    if (elapsed >= 15) {
-      color = 'text-red-600'
-      bg = 'bg-red-50 border-red-300'
-    } else if (elapsed >= 10) {
-      color = 'text-yellow-600' 
-      bg = 'bg-yellow-50 border-yellow-300'
-    }
-    
+
+    // Use centralized KDS thresholds (Phase 4: Architectural Hardening)
+    const urgency = getOrderUrgency(elapsed)
+    const color = getUrgencyColorClass(urgency)
+    const bg = getUrgencyCardClass(urgency)
+
     return { elapsedMinutes: elapsed, urgencyColor: color, cardColor: bg }
   }, [order.created_at])
 

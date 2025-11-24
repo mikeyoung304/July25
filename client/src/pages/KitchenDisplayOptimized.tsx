@@ -14,6 +14,7 @@ import { useOrderGrouping, sortOrderGroups } from '@/hooks/useOrderGrouping'
 import { useScheduledOrders } from '@/hooks/useScheduledOrders'
 import { ScheduledOrdersSection } from '@/components/kitchen/ScheduledOrdersSection'
 import type { Order } from '@rebuild/shared'
+import { KDS_THRESHOLDS } from '@rebuild/shared/config/kds'
 
 type StatusFilter = 'all' | 'active' | 'ready' | 'urgent'
 type SortMode = 'priority' | 'chronological' | 'type'
@@ -96,13 +97,13 @@ const KitchenDisplayOptimized = React.memo(() => {
     }
   }, [updateOrderStatus])
 
-  // Compute detailed statistics
+  // Compute detailed statistics (using unified KDS thresholds)
   const stats = useMemo(() => {
     const now = Date.now()
-    
+
     const urgentOrders = orders.filter(order => {
       const age = (now - new Date(order.created_at).getTime()) / 60000
-      return age >= 15 && !['completed', 'cancelled'].includes(order.status)
+      return age >= KDS_THRESHOLDS.URGENT_MINUTES && !['completed', 'cancelled'].includes(order.status)
     })
 
     const statusCounts = orders.reduce((acc, order) => {
@@ -151,7 +152,7 @@ const KitchenDisplayOptimized = React.memo(() => {
         const now = Date.now()
         filtered = orders.filter(order => {
           const age = (now - new Date(order.created_at).getTime()) / 60000
-          return age >= 15 && !['completed', 'cancelled'].includes(order.status)
+          return age >= KDS_THRESHOLDS.URGENT_MINUTES && !['completed', 'cancelled'].includes(order.status)
         })
         break
       }

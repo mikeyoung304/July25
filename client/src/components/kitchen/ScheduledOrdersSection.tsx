@@ -4,6 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/utils'
 import type { ScheduledOrderGroup } from '@/hooks/useScheduledOrders'
+import {
+  KDS_THRESHOLDS,
+  getScheduledUrgency,
+  getScheduledCardClass
+} from '@rebuild/shared/config/kds'
 
 interface ScheduledOrdersSectionProps {
   scheduledGroups: ScheduledOrderGroup[]
@@ -44,17 +49,18 @@ export const ScheduledOrdersSection: React.FC<ScheduledOrdersSectionProps> = ({
       {isExpanded && (
         <div className="mt-4 space-y-3">
           {scheduledGroups.map((group, idx) => {
-            const isUrgent = group.minutes_until_fire <= 0
-            const isWarning = group.minutes_until_fire > 0 && group.minutes_until_fire <= 5
+            // Use unified KDS config (Phase 4: Architectural Hardening)
+            const urgency = getScheduledUrgency(group.minutes_until_fire)
+            const cardClass = getScheduledCardClass(group.minutes_until_fire)
+            const isUrgent = urgency === 'critical'
+            const isWarning = urgency === 'warning'
 
             return (
               <div
                 key={idx}
                 className={cn(
                   "rounded-lg p-3 border-2 transition-all",
-                  isUrgent && "bg-red-50 border-red-400",
-                  isWarning && "bg-orange-50 border-orange-400",
-                  !isUrgent && !isWarning && "bg-white border-blue-300"
+                  cardClass
                 )}
               >
                 {/* Group header */}
