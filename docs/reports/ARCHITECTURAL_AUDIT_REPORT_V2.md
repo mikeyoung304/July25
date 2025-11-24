@@ -62,7 +62,7 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 
 **Top 3 Offenders**:
 1. **Order Status Flow** - 3 different definitions (server/client/client-util)
-2. **Tax Calculation** - Despite ADR-007, still 5 calculation points
+2. **[RESOLVED - PHASE 5]** **Tax Calculation** - Server is now single source of truth, client calculations are display-only ✅
 3. **JWT Verification** - Identical logic in 4 locations (auth.ts, pinAuth.ts, stationAuth.ts, httpClient.ts)
 
 **Impact**: Bug fixes require N changes. Clients may calculate different totals than server.
@@ -133,7 +133,7 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 
 **Critical Issues**:
 1. **Status Flow Divergence** - 3 different status definitions (server: 7 states, client1: 8 states, client2: 9 states)
-2. **Tax Calculation Still Duplicated** - Despite ADR-007, found in 5 locations
+2. **[RESOLVED - PHASE 5]** **Tax Calculation Trust Boundary** - Server now ALWAYS calculates totals, removed optional fields from CreateOrderRequest ✅
 3. **Order Validation Fragmentation** - Client validates, shared contract validates, server recalculates anyway
 4. **State Machine Bypass** - `updateOrderStatus()` doesn't use `orderStateMachine.canTransition()`
 
@@ -145,7 +145,7 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 
 **Recommended Actions**:
 1. **Unify status flow** - Single source in shared/types with state machine enforcement (1 week)
-2. **Server-only totals** - Remove all client-side tax/total calculations (2 weeks)
+2. **[COMPLETED - PHASE 5]** **Server-only totals** - Removed client-side tax/total submission, server ALWAYS calculates ✅
 3. **Extract OrderService** - Consolidate 3 order creation flows into one (2 weeks)
 4. **Fix state machine enforcement** - All status updates must use `orderStateMachine.transition()` (1 week)
 
@@ -249,11 +249,12 @@ This second-generation audit identifies **169 distinct technical debt items** ac
 
 ### Q1 2025: Critical Fixes (P0 - Must Fix)
 
-**Epic 1: Unify Tax/Total Calculation** (2 weeks, 2 engineers)
-- Remove all client-side tax calculation
-- Server becomes single source of truth
-- Extract shared calculation utilities
-- **Impact**: Eliminates financial calculation bugs
+**Epic 1: Unify Tax/Total Calculation** ✅ **[COMPLETED - PHASE 5]**
+- ✅ Removed client-side tax/total submission (3 files)
+- ✅ Server ALWAYS calculates from items array (trust boundary fixed)
+- ✅ Marked shared calculateCartTotals() as display-only
+- ✅ Eliminated security vulnerability (client override attack)
+- **Impact**: Critical security fix, financial integrity guaranteed
 
 **Epic 2: Fix Order Status Flow** (1 week, 1 engineer)
 - Consolidate 3 status definitions into one
