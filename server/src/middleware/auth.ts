@@ -4,6 +4,7 @@ import { IncomingMessage } from 'http';
 import { getConfig } from '../config/environment';
 import { Unauthorized } from './errorHandler';
 import { logger } from '../utils/logger';
+import { AuditService } from '../services/audit.service';
 
 // Note: getConfig() is called inside each function instead of at module level
 // This allows tests to modify process.env and have the changes take effect
@@ -102,11 +103,21 @@ export async function authenticate(
 
     // Set req.restaurantId from JWT for menu/public endpoints
     // restaurantAccess middleware will validate multi-tenancy permissions for protected routes
-    // In STRICT_AUTH mode, only use restaurant_id from token (no header fallback)
-    // In normal mode, fallback to X-Restaurant-ID header if not in JWT
-    req.restaurantId = strictAuth
-      ? decoded.restaurant_id
-      : (decoded.restaurant_id || (req.headers['x-restaurant-id'] as string));
+    // SECURITY FIX: Always use restaurant_id from token only - no header fallback
+    // Header-based restaurant selection was a security vulnerability (CL-AUTH-002)
+    // allowing authenticated users to access other restaurants' data
+    req.restaurantId = decoded.restaurant_id;
+
+    // Log successful authentication (async, non-blocking)
+    if (decoded.restaurant_id) {
+      AuditService.logAuthSuccess(
+        decoded.sub,
+        decoded.restaurant_id,
+        undefined,
+        req.ip,
+        req.get('user-agent')
+      ).catch(() => {}); // Fire and forget - don't block request
+    }
 
     next();
   } catch (error) {
@@ -157,12 +168,10 @@ export async function optionalAuth(
     // If token exists, validate it
     return authenticate(req, _res, next);
   } catch (error) {
-    // Log but don't fail - extract restaurant ID from header as fallback
-    logger.warn('Optional auth failed:', error);
-    const restaurantId = req.headers['x-restaurant-id'] as string;
-    if (restaurantId) {
-      req.restaurantId = restaurantId;
-    }
+    // Log the error but don't fail for optional auth
+    // SECURITY FIX: Do NOT fall back to header for restaurant ID
+    // Unauthenticated users must use validated public endpoints with explicit restaurant lookup
+    logger.warn('Optional auth failed - no restaurant context set:', { error: (error as Error).message, path: req.path });
     next();
   }
 }
@@ -258,13 +267,18 @@ export function requireScope(requiredScopes: string[]) {
 }
 
 // Validate restaurant access middleware
+// SECURITY FIX: This function now prioritizes restaurant_id from authenticated user JWT
+// Only falls back to defaultId for public endpoints (e.g., menu browsing)
 export function validateRestaurantAccess(
   req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction
 ): void {
   const config = getConfig(); // Get fresh config (important for tests)
-  const restaurantId = req.headers['x-restaurant-id'] as string || config.restaurant.defaultId;
+
+  // Priority: 1) JWT restaurant_id (set by authenticate), 2) defaultId for public endpoints only
+  // SECURITY: Never trust X-Restaurant-ID header for authenticated users
+  const restaurantId = req.user?.restaurant_id || req.restaurantId || config.restaurant.defaultId;
 
   if (!restaurantId) {
     return next(Unauthorized('Restaurant ID is required'));

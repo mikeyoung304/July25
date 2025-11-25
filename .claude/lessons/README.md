@@ -7,6 +7,7 @@ Codified lessons from $1.3M+ in prevented issues. These are the 6 most impactful
 | ID | Category | Problem | Detection Signal |
 |----|----------|---------|------------------|
 | [CL-AUTH-001](./CL-AUTH-001-strict-auth-drift.md) | Auth | STRICT_AUTH drift | "Authentication Required" loop |
+| [CL-AUTH-002](./CL-AUTH-002-header-fallback-vulnerability.md) | Auth | Header fallback vulnerability | Cross-tenant data access |
 | [CL-BUILD-001](./CL-BUILD-001-vercel-production-flag.md) | Build | Vercel devDeps | "command not found" in Vercel |
 | [CL-DB-001](./CL-DB-001-migration-sync.md) | Database | Migration drift | ERROR 42703/42804 |
 | [CL-WS-001](./CL-WS-001-handler-timing-race.md) | WebSocket | Handler timing | No transcription events |

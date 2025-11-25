@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from './auth';
 import { Forbidden, Unauthorized } from './errorHandler';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/database';
+import { AuditService } from '../services/audit.service';
 
 const accessLogger = logger.child({ module: 'restaurant-access' });
 
@@ -24,14 +25,13 @@ export async function validateRestaurantAccess(
       throw Unauthorized('Authentication required');
     }
 
-    // Get requested restaurant ID from header first (explicit intent),
-    // fall back to JWT restaurant_id for demo users who don't send headers
-    const requestedRestaurantId =
-      (req.headers['x-restaurant-id'] as string) ||
-      req.restaurantId;
+    // SECURITY FIX: Get restaurant ID from JWT token only (set by auth middleware)
+    // Previously trusted X-Restaurant-ID header which allowed authenticated users
+    // to access other restaurants' data by spoofing the header (CL-AUTH-002)
+    const requestedRestaurantId = req.restaurantId;
 
     if (!requestedRestaurantId) {
-      throw Forbidden('Restaurant ID is required (X-Restaurant-ID header or JWT)');
+      throw Forbidden('Restaurant ID is required in JWT token');
     }
 
     // For admin users, allow access to any restaurant
@@ -73,6 +73,20 @@ export async function validateRestaurantAccess(
         requestedRestaurantId,
         error: error?.message
       });
+
+      // Log cross-tenant access attempt for security monitoring
+      // Note: This can only happen if user's JWT restaurant_id != their actual access
+      // which indicates either a misconfigured token or security issue
+      if (req.user.restaurant_id && req.user.restaurant_id !== requestedRestaurantId) {
+        AuditService.logCrossTenantAttempt(
+          req.user.id,
+          req.user.restaurant_id,
+          requestedRestaurantId,
+          req.ip,
+          req.get('user-agent')
+        ).catch(() => {}); // Fire and forget
+      }
+
       throw Forbidden('Access denied to this restaurant', 'RESTAURANT_ACCESS_DENIED');
     }
 
