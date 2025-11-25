@@ -142,10 +142,29 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
   /**
    * Set the data channel for event communication
    * Called by WebRTCConnection when data channel is ready
+   *
+   * CRITICAL FIX 2025-11-24: The data channel may already be open when we receive it
+   * (WebRTCConnection's onopen fires first, then emits dataChannelReady).
+   * We must check readyState and flush queued messages immediately if already open.
    */
   setDataChannel(dc: RTCDataChannel): void {
     this.dc = dc;
     this.setupDataChannel();
+
+    // CRITICAL FIX: If channel is already open, flush immediately
+    // This handles the race condition where WebRTCConnection's onopen fires
+    // before VoiceEventHandler receives the data channel
+    if (dc.readyState === 'open') {
+      console.log('[VoiceEventHandler] Data channel already open, flushing queued messages');
+      this.dcReady = true;
+      if (this.messageQueue.length > 0) {
+        console.log(`[VoiceEventHandler] Flushing ${this.messageQueue.length} queued messages`);
+        for (const msg of this.messageQueue) {
+          this.dc!.send(JSON.stringify(msg));
+        }
+        this.messageQueue = [];
+      }
+    }
   }
 
   /**
@@ -754,7 +773,8 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
     } else {
       // Queue the message for later
       this.messageQueue.push(event);
-      // Debug: `[VoiceEventHandler] Queued event (${event.type}) - DC not ready. Queue size: ${this.messageQueue.length}`
+      // CRITICAL: Always log queued events - this helps diagnose data channel issues
+      console.warn(`[VoiceEventHandler] Queued event (${event.type}) - DC not ready. Queue size: ${this.messageQueue.length}, dcReady: ${this.dcReady}, dc: ${!!this.dc}, readyState: ${this.dc?.readyState}`);
     }
   }
 
