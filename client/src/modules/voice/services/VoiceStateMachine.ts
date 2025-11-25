@@ -181,7 +181,7 @@ export const STATE_TRANSITIONS: Record<
 export const STATE_TIMEOUTS: Partial<Record<VoiceState, number>> = {
   [VoiceState.CONNECTING]: 15000,                // 15s to establish WebSocket
   [VoiceState.AWAITING_SESSION_CREATED]: 5000,   // 5s to receive session.created
-  [VoiceState.AWAITING_SESSION_READY]: 3000,     // 3s to confirm session (fallback)
+  [VoiceState.AWAITING_SESSION_READY]: 5000,     // 5s to confirm session (must be > WebRTCVoiceClient's 3s fallback)
   [VoiceState.COMMITTING_AUDIO]: 3000,           // 3s to commit audio buffer
   [VoiceState.AWAITING_TRANSCRIPT]: 10000,       // 10s to receive transcript
   [VoiceState.AWAITING_RESPONSE]: 30000,         // 30s to receive full response
