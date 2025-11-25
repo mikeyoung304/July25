@@ -192,3 +192,15 @@ For test failures and E2E debugging, see [.github/TEST_DEBUGGING.md](.github/TES
 - Demo creds: `{role}@restaurant.com` / `Demo123!`
 - Available roles: Manager, Server, Kitchen, Expo
 - E2E requires both servers: `npm run dev:e2e`
+
+## Lessons Learned
+
+Codified lessons from major incidents. Check before working on:
+- **Auth code**: [CL-AUTH-001](.claude/lessons/CL-AUTH-001-strict-auth-drift.md) - STRICT_AUTH drift
+- **Vercel deploy**: [CL-BUILD-001](.claude/lessons/CL-BUILD-001-vercel-production-flag.md) - devDeps issue
+- **Database changes**: [CL-DB-001](.claude/lessons/CL-DB-001-migration-sync.md) - migration sync
+- **WebSocket/WebRTC**: [CL-WS-001](.claude/lessons/CL-WS-001-handler-timing-race.md) - timing race
+- **setInterval usage**: [CL-MEM-001](.claude/lessons/CL-MEM-001-interval-leaks.md) - memory leaks
+- **API integration**: [CL-API-001](.claude/lessons/CL-API-001-model-deprecation.md) - silent deprecation
+
+Full index: [.claude/lessons/README.md](.claude/lessons/README.md)
