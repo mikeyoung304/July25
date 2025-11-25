@@ -1,7 +1,7 @@
 import { Router, Response, Request } from 'express';
 import { AuthenticatedRequest, optionalAuth } from '../middleware/auth';
 import { logger } from '../utils/logger';
-import fetch, { AbortError } from 'node-fetch';
+// Native fetch used (Node.js 18+)
 import { MenuService } from '../services/menu.service';
 import { env } from '../config/env';
 import { supabase } from '../config/database';
@@ -437,7 +437,7 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
       clearTimeout(timeoutId);
 
       // Handle timeout specifically
-      if (fetchError instanceof AbortError || (fetchError as Error).name === 'AbortError') {
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
         realtimeLogger.error('OpenAI API request timed out', {
           timeoutMs: OPENAI_API_TIMEOUT_MS,
           restaurantId
