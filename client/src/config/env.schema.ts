@@ -71,7 +71,7 @@ export const clientEnvSchema = z.object({
   VITE_DEMO_PANEL: booleanSchema
     .default(false)
     .refine(
-      (val, ctx) => {
+      (val) => {
         const isProduction = import.meta.env.VITE_ENVIRONMENT === 'production';
         if (isProduction && val) {
           console.error('🚨 SECURITY WARNING: VITE_DEMO_PANEL is enabled in production!');
@@ -90,19 +90,15 @@ export const clientEnvSchema = z.object({
     .describe('Enable performance monitoring'),
 
   // ============================================================================
-  // PAYMENT CONFIGURATION (Square)
+  // PAYMENT CONFIGURATION (Stripe)
   // ============================================================================
-  VITE_SQUARE_APP_ID: z.string()
+  VITE_STRIPE_PUBLISHABLE_KEY: z.string()
     .optional()
-    .describe('Square application ID'),
-
-  VITE_SQUARE_LOCATION_ID: z.string()
-    .optional()
-    .describe('Square location ID'),
-
-  VITE_SQUARE_ENVIRONMENT: z.enum(['sandbox', 'production'])
-    .default('sandbox')
-    .describe('Square environment'),
+    .refine(
+      (val) => !val || val.startsWith('pk_test_') || val.startsWith('pk_live_'),
+      { message: 'VITE_STRIPE_PUBLISHABLE_KEY must start with pk_test_ or pk_live_' }
+    )
+    .describe('Stripe publishable key for client-side'),
 
   // ============================================================================
   // OPTIONAL: AI Configuration

@@ -163,6 +163,7 @@ logger.info('Message', { data });
 - CSRF disabled for REST APIs (using JWT + RBAC instead)
 - Demo mode requires DEMO_LOGIN_ENABLED=true
 - Voice ordering requires OpenAI Realtime API
+- Payment processing uses Stripe (migrated from Square in v6.0.15)
 
 ## Order Status Flow
 All 8 states must be handled (see `shared/types/order.types.ts`):
@@ -177,6 +178,9 @@ Critical for production:
 - `KIOSK_JWT_SECRET` - Required, no fallback
 - `SUPABASE_SERVICE_KEY` - Server-side only
 - `OPENAI_API_KEY` - Server-side only (never expose to client)
+- `STRIPE_SECRET_KEY` - Server-side payment processing (sk_live_...)
+- `STRIPE_PUBLISHABLE_KEY` - Client-side Stripe Elements (pk_live_...)
+- `STRIPE_WEBHOOK_SECRET` - Webhook signature verification (whsec_...)
 
 ## WebSocket Events
 Real-time updates for orders and kitchen display. Connection pooling implemented for performance.

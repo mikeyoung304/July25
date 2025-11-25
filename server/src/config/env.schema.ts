@@ -26,10 +26,20 @@ const restaurantIdSchema = z.string().refine(
   { message: 'DEFAULT_RESTAURANT_ID must be a valid UUID format' }
 );
 
-// Square environment validator
-const squareEnvironmentSchema = z.enum(['sandbox', 'production'])
-  .default('sandbox')
-  .transform(val => val.toLowerCase() as 'sandbox' | 'production');
+// Stripe key validators
+const stripeSecretKeySchema = z.string()
+  .optional()
+  .refine(
+    (val) => !val || val.startsWith('sk_test_') || val.startsWith('sk_live_'),
+    { message: 'STRIPE_SECRET_KEY must start with sk_test_ or sk_live_' }
+  );
+
+const stripePublishableKeySchema = z.string()
+  .optional()
+  .refine(
+    (val) => !val || val.startsWith('pk_test_') || val.startsWith('pk_live_'),
+    { message: 'STRIPE_PUBLISHABLE_KEY must start with pk_test_ or pk_live_' }
+  );
 
 /**
  * Base environment schema with all tiers
@@ -73,11 +83,10 @@ const baseEnvSchema = z.object({
     .default('http://localhost:5173')
     .transform((val: string) => val.split(',').map(origin => origin.trim())),
 
-  // Payment Processing (Square)
-  SQUARE_ACCESS_TOKEN: z.string().optional(),
-  SQUARE_LOCATION_ID: z.string().optional(),
-  SQUARE_ENVIRONMENT: squareEnvironmentSchema,
-  SQUARE_APP_ID: z.string().optional(),
+  // Payment Processing (Stripe)
+  STRIPE_SECRET_KEY: stripeSecretKeySchema,
+  STRIPE_PUBLISHABLE_KEY: stripePublishableKeySchema,
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
   // ============================================================================
   // TIER 3: Optional (Degraded functionality allowed)
@@ -104,25 +113,18 @@ const baseEnvSchema = z.object({
 export const envSchema = baseEnvSchema.superRefine((data, ctx) => {
   // Production-specific validation for payment processing
   if (data.NODE_ENV === 'production') {
-    if (!data.SQUARE_ACCESS_TOKEN || data.SQUARE_ACCESS_TOKEN.trim() === '') {
+    if (!data.STRIPE_SECRET_KEY || data.STRIPE_SECRET_KEY.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['SQUARE_ACCESS_TOKEN'],
-        message: 'SQUARE_ACCESS_TOKEN is required for payment processing',
+        path: ['STRIPE_SECRET_KEY'],
+        message: 'STRIPE_SECRET_KEY is required for payment processing',
       });
     }
-    if (!data.SQUARE_LOCATION_ID || data.SQUARE_LOCATION_ID.trim() === '') {
+    if (!data.STRIPE_PUBLISHABLE_KEY || data.STRIPE_PUBLISHABLE_KEY.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['SQUARE_LOCATION_ID'],
-        message: 'SQUARE_LOCATION_ID is required for payment processing',
-      });
-    }
-    if (!data.SQUARE_APP_ID || data.SQUARE_APP_ID.trim() === '') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['SQUARE_APP_ID'],
-        message: 'SQUARE_APP_ID is required for payment processing',
+        path: ['STRIPE_PUBLISHABLE_KEY'],
+        message: 'STRIPE_PUBLISHABLE_KEY is required for payment processing',
       });
     }
 
@@ -157,14 +159,11 @@ export const envSchema = baseEnvSchema.superRefine((data, ctx) => {
 
   // Development warnings for missing payment variables
   if (data.NODE_ENV === 'development') {
-    if (!data.SQUARE_ACCESS_TOKEN || data.SQUARE_ACCESS_TOKEN.trim() === '') {
-      console.warn('⚠️  SQUARE_ACCESS_TOKEN not set - payment features will not work');
+    if (!data.STRIPE_SECRET_KEY || data.STRIPE_SECRET_KEY.trim() === '') {
+      console.warn('⚠️  STRIPE_SECRET_KEY not set - payment features will not work');
     }
-    if (!data.SQUARE_LOCATION_ID || data.SQUARE_LOCATION_ID.trim() === '') {
-      console.warn('⚠️  SQUARE_LOCATION_ID not set - payment features will not work');
-    }
-    if (!data.SQUARE_APP_ID || data.SQUARE_APP_ID.trim() === '') {
-      console.warn('⚠️  SQUARE_APP_ID not set - payment features will not work');
+    if (!data.STRIPE_PUBLISHABLE_KEY || data.STRIPE_PUBLISHABLE_KEY.trim() === '') {
+      console.warn('⚠️  STRIPE_PUBLISHABLE_KEY not set - payment features will not work');
     }
 
     // Warn about short secrets in development

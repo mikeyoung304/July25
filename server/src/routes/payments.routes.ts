@@ -4,7 +4,7 @@ import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
 import { BadRequest, Unauthorized } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
-import { SquareClient, SquareEnvironment } from 'square';
+import Stripe from 'stripe';
 import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
 import { PaymentService } from '../services/payment.service';
@@ -15,42 +15,32 @@ import { TableService } from '../services/table.service';
 const router = Router();
 const routeLogger = logger.child({ route: 'payments' });
 
-// Validate Square configuration
-if (process.env['SQUARE_ENVIRONMENT'] === 'production') {
-  if (!process.env['SQUARE_ACCESS_TOKEN']?.startsWith('EAAA')) {
-    routeLogger.warn('Square production mode enabled but using sandbox token!');
-  }
-  routeLogger.info('Square Payment Processing: PRODUCTION MODE');
+// Initialize Stripe client
+const stripeSecretKey = process.env['STRIPE_SECRET_KEY'];
+const stripe = stripeSecretKey && stripeSecretKey !== 'demo'
+  ? new Stripe(stripeSecretKey)
+  : null;
+
+// Validate Stripe configuration at startup
+if (!stripeSecretKey || stripeSecretKey === 'demo') {
+  routeLogger.info('Stripe Payment Processing: DEMO MODE (no real payments)');
+} else if (stripeSecretKey.startsWith('sk_live_')) {
+  routeLogger.info('Stripe Payment Processing: PRODUCTION MODE');
 } else {
-  routeLogger.info('Square Payment Processing: SANDBOX MODE');
+  routeLogger.info('Stripe Payment Processing: TEST MODE');
 }
 
-// Initialize Square client
-const client = new SquareClient({
-  environment: process.env['SQUARE_ENVIRONMENT'] === 'production'
-    ? SquareEnvironment.Production
-    : SquareEnvironment.Sandbox,
-  token: process.env['SQUARE_ACCESS_TOKEN']!
-});
-
-const paymentsApi = client.payments;
-
 /**
- * Timeout wrapper for Square API calls
+ * Timeout wrapper for Stripe API calls
  *
- * P0.5: Prevents infinite hangs by adding 30-second timeout to all Square API calls.
- * This protects against network issues, Square API outages, or slow responses that
+ * P0.5: Prevents infinite hangs by adding 30-second timeout to all Stripe API calls.
+ * This protects against network issues, Stripe API outages, or slow responses that
  * could leave customers waiting indefinitely.
- *
- * @param promise - The Square API promise to wrap
- * @param timeoutMs - Timeout in milliseconds (default: 30000ms = 30 seconds)
- * @param operation - Description of operation for error logging
- * @returns Promise that resolves/rejects with API result or timeout error
  */
 async function withTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number = 30000,
-  operation: string = 'Square API call'
+  operation: string = 'Stripe API call'
 ): Promise<T> {
   return Promise.race([
     promise,
@@ -63,75 +53,8 @@ async function withTimeout<T>(
   ]);
 }
 
-// STARTUP VALIDATION: Verify Square credentials match
-// This prevents runtime payment failures due to misconfigured credentials
-(async () => {
-  // Skip validation in demo mode
-  if (!process.env['SQUARE_ACCESS_TOKEN'] ||
-      process.env['SQUARE_ACCESS_TOKEN'] === 'demo' ||
-      process.env['NODE_ENV'] === 'development') {
-    routeLogger.info('Demo mode: Skipping Square credential validation');
-    return;
-  }
-
-  try {
-    // Fetch available locations for this access token
-    const locationsResponse = await client.locations.list();
-    const locations = locationsResponse.locations || [];
-    const locationIds = locations.map((l) => l.id).filter((id): id is string => id !== undefined);
-    const configuredLocation = process.env['SQUARE_LOCATION_ID'];
-
-    if (!configuredLocation) {
-      routeLogger.error('❌ SQUARE_LOCATION_ID not configured');
-      return;
-    }
-
-    // Check if configured location exists for this access token
-    if (!locationIds.includes(configuredLocation)) {
-      const errorMsg = [
-        '❌ SQUARE CREDENTIAL MISMATCH DETECTED',
-        `Configured SQUARE_LOCATION_ID: ${configuredLocation}`,
-        `Available location IDs for this access token: ${locationIds.join(', ')}`,
-        'PAYMENT PROCESSING WILL FAIL until you update SQUARE_LOCATION_ID',
-        '',
-        'Fix: Update your environment variable to one of the available locations above.'
-      ].join('\n');
-
-      routeLogger.error(errorMsg);
-
-      // Log each available location with details for troubleshooting
-      locations.forEach((loc) => {
-        routeLogger.info('Available Square Location', {
-          id: loc.id,
-          name: loc.name,
-          merchant_id: loc.merchantId,
-          status: loc.status
-        });
-      });
-    } else {
-      // Success - credentials match
-      const matchingLocation = locations.find((l) => l.id === configuredLocation);
-      routeLogger.info('✅ Square credentials validated successfully', {
-        locationId: configuredLocation,
-        locationName: matchingLocation?.name,
-        merchantId: matchingLocation?.merchantId,
-        environment: process.env['SQUARE_ENVIRONMENT'],
-        totalLocations: locations.length
-      });
-    }
-  } catch (error: any) {
-    routeLogger.error('❌ Square credential validation failed', {
-      error: error.message,
-      statusCode: error.statusCode
-    });
-    // Don't crash the server, but prominently log the issue
-    // This allows the server to start but payments will fail with clear errors
-  }
-})();
-
-// POST /api/v1/payments/create - Process payment
-// NOTE: Supports both authenticated staff payments and anonymous customer payments
-router.post('/create',
+// POST /api/v1/payments/create-payment-intent - Create payment intent for client-side confirmation
+router.post('/create-payment-intent',
   optionalAuth,
   validateBody(PaymentPayload),
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
@@ -167,240 +90,248 @@ router.post('/create',
     }
 
     const restaurantId = req.restaurantId!;
-    const { order_id, token, amount, idempotency_key } = req.body; // ADR-001: snake_case
+    const { order_id } = req.body; // ADR-001: snake_case
 
     // Validate required fields
     if (!order_id) {
       throw BadRequest('Order ID is required');
     }
-    if (!token) {
-      throw BadRequest('Payment token is required');
-    }
 
-    routeLogger.info('Processing payment request', {
+    routeLogger.info('Creating payment intent', {
       restaurantId,
       order_id,
-      clientProvidedAmount: amount,
-      clientProvidedIdempotency: idempotency_key
     });
 
-    // Declare idempotency key at function scope for error handlers
-    let serverIdempotencyKey: string | undefined;
+    // SECURITY: Server-side payment validation - Never trust client-provided amounts
+    const validation = await PaymentService.validatePaymentRequest(
+      order_id,
+      restaurantId,
+      req.body.amount,
+      req.body.idempotency_key
+    );
 
-    try {
-      // SECURITY: Server-side payment validation
-      // Never trust client-provided amounts
-      const validation = await PaymentService.validatePaymentRequest(
-        order_id,
-        restaurantId,
-        amount,
-        idempotency_key
-      );
+    // Use server-calculated amount and idempotency key
+    const serverAmount = validation.amount;
+    const serverIdempotencyKey = validation.idempotencyKey;
 
-      // Use server-calculated amount and idempotency key
-      const serverAmount = validation.amount;
-      serverIdempotencyKey = validation.idempotencyKey;
+    routeLogger.info('Payment validated', {
+      order_id,
+      serverAmount: validation.orderTotal,
+      tax: validation.tax,
+      subtotal: validation.subtotal
+    });
 
-      routeLogger.info('Payment validated', {
-        order_id,
-        serverAmount: validation.orderTotal,
-        tax: validation.tax,
-        subtotal: validation.subtotal
+    // Get order for reference
+    const order = await OrdersService.getOrder(restaurantId, order_id);
+
+    // COMPLIANCE: Phase 1 - Log payment 'initiated' BEFORE charging customer
+    await PaymentService.logPaymentAttempt({
+      orderId: order_id,
+      amount: validation.orderTotal,
+      status: 'initiated',
+      restaurantId: restaurantId,
+      paymentMethod: 'card',
+      userAgent: req.headers['user-agent'] as string,
+      idempotencyKey: serverIdempotencyKey,
+      metadata: {
+        orderNumber: (order as any).order_number,
+        userRole: req.user?.role,
+        ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
+      },
+      ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
+      ...(req.ip && { ipAddress: req.ip })
+    });
+
+    // Check if we're in demo mode (no Stripe credentials)
+    if (!stripe) {
+      // Mock successful payment intent in demo mode
+      routeLogger.info('Demo mode: Mocking payment intent');
+      return res.json({
+        success: true,
+        clientSecret: `demo_secret_${randomUUID()}`,
+        paymentIntentId: `demo_pi_${randomUUID()}`,
+        amount: serverAmount,
+        currency: 'usd',
+        isDemoMode: true,
       });
+    }
 
-      // Get order for reference
-      const order = await OrdersService.getOrder(restaurantId, order_id);
-
-      // COMPLIANCE: Phase 1 - Log payment 'initiated' BEFORE charging customer
-      // Per ADR-009 and SECURITY.md, this ensures no charges occur without audit trail
-      await PaymentService.logPaymentAttempt({
-        orderId: order_id,
-        amount: validation.orderTotal,
-        status: 'initiated', // Two-phase logging: log before charging
-        restaurantId: restaurantId,
-        paymentMethod: 'card',
-        userAgent: req.headers['user-agent'] as string,
-        idempotencyKey: serverIdempotencyKey,
+    // Create Stripe PaymentIntent
+    const paymentIntent = await withTimeout(
+      stripe.paymentIntents.create({
+        amount: serverAmount, // Amount in cents
+        currency: 'usd',
+        automatic_payment_methods: { enabled: true },
         metadata: {
-          orderNumber: (order as any).order_number,
-          userRole: req.user?.role,
-          ...(req.user?.id?.startsWith('demo:') && { demoUserId: req.user.id })
+          order_id,
+          restaurant_id: restaurantId,
+          order_number: (order as any).order_number,
+          idempotency_key: serverIdempotencyKey,
         },
-        ...(req.user?.id && !req.user.id.startsWith('demo:') && { userId: req.user.id }),
-        ...(req.ip && { ipAddress: req.ip })
+      }, {
+        idempotencyKey: serverIdempotencyKey,
+      }),
+      30000,
+      'Create payment intent'
+    );
+
+    routeLogger.info('Payment intent created', {
+      order_id,
+      paymentIntentId: paymentIntent.id,
+      amount: serverAmount
+    });
+
+    res.json({
+      success: true,
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+      amount: serverAmount,
+      currency: paymentIntent.currency,
+    });
+
+  } catch (error: any) {
+    routeLogger.error('Payment intent creation failed', { error });
+
+    if (error.type === 'StripeCardError') {
+      return res.status(400).json({
+        success: false,
+        error: 'Card error',
+        detail: error.message,
       });
+    }
 
-      routeLogger.info('Payment audit log created with status=initiated', {
-        order_id,
-        idempotencyKey: serverIdempotencyKey
-      });
+    next(error);
+  }
+});
 
-      // Create payment request with server-validated amount
-      const paymentRequest = {
-        sourceId: token,
-        idempotencyKey: serverIdempotencyKey, // Use server-generated key
-        amountMoney: {
-          amount: BigInt(serverAmount), // Use server-calculated amount
-          currency: 'USD',
-        },
-        locationId: process.env['SQUARE_LOCATION_ID'],
-        referenceId: order_id,
-        note: `Payment for order #${(order as any).order_number}`,
-        // Enable verification token for 3D Secure if provided
-        ...(req.body.verification_token && { verificationToken: req.body.verification_token }),
-      };
+// POST /api/v1/payments/confirm - Confirm payment after client-side completion
+router.post('/confirm',
+  optionalAuth,
+  async (req: AuthenticatedRequest, res, next): Promise<any> => {
+  try {
+    const { payment_intent_id, order_id } = req.body;
 
-      // Check if we're in demo mode (no Square credentials)
-      let paymentResult: any;
+    if (!payment_intent_id) {
+      throw BadRequest('Payment intent ID is required');
+    }
+    if (!order_id) {
+      throw BadRequest('Order ID is required');
+    }
 
-      if (!process.env['SQUARE_ACCESS_TOKEN'] || process.env['SQUARE_ACCESS_TOKEN'] === 'demo' || process.env['NODE_ENV'] === 'development') {
-        // Mock successful payment in demo/development mode
-        routeLogger.info('Demo mode: Mocking successful payment');
-        paymentResult = {
-          payment: {
-            id: `demo-payment-${randomUUID()}`,
-            status: 'COMPLETED',
-            amountMoney: paymentRequest.amountMoney,
-            referenceId: order_id,
-            createdAt: new Date().toISOString(),
-          }
-        };
-      } else {
-        // Process real payment with Square (with 30-second timeout per P0.5)
-        paymentResult = await withTimeout(
-          paymentsApi.create(paymentRequest),
-          30000,
-          'Payment creation'
-        );
-      }
+    const restaurantId = req.restaurantId;
+    if (!restaurantId) {
+      throw BadRequest('Restaurant ID is required');
+    }
 
-      if (paymentResult.payment?.status !== 'COMPLETED') {
-        routeLogger.warn('Payment not completed', {
-          status: paymentResult.payment?.status,
-          order_id
-        });
+    routeLogger.info('Confirming payment', { payment_intent_id, order_id });
 
-        // COMPLIANCE: Phase 2a - Update audit log to 'failed' for incomplete payments
-        await PaymentService.updatePaymentAuditStatus(
-          serverIdempotencyKey,
-          'failed',
-          undefined, // No payment ID for failed payments
-          paymentResult.payment?.status || 'UNKNOWN',
-          'Payment not completed by processor'
-        );
+    // Demo mode - auto-confirm
+    if (!stripe) {
+      routeLogger.info('Demo mode: Auto-confirming payment');
 
-        return res.status(400).json({
-          success: false,
-          error: 'Payment not completed',
-          paymentStatus: paymentResult.payment?.status,
-          requiresAction: paymentResult.payment?.status === 'PENDING',
-        });
-      }
-
-      // Update order payment status
       await OrdersService.updateOrderPayment(
         restaurantId,
         order_id,
         'paid',
         'card',
-        paymentResult.payment.id,
-        undefined, // additionalData not needed for card payments
-        req.user?.id // closedByUserId
+        payment_intent_id,
+        undefined,
+        req.user?.id
       );
 
-      // COMPLIANCE: Phase 2b - Update audit log to 'success' with payment ID
+      // Update audit log
+      const idempotencyKey = `${order_id.slice(-12)}-confirm`;
       await PaymentService.updatePaymentAuditStatus(
-        serverIdempotencyKey,
+        idempotencyKey,
         'success',
-        paymentResult.payment.id
-      );
+        payment_intent_id
+      ).catch(() => {}); // Best effort for demo mode
 
-      routeLogger.info('Payment successful', {
-        order_id,
-        paymentId: paymentResult.payment.id,
-        amount: validation.orderTotal
-      });
-
-      res.json({
+      return res.json({
         success: true,
-        paymentId: paymentResult.payment.id,
-        status: paymentResult.payment.status,
-        receiptUrl: paymentResult.payment.receiptUrl,
-        order: await OrdersService.getOrder(restaurantId, order_id), // Return updated order
+        paymentId: payment_intent_id,
+        status: 'succeeded',
+        order: await OrdersService.getOrder(restaurantId, order_id),
       });
-
-    } catch (squareError: any) {
-      if (squareError.isError && squareError.errors) {
-        const errors = squareError.errors || [];
-        routeLogger.error('Square API error', {
-          order_id,
-          errors: errors.map((e: any) => ({ category: e.category, code: e.code, detail: e.detail }))
-        });
-
-        // COMPLIANCE: Update audit log to 'failed' for Square errors
-        // Only update if we've already logged 'initiated' (serverIdempotencyKey exists)
-        const firstError = errors[0];
-        if (serverIdempotencyKey) {
-          try {
-            await PaymentService.updatePaymentAuditStatus(
-              serverIdempotencyKey,
-              'failed',
-              undefined, // No payment ID for failed payments
-              firstError?.code || 'SQUARE_ERROR',
-              firstError?.detail || 'Unknown Square error'
-            );
-          } catch (auditError) {
-            // Log audit update failure but don't mask the original Square error
-            routeLogger.error('Failed to update audit log after Square error', {
-              auditError,
-              originalSquareError: firstError
-            });
-          }
-        }
-
-        // Handle specific Square error types
-        if (firstError?.code === 'CVV_FAILURE' || firstError?.code === 'ADDRESS_VERIFICATION_FAILURE') {
-          return res.status(400).json({
-            success: false,
-            error: 'Card verification failed',
-            code: firstError.code,
-            detail: firstError.detail,
-          });
-        }
-
-        if (firstError?.code === 'CARD_DECLINED') {
-          return res.status(400).json({
-            success: false,
-            error: 'Card declined',
-            detail: firstError.detail,
-          });
-        }
-
-        return res.status(400).json({
-          success: false,
-          error: 'Payment processing failed',
-          detail: firstError?.detail || 'Unknown payment error',
-        });
-      }
-
-      throw squareError;
     }
 
-  } catch (error: any) {
-    routeLogger.error('Payment processing failed', { error });
+    // Retrieve payment intent to verify status
+    const paymentIntent = await withTimeout(
+      stripe.paymentIntents.retrieve(payment_intent_id),
+      30000,
+      'Retrieve payment intent'
+    );
 
-    // Update order payment status to failed
-    if (req.body.order_id) {
-      try {
-        await OrdersService.updateOrderPayment(
-          req.restaurantId!,
-          req.body.order_id,
+    if (paymentIntent.status !== 'succeeded') {
+      routeLogger.warn('Payment not completed', {
+        status: paymentIntent.status,
+        order_id
+      });
+
+      // Update audit log to failed
+      const idempotencyKey = paymentIntent.metadata?.['idempotency_key'];
+      if (idempotencyKey) {
+        await PaymentService.updatePaymentAuditStatus(
+          idempotencyKey,
           'failed',
-          'card'
-        );
-      } catch (updateError) {
-        routeLogger.error('Failed to update order payment status', { updateError });
+          undefined,
+          paymentIntent.status,
+          'Payment not completed'
+        ).catch(() => {});
       }
+
+      return res.status(400).json({
+        success: false,
+        error: 'Payment not completed',
+        paymentStatus: paymentIntent.status,
+        requiresAction: paymentIntent.status === 'requires_action',
+      });
+    }
+
+    // Update order payment status
+    await OrdersService.updateOrderPayment(
+      restaurantId,
+      order_id,
+      'paid',
+      'card',
+      paymentIntent.id,
+      undefined,
+      req.user?.id
+    );
+
+    // Update audit log to success
+    const idempotencyKey = paymentIntent.metadata?.['idempotency_key'];
+    if (idempotencyKey) {
+      await PaymentService.updatePaymentAuditStatus(
+        idempotencyKey,
+        'success',
+        paymentIntent.id
+      );
+    }
+
+    routeLogger.info('Payment confirmed', {
+      order_id,
+      paymentId: paymentIntent.id,
+      amount: paymentIntent.amount
+    });
+
+    res.json({
+      success: true,
+      paymentId: paymentIntent.id,
+      status: paymentIntent.status,
+      receiptUrl: paymentIntent.latest_charge ? `https://dashboard.stripe.com/payments/${paymentIntent.id}` : undefined,
+      order: await OrdersService.getOrder(restaurantId, order_id),
+    });
+
+  } catch (error: any) {
+    routeLogger.error('Payment confirmation failed', { error });
+
+    if (error.type === 'StripeInvalidRequestError') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid payment',
+        detail: error.message,
+      });
     }
 
     next(error);
@@ -473,7 +404,7 @@ router.post('/cash',
     await PaymentService.logPaymentAttempt({
       orderId: order_id,
       amount: orderTotal,
-      status: 'initiated', // Two-phase logging: log before processing
+      status: 'initiated',
       restaurantId: restaurantId,
       paymentMethod: 'cash',
       userAgent: req.headers['user-agent'] as string,
@@ -501,13 +432,13 @@ router.post('/cash',
       order_id,
       'paid',
       'cash',
-      undefined, // No payment_id for cash payments
+      undefined,
       {
         cash_received: amount_received,
         change_given: change,
         payment_amount: orderTotal
       },
-      req.user?.id // closedByUserId
+      req.user?.id
     );
 
     // COMPLIANCE: Phase 2 - Update audit log to 'success'
@@ -525,7 +456,6 @@ router.post('/cash',
           order_id
         });
       } catch (tableError) {
-        // Log but don't fail the payment if table update fails
         routeLogger.warn('Failed to update table status after cash payment', {
           tableError,
           table_id,
@@ -555,7 +485,6 @@ router.post('/cash',
   } catch (error: any) {
     routeLogger.error('Cash payment processing failed', { error });
 
-    // Update order payment status to failed
     if (req.body.order_id) {
       try {
         await OrdersService.updateOrderPayment(
@@ -574,9 +503,9 @@ router.post('/cash',
 });
 
 // GET /api/v1/payments/:paymentId - Get payment details
-router.get('/:paymentId', 
-  authenticate, 
-  validateRestaurantAccess, 
+router.get('/:paymentId',
+  authenticate,
+  validateRestaurantAccess,
   requireScopes(ApiScope.PAYMENTS_READ),
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
@@ -588,24 +517,42 @@ router.get('/:paymentId',
 
     routeLogger.info('Retrieving payment details', { paymentId });
 
-    const paymentResponse = await withTimeout(
-      paymentsApi.get({ paymentId }),
+    if (!stripe) {
+      return res.json({
+        success: true,
+        payment: {
+          id: paymentId,
+          status: 'succeeded',
+          isDemoMode: true,
+        },
+      });
+    }
+
+    const paymentIntent = await withTimeout(
+      stripe.paymentIntents.retrieve(paymentId),
       30000,
       'Get payment details'
     );
 
     res.json({
       success: true,
-      payment: paymentResponse.payment,
+      payment: {
+        id: paymentIntent.id,
+        status: paymentIntent.status,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        created: paymentIntent.created,
+        metadata: paymentIntent.metadata,
+      },
     });
 
   } catch (error: any) {
-    if (error.isError && error.errors) {
-      routeLogger.error('Square API error retrieving payment', { 
+    if (error.type === 'StripeInvalidRequestError') {
+      routeLogger.error('Stripe API error retrieving payment', {
         paymentId: req.params['paymentId'],
-        errors: error.errors 
+        error: error.message
       });
-      
+
       return res.status(404).json({
         success: false,
         error: 'Payment not found',
@@ -617,9 +564,9 @@ router.get('/:paymentId',
 });
 
 // POST /api/v1/payments/:paymentId/refund - Refund payment
-router.post('/:paymentId/refund', 
-  authenticate, 
-  validateRestaurantAccess, 
+router.post('/:paymentId/refund',
+  authenticate,
+  validateRestaurantAccess,
   requireScopes(ApiScope.PAYMENTS_REFUND),
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
@@ -632,50 +579,60 @@ router.post('/:paymentId/refund',
 
     routeLogger.info('Processing refund', { paymentId, amount, reason });
 
-    // Get payment details first (with 30-second timeout per P0.5)
-    const paymentResult = await withTimeout(
-      paymentsApi.get({ paymentId }),
+    if (!stripe) {
+      routeLogger.info('Demo mode: Mocking refund');
+      return res.json({
+        success: true,
+        refund: {
+          id: `demo_refund_${randomUUID()}`,
+          status: 'succeeded',
+          amount: amount ? Math.round(amount * 100) : 0,
+          isDemoMode: true,
+        },
+      });
+    }
+
+    // Get payment intent first
+    const paymentIntent = await withTimeout(
+      stripe.paymentIntents.retrieve(paymentId),
       30000,
       'Get payment for refund'
     );
-    const payment = paymentResult.payment;
 
-    if (!payment) {
+    if (!paymentIntent) {
       return res.status(404).json({
         success: false,
         error: 'Payment not found',
       });
     }
 
-    // Create refund request
-    const refundRequest = {
-      idempotencyKey: randomUUID(),
-      amountMoney: amount ? {
-        amount: BigInt(Math.round(amount * 100)),
-        currency: 'USD',
-      } : payment.totalMoney, // Full refund if no amount specified
-      paymentId,
-      reason: reason || 'Restaurant initiated refund',
+    // Create refund
+    const refundRequest: Stripe.RefundCreateParams = {
+      payment_intent: paymentId,
+      reason: (reason as Stripe.RefundCreateParams.Reason) || 'requested_by_customer',
     };
 
-    const refundResponse = await withTimeout(
-      client.refunds.refundPayment(refundRequest as any),
+    if (amount) {
+      refundRequest.amount = Math.round(amount * 100);
+    }
+
+    const refund = await withTimeout(
+      stripe.refunds.create(refundRequest),
       30000,
       'Refund payment'
     );
-    const refundResult = (refundResponse as any).result;
 
     // Log refund for audit trail
     await PaymentService.logPaymentAttempt({
-      orderId: payment.referenceId || paymentId,
-      amount: Number(refundResult.refund?.amountMoney?.amount || 0) / 100, // Convert from cents
+      orderId: paymentIntent.metadata?.['order_id'] || paymentId,
+      amount: refund.amount / 100,
       status: 'refunded',
       restaurantId: req.restaurantId!,
       paymentMethod: 'card',
       userAgent: req.headers['user-agent'] as string,
-      idempotencyKey: refundRequest.idempotencyKey,
+      idempotencyKey: `refund-${paymentId}-${Date.now()}`,
       metadata: {
-        refundId: refundResult.refund?.id,
+        refundId: refund.id,
         refundReason: reason,
         userRole: req.user?.role,
         originalPaymentId: paymentId,
@@ -686,33 +643,103 @@ router.post('/:paymentId/refund',
       ...(req.ip && { ipAddress: req.ip })
     });
 
-    routeLogger.info('Refund processed', { 
-      paymentId, 
-      refundId: refundResult.refund?.id,
-      amount: refundResult.refund?.amountMoney?.amount
+    routeLogger.info('Refund processed', {
+      paymentId,
+      refundId: refund.id,
+      amount: refund.amount
     });
 
     res.json({
       success: true,
-      refund: refundResult.refund,
+      refund: {
+        id: refund.id,
+        status: refund.status,
+        amount: refund.amount,
+        currency: refund.currency,
+      },
     });
 
   } catch (error: any) {
-    if (error.isError && error.errors) {
-      routeLogger.error('Square API error processing refund', { 
+    if (error.type === 'StripeInvalidRequestError') {
+      routeLogger.error('Stripe API error processing refund', {
         paymentId: req.params['paymentId'],
-        errors: error.errors 
+        error: error.message
       });
-      
+
       return res.status(400).json({
         success: false,
         error: 'Refund processing failed',
-        detail: error.errors?.[0]?.detail,
+        detail: error.message,
       });
     }
 
     next(error);
   }
+});
+
+// POST /api/v1/payments/webhook - Stripe webhook handler
+router.post('/webhook',
+  async (req, res, _next): Promise<any> => {
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env['STRIPE_WEBHOOK_SECRET'];
+
+  if (!sig || !webhookSecret || !stripe) {
+    routeLogger.warn('Webhook received but not configured');
+    return res.status(400).json({ error: 'Webhook not configured' });
+  }
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      webhookSecret
+    );
+  } catch (err: any) {
+    routeLogger.error('Webhook signature verification failed', { error: err.message });
+    return res.status(400).json({ error: 'Invalid signature' });
+  }
+
+  routeLogger.info('Webhook received', { type: event.type, id: event.id });
+
+  // Handle the event
+  switch (event.type) {
+    case 'payment_intent.succeeded': {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      routeLogger.info('Payment succeeded via webhook', {
+        paymentIntentId: paymentIntent.id,
+        orderId: paymentIntent.metadata?.['order_id'],
+      });
+      // Payment confirmation is handled in /confirm endpoint
+      break;
+    }
+    case 'payment_intent.payment_failed': {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      routeLogger.warn('Payment failed via webhook', {
+        paymentIntentId: paymentIntent.id,
+        orderId: paymentIntent.metadata?.['order_id'],
+        error: paymentIntent.last_payment_error?.message,
+      });
+
+      // Update audit log if we have the idempotency key
+      const idempotencyKey = paymentIntent.metadata?.['idempotency_key'];
+      if (idempotencyKey) {
+        await PaymentService.updatePaymentAuditStatus(
+          idempotencyKey,
+          'failed',
+          undefined,
+          paymentIntent.last_payment_error?.code || 'PAYMENT_FAILED',
+          paymentIntent.last_payment_error?.message || 'Payment failed'
+        ).catch(() => {});
+      }
+      break;
+    }
+    default:
+      routeLogger.info('Unhandled webhook event type', { type: event.type });
+  }
+
+  res.json({ received: true });
 });
 
 export { router as paymentRoutes };

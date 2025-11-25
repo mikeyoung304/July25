@@ -36,11 +36,10 @@ export interface EnvironmentConfig {
     pinPepper: string;
     deviceFingerprintSalt: string;
   };
-  square: {
-    accessToken: string;
-    environment: 'sandbox' | 'production';
-    locationId: string;
-    appId: string;
+  stripe: {
+    secretKey: string;
+    publishableKey: string;
+    webhookSecret: string;
   };
 }
 
@@ -132,11 +131,10 @@ export function getConfig(): EnvironmentConfig {
       pinPepper: env.PIN_PEPPER || '',
       deviceFingerprintSalt: env.DEVICE_FINGERPRINT_SALT || '',
     },
-    square: {
-      accessToken: env.SQUARE_ACCESS_TOKEN || '',
-      environment: env.SQUARE_ENVIRONMENT,
-      locationId: env.SQUARE_LOCATION_ID || '',
-      appId: env.SQUARE_APP_ID || '',
+    stripe: {
+      secretKey: env.STRIPE_SECRET_KEY || '',
+      publishableKey: env.STRIPE_PUBLISHABLE_KEY || '',
+      webhookSecret: env.STRIPE_WEBHOOK_SECRET || '',
     },
   };
 }

@@ -3,7 +3,7 @@ import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
 import { checkAIHealth } from '../ai';
 import NodeCache from 'node-cache';
-import { SquareClient, SquareEnvironment } from 'square';
+import Stripe from 'stripe';
 import { isSentryEnabled } from '../config/sentry';
 
 const router = Router();
@@ -11,21 +11,16 @@ const router = Router();
 // Initialize cache instance for stats
 const cache = new NodeCache({ stdTTL: 300 });
 
-// Initialize Square client for health checks
-let squareClient: SquareClient | null = null;
+// Initialize Stripe client for health checks
+let stripeClient: Stripe | null = null;
 try {
-  if (process.env['SQUARE_ACCESS_TOKEN'] &&
-      process.env['SQUARE_ACCESS_TOKEN'] !== 'demo' &&
-      !process.env['SQUARE_ACCESS_TOKEN'].includes('placeholder')) {
-    squareClient = new SquareClient({
-      environment: process.env['SQUARE_ENVIRONMENT'] === 'production'
-        ? SquareEnvironment.Production
-        : SquareEnvironment.Sandbox,
-      token: process.env['SQUARE_ACCESS_TOKEN']
-    });
+  if (process.env['STRIPE_SECRET_KEY'] &&
+      process.env['STRIPE_SECRET_KEY'] !== 'demo' &&
+      !process.env['STRIPE_SECRET_KEY'].includes('placeholder')) {
+    stripeClient = new Stripe(process.env['STRIPE_SECRET_KEY']);
   }
 } catch (error) {
-  logger.warn('Square client initialization failed for health checks:', error);
+  logger.warn('Stripe client initialization failed for health checks:', error);
 }
 
 interface HealthStatus {
@@ -51,8 +46,8 @@ interface HealthStatus {
     };
     payments: {
       status: 'ok' | 'error' | 'n/a';
-      provider?: 'square';
-      environment?: 'sandbox' | 'production';
+      provider?: 'stripe';
+      mode?: 'test' | 'live';
       error?: string;
     };
     monitoring?: {
@@ -106,37 +101,37 @@ async function checkDatabase(): Promise<HealthStatus['services']['database']> {
 }
 
 async function checkPayments(): Promise<HealthStatus['services']['payments']> {
-  // If Square client not configured, return n/a
-  if (!squareClient) {
+  // If Stripe client not configured, return n/a
+  if (!stripeClient) {
     return {
       status: 'n/a',
     };
   }
 
   try {
-    // Attempt to list locations as a health check
+    // Attempt to retrieve balance as a health check
     // This is a lightweight API call that verifies credentials
-    const response = await squareClient.locations.list();
+    const balance = await stripeClient.balance.retrieve();
 
-    // Square API v2 returns the response directly, not wrapped in .result
-    if (response) {
+    if (balance) {
+      const isLiveMode = process.env['STRIPE_SECRET_KEY']?.startsWith('sk_live_');
       return {
         status: 'ok',
-        provider: 'square',
-        environment: process.env['SQUARE_ENVIRONMENT'] === 'production' ? 'production' : 'sandbox',
+        provider: 'stripe',
+        mode: isLiveMode ? 'live' : 'test',
       };
     }
 
     return {
       status: 'error',
-      provider: 'square',
-      error: 'Invalid response from Square API',
+      provider: 'stripe',
+      error: 'Invalid response from Stripe API',
     };
   } catch (error) {
     logger.error('Payment service health check failed:', error);
     return {
       status: 'error',
-      provider: 'square',
+      provider: 'stripe',
       error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
@@ -145,7 +140,7 @@ async function checkPayments(): Promise<HealthStatus['services']['payments']> {
 async function checkAI(): Promise<HealthStatus['services']['ai']> {
   try {
     const aiHealth = await checkAIHealth();
-    
+
     return {
       status: aiHealth.status,
       provider: aiHealth.provider,
@@ -305,16 +300,16 @@ router.get('/ready', async (_req: Request, res: Response) => {
       checkDatabase(),
       checkAI(),
     ]);
-    
+
     if (dbStatus.status === 'ok' && aiStatus && aiStatus.status !== 'unhealthy') {
       res.status(200).json({ ready: true });
     } else {
       const reasons = [];
       if (dbStatus.status !== 'ok') reasons.push('Database not ready');
       if (aiStatus && aiStatus.status === 'unhealthy') reasons.push('AI service not ready');
-      
-      res.status(503).json({ 
-        ready: false, 
+
+      res.status(503).json({
+        ready: false,
         reason: reasons.join(', ')
       });
     }
