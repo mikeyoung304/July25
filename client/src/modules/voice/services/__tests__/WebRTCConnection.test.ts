@@ -91,6 +91,7 @@ const createMockMediaStream = () => {
 const createMockAudioElement = () => ({
   play: vi.fn(() => Promise.resolve()),
   pause: vi.fn(),
+  load: vi.fn(), // Required for cleanup to release media buffers
   autoplay: false,
   muted: false,
   volume: 1,
@@ -142,8 +143,18 @@ document.createElement = vi.fn((tagName: string) => {
   return originalCreateElement(tagName)
 }) as any
 
-// Mock document.body.appendChild
-document.body.appendChild = vi.fn((node: Node) => node) as any
+// Mock document.body.appendChild - properly set parentNode to simulate DOM behavior
+document.body.appendChild = vi.fn((node: Node) => {
+  // Set parentNode to document.body to simulate real DOM behavior
+  (node as any).parentNode = document.body
+  return node
+}) as any
+
+// Also mock document.body.removeChild
+document.body.removeChild = vi.fn((node: Node) => {
+  (node as any).parentNode = null
+  return node
+}) as any
 
 // Mock fetch for OpenAI API
 global.fetch = vi.fn(() =>
@@ -222,7 +233,8 @@ describe('WebRTCConnection', () => {
       expect((pc as any)?.close).toHaveBeenCalled()
       expect((dc as any)?.close).toHaveBeenCalled()
       expect(stream?.getTracks()[0].stop).toHaveBeenCalled()
-      expect(audioEl?.parentNode?.removeChild).toHaveBeenCalledWith(audioEl)
+      // Audio element is removed from document.body (parentNode is set by appendChild mock)
+      expect(document.body.removeChild).toHaveBeenCalledWith(audioEl)
     })
 
     it('returns correct connection state', async () => {
@@ -401,7 +413,8 @@ describe('WebRTCConnection', () => {
       expect(audioEl.pause).toHaveBeenCalled()
       expect(audioEl.srcObject).toBeNull()
       expect(audioEl.src).toBe('')
-      expect(audioEl.parentNode?.removeChild).toHaveBeenCalledWith(audioEl)
+      // Audio element is removed from document.body (parentNode is set by appendChild mock)
+      expect(document.body.removeChild).toHaveBeenCalledWith(audioEl)
     })
 
     it('clears connection references on disconnect', async () => {

@@ -264,30 +264,10 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                 />
               </Suspense>
               <div className="mt-8">
-                {/* Connection State Indicator */}
-                {voiceConnectionState === 'connecting' && (
-                  <div className="mb-4 flex items-center justify-center text-blue-600">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-2"></div>
-                    <span className="text-sm font-medium">Connecting to voice service...</span>
-                  </div>
-                )}
-                {voiceConnectionState === 'connected' && !isSessionReady && (
-                  <div className="mb-4 flex items-center justify-center text-yellow-600">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600 mr-2"></div>
-                    <span className="text-sm font-medium">Initializing session...</span>
-                  </div>
-                )}
-                {voiceConnectionState === 'connected' && isSessionReady && !isListening && (
-                  <div className="mb-4 flex items-center justify-center text-green-600">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    <span className="text-sm font-medium">Voice ordering ready</span>
-                  </div>
-                )}
-
                 <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center">
                   {isListening ? (
                     <>
-                      <Mic className="w-8 h-8 mr-3 text-orange-600 animate-pulse" />
+                      <Mic className="w-8 h-8 mr-3 text-orange-600" />
                       Listening...
                     </>
                   ) : (
@@ -325,7 +305,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
 
             {/* Recently Added Items Alert */}
             {recentlyAdded.length > 0 && (
-              <Card className="p-6 bg-green-50 border-2 border-green-200 animate-pulse">
+              <Card className="p-6 bg-green-50 border-4 border-green-400">
                 <div className="flex items-center space-x-4">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
                   <div>

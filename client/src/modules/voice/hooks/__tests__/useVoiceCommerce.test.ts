@@ -513,18 +513,12 @@ describe('useVoiceCommerce', () => {
 
     describe('Legacy Format: { success: true, items: [...] }', () => {
       /**
-       * NOTE: The current implementation has an issue where legacy format
-       * (with menuItemId) is processed as function call format (with name)
-       * because both have 'items' array. The function call format check comes
-       * first and matches, so it tries to find menu items by name (which is
-       * undefined/empty for legacy items).
-       *
-       * These tests document the ACTUAL behavior (not working as intended)
-       * rather than the EXPECTED behavior. This is a known limitation that
-       * should be fixed by reordering the checks or adding property detection.
+       * Legacy format uses menuItemId instead of name to identify items.
+       * The hook now correctly handles this by checking for menuItemId
+       * and looking up the menu item by ID when name is not provided.
        */
 
-      it('should attempt to process legacy format but fail to match items', () => {
+      it('should process legacy format with menuItemId', () => {
         const { result } = renderHook(() => useVoiceCommerce(defaultOptions));
 
         // Legacy format has items with menuItemId instead of name
@@ -543,13 +537,16 @@ describe('useVoiceCommerce', () => {
           result.current.handleOrderData(legacyData as any);
         });
 
-        // The hook processes this as function call format, but items have no 'name'
-        // So it tries to match undefined/empty string and fails
-        expect(mockOnAddItem).not.toHaveBeenCalled();
-        expect(mockToastError).toHaveBeenCalled();
+        // The hook now correctly finds item by menuItemId
+        expect(mockOnAddItem).toHaveBeenCalledWith(
+          expect.objectContaining({ id: 'item-1', name: 'Soul Bowl' }),
+          2,
+          ['extra sauce'],
+          undefined
+        );
       });
 
-      it('should not add items when using legacy format structure', () => {
+      it('should add items using legacy format structure', () => {
         const { result } = renderHook(() => useVoiceCommerce(defaultOptions));
 
         const legacyData = {
@@ -566,8 +563,34 @@ describe('useVoiceCommerce', () => {
           result.current.handleOrderData(legacyData as any);
         });
 
-        // Current implementation doesn't properly handle legacy format
+        // Legacy format correctly processes menuItemId
+        expect(mockOnAddItem).toHaveBeenCalledWith(
+          expect.objectContaining({ id: 'item-1', name: 'Soul Bowl' }),
+          1,
+          [],
+          undefined
+        );
+      });
+
+      it('should show error for unknown menuItemId', () => {
+        const { result } = renderHook(() => useVoiceCommerce(defaultOptions));
+
+        const legacyData = {
+          success: true,
+          items: [
+            {
+              menuItemId: 'nonexistent-item',
+              quantity: 1,
+            },
+          ],
+        };
+
+        act(() => {
+          result.current.handleOrderData(legacyData as any);
+        });
+
         expect(mockOnAddItem).not.toHaveBeenCalled();
+        expect(mockToastError).toHaveBeenCalledWith('Could not find: nonexistent-item');
       });
     });
 

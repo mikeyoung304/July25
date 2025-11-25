@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useWebRTCVoice } from '../hooks/useWebRTCVoice';
 import type { VoiceContext } from '../services/VoiceSessionConfig';
 // ConnectionIndicator removed - using inline status
 import { HoldToRecordButton } from './HoldToRecordButton';
 import { TranscriptionDisplay } from './TranscriptionDisplay';
 import { VoiceDebugPanel } from './VoiceDebugPanel';
-import { AlertCircle, Mic, MicOff } from 'lucide-react';
+import { VoiceErrorDisplay } from './VoiceErrorDisplay';
+import { classifyError } from '../services/VoiceErrorClassifier';
+import { Mic, MicOff } from 'lucide-react';
 import { logger } from '@/services/logger';
 import { toast } from 'react-hot-toast';
 
@@ -295,35 +297,19 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
         )}
       </div>
       
-      {/* Error Display */}
+      {/* Error Display with Recovery Actions */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-red-800">Voice Service Error</p>
-              <p className="text-xs text-red-600 mt-1">{error.message}</p>
-              {error.message.includes('configuration') || error.message.includes('API') ? (
-                <p className="text-xs text-red-500 mt-2 italic">
-                  This is a system configuration issue. Please contact support or check the server logs.
-                </p>
-              ) : (
-                <button
-                  onClick={async () => {
-                    try {
-                      await connect();
-                    } catch (err) {
-                      logger.error('Reconnection failed', { message: (err as Error)?.message });
-                    }
-                  }}
-                  className="text-xs text-red-700 underline mt-2 hover:text-red-800"
-                >
-                  Try reconnecting
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+        <VoiceErrorDisplay
+          error={classifyError(error)}
+          onRetry={async () => {
+            try {
+              await connect();
+            } catch (err) {
+              logger.error('Reconnection failed', { message: (err as Error)?.message });
+            }
+          }}
+          onRequestPermission={handleRequestPermission}
+        />
       )}
       
       {/* Main Voice Interface */}

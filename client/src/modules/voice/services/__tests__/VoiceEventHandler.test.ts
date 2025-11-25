@@ -18,6 +18,9 @@ vi.mock('@/services/logger', () => ({
   }
 }))
 
+// Import the mocked logger for assertions
+import { logger } from '@/services/logger'
+
 describe('VoiceEventHandler', () => {
   let handler: VoiceEventHandler
   let mockDataChannel: Partial<RTCDataChannel>
@@ -158,7 +161,6 @@ describe('VoiceEventHandler', () => {
 
     it('routes error to handler', () => {
       const emitSpy = vi.spyOn(handler, 'emit')
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const event: RealtimeEvent = {
         type: 'error',
@@ -172,9 +174,7 @@ describe('VoiceEventHandler', () => {
       handler.handleRealtimeEvent(event)
 
       expect(emitSpy).toHaveBeenCalledWith('error', expect.any(Error))
-      expect(consoleErrorSpy).toHaveBeenCalled()
-
-      consoleErrorSpy.mockRestore()
+      expect(logger.error).toHaveBeenCalled()
     })
 
     it('routes unknown events gracefully', () => {
@@ -558,8 +558,6 @@ describe('VoiceEventHandler', () => {
     })
 
     it('invalid function call arguments handled', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
       const event: RealtimeEvent = {
         type: 'response.function_call_arguments.done',
         event_id: 'evt_001',
@@ -569,9 +567,7 @@ describe('VoiceEventHandler', () => {
 
       // Should not throw
       expect(() => handler.handleRealtimeEvent(event)).not.toThrow()
-      expect(consoleErrorSpy).toHaveBeenCalled()
-
-      consoleErrorSpy.mockRestore()
+      expect(logger.error).toHaveBeenCalled()
     })
 
     it('multiple items in single call processed', () => {
@@ -703,7 +699,6 @@ describe('VoiceEventHandler', () => {
 
     it('data channel onerror emits error event', () => {
       const emitSpy = vi.spyOn(handler, 'emit')
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       handler.setDataChannel(mockDataChannel as RTCDataChannel)
 
@@ -713,10 +708,8 @@ describe('VoiceEventHandler', () => {
         mockDataChannel.onerror(new ErrorEvent('error', { error }))
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalled()
+      expect(logger.error).toHaveBeenCalled()
       expect(emitSpy).toHaveBeenCalledWith('error', expect.any(ErrorEvent))
-
-      consoleErrorSpy.mockRestore()
     })
 
     it('data channel onclose marks channel as not ready', () => {
@@ -856,8 +849,6 @@ describe('VoiceEventHandler', () => {
   describe('Error Handling', () => {
     it('handles rate_limit_exceeded error', () => {
       const emitSpy = vi.spyOn(handler, 'emit')
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       handler.handleRealtimeEvent({
         type: 'error',
@@ -870,16 +861,11 @@ describe('VoiceEventHandler', () => {
 
       expect(emitSpy).toHaveBeenCalledWith('error', expect.any(Error))
       expect(emitSpy).toHaveBeenCalledWith('rate_limit_error')
-      expect(consoleWarnSpy).toHaveBeenCalled()
-
-      consoleWarnSpy.mockRestore()
-      consoleErrorSpy.mockRestore()
+      expect(logger.warn).toHaveBeenCalled()
     })
 
     it('handles session_expired error', () => {
       const emitSpy = vi.spyOn(handler, 'emit')
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       handler.handleRealtimeEvent({
         type: 'error',
@@ -892,22 +878,16 @@ describe('VoiceEventHandler', () => {
 
       expect(emitSpy).toHaveBeenCalledWith('error', expect.any(Error))
       expect(emitSpy).toHaveBeenCalledWith('session_expired')
-      expect(consoleWarnSpy).toHaveBeenCalled()
-
-      consoleWarnSpy.mockRestore()
-      consoleErrorSpy.mockRestore()
+      expect(logger.warn).toHaveBeenCalled()
     })
 
     it('handles invalid JSON in handleRawMessage', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       handler.setDataChannel(mockDataChannel as RTCDataChannel)
 
       // Use handleRawMessage with invalid JSON
       handler.handleRawMessage('invalid json {{')
 
-      expect(consoleErrorSpy).toHaveBeenCalled()
-
-      consoleErrorSpy.mockRestore()
+      expect(logger.error).toHaveBeenCalled()
     })
   })
 
