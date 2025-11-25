@@ -32,7 +32,7 @@ export const ARIA_LABELS = {
 export const ARIA_DESCRIPTIONS = {
   voiceMode: 'Voice ordering allows you to speak your order naturally. Press and hold the microphone button, then say what you would like to order.',
   touchMode: 'Touch ordering lets you browse the full menu with photos and detailed descriptions. You can search, filter, and customize items.',
-  paymentForm: 'Secure payment form powered by Square. Your payment information is encrypted and processed securely.'
+  paymentForm: 'Secure payment form powered by Stripe. Your payment information is encrypted and processed securely.'
 } as const;
 
 export const KEYBOARD_SHORTCUTS = {

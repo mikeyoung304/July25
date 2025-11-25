@@ -15,7 +15,8 @@ export { sharedConfig, sharedConfigSimple as config };
 // Client-specific helpers
 export const isDemo = () => {
   const cfg = sharedConfig.get();
-  return cfg.squareAccessToken === 'demo' || cfg.squareEnvironment === 'sandbox';
+  // Demo mode if no Stripe key or it's a test key
+  return !cfg.stripePublishableKey || cfg.stripePublishableKey.startsWith('pk_test_');
 };
 
 export const getRestaurantId = (): string => {

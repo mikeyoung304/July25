@@ -91,7 +91,7 @@ router.get('/config',
         helmet: true,
         cors: true,
         sessionTimeout: '8h',
-        squareEnvironment: process.env['SQUARE_ENVIRONMENT'] || 'sandbox',
+        stripeMode: process.env['STRIPE_SECRET_KEY']?.startsWith('sk_live_') ? 'live' : 'test',
       },
       features: {
         suspiciousActivityDetection: true,

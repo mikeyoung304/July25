@@ -120,8 +120,8 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   }, [voiceCheckoutOrchestrator]);
 
   // Check if we're in demo mode
-  const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN ||
-                     import.meta.env.VITE_SQUARE_ACCESS_TOKEN === 'demo' ||
+  const isDemoMode = !import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
+                     import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY === 'demo' ||
                      import.meta.env.DEV;
 
   // TEMPORARY DEBUG: Auto-fill demo data for faster testing (remove when done debugging)

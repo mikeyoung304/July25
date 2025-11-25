@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 import CheckoutPage from '@/pages/CheckoutPage';
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage';
 import { TipSlider } from '../components/TipSlider';
-import { SquarePaymentForm } from '../components/SquarePaymentForm';
+import { StripePaymentForm } from '../components/StripePaymentForm';
 
 // Mock cart hooks
 vi.mock('@/contexts/cart.hooks', () => ({
@@ -144,16 +144,16 @@ describe('Accessibility Tests', () => {
     expect(customInput).toHaveAttribute('id', 'custom-tip');
   });
 
-  it('SquarePaymentForm should have proper payment button in demo mode', () => {
+  it('StripePaymentForm should have proper payment button in demo mode', () => {
     render(
-      <SquarePaymentForm
+      <StripePaymentForm
         onPaymentNonce={vi.fn()}
         amount={14.06}
         isProcessing={false}
       />
     );
 
-    // In demo mode, the button should be present and accessible (SquarePaymentForm.tsx lines 202-219)
+    // In demo mode, the button should be present and accessible (StripePaymentForm.tsx lines 202-219)
     const button = screen.getByRole('button');
     expect(button).toBeInTheDocument();
     expect(button).toHaveAccessibleName();
@@ -163,9 +163,9 @@ describe('Accessibility Tests', () => {
     expect(button).toHaveTextContent('Demo');
   });
 
-  it('SquarePaymentForm should disable button when processing', () => {
+  it('StripePaymentForm should disable button when processing', () => {
     render(
-      <SquarePaymentForm
+      <StripePaymentForm
         onPaymentNonce={vi.fn()}
         amount={14.06}
         isProcessing={true}

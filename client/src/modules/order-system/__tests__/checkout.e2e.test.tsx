@@ -57,9 +57,9 @@ vi.mock('@/modules/order-system/context/CartContext', () => ({
   useCart: () => mockUseCart
 }));
 
-vi.mock('@/modules/order-system/components/SquarePaymentForm', () => ({
-  SquarePaymentForm: ({ onSuccess }: any) => (
-    <button onClick={() => onSuccess('nonce-123')}>Pay</button>
+vi.mock('@/modules/order-system/components/StripePaymentForm', () => ({
+  StripePaymentForm: ({ onSuccess }: any) => (
+    <button onClick={() => onSuccess('pm_test_123')}>Pay</button>
   ),
 }));
 
