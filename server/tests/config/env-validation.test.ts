@@ -124,13 +124,12 @@ describe('Environment Validation (P0.7)', () => {
       OPENAI_API_KEY: 'test-openai-key',
     };
 
-    it('should fail in production when SQUARE_ACCESS_TOKEN is missing', async () => {
+    it('should fail in production when STRIPE_SECRET_KEY is missing', async () => {
       process.env = {
         ...originalEnv,
         ...validBaseEnv,
-        SQUARE_ACCESS_TOKEN: '', // Missing
-        SQUARE_LOCATION_ID: 'test-location-id',
-        SQUARE_APP_ID: 'test-app-id',
+        STRIPE_SECRET_KEY: '', // Missing
+        STRIPE_PUBLISHABLE_KEY: 'pk_test_123',
         // Add auth secrets to prevent those validation errors
         KIOSK_JWT_SECRET: 'test-kiosk-jwt-secret-long-enough',
         STATION_TOKEN_SECRET: 'test-station-token-secret-long',
@@ -142,16 +141,15 @@ describe('Environment Validation (P0.7)', () => {
       await expect(async () => {
         const { validateEnv } = await import('../../src/config/env');
         validateEnv();
-      }).rejects.toThrow('SQUARE_ACCESS_TOKEN is required for payment processing');
+      }).rejects.toThrow('STRIPE_SECRET_KEY is required for payment processing');
     });
 
-    it('should fail in production when SQUARE_LOCATION_ID is missing', async () => {
+    it('should fail in production when STRIPE_PUBLISHABLE_KEY is missing', async () => {
       process.env = {
         ...originalEnv,
         ...validBaseEnv,
-        SQUARE_ACCESS_TOKEN: 'test-access-token',
-        SQUARE_LOCATION_ID: '', // Missing
-        SQUARE_APP_ID: 'test-app-id',
+        STRIPE_SECRET_KEY: 'sk_test_123',
+        STRIPE_PUBLISHABLE_KEY: '', // Missing
         KIOSK_JWT_SECRET: 'test-kiosk-jwt-secret-long-enough',
         STATION_TOKEN_SECRET: 'test-station-token-secret-long',
         PIN_PEPPER: 'test-pin-pepper-long-enough-here',
@@ -162,27 +160,7 @@ describe('Environment Validation (P0.7)', () => {
       await expect(async () => {
         const { validateEnv } = await import('../../src/config/env');
         validateEnv();
-      }).rejects.toThrow('SQUARE_LOCATION_ID is required for payment processing');
-    });
-
-    it('should fail in production when SQUARE_APP_ID is missing', async () => {
-      process.env = {
-        ...originalEnv,
-        ...validBaseEnv,
-        SQUARE_ACCESS_TOKEN: 'test-access-token',
-        SQUARE_LOCATION_ID: 'test-location-id',
-        SQUARE_APP_ID: '', // Missing
-        KIOSK_JWT_SECRET: 'test-kiosk-jwt-secret-long-enough',
-        STATION_TOKEN_SECRET: 'test-station-token-secret-long',
-        PIN_PEPPER: 'test-pin-pepper-long-enough-here',
-        DEVICE_FINGERPRINT_SALT: 'test-device-fingerprint-salt-here',
-        FRONTEND_URL: 'https://example.com',
-      };
-
-      await expect(async () => {
-        const { validateEnv } = await import('../../src/config/env');
-        validateEnv();
-      }).rejects.toThrow('SQUARE_APP_ID is required for payment processing');
+      }).rejects.toThrow('STRIPE_PUBLISHABLE_KEY is required for payment processing');
     });
 
     it('should only warn (not fail) when payment vars missing in development', async () => {
@@ -196,9 +174,8 @@ describe('Environment Validation (P0.7)', () => {
         SUPABASE_SERVICE_KEY: 'test-service-key',
         SUPABASE_JWT_SECRET: 'test-jwt-secret-that-is-long-enough-for-validation',
         DEFAULT_RESTAURANT_ID: '11111111-1111-1111-1111-111111111111',
-        SQUARE_ACCESS_TOKEN: '', // Missing
-        SQUARE_LOCATION_ID: '', // Missing
-        SQUARE_APP_ID: '', // Missing
+        STRIPE_SECRET_KEY: '', // Missing
+        STRIPE_PUBLISHABLE_KEY: '', // Missing
       };
 
       const { validateEnv } = await import('../../src/config/env');
@@ -207,7 +184,7 @@ describe('Environment Validation (P0.7)', () => {
       // Should have warned about missing payment vars
       expect(consoleWarnSpy).toHaveBeenCalled();
       const warnings = consoleWarnSpy.mock.calls.map(call => call[0]);
-      expect(warnings.some((w: string) => w.includes('SQUARE_ACCESS_TOKEN'))).toBe(true);
+      expect(warnings.some((w: string) => w.includes('STRIPE_SECRET_KEY'))).toBe(true);
 
       consoleWarnSpy.mockRestore();
     });
@@ -222,9 +199,8 @@ describe('Environment Validation (P0.7)', () => {
       SUPABASE_JWT_SECRET: 'test-jwt-secret-that-is-long-enough-for-validation',
       DEFAULT_RESTAURANT_ID: '11111111-1111-1111-1111-111111111111',
       OPENAI_API_KEY: 'test-openai-key',
-      SQUARE_ACCESS_TOKEN: 'test-access-token',
-      SQUARE_LOCATION_ID: 'test-location-id',
-      SQUARE_APP_ID: 'test-app-id',
+      STRIPE_SECRET_KEY: 'sk_test_123',
+      STRIPE_PUBLISHABLE_KEY: 'pk_test_123',
       FRONTEND_URL: 'https://example.com',
     };
 
@@ -273,9 +249,8 @@ describe('Environment Validation (P0.7)', () => {
         DEFAULT_RESTAURANT_ID: '11111111-1111-1111-1111-111111111111',
         FRONTEND_URL: 'example.com', // Missing http:// or https://
         OPENAI_API_KEY: 'test-key',
-        SQUARE_ACCESS_TOKEN: 'test-token',
-        SQUARE_LOCATION_ID: 'test-location',
-        SQUARE_APP_ID: 'test-app',
+        STRIPE_SECRET_KEY: 'sk_test_123',
+        STRIPE_PUBLISHABLE_KEY: 'pk_test_123',
         KIOSK_JWT_SECRET: 'test-kiosk-jwt-secret-long-enough',
         STATION_TOKEN_SECRET: 'test-station-token-secret-long',
         PIN_PEPPER: 'test-pin-pepper-long-enough-here',
@@ -327,10 +302,8 @@ describe('Environment Validation (P0.7)', () => {
         SUPABASE_JWT_SECRET: 'test-jwt-secret-that-is-long-enough-for-validation',
         DEFAULT_RESTAURANT_ID: '11111111-1111-1111-1111-111111111111',
         OPENAI_API_KEY: 'test-openai-key',
-        SQUARE_ACCESS_TOKEN: 'EAAA-production-token', // Production format
-        SQUARE_LOCATION_ID: 'test-location-id',
-        SQUARE_APP_ID: 'test-app-id',
-        SQUARE_ENVIRONMENT: 'production',
+        STRIPE_SECRET_KEY: 'sk_live_production-token',
+        STRIPE_PUBLISHABLE_KEY: 'pk_live_production-token',
         KIOSK_JWT_SECRET: 'test-kiosk-jwt-secret-long-enough-to-pass-validation',
         STATION_TOKEN_SECRET: 'test-station-token-secret-long-enough-too',
         PIN_PEPPER: 'test-pin-pepper-long-enough-here-for-security',

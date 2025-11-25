@@ -46,11 +46,9 @@ export interface AppConfig {
   openaiRealtimeModel?: string;
   aiDegradedMode: boolean;
   
-  // Payment Processing
-  squareAccessToken: string;
-  squareEnvironment: 'sandbox' | 'production';
-  squareLocationId: string;
-  squareAppId: string;
+  // Payment Processing (Stripe)
+  stripeSecretKey: string;
+  stripePublishableKey: string;
   
   // Feature Flags
   useMockData: boolean;
@@ -121,14 +119,12 @@ class ConfigService {
       openaiRealtimeModel: process.env['OPENAI_REALTIME_MODEL'] || 'gpt-4o-realtime-preview-2025-06-03',
       aiDegradedMode: process.env['AI_DEGRADED_MODE'] === 'true',
 
-      // Payment Processing
-      squareAccessToken: process.env['SQUARE_ACCESS_TOKEN'] || '',
-      squareEnvironment: (process.env['SQUARE_ENVIRONMENT'] as 'sandbox' | 'production') || 'sandbox',
-      squareLocationId: process.env['SQUARE_LOCATION_ID'] || '',
-      squareAppId:
-        viteEnv?.['VITE_SQUARE_APP_ID'] ||
-        process.env['VITE_SQUARE_APP_ID'] ||
-        process.env['SQUARE_APP_ID'] ||
+      // Payment Processing (Stripe)
+      stripeSecretKey: process.env['STRIPE_SECRET_KEY'] || '',
+      stripePublishableKey:
+        viteEnv?.['VITE_STRIPE_PUBLISHABLE_KEY'] ||
+        process.env['VITE_STRIPE_PUBLISHABLE_KEY'] ||
+        process.env['STRIPE_PUBLISHABLE_KEY'] ||
         '',
 
       // Feature Flags

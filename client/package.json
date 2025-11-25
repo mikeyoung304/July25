@@ -24,7 +24,8 @@
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@square/web-payments-sdk-types": "^1.76.1",
+    "@stripe/react-stripe-js": "^2.8.0",
+    "@stripe/stripe-js": "^4.7.0",
     "@supabase/supabase-js": "^2.50.5",
     "@types/react-window": "^1.8.8",
     "class-variance-authority": "^0.7.1",

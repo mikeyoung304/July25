@@ -14,6 +14,7 @@
  *
  * Version: 1.0.0
  * Created: 2025-01-23 (Phase 3: Architectural Hardening)
+ * Payment Provider: Stripe
  */
 
 import { logger } from '../logger';
@@ -30,8 +31,8 @@ export enum PaymentState {
   IDLE = 'IDLE',                                    // No payment initiated
 
   // Card payment flow
-  INITIALIZING_SDK = 'INITIALIZING_SDK',            // Loading Square SDK
-  SDK_READY = 'SDK_READY',                          // Square SDK loaded and ready
+  INITIALIZING_SDK = 'INITIALIZING_SDK',            // Loading Stripe SDK
+  SDK_READY = 'SDK_READY',                          // Stripe SDK loaded and ready
   TOKENIZING_CARD = 'TOKENIZING_CARD',              // Converting card to token
   PROCESSING_CARD = 'PROCESSING_CARD',              // Submitting card payment to API
 
@@ -84,7 +85,7 @@ export enum PaymentEvent {
   DEMO_PROCESSING_STARTED = 'DEMO_PROCESSING_STARTED',
 
   // Common completion events
-  PAYMENT_CAPTURED = 'PAYMENT_CAPTURED',            // Payment successful on Square side
+  PAYMENT_CAPTURED = 'PAYMENT_CAPTURED',            // Payment successful on Stripe side
   ORDER_COMPLETION_STARTED = 'ORDER_COMPLETION_STARTED',
   PAYMENT_COMPLETE = 'PAYMENT_COMPLETE',            // Full flow complete
 

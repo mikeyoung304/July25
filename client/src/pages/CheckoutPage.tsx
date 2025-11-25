@@ -5,7 +5,7 @@ import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { CartItem } from '@/modules/order-system/components/CartItem';
 import { CartSummary } from '@/modules/order-system/components/CartSummary';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
-import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
+import { StripePaymentForm } from '@/modules/order-system/components/StripePaymentForm';
 import { useHttpClient } from '@/services/http';
 import { useFormValidation } from '@/utils/validation';
 import { checkoutValidationRules } from '@/config/checkoutValidation';
@@ -24,8 +24,8 @@ const CheckoutPageContent: React.FC = () => {
   // This ensures staff users accessing customer pages are treated as anonymous customers
   
   // Check if we're in demo mode
-  const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN ||
-                     import.meta.env.VITE_SQUARE_ACCESS_TOKEN === 'demo' ||
+  const isDemoMode = !import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
+                     import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY === 'demo' ||
                      import.meta.env.DEV;
 
   // TEMPORARY DEBUG: Auto-fill demo data for faster testing (remove when done debugging)
@@ -362,7 +362,7 @@ const CheckoutPageContent: React.FC = () => {
                   {isProcessing ? 'Processing...' : 'Complete Order (Demo)'}
                 </button>
               ) : (
-                <SquarePaymentForm
+                <StripePaymentForm
                   onPaymentNonce={handlePaymentNonce}
                   amount={cart.total}
                   isProcessing={isProcessing}

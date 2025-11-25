@@ -424,26 +424,36 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
       expect(response.body.length).toBe(1);
     });
 
-    it('should prevent restaurant 1 user from accessing restaurant 2 orders list', async () => {
+    it('should ignore X-Restaurant-ID header and return only restaurant 1 user orders', async () => {
+      // SECURITY FIX (CL-AUTH-002): X-Restaurant-ID header is now completely ignored
+      // Users always get data from their JWT restaurant_id, not the header
+      // This prevents information leakage about other restaurants' existence
       const response = await request(app)
         .get('/api/v1/orders')
         .set('Authorization', `Bearer ${restaurant1Token}`)
-        .set('X-Restaurant-ID', RESTAURANT_2_ID)
-        .expect(403);
+        .set('X-Restaurant-ID', RESTAURANT_2_ID) // This header is ignored
+        .expect(200);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error.code).toBe('RESTAURANT_ACCESS_DENIED');
+      // Should return restaurant 1 orders (from JWT), ignoring the header
+      expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((order: Order) => {
+        expect(order.restaurant_id).toBe(RESTAURANT_1_ID);
+      });
     });
 
-    it('should prevent restaurant 2 user from accessing restaurant 1 orders list', async () => {
+    it('should ignore X-Restaurant-ID header and return only restaurant 2 user orders', async () => {
+      // SECURITY FIX (CL-AUTH-002): X-Restaurant-ID header is now completely ignored
       const response = await request(app)
         .get('/api/v1/orders')
         .set('Authorization', `Bearer ${restaurant2Token}`)
-        .set('X-Restaurant-ID', RESTAURANT_1_ID)
-        .expect(403);
+        .set('X-Restaurant-ID', RESTAURANT_1_ID) // This header is ignored
+        .expect(200);
 
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.error.code).toBe('RESTAURANT_ACCESS_DENIED');
+      // Should return restaurant 2 orders (from JWT), ignoring the header
+      expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((order: Order) => {
+        expect(order.restaurant_id).toBe(RESTAURANT_2_ID);
+      });
     });
   });
 
@@ -492,17 +502,19 @@ describe('Multi-Tenancy Enforcement - Cross-Restaurant Access Prevention', () =>
       expect(response.body).toHaveProperty('error');
     });
 
-    it('should prevent restaurant 1 user from accessing restaurant 2 order even with restaurant 2 header', async () => {
-      // This tests the case where a malicious user tries to access another restaurant's order
-      // by manipulating the header (should fail due to token mismatch)
+    it('should ignore X-Restaurant-ID header when accessing other restaurant order', async () => {
+      // SECURITY FIX (CL-AUTH-002): Header is ignored, user only has access to their JWT restaurant
+      // This tests that a malicious user CANNOT access another restaurant's order
+      // by manipulating the header - they get 404 (no info leakage) instead of 403
       const response = await request(app)
         .get(`/api/v1/orders/${RESTAURANT_2_ORDER_ID}`)
         .set('Authorization', `Bearer ${restaurant1Token}`)
-        .set('X-Restaurant-ID', RESTAURANT_2_ID)
-        .expect(403);
+        .set('X-Restaurant-ID', RESTAURANT_2_ID) // Header ignored
+        .expect(404);
 
+      // Should return 404 (order not found in user's restaurant)
+      // NOT 403 - we don't reveal that the order exists in another restaurant
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error.code).toBe('RESTAURANT_ACCESS_DENIED');
     });
   });
 

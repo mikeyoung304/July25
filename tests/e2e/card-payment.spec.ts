@@ -1,27 +1,27 @@
 /**
  * E2E Test: Card Payment Workflow (TEST_004)
  *
- * Tests the complete card payment flow using Square Web SDK integration.
+ * Tests the complete card payment flow using Stripe Elements integration.
  * Includes demo mode testing and production environment verification.
  *
  * Coverage:
  * - Check closing screen displays correct totals
  * - Tender selection presents card option
- * - Square SDK loads and initializes correctly
+ * - Stripe Elements loads and initializes correctly
  * - Card input form renders and accepts input
- * - Payment processing with Square API
+ * - Payment processing with Stripe API
  * - Demo mode fallback when credentials missing
- * - Environment indicator displays (production/sandbox/demo)
+ * - Environment indicator displays (production/test/demo)
  * - Table status updates after successful payment
- * - Payment audit logging with Square payment IDs
+ * - Payment audit logging with Stripe payment IDs
  */
 
 import { test, expect } from '@playwright/test';
 import { MOCK_TABLE_5, SEAT_1_ITEMS, SEAT_2_ITEMS } from '../fixtures/multi-seat-orders';
 
-// Square test card numbers
-const SQUARE_TEST_CARDS = {
-  VISA_SUCCESS: '4111111111111111',
+// Stripe test card numbers
+const STRIPE_TEST_CARDS = {
+  VISA_SUCCESS: '4242424242424242',
   VISA_DECLINE: '4000000000000002',
   MASTERCARD_SUCCESS: '5555555555554444',
   AMEX_SUCCESS: '378282246310005',
@@ -91,18 +91,18 @@ test.describe('Card Payment Workflow', () => {
     // Step 3: Select card tender
     await page.click('button:has-text("Card Payment")');
 
-    // Step 4: Wait for Square SDK to load
-    await page.waitForSelector('#card-container', { timeout: 10000 });
+    // Step 4: Wait for Stripe Elements to load
+    await page.waitForSelector('[data-testid="payment-element"]', { timeout: 10000 });
 
     // Step 5: Verify environment indicator shows
-    const envIndicator = page.locator('[data-testid="square-environment"]');
+    const envIndicator = page.locator('[data-testid="stripe-environment"]');
     await expect(envIndicator).toBeVisible();
 
-    // Step 6: Fill card details in Square iframe
-    const cardFrame = page.frameLocator('iframe[name*="sq-card"]');
-    await cardFrame.locator('input[name="cardNumber"]').fill(SQUARE_TEST_CARDS.VISA_SUCCESS);
-    await cardFrame.locator('input[name="expirationDate"]').fill('12/25');
-    await cardFrame.locator('input[name="cvv"]').fill('123');
+    // Step 6: Fill card details in Stripe iframe
+    const cardFrame = page.frameLocator('iframe[name*="__privateStripeFrame"]');
+    await cardFrame.locator('input[name="cardNumber"]').fill(STRIPE_TEST_CARDS.VISA_SUCCESS);
+    await cardFrame.locator('input[name="cardExpiry"]').fill('12/25');
+    await cardFrame.locator('input[name="cardCvc"]').fill('123');
     await cardFrame.locator('input[name="postalCode"]').fill('12345');
 
     // Step 7: Submit payment
@@ -126,14 +126,14 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Close Check")');
     await page.click('button:has-text("Card Payment")');
 
-    // Wait for Square SDK
-    await page.waitForSelector('#card-container');
+    // Wait for Stripe Elements
+    await page.waitForSelector('[data-testid="payment-element"]');
 
     // Fill with decline test card
-    const cardFrame = page.frameLocator('iframe[name*="sq-card"]');
-    await cardFrame.locator('input[name="cardNumber"]').fill(SQUARE_TEST_CARDS.VISA_DECLINE);
-    await cardFrame.locator('input[name="expirationDate"]').fill('12/25');
-    await cardFrame.locator('input[name="cvv"]').fill('123');
+    const cardFrame = page.frameLocator('iframe[name*="__privateStripeFrame"]');
+    await cardFrame.locator('input[name="cardNumber"]').fill(STRIPE_TEST_CARDS.VISA_DECLINE);
+    await cardFrame.locator('input[name="cardExpiry"]').fill('12/25');
+    await cardFrame.locator('input[name="cardCvc"]').fill('123');
     await cardFrame.locator('input[name="postalCode"]').fill('12345');
 
     // Submit payment
@@ -143,14 +143,13 @@ test.describe('Card Payment Workflow', () => {
     await expect(page.locator('.toast-error')).toContainText('declined', { timeout: 10000 });
 
     // Verify still on payment screen (not returned to floor plan)
-    await expect(page.locator('#card-container')).toBeVisible();
+    await expect(page.locator('[data-testid="payment-element"]')).toBeVisible();
   });
 
-  test('TC-CARD-003: Demo mode when Square credentials missing', async ({ page }) => {
-    // Mock missing Square credentials
+  test('TC-CARD-003: Demo mode when Stripe credentials missing', async ({ page }) => {
+    // Mock missing Stripe credentials
     await page.addInitScript(() => {
-      window.SQUARE_APP_ID = '';
-      window.SQUARE_LOCATION_ID = '';
+      (window as any).STRIPE_PUBLISHABLE_KEY = '';
     });
 
     // Navigate to card payment
@@ -180,14 +179,14 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Close Check")');
     await page.click('button:has-text("Card Payment")');
 
-    // Wait for Square SDK
-    await page.waitForSelector('#card-container');
+    // Wait for Stripe Elements
+    await page.waitForSelector('[data-testid="payment-element"]');
 
     // Fill with Mastercard
-    const cardFrame = page.frameLocator('iframe[name*="sq-card"]');
-    await cardFrame.locator('input[name="cardNumber"]').fill(SQUARE_TEST_CARDS.MASTERCARD_SUCCESS);
-    await cardFrame.locator('input[name="expirationDate"]').fill('06/26');
-    await cardFrame.locator('input[name="cvv"]').fill('456');
+    const cardFrame = page.frameLocator('iframe[name*="__privateStripeFrame"]');
+    await cardFrame.locator('input[name="cardNumber"]').fill(STRIPE_TEST_CARDS.MASTERCARD_SUCCESS);
+    await cardFrame.locator('input[name="cardExpiry"]').fill('06/26');
+    await cardFrame.locator('input[name="cardCvc"]').fill('456');
     await cardFrame.locator('input[name="postalCode"]').fill('54321');
 
     // Submit payment
@@ -203,14 +202,14 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Close Check")');
     await page.click('button:has-text("Card Payment")');
 
-    // Wait for Square SDK
-    await page.waitForSelector('#card-container');
+    // Wait for Stripe Elements
+    await page.waitForSelector('[data-testid="payment-element"]');
 
-    // Fill with Amex (note: 4-digit CVV)
-    const cardFrame = page.frameLocator('iframe[name*="sq-card"]');
-    await cardFrame.locator('input[name="cardNumber"]').fill(SQUARE_TEST_CARDS.AMEX_SUCCESS);
-    await cardFrame.locator('input[name="expirationDate"]').fill('03/27');
-    await cardFrame.locator('input[name="cvv"]').fill('1234'); // Amex uses 4 digits
+    // Fill with Amex (note: 4-digit CVC)
+    const cardFrame = page.frameLocator('iframe[name*="__privateStripeFrame"]');
+    await cardFrame.locator('input[name="cardNumber"]').fill(STRIPE_TEST_CARDS.AMEX_SUCCESS);
+    await cardFrame.locator('input[name="cardExpiry"]').fill('03/27');
+    await cardFrame.locator('input[name="cardCvc"]').fill('1234'); // Amex uses 4 digits
     await cardFrame.locator('input[name="postalCode"]').fill('90210');
 
     // Submit payment
@@ -220,7 +219,7 @@ test.describe('Card Payment Workflow', () => {
     await expect(page.locator('.toast-success')).toContainText('Payment successful', { timeout: 15000 });
   });
 
-  test('TC-CARD-006: Payment audit logging with Square payment ID', async ({ page }) => {
+  test('TC-CARD-006: Payment audit logging with Stripe payment ID', async ({ page }) => {
     // Mock audit log endpoint
     let auditLogEntry: any;
     await page.route('**/api/v1/audit/payment', async (route) => {
@@ -232,7 +231,7 @@ test.describe('Card Payment Workflow', () => {
       });
     });
 
-    // Mock Square payment response
+    // Mock Stripe payment response
     await page.route('**/api/v1/payments/card', async (route) => {
       await route.fulfill({
         status: 200,
@@ -240,9 +239,10 @@ test.describe('Card Payment Workflow', () => {
         body: JSON.stringify({
           success: true,
           payment: {
-            id: 'sq_payment_test_12345',
-            status: 'COMPLETED',
-            amount_money: { amount: 8640, currency: 'USD' }
+            id: 'pi_test_12345',
+            status: 'succeeded',
+            amount: 8640, // cents
+            currency: 'usd'
           }
         })
       });
@@ -254,16 +254,16 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Card Payment")');
 
     // Wait and submit (using demo mode for faster test)
-    await page.waitForSelector('#card-container');
+    await page.waitForSelector('[data-testid="payment-element"]');
     await page.click('button:has-text("Process Payment")');
 
     // Wait for audit log
     await page.waitForTimeout(1500);
 
-    // Verify audit log contains Square payment ID
+    // Verify audit log contains Stripe payment ID
     expect(auditLogEntry).toMatchObject({
       payment_method: 'card',
-      payment_id: expect.stringMatching(/^sq_payment_/),
+      payment_id: expect.stringMatching(/^pi_/),
       amount: 8640, // cents
       table_number: '5',
       status: 'success'
@@ -276,8 +276,8 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Close Check")');
     await page.click('button:has-text("Card Payment")');
 
-    // Wait for Square SDK to load
-    await page.waitForSelector('#card-container');
+    // Wait for Stripe Elements to load
+    await page.waitForSelector('[data-testid="payment-element"]');
 
     // Click cancel/back button
     await page.click('button:has-text("Back")');
@@ -287,10 +287,10 @@ test.describe('Card Payment Workflow', () => {
     await expect(page.locator('button:has-text("Card Payment")')).toBeVisible();
   });
 
-  test('TC-CARD-008: Environment indicator shows sandbox vs production', async ({ page }) => {
-    // Set sandbox environment
+  test('TC-CARD-008: Environment indicator shows test vs production', async ({ page }) => {
+    // Set test environment (Stripe uses test mode)
     await page.addInitScript(() => {
-      window.SQUARE_ENVIRONMENT = 'sandbox';
+      (window as any).STRIPE_ENVIRONMENT = 'test';
     });
 
     // Navigate to card payment
@@ -298,15 +298,15 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Close Check")');
     await page.click('button:has-text("Card Payment")');
 
-    // Verify sandbox badge displays
-    const envBadge = page.locator('[data-testid="square-environment"]');
-    await expect(envBadge).toContainText('Sandbox');
+    // Verify test badge displays
+    const envBadge = page.locator('[data-testid="stripe-environment"]');
+    await expect(envBadge).toContainText('Test');
     await expect(envBadge).toHaveClass(/bg-yellow/); // Warning color
   });
 
-  test('TC-CARD-009: Square SDK load failure shows error', async ({ page }) => {
-    // Block Square SDK from loading
-    await page.route('**/web.squarecdn.com/**', route => route.abort());
+  test('TC-CARD-009: Stripe SDK load failure shows error', async ({ page }) => {
+    // Block Stripe SDK from loading
+    await page.route('**/js.stripe.com/**', route => route.abort());
 
     // Navigate to card payment
     await page.click(`[data-table-id="${MOCK_TABLE_5.id}"]`);
@@ -355,8 +355,8 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Close Check")');
     await page.click('button:has-text("Card Payment")');
 
-    // Wait for SDK and submit
-    await page.waitForSelector('#card-container');
+    // Wait for Stripe Elements and submit
+    await page.waitForSelector('[data-testid="payment-element"]');
     await page.click('button:has-text("Process Payment")');
 
     // Verify loading state displays
@@ -400,7 +400,7 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Card Payment")');
 
     // First attempt
-    await page.waitForSelector('#card-container');
+    await page.waitForSelector('[data-testid="payment-element"]');
     await page.click('button:has-text("Process Payment")');
     await expect(page.locator('.toast-error')).toContainText('declined', { timeout: 5000 });
 
@@ -425,7 +425,7 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Card Payment")');
 
     // Submit payment (will fail)
-    await page.waitForSelector('#card-container');
+    await page.waitForSelector('[data-testid="payment-element"]');
     await page.click('button:has-text("Process Payment")');
 
     // Verify error
@@ -445,14 +445,14 @@ test.describe('Card Payment Workflow', () => {
     await page.click('button:has-text("Close Check")');
     await page.click('button:has-text("Card Payment")');
 
-    // Wait for Square SDK
-    await page.waitForSelector('#card-container');
+    // Wait for Stripe Elements
+    await page.waitForSelector('[data-testid="payment-element"]');
 
     // Try to submit without filling card details
     const submitButton = page.locator('button:has-text("Process Payment")');
     await submitButton.click();
 
-    // Verify validation error from Square
+    // Verify validation error from Stripe
     const errorMessage = page.locator('[data-testid="card-error"]');
     await expect(errorMessage).toBeVisible({ timeout: 3000 });
   });
@@ -466,9 +466,9 @@ test.describe('Card Payment Workflow', () => {
  * TC-CARD-003: Demo mode fallback
  * TC-CARD-004: Mastercard success
  * TC-CARD-005: American Express success
- * TC-CARD-006: Audit logging with Square payment ID
+ * TC-CARD-006: Audit logging with Stripe payment ID
  * TC-CARD-007: Cancel navigation
- * TC-CARD-008: Environment indicator (sandbox/production)
+ * TC-CARD-008: Environment indicator (test/production)
  * TC-CARD-009: SDK load failure handling
  * TC-CARD-010: Secure payment badge
  * TC-CARD-011: Payment processing loading state
@@ -477,10 +477,10 @@ test.describe('Card Payment Workflow', () => {
  * TC-CARD-014: Card form validation
  *
  * Total: 14 test cases
- * Coverage: Square SDK, UI, validation, API, audit, error handling, security
+ * Coverage: Stripe Elements, UI, validation, API, audit, error handling, security
  *
  * Phase 2 Quality Gate:
- * ✓ Card payment via Square works (TC-CARD-001, TC-CARD-004, TC-CARD-005)
+ * ✓ Card payment via Stripe works (TC-CARD-001, TC-CARD-004, TC-CARD-005)
  * ✓ Table status auto-updates to "paid" (TC-CARD-001, TC-CARD-013)
  * ✓ E2E tests pass for card payment (all tests)
  * ✓ Demo mode fallback available (TC-CARD-003)

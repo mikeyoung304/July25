@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUnifiedCart } from '@/contexts/cart.hooks';
-import { SquarePaymentForm } from '@/modules/order-system/components/SquarePaymentForm';
+import { StripePaymentForm } from '@/modules/order-system/components/StripePaymentForm';
 import { TipSlider } from '@/modules/order-system/components/TipSlider';
 import { useHttpClient } from '@/services/http';
 import { useSquareTerminal } from '@/hooks/useSquareTerminal';
@@ -120,8 +120,8 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   }, [voiceCheckoutOrchestrator]);
 
   // Check if we're in demo mode
-  const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN ||
-                     import.meta.env.VITE_SQUARE_ACCESS_TOKEN === 'demo' ||
+  const isDemoMode = !import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
+                     import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY === 'demo' ||
                      import.meta.env.DEV;
 
   // TEMPORARY DEBUG: Auto-fill demo data for faster testing (remove when done debugging)
@@ -656,7 +656,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
               
               {/* Payment Form */}
               {selectedPaymentMethod === 'card' ? (
-                <SquarePaymentForm
+                <StripePaymentForm
                   onPaymentNonce={handlePaymentNonce}
                   amount={cart.total}
                   isProcessing={isProcessing}
