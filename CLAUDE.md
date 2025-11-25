@@ -56,14 +56,6 @@ npm run docs:validate     # Validate documentation
 python3 scripts/validate_links.py  # Check documentation links (97.4% health)
 ```
 
-### Claude Lessons v5 (Global Debugging Aid)
-The lessons system is now global at `~/.claude/lessons/` with 600+ hours of debugging knowledge:
-- **Quick error lookup**: Search `~/.claude/lessons/SYMPTOM_INDEX.md` by error message
-- **Uncle Claude agent**: Invoke `@uncle-claude <problem>` for guided troubleshooting
-- **Coverage**: 11 categories, 215+ debugging days documented
-- **Local symlink**: `claude-lessons3/` → `~/.claude/lessons/` (for compatibility)
-- **Example**: "401 Unauthorized" → direct link to CL-AUTH-001 (STRICT_AUTH environment drift)
-
 ## Architecture
 
 ### Monorepo Structure
