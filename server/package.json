@@ -1,6 +1,6 @@
 {
   "name": "restaurant-os-server",
-  "version": "6.0.6",
+  "version": "6.0.14",
   "description": "Backend API for Grow Fresh Local Food Restaurant OS",
   "main": "dist/server/src/server.js",
   "scripts": {

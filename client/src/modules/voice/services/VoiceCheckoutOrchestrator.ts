@@ -137,7 +137,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     }
 
     if (this.checkoutState !== 'idle' && this.checkoutState !== 'reviewing') {
-      logger.warn('[VoiceCheckoutOrchestrator] Cannot checkout in state:', this.checkoutState);
+      logger.warn('[VoiceCheckoutOrchestrator] Cannot checkout in state:', { state: this.checkoutState });
       return;
     }
 

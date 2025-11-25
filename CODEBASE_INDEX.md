@@ -8,6 +8,12 @@ This repository contains three complementary mapping documents:
 2. **SUBSYSTEM_MAP.txt** - Quick reference showing client/server implementations for each feature
 3. **CODEBASE_INDEX.md** (this file) - Navigation guide and frequently needed paths
 
+## Documentation Navigation
+
+For comprehensive documentation, see:
+- [index.md](/index.md) - Complete documentation index
+- [docs/README.md](/docs/README.md) - Organized by Diátaxis framework
+
 ---
 
 ## Finding Things Quickly

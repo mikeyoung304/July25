@@ -302,47 +302,48 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
    * Enable microphone (unmute audio track)
    */
   enableMicrophone(): void {
-    // ALWAYS log critical diagnostic info regardless of debug flag
-    console.warn('[WebRTCConnection] enableMicrophone() called', {
-      hasMediaStream: !!this.mediaStream,
-      streamId: this.mediaStream?.id,
-      trackCount: this.mediaStream?.getTracks().length
-    });
+    // Log diagnostic info
+    if (this.config.debug) {
+      logger.info('[WebRTCConnection] enableMicrophone() called', {
+        hasMediaStream: !!this.mediaStream,
+        streamId: this.mediaStream?.id,
+        trackCount: this.mediaStream?.getTracks().length
+      });
+    }
 
     if (!this.mediaStream) {
       logger.error('[WebRTCConnection] No media stream available - cannot enable microphone');
-      console.error('[WebRTCConnection] CRITICAL: mediaStream is NULL - microphone setup may have failed');
       return;
     }
 
     const audioTrack = this.mediaStream.getAudioTracks()[0];
 
-    // ALWAYS log track state
-    console.warn('[WebRTCConnection] Audio track state', {
-      hasTrack: !!audioTrack,
-      trackId: audioTrack?.id,
-      enabled: audioTrack?.enabled,
-      readyState: audioTrack?.readyState,
-      muted: audioTrack?.muted
-    });
+    // Log track state for debugging
+    if (this.config.debug) {
+      logger.info('[WebRTCConnection] Audio track state', {
+        hasTrack: !!audioTrack,
+        trackId: audioTrack?.id,
+        enabled: audioTrack?.enabled,
+        readyState: audioTrack?.readyState,
+        muted: audioTrack?.muted
+      });
+    }
 
     if (!audioTrack) {
-      logger.error('[WebRTCConnection] No audio track found in media stream');
-      console.error('[WebRTCConnection] CRITICAL: No audio track - check getUserMedia permissions');
+      logger.error('[WebRTCConnection] No audio track found - check getUserMedia permissions');
       return;
     }
 
     audioTrack.enabled = true;
 
-    // ALWAYS log after enabling
-    console.warn('[WebRTCConnection] Microphone ENABLED', {
+    // Log after enabling
+    logger.info('[WebRTCConnection] Microphone ENABLED', {
       enabled: audioTrack.enabled,
-      readyState: audioTrack.readyState,
-      muted: audioTrack.muted
+      readyState: audioTrack.readyState
     });
 
     // Check WebRTC stats to verify audio is actually being transmitted
-    if (this.pc) {
+    if (this.pc && this.config.debug) {
       setTimeout(async () => {
         try {
           const stats = await this.pc!.getStats();
@@ -353,7 +354,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
             if (stat.type === 'outbound-rtp' && stat.kind === 'audio') {
               outboundAudioFound = true;
               audioBytesSent = stat.bytesSent || 0;
-              console.warn('[WebRTCConnection] Audio transmission stats (after 2s)', {
+              logger.info('[WebRTCConnection] Audio transmission stats (after 2s)', {
                 bytesSent: audioBytesSent,
                 packetsSent: stat.packetsSent,
                 trackId: stat.trackId
@@ -362,19 +363,14 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
           });
 
           if (!outboundAudioFound) {
-            console.error('[WebRTCConnection] CRITICAL: No outbound-rtp audio track found in stats!');
-            console.warn('[WebRTCConnection] All stats:', Array.from(stats.entries()).map(([id, stat]) => ({id, type: stat.type, kind: (stat as any).kind})));
+            logger.error('[WebRTCConnection] No outbound-rtp audio track found in stats');
           } else if (audioBytesSent === 0) {
-            console.error('[WebRTCConnection] CRITICAL: Audio track exists but ZERO bytes sent!');
+            logger.error('[WebRTCConnection] Audio track exists but ZERO bytes sent');
           }
         } catch (err) {
-          console.error('[WebRTCConnection] Failed to get stats:', err);
+          logger.error('[WebRTCConnection] Failed to get stats', { error: err });
         }
       }, 2000); // Check after 2 seconds of recording
-    }
-
-    if (this.config.debug) {
-      logger.info('[WebRTCConnection] Microphone ENABLED - transmitting audio');
     }
   }
 
@@ -430,29 +426,41 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
     this.dc.onerror = (event: Event) => {
       // CRITICAL: Always log data channel errors regardless of debug mode
-      console.error('[WebRTCConnection] Data channel error event:', {
+      const error = new Error('Data channel error');
+      error.name = 'DataChannelError';
+
+      logger.error('[WebRTCConnection] Data channel error event', {
         type: event.type,
-        target: event.target,
-        timestamp: Date.now(),
         readyState: this.dc?.readyState,
         bufferedAmount: this.dc?.bufferedAmount,
-        error: event
       });
-      this.emit('error', event);
+
+      // Emit proper Error object for state machine handling
+      this.emit('error', error);
     };
 
     this.dc.onclose = (event: Event) => {
       // CRITICAL: Always log data channel close regardless of debug mode
       // CloseEvent has code, reason, wasClean properties but types as Event
-      const closeEvent = event as any;
-      console.error('[WebRTCConnection] Data channel closed:', {
+      const closeEvent = event as CloseEvent;
+      const wasUnexpected = !closeEvent.wasClean;
+
+      logger.warn('[WebRTCConnection] Data channel closed', {
         code: closeEvent.code,
         reason: closeEvent.reason,
         wasClean: closeEvent.wasClean,
+        wasUnexpected,
         readyState: this.dc?.readyState,
-        timestamp: Date.now(),
-        sessionActive: this.sessionActive
+        sessionActive: this.sessionActive,
       });
+
+      // Emit error event if close was unexpected
+      if (wasUnexpected && this.sessionActive) {
+        const error = new Error(`Data channel closed unexpectedly: ${closeEvent.reason || 'No reason provided'}`);
+        error.name = 'DataChannelClosedError';
+        this.emit('error', error);
+      }
+
       this.handleDisconnection();
     };
   }
@@ -473,9 +481,63 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       }
     };
 
+    // Connection state handler - handles all connection lifecycle states
     this.pc.onconnectionstatechange = () => {
+      const state = this.pc?.connectionState;
       if (this.config.debug) {
-        logger.info('[WebRTCConnection] Connection state:', this.pc?.connectionState);
+        logger.info('[WebRTCConnection] Connection state:', state);
+      }
+
+      switch (state) {
+        case 'connected':
+          this.emit('connected');
+          break;
+        case 'disconnected':
+          logger.warn('[WebRTCConnection] Connection disconnected');
+          this.emit('disconnected');
+          break;
+        case 'failed':
+          logger.error('[WebRTCConnection] Connection failed');
+          this.emit('error', new Error('WebRTC connection failed'));
+          this.handleDisconnection();
+          break;
+        case 'closed':
+          this.handleDisconnection();
+          break;
+      }
+    };
+
+    // Signaling state handler
+    this.pc.onsignalingstatechange = () => {
+      const state = this.pc?.signalingState;
+      if (this.config.debug) {
+        logger.debug('[WebRTCConnection] Signaling state', { state });
+      }
+
+      if (state === 'closed') {
+        this.handleDisconnection();
+      }
+    };
+
+    // ICE candidate handler - for debugging connection establishment
+    this.pc.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
+      if (!event.candidate) {
+        if (this.config.debug) {
+          logger.info('[WebRTCConnection] ICE candidate gathering complete');
+        }
+      } else if (this.config.debug) {
+        logger.debug('[WebRTCConnection] ICE candidate', {
+          type: event.candidate.type,
+          protocol: event.candidate.protocol,
+        });
+      }
+    };
+
+    // ICE gathering state handler
+    this.pc.onicegatheringstatechange = () => {
+      const state = this.pc?.iceGatheringState;
+      if (this.config.debug) {
+        logger.debug('[WebRTCConnection] ICE gathering state', { state });
       }
     };
   }
@@ -535,6 +597,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
         this.pc.onconnectionstatechange = null;
         this.pc.ontrack = null;
         this.pc.onsignalingstatechange = null;
+        this.pc.onicegatheringstatechange = null;
         this.pc.ondatachannel = null;
 
         // Close the connection

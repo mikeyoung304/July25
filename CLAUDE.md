@@ -53,7 +53,7 @@ npm run memory:check      # Check Node/Vite memory usage
 npm run health            # System health check
 npm run docs:drift        # Check for documentation drift
 npm run docs:validate     # Validate documentation
-python3 scripts/validate_links.py  # Check documentation links (97.4% health)
+python3 scripts/validate_links.py  # Check documentation links (90.4% health)
 ```
 
 ## Architecture
@@ -112,7 +112,8 @@ Production: Target 1GB
 ### API Client Rules
 Only use the single unified HTTP client:
 ```typescript
-import { httpClient } from 'services/http/httpClient';
+// Client-side (uses @/ path alias)
+import { httpClient } from '@/services/http/httpClient';
 // Never create new API clients or use fetch directly
 ```
 
@@ -134,16 +135,21 @@ The codebase uses **CommonJS** for Node.js compatibility:
 
 ### Logging
 ```typescript
-import { logger } from 'utils/logger';
+// Client-side
+import { logger } from '@/services/logger';
+
+// Server-side
+import { logger } from '../utils/logger';
+
 logger.info('Message', { data });
 // Never use console.log - enforced by pre-commit hook
 ```
 
 ## Current Status (v6.0.14)
 
-- **Production Readiness**: 90% (was 65%)
-- **Test Pass Rate**: 85%+ (365+ passing, 2 quarantined)
-- **Documentation Health**: 97.4% link health
+- **Production Readiness**: 90%
+- **Test Pass Rate**: 72% (449 passing / 625 total, 3 skipped)
+- **Documentation Health**: 90.4% link health (126 broken links)
 - **API Documentation**: 95% accuracy (100% endpoint coverage)
 
 ### Recent Improvements
@@ -159,11 +165,11 @@ logger.info('Message', { data });
 - Voice ordering requires OpenAI Realtime API
 
 ## Order Status Flow
-All 7 states must be handled:
+All 8 states must be handled (see `shared/types/order.types.ts`):
 ```
-pending → confirmed → preparing → ready → served → completed
-         ↓
-      cancelled
+new → pending → confirmed → preparing → ready → picked-up → completed
+                ↓
+             cancelled
 ```
 
 ## Environment Variables
@@ -178,54 +184,11 @@ Real-time updates for orders and kitchen display. Connection pooling implemented
 ## Voice Ordering
 Client-side WebRTC with OpenAI Realtime API. Menu context cached 5 minutes. Ephemeral tokens (60s expiry) for security.
 
-## Test Debugging Quick Reference
+## Test Debugging
 
-### Quick Diagnostics
-```bash
-# Check if both servers running for E2E tests
-lsof -i :5173  # Vite frontend
-lsof -i :3001  # Express backend
+For test failures and E2E debugging, see [.github/TEST_DEBUGGING.md](.github/TEST_DEBUGGING.md).
 
-# Verify E2E infrastructure
-npm run dev:e2e  # Should start BOTH servers
-
-# Check test health
-npm run test:server -- env-validation.test.ts  # Should be 14/14
-npx playwright test tests/e2e/basic-routes.spec.ts --project=chromium  # Smoke test
-```
-
-### Common Gotchas (Symptom → Root Cause)
-
-**"E2E tests timeout waiting for [data-testid='app-ready']"**
-→ Performance marks ≠ DOM elements. App.tsx creates the marker AFTER splash screen (~6s delay).
-
-**"WebSocket connection timeout on attempt 1"**
-→ Backend not running. E2E needs BOTH servers: `npm run dev:e2e`
-
-**"CI=true makes E2E tests fail"**
-→ Fixed. Playwright now always starts servers via `dev:e2e` script.
-
-**"Tests expect email input but can't find it"**
-→ DevAuthOverlay uses Card components, not forms. Navigate to `/login` page.
-
-**"expect().toThrow() fails with 'process.exit unexpectedly called'"**
-→ Code must throw errors, not call process.exit(). See EnvValidationError pattern in server/src/config/env.ts
-
-### E2E Login Flow (VITE_DEMO_PANEL=1)
-```
-/login page
-  ↓ Click DevAuthOverlay Card (.min-h-[120px])
-  ↓ Real Supabase auth (not mock)
-/home page
-  ↓ Click Workspace Card (.min-h-[200px])
-/workspace (e.g., /server, /kitchen)
-```
-
-**Available roles**: Manager, Server, Kitchen, Expo (NOT cashier, owner)
-**Demo creds**: `{role}@restaurant.com` / `Demo123!`
-
-### E2E Server Requirements
-- Frontend: Vite on port 5173
-- Backend: Express on port 3001 (for WebSocket, API calls)
-- Both auto-start via `npm run dev:e2e` in Playwright config
-- CI environments: Servers start fresh every run (reuseExistingServer: false)
+**Quick reference:**
+- Demo creds: `{role}@restaurant.com` / `Demo123!`
+- Available roles: Manager, Server, Kitchen, Expo
+- E2E requires both servers: `npm run dev:e2e`

@@ -11,7 +11,7 @@ Documentation about the documentation system itself.
 ## Related
 
 - [Documentation Standards](../DOCUMENTATION_STANDARDS.md) - Writing and formatting guidelines
-- [Navigation](../NAVIGATION.md) - Documentation organization and structure
+- [Navigation](../archive/2025-11/NAVIGATION.md) - Documentation organization and structure (archived - see [docs/README.md](../README.md) instead)
 
 ## Purpose
 

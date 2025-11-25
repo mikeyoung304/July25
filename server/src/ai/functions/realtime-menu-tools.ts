@@ -2,6 +2,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { logger } from '../../utils/logger';
 import NodeCache from 'node-cache';
 import { DEFAULT_TAX_RATE, TAX_RATE_SOURCE } from '@rebuild/shared/constants/business';
+import { Mutex } from 'async-mutex';
 
 // Types
 export interface MenuItem {
@@ -20,13 +21,18 @@ export interface MenuItem {
   is_gluten_free?: boolean;
 }
 
+export interface CartModifier {
+  name: string;
+  price: number; // Price adjustment (can be negative)
+}
+
 export interface CartItem {
   id: string;
   menu_item_id: string;
   name: string;
   quantity: number;
   price: number;
-  modifiers?: string[];
+  modifiers?: CartModifier[];
   notes?: string;
 }
 
@@ -46,11 +52,59 @@ export interface MenuToolContext {
   restaurantId: string;
 }
 
-export interface MenuToolResult {
+export interface MenuToolResult<T = unknown> {
   success: boolean;
-  data?: any;
+  data?: T;
   error?: string;
   message?: string;
+}
+
+// Function argument types
+export interface FindMenuItemsArgs {
+  query?: string;
+  category?: string;
+  max_price?: number;
+  dietary?: string[];
+  suggest_alternatives?: boolean;
+}
+
+export interface GetItemDetailsArgs {
+  id: string;
+}
+
+export interface AddToOrderArgs {
+  id: string;
+  quantity: number;
+  modifiers?: string[];
+  notes?: string;
+}
+
+export interface RemoveFromOrderArgs {
+  item_id: string;
+}
+
+export interface GetCurrentOrderArgs {
+  // No arguments needed
+}
+
+export interface GetStoreInfoArgs {
+  // No arguments needed
+}
+
+export interface GetSpecialsArgs {
+  // No arguments needed
+}
+
+export interface ClearOrderArgs {
+  // No arguments needed
+}
+
+// Database row types
+export interface VoiceModifierRule {
+  target_name: string;
+  price_adjustment: number;
+  trigger_phrases: string[];
+  applicable_menu_item_ids: string[] | null;
 }
 
 // Initialize Supabase client
@@ -66,8 +120,26 @@ const menuCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
 // Cache for restaurant data including tax rates (5 minutes TTL)
 const restaurantCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
 
+// Cache for modifier pricing rules (5 minutes TTL)
+const modifierCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
+
 // In-memory cart storage (replace with Redis in production)
 const cartStorage = new Map<string, Cart>();
+
+// Session-level cart locks to prevent concurrent modifications
+const cartLocks = new Map<string, Mutex>();
+
+/**
+ * Execute a cart operation with exclusive lock for the session
+ * Prevents race conditions from concurrent AI function calls
+ */
+async function withCartLock<T>(sessionId: string, fn: () => Promise<T>): Promise<T> {
+  if (!cartLocks.has(sessionId)) {
+    cartLocks.set(sessionId, new Mutex());
+  }
+  const mutex = cartLocks.get(sessionId)!;
+  return await mutex.runExclusive(fn);
+}
 
 /**
  * Get restaurant tax rate from database (with caching)
@@ -110,11 +182,183 @@ async function getRestaurantTaxRate(restaurantId: string): Promise<number> {
 }
 
 /**
- * Get or create cart for session
+ * Validate and sanitize a modifier name from voice input
+ * @param modifierName - Raw modifier name from voice/AI input
+ * @returns Sanitized modifier name or null if invalid
  */
-function getCart(sessionId: string, restaurantId: string): Cart {
-  if (!cartStorage.has(sessionId)) {
-    cartStorage.set(sessionId, {
+function validateModifierName(modifierName: unknown): string | null {
+  // Check if modifier name exists and is a string
+  if (!modifierName || typeof modifierName !== 'string') {
+    return null;
+  }
+
+  // Trim and normalize
+  const trimmed = modifierName.trim();
+
+  // Length validation: min 1, max 100 characters (prevent DoS)
+  if (trimmed.length === 0 || trimmed.length > 100) {
+    logger.warn('[MenuTools] Modifier name length invalid', {
+      length: trimmed.length,
+      rejected: trimmed.substring(0, 50)
+    });
+    return null;
+  }
+
+  // Character whitelist: alphanumeric, spaces, hyphens, apostrophes, commas
+  // Allow common food modifiers like "no onions", "extra cheese", "well-done", etc.
+  const validPattern = /^[a-zA-Z0-9\s\-',]+$/;
+  if (!validPattern.test(trimmed)) {
+    logger.warn('[MenuTools] Modifier name contains invalid characters', {
+      rejected: trimmed.substring(0, 50)
+    });
+    return null;
+  }
+
+  return trimmed;
+}
+
+/**
+ * Look up modifier prices from voice_modifier_rules table
+ * @param restaurantId - Restaurant ID for tenant isolation
+ * @param modifierNames - Array of modifier names from AI (e.g., ["extra cheese", "no onions"])
+ * @param menuItemId - Optional menu item ID to filter applicable rules
+ * @returns Array of CartModifier objects with prices
+ */
+async function lookupModifierPrices(
+  restaurantId: string,
+  modifierNames: string[],
+  menuItemId?: string
+): Promise<CartModifier[]> {
+  if (!modifierNames || modifierNames.length === 0) {
+    return [];
+  }
+
+  // Validate array bounds: max 20 modifiers per item (prevent DoS)
+  if (modifierNames.length > 20) {
+    logger.warn('[MenuTools] Too many modifiers requested', {
+      count: modifierNames.length,
+      restaurantId
+    });
+    // Truncate to first 20
+    modifierNames = modifierNames.slice(0, 20);
+  }
+
+  // Validate and sanitize each modifier name
+  const validatedModifiers = modifierNames
+    .map(name => validateModifierName(name))
+    .filter((name): name is string => name !== null);
+
+  if (validatedModifiers.length === 0) {
+    logger.warn('[MenuTools] No valid modifiers after validation', {
+      originalCount: modifierNames.length,
+      restaurantId
+    });
+    return [];
+  }
+
+  try {
+    // Check cache first
+    const cacheKey = `modifiers_${restaurantId}`;
+    let rules = modifierCache.get<any[]>(cacheKey);
+
+    if (!rules) {
+      // Cache miss - query voice_modifier_rules for matching trigger phrases
+      // Note: Supabase uses parameterized queries, preventing SQL injection
+      const { data, error } = await supabase
+        .from('voice_modifier_rules')
+        .select('target_name, price_adjustment, trigger_phrases, applicable_menu_item_ids')
+        .eq('restaurant_id', restaurantId)
+        .eq('active', true);
+
+      if (error || !data) {
+        logger.warn('[MenuTools] Failed to fetch modifier rules', { restaurantId, error });
+        // Fallback: return modifiers with zero price
+        return validatedModifiers.map(name => ({ name, price: 0 }));
+      }
+
+      rules = data;
+      // Cache the modifier rules for 5 minutes
+      modifierCache.set(cacheKey, rules);
+    }
+
+    // Match modifier names against trigger phrases
+    const modifiersWithPrices: CartModifier[] = validatedModifiers.map(modName => {
+      const normalizedModName = modName.toLowerCase().trim();
+
+      // Find a rule where any trigger phrase matches the modifier name
+      const matchingRule = rules?.find(rule => {
+        // Check if rule applies to this menu item
+        if (menuItemId && rule.applicable_menu_item_ids && rule.applicable_menu_item_ids.length > 0) {
+          if (!rule.applicable_menu_item_ids.includes(menuItemId)) {
+            return false;
+          }
+        }
+
+        // Check trigger phrases for a match
+        return rule.trigger_phrases.some((phrase: string) =>
+          phrase.toLowerCase().includes(normalizedModName) ||
+          normalizedModName.includes(phrase.toLowerCase())
+        );
+      });
+
+      if (matchingRule) {
+        // price_adjustment is in cents, convert to dollars
+        return {
+          name: modName,
+          price: (matchingRule.price_adjustment || 0) / 100
+        };
+      }
+
+      // No matching rule found - modifier has no price impact
+      return { name: modName, price: 0 };
+    });
+
+    return modifiersWithPrices;
+  } catch (error) {
+    logger.error('[MenuTools] Exception looking up modifier prices', { restaurantId, error });
+    // Fallback: return modifiers with zero price
+    return validatedModifiers.map(name => ({ name, price: 0 }));
+  }
+}
+
+/**
+ * Get cart from Supabase (with write-through cache)
+ */
+async function getCart(sessionId: string, restaurantId: string): Promise<Cart> {
+  // Check cache first
+  if (cartStorage.has(sessionId)) {
+    return cartStorage.get(sessionId)!;
+  }
+
+  try {
+    // Query Supabase for existing cart
+    const { data, error } = await supabase
+      .from('voice_order_carts')
+      .select('*')
+      .eq('session_id', sessionId)
+      .eq('restaurant_id', restaurantId)
+      .single();
+
+    if (!error && data) {
+      // Convert from database format to Cart interface
+      const cart: Cart = {
+        session_id: data.session_id,
+        restaurant_id: data.restaurant_id,
+        items: data.items as CartItem[],
+        subtotal: parseFloat(data.subtotal),
+        tax: parseFloat(data.tax),
+        total: parseFloat(data.total),
+        created_at: new Date(data.created_at).getTime(),
+        updated_at: new Date(data.updated_at).getTime()
+      };
+
+      // Cache it
+      cartStorage.set(sessionId, cart);
+      return cart;
+    }
+
+    // No cart found or expired - create new one
+    const newCart: Cart = {
       session_id: sessionId,
       restaurant_id: restaurantId,
       items: [],
@@ -123,9 +367,73 @@ function getCart(sessionId: string, restaurantId: string): Cart {
       total: 0,
       created_at: Date.now(),
       updated_at: Date.now()
+    };
+
+    // Cache it (will be persisted on first modification)
+    cartStorage.set(sessionId, newCart);
+    return newCart;
+  } catch (error) {
+    logger.error('[MenuTools] Failed to get cart from Supabase', {
+      sessionId,
+      restaurantId,
+      error
     });
+
+    // Fallback to in-memory only
+    const fallbackCart: Cart = {
+      session_id: sessionId,
+      restaurant_id: restaurantId,
+      items: [],
+      subtotal: 0,
+      tax: 0,
+      total: 0,
+      created_at: Date.now(),
+      updated_at: Date.now()
+    };
+
+    cartStorage.set(sessionId, fallbackCart);
+    return fallbackCart;
   }
-  return cartStorage.get(sessionId)!;
+}
+
+/**
+ * Save cart to Supabase (write-through)
+ */
+async function saveCart(cart: Cart): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('voice_order_carts')
+      .upsert({
+        session_id: cart.session_id,
+        restaurant_id: cart.restaurant_id,
+        items: cart.items,
+        subtotal: cart.subtotal,
+        tax: cart.tax,
+        total: cart.total,
+        updated_at: new Date(cart.updated_at).toISOString()
+      }, {
+        onConflict: 'session_id,restaurant_id'
+      });
+
+    if (error) {
+      logger.error('[MenuTools] Failed to save cart to Supabase', {
+        sessionId: cart.session_id,
+        restaurantId: cart.restaurant_id,
+        error
+      });
+      // Don't throw - continue with in-memory cache
+    }
+
+    // Update cache
+    cartStorage.set(cart.session_id, cart);
+  } catch (error) {
+    logger.error('[MenuTools] Exception saving cart', {
+      sessionId: cart.session_id,
+      restaurantId: cart.restaurant_id,
+      error
+    });
+    // Continue with in-memory cache only
+  }
 }
 
 /**
@@ -134,18 +442,16 @@ function getCart(sessionId: string, restaurantId: string): Cart {
  * @param taxRate - Tax rate as decimal (e.g., 0.0825 for 8.25%)
  *
  * ADR-013: Using shared DEFAULT_TAX_RATE constant
- *
- * KNOWN LIMITATION (Phase 2 TODO):
- * This implementation stores modifiers as string[] (names only), not pricing data.
- * To properly calculate modifier prices, the CartItem interface needs to be changed
- * to match shared/cart.ts structure with CartModifier[] containing { id, name, price }.
- * Current impact: Voice orders with modifiers may undercharge customers.
- * Tracked in: ARCHITECTURAL_AUDIT_REPORT.md Section 1.2
  */
 function updateCartTotals(cart: Cart, taxRate: number = DEFAULT_TAX_RATE): void {
-  // Calculate subtotal (base price only - modifiers not priced in this implementation)
+  // Calculate subtotal including modifier prices
   cart.subtotal = cart.items.reduce((sum, item) => {
-    return sum + (item.price * item.quantity);
+    const basePrice = item.price * item.quantity;
+    const modifierPrice = (item.modifiers || []).reduce(
+      (modSum, mod) => modSum + mod.price,
+      0
+    ) * item.quantity;
+    return sum + basePrice + modifierPrice;
   }, 0);
 
   cart.tax = cart.subtotal * taxRate;
@@ -188,7 +494,7 @@ export const menuFunctionTools = {
         }
       }
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: FindMenuItemsArgs, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         // Check cache first
         const cacheKey = `menu_${context.restaurantId}_${JSON.stringify(_args)}`;
@@ -234,7 +540,7 @@ export const menuFunctionTools = {
 
         // If no items found, provide helpful message and maybe suggestions
         if (!data || data.length === 0) {
-          const suggestions: any[] = [];
+          const suggestions: MenuItem[] = [];
           
           // If requested, try to find alternative suggestions
           if (_args.suggest_alternatives) {
@@ -261,8 +567,8 @@ export const menuFunctionTools = {
               
             if (suggestionData && suggestionData.length > 0) {
               // Group by category and take one from each (up to 3 total)
-              const byCategory: Record<string, any[]> = {};
-              suggestionData.forEach((item: any) => {
+              const byCategory: Record<string, MenuItem[]> = {};
+              suggestionData.forEach((item: MenuItem) => {
                 const category = item?.category || 'other';
                 if (!byCategory[category]) {
                   byCategory[category] = [];
@@ -279,7 +585,10 @@ export const menuFunctionTools = {
                   if (categoryItems && categoryItems.length > 0) {
                     // Pick a random item from this category
                     const randomIndex = Math.floor(Math.random() * categoryItems.length);
-                    suggestions.push(categoryItems[randomIndex]);
+                    const selectedItem = categoryItems[randomIndex];
+                    if (selectedItem) {
+                      suggestions.push(selectedItem);
+                    }
                   }
                 }
               }
@@ -338,7 +647,7 @@ export const menuFunctionTools = {
       },
       required: ['id']
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: GetItemDetailsArgs, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const { data, error } = await supabase
           .from('menu_items')
@@ -388,7 +697,7 @@ export const menuFunctionTools = {
       },
       required: ['id', 'quantity']
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: AddToOrderArgs, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         // Get menu item details
         const { data: menuItem, error } = await supabase
@@ -406,53 +715,72 @@ export const menuFunctionTools = {
           return { success: false, error: 'Item is not available' };
         }
 
-        // Get or create cart
-        const cart = getCart(context.sessionId, context.restaurantId);
+        // Execute cart modifications with session-level mutex lock
+        return await withCartLock(context.sessionId, async () => {
+          // Get or create cart
+          const cart = await getCart(context.sessionId, context.restaurantId);
 
-        // Check if item already in cart
-        const existingItem = cart.items.find(item => 
-          item.menu_item_id === _args.id && 
-          JSON.stringify(item.modifiers) === JSON.stringify(_args.modifiers || [])
-        );
+          // Look up modifier prices from database
+          const modifiersWithPrices = await lookupModifierPrices(
+            context.restaurantId,
+            _args.modifiers || [],
+            _args.id
+          );
 
-        if (existingItem) {
-          // Update quantity
-          existingItem.quantity += _args.quantity;
-        } else {
-          // Add new item
-          cart.items.push({
-            id: `${Date.now()}_${Math.random()}`,
-            menu_item_id: _args.id,
-            name: menuItem.name,
-            quantity: _args.quantity,
-            price: menuItem.price,
-            modifiers: _args.modifiers || [],
-            notes: _args.notes
-          });
-        }
+          // Check if item already in cart (compare by menu_item_id and modifier names)
+          const existingItem = cart.items.find(item =>
+            item.menu_item_id === _args.id &&
+            JSON.stringify(item.modifiers?.map(m => m.name)) === JSON.stringify(_args.modifiers || [])
+          );
 
-        // Fetch restaurant tax rate and update totals
-        const taxRate = await getRestaurantTaxRate(context.restaurantId);
-        updateCartTotals(cart, taxRate);
-
-        return {
-          success: true,
-          data: {
-            cart: {
-              items: cart.items,
-              subtotal: cart.subtotal.toFixed(2),
-              tax: cart.tax.toFixed(2),
-              total: cart.total.toFixed(2),
-              item_count: cart.items.reduce((sum, item) => sum + item.quantity, 0)
-            },
-            added: {
+          if (existingItem) {
+            // Update quantity
+            existingItem.quantity += _args.quantity;
+          } else {
+            // Add new item with modifier prices
+            const newItem: CartItem = {
+              id: `${Date.now()}_${Math.random()}`,
+              menu_item_id: _args.id,
               name: menuItem.name,
               quantity: _args.quantity,
-              price: menuItem.price
+              price: menuItem.price,
+              modifiers: modifiersWithPrices
+            };
+
+            // Only add notes if provided
+            if (_args.notes) {
+              newItem.notes = _args.notes;
             }
-          },
-          message: `Added ${_args.quantity} ${menuItem.name} to your order`
-        };
+
+            cart.items.push(newItem);
+          }
+
+          // Fetch restaurant tax rate and update totals
+          const taxRate = await getRestaurantTaxRate(context.restaurantId);
+          updateCartTotals(cart, taxRate);
+
+          // Save cart to Supabase
+          await saveCart(cart);
+
+          return {
+            success: true,
+            data: {
+              cart: {
+                items: cart.items,
+                subtotal: cart.subtotal.toFixed(2),
+                tax: cart.tax.toFixed(2),
+                total: cart.total.toFixed(2),
+                item_count: cart.items.reduce((sum, item) => sum + item.quantity, 0)
+              },
+              added: {
+                name: menuItem.name,
+                quantity: _args.quantity,
+                price: menuItem.price
+              }
+            },
+            message: `Added ${_args.quantity} ${menuItem.name} to your order`
+          };
+        });
       } catch (error) {
         logger.error('[MenuTools] Add to order exception', error);
         return { success: false, error: 'Failed to add item to order' };
@@ -475,37 +803,43 @@ export const menuFunctionTools = {
       },
       required: ['item_id']
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: RemoveFromOrderArgs, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
-        const cart = getCart(context.sessionId, context.restaurantId);
-        
-        const itemIndex = cart.items.findIndex(item => item.id === _args.item_id);
-        if (itemIndex === -1) {
-          return { success: false, error: 'Item not found in cart' };
-        }
+        // Execute cart modifications with session-level mutex lock
+        return await withCartLock(context.sessionId, async () => {
+          const cart = await getCart(context.sessionId, context.restaurantId);
 
-        const removed = cart.items.splice(itemIndex, 1)[0];
-        if (!removed) {
-          return { success: false, error: 'Failed to remove item from cart' };
-        }
+          const itemIndex = cart.items.findIndex(item => item.id === _args.item_id);
+          if (itemIndex === -1) {
+            return { success: false, error: 'Item not found in cart' };
+          }
 
-        // Fetch restaurant tax rate and update totals
-        const taxRate = await getRestaurantTaxRate(context.restaurantId);
-        updateCartTotals(cart, taxRate);
+          const removed = cart.items.splice(itemIndex, 1)[0];
+          if (!removed) {
+            return { success: false, error: 'Failed to remove item from cart' };
+          }
 
-        return {
-          success: true,
-          data: {
-            cart: {
-              items: cart.items,
-              subtotal: cart.subtotal.toFixed(2),
-              tax: cart.tax.toFixed(2),
-              total: cart.total.toFixed(2),
-              item_count: cart.items.reduce((sum, item) => sum + item.quantity, 0)
-            }
-          },
-          message: `Removed ${removed.name} from your order`
-        };
+          // Fetch restaurant tax rate and update totals
+          const taxRate = await getRestaurantTaxRate(context.restaurantId);
+          updateCartTotals(cart, taxRate);
+
+          // Save cart to Supabase
+          await saveCart(cart);
+
+          return {
+            success: true,
+            data: {
+              cart: {
+                items: cart.items,
+                subtotal: cart.subtotal.toFixed(2),
+                tax: cart.tax.toFixed(2),
+                total: cart.total.toFixed(2),
+                item_count: cart.items.reduce((sum, item) => sum + item.quantity, 0)
+              }
+            },
+            message: `Removed ${removed.name} from your order`
+          };
+        });
       } catch (error) {
         logger.error('[MenuTools] Remove from order exception', error);
         return { success: false, error: 'Failed to remove item' };
@@ -522,9 +856,9 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: GetCurrentOrderArgs, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
-        const cart = getCart(context.sessionId, context.restaurantId);
+        const cart = await getCart(context.sessionId, context.restaurantId);
 
         if (cart.items.length === 0) {
           return {
@@ -562,7 +896,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: GetStoreInfoArgs, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const { data, error } = await supabase
           .from('restaurants')
@@ -614,7 +948,7 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: GetSpecialsArgs, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
         const { data, error } = await supabase
           .from('menu_specials')
@@ -660,18 +994,24 @@ export const menuFunctionTools = {
       type: 'object',
       properties: {}
     },
-    handler: async (_args: any, context: MenuToolContext): Promise<MenuToolResult> => {
+    handler: async (_args: ClearOrderArgs, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
-        const cart = getCart(context.sessionId, context.restaurantId);
-        cart.items = [];
-        // Fetch restaurant tax rate and update totals (will be 0 since cart is empty)
-        const taxRate = await getRestaurantTaxRate(context.restaurantId);
-        updateCartTotals(cart, taxRate);
+        // Execute cart modifications with session-level mutex lock
+        return await withCartLock(context.sessionId, async () => {
+          const cart = await getCart(context.sessionId, context.restaurantId);
+          cart.items = [];
+          // Fetch restaurant tax rate and update totals (will be 0 since cart is empty)
+          const taxRate = await getRestaurantTaxRate(context.restaurantId);
+          updateCartTotals(cart, taxRate);
 
-        return {
-          success: true,
-          message: 'Your order has been cleared'
-        };
+          // Save cart to Supabase
+          await saveCart(cart);
+
+          return {
+            success: true,
+            message: 'Your order has been cleared'
+          };
+        });
       } catch (error) {
         logger.error('[MenuTools] Clear order exception', error);
         return { success: false, error: 'Failed to clear order' };
@@ -681,19 +1021,39 @@ export const menuFunctionTools = {
 };
 
 /**
- * Clear expired carts (run periodically)
+ * Clear expired carts from both cache and Supabase
+ * Also cleans up associated mutex locks
  */
-export function cleanupExpiredCarts(): void {
+export async function cleanupExpiredCarts(): Promise<void> {
   const now = Date.now();
   const maxAge = 30 * 60 * 1000; // 30 minutes
 
+  // Clean up in-memory cache
   for (const [sessionId, cart] of cartStorage.entries()) {
     if (now - cart.updated_at > maxAge) {
       cartStorage.delete(sessionId);
-      logger.info('[MenuTools] Expired cart removed', { sessionId });
+      cartLocks.delete(sessionId);
+      logger.info('[MenuTools] Expired cart and lock removed from cache', { sessionId });
     }
+  }
+
+  // Clean up Supabase using the cleanup function
+  try {
+    const { data, error } = await supabase.rpc('cleanup_expired_voice_carts');
+
+    if (error) {
+      logger.error('[MenuTools] Failed to cleanup expired carts in Supabase', { error });
+    } else {
+      logger.info('[MenuTools] Cleaned up expired carts from Supabase', { deletedCount: data });
+    }
+  } catch (error) {
+    logger.error('[MenuTools] Exception during Supabase cart cleanup', { error });
   }
 }
 
 // Run cleanup every 5 minutes
-setInterval(cleanupExpiredCarts, 5 * 60 * 1000);
+setInterval(() => {
+  cleanupExpiredCarts().catch(error => {
+    logger.error('[MenuTools] Cleanup interval error', { error });
+  });
+}, 5 * 60 * 1000);

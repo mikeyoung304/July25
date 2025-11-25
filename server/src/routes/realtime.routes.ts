@@ -1,11 +1,12 @@
 import { Router, Response, Request } from 'express';
 import { AuthenticatedRequest, optionalAuth } from '../middleware/auth';
 import { logger } from '../utils/logger';
-import fetch from 'node-fetch';
+import fetch, { AbortError } from 'node-fetch';
 import { MenuService } from '../services/menu.service';
 import { env } from '../config/env';
 import { supabase } from '../config/database';
 import { PromptConfigService } from '@rebuild/shared';
+import { aiServiceLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const realtimeLogger = logger.child({ module: 'realtime-routes' });
@@ -182,12 +183,17 @@ router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
   }
 });
 
+// Timeout for OpenAI API calls (30 seconds)
+const OPENAI_API_TIMEOUT_MS = 30000;
+
 /**
  * Create ephemeral token for WebRTC real-time voice connection
  * This token expires after 1 minute and should only be used by the requesting client
  * Supports both authenticated and anonymous (kiosk demo) usage
+ *
+ * Rate limited via aiServiceLimiter to prevent cost attacks
  */
-router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/session', aiServiceLimiter, optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const rawRestaurantId = (req.restaurantId || req.headers['x-restaurant-id'] || undefined) as string | undefined;
     const restaurantId = resolveRestaurantId(rawRestaurantId);
@@ -395,31 +401,59 @@ router.post('/session', optionalAuth, async (req: AuthenticatedRequest, res: Res
     });
 
     // Request ephemeral token from OpenAI with full session configuration
-    const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: env.OPENAI_REALTIME_MODEL,
-        // CRITICAL: Configure session here - client session.update is ignored by OpenAI!
-        modalities: ['text', 'audio'],
-        instructions,
-        voice: 'alloy',
-        input_audio_format: 'pcm16',
-        output_audio_format: 'pcm16',
-        input_audio_transcription: {
-          model: 'gpt-4o-transcribe',
-          language: 'en'
+    // Use AbortController for timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), OPENAI_API_TIMEOUT_MS);
+
+    let response;
+    try {
+      response = await fetch('https://api.openai.com/v1/realtime/sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
         },
-        tools,
-        tool_choice: 'auto',
-        turn_detection: null, // Manual PTT mode
-        temperature: 0.6,
-        max_response_output_tokens: 500
-      }),
-    });
+        body: JSON.stringify({
+          model: env.OPENAI_REALTIME_MODEL,
+          // CRITICAL: Configure session here - client session.update is ignored by OpenAI!
+          modalities: ['text', 'audio'],
+          instructions,
+          voice: 'alloy',
+          input_audio_format: 'pcm16',
+          output_audio_format: 'pcm16',
+          input_audio_transcription: {
+            model: 'gpt-4o-transcribe',
+            language: 'en'
+          },
+          tools,
+          tool_choice: 'auto',
+          turn_detection: null, // Manual PTT mode
+          temperature: 0.6,
+          max_response_output_tokens: 500
+        }),
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+
+      // Handle timeout specifically
+      if (fetchError instanceof AbortError || (fetchError as Error).name === 'AbortError') {
+        realtimeLogger.error('OpenAI API request timed out', {
+          timeoutMs: OPENAI_API_TIMEOUT_MS,
+          restaurantId
+        });
+        return res.status(504).json({
+          error: 'Voice service temporarily unavailable',
+          code: 'OPENAI_TIMEOUT',
+          details: 'Request to OpenAI timed out. Please try again.'
+        });
+      }
+
+      // Re-throw other fetch errors
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       const errorText = await response.text();

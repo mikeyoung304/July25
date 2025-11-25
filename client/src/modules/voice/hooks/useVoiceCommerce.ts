@@ -19,8 +19,19 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { logger } from '../../../services/logger';
-import type { MenuItem, VoiceMenuConfiguration } from '@rebuild/shared';
+import type { VoiceMenuConfiguration } from '@rebuild/shared';
 import { VoiceConfigService, voiceConfigService } from '../../../services/voice/VoiceConfigService';
+
+/**
+ * Minimal menu item interface for voice commerce
+ * Supports both snake_case (DB) and camelCase (API) menu item types
+ */
+export interface VoiceMenuItem {
+  id: string;
+  name: string;
+  price: number;
+  aliases?: string[];
+}
 
 // ============================================================================
 // TYPES AND INTERFACES
@@ -110,14 +121,15 @@ export interface TranscriptEvent {
 export interface UseVoiceCommerceOptions {
   /**
    * Menu items for fuzzy matching
+   * Accepts any menu item type with id, name, price properties
    */
-  menuItems: MenuItem[];
+  menuItems: VoiceMenuItem[];
 
   /**
    * Callback when item should be added to cart
    */
   onAddItem: (
-    menuItem: MenuItem,
+    menuItem: VoiceMenuItem,
     quantity: number,
     modifications: string[],
     specialInstructions?: string
@@ -343,7 +355,7 @@ export function useVoiceCommerce(options: UseVoiceCommerceOptions): UseVoiceComm
    * - Common variations dictionary
    */
   const findMenuItemByName = useCallback(
-    (voiceName: string): MenuItem | null => {
+    (voiceName: string): VoiceMenuItem | null => {
       if (!voiceName) return null;
 
       const lowerVoiceName = voiceName.toLowerCase().trim();
@@ -486,12 +498,21 @@ export function useVoiceCommerce(options: UseVoiceCommerceOptions): UseVoiceComm
           const unmatchedItems: string[] = [];
 
           for (const item of items) {
-            const menuItem = findMenuItemByName(item.name);
+            // Type guard: ParsedOrderItem has 'name', LegacyOrderData items have 'menuItemId'
+            const itemName = 'name' in item ? item.name : undefined;
+            const itemMenuItemId = 'menuItemId' in item ? item.menuItemId : undefined;
+
+            // Try to find menu item by name or menuItemId
+            const menuItem = itemName
+              ? findMenuItemByName(itemName)
+              : menuItems.find(m => m.id === itemMenuItemId);
 
             if (menuItem) {
               const quantity = item.quantity || 1;
-              const modifications = item.modifications || item.modifiers || [];
-              const specialInstructions = item.specialInstructions;
+              const modifications = ('modifications' in item ? item.modifications : undefined)
+                || item.modifiers
+                || [];
+              const specialInstructions = 'specialInstructions' in item ? item.specialInstructions : undefined;
 
               // Add to cart
               onAddItem(menuItem, quantity, modifications, specialInstructions);
@@ -508,7 +529,8 @@ export function useVoiceCommerce(options: UseVoiceCommerceOptions): UseVoiceComm
                 });
               }
             } else {
-              unmatchedItems.push(item.name);
+              // Push the item identifier we tried to match
+              unmatchedItems.push(itemName || itemMenuItemId || 'unknown item');
             }
           }
 

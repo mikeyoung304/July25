@@ -93,7 +93,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
     checkoutGuard: true,
     menuVariations: MENU_VARIATIONS,
     recentlyAddedDuration: 5000,
-    toast,
+    toast: { error: (message: string) => toast.toast.error(message) },
     debug: import.meta.env.DEV,
   });
 

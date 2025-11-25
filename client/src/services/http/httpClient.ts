@@ -44,6 +44,7 @@ interface CacheEntry<T> {
 const CACHE_TTL = {
   '/api/v1/menu': 5 * 60 * 1000,          // 5 minutes for menu
   '/api/v1/menu/categories': 5 * 60 * 1000, // 5 minutes for categories
+  '/api/v1/voice-config/menu': 5 * 60 * 1000, // 5 minutes for voice config (TODO-019)
   '/api/v1/tables': 0,                    // No caching for tables (floor plan needs real-time data)
   default: 60 * 1000                      // 1 minute default
 }
@@ -324,8 +325,10 @@ export class HttpClient extends SecureAPIClient {
       this.clearCache('/api/v1/menu')
     } else if (endpoint.includes('/tables')) {
       this.clearCache('/api/v1/tables')
+    } else if (endpoint.includes('/voice-config')) {
+      this.clearCache('/api/v1/voice-config/menu')
     }
-    
+
     return this.request<T>(endpoint, {
       ...options,
       method: 'POST',
@@ -347,8 +350,10 @@ export class HttpClient extends SecureAPIClient {
       this.clearCache('/api/v1/menu')
     } else if (endpoint.includes('/tables')) {
       this.clearCache('/api/v1/tables')
+    } else if (endpoint.includes('/voice-config')) {
+      this.clearCache('/api/v1/voice-config/menu')
     }
-    
+
     return this.request<T>(endpoint, {
       ...options,
       method: 'PUT',
@@ -370,8 +375,10 @@ export class HttpClient extends SecureAPIClient {
       this.clearCache('/api/v1/menu')
     } else if (endpoint.includes('/tables')) {
       this.clearCache('/api/v1/tables')
+    } else if (endpoint.includes('/voice-config')) {
+      this.clearCache('/api/v1/voice-config/menu')
     }
-    
+
     return this.request<T>(endpoint, {
       ...options,
       method: 'PATCH',
@@ -389,8 +396,10 @@ export class HttpClient extends SecureAPIClient {
       this.clearCache('/api/v1/menu')
     } else if (endpoint.includes('/tables')) {
       this.clearCache('/api/v1/tables')
+    } else if (endpoint.includes('/voice-config')) {
+      this.clearCache('/api/v1/voice-config/menu')
     }
-    
+
     return this.request<T>(endpoint, { ...options, method: 'DELETE' })
   }
 }

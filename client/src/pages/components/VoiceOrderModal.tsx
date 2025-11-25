@@ -12,11 +12,9 @@ import { MenuGrid } from '@/modules/order-system/components/MenuGrid'
 import { ItemDetailModal } from '@/modules/order-system/components/ItemDetailModal'
 import { MenuItem } from '@/services/types'
 import { CartItem } from '@/modules/order-system/types'
-import type { Table } from '@shared'
+import type { Table } from '@rebuild/shared'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import { logger } from '@/services/logger'
-import { useVoiceCommerce } from '@/modules/voice/hooks/useVoiceCommerce'
-import { useToast } from '@/hooks/useToast'
 
 interface OrderItem {
   id: string
@@ -45,6 +43,8 @@ interface VoiceOrderModalProps {
     setIsProcessing: (processing: boolean) => void
     orderNotes?: string
     setOrderNotes?: (notes: string) => void
+    recentlyAdded?: string[]
+    voiceFeedback?: string
   }
   onSubmit: () => void
   onClose: () => void
@@ -80,58 +80,25 @@ export function VoiceOrderModal({
   const { items: menuItems } = useMenuItems()
 
   // ============================================================================
-  // VOICE COMMERCE HOOK INTEGRATION
+  // VOICE COMMERCE PROPS (now provided by useVoiceOrderWebRTC hook)
   // ============================================================================
 
-  /**
-   * Adapter: Convert useVoiceCommerce's onAddItem format to VoiceOrderModal's OrderItem format
-   * The hook provides MenuItem + modifications, but modal needs OrderItem with IDs
-   */
-  const handleVoiceAddItem = (
-    menuItem: MenuItem,
-    quantity: number,
-    modifications: string[],
-    specialInstructions?: string
-  ) => {
-    const orderItem: OrderItem = {
-      id: `voice-${menuItem.id}-${Date.now()}`,
-      menuItemId: menuItem.id,
-      name: menuItem.name,
-      quantity,
-      price: menuItem.price,
-      source: 'voice',
-      modifications: modifications.map((modName, idx) => ({
-        id: `mod-${idx}`,
-        name: modName,
-        price: 0 // Voice doesn't provide modifier prices yet
-      }))
-    }
-
-    // Add special instructions as a modification if provided
-    if (specialInstructions) {
-      orderItem.modifications?.push({
-        id: `special-${Date.now()}`,
-        name: `Note: ${specialInstructions}`,
-        price: 0
-      })
-    }
-
-    voiceOrder.setOrderItems([...voiceOrder.orderItems, orderItem])
-  }
-
-  // Get toast instance
-  const { toast: toastFn } = useToast()
-
-  // Initialize voice commerce hook
-  const voiceCommerce = useVoiceCommerce({
-    menuItems,
-    onAddItem: handleVoiceAddItem,
-    context: 'server',
-    toast: {
-      error: (message: string) => toastFn.error(message)
+  // Extract voiceCommerce state from voiceOrder prop
+  // The hook now uses useVoiceCommerce internally, so we get its state via the prop
+  const voiceCommerce = {
+    currentTranscript: voiceOrder.currentTranscript,
+    isListening: voiceOrder.isVoiceActive,
+    isProcessing: voiceOrder.isProcessing,
+    voiceControlProps: {
+      onTranscript: voiceOrder.handleVoiceTranscript,
+      onOrderDetected: voiceOrder.handleOrderData || (() => {}),
+      onRecordingStateChange: () => {}, // Managed internally by hook
+      onConnectionStateChange: () => {}, // Managed internally by hook
+      onSessionReadyChange: () => {} // Managed internally by hook
     },
-    debug: true
-  })
+    recentlyAdded: voiceOrder.recentlyAdded || [],
+    voiceFeedback: voiceOrder.voiceFeedback || ''
+  }
 
   // Calculate order totals
   const orderTotals = useMemo(() => {
@@ -320,8 +287,9 @@ export function VoiceOrderModal({
                     {inputMode === 'voice' && (
                       <div className="flex justify-center mb-6">
                         <VoiceControlWebRTC
+                          context="server"
                           {...voiceCommerce.voiceControlProps}
-                          debug={true}
+                          debug={import.meta.env.DEV}
                           muteAudioOutput={true}
                         />
                       </div>

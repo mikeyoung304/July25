@@ -1,6 +1,7 @@
 import rateLimit from 'express-rate-limit';
 import { Request } from 'express';
 import { AuthenticatedRequest } from './auth';
+import { logger } from '../utils/logger';
 
 // Only disable rate limiting in local development
 const isDevelopment = process.env['NODE_ENV'] === 'development' && process.env['RENDER'] !== 'true';
@@ -68,7 +69,13 @@ export const aiServiceLimiter = rateLimit({
   skip: (_req: Request) => isDevelopment, // Skip in development
   handler: (req, res) => {
     // Log potential abuse for monitoring
-    console.error(`[RATE_LIMIT] AI service limit exceeded for ${req.ip} at ${new Date().toISOString()}`);
+    const authReq = req as AuthenticatedRequest;
+    logger.warn('[RATE_LIMIT] AI service limit exceeded', {
+      ip: req.ip,
+      userId: authReq.user?.id,
+      restaurantId: authReq.restaurantId,
+      userAgent: req.headers['user-agent']
+    });
     res.status(429).json({
       error: 'Too many AI requests. Please wait 5 minutes.',
       retryAfter: 300
@@ -90,7 +97,13 @@ export const transcriptionLimiter = rateLimit({
   skip: (_req: Request) => isDevelopment, // Skip in development
   handler: (req, res) => {
     // Log potential abuse for monitoring
-    console.error(`[RATE_LIMIT] Transcription limit exceeded for ${req.ip} at ${new Date().toISOString()}`);
+    const authReq = req as AuthenticatedRequest;
+    logger.warn('[RATE_LIMIT] Transcription limit exceeded', {
+      ip: req.ip,
+      userId: authReq.user?.id,
+      restaurantId: authReq.restaurantId,
+      userAgent: req.headers['user-agent']
+    });
     res.status(429).json({
       error: 'Too many transcription requests. Please wait 1 minute.',
       retryAfter: 60

@@ -11,7 +11,11 @@
 
 **Complete Documentation:** See [docs/README.md](./docs/README.md) for the full documentation organized by the Diátaxis framework (tutorials, how-to guides, reference, explanation).
 
-**Need help finding documentation?** See [docs/NAVIGATION.md](./docs/NAVIGATION.md) for navigation by role, task, and technology.
+**Need help finding documentation?** See [docs/README.md](./docs/README.md) for the full documentation guide, or [archived navigation guide](./docs/archive/2025-11/NAVIGATION.md) for legacy reference by role, task, and technology.
+
+## Code Navigation
+
+Looking for source code file locations? See [CODEBASE_INDEX.md](/CODEBASE_INDEX.md) for a developer-focused guide to finding files in the codebase.
 
 **Browse by topic:**
 - [Getting Started](./docs/tutorials/GETTING_STARTED.md) - New to Restaurant OS? Start here

@@ -69,3 +69,4 @@ test-results/
 /generated/prisma
 .vercel
 claude-lessons3/node_modules/
+claude-lessons3/

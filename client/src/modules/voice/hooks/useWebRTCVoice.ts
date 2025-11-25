@@ -165,7 +165,7 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
     };
 
     const handleError = (err: Error) => {
-      console.error('[useWebRTCVoice] Error:', err);
+      logger.error('[useWebRTCVoice] Error', { message: err.message, name: err.name });
       setError(err);
       setIsProcessing(false);
       onErrorRef.current?.(err);

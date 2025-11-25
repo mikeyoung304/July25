@@ -59,6 +59,10 @@ Our documentation follows the [Diátaxis framework](https://diataxis.fr/) - a sy
 **Not sure where to find documentation?**
 → [Documentation Navigation Decision Tree](./explanation/architecture/diagrams/documentation-navigation.md) - Interactive guide to finding the right docs
 
+## For Claude Code Users
+
+If using Claude Code to work on this repo, see [CLAUDE.md](/CLAUDE.md) for quick reference to commands and critical rules.
+
 ## 🗺️ Documentation Sitemap
 
 Our documentation is organized using the Diátaxis framework:

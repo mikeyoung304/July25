@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useToast } from '@/hooks/useToast'
-import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderParser'
 import { OrderModification } from '@/modules/voice/contexts/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import type { Table } from '@/modules/floor-plan/types'
@@ -9,6 +8,7 @@ import { useTaxRate } from '@/hooks/useTaxRate'
 import { supabase } from '@/core/supabase'
 import { useRestaurant } from '@/core/restaurant-hooks'
 import { useVoiceOrderingMetrics } from '@/services/metrics'
+import { useVoiceCommerce, type VoiceMenuItem } from '@/modules/voice/hooks/useVoiceCommerce'
 
 // Helper to resolve absolute API URLs for production
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -34,27 +34,68 @@ export function useVoiceOrderWebRTC() {
   const { restaurant } = useRestaurant()
   const metrics = useVoiceOrderingMetrics()
   const [showVoiceOrder, setShowVoiceOrder] = useState(false)
-  const [currentTranscript, setCurrentTranscript] = useState('')
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
-  const [isVoiceActive, setIsVoiceActive] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderSessionId, setOrderSessionId] = useState<string | null>(null)
   const [orderNotes, setOrderNotes] = useState('')
-  const orderParserRef = useRef<OrderParser | null>(null)
 
   // Multi-seat ordering state
   const [orderedSeats, setOrderedSeats] = useState<number[]>([])
   const [showPostOrderPrompt, setShowPostOrderPrompt] = useState(false)
   const [lastCompletedSeat, setLastCompletedSeat] = useState<number | null>(null)
 
-  // Rebuild order parser whenever menu items change
-  useEffect(() => {
-    if (menuItems.length > 0) {
-      orderParserRef.current = new OrderParser(menuItems)
-      logger.info('[useVoiceOrderWebRTC] OrderParser initialized', { itemCount: menuItems.length })
+  // ============================================================================
+  // ADAPTER: Convert VoiceMenuItem from useVoiceCommerce to OrderItem format
+  // ============================================================================
+  const handleVoiceAddItem = useCallback((
+    menuItem: VoiceMenuItem,
+    quantity: number,
+    modifications: string[],
+    specialInstructions?: string
+  ) => {
+    const orderItem: OrderItem = {
+      id: `voice-order-${++voiceOrderCounter}`,
+      menuItemId: menuItem.id,
+      name: menuItem.name,
+      quantity,
+      price: menuItem.price,
+      source: 'voice',
+      modifications: modifications.map((modName, idx) => ({
+        id: `mod-${modName}-${idx}`,
+        name: modName,
+        price: 0 // Voice doesn't provide modifier prices yet
+      }))
     }
-  }, [menuItems])
+
+    // Add special instructions as a modification if provided
+    if (specialInstructions) {
+      orderItem.modifications?.push({
+        id: `special-${Date.now()}`,
+        name: `Note: ${specialInstructions}`,
+        price: 0
+      })
+    }
+
+    setOrderItems(prev => [...prev, orderItem])
+    logger.info('[useVoiceOrderWebRTC] Added voice item', {
+      menuItem: menuItem.name,
+      quantity,
+      modifications
+    })
+  }, [])
+
+  // ============================================================================
+  // USE VOICE COMMERCE HOOK (Modern implementation)
+  // ============================================================================
+  const voiceCommerce = useVoiceCommerce({
+    menuItems,
+    onAddItem: handleVoiceAddItem,
+    context: 'server',
+    toast: {
+      error: (message: string) => toast.error(message)
+    },
+    debug: import.meta.env.DEV
+  })
 
   // Track order session started when voice order modal opens
   useEffect(() => {
@@ -64,161 +105,6 @@ export function useVoiceOrderWebRTC() {
       logger.info('[useVoiceOrderWebRTC] Order session started', { sessionId })
     }
   }, [showVoiceOrder, orderSessionId, metrics])
-
-  // Process parsed menu items and add to order
-  const processParsedItems = useCallback((parsedItems: ParsedOrderItem[]) => {
-    const newItems: OrderItem[] = []
-    
-    parsedItems.forEach(parsed => {
-      if (parsed.menuItem) {
-        switch (parsed.action) {
-          case 'add':
-            newItems.push({
-              id: `voice-order-${++voiceOrderCounter}`,
-              menuItemId: parsed.menuItem.id,
-              name: parsed.menuItem.name,
-              quantity: parsed.quantity,
-              modifications: parsed.modifications
-            })
-            break
-          case 'remove': {
-            // Handle remove in the parent component
-            const itemToRemove = orderItems.find(item => 
-              item.menuItemId === parsed.menuItem?.id
-            )
-            if (itemToRemove) {
-              setOrderItems(prev => prev.filter(item => item.id !== itemToRemove.id))
-            }
-            break
-          }
-          case 'update': {
-            // Handle update in the parent component
-            const itemToUpdate = orderItems.find(item => 
-              item.menuItemId === parsed.menuItem?.id
-            )
-            if (itemToUpdate) {
-              setOrderItems(prev => prev.map(item => 
-                item.id === itemToUpdate.id 
-                  ? { ...item, quantity: parsed.quantity, modifications: parsed.modifications }
-                  : item
-              ))
-            }
-            break
-          }
-        }
-      }
-    })
-
-    if (newItems.length > 0) {
-      setOrderItems(prev => [...prev, ...newItems])
-      toast.success(`Added ${newItems.length} item${newItems.length > 1 ? 's' : ''} to order`)
-    }
-  }, [orderItems, toast])
-
-  // Handle transcript from WebRTC voice - accepts both string and event object
-  // NOTE: Transcripts are for live display only - AI handles parsing via handleOrderData
-  const handleVoiceTranscript = useCallback((textOrEvent: string | { text: string; isFinal: boolean }) => {
-    // Normalize input to handle both signatures
-    const text = typeof textOrEvent === 'string' ? textOrEvent : textOrEvent.text
-    const isFinal = typeof textOrEvent === 'string' ? true : textOrEvent.isFinal
-
-    logger.info('[useVoiceOrderWebRTC] Voice transcript', { text, isFinal })
-
-    // Update transcript for live display
-    if (isFinal) {
-      // Clear transcript immediately when final (ready for next utterance)
-      setCurrentTranscript('')
-    } else {
-      // Show interim transcript so users see what's being recognized
-      setCurrentTranscript(text)
-    }
-
-    // DO NOT parse transcripts here - OpenAI Realtime API handles parsing
-    // The AI will call add_to_order() function and emit order.detected events
-    // which are processed by handleOrderData callback
-  }, [])
-
-  // Handle order data from OpenAI Realtime API
-  // AI provides: { items: [{ name: "Greek Salad", quantity: 1, modifiers: ["extra feta"] }] }
-  // We need to: find menuItemId from name, transform to our OrderItem format
-  const handleOrderData = useCallback((orderData: any) => {
-    logger.info('[handleOrderData] Received AI order data:', { orderData })
-
-    // AI emits items without menuItemId - only human-readable names
-    if (!orderData?.items || orderData.items.length === 0) {
-      logger.warn('[handleOrderData] No items in AI order data')
-      return
-    }
-
-    // Defensive checks: ensure menu is loaded and parser is ready
-    if (menuItems.length === 0) {
-      logger.error('[handleOrderData] Menu not loaded yet')
-      toast.error('Menu is still loading. Please wait and try again.')
-      return
-    }
-
-    if (!orderParserRef.current) {
-      logger.error('[handleOrderData] OrderParser not initialized')
-      toast.error('Voice ordering not ready. Please refresh the page.')
-      return
-    }
-
-    const matchedItems: OrderItem[] = []
-    const unmatchedItems: string[] = []
-
-    orderData.items.forEach((aiItem: any) => {
-      // Use OrderParser to find menu item by name (fuzzy matching)
-      if (orderParserRef.current && menuItems.length > 0) {
-        const match = orderParserRef.current.findBestMenuMatch(aiItem.name)
-
-        if (match.item && match.confidence > 0.5) {
-          logger.info('[handleOrderData] Matched AI item:', {
-            aiName: aiItem.name,
-            menuName: match.item.name,
-            confidence: match.confidence
-          })
-
-          matchedItems.push({
-            id: `voice-order-${++voiceOrderCounter}`,
-            menuItemId: match.item.id, // Found the UUID!
-            name: match.item.name, // Use actual menu name
-            quantity: aiItem.quantity || 1,
-            source: 'voice', // Mark as voice-added item
-            price: match.item.price,
-            modifications: (aiItem.modifiers || aiItem.modifications || []).map((mod: string | any) => ({
-              id: typeof mod === 'string' ? `mod-${mod}` : mod.id,
-              name: typeof mod === 'string' ? mod : mod.name,
-              price: typeof mod === 'string' ? 0 : (mod.price || 0)
-            }))
-          })
-        } else {
-          logger.warn('[handleOrderData] Could not match item:', {
-            name: aiItem.name,
-            confidence: match.confidence
-          })
-          unmatchedItems.push(aiItem.name)
-        }
-      } else {
-        logger.warn('[handleOrderData] OrderParser not available or menu not loaded')
-        unmatchedItems.push(aiItem.name)
-      }
-    })
-
-    if (matchedItems.length > 0) {
-      setOrderItems(prev => [...prev, ...matchedItems])
-      toast.success(
-        `Added ${matchedItems.length} item${matchedItems.length > 1 ? 's' : ''} to order`
-      )
-    }
-
-    if (unmatchedItems.length > 0) {
-      logger.error('[handleOrderData] Unmatched items:', { unmatchedItems })
-      toast.error(
-        `Could not find menu items: ${unmatchedItems.join(', ')}. ` +
-        `Please try again or choose from the menu.`
-      )
-    }
-  }, [menuItems, toast])
 
   // Remove an item from the order
   const removeOrderItem = useCallback((itemId: string) => {
@@ -342,11 +228,11 @@ export function useVoiceOrderWebRTC() {
         return true
       } else {
         const errorText = await response.text()
-        logger.error('Order submission failed:', errorText)
+        logger.error('Order submission failed:', { errorText })
         throw new Error('Failed to submit order')
       }
     } catch (error) {
-      logger.error('Error submitting order:', error)
+      logger.error('Error submitting order:', { error })
       toast.error('Failed to submit order. Please try again.')
       return false
     } finally {
@@ -371,11 +257,9 @@ export function useVoiceOrderWebRTC() {
     setOrderedSeats([])
     setLastCompletedSeat(null)
     setOrderItems([])
-    setCurrentTranscript('')
-    setIsVoiceActive(false)
-    setIsProcessing(false)
+    voiceCommerce.setIsCheckingOut(false)
     toast.success('Table orders complete!')
-  }, [toast])
+  }, [toast, voiceCommerce])
 
   // Reset voice order state (called when canceling or closing)
   const resetVoiceOrder = useCallback(() => {
@@ -386,39 +270,49 @@ export function useVoiceOrderWebRTC() {
     }
 
     setShowVoiceOrder(false)
-    setCurrentTranscript('')
     setOrderItems([])
     setOrderNotes('')
-    setIsVoiceActive(false)
-    setIsProcessing(false)
     setShowPostOrderPrompt(false)
     setOrderSessionId(null)
+    voiceCommerce.setIsCheckingOut(false)
     // Keep orderedSeats intact unless explicitly finishing table
-  }, [orderSessionId, orderItems, metrics])
+  }, [orderSessionId, orderItems, metrics, voiceCommerce])
 
   // Complete reset for starting fresh with a new table
   const resetAllState = useCallback(() => {
     setShowVoiceOrder(false)
-    setCurrentTranscript('')
     setOrderItems([])
     setOrderNotes('')
-    setIsVoiceActive(false)
-    setIsProcessing(false)
     setShowPostOrderPrompt(false)
     setOrderedSeats([])
     setLastCompletedSeat(null)
-  }, [])
+    voiceCommerce.setIsCheckingOut(false)
+  }, [voiceCommerce])
 
   return {
-    // State
+    // ============================================================================
+    // VOICE COMMERCE STATE (from useVoiceCommerce hook)
+    // ============================================================================
+    currentTranscript: voiceCommerce.currentTranscript,
+    isVoiceActive: voiceCommerce.isListening,
+    isProcessing: voiceCommerce.isProcessing,
+    voiceConnectionState: voiceCommerce.voiceConnectionState,
+    isSessionReady: voiceCommerce.isSessionReady,
+    recentlyAdded: voiceCommerce.recentlyAdded,
+    voiceFeedback: voiceCommerce.voiceFeedback,
+
+    // Voice commerce handlers (delegated to useVoiceCommerce)
+    handleVoiceTranscript: voiceCommerce.handleVoiceTranscript,
+    handleOrderData: voiceCommerce.handleOrderData,
+
+    // ============================================================================
+    // SERVER-SPECIFIC STATE (multi-seat ordering, submission)
+    // ============================================================================
     showVoiceOrder,
     setShowVoiceOrder,
-    currentTranscript,
     orderItems,
     setOrderItems,
-    isVoiceActive,
-    isProcessing,
-    setIsProcessing,
+    setIsProcessing: voiceCommerce.setIsCheckingOut, // Map to voiceCommerce's checkout state
     isSubmitting,
     orderNotes,
     setOrderNotes,
@@ -429,9 +323,7 @@ export function useVoiceOrderWebRTC() {
     setShowPostOrderPrompt,
     lastCompletedSeat,
 
-    // Handlers
-    handleVoiceTranscript,
-    handleOrderData,
+    // Server-specific handlers
     removeOrderItem,
     submitOrder,
     resetVoiceOrder,

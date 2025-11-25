@@ -28,11 +28,11 @@ const KioskDemo: React.FC = () => {
   // Restaurant context is available but not currently used
   // const { restaurant } = useRestaurant()
 
-  const handleOrderComplete = (event: { text: string; isFinal: boolean }) => {
+  const handleOrderComplete = async (event: { text: string; isFinal: boolean }) => {
     const transcription = event.text
     setOrderHistory(prev => [...prev, transcription])
-    const voiceOrder = parseVoiceOrder(transcription)
-    
+    const voiceOrder = await parseVoiceOrder(transcription)
+
     if (voiceOrder) {
       setParsedOrder({
         items: voiceOrder.items,
@@ -50,12 +50,12 @@ const KioskDemo: React.FC = () => {
 
   const handleConfirmOrder = async () => {
     if (!parsedOrder || parsedOrder.items.length === 0) return
-    
+
     setIsSubmitting(true)
     try {
-      const voiceOrder = parseVoiceOrder(orderHistory[orderHistory.length - 1])
+      const voiceOrder = await parseVoiceOrder(orderHistory[orderHistory.length - 1])
       if (!voiceOrder) throw new Error('Invalid order')
-      
+
       const result = await submitVoiceOrder(voiceOrder)
       
       const order = result as unknown as Order;

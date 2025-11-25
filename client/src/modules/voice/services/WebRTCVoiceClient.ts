@@ -95,6 +95,25 @@ export class WebRTCVoiceClient extends EventEmitter {
       onTimeout: (state) => {
         logger.warn(`[WebRTCVoiceClient] State machine timeout in state: ${state}`);
         this.emit('state.timeout', { state });
+
+        // Handle AWAITING_SESSION_READY timeout gracefully by proceeding to IDLE
+        // OpenAI may not always send session.updated, but the session is likely ready
+        if (state === VoiceState.AWAITING_SESSION_READY) {
+          logger.info('⏱️ [WebRTCVoiceClient] Session ready timeout - proceeding to IDLE (graceful fallback)');
+          try {
+            // Check if we're still in AWAITING_SESSION_READY before transitioning
+            // This prevents race condition with state machine's auto-TIMEOUT_OCCURRED transition
+            if (this.stateMachine.isState(VoiceState.AWAITING_SESSION_READY)) {
+              // Prevent default TIMEOUT_OCCURRED transition by transitioning first
+              this.stateMachine.transition(VoiceEvent.SESSION_READY, { confirmed_via: 'timeout' });
+              this.emit('session.configured');
+            } else {
+              logger.info('[WebRTCVoiceClient] State already changed, skipping timeout transition');
+            }
+          } catch (error) {
+            logger.error('[WebRTCVoiceClient] Failed graceful timeout recovery:', error);
+          }
+        }
       },
       maxHistorySize: 50
     });
@@ -106,6 +125,12 @@ export class WebRTCVoiceClient extends EventEmitter {
     });
 
     this.connection.on('error', (error: Error) => {
+      // Transition state machine to ERROR state
+      try {
+        this.stateMachine.transition(VoiceEvent.ERROR_OCCURRED, { error: String(error) });
+      } catch (transitionError) {
+        logger.error('[WebRTCVoiceClient] Failed to transition to ERROR state on connection error:', transitionError);
+      }
       this.emit('error', error);
     });
 
@@ -216,19 +241,8 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.eventHandler.sendEvent(sessionUpdatePayload);
       logger.info('✅ [WebRTCVoiceClient] session.update sent');
 
-      // PHASE 2: Use dual confirmation strategy (event + timeout fallback)
-      // Set a 3-second timeout to transition to IDLE if no session.updated received
-      setTimeout(() => {
-        if (this.stateMachine.isState(VoiceState.AWAITING_SESSION_READY)) {
-          logger.info('⏱️ [WebRTCVoiceClient] Session ready timeout - proceeding to IDLE (fallback)');
-          try {
-            this.stateMachine.transition(VoiceEvent.SESSION_READY, { confirmed_via: 'timeout' });
-            this.emit('session.configured');
-          } catch (error) {
-            logger.error('[WebRTCVoiceClient] Failed to transition to IDLE on timeout:', error);
-          }
-        }
-      }, 3000);
+      // NOTE: Timeout fallback is now handled by VoiceStateMachine's onTimeout callback
+      // This ensures single source of truth for timeout logic (see STATE_TIMEOUTS config)
 
       // Clear audio buffer immediately after session config
       this.eventHandler.sendEvent({
@@ -258,6 +272,20 @@ export class WebRTCVoiceClient extends EventEmitter {
           this.stateMachine.transition(VoiceEvent.TRANSCRIPT_RECEIVED);
         } catch (error) {
           logger.error('[WebRTCVoiceClient] Invalid state transition on transcript:', error);
+        }
+      }
+    });
+
+    // Handle response.started - AI has begun responding
+    this.eventHandler.on('response.started', (data: { responseId: string; timestamp: number }) => {
+      if (this.stateMachine.isState(VoiceState.AWAITING_RESPONSE)) {
+        try {
+          this.stateMachine.transition(VoiceEvent.RESPONSE_STARTED, data);
+          if (this.config.debug) {
+            logger.info('[WebRTCVoiceClient] Response started', { responseId: data.responseId });
+          }
+        } catch (error) {
+          logger.error('[WebRTCVoiceClient] Invalid state transition on response.started:', error);
         }
       }
     });
@@ -368,9 +396,6 @@ export class WebRTCVoiceClient extends EventEmitter {
         logger.info('[WebRTCVoiceClient] Recording started');
       }
 
-      // Update event handler turn state (for backward compatibility)
-      this.eventHandler.setTurnState('recording');
-
       // Clear audio buffer before starting
       this.eventHandler.sendEvent({
         type: 'input_audio_buffer.clear'
@@ -387,6 +412,12 @@ export class WebRTCVoiceClient extends EventEmitter {
 
     } catch (error) {
       logger.error('[WebRTCVoiceClient] Failed to start recording:', error);
+      // Transition state machine to ERROR state
+      try {
+        this.stateMachine.transition(VoiceEvent.ERROR_OCCURRED, { error: String(error) });
+      } catch (transitionError) {
+        logger.error('[WebRTCVoiceClient] Failed to transition to ERROR state on startRecording error:', transitionError);
+      }
       this.emit('error', error);
     }
   }
@@ -413,9 +444,6 @@ export class WebRTCVoiceClient extends EventEmitter {
       // Transition: RECORDING → COMMITTING_AUDIO
       this.stateMachine.transition(VoiceEvent.RECORDING_STOPPED);
 
-      // Update event handler turn state (for backward compatibility)
-      this.eventHandler.setTurnState('committing');
-
       // Commit the audio buffer
       this.eventHandler.sendEvent({
         type: 'input_audio_buffer.commit'
@@ -423,9 +451,6 @@ export class WebRTCVoiceClient extends EventEmitter {
 
       // Transition: COMMITTING_AUDIO → AWAITING_TRANSCRIPT
       this.stateMachine.transition(VoiceEvent.AUDIO_COMMITTED);
-
-      // Update event handler turn state (for backward compatibility)
-      this.eventHandler.setTurnState('waiting_user_final');
 
       this.emit('recording.stopped');
 
@@ -435,6 +460,12 @@ export class WebRTCVoiceClient extends EventEmitter {
 
     } catch (error) {
       logger.error('[WebRTCVoiceClient] Failed to stop recording:', error);
+      // Transition state machine to ERROR state
+      try {
+        this.stateMachine.transition(VoiceEvent.ERROR_OCCURRED, { error: String(error) });
+      } catch (transitionError) {
+        logger.error('[WebRTCVoiceClient] Failed to transition to ERROR state on stopRecording error:', transitionError);
+      }
       this.emit('error', error);
     }
   }
@@ -459,6 +490,12 @@ export class WebRTCVoiceClient extends EventEmitter {
       }
     } catch (error) {
       logger.error('[WebRTCVoiceClient] Reconnection failed:', error);
+      // Transition state machine to ERROR state
+      try {
+        this.stateMachine.transition(VoiceEvent.ERROR_OCCURRED, { error: String(error) });
+      } catch (transitionError) {
+        logger.error('[WebRTCVoiceClient] Failed to transition to ERROR state on reconnect error:', transitionError);
+      }
       this.emit('error', error);
     }
   }
@@ -486,6 +523,12 @@ export class WebRTCVoiceClient extends EventEmitter {
       }
     } catch (error) {
       logger.error('[WebRTCVoiceClient] Failed to recover from session expiration:', error);
+      // Transition state machine to ERROR state
+      try {
+        this.stateMachine.transition(VoiceEvent.ERROR_OCCURRED, { error: String(error) });
+      } catch (transitionError) {
+        logger.error('[WebRTCVoiceClient] Failed to transition to ERROR state on session expiration error:', transitionError);
+      }
       this.emit('error', error);
     }
   }
@@ -497,7 +540,6 @@ export class WebRTCVoiceClient extends EventEmitter {
   private handleDisconnection(): void {
     this.connectionState = 'disconnected';
     this.stateMachine.reset();
-    this.eventHandler.setTurnState('idle'); // For backward compatibility
   }
 
   /**

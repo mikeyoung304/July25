@@ -128,7 +128,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
         // Don't auto-connect - let user initiate by clicking the button
       })
       .catch((err) => {
-        console.warn('Cannot query microphone permission:', err);
+        logger.warn('Cannot query microphone permission', { message: err?.message });
         // Assume prompt state if we can't check
         setPermissionState('prompt');
       });
@@ -149,7 +149,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
       setPermissionState('granted');
       await connect();
     } catch (err) {
-      console.error('Microphone permission denied:', err);
+      logger.error('Microphone permission denied', { message: (err as Error)?.message });
       setPermissionState('denied');
       setShouldStartRecording(false); // Clear flag on error
     }
@@ -276,7 +276,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
                     try {
                       await connect();
                     } catch (err) {
-                      console.error('Reconnection failed:', err);
+                      logger.error('Reconnection failed', { message: (err as Error)?.message });
                     }
                   }}
                   className="text-xs text-red-700 underline mt-2 hover:text-red-800"
