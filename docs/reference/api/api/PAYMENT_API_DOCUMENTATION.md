@@ -8,12 +8,12 @@
 
 ## Overview
 
-The Payment API provides endpoints for processing cash and card payments, closing checks, and managing table payment status. This API integrates with Square for card processing and implements comprehensive audit logging for PCI DSS compliance.
+The Payment API provides endpoints for processing cash and card payments, closing checks, and managing table payment status. This API integrates with Stripe for card processing and implements comprehensive audit logging for PCI DSS compliance.
 
 ### Key Features
 
 - ✅ Cash payment processing with change calculation
-- ✅ Card payment processing via Square SDK
+- ✅ Card payment processing via Stripe Elements
 - ✅ Automatic table status updates
 - ✅ Payment audit logging for compliance
 - ✅ Multi-order check closing
@@ -123,7 +123,7 @@ curl -X POST https://api.yourrestaurant.com/api/v1/payments/cash \
 
 ### 2. Process Card Payment
 
-Process a card payment using Square payment token.
+Process a card payment using Stripe PaymentMethod or PaymentIntent.
 
 **Endpoint:** `POST /api/v1/payments/card`
 
@@ -132,7 +132,7 @@ Process a card payment using Square payment token.
 ```typescript
 {
   order_id: string;          // Required: Order ID to pay
-  source_id: string;         // Required: Square payment token from Web SDK
+  source_id: string;         // Required: Stripe PaymentMethod ID (pm_...) or PaymentIntent ID (pi_...)
   table_id?: string;         // Optional: Table UUID for status update
   idempotency_key?: string;  // Optional: For preventing duplicate charges
 }
@@ -147,7 +147,7 @@ curl -X POST https://api.yourrestaurant.com/api/v1/payments/card \
   -H "Content-Type: application/json" \
   -d '{
     "order_id": "ord_abc123",
-    "source_id": "cnon:card-nonce-ok",
+    "source_id": "pm_1234567890abcdef",
     "table_id": "tbl_456def",
     "idempotency_key": "unique-key-12345"
   }'
@@ -164,22 +164,22 @@ curl -X POST https://api.yourrestaurant.com/api/v1/payments/card \
     "payment_status": "paid",
     "payment_method": "card",
     "payment_amount": 86.40,
-    "payment_id": "sq_payment_abc123xyz",
+    "payment_id": "pi_1234567890abcdef",
     "check_closed_at": "2025-10-29T18:45:32.123Z",
     "closed_by_user_id": "usr_789ghi"
   },
   "payment": {
-    "id": "sq_payment_abc123xyz",
-    "status": "COMPLETED",
-    "amount_money": {
-      "amount": 8640,  // cents
-      "currency": "USD"
+    "id": "pi_1234567890abcdef",
+    "status": "succeeded",
+    "amount": 8640,
+    "currency": "usd",
+    "payment_method": {
+      "card": {
+        "brand": "visa",
+        "last4": "4242"
+      }
     },
-    "card_details": {
-      "card_brand": "VISA",
-      "last_4": "1111"
-    },
-    "created_at": "2025-10-29T18:45:32.123Z"
+    "created": 1635532532
   }
 }
 ```
@@ -190,18 +190,18 @@ curl -X POST https://api.yourrestaurant.com/api/v1/payments/card \
 {
   "success": false,
   "error": "Card declined",
-  "details": "CARD_DECLINED: Insufficient funds",
-  "square_error_code": "CARD_DECLINED"
+  "details": "card_declined: Insufficient funds",
+  "stripe_error_code": "card_declined"
 }
 ```
 
-**Error Response (500 Internal Server Error - Square API Failure):**
+**Error Response (500 Internal Server Error - Stripe API Failure):**
 
 ```json
 {
   "success": false,
   "error": "Payment processing failed",
-  "details": "Square API unavailable"
+  "details": "Stripe API unavailable"
 }
 ```
 
@@ -314,7 +314,7 @@ interface OrderPayment {
   payment_amount?: number;        // Actual amount paid
   cash_received?: number;         // For cash payments
   change_given?: number;          // For cash payments
-  payment_id?: string;            // Square payment ID for card payments
+  payment_id?: string;            // Stripe PaymentIntent ID for card payments
   check_closed_at?: string;       // ISO 8601 timestamp
   closed_by_user_id?: string;     // User who closed the check
 }
@@ -361,18 +361,25 @@ interface OrderPayment {
 1. **Validation**:
    - Verify order exists and belongs to restaurant
    - Check order is not already paid
-   - Validate Square credentials are configured
+   - Validate Stripe credentials are configured
 
-2. **Process with Square**:
+2. **Process with Stripe**:
    ```typescript
-   const payment = await squareClient.paymentsApi.createPayment({
-     source_id: source_id,
-     amount_money: {
-       amount: Math.round(order.total_amount * 100), // cents
-       currency: 'USD'
+   const paymentIntent = await stripe.paymentIntents.create({
+     amount: Math.round(order.total_amount * 100), // cents
+     currency: 'usd',
+     payment_method: source_id, // pm_... or pi_...
+     confirm: true,
+     automatic_payment_methods: {
+       enabled: true,
+       allow_redirects: 'never'
      },
-     idempotency_key: idempotency_key || uuidv4(),
-     location_id: SQUARE_LOCATION_ID
+     metadata: {
+       order_id: order.id,
+       restaurant_id: restaurant_id
+     }
+   }, {
+     idempotencyKey: idempotency_key || uuidv4()
    });
    ```
 
@@ -380,17 +387,17 @@ interface OrderPayment {
    - Set `payment_status = 'paid'`
    - Set `payment_method = 'card'`
    - Set `payment_amount = order.total_amount`
-   - Set `payment_id = payment.id` (Square payment ID)
+   - Set `payment_id = paymentIntent.id` (Stripe PaymentIntent ID)
    - Set `check_closed_at = NOW()`
    - Set `closed_by_user_id = current_user.id`
 
 4. **Update Table Status**: (same as cash)
 
-5. **Audit Logging**: (same as cash, include Square payment ID)
+5. **Audit Logging**: (same as cash, include Stripe PaymentIntent ID)
 
 6. **Error Handling**:
    - Card declined: Return 400 with decline reason
-   - Square API error: Return 500 with error message
+   - Stripe API error: Return 500 with error message
    - Network timeout: Return 503 with retry guidance
 
 ### Table Status Auto-Update
@@ -428,7 +435,7 @@ if (allPaid) {
 | 400 | INVALID_CARD | Card details invalid | No |
 | 404 | ORDER_NOT_FOUND | Order ID doesn't exist | No |
 | 403 | UNAUTHORIZED | Missing payment scope | No |
-| 500 | SQUARE_API_ERROR | Square API failure | Yes (retry) |
+| 500 | STRIPE_API_ERROR | Stripe API failure | Yes (retry) |
 | 503 | SERVICE_UNAVAILABLE | Temporary service issue | Yes (retry) |
 
 ### Error Response Format
@@ -460,7 +467,7 @@ All payment attempts are logged for compliance:
   order_id: string,
   table_number: string,
   amount: number,
-  payment_id?: string,      // Square payment ID (card only)
+  payment_id?: string,      // Stripe PaymentIntent ID (card only)
   cash_received?: number,   // Cash only
   change_given?: number,    // Cash only
   status: 'success' | 'failure',
@@ -512,23 +519,37 @@ async function processCashPayment(orderId: string, amountReceived: number, table
 }
 ```
 
-### Frontend: Complete Card Payment with Square
+### Frontend: Complete Card Payment with Stripe Elements
 
 ```typescript
 import { apiClient } from '@/lib/api';
+import { loadStripe } from '@stripe/stripe-js';
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-async function processCardPayment(orderId: string, card: any, tableId?: string) {
+async function processCardPayment(orderId: string, tableId?: string) {
+  const stripe = useStripe();
+  const elements = useElements();
+
   try {
-    // Step 1: Tokenize card with Square Web SDK
-    const tokenResult = await card.tokenize();
-    if (tokenResult.status !== 'OK') {
-      throw new Error('Card tokenization failed');
+    if (!stripe || !elements) {
+      throw new Error('Stripe has not loaded');
     }
 
-    // Step 2: Send token to backend
+    // Step 1: Create PaymentMethod with Stripe Elements
+    const cardElement = elements.getElement(CardElement);
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement!,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    // Step 2: Send PaymentMethod ID to backend
     const response = await apiClient.post('/api/v1/payments/card', {
       order_id: orderId,
-      source_id: tokenResult.token,
+      source_id: paymentMethod.id, // pm_...
       table_id: tableId,
       idempotency_key: crypto.randomUUID()
     });
@@ -538,7 +559,7 @@ async function processCardPayment(orderId: string, card: any, tableId?: string) 
       return response.data;
     }
   } catch (error: any) {
-    if (error.response?.data?.square_error_code === 'CARD_DECLINED') {
+    if (error.response?.data?.stripe_error_code === 'card_declined') {
       toast.error('Card declined. Please try a different card.');
     } else {
       toast.error('Payment failed. Please try again.');
@@ -552,18 +573,19 @@ async function processCardPayment(orderId: string, card: any, tableId?: string) 
 
 ## Testing
 
-### Test Cards (Square Sandbox)
+### Test Cards (Stripe Test Mode)
 
 | Card Number | Brand | Result |
 | --- | --- | --- |
-| 4111 1111 1111 1111 | Visa | Success |
+| 4242 4242 4242 4242 | Visa | Success |
 | 5555 5555 5555 4444 | Mastercard | Success |
 | 3782 822463 10005 | Amex | Success |
-| 4000 0000 0000 0002 | Visa | Declined |
+| 4000 0000 0000 0002 | Visa | Declined (generic) |
+| 4000 0000 0000 9995 | Visa | Declined (insufficient funds) |
 
 **Test CVV**: Any 3 digits (4 for Amex)
-**Test Expiration**: Any future date
-**Test Postal Code**: Any 5 digits
+**Test Expiration**: Any future date (e.g., 12/34)
+**Test Postal Code**: Any valid ZIP code (e.g., 12345)
 
 ### Postman Collection
 
@@ -595,8 +617,8 @@ npx playwright test tests/e2e/ --grep "payment"
 
 ### PCI DSS Compliance
 
-1. **Never Store Card Data**: All card tokenization handled by Square Web SDK
-2. **Payment IDs Only**: Store Square payment IDs, not card numbers
+1. **Never Store Card Data**: All card tokenization handled by Stripe Elements
+2. **Payment IDs Only**: Store Stripe PaymentIntent IDs, not card numbers
 3. **HTTPS Required**: All payment endpoints require TLS 1.2+
 4. **Audit Logging**: All payment attempts logged with timestamp and user
 5. **Access Control**: Payment endpoints require `payments:process` scope
@@ -607,7 +629,7 @@ npx playwright test tests/e2e/ --grep "payment"
 - Validate all input amounts on backend (don't trust frontend)
 - Rate limit payment attempts (max 5 per minute per user)
 - Monitor for suspicious payment patterns
-- Implement timeout handling (30 second max for Square API)
+- Implement timeout handling (30 second max for Stripe API)
 
 ---
 
@@ -615,10 +637,10 @@ npx playwright test tests/e2e/ --grep "payment"
 
 ### Common Issues
 
-**Issue: "Square API unavailable"**
-- **Cause**: Square service outage or invalid credentials
-- **Fix**: Check Square status page, verify credentials in env vars
-- **Workaround**: Use demo mode for testing
+**Issue: "Stripe API unavailable"**
+- **Cause**: Stripe service outage or invalid credentials
+- **Fix**: Check Stripe status page (status.stripe.com), verify credentials in env vars
+- **Workaround**: Use test mode with test API keys
 
 **Issue: "Insufficient payment" on valid amount**
 - **Cause**: Floating point rounding errors
@@ -652,10 +674,10 @@ If you're migrating from the old metadata-based payment system:
 
 ### Backward Compatibility
 
-The new payment system maintains backward compatibility:
+The payment system maintains backward compatibility:
 
 - Old orders without payment fields will show as `payment_status: 'unpaid'`
-- Existing Square integration continues to work
+- Stripe integration replaces Square with minimal changes to existing flows
 - No changes required to kitchen display or reporting
 
 ---
@@ -663,7 +685,7 @@ The new payment system maintains backward compatibility:
 ## Support
 
 **API Issues**: support@yourrestaurant.com
-**Square Integration**: https://squareup.com/help
+**Stripe Integration**: https://stripe.com/docs or https://support.stripe.com
 **Documentation**: https://docs.yourrestaurant.com
 
 ---
