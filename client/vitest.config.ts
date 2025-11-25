@@ -20,5 +20,13 @@ export default defineConfig({
     setupFiles: ['./test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['**/node_modules/**','**/dist/**','**/tests/quarantine/**', ...qList],
+    // Limit parallelism to prevent 70GB+ RAM spikes
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        maxForks: 4,
+        minForks: 1,
+      },
+    },
   },
 });

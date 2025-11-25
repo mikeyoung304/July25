@@ -282,6 +282,17 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
           logger.info('[WebRTCConnection] Audio track after muting - enabled:', audioTrack.enabled);
         }
 
+        // Monitor track state changes for permission revocation
+        audioTrack.onmute = () => {
+          logger.error('[WebRTCConnection] Audio track muted by OS/browser');
+          this.emit('error', new Error('Microphone was muted. Please check your permissions.'));
+        };
+
+        audioTrack.onended = () => {
+          logger.error('[WebRTCConnection] Audio track ended unexpectedly');
+          this.emit('error', new Error('Microphone stream ended unexpectedly.'));
+        };
+
         // Add the track to peer connection
         this.pc.addTrack(audioTrack, this.mediaStream);
         if (this.config.debug) {
@@ -289,7 +300,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
         }
 
         if (this.config.debug) {
-          logger.info('[WebRTCConnection] Microphone connected but muted - will only transmit when enabled');
+          logger.info('[WebRTCConnection] Microphone connected with track monitoring');
         }
       }
     } catch (error) {

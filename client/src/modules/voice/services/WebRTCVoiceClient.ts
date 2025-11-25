@@ -134,6 +134,28 @@ export class WebRTCVoiceClient extends EventEmitter {
       this.emit('error', error);
     });
 
+    // Handle connection timeout specifically
+    this.connection.on('connection.timeout', (data: { duration: number }) => {
+      logger.warn(`[WebRTCVoiceClient] Connection timed out after ${data.duration}ms`);
+
+      const error = new Error(`Connection timed out after ${Math.round(data.duration / 1000)} seconds. Please check your internet connection.`);
+      (error as any).type = 'CONNECTION_TIMEOUT';
+      (error as any).recoverable = true;
+
+      try {
+        this.stateMachine.transition(VoiceEvent.TIMEOUT_OCCURRED, {
+          type: 'connection',
+          duration: data.duration
+        });
+      } catch (transitionError) {
+        logger.error('[WebRTCVoiceClient] Failed to transition on timeout:', transitionError);
+        // Force to error state as fallback
+        this.stateMachine.forceState(VoiceState.TIMEOUT, 'Connection timeout');
+      }
+
+      this.emit('error', error);
+    });
+
     // Wire session config events
     this.sessionConfig.on('token.refresh.failed', (data: { error: any }) => {
       this.emit('token.refresh.failed', data);

@@ -39,6 +39,8 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   const [showDebug, setShowDebug] = useState(debug);
   const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied'>('prompt');
   const [shouldStartRecording, setShouldStartRecording] = useState(false);
+  const [isPendingStart, setIsPendingStart] = useState(false);
+  const [waitingSeconds, setWaitingSeconds] = useState(0);
 
   const {
     connect,
@@ -73,6 +75,13 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
     onRecordingStateChange?.(isRecording);
   }, [isRecording, onRecordingStateChange]);
 
+  // Clear pending start state when recording actually starts
+  useEffect(() => {
+    if (isRecording && isPendingStart) {
+      setIsPendingStart(false);
+    }
+  }, [isRecording, isPendingStart]);
+
   // Notify parent when connection state changes
   useEffect(() => {
     onConnectionStateChange?.(connectionState);
@@ -82,6 +91,23 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   useEffect(() => {
     onSessionReadyChange?.(isSessionReady);
   }, [isSessionReady, onSessionReadyChange]);
+
+  // Track waiting time during connection phases
+  useEffect(() => {
+    if (connectionState === 'connecting') {
+      const interval = setInterval(() => {
+        setWaitingSeconds(s => s + 1);
+      }, 1000);
+      return () => {
+        clearInterval(interval);
+        setWaitingSeconds(0);
+      };
+    }
+    // Reset when connected
+    if (connectionState === 'connected') {
+      setWaitingSeconds(0);
+    }
+  }, [connectionState]);
 
   // Auto-start recording when connection AND session are ready (if user is still holding button)
   useEffect(() => {
@@ -167,6 +193,9 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
       });
     }
 
+    // Set pending state immediately for visual feedback
+    setIsPendingStart(true);
+
     // Set flag to start recording (will trigger when connected)
     setShouldStartRecording(true);
 
@@ -211,8 +240,9 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
   };
 
   const handleRecordStop = () => {
-    // Clear the flag to prevent auto-start if connection completes after release
+    // Clear the flags to prevent auto-start if connection completes after release
     setShouldStartRecording(false);
+    setIsPendingStart(false);
 
     if (isRecording) {
       stopRecording();
@@ -244,9 +274,16 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
             connectionState === 'error' ? 'bg-red-500' :
             'bg-gray-400'
           }`} />
-          <span className="text-xs text-gray-600 capitalize">{connectionState}</span>
+          <div className="flex flex-col">
+            <span className="text-xs text-gray-600 capitalize">{connectionState}</span>
+            {waitingSeconds > 2 && connectionState === 'connecting' && (
+              <p className="text-xs text-yellow-600 mt-1">
+                Still connecting... ({Math.max(0, 15 - waitingSeconds)}s)
+              </p>
+            )}
+          </div>
         </div>
-        
+
         {/* Debug Toggle */}
         {debug && (
           <button
@@ -298,6 +335,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
             onMouseUp={handleRecordStop}
             isListening={isRecording}
             isProcessing={isProcessing}
+            isPendingStart={isPendingStart}
             disabled={permissionState === 'denied' || connectionState === 'error'}
             mode={context === 'kiosk' ? 'toggle' : 'hold'}
             size={context === 'kiosk' ? 'large' : 'normal'}
