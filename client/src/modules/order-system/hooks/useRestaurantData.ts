@@ -31,7 +31,7 @@ export function useRestaurantData(restaurantId: string | undefined) {
         setLoading(true);
         setError(null);
         
-        const response = await httpClient.get<RestaurantData>(`/restaurants/${restaurantId}`);
+        const response = await httpClient.get<RestaurantData>(`/api/v1/restaurants/${restaurantId}`);
         
         if (response && 'success' in response && response.success && (response as any).data) {
           setRestaurant((response as any).data);

@@ -75,7 +75,7 @@ export function useRestaurantConfig(restaurantId: string): UseRestaurantConfigRe
         configLogger.debug('Fetching restaurant config', { restaurantId });
 
         // Fetch from server - this endpoint returns public config
-        const response = await httpClient.get<RestaurantConfig>(`/api/restaurants/${restaurantId}/public`);
+        const response = await httpClient.get<RestaurantConfig>(`/api/v1/restaurants/${restaurantId}/public`);
 
         if (!isMounted) return;
 
