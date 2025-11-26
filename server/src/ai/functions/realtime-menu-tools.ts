@@ -303,9 +303,11 @@ async function lookupModifierPrices(
 
       if (matchingRule) {
         // price_adjustment is in cents, convert to dollars
+        // Math.max(0, ...) prevents negative prices (modifiers cannot give discounts per business rule)
+        const price = Math.max(0, (matchingRule.price_adjustment || 0) / 100);
         return {
           name: modName,
-          price: (matchingRule.price_adjustment || 0) / 100
+          price
         };
       }
 
@@ -699,6 +701,20 @@ export const menuFunctionTools = {
     },
     handler: async (_args: AddToOrderArgs, context: MenuToolContext): Promise<MenuToolResult> => {
       try {
+        // INPUT VALIDATION
+        // Clamp quantity to 1-100 range (agent can follow up for large orders before payment)
+        const quantity = Math.max(1, Math.min(100, Math.floor(_args.quantity || 1)));
+        // Truncate notes to 1000 characters max (silent truncation per business decision)
+        const notes = (_args.notes || '').trim().slice(0, 1000) || undefined;
+
+        // Log if quantity was clamped for debugging
+        if (_args.quantity !== quantity) {
+          logger.info('[MenuTools] Quantity clamped', {
+            original: _args.quantity,
+            clamped: quantity
+          });
+        }
+
         // Get menu item details
         const { data: menuItem, error } = await supabase
           .from('menu_items')
@@ -734,22 +750,22 @@ export const menuFunctionTools = {
           );
 
           if (existingItem) {
-            // Update quantity
-            existingItem.quantity += _args.quantity;
+            // Update quantity (use validated quantity)
+            existingItem.quantity += quantity;
           } else {
             // Add new item with modifier prices
             const newItem: CartItem = {
               id: `${Date.now()}_${Math.random()}`,
               menu_item_id: _args.id,
               name: menuItem.name,
-              quantity: _args.quantity,
+              quantity: quantity, // Use validated quantity
               price: menuItem.price,
               modifiers: modifiersWithPrices
             };
 
-            // Only add notes if provided
-            if (_args.notes) {
-              newItem.notes = _args.notes;
+            // Only add notes if provided (use validated notes)
+            if (notes) {
+              newItem.notes = notes;
             }
 
             cart.items.push(newItem);
@@ -774,11 +790,11 @@ export const menuFunctionTools = {
               },
               added: {
                 name: menuItem.name,
-                quantity: _args.quantity,
+                quantity: quantity, // Use validated quantity
                 price: menuItem.price
               }
             },
-            message: `Added ${_args.quantity} ${menuItem.name} to your order`
+            message: `Added ${quantity} ${menuItem.name} to your order`
           };
         });
       } catch (error) {

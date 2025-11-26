@@ -653,4 +653,273 @@ describe('Realtime Menu Tools - Critical Functions', () => {
       expect(result.data?.cart.item_count).toBe(2);
     });
   });
+
+  describe('Input Validation - Quantity and Notes', () => {
+    it('should clamp quantity below 1 to 1', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'menu_items') {
+          return createMockQueryBuilder({
+            data: { id: 'item-1', name: 'Burger', price: 10.0, available: true },
+            error: null,
+          });
+        }
+        if (table === 'voice_modifier_rules') {
+          return createMockQueryBuilder({ data: [], error: null });
+        }
+        if (table === 'restaurants') {
+          return createMockQueryBuilder({ data: { tax_rate: 0.0825 }, error: null });
+        }
+        return createMockQueryBuilder({ data: null, error: null });
+      });
+
+      const context = { sessionId: 'clamp-low-session', restaurantId: mockRestaurantId };
+      const args = { id: 'item-1', quantity: 0, modifiers: [] };
+
+      const result = await menuFunctionTools.add_to_order.handler(args, context);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.cart.items[0].quantity).toBe(1);
+      expect(result.data?.added.quantity).toBe(1);
+    });
+
+    it('should clamp quantity above 100 to 100', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'menu_items') {
+          return createMockQueryBuilder({
+            data: { id: 'item-1', name: 'Burger', price: 10.0, available: true },
+            error: null,
+          });
+        }
+        if (table === 'voice_modifier_rules') {
+          return createMockQueryBuilder({ data: [], error: null });
+        }
+        if (table === 'restaurants') {
+          return createMockQueryBuilder({ data: { tax_rate: 0.0825 }, error: null });
+        }
+        return createMockQueryBuilder({ data: null, error: null });
+      });
+
+      const context = { sessionId: 'clamp-high-session', restaurantId: mockRestaurantId };
+      const args = { id: 'item-1', quantity: 999, modifiers: [] };
+
+      const result = await menuFunctionTools.add_to_order.handler(args, context);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.cart.items[0].quantity).toBe(100);
+      expect(result.data?.added.quantity).toBe(100);
+      expect(result.message).toContain('Added 100 Burger');
+    });
+
+    it('should clamp negative quantity to 1', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'menu_items') {
+          return createMockQueryBuilder({
+            data: { id: 'item-1', name: 'Burger', price: 10.0, available: true },
+            error: null,
+          });
+        }
+        if (table === 'voice_modifier_rules') {
+          return createMockQueryBuilder({ data: [], error: null });
+        }
+        if (table === 'restaurants') {
+          return createMockQueryBuilder({ data: { tax_rate: 0.0825 }, error: null });
+        }
+        return createMockQueryBuilder({ data: null, error: null });
+      });
+
+      const context = { sessionId: 'clamp-neg-session', restaurantId: mockRestaurantId };
+      const args = { id: 'item-1', quantity: -5, modifiers: [] };
+
+      const result = await menuFunctionTools.add_to_order.handler(args, context);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.cart.items[0].quantity).toBe(1);
+    });
+
+    it('should floor fractional quantities', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'menu_items') {
+          return createMockQueryBuilder({
+            data: { id: 'item-1', name: 'Burger', price: 10.0, available: true },
+            error: null,
+          });
+        }
+        if (table === 'voice_modifier_rules') {
+          return createMockQueryBuilder({ data: [], error: null });
+        }
+        if (table === 'restaurants') {
+          return createMockQueryBuilder({ data: { tax_rate: 0.0825 }, error: null });
+        }
+        return createMockQueryBuilder({ data: null, error: null });
+      });
+
+      const context = { sessionId: 'floor-session', restaurantId: mockRestaurantId };
+      const args = { id: 'item-1', quantity: 2.7, modifiers: [] };
+
+      const result = await menuFunctionTools.add_to_order.handler(args, context);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.cart.items[0].quantity).toBe(2);
+    });
+
+    it('should truncate notes to 1000 characters', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'menu_items') {
+          return createMockQueryBuilder({
+            data: { id: 'item-1', name: 'Burger', price: 10.0, available: true },
+            error: null,
+          });
+        }
+        if (table === 'voice_modifier_rules') {
+          return createMockQueryBuilder({ data: [], error: null });
+        }
+        if (table === 'restaurants') {
+          return createMockQueryBuilder({ data: { tax_rate: 0.0825 }, error: null });
+        }
+        return createMockQueryBuilder({ data: null, error: null });
+      });
+
+      const longNotes = 'a'.repeat(2000);
+      const context = { sessionId: 'truncate-notes-session', restaurantId: mockRestaurantId };
+      const args = { id: 'item-1', quantity: 1, modifiers: [], notes: longNotes };
+
+      const result = await menuFunctionTools.add_to_order.handler(args, context);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.cart.items[0].notes?.length).toBe(1000);
+    });
+
+    it('should trim whitespace from notes', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'menu_items') {
+          return createMockQueryBuilder({
+            data: { id: 'item-1', name: 'Burger', price: 10.0, available: true },
+            error: null,
+          });
+        }
+        if (table === 'voice_modifier_rules') {
+          return createMockQueryBuilder({ data: [], error: null });
+        }
+        if (table === 'restaurants') {
+          return createMockQueryBuilder({ data: { tax_rate: 0.0825 }, error: null });
+        }
+        return createMockQueryBuilder({ data: null, error: null });
+      });
+
+      const context = { sessionId: 'trim-notes-session', restaurantId: mockRestaurantId };
+      const args = { id: 'item-1', quantity: 1, modifiers: [], notes: '  extra crispy  ' };
+
+      const result = await menuFunctionTools.add_to_order.handler(args, context);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.cart.items[0].notes).toBe('extra crispy');
+    });
+
+    it('should not add notes field when notes is empty or whitespace', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'menu_items') {
+          return createMockQueryBuilder({
+            data: { id: 'item-1', name: 'Burger', price: 10.0, available: true },
+            error: null,
+          });
+        }
+        if (table === 'voice_modifier_rules') {
+          return createMockQueryBuilder({ data: [], error: null });
+        }
+        if (table === 'restaurants') {
+          return createMockQueryBuilder({ data: { tax_rate: 0.0825 }, error: null });
+        }
+        return createMockQueryBuilder({ data: null, error: null });
+      });
+
+      const context = { sessionId: 'empty-notes-session', restaurantId: mockRestaurantId };
+      const args = { id: 'item-1', quantity: 1, modifiers: [], notes: '   ' };
+
+      const result = await menuFunctionTools.add_to_order.handler(args, context);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.cart.items[0].notes).toBeUndefined();
+    });
+  });
+
+  describe('Input Validation - Negative Modifier Prices', () => {
+    it('should reject negative modifier prices (set to 0)', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'menu_items') {
+          return createMockQueryBuilder({
+            data: { id: 'item-1', name: 'Burger', price: 10.0, available: true },
+            error: null,
+          });
+        }
+        if (table === 'voice_modifier_rules') {
+          return createMockQueryBuilder({
+            data: [
+              {
+                target_name: 'Discount',
+                price_adjustment: -500, // -$5.00 attempted discount
+                trigger_phrases: ['discount'],
+                applicable_menu_item_ids: null,
+                active: true,
+              },
+            ],
+            error: null,
+          });
+        }
+        if (table === 'restaurants') {
+          return createMockQueryBuilder({ data: { tax_rate: 0.0825 }, error: null });
+        }
+        return createMockQueryBuilder({ data: null, error: null });
+      });
+
+      const context = { sessionId: 'negative-price-session', restaurantId: mockRestaurantId };
+      const args = { id: 'item-1', quantity: 1, modifiers: ['discount'] };
+
+      const result = await menuFunctionTools.add_to_order.handler(args, context);
+
+      expect(result.success).toBe(true);
+      // Price should be 0, not -5 (modifiers cannot give discounts)
+      expect(result.data?.cart.items[0].modifiers?.[0].price).toBe(0);
+      // Subtotal should be base price only ($10), not $5 discount
+      expect(parseFloat(result.data?.cart.subtotal)).toBe(10.0);
+    });
+
+    it('should allow positive modifier prices', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'menu_items') {
+          return createMockQueryBuilder({
+            data: { id: 'item-1', name: 'Burger', price: 10.0, available: true },
+            error: null,
+          });
+        }
+        if (table === 'voice_modifier_rules') {
+          return createMockQueryBuilder({
+            data: [
+              {
+                target_name: 'Extra Cheese',
+                price_adjustment: 150, // +$1.50
+                trigger_phrases: ['extra cheese'],
+                applicable_menu_item_ids: null,
+                active: true,
+              },
+            ],
+            error: null,
+          });
+        }
+        if (table === 'restaurants') {
+          return createMockQueryBuilder({ data: { tax_rate: 0.0825 }, error: null });
+        }
+        return createMockQueryBuilder({ data: null, error: null });
+      });
+
+      const context = { sessionId: 'positive-price-session', restaurantId: mockRestaurantId };
+      const args = { id: 'item-1', quantity: 1, modifiers: ['extra cheese'] };
+
+      const result = await menuFunctionTools.add_to_order.handler(args, context);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.cart.items[0].modifiers?.[0].price).toBe(1.5);
+      // Subtotal should include modifier: $10 + $1.50 = $11.50
+      expect(parseFloat(result.data?.cart.subtotal)).toBe(11.5);
+    });
+  });
 });

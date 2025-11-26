@@ -1,8 +1,10 @@
 # TODO-022: Replace 23 `any` Types in VoiceEventHandler
 
 ## Metadata
-- **Status**: pending
+- **Status**: completed
 - **Priority**: P1 (Critical)
+- **Completed**: 2025-11-26
+- **Resolution**: Types already implemented in VoiceEventHandler.ts (lines 9-400+)
 - **Issue ID**: 022
 - **Tags**: typescript, type-safety, voice, code-quality, code-review
 - **Dependencies**: None
