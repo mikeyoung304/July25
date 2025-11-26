@@ -134,6 +134,9 @@ export class VoiceSessionConfig extends EventEmitter implements IVoiceSessionCon
     const response = await fetch(`${apiBase}/api/v1/realtime/session`, {
       method: 'POST',
       headers,
+      body: JSON.stringify({
+        context: this.context, // Pass context for server-side VAD configuration
+      }),
     });
 
     if (!response.ok) {

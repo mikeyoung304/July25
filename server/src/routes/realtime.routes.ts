@@ -400,6 +400,28 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
       toolsCount: tools.length
     });
 
+    // Determine turn detection mode based on context
+    // Kiosk context uses VAD for natural conversation flow (tap to start, auto-stop on silence)
+    // Server context uses manual PTT mode (hold to talk)
+    const context = req.body?.context as string | undefined;
+    const isKioskContext = context === 'kiosk';
+
+    const turnDetection = isKioskContext
+      ? {
+          type: 'server_vad',
+          threshold: 0.6,                // Higher threshold for noisy restaurant environment
+          prefix_padding_ms: 400,        // Capture lead-in audio for better recognition
+          silence_duration_ms: 1500,     // 1.5s silence = end of speech
+          create_response: true,         // Auto-trigger AI response when speech ends
+        }
+      : null; // Manual PTT mode for server context
+
+    realtimeLogger.info('Configuring turn detection', {
+      context,
+      isKioskContext,
+      turnDetectionType: isKioskContext ? 'server_vad' : 'manual'
+    });
+
     // Request ephemeral token from OpenAI with full session configuration
     // Use AbortController for timeout to prevent hanging requests
     const controller = new AbortController();
@@ -427,7 +449,7 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
           },
           tools,
           tool_choice: 'auto',
-          turn_detection: null, // Manual PTT mode
+          turn_detection: turnDetection,
           temperature: 0.6,
           max_response_output_tokens: 500
         }),
