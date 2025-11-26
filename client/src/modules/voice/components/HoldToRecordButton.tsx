@@ -10,6 +10,9 @@ interface HoldToRecordButtonProps {
   isProcessing: boolean;
   isPlayingAudio?: boolean;
   isPendingStart?: boolean; // True when user tapped but connection isn't ready yet
+  isConnected?: boolean; // True when WebRTC connection is established
+  isSessionReady?: boolean; // True when session is configured and ready for recording
+  connectionState?: 'disconnected' | 'connecting' | 'connected' | 'error'; // Current connection state
   disabled?: boolean;
   className?: string;
   mode?: 'hold' | 'toggle' | 'vad'; // Interaction mode: hold to talk, tap to toggle, or VAD (tap to start only)
@@ -25,6 +28,9 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   isProcessing,
   isPlayingAudio = false,
   isPendingStart = false,
+  isConnected = true, // Default to true for backwards compatibility
+  isSessionReady = true, // Default to true for backwards compatibility
+  connectionState = 'connected', // Default to connected for backwards compatibility
   disabled = false,
   className,
   mode = 'hold',
@@ -236,6 +242,13 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   }, []);
 
   const getAriaLabel = () => {
+    // Connection states first
+    if (connectionState === 'disconnected') return 'Tap to connect to voice service';
+    if (connectionState === 'connecting' || isPendingStart) return 'Connecting to voice service...';
+    if (connectionState === 'error') return 'Voice connection error - tap to retry';
+    if (isConnected && !isSessionReady) return 'Initializing voice session...';
+
+    // Ready states
     if (isPlayingAudio) return 'AI is speaking';
     if (mode === 'vad') {
       if (isListening) return 'Listening - speak naturally, I will detect when you finish';
@@ -258,19 +271,39 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   // Calculate aria-pressed based on active state
   const ariaPressed = isActive;
 
+  // Determine button color based on state
+  const getButtonColorClass = () => {
+    // Error state - red with error styling
+    if (connectionState === 'error') {
+      return 'bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:bg-red-700 focus:ring-red-500';
+    }
+    // Disconnected - blue/teal to indicate "ready to connect"
+    if (connectionState === 'disconnected') {
+      return 'bg-teal-600 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:bg-teal-700 focus:ring-teal-500';
+    }
+    // Connecting or initializing - gray/muted with pulse
+    if (connectionState === 'connecting' || (isConnected && !isSessionReady)) {
+      return 'bg-gray-500 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:bg-gray-600 focus:ring-gray-400 animate-pulse';
+    }
+    // Active/recording - red
+    if (isActive) {
+      return 'bg-danger shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:bg-danger-dark focus:ring-danger';
+    }
+    // Ready to record - primary green
+    return 'bg-primary shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:bg-primary-dark focus:ring-primary';
+  };
+
   return (
     <div className="relative inline-block">
       <button
         className={cn(
-          'relative rounded-full text-sm font-semibold text-white transition-all duration-300',
+          'relative rounded-full text-sm font-semibold text-white transition-all duration-200',
           'hover:scale-105 active:scale-95 flex flex-col items-center justify-center gap-2',
           'focus:outline-none focus:ring-4 focus:ring-offset-2',
           'select-none', // Prevent text selection on long press
           size === 'large' ? 'w-40 h-40' : 'w-32 h-32', // Larger for kiosk (160px vs 128px)
-          isActive
-            ? 'bg-danger shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:bg-danger-dark focus:ring-danger'
-            : 'bg-primary shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:bg-primary-dark focus:ring-primary',
-          isProcessing && 'animate-pulse',
+          getButtonColorClass(),
+          isProcessing && !connectionState.includes('connect') && 'animate-pulse',
           debounceWarning && showDebounceWarningProp && 'ring-4 ring-yellow-400',
           disabled && 'opacity-50 cursor-not-allowed',
           className
@@ -295,9 +328,16 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
         aria-busy={isProcessing}
         role="button"
       >
-        <Mic className={cn("w-8 h-8", isActive && "animate-pulse")} />
+        <Mic className={cn("w-8 h-8", isActive && "animate-pulse", connectionState === 'connecting' && "animate-spin")} />
         <span className="text-center leading-tight">
-          {isPlayingAudio ? 'AI Speaking...' :
+          {/* Connection states first */}
+          {connectionState === 'disconnected' && !isPendingStart ? 'Tap to Connect' :
+           connectionState === 'connecting' || isPendingStart ? 'Connecting...' :
+           connectionState === 'error' ? 'Connection Error' :
+           /* Connected but session not ready */
+           isConnected && !isSessionReady ? 'Initializing...' :
+           /* Ready states */
+           isPlayingAudio ? 'AI Speaking...' :
            isActive ? (mode === 'vad' ? 'Listening...' : 'Listening...') :
            isProcessing ? 'Processing...' :
            mode === 'vad' ? 'Tap to Speak' :

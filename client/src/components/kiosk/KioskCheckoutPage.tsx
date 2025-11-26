@@ -158,7 +158,8 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       const orderResponse = await createOrderRequest('/api/v1/orders', {
         type: 'kiosk',
         items: cart.items.map(item => ({
-          menu_item_id: item.menuItemId || item.menuItem?.id,
+          id: item.id, // Cart item ID (required by OrderPayload)
+          menu_item_id: item.menuItemId || item.menuItem?.id, // Menu item reference
           name: item.name || item.menuItem?.name,
           quantity: item.quantity,
           price: item.price || item.menuItem?.price,

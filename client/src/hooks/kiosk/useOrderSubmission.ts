@@ -28,7 +28,8 @@ export function useOrderSubmission() {
       const orderData = {
         type: 'kiosk' as const,
         items: items.map(item => ({
-          menu_item_id: item.menuItem.id,
+          id: `kiosk-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Cart item ID (required by OrderPayload)
+          menu_item_id: item.menuItem.id, // Menu item reference
           name: item.menuItem.name,
           quantity: item.quantity,
           price: item.menuItem.price,

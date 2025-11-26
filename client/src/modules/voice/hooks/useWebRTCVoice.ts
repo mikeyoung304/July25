@@ -42,7 +42,7 @@ export interface UseWebRTCVoiceReturn {
  * React hook for WebRTC voice integration with OpenAI Realtime API
  */
 export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVoiceReturn {
-  const { autoConnect: _autoConnect = true, context, debug = false, muteAudioOutput = false, onTranscript, onOrderDetected, onError, onTokenRefreshFailed } = options;
+  const { autoConnect = false, context, debug = false, muteAudioOutput = false, onTranscript, onOrderDetected, onError, onTokenRefreshFailed } = options;
 
   // Get restaurant ID from environment or use default
   const restaurantId = import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'grow';
@@ -207,7 +207,18 @@ export function useWebRTCVoice(options: UseWebRTCVoiceOptions = {}): UseWebRTCVo
       client.off('token.refresh.failed', handleTokenRefreshFailed);
     };
   }, []); // Empty deps - only attach/detach once
-  
+
+  // Auto-connect on mount if enabled (for kiosk mode pre-connection)
+  useEffect(() => {
+    if (autoConnect && clientRef.current) {
+      logger.info('[useWebRTCVoice] Auto-connecting on mount (kiosk mode)');
+      clientRef.current.connect().catch((err) => {
+        logger.error('[useWebRTCVoice] Auto-connect failed', { message: err?.message });
+        setError(err);
+      });
+    }
+  }, [autoConnect]); // Only run when autoConnect changes
+
   // Connect to service
   const connect = useCallback(async () => {
     if (!clientRef.current) {

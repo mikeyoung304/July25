@@ -322,7 +322,10 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
             isListening={isRecording}
             isProcessing={isProcessing}
             isPendingStart={isPendingStart}
-            disabled={permissionState === 'denied' || connectionState === 'error'}
+            isConnected={isConnected}
+            isSessionReady={isSessionReady}
+            connectionState={connectionState}
+            disabled={permissionState === 'denied'}
             mode={context === 'kiosk' ? 'vad' : 'hold'}  // VAD mode for kiosk: tap to start, auto-stop on silence
             size={context === 'kiosk' ? 'large' : 'normal'}
             showDebounceWarning={debug}

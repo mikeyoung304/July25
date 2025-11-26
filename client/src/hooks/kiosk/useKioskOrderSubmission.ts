@@ -45,7 +45,8 @@ export function useKioskOrderSubmission() {
       const orderData = {
         type: 'kiosk' as const,
         items: items.map(item => ({
-          menu_item_id: item.menuItem.id,
+          id: item.id, // Cart item ID (required by OrderPayload)
+          menu_item_id: item.menuItem.id, // Menu item reference
           name: item.menuItem.name,
           quantity: item.quantity,
           price: item.menuItem.price,
