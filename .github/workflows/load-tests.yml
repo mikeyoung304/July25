@@ -1,0 +1,167 @@
+# Load Tests Workflow
+# Runs nightly to validate payment processing and API performance under load
+#
+# Per plan: tests/load/payment-processing.k6.js
+# Targets: 100 concurrent users, P95 <500ms, >99% success rate
+#
+# Related:
+# - plans/feat-integration-and-load-testing.md
+# - tests/load/payment-processing.k6.js
+
+name: Load Tests (Nightly)
+
+on:
+  schedule:
+    # Run at 2 AM UTC daily (9 PM EST)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: 'Test duration (e.g., 30s, 5m, 10m)'
+        required: false
+        default: '5m'
+      vus:
+        description: 'Number of virtual users'
+        required: false
+        default: '50'
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - local
+
+concurrency:
+  group: load-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  K6_VERSION: '0.48.0'
+
+jobs:
+  load-tests:
+    name: Payment Load Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Only run on schedule or manual trigger (not on push/PR)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup k6
+        uses: grafana/k6-action@v0.3.1
+        with:
+          k6-version: ${{ env.K6_VERSION }}
+
+      - name: Determine test parameters
+        id: params
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "duration=${{ github.event.inputs.duration }}" >> $GITHUB_OUTPUT
+            echo "vus=${{ github.event.inputs.vus }}" >> $GITHUB_OUTPUT
+            if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
+              echo "base_url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
+            else
+              echo "base_url=http://localhost:3001" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Scheduled run defaults
+            echo "duration=5m" >> $GITHUB_OUTPUT
+            echo "vus=50" >> $GITHUB_OUTPUT
+            echo "base_url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Payment Load Test
+        run: |
+          k6 run \
+            --duration ${{ steps.params.outputs.duration }} \
+            --vus ${{ steps.params.outputs.vus }} \
+            tests/load/payment-processing.k6.js
+        env:
+          BASE_URL: ${{ steps.params.outputs.base_url }}
+          AUTH_TOKEN: ${{ secrets.LOAD_TEST_AUTH_TOKEN }}
+          RESTAURANT_ID: ${{ secrets.LOAD_TEST_RESTAURANT_ID }}
+        continue-on-error: true
+        id: k6_run
+
+      - name: Upload k6 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-results-${{ github.run_id }}
+          path: |
+            k6-results.json
+          retention-days: 30
+
+      - name: Check test results
+        if: steps.k6_run.outcome == 'failure'
+        run: |
+          echo "::error::Load test failed! Check artifacts for details."
+          echo "Review k6-results.json for threshold failures."
+          exit 1
+
+      - name: Notify on failure
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🚨 Nightly Load Test Failed';
+            const body = `
+            ## Load Test Failure Report
+
+            **Workflow:** ${context.workflow}
+            **Run:** ${context.runNumber}
+            **Date:** ${new Date().toISOString()}
+
+            ### Action Required
+            Review the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.
+
+            ### Possible Causes
+            - API performance degradation
+            - Infrastructure issues
+            - Code changes affecting payment processing
+
+            ### Investigation Steps
+            1. Download k6-results.json from artifacts
+            2. Check P95/P99 response times
+            3. Review payment_success_rate metric
+            4. Compare with previous successful runs
+            `;
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['bug', 'performance', 'automated']
+            });
+
+  # Smoke test (faster, runs more frequently if needed)
+  smoke-test:
+    name: Load Smoke Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'local'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup k6
+        uses: grafana/k6-action@v0.3.1
+
+      - name: Run Smoke Test (Quick)
+        run: |
+          k6 run \
+            --duration 30s \
+            --vus 5 \
+            tests/load/payment-processing.k6.js
+        env:
+          BASE_URL: http://localhost:3001
+          AUTH_TOKEN: test-token
+          RESTAURANT_ID: '11111111-1111-1111-1111-111111111111'

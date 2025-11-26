@@ -100,6 +100,8 @@
     "test:e2e:smoke": "./scripts/run-smoke-tests.sh",
     "voice:smoke": "curl -s http://localhost:3001/api/v1/ai/voice/handshake | jq .",
     "memory:check": "ps aux | grep -E 'node|vite' | awk '{sum+=$6} END {printf \"Memory: %.0f MB\\n\", sum/1024}'",
+    "test:load": "k6 run tests/load/payment-processing.k6.js",
+    "test:load:quick": "k6 run --duration 30s --vus 10 tests/load/payment-processing.k6.js",
     "clean:all": "rm -rf node_modules client/node_modules server/node_modules",
     "reset": "pkill -f vite 2>/dev/null || true; npm run clean",
     "prepare": "command -v husky >/dev/null 2>&1 && husky install || true",
