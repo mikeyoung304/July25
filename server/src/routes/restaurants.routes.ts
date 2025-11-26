@@ -23,9 +23,11 @@ router.get('/:id/public', async (req, res, next) => {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
     // Fetch public restaurant config from database
+    // NOTE: Only select columns that exist in production schema
+    // currency and default_tip_percentages are not in the actual table
     const query = supabase
       .from('restaurants')
-      .select('id, name, tax_rate, currency, timezone, default_tip_percentages');
+      .select('id, name, tax_rate, timezone');
 
     const { data: restaurant, error } = isUUID
       ? await query.eq('id', id).single()
@@ -43,13 +45,14 @@ router.get('/:id/public', async (req, res, next) => {
     }
 
     // Return public config (snake_case per ADR-001)
+    // Note: currency and default_tip_percentages not in production schema, use defaults
     res.json({
       id: restaurant.id,
       name: restaurant.name,
       tax_rate: restaurant.tax_rate,
-      currency: restaurant.currency || 'USD',
+      currency: 'USD',
       timezone: restaurant.timezone || 'America/Los_Angeles',
-      default_tip_percentages: restaurant.default_tip_percentages || [15, 18, 20, 25]
+      default_tip_percentages: [15, 18, 20, 25]
     });
   } catch (error) {
     next(error);
