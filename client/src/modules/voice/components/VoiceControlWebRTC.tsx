@@ -323,7 +323,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
             isProcessing={isProcessing}
             isPendingStart={isPendingStart}
             disabled={permissionState === 'denied' || connectionState === 'error'}
-            mode={context === 'kiosk' ? 'toggle' : 'hold'}
+            mode={context === 'kiosk' ? 'vad' : 'hold'}  // VAD mode for kiosk: tap to start, auto-stop on silence
             size={context === 'kiosk' ? 'large' : 'normal'}
             showDebounceWarning={debug}
           />
@@ -332,7 +332,7 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
           <div className="text-center">
             {permissionState === 'prompt' && !isConnected && (
               <p className="text-sm text-gray-500">
-                {context === 'kiosk' ? 'Tap' : 'Hold'} button to start voice ordering
+                Tap to start voice ordering
               </p>
             )}
             {permissionState === 'granted' && !isConnected && connectionState === 'connecting' && (
@@ -343,14 +343,19 @@ export const VoiceControlWebRTC: React.FC<VoiceControlWebRTCProps> = ({
             )}
             {isConnected && isSessionReady && !isRecording && !isProcessing && (
               <p className="text-sm text-gray-500">
-                {context === 'kiosk' ? 'Tap' : 'Hold'} button to speak
+                Tap to speak your order
               </p>
             )}
-            {isRecording && (
+            {isRecording && context === 'kiosk' && (
+              <p className="text-sm text-red-600 font-medium animate-pulse">
+                Listening... speak naturally
+              </p>
+            )}
+            {isRecording && context !== 'kiosk' && (
               <p className="text-sm text-red-600 font-medium animate-pulse">Recording...</p>
             )}
             {isProcessing && !isRecording && (
-              <p className="text-sm text-blue-600">Processing...</p>
+              <p className="text-sm text-blue-600">Processing your order...</p>
             )}
           </div>
         </div>

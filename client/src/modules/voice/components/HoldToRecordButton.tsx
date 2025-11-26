@@ -12,10 +12,10 @@ interface HoldToRecordButtonProps {
   isPendingStart?: boolean; // True when user tapped but connection isn't ready yet
   disabled?: boolean;
   className?: string;
-  mode?: 'hold' | 'toggle'; // Interaction mode: hold to talk or tap to toggle
+  mode?: 'hold' | 'toggle' | 'vad'; // Interaction mode: hold to talk, tap to toggle, or VAD (tap to start only)
   showDebounceWarning?: boolean; // Show debounce warning to users (default: false)
   size?: 'normal' | 'large'; // Button size: normal (128px) or large (160px for kiosk)
-  debounceMs?: number; // Custom debounce delay in milliseconds (default: 300ms for toggle, 100ms for hold)
+  debounceMs?: number; // Custom debounce delay in milliseconds (default: 300ms for toggle/vad, 100ms for hold)
 }
 
 export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
@@ -37,12 +37,12 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   const [debounceWarning, setDebounceWarning] = useState(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Calculate effective debounce: 300ms for kiosk/toggle mode, 100ms for hold mode
-  const effectiveDebounce = debounceMs ?? (mode === 'toggle' ? 300 : 100);
+  // Calculate effective debounce: 300ms for toggle/vad mode, 100ms for hold mode
+  const effectiveDebounce = debounceMs ?? (mode === 'hold' ? 100 : 300);
 
   // Derive active state from props instead of relying on local isToggled for visual display
   // This prevents flicker where button shows "Listening..." when not actually recording
-  const isActive = mode === 'toggle'
+  const isActive = (mode === 'toggle' || mode === 'vad')
     ? (isListening || isPendingStart)
     : isHoldingRef.current;
 
@@ -82,9 +82,10 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
     onMouseUp();
   }, [onMouseUp, effectiveDebounce]);
 
-  // Toggle mode: click to start/stop
+  // Toggle/VAD mode: click to start (and optionally stop in toggle mode)
+  // VAD mode: tap to start only - VAD auto-detects end of speech
+  // Toggle mode: tap to start, tap again to stop
   // FIXED: Derive recording state from props (isListening, isPendingStart) instead of local state
-  // This ensures button state matches actual recording state from VoiceStateMachine
   const handleToggleClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
 
@@ -101,7 +102,18 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
 
     lastActionTimeRef.current = now;
 
-    // Use isActive (derived from props) to determine current state
+    // VAD mode: only start recording, never stop (VAD handles stop)
+    if (mode === 'vad') {
+      if (!isActive) {
+        // Start recording - VAD will auto-stop when speech ends
+        isHoldingRef.current = true;
+        onMouseDown();
+      }
+      // In VAD mode, tapping while listening does nothing (VAD auto-stops)
+      return;
+    }
+
+    // Toggle mode: tap to start/stop
     if (isActive) {
       // Stop recording
       isHoldingRef.current = false;
@@ -111,11 +123,11 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
       isHoldingRef.current = true;
       onMouseDown();
     }
-  }, [disabled, isActive, onMouseDown, onMouseUp, effectiveDebounce]);
+  }, [disabled, isActive, mode, onMouseDown, onMouseUp, effectiveDebounce]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    if (mode === 'toggle') {
+    if (mode === 'toggle' || mode === 'vad') {
       handleToggleClick(e);
     } else {
       handleStart();
@@ -127,7 +139,7 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
     if (mode === 'hold') {
       handleStop();
     }
-    // In toggle mode, mouseUp doesn't stop recording
+    // In toggle/vad mode, mouseUp doesn't stop recording
   }, [mode, handleStop]);
   
   const handleMouseLeave = useCallback(() => {
@@ -140,7 +152,7 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
 
-    // NEW: Reject multi-touch in toggle mode (kiosk)
+    // Reject multi-touch in toggle/vad mode (kiosk)
     if (e.touches.length > 1) {
       if (showDebounceWarningProp) {
         logger.warn('[HoldToRecordButton] Multi-touch rejected');
@@ -148,7 +160,7 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
       return;
     }
 
-    if (mode === 'toggle') {
+    if (mode === 'toggle' || mode === 'vad') {
       handleToggleClick(e);
     } else {
       handleStart();
@@ -225,7 +237,12 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
 
   const getAriaLabel = () => {
     if (isPlayingAudio) return 'AI is speaking';
-    if (mode === 'toggle') {
+    if (mode === 'vad') {
+      if (isListening) return 'Listening - speak naturally, I will detect when you finish';
+      if (isProcessing) return 'Processing your voice order';
+      if (disabled) return 'Voice recording unavailable';
+      return 'Tap to start speaking your order';
+    } else if (mode === 'toggle') {
       if (isListening) return 'Tap to stop recording';
       if (isProcessing) return 'Processing your voice order';
       if (disabled) return 'Voice recording unavailable';
@@ -278,11 +295,12 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
         aria-busy={isProcessing}
         role="button"
       >
-        <Mic className="w-8 h-8" />
-        <span>
+        <Mic className={cn("w-8 h-8", isActive && "animate-pulse")} />
+        <span className="text-center leading-tight">
           {isPlayingAudio ? 'AI Speaking...' :
-           isActive ? 'Listening...' :
+           isActive ? (mode === 'vad' ? 'Listening...' : 'Listening...') :
            isProcessing ? 'Processing...' :
+           mode === 'vad' ? 'Tap to Speak' :
            mode === 'toggle' ? 'Tap to Start' : 'Hold to Speak'}
         </span>
       </button>

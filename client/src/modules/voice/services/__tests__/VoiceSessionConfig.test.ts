@@ -410,7 +410,7 @@ describe('VoiceSessionConfig', () => {
       })
 
       it('uses server VAD when enabled (or kiosk default)', () => {
-        // Kiosk mode now enables VAD by default with higher threshold for noisy environments
+        // Kiosk mode now enables VAD by default with auto-response (no tap to stop needed)
         const vadConfig = new VoiceSessionConfig(
           { ...config, enableVAD: true },
           mockAuthService
@@ -422,8 +422,8 @@ describe('VoiceSessionConfig', () => {
           type: 'server_vad',
           threshold: 0.6,                // Higher for noisy restaurant environment
           prefix_padding_ms: 400,        // Capture lead-in audio
-          silence_duration_ms: 2000,     // 2s silence = end of speech (generous for complex orders)
-          create_response: false
+          silence_duration_ms: 1500,     // 1.5s silence = end of speech (responsive but not too eager)
+          create_response: true          // Auto-trigger AI response when speech ends
         })
       })
 

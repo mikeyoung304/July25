@@ -287,10 +287,10 @@ export class VoiceSessionConfig extends EventEmitter implements IVoiceSessionCon
         type: 'server_vad',
         threshold: 0.6,                // Higher threshold for noisy restaurant environment
         prefix_padding_ms: 400,        // Capture lead-in audio for better recognition
-        silence_duration_ms: 2000,     // 2s silence = end of speech (generous for complex orders)
-        create_response: false,        // Manual control for now
+        silence_duration_ms: 1500,     // 1.5s silence = end of speech (responsive but not too eager)
+        create_response: true,         // Auto-trigger AI response when speech ends (no tap to stop needed)
       };
-      logger.info('[VoiceSessionConfig] VAD enabled for kiosk mode');
+      logger.info('[VoiceSessionConfig] VAD enabled for kiosk mode with auto-response');
     }
 
     // PHASE 1: Delegate to shared PromptConfigService

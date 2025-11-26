@@ -307,6 +307,27 @@ export class WebRTCVoiceClient extends EventEmitter {
       }
     });
 
+    // PHASE 2: Handle VAD speech.stopped - auto-transition from RECORDING
+    // When VAD detects end of speech with create_response: true, OpenAI auto-commits audio
+    // We need to transition the state machine to match
+    this.eventHandler.on('speech.stopped', () => {
+      if (this.stateMachine.isState(VoiceState.RECORDING)) {
+        logger.info('[WebRTCVoiceClient] VAD detected speech end, auto-transitioning from RECORDING');
+        try {
+          // Disable microphone to stop audio capture
+          this.connection.disableMicrophone();
+          // Transition: RECORDING → COMMITTING_AUDIO
+          this.stateMachine.transition(VoiceEvent.RECORDING_STOPPED);
+          // With create_response: true, OpenAI auto-commits and creates response
+          // So we also transition through COMMITTING_AUDIO
+          this.stateMachine.transition(VoiceEvent.AUDIO_COMMITTED);
+          this.emit('recording.stopped');
+        } catch (error) {
+          logger.error('[WebRTCVoiceClient] Failed to handle VAD speech.stopped:', error);
+        }
+      }
+    });
+
     // PHASE 2: Handle transcript completion - transition to AWAITING_RESPONSE
     this.eventHandler.on('transcript', (event: any) => {
       if (event.isFinal && this.stateMachine.isState(VoiceState.AWAITING_TRANSCRIPT)) {
@@ -328,6 +349,18 @@ export class WebRTCVoiceClient extends EventEmitter {
           }
         } catch (error) {
           logger.error('[WebRTCVoiceClient] Invalid state transition on response.started:', error);
+        }
+      }
+    });
+
+    // Handle response.complete - AI finished responding, return to IDLE
+    this.eventHandler.on('response.complete', () => {
+      if (this.stateMachine.isState(VoiceState.AWAITING_RESPONSE)) {
+        try {
+          this.stateMachine.transition(VoiceEvent.RESPONSE_COMPLETE);
+          logger.info('[WebRTCVoiceClient] Response complete, returning to IDLE - ready for next turn');
+        } catch (error) {
+          logger.error('[WebRTCVoiceClient] Failed to transition to IDLE on response.complete:', error);
         }
       }
     });
