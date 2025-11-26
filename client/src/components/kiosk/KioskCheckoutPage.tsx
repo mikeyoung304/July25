@@ -221,40 +221,46 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     }
   };
 
-  const handlePaymentNonce = async (token: string) => {
+  const handlePaymentNonce = async (paymentIntentId: string) => {
     const order = await createOrder();
     if (!order) return;
-    
+
     try {
-      // Process the payment
-      const paymentResponse = await processPayment('/api/v1/payments/create', {
-        orderId: order.id,
-        token,
-        amount: cart.total,
-        idempotencyKey: `kiosk-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      // In demo mode, the paymentIntentId is already the demo token from StripePaymentForm
+      // For real Stripe, StripePaymentForm already confirmed the payment client-side
+      // We just need to confirm with the server that payment is complete
+
+      // Confirm the payment with the server
+      const confirmResponse = await processPayment('/api/v1/payments/confirm', {
+        payment_intent_id: paymentIntentId,  // ADR-001: snake_case
+        order_id: order.id,                   // ADR-001: snake_case
+      }, {
+        headers: {
+          'X-Client-Flow': 'kiosk'
+        }
       });
 
-      if (!paymentResponse) {
-        throw new Error('Payment processing failed');
+      if (!confirmResponse) {
+        throw new Error('Payment confirmation failed');
       }
 
-      const payment = paymentResponse as { id?: string; paymentId?: string };
+      const payment = confirmResponse as { paymentId?: string; success?: boolean };
 
       // Navigate to confirmation (cart already cleared after order creation)
-      navigate('/order-confirmation', { 
-        state: { 
+      navigate('/order-confirmation', {
+        state: {
           orderId: order.id,
           order_number: order.order_number,
           estimatedTime: '15-20 minutes',
           items: cart.items,
           total: cart.total,
-          paymentId: payment.id || payment.paymentId,
+          paymentId: payment.paymentId || paymentIntentId,
           isKioskOrder: true,
           isVoiceOrder: !!voiceCheckoutOrchestrator,
           paymentMethod: 'card',
-        } 
+        }
       });
-      
+
       // Notify voice orchestrator if present
       if (voiceCheckoutOrchestrator) {
         voiceCheckoutOrchestrator.handlePaymentSuccess({ ...order, payment });
@@ -263,7 +269,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Payment processing failed';
       form.setFieldError('general' as keyof typeof form.values, errorMessage);
-      
+
       // Notify voice orchestrator if present
       if (voiceCheckoutOrchestrator) {
         voiceCheckoutOrchestrator.handlePaymentError(errorMessage);
