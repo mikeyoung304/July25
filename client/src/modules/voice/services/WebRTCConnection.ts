@@ -483,11 +483,15 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
     if (!this.pc) return;
 
     this.pc.oniceconnectionstatechange = () => {
+      const iceState = this.pc?.iceConnectionState;
       if (this.config.debug) {
-        logger.info('[WebRTCConnection] ICE connection state:', this.pc?.iceConnectionState);
+        logger.info('[WebRTCConnection] ICE connection state:', iceState);
       }
 
-      if (this.pc?.iceConnectionState === 'failed' || this.pc?.iceConnectionState === 'disconnected') {
+      // Emit disconnection event with reason for state machine handling
+      if (iceState === 'failed' || iceState === 'disconnected') {
+        logger.warn(`[WebRTCConnection] ICE connection ${iceState}`);
+        this.emit('ice.disconnection', { reason: `ice_${iceState}` });
         this.handleDisconnection();
       }
     };

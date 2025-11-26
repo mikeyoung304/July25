@@ -130,6 +130,7 @@ export const STATE_TRANSITIONS: Record<
   [VoiceState.RECORDING]: {
     [VoiceEvent.RECORDING_STOPPED]: VoiceState.COMMITTING_AUDIO,
     [VoiceEvent.ERROR_OCCURRED]: VoiceState.ERROR,
+    [VoiceEvent.TIMEOUT_OCCURRED]: VoiceState.IDLE,  // 45s timeout returns to IDLE
     [VoiceEvent.DISCONNECT_REQUESTED]: VoiceState.DISCONNECTING,
   },
 
@@ -182,7 +183,8 @@ export const STATE_TIMEOUTS: Partial<Record<VoiceState, number>> = {
   [VoiceState.CONNECTING]: 15000,                // 15s to establish WebSocket
   [VoiceState.AWAITING_SESSION_CREATED]: 5000,   // 5s to receive session.created
   [VoiceState.AWAITING_SESSION_READY]: 5000,     // 5s to confirm session (must be > WebRTCVoiceClient's 3s fallback)
-  [VoiceState.COMMITTING_AUDIO]: 3000,           // 3s to commit audio buffer
+  [VoiceState.RECORDING]: 45000,                 // 45s max recording time (prevents stuck state)
+  [VoiceState.COMMITTING_AUDIO]: 5000,           // 5s to commit audio buffer (increased from 3s)
   [VoiceState.AWAITING_TRANSCRIPT]: 10000,       // 10s to receive transcript
   [VoiceState.AWAITING_RESPONSE]: 30000,         // 30s to receive full response
   [VoiceState.DISCONNECTING]: 5000,              // 5s to close connection

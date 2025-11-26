@@ -33,7 +33,6 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   debounceMs,
 }) => {
   const isHoldingRef = useRef(false);
-  const [isToggled, setIsToggled] = useState(false);
   const lastActionTimeRef = useRef(0);
   const [debounceWarning, setDebounceWarning] = useState(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -84,6 +83,8 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   }, [onMouseUp, effectiveDebounce]);
 
   // Toggle mode: click to start/stop
+  // FIXED: Derive recording state from props (isListening, isPendingStart) instead of local state
+  // This ensures button state matches actual recording state from VoiceStateMachine
   const handleToggleClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
 
@@ -100,18 +101,17 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
 
     lastActionTimeRef.current = now;
 
-    if (isToggled) {
+    // Use isActive (derived from props) to determine current state
+    if (isActive) {
       // Stop recording
-      setIsToggled(false);
       isHoldingRef.current = false;
       onMouseUp();
     } else {
       // Start recording
-      setIsToggled(true);
       isHoldingRef.current = true;
       onMouseDown();
     }
-  }, [disabled, isToggled, onMouseDown, onMouseUp, effectiveDebounce]);
+  }, [disabled, isActive, onMouseDown, onMouseUp, effectiveDebounce]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -191,34 +191,28 @@ export const HoldToRecordButton: React.FC<HoldToRecordButtonProps> = ({
   const handleTouchCancel = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
 
-    if (mode === 'toggle' && isToggled) {
-      // Reset toggle state on system touch cancel
-      setIsToggled(false);
+    // FIXED: Use isActive (derived from props) instead of local isToggled
+    if (mode === 'toggle' && isActive) {
+      // Reset state on system touch cancel
       isHoldingRef.current = false;
       onMouseUp();
 
       if (showDebounceWarningProp) {
-        logger.info('[HoldToRecordButton] Touch cancelled by system, reset toggle state');
+        logger.info('[HoldToRecordButton] Touch cancelled by system, stopping recording');
       }
     } else if (mode === 'hold') {
       handleStop();
     }
-  }, [mode, isToggled, onMouseUp, handleStop, showDebounceWarningProp]);
+  }, [mode, isActive, onMouseUp, handleStop, showDebounceWarningProp]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     // Prevent context menu (long-press menu) on mobile
     e.preventDefault();
   }, []);
 
-  // Sync toggle state with actual listening state
-  // If recording fails to start (permission denied, not connected, etc.),
-  // isListening will be false but isToggled might be true (user clicked button)
-  // Reset isToggled to match reality
-  useEffect(() => {
-    if (!isListening && isToggled) {
-      setIsToggled(false);
-    }
-  }, [isListening, isToggled]);
+  // REMOVED: Sync effect was necessary for isToggled state
+  // Now that we derive state from props (isListening, isPendingStart),
+  // no sync is needed - button state always reflects reality
 
   // Cleanup timeout on unmount
   useEffect(() => {

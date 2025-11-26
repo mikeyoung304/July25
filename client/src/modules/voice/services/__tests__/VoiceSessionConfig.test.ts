@@ -409,7 +409,8 @@ describe('VoiceSessionConfig', () => {
         expect(result.instructions).toContain(mockMenuContext)
       })
 
-      it('uses server VAD when enabled', () => {
+      it('uses server VAD when enabled (or kiosk default)', () => {
+        // Kiosk mode now enables VAD by default with higher threshold for noisy environments
         const vadConfig = new VoiceSessionConfig(
           { ...config, enableVAD: true },
           mockAuthService
@@ -419,15 +420,21 @@ describe('VoiceSessionConfig', () => {
 
         expect(result.turn_detection).toEqual({
           type: 'server_vad',
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 1500, // Increased from 250ms to allow longer pauses
+          threshold: 0.6,                // Higher for noisy restaurant environment
+          prefix_padding_ms: 400,        // Capture lead-in audio
+          silence_duration_ms: 2000,     // 2s silence = end of speech (generous for complex orders)
           create_response: false
         })
       })
 
-      it('uses manual PTT when VAD disabled', () => {
-        const result = sessionConfig.buildSessionConfig()
+      it('uses manual PTT when VAD disabled AND context is server', () => {
+        // Only server context without explicit VAD enables uses manual PTT
+        // Kiosk mode now enables VAD by default
+        const serverConfig = new VoiceSessionConfig(
+          { ...config, context: 'server', enableVAD: false },
+          mockAuthService
+        )
+        const result = serverConfig.buildSessionConfig()
 
         expect(result.turn_detection).toBeNull()
       })
@@ -512,14 +519,20 @@ describe('VoiceSessionConfig', () => {
       expect(result1.turn_detection).toEqual(result2.turn_detection)
     })
 
-    it('different VAD settings produce different outputs', () => {
-      const manualPTT = sessionConfig.buildSessionConfig()
-
-      const vadConfig = new VoiceSessionConfig(
-        { ...config, enableVAD: true },
+    it('different VAD settings produce different outputs (server vs kiosk)', () => {
+      // Server context (no VAD) vs kiosk context (VAD enabled by default)
+      const serverConfig = new VoiceSessionConfig(
+        { ...config, context: 'server', enableVAD: false },
         mockAuthService
       )
-      const serverVAD = vadConfig.buildSessionConfig()
+      const manualPTT = serverConfig.buildSessionConfig()
+
+      // Kiosk has VAD enabled by default
+      const kioskConfig = new VoiceSessionConfig(
+        { ...config, context: 'kiosk' },
+        mockAuthService
+      )
+      const serverVAD = kioskConfig.buildSessionConfig()
 
       expect(manualPTT.turn_detection).toBeNull()
       expect(serverVAD.turn_detection).not.toBeNull()

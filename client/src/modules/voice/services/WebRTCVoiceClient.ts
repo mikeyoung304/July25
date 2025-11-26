@@ -96,6 +96,26 @@ export class WebRTCVoiceClient extends EventEmitter {
         logger.warn(`[WebRTCVoiceClient] State machine timeout in state: ${state}`);
         this.emit('state.timeout', { state });
 
+        // Handle RECORDING timeout - stop recording gracefully after 45s
+        if (state === VoiceState.RECORDING) {
+          logger.warn('[WebRTCVoiceClient] RECORDING timeout (45s) - stopping recording');
+          try {
+            // Guard: only proceed if still in RECORDING state
+            if (this.stateMachine.canStopRecording()) {
+              // Disable microphone immediately to stop audio capture
+              this.connection.disableMicrophone();
+              // Emit timeout event for UI feedback
+              this.emit('recording.timeout', { duration_ms: 45000, message: 'Recording timed out after 45s' });
+              // Note: State machine will auto-transition to IDLE via TIMEOUT_OCCURRED
+            } else {
+              logger.debug('[WebRTCVoiceClient] State changed before timeout handler, skipping');
+            }
+          } catch (error) {
+            logger.error('[WebRTCVoiceClient] Failed to handle recording timeout:', error);
+          }
+          return; // Don't run default AWAITING_SESSION_READY handling
+        }
+
         // Handle AWAITING_SESSION_READY timeout gracefully by proceeding to IDLE
         // OpenAI may not always send session.updated, but the session is likely ready
         if (state === VoiceState.AWAITING_SESSION_READY) {
@@ -325,6 +345,33 @@ export class WebRTCVoiceClient extends EventEmitter {
         logger.info('[WebRTCVoiceClient] Connection lost, cleaning up');
       }
       this.handleDisconnection();
+    });
+
+    // Handle ICE disconnection during active recording states
+    // This ensures button returns to idle when network drops mid-recording
+    this.connection.on('ice.disconnection', (data: { reason: string }) => {
+      const currentState = this.stateMachine.getState();
+      const activeRecordingStates = [
+        VoiceState.RECORDING,
+        VoiceState.COMMITTING_AUDIO,
+        VoiceState.AWAITING_TRANSCRIPT
+      ];
+
+      if (activeRecordingStates.includes(currentState)) {
+        logger.warn(`[WebRTCVoiceClient] Network disconnected during ${currentState}`, data);
+
+        // Disable microphone immediately to stop audio capture
+        this.connection.disableMicrophone();
+
+        // Force state machine to ERROR state
+        this.stateMachine.forceState(VoiceState.ERROR, `Network disconnection: ${data.reason}`);
+
+        // Emit error event for UI feedback
+        const error = new Error('Network connection lost during recording');
+        (error as any).type = 'NETWORK_DISCONNECTION';
+        (error as any).recoverable = true;
+        this.emit('error', error);
+      }
     });
 
     // Handle specific error types from event handler

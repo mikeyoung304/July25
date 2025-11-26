@@ -510,13 +510,17 @@ describe('VoiceStateMachine', () => {
     });
 
     it('should have reasonable timeout durations', () => {
-      // All timeouts should be between 3s and 30s
+      // All timeouts should be between 3s and 45s (RECORDING state has 45s max)
       for (const [_state, duration] of Object.entries(STATE_TIMEOUTS)) {
         if (duration !== undefined) {
           expect(duration).toBeGreaterThanOrEqual(3000);
-          expect(duration).toBeLessThanOrEqual(30000);
+          expect(duration).toBeLessThanOrEqual(45000);
         }
       }
+    });
+
+    it('should have RECORDING state timeout for stuck recording prevention', () => {
+      expect(STATE_TIMEOUTS[VoiceState.RECORDING]).toBe(45000);
     });
   });
 

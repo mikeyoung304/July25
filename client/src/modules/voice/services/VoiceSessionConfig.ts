@@ -277,15 +277,20 @@ export class VoiceSessionConfig extends EventEmitter implements IVoiceSessionCon
     });
 
     // Determine turn detection mode
+    // Enable VAD by default for kiosk context (natural conversation flow)
+    // or if explicitly enabled via config
+    const shouldEnableVAD = this.context === 'kiosk' || this.config.enableVAD === true;
     let turnDetection: any = null; // Default: manual PTT
-    if (this.config.enableVAD) {
+
+    if (shouldEnableVAD) {
       turnDetection = {
         type: 'server_vad',
-        threshold: 0.5,
-        prefix_padding_ms: 300,
-        silence_duration_ms: 1500, // Increased from 250ms - allow longer pauses
-        create_response: false, // Still manually trigger responses
+        threshold: 0.6,                // Higher threshold for noisy restaurant environment
+        prefix_padding_ms: 400,        // Capture lead-in audio for better recognition
+        silence_duration_ms: 2000,     // 2s silence = end of speech (generous for complex orders)
+        create_response: false,        // Manual control for now
       };
+      logger.info('[VoiceSessionConfig] VAD enabled for kiosk mode');
     }
 
     // PHASE 1: Delegate to shared PromptConfigService
