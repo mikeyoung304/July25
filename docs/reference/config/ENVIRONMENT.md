@@ -1,9 +1,7 @@
 # Environment Variables Reference
 
-**Last Updated:** 2025-11-19
-
-**Last Updated**: 2025-11-15
-**Version**: 6.0.14
+**Last Updated:** 2025-11-25
+**Version**: 6.0.17
 **Status**: Production Ready
 
 This document provides the authoritative reference for all environment variables used in the Restaurant OS system. Variables are validated at startup using Zod schemas per ADR-009 fail-fast philosophy.
@@ -21,15 +19,13 @@ The following variables MUST be set for the application to function:
 | SUPABASE_SERVICE_KEY | String | Yes | - | supabase service key |
 | SUPABASE_JWT_SECRET | String | Yes | - | supabase jwt secret |
 | OPENAI_API_KEY | String | Yes | - | ====================. OpenAI Configuration. ==================== |
-| SQUARE_ACCESS_TOKEN | String | Yes | - | ====================. Square Payment Configuration. ====================. Get these from: https://developer.squareup.com/apps |
-| SQUARE_LOCATION_ID | String | Yes | - | square location id |
-| SQUARE_WEBHOOK_SIGNATURE_KEY | String | Yes | - | square webhook signature key |
+| STRIPE_SECRET_KEY | String | Yes | - | ====================. Stripe Payment Configuration. ====================. Get from: https://dashboard.stripe.com/developers |
+| STRIPE_WEBHOOK_SECRET | String | No | - | Stripe webhook signing secret (whsec_...) |
 | PIN_PEPPER | String | Yes | - | ====================. Security Configuration. ====================. Required for v6.0.5+ |
 | DEVICE_FINGERPRINT_SALT | String | Yes | - | device fingerprint salt |
 | VITE_SUPABASE_URL | URL | Yes | - | vite supabase url |
 | VITE_SUPABASE_ANON_KEY | String | Yes | - | vite supabase anon key |
-| VITE_SQUARE_APP_ID | String | Yes | - | Square frontend configuration |
-| VITE_SQUARE_LOCATION_ID | String | Yes | - | vite square location id |
+| VITE_STRIPE_PUBLISHABLE_KEY | String | Yes | - | Stripe publishable key for frontend (pk_test_... or pk_live_...) |
 
 ### Optional Variables
 
@@ -41,7 +37,7 @@ The following variables are optional and have sensible defaults:
 | PORT | Number | No | 3001 | port |
 | DEFAULT_RESTAURANT_ID | String | No | grow | Default restaurant identifier. Supports both UUID format (11111111-1111-1111-1111-111111111111) and slug format (grow). See [ADR-008](../../explanation/architecture-decisions/ADR-008-slug-based-routing.md) |
 | DATABASE_URL | URL | No | postgresql://user:password@localhost:5432/dbname | Database URL (Cloud Supabase). Get from: Supabase Dashboard > Settings > Database > Connection string. Format: postgresql://postgres.[project-ref]:[password]@aws-0-us-east-1.pooler.supabase.com:5432/postgres |
-| SQUARE_ENVIRONMENT | String | No | sandbox # 'sandbox' for testing, 'production' for live payments | square environment |
+| NODE_ENV | String | No | development | Environment mode (development, test, production) |
 | FRONTEND_URL | URL | No | http://localhost:5173 # Required for CORS | frontend url |
 | AUTH_DUAL_AUTH_ENABLE | Boolean | No | true | Dual Authentication Pattern (v6.0.8+). Enable support for both Supabase sessions AND localStorage sessions. Required for demo/PIN/station authentication alongside Supabase |
 | AUTH_ACCEPT_KIOSK_DEMO_ALIAS | String | No | true | Authentication Role Aliasing. Accept deprecated 'kiosk_demo' role as 'customer' for backwards compatibility. Set to 'false' to reject kiosk_demo tokens (after migration complete) |
@@ -53,7 +49,7 @@ The following variables are optional and have sensible defaults:
 | VITE_API_BASE_URL | URL | No | http://localhost:3001 | REQUIRED: Core Client Variables (app will fail without these) |
 | VITE_DEFAULT_RESTAURANT_ID | String | No | grow | Client-side default restaurant identifier. Supports both UUID and slug formats. Used in customer-facing URLs (e.g., /order/grow). See [ADR-008](../../explanation/architecture-decisions/ADR-008-slug-based-routing.md) |
 | VITE_ENVIRONMENT | String | No | development | vite environment |
-| VITE_SQUARE_ENVIRONMENT | String | No | sandbox # Must match SQUARE_ENVIRONMENT | vite square environment |
+| VITE_ENVIRONMENT | String | No | development | Client environment mode |
 | VITE_USE_MOCK_DATA | String | No | false | Optional client features |
 | VITE_USE_REALTIME_VOICE | String | No | false | vite use realtime voice |
 | VITE_ENABLE_PERF | Boolean | No | false # Performance monitoring | vite enable perf |
@@ -73,9 +69,9 @@ The following variables are optional and have sensible defaults:
 - `JWT_SECRET` - Secret for JWT token signing
 
 ### Payment Processing
-- `SQUARE_ACCESS_TOKEN` - Square API access token
-- `SQUARE_LOCATION_ID` - Square location ID
-- `SQUARE_ENVIRONMENT` - Square environment (sandbox or production)
+- `STRIPE_SECRET_KEY` - Stripe secret key (sk_test_... or sk_live_...)
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret (whsec_...)
+- `VITE_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key for frontend
 
 ### AI Services
 - `OPENAI_API_KEY` - OpenAI API key for voice transcription

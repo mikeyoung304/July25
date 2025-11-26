@@ -50,7 +50,7 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 - **Encryption in Transit**: TLS 1.2+ required
 - **Encryption at Rest**: Database encryption enabled
 - **PII Handling**: Minimal storage, encrypted where necessary
-- **Payment Data**: Never stored, tokenized via Square
+- **Payment Data**: Never stored, tokenized via Stripe
 
 ### API Security
 
@@ -106,7 +106,7 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 
 ### Current Implementation (v6.0.3)
 
-- **Square Integration**: Configurable via SQUARE_ENVIRONMENT (sandbox/production)
+- **Stripe Integration**: Uses STRIPE_SECRET_KEY (sk_test_/sk_live_) for payment processing
 - **WebSocket Auth**: Token passed in headers with validation
 - **CORS**: Configured for known origins with auto-detected preview URLs
 - **Security Headers**: Comprehensive Helmet configuration with CSP, HSTS, etc.
@@ -168,7 +168,7 @@ Security rails enforced across the application:
 
 ### PCI DSS
 
-- Payment processing via Square (PCI compliant)
+- Payment processing via Stripe (PCI compliant)
 - No credit card data stored locally
 - Tokenization for all payment methods
 - **Payment audit logging is MANDATORY** (fail-fast requirement)
@@ -313,5 +313,5 @@ Bug Bounty Program: Coming soon
 
 ---
 
-Last Updated: October 30, 2025
-Version: 6.0.14
+Last Updated: November 25, 2025
+Version: 6.0.17

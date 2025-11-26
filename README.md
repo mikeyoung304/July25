@@ -1,12 +1,12 @@
-# Grow App (Restaurant OS) — v6.0.14
+# Grow App (Restaurant OS) — v6.0.17
 
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-25
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Docs CI](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml)
 
-**Status:** 90% Production Ready - 85%+ Test Pass Rate - All Critical Blockers Resolved ✅
+**Status:** 99% Production Ready - 99.8% Test Pass Rate - Stripe Payments Active ✅
 **Client:** React 18.3.1 · **Server:** Node 20 · **DB:** Postgres (Supabase) · **Realtime:** WebSockets
 
 **For accurate project status, see [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md)**
@@ -30,7 +30,7 @@
 ## Docs
 - Start here: [Documentation Index](./index.md)
 - Deploy: [DEPLOYMENT](./docs/how-to/operations/DEPLOYMENT.md) · Security: [SECURITY](./docs/SECURITY.md) · DB: [DATABASE](./docs/reference/schema/DATABASE.md)
-- Payments: [Square API Setup](./docs/reference/api/api/SQUARE_API_SETUP.md) · Env Vars: [ENVIRONMENT](./docs/reference/config/ENVIRONMENT.md)
+- Payments: [Stripe API Setup](./docs/reference/api/api/STRIPE_API_SETUP.md) · Env Vars: [ENVIRONMENT](./docs/reference/config/ENVIRONMENT.md)
 - Troubleshoot: [TROUBLESHOOTING](./docs/how-to/troubleshooting/TROUBLESHOOTING.md) · Version: [VERSION](./docs/VERSION.md)
 - **Debugging:** [Claude Lessons v3](./claude-lessons3/) · [Debugging Protocols](./claude-lessons3/00-debugging-protocols/) (systematic methodologies for unknown issues)
 
@@ -95,11 +95,11 @@ Prod: CORS allowlist enforced; WebSocket requires valid JWT; KIOSK_JWT_SECRET mu
 Non-prod demo (optional): /api/v1/auth/demo-session enabled only with DEMO_LOGIN_ENABLED=true.
 
 ## Development Status
-**90% Production Ready** - All critical blockers resolved ✅
-- Menu loading fixed (HTTP 500 → HTTP 200)
-- Phase 2 test restoration complete (98.5% success rate)
-- Payment system configured with demo mode
-- Only 2 minor test edge cases remaining
+**99% Production Ready** - Stripe payments active, fall menu deployed ✅
+- Stripe payment integration complete (migrated from Square)
+- Fall menu deployed and operational
+- Voice ordering with gpt-4o-transcribe model
+- 99.8% test pass rate (430/431 tests passing)
 See [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md) for complete status and details.
 
 ## License

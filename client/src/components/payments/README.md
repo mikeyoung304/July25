@@ -53,7 +53,7 @@ import { CashPayment } from '@/components/payments';
 ```
 
 ### CardPayment
-Card payment via Square Web SDK with demo mode support.
+Card payment via Stripe Elements with demo mode support.
 
 ```tsx
 import { CardPayment } from '@/components/payments';
@@ -137,21 +137,19 @@ Request body:
 
 ## Environment Variables
 
-For Square integration (CardPayment):
+For Stripe integration (CardPayment):
 ```env
-VITE_SQUARE_APP_ID=your-app-id
-VITE_SQUARE_LOCATION_ID=your-location-id
-VITE_SQUARE_ENVIRONMENT=sandbox # or production
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your-publishable-key  # or pk_live_ for production
 ```
 
-Demo mode is automatically enabled if these are not set.
+Demo mode is automatically enabled if `STRIPE_SECRET_KEY=demo` on server.
 
 ## Features
 
 - Full-screen checkout experience
 - Step-based flow (summary → tender → payment)
 - Real-time change calculation
-- Square Web SDK integration
+- Stripe Elements integration
 - Demo mode support
 - Touch-friendly design (60px+ buttons)
 - Responsive on all devices

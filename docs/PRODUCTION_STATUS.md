@@ -1,11 +1,11 @@
 # Production Readiness Status
 
-**Last Updated:** 2025-11-19
+**Last Updated:** 2025-11-25
 
 [Home](../index.md) > [Docs](./README.md) > Production Status
 
-**Last Updated**: November 2, 2025
-**Version**: 6.0.14
+**Last Updated**: November 25, 2025
+**Version**: 6.0.17
 **Overall Readiness**: 99% (Enterprise-Grade)
 **Status**: ✅ PRODUCTION READY - Critical Blockers Eliminated
 
@@ -91,11 +91,11 @@ The Restaurant OS is **99% enterprise-grade production ready**. All critical pro
 - ✅ **Documentation System**: Comprehensive navigation, troubleshooting guide
 - ✅ **Technical Debt**: Tracked and prioritized
 
-**Payment System Operational** ✅ (October 14, 2025):
-- ✅ **Square SDK v43**: Migrated from legacy SDK
-- ✅ **Credential Validation**: Automated safeguards implemented
-- ✅ **End-to-End Testing**: Complete checkout flow verified
-- ✅ **Post-Mortem Documentation**: Lessons learned captured
+**Stripe Payment Migration** ✅ (November 2025):
+- ✅ **Stripe Integration**: Migrated from Square to Stripe
+- ✅ **Stripe Elements**: Client-side card tokenization
+- ✅ **Webhook Support**: Payment confirmation via webhooks
+- ✅ **Documentation**: Complete STRIPE_API_SETUP.md guide
 
 **Impact**: Zero payment failures, improved maintainability, eliminated architectural drift, established single source of truth.
 
@@ -104,7 +104,7 @@ The Restaurant OS is **99% enterprise-grade production ready**. All critical pro
 - **Authentication** - Pure Supabase JWT, no race conditions
 - **Authorization** - Granular RBAC with API scopes
 - **Order Flow** - Complete customer journey (browse → cart → checkout → confirmation)
-- **Payment Processing** - Square Terminal + Online payments (sandbox tested)
+- **Payment Processing** - Stripe Elements + Online payments (production ready)
 - **Voice Ordering** - OpenAI Realtime API integration working
 - **Kitchen Display** - Optimized with table grouping and dual view modes
 - **Menu System** - Complete with modifiers, aliases, caching
@@ -114,12 +114,16 @@ The Restaurant OS is **99% enterprise-grade production ready**. All critical pro
 
 ### What's Pending ⏳
 
-- **Fall Menu** - Awaiting user-provided menu items
 - **Integration Tests** - E2E test suite (order → payment → kitchen)
 - **Load Testing** - 100 concurrent users
-- **Square Production** - Switch from sandbox to production credentials
-- **Test Coverage** - Currently 0% line coverage (92 passing unit tests)
+- **Test Coverage** - Currently 0% line coverage (tests exist but not measured)
 - **Logger Bug** - Circular dependency (non-blocking)
+
+### Recently Completed ✅
+
+- **Fall Menu** - Deployed and operational
+- **Stripe Migration** - Migrated from Square to Stripe (November 2025)
+- **Voice Model Update** - Using gpt-4o-transcribe for Realtime API
 
 ---
 
@@ -217,48 +221,44 @@ The Restaurant OS is **99% enterprise-grade production ready**. All critical pro
 
 **Status**: ✅ FULLY OPERATIONAL (100%)
 
-**Recent Fixes** (October 14, 2025):
-- ✅ Migrated to Square SDK v43 (authentication + API methods)
-- ✅ Fixed credential validation (location ID typo: L3 → L1)
-- ✅ Implemented credential validation safeguards
-- ✅ Resolved idempotency key length limits (93 → 26 chars)
-- ✅ Fixed database constraint violations (separated payment/order status)
-- ✅ Comprehensive post-mortem created
+**Stripe Migration** (November 2025):
+- ✅ Migrated from Square to Stripe payment processing
+- ✅ Stripe Elements for secure client-side card tokenization
+- ✅ Payment Intent API for server-side payment creation
+- ✅ Webhook support for payment confirmations
+- ✅ Demo mode with STRIPE_SECRET_KEY=demo
 
 **What Works**:
-- ✅ Square Web Payments SDK (online orders)
-- ✅ Square Terminal API (in-person payments)
-- ✅ Polling-based status checks (every 2 seconds)
+- ✅ Stripe Elements SDK (online orders)
+- ✅ Payment Intents API
 - ✅ Server-side amount validation (NEVER trust client)
 - ✅ Payment audit logging (PCI compliance)
-- ✅ Timeout handling (5 minutes)
 - ✅ Error recovery and retries
 - ✅ Demo mode for development
 - ✅ Startup credential validation
 - ✅ WebSocket broadcasting to kitchen
 
 **Testing Status**:
-- ✅ End-to-end checkout flow verified (Order #20251014-0022)
-- ✅ Payment processing working in production
-- ✅ Square SDK v43 compatibility confirmed
+- ✅ End-to-end checkout flow verified
+- ✅ Test cards working (4242 4242 4242 4242)
 - ✅ Credential validation script tested
 - ✅ Amount validation working
 - ✅ Audit trail creation confirmed
 
-**Before Production**:
-- [ ] Switch to production Square credentials (currently sandbox)
-- [ ] Monitor first 100 transactions
-- [ ] Verify webhook delivery (if enabled)
+**Environment Variables**:
+- `STRIPE_SECRET_KEY` - Server-side (sk_test_... or sk_live_...)
+- `STRIPE_WEBHOOK_SECRET` - Webhook verification (whsec_...)
+- `VITE_STRIPE_PUBLISHABLE_KEY` - Client-side (pk_test_... or pk_live_...)
 
 **Documentation**:
-- [SQUARE_INTEGRATION.md](./how-to/operations/DEPLOYMENT.md#square-integration)
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./how-to/operations/DEPLOYMENT.md#incidents-post-mortems)
+- [STRIPE_API_SETUP.md](./reference/api/api/STRIPE_API_SETUP.md)
+- [PAYMENT_API_DOCUMENTATION.md](./reference/api/api/PAYMENT_API_DOCUMENTATION.md)
 
 ---
 
 ### 5. Menu System
 
-**Status**: ✅ READY FOR FALL MENU (100%)
+**Status**: ✅ FALL MENU DEPLOYED (100%)
 
 **(Source: MENU_SYSTEM.md@1b8a708, verified)**
 
@@ -288,14 +288,11 @@ Menu items cached for 5 minutes (TTL 300 seconds).
 - ✅ Modifiers system functional
 - ✅ Aliases for voice recognition
 
-**Fall Menu Deployment Steps**:
-1. User provides fall menu items
-2. Edit `/server/scripts/seed-menu.ts`
-3. Add images to `/client/public/images/menu/`
-4. Run `npm run seed:menu`
-5. POST `/api/v1/menu/cache/clear`
-6. POST `/api/v1/menu/sync-ai`
-7. Test voice + online ordering
+**Fall Menu Status**: ✅ DEPLOYED
+- Fall menu items seeded and operational
+- Images added and serving correctly
+- Voice AI synced with fall menu items
+- Online and voice ordering verified
 
 **Documentation**: [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md)
 
@@ -434,12 +431,10 @@ Menu items cached for 5 minutes (TTL 300 seconds).
    - Fix: Remove logger import from environment.ts
    - Priority: Low
 
-3. **Polling vs Webhooks**
-   - Current: Poll Square every 2 seconds
-   - Better: Webhooks (requires public URL)
-   - Impact: Slight network overhead
-   - Workaround: Polling works fine for MVP
-   - Priority: Low
+3. **Stripe Webhooks**
+   - Current: Webhook support implemented
+   - Configure STRIPE_WEBHOOK_SECRET for production
+   - Priority: Low (webhooks already supported)
 
 ---
 
@@ -639,7 +634,7 @@ redis.publish(`restaurant:${restaurantId}:orders`, JSON.stringify(order));
 - [x] ✅ Payment audit logging (7-year retention)
 - [x] ✅ JWT token validation
 - [x] ✅ CORS configured properly
-- [x] ✅ No card data stored (Square tokenization)
+- [x] ✅ No card data stored (Stripe tokenization)
 - [x] ✅ Input sanitization
 - [ ] ⚠️ Rate limiting (implemented but needs production testing)
 - [ ] ⚠️ Move voice API key to server
@@ -667,7 +662,7 @@ redis.publish(`restaurant:${restaurantId}:orders`, JSON.stringify(order));
 - [x] ✅ All 29 required variables present
 - [x] ✅ Documented in `.env.example`
 - [x] ✅ Validation script exists
-- [ ] ⚠️ Production Square credentials needed
+- [x] ✅ Stripe credentials configured
 
 ### CI/CD
 - [x] ✅ TypeScript check passing
@@ -687,17 +682,15 @@ redis.publish(`restaurant:${restaurantId}:orders`, JSON.stringify(order));
 
 ### Critical (Must Do Before Launch)
 
-- [ ] **Deploy Fall Menu**
-  - User provides fall menu items
-  - Update seed script
-  - Add images
-  - Test voice ordering
+- [x] **Deploy Fall Menu** ✅
+  - Fall menu items deployed
+  - Images added
+  - Voice ordering verified
 
-- [ ] **Switch to Production Square**
-  - Update SQUARE_ACCESS_TOKEN
-  - Update SQUARE_ENVIRONMENT=production
-  - Test with real terminal
-  - Verify first transaction
+- [x] **Configure Stripe Production** ✅
+  - STRIPE_SECRET_KEY configured
+  - VITE_STRIPE_PUBLISHABLE_KEY set
+  - Webhook secret configured
 
 - [ ] **Integration Testing**
   - E2E order flow
@@ -739,7 +732,6 @@ redis.publish(`restaurant:${restaurantId}:orders`, JSON.stringify(order));
 
 - [ ] Refund support via UI
 - [ ] Multi-location configuration
-- [ ] Switch Square Terminal to webhooks
 - [ ] Menu versioning/history
 - [ ] Fuzzy matching for voice orders
 - [ ] Customer loyalty program
@@ -753,7 +745,7 @@ redis.publish(`restaurant:${restaurantId}:orders`, JSON.stringify(order));
 - [ ] First order placed successfully
 - [ ] Payment processes without errors
 - [ ] Kitchen receives order via WebSocket
-- [ ] Voice ordering works with fall menu
+- [x] Voice ordering works with fall menu ✅
 - [ ] No critical bugs
 
 ### Week 1 (First Week)
@@ -775,9 +767,9 @@ redis.publish(`restaurant:${restaurantId}:orders`, JSON.stringify(order));
 ## Risk Assessment
 
 ### High Risk (Likelihood: Low, Impact: High)
-- **Payment Processor Downtime**: Square goes down
+- **Payment Processor Downtime**: Stripe goes down
   - Mitigation: Cash payment fallback
-  - Recovery: Switch to backup processor
+  - Recovery: Stripe has 99.99% uptime SLA
 
 - **Database Failure**: Supabase outage
   - Mitigation: Automatic backups
@@ -833,9 +825,8 @@ The Restaurant OS is **production ready at 99%** ✅. All core systems are funct
 - ✅ Execution time: 2 hours (multi-agent parallel strategy)
 
 The remaining 1% consists of:
-1. **Fall menu deployment** (awaiting user-provided items)
-2. **Square production credentials** (switch from sandbox)
-3. **Load testing** (100 concurrent users - optional)
+1. **Integration testing** (E2E test suite)
+2. **Load testing** (100 concurrent users - optional)
 
 **Recommendation**: **IMMEDIATE PRODUCTION DEPLOYMENT CLEARANCE** ✅. All critical stability, security, and performance issues have been resolved. Auth-005 revenue blocker eliminated. Multi-tenancy security verified. Checkout flow fully tested. System is stable, secure, and ready for real customers. Payment system has been validated with successful end-to-end transactions. **Zero critical blockers remain - system cleared for immediate launch.**
 
@@ -857,8 +848,8 @@ The remaining 1% consists of:
 
 ### Feature Documentation
 - [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) - Menu management & fall menu guide
-- [SQUARE_INTEGRATION.md](./how-to/operations/DEPLOYMENT.md#square-integration) - Payment integration (Updated Oct 14)
-- [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](./how-to/operations/DEPLOYMENT.md#incidents-post-mortems) - Payment incident analysis
+- [STRIPE_API_SETUP.md](./reference/api/api/STRIPE_API_SETUP.md) - Stripe payment integration
+- [PAYMENT_API_DOCUMENTATION.md](./reference/api/api/PAYMENT_API_DOCUMENTATION.md) - Payment API reference
 - [ORDER_FLOW.md](./explanation/concepts/ORDER_FLOW.md) - Customer ordering journey
 - [DATABASE.md](./reference/schema/DATABASE.md) - Supabase schema
 - [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - Testing procedures
@@ -875,8 +866,8 @@ The remaining 1% consists of:
 
 ---
 
-**Last Updated**: November 2, 2025
-**Version**: 6.0.14
+**Last Updated**: November 25, 2025
+**Version**: 6.0.17
 **Production Ready**: 99% ✅
-**Status**: CLEARED FOR IMMEDIATE LAUNCH
-**Next Milestone**: Production Deployment
+**Status**: PRODUCTION READY - Stripe Payments Active
+**Next Milestone**: Integration Testing & Load Testing

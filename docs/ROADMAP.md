@@ -1,9 +1,9 @@
 # Restaurant OS v6.0 - Production Roadmap
 
-**Last Updated:** 2025-11-11
+**Last Updated:** 2025-11-25
 
-## Current Status: 95% Production Ready ✅
-- **Version**: 6.0.14
+## Current Status: 99% Production Ready ✅
+- **Version**: 6.0.17
 - **Stage**: Production Ready (P0.9 Phase 2B Ready for Deployment)
 - **Production Readiness**: 95% (enterprise-grade)
 - **Code Quality**: 0 ESLint errors, 0 TypeScript errors (CI passing)
@@ -35,12 +35,12 @@
 - [x] Managers granted full admin access (commit `c675a1a`)
 
 ### Week 2: Features & Integration ✅ **COMPLETE** (Oct 11, 2025)
-- [x] Square Terminal integration fully tested
+- [x] Payment integration (migrated to Stripe Nov 2025)
 - [x] Payment audit logging (PCI compliance)
 - [x] Role-based payment permissions (scopes working)
 - [x] Voice ordering bug fixed (DriveThruPage.tsx:50-68)
 - [x] Kitchen display upgraded (table grouping + dual views)
-- [x] Menu system documented (ready for fall menu)
+- [x] Menu system documented (fall menu deployed)
 - [x] Order flow end-to-end working
 - [x] localStorage cart persistence
 - [x] Server-side amount validation
@@ -184,13 +184,13 @@
 ---
 
 ### Remaining Tasks Before Production 🎯
-- [ ] Deploy fall menu (when user provides items)
+- [x] Deploy fall menu ✅
+- [x] Migrate to Stripe payments ✅
 - [ ] Integration test suite (E2E order flow)
 - [ ] Load testing (100 concurrent users)
-- [ ] Switch Square to production credentials
 - [ ] Monitor production for 48 hours
 
-**Status**: System ready for immediate production launch
+**Status**: System ready for immediate production launch - Stripe payments active
 
 ---
 
@@ -315,7 +315,8 @@
 | --- | --- | --- | --- |
 | Week 1 Auth | 1 week | Oct 10, 2025 | ✅ Complete |
 | Week 2 Integration | 1 week | Oct 11, 2025 | ✅ Complete |
-| Fall Menu Deployment | 1-2 days | Awaiting menu items | ⏳ Pending user |
+| Fall Menu Deployment | 1-2 days | Nov 2025 | ✅ Complete |
+| Stripe Migration | 1 week | Nov 2025 | ✅ Complete |
 | Final Testing | 3-5 days | TBD | Not Started |
 | Production Launch | TBD | TBD | Not Started |
 | Phase 2 Scale | 2 weeks | TBD | Not Started |
@@ -325,85 +326,75 @@
 
 ## 🎯 Immediate Next Steps (This Week)
 
-### Day 1: Fall Menu Deployment
-1. **User provides fall menu items** (Awaiting)
-2. Edit `/server/scripts/seed-menu.ts`
-3. Add fall menu images to `/client/public/images/menu/`
-4. Run `npm run seed:menu`
-5. Clear cache + sync to voice AI
-6. Test voice ordering with new items
-
-### Days 2-3: Integration Testing
+### Day 1-2: Integration Testing
 1. Run E2E test suite
 2. Test complete order flow (browse → cart → checkout → confirmation)
-3. Test Square Terminal polling
+3. Test Stripe payment processing
 4. Test WebSocket kitchen updates
 5. Test voice ordering end-to-end
 
-### Days 4-5: Load Testing & Monitoring
+### Days 3-4: Load Testing & Monitoring
 1. Load test with 100 concurrent users
 2. Monitor database query performance
 3. Check WebSocket connection stability
 4. Verify memory usage stays under limits
 
-### Day 6-7: Production Prep
-1. Switch Square to production credentials
-2. Final security audit
-3. Deploy to production
-4. Monitor for 48 hours
+### Day 5: Production Monitoring
+1. Monitor Stripe transactions
+2. Review payment success rates
+3. Check error logs
+4. Verify webhook delivery
 
 ---
 
-## 🎯 Fall Menu Deployment Checklist
+## ✅ Fall Menu Deployment (COMPLETE)
 
-**Prerequisites**:
-- [ ] User uploads fall menu items spreadsheet/list
-- [ ] Fall menu images prepared (800x600px, <500KB)
+**Status**: ✅ DEPLOYED (November 2025)
 
-**Steps**:
-1. [ ] Update `seed-menu.ts` with fall items
-2. [ ] Add images to `/client/public/images/menu/`
-3. [ ] Run `npm run seed:menu`
-4. [ ] POST `/api/v1/menu/cache/clear`
-5. [ ] POST `/api/v1/menu/sync-ai`
-6. [ ] Test voice ordering
-7. [ ] Test online ordering
-8. [ ] Verify images load correctly
+**Completed Steps**:
+- [x] Fall menu items added to seed script
+- [x] Images added to `/client/public/images/menu/`
+- [x] Seed script executed successfully
+- [x] Cache cleared
+- [x] Voice AI synced
+- [x] Voice ordering verified
+- [x] Online ordering verified
+- [x] Images loading correctly
 
-**Documentation**: See [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) for complete guide
+**Documentation**: See [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) for menu management guide
 
 ---
 
 ## 📝 Notes
 
-- **Current Status**: 92% production ready - awaiting fall menu items
-- **Current Blockers**: User needs to upload fall menu items
+- **Current Status**: 99% production ready - Stripe payments active
+- **Current Blockers**: None (integration testing recommended)
 - **Main Achievements**:
   - Pure Supabase auth (no race conditions)
   - Voice ordering refactored (70% complexity reduction)
   - 155 new tests added (37 regression + 118 unit)
-  - Technical debt reduction sprint complete
+  - Stripe payment integration (migrated from Square)
+  - Fall menu deployed and operational
   - Kitchen display upgraded with table grouping
-  - Square Terminal integration tested
   - Complete documentation suite created
-- **Next Milestone**: Fall menu deployment → Production launch
+- **Next Milestone**: Integration testing → Load testing → Production monitoring
 - **Opportunity**: Voice ordering differentiator + robust auth + professional KDS
 - **Competition**: Square, Toast, Clover
 - **Target Market**: Small-medium restaurants (starting with one pilot)
 
-## 📚 Documentation Created (Oct 11, 2025)
+## 📚 Documentation Created
 
-New comprehensive documentation:
-- [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) - Menu architecture & fall menu guide
-- [SQUARE_INTEGRATION.md](./how-to/operations/DEPLOYMENT.md#square-integration) - Complete payment flow
-- [ORDER_FLOW.md](./explanation/concepts/ORDER_FLOW.md) - Customer ordering journey (updated)
-- [DATABASE.md](./reference/schema/DATABASE.md) - Supabase schema with JSONB examples (updated)
+Documentation updated November 2025:
+- [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) - Menu architecture & management guide
+- [STRIPE_API_SETUP.md](./reference/api/api/STRIPE_API_SETUP.md) - Stripe payment integration
+- [ORDER_FLOW.md](./explanation/concepts/ORDER_FLOW.md) - Customer ordering journey
+- [DATABASE.md](./reference/schema/DATABASE.md) - Supabase schema with JSONB examples
 - [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - Current readiness assessment
-- [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - Fall menu testing guide (updated)
+- [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - Testing guide
 
 ---
 
-*Last Updated: November 11, 2025*
-*Version: 6.0.14*
-*Production Ready: 95%*
-*P0.9 Phase 2B: Ready for Deployment*
+*Last Updated: November 25, 2025*
+*Version: 6.0.17*
+*Production Ready: 99%*
+*Payment System: Stripe (migrated from Square)*

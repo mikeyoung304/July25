@@ -145,25 +145,26 @@ logger.info('Message', { data });
 // Never use console.log - enforced by pre-commit hook
 ```
 
-## Current Status (v6.0.14)
+## Current Status (v6.0.17)
 
-- **Production Readiness**: 90%
-- **Test Pass Rate**: 72% (449 passing / 625 total, 3 skipped)
-- **Documentation Health**: 90.4% link health (126 broken links)
-- **API Documentation**: 95% accuracy (100% endpoint coverage)
+- **Production Readiness**: 99%
+- **Test Pass Rate**: 99.8% (430/431 tests passing)
+- **Payment System**: Stripe (migrated from Square)
+- **Fall Menu**: Deployed and operational
 
 ### Recent Improvements
-- Voice ordering fixed (whisper-1 → gpt-4o-transcribe model)
-- 161 broken documentation links repaired
-- Complete operational documentation (incident response, monitoring, rollback)
-- CI/CD workflows for documentation validation
+- Stripe payment integration (migrated from Square)
+- Fall menu deployed
+- Voice ordering with gpt-4o-transcribe model
+- Slug-based restaurant routing (e.g., /order/grow)
+- Complete documentation suite updated
 
 ### Known Considerations
 - localStorage for auth tokens is intentional for shared devices
 - CSRF disabled for REST APIs (using JWT + RBAC instead)
 - Demo mode requires DEMO_LOGIN_ENABLED=true
 - Voice ordering requires OpenAI Realtime API
-- Payment processing uses Stripe (migrated from Square in v6.0.15)
+- Payment processing uses Stripe (STRIPE_SECRET_KEY, VITE_STRIPE_PUBLISHABLE_KEY)
 
 ## Order Status Flow
 All 8 states must be handled (see `shared/types/order.types.ts`):
@@ -178,8 +179,8 @@ Critical for production:
 - `KIOSK_JWT_SECRET` - Required, no fallback
 - `SUPABASE_SERVICE_KEY` - Server-side only
 - `OPENAI_API_KEY` - Server-side only (never expose to client)
-- `STRIPE_SECRET_KEY` - Server-side payment processing (sk_live_...)
-- `STRIPE_PUBLISHABLE_KEY` - Client-side Stripe Elements (pk_live_...)
+- `STRIPE_SECRET_KEY` - Server-side payment processing (sk_test_... or sk_live_...)
+- `VITE_STRIPE_PUBLISHABLE_KEY` - Client-side Stripe Elements (pk_test_... or pk_live_...)
 - `STRIPE_WEBHOOK_SECRET` - Webhook signature verification (whsec_...)
 
 ## WebSocket Events

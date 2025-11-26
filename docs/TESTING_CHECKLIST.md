@@ -65,7 +65,7 @@ npx playwright show-report
 - ⏳ Order status transitions
 
 #### Payment (`tests/e2e/payments/`)
-- ⏳ Square Terminal integration
+- ⏳ Stripe Elements integration
 - ⏳ Payment success flow
 - ⏳ Payment error handling
 
@@ -455,7 +455,7 @@ All auth tests pass when:
 **Goal**: Verify payment audit logging fails fast on errors
 
 **Steps**:
-1. Make a test payment via Square Terminal
+1. Make a test payment via Stripe Elements
 2. Simulate audit logging failure (disconnect database)
 3. Verify payment does not complete
 
@@ -884,9 +884,9 @@ All fall menu tests pass when:
 ## Documentation
 
 ### Architecture & Systems
-- **Production Status**: [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - 98% ready assessment
-- **Menu System**: [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) - Fall menu deployment guide
-- **Square Integration**: [DEPLOYMENT.md#square-integration](./how-to/operations/DEPLOYMENT.md#square-integration) - Payment flow
+- **Production Status**: [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md) - 99% ready assessment
+- **Menu System**: [MENU_SYSTEM.md](./explanation/concepts/MENU_SYSTEM.md) - Menu management guide
+- **Stripe Integration**: [STRIPE_API_SETUP.md](./reference/api/api/STRIPE_API_SETUP.md) - Payment flow
 - **Order Flow**: [ORDER_FLOW.md](./explanation/concepts/ORDER_FLOW.md) - Customer journey
 - **Database**: [DATABASE.md](./reference/schema/DATABASE.md) - Supabase schema
 - **Roadmap**: [ROADMAP.md](./ROADMAP.md) - Project timeline

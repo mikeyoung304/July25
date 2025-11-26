@@ -70,8 +70,7 @@ VITE_API_BASE_URL=https://your-backend-url.onrender.com
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
-VITE_SQUARE_APPLICATION_ID=your-square-app-id
-VITE_SQUARE_LOCATION_ID=your-square-location-id
+VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
 ```
 
 ### Backend (Render)
@@ -84,17 +83,16 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_KEY=your-service-key
 SUPABASE_JWT_SECRET=your-jwt-secret
 OPENAI_API_KEY=your-openai-key
-SQUARE_ACCESS_TOKEN=your-square-token  # See Square API Configuration below
-SQUARE_LOCATION_ID=your-square-location-id
-SQUARE_WEBHOOK_SIGNATURE_KEY=your-webhook-key
+STRIPE_SECRET_KEY=your-stripe-secret-key  # See Stripe API Configuration below
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret  # Optional, for webhooks
 ```
 
 #### Critical Environment Variables
 
-**SQUARE_ACCESS_TOKEN** (REQUIRED for payments):
-- Demo mode: `SQUARE_ACCESS_TOKEN=demo` - Mock payments for testing
-- Production: Get from Square Dashboard → Developer → Access Tokens
-- Sandbox: Get from Square Dashboard → Sandbox → Access Tokens
+**STRIPE_SECRET_KEY** (REQUIRED for payments):
+- Demo mode: `STRIPE_SECRET_KEY=demo` - Mock payments for testing
+- Test mode: Get from Stripe Dashboard → Developers → API keys (test mode ON) - starts with `sk_test_`
+- Production: Get from Stripe Dashboard → Developers → API keys (test mode OFF) - starts with `sk_live_`
 
 **SUPABASE_JWT_SECRET** (REQUIRED for authentication):
 - Get from Supabase Dashboard → Settings → API → JWT Settings
@@ -350,61 +348,48 @@ render deploy --service-id your-service-id
 
 ---
 
-## Square API Configuration
+## Stripe API Configuration
 
-**For complete Square setup instructions, see [SQUARE_API_SETUP.md](../../reference/api/api/SQUARE_API_SETUP.md)**
+**For complete Stripe setup instructions, see [STRIPE_API_SETUP.md](../../reference/api/api/STRIPE_API_SETUP.md)**
 
-This section provides a quick reference. For step-by-step instructions, troubleshooting, and testing, refer to the comprehensive Square API Setup Guide.
+This section provides a quick reference. For step-by-step instructions, troubleshooting, and testing, refer to the comprehensive Stripe API Setup Guide.
 
 ### Quick Setup
 
 **Required Environment Variables:**
 ```bash
 # Server-side (Render)
-SQUARE_ACCESS_TOKEN=your-access-token
-SQUARE_ENVIRONMENT=sandbox  # or 'production'
-SQUARE_LOCATION_ID=your-location-id
+STRIPE_SECRET_KEY=sk_test_your-secret-key  # or sk_live_ for production
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret  # Optional
 
 # Client-side (Vercel)
-VITE_SQUARE_APP_ID=your-app-id
-VITE_SQUARE_LOCATION_ID=your-location-id
-VITE_SQUARE_ENVIRONMENT=sandbox  # or 'production'
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your-publishable-key  # or pk_live_ for production
 ```
 
-### Getting Square Credentials
+### Getting Stripe Credentials
+
+**Test Mode Credentials:**
+1. Log in to [Stripe Dashboard](https://dashboard.stripe.com)
+2. Toggle **Test mode** ON (top right)
+3. Navigate to: **Developers** → **API keys**
+4. Copy your **Secret key** (starts with `sk_test_`)
+5. Copy your **Publishable key** (starts with `pk_test_`)
 
 **Production Credentials:**
-1. Log in to [Square Dashboard](https://squareup.com/dashboard)
-2. Navigate to: **Developer** → **Access Tokens**
-3. Copy your **Production Access Token**
-4. Copy your **Production Location ID**
-5. Add to Render environment variables:
-   ```
-   SQUARE_ACCESS_TOKEN=<production-token>
-   SQUARE_LOCATION_ID=<production-location-id>
-   SQUARE_ENVIRONMENT=production
-   ```
+1. Log in to [Stripe Dashboard](https://dashboard.stripe.com)
+2. Toggle **Test mode** OFF (top right)
+3. Navigate to: **Developers** → **API keys**
+4. Copy your **Secret key** (starts with `sk_live_`)
+5. Copy your **Publishable key** (starts with `pk_live_`)
 
-**Sandbox/Testing Credentials:**
-1. Log in to [Square Dashboard](https://squareup.com/dashboard)
-2. Navigate to: **Developer** → **Sandbox** → **Access Tokens**
-3. Copy your **Sandbox Access Token**
-4. Copy your **Sandbox Location ID**
-5. Add to Render environment variables:
-   ```
-   SQUARE_ACCESS_TOKEN=<sandbox-token>
-   SQUARE_LOCATION_ID=<sandbox-location-id>
-   SQUARE_ENVIRONMENT=sandbox
-   ```
-
-**Demo Mode (No Square Account Required):**
-For testing without a Square account or payment processing:
+**Demo Mode (No Stripe Account Required):**
+For testing without a Stripe account or payment processing:
 ```
-SQUARE_ACCESS_TOKEN=demo
+STRIPE_SECRET_KEY=demo
 ```
 
 **What Demo Mode Does:**
-- Skips real Square API calls
+- Skips real Stripe API calls
 - Mocks successful payment responses
 - Returns fake payment IDs
 - Allows full user flow testing
@@ -412,118 +397,81 @@ SQUARE_ACCESS_TOKEN=demo
 - Safe for internal testing and demos
 
 **When to Use Each Mode:**
-- **Demo**: Internal testing, development, no Square account yet
-- **Sandbox**: Integration testing with Square's test environment
+- **Demo**: Internal testing, development, no Stripe account yet
+- **Test**: Integration testing with Stripe's test environment (use test cards)
 - **Production**: Live payment processing with real credit cards
 
 ### Credential Validation
 
-The server validates Square credentials on startup:
-- Verifies `SQUARE_LOCATION_ID` exists in access token's permitted locations
-- Logs prominent warnings if mismatch detected
+The server validates Stripe credentials on startup:
+- Verifies API key format and validity
+- Logs success or error messages
 - Fails fast with error logging on invalid configuration
 
 **Check Render logs for:**
 ```
-✅ Square credentials validated successfully
+✅ Stripe credentials validated successfully
 ```
 
-**Or error message:**
-```
-🚨 SQUARE_LOCATION_ID mismatch detected!
-```
+### Test Cards
 
-### Testing Square Configuration
+Use these in test mode:
+- **Success**: `4242 4242 4242 4242`
+- **Decline**: `4000 0000 0000 0002`
+- **3D Secure**: `4000 0025 0000 3155`
+
+### Testing Stripe Configuration
 
 ```bash
 # Validate credentials
-./scripts/validate-square-credentials.sh
+./scripts/validate-stripe-credentials.sh
 
 # Test payment flow
 ./scripts/test-payment-flow.sh
 ```
 
-**For detailed troubleshooting and testing instructions, see [SQUARE_API_SETUP.md](../../reference/api/api/SQUARE_API_SETUP.md)**
+**For detailed troubleshooting and testing instructions, see [STRIPE_API_SETUP.md](../../reference/api/api/STRIPE_API_SETUP.md)**
 
 ---
 
-## Square Integration
+## Stripe Integration
 
 ### Payment Integration Architecture
 
-**Square SDK v43 Integration**
-_(Source: SQUARE_INTEGRATION.md@79d1619, verified)_
+**Stripe Payment Intents API**
 
-Square Node.js SDK v43 is used for payment processing. Authentication uses the `token` property (not `accessToken` as in prior versions).
+Stripe Payment Intents API is used for payment processing with Stripe Elements for secure client-side card tokenization.
 
-**Implementation:** `server/src/routes/payments.routes.ts:7,28`
+**Implementation:** `server/src/routes/payments.routes.ts`
 ```typescript
-import { SquareClient, SquareEnvironment } from 'square';
-const client = new SquareClient({ token: process.env['SQUARE_ACCESS_TOKEN']! });
-```
-
-**Credential Validation at Startup**
-_(Source: SQUARE_INTEGRATION.md@79d1619, verified)_
-
-Server validates that `SQUARE_LOCATION_ID` matches the access token on startup. Logs prominent warnings if mismatch detected.
-
-**Implementation:** `server/src/routes/payments.routes.ts:37-101`
-- Fetches locations from Square API
-- Validates configured location exists in access token's permitted locations
-- Fails fast with error logging on mismatch
-
-**Idempotency Keys**
-_(Source: SQUARE_INTEGRATION.md@79d1619, verified)_
-
-Idempotency keys shortened to 26 characters to stay within Square's 45-character limit.
-
-**Format:** `{last_12_order_id}-{timestamp}` (12 + 1 + 13 = 26 chars)
-
-**Implementation:** `server/src/services/payment.service.ts:84`
-```typescript
-const idempotencyKey = `${order.id.slice(-12)}-${Date.now()}`;
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 ```
 
 **Server-Side Amount Validation**
-_(Source: SQUARE_INTEGRATION.md@79d1619, verified)_
 
 Server NEVER trusts client-provided amounts. All payment amounts are validated server-side.
 
-**Implementation:** `server/src/routes/payments.routes.ts:132,158`
-- `PaymentService.validatePaymentRequest()` recalculates totals
-- Payment request uses server-calculated amount: `amountMoney: { amount: BigInt(serverAmount) }`
-
 **Payment Endpoint**
-_(Source: SQUARE_INTEGRATION.md@79d1619, verified)_
 
 Primary payment creation endpoint: `POST /api/v1/payments/create`
-
-**Implementation:** `server/src/routes/payments.routes.ts:104`
 - Requires authentication and restaurant access validation
-- Returns payment result or error
+- Creates Stripe PaymentIntent with server-calculated amount
+- Returns client_secret for frontend confirmation
 
 **Demo Mode Support**
-_(Source: SQUARE_INTEGRATION.md@79d1619, verified)_
 
-Supports demo mode with `SQUARE_ACCESS_TOKEN=demo` for development/testing.
-
-**Implementation:** `server/src/routes/payments.routes.ts:171`
+Supports demo mode with `STRIPE_SECRET_KEY=demo` for development/testing.
 
 **Payment Audit Logs**
-_(Source: SQUARE_INTEGRATION.md@79d1619, verified)_
 
 Payment audit logs created for PCI compliance (7-year retention recommended).
 
-**Implementation:** `server/src/routes/payments.routes.ts:212`
-```typescript
-await PaymentService.logPaymentAttempt({ orderId, amount, status, ... })
-```
-
 **Required Environment Variables**
-_(Source: SQUARE_INTEGRATION.md@79d1619, verified)_
 
-- `SQUARE_ACCESS_TOKEN` - Square API access token
-- `SQUARE_LOCATION_ID` - Square location ID (must match access token)
+- `STRIPE_SECRET_KEY` - Stripe secret key (sk_test_... or sk_live_...)
+- `STRIPE_WEBHOOK_SECRET` - Webhook signing secret (optional, for webhook verification)
+- `VITE_STRIPE_PUBLISHABLE_KEY` - Publishable key for frontend (pk_test_... or pk_live_...)
 
 **Configuration:** Referenced in `server/src/config/env.ts`, `server/src/config/environment.ts`
 
@@ -801,5 +749,5 @@ Historical incident documenting production system failures due to missing enviro
 
 ---
 
-**Last Updated**: October 30, 2025
-**Version**: 6.0.14
+**Last Updated**: November 25, 2025
+**Version**: 6.0.17
