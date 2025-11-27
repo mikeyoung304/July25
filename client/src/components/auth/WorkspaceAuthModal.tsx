@@ -52,6 +52,9 @@ export function WorkspaceAuthModal({
   const demoCredentials = getDemoCredentials(workspace)
   const requiredRoles = WORKSPACE_CONFIG[workspace].requiredRoles
 
+  // Track if auto-submit has been attempted to prevent loops
+  const [autoSubmitAttempted, setAutoSubmitAttempted] = useState(false)
+
   // Pre-fill demo credentials if available
   useEffect(() => {
     logger.info('WorkspaceAuthModal pre-fill check', {
@@ -75,11 +78,13 @@ export function WorkspaceAuthModal({
       setEmail(demoCredentials.email)
       setPassword(demoCredentials.password)
       setUseDemoCredentials(true)
+      setAutoSubmitAttempted(false) // Reset auto-submit flag when credentials change
       logger.info('✅ Pre-filled workspace credentials', { workspace, email: demoCredentials.email })
     } else {
       setEmail('')
       setPassword('')
       setUseDemoCredentials(false)
+      setAutoSubmitAttempted(false)
       logger.info('❌ NOT pre-filling credentials', {
         reason: !isOpen ? 'modal not open' :
                 !demoMode ? 'demo mode disabled' :
@@ -89,6 +94,41 @@ export function WorkspaceAuthModal({
       })
     }
   }, [isOpen, demoMode, demoCredentials, workspace, showInsufficientPermissions, isAuthenticated])
+
+  // Auto-submit when demo credentials are pre-filled
+  useEffect(() => {
+    // Auto-submit conditions:
+    // 1. Modal is open
+    // 2. Demo mode enabled
+    // 3. Credentials are pre-filled
+    // 4. Not already loading
+    // 5. Not showing insufficient permissions (user still logged in)
+    // 6. Haven't already attempted auto-submit
+    const shouldAutoSubmit = isOpen &&
+                             demoMode &&
+                             useDemoCredentials &&
+                             email &&
+                             password &&
+                             !isLoading &&
+                             !autoSubmitAttempted &&
+                             (!showInsufficientPermissions || !isAuthenticated)
+
+    if (shouldAutoSubmit) {
+      logger.info('🚀 Auto-submitting demo credentials', { workspace, email })
+      setAutoSubmitAttempted(true)
+
+      // Small delay to ensure UI renders before auto-submit
+      const timer = setTimeout(() => {
+        // Trigger form submission programmatically
+        const form = modalRef.current?.querySelector('form')
+        if (form) {
+          form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))
+        }
+      }, 100)
+
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen, demoMode, useDemoCredentials, email, password, isLoading, autoSubmitAttempted, showInsufficientPermissions, isAuthenticated, workspace])
 
   // Focus management
   useEffect(() => {
