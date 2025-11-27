@@ -117,18 +117,26 @@ export function WorkspaceAuthModal({
       logger.info('🚀 Auto-submitting demo credentials', { workspace, email })
       setAutoSubmitAttempted(true)
 
-      // Small delay to ensure UI renders before auto-submit
-      const timer = setTimeout(() => {
-        // Trigger form submission programmatically
-        const form = modalRef.current?.querySelector('form')
-        if (form) {
-          form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))
+      // Small delay to ensure state is settled, then auto-login
+      const timer = setTimeout(async () => {
+        setIsLoading(true)
+        try {
+          await login(email, password, restaurantId)
+          toast.success(`Logged in as ${workspace}!`)
+          logger.info('Auto-login successful', { workspace, email })
+          onSuccess()
+        } catch (error: any) {
+          logger.error('Auto-login failed:', error)
+          toast.error(error.message || 'Auto-login failed. Please try manually.')
+          setAutoSubmitAttempted(false) // Allow retry
+        } finally {
+          setIsLoading(false)
         }
-      }, 100)
+      }, 150)
 
       return () => clearTimeout(timer)
     }
-  }, [isOpen, demoMode, useDemoCredentials, email, password, isLoading, autoSubmitAttempted, showInsufficientPermissions, isAuthenticated, workspace])
+  }, [isOpen, demoMode, useDemoCredentials, email, password, isLoading, autoSubmitAttempted, showInsufficientPermissions, isAuthenticated, workspace, login, restaurantId, onSuccess])
 
   // Focus management
   useEffect(() => {
