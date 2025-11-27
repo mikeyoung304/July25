@@ -78,8 +78,10 @@ describe('OrderCard', () => {
   it('should render order details correctly', () => {
     render(<OrderCard {...defaultProps} />)
 
-    expect(screen.getByText(/Order #001/)).toBeInTheDocument()
-    expect(screen.getByText('NEW')).toBeInTheDocument()
+    // formatOrderNumber pads to 4 digits: '001' -> '0001'
+    expect(screen.getByText(/Order #0001/)).toBeInTheDocument()
+    // Component shows type badge (DINE-IN for orders with table_number)
+    expect(screen.getByText('DINE-IN')).toBeInTheDocument()
     expect(screen.getByText('2x Burger')).toBeInTheDocument()
     expect(screen.getByText('1x Fries')).toBeInTheDocument()
   })
@@ -87,9 +89,9 @@ describe('OrderCard', () => {
   it('should display modifiers', () => {
     render(<OrderCard {...defaultProps} />)
 
-    // Component renders modifiers as bullets
-    expect(screen.getByText('• Extra cheese')).toBeInTheDocument()
-    expect(screen.getByText('• No onions')).toBeInTheDocument()
+    // ModifierList renders modifier names (icons are aria-hidden)
+    expect(screen.getByText(/Extra cheese/)).toBeInTheDocument()
+    expect(screen.getByText(/No onions/)).toBeInTheDocument()
   })
 
   it('should display item notes', () => {
@@ -99,11 +101,12 @@ describe('OrderCard', () => {
     expect(screen.getByText(/Note: Extra crispy/)).toBeInTheDocument()
   })
 
-  it('should show correct status badge', () => {
+  it('should show correct type badge', () => {
     render(<OrderCard {...defaultProps} />)
 
-    // Status is uppercase in component
-    expect(screen.getByText('NEW')).toBeInTheDocument()
+    // Component shows DINE-IN/DRIVE-THRU badge based on table_number
+    // mockOrder has table_number: '5' so it's DINE-IN
+    expect(screen.getByText('DINE-IN')).toBeInTheDocument()
   })
 
   it('should show elapsed time', () => {
@@ -130,9 +133,12 @@ describe('OrderCard', () => {
     vi.setSystemTime(new Date('2024-01-01T12:20:00'))
     const { container } = render(<OrderCard {...defaultProps} />)
 
-    // Component applies red styling for orders over 15 minutes
+    // Component applies urgency accent class for orders over threshold
     const card = container.firstChild as HTMLElement
-    const hasUrgencyClass = card.className.includes('bg-red') || card.className.includes('text-red')
+    // Check for any urgency-related styling (border-l-4 with red/orange color)
+    const hasUrgencyClass = card.className.includes('border-l-4') ||
+                           card.className.includes('red') ||
+                           card.className.includes('orange')
     expect(hasUrgencyClass).toBe(true)
   })
 
@@ -151,7 +157,7 @@ describe('OrderCard', () => {
   it('should call onStatusChange when action button is clicked', () => {
     render(<OrderCard {...defaultProps} />)
 
-    const button = screen.getByText('Complete Order')
+    const button = screen.getByText('Mark Ready')
     fireEvent.click(button)
 
     // Component signature: onStatusChange(orderId: string, status: 'ready')
@@ -162,8 +168,8 @@ describe('OrderCard', () => {
     const preparingOrder = { ...mockOrder, status: 'preparing' as const }
     render(<OrderCard order={preparingOrder} onStatusChange={defaultProps.onStatusChange} />)
 
-    // Component has single action button: "Complete Order" for all non-ready statuses
-    expect(screen.getByText('Complete Order')).toBeInTheDocument()
+    // Component has single action button: "Mark Ready" for all non-ready statuses
+    expect(screen.getByText('Mark Ready')).toBeInTheDocument()
   })
 
   it('should use React.memo for performance optimization', () => {

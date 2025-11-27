@@ -61,9 +61,11 @@ describe('KDSOrderCard', () => {
   it('renders order information correctly', () => {
     render(<KDSOrderCard {...defaultProps} />)
 
-    // Check order number and status
-    expect(screen.getByText(/Order #001/)).toBeInTheDocument()
-    expect(screen.getByText('NEW')).toBeInTheDocument()
+    // Check order number and type badge
+    // formatOrderNumber pads to 4 digits: '001' -> '0001'
+    expect(screen.getByText(/Order #0001/)).toBeInTheDocument()
+    // Component shows type badge (DINE-IN for orders with table_number)
+    expect(screen.getByText('DINE-IN')).toBeInTheDocument()
   })
 
   it('displays all order items with details', () => {
@@ -73,34 +75,34 @@ describe('KDSOrderCard', () => {
     expect(screen.getByText('2x Cheeseburger')).toBeInTheDocument()
     expect(screen.getByText('1x French Fries')).toBeInTheDocument()
 
-    // Modifiers are rendered as bullets
-    expect(screen.getByText('• Extra cheese')).toBeInTheDocument()
-    expect(screen.getByText('• No onions')).toBeInTheDocument()
+    // ModifierList renders modifier names (icons are aria-hidden)
+    expect(screen.getByText(/Extra cheese/)).toBeInTheDocument()
+    expect(screen.getByText(/No onions/)).toBeInTheDocument()
 
     // Special instructions
     expect(screen.getByText(/Note: Well done/)).toBeInTheDocument()
   })
 
-  it('shows Complete Order button for new orders', () => {
+  it('shows Mark Ready button for new orders', () => {
     render(<KDSOrderCard {...defaultProps} />)
 
-    const completeButton = screen.getByText('Complete Order')
-    expect(completeButton).toBeInTheDocument()
+    const readyButton = screen.getByText('Mark Ready')
+    expect(readyButton).toBeInTheDocument()
 
-    fireEvent.click(completeButton)
+    fireEvent.click(readyButton)
     // Component signature: onStatusChange(orderId: string, status: 'ready')
     expect(defaultProps.onStatusChange).toHaveBeenCalledWith('order-1', 'ready')
   })
 
-  it('shows Complete Order button for preparing orders', () => {
+  it('shows Mark Ready button for preparing orders', () => {
     const preparingOrder = { ...mockOrder, status: 'preparing' as const }
     render(<KDSOrderCard order={preparingOrder} onStatusChange={defaultProps.onStatusChange} />)
 
-    // Component only has one action button: Complete Order (not multi-step)
-    const completeButton = screen.getByText('Complete Order')
-    expect(completeButton).toBeInTheDocument()
+    // Component only has one action button: Mark Ready (not multi-step)
+    const readyButton = screen.getByText('Mark Ready')
+    expect(readyButton).toBeInTheDocument()
 
-    fireEvent.click(completeButton)
+    fireEvent.click(readyButton)
     expect(defaultProps.onStatusChange).toHaveBeenCalledWith('order-1', 'ready')
   })
 
@@ -116,8 +118,8 @@ describe('KDSOrderCard', () => {
   it('handles order type badge display', () => {
     render(<KDSOrderCard {...defaultProps} />)
 
-    // Component maps 'online' type to 'Dine-In'
-    expect(screen.getByText('Dine-In')).toBeInTheDocument()
+    // Component shows DINE-IN for orders with table_number (mockOrder has table_number: '5')
+    expect(screen.getByText('DINE-IN')).toBeInTheDocument()
   })
 
   it('displays timer', () => {
@@ -128,19 +130,19 @@ describe('KDSOrderCard', () => {
     expect(screen.getByText(/0m/)).toBeInTheDocument()
   })
 
-  it('displays table number when customer name is available', () => {
-    const orderWithCustomer = { ...mockOrder, customer_name: 'John Doe' }
-    render(<KDSOrderCard order={orderWithCustomer} onStatusChange={defaultProps.onStatusChange} />)
-
-    // Table number is only displayed if customer_name exists
-    expect(screen.getByText(/Table 5/)).toBeInTheDocument()
-    expect(screen.getByText('John Doe')).toBeInTheDocument()
-  })
-
-  it('does not display customer section when customer name is not available', () => {
+  it('displays table number for dine-in orders', () => {
     render(<KDSOrderCard {...defaultProps} />)
 
-    // Customer section should not be rendered when customer_name is undefined
-    expect(screen.queryByText(/Table 5/)).not.toBeInTheDocument()
+    // Dine-in orders (with table_number) show table prominently
+    expect(screen.getByText(/Table 5/)).toBeInTheDocument()
+  })
+
+  it('displays customer name when available', () => {
+    // Order without table_number but with customer name shows customer prominently
+    const orderWithCustomer = { ...mockOrder, table_number: undefined, customer_name: 'John Doe' }
+    render(<KDSOrderCard order={orderWithCustomer} onStatusChange={defaultProps.onStatusChange} />)
+
+    // getDisplayCustomerName extracts last name: "Doe"
+    expect(screen.getByText('Doe')).toBeInTheDocument()
   })
 })
