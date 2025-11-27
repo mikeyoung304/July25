@@ -110,10 +110,12 @@ describe('Checkout E2E Flow', () => {
     expect(emailInput).toBeInTheDocument();
     expect(phoneInput).toBeInTheDocument();
     
-    // Fill required fields
+    // Fill required fields (clear first in case there are default values)
+    await user.clear(emailInput);
     await user.type(emailInput, 'john@example.com');
+    await user.clear(phoneInput);
     await user.type(phoneInput, '5551234567');
-    
+
     // Verify values were entered
     expect(emailInput).toHaveValue('john@example.com');
     expect(phoneInput).toHaveValue('5551234567');

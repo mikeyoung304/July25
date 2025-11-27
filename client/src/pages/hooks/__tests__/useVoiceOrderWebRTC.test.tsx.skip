@@ -36,6 +36,15 @@ vi.mock('@/services/monitoring/logger', () => ({
   }
 }))
 
+vi.mock('@/core/restaurant-hooks', () => ({
+  useRestaurant: () => ({
+    restaurant: {
+      id: 'test-restaurant',
+      name: 'Test Restaurant'
+    }
+  })
+}))
+
 // Import mocked hooks
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 
@@ -248,9 +257,10 @@ describe('useVoiceOrderWebRTC', () => {
       await waitFor(() => {
         expect(result.current.orderItems).toHaveLength(1)
         expect(result.current.orderItems[0].modifications).toHaveLength(2)
+        // Implementation now uses string array for modifications
         expect(result.current.orderItems[0].modifications).toEqual([
-          { id: 'mod-extra feta', name: 'extra feta', price: 0 },
-          { id: 'mod-no onions', name: 'no onions', price: 0 }
+          'extra feta',
+          'no onions'
         ])
       })
     })

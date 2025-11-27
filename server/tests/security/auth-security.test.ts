@@ -35,9 +35,10 @@ describe('Auth Security Tests', () => {
       await authenticate(req as any, res, next);
 
       expect(next).toHaveBeenCalledWith(expect.any(Error));
+      // ADR-009 fail-fast policy: EnvValidationError is thrown when required env vars are missing
       expect(next).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: expect.stringContaining('authentication not configured')
+          message: expect.stringMatching(/authentication not configured|ENVIRONMENT VALIDATION FAILED|SUPABASE_JWT_SECRET/)
         })
       );
     });

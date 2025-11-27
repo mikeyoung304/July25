@@ -8,29 +8,38 @@ import { TipSlider } from '../components/TipSlider';
 import { StripePaymentForm } from '../components/StripePaymentForm';
 
 // Mock cart hooks
+const mockCartData = {
+  cart: {
+    items: [{
+      id: '1',
+      name: 'Test Item',
+      price: 10.00,
+      quantity: 1,
+      menuItemId: 'menu-1'
+    }],
+    subtotal: 10.00,
+    tax: 1.00,
+    tip: 0,
+    total: 11.00,
+    itemCount: 1,
+    restaurantId: 'test-restaurant'
+  },
+  updateCartItem: vi.fn(),
+  removeFromCart: vi.fn(),
+  updateTip: vi.fn(),
+  clearCart: vi.fn(),
+  addToCart: vi.fn(),
+  addItem: vi.fn(),
+  updateItemQuantity: vi.fn(),
+  isCartOpen: false,
+  setIsCartOpen: vi.fn(),
+  itemCount: 1,
+  restaurantId: 'test-restaurant'
+};
 vi.mock('@/contexts/cart.hooks', () => ({
-  useCart: () => ({
-    cart: {
-      items: [{
-        id: '1',
-        name: 'Test Item',
-        price: 10.00,
-        quantity: 1,
-        menuItemId: 'menu-1'
-      }],
-      subtotal: 10.00,
-      tax: 1.00,
-      tip: 0,
-      total: 11.00,
-      itemCount: 1,
-      restaurantId: 'test-restaurant'
-    },
-    updateCartItem: vi.fn(),
-    removeFromCart: vi.fn(),
-    updateTip: vi.fn(),
-    clearCart: vi.fn(),
-    addToCart: vi.fn()
-  })
+  useCart: () => mockCartData,
+  useUnifiedCart: () => mockCartData,
+  useKioskCart: () => mockCartData
 }));
 
 // Mock auth hooks

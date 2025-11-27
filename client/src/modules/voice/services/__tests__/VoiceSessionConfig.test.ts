@@ -73,7 +73,8 @@ describe('VoiceSessionConfig', () => {
               'Authorization': 'Bearer auth-token-456',
               'Content-Type': 'application/json',
               'x-restaurant-id': 'test-restaurant-123'
-            }
+            },
+            body: '{"context":"kiosk"}'
           }
         )
 

@@ -245,7 +245,7 @@ router.post('/confirm',
         idempotencyKey,
         'success',
         payment_intent_id
-      ).catch(() => {}); // Best effort for demo mode
+      ).catch((err) => routeLogger.error('Failed to update payment audit', { err, order_id }));
 
       return res.json({
         success: true,
@@ -277,7 +277,7 @@ router.post('/confirm',
           undefined,
           paymentIntent.status,
           'Payment not completed'
-        ).catch(() => {});
+        ).catch((err) => routeLogger.error('Failed to update payment audit', { err, order_id }));
       }
 
       return res.status(400).json({
@@ -731,7 +731,7 @@ router.post('/webhook',
           undefined,
           paymentIntent.last_payment_error?.code || 'PAYMENT_FAILED',
           paymentIntent.last_payment_error?.message || 'Payment failed'
-        ).catch(() => {});
+        ).catch((err) => routeLogger.error('Failed to update payment audit from webhook', { err, payment_intent_id: paymentIntent.id }));
       }
       break;
     }
