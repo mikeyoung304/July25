@@ -7,9 +7,10 @@ Codified lessons from $1.3M+ in prevented issues. These are the 6 most impactful
 | ID | Category | Problem | Detection Signal |
 |----|----------|---------|------------------|
 | [CL-AUTH-001](./CL-AUTH-001-strict-auth-drift.md) | Auth | STRICT_AUTH drift | "Authentication Required" loop |
-| [CL-AUTH-002](./CL-AUTH-002-header-fallback-vulnerability.md) | Auth | Header fallback vulnerability | Cross-tenant data access |
+| [CL-AUTH-002](./CL-AUTH-002-websocket-dual-auth-prevention.md) | Auth (Prevention) | Missing dual-auth in services | KDS/WebSocket 401 errors |
 | [CL-BUILD-001](./CL-BUILD-001-vercel-production-flag.md) | Build | Vercel devDeps | "command not found" in Vercel |
 | [CL-DB-001](./CL-DB-001-migration-sync.md) | Database | Migration drift | ERROR 42703/42804 |
+| [CL-DB-002](./CL-DB-002-constraint-drift-prevention.md) | Database | Constraint drift | ERROR 23514 |
 | [CL-WS-001](./CL-WS-001-handler-timing-race.md) | WebSocket | Handler timing | No transcription events |
 | [CL-MEM-001](./CL-MEM-001-interval-leaks.md) | Memory | Untracked intervals | Memory growth 1-20 MB/day |
 | [CL-API-001](./CL-API-001-model-deprecation.md) | API | Silent deprecation | Feature works but output missing |
@@ -17,8 +18,9 @@ Codified lessons from $1.3M+ in prevented issues. These are the 6 most impactful
 ## When to Reference
 
 **Before writing auth code:** Read CL-AUTH-001
+**Before creating new authenticated services:** Read CL-AUTH-002 (Quick Ref: [AUTH_PATTERN_QUICK_REFERENCE.md](./AUTH_PATTERN_QUICK_REFERENCE.md))
 **Before Vercel deploy:** Read CL-BUILD-001
-**Before database changes:** Read CL-DB-001
+**Before database changes:** Read CL-DB-001, CL-DB-002
 **Before WebSocket/WebRTC code:** Read CL-WS-001
 **Before adding setInterval:** Read CL-MEM-001
 **When API feature stops working:** Read CL-API-001
