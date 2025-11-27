@@ -84,24 +84,44 @@ export class WebSocketService extends EventEmitter {
 
     try {
       // Get auth token for WebSocket authentication
+      // Uses dual-auth pattern per ADR-006: Supabase session OR localStorage JWT
       let token: string | null = null
-      
-      // Try to get auth token - prioritize Supabase session, then demo token
+
+      // 1. Try Supabase session first (primary auth)
       const { data: { session } } = await supabase.auth.getSession()
-      
+
       if (session?.access_token) {
-        // Use Supabase session token if available
         token = session.access_token
         logger.info('🔐 Using Supabase session for WebSocket')
       } else {
-        // In development, allow connection without auth but warn
-        if (import.meta.env.DEV) {
-          logger.warn('⚠️ WebSocket connecting without authentication (dev mode)')
-          // Don't set token - connection will be anonymous
-        } else {
-          logger.error('❌ No authentication available for WebSocket connection')
-          this.setConnectionState('error')
-          throw new Error('Authentication required for WebSocket connection')
+        // 2. Fallback to localStorage for demo/PIN/station sessions (per ADR-006)
+        const savedSession = localStorage.getItem('auth_session')
+        if (savedSession) {
+          try {
+            const parsed = JSON.parse(savedSession)
+            if (parsed.session?.accessToken && parsed.session?.expiresAt) {
+              // Check if token is still valid
+              if (parsed.session.expiresAt > Date.now() / 1000) {
+                token = parsed.session.accessToken
+                logger.info('🔐 Using localStorage session token (demo/PIN/station) for WebSocket')
+              } else {
+                logger.warn('⚠️ localStorage session token expired for WebSocket')
+              }
+            }
+          } catch (parseError) {
+            logger.error('Failed to parse localStorage auth session for WebSocket:', parseError)
+          }
+        }
+
+        // 3. If still no token, handle based on environment
+        if (!token) {
+          if (import.meta.env.DEV) {
+            logger.warn('⚠️ WebSocket connecting without authentication (dev mode)')
+          } else {
+            logger.error('❌ No authentication available for WebSocket connection')
+            this.setConnectionState('error')
+            throw new Error('Authentication required for WebSocket connection')
+          }
         }
       }
 
