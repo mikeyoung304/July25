@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { Order, OrderItem } from '@rebuild/shared'
+import { getOrderUrgency } from '@rebuild/shared/config/kds'
 
 export interface TableGroup {
   tableNumber: string
@@ -15,7 +16,7 @@ export interface TableGroup {
   serverName?: string
   section?: string
   estimatedCompletionTime?: string
-  urgencyLevel: 'normal' | 'warning' | 'urgent' | 'critical'
+  urgencyLevel: 'normal' | 'warning' | 'urgent'
 }
 
 export interface GroupedOrders {
@@ -149,16 +150,7 @@ export const useTableGrouping = (orders: Order[]) => {
       const ageMinutes = Math.floor(
         (Date.now() - new Date(tableGroup.oldestOrderTime).getTime()) / 60000
       )
-      
-      if (ageMinutes >= 30) {
-        tableGroup.urgencyLevel = 'critical'
-      } else if (ageMinutes >= 20) {
-        tableGroup.urgencyLevel = 'urgent'
-      } else if (ageMinutes >= 15) {
-        tableGroup.urgencyLevel = 'warning'
-      } else {
-        tableGroup.urgencyLevel = 'normal'
-      }
+      tableGroup.urgencyLevel = getOrderUrgency(ageMinutes)
       
       // Estimate completion time (simple version - can be enhanced)
       // Assuming average 15 minutes per order from preparing to ready
@@ -190,10 +182,10 @@ export const sortTableGroups = (
     case 'urgency':
       // Sort by urgency level, then by age
       return groupArray.sort((a, b) => {
-        const urgencyOrder = { critical: 0, urgent: 1, warning: 2, normal: 3 }
+        const urgencyOrder = { urgent: 0, warning: 1, normal: 2 }
         const urgencyDiff = urgencyOrder[a.urgencyLevel] - urgencyOrder[b.urgencyLevel]
         if (urgencyDiff !== 0) return urgencyDiff
-        
+
         // If same urgency, sort by oldest order
         return new Date(a.oldestOrderTime).getTime() - new Date(b.oldestOrderTime).getTime()
       })
@@ -232,7 +224,6 @@ export const getTableGroupStats = (groups: Map<string, TableGroup>) => {
     inProgressTables: 0,
     pendingTables: 0,
     urgentTables: 0,
-    criticalTables: 0,
     averageCompletion: 0,
     totalOrders: 0,
     totalItems: 0
@@ -261,7 +252,6 @@ export const getTableGroupStats = (groups: Map<string, TableGroup>) => {
     }
     
     if (group.urgencyLevel === 'urgent') stats.urgentTables++
-    if (group.urgencyLevel === 'critical') stats.criticalTables++
   })
   
   if (groups.size > 0) {

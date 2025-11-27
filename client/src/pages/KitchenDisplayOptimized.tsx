@@ -4,15 +4,16 @@ import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
 import { TableGroupCard } from '@/components/kitchen/TableGroupCard'
 import { OrderGroupCard } from '@/components/kitchen/OrderGroupCard'
+import { FocusOverlay } from '@/components/kitchen/FocusOverlay'
 import { Button } from '@/components/ui/button'
 import { Clock, ChefHat, AlertCircle, Users, Package } from 'lucide-react'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
 import { useTableGrouping, sortTableGroups } from '@/hooks/useTableGrouping'
-import { useOrderGrouping, sortOrderGroups } from '@/hooks/useOrderGrouping'
+import { useOrderGrouping, sortOrderGroups, type OrderGroup } from '@/hooks/useOrderGrouping'
 import { useScheduledOrders } from '@/hooks/useScheduledOrders'
 import { ScheduledOrdersSection } from '@/components/kitchen/ScheduledOrdersSection'
 import type { Order } from '@rebuild/shared'
-import { KDS_THRESHOLDS } from '@rebuild/shared/config/kds'
+import { KDS_THRESHOLDS, CARD_SIZE_CLASSES } from '@rebuild/shared/config/kds'
 
 type StatusFilter = 'active' | 'ready'
 type ViewMode = 'orders' | 'tables'
@@ -43,11 +44,20 @@ const KitchenDisplayOptimized = React.memo(() => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [viewMode, setViewMode] = useState<ViewMode>('orders')
 
+  // Focus mode state
+  const [focusedOrderGroup, setFocusedOrderGroup] = useState<OrderGroup | null>(null)
+
   // Stable handlers for UI controls
   const setStatusActive = useCallback(() => setStatusFilter('active'), [])
   const setStatusReady = useCallback(() => setStatusFilter('ready'), [])
   const setViewOrders = useCallback(() => setViewMode('orders'), [])
   const setViewTables = useCallback(() => setViewMode('tables'), [])
+
+  // Focus mode handlers
+  const handleFocusMode = useCallback((orderGroup: OrderGroup) => {
+    setFocusedOrderGroup(orderGroup)
+  }, [])
+  const handleCloseFocus = useCallback(() => setFocusedOrderGroup(null), [])
 
   // Enhanced order status handling
   const handleStatusChange = useCallback(async (orderId: string, status: Order['status']) => {
@@ -250,14 +260,16 @@ const KitchenDisplayOptimized = React.memo(() => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-auto">
               {sortedOrderGroups.map(orderGroup => (
-                <OrderGroupCard
-                  key={orderGroup.order_id}
-                  orderGroup={orderGroup}
-                  onStatusChange={handleStatusChange}
-                  variant="kitchen"
-                />
+                <div key={orderGroup.order_id} className={CARD_SIZE_CLASSES[orderGroup.card_size]}>
+                  <OrderGroupCard
+                    orderGroup={orderGroup}
+                    onStatusChange={handleStatusChange}
+                    onFocusMode={handleFocusMode}
+                    variant="kitchen"
+                  />
+                </div>
               ))}
             </div>
           )
@@ -293,6 +305,17 @@ const KitchenDisplayOptimized = React.memo(() => {
           onManualFire={handleManualFire}
         />
       </div>
+
+      {/* Focus Mode Overlay */}
+      {focusedOrderGroup && (
+        <FocusOverlay
+          orderGroup={focusedOrderGroup}
+          onClose={handleCloseFocus}
+          onMarkReady={(orderId) => {
+            handleStatusChange(orderId, 'ready')
+          }}
+        />
+      )}
     </div>
   )
 })

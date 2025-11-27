@@ -86,7 +86,7 @@ export function getUrgencyColorClass(urgencyLevel: KDSUrgencyLevel): string {
       return 'text-yellow-600';
     case 'normal':
     default:
-      return 'text-green-600';
+      return 'text-green-700';
   }
 }
 
@@ -154,6 +154,133 @@ export function getScheduledCardClass(minutesUntilFire: number): string {
  */
 export type KDSDisplayType = 'drive-thru' | 'dine-in';
 
+// ============================================================================
+// Card Sizing (Adaptive Layout)
+// ============================================================================
+
+/**
+ * Card size for adaptive grid layout
+ * - standard: 1 column (simple orders)
+ * - wide: 2 columns (complex orders)
+ * - large: 2 columns + taller (very complex orders)
+ */
+export type CardSize = 'standard' | 'wide' | 'large';
+
+/**
+ * Card sizing configuration
+ *
+ * Rationale:
+ * - Each item = 1 unit of complexity (primary content)
+ * - Each modifier = 0.3 units (secondary content, less visual impact)
+ *
+ * Thresholds tuned based on typical kitchen orders:
+ * - Standard (1 col): Simple order (1-4 items, few mods)
+ * - Wide (2 cols): Medium complexity (5-9 items or heavy mods)
+ * - Large (2 cols tall): Complex orders (10+ items)
+ */
+export const CARD_SIZING_CONFIG = {
+  /** Weight applied to modifier count (modifiers are 30% as important as items) */
+  MODIFIER_WEIGHT: 0.3,
+  /** Maximum complexity for standard (1-column) card */
+  STANDARD_MAX_COMPLEXITY: 5,
+  /** Maximum complexity for wide (2-column) card */
+  WIDE_MAX_COMPLEXITY: 10,
+} as const;
+
+export function getCardSize(itemCount: number, modifierCount: number): CardSize {
+  const { MODIFIER_WEIGHT, STANDARD_MAX_COMPLEXITY, WIDE_MAX_COMPLEXITY } = CARD_SIZING_CONFIG;
+  const complexity = itemCount + (modifierCount * MODIFIER_WEIGHT);
+
+  if (complexity <= STANDARD_MAX_COMPLEXITY) return 'standard';  // 1 column
+  if (complexity <= WIDE_MAX_COMPLEXITY) return 'wide';     // 2 columns
+  return 'large';                          // 2 columns + taller
+}
+
+/**
+ * Tailwind CSS classes for card sizes
+ */
+export const CARD_SIZE_CLASSES = {
+  standard: 'col-span-1',
+  wide: 'col-span-1 xl:col-span-2',
+  large: 'col-span-1 xl:col-span-2 row-span-2',
+} as const;
+
+// ============================================================================
+// Order Number Formatting
+// ============================================================================
+
+/**
+ * Format order number to show last 4 digits only
+ * e.g., "20251105-0004" -> "0004"
+ *
+ * @param orderNumber - Full order number string
+ * @returns Last 4 digits, zero-padded
+ */
+export function formatOrderNumber(orderNumber: string): string {
+  if (!orderNumber) return '0000';
+  const parts = orderNumber.split('-');
+  const lastPart = parts[parts.length - 1] || orderNumber;
+  return lastPart.padStart(4, '0');
+}
+
+// ============================================================================
+// Modifier Type Detection & Styling
+// ============================================================================
+
+/**
+ * Modifier types for color-coded display
+ */
+export type ModifierType = 'removal' | 'addition' | 'allergy' | 'temperature' | 'substitution' | 'default';
+
+const REMOVAL_KEYWORDS = ['no ', 'without', 'remove', 'hold'];
+const ADDITION_KEYWORDS = ['extra', 'add', 'double', 'triple', 'more'];
+const ALLERGY_KEYWORDS = ['allergy', 'allergic', 'gluten', 'dairy', 'nut', 'peanut', 'shellfish', 'celiac'];
+const TEMP_KEYWORDS = ['rare', 'medium', 'well', 'well-done', 'hot', 'cold', 'temp'];
+const SUB_KEYWORDS = ['sub ', 'substitute', 'instead', 'swap'];
+
+/**
+ * Detect modifier type based on keyword matching
+ * Priority: allergy > removal > addition > temperature > substitution > default
+ *
+ * @param modifierName - The modifier text to analyze
+ * @returns ModifierType for styling
+ */
+export function getModifierType(modifierName: string): ModifierType {
+  const lower = modifierName.toLowerCase();
+
+  // Allergy takes highest priority (safety critical)
+  if (ALLERGY_KEYWORDS.some(k => lower.includes(k))) return 'allergy';
+  if (REMOVAL_KEYWORDS.some(k => lower.startsWith(k))) return 'removal';
+  if (ADDITION_KEYWORDS.some(k => lower.startsWith(k))) return 'addition';
+  if (TEMP_KEYWORDS.some(k => lower.includes(k))) return 'temperature';
+  if (SUB_KEYWORDS.some(k => lower.includes(k))) return 'substitution';
+  return 'default';
+}
+
+/**
+ * Tailwind CSS classes for modifier types
+ */
+export const MODIFIER_STYLES = {
+  removal: 'text-red-600',
+  addition: 'text-green-600',
+  allergy: 'bg-red-100 text-red-800 px-2 py-0.5 rounded font-semibold',
+  temperature: 'text-orange-600',
+  substitution: 'text-blue-600',
+  default: 'text-gray-600',
+} as const;
+
+/**
+ * Icons/prefixes for modifier types
+ */
+export const MODIFIER_ICONS = {
+  removal: '\u2715',      // ✕
+  addition: '+',
+  allergy: '\u26A0\uFE0F', // ⚠️
+  temperature: '\uD83D\uDD25', // 🔥
+  substitution: '\u2194', // ↔
+  default: '\u2022',      // •
+} as const;
+
 /**
  * Determine KDS display type based on order data
  *
@@ -209,3 +336,80 @@ export function getUrgencyAccentClass(urgencyLevel: KDSUrgencyLevel): string {
       return 'border-l-4 border-l-green-400';
   }
 }
+
+// ============================================================================
+// Customer Name & Order Label Helpers
+// ============================================================================
+
+/**
+ * Guest placeholder constant
+ * Used to identify anonymous/guest orders in the system
+ */
+export const GUEST_CUSTOMER_NAME = 'Guest';
+
+/**
+ * Extract display name from customer name
+ * Returns last name for personalization, or null if customer is guest
+ *
+ * @param customerName - Full customer name or 'Guest' placeholder
+ * @returns Last name or null if guest/invalid
+ *
+ * @example
+ * getDisplayCustomerName('John Smith') // 'Smith'
+ * getDisplayCustomerName('Guest') // null
+ * getDisplayCustomerName(null) // null
+ * getDisplayCustomerName('Madonna') // 'Madonna'
+ */
+export function getDisplayCustomerName(customerName: string | null | undefined): string | null {
+  if (!customerName) return null;
+
+  const trimmed = customerName.trim();
+  if (trimmed === GUEST_CUSTOMER_NAME) return null;
+
+  const parts = trimmed.split(' ');
+  // Return last part, or whole name if single word
+  return parts.length > 1 ? parts[parts.length - 1]! : trimmed;
+}
+
+/**
+ * Get primary label for order display
+ * Priority: Table Number > Customer Name > Order Number
+ *
+ * @param tableNumber - Table number if dine-in
+ * @param customerName - Customer name
+ * @param orderNumber - Order number
+ * @returns Display label for order
+ */
+export function getOrderPrimaryLabel(
+  tableNumber: number | string | null | undefined,
+  customerName: string | null | undefined,
+  orderNumber: string
+): string {
+  if (tableNumber) {
+    return `Table ${tableNumber}`;
+  }
+
+  const displayName = getDisplayCustomerName(customerName);
+  if (displayName) {
+    return displayName;
+  }
+
+  return `Order #${formatOrderNumber(orderNumber)}`;
+}
+
+// ============================================================================
+// Accessibility Helpers for Modifiers
+// ============================================================================
+
+/**
+ * Screen reader text prefixes for modifier types
+ * Used to provide context beyond color-coding
+ */
+export const MODIFIER_TEXT_PREFIX = {
+  removal: 'Remove',
+  addition: 'Add',
+  allergy: 'ALLERGY',
+  temperature: 'Temp',
+  substitution: 'Sub',
+  default: '',
+} as const;

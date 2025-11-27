@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Clock } from 'lucide-react'
+import { Clock, Search } from 'lucide-react'
 import { cn } from '@/utils'
 import type { Order } from '@rebuild/shared'
 import {
@@ -10,19 +10,23 @@ import {
   getUrgencyColorClass,
   getKDSDisplayType,
   getUrgencyAccentClass,
-  KDS_TYPE_COLORS
+  KDS_TYPE_COLORS,
+  formatOrderNumber,
+  getDisplayCustomerName
 } from '@rebuild/shared/config/kds'
+import { ModifierList } from './ModifierList'
 
 export interface OrderCardProps {
   order: Order
   onStatusChange: (orderId: string, status: 'ready') => void
+  onFocusMode?: (order: Order) => void
 }
 
 /**
  * Minimal KDS Order Card
  * Clean aesthetic with type color coding and urgency accent
  */
-function OrderCardComponent({ order, onStatusChange }: OrderCardProps) {
+function OrderCardComponent({ order, onStatusChange, onFocusMode }: OrderCardProps) {
   // Calculate elapsed time and urgency using unified KDS config
   const { elapsedMinutes, urgencyColor, urgencyAccent } = useMemo(() => {
     const created = new Date(order.created_at)
@@ -42,6 +46,9 @@ function OrderCardComponent({ order, onStatusChange }: OrderCardProps) {
   const typeColors = KDS_TYPE_COLORS[displayType]
   const typeLabel = displayType === 'dine-in' ? 'DINE-IN' : 'DRIVE-THRU'
 
+  // Get display name using shared helper
+  const displayName = getDisplayCustomerName(order.customer_name)
+
   return (
     <Card className={cn(
       'relative overflow-hidden',
@@ -50,7 +57,7 @@ function OrderCardComponent({ order, onStatusChange }: OrderCardProps) {
       urgencyAccent
     )}>
       <CardContent className="p-4">
-        {/* Header: Type Badge + Timer */}
+        {/* Header: Type Badge + Timer + Focus Button */}
         <div className="flex justify-between items-start mb-3">
           <Badge
             variant="outline"
@@ -59,52 +66,65 @@ function OrderCardComponent({ order, onStatusChange }: OrderCardProps) {
             {typeLabel}
           </Badge>
 
-          {/* Timer */}
-          <div className={cn('flex items-center gap-1 font-bold', urgencyColor)}>
-            <Clock className="w-4 h-4" />
-            <span>{elapsedMinutes}m</span>
+          <div className="flex items-center gap-2">
+            {/* Timer */}
+            <div className={cn('flex items-center gap-1 text-xl font-bold', urgencyColor)}>
+              <Clock className="w-5 h-5" aria-hidden="true" />
+              <span>{elapsedMinutes}m</span>
+            </div>
+
+            {/* Focus Mode Button */}
+            {onFocusMode && (
+              <button
+                onClick={() => onFocusMode(order)}
+                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Expand order details"
+              >
+                <Search className="w-5 h-5" aria-hidden="true" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Primary identifier based on order type */}
+        {/* Primary identifier based on order type - 24px primary text */}
         <div className="mb-3">
           {displayType === 'dine-in' && order.table_number ? (
             // Dine-in: Show Table/Seat prominently
-            <h3 className="text-lg font-bold text-gray-900">
+            <h3 className="text-2xl font-bold text-gray-900">
               Table {order.table_number}{order.seat_number ? `, Seat ${order.seat_number}` : ''}
             </h3>
-          ) : order.customer_name ? (
+          ) : displayName ? (
             // Drive-thru/To-go: Show customer last name prominently
-            <h3 className="text-lg font-bold text-gray-900">
-              {order.customer_name.split(' ').pop()}
+            <h3 className="text-2xl font-bold text-gray-900">
+              {displayName}
             </h3>
           ) : null}
           <div className={cn(
             'font-medium text-gray-700',
-            (displayType === 'dine-in' || order.customer_name) ? 'text-sm' : 'text-lg font-bold text-gray-900'
+            (displayType === 'dine-in' || displayName)
+              ? 'text-sm'
+              : 'text-2xl font-bold text-gray-900'
           )}>
-            Order #{order.order_number}
+            Order #{formatOrderNumber(order.order_number)}
           </div>
         </div>
 
-        {/* Order Items - Always visible */}
-        <div className="space-y-1 mb-3">
+        {/* Order Items - Always visible, 16px item text */}
+        <div className="space-y-2 mb-3">
           {order.items.map((item, index) => (
-            <div key={item.id || index} className="text-sm">
-              <div className="font-medium">
+            <div key={item.id || index}>
+              <div className="text-base font-medium">
                 {item.quantity}x {item.name}
               </div>
-              {/* Modifiers */}
-              {item.modifiers && item.modifiers.length > 0 && (
-                <div className="text-xs text-gray-600 ml-4">
-                  {item.modifiers.map((mod, i) => (
-                    <div key={i}>• {mod.name}</div>
-                  ))}
-                </div>
-              )}
+              {/* Modifiers - using shared component with accessibility */}
+              <ModifierList
+                modifiers={item.modifiers}
+                size="sm"
+                className="ml-4 mt-1"
+              />
               {/* Special instructions */}
               {item.special_instructions && (
-                <div className="text-xs text-gray-600 ml-4 italic">
+                <div className="text-sm text-gray-600 ml-4 italic mt-1">
                   Note: {item.special_instructions}
                 </div>
               )}

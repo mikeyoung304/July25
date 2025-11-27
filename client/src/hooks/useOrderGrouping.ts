@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { Order, OrderStatus } from '@rebuild/shared'
+import { getCardSize, CardSize, getOrderUrgency } from '@rebuild/shared/config/kds'
 
 export interface OrderGroup {
   order_id: string                  // UUID
@@ -26,13 +27,17 @@ export interface OrderGroup {
   estimated_ready?: string
 
   // Urgency
-  urgency_level: 'normal' | 'warning' | 'urgent' | 'critical'
+  urgency_level: 'normal' | 'warning' | 'urgent'
   age_minutes: number
 
   // Optional metadata
   notes?: string
   customer_car?: string             // "Blue Honda"
   notified?: boolean               // SMS sent?
+
+  // Layout (pre-calculated for performance)
+  total_modifiers: number          // Total modifiers across all items
+  card_size: CardSize              // Calculated card size for grid layout
 }
 
 /**
@@ -78,15 +83,23 @@ export const useOrderGrouping = (orders: Order[]) => {
           age_minutes: 0,
 
           notes: order.notes,
+
+          total_modifiers: 0,
+          card_size: 'standard',
         })
       }
 
       const group = orderMap.get(order_number)!
       group.orders.push(order)
 
-      // Count items by status
-      order.items.forEach(() => {
+      // Count items by status and modifiers
+      order.items.forEach(item => {
         group.total_items++
+
+        // Count modifiers for card sizing
+        if (item.modifiers) {
+          group.total_modifiers += item.modifiers.length
+        }
 
         switch (order.status) {
           case 'ready':
@@ -118,6 +131,9 @@ export const useOrderGrouping = (orders: Order[]) => {
         )
       }
 
+      // Calculate card size for adaptive grid layout (pre-computed for performance)
+      group.card_size = getCardSize(group.total_items, group.total_modifiers)
+
       // Overall status
       if (group.completed_items === group.total_items) {
         group.status = 'ready'
@@ -132,16 +148,7 @@ export const useOrderGrouping = (orders: Order[]) => {
         (Date.now() - new Date(group.oldest_item_time).getTime()) / 60000
       )
       group.age_minutes = age_minutes
-
-      if (age_minutes >= 25) {
-        group.urgency_level = 'critical'
-      } else if (age_minutes >= 18) {
-        group.urgency_level = 'urgent'
-      } else if (age_minutes >= 12) {
-        group.urgency_level = 'warning'
-      } else {
-        group.urgency_level = 'normal'
-      }
+      group.urgency_level = getOrderUrgency(age_minutes)
 
       // Estimated ready time (simple calculation)
       if (group.status !== 'ready') {
@@ -187,7 +194,7 @@ export const sortOrderGroups = (
   switch (sortBy) {
     case 'urgency':
       return [...groups].sort((a, b) => {
-        const urgencyOrder = { critical: 0, urgent: 1, warning: 2, normal: 3 }
+        const urgencyOrder = { urgent: 0, warning: 1, normal: 2 }
         const urgencyDiff = urgencyOrder[a.urgency_level] - urgencyOrder[b.urgency_level]
         if (urgencyDiff !== 0) return urgencyDiff
 
