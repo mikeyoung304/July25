@@ -1,10 +1,15 @@
 import React from 'react'
-import { Clock, Phone, Car, CheckCircle, AlertCircle } from 'lucide-react'
+import { Clock, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { OrderGroup } from '@/hooks/useOrderGrouping'
 import type { Order } from '@rebuild/shared'
 import { cn } from '@/utils'
+import {
+  getOrderUrgency,
+  getUrgencyAccentClass,
+  KDS_TYPE_COLORS
+} from '@rebuild/shared/config/kds'
 
 interface OrderGroupCardProps {
   orderGroup: OrderGroup
@@ -13,37 +18,19 @@ interface OrderGroupCardProps {
   variant?: 'kitchen' | 'expo'
 }
 
-// Small, clean order type badge component
+// Small, clean order type badge component using unified KDS colors
 const OrderTypeBadge = ({ pickupType }: { pickupType: OrderGroup['pickup_type'] }) => {
-  // Simplified to 2 types: online (drive-thru) and dining-room
-  const typeConfig = {
-    'drive-thru': {
-      label: 'ONLINE',
-      bg: 'bg-accent/10',
-      text: 'text-accent-700',
-      border: 'border-accent-500'
-    },
-    'counter': {
-      label: 'DINE-IN',
-      bg: 'bg-amber-50',
-      text: 'text-amber-700',
-      border: 'border-amber-500'
-    }
-  }
-
-  const config = typeConfig[pickupType] || typeConfig['counter']
+  // Map pickup_type to KDS display type
+  const displayType = pickupType === 'counter' ? 'dine-in' : 'drive-thru'
+  const typeColors = KDS_TYPE_COLORS[displayType]
+  const label = displayType === 'dine-in' ? 'DINE-IN' : 'DRIVE-THRU'
 
   return (
     <Badge
       variant="outline"
-      className={cn(
-        'text-xs font-semibold px-2 py-1',
-        config.bg,
-        config.text,
-        config.border
-      )}
+      className={cn('text-xs font-semibold px-2 py-1', typeColors.badge)}
     >
-      {config.label}
+      {label}
     </Badge>
   )
 }
@@ -90,13 +77,11 @@ export function OrderGroupCard({
     }
   }
 
-  // Clean order type styling - simplified to 2 types
-  const orderTypeStyles = {
-    'drive-thru': 'border-accent-500 bg-white',  // Teal border for online orders
-    'counter': 'border-amber-400 bg-white'       // Amber border for dining room
-  }
-
-  const cardStyle = orderTypeStyles[orderGroup.pickup_type] || 'border-gray-300 bg-white'
+  // Use unified KDS type colors + urgency accent
+  const displayType = orderGroup.pickup_type === 'counter' ? 'dine-in' : 'drive-thru'
+  const typeColors = KDS_TYPE_COLORS[displayType]
+  const urgencyLevel = getOrderUrgency(orderGroup.age_minutes)
+  const urgencyAccent = getUrgencyAccentClass(urgencyLevel)
 
   const statusColors = {
     new: 'bg-blue-100 text-blue-700',
@@ -112,39 +97,39 @@ export function OrderGroupCard({
   return (
     <div
       className={cn(
-        'rounded-lg border-2 p-4 shadow-card hover:shadow-card-hover transition-all',
-        cardStyle
+        'rounded-lg border-2 p-4 shadow-card hover:shadow-card-hover transition-all overflow-hidden',
+        typeColors.bg,
+        typeColors.border,
+        urgencyAccent
       )}
     >
-      {/* Clean Header */}
+      {/* Clean Header: Type Badge + Timer */}
       <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-lg font-bold text-gray-900">Order #{orderGroup.order_number}</h3>
-            <OrderTypeBadge pickupType={orderGroup.pickup_type} />
-            <Badge variant="outline" className={cn('text-xs', statusColors[orderGroup.status])}>
-              {orderGroup.status.toUpperCase()}
-            </Badge>
-          </div>
-          <div className="text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">{orderGroup.customer_name}</span>
-              {orderGroup.customer_phone && (
-                <span className="flex items-center gap-1 text-gray-500">
-                  <Phone className="w-3 h-3" />
-                  {orderGroup.customer_phone}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+        <OrderTypeBadge pickupType={orderGroup.pickup_type} />
 
-        {/* Simple time indicator */}
-        <div className="text-right">
-          <div className="flex items-center gap-1 text-sm text-gray-600">
-            <Clock className="w-4 h-4" />
-            <span>{orderGroup.age_minutes} min</span>
-          </div>
+        {/* Timer with urgency color */}
+        <div className={cn(
+          'flex items-center gap-1 font-bold',
+          urgencyLevel === 'urgent' || urgencyLevel === 'critical' ? 'text-red-600' :
+          urgencyLevel === 'warning' ? 'text-yellow-600' : 'text-green-600'
+        )}>
+          <Clock className="w-4 h-4" />
+          <span>{orderGroup.age_minutes}m</span>
+        </div>
+      </div>
+
+      {/* Primary identifier: Customer last name for drive-thru, then Order Number */}
+      <div className="mb-3">
+        {displayType === 'drive-thru' && orderGroup.customer_name ? (
+          <h3 className="text-lg font-bold text-gray-900">
+            {orderGroup.customer_name.split(' ').pop()}
+          </h3>
+        ) : null}
+        <div className={cn(
+          'font-medium text-gray-700',
+          (displayType === 'drive-thru' && orderGroup.customer_name) ? 'text-sm' : 'text-lg font-bold text-gray-900'
+        )}>
+          Order #{orderGroup.order_number}
         </div>
       </div>
 

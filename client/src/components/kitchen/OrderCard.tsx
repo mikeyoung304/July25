@@ -1,13 +1,16 @@
 import React, { useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Clock, Package, User } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Clock } from 'lucide-react'
 import { cn } from '@/utils'
 import type { Order } from '@rebuild/shared'
 import {
   getOrderUrgency,
   getUrgencyColorClass,
-  getUrgencyCardClass
+  getKDSDisplayType,
+  getUrgencyAccentClass,
+  KDS_TYPE_COLORS
 } from '@rebuild/shared/config/kds'
 
 export interface OrderCardProps {
@@ -17,11 +20,11 @@ export interface OrderCardProps {
 
 /**
  * Minimal KDS Order Card
- * Single complete button, no multi-step workflow
+ * Clean aesthetic with type color coding and urgency accent
  */
 function OrderCardComponent({ order, onStatusChange }: OrderCardProps) {
   // Calculate elapsed time and urgency using unified KDS config
-  const { elapsedMinutes, urgencyColor, cardColor } = useMemo(() => {
+  const { elapsedMinutes, urgencyColor, urgencyAccent } = useMemo(() => {
     const created = new Date(order.created_at)
     const now = new Date()
     const elapsed = Math.floor((now.getTime() - created.getTime()) / 60000)
@@ -29,90 +32,67 @@ function OrderCardComponent({ order, onStatusChange }: OrderCardProps) {
     // Use centralized KDS thresholds (Phase 4: Architectural Hardening)
     const urgency = getOrderUrgency(elapsed)
     const color = getUrgencyColorClass(urgency)
-    const bg = getUrgencyCardClass(urgency)
+    const accent = getUrgencyAccentClass(urgency)
 
-    return { elapsedMinutes: elapsed, urgencyColor: color, cardColor: bg }
+    return { elapsedMinutes: elapsed, urgencyColor: color, urgencyAccent: accent }
   }, [order.created_at])
 
-  // Get order type display (backend sends 'online' | 'pickup' | 'delivery')
-  const orderTypeDisplay = useMemo(() => {
-    switch (order.type) {
-      case 'online': return 'Dine-In'
-      case 'pickup': return 'Takeout'
-      case 'delivery': return 'Delivery'
-      default: return order.type
-    }
-  }, [order.type])
-
-  // Status badge color
-  const statusColor = useMemo(() => {
-    switch (order.status) {
-      case 'new':
-      case 'pending':
-      case 'confirmed':
-        return 'bg-blue-100 text-blue-800'
-      case 'preparing':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'ready':
-        return 'bg-green-100 text-green-800'
-      case 'completed':
-        return 'bg-gray-100 text-gray-800'
-      case 'cancelled':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }, [order.status])
+  // Get display type based on table assignment (fixes order type classification bug)
+  const displayType = useMemo(() => getKDSDisplayType(order), [order.table_number])
+  const typeColors = KDS_TYPE_COLORS[displayType]
+  const typeLabel = displayType === 'dine-in' ? 'DINE-IN' : 'DRIVE-THRU'
 
   return (
     <Card className={cn(
-      'relative',
-      cardColor
+      'relative overflow-hidden',
+      typeColors.bg,
+      typeColors.border,
+      urgencyAccent
     )}>
       <CardContent className="p-4">
-        {/* Header: Order Number, Status, Timer */}
+        {/* Header: Type Badge + Timer */}
         <div className="flex justify-between items-start mb-3">
-          <div>
-            <h3 className="text-lg font-bold">
-              Order #{order.order_number}
-            </h3>
-            <span className={cn('inline-block px-2 py-1 rounded text-xs font-medium mt-1', statusColor)}>
-              {order.status.toUpperCase()}
-            </span>
-          </div>
-          
-          <div className="text-right">
-            {/* Timer - Core KDS feature */}
-            <div className={cn('flex items-center gap-1', urgencyColor)}>
-              <Clock className="w-4 h-4" />
-              <span className="font-bold">{elapsedMinutes}m</span>
-            </div>
-            
-            {/* Order Type Badge */}
-            <div className="flex items-center gap-1 text-xs text-gray-600 mt-1">
-              <Package className="w-3 h-3" />
-              <span>{orderTypeDisplay}</span>
-            </div>
+          <Badge
+            variant="outline"
+            className={cn('text-xs font-semibold', typeColors.badge)}
+          >
+            {typeLabel}
+          </Badge>
+
+          {/* Timer */}
+          <div className={cn('flex items-center gap-1 font-bold', urgencyColor)}>
+            <Clock className="w-4 h-4" />
+            <span>{elapsedMinutes}m</span>
           </div>
         </div>
 
-        {/* Customer Info (if available) */}
-        {order.customer_name && (
-          <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-            <User className="w-3 h-3" />
-            <span>{order.customer_name}</span>
-            {order.table_number && <span>• Table {order.table_number}</span>}
+        {/* Primary identifier based on order type */}
+        <div className="mb-3">
+          {displayType === 'dine-in' && order.table_number ? (
+            // Dine-in: Show Table/Seat prominently
+            <h3 className="text-lg font-bold text-gray-900">
+              Table {order.table_number}{order.seat_number ? `, Seat ${order.seat_number}` : ''}
+            </h3>
+          ) : order.customer_name ? (
+            // Drive-thru/To-go: Show customer last name prominently
+            <h3 className="text-lg font-bold text-gray-900">
+              {order.customer_name.split(' ').pop()}
+            </h3>
+          ) : null}
+          <div className={cn(
+            'font-medium text-gray-700',
+            (displayType === 'dine-in' || order.customer_name) ? 'text-sm' : 'text-lg font-bold text-gray-900'
+          )}>
+            Order #{order.order_number}
           </div>
-        )}
+        </div>
 
-        {/* Order Items - Simple list, no over-componentization */}
-        <div className="space-y-2 mb-3">
+        {/* Order Items - Always visible */}
+        <div className="space-y-1 mb-3">
           {order.items.map((item, index) => (
             <div key={item.id || index} className="text-sm">
-              <div className="flex justify-between">
-                <span className="font-medium">
-                  {item.quantity}x {item.name}
-                </span>
+              <div className="font-medium">
+                {item.quantity}x {item.name}
               </div>
               {/* Modifiers */}
               {item.modifiers && item.modifiers.length > 0 && (
@@ -132,21 +112,20 @@ function OrderCardComponent({ order, onStatusChange }: OrderCardProps) {
           ))}
         </div>
 
-        {/* Single Action Button - Complete */}
+        {/* Single Action Button - Mark Ready */}
         <div className="flex gap-2">
           {(order.status !== 'ready' && order.status !== 'completed' && order.status !== 'cancelled') && (
             <Button
               onClick={() => onStatusChange(order.id, 'ready')}
-              className="flex-1"
+              className="flex-1 h-11"
               variant="default"
-              size="sm"
             >
-              Complete Order
+              Mark Ready
             </Button>
           )}
-          
+
           {order.status === 'ready' && (
-            <div className="w-full text-center text-green-600 font-medium">
+            <div className="w-full text-center text-green-600 font-medium py-2">
               ✓ Ready for Pickup
             </div>
           )}

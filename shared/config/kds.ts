@@ -146,3 +146,66 @@ export function getScheduledCardClass(minutesUntilFire: number): string {
       return 'bg-white border-blue-300';
   }
 }
+
+/**
+ * KDS Display Types
+ * - 'drive-thru': All online/pickup/delivery orders (to-go)
+ * - 'dine-in': Orders with table assignment
+ */
+export type KDSDisplayType = 'drive-thru' | 'dine-in';
+
+/**
+ * Determine KDS display type based on order data
+ *
+ * Business Rule:
+ * - Dine-in: Order has a table_number assigned
+ * - Drive-thru: Everything else (online, pickup, delivery without table)
+ *
+ * @param order - Order object with optional table_number
+ * @returns 'dine-in' if table assigned, 'drive-thru' otherwise
+ */
+export function getKDSDisplayType(order: { table_number?: number | string | null }): KDSDisplayType {
+  // Dine-in only if order has table assignment
+  if (order.table_number) {
+    return 'dine-in';
+  }
+  // Everything else is drive-thru (online, pickup, delivery)
+  return 'drive-thru';
+}
+
+/**
+ * KDS Type Colors
+ * Color-code cards by order type for visual distinction
+ */
+export const KDS_TYPE_COLORS = {
+  'drive-thru': {
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    badge: 'bg-blue-100 text-blue-700 border-blue-300'
+  },
+  'dine-in': {
+    bg: 'bg-teal-50',
+    border: 'border-teal-200',
+    badge: 'bg-teal-100 text-teal-700 border-teal-300'
+  }
+} as const;
+
+/**
+ * Get urgency left border accent class
+ * Subtle 4px left border indicating order urgency
+ *
+ * @param urgencyLevel - Urgency level from getOrderUrgency
+ * @returns Tailwind CSS left border class
+ */
+export function getUrgencyAccentClass(urgencyLevel: KDSUrgencyLevel): string {
+  switch (urgencyLevel) {
+    case 'critical':
+    case 'urgent':
+      return 'border-l-4 border-l-red-500';
+    case 'warning':
+      return 'border-l-4 border-l-yellow-400';
+    case 'normal':
+    default:
+      return 'border-l-4 border-l-green-400';
+  }
+}

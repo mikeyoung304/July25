@@ -1,13 +1,11 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
-//
-import { VirtualizedOrderGrid } from '@/components/kitchen/VirtualizedOrderGrid'
 import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
 import { TableGroupCard } from '@/components/kitchen/TableGroupCard'
 import { OrderGroupCard } from '@/components/kitchen/OrderGroupCard'
 import { Button } from '@/components/ui/button'
-import { Filter, Clock, ChefHat, AlertCircle, BarChart3, Zap, Users, LayoutGrid, Package } from 'lucide-react'
+import { Clock, ChefHat, AlertCircle, Users, Package } from 'lucide-react'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
 import { useTableGrouping, sortTableGroups } from '@/hooks/useTableGrouping'
 import { useOrderGrouping, sortOrderGroups } from '@/hooks/useOrderGrouping'
@@ -16,10 +14,8 @@ import { ScheduledOrdersSection } from '@/components/kitchen/ScheduledOrdersSect
 import type { Order } from '@rebuild/shared'
 import { KDS_THRESHOLDS } from '@rebuild/shared/config/kds'
 
-type StatusFilter = 'all' | 'active' | 'ready' | 'urgent'
-type SortMode = 'priority' | 'chronological' | 'type'
-type ViewMode = 'grid' | 'tables' | 'orders'
-type OrderTypeFilter = 'all' | 'drive-thru' | 'counter'  // Simplified: drive-thru = online, counter = dining
+type StatusFilter = 'active' | 'ready'
+type ViewMode = 'orders' | 'tables'
 
 const KitchenDisplayOptimized = React.memo(() => {
   // Use optimized hook with advanced features
@@ -43,28 +39,15 @@ const KitchenDisplayOptimized = React.memo(() => {
   // Order grouping (only unscheduled online orders)
   const orderGroups = useOrderGrouping(unscheduledOrders)
 
-  // Enhanced filtering and sorting state
+  // Simplified filtering state - minimal UI
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
-  const [sortMode, setSortMode] = useState<SortMode>('priority')
   const [viewMode, setViewMode] = useState<ViewMode>('orders')
-  const [orderTypeFilter, setOrderTypeFilter] = useState<OrderTypeFilter>('all')
-  const [showStats, setShowStats] = useState(false)
 
   // Stable handlers for UI controls
-  const toggleStats = useCallback(() => setShowStats(prev => !prev), [])
-  const setStatusAll = useCallback(() => setStatusFilter('all'), [])
   const setStatusActive = useCallback(() => setStatusFilter('active'), [])
   const setStatusReady = useCallback(() => setStatusFilter('ready'), [])
-  const setStatusUrgent = useCallback(() => setStatusFilter('urgent'), [])
-  const setOrderTypeAll = useCallback(() => setOrderTypeFilter('all'), [])
-  const setOrderTypeDriveThru = useCallback(() => setOrderTypeFilter('drive-thru'), [])
-  const setOrderTypeCounter = useCallback(() => setOrderTypeFilter('counter'), [])
   const setViewOrders = useCallback(() => setViewMode('orders'), [])
   const setViewTables = useCallback(() => setViewMode('tables'), [])
-  const setViewGrid = useCallback(() => setViewMode('grid'), [])
-  const setSortPriority = useCallback(() => setSortMode('priority'), [])
-  const setSortChronological = useCallback(() => setSortMode('chronological'), [])
-  const setSortType = useCallback(() => setSortMode('type'), [])
 
   // Enhanced order status handling
   const handleStatusChange = useCallback(async (orderId: string, status: Order['status']) => {
@@ -97,126 +80,42 @@ const KitchenDisplayOptimized = React.memo(() => {
     }
   }, [updateOrderStatus])
 
-  // Compute detailed statistics (using unified KDS thresholds)
+  // Simple stats for header
   const stats = useMemo(() => {
     const now = Date.now()
-
     const urgentOrders = orders.filter(order => {
       const age = (now - new Date(order.created_at).getTime()) / 60000
       return age >= KDS_THRESHOLDS.URGENT_MINUTES && !['completed', 'cancelled'].includes(order.status)
     })
 
-    const statusCounts = orders.reduce((acc, order) => {
-      acc[order.status] = (acc[order.status] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-
-    const typeBreakdown = orders.reduce((acc, order) => {
-      acc[order.type] = (acc[order.type] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-
     return {
-      total: orders.length,
       active: activeOrders.length,
       ready: readyOrders.length,
-      urgent: urgentOrders.length,
-      completed: statusCounts.completed || 0,
-      cancelled: statusCounts.cancelled || 0,
-      averageAge: orders.length ? 
-        orders.reduce((sum, order) => {
-          const age = (now - new Date(order.created_at).getTime()) / 60000
-          return sum + age
-        }, 0) / orders.length : 0,
-      oldestOrder: orders.length ?
-        Math.max(...orders.map(order => 
-          (now - new Date(order.created_at).getTime()) / 60000
-        )) : 0,
-      typeBreakdown
+      urgent: urgentOrders.length
     }
   }, [orders, activeOrders.length, readyOrders.length])
 
-  // Smart filtering and sorting
-  const filteredAndSortedOrders = useMemo(() => {
-    let filtered = orders
+  // Simple filtering - Active or Ready only
+  const filteredOrders = useMemo(() => {
+    return statusFilter === 'ready' ? readyOrders : activeOrders
+  }, [activeOrders, readyOrders, statusFilter])
 
-    // Apply status filter
-    switch (statusFilter) {
-      case 'active':
-        filtered = activeOrders
-        break
-      case 'ready':
-        filtered = readyOrders
-        break
-      case 'urgent': {
-        const now = Date.now()
-        filtered = orders.filter(order => {
-          const age = (now - new Date(order.created_at).getTime()) / 60000
-          return age >= KDS_THRESHOLDS.URGENT_MINUTES && !['completed', 'cancelled'].includes(order.status)
-        })
-        break
-      }
-      default:
-        filtered = orders.filter(o => !['completed', 'cancelled'].includes(o.status))
-    }
-
-    // Apply sorting
-    switch (sortMode) {
-      case 'priority':
-        return prioritizedOrders.filter(order => 
-          filtered.some(f => f.id === order.id)
-        )
-      case 'chronological':
-        return [...filtered].sort((a, b) => 
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        )
-      case 'type':
-        return [...filtered].sort((a, b) => {
-          if (a.type !== b.type) return a.type.localeCompare(b.type)
-          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        })
-      default:
-        return filtered
-    }
-  }, [orders, activeOrders, readyOrders, prioritizedOrders, statusFilter, sortMode])
-
-  // Sort table groups for table view mode
+  // Sort table groups - always by urgency (priority)
   const sortedTableGroups = useMemo(() => {
     const groups = Array.from(groupedOrders.tables.values())
-    // Filter by status if needed
     const filtered = statusFilter === 'ready'
       ? groups.filter(g => g.status === 'ready' || g.status === 'partially-ready')
-      : statusFilter === 'urgent'
-      ? groups.filter(g => g.urgencyLevel === 'urgent' || g.urgencyLevel === 'critical')
       : groups
+    return sortTableGroups(new Map(filtered.map(g => [g.tableNumber, g])), 'urgency')
+  }, [groupedOrders.tables, statusFilter])
 
-    // Apply sorting based on sortMode
-    const sortKey = sortMode === 'priority' ? 'urgency' :
-                    sortMode === 'chronological' ? 'age' : 'table'
-    return sortTableGroups(new Map(filtered.map(g => [g.tableNumber, g])), sortKey)
-  }, [groupedOrders.tables, statusFilter, sortMode])
-
-  // Sort and filter order groups for orders view mode
+  // Sort order groups - always by urgency (priority)
   const sortedOrderGroups = useMemo(() => {
-    // Filter by status
-    let filtered = statusFilter === 'ready'
+    const filtered = statusFilter === 'ready'
       ? orderGroups.filter(g => g.status === 'ready')
-      : statusFilter === 'urgent'
-      ? orderGroups.filter(g => g.urgency_level === 'urgent' || g.urgency_level === 'critical')
-      : statusFilter === 'active'
-      ? orderGroups.filter(g => !['ready', 'completed', 'cancelled'].includes(g.status))
-      : orderGroups
-
-    // Filter by order type (pickup type)
-    if (orderTypeFilter !== 'all') {
-      filtered = filtered.filter(g => g.pickup_type === orderTypeFilter)
-    }
-
-    // Apply sorting based on sortMode
-    const sortKey = sortMode === 'priority' ? 'urgency' :
-                    sortMode === 'chronological' ? 'age' : 'order_number'
-    return sortOrderGroups(filtered, sortKey)
-  }, [orderGroups, statusFilter, orderTypeFilter, sortMode])
+      : orderGroups.filter(g => !['ready', 'completed', 'cancelled'].includes(g.status))
+    return sortOrderGroups(filtered, 'urgency')
+  }, [orderGroups, statusFilter])
 
   // Enhanced error and loading states
   if (error) {
@@ -256,7 +155,7 @@ const KitchenDisplayOptimized = React.memo(() => {
       {/* Connection Status */}
       <ConnectionStatusBar />
       
-      {/* Enhanced Header */}
+      {/* Minimal Header */}
       <div className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
@@ -268,7 +167,7 @@ const KitchenDisplayOptimized = React.memo(() => {
               </div>
             </div>
 
-            {/* Real-time Stats Bar */}
+            {/* Simple Stats */}
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4 text-blue-600" />
@@ -284,184 +183,57 @@ const KitchenDisplayOptimized = React.memo(() => {
                   <span className="font-bold">{stats.urgent} URGENT</span>
                 </div>
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleStats}
-              >
-                <BarChart3 className="w-4 h-4" />
-              </Button>
             </div>
           </div>
-
-          {/* Expandable Stats Panel */}
-          {showStats && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <div className="font-semibold text-gray-900">Performance</div>
-                <div className="text-gray-600">Avg Age: {stats.averageAge.toFixed(1)}min</div>
-                <div className="text-gray-600">Oldest: {stats.oldestOrder.toFixed(1)}min</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Status Breakdown</div>
-                <div className="text-gray-600">Active: {stats.active}</div>
-                <div className="text-gray-600">Ready: {stats.ready}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Completed Today</div>
-                <div className="text-green-600">✓ {stats.completed}</div>
-                <div className="text-red-600">✗ {stats.cancelled}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Order Types</div>
-                {Object.entries(stats.typeBreakdown).map(([type, count]) => (
-                  <div key={type} className="text-gray-600">
-                    {type}: {count}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Enhanced Filters and Controls */}
+      {/* Minimal Filters */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="space-y-3">
-            {/* Status Filters Row */}
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <span className="text-sm text-gray-600 self-center">Status:</span>
-                <Button
-                  variant={statusFilter === 'all' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={setStatusAll}
-                >
-                  All ({orders.filter(o => !['completed', 'cancelled'].includes(o.status)).length})
-                </Button>
-                <Button
-                  variant={statusFilter === 'active' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={setStatusActive}
-                >
-                  Active ({stats.active})
-                </Button>
-                <Button
-                  variant={statusFilter === 'ready' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={setStatusReady}
-                >
-                  Ready ({stats.ready})
-                </Button>
-                {stats.urgent > 0 && (
-                  <Button
-                    variant={statusFilter === 'urgent' ? 'destructive' : 'outline'}
-                    size="sm"
-                    onClick={setStatusUrgent}
-                    className="text-red-600 border-red-300"
-                  >
-                    <AlertCircle className="w-3 h-3 mr-1" />
-                    Urgent ({stats.urgent})
-                  </Button>
-                )}
-              </div>
+          <div className="flex items-center justify-between">
+            {/* View Mode Toggle */}
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <Button
+                variant={viewMode === 'orders' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={setViewOrders}
+                className="gap-1"
+              >
+                <Package className="w-4 h-4" />
+                Orders
+              </Button>
+              <Button
+                variant={viewMode === 'tables' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={setViewTables}
+                className="gap-1"
+              >
+                <Users className="w-4 h-4" />
+                Tables
+              </Button>
             </div>
 
-            {/* Order Type Filters Row (only show in Orders view) - Simplified to 2 types */}
-            {viewMode === 'orders' && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Type:</span>
-                <Button
-                  variant={orderTypeFilter === 'all' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={setOrderTypeAll}
-                >
-                  All Orders
-                </Button>
-                <Button
-                  variant={orderTypeFilter === 'drive-thru' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={setOrderTypeDriveThru}
-                  className={orderTypeFilter === 'drive-thru' ? 'bg-accent hover:bg-accent-600' : ''}
-                >
-                  Online
-                </Button>
-                <Button
-                  variant={orderTypeFilter === 'counter' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={setOrderTypeCounter}
-                  className={orderTypeFilter === 'counter' ? 'bg-amber-500 hover:bg-amber-600' : ''}
-                >
-                  Dine-In
-                </Button>
-              </div>
-            )}
-
-            {/* View Mode and Sort Controls Row */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-              {/* View Mode Toggle */}
-              <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
-                <Button
-                  variant={viewMode === 'orders' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={setViewOrders}
-                  className="gap-1"
-                >
-                  <Package className="w-4 h-4" />
-                  Orders
-                </Button>
-                <Button
-                  variant={viewMode === 'tables' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={setViewTables}
-                  className="gap-1"
-                >
-                  <Users className="w-4 h-4" />
-                  Tables
-                </Button>
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={setViewGrid}
-                  className="gap-1"
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                  Grid
-                </Button>
-              </div>
-
-              {/* Sort Controls */}
-              <span className="text-sm text-gray-600">Sort:</span>
+            {/* Status Filter */}
+            <div className="flex gap-2">
               <Button
-                variant={sortMode === 'priority' ? 'default' : 'outline'}
+                variant={statusFilter === 'active' ? 'default' : 'outline'}
                 size="sm"
-                onClick={setSortPriority}
+                onClick={setStatusActive}
               >
-                <Zap className="w-3 h-3 mr-1" />
-                Priority
+                Active ({stats.active})
               </Button>
               <Button
-                variant={sortMode === 'chronological' ? 'default' : 'outline'}
+                variant={statusFilter === 'ready' ? 'default' : 'outline'}
                 size="sm"
-                onClick={setSortChronological}
+                onClick={setStatusReady}
+                className={statusFilter === 'ready' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                <Clock className="w-3 h-3 mr-1" />
-                Time
-              </Button>
-              <Button
-                variant={sortMode === 'type' ? 'default' : 'outline'}
-                size="sm"
-                onClick={setSortType}
-              >
-                <Filter className="w-3 h-3 mr-1" />
-                Type
+                Ready ({stats.ready})
               </Button>
             </div>
           </div>
         </div>
-      </div>
       </div>
 
       {/* Main Content Area */}
@@ -470,12 +242,11 @@ const KitchenDisplayOptimized = React.memo(() => {
           /* Order Grouping View */
           sortedOrderGroups.length === 0 ? (
             <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
-              <div className="text-6xl mb-6">🚗</div>
-              <p className="text-gray-500 text-2xl mb-2">
-                {statusFilter === 'ready' ? 'No orders ready for pickup' : 'No active online orders'}
+              <p className="text-gray-500 text-xl mb-2">
+                {statusFilter === 'ready' ? 'No orders ready for pickup' : 'All caught up!'}
               </p>
-              <p className="text-gray-400 text-lg">
-                Online orders will appear here grouped by order number
+              <p className="text-gray-400">
+                Orders will appear here
               </p>
             </div>
           ) : (
@@ -490,16 +261,15 @@ const KitchenDisplayOptimized = React.memo(() => {
               ))}
             </div>
           )
-        ) : viewMode === 'tables' ? (
+        ) : (
           /* Table Grouping View */
           sortedTableGroups.length === 0 ? (
             <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
-              <div className="text-6xl mb-6">👨‍🍳</div>
-              <p className="text-gray-500 text-2xl mb-2">
-                {statusFilter === 'ready' ? 'No tables ready' : 'No active table orders'}
+              <p className="text-gray-500 text-xl mb-2">
+                {statusFilter === 'ready' ? 'No tables ready' : 'All caught up!'}
               </p>
-              <p className="text-gray-400 text-lg">
-                Table orders will appear here grouped by table number
+              <p className="text-gray-400">
+                Table orders will appear here
               </p>
             </div>
           ) : (
@@ -515,37 +285,6 @@ const KitchenDisplayOptimized = React.memo(() => {
               ))}
             </div>
           )
-        ) : (
-          /* Grid View */
-          filteredAndSortedOrders.length === 0 ? (
-            <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
-              <div className="text-6xl mb-6">
-                {statusFilter === 'urgent' ? '🎯' : statusFilter === 'ready' ? '✅' : '👨‍🍳'}
-              </div>
-              <p className="text-gray-500 text-2xl mb-2">
-                {statusFilter === 'urgent'
-                  ? 'No urgent orders'
-                  : statusFilter === 'ready'
-                  ? 'No orders ready'
-                  : 'No active orders'
-                }
-              </p>
-              <p className="text-gray-400 text-lg">
-                {statusFilter === 'urgent'
-                  ? 'Great job staying on top of orders!'
-                  : statusFilter === 'ready'
-                  ? 'Orders will appear here when ready for pickup'
-                  : 'All caught up! New orders will appear here.'
-                }
-              </p>
-            </div>
-          ) : (
-            <VirtualizedOrderGrid
-              orders={filteredAndSortedOrders}
-              onStatusChange={handleStatusChange}
-              className="h-[calc(100vh-300px)]"
-            />
-          )
         )}
 
         {/* Scheduled Orders Section */}
@@ -554,13 +293,6 @@ const KitchenDisplayOptimized = React.memo(() => {
           onManualFire={handleManualFire}
         />
       </div>
-
-      {/* Performance Indicator */}
-      {filteredAndSortedOrders.length > 50 && (
-        <div className="fixed bottom-4 left-4 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs">
-          Virtual scrolling: {filteredAndSortedOrders.length} orders
-        </div>
-      )}
     </div>
   )
 })
