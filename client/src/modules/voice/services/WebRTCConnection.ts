@@ -60,6 +60,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
   private mediaStream: MediaStream | null = null;
   private connectionState: ConnectionState = 'disconnected';
   private isConnectingFlag = false;
+  private isDisconnecting = false;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 3;
   private reconnectDelay = 1000;
@@ -82,6 +83,8 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       return;
     }
 
+    // Reset disconnecting flag for new connection attempt
+    this.isDisconnecting = false;
     this.isConnectingFlag = true;
 
     // Set up connection timeout (15 seconds)
@@ -452,22 +455,20 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
 
     this.dc.onclose = (event: Event) => {
       // CRITICAL: Always log data channel close regardless of debug mode
-      // CloseEvent has code, reason, wasClean properties but types as Event
-      const closeEvent = event as CloseEvent;
-      const wasUnexpected = !closeEvent.wasClean;
+      // RTCDataChannel close events are plain Event objects (not CloseEvent)
+      // They don't have wasClean, code, or reason properties
+      // Detect unexpected closes by checking session state instead
+      const wasUnexpected = this.sessionActive;
 
       logger.warn('[WebRTCConnection] Data channel closed', {
-        code: closeEvent.code,
-        reason: closeEvent.reason,
-        wasClean: closeEvent.wasClean,
-        wasUnexpected,
         readyState: this.dc?.readyState,
         sessionActive: this.sessionActive,
+        wasUnexpected,
       });
 
       // Emit error event if close was unexpected
-      if (wasUnexpected && this.sessionActive) {
-        const error = new Error(`Data channel closed unexpectedly: ${closeEvent.reason || 'No reason provided'}`);
+      if (wasUnexpected) {
+        const error = new Error('Data channel closed unexpectedly');
         error.name = 'DataChannelClosedError';
         this.emit('error', error);
       }
@@ -558,9 +559,23 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
   }
 
   /**
-   * Handle disconnection
+   * Handle disconnection (idempotent - safe to call multiple times)
+   * Guard flag prevents duplicate cleanup when multiple handlers trigger
    */
   private handleDisconnection(): void {
+    if (this.isDisconnecting) {
+      if (this.config.debug) {
+        logger.debug('[WebRTCConnection] handleDisconnection already in progress, skipping');
+      }
+      return;
+    }
+
+    this.isDisconnecting = true;
+
+    if (this.config.debug) {
+      logger.info('[WebRTCConnection] Handling disconnection');
+    }
+
     this.setConnectionState('disconnected');
     this.sessionActive = false;
 
@@ -680,6 +695,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
     // Clear all state flags
     this.sessionActive = false;
     this.isConnectingFlag = false;
+    this.isDisconnecting = false;
 
     // Use cleanup method
     this.cleanupConnection();

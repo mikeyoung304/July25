@@ -811,4 +811,94 @@ describe('WebRTCConnection', () => {
       await new Promise(resolve => setTimeout(resolve, 100))
     })
   })
+
+  describe('Disconnection Guard (TODO-034)', () => {
+    it('prevents duplicate disconnection handling when multiple handlers trigger', async () => {
+      const disconnectionEvents: any[] = []
+      connection.on('disconnection', () => {
+        disconnectionEvents.push({ timestamp: Date.now() })
+      })
+
+      await connection.connect('test-token')
+
+      const pc = connection.getPeerConnection()
+      const dc = connection.getDataChannel()
+
+      // Simulate multiple handlers calling handleDisconnection simultaneously
+      // 1. Data channel close
+      if (dc && (dc as any).onclose) {
+        (dc as any).onclose(new Event('close'))
+      }
+
+      // 2. Connection state change to 'failed' (should be ignored)
+      if (pc) {
+        (pc as any).connectionState = 'failed'
+        if ((pc as any).onconnectionstatechange) {
+          (pc as any).onconnectionstatechange(new Event('connectionstatechange'))
+        }
+      }
+
+      // 3. Signaling state change to 'closed' (should be ignored)
+      if (pc) {
+        (pc as any).signalingState = 'closed'
+        if ((pc as any).onsignalingstatechange) {
+          (pc as any).onsignalingstatechange(new Event('signalingstatechange'))
+        }
+      }
+
+      // Wait for any pending events
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      // Should only emit disconnection once despite multiple triggers
+      expect(disconnectionEvents.length).toBe(1)
+      expect(connection.getConnectionState()).toBe('disconnected')
+    }, 5000)
+
+    it('resets disconnecting flag on reconnection attempt', async () => {
+      await connection.connect('test-token')
+
+      const dc = connection.getDataChannel()
+      if (dc && (dc as any).onclose) {
+        (dc as any).onclose(new Event('close'))
+      }
+
+      // Verify disconnected
+      expect(connection.getConnectionState()).toBe('disconnected')
+
+      // Should be able to reconnect without issues
+      const reconnectPromise = new Promise((resolve) => {
+        connection.on('reconnect.needed', resolve)
+      })
+
+      await connection.reconnect()
+
+      await reconnectPromise
+      // Should be able to connect again after disconnecting
+      expect(connection.getConnectionState()).toBe('disconnected')
+    }, 5000)
+
+    it('allows new connection after disconnect resets the flag', async () => {
+      await connection.connect('test-token-1')
+
+      connection.disconnect()
+
+      // Reset all mocks to simulate new connection
+      vi.clearAllMocks()
+      mockPeerConnection = createMockPeerConnection()
+      ;(global.RTCPeerConnection as any).mockReturnValueOnce(mockPeerConnection)
+      ;(navigator.mediaDevices.getUserMedia as any).mockResolvedValueOnce(
+        createMockMediaStream()
+      )
+      ;(global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        text: () => Promise.resolve('mock-answer-sdp'),
+      })
+
+      // Should be able to connect again
+      await connection.connect('test-token-2')
+
+      // Should successfully establish new connection
+      expect(connection.getPeerConnection()).not.toBeNull()
+    })
+  })
 })
