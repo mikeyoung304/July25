@@ -1,7 +1,7 @@
 # TODO-058: KDS Guest Name Filtering Logic Duplicated in 3 Components
 
 ## Metadata
-- **Status**: pending
+- **Status**: complete
 - **Priority**: P2 (Important)
 - **Issue ID**: 058
 - **Tags**: architecture, kds, dry, refactor, code-review

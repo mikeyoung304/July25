@@ -1,7 +1,7 @@
 # TODO-056: KDS Allergy Indicators Use Color-Only - Food Safety Risk
 
 ## Metadata
-- **Status**: pending
+- **Status**: complete
 - **Priority**: P1 (Critical)
 - **Issue ID**: 056
 - **Tags**: accessibility, kds, wcag, food-safety, allergy

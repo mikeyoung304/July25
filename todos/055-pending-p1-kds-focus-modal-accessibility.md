@@ -1,7 +1,7 @@
 # TODO-055: KDS FocusOverlay Modal Accessibility - Focus Trap & Keyboard Navigation
 
 ## Metadata
-- **Status**: pending
+- **Status**: complete
 - **Priority**: P1 (Critical)
 - **Issue ID**: 055
 - **Tags**: accessibility, kds, wcag, keyboard, modal

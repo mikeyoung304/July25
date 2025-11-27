@@ -1,7 +1,7 @@
 # TODO-060: KDS Card Size Calculation in Render Loop - Performance Issue
 
 ## Metadata
-- **Status**: pending
+- **Status**: obsolete
 - **Priority**: P2 (Important)
 - **Issue ID**: 060
 - **Tags**: performance, kds, react, optimization, code-review
