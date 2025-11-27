@@ -440,11 +440,8 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
     role: 'user' | 'assistant'
   }>({
     max: 50, // Keep last 50 conversation items
-    dispose: (value, key, reason) => {
-      if (this.config.debug) {
-        logger.debug('[VoiceEventHandler] Evicting old transcript', { key, reason });
-      }
-    }
+    // No dispose callback - cache eviction is just memory management
+    // Transcript cleanup happens naturally via conversation flow
   });
 
   // State tracking for event handling
@@ -810,29 +807,42 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Finalize user transcript and trigger response if needed
    */
   private handleTranscriptCompleted(event: TranscriptCompletedEvent, logPrefix: string): void {
-    if (event.item_id && event.transcript) {
-      let entry = this.transcriptMap.get(event.item_id);
+    if (!event.item_id) {
+      return;
+    }
 
-      // DEFENSIVE: Create missing entry if conversation.item.created was lost
-      if (!entry) {
-        logger.warn('[VoiceEventHandler] DEFENSIVE: Creating missing transcript entry', { itemId: event.item_id });
-        entry = { text: event.transcript, final: true, role: 'user' };
-        this.transcriptMap.set(event.item_id, entry);
-        this.currentUserItemId = event.item_id;
-      }
+    // TODO-025: Validate complete transcript before processing
+    const validatedTranscript = validateTranscript(event.transcript);
+    if (!validatedTranscript) {
+      logger.warn('[VoiceEventHandler] Invalid complete transcript, skipping', {
+        itemId: event.item_id,
+        transcriptLength: event.transcript?.length
+      });
+      return;
+    }
 
-      if (entry.role === 'user') {
-        entry.text = event.transcript; // Use full transcript, not accumulation
-        entry.final = true;
+    let entry = this.transcriptMap.get(event.item_id);
 
-        const finalTranscript: TranscriptEvent = {
-          text: event.transcript,
-          isFinal: true,
-          confidence: 0.95,
-          timestamp: Date.now(),
-        };
-        this.emit('transcript', finalTranscript);
-        // Debug: `${logPrefix} User transcript completed: "${event.transcript}"`
+    // DEFENSIVE: Create missing entry if conversation.item.created was lost
+    if (!entry) {
+      logger.warn('[VoiceEventHandler] DEFENSIVE: Creating missing transcript entry', { itemId: event.item_id });
+      entry = { text: validatedTranscript, final: true, role: 'user' };
+      this.transcriptMap.set(event.item_id, entry);
+      this.currentUserItemId = event.item_id;
+    }
+
+    if (entry.role === 'user') {
+      entry.text = validatedTranscript; // Use full transcript, not accumulation
+      entry.final = true;
+
+      const finalTranscript: TranscriptEvent = {
+        text: validatedTranscript,
+        isFinal: true,
+        confidence: 0.95,
+        timestamp: Date.now(),
+      };
+      this.emit('transcript', finalTranscript);
+      // Debug: `${logPrefix} User transcript completed: "${validatedTranscript}"`
 
         // Always send response.create after final transcript
         if (event.item_id === this.currentUserItemId) {
@@ -879,19 +889,26 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Accumulate assistant response and emit partial text
    */
   private handleAssistantTranscriptDelta(event: AssistantTranscriptDeltaEvent, logPrefix: string): void {
-    if (event.delta) {
-      // Find the assistant item for this response
-      const assistantItems = Array.from(this.transcriptMap.entries())
-        .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
+    // TODO-025: Validate assistant transcript delta
+    const validatedDelta = validateTranscript(event.delta);
+    if (!validatedDelta) {
+      logger.warn('[VoiceEventHandler] Invalid assistant transcript delta, skipping', {
+        deltaLength: event.delta?.length
+      });
+      return;
+    }
 
-      if (assistantItems.length > 0) {
-        const [itemId, entry] = assistantItems[assistantItems.length - 1];
-        entry.text += event.delta;
-        // Debug: `${logPrefix} Assistant transcript delta (len=${event.delta.length})`
+    // Find the assistant item for this response
+    const assistantItems = Array.from(this.transcriptMap.entries())
+      .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
 
-        // Emit partial response
-        this.emit('response.text', entry.text);
-      }
+    if (assistantItems.length > 0) {
+      const [itemId, entry] = assistantItems[assistantItems.length - 1];
+      entry.text += validatedDelta;
+      // Debug: `${logPrefix} Assistant transcript delta (len=${validatedDelta.length})`
+
+      // Emit partial response
+      this.emit('response.text', entry.text);
     }
   }
 
@@ -900,18 +917,25 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Finalize assistant transcript
    */
   private handleAssistantTranscriptDone(event: AssistantTranscriptDoneEvent, logPrefix: string): void {
-    if (event.transcript) {
-      const assistantItems = Array.from(this.transcriptMap.entries())
-        .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
+    // TODO-025: Validate complete assistant transcript
+    const validatedTranscript = validateTranscript(event.transcript);
+    if (!validatedTranscript) {
+      logger.warn('[VoiceEventHandler] Invalid assistant transcript, skipping', {
+        transcriptLength: event.transcript?.length
+      });
+      return;
+    }
 
-      if (assistantItems.length > 0) {
-        const [itemId, entry] = assistantItems[assistantItems.length - 1];
-        entry.text = event.transcript;
-        entry.final = true;
-        // Debug: `${logPrefix} Assistant transcript done: "${event.transcript}"`
+    const assistantItems = Array.from(this.transcriptMap.entries())
+      .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
 
-        this.emit('response.complete', event.transcript);
-      }
+    if (assistantItems.length > 0) {
+      const [itemId, entry] = assistantItems[assistantItems.length - 1];
+      entry.text = validatedTranscript;
+      entry.final = true;
+      // Debug: `${logPrefix} Assistant transcript done: "${validatedTranscript}"`
+
+      this.emit('response.complete', validatedTranscript);
     }
   }
 

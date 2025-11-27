@@ -1,15 +1,22 @@
 import { EventEmitter } from '../../../services/utils/EventEmitter';
-import { useHttpClient } from '@/services/http';
-import { useToast } from '@/hooks/useToast';
-import { useNavigate } from 'react-router-dom';
+import type { HttpClient } from '@/services/http/httpClient';
 import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
 import { logger } from '@/services/monitoring/logger';
 
 // Type alias for compatibility
 type KioskCartItem = UnifiedCartItem;
 
+export type ToastType = 'success' | 'error' | 'loading';
+
+export interface NavigateOptions {
+  state?: Record<string, unknown>;
+}
+
 export interface VoiceCheckoutConfig {
   restaurantId: string;
+  httpClient: HttpClient;
+  onToast: (message: string, type: ToastType) => void;
+  onNavigate: (path: string, options?: NavigateOptions) => void;
   debug?: boolean;
 }
 
@@ -33,7 +40,7 @@ export interface PaymentMethodSelectedEvent {
   timestamp: number;
 }
 
-export type CheckoutState = 
+export type CheckoutState =
   | 'idle'
   | 'reviewing'
   | 'confirming'
@@ -47,42 +54,28 @@ export type CheckoutState =
  * - Provides order summaries for voice readback
  * - Manages checkout navigation and payment flows
  * - Handles different payment method selections
+ *
+ * Note: This service is now decoupled from React hooks.
+ * Dependencies are passed as plain functions/callbacks in the constructor.
  */
 export class VoiceCheckoutOrchestrator extends EventEmitter {
   private config: VoiceCheckoutConfig;
   private checkoutState: CheckoutState = 'idle';
   private currentCart: KioskCartItem[] = [];
   private currentTotals = { subtotal: 0, tax: 0, total: 0 };
-
-  // Dependencies - these will be injected at runtime
-  private apiClient: ReturnType<typeof useHttpClient> | null = null;
-  private toast: ReturnType<typeof useToast> | null = null;
-  private navigate: ReturnType<typeof useNavigate> | null = null;
+  private httpClient: HttpClient;
+  private onToast: (message: string, type: ToastType) => void;
+  private onNavigate: (path: string, options?: NavigateOptions) => void;
 
   constructor(config: VoiceCheckoutConfig) {
     super();
     this.config = config;
-    
+    this.httpClient = config.httpClient;
+    this.onToast = config.onToast;
+    this.onNavigate = config.onNavigate;
+
     if (this.config.debug) {
       // Debug: '[VoiceCheckoutOrchestrator] Initialized with config:', config
-    }
-  }
-
-  /**
-   * Initialize the orchestrator with React hooks
-   * Called from the React component that uses this service
-   */
-  initialize(
-    apiClient: ReturnType<typeof useHttpClient>,
-    toast: ReturnType<typeof useToast>,
-    navigate: ReturnType<typeof useNavigate>
-  ): void {
-    this.apiClient = apiClient;
-    this.toast = toast;
-    this.navigate = navigate;
-    
-    if (this.config.debug) {
-      // Debug: '[VoiceCheckoutOrchestrator] Initialized with React dependencies'
     }
   }
 
@@ -92,7 +85,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
   updateCart(items: KioskCartItem[], totals: { subtotal: number; tax: number; total: number }): void {
     this.currentCart = [...items];
     this.currentTotals = { ...totals };
-    
+
     if (this.config.debug) {
       logger.info('[VoiceCheckoutOrchestrator] Cart updated', {
         itemCount: items.length,
@@ -106,7 +99,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
    */
   handleOrderConfirmation(event: { action: string; timestamp: number }): void {
     const logPrefix = '[VoiceCheckoutOrchestrator]';
-    
+
     if (this.config.debug) {
       // Debug: `${logPrefix} Received confirmation event:`, event
     }
@@ -131,7 +124,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
    */
   private initiateCheckout(): void {
     if (this.currentCart.length === 0) {
-      this.toast?.toast.error('No items in cart to checkout');
+      this.onToast('No items in cart to checkout', 'error');
       this.emit('checkout.error', { error: 'No items in cart', timestamp: Date.now() });
       return;
     }
@@ -160,11 +153,6 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
    * Navigate to the checkout page
    */
   private navigateToCheckout(): void {
-    if (!this.navigate) {
-      logger.error('[VoiceCheckoutOrchestrator] Navigate function not available');
-      return;
-    }
-
     this.setCheckoutState('processing_payment');
 
     const checkoutEvent: CheckoutInitiatedEvent = {
@@ -175,7 +163,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.emit('checkout.initiated', checkoutEvent);
 
     // Navigate to checkout page
-    this.navigate('/kiosk-checkout');
+    this.onNavigate('/kiosk-checkout');
 
     if (this.config.debug) {
       // Debug: '[VoiceCheckoutOrchestrator] Navigated to checkout page'
@@ -228,11 +216,11 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     // List items
     const itemDescriptions = this.currentCart.map(item => {
       let description = `${item.quantity} ${item.menuItem.name}`;
-      
+
       if (item.modifications && item.modifications.length > 0) {
         description += ` with ${item.modifications.join(', ')}`;
       }
-      
+
       return description;
     });
 
@@ -248,11 +236,11 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
    */
   private cancelOrder(): void {
     this.setCheckoutState('idle');
-    
+
     this.emit('checkout.cancelled', { timestamp: Date.now() });
 
     // Show confirmation
-    this.toast?.toast.success('Order cancelled');
+    this.onToast('Order cancelled', 'success');
 
     if (this.config.debug) {
       // Debug: '[VoiceCheckoutOrchestrator] Order cancelled'
@@ -305,16 +293,14 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
       timestamp: Date.now()
     });
 
-    // Navigate to confirmation if we have navigation
-    if (this.navigate) {
-      this.navigate('/order-confirmation', {
-        state: {
-          ...orderData,
-          isVoiceOrder: true,
-          timestamp: Date.now()
-        }
-      });
-    }
+    // Navigate to confirmation
+    this.onNavigate('/order-confirmation', {
+      state: {
+        ...orderData,
+        isVoiceOrder: true,
+        timestamp: Date.now()
+      }
+    });
 
     // Provide success feedback
     const feedbackText = `Thank you! Your order has been placed. Your order number is ${orderData.order_number || 'pending'}. Please wait for further instructions.`;
@@ -330,7 +316,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     this.emit('payment.error', { error, timestamp: Date.now() });
 
     // Show error message
-    this.toast?.toast.error(`Payment failed: ${error}`);
+    this.onToast(`Payment failed: ${error}`, 'error');
 
     // Provide voice feedback
     const feedbackText = 'There was an issue processing your payment. Please try again or select a different payment method.';
@@ -349,7 +335,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     if (this.checkoutState !== state) {
       const previousState = this.checkoutState;
       this.checkoutState = state;
-      
+
       this.emit('state.changed', {
         from: previousState,
         to: state,
@@ -388,9 +374,6 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
   destroy(): void {
     this.removeAllListeners();
     this.reset();
-    this.apiClient = null;
-    this.toast = null;
-    this.navigate = null;
 
     if (this.config.debug) {
       // Debug: '[VoiceCheckoutOrchestrator] Destroyed'

@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VoiceCheckoutOrchestrator } from '../VoiceCheckoutOrchestrator';
 import type { KioskCartItem } from '@/components/kiosk/KioskCartProvider';
+import type { HttpClient } from '@/services/http/httpClient';
 
 // Mock dependencies
-const mockApiClient = {
+const mockHttpClient = {
   get: vi.fn(),
   post: vi.fn(),
   put: vi.fn(),
@@ -14,18 +15,10 @@ const mockApiClient = {
   loading: false,
   error: null,
   reset: vi.fn(),
-};
+} as unknown as HttpClient;
 
-const mockToast = {
-  toast: {
-    success: vi.fn(),
-    error: vi.fn(),
-    loading: vi.fn(),
-    dismiss: vi.fn(),
-  },
-};
-
-const mockNavigate = vi.fn();
+const mockOnToast = vi.fn();
+const mockOnNavigate = vi.fn();
 
 // Mock cart items
 const mockCartItems: KioskCartItem[] = [
@@ -70,9 +63,11 @@ describe('VoiceCheckoutOrchestrator', () => {
     vi.clearAllMocks();
     orchestrator = new VoiceCheckoutOrchestrator({
       restaurantId: 'test-restaurant',
+      httpClient: mockHttpClient,
+      onToast: mockOnToast,
+      onNavigate: mockOnNavigate,
       debug: false,
     });
-    orchestrator.initialize(mockApiClient, mockToast, mockNavigate);
     orchestrator.updateCart(mockCartItems, {
       subtotal: 42.97,
       tax: 3.44,
@@ -100,8 +95,8 @@ describe('VoiceCheckoutOrchestrator', () => {
 
       // Wait for navigation timeout
       await new Promise(resolve => setTimeout(resolve, 2100));
-      
-      expect(mockNavigate).toHaveBeenCalledWith('/kiosk-checkout');
+
+      expect(mockOnNavigate).toHaveBeenCalledWith('/kiosk-checkout');
       expect(eventHandler).toHaveBeenCalledWith(
         expect.objectContaining({
           destination: '/kiosk-checkout',
@@ -144,7 +139,7 @@ describe('VoiceCheckoutOrchestrator', () => {
       });
 
       expect(eventHandler).toHaveBeenCalled();
-      expect(mockToast.toast.success).toHaveBeenCalledWith('Order cancelled');
+      expect(mockOnToast).toHaveBeenCalledWith('Order cancelled', 'success');
     });
 
     it('should handle empty cart for checkout', () => {
@@ -157,7 +152,7 @@ describe('VoiceCheckoutOrchestrator', () => {
         timestamp: Date.now(),
       });
 
-      expect(mockToast.toast.error).toHaveBeenCalledWith('No items in cart to checkout');
+      expect(mockOnToast).toHaveBeenCalledWith('No items in cart to checkout', 'error');
       expect(eventHandler).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'No items in cart',
@@ -216,7 +211,7 @@ describe('VoiceCheckoutOrchestrator', () => {
 
       orchestrator.handlePaymentSuccess(orderData);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/order-confirmation', {
+      expect(mockOnNavigate).toHaveBeenCalledWith('/order-confirmation', {
         state: expect.objectContaining({
           ...orderData,
           isVoiceOrder: true,
@@ -245,7 +240,7 @@ describe('VoiceCheckoutOrchestrator', () => {
 
       orchestrator.handlePaymentError('Payment declined');
 
-      expect(mockToast.toast.error).toHaveBeenCalledWith('Payment failed: Payment declined');
+      expect(mockOnToast).toHaveBeenCalledWith('Payment failed: Payment declined', 'error');
       expect(eventHandler).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'Payment declined',

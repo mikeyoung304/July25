@@ -1,10 +1,12 @@
 # TODO: Extract Multi-Seat Logic from Voice Hook
 
-**Status:** Pending
+**Status:** DEFERRED (See: 031-deferred-multiseat-extraction-analysis.md)
 **Priority:** P2 (Important)
 **Category:** Architecture
-**Effort:** 5 hours
+**Effort:** Would require 10-15 hours (original estimate: 5 hours)
 **Created:** 2025-11-24
+**Deferred:** 2025-11-27
+**Deferral Reason:** High risk of atomic state machine violations and circular dependencies
 
 ## Problem
 
@@ -78,8 +80,29 @@ function VoiceOrderPage() {
 - [ ] Verify no regression in functionality
 - [ ] Update documentation with hook composition pattern
 
+## Analysis & Deferral Decision
+
+**⚠️ IMPORTANT:** This TODO has been analyzed and **DEFERRED**. The actual codebase differs from the description above.
+
+See detailed analysis: [031-deferred-multiseat-extraction-analysis.md](./031-deferred-multiseat-extraction-analysis.md)
+
+### Key Findings:
+1. **Actual Code:** Already uses `useReducer` (not multiple useState calls)
+2. **Coupling Problem:** `ORDER_SUBMITTED` action atomically updates 7 state properties across both multi-seat and voice domains
+3. **Risk:** Extraction would break atomic updates, create circular dependencies, and complicate metrics integration
+4. **Recommendation:** DEFER until test coverage is added and metrics system is refactored
+5. **Alternative:** Add documentation explaining the intentional co-location design
+
+### Files Involved
+- Implementation: `/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/hooks/useVoiceOrderWebRTC.ts`
+- Consumers:
+  - `/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/ServerView.tsx`
+  - `/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/components/SeatSelectionModal.tsx`
+  - `/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/components/PostOrderPrompt.tsx`
+
 ## References
 
 - Code Review P2-008: Multi-Seat Isolation
 - React docs: Composing hooks
 - Related: Separation of concerns patterns
+- Detailed Analysis: [031-deferred-multiseat-extraction-analysis.md](./031-deferred-multiseat-extraction-analysis.md)

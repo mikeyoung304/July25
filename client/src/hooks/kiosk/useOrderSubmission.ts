@@ -21,9 +21,12 @@ export function useOrderSubmission() {
 
     setIsSubmitting(true)
     try {
-      const total = items.reduce((sum, item) => 
-        sum + (item.menuItem.price * item.quantity), 0
-      )
+      // FLOATING-POINT FIX (TODO-051): Use cents (integer) arithmetic to avoid rounding errors
+      const totalCents = items.reduce((sumCents, item) => {
+        const itemPriceCents = Math.round(item.menuItem.price * 100)
+        return sumCents + (itemPriceCents * item.quantity)
+      }, 0)
+      const total = totalCents / 100
 
       const orderData = {
         type: 'kiosk' as const,

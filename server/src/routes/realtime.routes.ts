@@ -183,8 +183,11 @@ router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
   }
 });
 
-// Timeout for OpenAI API calls (30 seconds)
-const OPENAI_API_TIMEOUT_MS = 30000;
+// Timeout for OpenAI API calls (45 seconds)
+// Increased from 30s to 45s to accommodate P95 latency scenarios
+// OpenAI session creation can take longer under load; this timeout ensures
+// we don't prematurely fail legitimate requests in high-latency conditions
+const OPENAI_API_TIMEOUT_MS = 45000;
 
 /**
  * Create ephemeral token for WebRTC real-time voice connection

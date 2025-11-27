@@ -271,8 +271,20 @@ async function lookupModifierPrices(
         .eq('active', true);
 
       if (error || !data) {
-        logger.warn('[MenuTools] Failed to fetch modifier rules', { restaurantId, error });
-        // Fallback: return modifiers with zero price
+        // TODO-053: Database failure fallback (graceful degradation)
+        // When voice_modifier_rules lookup fails, return modifiers with price: 0.
+        // This is acceptable soft failure because:
+        // 1. Modifiers without matching rules already default to price: 0 (line 315)
+        // 2. Order proceeds but may undercharge - better than blocking the customer
+        // 3. If modifier pricing is critical, implement stale cache fallback
+        // WARNING: Masks database issues and can cause revenue loss during outages.
+        // Monitor ERROR logs for "modifier pricing unavailable" events.
+        logger.error('[MenuTools] Modifier pricing lookup failed - using $0 fallback', {
+          restaurantId,
+          error,
+          impact: 'Modifiers will be free; potential revenue loss if DB issue persists',
+          action: 'Check database health and voice_modifier_rules table availability'
+        });
         return validatedModifiers.map(name => ({ name, price: 0 }));
       }
 
@@ -317,8 +329,15 @@ async function lookupModifierPrices(
 
     return modifiersWithPrices;
   } catch (error) {
-    logger.error('[MenuTools] Exception looking up modifier prices', { restaurantId, error });
-    // Fallback: return modifiers with zero price
+    // TODO-053: Exception fallback (graceful degradation)
+    // Similar to database failure above - return $0 prices on any exception.
+    // Prevents order blocking but may cause revenue loss.
+    logger.error('[MenuTools] Exception looking up modifier prices - using $0 fallback', {
+      restaurantId,
+      error,
+      impact: 'Modifiers will be free; potential revenue loss',
+      action: 'Check server logs and modifier lookup implementation'
+    });
     return validatedModifiers.map(name => ({ name, price: 0 }));
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useReducer, useCallback, useRef, useEffect } from 'react'
 import { useToast } from '@/hooks/useToast'
 import { OrderModification } from '@/modules/voice/contexts/types'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
@@ -27,22 +27,104 @@ interface OrderItem {
   price?: number
 }
 
+// ============================================================================
+// VOICE ORDER STATE & REDUCER (Consolidated from 8 useState calls)
+// ============================================================================
+interface VoiceOrderState {
+  showVoiceOrder: boolean
+  orderItems: OrderItem[]
+  isSubmitting: boolean
+  orderSessionId: string | null
+  orderNotes: string
+  orderedSeats: number[]
+  showPostOrderPrompt: boolean
+  lastCompletedSeat: number | null
+}
+
+type VoiceOrderAction =
+  | { type: 'SHOW_VOICE_ORDER'; payload: boolean }
+  | { type: 'ADD_ORDER_ITEM'; payload: OrderItem }
+  | { type: 'REMOVE_ORDER_ITEM'; payload: string }
+  | { type: 'SET_ORDER_ITEMS'; payload: OrderItem[] }
+  | { type: 'SET_SUBMITTING'; payload: boolean }
+  | { type: 'SET_ORDER_SESSION_ID'; payload: string | null }
+  | { type: 'SET_ORDER_NOTES'; payload: string }
+  | { type: 'ADD_ORDERED_SEAT'; payload: number }
+  | { type: 'SET_SHOW_POST_ORDER_PROMPT'; payload: boolean }
+  | { type: 'SET_LAST_COMPLETED_SEAT'; payload: number | null }
+  | { type: 'RESET_VOICE_ORDER' }
+  | { type: 'RESET_ALL_STATE' }
+  | { type: 'ORDER_SUBMITTED'; payload: number }
+
+const initialVoiceOrderState: VoiceOrderState = {
+  showVoiceOrder: false,
+  orderItems: [],
+  isSubmitting: false,
+  orderSessionId: null,
+  orderNotes: '',
+  orderedSeats: [],
+  showPostOrderPrompt: false,
+  lastCompletedSeat: null
+}
+
+function voiceOrderReducer(state: VoiceOrderState, action: VoiceOrderAction): VoiceOrderState {
+  switch (action.type) {
+    case 'SHOW_VOICE_ORDER':
+      return { ...state, showVoiceOrder: action.payload }
+    case 'ADD_ORDER_ITEM':
+      return { ...state, orderItems: [...state.orderItems, action.payload] }
+    case 'REMOVE_ORDER_ITEM':
+      return { ...state, orderItems: state.orderItems.filter(item => item.id !== action.payload) }
+    case 'SET_ORDER_ITEMS':
+      return { ...state, orderItems: action.payload }
+    case 'SET_SUBMITTING':
+      return { ...state, isSubmitting: action.payload }
+    case 'SET_ORDER_SESSION_ID':
+      return { ...state, orderSessionId: action.payload }
+    case 'SET_ORDER_NOTES':
+      return { ...state, orderNotes: action.payload }
+    case 'ADD_ORDERED_SEAT':
+      return { ...state, orderedSeats: [...state.orderedSeats, action.payload] }
+    case 'SET_SHOW_POST_ORDER_PROMPT':
+      return { ...state, showPostOrderPrompt: action.payload }
+    case 'SET_LAST_COMPLETED_SEAT':
+      return { ...state, lastCompletedSeat: action.payload }
+    case 'ORDER_SUBMITTED':
+      return {
+        ...state,
+        orderedSeats: [...state.orderedSeats, action.payload],
+        lastCompletedSeat: action.payload,
+        showPostOrderPrompt: true,
+        orderItems: [],
+        orderNotes: '',
+        orderSessionId: null,
+        isSubmitting: false
+      }
+    case 'RESET_VOICE_ORDER':
+      return {
+        ...state,
+        showVoiceOrder: false,
+        orderItems: [],
+        orderNotes: '',
+        showPostOrderPrompt: false,
+        orderSessionId: null
+      }
+    case 'RESET_ALL_STATE':
+      return initialVoiceOrderState
+    default:
+      return state
+  }
+}
+
 export function useVoiceOrderWebRTC() {
   const { toast } = useToast()
   const { items: menuItems } = useMenuItems()
   const taxRate = useTaxRate()
   const { restaurant } = useRestaurant()
   const metrics = useVoiceOrderingMetrics()
-  const [showVoiceOrder, setShowVoiceOrder] = useState(false)
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [orderSessionId, setOrderSessionId] = useState<string | null>(null)
-  const [orderNotes, setOrderNotes] = useState('')
 
-  // Multi-seat ordering state
-  const [orderedSeats, setOrderedSeats] = useState<number[]>([])
-  const [showPostOrderPrompt, setShowPostOrderPrompt] = useState(false)
-  const [lastCompletedSeat, setLastCompletedSeat] = useState<number | null>(null)
+  // Consolidated state management with useReducer (replaces 8 useState calls)
+  const [state, dispatch] = useReducer(voiceOrderReducer, initialVoiceOrderState)
 
   // ============================================================================
   // ADAPTER: Convert VoiceMenuItem from useVoiceCommerce to OrderItem format
@@ -76,7 +158,7 @@ export function useVoiceOrderWebRTC() {
       })
     }
 
-    setOrderItems(prev => [...prev, orderItem])
+    dispatch({ type: 'ADD_ORDER_ITEM', payload: orderItem })
     logger.info('[useVoiceOrderWebRTC] Added voice item', {
       menuItem: menuItem.name,
       quantity,
@@ -99,36 +181,36 @@ export function useVoiceOrderWebRTC() {
 
   // Track order session started when voice order modal opens
   useEffect(() => {
-    if (showVoiceOrder && !orderSessionId) {
+    if (state.showVoiceOrder && !state.orderSessionId) {
       const sessionId = metrics.trackOrderStarted('voice-order', 1)
-      setOrderSessionId(sessionId)
+      dispatch({ type: 'SET_ORDER_SESSION_ID', payload: sessionId })
       logger.info('[useVoiceOrderWebRTC] Order session started', { sessionId })
     }
-  }, [showVoiceOrder, orderSessionId, metrics])
+  }, [state.showVoiceOrder, state.orderSessionId, metrics])
 
   // Remove an item from the order
   const removeOrderItem = useCallback((itemId: string) => {
-    setOrderItems(prev => prev.filter(item => item.id !== itemId))
+    dispatch({ type: 'REMOVE_ORDER_ITEM', payload: itemId })
   }, [])
 
   // Submit order to backend
   const submitOrder = useCallback(async (selectedTable: Table | null, selectedSeat: number | null) => {
     // Guard clause: prevent duplicate submissions
-    if (isSubmitting) {
+    if (state.isSubmitting) {
       logger.warn('[submitOrder] Submit already in progress, ignoring duplicate call')
       return false
     }
 
-    if (orderItems.length === 0 || !selectedTable || !selectedSeat) {
+    if (state.orderItems.length === 0 || !selectedTable || !selectedSeat) {
       toast.error('No order items to submit')
       return false
     }
 
-    setIsSubmitting(true)
+    dispatch({ type: 'SET_SUBMITTING', payload: true })
 
     // CRITICAL: Validate all items have menuItemId before submission
     // Items without menuItemId are raw text from failed parsing and will cause 400/500 errors
-    const invalidItems = orderItems.filter(item => !item.menuItemId)
+    const invalidItems = state.orderItems.filter(item => !item.menuItemId)
     if (invalidItems.length > 0) {
       logger.error('[submitOrder] Invalid items without menuItemId:', {
         invalidCount: invalidItems.length,
@@ -138,6 +220,7 @@ export function useVoiceOrderWebRTC() {
         `Cannot submit: ${invalidItems.length} item${invalidItems.length > 1 ? 's' : ''} not recognized from menu. ` +
         `Please remove unrecognized items and try again.`
       )
+      dispatch({ type: 'SET_SUBMITTING', payload: false })
       return false
     }
 
@@ -149,6 +232,7 @@ export function useVoiceOrderWebRTC() {
 
       if (!token) {
         toast.error('Please log in to submit orders')
+        dispatch({ type: 'SET_SUBMITTING', payload: false })
         return false
       }
 
@@ -158,6 +242,7 @@ export function useVoiceOrderWebRTC() {
       if (!restaurantId) {
         logger.error('[submitOrder] No restaurant ID available')
         toast.error('Restaurant context not loaded. Please refresh.')
+        dispatch({ type: 'SET_SUBMITTING', payload: false })
         return false
       }
 
@@ -172,7 +257,7 @@ export function useVoiceOrderWebRTC() {
         body: JSON.stringify({
           table_number: selectedTable.label,
           seat_number: selectedSeat,
-          items: orderItems.map(item => {
+          items: state.orderItems.map(item => {
             const menuItem = menuItems.find(m => m.id === item.menuItemId)
             return {
               id: item.id,
@@ -183,11 +268,11 @@ export function useVoiceOrderWebRTC() {
               modifications: item.modifications?.map(mod => mod.name) || []
             }
           }),
-          notes: orderNotes
-            ? `${orderNotes}\n\n(Voice order from ${selectedTable.label}, Seat ${selectedSeat})`
+          notes: state.orderNotes
+            ? `${state.orderNotes}\n\n(Voice order from ${selectedTable.label}, Seat ${selectedSeat})`
             : `Voice order from ${selectedTable.label}, Seat ${selectedSeat}`,
           total_amount: (() => {
-            const subtotal = orderItems.reduce((sum, item) => {
+            const subtotal = state.orderItems.reduce((sum, item) => {
               const menuItem = menuItems.find(m => m.id === item.menuItemId)
               const itemPrice = menuItem?.price || item.price || 12.99
               const modifiersTotal = (item.modifications || []).reduce((modSum, mod) => modSum + (mod.price || 0), 0)
@@ -208,22 +293,13 @@ export function useVoiceOrderWebRTC() {
         toast.success(`Order submitted for ${selectedTable.label}, Seat ${selectedSeat}!`)
 
         // Track order completion
-        if (orderSessionId) {
-          metrics.trackOrderCompleted(orderSessionId, orderId, orderItems.length)
-          logger.info('[submitOrder] Order completed', { sessionId: orderSessionId, orderId })
+        if (state.orderSessionId) {
+          metrics.trackOrderCompleted(state.orderSessionId, orderId, state.orderItems.length)
+          logger.info('[submitOrder] Order completed', { sessionId: state.orderSessionId, orderId })
         }
 
-        // Track ordered seat and show post-order prompt
-        setOrderedSeats(prev => [...prev, selectedSeat])
-        setLastCompletedSeat(selectedSeat)
-        setShowPostOrderPrompt(true)
-
-        // Clear current order items and notes for next seat
-        setOrderItems([])
-        setOrderNotes('')
-
-        // Reset session ID for next order
-        setOrderSessionId(null)
+        // Use composite action to handle all post-submission state changes atomically
+        dispatch({ type: 'ORDER_SUBMITTED', payload: selectedSeat })
 
         return true
       } else {
@@ -234,29 +310,22 @@ export function useVoiceOrderWebRTC() {
     } catch (error) {
       logger.error('Error submitting order:', { error })
       toast.error('Failed to submit order. Please try again.')
+      dispatch({ type: 'SET_SUBMITTING', payload: false })
       return false
-    } finally {
-      // Always reset submitting flag, even on error
-      setIsSubmitting(false)
     }
-  }, [orderItems, menuItems, toast, taxRate, isSubmitting, restaurant?.id, orderSessionId, metrics, orderNotes])
+  }, [state.isSubmitting, state.orderItems, state.orderNotes, state.orderSessionId, menuItems, toast, taxRate, restaurant?.id, metrics])
 
   // Handler for "Add Next Seat" button
   const handleAddNextSeat = useCallback(() => {
-    setShowPostOrderPrompt(false)
-    setShowVoiceOrder(false)
+    dispatch({ type: 'SET_SHOW_POST_ORDER_PROMPT', payload: false })
+    dispatch({ type: 'SHOW_VOICE_ORDER', payload: false })
     // Don't reset orderedSeats - keep tracking which seats have orders
     // Parent component will re-open seat selection modal
   }, [])
 
   // Handler for "Finish Table" button
   const handleFinishTable = useCallback(() => {
-    setShowPostOrderPrompt(false)
-    setShowVoiceOrder(false)
-    // Reset all state for this table
-    setOrderedSeats([])
-    setLastCompletedSeat(null)
-    setOrderItems([])
+    dispatch({ type: 'RESET_ALL_STATE' })
     voiceCommerce.setIsCheckingOut(false)
     toast.success('Table orders complete!')
   }, [toast, voiceCommerce])
@@ -264,30 +333,42 @@ export function useVoiceOrderWebRTC() {
   // Reset voice order state (called when canceling or closing)
   const resetVoiceOrder = useCallback(() => {
     // Track order abandoned if there were items and an active session
-    if (orderSessionId && orderItems.length > 0) {
-      metrics.trackOrderAbandoned(orderSessionId, 'user_closed_modal')
-      logger.info('[resetVoiceOrder] Order abandoned', { sessionId: orderSessionId, itemCount: orderItems.length })
+    if (state.orderSessionId && state.orderItems.length > 0) {
+      metrics.trackOrderAbandoned(state.orderSessionId, 'user_closed_modal')
+      logger.info('[resetVoiceOrder] Order abandoned', { sessionId: state.orderSessionId, itemCount: state.orderItems.length })
     }
 
-    setShowVoiceOrder(false)
-    setOrderItems([])
-    setOrderNotes('')
-    setShowPostOrderPrompt(false)
-    setOrderSessionId(null)
+    dispatch({ type: 'RESET_VOICE_ORDER' })
     voiceCommerce.setIsCheckingOut(false)
     // Keep orderedSeats intact unless explicitly finishing table
-  }, [orderSessionId, orderItems, metrics, voiceCommerce])
+  }, [state.orderSessionId, state.orderItems, metrics, voiceCommerce])
 
   // Complete reset for starting fresh with a new table
   const resetAllState = useCallback(() => {
-    setShowVoiceOrder(false)
-    setOrderItems([])
-    setOrderNotes('')
-    setShowPostOrderPrompt(false)
-    setOrderedSeats([])
-    setLastCompletedSeat(null)
+    dispatch({ type: 'RESET_ALL_STATE' })
     voiceCommerce.setIsCheckingOut(false)
   }, [voiceCommerce])
+
+  // Wrapper functions for setters to maintain API compatibility
+  const setShowVoiceOrder = useCallback((show: boolean) => {
+    dispatch({ type: 'SHOW_VOICE_ORDER', payload: show })
+  }, [])
+
+  const setOrderItems = useCallback((items: OrderItem[] | ((prev: OrderItem[]) => OrderItem[])) => {
+    if (typeof items === 'function') {
+      dispatch({ type: 'SET_ORDER_ITEMS', payload: items(state.orderItems) })
+    } else {
+      dispatch({ type: 'SET_ORDER_ITEMS', payload: items })
+    }
+  }, [state.orderItems])
+
+  const setOrderNotes = useCallback((notes: string) => {
+    dispatch({ type: 'SET_ORDER_NOTES', payload: notes })
+  }, [])
+
+  const setShowPostOrderPrompt = useCallback((show: boolean) => {
+    dispatch({ type: 'SET_SHOW_POST_ORDER_PROMPT', payload: show })
+  }, [])
 
   return {
     // ============================================================================
@@ -308,20 +389,20 @@ export function useVoiceOrderWebRTC() {
     // ============================================================================
     // SERVER-SPECIFIC STATE (multi-seat ordering, submission)
     // ============================================================================
-    showVoiceOrder,
+    showVoiceOrder: state.showVoiceOrder,
     setShowVoiceOrder,
-    orderItems,
+    orderItems: state.orderItems,
     setOrderItems,
     setIsProcessing: voiceCommerce.setIsCheckingOut, // Map to voiceCommerce's checkout state
-    isSubmitting,
-    orderNotes,
+    isSubmitting: state.isSubmitting,
+    orderNotes: state.orderNotes,
     setOrderNotes,
 
     // Multi-seat state
-    orderedSeats,
-    showPostOrderPrompt,
+    orderedSeats: state.orderedSeats,
+    showPostOrderPrompt: state.showPostOrderPrompt,
     setShowPostOrderPrompt,
-    lastCompletedSeat,
+    lastCompletedSeat: state.lastCompletedSeat,
 
     // Server-specific handlers
     removeOrderItem,

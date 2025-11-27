@@ -236,6 +236,7 @@ export class WebRTCVoiceClient extends EventEmitter {
       // CRITICAL: Always log session config size to diagnose oversized messages
       const sessionConfigJson = JSON.stringify(sessionConfigObj);
       const configSizeKB = (sessionConfigJson.length / 1024).toFixed(2);
+      const MAX_CONFIG_SIZE = 30000; // 30KB
 
       // Log session configuration for debugging
       logger.info('📤 [WebRTCVoiceClient] Sending session.update:', {
@@ -248,8 +249,32 @@ export class WebRTCVoiceClient extends EventEmitter {
         hasMenuInInstructions: sessionConfigObj.instructions.includes('📋 FULL MENU')
       });
 
-      if (sessionConfigJson.length > 50000) {
-        logger.error('🚨 [WebRTCVoiceClient] Session config TOO LARGE (>50KB)!');
+      // Fail fast if session config is too large
+      if (sessionConfigJson.length > MAX_CONFIG_SIZE) {
+        const error = new Error(
+          `Session config too large (${sessionConfigJson.length} bytes). ` +
+          `Max: ${MAX_CONFIG_SIZE} bytes. Reduce menu size or instructions.`
+        );
+        logger.error('🚨 [WebRTCVoiceClient] Session config TOO LARGE - aborting!', {
+          configSize: sessionConfigJson.length,
+          maxSize: MAX_CONFIG_SIZE,
+          menuContextLength: this.sessionConfig.getMenuContext().length,
+          instructionsLength: sessionConfigObj.instructions?.length || 0
+        });
+
+        // Transition state machine to ERROR state
+        try {
+          this.stateMachine.transition(VoiceEvent.ERROR_OCCURRED, {
+            error: String(error),
+            code: 'CONFIG_TOO_LARGE'
+          });
+        } catch (transitionError) {
+          logger.error('[WebRTCVoiceClient] Failed to transition to ERROR state on config size error:', transitionError);
+        }
+
+        // Emit error event for UI feedback
+        this.emit('error', error);
+        return; // Don't send oversized config to OpenAI
       }
 
       logger.info('🚀 [WebRTCVoiceClient] Sending session.update to OpenAI now...');

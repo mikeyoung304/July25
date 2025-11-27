@@ -445,7 +445,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
                       )}
                     </div>
                     <span className="text-lg font-bold text-gray-900">
-                      ${((item.price || item.menuItem?.price || 0) * item.quantity).toFixed(2)}
+                      ${(Math.round((item.price || item.menuItem?.price || 0) * 100) * item.quantity / 100).toFixed(2)}
                     </span>
                   </div>
                 ))}

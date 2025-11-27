@@ -379,7 +379,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
                       </div>
                       <div className="flex items-center space-x-4">
                         <span className="text-lg font-bold text-gray-900">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ${(Math.round(item.price * 100) * item.quantity / 100).toFixed(2)}
                         </span>
                         <ActionButton
                           onClick={() => removeFromCart(item.id)}

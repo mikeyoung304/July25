@@ -36,10 +36,18 @@ export function useKioskOrderSubmission() {
 
     setIsSubmitting(true);
     try {
-      // Calculate totals
-      const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const tax = subtotal * taxRate; // Use restaurant-specific tax rate
-      const total = subtotal + tax;
+      // FLOATING-POINT FIX (TODO-051): Use cents (integer) arithmetic to avoid rounding errors
+      const subtotalCents = items.reduce((sumCents, item) => {
+        const itemPriceCents = Math.round(item.price * 100);
+        return sumCents + (itemPriceCents * item.quantity);
+      }, 0);
+      const taxCents = Math.round(subtotalCents * taxRate);
+      const totalCents = subtotalCents + taxCents;
+
+      // Convert back to dollars for display/storage
+      const subtotal = subtotalCents / 100;
+      const tax = taxCents / 100;
+      const total = totalCents / 100;
 
       // Prepare order data in the format expected by the API
       const orderData = {
@@ -101,6 +109,12 @@ export function useKioskOrderSubmission() {
     const result = await submitOrder(items, customerInfo);
     
     if (result.success) {
+      // FLOATING-POINT FIX (TODO-051): Use cents arithmetic for confirmation total
+      const confirmationTotalCents = items.reduce((sumCents, item) => {
+        const itemPriceCents = Math.round(item.price * 100);
+        return sumCents + (itemPriceCents * item.quantity);
+      }, 0);
+
       // Navigate to order confirmation
       navigate('/order-confirmation', {
         state: {
@@ -108,7 +122,7 @@ export function useKioskOrderSubmission() {
           order_number: result.order_number,
           estimatedTime: result.estimatedTime,
           items: items,
-          total: items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+          total: confirmationTotalCents / 100,
           isKioskOrder: true,
         }
       });
