@@ -4,6 +4,56 @@ import { LRUCache } from 'lru-cache';
 import { logger } from '../../../services/logger';
 
 /**
+ * Maximum allowed transcript length (characters)
+ * Prevents DoS attacks via extremely long transcripts
+ */
+const MAX_TRANSCRIPT_LENGTH = 10000;
+
+/**
+ * Validate and sanitize transcript text
+ * Returns sanitized string or null if invalid
+ *
+ * @param text - Raw transcript text from OpenAI Realtime API
+ * @returns Sanitized transcript or null if invalid
+ */
+function validateTranscript(text: string | undefined | null): string | null {
+  // Null/undefined check
+  if (text == null) {
+    return null;
+  }
+
+  // Type check
+  if (typeof text !== 'string') {
+    logger.warn('[VoiceEventHandler] Invalid transcript type', { type: typeof text });
+    return null;
+  }
+
+  // Empty string check
+  const trimmed = text.trim();
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  // Length validation (DoS protection)
+  if (trimmed.length > MAX_TRANSCRIPT_LENGTH) {
+    logger.warn('[VoiceEventHandler] Transcript too long, truncating', {
+      originalLength: trimmed.length,
+      maxLength: MAX_TRANSCRIPT_LENGTH
+    });
+    return trimmed.slice(0, MAX_TRANSCRIPT_LENGTH);
+  }
+
+  // Sanitize for display (XSS protection)
+  // Remove HTML tags and script injection attempts
+  const sanitized = trimmed
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+\s*=/gi, ''); // Remove event handlers
+
+  return sanitized;
+}
+
+/**
  * Base interface for event types from OpenAI Realtime API
  */
 export interface RealtimeEvent {

@@ -7,6 +7,9 @@
 // Order constants and helpers (NO Joi, pure TypeScript)
 export * from './order-constants';
 
+// Price validation utilities (TODO-082)
+export * from './price-validation';
+
 // DISABLED FOR SERVER BUILD - these use browser APIs
 // Cleanup and resource management - uses EventListener
 // export * from './cleanup-manager';

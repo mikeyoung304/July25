@@ -3,6 +3,7 @@ import { logger } from '../../utils/logger';
 import NodeCache from 'node-cache';
 import { DEFAULT_TAX_RATE, TAX_RATE_SOURCE } from '@rebuild/shared/constants/business';
 import { Mutex } from 'async-mutex';
+import { sanitizePrice, validateCartTotals } from '@rebuild/shared/utils/price-validation';
 
 // Types
 export interface MenuItem {
@@ -463,20 +464,62 @@ async function saveCart(cart: Cart): Promise<void> {
  * @param taxRate - Tax rate as decimal (e.g., 0.0825 for 8.25%)
  *
  * ADR-013: Using shared DEFAULT_TAX_RATE constant
+ *
+ * ⚠️ **FLOATING-POINT FIX (TODO-051/P1-080)** - Uses cents (integer) arithmetic
+ * to avoid floating-point rounding errors. Only converted to dollars for storage.
+ *
+ * ⚠️ **NaN/INFINITY FIX (TODO-082)** - Validates all prices before calculation
+ * and validates results before storing to prevent data corruption.
  */
 function updateCartTotals(cart: Cart, taxRate: number = DEFAULT_TAX_RATE): void {
-  // Calculate subtotal including modifier prices
-  cart.subtotal = cart.items.reduce((sum, item) => {
-    const basePrice = item.price * item.quantity;
-    const modifierPrice = (item.modifiers || []).reduce(
-      (modSum, mod) => modSum + mod.price,
-      0
-    ) * item.quantity;
-    return sum + basePrice + modifierPrice;
+  // Work in cents (integers) to avoid floating-point errors like 0.1 + 0.2 = 0.30000000000000004
+  const subtotalCents = cart.items.reduce((sumCents, item) => {
+    // Sanitize prices to prevent NaN/Infinity propagation (TODO-082)
+    const itemPrice = sanitizePrice(item.price);
+    const itemPriceCents = Math.round(itemPrice * 100);
+    const modifierPriceCents = Math.round(
+      (item.modifiers || []).reduce((modSum, mod) => {
+        const modPrice = sanitizePrice(mod.price);
+        return modSum + modPrice;
+      }, 0) * 100
+    );
+    const itemTotalCents = (itemPriceCents + modifierPriceCents) * item.quantity;
+    return sumCents + itemTotalCents;
   }, 0);
 
-  cart.tax = cart.subtotal * taxRate;
-  cart.total = cart.subtotal + cart.tax;
+  // Calculate tax in cents
+  const taxCents = Math.round(subtotalCents * taxRate);
+
+  // Calculate total in cents
+  const totalCents = subtotalCents + taxCents;
+
+  // Convert back to dollars for storage (consistent with Cart interface)
+  const subtotal = subtotalCents / 100;
+  const tax = taxCents / 100;
+  const total = totalCents / 100;
+
+  // Validate calculated totals before storing (TODO-082)
+  try {
+    validateCartTotals(subtotal, tax, total);
+  } catch (error) {
+    logger.error('[updateCartTotals] Invalid cart totals calculated', {
+      subtotal,
+      tax,
+      total,
+      itemCount: cart.items.length,
+      error: error instanceof Error ? error.message : String(error)
+    });
+    // Fall back to zero values to prevent data corruption
+    cart.subtotal = 0;
+    cart.tax = 0;
+    cart.total = 0;
+    cart.updated_at = Date.now();
+    return;
+  }
+
+  cart.subtotal = subtotal;
+  cart.tax = tax;
+  cart.total = total;
   cart.updated_at = Date.now();
 }
 

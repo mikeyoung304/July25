@@ -1,3 +1,5 @@
+import { sanitizePrice, isValidPrice } from './utils/price-validation';
+
 export interface CartModifier {
   id: string;
   name: string;
@@ -77,20 +79,26 @@ export function calculateCartTotals(
 ): Pick<Cart, 'subtotal' | 'tax' | 'tip' | 'total'> {
   // Work in cents (integers) to avoid floating-point errors
   const subtotalCents = items.reduce((sumCents, item) => {
-    // Convert prices to cents (integer arithmetic)
-    const itemPriceCents = Math.round(item.price * 100);
+    // Sanitize prices to prevent NaN/Infinity propagation (TODO-082)
+    const itemPrice = sanitizePrice(item.price);
+    const itemPriceCents = Math.round(itemPrice * 100);
     const modifierPriceCents = Math.round(
-      (item.modifiers?.reduce((modSum, mod) => modSum + mod.price, 0) || 0) * 100
+      (item.modifiers?.reduce((modSum, mod) => {
+        const modPrice = sanitizePrice(mod.price);
+        return modSum + modPrice;
+      }, 0) || 0) * 100
     );
     const itemTotalCents = (itemPriceCents + modifierPriceCents) * item.quantity;
     return sumCents + itemTotalCents;
   }, 0);
 
-  // Calculate tax in cents
-  const taxCents = Math.round(subtotalCents * taxRate);
+  // Calculate tax in cents (sanitize taxRate in case it's invalid)
+  const safeTaxRate = isValidPrice(taxRate) ? taxRate : 0;
+  const taxCents = Math.round(subtotalCents * safeTaxRate);
 
-  // Convert tip to cents
-  const tipCents = Math.round(tip * 100);
+  // Convert tip to cents (sanitize tip)
+  const safeTip = sanitizePrice(tip);
+  const tipCents = Math.round(safeTip * 100);
 
   // Calculate total in cents
   const totalCents = subtotalCents + taxCents + tipCents;
