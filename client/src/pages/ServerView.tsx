@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from 'react'
+import React, { useState, useCallback, useMemo, memo } from 'react'
 import { motion } from 'framer-motion'
 import { RoleGuard } from '@/components/auth/RoleGuard'
 import { Card } from '@/components/ui/card'
@@ -59,8 +59,24 @@ export const ServerView = memo(() => {
 
   // Payment modal state
   const [paymentState, setPaymentState] = useState<PaymentState>(initialPaymentState)
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false)
   const { get, patch } = useHttpClient()
   const { toast } = useToast()
+
+  // Memoize table transformation to avoid duplicate code and stabilize references
+  const transformedTable = useMemo(() =>
+    selectedTable ? {
+      id: selectedTable.id,
+      restaurant_id: selectedTable.restaurant_id || '',
+      table_number: selectedTable.label,
+      capacity: selectedTable.seats,
+      status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
+      current_order_id: selectedTable.current_order_id,
+      created_at: selectedTable.created_at || '',
+      updated_at: selectedTable.updated_at || ''
+    } : null,
+    [selectedTable]
+  )
 
   const handleTableSelection = useCallback((tableId: string) => {
     handleTableClick(tableId)
@@ -97,13 +113,6 @@ export const ServerView = memo(() => {
     setShowSeatSelection(false)
   }, [voiceOrder, setSelectedTableId])
 
-  const handleFinishTableFromSeatModal = useCallback(() => {
-    voiceOrder.handleFinishTable()
-    setSelectedTableId(null)
-    setSelectedSeat(null)
-    setShowSeatSelection(false)
-  }, [voiceOrder, setSelectedTableId])
-
   const handleCloseModals = useCallback(() => {
     setSelectedTableId(null)
     setSelectedSeat(null)
@@ -119,6 +128,8 @@ export const ServerView = memo(() => {
 
   // Close Table - fetch orders and show payment modal
   const handleCloseTable = useCallback(async () => {
+    if (isLoadingPayment) return // Prevent duplicate clicks
+
     if (!selectedTable) {
       toast.error('No table selected')
       return
@@ -129,6 +140,7 @@ export const ServerView = memo(() => {
       return
     }
 
+    setIsLoadingPayment(true)
     try {
       // Fetch orders for this table that are not yet paid
       const ordersResponse = await get(`/api/v1/orders`, {
@@ -182,8 +194,10 @@ export const ServerView = memo(() => {
     } catch (error) {
       logger.error('[handleCloseTable] Failed to fetch orders', { error })
       toast.error('Failed to load orders for this table')
+    } finally {
+      setIsLoadingPayment(false)
     }
-  }, [selectedTable, restaurant, get, toast, voiceOrder])
+  }, [isLoadingPayment, selectedTable, restaurant, get, toast, voiceOrder])
 
   // Handle payment success
   const handlePaymentSuccess = useCallback(async () => {
@@ -250,37 +264,19 @@ export const ServerView = memo(() => {
 
             <SeatSelectionModal
               show={showSeatSelection && !!selectedTable}
-              table={selectedTable ? {
-                id: selectedTable.id,
-                restaurant_id: selectedTable.restaurant_id || '',
-                table_number: selectedTable.label,
-                capacity: selectedTable.seats,
-                status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
-                current_order_id: selectedTable.current_order_id,
-                created_at: selectedTable.created_at || '',
-                updated_at: selectedTable.updated_at || ''
-              } : null}
+              table={transformedTable}
               selectedSeat={selectedSeat}
               orderedSeats={voiceOrder.orderedSeats}
               canCreateOrders={canCreateOrders}
               onSeatSelect={setSelectedSeat}
               onStartVoiceOrder={handleStartVoiceOrder}
-              onFinishTable={handleFinishTableFromSeatModal}
+              onFinishTable={handleFinishTable}
               onClose={handleCloseSeatSelection}
             />
 
             <VoiceOrderModal
               show={voiceOrder.showVoiceOrder && !!selectedTable}
-              table={selectedTable ? {
-                id: selectedTable.id,
-                restaurant_id: selectedTable.restaurant_id || '',
-                table_number: selectedTable.label,
-                capacity: selectedTable.seats,
-                status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
-                current_order_id: selectedTable.current_order_id,
-                created_at: selectedTable.created_at || '',
-                updated_at: selectedTable.updated_at || ''
-              } : null}
+              table={transformedTable}
               seat={selectedSeat}
               voiceOrder={voiceOrder}
               onSubmit={handleSubmitOrder}
@@ -291,22 +287,14 @@ export const ServerView = memo(() => {
 
             <PostOrderPrompt
               show={voiceOrder.showPostOrderPrompt && !!selectedTable}
-              table={selectedTable ? {
-                id: selectedTable.id,
-                restaurant_id: selectedTable.restaurant_id || '',
-                table_number: selectedTable.label,
-                capacity: selectedTable.seats,
-                status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
-                current_order_id: selectedTable.current_order_id,
-                created_at: selectedTable.created_at || '',
-                updated_at: selectedTable.updated_at || ''
-              } : null}
+              table={transformedTable}
               completedSeat={voiceOrder.lastCompletedSeat || 1}
               orderedSeats={voiceOrder.orderedSeats}
               totalSeats={selectedTable?.seats || 4}
               onAddNextSeat={handleAddNextSeat}
               onFinishTable={handleFinishTable}
               onCloseTable={handleCloseTable}
+              isLoadingCloseTable={isLoadingPayment}
             />
 
             {/* Payment Modal for Close Table */}

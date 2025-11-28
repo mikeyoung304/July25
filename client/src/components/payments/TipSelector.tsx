@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { DollarSign } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -30,20 +30,31 @@ export const TipSelector: React.FC<TipSelectorProps> = ({
   );
   const [is_custom, setIsCustom] = useState(initial_tip > 0);
 
-  const calculate_tip = useCallback(
-    (percentage: number) => {
-      return Math.round(subtotal * (percentage / 100) * 100) / 100;
-    },
+  // Pre-calculate all tip amounts once when subtotal changes
+  const tipAmounts = useMemo(() =>
+    TIP_PRESETS.reduce((acc, { percentage }) => ({
+      ...acc,
+      [percentage]: Math.round(subtotal * (percentage / 100) * 100) / 100
+    }), {} as Record<number, number>),
     [subtotal]
   );
 
-  const current_tip = is_custom
-    ? parseFloat(custom_amount) || 0
-    : selected_preset
-      ? calculate_tip(selected_preset)
-      : 0;
+  const calculate_tip = useCallback(
+    (percentage: number) => tipAmounts[percentage] ?? Math.round(subtotal * (percentage / 100) * 100) / 100,
+    [tipAmounts, subtotal]
+  );
 
-  const total = subtotal + tax + current_tip;
+  // Memoize derived values
+  const current_tip = useMemo(() =>
+    is_custom
+      ? parseFloat(custom_amount) || 0
+      : selected_preset
+        ? tipAmounts[selected_preset] ?? 0
+        : 0,
+    [is_custom, custom_amount, selected_preset, tipAmounts]
+  );
+
+  const total = useMemo(() => subtotal + tax + current_tip, [subtotal, tax, current_tip]);
 
   const handlePresetClick = useCallback(
     (percentage: number) => {
@@ -108,7 +119,7 @@ export const TipSelector: React.FC<TipSelectorProps> = ({
           </label>
           <div className="grid grid-cols-4 gap-3">
             {TIP_PRESETS.map(({ percentage, label }) => {
-              const amount = calculate_tip(percentage);
+              const amount = tipAmounts[percentage];
               const isSelected = !is_custom && selected_preset === percentage;
               return (
                 <button

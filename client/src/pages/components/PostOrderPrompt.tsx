@@ -14,6 +14,7 @@ interface PostOrderPromptProps {
   onAddNextSeat: () => void
   onFinishTable: () => void
   onCloseTable?: () => void
+  isLoadingCloseTable?: boolean
 }
 
 export function PostOrderPrompt({
@@ -24,7 +25,8 @@ export function PostOrderPrompt({
   totalSeats,
   onAddNextSeat,
   onFinishTable,
-  onCloseTable
+  onCloseTable,
+  isLoadingCloseTable = false
 }: PostOrderPromptProps) {
   if (!show || !table) return null
 
@@ -165,8 +167,9 @@ export function PostOrderPrompt({
                     fullWidth
                     icon={<CreditCard className="h-6 w-6" />}
                     aria-label="Close table and process payment"
+                    disabled={isLoadingCloseTable}
                   >
-                    Close Table
+                    {isLoadingCloseTable ? 'Loading...' : 'Close Table'}
                   </ActionButton>
                 )}
 
