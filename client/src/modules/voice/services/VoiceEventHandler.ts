@@ -894,18 +894,17 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       this.emit('transcript', finalTranscript);
       // Debug: `${logPrefix} User transcript completed: "${validatedTranscript}"`
 
-        // Always send response.create after final transcript
-        if (event.item_id === this.currentUserItemId) {
-          // Send exactly one response.create
-          this.sendEvent({
-            type: 'response.create',
-            response: {
-              modalities: ['text', 'audio'],
-              instructions: 'RESPOND IN ENGLISH. Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences.',
-            }
-          });
-          // Debug: `${logPrefix} Manual response.create sent`
-        }
+      // Always send response.create after final transcript
+      if (event.item_id === this.currentUserItemId) {
+        // Send exactly one response.create
+        this.sendEvent({
+          type: 'response.create',
+          response: {
+            modalities: ['text', 'audio'],
+            instructions: 'RESPOND IN ENGLISH. Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences.',
+          }
+        });
+        // Debug: `${logPrefix} Manual response.create sent`
       }
     }
   }
