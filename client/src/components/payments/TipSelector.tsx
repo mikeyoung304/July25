@@ -70,8 +70,11 @@ export const TipSelector: React.FC<TipSelectorProps> = ({
       setSelectedPreset(null);
 
       const numValue = parseFloat(value);
-      if (!isNaN(numValue) && numValue >= 0) {
+      if (!isNaN(numValue) && numValue >= 0 && numValue <= 10000) {
         onTipChange(Math.round(numValue * 100) / 100);
+      } else if (numValue > 10000) {
+        // Reject values over $10,000
+        return;
       } else if (value === '') {
         onTipChange(0);
       }
@@ -160,6 +163,7 @@ export const TipSelector: React.FC<TipSelectorProps> = ({
               type="number"
               step="0.01"
               min="0"
+              max="10000"
               value={custom_amount}
               onChange={handleCustomAmountChange}
               placeholder="Enter custom amount"

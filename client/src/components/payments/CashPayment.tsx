@@ -37,9 +37,15 @@ export const CashPayment: React.FC<CashPaymentProps> = ({
 
   const handleCustomAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    const numValue = parseFloat(value);
+
+    // Reject values exceeding $100,000
+    if (!isNaN(numValue) && numValue > 100000) {
+      return;
+    }
+
     setCustomAmount(value);
 
-    const numValue = parseFloat(value);
     if (!isNaN(numValue) && numValue >= 0) {
       setCashReceived(numValue);
     }
@@ -155,6 +161,7 @@ export const CashPayment: React.FC<CashPaymentProps> = ({
               type="number"
               step="0.01"
               min="0"
+              max="100000"
               value={customAmount}
               onChange={handleCustomAmountChange}
               disabled={isProcessing}
