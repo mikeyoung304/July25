@@ -5,7 +5,7 @@
 
 import { webSocketService } from './WebSocketService'
 import { logger } from '@/services/logger'
-import { Order } from '@rebuild/shared'
+import { Order, OrderStatus } from '@rebuild/shared'
 import { toast } from 'react-hot-toast'
 
 export interface OrderUpdatePayload {
@@ -13,8 +13,8 @@ export interface OrderUpdatePayload {
   order?: Order
   orderId?: string
   itemId?: string
-  status?: string
-  previousStatus?: string
+  status?: OrderStatus
+  previousStatus?: OrderStatus
   updatedBy?: string
 }
 
@@ -77,12 +77,12 @@ export class OrderUpdatesHandler {
             this.handleOrderDeleted(payload))
           break
         case 'order:status_changed':
-          unsubscribe = webSocketService.subscribe('order:status_changed', (payload) => 
-            this.handleOrderStatusChanged(payload as { orderId: string; status: string; previousStatus: string; updatedBy?: string }))
+          unsubscribe = webSocketService.subscribe('order:status_changed', (payload) =>
+            this.handleOrderStatusChanged(payload as { orderId: string; status: OrderStatus; previousStatus: OrderStatus; updatedBy?: string }))
           break
         case 'order:item_status_changed':
-          unsubscribe = webSocketService.subscribe('order:item_status_changed', (payload) => 
-            this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: string; previousStatus: string; updatedBy?: string }))
+          unsubscribe = webSocketService.subscribe('order:item_status_changed', (payload) =>
+            this.handleItemStatusChanged(payload as { orderId: string; itemId: string; status: OrderStatus; previousStatus: OrderStatus; updatedBy?: string }))
           break
         default:
           return
@@ -273,8 +273,8 @@ export class OrderUpdatesHandler {
    */
   private handleOrderStatusChanged(payload: {
     orderId: string
-    status: string
-    previousStatus: string
+    status: OrderStatus
+    previousStatus: OrderStatus
     updatedBy?: string
   }): void {
     console.warn('Order status changed:', payload.orderId, payload.previousStatus, '->', payload.status)
@@ -302,8 +302,8 @@ export class OrderUpdatesHandler {
   private handleItemStatusChanged(payload: {
     orderId: string
     itemId: string
-    status: string
-    previousStatus: string
+    status: OrderStatus
+    previousStatus: OrderStatus
     updatedBy?: string
   }): void {
     console.warn('Item status changed:', payload.orderId, payload.itemId, payload.previousStatus, '->', payload.status)
@@ -345,7 +345,7 @@ export class OrderUpdatesHandler {
   /**
    * Update order status
    */
-  updateOrderStatus(orderId: string, status: string): void {
+  updateOrderStatus(orderId: string, status: OrderStatus): void {
     webSocketService.send('order:update_status', {
       orderId,
       status,
@@ -356,7 +356,7 @@ export class OrderUpdatesHandler {
   /**
    * Update order item status
    */
-  updateItemStatus(orderId: string, itemId: string, status: string): void {
+  updateItemStatus(orderId: string, itemId: string, status: OrderStatus): void {
     webSocketService.send('order:update_item_status', {
       orderId,
       itemId,

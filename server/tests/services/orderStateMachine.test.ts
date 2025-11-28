@@ -2,19 +2,21 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { OrderStateMachine } from '../../src/services/orderStateMachine';
 import type { Order, OrderStatus } from '@rebuild/shared';
 
-// Mock logger to avoid console output during tests
-vi.mock('../../src/utils/logger', () => ({
-  logger: {
+// Mock logger to capture log calls for testing
+// Must use inline object to avoid hoisting issues
+vi.mock('../../src/utils/logger', () => {
+  const mockLoggerFns = {
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
-    child: () => ({
-      info: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-    }),
-  },
-}));
+    debug: vi.fn(),
+    child: () => mockLoggerFns,
+  };
+  return { logger: mockLoggerFns };
+});
+
+// Get reference to mocked logger for assertions
+import { logger as mockLogger } from '../../src/utils/logger';
 
 describe('OrderStateMachine', () => {
   // Helper to create a mock order
@@ -390,6 +392,307 @@ describe('OrderStateMachine', () => {
       // Should not throw, just log the error
       const result = await OrderStateMachine.transition(order, 'preparing');
       expect(result.status).toBe('preparing');
+    });
+  });
+
+  describe('executeTransitionHooks', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should execute hooks without throwing errors', async () => {
+      const order = createMockOrder('confirmed');
+
+      // Should not throw
+      await expect(
+        OrderStateMachine.executeTransitionHooks('pending', 'confirmed', order)
+      ).resolves.toBeUndefined();
+    });
+
+    it('should execute hooks with userId and reason', async () => {
+      const order = createMockOrder('confirmed');
+
+      await expect(
+        OrderStateMachine.executeTransitionHooks(
+          'pending',
+          'confirmed',
+          order,
+          'user-123',
+          'Customer confirmed'
+        )
+      ).resolves.toBeUndefined();
+    });
+
+    it('should catch and log errors from hooks', async () => {
+      // Register a failing hook
+      const failingHook = vi.fn().mockRejectedValue(new Error('Test hook failure'));
+      OrderStateMachine.registerHook('new->pending', failingHook);
+
+      const order = createMockOrder('pending');
+
+      // Should not throw even if hook fails
+      await expect(
+        OrderStateMachine.executeTransitionHooks('new', 'pending', order)
+      ).resolves.toBeUndefined();
+
+      // Error should be logged
+      expect(mockLogger.error).toHaveBeenCalled();
+    });
+  });
+
+  describe('Notification Hooks (GitHub Issue #146)', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    describe('Kitchen notification hook (*->confirmed)', () => {
+      it('should log kitchen notification when order is confirmed', async () => {
+        const order: Order = {
+          ...createMockOrder('confirmed'),
+          order_number: 'ORD-KITCHEN-001',
+          table_number: 'T5',
+          type: 'pickup',
+        };
+
+        await OrderStateMachine.executeTransitionHooks('pending', 'confirmed', order);
+
+        // Should log kitchen notification with order details
+        expect(mockLogger.info).toHaveBeenCalledWith(
+          'Kitchen notification: Order confirmed',
+          expect.objectContaining({
+            orderId: order.id,
+            restaurantId: order.restaurant_id,
+            orderNumber: 'ORD-KITCHEN-001',
+            itemCount: 1,
+            orderType: 'pickup',
+            tableNumber: 'T5',
+          })
+        );
+      });
+
+      it('should handle orders without table number', async () => {
+        const order: Order = {
+          ...createMockOrder('confirmed'),
+          table_number: undefined,
+        };
+
+        await OrderStateMachine.executeTransitionHooks('pending', 'confirmed', order);
+
+        expect(mockLogger.info).toHaveBeenCalledWith(
+          'Kitchen notification: Order confirmed',
+          expect.objectContaining({
+            tableNumber: null,
+          })
+        );
+      });
+    });
+
+    describe('Customer notification hook (*->ready)', () => {
+      it('should log customer notification when order is ready with contact info', async () => {
+        const order: Order = {
+          ...createMockOrder('ready'),
+          order_number: 'ORD-READY-001',
+          customer_name: 'John Doe',
+          customer_phone: '+1234567890',
+          customer_email: 'john@example.com',
+        };
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'ready', order);
+
+        expect(mockLogger.info).toHaveBeenCalledWith(
+          'Customer notification: Order ready for pickup',
+          expect.objectContaining({
+            orderId: order.id,
+            orderNumber: 'ORD-READY-001',
+            hasPhone: true,
+            hasEmail: true,
+            customerName: 'John Doe',
+          })
+        );
+      });
+
+      it('should skip notification when no contact info available', async () => {
+        const order: Order = {
+          ...createMockOrder('ready'),
+          customer_phone: undefined,
+          customer_email: undefined,
+        };
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'ready', order);
+
+        // Should log debug message about skipping
+        expect(mockLogger.debug).toHaveBeenCalledWith(
+          'Customer notification skipped: No contact info',
+          expect.objectContaining({
+            orderId: order.id,
+          })
+        );
+
+        // Should NOT log the "Order ready for pickup" message
+        expect(mockLogger.info).not.toHaveBeenCalledWith(
+          'Customer notification: Order ready for pickup',
+          expect.anything()
+        );
+      });
+
+      it('should notify with phone only', async () => {
+        const order: Order = {
+          ...createMockOrder('ready'),
+          customer_phone: '+1234567890',
+          customer_email: undefined,
+        };
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'ready', order);
+
+        expect(mockLogger.info).toHaveBeenCalledWith(
+          'Customer notification: Order ready for pickup',
+          expect.objectContaining({
+            hasPhone: true,
+            hasEmail: false,
+          })
+        );
+      });
+
+      it('should notify with email only', async () => {
+        const order: Order = {
+          ...createMockOrder('ready'),
+          customer_phone: undefined,
+          customer_email: 'customer@example.com',
+        };
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'ready', order);
+
+        expect(mockLogger.info).toHaveBeenCalledWith(
+          'Customer notification: Order ready for pickup',
+          expect.objectContaining({
+            hasPhone: false,
+            hasEmail: true,
+          })
+        );
+      });
+
+      it('should use "Guest" as default customer name', async () => {
+        const order: Order = {
+          ...createMockOrder('ready'),
+          customer_name: undefined,
+          customer_phone: '+1234567890',
+        };
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'ready', order);
+
+        expect(mockLogger.info).toHaveBeenCalledWith(
+          'Customer notification: Order ready for pickup',
+          expect.objectContaining({
+            customerName: 'Guest',
+          })
+        );
+      });
+    });
+
+    describe('Refund hook (*->cancelled)', () => {
+      it('should log refund warning for paid cancelled orders', async () => {
+        const order: Order = {
+          ...createMockOrder('cancelled'),
+          order_number: 'ORD-REFUND-001',
+          payment_status: 'paid',
+          payment_method: 'card',
+          total: 45.99,
+        };
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'cancelled', order);
+
+        expect(mockLogger.warn).toHaveBeenCalledWith(
+          'Refund required: Paid order cancelled',
+          expect.objectContaining({
+            orderId: order.id,
+            restaurantId: order.restaurant_id,
+            orderNumber: 'ORD-REFUND-001',
+            total: 45.99,
+            paymentMethod: 'card',
+            paymentStatus: 'paid',
+          })
+        );
+      });
+
+      it('should skip refund for unpaid orders', async () => {
+        const order: Order = {
+          ...createMockOrder('cancelled'),
+          payment_status: 'pending',
+        };
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'cancelled', order);
+
+        // Should log debug message about skipping
+        expect(mockLogger.debug).toHaveBeenCalledWith(
+          'Refund processing skipped: Order not paid',
+          expect.objectContaining({
+            orderId: order.id,
+            paymentStatus: 'pending',
+          })
+        );
+
+        // Should NOT log the refund warning
+        expect(mockLogger.warn).not.toHaveBeenCalledWith(
+          'Refund required: Paid order cancelled',
+          expect.anything()
+        );
+      });
+
+      it('should skip refund for failed payment orders', async () => {
+        const order: Order = {
+          ...createMockOrder('cancelled'),
+          payment_status: 'failed',
+        };
+
+        await OrderStateMachine.executeTransitionHooks('new', 'cancelled', order);
+
+        expect(mockLogger.debug).toHaveBeenCalledWith(
+          'Refund processing skipped: Order not paid',
+          expect.objectContaining({
+            paymentStatus: 'failed',
+          })
+        );
+      });
+
+      it('should skip refund for already refunded orders', async () => {
+        const order: Order = {
+          ...createMockOrder('cancelled'),
+          payment_status: 'refunded',
+        };
+
+        await OrderStateMachine.executeTransitionHooks('ready', 'cancelled', order);
+
+        expect(mockLogger.debug).toHaveBeenCalledWith(
+          'Refund processing skipped: Order not paid',
+          expect.objectContaining({
+            paymentStatus: 'refunded',
+          })
+        );
+      });
+    });
+
+    describe('Hook error handling', () => {
+      it('should not throw when hook errors occur', async () => {
+        // Create an order that will trigger all hooks
+        const order: Order = {
+          ...createMockOrder('confirmed'),
+          customer_phone: '+1234567890',
+          payment_status: 'paid',
+        };
+
+        // All hooks should execute without throwing
+        await expect(
+          OrderStateMachine.executeTransitionHooks('pending', 'confirmed', order)
+        ).resolves.toBeUndefined();
+
+        await expect(
+          OrderStateMachine.executeTransitionHooks('preparing', 'ready', order)
+        ).resolves.toBeUndefined();
+
+        await expect(
+          OrderStateMachine.executeTransitionHooks('ready', 'cancelled', order)
+        ).resolves.toBeUndefined();
+      });
     });
   });
 });

@@ -7,6 +7,9 @@
 // Order constants and helpers (NO Joi, pure TypeScript)
 export * from './order-constants';
 
+// Order status utilities (STATUS_GROUPS, isStatusInGroup, etc.)
+export * from './orderStatus';
+
 // Price validation utilities (TODO-082)
 export * from './price-validation';
 

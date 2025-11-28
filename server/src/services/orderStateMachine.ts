@@ -126,7 +126,7 @@ export class OrderStateMachine {
     order: Order
   ): Promise<void> {
     const hooks = this.TRANSITION_HOOKS.get(pattern) || [];
-    
+
     for (const hook of hooks) {
       try {
         await hook(transition, order);
@@ -138,6 +138,42 @@ export class OrderStateMachine {
         });
         // Continue with other hooks even if one fails
       }
+    }
+  }
+
+  /**
+   * Execute hooks for a completed transition
+   * Called after database update succeeds to trigger side effects
+   * Hooks are non-blocking - errors are logged but don't block the transition
+   */
+  static async executeTransitionHooks(
+    fromStatus: OrderStatus,
+    toStatus: OrderStatus,
+    order: Order,
+    userId?: string,
+    reason?: string
+  ): Promise<void> {
+    const transition: StateTransition = {
+      from: fromStatus,
+      to: toStatus,
+      timestamp: new Date(),
+      userId,
+      reason
+    };
+
+    // Execute hooks in order, catch errors to prevent blocking
+    try {
+      await this.executeHooks(`${fromStatus}->${toStatus}`, transition, order);
+      await this.executeHooks(`*->${toStatus}`, transition, order);
+      await this.executeHooks(`${fromStatus}->*`, transition, order);
+    } catch (error) {
+      // This shouldn't happen since executeHooks catches errors internally
+      logger.error('Unexpected error in transition hooks', {
+        from: fromStatus,
+        to: toStatus,
+        orderId: order.id,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 
@@ -252,20 +288,113 @@ export class OrderStateMachine {
   }
 }
 
-// Register default hooks for common side effects
+// =============================================================================
+// Notification Hooks (Refactored - GitHub Issue #146)
+// =============================================================================
+// These hooks are executed after successful status transitions.
+// All hooks are non-blocking - errors are logged but don't affect the transition.
+// Real notification services (SMS, email, Stripe refunds) are deferred to future work.
+
+/**
+ * Hook: Kitchen notification on order confirmation
+ * Logs order details for kitchen display systems
+ * WebSocket broadcast is handled separately by OrdersService
+ */
 OrderStateMachine.registerHook('*->confirmed', async (_transition, order) => {
-  logger.info('Order confirmed, notifying kitchen', { orderId: order.id });
-  // TODO: Send notification to kitchen display
+  try {
+    logger.info('Kitchen notification: Order confirmed', {
+      orderId: order.id,
+      restaurantId: order.restaurant_id,
+      orderNumber: order.order_number,
+      itemCount: order.items?.length || 0,
+      orderType: order.type,
+      tableNumber: order.table_number || null
+    });
+    // WebSocket broadcast to kitchen displays is handled by OrdersService.updateOrderStatus()
+    // which calls broadcastOrderUpdate() after the database update succeeds
+  } catch (error) {
+    // Log but don't block - kitchen notifications are best-effort
+    logger.error('Failed to process kitchen notification hook', {
+      orderId: order.id,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
+/**
+ * Hook: Customer notification when order is ready
+ * Logs notification intent - actual SMS/email integration is deferred
+ */
 OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
-  logger.info('Order ready, notifying customer', { orderId: order.id });
-  // TODO: Send notification to customer
+  try {
+    // Skip if no customer contact info available
+    if (!order.customer_phone && !order.customer_email) {
+      logger.debug('Customer notification skipped: No contact info', {
+        orderId: order.id,
+        orderNumber: order.order_number
+      });
+      return;
+    }
+
+    logger.info('Customer notification: Order ready for pickup', {
+      orderId: order.id,
+      restaurantId: order.restaurant_id,
+      orderNumber: order.order_number,
+      hasPhone: !!order.customer_phone,
+      hasEmail: !!order.customer_email,
+      customerName: order.customer_name || 'Guest'
+    });
+
+    // TODO: Future integration with SMS/email notification service
+    // When implemented, this hook will call:
+    // - NotificationService.sendSMS(order.customer_phone, `Your order #${order.order_number} is ready!`)
+    // - NotificationService.sendEmail(order.customer_email, 'Your order is ready', ...)
+  } catch (error) {
+    // Log but don't block - customer notifications are best-effort
+    logger.error('Failed to process customer notification hook', {
+      orderId: order.id,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
+/**
+ * Hook: Refund processing when paid order is cancelled
+ * Logs refund requirement - actual Stripe refund integration is deferred
+ */
 OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
-  logger.info('Order cancelled, processing refund', { orderId: order.id });
-  // TODO: Process refund if payment was made
+  try {
+    // Only process refund logic for paid orders
+    if (order.payment_status !== 'paid') {
+      logger.debug('Refund processing skipped: Order not paid', {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        paymentStatus: order.payment_status
+      });
+      return;
+    }
+
+    // Log at WARN level so operations team can process manually
+    logger.warn('Refund required: Paid order cancelled', {
+      orderId: order.id,
+      restaurantId: order.restaurant_id,
+      orderNumber: order.order_number,
+      total: order.total,
+      paymentMethod: order.payment_method,
+      paymentStatus: order.payment_status
+    });
+
+    // TODO: Future integration with Stripe refund API
+    // When implemented, this hook will call:
+    // - StripeService.processRefund(order.payment_id, order.total)
+    // - Update order.payment_status to 'refunded'
+  } catch (error) {
+    // Log but don't block - refund processing errors need manual attention
+    logger.error('Failed to process refund hook', {
+      orderId: order.id,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
 export default OrderStateMachine;

@@ -481,6 +481,22 @@ export class OrdersService {
         restaurantId,
       });
 
+      // Execute transition hooks (non-blocking - errors are logged but don't affect return)
+      // This triggers notification hooks for kitchen, customer, and refund processing
+      OrderStateMachine.executeTransitionHooks(
+        currentOrder.status,
+        newStatus,
+        data as unknown as SharedOrder
+      ).catch((hookError) => {
+        // This should never happen since executeTransitionHooks catches internally
+        ordersLogger.error('Unexpected error in transition hooks', {
+          orderId,
+          from: currentOrder.status,
+          to: newStatus,
+          error: hookError instanceof Error ? hookError.message : 'Unknown error'
+        });
+      });
+
       return data as any as Order;
     } catch (error) {
       ordersLogger.error('Failed to update order status', { 
