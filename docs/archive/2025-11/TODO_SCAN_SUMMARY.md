@@ -1,8 +1,30 @@
 # TODO/FIXME Scan Summary
 
 **Scan Date:** 2025-11-07
-**Total Issues Found:** 26
-**Total Estimated Effort:** 51-82 developer days
+**Last Updated:** 2025-11-28
+**Total Issues Found:** 26 (original) → 22 remaining
+**Total Estimated Effort:** 51-82 developer days → ~40-65 remaining
+
+---
+
+## 2025-11-28 Audit Update
+
+### Resolved Items (4 items closed)
+| Item | Resolution | Commit |
+|------|------------|--------|
+| P0: Temporary Debug Code | ✅ Removed autofill from CheckoutPage, KioskCheckoutPage | eda61d1d |
+| P0: Auth Test Failures | ✅ Fixed integration test (added required item fields) | eda61d1d |
+| P1: Cache Clearing | ✅ Implemented clearAllCachesForRestaurantSwitch() | eda61d1d |
+| Tests: AuthContext timeout | ✅ Fixed concurrent refresh test | eda61d1d |
+
+### Current Status Summary
+| Priority | Original | Resolved | Remaining |
+|----------|----------|----------|-----------|
+| P0 - Critical | 4 | 2 | 2 |
+| P1 - High | 8 | 1 | 7 |
+| P2 - Medium | 6 | 0 | 6 |
+| P3 - Low | 3 | 0 | 3 |
+| Tests | 5 | 1 | 4 |
 
 ---
 
@@ -11,11 +33,11 @@
 ### By Priority
 | Priority | Count | Effort (days) | Description |
 |----------|-------|---------------|-------------|
-| P0 - Critical | 4 | 9-14 | Must fix before production |
-| P1 - High | 8 | 18-29 | Important features & security |
+| P0 - Critical | 2 | 5-8 | Must fix before production |
+| P1 - High | 7 | 15-25 | Important features & security |
 | P2 - Medium | 6 | 13-21 | Technical debt & enhancements |
 | P3 - Low | 3 | 4.5-7.5 | Nice to have improvements |
-| Tests | 5 | 6-10 | Test coverage gaps |
+| Tests | 4 | 5-8 | Test coverage gaps |
 
 ### By Category
 | Category | Count | Top Issues |
