@@ -12,9 +12,30 @@ import { VoiceOrderModal } from './components/VoiceOrderModal'
 import { PostOrderPrompt } from './components/PostOrderPrompt'
 import { ServerStats } from './components/ServerStats'
 import { ServerHeader } from './components/ServerHeader'
+import { PaymentModal } from '@/components/payments'
 import { Info } from 'lucide-react'
 import type { OrderInputMode } from '@/components/shared/OrderInputSelector'
 import { DEFAULT_TAX_RATE } from '@rebuild/shared/constants/business'
+import { useHttpClient } from '@/services/http'
+import { useToast } from '@/hooks/useToast'
+import { logger } from '@/services/logger'
+
+// Payment state for Close Table flow
+interface PaymentState {
+  show_modal: boolean
+  order_id: string | null
+  subtotal: number
+  tax: number
+  table_id: string | null
+}
+
+const initialPaymentState: PaymentState = {
+  show_modal: false,
+  order_id: null,
+  subtotal: 0,
+  tax: 0,
+  table_id: null
+}
 
 export const ServerView = memo(() => {
   const {
@@ -34,6 +55,11 @@ export const ServerView = memo(() => {
   const [showSeatSelection, setShowSeatSelection] = useState(false)
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null)
   const [initialInputMode, setInitialInputMode] = useState<OrderInputMode>('voice')
+
+  // Payment modal state
+  const [paymentState, setPaymentState] = useState<PaymentState>(initialPaymentState)
+  const { get, patch } = useHttpClient()
+  const { toast } = useToast()
 
   const handleTableSelection = useCallback((tableId: string) => {
     handleTableClick(tableId)
@@ -89,6 +115,110 @@ export const ServerView = memo(() => {
     setSelectedTableId(null)
     setSelectedSeat(null)
   }, [setSelectedTableId])
+
+  // Close Table - fetch orders and show payment modal
+  const handleCloseTable = useCallback(async () => {
+    if (!selectedTable) {
+      toast.error('No table selected')
+      return
+    }
+
+    try {
+      // Fetch orders for this table that are not yet paid
+      const ordersResponse = await get(`/api/v1/orders`, {
+        params: {
+          table_number: selectedTable.label,
+          payment_status: 'pending'
+        }
+      }) as any[]
+
+      if (!ordersResponse || ordersResponse.length === 0) {
+        toast.error('No unpaid orders found for this table')
+        return
+      }
+
+      // Calculate totals from all orders
+      const subtotal = ordersResponse.reduce((sum: number, order: any) => {
+        return sum + (order.subtotal || 0)
+      }, 0)
+
+      const tax = ordersResponse.reduce((sum: number, order: any) => {
+        return sum + (order.tax || 0)
+      }, 0)
+
+      // Use the first order's ID for payment (MVP - could be improved to handle multi-order payments)
+      const primaryOrderId = ordersResponse[0].id
+
+      logger.info('[handleCloseTable] Opening payment modal', {
+        tableNumber: selectedTable.label,
+        orderCount: ordersResponse.length,
+        primaryOrderId,
+        subtotal,
+        tax
+      })
+
+      // Hide post-order prompt and show payment modal
+      voiceOrder.setShowPostOrderPrompt(false)
+
+      setPaymentState({
+        show_modal: true,
+        order_id: primaryOrderId,
+        subtotal,
+        tax,
+        table_id: selectedTable.id
+      })
+
+    } catch (error) {
+      logger.error('[handleCloseTable] Failed to fetch orders', { error })
+      toast.error('Failed to load orders for this table')
+    }
+  }, [selectedTable, get, toast, voiceOrder])
+
+  // Handle payment success
+  const handlePaymentSuccess = useCallback(async () => {
+    logger.info('[handlePaymentSuccess] Payment completed', {
+      tableId: paymentState.table_id
+    })
+
+    // Update table status to available
+    if (paymentState.table_id) {
+      try {
+        await patch(`/api/v1/tables/${paymentState.table_id}/status`, {
+          status: 'available'
+        })
+        logger.info('[handlePaymentSuccess] Table status updated to available')
+      } catch (error) {
+        logger.error('[handlePaymentSuccess] Failed to update table status', { error })
+      }
+    }
+
+    // Reset payment state
+    setPaymentState(initialPaymentState)
+
+    // Finish the table (reset all ordering state)
+    voiceOrder.handleFinishTable()
+    setSelectedTableId(null)
+    setSelectedSeat(null)
+    setShowSeatSelection(false)
+
+    toast.success('Payment complete! Table is now available.')
+  }, [paymentState.table_id, patch, voiceOrder, setSelectedTableId, toast])
+
+  // Handle payment modal close (without payment)
+  const handlePaymentModalClose = useCallback(() => {
+    setPaymentState(initialPaymentState)
+    // Re-show post order prompt
+    voiceOrder.setShowPostOrderPrompt(true)
+  }, [voiceOrder])
+
+  // Update table status after payment
+  const handleUpdateTableStatus = useCallback(async () => {
+    if (paymentState.table_id) {
+      await patch(`/api/v1/tables/${paymentState.table_id}/status`, {
+        status: 'available'
+      })
+    }
+  }, [paymentState.table_id, patch])
 
   return (
     <RoleGuard suggestedRoles={['server', 'admin']} pageTitle="Server View - Dining Room">
@@ -174,6 +304,19 @@ export const ServerView = memo(() => {
               totalSeats={selectedTable?.seats || 4}
               onAddNextSeat={handleAddNextSeat}
               onFinishTable={handleFinishTable}
+              onCloseTable={handleCloseTable}
+            />
+
+            {/* Payment Modal for Close Table */}
+            <PaymentModal
+              show={paymentState.show_modal}
+              order_id={paymentState.order_id || ''}
+              subtotal={paymentState.subtotal}
+              tax={paymentState.tax}
+              table_id={paymentState.table_id || undefined}
+              onClose={handlePaymentModalClose}
+              onSuccess={handlePaymentSuccess}
+              onUpdateTableStatus={handleUpdateTableStatus}
             />
 
             <ServerStats stats={stats} />

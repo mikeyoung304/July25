@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2, Users, Check } from 'lucide-react'
+import { CheckCircle2, Users, Check, CreditCard } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { ActionButton } from '@/components/ui/ActionButton'
 import type { Table } from '@shared'
@@ -13,6 +13,7 @@ interface PostOrderPromptProps {
   totalSeats: number
   onAddNextSeat: () => void
   onFinishTable: () => void
+  onCloseTable?: () => void
 }
 
 export function PostOrderPrompt({
@@ -22,7 +23,8 @@ export function PostOrderPrompt({
   orderedSeats,
   totalSeats,
   onAddNextSeat,
-  onFinishTable
+  onFinishTable,
+  onCloseTable
 }: PostOrderPromptProps) {
   if (!show || !table) return null
 
@@ -155,6 +157,19 @@ export function PostOrderPrompt({
                   Add Next Seat
                 </ActionButton>
 
+                {onCloseTable && (
+                  <ActionButton
+                    onClick={onCloseTable}
+                    color="#FF6B6B"
+                    size="xl"
+                    fullWidth
+                    icon={<CreditCard className="h-6 w-6" />}
+                    aria-label="Close table and process payment"
+                  >
+                    Close Table
+                  </ActionButton>
+                )}
+
                 <ActionButton
                   onClick={onFinishTable}
                   color="#4CAF50"
@@ -174,7 +189,10 @@ export function PostOrderPrompt({
                 transition={{ delay: 0.8 }}
                 className="text-center text-xs text-neutral-500 mt-4"
               >
-                Click "Add Next Seat" to take another order, or "Finish Table" when done
+                {onCloseTable
+                  ? 'Add more seats, close table for payment, or finish without payment'
+                  : 'Click "Add Next Seat" to take another order, or "Finish Table" when done'
+                }
               </motion.p>
             </Card>
           </motion.div>
