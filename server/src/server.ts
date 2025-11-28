@@ -20,6 +20,7 @@ import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocke
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { stopRateLimiterCleanup } from './middleware/authRateLimiter';
 import { OrdersService } from './services/orders.service';
+import { TableService } from './services/table.service';
 import { aiRoutes } from './routes/ai.routes';
 import { realtimeRoutes } from './routes/realtime.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
@@ -39,8 +40,9 @@ export const wss = new WebSocketServer({
   clientTracking: true,
 });
 
-// Set WebSocket server for OrdersService
+// Set WebSocket server for services that need real-time broadcasts
 OrdersService.setWebSocketServer(wss);
+TableService.setWebSocketServer(wss);
 
 // Initialize Sentry monitoring (before any other middleware)
 initializeSentry();

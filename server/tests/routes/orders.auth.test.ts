@@ -54,6 +54,9 @@ vi.mock('../../src/utils/logger', () => ({
   logger: loggerMock
 }));
 
+// Test UUID for multi-tenant tests (must be valid UUIDs per P0.2 security fix)
+const TEST_RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
+
 vi.mock('../../src/config/environment', () => ({
   getConfig: () => ({
     supabase: {
@@ -61,7 +64,7 @@ vi.mock('../../src/config/environment', () => ({
       anonKey: 'test-anon-key'
     },
     restaurant: {
-      defaultId: 'default-restaurant-id'
+      defaultId: '11111111-1111-1111-1111-111111111111' // Must be valid UUID format
     },
     cache: {
       ttlSeconds: 300
@@ -83,7 +86,7 @@ function createTestToken(payload: {
     sub: payload.sub || `demo:${payload.role}:test123`,
     role: payload.role,
     scope: payload.scopes || ['orders:create', 'orders:read'],
-    restaurant_id: payload.restaurant_id || 'default-restaurant-id',
+    restaurant_id: payload.restaurant_id || TEST_RESTAURANT_ID, // Must be valid UUID format
   };
 
   return jwt.sign(fullPayload, secret, {
@@ -207,11 +210,9 @@ describe('Orders Routes - Auth Integration Tests', () => {
     });
   });
 
-  describe('Test 3: kiosk_demo with AUTH_ACCEPT_KIOSK_DEMO_ALIAS=true → 201 + WARN', () => {
-    it('should accept kiosk_demo as customer alias and log warning', async () => {
-      // Enable the alias flag (default behavior)
-      process.env['AUTH_ACCEPT_KIOSK_DEMO_ALIAS'] = 'true';
-
+  describe('Test 3: kiosk_demo role is no longer supported (P1.7)', () => {
+    it('should reject kiosk_demo role and require customer role instead', async () => {
+      // kiosk_demo is no longer supported per P1.7 - alias has been removed
       const token = createTestToken({ role: 'kiosk_demo' });
 
       const response = await request(app)
@@ -228,12 +229,11 @@ describe('Orders Routes - Auth Integration Tests', () => {
           type: 'online'
         });
 
-      expect(response.status).toBe(201);
-      expect(response.body.id).toBe('order-123');
+      expect(response.status).toBe(401); // Unauthorized - kiosk_demo no longer supported
 
-      // Verify warning was logged (flexible matcher)
-      expect(logger.warn).toHaveBeenCalledWith(
-        expect.stringMatching(/kiosk_demo.*deprecated/i),
+      // Verify error was logged
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringMatching(/kiosk_demo.*no longer supported/i),
         expect.objectContaining({
           userId: expect.any(String),
           path: expect.any(String)
@@ -242,26 +242,29 @@ describe('Orders Routes - Auth Integration Tests', () => {
     });
   });
 
-  describe('Test 4: kiosk_demo with flag=false → 403', () => {
-    it('should reject kiosk_demo when alias is disabled', async () => {
-      // Build app with flag=false (reloads modules)
-      const appWithFlagDisabled = await buildAppWithEnv('false');
+  describe('Test 4: kiosk_demo rejection is consistent (P1.7)', () => {
+    it('should always reject kiosk_demo regardless of env flags', async () => {
+      // Even with deprecated env flag set, kiosk_demo should be rejected
+      process.env['AUTH_ACCEPT_KIOSK_DEMO_ALIAS'] = 'true';
 
       const token = createTestToken({ role: 'kiosk_demo' });
 
-      const response = await request(appWithFlagDisabled)
+      const response = await request(app)
         .post('/api/v1/orders')
         .set('Authorization', `Bearer ${token}`)
         .send({
-          items: [{ name: 'Soul Bowl', quantity: 1, price: 10.99 }],
+          items: [{ id: 'item-4', menu_item_id: 'menu-4', name: 'Soul Bowl', quantity: 1, price: 10.99 }],
           type: 'online'
         });
 
       expect(response.status).toBe(401); // Unauthorized from auth middleware
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(/kiosk_demo.*rejected/i),
+        expect.stringMatching(/kiosk_demo.*no longer supported/i),
         expect.any(Object)
       );
+
+      // Cleanup
+      delete process.env['AUTH_ACCEPT_KIOSK_DEMO_ALIAS'];
     });
   });
 
@@ -469,7 +472,7 @@ describe('Orders Routes - Auth Integration Tests', () => {
         .post('/api/v1/orders')
         .set('Authorization', `Bearer ${token}`)
         .set('X-Client-Flow', 'online')
-        .set('X-Restaurant-Id', 'default-restaurant-id')
+        .set('X-Restaurant-Id', TEST_RESTAURANT_ID)
         .send(orderData);
 
       expect(response.status).toBe(201);
@@ -478,7 +481,7 @@ describe('Orders Routes - Auth Integration Tests', () => {
 
       // Verify service was called with correct restaurant context
       expect(OrdersService.createOrder).toHaveBeenCalledWith(
-        'default-restaurant-id',
+        TEST_RESTAURANT_ID,
         expect.objectContaining({
           items: expect.arrayContaining([
             expect.objectContaining({ name: 'Margherita Pizza' })

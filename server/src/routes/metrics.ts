@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { logger } from '../utils/logger';
+import { supabase } from '../config/database';
 
 const router = Router();
 
@@ -43,9 +44,29 @@ router.get('/health', (_req, res) => {
 });
 
 /**
- * Detailed health check endpoint
+ * Detailed health check endpoint (P1.6 feature)
+ * Includes database health check with latency measurement
  */
 router.get('/health/detailed', async (_req, res) => {
+  // Database health check (P1.6)
+  let dbStatus = 'healthy';
+  let dbLatency = 0;
+  let dbError: string | undefined;
+  try {
+    const start = Date.now();
+    const { error } = await supabase.from('restaurants').select('id').limit(1);
+    dbLatency = Date.now() - start;
+    if (error) {
+      dbStatus = 'error';
+      dbError = error.message;
+    } else if (dbLatency > 1000) {
+      dbStatus = 'degraded'; // Latency over 1 second is concerning
+    }
+  } catch (err) {
+    dbStatus = 'error';
+    dbError = err instanceof Error ? err.message : 'Unknown database error';
+  }
+
   const checks = {
     server: {
       status: 'healthy',
@@ -53,10 +74,11 @@ router.get('/health/detailed', async (_req, res) => {
       memory: process.memoryUsage(),
       cpu: process.cpuUsage(),
     },
-    // TODO: Add database, Redis, and AI service checks
-    // database: await checkDatabase(),
-    // redis: await checkRedis(),
-    // ai: await checkAIService(),
+    database: {
+      status: dbStatus,
+      latency_ms: dbLatency,
+      ...(dbError && { error: dbError })
+    }
   };
 
   const allHealthy = Object.values(checks).every(

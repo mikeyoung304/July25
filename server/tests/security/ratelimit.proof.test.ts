@@ -9,6 +9,9 @@ describe('Security Proof: Rate Limiting', () => {
   let app: express.Application;
   let validToken: string;
 
+  // Test UUID for multi-tenant tests (must be valid UUIDs per P0.2 security fix)
+  const TEST_RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
+
   // Create different rate limiters as documented
   const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -56,10 +59,10 @@ describe('Security Proof: Rate Limiting', () => {
 
     validToken = jwt.sign(
       {
-        id: 'user123',
+        sub: 'user123', // Use 'sub' for user ID (JWT standard)
         email: 'test@example.com',
         role: 'staff',
-        restaurant_id: 'rest123',
+        restaurant_id: TEST_RESTAURANT_ID, // Must be valid UUID format
         exp: Math.floor(Date.now() / 1000) + 3600
       },
       process.env.SUPABASE_JWT_SECRET || 'test-jwt-secret-for-testing-only'

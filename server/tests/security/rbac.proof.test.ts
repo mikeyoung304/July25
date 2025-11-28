@@ -8,10 +8,14 @@ import { errorHandler } from '../../src/middleware/errorHandler';
 describe('Security Proof: Role-Based Access Control (RBAC)', () => {
   let app: express.Application;
 
-  const createToken = (role: string, restaurantId: string = 'rest123') => {
+  // Test UUIDs for multi-tenant tests (must be valid UUIDs per P0.2 security fix)
+  const TEST_RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
+  const TEST_RESTAURANT_ID_2 = '22222222-2222-2222-2222-222222222222';
+
+  const createToken = (role: string, restaurantId: string = TEST_RESTAURANT_ID) => {
     return jwt.sign(
       {
-        id: `${role}123`,
+        sub: `${role}123`, // Use 'sub' for user ID (JWT standard)
         email: `${role}@example.com`,
         role,
         restaurant_id: restaurantId,
@@ -232,8 +236,8 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
 
   describe('Multi-Tenant Isolation', () => {
     it('should enforce restaurant context in JWT', async () => {
-      const restaurant1Token = createToken('manager', 'restaurant1');
-      const restaurant2Token = createToken('manager', 'restaurant2');
+      const restaurant1Token = createToken('manager', TEST_RESTAURANT_ID);
+      const restaurant2Token = createToken('manager', TEST_RESTAURANT_ID_2);
 
       // Both managers can access manager endpoints
       const response1 = await request(app)
@@ -253,8 +257,8 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
       const decoded1 = jwt.decode(restaurant1Token) as any;
       const decoded2 = jwt.decode(restaurant2Token) as any;
 
-      expect(decoded1.restaurant_id).toBe('restaurant1');
-      expect(decoded2.restaurant_id).toBe('restaurant2');
+      expect(decoded1.restaurant_id).toBe(TEST_RESTAURANT_ID);
+      expect(decoded2.restaurant_id).toBe(TEST_RESTAURANT_ID_2);
       expect(decoded1.restaurant_id).not.toBe(decoded2.restaurant_id);
     });
 
@@ -302,10 +306,10 @@ describe('Security Proof: Role-Based Access Control (RBAC)', () => {
     it('should reject empty role in token', async () => {
       const emptyRoleToken = jwt.sign(
         {
-          id: 'user123',
+          sub: 'user123',
           email: 'user@example.com',
           role: '', // Empty role
-          restaurant_id: 'rest123',
+          restaurant_id: TEST_RESTAURANT_ID,
           exp: Math.floor(Date.now() / 1000) + 3600
         },
         process.env.SUPABASE_JWT_SECRET || 'test-jwt-secret-for-testing-only'

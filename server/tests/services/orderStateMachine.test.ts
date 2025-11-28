@@ -590,26 +590,53 @@ describe('OrderStateMachine', () => {
     });
 
     describe('Refund hook (*->cancelled)', () => {
-      it('should log refund warning for paid cancelled orders', async () => {
+      it('should log refund warning for paid cancelled orders without payment_intent_id', async () => {
+        // P1.4: Orders without payment_intent_id get a warning to add it manually
         const order: Order = {
           ...createMockOrder('cancelled'),
           order_number: 'ORD-REFUND-001',
           payment_status: 'paid',
           payment_method: 'card',
           total: 45.99,
+          // No payment_intent_id - should log warning about missing it
         };
 
         await OrderStateMachine.executeTransitionHooks('preparing', 'cancelled', order);
 
         expect(mockLogger.warn).toHaveBeenCalledWith(
-          'Refund required: Paid order cancelled',
+          'Refund skipped: No payment_intent_id on paid order',
+          expect.objectContaining({
+            orderId: order.id,
+            orderNumber: 'ORD-REFUND-001',
+            paymentStatus: 'paid',
+          })
+        );
+      });
+
+      it('should log Stripe not configured warning for paid orders with payment_intent_id', async () => {
+        // P1.4: When Stripe not configured, logs warning for manual refund
+        const order: Order = {
+          ...createMockOrder('cancelled'),
+          order_number: 'ORD-REFUND-002',
+          payment_status: 'paid',
+          payment_method: 'card',
+          total: 45.99,
+          payment_intent_id: 'pi_test_123',
+        };
+
+        // Ensure STRIPE_SECRET_KEY is not set
+        delete process.env.STRIPE_SECRET_KEY;
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'cancelled', order);
+
+        expect(mockLogger.warn).toHaveBeenCalledWith(
+          'Refund required: Stripe not configured, manual refund needed',
           expect.objectContaining({
             orderId: order.id,
             restaurantId: order.restaurant_id,
-            orderNumber: 'ORD-REFUND-001',
+            orderNumber: 'ORD-REFUND-002',
             total: 45.99,
-            paymentMethod: 'card',
-            paymentStatus: 'paid',
+            paymentIntentId: 'pi_test_123',
           })
         );
       });

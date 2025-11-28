@@ -296,22 +296,40 @@ export class OrderStateMachine {
 // Real notification services (SMS, email, Stripe refunds) are deferred to future work.
 
 /**
- * Hook: Kitchen notification on order confirmation
- * Logs order details for kitchen display systems
+ * Hook: Kitchen notification on order confirmation (P1.2 feature)
+ * Formats kitchen ticket and logs for KDS
  * WebSocket broadcast is handled separately by OrdersService
  */
 OrderStateMachine.registerHook('*->confirmed', async (_transition, order) => {
   try {
+    // Format kitchen ticket with item details for KDS (P1.2)
+    const kitchenTicket = {
+      order_number: order.order_number,
+      customer_name: order.customer_name || 'Guest',
+      table_number: order.table_number || null,
+      order_type: order.type,
+      items: order.items?.map((item: any) => ({
+        name: item.name,
+        quantity: item.quantity,
+        modifiers: item.modifiers || [],
+        notes: item.notes || ''
+      })) || [],
+      special_instructions: order.notes || '',
+      created_at: order.created_at
+    };
+
     logger.info('Kitchen notification: Order confirmed', {
       orderId: order.id,
       restaurantId: order.restaurant_id,
       orderNumber: order.order_number,
       itemCount: order.items?.length || 0,
       orderType: order.type,
-      tableNumber: order.table_number || null
+      tableNumber: order.table_number || null,
+      kitchenTicket
     });
     // WebSocket broadcast to kitchen displays is handled by OrdersService.updateOrderStatus()
     // which calls broadcastOrderUpdate() after the database update succeeds
+    // The order payload already includes all item details for KDS rendering
   } catch (error) {
     // Log but don't block - kitchen notifications are best-effort
     logger.error('Failed to process kitchen notification hook', {
@@ -322,8 +340,10 @@ OrderStateMachine.registerHook('*->confirmed', async (_transition, order) => {
 });
 
 /**
- * Hook: Customer notification when order is ready
- * Logs notification intent - actual SMS/email integration is deferred
+ * Hook: Customer notification when order is ready (P1.3 feature)
+ * Sends SMS via Twilio and/or email via SendGrid (inline, no service class)
+ * Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+ *                   SENDGRID_API_KEY, SENDGRID_FROM_EMAIL
  */
 OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
   try {
@@ -345,10 +365,58 @@ OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
       customerName: order.customer_name || 'Guest'
     });
 
-    // TODO: Future integration with SMS/email notification service
-    // When implemented, this hook will call:
-    // - NotificationService.sendSMS(order.customer_phone, `Your order #${order.order_number} is ready!`)
-    // - NotificationService.sendEmail(order.customer_email, 'Your order is ready', ...)
+    // SMS via Twilio (inline, no service class per P1.3)
+    if (order.customer_phone && process.env['TWILIO_ACCOUNT_SID']) {
+      try {
+        const twilio = require('twilio')(
+          process.env['TWILIO_ACCOUNT_SID'],
+          process.env['TWILIO_AUTH_TOKEN']
+        );
+        await twilio.messages.create({
+          from: process.env['TWILIO_PHONE_NUMBER'],
+          to: order.customer_phone,
+          body: `Your order #${order.order_number} is ready for pickup!`
+        });
+        logger.info('SMS notification sent', {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          phone: order.customer_phone.replace(/\d{6}$/, '******') // Mask phone for logs
+        });
+      } catch (smsError) {
+        // Log but don't block - notifications are best-effort (no retry queue per user decision)
+        logger.error('SMS notification failed', {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          error: smsError instanceof Error ? smsError.message : 'Unknown error'
+        });
+      }
+    }
+
+    // Email via SendGrid (inline, no service class per P1.3)
+    if (order.customer_email && process.env['SENDGRID_API_KEY']) {
+      try {
+        const sgMail = require('@sendgrid/mail');
+        sgMail.setApiKey(process.env['SENDGRID_API_KEY']);
+        await sgMail.send({
+          to: order.customer_email,
+          from: process.env['SENDGRID_FROM_EMAIL'] || 'orders@restaurant.com',
+          subject: `Order #${order.order_number} is ready!`,
+          html: `<p>Hi ${order.customer_name || 'there'},</p><p>Your order #${order.order_number} is ready for pickup!</p>`
+        });
+        logger.info('Email notification sent', {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          email: order.customer_email.replace(/^(.{2}).*@/, '$1***@') // Mask email for logs
+        });
+      } catch (emailError) {
+        // Log but don't block - notifications are best-effort (no retry queue per user decision)
+        logger.error('Email notification failed', {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          error: emailError instanceof Error ? emailError.message : 'Unknown error'
+        });
+      }
+    }
   } catch (error) {
     // Log but don't block - customer notifications are best-effort
     logger.error('Failed to process customer notification hook', {
@@ -359,8 +427,9 @@ OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
 });
 
 /**
- * Hook: Refund processing when paid order is cancelled
- * Logs refund requirement - actual Stripe refund integration is deferred
+ * Hook: Refund processing when paid order is cancelled (P1.4 feature)
+ * Processes Stripe refund inline (no service class per user decision)
+ * Uses idempotency key to prevent duplicate refunds
  */
 OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
   try {
@@ -374,20 +443,66 @@ OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
       return;
     }
 
-    // Log at WARN level so operations team can process manually
-    logger.warn('Refund required: Paid order cancelled', {
-      orderId: order.id,
-      restaurantId: order.restaurant_id,
-      orderNumber: order.order_number,
-      total: order.total,
-      paymentMethod: order.payment_method,
-      paymentStatus: order.payment_status
-    });
+    // Check if we have a payment_intent_id to refund
+    // Note: payment_intent_id is a database field not yet in shared types
+    const paymentIntentId = (order as any).payment_intent_id as string | undefined;
+    if (!paymentIntentId) {
+      logger.warn('Refund skipped: No payment_intent_id on paid order', {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        paymentStatus: order.payment_status
+      });
+      return;
+    }
 
-    // TODO: Future integration with Stripe refund API
-    // When implemented, this hook will call:
-    // - StripeService.processRefund(order.payment_id, order.total)
-    // - Update order.payment_status to 'refunded'
+    // Process Stripe refund (inline, no service class per P1.4)
+    if (process.env['STRIPE_SECRET_KEY']) {
+      try {
+        const stripe = require('stripe')(process.env['STRIPE_SECRET_KEY']);
+        const refund = await stripe.refunds.create({
+          payment_intent: paymentIntentId,
+          reason: 'requested_by_customer'
+        }, {
+          idempotencyKey: `refund-${order.id}` // Prevents duplicate refunds
+        });
+
+        // Update order payment_status to 'refunded' in database
+        const { supabase } = await import('../config/database');
+        await supabase
+          .from('orders')
+          .update({
+            payment_status: 'refunded',
+            refund_id: refund.id,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', order.id);
+
+        logger.info('Refund processed successfully', {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          refundId: refund.id,
+          amount: refund.amount,
+          status: refund.status
+        });
+      } catch (refundError) {
+        // Log error - operator can see in logs and process manually via Stripe dashboard
+        logger.error('Stripe refund failed - manual refund required', {
+          orderId: order.id,
+          orderNumber: order.order_number,
+          paymentIntentId,
+          error: refundError instanceof Error ? refundError.message : 'Unknown error'
+        });
+      }
+    } else {
+      // No Stripe configured - log at WARN level for manual processing
+      logger.warn('Refund required: Stripe not configured, manual refund needed', {
+        orderId: order.id,
+        restaurantId: order.restaurant_id,
+        orderNumber: order.order_number,
+        total: order.total,
+        paymentIntentId
+      });
+    }
   } catch (error) {
     // Log but don't block - refund processing errors need manual attention
     logger.error('Failed to process refund hook', {

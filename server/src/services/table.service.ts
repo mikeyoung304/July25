@@ -1,6 +1,8 @@
 import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
 import { NotFound } from '../middleware/errorHandler';
+import { WebSocketServer } from 'ws';
+import { broadcastToRestaurant } from '../utils/websocket';
 
 const tableLogger = logger.child({ service: 'TableService' });
 
@@ -23,10 +25,19 @@ export interface Table {
 }
 
 export class TableService {
+  private static wss: WebSocketServer;
+
+  /**
+   * Set the WebSocket server instance for real-time broadcasts
+   */
+  static setWebSocketServer(wss: WebSocketServer): void {
+    this.wss = wss;
+  }
+
   /**
    * Update table status after payment
    * Checks if all orders for the table are paid, then updates table status to 'paid'
-   * This method prepares for Phase 3 real-time events
+   * Broadcasts real-time updates via WebSocket
    */
   static async updateStatusAfterPayment(
     tableId: string,
@@ -101,13 +112,24 @@ export class TableService {
           throw updateError;
         }
 
-        // TODO: Phase 3 - Emit Supabase real-time event for status change
-        // This will notify all connected clients about the table status update
-        // await supabase.channel('tables').send({
-        //   type: 'broadcast',
-        //   event: 'table_status_updated',
-        //   payload: { table_id: tableId, status: 'paid', restaurant_id: restaurantId }
-        // });
+        // Broadcast table status update via WebSocket (P1.1 real-time feature)
+        if (this.wss) {
+          broadcastToRestaurant(this.wss, restaurantId, {
+            type: 'table:status_updated',
+            payload: {
+              table_id: tableId,
+              status: 'paid',
+              table_number: table.table_number,
+              label: table.label
+            },
+            timestamp: new Date().toISOString()
+          });
+          tableLogger.debug('Broadcasted table status update', {
+            tableId,
+            status: 'paid',
+            restaurantId
+          });
+        }
 
         tableLogger.info('Table status updated to paid', {
           tableId,

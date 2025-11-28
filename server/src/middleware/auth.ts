@@ -6,6 +6,10 @@ import { Unauthorized } from './errorHandler';
 import { logger } from '../utils/logger';
 import { AuditService } from '../services/audit.service';
 
+// UUID format regex (accepts any UUID-like format, not just RFC 4122)
+// This prevents SQL injection while allowing test UUIDs like 11111111-...
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // Note: getConfig() is called inside each function instead of at module level
 // This allows tests to modify process.env and have the changes take effect
 
@@ -61,25 +65,15 @@ export async function authenticate(
       throw Unauthorized('Token verification failed');
     }
 
-    // Handle role with kiosk_demo → customer alias
+    // Handle role (P1.7: kiosk_demo role is no longer supported)
     let userRole = decoded.role || 'user';
 
-    // Feature flag: Accept kiosk_demo as alias for customer (default: true for backwards compat)
-    const acceptKioskDemoAlias = process.env['AUTH_ACCEPT_KIOSK_DEMO_ALIAS'] !== 'false';
-
     if (userRole === 'kiosk_demo') {
-      if (acceptKioskDemoAlias) {
-        logger.warn("⚠️ auth: role 'kiosk_demo' is deprecated; treating as 'customer'", {
-          userId: decoded.sub,
-          path: req.path
-        });
-        userRole = 'customer'; // Alias kiosk_demo → customer
-      } else {
-        logger.error("⛔ auth: role 'kiosk_demo' rejected (AUTH_ACCEPT_KIOSK_DEMO_ALIAS=false)", {
-          userId: decoded.sub
-        });
-        throw Unauthorized("Role 'kiosk_demo' is deprecated. Use 'customer' instead.");
-      }
+      logger.error("⛔ auth: role 'kiosk_demo' rejected - no longer supported", {
+        userId: decoded.sub,
+        path: req.path
+      });
+      throw Unauthorized("Role 'kiosk_demo' is no longer supported. Use 'customer' role instead.");
     }
 
     // STRICT_AUTH enforcement: Reject tokens without restaurant_id
@@ -90,6 +84,16 @@ export async function authenticate(
         role: userRole
       });
       throw Unauthorized('Token missing restaurant context in strict auth mode');
+    }
+
+    // UUID format validation for restaurant_id (P0.2 security fix)
+    if (decoded.restaurant_id && !UUID_REGEX.test(decoded.restaurant_id)) {
+      logger.error('⛔ Invalid restaurant_id format in token', {
+        userId: decoded.sub,
+        restaurant_id: decoded.restaurant_id,
+        path: req.path
+      });
+      throw Unauthorized('Invalid restaurant context');
     }
 
     // Set user info
@@ -228,9 +232,30 @@ export async function verifyWebSocketAuth(
       return null;
     }
 
+    // STRICT_AUTH enforcement: Reject tokens without restaurant_id (matches HTTP auth behavior)
+    const strictAuth = process.env['STRICT_AUTH'] === 'true';
+    if (strictAuth && !decoded.restaurant_id) {
+      logger.error('⛔ WebSocket STRICT_AUTH: token missing restaurant_id rejected', {
+        userId: decoded.sub,
+        path: request.url
+      });
+      return null;
+    }
+
+    // UUID format validation for restaurant_id (P0.2 security fix)
+    if (decoded.restaurant_id && !UUID_REGEX.test(decoded.restaurant_id)) {
+      logger.error('⛔ WebSocket: Invalid restaurant_id format in token', {
+        userId: decoded.sub,
+        restaurant_id: decoded.restaurant_id,
+        path: request.url
+      });
+      return null;
+    }
+
     return {
       userId: decoded.sub,
-      restaurantId: decoded.restaurant_id || config.restaurant.defaultId,
+      // Only fall back to defaultId if STRICT_AUTH is disabled
+      restaurantId: decoded.restaurant_id || (strictAuth ? undefined : config.restaurant.defaultId),
     };
   } catch (error) {
     logger.error('WebSocket auth error:', error);
