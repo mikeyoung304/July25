@@ -125,75 +125,66 @@ describe('AuthContext - Token Refresh', () => {
     })
   }, 30000)
 
-  test.skip('should prevent concurrent refresh attempts with latch', async () => {
-    // TODO: Test timing out after 30s - pre-existing failure
+  test('should prevent concurrent refresh attempts with latch', async () => {
     const TestComponent = () => {
       const auth = useContext(AuthContext)
       return (
         <div>
-          <span>{auth?.session?.accessToken || 'no-session'}</span>
-          <button onClick={() => auth?.refreshSession()}>Refresh</button>
+          <span data-testid="token">{auth?.session?.accessToken || 'no-session'}</span>
+          <button onClick={() => auth?.refreshSession?.()}>Refresh</button>
         </div>
       )
     }
 
-    const { getByRole } = render(
+    const { getByRole, getByTestId } = render(
       <AuthProvider>
         <TestComponent />
       </AuthProvider>
     )
 
-    // Setup session
+    // Setup session via auth state change callback
     await act(async () => {
-      const authContext = (supabase.auth.onAuthStateChange as vi.Mock).mock.calls[0][0]
-      await authContext('TOKEN_REFRESHED', {
+      const authStateCallback = (supabase.auth.onAuthStateChange as vi.Mock).mock.calls[0][0]
+      authStateCallback('TOKEN_REFRESHED', {
         access_token: 'test-token',
         refresh_token: 'refresh-token',
         expires_at: Math.floor(Date.now() / 1000) + 600,
         expires_in: 600
       })
-      // Run timers to process any pending promises
-      await vi.runOnlyPendingTimersAsync()
     })
 
-    // Mock slow refresh response
-    let resolveRefresh: (value: any) => void
+    // Create a controlled promise for the refresh
+    let resolveRefresh: (value: any) => void = () => {}
     const refreshPromise = new Promise(resolve => {
       resolveRefresh = resolve
     })
-    ;(httpClient.post as vi.Mock).mockReturnValue(refreshPromise)
+    ;(httpClient.post as vi.Mock).mockReturnValueOnce(refreshPromise)
 
-    // Trigger first refresh
     const refreshButton = getByRole('button', { name: /refresh/i })
-    act(() => {
+
+    // Trigger multiple refreshes rapidly - should only result in one API call
+    await act(async () => {
+      refreshButton.click()
+      refreshButton.click()
       refreshButton.click()
     })
 
-    // Try to trigger second refresh while first is in progress
-    act(() => {
-      refreshButton.click()
-      refreshButton.click() // Multiple rapid clicks
-    })
-
-    // Only one API call should be made
+    // Only one API call should be made due to latch
     expect(httpClient.post).toHaveBeenCalledTimes(1)
 
-    // Resolve the refresh
+    // Resolve the refresh promise
     await act(async () => {
-      resolveRefresh!({
+      resolveRefresh({
         session: {
           access_token: 'new-token',
           refresh_token: 'new-refresh-token',
           expires_in: 600
         }
       })
-      await refreshPromise
-      // Run timers to process any pending promises
-      await vi.runOnlyPendingTimersAsync()
     })
 
-    // Now a new refresh should be allowed
-    ;(httpClient.post as vi.Mock).mockResolvedValue({
+    // Setup mock for next refresh
+    ;(httpClient.post as vi.Mock).mockResolvedValueOnce({
       session: {
         access_token: 'newer-token',
         refresh_token: 'newer-refresh-token',
@@ -201,15 +192,14 @@ describe('AuthContext - Token Refresh', () => {
       }
     })
 
+    // After first refresh completes, a new refresh should be allowed
     await act(async () => {
       refreshButton.click()
-      await vi.runOnlyPendingTimersAsync()
     })
 
-    await waitFor(() => {
-      expect(httpClient.post).toHaveBeenCalledTimes(2)
-    }, { timeout: 5000 })
-  }, 30000)
+    // Should now have 2 total calls (1 from before + 1 new)
+    expect(httpClient.post).toHaveBeenCalledTimes(2)
+  }, 10000)
 
   test('should clear refresh timer on unmount', async () => {
     const TestComponent = () => {

@@ -8,7 +8,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
 import { RestaurantProvider } from '@/core/RestaurantContext'
-import { RestaurantIdProvider, setCurrentRestaurantId, getCurrentRestaurantId } from '@/services/http'
+import { RestaurantIdProvider, setCurrentRestaurantId, getCurrentRestaurantId, clearAllCachesForRestaurantSwitch } from '@/services/http'
 import { ErrorBoundary } from '@/components/shared/errors/ErrorBoundary'
 
 // Components under test
@@ -320,9 +320,45 @@ describe('Multi-Tenant E2E Tests', () => {
     })
 
     it('should clear cached data when switching restaurants', async () => {
-      // TODO: Implement cache clearing logic when restaurant changes
-      // This would involve clearing any in-memory caches, resetting WebSocket connections, etc.
-      expect(true).toBe(true)
+      // Setup: Make API calls to populate cache for restaurant 1
+      setCurrentRestaurantId('restaurant-1')
+
+      const { rerender } = render(
+        <TestWrapper restaurantId="restaurant-1">
+          <KitchenDisplay />
+        </TestWrapper>
+      )
+
+      // Wait for initial data load (populates cache)
+      await waitFor(() => {
+        expect(api.getOrders).toHaveBeenCalled()
+      })
+
+      // Clear mock to track new calls
+      jest.mocked(api.getOrders).mockClear()
+
+      // Switch to restaurant 2 - should clear caches
+      setCurrentRestaurantId('restaurant-2')
+      clearAllCachesForRestaurantSwitch()
+
+      rerender(
+        <TestWrapper restaurantId="restaurant-2">
+          <KitchenDisplay />
+        </TestWrapper>
+      )
+
+      // API should be called again (not served from cache)
+      await waitFor(() => {
+        expect(api.getOrders).toHaveBeenCalled()
+      })
+
+      // Verify we get restaurant 2 data (not cached restaurant 1 data)
+      await waitFor(() => {
+        expect(screen.getByText(/Restaurant 2 Pizza/)).toBeInTheDocument()
+      })
+
+      // Restaurant 1 data should not be visible
+      expect(screen.queryByText(/Restaurant 1 Burger/)).not.toBeInTheDocument()
     })
   })
 

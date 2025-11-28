@@ -23,21 +23,15 @@ const CheckoutPageContent: React.FC = () => {
   // Anonymous customers can place orders using just contact info (email, phone)
   // This ensures staff users accessing customer pages are treated as anonymous customers
   
-  // Check if we're in demo mode
+  // Check if we're in demo mode (for payment processing)
   const isDemoMode = !import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
                      import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY === 'demo' ||
                      import.meta.env.DEV;
 
-  // TEMPORARY DEBUG: Auto-fill demo data for faster testing (remove when done debugging)
-  const DEMO_CUSTOMER_DATA = {
-    email: 'demo@example.com',
-    phone: '(555) 555-1234',
-  };
-
   // Use form validation hook with shared validation rules
   const form = useFormValidation({
-    customerEmail: isDemoMode ? DEMO_CUSTOMER_DATA.email : '',
-    customerPhone: isDemoMode ? DEMO_CUSTOMER_DATA.phone : '',
+    customerEmail: '',
+    customerPhone: '',
   }, {
     customerEmail: checkoutValidationRules.customerEmail,
     customerPhone: checkoutValidationRules.customerPhone,

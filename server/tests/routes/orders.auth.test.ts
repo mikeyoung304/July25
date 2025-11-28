@@ -434,20 +434,30 @@ describe('Orders Routes - Auth Integration Tests', () => {
     });
   });
 
-  describe.skip('Integration: Complete order flow with auth', () => {
-    // TODO: Test failing with 400 Bad Request instead of 201 Created
-    // Integration test for complete order flow not working
-    // Pre-existing bug unrelated to documentation PR
+  describe('Integration: Complete order flow with auth', () => {
     it('should successfully create order with all auth checks passing', async () => {
       const token = createTestToken({
         role: 'customer',
         scopes: ['orders:create', 'orders:read', 'payments:process']
       });
 
+      // Order data with all required fields per OrderItem schema
       const orderData = {
         items: [
-          { name: 'Margherita Pizza', quantity: 2, price: 12.99 },
-          { name: 'Caesar Salad', quantity: 1, price: 8.99 }
+          {
+            id: 'item-uuid-pizza-1',
+            menu_item_id: 'menu-pizza-margherita',
+            name: 'Margherita Pizza',
+            quantity: 2,
+            price: 12.99
+          },
+          {
+            id: 'item-uuid-salad-1',
+            menu_item_id: 'menu-caesar-salad',
+            name: 'Caesar Salad',
+            quantity: 1,
+            price: 8.99
+          }
         ],
         type: 'online',
         customer_name: 'Alice Johnson',

@@ -410,6 +410,19 @@ export const httpClient = new HttpClient()
 // Export APIError for convenience
 export { APIError }
 
+/**
+ * Clear all caches when switching restaurants
+ * This should be called when the restaurant context changes to prevent
+ * data from one restaurant bleeding into another
+ */
+export function clearAllCachesForRestaurantSwitch(): void {
+  // Clear HTTP client caches
+  httpClient.clearCache()
+
+  // Log the action
+  logger.info('[Multi-tenant] Cleared all caches for restaurant switch')
+}
+
 // Expose cache stats in development for debugging
 if (import.meta.env.DEV) {
   (window as any).__httpCache = {
