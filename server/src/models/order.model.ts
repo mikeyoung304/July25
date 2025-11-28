@@ -12,8 +12,7 @@
  * - After:  import { orderSchemas } from '@rebuild/shared';
  */
 
-// Import Joi validation schemas directly from the source (server-side only)
-// Client code should never import Joi validation schemas
+// Joi validation schemas - must use deep import (server-side only, not in barrel)
 export {
   orderSchemas,
   createOrderSchema,
@@ -25,8 +24,7 @@ export {
   orderItemModifierSchema
 } from '@rebuild/shared/validation/order.schema';
 
-// Import browser-safe helpers and constants from the utility module
-// These are safe for both client and server
+// Browser-safe helpers and constants - use barrel export
 export {
   isValidUUID,
   mapOrderTypeToDb,
@@ -40,4 +38,4 @@ export {
   UI_ORDER_TYPES,
   PAYMENT_STATUSES,
   PAYMENT_METHODS
-} from '@rebuild/shared/utils/order-constants';
+} from '@rebuild/shared';

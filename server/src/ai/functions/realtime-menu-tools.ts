@@ -3,7 +3,7 @@ import { logger } from '../../utils/logger';
 import NodeCache from 'node-cache';
 import { DEFAULT_TAX_RATE, TAX_RATE_SOURCE } from '@rebuild/shared/constants/business';
 import { Mutex } from 'async-mutex';
-import { sanitizePrice, validateCartTotals } from '@rebuild/shared/utils/price-validation';
+import { sanitizePrice, validateCartTotals } from '@rebuild/shared';
 
 // Types
 export interface MenuItem {
