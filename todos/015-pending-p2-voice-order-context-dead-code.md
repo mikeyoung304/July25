@@ -1,19 +1,22 @@
 # TODO-015: Remove Unused VoiceOrderContext
 
 ## Metadata
-- **Status**: pending
+- **Status**: invalid
 - **Priority**: P2 (Important)
 - **Issue ID**: 015
-- **Tags**: dead-code, voice, cleanup
+- **Tags**: dead-code, voice, cleanup, false-positive
 - **Dependencies**: None
 - **Created**: 2025-11-24
+- **Resolved**: 2025-11-29
 - **Source**: Code Review - Architecture Strategist Agent
 
 ---
 
 ## Problem Statement
 
-`VoiceOrderContext` (81 lines) is defined but never used by either kiosk or server implementations. It creates confusion about the "canonical" way to manage voice order state.
+**INVALID**: `VoiceOrderContext` (81 lines) is defined but never used by either kiosk or server implementations. It creates confusion about the "canonical" way to manage voice order state.
+
+**RESOLUTION**: VoiceOrderContext IS actively used by DriveThruPage. The three different state management approaches serve three different user flows and are not redundant.
 
 ---
 
@@ -98,3 +101,40 @@ rm client/src/modules/voice/contexts/VoiceOrderContext.tsx
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-24 | Created | From architecture review |
+| 2025-11-29 | Investigated | Found VoiceOrderContext IS used by DriveThruPage |
+| 2025-11-29 | Marked Invalid | Three different state approaches serve different user flows |
+
+---
+
+## Investigation Results
+
+### VoiceOrderContext IS Actively Used
+
+**File**: `/Users/mikeyoung/CODING/rebuild-6.0/client/src/modules/voice/contexts/VoiceOrderContext.tsx`
+
+**Active Usage**:
+1. **DriveThruPage.tsx** (line 2) - Imports `VoiceOrderProvider`
+2. **DriveThruPage.tsx** (line 173) - Wraps page: `<VoiceOrderProvider><DriveThruPageContent /></VoiceOrderProvider>`
+3. **useVoiceOrder.ts** hook - Uses context via `useContext(VoiceOrderContext)`
+4. **DriveThruPage.tsx** (line 13) - Calls `useVoiceOrder()` to access cart state
+
+### Three Different Voice Flows (NOT Redundant)
+
+1. **DriveThru Flow** - Uses `VoiceOrderContext`
+   - Standalone voice ordering page
+   - Customer speaks entire order via WebRTC
+   - Context manages cart state for this flow
+
+2. **Kiosk Flow** - Uses `useUnifiedCart`
+   - Voice integrated into existing kiosk experience
+   - Shares cart with touch-based ordering
+   - Uses unified cart to maintain state across input modes
+
+3. **Server Flow** - Uses `useVoiceOrderWebRTC` state
+   - Server staff taking orders for seated customers
+   - Modal-based workflow
+   - Local state in hook for temporary order building
+
+### Conclusion
+
+The original TODO assumed redundancy, but these are three distinct user journeys with appropriate state management for each context. VoiceOrderContext is NOT dead code.

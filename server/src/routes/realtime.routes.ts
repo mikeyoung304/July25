@@ -8,6 +8,7 @@ import { supabase } from '../config/database';
 import { PromptConfigService } from '@rebuild/shared';
 import { aiServiceLimiter } from '../middleware/rateLimiter';
 import { sanitizeForPrompt } from '../utils/validation';
+import { VOICE_CONFIG } from './voiceConstants';
 
 const router = Router();
 const realtimeLogger = logger.child({ module: 'realtime-routes' });
@@ -184,11 +185,44 @@ router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
   }
 });
 
-// Timeout for OpenAI API calls (45 seconds)
-// Increased from 30s to 45s to accommodate P95 latency scenarios
-// OpenAI session creation can take longer under load; this timeout ensures
-// we don't prematurely fail legitimate requests in high-latency conditions
-const OPENAI_API_TIMEOUT_MS = 45000;
+// NOTE: Voice configuration constants moved to ./voiceConstants.ts
+// for centralized management and better maintainability
+
+/**
+ * Intelligently truncates menu context at item boundaries
+ * Prevents mid-item truncation that creates malformed menu descriptions
+ *
+ * @param menuContext - Full menu context string
+ * @param maxLength - Maximum allowed length (defaults to VOICE_CONFIG.MAX_MENU_CONTEXT_LENGTH)
+ * @returns Truncated menu context that preserves complete items
+ */
+function truncateMenuContext(menuContext: string, maxLength: number = VOICE_CONFIG.MAX_MENU_CONTEXT_LENGTH): string {
+  if (menuContext.length <= maxLength) {
+    return menuContext;
+  }
+
+  // Find last complete item (items separated by double newline)
+  let truncated = menuContext.substring(0, maxLength);
+  const lastItemBoundary = truncated.lastIndexOf('\n\n');
+
+  if (lastItemBoundary > 0) {
+    truncated = truncated.substring(0, lastItemBoundary);
+  } else {
+    // Fallback: truncate at last newline
+    const lastNewline = truncated.lastIndexOf('\n');
+    if (lastNewline > 0) {
+      truncated = truncated.substring(0, lastNewline);
+    }
+  }
+
+  realtimeLogger.warn('Menu context truncated to preserve item boundaries', {
+    originalLength: menuContext.length,
+    truncatedLength: truncated.length,
+    bytesRemoved: menuContext.length - truncated.length,
+  });
+
+  return truncated;
+}
 
 /**
  * Create ephemeral token for WebRTC real-time voice connection
@@ -304,15 +338,9 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
         menuContext += `• All orders → dine-in or to-go?`;
 
         // CRITICAL: Limit menu context size to prevent OpenAI session.update rejection
-        const MAX_MENU_CONTEXT_LENGTH = 5000; // Conservative limit (5KB)
-        if (menuContext.length > MAX_MENU_CONTEXT_LENGTH) {
-          realtimeLogger.warn('Menu context too large, truncating', {
-            restaurantId,
-            originalLength: menuContext.length,
-            truncatedLength: MAX_MENU_CONTEXT_LENGTH,
-            itemCount: menuItems.length
-          });
-          menuContext = menuContext.substring(0, MAX_MENU_CONTEXT_LENGTH) +
+        // Use intelligent truncation to preserve item boundaries
+        if (menuContext.length > VOICE_CONFIG.MAX_MENU_CONTEXT_LENGTH) {
+          menuContext = truncateMenuContext(menuContext) +
             '\n\n[Menu truncated - complete menu available on screen]';
         }
 
@@ -363,8 +391,7 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
       // Return 503 Service Unavailable instead of continuing with empty menu
       return res.status(503).json({
         error: 'Menu temporarily unavailable',
-        code: 'MENU_LOAD_FAILED',
-        details: error.message || 'Unable to load restaurant menu data'
+        code: 'MENU_LOAD_FAILED'
       });
     }
 
@@ -415,9 +442,9 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
     const turnDetection = isKioskContext
       ? {
           type: 'server_vad',
-          threshold: 0.6,                // Higher threshold for noisy restaurant environment
-          prefix_padding_ms: 400,        // Capture lead-in audio for better recognition
-          silence_duration_ms: 1500,     // 1.5s silence = end of speech
+          threshold: VOICE_CONFIG.VAD_THRESHOLD,
+          prefix_padding_ms: VOICE_CONFIG.VAD_PREFIX_PADDING_MS,
+          silence_duration_ms: VOICE_CONFIG.VAD_SILENCE_DURATION_MS,
           create_response: true,         // Auto-trigger AI response when speech ends
         }
       : null; // Manual PTT mode for server context
@@ -431,7 +458,7 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
     // Request ephemeral token from OpenAI with full session configuration
     // Use AbortController for timeout to prevent hanging requests
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), OPENAI_API_TIMEOUT_MS);
+    const timeoutId = setTimeout(() => controller.abort(), VOICE_CONFIG.OPENAI_API_TIMEOUT_MS);
 
     let response;
     try {
@@ -457,7 +484,7 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
           tool_choice: 'auto',
           turn_detection: turnDetection,
           temperature: 0.6,
-          max_response_output_tokens: 500
+          max_response_output_tokens: VOICE_CONFIG.MAX_RESPONSE_OUTPUT_TOKENS
         }),
         signal: controller.signal,
       });
@@ -467,7 +494,7 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
       // Handle timeout specifically
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
         realtimeLogger.error('OpenAI API request timed out', {
-          timeoutMs: OPENAI_API_TIMEOUT_MS,
+          timeoutMs: VOICE_CONFIG.OPENAI_API_TIMEOUT_MS,
           restaurantId
         });
         return res.status(504).json({
@@ -489,23 +516,23 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
         status: response.status,
         error: errorText
       });
-      
+
       return res.status(response.status).json({
         error: 'Failed to create real-time session',
-        details: errorText
+        code: 'SESSION_CREATE_ERROR'
       });
     }
 
     const data = await response.json() as Record<string, any>;
 
     // Add restaurant and menu context to the response
-    // Use OpenAI's actual expires_at if provided, otherwise default to 60 seconds
+    // Use OpenAI's actual expires_at if provided, otherwise use default from config
     const sessionData = {
       ...data,
       restaurant_id: restaurantId,
       menu_context: menuContext, // Pass menu context to client
       // CRITICAL: Use OpenAI's actual token expiry, don't overwrite it
-      expires_at: data['expires_at'] || (Date.now() + 60000),
+      expires_at: data['expires_at'] || (Date.now() + VOICE_CONFIG.SESSION_EXPIRE_MS),
     };
 
     realtimeLogger.info('Ephemeral token created successfully', {
@@ -542,7 +569,7 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
 
     return res.status(500).json({
       error: 'Failed to create real-time session',
-      message: err.message || 'Unknown error'
+      code: 'SESSION_CREATE_ERROR'
     });
   }
 });

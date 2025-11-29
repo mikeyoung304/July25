@@ -1,6 +1,7 @@
 /* eslint-env browser */
 import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { logger } from '@/services/logger';
+import { VOICE_CONFIG } from '../constants';
 
 /**
  * Connection states for WebRTC
@@ -62,8 +63,8 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
   private isConnectingFlag = false;
   private isDisconnecting = false;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 3;
-  private reconnectDelay = 1000;
+  private maxReconnectAttempts = VOICE_CONFIG.MAX_RECONNECT_ATTEMPTS;
+  private reconnectDelay = VOICE_CONFIG.RETRY_DELAY_MS;
   private sessionActive = false;
 
   constructor(private config: WebRTCVoiceConfig) {
@@ -87,17 +88,17 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
     this.isDisconnecting = false;
     this.isConnectingFlag = true;
 
-    // Set up connection timeout (15 seconds)
-    const CONNECTION_TIMEOUT = 15000;
+    // Set up connection timeout
+    const CONNECTION_TIMEOUT = VOICE_CONFIG.CONNECTION_TIMEOUT_MS;
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => {
-        reject(new Error('Connection timeout after 15 seconds'));
+        reject(new Error(`Connection timeout after ${CONNECTION_TIMEOUT / 1000} seconds`));
       }, CONNECTION_TIMEOUT);
     });
 
     try {
       if (this.config.debug) {
-        logger.info('[WebRTCConnection] Starting connection with 15s timeout...');
+        logger.info(`[WebRTCConnection] Starting connection with ${CONNECTION_TIMEOUT / 1000}s timeout...`);
       }
       this.setConnectionState('connecting');
 
@@ -124,10 +125,13 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       // Clean up failed connection
       this.cleanupConnection();
 
-      // Attempt reconnection with proper delay
+      // Attempt reconnection with exponential backoff
       this.reconnectAttempts++;
       if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        const delay = Math.min(5000, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
+        const delay = Math.min(
+          VOICE_CONFIG.MAX_RETRY_DELAY_MS,
+          this.reconnectDelay * Math.pow(2, this.reconnectAttempts)
+        );
         if (this.config.debug) {
           logger.info(`[WebRTCConnection] Will retry connection in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
         }
@@ -221,7 +225,11 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       );
 
       if (!sdpResponse.ok) {
-        throw new Error(`OpenAI SDP exchange failed: ${sdpResponse.status}`);
+        logger.error('[WebRTCConnection] OpenAI SDP exchange failed', {
+          status: sdpResponse.status,
+          statusText: sdpResponse.statusText
+        });
+        throw new Error('Failed to establish voice connection');
       }
 
       // Step 7: Set remote description
@@ -235,7 +243,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       // Check if we're in the correct state to set remote description
       if (this.pc.signalingState !== 'have-local-offer') {
         logger.error('[WebRTCConnection] Wrong signaling state for setting answer:', this.pc.signalingState);
-        throw new Error(`Cannot set remote answer in state: ${this.pc.signalingState}`);
+        throw new Error('Voice connection failed due to protocol error');
       }
 
       const answer: RTCSessionDescriptionInit = {
@@ -368,7 +376,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
             if (stat.type === 'outbound-rtp' && stat.kind === 'audio') {
               outboundAudioFound = true;
               audioBytesSent = stat.bytesSent || 0;
-              logger.info('[WebRTCConnection] Audio transmission stats (after 2s)', {
+              logger.info(`[WebRTCConnection] Audio transmission stats (after ${VOICE_CONFIG.STATS_CHECK_DELAY_MS / 1000}s)`, {
                 bytesSent: audioBytesSent,
                 packetsSent: stat.packetsSent,
                 trackId: stat.trackId
@@ -384,7 +392,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
         } catch (err) {
           logger.error('[WebRTCConnection] Failed to get stats', { error: err });
         }
-      }, 2000); // Check after 2 seconds of recording
+      }, VOICE_CONFIG.STATS_CHECK_DELAY_MS);
     }
   }
 
@@ -457,17 +465,28 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       // CRITICAL: Always log data channel close regardless of debug mode
       // RTCDataChannel close events are plain Event objects (not CloseEvent)
       // They don't have wasClean, code, or reason properties
-      // Detect unexpected closes by checking session state instead
-      const wasUnexpected = this.sessionActive;
+      const connectionState = this.pc?.connectionState;
+      const iceState = this.pc?.iceConnectionState;
+
+      // Determine if clean closure based on connection state
+      const wasClean = connectionState === 'closed';
+      const wasUnexpected = this.sessionActive && !wasClean;
 
       logger.warn('[WebRTCConnection] Data channel closed', {
-        readyState: this.dc?.readyState,
+        connectionState,
+        iceState,
+        wasClean,
         sessionActive: this.sessionActive,
         wasUnexpected,
+        timestamp: Date.now(),
       });
 
       // Emit error event if close was unexpected
       if (wasUnexpected) {
+        logger.warn('[WebRTCConnection] Data channel closed unexpectedly', {
+          connectionState,
+          iceState
+        });
         const error = new Error('Data channel closed unexpectedly');
         error.name = 'DataChannelClosedError';
         this.emit('error', error);

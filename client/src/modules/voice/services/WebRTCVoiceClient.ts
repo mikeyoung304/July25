@@ -219,6 +219,31 @@ export class WebRTCVoiceClient extends EventEmitter {
       });
     });
 
+    // ORCHESTRATION: Handle transcript.finalized event
+    // This is where we decide to request a response from OpenAI
+    // Event handler only emits semantic events, orchestration happens here
+    this.eventHandler.on('transcript.finalized', (data: { itemId: string; transcript: string; timestamp: number }) => {
+      if (this.config.debug) {
+        logger.info('[WebRTCVoiceClient] Transcript finalized, requesting AI response', {
+          itemId: data.itemId,
+          transcriptLength: data.transcript.length
+        });
+      }
+
+      // Send response.create to OpenAI to generate AI response
+      this.eventHandler.sendEvent({
+        type: 'response.create',
+        response: {
+          modalities: ['text', 'audio'],
+          instructions: 'RESPOND IN ENGLISH. Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences.',
+        }
+      });
+
+      if (this.config.debug) {
+        logger.info('[WebRTCVoiceClient] response.create sent to OpenAI');
+      }
+    });
+
     // PHASE 2: Handle session.created event - transition to SESSION_CREATED state
     this.eventHandler.on('session.created', () => {
       logger.info('🎯 [WebRTCVoiceClient] Session created event received');
@@ -366,7 +391,8 @@ export class WebRTCVoiceClient extends EventEmitter {
 
     // Handle response.started - AI has begun responding
     this.eventHandler.on('response.started', (data: { responseId: string; timestamp: number }) => {
-      if (this.stateMachine.isState(VoiceState.AWAITING_RESPONSE)) {
+      // Check if transition is valid from current state (more flexible than strict state check)
+      if (this.stateMachine.canTransition(VoiceEvent.RESPONSE_STARTED)) {
         try {
           this.stateMachine.transition(VoiceEvent.RESPONSE_STARTED, data);
           if (this.config.debug) {
@@ -375,6 +401,12 @@ export class WebRTCVoiceClient extends EventEmitter {
         } catch (error) {
           logger.error('[WebRTCVoiceClient] Invalid state transition on response.started:', error);
         }
+      } else {
+        logger.warn('[WebRTCVoiceClient] Received response.started in unexpected state', {
+          currentState: this.stateMachine.getState(),
+          responseId: data.responseId,
+          timestamp: data.timestamp
+        });
       }
     });
 

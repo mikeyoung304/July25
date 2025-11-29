@@ -96,6 +96,10 @@ const baseEnvSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_REALTIME_MODEL: z.string()
     .default('gpt-4o-realtime-preview-2025-06-03'),
+  OPENAI_API_TIMEOUT_MS: z.coerce.number()
+    .positive('OPENAI_API_TIMEOUT_MS must be positive')
+    .int('OPENAI_API_TIMEOUT_MS must be an integer')
+    .default(45000),
   AI_DEGRADED_MODE: booleanSchema.default(false),
 
   // Monitoring (Optional)

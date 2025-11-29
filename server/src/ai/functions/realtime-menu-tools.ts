@@ -219,6 +219,26 @@ function validateModifierName(modifierName: unknown): string | null {
 }
 
 /**
+ * Validate and clamp modifier price adjustment to reasonable bounds
+ * @param adjustment - Price adjustment in cents
+ * @returns Validated and clamped adjustment value in cents
+ */
+const MAX_PRICE_ADJUSTMENT = 100; // $100
+const MIN_PRICE_ADJUSTMENT = -100; // -$100
+
+function validatePriceAdjustment(adjustment: number): number {
+  if (adjustment < MIN_PRICE_ADJUSTMENT * 100 || adjustment > MAX_PRICE_ADJUSTMENT * 100) {
+    logger.warn('[MenuTools] Price adjustment out of bounds', {
+      adjustment,
+      min: MIN_PRICE_ADJUSTMENT * 100,
+      max: MAX_PRICE_ADJUSTMENT * 100
+    });
+    return Math.max(MIN_PRICE_ADJUSTMENT * 100, Math.min(MAX_PRICE_ADJUSTMENT * 100, adjustment));
+  }
+  return adjustment;
+}
+
+/**
  * Look up modifier prices from voice_modifier_rules table
  * @param restaurantId - Restaurant ID for tenant isolation
  * @param modifierNames - Array of modifier names from AI (e.g., ["extra cheese", "no onions"])
@@ -321,9 +341,12 @@ async function lookupModifierPrices(
           );
         }
 
+        // Validate price_adjustment bounds (±$100)
+        const validatedAdjustment = validatePriceAdjustment(matchingRule.price_adjustment);
+
         // price_adjustment is in cents, convert to dollars
         // Math.max(0, ...) prevents negative prices (modifiers cannot give discounts per business rule)
-        const price = Math.max(0, matchingRule.price_adjustment / 100);
+        const price = Math.max(0, validatedAdjustment / 100);
         return {
           name: modName,
           price

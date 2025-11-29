@@ -1,9 +1,13 @@
 ---
-status: pending
+status: deferred
 priority: p3
 issue_id: "078"
 tags: [code-review, database, data-integrity]
 dependencies: []
+notes: |
+  Deferred - Requires production database verification before implementation.
+  Cannot add NOT NULL constraint without first confirming no NULL values exist.
+  This is a defense-in-depth improvement, not a critical fix.
 ---
 
 # Consider Adding NOT NULL Constraint to orders.status
@@ -90,6 +94,7 @@ ALTER TABLE orders ALTER COLUMN status SET NOT NULL;
 | Date | Action | Learnings |
 |------|--------|-----------|
 | 2025-11-27 | Created from code review | Nice-to-have for data integrity |
+| 2025-11-29 | Deferred during TODO backlog resolution | Requires production data verification before migration can be applied. Keep as backlog item for scheduled maintenance window. |
 
 ## Resources
 - Current migration: `supabase/migrations/20251127155000_fix_orders_status_check_constraint.sql`

@@ -3,11 +3,11 @@ import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { LRUCache } from 'lru-cache';
 import { logger } from '../../../services/logger';
 
+import { VOICE_CONFIG } from '../constants';
 /**
  * Maximum allowed transcript length (characters)
  * Prevents DoS attacks via extremely long transcripts
  */
-const MAX_TRANSCRIPT_LENGTH = 10000;
 
 /**
  * Validate and sanitize transcript text
@@ -35,12 +35,12 @@ function validateTranscript(text: string | undefined | null): string | null {
   }
 
   // Length validation (DoS protection)
-  if (trimmed.length > MAX_TRANSCRIPT_LENGTH) {
+  if (trimmed.length > VOICE_CONFIG.MAX_TRANSCRIPT_LENGTH) {
     logger.warn('[VoiceEventHandler] Transcript too long, truncating', {
       originalLength: trimmed.length,
-      maxLength: MAX_TRANSCRIPT_LENGTH
+      maxLength: VOICE_CONFIG.MAX_TRANSCRIPT_LENGTH
     });
-    return trimmed.slice(0, MAX_TRANSCRIPT_LENGTH);
+    return trimmed.slice(0, VOICE_CONFIG.MAX_TRANSCRIPT_LENGTH);
   }
 
   // Sanitize for display (XSS protection)
@@ -489,7 +489,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
     final: boolean;
     role: 'user' | 'assistant'
   }>({
-    max: 50, // Keep last 50 conversation items
+    max: VOICE_CONFIG.MAX_TRANSCRIPT_CACHE_SIZE,
     // No dispose callback - cache eviction is just memory management
     // Transcript cleanup happens naturally via conversation flow
   });
@@ -589,16 +589,13 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    */
   handleRealtimeEvent(event: RealtimeEvent): void {
     // Deduplication check
-    if (event.event_id && this.seenEventIds.has(event.event_id)) {
-      if (this.config.debug) {
-        // Debug: `[VoiceEventHandler] Duplicate event ignored: ${event.event_id}`
-      }
-      return;
+    if (event.event_id && this.seenEventIds.has(event.event_id)) {      return;
     }
+
     if (event.event_id) {
       this.seenEventIds.add(event.event_id);
       // Keep set size bounded
-      if (this.seenEventIds.size > 1000) {
+      if (this.seenEventIds.size > VOICE_CONFIG.MAX_SEEN_EVENT_IDS) {
         const firstId = this.seenEventIds.values().next().value;
         this.seenEventIds.delete(firstId);
       }
@@ -611,13 +608,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
     // Log events for debugging (gated by debug mode in production)
     if (this.config.debug) {
       logger.info('[VoiceEventHandler] Received event', { type: event.type });
-    }
-
-    if (this.config.debug) {
-      // Debug: `${logPrefix} ${event.type}`, event
-    }
-
-    // Route to specific handlers based on event type
+    }    // Route to specific handlers based on event type
     switch (event.type) {
       case 'session.created':
         this.handleSessionCreated(event as SessionCreatedEvent, logPrefix);
@@ -693,7 +684,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
 
       case 'response.audio.done':
         // Audio playback completed - this is handled via WebRTC audio track
-        // Debug: `${logPrefix} Audio playback done`
         break;
 
       case 'response.done':
@@ -712,7 +702,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       case 'output_audio_buffer.committed':
       case 'output_audio_buffer.cleared':
         // Known benign events - log but don't warn
-        // Debug: `${logPrefix} ${event.type}`
         break;
 
       case 'response.function_call_arguments.start':
@@ -741,12 +730,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Handle session.created event
    * Emitted when the Realtime API session is initialized
    */
-  private handleSessionCreated(event: SessionCreatedEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Session created successfully`
-    if (this.config.debug) {
-      // Debug: 'Session details:', JSON.stringify(event.session, null, 2)
-    }
-    this.emit('session.created', event.session);
+  private handleSessionCreated(event: SessionCreatedEvent, logPrefix: string): void {    this.emit('session.created', event.session);
   }
 
   /**
@@ -769,7 +753,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Emitted when server VAD detects speech
    */
   private handleSpeechStarted(event: SpeechStartedEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Speech started detected`
     // DEPRECATED: turnState check kept for test compatibility
     if (this.turnState === 'recording') {
       this.emit('speech.started');
@@ -781,7 +764,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Emitted when server VAD detects end of speech
    */
   private handleSpeechStopped(event: SpeechStoppedEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Speech stopped detected`
     // DEPRECATED: turnState check kept for test compatibility
     if (this.turnState === 'recording') {
       this.emit('speech.stopped');
@@ -793,7 +775,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Emitted when audio buffer is committed for processing
    */
   private handleAudioBufferCommitted(event: AudioBufferCommittedEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Audio buffer committed`
   }
 
   /**
@@ -801,7 +782,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Emitted when audio buffer is cleared
    */
   private handleAudioBufferCleared(event: AudioBufferClearedEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Audio buffer cleared`
   }
 
   /**
@@ -811,11 +791,9 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
   private handleConversationItemCreated(event: ConversationItemCreatedEvent, logPrefix: string): void {
     if (event.item?.role === 'user' && event.item?.id) {
       this.currentUserItemId = event.item.id;
-      // Debug: `${logPrefix} User item created: ${this.currentUserItemId}`
       // Initialize transcript entry
       this.transcriptMap.set(event.item.id, { text: '', final: false, role: 'user' });
     } else if (event.item?.role === 'assistant' && event.item?.id) {
-      // Debug: `${logPrefix} Assistant item created: ${event.item.id}`
       this.transcriptMap.set(event.item.id, { text: '', final: false, role: 'assistant' });
     }
   }
@@ -838,7 +816,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
 
       if (entry.role === 'user') {
         entry.text += event.delta;
-        // Debug: `${logPrefix} User transcript delta (len=${event.delta.length})`
 
         // Emit partial transcript
         const partialTranscript: TranscriptEvent = {
@@ -861,7 +838,8 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       return;
     }
 
-    // TODO-025: Validate complete transcript before processing
+
+    // Validate complete transcript before processing
     const validatedTranscript = validateTranscript(event.transcript);
     if (!validatedTranscript) {
       logger.warn('[VoiceEventHandler] Invalid complete transcript, skipping', {
@@ -870,6 +848,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       });
       return;
     }
+
 
     let entry = this.transcriptMap.get(event.item_id);
 
@@ -892,19 +871,15 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
         timestamp: Date.now(),
       };
       this.emit('transcript', finalTranscript);
-      // Debug: `${logPrefix} User transcript completed: "${validatedTranscript}"`
 
-      // Always send response.create after final transcript
+      // Emit semantic event for orchestration (moved to WebRTCVoiceClient)
+      // Event handler should only process events, not orchestrate
       if (event.item_id === this.currentUserItemId) {
-        // Send exactly one response.create
-        this.sendEvent({
-          type: 'response.create',
-          response: {
-            modalities: ['text', 'audio'],
-            instructions: 'RESPOND IN ENGLISH. Respond about their order with appropriate follow-up questions. Use smart follow-ups: dressing for salads, bread for sandwiches, sides for entrées. Keep it under 2 sentences.',
-          }
+        this.emit('transcript.finalized', {
+          itemId: event.item_id,
+          transcript: validatedTranscript,
+          timestamp: Date.now(),
         });
-        // Debug: `${logPrefix} Manual response.create sent`
       }
     }
   }
@@ -916,7 +891,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
   private handleResponseCreated(event: ResponseCreatedEvent, logPrefix: string): void {
     if (event.response?.id) {
       this.activeResponseId = event.response.id;
-      // Debug: `${logPrefix} Response created: ${this.activeResponseId}`
       // Initialize assistant transcript entry
       if (event.response.output && event.response.output.length > 0) {
         const itemId = event.response.output[0].id;
@@ -938,7 +912,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Accumulate assistant response and emit partial text
    */
   private handleAssistantTranscriptDelta(event: AssistantTranscriptDeltaEvent, logPrefix: string): void {
-    // TODO-025: Validate assistant transcript delta
+    // Validate assistant transcript delta
     const validatedDelta = validateTranscript(event.delta);
     if (!validatedDelta) {
       logger.warn('[VoiceEventHandler] Invalid assistant transcript delta, skipping', {
@@ -947,6 +921,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       return;
     }
 
+
     // Find the assistant item for this response
     const assistantItems = Array.from(this.transcriptMap.entries())
       .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
@@ -954,7 +929,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
     if (assistantItems.length > 0) {
       const [itemId, entry] = assistantItems[assistantItems.length - 1];
       entry.text += validatedDelta;
-      // Debug: `${logPrefix} Assistant transcript delta (len=${validatedDelta.length})`
 
       // Emit partial response
       this.emit('response.text', entry.text);
@@ -966,7 +940,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Finalize assistant transcript
    */
   private handleAssistantTranscriptDone(event: AssistantTranscriptDoneEvent, logPrefix: string): void {
-    // TODO-025: Validate complete assistant transcript
+    // Validate complete assistant transcript
     const validatedTranscript = validateTranscript(event.transcript);
     if (!validatedTranscript) {
       logger.warn('[VoiceEventHandler] Invalid assistant transcript, skipping', {
@@ -975,6 +949,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       return;
     }
 
+
     const assistantItems = Array.from(this.transcriptMap.entries())
       .filter(([_, entry]) => entry.role === 'assistant' && !entry.final);
 
@@ -982,7 +957,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       const [itemId, entry] = assistantItems[assistantItems.length - 1];
       entry.text = validatedTranscript;
       entry.final = true;
-      // Debug: `${logPrefix} Assistant transcript done: "${validatedTranscript}"`
 
       this.emit('response.complete', validatedTranscript);
     }
@@ -1000,7 +974,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Audio is handled via WebRTC audio track
    */
   private handleResponseAudioDelta(event: ResponseAudioDeltaEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Audio delta received (${event.delta?.length || 0} bytes)`
   }
 
   /**
@@ -1008,7 +981,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Complete the turn and transition back to idle
    */
   private handleResponseDone(event: ResponseDoneEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Response done`
     this.turnState = 'idle'; // DEPRECATED: Only for test compatibility
     this.currentUserItemId = null;
     this.activeResponseId = null;
@@ -1022,14 +994,12 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * Handle function call start event
    */
   private handleFunctionCallStart(event: FunctionCallStartEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Function call started: ${event.name}`
   }
 
   /**
    * Handle function call delta event
    */
   private handleFunctionCallDelta(event: FunctionCallDeltaEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Function call delta for: ${event.name}`
   }
 
   /**
@@ -1042,7 +1012,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    * - remove_from_order: Remove items from order
    */
   private handleFunctionCallDone(event: FunctionCallDoneEvent, logPrefix: string): void {
-    // Debug: `${logPrefix} Function call complete: ${event.name}`, event.arguments
 
     try {
       const args = JSON.parse(event.arguments) as AddToOrderArgs | ConfirmOrderArgs | RemoveFromOrderArgs;
@@ -1071,7 +1040,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
           timestamp: Date.now(),
         };
 
-        // Debug: `${logPrefix} Emitting order.detected with ${orderEvent.items.length} items`
         this.emit('order.detected', orderEvent);
 
         // Also emit for legacy compatibility
@@ -1084,7 +1052,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       } else if (event.name === 'confirm_order') {
         const confirmArgs = args as ConfirmOrderArgs;
         // Emit order confirmation event
-        // Debug: `${logPrefix} Emitting order.confirmation: ${confirmArgs.action}`
         this.emit('order.confirmation', {
           action: confirmArgs.action,
           timestamp: Date.now()
@@ -1092,7 +1059,6 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
       } else if (event.name === 'remove_from_order') {
         const removeArgs = args as RemoveFromOrderArgs;
         // Emit item removal event
-        // Debug: `${logPrefix} Emitting order.item.removed: ${removeArgs.itemName}`
         this.emit('order.item.removed', {
           itemName: removeArgs.itemName,
           quantity: removeArgs.quantity,
@@ -1157,17 +1123,18 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
         const payload = JSON.stringify(event);
 
         // Warn if payload is too large (OpenAI likely rejects >50KB)
-        if (payload.length > 50000) {
-          logger.error('[VoiceEventHandler] Event payload too large - OpenAI may reject', { payloadLength: payload.length });
+        if (payload.length > VOICE_CONFIG.MAX_EVENT_PAYLOAD_SIZE) {
+          logger.error('[VoiceEventHandler] Event payload too large - OpenAI may reject', {
+            payloadLength: payload.length,
+            maxSize: VOICE_CONFIG.MAX_EVENT_PAYLOAD_SIZE
+          });
         }
 
         this.dc.send(payload);
 
         const logPrefix = `[RT] t=${this.turnId}#${String(++this.eventIndex).padStart(2, '0')}`;
         if (this.config.debug) {
-          // Debug: `${logPrefix} Sent: ${event.type}`
         } else {
-          // Debug: `${logPrefix} → ${event.type}`
         }
       } catch (error) {
         logger.error('[VoiceEventHandler] Failed to send event', { error, eventType: event.type });

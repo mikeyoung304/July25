@@ -1,8 +1,9 @@
 # TODO: Improve menu context truncation to avoid mid-item splits
 
 **Priority**: P3 (Nice-to-have)
-**Status**: Pending
+**Status**: Complete
 **Created**: 2025-11-24
+**Completed**: 2025-11-29
 **Category**: AI/Data Quality
 
 ## Problem
@@ -167,3 +168,27 @@ function truncateByTokens(text: string, maxTokens: number): string {
 - Code review finding: P3 AI quality improvements
 - Related: realtime-menu-tools.ts menu formatting
 - OpenAI context window limits documentation
+
+## Work Log
+
+### 2025-11-29: Implementation Complete
+
+**Changes Made**:
+1. Added `truncateMenuContext()` helper function to `/Users/mikeyoung/CODING/rebuild-6.0/server/src/routes/realtime.routes.ts`
+2. Function intelligently truncates at item boundaries (double newline) or line boundaries (single newline)
+3. Replaced naive `substring()` truncation with smart boundary-aware truncation
+4. Added detailed logging showing bytes removed and final length
+5. Updated constant MAX_MENU_CONTEXT_LENGTH to be reusable
+
+**Implementation Details**:
+- Truncation preserves complete menu items by finding last `\n\n` boundary
+- Fallback to single `\n` boundary if no double-newline found
+- Final fallback to character limit if no newlines (edge case)
+- Logging includes original length, truncated length, and bytes removed
+- Appended message `[Menu truncated - complete menu available on screen]` remains intact
+
+**Testing**:
+- TypeScript compilation verified (no new errors introduced)
+- Pre-existing typecheck errors in codebase are unrelated to this change
+
+**Result**: AI now receives complete menu item descriptions without mid-item cuts, improving order accuracy and conversation quality.
