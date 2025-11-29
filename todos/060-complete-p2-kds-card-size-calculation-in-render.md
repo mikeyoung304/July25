@@ -1,12 +1,13 @@
 # TODO-060: KDS Card Size Calculation in Render Loop - Performance Issue
 
 ## Metadata
-- **Status**: obsolete
+- **Status**: complete
 - **Priority**: P2 (Important)
 - **Issue ID**: 060
 - **Tags**: performance, kds, react, optimization, code-review
 - **Dependencies**: None
 - **Created**: 2025-11-26
+- **Completed**: 2025-11-28
 - **Source**: Code Review - KDS Declutter Implementation
 
 ---
@@ -153,6 +154,7 @@ orderGroup.card_size = getCardSize(totalItems, totalModifiers)
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-26 | Created | From KDS declutter code review |
+| 2025-11-28 | Verified Complete | Card size calculation moved to useOrderGrouping hook (lines 87-88, 101, 135). OrderGroup interface includes total_items, total_modifiers, card_size fields. KitchenDisplayOptimized uses pre-calculated orderGroup.card_size (line 265). |
 
 ---
 

@@ -1,12 +1,13 @@
 # TODO-003: Consolidate Dual Voice Hook Architecture
 
 ## Metadata
-- **Status**: pending
+- **Status**: completed
 - **Priority**: P1 (Critical)
 - **Issue ID**: 003
 - **Tags**: architecture, voice, hooks, kiosk, server
 - **Dependencies**: None
 - **Created**: 2025-11-24
+- **Completed**: 2025-11-28
 - **Source**: Code Review - Pattern Recognition Specialist Agent
 
 ---
@@ -170,6 +171,59 @@ export interface VoiceOrderItem {
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-24 | Created | From pattern recognition review |
+| 2025-11-28 | Completed | Verified implementation already follows Option A recommendation |
+
+## Resolution Summary
+
+**Status**: ALREADY IMPLEMENTED - The recommended Option A solution was already in place.
+
+### Implementation Details
+
+The `useVoiceOrderWebRTC` hook already implements the recommended consolidation approach:
+
+**Location**: `/Users/mikeyoung/CODING/rebuild-6.0/client/src/pages/hooks/useVoiceOrderWebRTC.ts`
+
+**Architecture** (Lines 170-180):
+```typescript
+const voiceCommerce = useVoiceCommerce({
+  menuItems,
+  onAddItem: handleVoiceAddItem,
+  context: 'server',
+  toast: {
+    error: (message: string) => toast.error(message)
+  },
+  debug: import.meta.env.DEV
+})
+```
+
+**Key Points**:
+1. ✅ `useVoiceOrderWebRTC` uses `useVoiceCommerce` internally (single source of truth)
+2. ✅ All voice logic (WebRTC, transcript handling, menu matching) delegated to `useVoiceCommerce`
+3. ✅ Server-specific logic isolated (multi-seat ordering, submission, state management)
+4. ✅ Adapter pattern converts VoiceMenuItem to OrderItem format (lines 132-167)
+5. ✅ Both kiosk and server use the same voice behavior via `useVoiceCommerce`
+
+**Usage**:
+- **Kiosk** (VoiceOrderingMode.tsx): Uses `useVoiceCommerce` directly
+- **Server** (ServerView.tsx): Uses `useVoiceOrderWebRTC`, which wraps `useVoiceCommerce`
+
+**Benefits Achieved**:
+- Single source of truth for voice logic (`useVoiceCommerce`)
+- Bug fixes automatically apply to both contexts
+- Reduced testing burden (voice logic tested once)
+- Clear separation: voice commerce logic vs. server-specific logic
+- No duplicate code between kiosk and server modes
+
+### Acceptance Criteria Status
+
+- ✅ `useVoiceOrderWebRTC` uses `useVoiceCommerce` internally
+- ✅ Voice logic is single source of truth (all in `useVoiceCommerce`)
+- ✅ Multi-seat logic preserved in server hook
+- ✅ Both kiosk and server work with same voice behavior
+- ✅ Type conversion handled via adapter pattern (VoiceMenuItem → OrderItem)
+- ✅ No typecheck errors (`npm run typecheck:quick` passes)
+
+**Note**: The TODO identified this as a problem during code review on 2025-11-24, but the implementation was already correct. The architecture follows best practices for hook composition and separation of concerns.
 
 ---
 

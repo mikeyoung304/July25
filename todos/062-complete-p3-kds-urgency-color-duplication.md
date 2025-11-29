@@ -1,7 +1,7 @@
 # TODO-062: OrderGroupCard Duplicates Urgency Color Logic
 
 ## Metadata
-- **Status**: pending
+- **Status**: complete
 - **Priority**: P3 (Nice-to-Have)
 - **Issue ID**: 062
 - **Tags**: architecture, kds, dry, code-review
@@ -107,3 +107,4 @@ import {
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-26 | Created | From KDS declutter code review |
+| 2025-11-28 | Verified complete | OrderGroupCard.tsx already uses getUrgencyColorClass() - fixed in earlier refactor |

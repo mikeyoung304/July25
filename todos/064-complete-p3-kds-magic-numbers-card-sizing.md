@@ -1,7 +1,7 @@
 # TODO-064: KDS Card Sizing Uses Magic Numbers Without Documentation
 
 ## Metadata
-- **Status**: pending
+- **Status**: complete
 - **Priority**: P3 (Nice-to-Have)
 - **Issue ID**: 064
 - **Tags**: documentation, kds, maintainability, code-review
@@ -120,3 +120,4 @@ export function getCardSize(itemCount: number, modifierCount: number): CardSize 
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-26 | Created | From KDS declutter code review |
+| 2025-11-28 | Verified complete | CARD_SIZING_CONFIG already extracted with full documentation - fixed in earlier refactor |

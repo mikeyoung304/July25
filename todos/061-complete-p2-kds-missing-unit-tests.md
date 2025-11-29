@@ -1,12 +1,13 @@
 # TODO-061: KDS New Utilities Missing Unit Tests
 
 ## Metadata
-- **Status**: pending
+- **Status**: complete
 - **Priority**: P2 (Important)
 - **Issue ID**: 061
 - **Tags**: testing, kds, quality, code-review
 - **Dependencies**: None
 - **Created**: 2025-11-26
+- **Completed**: 2025-11-28
 - **Source**: Code Review - KDS Declutter Implementation
 
 ---
@@ -239,6 +240,7 @@ describe('getCardSize', () => {
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-26 | Created | From KDS declutter code review |
+| 2025-11-28 | Verified Complete | Comprehensive test suite exists in shared/config/__tests__/kds.test.ts with 249 lines covering: formatOrderNumber (4 tests), getModifierType (42 tests including FDA Top 9 allergens), getCardSize (4 tests), getDisplayCustomerName (5 tests), getOrderPrimaryLabel (4 tests). All safety-critical allergy detection paths tested. |
 
 ---
 

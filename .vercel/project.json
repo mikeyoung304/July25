@@ -1,1 +1,16 @@
-{"projectId":"prj_iG6YRjjsMePUoGPmzZxnKUwYfH0n","orgId":"team_OesWPwxqmdOsNGDnz0RqS4kA","projectName":"july25-client"}
+{
+  "projectId": "prj_iG6YRjjsMePUoGPmzZxnKUwYfH0n",
+  "orgId": "team_OesWPwxqmdOsNGDnz0RqS4kA",
+  "projectName": "july25-client",
+  "settings": {
+    "createdAt": 1754484819843,
+    "framework": "vite",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "20.x"
+  }
+}

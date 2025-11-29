@@ -35,29 +35,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   const total = subtotal + tax + tip;
 
-  const handleTipChange = useCallback((tip_amount: number) => {
-    setTip(tip_amount);
-  }, []);
-
-  const handleContinueFromTip = useCallback(() => {
-    setStep('tender');
-  }, []);
-
-  const handleSelectCard = useCallback(() => {
-    setStep('card');
-  }, []);
-
-  const handleSelectCash = useCallback(() => {
-    setStep('cash');
-  }, []);
-
-  const handleBackToTip = useCallback(() => {
-    setStep('tip');
-  }, []);
-
-  const handleBackToTender = useCallback(() => {
-    setStep('tender');
-  }, []);
+  // Simple state setters don't need useCallback - React's setState is already stable
+  const handleTipChange = (tip_amount: number) => setTip(tip_amount);
+  const handleContinueFromTip = () => setStep('tender');
+  const handleSelectCard = () => setStep('card');
+  const handleSelectCash = () => setStep('cash');
+  const handleBackToTip = () => setStep('tip');
+  const handleBackToTender = () => setStep('tender');
 
   const handlePaymentSuccess = useCallback(() => {
     // Reset modal state for next use

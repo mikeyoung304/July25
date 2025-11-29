@@ -1,12 +1,13 @@
 # TODO-014: Improve Data Channel Error Handling
 
 ## Metadata
-- **Status**: pending
+- **Status**: completed
 - **Priority**: P2 (Important)
 - **Issue ID**: 014
 - **Tags**: webrtc, voice, error-handling
 - **Dependencies**: 006
 - **Created**: 2025-11-24
+- **Completed**: 2025-11-28
 - **Source**: Code Review - WebRTC Specialist Agent
 
 ---
@@ -114,3 +115,4 @@ this.dc.onclose = (event: Event) => {
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-24 | Created | From WebRTC review |
+| 2025-11-28 | Completed | Already fixed - WebRTCConnection.ts lines 441-477 implement proper Error objects, distinguish normal/error close via sessionActive flag |

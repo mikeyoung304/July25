@@ -1,9 +1,16 @@
 ---
-status: pending
+status: deferred
 priority: p2
 issue_id: "092"
 tags: [code-review, testing, multi-tenancy]
 dependencies: []
+notes: |
+  Deferred - requires substantial test infrastructure:
+  - Multi-tenant test utilities
+  - MSW handlers for tenant isolation
+  - Multiple test files across kitchen components
+  - Estimated 2-3 days effort
+  Recommend scheduling as dedicated sprint task
 ---
 
 # Missing Multi-Tenant Tests in Kitchen Components

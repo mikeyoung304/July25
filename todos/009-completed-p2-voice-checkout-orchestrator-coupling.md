@@ -1,12 +1,13 @@
 # TODO-009: Decouple VoiceCheckoutOrchestrator from React
 
 ## Metadata
-- **Status**: pending
+- **Status**: completed
 - **Priority**: P2 (Important)
 - **Issue ID**: 009
 - **Tags**: architecture, voice, testing, decoupling
 - **Dependencies**: 003
 - **Created**: 2025-11-24
+- **Completed**: 2025-11-28
 - **Source**: Code Review - Architecture Strategist Agent
 
 ---
@@ -138,3 +139,4 @@ orchestrator.on('order.submit', async ({ items }) => {
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-24 | Created | From architecture review |
+| 2025-11-28 | Completed | Already fixed in previous commit - VoiceCheckoutOrchestrator now uses constructor injection with callback functions (onToast, onNavigate) instead of React hooks |
