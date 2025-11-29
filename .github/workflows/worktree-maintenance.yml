@@ -1,0 +1,222 @@
+name: Worktree Maintenance
+
+on:
+  schedule:
+    # Run every Friday at 5 PM UTC
+    - cron: '0 17 * * FRI'
+  workflow_dispatch:
+
+jobs:
+  check-stale-worktrees:
+    name: Check for Stale Worktrees
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for stale worktrees
+        id: check
+        run: |
+          echo "Checking for stale worktrees..."
+
+          # List all worktrees
+          WORKTREE_COUNT=$(git worktree list | tail -n +2 | wc -l)
+          echo "worktree_count=$WORKTREE_COUNT" >> $GITHUB_OUTPUT
+
+          # Check for merged worktrees
+          MERGED_COUNT=0
+          while IFS= read -r line; do
+              path=$(echo "$line" | awk '{print $1}')
+              if [ "$path" != "$(pwd)" ] && [ -d "$path" ]; then
+                  if (cd "$path" && git merge-base --is-ancestor HEAD origin/main 2>/dev/null); then
+                      MERGED_COUNT=$((MERGED_COUNT + 1))
+                  fi
+              fi
+          done < <(git worktree list | tail -n +2)
+
+          echo "merged_count=$MERGED_COUNT" >> $GITHUB_OUTPUT
+
+          # Check for broken worktrees
+          BROKEN_COUNT=0
+          while IFS= read -r line; do
+              path=$(echo "$line" | awk '{print $1}')
+              if [ -n "$path" ] && ! [ -d "$path" ]; then
+                  BROKEN_COUNT=$((BROKEN_COUNT + 1))
+              fi
+          done < <(git worktree list | tail -n +2)
+
+          echo "broken_count=$BROKEN_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Create issue for maintenance
+        if: steps.check.outputs.merged_count > 0 || steps.check.outputs.broken_count > 0
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const mergedCount = '${{ steps.check.outputs.merged_count }}';
+            const brokenCount = '${{ steps.check.outputs.broken_count }}';
+            const totalCount = '${{ steps.check.outputs.worktree_count }}';
+
+            let body = '# Worktree Maintenance Needed\n\n';
+            body += `## Status\n`;
+            body += `- Total active worktrees: ${totalCount}\n`;
+
+            if (mergedCount > 0) {
+              body += `- **Merged worktrees (can be cleaned): ${mergedCount}**\n`;
+            }
+
+            if (brokenCount > 0) {
+              body += `- **Broken worktrees (should be removed): ${brokenCount}**\n`;
+            }
+
+            body += `\n## Recommended Action\n`;
+            body += `Run the cleanup script:\n`;
+            body += '```bash\n';
+            body += `./scripts/cleanup-worktrees.sh\n`;
+            body += '```\n\n';
+            body += `This will:\n`;
+            body += `1. Remove merged worktrees\n`;
+            body += `2. Clean up broken worktree references\n`;
+            body += `3. Prune stale git references\n`;
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Maintenance: Clean up stale worktrees',
+              body: body,
+              labels: ['maintenance', 'automation'],
+              assignee: context.actor
+            });
+
+  todo-health-check:
+    name: Check TODO System Health
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check TODO system health
+        id: todo_check
+        run: |
+          # Count TODOs
+          TODO_DIR=".claude/todos"
+          SOLUTION_DIR=".claude/solutions"
+
+          PENDING=0
+          INVALID=0
+          STALE=0
+
+          if [ -d "$TODO_DIR" ]; then
+              PENDING=$(find "$TODO_DIR" -name "*.md" -type f 2>/dev/null | wc -l)
+
+              # Check for completed items in pending
+              INVALID=$(find "$TODO_DIR" -name "*.md" -exec grep -l "status: completed" {} \; 2>/dev/null | wc -l)
+
+              # Check for stale items
+              STALE=$(find "$TODO_DIR" -name "*.md" -type f -mtime +30 2>/dev/null | wc -l)
+          fi
+
+          echo "pending_todos=$PENDING" >> $GITHUB_OUTPUT
+          echo "invalid_todos=$INVALID" >> $GITHUB_OUTPUT
+          echo "stale_todos=$STALE" >> $GITHUB_OUTPUT
+
+      - name: Report issues
+        if: steps.todo_check.outputs.invalid_todos > 0 || steps.todo_check.outputs.stale_todos > 10
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pendingTodos = '${{ steps.todo_check.outputs.pending_todos }}';
+            const invalidTodos = '${{ steps.todo_check.outputs.invalid_todos }}';
+            const staleTodos = '${{ steps.todo_check.outputs.stale_todos }}';
+
+            let issues = [];
+
+            if (invalidTodos > 0) {
+              issues.push(`${invalidTodos} completed TODOs in pending directory (should be archived)`);
+            }
+
+            if (staleTodos > 10) {
+              issues.push(`${staleTodos} stale TODOs (untouched for 30+ days)`);
+            }
+
+            if (issues.length > 0) {
+              let body = '# TODO System Maintenance\n\n';
+              body += '## Issues Found\n';
+              issues.forEach(issue => body += `- ${issue}\n`);
+              body += '\n## Recommended Action\n';
+              body += 'Run the TODO audit and cleanup:\n';
+              body += '```bash\n';
+              body += './scripts/todo-audit.sh\n';
+              body += './scripts/cleanup-todos.sh --confirm\n';
+              body += '```\n';
+
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Maintenance: TODO system cleanup needed',
+                body: body,
+                labels: ['maintenance', 'automation']
+              });
+            }
+
+  test-config-validation:
+    name: Validate Test Configurations
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Jest configuration
+        run: |
+          if [ ! -f "jest.config.js" ]; then
+            echo "No jest.config.js found"
+            exit 0
+          fi
+
+          echo "Checking Jest excludes..."
+
+          if ! grep -q "\.worktrees" jest.config.js; then
+            echo "::warning::Jest does not exclude .worktrees/"
+          fi
+
+          if ! grep -q "\.claude" jest.config.js; then
+            echo "::warning::Jest does not exclude .claude/"
+          fi
+
+      - name: Check for test artifacts in worktrees
+        run: |
+          ARTIFACTS=$(find . -path "./.worktrees/*/coverage" -o -path "./.worktrees/*/test-results" -o -path "./.worktrees/*/.next" 2>/dev/null | wc -l)
+
+          if [ "$ARTIFACTS" -gt 0 ]; then
+            echo "::warning::Found test artifacts in worktrees - may cause test pollution"
+            echo "Run: ./scripts/cleanup-worktrees.sh"
+          fi
+
+  summary:
+    name: Maintenance Summary
+    needs: [check-stale-worktrees, todo-health-check, test-config-validation]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Print summary
+        run: |
+          echo "## Maintenance Check Summary"
+          echo ""
+          echo "✓ Stale worktree check: ${{ needs.check-stale-worktrees.result }}"
+          echo "✓ TODO health check: ${{ needs.todo-health-check.result }}"
+          echo "✓ Test config validation: ${{ needs.test-config-validation.result }}"
+          echo ""
+          echo "If any checks failed, review the issues created in this run."

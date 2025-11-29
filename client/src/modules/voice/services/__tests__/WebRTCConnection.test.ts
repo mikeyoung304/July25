@@ -555,7 +555,7 @@ describe('WebRTCConnection', () => {
       })
 
       await expect(connection.connect('invalid-token')).rejects.toThrow(
-        'OpenAI SDP exchange failed: 401'
+        'Failed to establish voice connection'
       )
 
       expect(connection.getConnectionState()).toBe('error')

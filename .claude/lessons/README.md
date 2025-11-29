@@ -16,6 +16,8 @@ Codified lessons from $1.3M+ in prevented issues. These are the 6 most impactful
 | [CL-MEM-001](./CL-MEM-001-interval-leaks.md) | Memory | Untracked intervals | Memory growth 1-20 MB/day |
 | [CL-API-001](./CL-API-001-model-deprecation.md) | API | Silent deprecation | Feature works but output missing |
 | [CL-TEST-001](./CL-TEST-001-mock-drift-prevention.md) | Testing | Test mock drift from interfaces | Tests pass but code fails at runtime |
+| [CL-TEST-002](./CL-TEST-002-npm-test-hang.md) | Testing | npm test hangs with memory options | npm test takes 20+ minutes |
+| [CL-MAINT-001](./CL-MAINT-001-worktree-system-hygiene.md) | Maintenance | Stale worktrees causing test pollution | 300+ test failures from .worktrees/ |
 
 ## When to Reference
 
@@ -27,6 +29,9 @@ Codified lessons from $1.3M+ in prevented issues. These are the 6 most impactful
 **Before adding setInterval:** Read CL-MEM-001
 **When API feature stops working:** Read CL-API-001
 **Before modifying shared/types or writing tests:** Read CL-TEST-001
+**When tests fail mysteriously:** Read CL-MAINT-001
+**When npm test hangs:** Read CL-TEST-002
+**Before creating development worktrees:** Read CL-MAINT-001
 
 ## Format
 

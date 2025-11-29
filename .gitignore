@@ -70,3 +70,7 @@ test-results/
 .vercel
 claude-lessons3/node_modules/
 claude-lessons3/
+
+# Git Worktrees
+.worktrees/
+.conductor/

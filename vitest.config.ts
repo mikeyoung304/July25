@@ -12,5 +12,6 @@ export default defineConfig({
     testTimeout: 15000,
     poolOptions: { threads: { singleThread: true } },
     setupFiles: ['tests/setup.ts'],
+    exclude: ['**/node_modules/**', '**/.worktrees/**', '**/.conductor/**'],
   },
 })
