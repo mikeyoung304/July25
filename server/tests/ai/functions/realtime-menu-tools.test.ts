@@ -307,8 +307,8 @@ describe('Realtime Menu Tools - Critical Functions', () => {
       expect(result.data?.cart.items[0].modifiers.length).toBeLessThanOrEqual(20);
     });
 
-    it('should return price 0 fallback on database error', async () => {
-      
+    it('should throw error on database error to prevent revenue loss', async () => {
+
       mockSupabase.from.mockImplementation((table: string) => {
         if (table === 'menu_items') {
           return createMockQueryBuilder({
@@ -333,8 +333,9 @@ describe('Realtime Menu Tools - Critical Functions', () => {
 
       const result = await menuFunctionTools.add_to_order.handler(args, context);
 
-      expect(result.success).toBe(true);
-      expect(result.data?.cart.items[0].modifiers[0].price).toBe(0);
+      // Should fail rather than silently charge $0 for modifiers (revenue protection)
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Failed to add item to order');
     });
 
     it('should enforce multi-tenant isolation', async () => {

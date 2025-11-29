@@ -96,7 +96,8 @@ export class WebRTCVoiceClient extends EventEmitter {
         logger.warn(`[WebRTCVoiceClient] State machine timeout in state: ${state}`);
         this.emit('state.timeout', { state });
 
-        // Handle RECORDING timeout - stop recording gracefully after 45s
+        // Handle RECORDING timeout - perform side effects only
+        // State machine will auto-transition to IDLE via TIMEOUT_OCCURRED
         if (state === VoiceState.RECORDING) {
           logger.warn('[WebRTCVoiceClient] RECORDING timeout (45s) - stopping recording');
           try {
@@ -113,25 +114,24 @@ export class WebRTCVoiceClient extends EventEmitter {
           } catch (error) {
             logger.error('[WebRTCVoiceClient] Failed to handle recording timeout:', error);
           }
-          return; // Don't run default AWAITING_SESSION_READY handling
+          return;
         }
 
-        // Handle AWAITING_SESSION_READY timeout gracefully by proceeding to IDLE
+        // Handle AWAITING_SESSION_READY timeout - emit session.configured event
+        // State machine will auto-transition to IDLE via TIMEOUT_OCCURRED (graceful fallback)
         // OpenAI may not always send session.updated, but the session is likely ready
         if (state === VoiceState.AWAITING_SESSION_READY) {
-          logger.info('⏱️ [WebRTCVoiceClient] Session ready timeout - proceeding to IDLE (graceful fallback)');
+          logger.info('⏱️ [WebRTCVoiceClient] Session ready timeout - emitting session.configured');
           try {
-            // Check if we're still in AWAITING_SESSION_READY before transitioning
-            // This prevents race condition with state machine's auto-TIMEOUT_OCCURRED transition
+            // Guard: only proceed if still in AWAITING_SESSION_READY state
             if (this.stateMachine.isState(VoiceState.AWAITING_SESSION_READY)) {
-              // Prevent default TIMEOUT_OCCURRED transition by transitioning first
-              this.stateMachine.transition(VoiceEvent.SESSION_READY, { confirmed_via: 'timeout' });
+              // Emit event for UI feedback - state machine handles transition
               this.emit('session.configured');
             } else {
-              logger.info('[WebRTCVoiceClient] State already changed, skipping timeout transition');
+              logger.debug('[WebRTCVoiceClient] State already changed, skipping timeout handler');
             }
           } catch (error) {
-            logger.error('[WebRTCVoiceClient] Failed graceful timeout recovery:', error);
+            logger.error('[WebRTCVoiceClient] Failed to emit session.configured:', error);
           }
         }
       },

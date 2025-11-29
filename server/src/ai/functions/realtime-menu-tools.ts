@@ -272,21 +272,14 @@ async function lookupModifierPrices(
         .eq('active', true);
 
       if (error || !data) {
-        // TODO-053: Database failure fallback (graceful degradation)
-        // When voice_modifier_rules lookup fails, return modifiers with price: 0.
-        // This is acceptable soft failure because:
-        // 1. Modifiers without matching rules already default to price: 0 (line 315)
-        // 2. Order proceeds but may undercharge - better than blocking the customer
-        // 3. If modifier pricing is critical, implement stale cache fallback
-        // WARNING: Masks database issues and can cause revenue loss during outages.
-        // Monitor ERROR logs for "modifier pricing unavailable" events.
-        logger.error('[MenuTools] Modifier pricing lookup failed - using $0 fallback', {
+        logger.error('[MenuTools] Modifier pricing lookup failed, cannot calculate pricing', {
           restaurantId,
           error,
-          impact: 'Modifiers will be free; potential revenue loss if DB issue persists',
-          action: 'Check database health and voice_modifier_rules table availability'
+          severity: 'revenue-loss'
         });
-        return validatedModifiers.map(name => ({ name, price: 0 }));
+        throw new Error(
+          `Unable to look up modifier pricing for restaurant ${restaurantId}. Cannot calculate accurate order total.`
+        );
       }
 
       rules = data;
@@ -315,9 +308,22 @@ async function lookupModifierPrices(
       });
 
       if (matchingRule) {
+        // Validate that price_adjustment exists and is not null
+        if (matchingRule.price_adjustment == null) {
+          logger.error('[MenuTools] Modifier rule has null price, cannot calculate pricing', {
+            modifierName: modName,
+            targetName: matchingRule.target_name,
+            restaurantId,
+            severity: 'revenue-loss'
+          });
+          throw new Error(
+            `Modifier rule for "${modName}" (${matchingRule.target_name}) has invalid pricing. Cannot calculate accurate order total.`
+          );
+        }
+
         // price_adjustment is in cents, convert to dollars
         // Math.max(0, ...) prevents negative prices (modifiers cannot give discounts per business rule)
-        const price = Math.max(0, (matchingRule.price_adjustment || 0) / 100);
+        const price = Math.max(0, matchingRule.price_adjustment / 100);
         return {
           name: modName,
           price
@@ -330,16 +336,14 @@ async function lookupModifierPrices(
 
     return modifiersWithPrices;
   } catch (error) {
-    // TODO-053: Exception fallback (graceful degradation)
-    // Similar to database failure above - return $0 prices on any exception.
-    // Prevents order blocking but may cause revenue loss.
-    logger.error('[MenuTools] Exception looking up modifier prices - using $0 fallback', {
+    logger.error('[MenuTools] Exception looking up modifier prices, cannot calculate pricing', {
       restaurantId,
       error,
-      impact: 'Modifiers will be free; potential revenue loss',
-      action: 'Check server logs and modifier lookup implementation'
+      severity: 'revenue-loss'
     });
-    return validatedModifiers.map(name => ({ name, price: 0 }));
+    throw new Error(
+      `Exception during modifier pricing lookup for restaurant ${restaurantId}. Cannot calculate accurate order total.`
+    );
   }
 }
 

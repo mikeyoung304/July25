@@ -177,20 +177,32 @@ export class OrdersService {
 
       // PHASE 5: Server ALWAYS calculates totals (never trusts client)
       // This eliminates trust boundary violation and ensures financial accuracy
-      const subtotal = itemsWithUuids.reduce((total, item) => {
-        const itemTotal = item.price * item.quantity;
-        const modifiersTotal = (item.modifiers || []).reduce(
-          (modTotal, mod) => modTotal + mod.price * item.quantity,
+      //
+      // ⚠️ **FLOATING-POINT FIX (TODO-080/P1)** - Uses cents (integer) arithmetic
+      // to avoid floating-point rounding errors. Only converted to dollars for storage.
+      const subtotalCents = itemsWithUuids.reduce((totalCents, item) => {
+        const itemPriceCents = Math.round(item.price * 100);
+        const itemTotalCents = itemPriceCents * item.quantity;
+        const modifiersTotalCents = (item.modifiers || []).reduce(
+          (modTotalCents, mod) => {
+            const modPriceCents = Math.round(mod.price * 100);
+            return modTotalCents + (modPriceCents * item.quantity);
+          },
           0
         );
-        return total + itemTotal + modifiersTotal;
+        return totalCents + itemTotalCents + modifiersTotalCents;
       }, 0);
 
       // Get restaurant-specific tax rate (ADR-007: Per-Restaurant Configuration)
       const taxRate = await this.getRestaurantTaxRate(restaurantId);
-      const tax = subtotal * taxRate;
-      const tip = orderData.tip || 0;
-      const totalAmount = subtotal + tax + tip;
+      const taxCents = Math.round(subtotalCents * taxRate);
+      const tipCents = Math.round((orderData.tip || 0) * 100);
+      const totalAmountCents = subtotalCents + taxCents + tipCents;
+
+      // Convert back to dollars for storage (consistent with database schema)
+      const subtotal = subtotalCents / 100;
+      const tax = taxCents / 100;
+      const totalAmount = totalAmountCents / 100;
 
       // Generate order number
       const orderNumber = await this.generateOrderNumber(restaurantId);
@@ -227,7 +239,7 @@ export class OrdersService {
           uiType: uiOrderType, // Alternative name for compatibility
           customerEmail: orderData.customerEmail,
           customerPhone: orderData.customerPhone,
-          tip: tip // Store tip in metadata
+          tip: orderData.tip // Store tip in metadata
         },
       };
 

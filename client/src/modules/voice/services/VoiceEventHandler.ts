@@ -1193,6 +1193,11 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
    *
    * CRITICAL: Uses flushPending flag to prevent duplicate flushes from
    * both setDataChannel() and setupDataChannel.onopen()
+   *
+   * FIX TODO-006: Defensive flush with TOCTOU protection
+   * - Checks readyState before EACH send (not just once)
+   * - Re-queues messages if channel closes mid-flush
+   * - Wraps sends in try-catch to prevent silent errors
    */
   flushMessageQueue(): void {
     // Prevent duplicate flushes
@@ -1202,25 +1207,25 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
     this.flushPending = true;
 
     try {
-      // Use splice to get all messages AND clear the queue in one operation (memory optimization)
-      const messages = this.messageQueue.splice(0);
+      // Copy and clear queue atomically
+      const messages = [...this.messageQueue];
+      this.messageQueue = [];
 
       if (this.config.debug) {
         logger.debug('[VoiceEventHandler] Flushing queued messages', { count: messages.length });
       }
 
-      for (let i = 0; i < messages.length; i++) {
-        // Check state before each send (TOCTOU protection)
-        if (!this.dc || this.dc.readyState !== 'open') {
+      for (const msg of messages) {
+        // Check state before EACH send (TOCTOU protection)
+        if (this.dc.readyState !== 'open') {
           // Channel closed during flush, re-queue remaining messages
-          const remaining = messages.slice(i);
-          this.messageQueue = [...remaining, ...this.messageQueue];
+          this.messageQueue = [...messages.slice(messages.indexOf(msg))];
           logger.warn('[VoiceEventHandler] Channel closed during flush, re-queued messages', {
-            requeued: remaining.length,
+            requeued: this.messageQueue.length,
           });
           break;
         }
-        this.dc.send(JSON.stringify(messages[i]));
+        this.dc.send(JSON.stringify(msg));
       }
     } catch (error) {
       logger.error('[VoiceEventHandler] Flush failed', { error });

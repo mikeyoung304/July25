@@ -117,7 +117,7 @@ export const STATE_TRANSITIONS: Record<
   [VoiceState.AWAITING_SESSION_READY]: {
     [VoiceEvent.SESSION_READY]: VoiceState.IDLE,
     [VoiceEvent.ERROR_OCCURRED]: VoiceState.ERROR,
-    [VoiceEvent.TIMEOUT_OCCURRED]: VoiceState.TIMEOUT,
+    [VoiceEvent.TIMEOUT_OCCURRED]: VoiceState.IDLE,  // Graceful fallback - session likely ready
     [VoiceEvent.DISCONNECT_REQUESTED]: VoiceState.DISCONNECTING,
   },
 

@@ -7,6 +7,7 @@ import { env } from '../config/env';
 import { supabase } from '../config/database';
 import { PromptConfigService } from '@rebuild/shared';
 import { aiServiceLimiter } from '../middleware/rateLimiter';
+import { sanitizeForPrompt } from '../utils/validation';
 
 const router = Router();
 const realtimeLogger = logger.child({ module: 'realtime-routes' });
@@ -230,17 +231,19 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
       ]);
 
       // Create category ID → name lookup map
+      // SECURITY: Sanitize category names to prevent prompt injection
       const categoryMap = new Map(
-        categories.map(cat => [cat.id, cat.name])
+        categories.map(cat => [cat.id, sanitizeForPrompt(cat.name)])
       );
 
       if (menuData && menuData.length > 0) {
         // Format menu items for AI context WITH human-readable category names
+        // SECURITY: Sanitize all menu data to prevent prompt injection attacks
         const menuItems = menuData.map(item => ({
-          name: item.name,
+          name: sanitizeForPrompt(item.name),
           price: item.price,
           category: item.categoryId ? (categoryMap.get(item.categoryId) || 'Other') : 'Other',
-          description: item.description || '',
+          description: sanitizeForPrompt(item.description || ''),
           available: item.available !== false
         })).filter(item => item.available);
 
