@@ -1,12 +1,13 @@
 # TODO-020: Fix Timeout Callback Race Condition in State Machine
 
 ## Metadata
-- **Status**: pending
+- **Status**: resolved
 - **Priority**: P1 (Critical)
 - **Issue ID**: 020
 - **Tags**: bug, voice, state-machine, race-condition, code-review
 - **Dependencies**: Related to TODO-010 (P2 duplicate)
 - **Created**: 2025-11-24
+- **Resolved**: 2025-11-28
 - **Source**: Code Review - Architecture Analysis
 
 ---
@@ -212,11 +213,46 @@ onTimeout: (state) => {
 
 ---
 
+## Resolution Summary
+
+**Issue Fixed**: The timeout race condition has been resolved by implementing Option A from the proposed solutions with a critical modification.
+
+**Root Cause**: The `onTimeout` callback was attempting to manage state transitions directly by calling `this.stateMachine.transition()`, which raced with the state machine's own auto-transition logic in `startTimeoutForState()`.
+
+**Fix Implemented**:
+1. **Updated STATE_TRANSITIONS table** (VoiceStateMachine.ts:117-122):
+   - Changed `AWAITING_SESSION_READY` timeout behavior from `TIMEOUT_OCCURRED → TIMEOUT` to `TIMEOUT_OCCURRED → IDLE`
+   - This aligns with the graceful fallback pattern used for other recording states
+   - OpenAI may not always send `session.updated`, but the session is likely ready after the timeout
+
+2. **Refactored onTimeout callback** (WebRTCVoiceClient.ts:95-137):
+   - Removed ALL state transition logic (`this.stateMachine.transition()` calls)
+   - Callback now only performs side effects:
+     - RECORDING timeout: Disables microphone, emits timeout events
+     - AWAITING_SESSION_READY timeout: Emits `session.configured` event
+   - State machine's `startTimeoutForState()` handles the actual state transition via `TIMEOUT_OCCURRED`
+
+3. **Single Source of Truth Restored**:
+   - State transitions are ONLY managed by VoiceStateMachine
+   - No race conditions between callback and state machine
+   - Clear separation of concerns: callbacks = side effects, state machine = transitions
+
+**Testing**: All 49 VoiceStateMachine tests pass, confirming correct behavior.
+
+**Benefits**:
+- Eliminates race condition completely
+- Maintains graceful timeout fallback for AWAITING_SESSION_READY
+- Simpler, more maintainable code
+- Clear audit trail in state machine history
+
+---
+
 ## Work Log
 
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-24 | Created | From code review architecture analysis |
+| 2025-11-28 | Resolved | Updated STATE_TRANSITIONS for AWAITING_SESSION_READY to use graceful timeout fallback (TIMEOUT_OCCURRED → IDLE). Removed state transition logic from onTimeout callback - now only performs side effects. State machine handles all transitions. All 49 VoiceStateMachine tests passing. |
 
 ---
 

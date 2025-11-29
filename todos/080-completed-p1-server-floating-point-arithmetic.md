@@ -1,9 +1,10 @@
 ---
-status: pending
+status: completed
 priority: p1
 issue_id: "080"
 tags: [code-review, financial, data-integrity]
 dependencies: []
+completed_at: 2025-11-28
 ---
 
 # Server Floating-Point Arithmetic vs Client Cents-Based Calculations
@@ -133,3 +134,31 @@ ALTER TABLE menu_items
 **Related Issues:**
 - See ADR-001 for snake_case convention (already followed)
 - Consider adding ADR-014 for financial calculation standards
+
+## Resolution (2025-11-28)
+
+**Status:** ✅ COMPLETED
+
+**Changes Made:**
+1. **realtime-menu-tools.ts** - Already using cents-based arithmetic (lines 474-524)
+   - `updateCartTotals()` function correctly uses integer cents for all calculations
+   - Only converts to dollars at final output
+
+2. **orders.service.ts** - Fixed floating-point arithmetic (lines 178-205)
+   - Converted `createOrder()` method to use cents-based calculations
+   - All intermediate calculations now use integer cents
+   - Prices multiplied by 100 and rounded before calculations
+   - Only converted back to dollars for database storage
+   - Added inline documentation referencing TODO-080/P1
+
+**Verification:**
+- ✅ Typecheck passed (`npm run typecheck:quick`)
+- ✅ All intermediate calculations use integer cents
+- ✅ No floating-point arithmetic for money calculations
+- ✅ Consistent with client-side cents-based approach
+
+**Impact:**
+- Eliminates floating-point rounding errors in order totals
+- Ensures server and client calculations match exactly
+- Prevents financial data integrity issues
+- Maintains consistent financial calculation approach across codebase

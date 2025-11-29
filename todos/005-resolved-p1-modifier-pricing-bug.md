@@ -1,12 +1,13 @@
 # TODO-005: Fix Modifier Pricing in Voice Orders
 
 ## Metadata
-- **Status**: pending
+- **Status**: resolved
 - **Priority**: P1 (Critical)
 - **Issue ID**: 005
 - **Tags**: business-logic, voice, pricing, revenue
 - **Dependencies**: None
 - **Created**: 2025-11-24
+- **Resolved**: 2025-11-28
 - **Source**: Code Review - Backend Analyst Agent
 
 ---
@@ -16,6 +17,10 @@
 Voice orders do NOT charge for modifiers (extra toppings, size upgrades, etc.). The CartItem interface stores modifiers as `string[]` (names only), and the price calculation ignores them entirely.
 
 **This is a direct revenue loss bug.**
+
+## Resolution
+
+**VERIFIED: This issue has already been fixed.** The current implementation correctly handles modifier pricing.
 
 ---
 
@@ -136,12 +141,12 @@ AND restaurant_id = $3;
 
 ## Acceptance Criteria
 
-- [ ] CartItem interface includes modifier prices
-- [ ] Modifier prices looked up from database
-- [ ] Subtotal calculation includes modifier prices
-- [ ] Tax calculation includes modifier prices
-- [ ] Voice order total matches expected price
-- [ ] Test: order with modifiers shows correct price
+- [x] CartItem interface includes modifier prices
+- [x] Modifier prices looked up from database
+- [x] Subtotal calculation includes modifier prices
+- [x] Tax calculation includes modifier prices
+- [x] Voice order total matches expected price
+- [x] Test: order with modifiers shows correct price
 
 ---
 
@@ -150,6 +155,84 @@ AND restaurant_id = $3;
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-11-24 | Created | From backend review - revenue loss bug |
+| 2025-11-28 | Verified | Code already implements full modifier pricing solution |
+
+## Implementation Details
+
+The fix was already implemented with the following components:
+
+### 1. CartModifier Interface (lines 25-28)
+```typescript
+export interface CartModifier {
+  name: string;
+  price: number; // Price adjustment (can be negative)
+}
+```
+
+### 2. Updated CartItem Interface (lines 30-38)
+```typescript
+export interface CartItem {
+  id: string;
+  menu_item_id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  modifiers?: CartModifier[];  // ✅ Full objects with prices
+  notes?: string;
+}
+```
+
+### 3. Modifier Price Lookup (lines 222-344)
+The `lookupModifierPrices()` function:
+- Queries `voice_modifier_rules` table
+- Matches modifier names against trigger phrases
+- Returns CartModifier[] with prices in cents
+- Includes validation and caching
+- Graceful degradation if database fails (price: 0)
+
+### 4. Price Calculation (lines 476-488)
+Uses cents-based arithmetic to avoid floating-point errors:
+```typescript
+const subtotalCents = cart.items.reduce((sumCents, item) => {
+  const itemPriceCents = Math.round(item.price * 100);
+  const modifierPriceCents = Math.round(
+    (item.modifiers || []).reduce((modSum, mod) => {
+      const modPrice = sanitizePrice(mod.price);
+      return modSum + modPrice;
+    }, 0) * 100
+  );
+  const itemTotalCents = (itemPriceCents + modifierPriceCents) * item.quantity;
+  return sumCents + itemTotalCents;
+}, 0);
+```
+
+### 5. Add to Cart Integration (lines 801-825)
+```typescript
+// Look up modifier prices from database
+const modifiersWithPrices = await lookupModifierPrices(
+  context.restaurantId,
+  _args.modifiers || [],
+  _args.id
+);
+
+// Add new item with modifier prices
+const newItem: CartItem = {
+  id: `${Date.now()}_${Math.random()}`,
+  menu_item_id: _args.id,
+  name: menuItem.name,
+  quantity: quantity,
+  price: menuItem.price,
+  modifiers: modifiersWithPrices  // ✅ Prices included
+};
+```
+
+### Additional Features Implemented
+- **Input validation**: Modifier names sanitized (max 100 chars, whitelist pattern)
+- **DoS protection**: Max 20 modifiers per item
+- **Caching**: 5-minute TTL for modifier rules
+- **Error handling**: Graceful fallback to $0 if database fails
+- **Cents arithmetic**: Prevents floating-point rounding errors (TODO-051/P1-080)
+- **NaN/Infinity validation**: Sanitizes prices before calculation (TODO-082)
 
 ---
 

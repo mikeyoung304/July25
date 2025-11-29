@@ -1,12 +1,27 @@
 ---
-status: pending
+status: accepted-risk
 priority: p1
 issue_id: "085"
 tags: [code-review, financial, reliability]
 dependencies: []
+reviewed_date: 2025-11-28
 ---
 
 # Modifier Pricing Falls Back to $0 on Database Failure
+
+## Current Status: ACCEPTED RISK
+
+The current implementation (lines 273-288, 331-342 in `realtime-menu-tools.ts`) intentionally falls back to $0 on database failures with ERROR-level logging. This is documented as TODO-053 and represents a conscious trade-off:
+
+**Business Decision:** Better to complete the order (potentially undercharging) than to block the customer during database outages.
+
+**Mitigations in Place:**
+- ERROR-level logging with detailed context (lines 283-288)
+- Explicit comments documenting the fallback behavior (lines 275-282)
+- Monitoring hooks for detecting revenue loss events
+- Cache layer with 5-minute TTL reduces database dependency
+
+**Recommendation:** Consider implementing Option 2 (stale-while-revalidate cache) from proposed solutions to extend cache TTL during outages.
 
 ## Problem Statement
 
