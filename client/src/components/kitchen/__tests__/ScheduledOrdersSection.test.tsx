@@ -5,19 +5,36 @@ import { ScheduledOrdersSection } from '../ScheduledOrdersSection'
 import type { ScheduledOrderGroup } from '@/hooks/useScheduledOrders'
 
 describe('ScheduledOrdersSection', () => {
-  const createMockScheduledGroup = (id: string, minutesUntilFire: number): ScheduledOrderGroup => ({
-    order_id: id,
-    order_number: `001`,
-    customer_name: 'Smith',
-    order_count: 2,
-    minutes_until_fire: minutesUntilFire,
-    scheduled_for: new Date(Date.now() + minutesUntilFire * 60 * 1000).toISOString()
+  const createMockOrder = (id: string) => ({
+    id,
+    restaurant_id: 'rest-1',
+    order_number: '001',
+    type: 'online' as const,
+    status: 'pending' as const,
+    items: [],
+    subtotal: 0,
+    tax: 0,
+    total: 0,
+    payment_status: 'pending' as const,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   })
+
+  const createMockScheduledGroup = (minutesUntilFire: number, orderCount: number = 1): ScheduledOrderGroup => {
+    const scheduledTime = new Date(Date.now() + minutesUntilFire * 60 * 1000).toISOString()
+    return {
+      scheduled_time: scheduledTime,
+      fire_time: scheduledTime,
+      minutes_until_fire: minutesUntilFire,
+      orders: Array.from({ length: orderCount }, (_, i) => createMockOrder(`order-${i}`)),
+      order_count: orderCount
+    }
+  }
 
   const defaultProps = {
     scheduledGroups: [
-      createMockScheduledGroup('sched-1', 15),
-      createMockScheduledGroup('sched-2', 5)
+      createMockScheduledGroup(15, 1),
+      createMockScheduledGroup(5, 1)
     ],
     onManualFire: vi.fn()
   }
@@ -124,7 +141,7 @@ describe('ScheduledOrdersSection', () => {
 
   describe('Urgency indicators', () => {
     it('applies different styling for critical urgency (< 2 min)', () => {
-      const criticalGroup = [createMockScheduledGroup('crit-1', 1)]
+      const criticalGroup = [createMockScheduledGroup(1)]
       render(<ScheduledOrdersSection scheduledGroups={criticalGroup} onManualFire={vi.fn()} />)
 
       const header = screen.getByText(/Scheduled Orders/).closest('div')
@@ -134,7 +151,7 @@ describe('ScheduledOrdersSection', () => {
     })
 
     it('applies warning styling for warning urgency (2-5 min)', () => {
-      const warningGroup = [createMockScheduledGroup('warn-1', 4)]
+      const warningGroup = [createMockScheduledGroup(4)]
       render(<ScheduledOrdersSection scheduledGroups={warningGroup} onManualFire={vi.fn()} />)
 
       const header = screen.getByText(/Scheduled Orders/).closest('div')
@@ -144,7 +161,7 @@ describe('ScheduledOrdersSection', () => {
     })
 
     it('applies normal styling for non-urgent scheduled orders (> 5 min)', () => {
-      const normalGroup = [createMockScheduledGroup('norm-1', 10)]
+      const normalGroup = [createMockScheduledGroup(10)]
       render(<ScheduledOrdersSection scheduledGroups={normalGroup} onManualFire={vi.fn()} />)
 
       const header = screen.getByText(/Scheduled Orders/).closest('div')
@@ -220,7 +237,7 @@ describe('ScheduledOrdersSection', () => {
 
   describe('Edge cases', () => {
     it('handles very large minutes_until_fire values', () => {
-      const futureGroup = [createMockScheduledGroup('future-1', 1440)] // 24 hours
+      const futureGroup = [createMockScheduledGroup(1440)] // 24 hours
       render(<ScheduledOrdersSection scheduledGroups={futureGroup} onManualFire={vi.fn()} />)
 
       const header = screen.getByText(/Scheduled Orders/).closest('div')
@@ -230,7 +247,7 @@ describe('ScheduledOrdersSection', () => {
     })
 
     it('handles zero minutes_until_fire (imminent)', () => {
-      const imminent = [createMockScheduledGroup('imminent-1', 0)]
+      const imminent = [createMockScheduledGroup(0)]
       render(<ScheduledOrdersSection scheduledGroups={imminent} onManualFire={vi.fn()} />)
 
       const header = screen.getByText(/Scheduled Orders/).closest('div')
@@ -240,7 +257,7 @@ describe('ScheduledOrdersSection', () => {
     })
 
     it('handles negative minutes_until_fire (overdue)', () => {
-      const overdue = [createMockScheduledGroup('overdue-1', -5)]
+      const overdue = [createMockScheduledGroup(-5)]
       render(<ScheduledOrdersSection scheduledGroups={overdue} onManualFire={vi.fn()} />)
 
       const header = screen.getByText(/Scheduled Orders/).closest('div')
@@ -251,9 +268,9 @@ describe('ScheduledOrdersSection', () => {
 
     it('handles mixed urgency levels', () => {
       const mixedGroups = [
-        createMockScheduledGroup('crit-1', 1),
-        createMockScheduledGroup('warn-1', 4),
-        createMockScheduledGroup('norm-1', 15)
+        createMockScheduledGroup(1),
+        createMockScheduledGroup(4),
+        createMockScheduledGroup(15)
       ]
       render(<ScheduledOrdersSection scheduledGroups={mixedGroups} onManualFire={vi.fn()} />)
 

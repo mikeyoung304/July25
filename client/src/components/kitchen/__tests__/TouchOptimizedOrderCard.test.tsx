@@ -85,19 +85,21 @@ describe('TouchOptimizedOrderCard', () => {
   describe('Order information', () => {
     it('displays order items', () => {
       render(<TouchOptimizedOrderCard {...defaultProps} />)
-      expect(screen.getByText(/1x Burger/)).toBeInTheDocument()
+      // Quantity is in a separate span, item name follows
+      expect(screen.getByText('1')).toBeInTheDocument()
+      expect(screen.getByText('Burger')).toBeInTheDocument()
     })
 
     it('displays customer name when available', () => {
       const orderWithCustomer = { ...mockOrder, customer_name: 'John Smith' }
       render(<TouchOptimizedOrderCard order={orderWithCustomer} onStatusChange={defaultProps.onStatusChange} />)
-      // TODO: Verify customer name is displayed
+      expect(screen.getByText('John Smith')).toBeInTheDocument()
     })
 
     it('handles orders without customer name gracefully', () => {
       render(<TouchOptimizedOrderCard {...defaultProps} />)
-      // Should render without errors
-      expect(screen.getByText(/1x Burger/)).toBeInTheDocument()
+      // Should render without errors - quantity badge and item name are separate elements
+      expect(screen.getByText('Burger')).toBeInTheDocument()
     })
   })
 
@@ -121,9 +123,9 @@ describe('TouchOptimizedOrderCard', () => {
   describe('Status updates', () => {
     it('calls onStatusChange when action button is clicked', () => {
       render(<TouchOptimizedOrderCard {...defaultProps} />)
-      const button = screen.getByRole('button', { name: /Mark Ready|Ready/ })
+      const button = screen.getByRole('button', { name: /Complete Order/ })
       fireEvent.click(button)
-      // TODO: Verify onStatusChange is called with correct parameters
+      expect(defaultProps.onStatusChange).toHaveBeenCalledWith('order-1', 'ready')
     })
 
     it('disables interaction for ready orders', () => {

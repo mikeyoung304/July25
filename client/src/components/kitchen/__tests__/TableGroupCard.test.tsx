@@ -32,15 +32,20 @@ describe('TableGroupCard', () => {
   })
 
   const mockTableGroup: TableGroup = {
-    table_number: '5',
-    guest_count: 4,
-    status: 'active',
+    tableNumber: '5',
     orders: [
       createMockOrder('order-1', 'new'),
       createMockOrder('order-2', 'preparing')
     ],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    totalItems: 2,
+    completedItems: 0,
+    readyItems: 0,
+    preparingItems: 1,
+    oldestOrderTime: new Date().toISOString(),
+    newestOrderTime: new Date().toISOString(),
+    status: 'in-progress',
+    completionPercentage: 0,
+    urgencyLevel: 'normal'
   }
 
   const defaultProps = {
@@ -287,16 +292,18 @@ describe('TableGroupCard', () => {
       // TODO: Verify card is scrollable if necessary
     })
 
-    it('handles empty guest count', () => {
-      const noGuestsGroup = { ...mockTableGroup, guest_count: 0 }
-      render(<TableGroupCard tableGroup={noGuestsGroup} onOrderStatusChange={vi.fn()} />)
-      // TODO: Verify display handles 0 guests gracefully
+    it('handles zero completion percentage', () => {
+      const zeroProgressGroup = { ...mockTableGroup, completionPercentage: 0 }
+      render(<TableGroupCard tableGroup={zeroProgressGroup} onOrderStatusChange={vi.fn()} />)
+      // Verify display handles 0% gracefully
+      expect(screen.getByText('0%')).toBeInTheDocument()
     })
 
-    it('handles very large guest counts', () => {
-      const largePartyGroup = { ...mockTableGroup, guest_count: 20 }
-      render(<TableGroupCard tableGroup={largePartyGroup} onOrderStatusChange={vi.fn()} />)
-      // TODO: Verify display handles large numbers
+    it('handles 100% completion', () => {
+      const completeGroup = { ...mockTableGroup, completionPercentage: 100 }
+      render(<TableGroupCard tableGroup={completeGroup} onOrderStatusChange={vi.fn()} />)
+      // Verify display handles 100%
+      expect(screen.getByText('100%')).toBeInTheDocument()
     })
   })
 

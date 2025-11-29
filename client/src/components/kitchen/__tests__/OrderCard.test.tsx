@@ -130,12 +130,11 @@ describe('OrderCard', () => {
     })
 
     it('updates urgency color as time elapses', () => {
-      const { rerender } = render(<OrderCard {...defaultProps} />)
+      // First set system time to 5 minutes after the order was created
+      vi.setSystemTime(new Date('2024-01-01T12:05:00'))
+      render(<OrderCard {...defaultProps} />)
 
-      // Advance time by 5 minutes
-      vi.advanceTimersByTime(5 * 60 * 1000)
-      rerender(<OrderCard {...defaultProps} />)
-
+      // Should show 5 minutes elapsed
       expect(screen.getByText(/5m/)).toBeInTheDocument()
     })
 
