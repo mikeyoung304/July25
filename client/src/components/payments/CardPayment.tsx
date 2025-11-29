@@ -65,7 +65,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       const response = await post('/api/v1/payments/create', {
         order_id: orderId,
         token: paymentId,
-        idempotency_key: `card-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        idempotency_key: `card-checkout-${orderId}-${crypto.randomUUID()}`,
       });
 
       if (!response || !(response as any).success) {
@@ -106,7 +106,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       const response = await post('/api/v1/payments/create', {
         order_id: orderId,
         token: paymentId,
-        idempotency_key: `demo-card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        idempotency_key: `demo-card-${orderId}-${crypto.randomUUID()}`,
       });
 
       if (!response || !(response as any).success) {

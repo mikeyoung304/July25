@@ -13,6 +13,7 @@ import { PostOrderPrompt } from './components/PostOrderPrompt'
 import { ServerStats } from './components/ServerStats'
 import { ServerHeader } from './components/ServerHeader'
 import { PaymentModal } from '@/components/payments'
+import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary'
 import { Info } from 'lucide-react'
 import type { OrderInputMode } from '@/components/shared/OrderInputSelector'
 import { DEFAULT_TAX_RATE } from '@rebuild/shared/constants/business'
@@ -143,13 +144,17 @@ export const ServerView = memo(() => {
     setIsLoadingPayment(true)
     try {
       // Fetch orders for this table that are not yet paid
-      const ordersResponse = await get(`/api/v1/orders`, {
+      const ordersResponse = await get<Order[]>(`/api/v1/orders`, {
         params: {
           restaurant_id: restaurant.id,
           table_number: selectedTable.label,
           payment_status: 'pending'
         }
-      }) as Order[]
+      });
+
+      if (!Array.isArray(ordersResponse)) {
+        throw new Error('Invalid orders response');
+      }
 
       if (!ordersResponse || ordersResponse.length === 0) {
         toast.error('No unpaid orders found for this table')
@@ -298,15 +303,17 @@ export const ServerView = memo(() => {
             />
 
             {/* Payment Modal for Close Table */}
-            <PaymentModal
-              show={paymentState.show_modal}
-              order_id={paymentState.order_id || ''}
-              subtotal={paymentState.subtotal}
-              tax={paymentState.tax}
-              table_id={paymentState.table_id || undefined}
-              onClose={handlePaymentModalClose}
-              onSuccess={handlePaymentSuccess}
-            />
+            <PaymentErrorBoundary onRetry={() => setPaymentState(initialPaymentState)}>
+              <PaymentModal
+                show={paymentState.show_modal}
+                order_id={paymentState.order_id || ''}
+                subtotal={paymentState.subtotal}
+                tax={paymentState.tax}
+                table_id={paymentState.table_id || undefined}
+                onClose={handlePaymentModalClose}
+                onSuccess={handlePaymentSuccess}
+              />
+            </PaymentErrorBoundary>
 
             <ServerStats stats={stats} />
 
