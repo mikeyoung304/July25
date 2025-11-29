@@ -15,6 +15,7 @@ Codified lessons from $1.3M+ in prevented issues. These are the 6 most impactful
 | [CL-WS-001](./CL-WS-001-handler-timing-race.md) | WebSocket | Handler timing | No transcription events |
 | [CL-MEM-001](./CL-MEM-001-interval-leaks.md) | Memory | Untracked intervals | Memory growth 1-20 MB/day |
 | [CL-API-001](./CL-API-001-model-deprecation.md) | API | Silent deprecation | Feature works but output missing |
+| [CL-TEST-001](./CL-TEST-001-mock-drift-prevention.md) | Testing | Test mock drift from interfaces | Tests pass but code fails at runtime |
 
 ## When to Reference
 
@@ -25,6 +26,7 @@ Codified lessons from $1.3M+ in prevented issues. These are the 6 most impactful
 **Before WebSocket/WebRTC code:** Read CL-WS-001
 **Before adding setInterval:** Read CL-MEM-001
 **When API feature stops working:** Read CL-API-001
+**Before modifying shared/types or writing tests:** Read CL-TEST-001
 
 ## Format
 
