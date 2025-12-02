@@ -1,9 +1,11 @@
 ---
-status: open
+status: resolved
 priority: p1
 issue_id: "103"
 tags: [security, rls, code-review, database]
 dependencies: []
+resolved_date: 2025-12-02
+resolved_by: fix/code-review-p1-p2-followup
 ---
 
 # Missing RLS on Audit Tables (order_status_history, voice_order_logs)
@@ -89,9 +91,9 @@ Option A - Add full RLS policies in follow-up migration
 
 ## Acceptance Criteria
 
-- [ ] RLS enabled on `order_status_history`
-- [ ] RLS enabled on `voice_order_logs`
-- [ ] Service role bypass policies added
+- [x] RLS enabled on `order_status_history`
+- [x] RLS enabled on `voice_order_logs`
+- [x] Service role bypass policies added
 - [ ] Integration tests verify tenant isolation
 - [ ] Migration applied to production
 
@@ -100,6 +102,7 @@ Option A - Add full RLS policies in follow-up migration
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-12-02 | Created | Discovered during PR #150 review |
+| 2025-12-02 | Resolved | Migration added in 20251203_audit_tables_rls.sql |
 
 ## Resources
 

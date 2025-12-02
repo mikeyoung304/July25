@@ -204,8 +204,12 @@ export class HttpClient extends SecureAPIClient {
    * Convenience methods that properly type the parameters
    */
   async get<T>(endpoint: string, options?: HttpRequestOptions): Promise<T> {
-    // Build full URL with params for cache key
-    let cacheKey = endpoint
+    // Build cache key with restaurant_id prefix for tenant isolation (TODO-104 fix)
+    // This prevents cross-tenant cache pollution when switching restaurants
+    const restaurantId = getCurrentRestaurantId() || getRestaurantId()
+    const tenantPrefix = restaurantId || 'no-tenant'
+
+    let cacheKey = `${tenantPrefix}:${endpoint}`
     if (options?.params && Object.keys(options.params).length > 0) {
       const searchParams = new URLSearchParams()
       Object.entries(options.params).forEach(([key, value]) => {
@@ -213,7 +217,7 @@ export class HttpClient extends SecureAPIClient {
           searchParams.append(key, String(value))
         }
       })
-      cacheKey = `${endpoint}?${searchParams.toString()}`
+      cacheKey = `${tenantPrefix}:${endpoint}?${searchParams.toString()}`
     }
 
     // Check ResponseCache (C1: now the only cache)
@@ -269,12 +273,11 @@ export class HttpClient extends SecureAPIClient {
     }
   }
 
-  async post<T>(
-    endpoint: string,
-    data?: unknown,
-    options?: HttpRequestOptions
-  ): Promise<T> {
-    // Clear related cache on mutations
+  /**
+   * Clear related cache entries based on mutation endpoint (TODO-106 fix)
+   * Extracted to single source of truth for cache invalidation patterns
+   */
+  private clearRelatedCache(endpoint: string): void {
     if (endpoint.includes('/menu')) {
       this.clearCache('/api/v1/menu')
     } else if (endpoint.includes('/tables')) {
@@ -282,6 +285,14 @@ export class HttpClient extends SecureAPIClient {
     } else if (endpoint.includes('/voice-config')) {
       this.clearCache('/api/v1/voice-config/menu')
     }
+  }
+
+  async post<T>(
+    endpoint: string,
+    data?: unknown,
+    options?: HttpRequestOptions
+  ): Promise<T> {
+    this.clearRelatedCache(endpoint)
 
     return this.request<T>(endpoint, {
       ...options,
@@ -299,14 +310,7 @@ export class HttpClient extends SecureAPIClient {
     data?: unknown,
     options?: HttpRequestOptions
   ): Promise<T> {
-    // Clear related cache on mutations
-    if (endpoint.includes('/menu')) {
-      this.clearCache('/api/v1/menu')
-    } else if (endpoint.includes('/tables')) {
-      this.clearCache('/api/v1/tables')
-    } else if (endpoint.includes('/voice-config')) {
-      this.clearCache('/api/v1/voice-config/menu')
-    }
+    this.clearRelatedCache(endpoint)
 
     return this.request<T>(endpoint, {
       ...options,
@@ -324,14 +328,7 @@ export class HttpClient extends SecureAPIClient {
     data?: unknown,
     options?: HttpRequestOptions
   ): Promise<T> {
-    // Clear related cache on mutations
-    if (endpoint.includes('/menu')) {
-      this.clearCache('/api/v1/menu')
-    } else if (endpoint.includes('/tables')) {
-      this.clearCache('/api/v1/tables')
-    } else if (endpoint.includes('/voice-config')) {
-      this.clearCache('/api/v1/voice-config/menu')
-    }
+    this.clearRelatedCache(endpoint)
 
     return this.request<T>(endpoint, {
       ...options,
@@ -345,14 +342,7 @@ export class HttpClient extends SecureAPIClient {
   }
 
   async delete<T>(endpoint: string, options?: HttpRequestOptions): Promise<T> {
-    // Clear related cache on mutations
-    if (endpoint.includes('/menu')) {
-      this.clearCache('/api/v1/menu')
-    } else if (endpoint.includes('/tables')) {
-      this.clearCache('/api/v1/tables')
-    } else if (endpoint.includes('/voice-config')) {
-      this.clearCache('/api/v1/voice-config/menu')
-    }
+    this.clearRelatedCache(endpoint)
 
     return this.request<T>(endpoint, { ...options, method: 'DELETE' })
   }
