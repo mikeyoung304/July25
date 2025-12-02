@@ -150,6 +150,7 @@ model oauth_authorizations {
   created_at            DateTime                   @default(now()) @db.Timestamptz(6)
   expires_at            DateTime                   @default(dbgenerated("(now() + '00:03:00'::interval)")) @db.Timestamptz(6)
   approved_at           DateTime?                  @db.Timestamptz(6)
+  nonce                 String?
   oauth_clients         oauth_clients              @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   users                 users?                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -299,6 +300,7 @@ model sessions {
   oauth_client_id        String?          @db.Uuid
   refresh_token_hmac_key String?
   refresh_token_counter  BigInt?
+  scopes                 String?
   mfa_amr_claims         mfa_amr_claims[]
   refresh_tokens         refresh_tokens[]
   oauth_clients          oauth_clients?   @relation(fields: [oauth_client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -392,7 +394,7 @@ model users {
   one_time_tokens             one_time_tokens[]
   sessions                    sessions[]
   payment_audit_logs          payment_audit_logs[]
-  user_pins                   user_pins[]        @ignore
+  user_pins                   user_pins[]            @ignore
   user_profiles               user_profiles?
   user_restaurants            user_restaurants[]
 
@@ -587,9 +589,10 @@ model restaurants {
   security_audit_logs_security_audit_logs_authenticated_restaurant_idTorestaurants security_audit_logs[]  @relation("security_audit_logs_authenticated_restaurant_idTorestaurants")
   station_tokens                                                                   station_tokens[]
   tables                                                                           tables[]
-  user_pins                                                                        user_pins[]        @ignore
+  user_pins                                                                        user_pins[]            @ignore
   user_restaurants                                                                 user_restaurants[]
   voice_modifier_rules                                                             voice_modifier_rules[]
+  voice_order_carts                                                                voice_order_carts[]
   voice_order_logs                                                                 voice_order_logs[]
 
   @@index([tax_rate], map: "idx_restaurants_tax_rate")
@@ -762,6 +765,27 @@ model voice_modifier_rules {
   restaurants              restaurants @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([trigger_phrases], map: "idx_voice_modifier_rules_triggers", type: Gin)
+  @@schema("public")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model voice_order_carts {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  session_id    String
+  restaurant_id String      @db.Uuid
+  items         Json        @default("[]")
+  subtotal      Decimal     @default(0) @db.Decimal(10, 2)
+  tax           Decimal     @default(0) @db.Decimal(10, 2)
+  total         Decimal     @default(0) @db.Decimal(10, 2)
+  created_at    DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime    @default(now()) @db.Timestamptz(6)
+  expires_at    DateTime    @default(dbgenerated("(now() + '00:30:00'::interval)")) @db.Timestamptz(6)
+  restaurants   restaurants @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([session_id, restaurant_id], map: "unique_session_restaurant")
+  @@index([restaurant_id], map: "idx_voice_order_carts_restaurant")
+  @@index([session_id, restaurant_id], map: "idx_voice_order_carts_session_restaurant")
   @@schema("public")
 }
 
