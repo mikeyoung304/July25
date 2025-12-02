@@ -287,20 +287,15 @@ class PerformanceMonitor {
     };
 
     // In production, send to analytics service
-    // DISABLED: Analytics endpoint not yet implemented on server
-    // TODO: Re-enable when /api/v1/analytics/performance endpoint is created
-    /*
     if (!import.meta.env.DEV) {
       void httpClient
         .post('/api/v1/analytics/performance', report, {
-          skipAuth: true,
-          skipRestaurantId: true
+          skipAuth: false
         })
         .catch(() => {
           // Silently fail - don't impact user experience
         });
     }
-    */
 
     // Log metrics in development only
     if (import.meta.env.DEV) {

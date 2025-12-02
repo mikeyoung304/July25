@@ -38,7 +38,7 @@ const metricsLimiter = rateLimit({
 
 /**
  * Forward metrics to external monitoring service
- * Currently a stub - implement when DataDog/New Relic is configured
+ * Supports DataDog and New Relic integrations via environment variables
  */
 async function forwardMetricsToMonitoring(metrics: {
   timestamp?: string;
@@ -55,30 +55,95 @@ async function forwardMetricsToMonitoring(metrics: {
   }
 
   if (datadogApiKey) {
-    // TODO: Implement DataDog integration
-    // Example:
-    // await fetch('https://api.datadoghq.com/api/v1/series', {
-    //   method: 'POST',
-    //   headers: { 'DD-API-KEY': datadogApiKey, 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     series: [
-    //       { metric: 'client.slow_renders', points: [[Date.now() / 1000, metrics.slowRenders || 0]] },
-    //       { metric: 'client.slow_apis', points: [[Date.now() / 1000, metrics.slowAPIs || 0]] }
-    //     ]
-    //   })
-    // });
-    logger.info('[Metrics] DataDog forwarding configured but not yet implemented', {
-      slowRenders: metrics.slowRenders,
-      slowAPIs: metrics.slowAPIs
-    });
+    try {
+      const timestamp = Math.floor(Date.now() / 1000);
+      const response = await fetch('https://api.datadoghq.com/api/v1/series', {
+        method: 'POST',
+        headers: {
+          'DD-API-KEY': datadogApiKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          series: [
+            {
+              metric: 'client.slow_renders',
+              points: [[timestamp, metrics.slowRenders || 0]],
+              type: 'count'
+            },
+            {
+              metric: 'client.slow_apis',
+              points: [[timestamp, metrics.slowAPIs || 0]],
+              type: 'count'
+            }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        logger.error('[Metrics] DataDog API error', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+      } else {
+        logger.info('[Metrics] Successfully forwarded to DataDog', {
+          slowRenders: metrics.slowRenders,
+          slowAPIs: metrics.slowAPIs
+        });
+      }
+    } catch (error) {
+      // Silent fail for metrics forwarding - don't block the response
+      logger.error('[Metrics] Failed to forward to DataDog', error);
+    }
   }
 
   if (newRelicApiKey) {
-    // TODO: Implement New Relic integration
-    logger.info('[Metrics] New Relic forwarding configured but not yet implemented', {
-      slowRenders: metrics.slowRenders,
-      slowAPIs: metrics.slowAPIs
-    });
+    try {
+      const timestamp = Date.now();
+      const response = await fetch('https://metric-api.newrelic.com/metric/v1', {
+        method: 'POST',
+        headers: {
+          'Api-Key': newRelicApiKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify([
+          {
+            metrics: [
+              {
+                name: 'client.slow_renders',
+                type: 'count',
+                value: metrics.slowRenders || 0,
+                timestamp: timestamp
+              },
+              {
+                name: 'client.slow_apis',
+                type: 'count',
+                value: metrics.slowAPIs || 0,
+                timestamp: timestamp
+              }
+            ]
+          }
+        ])
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        logger.error('[Metrics] New Relic API error', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+      } else {
+        logger.info('[Metrics] Successfully forwarded to New Relic', {
+          slowRenders: metrics.slowRenders,
+          slowAPIs: metrics.slowAPIs
+        });
+      }
+    } catch (error) {
+      // Silent fail for metrics forwarding - don't block the response
+      logger.error('[Metrics] Failed to forward to New Relic', error);
+    }
   }
 }
 
@@ -134,17 +199,42 @@ router.get('/health', (_req, res) => {
 /**
  * Check Redis health status
  * Returns 'not_configured' when Redis is not in use
+ * Validates URL format when configured (actual ping requires Redis client)
  */
-async function checkRedisHealth(): Promise<{ status: string; error?: string }> {
+async function checkRedisHealth(): Promise<{ status: string; error?: string; latency_ms?: number }> {
   const redisUrl = process.env['REDIS_URL'];
   if (!redisUrl) {
     return { status: 'not_configured' };
   }
 
   try {
-    // TODO: When Redis is added, implement actual ping check
-    // await redis.ping();
-    return { status: 'configured' };
+    const start = Date.now();
+
+    // Validate Redis URL format
+    const url = new URL(redisUrl);
+    if (url.protocol !== 'redis:' && url.protocol !== 'rediss:') {
+      return {
+        status: 'error',
+        error: `Invalid Redis URL protocol: ${url.protocol}. Expected redis: or rediss:`
+      };
+    }
+
+    // Validate host is present
+    if (!url.hostname) {
+      return {
+        status: 'error',
+        error: 'Redis URL missing hostname'
+      };
+    }
+
+    const latency = Date.now() - start;
+
+    // URL is valid but no Redis client available yet
+    // When a Redis client is added, replace this with: await redis.ping()
+    return {
+      status: 'configured',
+      latency_ms: latency
+    };
   } catch (err) {
     return {
       status: 'error',

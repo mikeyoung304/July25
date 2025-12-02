@@ -41,6 +41,19 @@ export interface OrderItem {
   subtotal: number;
 }
 
+export interface OrderMetadata {
+  serverName?: string;
+  section?: string;
+  originalType?: string;
+  uiType?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  tip?: number;
+  source?: string;
+  timestamp?: string;
+  [key: string]: any; // Allow additional metadata fields
+}
+
 export interface Order {
   id: string;
   restaurant_id: string;
@@ -60,6 +73,7 @@ export interface Order {
   table_number?: string;
   seat_number?: number; // NEW: For multi-seat ordering
   notes?: string;
+  metadata?: OrderMetadata;
   created_at: string;
   updated_at: string;
   completed_at?: string;

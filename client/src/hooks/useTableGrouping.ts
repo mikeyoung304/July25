@@ -98,11 +98,16 @@ export const useTableGrouping = (orders: Order[]) => {
               break
           }
         })
-        
-        // TODO: Extract server and section from order metadata if available
-        // tableGroup.serverName = order.metadata?.serverName
-        // tableGroup.section = order.metadata?.section
-        
+
+        // Extract server and section from order metadata if available
+        // Only set if not already set (first order wins for table group)
+        if (!tableGroup.serverName && order.metadata?.serverName) {
+          tableGroup.serverName = order.metadata.serverName
+        }
+        if (!tableGroup.section && order.metadata?.section) {
+          tableGroup.section = order.metadata.section
+        }
+
       } else {
         // Route to appropriate non-table category based on order type
         const orderType = order.type?.toLowerCase()

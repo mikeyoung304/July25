@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import crypto from 'crypto';
+import { logger } from '../utils/logger';
 
 /**
  * Comprehensive security middleware for Restaurant OS
@@ -141,17 +142,139 @@ class SecurityMonitor {
       ...event,
       timestamp: new Date(),
     };
-    
+
     this.events.push(fullEvent);
-    
+
     // Prevent memory leak
     if (this.events.length > this.maxEvents) {
       this.events = this.events.slice(-this.maxEvents);
     }
-    
-    // Debug: Security event would be logged in development
-    
-    // TODO: Send to logging service (Datadog, Sentry, etc.)
+
+    // Local logging
+    logger.warn('Security event detected', {
+      type: fullEvent.type,
+      ip: fullEvent.ip,
+      userId: fullEvent.userId,
+      details: fullEvent.details,
+      timestamp: fullEvent.timestamp,
+    });
+
+    // Forward to external logging services (non-blocking)
+    this.forwardToExternalServices(fullEvent).catch(err => {
+      logger.error('Failed to forward security event to external service', { error: err.message });
+    });
+  }
+
+  private async forwardToExternalServices(event: SecurityEvent): Promise<void> {
+    const promises: Promise<void>[] = [];
+
+    // DataDog integration
+    const datadogApiKey = process.env['DATADOG_API_KEY'];
+    if (datadogApiKey) {
+      promises.push(this.sendToDatadog(event, datadogApiKey));
+    }
+
+    // Sentry integration
+    const sentryDsn = process.env['SENTRY_DSN'];
+    if (sentryDsn) {
+      promises.push(this.sendToSentry(event, sentryDsn));
+    }
+
+    // Fire and forget - don't await
+    if (promises.length > 0) {
+      Promise.allSettled(promises).catch(() => {
+        // Silently fail - we don't want external logging to impact app
+      });
+    }
+  }
+
+  private async sendToDatadog(event: SecurityEvent, apiKey: string): Promise<void> {
+    try {
+      const payload = {
+        ddsource: 'nodejs',
+        ddtags: `env:${process.env['NODE_ENV'] || 'development'},service:restaurant-os`,
+        hostname: process.env['HOSTNAME'] || 'unknown',
+        message: `Security event: ${event.type}`,
+        status: 'warn',
+        service: 'restaurant-os',
+        timestamp: event.timestamp.toISOString(),
+        attributes: {
+          security_event_type: event.type,
+          ip_address: event.ip,
+          user_id: event.userId,
+          details: event.details,
+        },
+      };
+
+      const response = await fetch('https://http-intake.logs.datadoghq.com/v1/input', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'DD-API-KEY': apiKey,
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(5000), // 5s timeout
+      });
+
+      if (!response.ok) {
+        logger.debug('DataDog API returned non-OK status', { status: response.status });
+      }
+    } catch (err) {
+      // Silent failure - external logging should not crash the app
+      logger.debug('Failed to send security event to DataDog', {
+        error: err instanceof Error ? err.message : 'Unknown error'
+      });
+    }
+  }
+
+  private async sendToSentry(event: SecurityEvent, dsn: string): Promise<void> {
+    try {
+      // Parse DSN to extract project ID and key
+      const dsnUrl = new URL(dsn);
+      const publicKey = dsnUrl.username;
+      const projectId = dsnUrl.pathname.substring(1);
+      const sentryEndpoint = `${dsnUrl.protocol}//${dsnUrl.host}/api/${projectId}/store/`;
+
+      const payload = {
+        event_id: crypto.randomBytes(16).toString('hex'),
+        timestamp: Math.floor(event.timestamp.getTime() / 1000),
+        platform: 'node',
+        level: 'warning',
+        logger: 'security-monitor',
+        message: {
+          formatted: `Security event: ${event.type}`,
+        },
+        tags: {
+          security_event_type: event.type,
+          ip_address: event.ip,
+          environment: process.env['NODE_ENV'] || 'development',
+        },
+        extra: {
+          user_id: event.userId,
+          details: event.details,
+        },
+        server_name: process.env['HOSTNAME'] || 'unknown',
+      };
+
+      const response = await fetch(sentryEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Sentry-Auth': `Sentry sentry_version=7, sentry_key=${publicKey}, sentry_client=custom-nodejs/1.0.0`,
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(5000), // 5s timeout
+      });
+
+      if (!response.ok) {
+        logger.debug('Sentry API returned non-OK status', { status: response.status });
+      }
+    } catch (err) {
+      // Silent failure - external logging should not crash the app
+      logger.debug('Failed to send security event to Sentry', {
+        error: err instanceof Error ? err.message : 'Unknown error'
+      });
+    }
   }
   
   getEvents(filter?: Partial<SecurityEvent>): SecurityEvent[] {
