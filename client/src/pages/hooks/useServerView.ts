@@ -3,36 +3,74 @@ import { logger } from '@/services/logger'
 import { RestaurantContext } from '@/core'
 import { tableService } from '@/services/tables/TableService'
 import { useToast } from '@/hooks/useToast'
-import { useTableStatus } from '@/hooks/useTableStatus'
+import { supabase } from '@/core/supabase'
 import type { Table } from '@/modules/floor-plan/types'
 
 export function useServerView() {
   const { toast } = useToast()
+  // Fix memory leak: use ref to access toast without including it in dependencies
+  const toastRef = useRef(toast)
+  useEffect(() => {
+    toastRef.current = toast
+  }, [toast])
+
   const context = useContext(RestaurantContext)
   const [tables, setTables] = useState<Table[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
+  const [isSubscribed, setIsSubscribed] = useState(false)
   const isInitialLoad = useRef(true)
   const loadingRef = useRef(false)
-  
+
   const restaurant = context?.restaurant
 
-  // Real-time table status subscription - updates tables instantly when status changes
-  const { isSubscribed } = useTableStatus(
-    restaurant?.id,
-    // When a table status changes via Supabase, update our local state
-    useCallback((updatedTable) => {
-      logger.info('[useServerView] Real-time table update received', {
-        tableId: updatedTable.id,
-        status: updatedTable.status
-      });
-      setTables(prev => prev.map(t =>
-        t.id === updatedTable.id
-          ? { ...t, status: updatedTable.status as Table['status'] }
-          : t
-      ));
-    }, [])
-  );
+  // Inline Supabase subscription - no useTableStatus hook needed (B1: deleted useTableStatus.ts)
+  useEffect(() => {
+    if (!restaurant?.id) {
+      setIsSubscribed(false)
+      return
+    }
+
+    const channel = supabase
+      .channel(`tables:${restaurant.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tables',
+          filter: `restaurant_id=eq.${restaurant.id}`
+        },
+        (payload) => {
+          logger.info('[useServerView] Real-time table update', {
+            eventType: payload.eventType,
+            tableId: (payload.new as { id?: string })?.id || (payload.old as { id?: string })?.id
+          })
+
+          if (payload.eventType === 'DELETE' && payload.old) {
+            setTables(prev => prev.filter(t => t.id !== (payload.old as { id: string }).id))
+          } else if (payload.new) {
+            const newData = payload.new as { id: string; status: string }
+            setTables(prev => prev.map(t =>
+              t.id === newData.id
+                ? { ...t, status: newData.status as Table['status'] }
+                : t
+            ))
+          }
+        }
+      )
+      .subscribe((status) => {
+        setIsSubscribed(status === 'SUBSCRIBED')
+        if (status === 'SUBSCRIBED') {
+          logger.info('[useServerView] Subscribed to table updates')
+        }
+      })
+
+    return () => {
+      supabase.removeChannel(channel)
+      setIsSubscribed(false)
+    }
+  }, [restaurant?.id])
 
   const loadFloorPlan = useCallback(async () => {
     // Prevent concurrent calls
@@ -88,7 +126,7 @@ export function useServerView() {
 
       // Only show error toast on initial load failure
       if (isInitialLoad.current) {
-        toast.error('Failed to load floor plan. Please configure in Admin.')
+        toastRef.current.error('Failed to load floor plan. Please configure in Admin.')
       } else {
         // Just log refresh failures
         logger.warn('Floor plan refresh failed - will retry on next interval')
@@ -100,7 +138,7 @@ export function useServerView() {
         isInitialLoad.current = false
       }
     }
-  }, [restaurant?.id, toast])
+  }, [restaurant?.id]) // toast removed from deps - using toastRef to prevent memory leak (B2)
 
   useEffect(() => {
     // Initial load

@@ -11,7 +11,6 @@ import { SecureAPIClient, APIError } from '@/services/secureApi'
 import { logger } from '@/services/logger'
 import { supabase } from '@/core/supabase'
 import { getApiUrl, getRestaurantId } from '@/config'
-import { RequestBatcher } from './RequestBatcher'
 import { ResponseCache } from '../cache/ResponseCache'
 import type { JsonValue } from '@/../../shared/types/api.types'
 
@@ -34,55 +33,38 @@ export interface HttpRequestOptions extends RequestInit {
   skipTransform?: boolean
 }
 
-// Simple cache for GET requests
-interface CacheEntry<T> {
-  data: T
-  timestamp: number
-}
-
-// Cache configuration
-const CACHE_TTL = {
+// Cache configuration (TTL values for ResponseCache)
+const CACHE_TTL: Record<string, number> = {
   '/api/v1/menu': 5 * 60 * 1000,          // 5 minutes for menu
   '/api/v1/menu/categories': 5 * 60 * 1000, // 5 minutes for categories
-  '/api/v1/voice-config/menu': 5 * 60 * 1000, // 5 minutes for voice config (TODO-019)
-  '/api/v1/tables': 0,                    // No caching for tables (floor plan needs real-time data)
+  '/api/v1/voice-config/menu': 5 * 60 * 1000, // 5 minutes for voice config
+  '/api/v1/tables': 0,                    // No caching for tables (real-time data)
   default: 60 * 1000                      // 1 minute default
 }
 
 export class HttpClient extends SecureAPIClient {
-  // Simple in-memory cache for GET requests
-  private cache = new Map<string, CacheEntry<JsonValue>>()
-  // Track in-flight requests to prevent duplicates
+  // Track in-flight requests to prevent duplicate concurrent requests
   private inFlightRequests = new Map<string, Promise<JsonValue>>()
-  // Request batcher for reducing network overhead
-  private batcher: RequestBatcher
-  // Response cache with LRU eviction
+  // Single response cache with LRU eviction (C1: removed dual cache system)
   private responseCache: ResponseCache
-  
+
   constructor() {
     // Use centralized config for base URL
     const baseURL = getApiUrl()
-    
+
     if (import.meta.env.DEV) {
       logger.info('[httpClient] Using API base URL from config:', baseURL)
     }
-    
+
     // Warn if production is misconfigured
     if (import.meta.env.PROD && baseURL.includes('localhost')) {
-      console.error('⚠️ Production build is trying to connect to localhost backend!')
+      console.error('Production build is trying to connect to localhost backend!')
       console.error('Please set VITE_API_BASE_URL to your production backend URL')
     }
-    
+
     super(baseURL)
-    
-    // Initialize request batcher
-    this.batcher = new RequestBatcher({
-      maxBatchSize: 10,
-      maxWaitTime: 50,
-      batchEndpoint: '/api/v1/batch'
-    })
-    
-    // Initialize response cache
+
+    // Initialize response cache (C1: now the only cache)
     this.responseCache = new ResponseCache({
       maxSize: 100,
       defaultTTL: 60000
@@ -211,8 +193,8 @@ export class HttpClient extends SecureAPIClient {
   private getCacheTTL(endpoint: string): number {
     // Find matching TTL config
     for (const [key, ttl] of Object.entries(CACHE_TTL)) {
-      if (endpoint.startsWith(key)) {
-        return ttl as number
+      if (key !== 'default' && endpoint.startsWith(key)) {
+        return ttl
       }
     }
     return CACHE_TTL.default
@@ -233,32 +215,17 @@ export class HttpClient extends SecureAPIClient {
       })
       cacheKey = `${endpoint}?${searchParams.toString()}`
     }
-    
-    // Check ResponseCache first (uses LRU eviction)
+
+    // Check ResponseCache (C1: now the only cache)
     const cachedResponse = this.responseCache.get(cacheKey)
     if (cachedResponse) {
       if (import.meta.env.DEV) {
-        logger.info(`[ResponseCache HIT] ${endpoint}`)
+        logger.info(`[Cache HIT] ${endpoint}`)
       }
       return cachedResponse as T
     }
-    
-    // Fallback to simple cache for backward compatibility
-    const cached = this.cache.get(cacheKey)
-    if (cached) {
-      const age = Date.now() - cached.timestamp
-      const ttl = this.getCacheTTL(endpoint)
-      if (age < ttl) {
-        if (import.meta.env.DEV) {
-          logger.info(`[Cache HIT] ${endpoint} (age: ${Math.round(age/1000)}s)`)
-        }
-        // Also store in ResponseCache for next time
-        this.responseCache.set(cacheKey, cached.data, { ttl })
-        return cached.data as T
-      }
-    }
-    
-    // Check for in-flight request
+
+    // Check for in-flight request to prevent duplicates
     const inFlight = this.inFlightRequests.get(cacheKey)
     if (inFlight) {
       if (import.meta.env.DEV) {
@@ -266,28 +233,28 @@ export class HttpClient extends SecureAPIClient {
       }
       return inFlight as Promise<T>
     }
-    
+
     // Make the request
     const requestPromise = this.request<T>(endpoint, { ...options, method: 'GET' })
-    
+
     // Track in-flight request
-    this.inFlightRequests.set(cacheKey, requestPromise as Promise<any>)
-    
-    // Cache the result
+    this.inFlightRequests.set(cacheKey, requestPromise as Promise<JsonValue>)
+
+    // Cache the result on success
     requestPromise.then(data => {
-      this.cache.set(cacheKey, { data: data as any, timestamp: Date.now() })
-      // Also store in ResponseCache with TTL
       const ttl = this.getCacheTTL(endpoint)
-      this.responseCache.set(cacheKey, data as any, { ttl })
-      this.inFlightRequests.delete(cacheKey)
-      if (import.meta.env.DEV) {
-        logger.info(`[Cache SET] ${endpoint}`)
+      if (ttl > 0) {
+        this.responseCache.set(cacheKey, data as JsonValue, { ttl })
+        if (import.meta.env.DEV) {
+          logger.info(`[Cache SET] ${endpoint} (TTL: ${ttl}ms)`)
+        }
       }
+      this.inFlightRequests.delete(cacheKey)
     }).catch(() => {
       // Clean up on error
       this.inFlightRequests.delete(cacheKey)
     })
-    
+
     return requestPromise
   }
 
@@ -295,21 +262,8 @@ export class HttpClient extends SecureAPIClient {
    * Clear cache for a specific endpoint or all cache
    */
   clearCache(endpoint?: string): void {
-    if (endpoint) {
-      // Clear specific endpoint from both caches
-      for (const key of this.cache.keys()) {
-        if (key.startsWith(endpoint)) {
-          this.cache.delete(key)
-        }
-      }
-      // Also clear from ResponseCache
-      this.responseCache.clear(endpoint)
-    } else {
-      // Clear all cache
-      this.cache.clear()
-      this.responseCache.clear()
-    }
-    
+    this.responseCache.clear(endpoint)
+
     if (import.meta.env.DEV) {
       logger.info(`[Cache CLEARED] ${endpoint || 'ALL'}`)
     }
@@ -445,14 +399,10 @@ export function clearAllCachesForRestaurantSwitch(): void {
 
 // Expose cache stats in development for debugging
 if (import.meta.env.DEV) {
-  (window as any).__httpCache = {
+  (window as unknown as { __httpCache: unknown }).__httpCache = {
     getStats: () => ({
-      cacheSize: httpClient['cache'].size,
-      inFlightRequests: httpClient['inFlightRequests'].size,
-      entries: Array.from(httpClient['cache'].entries()).map(([key, value]) => ({
-        key,
-        age: Math.round((Date.now() - value.timestamp) / 1000) + 's'
-      }))
+      responseCache: httpClient['responseCache'].getStats(),
+      inFlightRequests: httpClient['inFlightRequests'].size
     }),
     clear: () => httpClient.clearCache()
   }

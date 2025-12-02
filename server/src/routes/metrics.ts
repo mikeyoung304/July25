@@ -1,8 +1,40 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/database';
+import { authenticate, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
+
+// Only disable rate limiting in local development
+const isDevelopment = process.env['NODE_ENV'] === 'development' && process.env['RENDER'] !== 'true';
+
+// Rate limiter keyed by authenticated restaurant (no IP fallback - auth required)
+const metricsLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: isDevelopment ? 300 : 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    const authReq = req as AuthenticatedRequest;
+    // Only use restaurant_id from JWT (not from header) - prevents spoofing
+    return `metrics:${authReq.user?.restaurant_id || 'unknown'}`;
+  },
+  handler: (req, res) => {
+    const authReq = req as AuthenticatedRequest;
+    logger.warn('[RATE_LIMIT] Metrics rate limit exceeded', {
+      restaurantId: authReq.user?.restaurant_id,
+      userId: authReq.user?.id,
+      ip: req.ip
+    });
+    res.status(429).json({
+      error: 'Rate limit exceeded',
+      retryAfter: 60,
+      limit: 100,
+      windowMs: 60000
+    });
+  }
+});
 
 /**
  * Forward metrics to external monitoring service
@@ -51,30 +83,41 @@ async function forwardMetricsToMonitoring(metrics: {
 }
 
 /**
- * Receive performance metrics from client
- * Alias: /api/v1/analytics/performance → /metrics
+ * Shared handler for metrics endpoints (fixes TODO-099 duplication)
  */
-router.post('/metrics', async (req, res) => {
+async function handleMetrics(req: Request, res: Response): Promise<void> {
+  const authReq = req as AuthenticatedRequest;
+
   try {
     const metrics = req.body;
-    
-    // Log metrics for analysis
+
+    // Sanitize metrics
+    const sanitizedMetrics = {
+      timestamp: metrics.timestamp || new Date().toISOString(),
+      slowRenders: Math.max(0, parseInt(metrics.slowRenders) || 0),
+      slowAPIs: Math.max(0, parseInt(metrics.slowAPIs) || 0),
+      stats: typeof metrics.stats === 'object' ? metrics.stats : {}
+    };
+
     logger.info('Client performance metrics', {
-      timestamp: metrics.timestamp,
-      slowRenders: metrics.slowRenders,
-      slowAPIs: metrics.slowAPIs,
-      stats: metrics.stats,
+      ...sanitizedMetrics,
+      restaurantId: authReq.user?.restaurant_id, // From JWT only
+      userId: authReq.user?.id
     });
 
-    // Forward to monitoring service when configured
-    await forwardMetricsToMonitoring(metrics);
-
+    await forwardMetricsToMonitoring(sanitizedMetrics);
     res.json({ success: true });
   } catch (error) {
     logger.error('Failed to process metrics', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-});
+}
+
+/**
+ * Receive performance metrics from client
+ * Requires authentication to prevent restaurant_id spoofing and enable per-restaurant rate limiting
+ */
+router.post('/metrics', authenticate, metricsLimiter, handleMetrics);
 
 /**
  * Health check endpoint
@@ -199,23 +242,8 @@ if (process.env['NODE_ENV'] === 'development') {
 /**
  * Analytics performance alias
  * Client expects /api/v1/analytics/performance but we serve /metrics
+ * Uses same authentication and rate limiting as /metrics
  */
-router.post('/analytics/performance', async (req, res) => {
-  try {
-    const metrics = req.body;
-
-    logger.info('Client performance metrics', {
-      timestamp: metrics.timestamp,
-      slowRenders: metrics.slowRenders,
-      slowAPIs: metrics.slowAPIs,
-      stats: metrics.stats,
-    });
-
-    res.json({ success: true });
-  } catch (error) {
-    logger.error('Failed to process metrics', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.post('/analytics/performance', authenticate, metricsLimiter, handleMetrics);
 
 export default router;
