@@ -19,7 +19,16 @@ import type { JsonValue } from '@/../../shared/types/api.types'
 let currentRestaurantId: string | null = null
 
 export function setCurrentRestaurantId(restaurantId: string | null) {
+  const previousId = currentRestaurantId
   currentRestaurantId = restaurantId
+
+  // Clear caches when switching restaurants to prevent cross-tenant data leakage
+  // Only clear if we're switching from one restaurant to another (not initial load)
+  if (previousId !== null && previousId !== restaurantId) {
+    // Use the exported clearAllCachesForRestaurantSwitch function
+    // which handles both HTTP cache and localStorage
+    clearAllCachesForRestaurantSwitch()
+  }
 }
 
 export function getCurrentRestaurantId(): string | null {
@@ -58,8 +67,8 @@ export class HttpClient extends SecureAPIClient {
 
     // Warn if production is misconfigured
     if (import.meta.env.PROD && baseURL.includes('localhost')) {
-      console.error('Production build is trying to connect to localhost backend!')
-      console.error('Please set VITE_API_BASE_URL to your production backend URL')
+      logger.error('Production build is trying to connect to localhost backend!', { baseURL })
+      logger.error('Please set VITE_API_BASE_URL to your production backend URL')
     }
 
     super(baseURL)
@@ -278,11 +287,11 @@ export class HttpClient extends SecureAPIClient {
    * Extracted to single source of truth for cache invalidation patterns
    */
   private clearRelatedCache(endpoint: string): void {
-    if (endpoint.includes('/menu')) {
+    if (endpoint.startsWith('/api/v1/menu')) {
       this.clearCache('/api/v1/menu')
-    } else if (endpoint.includes('/tables')) {
+    } else if (endpoint.startsWith('/api/v1/tables')) {
       this.clearCache('/api/v1/tables')
-    } else if (endpoint.includes('/voice-config')) {
+    } else if (endpoint.startsWith('/api/v1/voice-config')) {
       this.clearCache('/api/v1/voice-config/menu')
     }
   }

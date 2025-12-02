@@ -27,7 +27,10 @@ FOR SELECT USING (
 
 -- INSERT: Must provide restaurant_id matching JWT
 CREATE POLICY "tenant_insert_order_status_history" ON order_status_history
-FOR INSERT WITH CHECK (restaurant_id = (auth.jwt() ->> 'restaurant_id')::uuid);
+FOR INSERT WITH CHECK (
+  restaurant_id IS NOT NULL
+  AND restaurant_id = (auth.jwt() ->> 'restaurant_id')::uuid
+);
 
 -- UPDATE: Only own restaurant's rows
 CREATE POLICY "tenant_update_order_status_history" ON order_status_history
@@ -35,7 +38,10 @@ FOR UPDATE USING (
   restaurant_id IS NOT NULL
   AND restaurant_id = (auth.jwt() ->> 'restaurant_id')::uuid
 )
-WITH CHECK (restaurant_id = (auth.jwt() ->> 'restaurant_id')::uuid);
+WITH CHECK (
+  restaurant_id IS NOT NULL
+  AND restaurant_id = (auth.jwt() ->> 'restaurant_id')::uuid
+);
 
 -- DELETE: Only own restaurant's rows
 CREATE POLICY "tenant_delete_order_status_history" ON order_status_history
