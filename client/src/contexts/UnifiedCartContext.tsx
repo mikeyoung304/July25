@@ -25,7 +25,7 @@ export interface UnifiedCartContextType {
   cart: UnifiedCart;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
-  
+
   // Core cart operations
   addItem: (menuItem: MenuItem, quantity?: number, modifications?: string[], specialInstructions?: string) => void;
   addToCart: (item: Omit<CartItem, 'id'>) => void; // Legacy support
@@ -34,10 +34,15 @@ export interface UnifiedCartContextType {
   removeFromCart: (itemId: string) => void;
   clearCart: () => void;
   updateTip: (tip: number) => void;
-  
+
   // Computed values
   itemCount: number;
   restaurantId: string;
+
+  // Config state for checkout blocking
+  isConfigReady: boolean;
+  isConfigLoading: boolean;
+  configError: string | null;
 }
 
 export const UnifiedCartContext = createContext<UnifiedCartContextType | undefined>(undefined);
@@ -249,6 +254,9 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
     setTip(newTip);
   }, []);
 
+  // Config is ready when loaded without errors and has a valid tax rate
+  const isConfigReady = !isConfigLoading && !configError && taxRate > 0;
+
   const value: UnifiedCartContextType = {
     cart,
     isCartOpen,
@@ -261,7 +269,10 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
     clearCart,
     updateTip,
     itemCount: cart.itemCount,
-    restaurantId
+    restaurantId,
+    isConfigReady,
+    isConfigLoading,
+    configError: configError || null
   };
 
   return (

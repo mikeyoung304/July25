@@ -32,6 +32,7 @@ const restaurants = [
   {
     id: '11111111-1111-1111-1111-111111111111',
     name: 'Grow Fresh Local Food',
+    slug: 'grow',
     timezone: 'America/New_York',
     currency: 'USD',
     tax_rate: 0.08,
@@ -44,6 +45,7 @@ const restaurants = [
   {
     id: '22222222-2222-2222-2222-222222222222',
     name: 'Bella Vista Pizzeria',
+    slug: 'bella-vista',
     timezone: 'America/New_York',
     currency: 'USD',
     tax_rate: 0.075,
@@ -56,6 +58,7 @@ const restaurants = [
   {
     id: '33333333-3333-3333-3333-333333333333',
     name: 'Sunrise Cafe',
+    slug: 'sunrise-cafe',
     timezone: 'America/Los_Angeles',
     currency: 'USD',
     tax_rate: 0.085,

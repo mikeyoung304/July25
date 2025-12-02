@@ -220,10 +220,14 @@ router.post('/confirm',
 
     const restaurantId = req.restaurantId;
     if (!restaurantId) {
-      throw BadRequest('Restaurant ID is required');
+      routeLogger.error('Payment confirm missing restaurant ID', {
+        headers: Object.keys(req.headers),
+        hasXRestaurantId: !!req.headers['x-restaurant-id']
+      });
+      throw BadRequest('Restaurant ID is required. Send x-restaurant-id header.');
     }
 
-    routeLogger.info('Confirming payment', { payment_intent_id, order_id });
+    routeLogger.info('Confirming payment', { payment_intent_id, order_id, restaurantId });
 
     // Demo mode - auto-confirm
     if (!stripe) {

@@ -22,7 +22,7 @@ type PaymentMethod = 'card' | 'terminal' | 'mobile' | 'cash';
 
 const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, voiceCheckoutOrchestrator }) => {
   const navigate = useNavigate();
-  const { cart, updateTip, clearCart } = useUnifiedCart();
+  const { cart, updateTip, clearCart, isConfigReady, isConfigLoading, configError } = useUnifiedCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('card');
   const [_createdOrderId, _setCreatedOrderId] = useState<string | null>(null);
@@ -328,8 +328,8 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   const getPaymentButtonProps = () => {
     const isTerminalActive = terminal.isCheckoutActive;
     const baseProps = {
-      disabled: isProcessing || isTerminalActive,
-      loading: isProcessing || terminal.isLoading,
+      disabled: isProcessing || isTerminalActive || !isConfigReady,
+      loading: isProcessing || terminal.isLoading || isConfigLoading,
     };
     
     switch (selectedPaymentMethod) {
@@ -365,6 +365,41 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
   };
   
   const paymentButtonProps = getPaymentButtonProps();
+
+  // Block checkout when restaurant config fails to load
+  if (configError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+        <Card className="p-12 text-center max-w-lg">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShoppingCart className="w-10 h-10 text-red-500" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Unable to Load Restaurant</h2>
+          <p className="text-xl text-gray-600 mb-8">
+            We couldn't load the restaurant configuration. Please try again.
+          </p>
+          <div className="space-y-4">
+            <ActionButton
+              onClick={() => window.location.reload()}
+              size="large"
+              className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 text-lg w-full"
+            >
+              Retry
+            </ActionButton>
+            <ActionButton
+              onClick={onBack}
+              variant="ghost"
+              size="large"
+              className="text-gray-600 hover:text-gray-900 w-full"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Menu
+            </ActionButton>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   if (cart.items.length === 0) {
     return (

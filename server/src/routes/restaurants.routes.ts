@@ -21,6 +21,7 @@ router.get('/:id/public', async (req, res, next) => {
 
     // Check if the parameter is a UUID
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const lookupType = isUUID ? 'UUID' : 'slug';
 
     // Fetch public restaurant config from database
     // NOTE: Only select columns that exist in production schema
@@ -29,13 +30,18 @@ router.get('/:id/public', async (req, res, next) => {
       .from('restaurants')
       .select('id, name, tax_rate, timezone');
 
+    // Use case-insensitive lookup for slugs (ilike)
     const { data: restaurant, error } = isUUID
       ? await query.eq('id', id).single()
-      : await query.eq('slug', id).single();
+      : await query.ilike('slug', id).single();
 
     if (error || !restaurant) {
-      routeLogger.warn('Restaurant not found for public config', { restaurantId: id, error: error?.message });
-      throw NotFound('Restaurant not found');
+      routeLogger.warn('Restaurant not found for public config', {
+        restaurantIdOrSlug: id,
+        lookupType,
+        dbError: error?.message
+      });
+      throw NotFound(`Restaurant '${id}' not found (by ${lookupType})`);
     }
 
     // Validate tax_rate (critical financial data)
@@ -72,6 +78,7 @@ router.get('/:id', optionalAuth, async (req: AuthenticatedRequest, res, next) =>
 
     // Check if the parameter is a UUID (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const lookupType = isUUID ? 'UUID' : 'slug';
 
     // Fetch restaurant from database by UUID or slug
     const query = supabase
@@ -82,13 +89,18 @@ router.get('/:id', optionalAuth, async (req: AuthenticatedRequest, res, next) =>
         slug
       `);
 
+    // Use case-insensitive lookup for slugs (ilike)
     const { data: restaurant, error } = isUUID
       ? await query.eq('id', id).single()
-      : await query.eq('slug', id).single();
+      : await query.ilike('slug', id).single();
 
     if (error || !restaurant) {
-      routeLogger.warn('Restaurant not found', { restaurantId: id, error: error?.message });
-      throw NotFound('Restaurant not found');
+      routeLogger.warn('Restaurant not found', {
+        restaurantIdOrSlug: id,
+        lookupType,
+        dbError: error?.message
+      });
+      throw NotFound(`Restaurant '${id}' not found (by ${lookupType})`);
     }
 
     // Return restaurant info with defaults for missing columns
