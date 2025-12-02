@@ -1,12 +1,14 @@
 import React, { useState, useMemo, useCallback } from 'react'
+import { logger } from '@/services/logger'
 import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
 import { ConnectionStatusBar } from '@/components/kitchen/ConnectionStatusBar'
 import { TableGroupCard } from '@/components/kitchen/TableGroupCard'
 import { OrderGroupCard } from '@/components/kitchen/OrderGroupCard'
 import { FocusOverlay } from '@/components/kitchen/FocusOverlay'
+import { ExpoTabContent } from '@/components/kitchen/ExpoTabContent'
 import { Button } from '@/components/ui/button'
-import { Clock, ChefHat, AlertCircle, Users, Package } from 'lucide-react'
+import { Clock, ChefHat, AlertCircle, Users, Package, Send } from 'lucide-react'
 import { useKitchenOrdersOptimized } from '@/hooks/useKitchenOrdersOptimized'
 import { useTableGrouping, sortTableGroups } from '@/hooks/useTableGrouping'
 import { useOrderGrouping, sortOrderGroups, type OrderGroup } from '@/hooks/useOrderGrouping'
@@ -17,6 +19,7 @@ import { KDS_THRESHOLDS, CARD_SIZE_CLASSES } from '@rebuild/shared/config/kds'
 
 type StatusFilter = 'active' | 'ready'
 type ViewMode = 'orders' | 'tables'
+type StationTab = 'kitchen' | 'expo'
 
 const KitchenDisplayOptimized = React.memo(() => {
   // Use optimized hook with advanced features
@@ -43,6 +46,7 @@ const KitchenDisplayOptimized = React.memo(() => {
   // Simplified filtering state - minimal UI
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [viewMode, setViewMode] = useState<ViewMode>('orders')
+  const [stationTab, setStationTab] = useState<StationTab>('kitchen')
 
   // Focus mode state
   const [focusedOrderGroup, setFocusedOrderGroup] = useState<OrderGroup | null>(null)
@@ -63,7 +67,7 @@ const KitchenDisplayOptimized = React.memo(() => {
   const handleStatusChange = useCallback(async (orderId: string, status: Order['status']) => {
     const success = await updateOrderStatus(orderId, status)
     if (!success) {
-      console.error('Failed to update order status:', orderId)
+      logger.error('Failed to update order status', { orderId, status })
     }
   }, [updateOrderStatus])
 
@@ -86,7 +90,7 @@ const KitchenDisplayOptimized = React.memo(() => {
     // The backend will handle setting status to 'preparing'
     const success = await updateOrderStatus(orderId, 'preparing')
     if (!success) {
-      console.error('Failed to manually fire order:', orderId)
+      logger.error('Failed to manually fire order', { orderId })
     }
   }, [updateOrderStatus])
 
@@ -171,9 +175,44 @@ const KitchenDisplayOptimized = React.memo(() => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <BackToDashboard />
-              <div className="flex items-center gap-2">
-                <ChefHat className="h-6 w-6 text-blue-600" />
-                <h1 className="text-2xl font-bold text-gray-900">Kitchen Display</h1>
+
+              {/* Station Tabs */}
+              <div
+                className="flex bg-gray-100 rounded-lg p-1"
+                role="tablist"
+                aria-label="Station selection"
+              >
+                <Button
+                  variant={stationTab === 'kitchen' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setStationTab('kitchen')}
+                  className="gap-1"
+                  role="tab"
+                  aria-selected={stationTab === 'kitchen'}
+                  aria-controls="kitchen-panel"
+                  id="kitchen-tab"
+                >
+                  <ChefHat className="w-4 h-4" aria-hidden="true" />
+                  Kitchen
+                </Button>
+                <Button
+                  variant={stationTab === 'expo' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setStationTab('expo')}
+                  className="gap-1"
+                  role="tab"
+                  aria-selected={stationTab === 'expo'}
+                  aria-controls="expo-panel"
+                  id="expo-tab"
+                >
+                  <Send className="w-4 h-4" aria-hidden="true" />
+                  Expo
+                  {stats.ready > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 text-xs font-bold bg-green-500 text-white rounded-full" aria-label={`${stats.ready} orders ready`}>
+                      {stats.ready}
+                    </span>
+                  )}
+                </Button>
               </div>
             </div>
 
@@ -198,113 +237,125 @@ const KitchenDisplayOptimized = React.memo(() => {
         </div>
       </div>
 
-      {/* Minimal Filters */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            {/* View Mode Toggle */}
-            <div className="flex bg-gray-100 rounded-lg p-1">
-              <Button
-                variant={viewMode === 'orders' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={setViewOrders}
-                className="gap-1"
-              >
-                <Package className="w-4 h-4" />
-                Orders
-              </Button>
-              <Button
-                variant={viewMode === 'tables' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={setViewTables}
-                className="gap-1"
-              >
-                <Users className="w-4 h-4" />
-                Tables
-              </Button>
-            </div>
+      {stationTab === 'kitchen' ? (
+        <div role="tabpanel" id="kitchen-panel" aria-labelledby="kitchen-tab">
+          {/* Minimal Filters */}
+          <div className="bg-white border-b">
+            <div className="max-w-7xl mx-auto px-4 py-3">
+              <div className="flex items-center justify-between">
+                {/* View Mode Toggle */}
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <Button
+                    variant={viewMode === 'orders' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={setViewOrders}
+                    className="gap-1"
+                  >
+                    <Package className="w-4 h-4" />
+                    Orders
+                  </Button>
+                  <Button
+                    variant={viewMode === 'tables' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={setViewTables}
+                    className="gap-1"
+                  >
+                    <Users className="w-4 h-4" />
+                    Tables
+                  </Button>
+                </div>
 
-            {/* Status Filter */}
-            <div className="flex gap-2">
-              <Button
-                variant={statusFilter === 'active' ? 'default' : 'outline'}
-                size="sm"
-                onClick={setStatusActive}
-              >
-                Active ({stats.active})
-              </Button>
-              <Button
-                variant={statusFilter === 'ready' ? 'default' : 'outline'}
-                size="sm"
-                onClick={setStatusReady}
-                className={statusFilter === 'ready' ? 'bg-green-600 hover:bg-green-700' : ''}
-              >
-                Ready ({stats.ready})
-              </Button>
+                {/* Status Filter */}
+                <div className="flex gap-2">
+                  <Button
+                    variant={statusFilter === 'active' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={setStatusActive}
+                  >
+                    Active ({stats.active})
+                  </Button>
+                  <Button
+                    variant={statusFilter === 'ready' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={setStatusReady}
+                    className={statusFilter === 'ready' ? 'bg-green-600 hover:bg-green-700' : ''}
+                  >
+                    Ready ({stats.ready})
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {viewMode === 'orders' ? (
-          /* Order Grouping View */
-          sortedOrderGroups.length === 0 ? (
-            <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
-              <p className="text-gray-500 text-xl mb-2">
-                {statusFilter === 'ready' ? 'No orders ready for pickup' : 'All caught up!'}
-              </p>
-              <p className="text-gray-400">
-                Orders will appear here
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-auto">
-              {sortedOrderGroups.map(orderGroup => (
-                <div key={orderGroup.order_id} className={CARD_SIZE_CLASSES[orderGroup.card_size]}>
-                  <OrderGroupCard
-                    orderGroup={orderGroup}
-                    onStatusChange={handleStatusChange}
-                    onFocusMode={handleFocusMode}
-                    variant="kitchen"
-                  />
+          {/* Main Content Area */}
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            {viewMode === 'orders' ? (
+              /* Order Grouping View */
+              sortedOrderGroups.length === 0 ? (
+                <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
+                  <p className="text-gray-500 text-xl mb-2">
+                    {statusFilter === 'ready' ? 'No orders ready for pickup' : 'All caught up!'}
+                  </p>
+                  <p className="text-gray-400">
+                    Orders will appear here
+                  </p>
                 </div>
-              ))}
-            </div>
-          )
-        ) : (
-          /* Table Grouping View */
-          sortedTableGroups.length === 0 ? (
-            <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
-              <p className="text-gray-500 text-xl mb-2">
-                {statusFilter === 'ready' ? 'No tables ready' : 'All caught up!'}
-              </p>
-              <p className="text-gray-400">
-                Table orders will appear here
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {sortedTableGroups.map(tableGroup => (
-                <TableGroupCard
-                  key={tableGroup.tableNumber}
-                  tableGroup={tableGroup}
-                  onOrderStatusChange={handleStatusChange}
-                  onBatchComplete={handleBatchComplete}
-                  variant="kitchen"
-                />
-              ))}
-            </div>
-          )
-        )}
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-auto">
+                  {sortedOrderGroups.map(orderGroup => (
+                    <div key={orderGroup.order_id} className={CARD_SIZE_CLASSES[orderGroup.card_size]}>
+                      <OrderGroupCard
+                        orderGroup={orderGroup}
+                        onStatusChange={handleStatusChange}
+                        onFocusMode={handleFocusMode}
+                        variant="kitchen"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : (
+              /* Table Grouping View */
+              sortedTableGroups.length === 0 ? (
+                <div className="bg-white rounded-lg p-16 text-center border-2 border-dashed border-gray-200">
+                  <p className="text-gray-500 text-xl mb-2">
+                    {statusFilter === 'ready' ? 'No tables ready' : 'All caught up!'}
+                  </p>
+                  <p className="text-gray-400">
+                    Table orders will appear here
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  {sortedTableGroups.map(tableGroup => (
+                    <TableGroupCard
+                      key={tableGroup.tableNumber}
+                      tableGroup={tableGroup}
+                      onOrderStatusChange={handleStatusChange}
+                      onBatchComplete={handleBatchComplete}
+                      variant="kitchen"
+                    />
+                  ))}
+                </div>
+              )
+            )}
 
-        {/* Scheduled Orders Section */}
-        <ScheduledOrdersSection
-          scheduledGroups={scheduledGroups}
-          onManualFire={handleManualFire}
-        />
-      </div>
+            {/* Scheduled Orders Section */}
+            <ScheduledOrdersSection
+              scheduledGroups={scheduledGroups}
+              onManualFire={handleManualFire}
+            />
+          </div>
+        </div>
+      ) : (
+        <div role="tabpanel" id="expo-panel" aria-labelledby="expo-tab">
+          <ExpoTabContent
+            activeOrders={activeOrders}
+            readyOrders={readyOrders}
+            onStatusChange={handleStatusChange}
+          />
+        </div>
+      )}
 
       {/* Focus Mode Overlay */}
       {focusedOrderGroup && (

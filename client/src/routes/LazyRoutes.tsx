@@ -31,9 +31,6 @@ export const LazyRoutes = {
   KitchenDisplay: lazy(() =>
     import(/* webpackChunkName: "kitchen" */ '@/pages/KitchenDisplayOptimized')
   ),
-  ExpoPage: lazy(() => 
-    import(/* webpackChunkName: "expo" */ '@/pages/ExpoPage')
-  ),
   
   // Customer routes
   KioskPage: lazy(() => 
@@ -86,7 +83,6 @@ export const preloadByRole = (role: string) => {
       break;
     case 'kitchen':
       // LazyRoutes.KitchenDisplay.preload();
-      // LazyRoutes.ExpoPage.preload();
       break;
     case 'server':
       // LazyRoutes.ServerView?.preload();
