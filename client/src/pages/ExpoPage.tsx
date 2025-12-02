@@ -14,7 +14,6 @@ import { useKitchenOrdersRealtime } from '@/hooks/useKitchenOrdersRealtime'
 import { cn } from '@/utils'
 //
 import type { Order } from '@rebuild/shared'
-import { MemoryMonitorInstance } from '@rebuild/shared/utils/memory-monitoring'
 import { logger } from '@/services/logger'
 
 // Ready Order Card Component for Expo - Includes "Mark as Picked Up" and "Mark as Sent" functionality
@@ -137,51 +136,38 @@ function ExpoPage() {
   const [_viewMode, _setViewMode] = useState<'split' | 'ready-only'>('split')
   const [_showFilters, _setShowFilters] = useState(false)
   
-  // Memory monitoring for long-running expo sessions
+  // Memory monitoring for long-running expo sessions (uses native performance.memory API)
   useEffect(() => {
-    // Start memory monitoring for expo station (long-running)
-    MemoryMonitorInstance.start()
     logger.info('[ExpoPage] Memory monitoring started for expo station')
 
-    // Subscribe to memory alerts
-    const unsubscribe = MemoryMonitorInstance.onAlert((alert) => {
-      logger.warn('[ExpoPage] Memory alert', {
-        type: alert.type,
-        severity: alert.severity,
-        message: alert.message,
-        component: alert.component,
-        service: alert.service
-      })
-    })
-
-    // Log memory status every 60 seconds for monitoring
+    // Log memory status every 60 seconds using native API (Chrome only)
     const memoryCheckInterval = setInterval(() => {
-      const status = MemoryMonitorInstance.getMemoryStatus()
+      // performance.memory is Chrome-only, gracefully skip on other browsers
+      const memory = (performance as { memory?: { usedJSHeapSize: number; totalJSHeapSize: number } }).memory
+      if (memory) {
+        const usedMB = memory.usedJSHeapSize / 1024 / 1024
+        const totalMB = memory.totalJSHeapSize / 1024 / 1024
+        const percentage = (usedMB / totalMB) * 100
 
-      if (status.current) {
         logger.info('[ExpoPage] Memory status', {
-          used_mb: (status.current.used / 1024 / 1024).toFixed(1),
-          total_mb: (status.current.total / 1024 / 1024).toFixed(1),
-          percentage: status.current.percentage.toFixed(1),
-          trend: status.trend?.trend,
-          rate_mb_per_min: status.trend?.rate.toFixed(2),
-          active_orders: filteredActive.length,
-          ready_orders: filteredReady.length
+          used_mb: usedMB.toFixed(1),
+          total_mb: totalMB.toFixed(1),
+          percentage: percentage.toFixed(1)
         })
+
+        // Warn if memory usage is high
+        if (percentage > 85) {
+          logger.warn('[ExpoPage] High memory usage detected', { percentage: percentage.toFixed(1) })
+        }
       }
     }, 60000) // Every 60 seconds
 
-    // Profile this component
-    MemoryMonitorInstance.profileComponent('ExpoPage')
-
-    // Cleanup on unmount
+    // Cleanup on unmount - CRITICAL: single interval, single cleanup
     return () => {
       clearInterval(memoryCheckInterval)
-      unsubscribe()
-      MemoryMonitorInstance.stop()
       logger.info('[ExpoPage] Memory monitoring stopped')
     }
-  }, [filteredActive.length, filteredReady.length])
+  }, []) // Empty deps - run once on mount only (fixes memory leak from TODO-116)
 
   // Handle marking kitchen orders as ready (left panel)
   const handleMarkReady = async (orderId: string, status: 'ready') => {
