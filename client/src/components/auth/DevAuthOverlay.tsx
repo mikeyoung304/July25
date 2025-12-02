@@ -43,7 +43,7 @@ const demoRoles: DemoRole[] = [
     id: 'expo',
     name: 'Expo',
     icon: <Package className="h-6 w-6" />,
-    iconBg: 'bg-purple-500/10 text-purple-600',
+    iconBg: 'bg-teal-500/10 text-teal-600',
     workspaceType: 'expo'
   }
 ];
@@ -63,7 +63,7 @@ export function DevAuthOverlay() {
   }
 
   const handleRoleSelect = async (role: DemoRole) => {
-    console.log('🎯 [DevAuth] Step 1: handleRoleSelect started for', role.name);
+    logger.debug('🎯 [DevAuth] Step 1: handleRoleSelect started for', role.name);
     setIsLoading(true);
     setSelectedRole(role.id);
 
@@ -74,7 +74,7 @@ export function DevAuthOverlay() {
         throw new Error(`No credentials configured for ${role.name}`);
       }
 
-      console.log('🎯 [DevAuth] Step 2: Logging in with workspace credentials for', role.name);
+      logger.debug('🎯 [DevAuth] Step 2: Logging in with workspace credentials for', role.name);
       const loginStart = Date.now();
 
       // Login with real Supabase credentials (v6.0.15+)
@@ -85,7 +85,7 @@ export function DevAuthOverlay() {
       );
 
       const loginDuration = Date.now() - loginStart;
-      console.log(`🎯 [DevAuth] Step 3: login() completed in ${loginDuration}ms`);
+      logger.debug(`🎯 [DevAuth] Step 3: login() completed in ${loginDuration}ms`);
 
       logger.info(`✅ Workspace login completed for ${role.name}, session ready`);
       toast.success(`Logged in as ${role.name}`);
@@ -93,22 +93,22 @@ export function DevAuthOverlay() {
       // Navigate to staff home page (navigation hub)
       const destination = '/home';
 
-      console.log('🎯 [DevAuth] Step 4: Waiting 100ms before navigation');
+      logger.debug('🎯 [DevAuth] Step 4: Waiting 100ms before navigation');
       // Small delay to ensure React state updates propagate
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Use React Router navigation
-      console.log(`🎯 [DevAuth] Step 5: Navigating to ${destination}`);
+      logger.debug(`🎯 [DevAuth] Step 5: Navigating to ${destination}`);
       logger.info(`🚀 Navigating to ${destination}`);
       navigate(destination, { replace: true });
 
-      console.log('🎯 [DevAuth] Step 6: Navigation called, handleRoleSelect complete');
+      logger.debug('🎯 [DevAuth] Step 6: Navigation called, handleRoleSelect complete');
     } catch (error) {
-      console.error('🎯 [DevAuth] ERROR in handleRoleSelect:', error);
+      logger.error('🎯 [DevAuth] ERROR in handleRoleSelect:', error);
       logger.error(`Workspace login failed for ${role.name}:`, error);
       toast.error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
-      console.log('🎯 [DevAuth] Step 7: Cleaning up loading state');
+      logger.debug('🎯 [DevAuth] Step 7: Cleaning up loading state');
       setIsLoading(false);
       setSelectedRole(null);
     }
