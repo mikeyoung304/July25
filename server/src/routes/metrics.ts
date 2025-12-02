@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/database';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
+import { serviceConfig } from '../config/services';
 
 const router = Router();
 
@@ -74,7 +75,7 @@ async function forwardMetricsToMonitoring(metrics: {
   if (datadogApiKey) {
     try {
       const timestamp = Math.floor(Date.now() / 1000);
-      const response = await fetch('https://api.datadoghq.com/api/v1/series', {
+      const response = await fetch(`${serviceConfig.datadog.apiUrl}/api/v1/series`, {
         method: 'POST',
         headers: {
           'DD-API-KEY': datadogApiKey,
@@ -118,7 +119,7 @@ async function forwardMetricsToMonitoring(metrics: {
   if (newRelicApiKey) {
     try {
       const timestamp = Date.now();
-      const response = await fetch('https://metric-api.newrelic.com/metric/v1', {
+      const response = await fetch(`${serviceConfig.newRelic.metricsUrl}/metric/v1`, {
         method: 'POST',
         headers: {
           'Api-Key': newRelicApiKey,

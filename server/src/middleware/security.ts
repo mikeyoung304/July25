@@ -2,6 +2,7 @@ import { Application, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import crypto from 'crypto';
 import { logger } from '../utils/logger';
+import { serviceConfig } from '../config/services';
 
 /**
  * Comprehensive security middleware for Restaurant OS
@@ -246,7 +247,7 @@ class SecurityMonitor {
         },
       };
 
-      const response = await fetch('https://http-intake.logs.datadoghq.com/v1/input', {
+      const response = await fetch(`${serviceConfig.datadog.logsUrl}/v1/input`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
