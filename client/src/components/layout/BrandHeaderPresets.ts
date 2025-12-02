@@ -29,6 +29,10 @@ export const pageInfo: Record<string, PageInfo> = {
     title: 'Expo Station',
     description: 'Order completion and quality control'
   },
+  '/kitchen?tab=expo': {
+    title: 'Expo Station',
+    description: 'Order completion and quality control'
+  },
   '/history': {
     title: 'Order History',
     description: 'Analytics and historical order data'

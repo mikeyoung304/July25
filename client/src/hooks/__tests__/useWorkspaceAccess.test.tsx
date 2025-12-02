@@ -198,7 +198,7 @@ describe('useWorkspaceAccess', () => {
         result.current.handleAccess()
       })
 
-      expect(result.current.intendedDestination).toBe('/expo')
+      expect(result.current.intendedDestination).toBe('/kitchen?tab=expo')
     })
 
     it('returns correct route for admin', () => {

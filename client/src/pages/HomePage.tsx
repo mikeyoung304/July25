@@ -78,7 +78,7 @@ export function HomePage() {
     {
       title: 'Expo',
       icon: <Package />,
-      href: '/expo',
+      href: '/kitchen?tab=expo',
       color: '#F4A460', // Sandy brown
     },
   ]

@@ -27,7 +27,7 @@ const STATION_OPTIONS: StationOption[] = [
     label: 'Expo Station',
     description: 'Quality check and order completion',
     icon: '✅',
-    defaultRoute: '/expo'
+    defaultRoute: '/kitchen?tab=expo'
   },
   {
     type: 'bar',

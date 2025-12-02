@@ -44,7 +44,7 @@ export const WORKSPACE_CONFIG: Record<WorkspaceType, WorkspaceConfig> = {
     }
   },
   expo: {
-    route: '/expo',
+    route: '/kitchen?tab=expo',
     requiresAuth: true,
     requiredRoles: ['owner', 'manager', 'kitchen', 'expo'],
     workspaceCredentials: {

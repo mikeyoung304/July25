@@ -1,10 +1,12 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { Clock, Package, User, Eye, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { OrderCard } from '@/components/kitchen/OrderCard'
 import { OrderStatusErrorBoundary } from '@/components/errors/OrderStatusErrorBoundary'
 import { cn } from '@/utils'
+import { logger } from '@/services/logger'
+import { KDS_THRESHOLDS } from '@rebuild/shared/config/kds'
 import type { Order } from '@rebuild/shared'
 
 interface ExpoTabContentProps {
@@ -15,12 +17,13 @@ interface ExpoTabContentProps {
 
 interface ReadyOrderCardProps {
   order: Order
-  onMarkSold: (orderId: string) => void
+  onMarkSold: (orderId: string) => Promise<void>
 }
 
-function ReadyOrderCard({ order, onMarkSold }: ReadyOrderCardProps) {
+const ReadyOrderCard = React.memo(function ReadyOrderCard({ order, onMarkSold }: ReadyOrderCardProps) {
   // State that updates every minute to keep elapsed time accurate
   const [now, setNow] = useState(Date.now())
+  const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 60000)
@@ -34,9 +37,12 @@ function ReadyOrderCard({ order, onMarkSold }: ReadyOrderCardProps) {
     let color = 'text-green-600'
     let bg = 'bg-green-50 border-green-300'
 
-    if (elapsed >= 20) {
+    if (elapsed >= KDS_THRESHOLDS.URGENT_MINUTES) {
       color = 'text-red-600'
       bg = 'bg-red-50 border-red-300'
+    } else if (elapsed >= KDS_THRESHOLDS.WARNING_MINUTES) {
+      color = 'text-yellow-600'
+      bg = 'bg-yellow-50 border-yellow-300'
     }
 
     return { elapsedMinutes: elapsed, urgencyColor: color, cardColor: bg }
@@ -50,6 +56,16 @@ function ReadyOrderCard({ order, onMarkSold }: ReadyOrderCardProps) {
       default: return order.type
     }
   }, [order.type])
+
+  const handleClick = async () => {
+    if (isUpdating) return // Prevent double-clicks
+    setIsUpdating(true)
+    try {
+      await onMarkSold(order.id)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   return (
     <Card className={cn('transition-all duration-200 hover:shadow-md', cardColor)}>
@@ -95,26 +111,44 @@ function ReadyOrderCard({ order, onMarkSold }: ReadyOrderCardProps) {
         </div>
 
         <Button
-          onClick={() => onMarkSold(order.id)}
-          className="w-full bg-green-600 hover:bg-green-700 text-white"
+          onClick={handleClick}
+          disabled={isUpdating}
+          className="w-full bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
           size="lg"
         >
-          <CheckCircle className="w-4 h-4 mr-2" />
-          Mark Sold
+          {isUpdating ? (
+            <>
+              <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Updating...
+            </>
+          ) : (
+            <>
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Mark Sold
+            </>
+          )}
         </Button>
       </CardContent>
     </Card>
   )
-}
+})
 
-export function ExpoTabContent({ activeOrders, readyOrders, onStatusChange }: ExpoTabContentProps) {
-  const handleMarkReady = async (orderId: string) => {
-    await onStatusChange(orderId, 'ready')
-  }
+export const ExpoTabContent = React.memo(function ExpoTabContent({ activeOrders, readyOrders, onStatusChange }: ExpoTabContentProps) {
+  const handleMarkReady = useCallback(async (orderId: string) => {
+    try {
+      await onStatusChange(orderId, 'ready')
+    } catch (error) {
+      logger.error('Failed to mark order as ready', { orderId, error })
+    }
+  }, [onStatusChange])
 
-  const handleMarkSold = async (orderId: string) => {
-    await onStatusChange(orderId, 'completed')
-  }
+  const handleMarkSold = useCallback(async (orderId: string) => {
+    try {
+      await onStatusChange(orderId, 'completed')
+    } catch (error) {
+      logger.error('Failed to mark order as sold', { orderId, error })
+    }
+  }, [onStatusChange])
 
   const sortedActiveOrders = useMemo(() => {
     return [...activeOrders].sort((a, b) =>
@@ -131,10 +165,10 @@ export function ExpoTabContent({ activeOrders, readyOrders, onStatusChange }: Ex
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Two-Panel Layout: Kitchen Activity (smaller) | Ready Orders (dominant) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* Left Panel: Kitchen Activity Overview (1/3 width) */}
-        <div className="lg:col-span-1">
+        <div className="md:col-span-1 lg:col-span-1">
           <div className="flex items-center gap-2 mb-3">
             <Eye className="h-5 w-5 text-gray-600" />
             <h2 className="text-lg font-semibold">Kitchen Activity</h2>
@@ -160,7 +194,7 @@ export function ExpoTabContent({ activeOrders, readyOrders, onStatusChange }: Ex
         </div>
 
         {/* Right Panel: Ready Orders (2/3 width - dominant) */}
-        <div className="lg:col-span-2">
+        <div className="md:col-span-1 lg:col-span-2">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
             <h2 className="text-lg font-semibold">Ready for Fulfillment</h2>
@@ -188,4 +222,6 @@ export function ExpoTabContent({ activeOrders, readyOrders, onStatusChange }: Ex
       </div>
     </div>
   )
-}
+})
+
+ExpoTabContent.displayName = 'ExpoTabContent'

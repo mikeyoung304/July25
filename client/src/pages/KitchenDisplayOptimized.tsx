@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { logger } from '@/services/logger'
 import { KDSErrorBoundary } from '@/components/errors/KDSErrorBoundary'
 import { BackToDashboard } from '@/components/navigation/BackToDashboard'
@@ -46,7 +47,10 @@ const KitchenDisplayOptimized = React.memo(() => {
   // Simplified filtering state - minimal UI
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [viewMode, setViewMode] = useState<ViewMode>('orders')
-  const [stationTab, setStationTab] = useState<StationTab>('kitchen')
+
+  // Station tab state from URL
+  const [searchParams, setSearchParams] = useSearchParams()
+  const stationTab = (searchParams.get('tab') as StationTab) || 'kitchen'
 
   // Focus mode state
   const [focusedOrderGroup, setFocusedOrderGroup] = useState<OrderGroup | null>(null)
@@ -56,6 +60,11 @@ const KitchenDisplayOptimized = React.memo(() => {
   const setStatusReady = useCallback(() => setStatusFilter('ready'), [])
   const setViewOrders = useCallback(() => setViewMode('orders'), [])
   const setViewTables = useCallback(() => setViewMode('tables'), [])
+
+  // Handler for station tab changes
+  const handleStationTabChange = useCallback((tab: StationTab) => {
+    setSearchParams({ tab }, { replace: true })
+  }, [setSearchParams])
 
   // Focus mode handlers
   const handleFocusMode = useCallback((orderGroup: OrderGroup) => {
@@ -185,7 +194,7 @@ const KitchenDisplayOptimized = React.memo(() => {
                 <Button
                   variant={stationTab === 'kitchen' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setStationTab('kitchen')}
+                  onClick={() => handleStationTabChange('kitchen')}
                   className="gap-1"
                   role="tab"
                   aria-selected={stationTab === 'kitchen'}
@@ -198,7 +207,7 @@ const KitchenDisplayOptimized = React.memo(() => {
                 <Button
                   variant={stationTab === 'expo' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setStationTab('expo')}
+                  onClick={() => handleStationTabChange('expo')}
                   className="gap-1"
                   role="tab"
                   aria-selected={stationTab === 'expo'}

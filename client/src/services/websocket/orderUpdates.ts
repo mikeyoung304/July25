@@ -207,8 +207,8 @@ export class OrderUpdatesHandler {
     })
 
     // Only show notification on kitchen-related pages, not on customer/kiosk pages
-    const isKitchenPage = window.location.pathname.includes('/kitchen') || 
-                         window.location.pathname.includes('/expo') ||
+    const isKitchenPage = window.location.pathname.includes('/kitchen') ||
+                         window.location.search.includes('tab=expo') ||
                          window.location.pathname.includes('/admin');
     
     if (isKitchenPage) {

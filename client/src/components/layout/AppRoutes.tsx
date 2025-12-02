@@ -23,7 +23,6 @@ const OrderHistory = lazy(() => import('@/pages/OrderHistory').then(m => ({ defa
 const PerformanceDashboard = lazy(() => import('@/pages/PerformanceDashboard'))
 const ServerView = lazy(() => import('@/pages/ServerView').then(m => ({ default: m.ServerView })))
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'))
-const ExpoPage = lazy(() => import('@/pages/ExpoPage'))
 const KioskPage = lazy(() => import('@/pages/KioskPage'))
 const DriveThruPage = lazy(() => import('@/pages/DriveThruPage'))
 const CustomerOrderPage = lazy(() => import('@/modules/order-system/components').then(m => ({ default: m.CustomerOrderPage })))
@@ -161,17 +160,8 @@ export function AppRoutes() {
                 </ErrorBoundary>
               </AdminRoute>
             } />
-            <Route path="/expo" element={
-              <KitchenRoute>
-                <ErrorBoundary level="section">
-                  <Profiler id="ExpoPage" onRender={onRenderCallback}>
-                    <Suspense fallback={<RouteLoader />}>
-                      <ExpoPage />
-                    </Suspense>
-                  </Profiler>
-                </ErrorBoundary>
-              </KitchenRoute>
-            } />
+            {/* Redirect /expo to /kitchen - expo is now a tab within kitchen display */}
+            <Route path="/expo" element={<Navigate to="/kitchen?tab=expo" replace />} />
             {/* Default order redirect to Grow Fresh Local Food */}
             <Route
               path="/order"

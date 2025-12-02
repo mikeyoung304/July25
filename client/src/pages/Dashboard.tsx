@@ -78,7 +78,7 @@ export function Dashboard() {
                 title="Expo"
                 icon={<Package className="h-12 w-12 text-accent" />}
                 iconBg="bg-accent/10"
-                href="/expo"
+                href="/kitchen?tab=expo"
                 delay={1}
               />
               
