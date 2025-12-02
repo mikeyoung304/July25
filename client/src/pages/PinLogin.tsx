@@ -102,8 +102,8 @@ export default function PinLogin() {
                   <div
                     key={index}
                     className={`w-12 h-14 border-2 rounded-lg flex items-center justify-center text-2xl font-bold
-                      ${index < pin.length ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
-                      ${index === pin.length ? 'border-blue-400' : ''}
+                      ${index < pin.length ? 'border-orange-400 bg-orange-50' : 'border-gray-300'}
+                      ${index === pin.length ? 'border-orange-300' : ''}
                     `}
                   >
                     {showPin && pin[index] ? pin[index] : pin[index] ? '•' : ''}
@@ -137,7 +137,7 @@ export default function PinLogin() {
                 type="button"
                 onClick={() => handlePinInput(digit.toString())}
                 disabled={isLoading || pin.length >= 6}
-                className="py-4 px-4 text-2xl font-semibold rounded-lg bg-white border-2 border-gray-300 hover:bg-gray-50 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="py-4 px-4 text-2xl font-semibold rounded-lg bg-white border-2 border-gray-300 hover:bg-gray-50 hover:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {digit}
               </button>
@@ -156,7 +156,7 @@ export default function PinLogin() {
               type="button"
               onClick={() => handlePinInput('0')}
               disabled={isLoading || pin.length >= 6}
-              className="py-4 px-4 text-2xl font-semibold rounded-lg bg-white border-2 border-gray-300 hover:bg-gray-50 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="py-4 px-4 text-2xl font-semibold rounded-lg bg-white border-2 border-gray-300 hover:bg-gray-50 hover:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               0
             </button>
@@ -177,7 +177,7 @@ export default function PinLogin() {
               type="button"
               onClick={() => handleSubmit()}
               disabled={isLoading || pin.length < 4}
-              className="w-full max-w-xs py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full max-w-xs py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">

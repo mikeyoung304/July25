@@ -124,7 +124,7 @@ export default function StationLogin() {
                     relative rounded-lg border-2 p-4 flex flex-col items-center text-center
                     transition-all cursor-pointer
                     ${selectedStation === station.type
-                      ? 'border-blue-500 bg-blue-50'
+                      ? 'border-orange-400 bg-orange-50'
                       : 'border-gray-300 hover:border-gray-400 bg-white'
                     }
                     ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
@@ -135,7 +135,7 @@ export default function StationLogin() {
                   <p className="text-xs text-gray-500 mt-1">{station.description}</p>
                   {selectedStation === station.type && (
                     <div className="absolute top-2 right-2">
-                      <svg className="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="h-5 w-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                     </div>
@@ -157,7 +157,7 @@ export default function StationLogin() {
                   name="stationName"
                   type="text"
                   required
-                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-orange-400 focus:border-orange-400 focus:z-10 sm:text-sm"
                   placeholder="e.g., Kitchen 1, Expo Station A"
                   value={stationName}
                   onChange={(e) => setStationName(e.target.value)}
@@ -176,7 +176,7 @@ export default function StationLogin() {
               <button
                 type="submit"
                 disabled={isLoading || !stationName.trim()}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <span className="flex items-center">

@@ -31,11 +31,11 @@ export const STATION_COLORS = {
   },
   bar: {
     name: 'Bar',
-    primary: '#8b5cf6', // Purple
-    secondary: '#a78bfa',
-    light: '#ede9fe',
-    dark: '#7c3aed',
-    gradient: 'from-purple-400 to-purple-500',
+    primary: '#14b8a6', // Macon Teal
+    secondary: '#2dd4bf',
+    light: '#ccfbf1',
+    dark: '#0d9488',
+    gradient: 'from-teal-400 to-teal-500',
     icon: '🍹'
   },
   expo: {

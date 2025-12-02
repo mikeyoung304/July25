@@ -140,20 +140,20 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onCl
               <div className="inline-flex items-center bg-gray-100 rounded-lg">
                 <button
                   onClick={(e) => handleQuantityChange(-1, e)}
-                  className="w-8 h-8 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
+                  className="w-11 h-11 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
                   aria-label="Decrease quantity"
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-5 h-5" />
                 </button>
                 <span className="w-8 text-center text-sm font-bold text-gray-900">
                   {localQuantity}
                 </span>
                 <button
                   onClick={(e) => handleQuantityChange(1, e)}
-                  className="w-8 h-8 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
+                  className="w-11 h-11 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
                   aria-label="Increase quantity"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-5 h-5" />
                 </button>
               </div>
               {/* Compact Add More Button */}

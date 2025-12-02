@@ -41,7 +41,7 @@ const TableBadge = ({ tableNumber, orderType }: { tableNumber?: string; orderTyp
       case 'delivery':
         return 'bg-gradient-to-br from-green-500 to-green-700'
       case 'drive-thru':
-        return 'bg-gradient-to-br from-purple-500 to-purple-700'
+        return 'bg-gradient-to-br from-teal-500 to-teal-700'
       default:
         return 'bg-gradient-to-br from-gray-500 to-gray-700'
     }
@@ -124,7 +124,7 @@ export const TouchOptimizedOrderCard = React.memo<TouchOptimizedOrderCardProps>(
       const colorMap = {
         'new': 'bg-blue-100 text-blue-800 border-blue-200',
         'pending': 'bg-blue-100 text-blue-800 border-blue-200',
-        'confirmed': 'bg-purple-100 text-purple-800 border-purple-200',
+        'confirmed': 'bg-orange-100 text-orange-800 border-orange-200',
         'preparing': 'bg-yellow-100 text-yellow-800 border-yellow-200',
         'ready': 'bg-green-100 text-green-800 border-green-200',
         'completed': 'bg-gray-100 text-gray-800 border-gray-200',

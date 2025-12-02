@@ -320,12 +320,12 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
 
             {/* Voice Feedback (from voice commerce hook) */}
             {voiceFeedback && (
-              <Card className="p-6 bg-purple-50 border-2 border-purple-200">
+              <Card className="p-6 bg-orange-50 border-2 border-orange-200">
                 <div className="flex items-start space-x-4">
-                  <Volume2 className="w-6 h-6 text-purple-600 mt-1 flex-shrink-0" />
+                  <Volume2 className="w-6 h-6 text-orange-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="text-lg font-semibold text-purple-900 mb-2">System:</h3>
-                    <p className="text-purple-800 text-lg">{voiceFeedback}</p>
+                    <h3 className="text-lg font-semibold text-orange-900 mb-2">System:</h3>
+                    <p className="text-orange-800 text-lg">{voiceFeedback}</p>
                   </div>
                 </div>
               </Card>
@@ -333,12 +333,12 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
 
             {/* Orchestrator Feedback (from checkout orchestrator) */}
             {orchestratorFeedback && (
-              <Card className="p-6 bg-indigo-50 border-2 border-indigo-200">
+              <Card className="p-6 bg-teal-50 border-2 border-teal-200">
                 <div className="flex items-start space-x-4">
-                  <Volume2 className="w-6 h-6 text-indigo-600 mt-1 flex-shrink-0" />
+                  <Volume2 className="w-6 h-6 text-teal-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="text-lg font-semibold text-indigo-900 mb-2">Checkout:</h3>
-                    <p className="text-indigo-800 text-lg">{orchestratorFeedback}</p>
+                    <h3 className="text-lg font-semibold text-teal-900 mb-2">Checkout:</h3>
+                    <p className="text-teal-800 text-lg">{orchestratorFeedback}</p>
                   </div>
                 </div>
               </Card>

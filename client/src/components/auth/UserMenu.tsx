@@ -88,7 +88,7 @@ export function UserMenu({
     switch (role) {
       case 'owner':
       case 'manager':
-        return 'text-purple-600 bg-purple-50';
+        return 'text-orange-600 bg-orange-50';
       case 'server':
         return 'text-blue-600 bg-blue-50';
       case 'kitchen':

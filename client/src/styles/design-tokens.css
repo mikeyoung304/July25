@@ -120,3 +120,42 @@
   background-color: var(--macon-navy-100);
   color: var(--macon-navy);
 }
+
+/* Touch target utilities (WCAG 2.5.5 compliance - 44px minimum) */
+.touch-target-min {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.touch-target-comfortable {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+/* Apply touch-friendly targets to kiosk mode interactive elements */
+.kiosk-mode button,
+.kiosk-mode a,
+.kiosk-mode [role="button"] {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Reduced motion support (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Preserve essential loading indicators visibility (not animated, but present) */
+  [aria-live="polite"],
+  [aria-live="assertive"],
+  [role="status"],
+  [role="alert"] {
+    animation: none !important;
+  }
+}

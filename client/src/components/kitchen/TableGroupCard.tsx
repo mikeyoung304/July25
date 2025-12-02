@@ -42,7 +42,7 @@ const MiniOrderCard = React.memo(({
     const statusConfig = {
       'new': { color: 'bg-blue-100 text-blue-800', label: 'NEW' },
       'pending': { color: 'bg-blue-100 text-blue-800', label: 'PENDING' },
-      'confirmed': { color: 'bg-purple-100 text-purple-800', label: 'CONFIRMED' },
+      'confirmed': { color: 'bg-orange-100 text-orange-800', label: 'CONFIRMED' },
       'preparing': { color: 'bg-yellow-100 text-yellow-800', label: 'PREPARING' },
       'ready': { color: 'bg-green-100 text-green-800', label: 'READY' },
       'completed': { color: 'bg-gray-100 text-gray-800', label: 'COMPLETED' },

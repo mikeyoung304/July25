@@ -1,6 +1,24 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  safelist: [
+    // Brand colors - ensure they're not purged in production
+    { pattern: /bg-orange-(50|100|200|300|400|500|600|700)/ },
+    { pattern: /text-orange-(50|100|200|300|400|500|600|700|800|900)/ },
+    { pattern: /border-orange-(200|300|400|500|600)/ },
+    { pattern: /ring-orange-(400|500)/ },
+    { pattern: /hover:bg-orange-(500|600|700)/ },
+    { pattern: /hover:text-orange-(400|500|600)/ },
+    { pattern: /hover:border-orange-(400|500)/ },
+    { pattern: /focus:ring-orange-(400|500)/ },
+    { pattern: /focus:border-orange-(400|500)/ },
+    { pattern: /from-orange-(400|500)/ },
+    { pattern: /to-orange-(500|600|700)/ },
+    // Teal for secondary brand color
+    { pattern: /bg-teal-(50|100|200|500|600|700)/ },
+    { pattern: /text-teal-(600|700|800|900)/ },
+    { pattern: /border-teal-(200|300)/ },
+  ],
   theme: {
     extend: {
       colors: {
