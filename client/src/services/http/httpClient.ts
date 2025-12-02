@@ -419,6 +419,26 @@ export function clearAllCachesForRestaurantSwitch(): void {
   // Clear HTTP client caches
   httpClient.clearCache()
 
+  // Clear any localStorage caches with tenant-specific prefixes
+  if (typeof localStorage !== 'undefined') {
+    const keysToRemove: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && (
+        key.startsWith('cache:') ||
+        key.startsWith('menu:') ||
+        key.startsWith('orders:') ||
+        key.startsWith('tables:')
+      )) {
+        keysToRemove.push(key)
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key))
+    if (keysToRemove.length > 0) {
+      logger.info('[Multi-tenant] Cleared localStorage caches', { count: keysToRemove.length })
+    }
+  }
+
   // Log the action
   logger.info('[Multi-tenant] Cleared all caches for restaurant switch')
 }

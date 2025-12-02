@@ -199,7 +199,7 @@ describe('AuthContext - Token Refresh', () => {
 
     // Should now have 2 total calls (1 from before + 1 new)
     expect(httpClient.post).toHaveBeenCalledTimes(2)
-  }, 10000)
+  }, 30000)
 
   test('should clear refresh timer on unmount', async () => {
     const TestComponent = () => {

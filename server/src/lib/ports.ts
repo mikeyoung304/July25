@@ -122,7 +122,7 @@ export type OrderStatus =
   | 'completed'
   | 'cancelled';
 
-export type TableStatus = 'available' | 'occupied' | 'reserved' | 'cleaning';
+export type TableStatus = 'available' | 'occupied' | 'reserved' | 'cleaning' | 'paid';
 
 export type NotificationType = 'new_order' | 'order_ready' | 'order_cancelled';
 

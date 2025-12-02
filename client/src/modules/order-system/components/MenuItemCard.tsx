@@ -12,7 +12,7 @@ interface MenuItemCardProps {
 
 export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onClick, onQuickAdd }) => {
   // Always call hook (React rules), but use onQuickAdd if provided
-  const { cart, addToCart: unifiedCartAdd } = useUnifiedCart();
+  const { cart, addToCart: unifiedCartAdd, removeFromCart } = useUnifiedCart();
   const [localQuantity, setLocalQuantity] = useState(0);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
   const [showAddedFeedback, setShowAddedFeedback] = useState(false);
@@ -80,8 +80,11 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onCl
         });
       }
     } else if (delta < 0 && localQuantity > 0) {
-      // For now, just decrease local counter
-      // TODO: Implement remove from cart/order functionality
+      // Find the cart item to remove
+      const cartItem = cart.items.find(ci => ci.menuItemId === item.id);
+      if (cartItem && !onQuickAdd) {
+        removeFromCart(cartItem.id);
+      }
       setLocalQuantity(prev => Math.max(0, prev - 1));
       if (localQuantity === 1) {
         setShowQuantitySelector(false);

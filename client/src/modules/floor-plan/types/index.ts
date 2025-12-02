@@ -8,7 +8,7 @@ export interface Table {
   seats: number
   label: string
   rotation: number
-  status: 'available' | 'occupied' | 'reserved' | 'unavailable' | 'cleaning'
+  status: 'available' | 'occupied' | 'reserved' | 'unavailable' | 'cleaning' | 'paid'
   z_index: number
   current_order_id?: string | null
   metadata?: Record<string, unknown>

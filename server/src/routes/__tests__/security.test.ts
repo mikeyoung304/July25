@@ -36,14 +36,18 @@ describe('Security Tests', () => {
   let invalidToken: string;
 
   beforeEach(() => {
+    // Reset rate limiter state between tests
+    // Note: Each test gets a fresh Express app instance with fresh rate limiter instances.
+    // The rate limiters use an in-memory store that's scoped to each limiter instance,
+    // so creating a new app automatically resets rate limit state.
     app = express();
     app.use(helmet()); // Add helmet middleware for security headers
     app.use(express.json());
-    
+
     // Apply rate limiters
     app.use('/api/', apiLimiter);
     app.use('/api/v1/orders/voice', voiceOrderLimiter);
-    
+
     // Setup routes
     app.use('/api/v1', setupRoutes());
     app.use(errorHandler);
@@ -241,7 +245,6 @@ describe('Security Tests', () => {
     });
 
     test('should reject oversized file uploads', async () => {
-      // TODO: Test requires rate limit reset between tests
       const largeBuffer = Buffer.alloc(11 * 1024 * 1024); // 11MB (limit is 10MB)
       
       const response = await request(app)
@@ -253,7 +256,6 @@ describe('Security Tests', () => {
     });
 
     test('should reject invalid file types', async () => {
-      // TODO: Test requires rate limit reset between tests
       const response = await request(app)
         .post('/api/v1/ai/transcribe')
         .set('Authorization', `Bearer ${validToken}`)

@@ -150,7 +150,11 @@ export function FloorPlanCanvas({
         gradient = ctx.createLinearGradient(0, -table.height/2, 0, table.height/2)
       }
 
-      if (table.status === 'occupied') {
+      if (table.status === 'paid') {
+        gradient.addColorStop(0, '#FEF9C3') // Yellow-100 highlight
+        gradient.addColorStop(0.5, '#EAB308') // Yellow-500 main (gold)
+        gradient.addColorStop(1, '#CA8A04') // Yellow-600 depth
+      } else if (table.status === 'occupied') {
         gradient.addColorStop(0, '#FEF3C7') // Amber-50 highlight
         gradient.addColorStop(0.5, '#F59E0B') // Amber-500 main
         gradient.addColorStop(1, '#D97706') // Amber-600 depth

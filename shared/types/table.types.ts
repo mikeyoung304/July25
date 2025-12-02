@@ -3,7 +3,7 @@
  * Single source of truth for all table-related types
  */
 
-export type TableStatus = 'available' | 'occupied' | 'reserved' | 'cleaning';
+export type TableStatus = 'available' | 'occupied' | 'reserved' | 'cleaning' | 'paid';
 
 export interface Table {
   id: string;

@@ -6,6 +6,8 @@
 
 import { test, expect, Page } from '@playwright/test'
 
+const DEMO_ENABLED = process.env.VITE_DEMO_PANEL === 'true' || process.env.VITE_DEMO_PANEL === '1'
+
 test.describe('Workspace Landing Flow', () => {
   test.beforeEach(async ({ page }) => {
     // Clear any existing state
@@ -107,10 +109,9 @@ test.describe('Workspace Landing Flow', () => {
   })
 
   test.describe('Demo Mode', () => {
+    test.skip(!DEMO_ENABLED, 'Demo panel disabled in environment')
+
     test('shows demo badge when VITE_DEMO_PANEL=1', async ({ page }) => {
-      // This would need to be set via environment variables
-      // For now, we'll skip this test unless running in demo mode
-      test.skip(!process.env.VITE_DEMO_PANEL, 'Demo mode not enabled')
 
       await page.goto('/')
 
@@ -118,8 +119,6 @@ test.describe('Workspace Landing Flow', () => {
     })
 
     test('pre-fills credentials for role-specific workspace', async ({ page }) => {
-      test.skip(!process.env.VITE_DEMO_PANEL, 'Demo mode not enabled')
-
       await page.goto('/')
 
       await page.getByTestId('workspace-tile-server').click()
@@ -134,8 +133,6 @@ test.describe('Workspace Landing Flow', () => {
     })
 
     test('can clear pre-filled demo credentials', async ({ page }) => {
-      test.skip(!process.env.VITE_DEMO_PANEL, 'Demo mode not enabled')
-
       await page.goto('/')
 
       await page.getByTestId('workspace-tile-kitchen').click()
@@ -151,8 +148,6 @@ test.describe('Workspace Landing Flow', () => {
     })
 
     test('demo login flow works end-to-end', async ({ page }) => {
-      test.skip(!process.env.VITE_DEMO_PANEL, 'Demo mode not enabled')
-
       await page.goto('/')
 
       // Click server workspace
@@ -177,7 +172,7 @@ test.describe('Workspace Landing Flow', () => {
     })
 
     test('deep link navigates to destination after login', async ({ page }) => {
-      test.skip(!process.env.VITE_DEMO_PANEL, 'Demo mode not enabled for testing')
+      test.skip(!DEMO_ENABLED, 'Demo panel disabled in environment')
 
       // Navigate directly to /kitchen
       await page.goto('/kitchen')
@@ -204,8 +199,9 @@ test.describe('Workspace Landing Flow', () => {
   })
 
   test.describe('Authenticated User', () => {
+    test.skip(!DEMO_ENABLED, 'Demo panel disabled in environment')
+
     test('authenticated user with permission navigates directly', async ({ page }) => {
-      test.skip(!process.env.VITE_DEMO_PANEL, 'Demo mode not enabled for testing')
 
       // First, login via the modal
       await page.goto('/')
@@ -226,8 +222,6 @@ test.describe('Workspace Landing Flow', () => {
     })
 
     test('authenticated user without permission shows modal with switch account', async ({ page }) => {
-      test.skip(!process.env.VITE_DEMO_PANEL, 'Demo mode not enabled for testing')
-
       // Login as server
       await page.goto('/')
       await page.getByTestId('workspace-tile-server').click()

@@ -80,6 +80,14 @@ interface StationStatusBarProps {
 
 /**
  * Calculate which station handles an item based on its category
+ *
+ * Station Assignment Logic
+ *
+ * KNOWN LIMITATION: Currently uses keyword matching as fallback.
+ * TODO: Refactor to use menu item metadata when menu system supports
+ * station assignments at the item level.
+ *
+ * See: TODO_ISSUES.csv #14
  */
 const getItemStation = (item: OrderItem, stations: Station[]): Station | null => {
   // TODO: This should ideally come from the menu item metadata

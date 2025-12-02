@@ -1,4 +1,3 @@
-cat > server/scripts/seed-menu-mapped.ts <<'EOF'
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
@@ -14,8 +13,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY!
 );
 
-// TODO: replace with your real restaurant id if different
-const RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
+// Configurable restaurant ID: env var > CLI arg > default
+const RESTAURANT_ID = process.env.SEED_RESTAURANT_ID || process.argv[2] || '11111111-1111-1111-1111-111111111111';
 
 const GROW_FRESH_DATA = {
   categories: [
@@ -130,4 +129,3 @@ async function main() {
 }
 
 main();
-EOF
