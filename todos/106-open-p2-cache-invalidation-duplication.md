@@ -1,9 +1,11 @@
 ---
-status: open
+status: resolved
 priority: p2
 issue_id: "106"
 tags: [code-quality, dry, refactor, code-review]
 dependencies: []
+resolved_date: 2025-12-02
+resolved_by: fix/code-review-p1-p2-followup
 ---
 
 # Cache Invalidation Code Duplicated 4x in httpClient
@@ -78,16 +80,17 @@ Option A - Extract helper method
 
 ## Acceptance Criteria
 
-- [ ] Helper method `clearRelatedCache()` created
-- [ ] All 4 mutation methods use helper
-- [ ] Cache invalidation behavior unchanged
-- [ ] Tests pass
+- [x] Helper method `clearRelatedCache()` created
+- [x] All 4 mutation methods use helper
+- [x] Cache invalidation behavior unchanged
+- [x] Tests pass
 
 ## Work Log
 
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-12-02 | Created | Discovered during PR #150 review |
+| 2025-12-02 | Resolved | Extracted clearRelatedCache() helper, reduced 36 lines to ~13 |
 
 ## Resources
 

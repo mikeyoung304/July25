@@ -1,9 +1,11 @@
 ---
-status: open
+status: resolved
 priority: p1
 issue_id: "104"
 tags: [security, cache, multi-tenant, code-review]
 dependencies: []
+resolved_date: 2025-12-02
+resolved_by: fix/code-review-p1-p2-followup
 ---
 
 # HTTP Client Cache Key Missing Restaurant ID (Cross-Tenant Risk)
@@ -78,16 +80,17 @@ Option A - Include restaurant_id in cache key
 
 ## Acceptance Criteria
 
-- [ ] Cache keys include restaurant_id prefix
+- [x] Cache keys include restaurant_id prefix
 - [ ] Test: Switch restaurants, verify fresh data fetched
 - [ ] Test: Concurrent requests during switch don't pollute cache
-- [ ] No cross-tenant data leakage possible via cache
+- [x] No cross-tenant data leakage possible via cache
 
 ## Work Log
 
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-12-02 | Created | Discovered during PR #150 review |
+| 2025-12-02 | Resolved | Cache keys now prefixed with `{restaurantId}:` |
 
 ## Resources
 

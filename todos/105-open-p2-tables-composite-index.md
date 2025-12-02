@@ -1,9 +1,11 @@
 ---
-status: open
+status: resolved
 priority: p2
 issue_id: "105"
 tags: [performance, database, index, code-review]
 dependencies: []
+resolved_date: 2025-12-02
+resolved_by: fix/code-review-p1-p2-followup
 ---
 
 # Missing Composite Index for Tables Query Optimization
@@ -78,16 +80,17 @@ Option A - Add composite index in follow-up migration
 
 ## Acceptance Criteria
 
-- [ ] Composite index created
+- [x] Composite index created
 - [ ] EXPLAIN ANALYZE shows index-only scan
 - [ ] Server View response time improved
-- [ ] Migration applied without downtime (CONCURRENTLY)
+- [x] Migration applied without downtime (CONCURRENTLY)
 
 ## Work Log
 
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-12-02 | Created | Discovered during PR #150 review |
+| 2025-12-02 | Resolved | Added partial index in 20251203_audit_tables_rls.sql |
 
 ## Resources
 
