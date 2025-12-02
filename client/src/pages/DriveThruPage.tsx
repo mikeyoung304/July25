@@ -6,6 +6,7 @@ import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderPar
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BackToDashboard } from '@/components/navigation/BackToDashboard';
+import { logger } from '@/services/logger';
 
 
 const DriveThruPageContent: React.FC = () => {
@@ -51,7 +52,7 @@ const DriveThruPageContent: React.FC = () => {
     // AI-detected orders from OpenAI Realtime API function calling
     if (!order?.items || order.items.length === 0) return;
 
-    console.log('[DriveThru] Order detected from AI:', order);
+    logger.info('[DriveThru] Order detected from AI', { order });
 
     order.items.forEach((detectedItem: any) => {
       const menuItem = menuItems.find(m =>
@@ -59,10 +60,15 @@ const DriveThruPageContent: React.FC = () => {
       );
 
       if (menuItem) {
-        console.log(`[DriveThru] Adding ${detectedItem.quantity}x ${menuItem.name}`);
+        logger.info('[DriveThru] Adding menu item', {
+          quantity: detectedItem.quantity,
+          itemName: menuItem.name
+        });
         addItem(menuItem, detectedItem.quantity || 1, detectedItem.modifications || []);
       } else {
-        console.warn(`[DriveThru] Menu item not found: ${detectedItem.name}`);
+        logger.warn('[DriveThru] Menu item not found', {
+          itemName: detectedItem.name
+        });
       }
     });
   }, [menuItems, addItem]);

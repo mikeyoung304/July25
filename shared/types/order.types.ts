@@ -51,7 +51,7 @@ export interface OrderMetadata {
   tip?: number;
   source?: string;
   timestamp?: string;
-  [key: string]: any; // Allow additional metadata fields
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 export interface Order {

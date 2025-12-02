@@ -16,6 +16,7 @@ import type {
   OrderItem as SharedOrderItem,
   OrderType,
   OrderFilters as SharedOrderFilters,
+  OrderMetadata,
 } from '@rebuild/shared';
 
 const ordersLogger = logger.child({ service: 'OrdersService' });
@@ -37,7 +38,7 @@ export interface CreateOrderRequest {
   seatNumber?: number;
   notes?: string;
   tip?: number;
-  metadata?: Record<string, unknown>;
+  metadata?: OrderMetadata;
   // PHASE 5: Removed subtotal, tax, total_amount from request interface
   // Server ALWAYS calculates these values - never trusts client-provided totals
   // This eliminates trust boundary violation and ensures financial accuracy
@@ -49,7 +50,7 @@ export interface Order extends Omit<SharedOrder, 'order_number' | 'total' | 'pay
   orderNumber: string; // Maps to order_number
   type: OrderType | string; // Allow string for flexibility in service layer
   totalAmount: number; // Maps to total
-  metadata?: Record<string, unknown>;
+  metadata?: OrderMetadata;
   createdAt: string; // Maps to created_at
   updatedAt: string; // Maps to updated_at
   preparingAt?: string;

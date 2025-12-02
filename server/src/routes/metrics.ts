@@ -9,6 +9,23 @@ const router = Router();
 // Only disable rate limiting in local development
 const isDevelopment = process.env['NODE_ENV'] === 'development' && process.env['RENDER'] !== 'true';
 
+/**
+ * Sanitize error objects to prevent API key leakage in logs
+ * Extracts only safe properties from error objects
+ */
+function sanitizeError(error: unknown): { message: string; code?: string; status?: number } {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      // Include HTTP status if available (from fetch errors)
+      ...(('status' in error && typeof error.status === 'number') && { status: error.status }),
+      // Include error code if available
+      ...(('code' in error && typeof error.code === 'string') && { code: error.code })
+    };
+  }
+  return { message: 'Unknown error' };
+}
+
 // Rate limiter keyed by authenticated restaurant (no IP fallback - auth required)
 const metricsLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -94,7 +111,7 @@ async function forwardMetricsToMonitoring(metrics: {
       }
     } catch (error) {
       // Silent fail for metrics forwarding - don't block the response
-      logger.error('[Metrics] Failed to forward to DataDog', error);
+      logger.error('[Metrics] Failed to forward to DataDog', sanitizeError(error));
     }
   }
 
@@ -142,7 +159,7 @@ async function forwardMetricsToMonitoring(metrics: {
       }
     } catch (error) {
       // Silent fail for metrics forwarding - don't block the response
-      logger.error('[Metrics] Failed to forward to New Relic', error);
+      logger.error('[Metrics] Failed to forward to New Relic', sanitizeError(error));
     }
   }
 }
@@ -170,10 +187,15 @@ async function handleMetrics(req: Request, res: Response): Promise<void> {
       userId: authReq.user?.id
     });
 
-    await forwardMetricsToMonitoring(sanitizedMetrics);
+    // Fire-and-forget - don't block response on external monitoring
+    forwardMetricsToMonitoring(sanitizedMetrics).catch(error => {
+      logger.error('Failed to forward metrics to monitoring', {
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    });
     res.json({ success: true });
   } catch (error) {
-    logger.error('Failed to process metrics', error);
+    logger.error('Failed to process metrics', sanitizeError(error));
     res.status(500).json({ error: 'Internal server error' });
   }
 }

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Application, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import crypto from 'crypto';
 import { logger } from '../utils/logger';
@@ -13,9 +13,23 @@ export const generateNonce = (): string => {
   return crypto.randomBytes(16).toString('base64');
 };
 
+// Extend Response locals type
+interface ResponseLocals {
+  nonce?: string;
+  clientIp?: string;
+}
+
+// Extend Request type to include user from auth middleware
+interface RequestWithUser extends Request {
+  user?: {
+    id: string;
+    [key: string]: unknown;
+  };
+}
+
 // Add nonce to response locals for CSP
-export const nonceMiddleware = (_req: Request, res: Response, next: NextFunction) => {
-  res.locals['nonce'] = generateNonce();
+export const nonceMiddleware = (_req: Request, res: Response<unknown, ResponseLocals>, next: NextFunction) => {
+  res.locals.nonce = generateNonce();
   next();
 };
 
@@ -31,7 +45,7 @@ export const securityHeaders = () => {
         styleSrc: ["'self'", "'unsafe-inline'"], // Required for Tailwind
         scriptSrc: isDevelopment
           ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] // Development needs eval for HMR
-          : ["'self'", (_req, res) => `'nonce-${(res as any).locals.nonce}'`],
+          : ["'self'", (_req, res) => `'nonce-${(res as Response<unknown, ResponseLocals>).locals.nonce}'`],
         imgSrc: ["'self'", "data:", "https:"],
         connectSrc: ["'self'", "wss:", "ws:", "https://api.openai.com"],
         fontSrc: ["'self'", "data:"],
@@ -116,20 +130,46 @@ const parseSize = (size: string): number => {
     mb: 1024 * 1024,
     gb: 1024 * 1024 * 1024,
   };
-  
+
   const match = size.toLowerCase().match(/^(\d+(?:\.\d+)?)\s*([a-z]+)?$/);
   if (!match) return 10 * 1024 * 1024; // Default 10MB
-  
+
   const [, num, unit = 'b'] = match;
   return parseFloat(num || '0') * (units[unit] || 1);
 };
+
+// Sanitize event details to prevent leaking sensitive data
+const SENSITIVE_KEYS = ['password', 'token', 'apikey', 'api_key', 'authorization', 'secret', 'credential', 'session', 'cookie'];
+
+function sanitizeEventDetails(details: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(details)) {
+    const lowerKey = key.toLowerCase();
+
+    // Skip sensitive keys
+    if (SENSITIVE_KEYS.some(sensitive => lowerKey.includes(sensitive))) {
+      sanitized[key] = '[REDACTED]';
+      continue;
+    }
+
+    // Recursively sanitize nested objects
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      sanitized[key] = sanitizeEventDetails(value as Record<string, unknown>);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+
+  return sanitized;
+}
 
 // Security event logging
 export interface SecurityEvent {
   type: 'auth_failure' | 'rate_limit' | 'csrf_violation' | 'suspicious_activity';
   ip: string;
   userId?: string;
-  details: any;
+  details: Record<string, unknown>;
   timestamp: Date;
 }
 
@@ -150,12 +190,12 @@ class SecurityMonitor {
       this.events = this.events.slice(-this.maxEvents);
     }
 
-    // Local logging
+    // Local logging with sanitized details
     logger.warn('Security event detected', {
       type: fullEvent.type,
       ip: fullEvent.ip,
       userId: fullEvent.userId,
-      details: fullEvent.details,
+      details: sanitizeEventDetails(fullEvent.details || {}),
       timestamp: fullEvent.timestamp,
     });
 
@@ -202,7 +242,7 @@ class SecurityMonitor {
           security_event_type: event.type,
           ip_address: event.ip,
           user_id: event.userId,
-          details: event.details,
+          details: sanitizeEventDetails(event.details || {}),
         },
       };
 
@@ -227,8 +267,45 @@ class SecurityMonitor {
     }
   }
 
+  private validateSentryDSN(dsn: string): boolean {
+    try {
+      const url = new URL(dsn);
+
+      // Must use HTTPS
+      if (url.protocol !== 'https:') {
+        return false;
+      }
+
+      // Must be a Sentry domain
+      if (!url.hostname.endsWith('.sentry.io') && !url.hostname.endsWith('.ingest.sentry.io')) {
+        return false;
+      }
+
+      // Block private IP ranges and localhost
+      const hostname = url.hostname.toLowerCase();
+      if (hostname === 'localhost' ||
+          hostname === '127.0.0.1' ||
+          hostname.startsWith('10.') ||
+          hostname.startsWith('172.16.') ||
+          hostname.startsWith('192.168.') ||
+          hostname === '169.254.169.254') {
+        return false;
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   private async sendToSentry(event: SecurityEvent, dsn: string): Promise<void> {
     try {
+      // Validate DSN to prevent SSRF attacks
+      if (!this.validateSentryDSN(dsn)) {
+        logger.warn('Invalid or untrusted Sentry DSN', { dsn: dsn.substring(0, 20) + '...' });
+        return;
+      }
+
       // Parse DSN to extract project ID and key
       const dsnUrl = new URL(dsn);
       const publicKey = dsnUrl.username;
@@ -251,7 +328,7 @@ class SecurityMonitor {
         },
         extra: {
           user_id: event.userId,
-          details: event.details,
+          details: sanitizeEventDetails(event.details || {}),
         },
         server_name: process.env['HOSTNAME'] || 'unknown',
       };
@@ -279,10 +356,10 @@ class SecurityMonitor {
   
   getEvents(filter?: Partial<SecurityEvent>): SecurityEvent[] {
     if (!filter) return [...this.events];
-    
+
     return this.events.filter(event => {
       return Object.entries(filter).every(([key, value]) => {
-        return (event as any)[key] === value;
+        return event[key as keyof SecurityEvent] === value;
       });
     });
   }
@@ -326,41 +403,41 @@ export const extractIP = (req: Request, res: Response, next: NextFunction) => {
 };
 
 // Suspicious activity detection
-export const detectSuspiciousActivity = (req: Request, res: Response, next: NextFunction): void => {
+export const detectSuspiciousActivity = (req: RequestWithUser, res: Response, next: NextFunction): void => {
   const suspicious = [];
-  
+
   // Check for SQL injection patterns
   const sqlPatterns = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|CREATE|ALTER)\b|--|\/\*|\*\/|xp_|sp_|0x)/gi;
   const url = req.url + JSON.stringify(req.body || {});
-  
+
   if (sqlPatterns.test(url)) {
     suspicious.push('SQL injection attempt');
   }
-  
+
   // Check for XSS patterns
   const xssPatterns = /<script|javascript:|onerror=|onload=|<iframe|<embed|<object/gi;
   if (xssPatterns.test(url)) {
     suspicious.push('XSS attempt');
   }
-  
+
   // Check for path traversal
   const pathTraversalPatterns = /\.\.[\/\\]|\.\.%2[fF]|%2e%2e/g;
   if (pathTraversalPatterns.test(req.url)) {
     suspicious.push('Path traversal attempt');
   }
-  
+
   // Check for unusual user agents
   const userAgent = req.headers['user-agent'] || '';
   const suspiciousAgents = /sqlmap|nikto|nmap|masscan|metasploit/i;
   if (suspiciousAgents.test(userAgent)) {
     suspicious.push('Suspicious user agent');
   }
-  
+
   if (suspicious.length > 0) {
     securityMonitor.logEvent({
       type: 'suspicious_activity',
       ip: req.ip || 'unknown',
-      userId: (req as any).user?.id,
+      userId: req.user?.id || 'anonymous',
       details: {
         patterns: suspicious,
         url: req.url,
@@ -368,7 +445,7 @@ export const detectSuspiciousActivity = (req: Request, res: Response, next: Next
         userAgent,
       },
     });
-    
+
     // In production, you might want to block these requests
     if (process.env['NODE_ENV'] === 'production' && suspicious.length > 1) {
       res.status(400).json({
@@ -380,12 +457,12 @@ export const detectSuspiciousActivity = (req: Request, res: Response, next: Next
       return;
     }
   }
-  
+
   next();
 };
 
 // Apply all security middleware
-export const applySecurity = (app: any) => {
+export const applySecurity = (app: Application) => {
   // Apply in order
   app.use(extractIP);
   app.use(nonceMiddleware);

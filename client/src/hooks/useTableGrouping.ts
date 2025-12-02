@@ -2,6 +2,13 @@ import { useMemo } from 'react'
 import type { Order, OrderItem } from '@rebuild/shared'
 import { getOrderUrgency } from '@rebuild/shared/config/kds'
 
+/**
+ * Type guard to validate that a value is a non-empty string
+ */
+function isValidString(value: unknown): value is string {
+  return typeof value === 'string' && value.length > 0
+}
+
 export interface TableGroup {
   tableNumber: string
   orders: Order[]
@@ -101,10 +108,10 @@ export const useTableGrouping = (orders: Order[]) => {
 
         // Extract server and section from order metadata if available
         // Only set if not already set (first order wins for table group)
-        if (!tableGroup.serverName && order.metadata?.serverName) {
+        if (!tableGroup.serverName && isValidString(order.metadata?.serverName)) {
           tableGroup.serverName = order.metadata.serverName
         }
-        if (!tableGroup.section && order.metadata?.section) {
+        if (!tableGroup.section && isValidString(order.metadata?.section)) {
           tableGroup.section = order.metadata.section
         }
 
