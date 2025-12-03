@@ -200,6 +200,7 @@ const KitchenDisplayOptimized = React.memo(() => {
                   aria-selected={stationTab === 'kitchen'}
                   aria-controls="kitchen-panel"
                   id="kitchen-tab"
+                  tabIndex={stationTab === 'kitchen' ? 0 : -1}
                 >
                   <ChefHat className="w-4 h-4" aria-hidden="true" />
                   Kitchen
@@ -213,6 +214,7 @@ const KitchenDisplayOptimized = React.memo(() => {
                   aria-selected={stationTab === 'expo'}
                   aria-controls="expo-panel"
                   id="expo-tab"
+                  tabIndex={stationTab === 'expo' ? 0 : -1}
                 >
                   <Send className="w-4 h-4" aria-hidden="true" />
                   Expo

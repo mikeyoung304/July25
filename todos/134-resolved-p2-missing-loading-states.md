@@ -1,9 +1,10 @@
 ---
-status: pending
+status: completed
 priority: p2
 issue_id: "134"
 tags: [code-review, ux, kitchen, accessibility]
 dependencies: ["133"]
+completed_at: "2025-12-03"
 ---
 
 # TODO-134: No loading states during status transitions
@@ -56,17 +57,60 @@ const handleClick = async () => {
 ## Technical Details
 
 **Affected Files:**
-- `client/src/components/kitchen/ExpoTabContent.tsx:90-97`
+- `client/src/components/kitchen/ExpoTabContent.tsx:26,60-68,115,119-129`
+
+## Resolution
+
+### Implementation (Lines 26, 60-68, 115, 119-129)
+
+The `ReadyOrderCard` component now has full loading state management:
+
+```typescript
+// State
+const [isUpdating, setIsUpdating] = useState(false)
+
+// Handler with race condition prevention
+const handleClick = async () => {
+  if (isUpdating) return // Prevent double-clicks
+  setIsUpdating(true)
+  try {
+    await onMarkSold(order.id)
+  } finally {
+    setIsUpdating(false)
+  }
+}
+
+// Button with loading state
+<Button
+  onClick={handleClick}
+  disabled={isUpdating}
+  className="w-full bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
+  size="lg"
+>
+  {isUpdating ? (
+    <>
+      <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+      Updating...
+    </>
+  ) : (
+    <>
+      <CheckCircle className="w-4 h-4 mr-2" />
+      Mark Sold
+    </>
+  )}
+</Button>
+```
 
 ## Acceptance Criteria
 
-- [ ] Button disabled during async operation
-- [ ] Loading indicator shown (spinner or text)
-- [ ] Re-enabled after success or failure
-- [ ] No duplicate API calls possible
+- [x] Button disabled during async operation
+- [x] Loading indicator shown (spinner animation + "Updating..." text)
+- [x] Re-enabled after success or failure (finally block)
+- [x] No duplicate API calls possible (early return if isUpdating)
 
 ## Work Log
 
 | Date | Action | Learnings |
 |------|--------|-----------|
 | 2025-12-02 | Created from code review | UX pattern missing |
+| 2025-12-03 | Verified implementation complete | Loading states with spinner animation already implemented |
