@@ -74,6 +74,43 @@ async function forwardMetricsToMonitoring(metrics: {
   }
 }
 
+/** Keys that could be used for prototype pollution attacks */
+const DANGEROUS_KEYS = ['__proto__', 'constructor', 'prototype'];
+
+/** ISO 8601 timestamp pattern (basic validation) */
+const ISO_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
+/**
+ * Sanitize stats object to prevent prototype pollution
+ * Filters out dangerous keys and ensures the value is a plain object
+ */
+function sanitizeStatsObject(stats: unknown): Record<string, unknown> {
+  if (typeof stats !== 'object' || stats === null || Array.isArray(stats)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(stats as Record<string, unknown>).filter(
+      ([key]) => !DANGEROUS_KEYS.includes(key)
+    )
+  );
+}
+
+/**
+ * Validate and sanitize timestamp to prevent log injection
+ * Returns valid ISO timestamp or current server time
+ */
+function sanitizeTimestamp(timestamp: unknown): string {
+  if (
+    typeof timestamp === 'string' &&
+    ISO_TIMESTAMP_PATTERN.test(timestamp)
+  ) {
+    // Limit length to prevent log injection via oversized strings
+    return timestamp.substring(0, 30);
+  }
+  return new Date().toISOString();
+}
+
 /**
  * Shared handler for metrics endpoints (fixes TODO-099 duplication)
  */
@@ -83,12 +120,12 @@ async function handleMetrics(req: Request, res: Response): Promise<void> {
   try {
     const metrics = req.body;
 
-    // Sanitize metrics
+    // Sanitize metrics (TODO-144: prototype pollution, TODO-148: timestamp validation, TODO-150: radix)
     const sanitizedMetrics = {
-      timestamp: metrics.timestamp || new Date().toISOString(),
-      slowRenders: Math.max(0, parseInt(metrics.slowRenders) || 0),
-      slowAPIs: Math.max(0, parseInt(metrics.slowAPIs) || 0),
-      stats: typeof metrics.stats === 'object' ? metrics.stats : {}
+      timestamp: sanitizeTimestamp(metrics.timestamp),
+      slowRenders: Math.max(0, parseInt(metrics.slowRenders, 10) || 0),
+      slowAPIs: Math.max(0, parseInt(metrics.slowAPIs, 10) || 0),
+      stats: sanitizeStatsObject(metrics.stats)
     };
 
     logger.info('Client performance metrics', {

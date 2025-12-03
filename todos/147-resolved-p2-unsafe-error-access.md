@@ -1,5 +1,5 @@
 ---
-status: pending
+status: resolved
 priority: p2
 issue_id: "147"
 tags: [code-review, error-handling, typescript]

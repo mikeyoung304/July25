@@ -113,10 +113,13 @@ export function useServerView() {
         logger.info('📭 ServerView: No tables found on initial load')
       }
       
-    } catch (error) {
+    } catch (error: unknown) {
+      // TODO-147: Type-safe error property access
       logger.error('❌ ServerView: Failed to load floor plan:', {
-        error: error.message,
-        status: error.status,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        status: (error && typeof error === 'object' && 'status' in error && typeof (error as { status?: unknown }).status === 'number')
+          ? (error as { status: number }).status
+          : undefined,
         isInitial: isInitialLoad.current
       })
 
@@ -157,26 +160,36 @@ export function useServerView() {
     }
   }, [loadFloorPlan, restaurant?.id, isSubscribed])
 
+  // TODO-145: Single-pass stats calculation (O(n) instead of O(7n))
   const stats = useMemo(() => {
-    const totalTables = tables.length
-    const availableTables = tables.filter(t => t.status === 'available').length
-    const occupiedTables = tables.filter(t => t.status === 'occupied').length
-    const reservedTables = tables.filter(t => t.status === 'reserved').length
-    const paidTables = tables.filter(t => t.status === 'paid').length
-    const totalSeats = tables.reduce((acc, t) => acc + t.seats, 0)
-    const availableSeats = tables
-      .filter(t => t.status === 'available')
-      .reduce((acc, t) => acc + t.seats, 0)
+    return tables.reduce(
+      (acc, t) => {
+        acc.totalTables++
+        acc.totalSeats += t.seats
 
-    return {
-      totalTables,
-      availableTables,
-      occupiedTables,
-      reservedTables,
-      paidTables,
-      totalSeats,
-      availableSeats
-    }
+        if (t.status === 'available') {
+          acc.availableTables++
+          acc.availableSeats += t.seats
+        } else if (t.status === 'occupied') {
+          acc.occupiedTables++
+        } else if (t.status === 'reserved') {
+          acc.reservedTables++
+        } else if (t.status === 'paid') {
+          acc.paidTables++
+        }
+
+        return acc
+      },
+      {
+        totalTables: 0,
+        availableTables: 0,
+        occupiedTables: 0,
+        reservedTables: 0,
+        paidTables: 0,
+        totalSeats: 0,
+        availableSeats: 0
+      }
+    )
   }, [tables])
 
   const selectedTable = useMemo(() => 

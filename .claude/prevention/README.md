@@ -4,6 +4,42 @@ This directory contains proactive prevention strategies to avoid recurring issue
 
 ## Documents
 
+### [INPUT-VALIDATION-AND-ERROR-SAFETY.md](./INPUT-VALIDATION-AND-ERROR-SAFETY.md)
+
+**New** - Comprehensive prevention strategies for input validation, error handling, and code quality (TODO-144 through TODO-150).
+
+**Key Issues Fixed:**
+- Prototype pollution risk in unsanitized object spreading
+- Array performance: 7x redundant iterations instead of single pass
+- 200+ lines of dead code with unused exports
+- Unsafe error property access without type guards
+- Missing timestamp validation for log injection risk
+- Missing radix and bounds in parseInt()
+
+**3 Core Sections:**
+1. **Input Validation & Sanitization** - Filter dangerous keys, validate format/length, specify radix, add bounds
+2. **Error Type Safety** - Type guards for error properties, safe property extraction patterns
+3. **Array Performance** - Single-pass reduce instead of multiple filters, accumulator patterns
+
+**ESLint & Automation:**
+- Custom ESLint rules for prototype pollution and parseInt safety
+- Pre-commit hooks for input validation checks
+- GitHub Actions for dead code audits
+- TypeScript strict mode configuration
+
+**When to Use:**
+- Before spreading user input or merging objects
+- When accessing error properties (use type guards!)
+- When collecting multiple stats from arrays
+- During code review for security/performance issues
+- Weekly dead code audits
+
+**Based On:** Fixed issues in commit 0728e1ee (metrics endpoint security, performance, type safety)
+
+**Quick Reference:** [QUICK-REF-INPUT-VALIDATION.md](./QUICK-REF-INPUT-VALIDATION.md)
+
+---
+
 ### [PARALLEL-TODO-RESOLUTION-BEST-PRACTICES.md](./PARALLEL-TODO-RESOLUTION-BEST-PRACTICES.md)
 
 **New** - Comprehensive guide for safely executing parallel TODO resolution workflows.
