@@ -300,44 +300,21 @@ export const transformSharedMenuItemToClient = (item: SharedMenuItem): ClientMen
 // Table transformations - critical for floor plan integration
 export const transformSharedTableToClient = (table: SharedTable): ClientTable => {
   try {
-    // Extract position coordinates with validation
-    const position = table.position || { x: 0, y: 0 };
-    const x = validateNumber(position.x, 'position.x');
-    const y = validateNumber(position.y, 'position.y');
-    
-    // Map shape to type with validation
-    const shapeToTypeMap: Record<string, ClientTable['type']> = {
-      'rectangle': 'rectangle',
-      'square': 'square',
-      'round': 'circle',
-      'circle': 'circle',
-      'chip_monkey': 'chip_monkey'
-    };
-    
-    const shape = table.shape || 'rectangle';
-    const type = shapeToTypeMap[shape];
-    if (!type) {
-      throw new TypeTransformationError(
-        `Invalid table shape: ${shape}`,
-        'shape',
-        shape
-      );
-    }
-
+    // SharedTable now uses the unified schema (x, y, type, label, seats)
     return {
       id: validateString(table.id, 'id'),
       restaurantId: validateString(table.restaurant_id, 'restaurant_id'),
-      tableNumber: validateString(table.table_number, 'table_number'),
-      seats: validateNumber(table.capacity, 'capacity'),
+      tableNumber: validateString(table.label, 'label'),
+      seats: validateNumber(table.seats, 'seats'),
       status: table.status,
-      x,
-      y,
-      width: 80, // Default dimensions
-      height: 80,
-      type,
-      zIndex: 1,
-      createdAt: validateDate(table.created_at, 'created_at'),
-      updatedAt: validateDate(table.updated_at, 'updated_at')
+      x: validateNumber(table.x, 'x'),
+      y: validateNumber(table.y, 'y'),
+      width: validateNumber(table.width, 'width'),
+      height: validateNumber(table.height, 'height'),
+      type: table.type,
+      zIndex: validateNumber(table.z_index, 'z_index'),
+      createdAt: validateDate(table.created_at || new Date().toISOString(), 'created_at'),
+      updatedAt: validateDate(table.updated_at || new Date().toISOString(), 'updated_at')
     };
   } catch (error) {
     if (error instanceof TypeTransformationError) {
@@ -353,25 +330,20 @@ export const transformSharedTableToClient = (table: SharedTable): ClientTable =>
 
 export const transformClientTableToShared = (table: ClientTable): SharedTable => {
   try {
-    // Map type back to shape
-    const typeToShapeMap: Record<string, SharedTable['shape']> = {
-      'rectangle': 'rectangle',
-      'square': 'square',
-      'circle': 'round',
-      'chip_monkey': 'chip_monkey'
-    };
-
+    // Transform ClientTable back to unified SharedTable schema
     return {
       id: validateString(table.id, 'id'),
       restaurant_id: validateString(table.restaurantId, 'restaurantId'),
-      table_number: validateString(table.tableNumber, 'tableNumber'),
-      capacity: validateNumber(table.seats, 'seats'),
+      label: validateString(table.tableNumber, 'tableNumber'),
+      seats: validateNumber(table.seats, 'seats'),
       status: table.status,
-      position: {
-        x: validateNumber(table.x, 'x'),
-        y: validateNumber(table.y, 'y')
-      },
-      shape: typeToShapeMap[table.type] || 'rectangle',
+      type: table.type,
+      x: validateNumber(table.x, 'x'),
+      y: validateNumber(table.y, 'y'),
+      width: validateNumber(table.width, 'width'),
+      height: validateNumber(table.height, 'height'),
+      rotation: 0,
+      z_index: validateNumber(table.zIndex, 'zIndex'),
       created_at: table.createdAt.toISOString(),
       updated_at: table.updatedAt.toISOString()
     };

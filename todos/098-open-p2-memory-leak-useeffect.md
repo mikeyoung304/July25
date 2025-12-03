@@ -1,11 +1,13 @@
 ---
-status: open
+status: resolved
 priority: p2
 issue_id: "098"
 tags: [performance, memory-leak, react, hooks]
 dependencies: []
 created_date: 2025-12-02
+resolved_date: 2025-12-02
 source: code-review-performance-agent
+resolution: Using toastRef pattern to prevent callback recreation
 ---
 
 # HIGH: Memory Leak from useEffect Dependencies

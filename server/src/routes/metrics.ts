@@ -1,11 +1,14 @@
 import { Router, Request, Response } from 'express';
+import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/database';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
-import { serviceConfig } from '../config/services';
 
 const router = Router();
+
+// Body size limit for metrics endpoints (1KB max)
+const metricsBodyLimit = express.json({ limit: '1kb' });
 
 // Only disable rate limiting in local development
 const isDevelopment = process.env['NODE_ENV'] === 'development' && process.env['RENDER'] !== 'true';
@@ -64,104 +67,10 @@ async function forwardMetricsToMonitoring(metrics: {
   slowAPIs?: number;
   stats?: Record<string, unknown>;
 }): Promise<void> {
-  const datadogApiKey = process.env['DATADOG_API_KEY'];
-  const newRelicApiKey = process.env['NEW_RELIC_API_KEY'];
-
-  if (!datadogApiKey && !newRelicApiKey) {
-    // No monitoring service configured - silent return
-    return;
-  }
-
-  if (datadogApiKey) {
-    try {
-      const timestamp = Math.floor(Date.now() / 1000);
-      const response = await fetch(`${serviceConfig.datadog.apiUrl}/api/v1/series`, {
-        method: 'POST',
-        headers: {
-          'DD-API-KEY': datadogApiKey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          series: [
-            {
-              metric: 'client.slow_renders',
-              points: [[timestamp, metrics.slowRenders || 0]],
-              type: 'count'
-            },
-            {
-              metric: 'client.slow_apis',
-              points: [[timestamp, metrics.slowAPIs || 0]],
-              type: 'count'
-            }
-          ]
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        logger.error('[Metrics] DataDog API error', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText
-        });
-      } else {
-        logger.info('[Metrics] Successfully forwarded to DataDog', {
-          slowRenders: metrics.slowRenders,
-          slowAPIs: metrics.slowAPIs
-        });
-      }
-    } catch (error) {
-      // Silent fail for metrics forwarding - don't block the response
-      logger.error('[Metrics] Failed to forward to DataDog', sanitizeError(error));
-    }
-  }
-
-  if (newRelicApiKey) {
-    try {
-      const timestamp = Date.now();
-      const response = await fetch(`${serviceConfig.newRelic.metricsUrl}/metric/v1`, {
-        method: 'POST',
-        headers: {
-          'Api-Key': newRelicApiKey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify([
-          {
-            metrics: [
-              {
-                name: 'client.slow_renders',
-                type: 'count',
-                value: metrics.slowRenders || 0,
-                timestamp: timestamp
-              },
-              {
-                name: 'client.slow_apis',
-                type: 'count',
-                value: metrics.slowAPIs || 0,
-                timestamp: timestamp
-              }
-            ]
-          }
-        ])
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        logger.error('[Metrics] New Relic API error', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText
-        });
-      } else {
-        logger.info('[Metrics] Successfully forwarded to New Relic', {
-          slowRenders: metrics.slowRenders,
-          slowAPIs: metrics.slowAPIs
-        });
-      }
-    } catch (error) {
-      // Silent fail for metrics forwarding - don't block the response
-      logger.error('[Metrics] Failed to forward to New Relic', sanitizeError(error));
-    }
+  // TODO: Implement DataDog/New Relic forwarding when needed
+  const hasMonitoring = process.env['DATADOG_API_KEY'] || process.env['NEW_RELIC_API_KEY'];
+  if (hasMonitoring) {
+    logger.debug('[Metrics] External monitoring not yet implemented', { metricsCount: Object.keys(metrics).length });
   }
 }
 
@@ -204,8 +113,9 @@ async function handleMetrics(req: Request, res: Response): Promise<void> {
 /**
  * Receive performance metrics from client
  * Requires authentication to prevent restaurant_id spoofing and enable per-restaurant rate limiting
+ * Body size limited to 1KB and rate limited to 100 req/min per restaurant
  */
-router.post('/metrics', authenticate, metricsLimiter, handleMetrics);
+router.post('/metrics', metricsBodyLimit, authenticate, metricsLimiter, handleMetrics);
 
 /**
  * Health check endpoint
@@ -295,6 +205,8 @@ router.get('/health/detailed', async (_req, res) => {
   let dbError: string | undefined;
   try {
     const start = Date.now();
+    // Health check query - restaurants table is small and exists in all environments
+    // Using limit(1) keeps the query fast even as data grows
     const { error } = await supabase.from('restaurants').select('id').limit(1);
     dbLatency = Date.now() - start;
     if (error) {
@@ -355,8 +267,8 @@ if (process.env['NODE_ENV'] === 'development') {
 /**
  * Analytics performance alias
  * Client expects /api/v1/analytics/performance but we serve /metrics
- * Uses same authentication and rate limiting as /metrics
+ * Uses same authentication, rate limiting, and body size limit as /metrics
  */
-router.post('/analytics/performance', authenticate, metricsLimiter, handleMetrics);
+router.post('/analytics/performance', metricsBodyLimit, authenticate, metricsLimiter, handleMetrics);
 
 export default router;

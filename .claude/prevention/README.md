@@ -4,6 +4,29 @@ This directory contains proactive prevention strategies to avoid recurring issue
 
 ## Documents
 
+### [PR-151-PREVENTION-SUMMARY.md](./PR-151-PREVENTION-SUMMARY.md)
+
+**New** - Comprehensive prevention strategy for security issues discovered in PR #150-151.
+
+**Key Issues Fixed:**
+- RLS policies missing on audit tables (order_status_history, voice_order_logs)
+- Cache keys missing tenant isolation (cross-restaurant pollution risk)
+- INSERT policy asymmetric with SELECT (missing IS NOT NULL check)
+- Cache clearing function orphaned (existed but never called)
+- console.error instead of logger (inconsistent logging)
+
+**3 Actionable Checklists:**
+1. [CHECKLIST-RLS-MIGRATIONS.md](./CHECKLIST-RLS-MIGRATIONS.md) - Complete RLS implementation guide
+2. [CHECKLIST-MULTITENANT-CACHE.md](./CHECKLIST-MULTITENANT-CACHE.md) - Multi-tenant cache isolation
+3. [CHECKLIST-SECURITY-CODE-REVIEW.md](./CHECKLIST-SECURITY-CODE-REVIEW.md) - Security code review process
+
+**When to Use:**
+- RLS work → Use RLS Migrations checklist
+- Cache implementation → Use Multi-tenant Cache checklist
+- Any security PR → Use Security Code Review checklist
+
+---
+
 ### [WORKTREE-TODO-MAINTENANCE.md](./WORKTREE-TODO-MAINTENANCE.md)
 
 Comprehensive prevention framework for managing git worktrees and TODO system discipline.

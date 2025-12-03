@@ -1,22 +1,5 @@
-export interface Table {
-  id: string
-  type: 'circle' | 'rectangle' | 'square' | 'chip_monkey'
-  x: number
-  y: number
-  width: number
-  height: number
-  seats: number
-  label: string
-  rotation: number
-  status: 'available' | 'occupied' | 'reserved' | 'unavailable' | 'cleaning' | 'paid'
-  z_index: number
-  current_order_id?: string | null
-  metadata?: Record<string, unknown>
-  active?: boolean
-  created_at?: string
-  updated_at?: string
-  restaurant_id?: string
-}
+// Re-export Table and related types from shared
+export type { Table, TableStatus, TableShape } from 'shared/types'
 
 export interface FloorPlanState {
   tables: Table[]

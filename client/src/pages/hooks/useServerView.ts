@@ -10,9 +10,7 @@ export function useServerView() {
   const { toast } = useToast()
   // Fix memory leak: use ref to access toast without including it in dependencies
   const toastRef = useRef(toast)
-  useEffect(() => {
-    toastRef.current = toast
-  }, [toast])
+  toastRef.current = toast
 
   const context = useContext(RestaurantContext)
   const [tables, setTables] = useState<Table[]>([])
@@ -144,18 +142,19 @@ export function useServerView() {
     // Initial load
     loadFloorPlan()
 
-    // Reload floor plan periodically to catch admin updates
-    // Use longer interval when real-time subscription is active (2 min vs 30 sec)
-    const pollInterval = isSubscribed ? 120000 : 30000
-    logger.info('[useServerView] Poll interval set', { pollInterval, isSubscribed })
+    // Only poll when real-time is unavailable (prevents race conditions)
+    if (!isSubscribed) {
+      logger.info('[useServerView] Real-time unavailable, starting 30s polling')
+      const interval = setInterval(() => {
+        if (restaurant?.id) {
+          loadFloorPlan()
+        }
+      }, 30000)
 
-    const interval = setInterval(() => {
-      if (restaurant?.id) {
-        loadFloorPlan()
-      }
-    }, pollInterval)
-
-    return () => clearInterval(interval)
+      return () => clearInterval(interval)
+    } else {
+      logger.info('[useServerView] Real-time active, polling disabled')
+    }
   }, [loadFloorPlan, restaurant?.id, isSubscribed])
 
   const stats = useMemo(() => {

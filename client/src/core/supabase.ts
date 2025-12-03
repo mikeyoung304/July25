@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { env } from '@/config/env-validator'
+import type { DatabaseTable } from 'shared/types'
 
 // Environment variables are validated at app startup
 // If we reach this point, we know they exist and are valid
@@ -30,14 +31,8 @@ export interface DatabaseOrder {
   notes?: string
 }
 
-export interface DatabaseTable {
-  id: string
-  number: string
-  restaurant_id: string
-  seats: number
-  status: string
-  current_order_id?: string
-}
+// Re-export DatabaseTable from shared types for backward compatibility
+export type { DatabaseTable }
 
 // Real-time subscription helpers
 export const subscribeToOrders = (

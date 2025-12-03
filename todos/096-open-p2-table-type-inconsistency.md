@@ -1,11 +1,13 @@
 ---
-status: open
+status: resolved
 priority: p2
 issue_id: "096"
 tags: [architecture, typescript, types, refactor]
 dependencies: []
 created_date: 2025-12-02
+resolved_date: 2025-12-02
 source: code-review-architecture-agent
+resolution: Unified types in shared/types/table.types.ts, updated imports in client
 ---
 
 # HIGH: Type Inconsistency - DatabaseTable vs Table

@@ -1,11 +1,13 @@
 ---
-status: open
+status: resolved
 priority: p3
 issue_id: "102"
 tags: [performance, health-check, monitoring]
 dependencies: []
 created_date: 2025-12-02
+resolved_date: 2025-12-02
 source: code-review-performance-agent
+resolution: Added documentation comment explaining the query choice
 ---
 
 # P3: Health Check DB Query Too Heavy

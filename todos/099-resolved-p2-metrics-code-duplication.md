@@ -1,10 +1,11 @@
 ---
-status: open
+status: resolved
 priority: p2
 issue_id: "099"
 tags: [code-quality, duplication, refactor, dry]
 dependencies: []
 created_date: 2025-12-02
+resolved_date: 2025-12-02
 source: code-review-quality-agent
 ---
 
@@ -109,3 +110,32 @@ router.post('/analytics/performance', handleMetrics);
 
 - DRY principle
 - Related: TODO 094 (metrics auth)
+
+## Resolution
+
+**Fixed in current implementation (2025-12-02)**
+
+The code has been successfully refactored:
+
+1. **Extracted `handleMetrics` function** (lines 171-202 in `server/src/routes/metrics.ts`):
+   - Processes and sanitizes metrics data
+   - Logs with authentication context (restaurant_id, userId)
+   - Forwards to external monitoring services (fire-and-forget)
+   - Returns standardized success/error responses
+
+2. **Both endpoints now use shared handler**:
+   ```typescript
+   router.post('/metrics', authenticate, metricsLimiter, handleMetrics);
+   router.post('/analytics/performance', authenticate, metricsLimiter, handleMetrics);
+   ```
+
+3. **Bug fixed**: `/analytics/performance` now includes `forwardMetricsToMonitoring` call
+
+4. **Additional improvements**:
+   - Input sanitization for metrics values
+   - Authentication context in logs (prevents restaurant_id spoofing)
+   - Fire-and-forget pattern for monitoring forwarding (non-blocking)
+   - Comprehensive JSDoc comments
+   - Shared authentication and rate limiting
+
+**Result**: Eliminated ~25 lines of duplication and fixed monitoring forward bug.

@@ -1,11 +1,13 @@
 ---
-status: open
+status: resolved
 priority: p2
 issue_id: "097"
 tags: [architecture, performance, race-condition, react]
 dependencies: []
 created_date: 2025-12-02
+resolved_date: 2025-12-02
 source: code-review-architecture-agent
+resolution: Polling now disabled when real-time subscription is active
 ---
 
 # HIGH: Race Conditions Between Polling and Real-time Updates

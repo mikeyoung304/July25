@@ -1,11 +1,13 @@
 ---
-status: open
+status: resolved
 priority: p1
 issue_id: "094"
 tags: [security, api, authentication, dos-risk]
 dependencies: []
 created_date: 2025-12-02
+resolved_date: 2025-12-02
 source: code-review-security-agent
+resolution: Added 1KB body limit, authentication, and rate limiting middleware
 ---
 
 # CRITICAL: Unauthenticated Metrics Endpoints
