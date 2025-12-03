@@ -15,6 +15,11 @@ server/dist/
 *.local
 .env
 .env.*
+!.env.test
+!.env.example
+
+# Vercel CLI generated files (do not commit)
+.env.vercel.*
 
 # Editor directories and files
 .vscode/*
