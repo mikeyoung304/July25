@@ -32,7 +32,7 @@ export function SeatSelectionModal({
 }: SeatSelectionModalProps) {
   if (!show || !table) return null
 
-  const seats = Array.from({ length: table.capacity }, (_, i) => i + 1)
+  const seats = Array.from({ length: table.seats }, (_, i) => i + 1)
   const hasOrderedSeats = orderedSeats.length > 0
 
   return (

@@ -29,7 +29,7 @@ export const getTables = async (req: AuthenticatedRequest, res: Response, next: 
       x: table['x_pos'],
       y: table['y_pos'],
       type: table['shape'],
-      capacity: table['seats']  // FIX: Transform seats to capacity for client
+      seats: table['seats']
     }));
     
     return res.json(transformedData);
@@ -365,7 +365,7 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
       x: table['x_pos'],
       y: table['y_pos'],
       type: table['shape'],
-      capacity: table['seats']  // FIX: Transform seats to capacity for client
+      seats: table['seats']
     }));
     
     logger.info(`✅ Batch update response: ${data.length} tables transformed and returned`);

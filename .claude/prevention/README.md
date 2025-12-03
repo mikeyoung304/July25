@@ -4,9 +4,67 @@ This directory contains proactive prevention strategies to avoid recurring issue
 
 ## Documents
 
+### [PARALLEL-TODO-RESOLUTION-BEST-PRACTICES.md](./PARALLEL-TODO-RESOLUTION-BEST-PRACTICES.md)
+
+**New** - Comprehensive guide for safely executing parallel TODO resolution workflows.
+
+**Problem Pattern:**
+- Spawning too many agents simultaneously crashes the system
+- TODOs worked on multiple times due to poor status tracking
+- Missing dependencies causing conflicts and rework
+- Memory exhaustion from 9+ parallel agents
+
+**Key Sections:**
+1. **Memory Management** - Safe agent limits (5-6 max), wave-based execution
+2. **Five-Phase Workflow** - Analyze, Plan, Execute, Verify, Commit
+3. **Prevention Checklist** - Pre-flight, in-flight, post-completion checks
+4. **Common Pitfalls** - Spawning too many agents, not checking if TODO already resolved
+5. **Success Metrics** - How to measure effectiveness and capture lessons learned
+
+**Quick Reference:** [PARALLEL-RESOLUTION-QUICK-REF.md](./PARALLEL-RESOLUTION-QUICK-REF.md)
+
+**When to Use:**
+- Before resolving 6+ TODOs in parallel
+- When planning wave-based execution
+- During parallel resolution (monitoring checklist)
+- After completion (lessons learned template)
+
+**Based On:** Successful resolution of 11+ TODOs via parallel workflow (commit 0728e1ee)
+
+---
+
+### [CHECKLIST-SCHEMA-TYPE-SAFETY.md](./CHECKLIST-SCHEMA-TYPE-SAFETY.md)
+
+**New** - Comprehensive prevention strategy for schema-type safety issues (TODO-142, TODO-143).
+
+**Key Issues Fixed:**
+- Table schema field mismatch (`capacity` vs `seats`)
+- Unsafe `as any` type assertions bypassing type safety
+- Missing validation on type transformations
+
+**3 Prevention Phases:**
+1. **Code Review Checklist** - 8-point schema alignment review, type assertion documentation
+2. **Automated Checks** - TypeScript strict mode, ESLint rules, CI/CD integration
+3. **Testing Strategy** - Unit tests for all transformations, validation tests, property-based testing
+
+**Key Patterns Provided:**
+- Correct field transformation pattern (DB → API → Client)
+- Unsafe assertion replacement patterns (union types vs `any`)
+- Type-safe mapping functions for complex transformations
+- Common pitfalls (6 most likely mistakes)
+
+**When to Use:**
+- Before implementing type transformations
+- During code review of API routes and transformers
+- When adding new shared types
+
+**Related Checklist:** Complements [CHECKLIST-SECURITY-CODE-REVIEW.md](./CHECKLIST-SECURITY-CODE-REVIEW.md) for type safety section
+
+---
+
 ### [PR-151-PREVENTION-SUMMARY.md](./PR-151-PREVENTION-SUMMARY.md)
 
-**New** - Comprehensive prevention strategy for security issues discovered in PR #150-151.
+**Complete** - Comprehensive prevention strategy for security issues discovered in PR #150-151.
 
 **Key Issues Fixed:**
 - RLS policies missing on audit tables (order_status_history, voice_order_logs)
