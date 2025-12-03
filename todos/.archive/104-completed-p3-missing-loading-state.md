@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 priority: p3
 issue_id: "104"
 tags: [code-review, ux, loading-state, pr-148]
