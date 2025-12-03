@@ -165,3 +165,26 @@ export function toPrice(value: unknown, fieldName: string): number {
 
   return numValue;
 }
+
+/**
+ * Format a price for display using Intl.NumberFormat
+ *
+ * Provides consistent currency formatting across the application.
+ * Uses US locale by default with USD currency.
+ *
+ * @param price - Price value to format
+ * @param currency - Currency code (default: 'USD')
+ * @returns Formatted price string (e.g., "$9.99")
+ *
+ * @example
+ * formatPrice(9.99)            // "$9.99"
+ * formatPrice(1000)            // "$1,000.00"
+ * formatPrice(0)               // "$0.00"
+ * formatPrice(9.99, 'EUR')     // "€9.99"
+ */
+export function formatPrice(price: number, currency: string = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(price);
+}

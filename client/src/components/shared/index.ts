@@ -14,8 +14,8 @@ export type { IconButtonProps } from './IconButton';
 export { OrderInputSelector } from './OrderInputSelector';
 export type { OrderInputSelectorProps, OrderInputMode } from './OrderInputSelector';
 
-export { MenuItemGrid, MenuItemCard, MenuCategoryFilter } from './MenuItemGrid';
-export type { MenuItemGridProps, MenuItemCardProps, MenuCategoryFilterProps } from './MenuItemGrid';
+export { MenuItemGrid, MenuGridCard, MenuCategoryFilter } from './MenuItemGrid';
+export type { MenuItemGridProps, MenuGridCardProps, MenuCategoryFilterProps } from './MenuItemGrid';
 
 // Badges
 export * from './badges';

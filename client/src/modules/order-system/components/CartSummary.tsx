@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatPrice } from '@rebuild/shared';
 
 interface CartSummaryProps {
   subtotal: number;
@@ -8,13 +9,6 @@ interface CartSummaryProps {
 }
 
 export const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, tax, tip, total }) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
-  };
-
   return (
     <div className="space-y-2">
       <div className="flex justify-between text-sm">

@@ -4,6 +4,7 @@ import { MenuItem, Modifier } from '../../menu/types';
 import { ModifierSelector } from './ModifierSelector';
 import { QuantitySelector } from './QuantitySelector';
 import { CartItem, CartModifier } from '../types';
+import { formatPrice } from '@rebuild/shared';
 
 // Counter for generating unique IDs (avoids Date.now() hydration issues)
 let itemDetailCounter = 0;
@@ -34,13 +35,6 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   }, [isOpen]);
 
   if (!isOpen || !item) return null;
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
-  };
 
   const totalPrice = (item.price + selectedModifiers.reduce((sum, mod) => sum + mod.price, 0)) * quantity;
 

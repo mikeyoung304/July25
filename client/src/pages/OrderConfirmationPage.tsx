@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, Clock, Home } from 'lucide-react';
+import { formatPrice } from '@rebuild/shared';
 // Define CartItem locally
 interface CartItem {
   id: string;
@@ -37,13 +38,6 @@ export const OrderConfirmationPage: React.FC = () => {
   if (!state) {
     return null;
   }
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">

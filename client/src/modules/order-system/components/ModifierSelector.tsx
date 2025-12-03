@@ -2,6 +2,7 @@ import React from 'react';
 import { Check } from 'lucide-react';
 import { Modifier } from '../../menu/types';
 import { CartModifier } from '../types';
+import { formatPrice } from '@rebuild/shared';
 
 interface ModifierSelectorProps {
   modifiers: Modifier[];
@@ -9,17 +10,14 @@ interface ModifierSelectorProps {
   onModifierToggle: (modifier: CartModifier) => void;
 }
 
-export const ModifierSelector: React.FC<ModifierSelectorProps> = ({ 
-  modifiers, 
+export const ModifierSelector: React.FC<ModifierSelectorProps> = ({
+  modifiers,
   selectedModifiers,
-  onModifierToggle 
+  onModifierToggle
 }) => {
-  const formatPrice = (price: number) => {
+  const formatModifierPrice = (price: number) => {
     if (price === 0) return 'Free';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
+    return formatPrice(price);
   };
 
   const isSelected = (modifierId: string) => {
@@ -54,9 +52,9 @@ export const ModifierSelector: React.FC<ModifierSelectorProps> = ({
           <span className={`font-medium ${
             modifier.price > 0 ? 'text-gray-700' : 'text-green-600'
           }`}>
-            {formatPrice(modifier.price)}
+            {formatModifierPrice(modifier.price)}
           </span>
-          
+
           <input
             type="checkbox"
             checked={isSelected(modifier.id)}
@@ -66,7 +64,7 @@ export const ModifierSelector: React.FC<ModifierSelectorProps> = ({
               price: modifier.price
             })}
             className="sr-only"
-            aria-label={`${modifier.name} - ${formatPrice(modifier.price)}`}
+            aria-label={`${modifier.name} - ${formatModifierPrice(modifier.price)}`}
           />
         </label>
       ))}

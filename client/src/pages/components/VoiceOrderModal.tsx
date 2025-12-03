@@ -15,6 +15,7 @@ import { CartItem } from '@/modules/order-system/types'
 import type { Table } from '@rebuild/shared'
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems'
 import { logger } from '@/services/logger'
+import { formatPrice } from '@rebuild/shared'
 
 interface OrderItem {
   id: string
@@ -204,13 +205,6 @@ export function VoiceOrderModal({
     await onSubmit()
     setSubmitSuccess(true)
     setTimeout(() => setSubmitSuccess(false), 2000)
-  }
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price)
   }
 
   return (

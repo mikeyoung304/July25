@@ -4,6 +4,7 @@ import { ApiMenuItem } from '@rebuild/shared';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/utils';
+import { formatPrice } from '@rebuild/shared';
 
 export interface MenuItemGridProps {
   items: ApiMenuItem[];
@@ -21,14 +22,14 @@ export interface MenuItemGridProps {
   emptyState?: React.ReactNode;
 }
 
-export interface MenuItemCardProps {
+export interface MenuGridCardProps {
   item: ApiMenuItem;
   onClick?: (item: ApiMenuItem) => void;
   showDescription?: boolean;
   showImage?: boolean;
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({
+export const MenuGridCard: React.FC<MenuGridCardProps> = ({
   item,
   onClick,
   showDescription = true,
@@ -75,7 +76,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({
               {item.name}
             </h3>
             <span className="font-bold text-lg text-white whitespace-nowrap">
-              ${item.price.toFixed(2)}
+              {formatPrice(item.price)}
             </span>
           </div>
 
@@ -193,7 +194,7 @@ export const MenuItemGrid: React.FC<MenuItemGridProps> = ({
   return (
     <div className={gridClasses}>
       {filteredItems.map((item) => (
-        <MenuItemCard
+        <MenuGridCard
           key={item.id}
           item={item}
           onClick={onItemClick}

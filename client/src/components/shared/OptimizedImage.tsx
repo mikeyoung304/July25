@@ -93,12 +93,12 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       {/* Main image - only load when in viewport */}
       {hasIntersected && (
         <picture>
-          {/* Future: Add WebP source when available */}
-          {/* <source 
-            type="image/webp" 
-            srcSet={generateSrcSet(imageSrc.replace('.jpg', '.webp'))}
-          /> */}
-          
+          {/* WebP source for browsers that support it (97%+ coverage) */}
+          <source
+            type="image/webp"
+            srcSet={imageSrc.replace(/\.(jpg|jpeg|png)$/i, '.webp')}
+          />
+
           <img
             src={imageSrc}
             alt={alt}

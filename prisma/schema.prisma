@@ -428,6 +428,7 @@ model menu_categories {
   menu_items    menu_items[]
 
   @@unique([restaurant_id, slug])
+  @@index([restaurant_id], map: "idx_menu_categories_restaurant_id")
   @@schema("public")
 }
 
@@ -456,6 +457,7 @@ model menu_items {
 
   @@index([category_id], map: "idx_menu_items_category")
   @@index([restaurant_id, active], map: "idx_menu_items_restaurant_active")
+  @@index([restaurant_id], map: "idx_menu_items_restaurant_id")
   @@schema("public")
 }
 
@@ -476,6 +478,7 @@ model order_status_history {
 
   @@index([order_id], map: "idx_order_status_history_order")
   @@index([restaurant_id, order_id, changed_at(sort: Desc)], map: "idx_order_status_restaurant_order")
+  @@index([restaurant_id], map: "idx_order_status_history_restaurant_id")
   @@schema("public")
 }
 
@@ -649,6 +652,7 @@ model tables {
   restaurants      restaurants @relation(fields: [restaurant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([restaurant_id, status], map: "idx_tables_restaurant_status")
+  @@index([restaurant_id], map: "idx_tables_restaurant_id")
   @@schema("public")
 }
 
@@ -716,6 +720,7 @@ model voice_order_logs {
 
   @@index([restaurant_id, created_at(sort: Desc)], map: "idx_voice_logs_restaurant")
   @@index([restaurant_id, created_at(sort: Desc)], map: "idx_voice_logs_restaurant_created")
+  @@index([restaurant_id], map: "idx_voice_order_logs_restaurant_id")
   @@schema("public")
 }
 

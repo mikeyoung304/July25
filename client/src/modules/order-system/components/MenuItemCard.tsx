@@ -3,6 +3,7 @@ import { MenuItem } from '../../menu/types';
 import { Minus, Plus } from 'lucide-react';
 import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { OptimizedImage } from '@/components/shared/OptimizedImage';
+import { formatPrice } from '@rebuild/shared';
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -32,13 +33,6 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onCl
       setShowQuantitySelector(false);
     }
   }, [cartQuantity]);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
-  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -92,15 +86,27 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onCl
     }
   };
 
+  // Check availability - support both isAvailable (camelCase) and is_available (snake_case)
+  const isAvailable = item.isAvailable !== false && (item as { is_available?: boolean }).is_available !== false;
+
   return (
-    <div className="h-full flex flex-col bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-gray-200">
+    <div className={`h-full flex flex-col bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-gray-200 relative ${!isAvailable ? 'opacity-60' : ''}`}>
+      {/* Sold Out Badge */}
+      {!isAvailable && (
+        <div className="absolute top-4 right-4 z-10">
+          <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+            Sold Out
+          </span>
+        </div>
+      )}
+
       {/* Added to Cart Feedback */}
-      {showAddedFeedback && (
+      {showAddedFeedback && isAvailable && (
         <div className="absolute top-4 right-4 z-10 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-medium shadow-lg">
           ✓ Added!
         </div>
       )}
-      
+
       {/* Image Zone - Fixed aspect ratio 4:3 */}
       <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
         <OptimizedImage
@@ -132,53 +138,60 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onCl
         {/* Price/Button Zone - Fixed height, justified */}
         <div className="h-16 flex items-center justify-between gap-4">
           {/* Price - Left aligned */}
-          <div className="text-xl font-bold text-gray-900">
+          <div className={`text-xl font-bold ${isAvailable ? 'text-gray-900' : 'text-gray-400'}`}>
             {formatPrice(item.price)}
           </div>
-          
-          {/* Button/Quantity Selector - Right aligned */}
-          {showQuantitySelector && localQuantity > 0 ? (
-            <div className="flex items-center gap-2">
-              {/* Inline Quantity Controls */}
-              <div className="inline-flex items-center bg-gray-100 rounded-lg">
+
+          {/* Button/Quantity Selector - Right aligned (hidden when unavailable) */}
+          {isAvailable ? (
+            showQuantitySelector && localQuantity > 0 ? (
+              <div className="flex items-center gap-2">
+                {/* Inline Quantity Controls */}
+                <div className="inline-flex items-center bg-gray-100 rounded-lg">
+                  <button
+                    onClick={(e) => handleQuantityChange(-1, e)}
+                    className="w-11 h-11 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
+                    aria-label="Decrease quantity"
+                  >
+                    <Minus className="w-5 h-5" />
+                  </button>
+                  <span className="w-8 text-center text-sm font-bold text-gray-900">
+                    {localQuantity}
+                  </span>
+                  <button
+                    onClick={(e) => handleQuantityChange(1, e)}
+                    className="w-11 h-11 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
+                    aria-label="Increase quantity"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+                {/* Compact Add More Button */}
                 <button
-                  onClick={(e) => handleQuantityChange(-1, e)}
-                  className="w-11 h-11 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
-                  aria-label="Decrease quantity"
+                  onClick={handleAddToCart}
+                  className="bg-teal-600 text-white font-medium text-sm py-2 px-3 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-1"
+                  aria-label="Add another to cart"
                 >
-                  <Minus className="w-5 h-5" />
-                </button>
-                <span className="w-8 text-center text-sm font-bold text-gray-900">
-                  {localQuantity}
-                </span>
-                <button
-                  onClick={(e) => handleQuantityChange(1, e)}
-                  className="w-11 h-11 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors"
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-4 h-4" />
+                  Add
                 </button>
               </div>
-              {/* Compact Add More Button */}
+            ) : (
+              /* Compact Add Button */
               <button
                 onClick={handleAddToCart}
-                className="bg-teal-600 text-white font-medium text-sm py-2 px-3 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-1"
-                aria-label="Add another to cart"
+                className="bg-teal-600 text-white font-medium text-sm py-3 px-6 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-2"
+                aria-label={`Add ${item.name} to cart for ${formatPrice(item.price)}`}
               >
                 <Plus className="w-4 h-4" />
-                Add
+                Add to Cart
               </button>
-            </div>
+            )
           ) : (
-            /* Compact Add Button */
-            <button
-              onClick={handleAddToCart}
-              className="bg-teal-600 text-white font-medium text-sm py-3 px-6 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-2"
-              aria-label={`Add ${item.name} to cart for ${formatPrice(item.price)}`}
-            >
-              <Plus className="w-4 h-4" />
-              Add to Cart
-            </button>
+            /* Unavailable message */
+            <span className="text-sm font-medium text-gray-400">
+              Currently Unavailable
+            </span>
           )}
         </div>
       </div>

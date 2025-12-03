@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trash2, Plus, Minus } from 'lucide-react';
 import { CartItem as CartItemType } from '../types';
+import { formatPrice } from '@rebuild/shared';
 
 interface CartItemProps {
   item: CartItemType;
@@ -9,13 +10,6 @@ interface CartItemProps {
 }
 
 export const CartItem: React.FC<CartItemProps> = ({ item, onUpdate, onRemove }) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
-  };
-
   const itemTotal = (item.price + (item.modifiers?.reduce((sum, mod) => sum + mod.price, 0) || 0)) * item.quantity;
 
   const handleQuantityChange = (delta: number) => {

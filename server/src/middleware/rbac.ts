@@ -34,8 +34,9 @@ export enum ApiScope {
   SYSTEM_CONFIG = 'system:config',
   
   // Menu Management
-  MENU_MANAGE = 'menu:manage',
-  
+  MENU_READ = 'menu:read',     // View menu items and categories
+  MENU_MANAGE = 'menu:manage', // Create/update/delete/86 items (owner/manager only)
+
   // Table Management
   TABLES_MANAGE = 'tables:manage'
 }
@@ -115,6 +116,7 @@ const ROLE_SCOPES: Record<string, ApiScope[]> = {
     ApiScope.STAFF_MANAGE,
     ApiScope.STAFF_SCHEDULE,
     ApiScope.SYSTEM_CONFIG,
+    ApiScope.MENU_READ,
     ApiScope.MENU_MANAGE,
     ApiScope.TABLES_MANAGE
   ],
@@ -132,6 +134,7 @@ const ROLE_SCOPES: Record<string, ApiScope[]> = {
     ApiScope.REPORTS_EXPORT,
     ApiScope.STAFF_MANAGE,
     ApiScope.STAFF_SCHEDULE,
+    ApiScope.MENU_READ,
     ApiScope.MENU_MANAGE,
     ApiScope.TABLES_MANAGE
   ],
@@ -142,24 +145,28 @@ const ROLE_SCOPES: Record<string, ApiScope[]> = {
     ApiScope.ORDERS_UPDATE,
     ApiScope.ORDERS_STATUS,
     ApiScope.PAYMENTS_PROCESS,
-    ApiScope.PAYMENTS_READ
+    ApiScope.PAYMENTS_READ,
+    ApiScope.MENU_READ
     // TABLES_MANAGE removed - servers should only update table status during service, not create/delete tables
   ],
   
   cashier: [
     ApiScope.ORDERS_READ,
     ApiScope.PAYMENTS_PROCESS,
-    ApiScope.PAYMENTS_READ
+    ApiScope.PAYMENTS_READ,
+    ApiScope.MENU_READ
   ],
   
   kitchen: [
     ApiScope.ORDERS_READ,
-    ApiScope.ORDERS_STATUS
+    ApiScope.ORDERS_STATUS,
+    ApiScope.MENU_READ
   ],
   
   expo: [
     ApiScope.ORDERS_READ,
-    ApiScope.ORDERS_STATUS
+    ApiScope.ORDERS_STATUS,
+    ApiScope.MENU_READ
   ],
   
   // Kiosk demo role for self-service (friends & family online orders)
@@ -168,7 +175,7 @@ const ROLE_SCOPES: Record<string, ApiScope[]> = {
     ApiScope.ORDERS_CREATE,
     ApiScope.ORDERS_READ,
     ApiScope.PAYMENTS_PROCESS, // Required for completing demo orders
-    ApiScope.MENU_MANAGE // Read-only for menu viewing
+    ApiScope.MENU_READ // View menu items (no write access)
   ],
 
   // Customer role for public self-service orders (online, kiosk)
@@ -176,7 +183,7 @@ const ROLE_SCOPES: Record<string, ApiScope[]> = {
     ApiScope.ORDERS_CREATE,
     ApiScope.ORDERS_READ,
     ApiScope.PAYMENTS_PROCESS,
-    ApiScope.MENU_MANAGE // Read-only for menu viewing
+    ApiScope.MENU_READ // View menu items (no write access)
   ]
 };
 
