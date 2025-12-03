@@ -244,6 +244,11 @@ async function startServer() {
     await initializeDatabase();
     const config = getConfig();
 
+    // TODO-151: Security warning for development rate limit on production
+    if (process.env['RENDER'] === 'true' && process.env['NODE_ENV'] === 'development') {
+      logger.error('SECURITY WARNING: NODE_ENV=development on production environment. Rate limits are 3x more permissive. Set NODE_ENV=production.');
+    }
+
     // Initialize menu context for AI service
     try {
       const restaurantId = config.restaurant.defaultId;

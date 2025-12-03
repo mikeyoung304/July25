@@ -46,37 +46,3 @@ export interface DatabaseTable {
   status: TableStatus;
   current_order_id?: string | null;
 }
-
-/**
- * DTO for creating new tables
- */
-export interface CreateTableDTO {
-  restaurant_id: string;
-  label: string;
-  seats: number;
-  type?: TableShape;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  rotation?: number;
-  z_index?: number;
-}
-
-/**
- * DTO for updating tables
- */
-export interface UpdateTableDTO {
-  label?: string;
-  seats?: number;
-  status?: TableStatus;
-  type?: TableShape;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  rotation?: number;
-  z_index?: number;
-  current_order_id?: string | null;
-  active?: boolean;
-}

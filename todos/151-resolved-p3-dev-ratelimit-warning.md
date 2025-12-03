@@ -1,11 +1,13 @@
 ---
-status: pending
+status: resolved
 priority: p3
 issue_id: "151"
 tags: [code-review, security, configuration]
 dependencies: []
 created_date: 2025-12-02
+resolved_date: 2025-12-03
 source: workflows-review-commit-0728e1ee
+resolution: Added security warning in server.ts on startup if NODE_ENV=development on production
 ---
 
 # Development Rate Limit Bypass Could Be Exploited

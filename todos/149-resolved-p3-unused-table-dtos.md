@@ -1,11 +1,13 @@
 ---
-status: pending
+status: resolved
 priority: p3
 issue_id: "149"
 tags: [code-review, dead-code, cleanup]
 dependencies: []
 created_date: 2025-12-02
+resolved_date: 2025-12-03
 source: workflows-review-commit-0728e1ee
+resolution: Removed unused CreateTableDTO and UpdateTableDTO interfaces from shared/types/table.types.ts
 ---
 
 # Unused DTO Interfaces in table.types.ts

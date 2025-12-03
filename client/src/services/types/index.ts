@@ -16,8 +16,6 @@ export type {
   UpdateMenuItemDTO,
   Table,
   TableStatus,
-  CreateTableDTO,
-  UpdateTableDTO,
   Customer,
   CustomerAddress,
   CreateCustomerDTO,
