@@ -1,9 +1,10 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react'
-import { ArrowLeft, LayoutGrid, BarChart3 } from 'lucide-react'
+import { ArrowLeft, LayoutGrid, BarChart3, UtensilsCrossed } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { FloorPlanEditor } from '@/modules/floor-plan/components/FloorPlanEditor'
+import { MenuManagement } from '@/modules/menu-management'
 import { RestaurantContext } from '@/core'
 import { Table } from '@/modules/floor-plan/types'
 import { PageTitle, SectionTitle, Body } from '@/components/ui/Typography'
@@ -54,7 +55,7 @@ function AdminDashboardCard({
 }
 
 function AdminDashboard() {
-  const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics'>('overview')
+  const [activeView, setActiveView] = useState<'overview' | 'floorplan' | 'analytics' | 'menu'>('overview')
   const context = useContext(RestaurantContext)
   
   if (!context) {
@@ -110,7 +111,7 @@ function AdminDashboard() {
               </Body>
             </motion.div>
             
-            <div className={`grid md:grid-cols-2 ${spacing.grid.gapLarge} w-full max-w-5xl`}>
+            <div className={`grid md:grid-cols-3 ${spacing.grid.gapLarge} w-full max-w-6xl`}>
               <AdminDashboardCard
                 title="Floor Plan Creator"
                 icon={<LayoutGrid className="h-12 w-12 text-primary" />}
@@ -118,13 +119,21 @@ function AdminDashboard() {
                 onClick={() => setActiveView('floorplan')}
                 delay={0}
               />
-              
+
+              <AdminDashboardCard
+                title="Menu Management"
+                icon={<UtensilsCrossed className="h-12 w-12 text-amber-500" />}
+                iconBg="bg-amber-500/10"
+                onClick={() => setActiveView('menu')}
+                delay={1}
+              />
+
               <AdminDashboardCard
                 title="Analytics"
                 icon={<BarChart3 className="h-12 w-12 text-emerald-500" />}
                 iconBg="bg-emerald-500/10"
                 onClick={() => setActiveView('analytics')}
-                delay={1}
+                delay={2}
               />
             </div>
           </div>
@@ -135,6 +144,15 @@ function AdminDashboard() {
             <FloorPlanEditor
               restaurantId={restaurant.id}
               onSave={handleSaveFloorPlan}
+              onBack={() => setActiveView('overview')}
+            />
+          </div>
+        )}
+
+        {activeView === 'menu' && (
+          <div className="fixed inset-0 bg-gray-50 z-50">
+            <MenuManagement
+              restaurantId={restaurant.id}
               onBack={() => setActiveView('overview')}
             />
           </div>

@@ -1,10 +1,11 @@
 ---
-status: pending
+status: complete
 priority: p1
 issue_id: "155"
 tags: [feature, api, ui-ux, specification, ui-ux-review]
 dependencies: ["152"]
 created_date: 2025-12-03
+completed_date: 2025-12-03
 source: ui-ux-plan-review
 ---
 
@@ -98,21 +99,41 @@ Write and approve specification before ANY implementation work.
 
 ## Acceptance Criteria
 
-- [ ] Specification document exists and is approved
-- [ ] API endpoint documented with request/response
-- [ ] Authorization requirements defined
-- [ ] UI mockups or wireframes created
-- [ ] Real-time sync strategy documented
-- [ ] Feature flag rollout plan defined
+- [x] Specification document exists and is approved
+- [x] API endpoint documented with request/response
+- [x] Authorization requirements defined
+- [x] UI mockups or wireframes created
+- [x] ~~Real-time sync strategy documented~~ (deferred to Phase 2)
+- [x] ~~Feature flag rollout plan defined~~ (not needed for MVP)
 
 ## Work Log
 
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-12-03 | Created | From UI/UX plan multi-agent review |
+| 2025-12-03 | v1.0 | Full specification written at `docs/specs/86-item-management.md` |
+| 2025-12-03 | v2.0 | Simplified to MVP after 5-agent review (40% scope reduction) |
+
+## Spec Review Summary
+
+5-agent review identified original spec was over-engineered. Simplified to MVP:
+
+**Cut from Phase 1:**
+- Reason field (managers don't document during service)
+- Dashboard widget (no one asked for it)
+- GET filter endpoint (client-side filter instead)
+- Feature flag rollout (just ship it)
+- Real-time WebSocket sync (manual refresh is fine)
+- Confirmation dialogs for featured items
+
+**MVP Scope (~5 hours):**
+- PATCH endpoint with `menu:manage` scope
+- Toggle in item edit modal
+- Cache clear on update
+- Customer "Sold Out" UI (already done)
 
 ## Resources
 
-- Security agent findings on authorization
-- UX agent findings on user journey
-- Architecture agent findings on real-time sync
+- Simplified spec: `docs/specs/86-item-management.md` (v2.0)
+- Security review: Multi-tenant isolation critical
+- Simplicity review: 40% scope reduction recommended

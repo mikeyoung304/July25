@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { MenuService } from '../services/menu.service';
-import { optionalAuth, AuthenticatedRequest } from '../middleware/auth';
+import { optionalAuth, authenticate, AuthenticatedRequest } from '../middleware/auth';
+import { requireScopes, ApiScope } from '../middleware/rbac';
 import { BadRequest, NotFound } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 
@@ -98,17 +99,51 @@ router.post('/cache/clear', optionalAuth, async (req: AuthenticatedRequest, res,
     if (!req.user) {
       throw BadRequest('Authentication required');
     }
-    
+
     const restaurantId = req.restaurantId!;
     routeLogger.info('Clearing menu cache', { restaurantId, userId: req.user.id });
-    
+
     MenuService.clearCache(restaurantId);
-    
+
     res.json({
       success: true,
       message: 'Menu cache cleared',
       timestamp: new Date().toISOString(),
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH /api/v1/menu/items/:id - Update menu item (86/un-86 availability)
+router.patch('/items/:id', authenticate, requireScopes(ApiScope.MENU_MANAGE), async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const restaurantId = req.restaurantId!;
+    const { id } = req.params;
+    const { is_available } = req.body;
+
+    if (!id) {
+      throw BadRequest('Item ID is required');
+    }
+
+    if (typeof is_available !== 'boolean') {
+      throw BadRequest('is_available must be a boolean');
+    }
+
+    routeLogger.info('Updating menu item availability', {
+      restaurantId,
+      itemId: id,
+      is_available,
+      userId: req.user!.id
+    });
+
+    const item = await MenuService.updateItem(restaurantId, id, { is_available });
+
+    if (!item) {
+      throw NotFound('Menu item not found');
+    }
+
+    res.json(item);
   } catch (error) {
     next(error);
   }

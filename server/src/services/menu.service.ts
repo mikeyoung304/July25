@@ -203,6 +203,48 @@ export class MenuService {
   }
 
   /**
+   * Update a menu item (e.g., toggle availability)
+   */
+  static async updateItem(
+    restaurantId: string,
+    itemId: string,
+    updates: { is_available: boolean }
+  ): Promise<MenuItem | null> {
+    try {
+      // CRITICAL: Always filter by restaurant_id for multi-tenant isolation
+      const { data, error } = await supabase
+        .from('menu_items')
+        .update({
+          is_available: updates.is_available,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', itemId)
+        .eq('restaurant_id', restaurantId)
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return null; // Not found
+        throw error;
+      }
+
+      // Clear cache after update to ensure fresh data
+      this.clearCache(restaurantId);
+
+      this.logger.info('Menu item updated', {
+        restaurantId,
+        itemId,
+        updates
+      });
+
+      return mapMenuItem(data);
+    } catch (error) {
+      this.logger.error('Failed to update menu item', { error, restaurantId, itemId });
+      throw error;
+    }
+  }
+
+  /**
    * Clear menu cache (after updates)
    */
   static clearCache(restaurantId?: string): void {
