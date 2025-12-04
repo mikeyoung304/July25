@@ -229,8 +229,8 @@ export class MenuService {
         throw error;
       }
 
-      // Clear cache after update to ensure fresh data
-      this.clearCache(restaurantId);
+      // Clear cache after update to ensure fresh data (O(1) targeted deletion)
+      this.clearCache(restaurantId, itemId);
 
       this.logger.info('Menu item updated', {
         restaurantId,
@@ -247,22 +247,40 @@ export class MenuService {
 
   /**
    * Clear menu cache (after updates)
+   * Uses targeted O(1) deletion instead of iterating all keys
    */
-  static clearCache(restaurantId?: string): void {
-    if (restaurantId) {
-      // Clear specific restaurant cache
-      const keys = menuCache.keys();
-      keys.forEach(key => {
-        if (key.includes(restaurantId)) {
-          menuCache.del(key);
-        }
-      });
-      this.logger.info('Cleared menu cache', { restaurantId });
-    } else {
-      // Clear all cache
-      menuCache.flushAll();
-      this.logger.info('Cleared all menu cache');
+  static clearCache(restaurantId: string, itemId?: string): void {
+    const keysDeleted: string[] = [];
+
+    // Always clear aggregated caches for the restaurant
+    const fullMenuKey = `${CACHE_KEYS.FULL_MENU}${restaurantId}`;
+    const itemsKey = `${CACHE_KEYS.ITEMS}${restaurantId}`;
+
+    if (menuCache.del(fullMenuKey)) keysDeleted.push(fullMenuKey);
+    if (menuCache.del(itemsKey)) keysDeleted.push(itemsKey);
+
+    // Clear specific item cache if provided
+    if (itemId) {
+      const itemKey = `${CACHE_KEYS.ITEM}${restaurantId}:${itemId}`;
+      if (menuCache.del(itemKey)) keysDeleted.push(itemKey);
     }
+
+    // Note: Categories cache is NOT cleared on item update
+    // as item updates don't affect category data
+
+    this.logger.info('Cleared menu cache', {
+      restaurantId,
+      itemId,
+      keysDeleted: keysDeleted.length
+    });
+  }
+
+  /**
+   * Clear all menu cache (for administrative use)
+   */
+  static clearAllCache(): void {
+    menuCache.flushAll();
+    this.logger.info('Cleared all menu cache');
   }
 
   /**
