@@ -53,7 +53,9 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
       headers: {
         authorization: `Bearer ${token}`
       },
-      user: {}
+      user: {},
+      ip: '127.0.0.1',
+      get: vi.fn(() => 'test-user-agent')
     } as any as Request
 
     const res = {} as Response
@@ -72,8 +74,10 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
     expect((req as any).user.restaurant_id).toBe(mockRestaurantId)
   })
 
-  it('falls back to X-Restaurant-ID header if JWT lacks restaurant_id', async () => {
+  it('does NOT fall back to X-Restaurant-ID header (CL-AUTH-002 security fix)', async () => {
     // Create JWT without restaurant_id claim
+    // SECURITY: Per CL-AUTH-002, authenticate() no longer falls back to X-Restaurant-ID header
+    // This prevents authenticated users from accessing other restaurants' data
     const token = jwt.sign(
       {
         sub: mockUserId,
@@ -83,14 +87,16 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
       { expiresIn: '1h' }
     )
 
-    const fallbackRestaurantId = '33333333-3333-3333-3333-333333333333'
+    const headerRestaurantId = '33333333-3333-3333-3333-333333333333'
 
     const req = {
       headers: {
         authorization: `Bearer ${token}`,
-        'x-restaurant-id': fallbackRestaurantId
+        'x-restaurant-id': headerRestaurantId
       },
-      user: {}
+      user: {},
+      ip: '127.0.0.1',
+      get: vi.fn(() => 'test-user-agent')
     } as any as Request
 
     const res = {} as Response
@@ -100,8 +106,9 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
 
     expect(next).toHaveBeenCalledWith()
 
-    // Should fall back to X-Restaurant-ID header
-    expect(req.restaurantId).toBe(fallbackRestaurantId)
+    // SECURITY FIX: Should NOT use X-Restaurant-ID header
+    // req.restaurantId should be undefined since JWT lacks restaurant_id
+    expect(req.restaurantId).toBeUndefined()
   })
 
   it('sets req.restaurantId even when restaurant_id is only in JWT', async () => {
@@ -121,7 +128,9 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
         authorization: `Bearer ${token}`
         // No X-Restaurant-ID header
       },
-      user: {}
+      user: {},
+      ip: '127.0.0.1',
+      get: vi.fn(() => 'test-user-agent')
     } as any as Request
 
     const res = {} as Response
@@ -164,7 +173,9 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
       },
       user: {},
       method: 'GET',
-      path: '/api/v1/menu/categories'
+      path: '/api/v1/menu/categories',
+      ip: '127.0.0.1',
+      get: vi.fn(() => 'test-user-agent')
     } as any as Request
 
     const res = {} as Response
@@ -193,7 +204,9 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
       headers: {
         'x-restaurant-id': mockRestaurantId
       },
-      user: {}
+      user: {},
+      ip: '127.0.0.1',
+      get: vi.fn(() => 'test-user-agent')
     } as any as Request
 
     const res = {} as Response
@@ -205,7 +218,7 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
     expect(next).toHaveBeenCalledWith(expect.any(Error))
     expect(next).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/no authorization header|missing token/i)
+        message: expect.stringMatching(/no token provided/i)
       })
     )
   })
@@ -215,7 +228,9 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
       headers: {
         authorization: 'Bearer invalid-token-format'
       },
-      user: {}
+      user: {},
+      ip: '127.0.0.1',
+      get: vi.fn(() => 'test-user-agent')
     } as any as Request
 
     const res = {} as Response
@@ -245,7 +260,9 @@ describe('Auth Middleware - Restaurant ID Assignment', () => {
       headers: {
         authorization: `Bearer ${expiredToken}`
       },
-      user: {}
+      user: {},
+      ip: '127.0.0.1',
+      get: vi.fn(() => 'test-user-agent')
     } as any as Request
 
     const res = {} as Response
