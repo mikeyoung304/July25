@@ -81,7 +81,7 @@ export const KioskModeSelector: React.FC<KioskModeSelectorProps> = ({
               aria-label="Select voice ordering mode"
             >
               <div className="mb-8">
-                <div className="mx-auto w-24 h-24 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300" aria-hidden="true">
+                <div className="mx-auto w-24 h-24 bg-gradient-to-br from-orange-700 to-red-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300" aria-hidden="true">
                   <Mic className="w-12 h-12 text-white" aria-hidden="true" />
                 </div>
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -111,7 +111,7 @@ export const KioskModeSelector: React.FC<KioskModeSelectorProps> = ({
               <div className="mt-8">
                 <ActionButton
                   size="large"
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-12 py-6 text-2xl font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="bg-gradient-to-r from-orange-700 to-red-600 hover:from-orange-800 hover:to-red-700 text-white px-12 py-6 text-2xl font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   Start Voice Order
                 </ActionButton>

@@ -1,10 +1,11 @@
 ---
-status: pending
+status: complete
 priority: p2
 issue_id: "158"
 tags: [refactoring, dry, utilities, ui-ux-review]
 dependencies: []
 created_date: 2025-12-03
+completed_date: 2025-12-03
 source: ui-ux-plan-review
 ---
 

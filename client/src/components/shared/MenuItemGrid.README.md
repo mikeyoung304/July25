@@ -11,7 +11,7 @@ A reusable, responsive menu item grid component designed for use in both kiosk a
 ### 1. MenuItemGrid
 Main grid component that displays menu items in a responsive layout.
 
-### 2. MenuItemCard
+### 2. MenuGridCard
 Individual menu item card component (can be used standalone).
 
 ### 3. MenuCategoryFilter
@@ -41,10 +41,10 @@ interface MenuItemGridProps {
 }
 ```
 
-### MenuItemCardProps
+### MenuGridCardProps
 
 ```typescript
-interface MenuItemCardProps {
+interface MenuGridCardProps {
   item: ApiMenuItem;                 // Menu item to display
   onClick?: (item: ApiMenuItem) => void; // Click handler
   showDescription?: boolean;         // Show description (default: true)
