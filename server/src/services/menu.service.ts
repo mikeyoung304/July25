@@ -212,10 +212,11 @@ export class MenuService {
   ): Promise<MenuItem | null> {
     try {
       // CRITICAL: Always filter by restaurant_id for multi-tenant isolation
+      // Note: DB column is 'available', API uses 'is_available' (snake_case convention)
       const { data, error } = await supabase
         .from('menu_items')
         .update({
-          is_available: updates.is_available,
+          available: updates.is_available,
           updated_at: new Date().toISOString()
         })
         .eq('id', itemId)

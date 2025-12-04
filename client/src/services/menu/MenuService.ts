@@ -1,6 +1,7 @@
 import { MenuItem as SharedMenuItem, MenuCategory } from '@rebuild/shared'
 import { httpClient } from '@/services/http/httpClient'
 import { MenuItem } from '@/services/types'
+import { logger } from '@/services/logger'
 
 export interface IMenuService {
   getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }>
@@ -80,7 +81,7 @@ export class MenuService implements IMenuService {
         categories: response.categories
       }
     } catch (error) {
-      console.error('Menu API failed:', error);
+      logger.error('Menu API failed', { error });
       throw new Error("Menu service error");
     }
   }
@@ -100,7 +101,7 @@ export class MenuService implements IMenuService {
       const response = await httpClient.get<any[]>('/api/v1/menu/items')
       return response.map(item => this.transformMenuItem(item, categories))
     } catch (error) {
-      console.error('Menu items API failed:', error);
+      logger.error('Menu items API failed', { error });
       throw new Error("Menu service error");
     }
   }
@@ -120,7 +121,7 @@ export class MenuService implements IMenuService {
       response.forEach(cat => this.categoriesCache.set(cat.id, cat))
       return response
     } catch (error) {
-      console.error('Menu categories API failed:', error);
+      logger.error('Menu categories API failed', { error });
       throw new Error("Menu service error");
     }
   }
