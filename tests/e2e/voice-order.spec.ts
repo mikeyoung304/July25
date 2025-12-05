@@ -175,10 +175,9 @@ function setupConsoleCapture(page: Page, logFilename: string) {
   });
 }
 
-// Handle splash screen (5s fixed delay + optional selector wait)
+// Handle splash screen with smart waiting
 async function handleSplash(page: Page) {
-  console.log('[splash] Waiting 5.5s for splash screen...');
-  await page.waitForTimeout(5500);
+  console.log('[splash] Waiting for splash screen to disappear...');
 
   // Try to wait for splash to disappear if selector exists
   const splashSelectors = [
@@ -188,14 +187,16 @@ async function handleSplash(page: Page) {
     '.splash-screen',
   ];
 
+  let splashFound = false;
   for (const selector of splashSelectors) {
     try {
       const splash = page.locator(selector);
       const count = await splash.count();
       if (count > 0) {
         console.log(`[splash] Found splash element: ${selector}, waiting for it to hide...`);
-        await splash.first().waitFor({ state: 'hidden', timeout: 5000 });
+        await splash.first().waitFor({ state: 'hidden', timeout: 10000 });
         console.log('[splash] Splash hidden');
+        splashFound = true;
         return;
       }
     } catch (err) {
@@ -203,7 +204,10 @@ async function handleSplash(page: Page) {
     }
   }
 
-  console.log('[splash] No splash selector found or already hidden');
+  if (!splashFound) {
+    console.log('[splash] No splash selector found, checking for network idle...');
+    await page.waitForLoadState('networkidle', { timeout: 10000 });
+  }
 }
 
 // Dismiss any blocking overlays (banners, cookie dialogs)
@@ -278,7 +282,7 @@ test.describe('Voice Ordering E2E', () => {
       await clickSmart(page, loginButton, 'login button');
 
       // Wait for login to complete
-      await page.waitForTimeout(3000);
+      await page.waitForLoadState('networkidle', { timeout: 10000 });
 
       // Assert logged in (check for avatar, dashboard, or /me call)
       const loggedInIndicators = [
@@ -319,7 +323,7 @@ test.describe('Voice Ordering E2E', () => {
         try {
           if (await link.isVisible({ timeout: 2000 })) {
             await clickSmart(page, link, 'ordering link');
-            await page.waitForTimeout(2000);
+            await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
             navigated = true;
             console.log('[B4] Navigated to ordering screen');
             break;
@@ -347,7 +351,6 @@ test.describe('Voice Ordering E2E', () => {
         try {
           if (await selector.isVisible({ timeout: 2000 })) {
             await clickSmart(page, selector, 'Table 1');
-            await page.waitForTimeout(1000);
             console.log('[B4] Selected Table 1');
             break;
           }
@@ -371,7 +374,7 @@ test.describe('Voice Ordering E2E', () => {
         try {
           if (await btn.isVisible({ timeout: 2000 })) {
             await clickSmart(page, btn, 'voice button');
-            await page.waitForTimeout(2000);
+            await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
             voiceStarted = true;
             console.log('[B5] Voice button clicked');
             break;
@@ -388,7 +391,7 @@ test.describe('Voice Ordering E2E', () => {
 
       // B5 Assertions: Check WS connection
       console.log('[B5] Checking WebSocket connection...');
-      await page.waitForTimeout(3000);
+      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
       // Check if WebSocket connected (basic check - files will have details)
       const wsConnected = await page.evaluate(() => {
@@ -400,8 +403,30 @@ test.describe('Voice Ordering E2E', () => {
       console.log('[B5] WebSocket connection check:', wsConnected ? 'detected' : 'uncertain (check logs)');
 
       // B6: Inject audio and wait for transcripts
-      console.log('[B6] Waiting for audio processing and transcripts (up to 20s)...');
-      await page.waitForTimeout(20000);
+      console.log('[B6] Waiting for audio processing and transcripts...');
+      // Wait for transcript or processing indicators with reasonable timeout
+      const transcriptIndicators = [
+        page.locator('text=/transcript|transcription/i').first(),
+        page.locator('[data-testid*="transcript"]').first(),
+        page.locator('text=/processing|listening/i').first(),
+      ];
+
+      let transcriptFound = false;
+      for (const indicator of transcriptIndicators) {
+        try {
+          await indicator.waitFor({ state: 'visible', timeout: 15000 });
+          transcriptFound = true;
+          console.log('[B6] Found transcript indicator');
+          break;
+        } catch {
+          // Try next indicator
+        }
+      }
+
+      if (!transcriptFound) {
+        console.log('[B6] No transcript indicators found, waiting for network activity...');
+        await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+      }
 
       // Check for transcript or order detection
       const transcriptDetected = await page.evaluate(() => {

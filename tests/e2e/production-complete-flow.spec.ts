@@ -15,7 +15,7 @@ test.describe('Production Complete Order Flow', () => {
     // Click Server workspace
     const serverCard = page.locator('text=Server').first();
     await serverCard.click();
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Fill login
     const emailInput = page.locator('input[type="email"]').first();
@@ -27,7 +27,7 @@ test.describe('Production Complete Order Flow', () => {
     await loginButton.click();
 
     console.log('⏳ Waiting for auth to complete...');
-    await page.waitForTimeout(5000);
+    await page.waitForLoadState('networkidle');
 
     // Check ALL possible storage locations
     const authData = await page.evaluate(() => {
@@ -102,7 +102,7 @@ test.describe('Production Complete Order Flow', () => {
 
     // Now try to submit an order
     console.log('🔍 Looking for table to select...');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('domcontentloaded');
 
     // Click any available table
     const tables = page.locator('[class*="table"], button:has-text("Table")');
@@ -112,7 +112,6 @@ test.describe('Production Complete Order Flow', () => {
     if (tableCount > 0) {
       await tables.first().click();
       console.log('✅ Clicked table');
-      await page.waitForTimeout(2000);
       await page.screenshot({ path: 'test-results/10-table-selected.png' });
 
       // Select seat
@@ -122,7 +121,6 @@ test.describe('Production Complete Order Flow', () => {
       if (seatVisible) {
         await seatButton.click();
         console.log('✅ Selected seat');
-        await page.waitForTimeout(2000);
         await page.screenshot({ path: 'test-results/11-seat-selected.png' });
 
         // Click Touch Order button
@@ -132,7 +130,7 @@ test.describe('Production Complete Order Flow', () => {
         if (touchVisible) {
           await touchOrderBtn.click();
           console.log('✅ Clicked Touch Order');
-          await page.waitForTimeout(3000);
+          await page.waitForLoadState('networkidle');
           await page.screenshot({ path: 'test-results/12-touch-order-modal.png' });
 
           // Look for menu items
@@ -148,7 +146,6 @@ test.describe('Production Complete Order Flow', () => {
           if (addCount > 0) {
             await addBtns.first().click();
             console.log('✅ Added item to cart');
-            await page.waitForTimeout(2000);
             await page.screenshot({ path: 'test-results/13-item-added.png' });
 
             // Find submit button
@@ -225,7 +222,7 @@ test.describe('Production Complete Order Flow', () => {
       console.log('❌ No tables found');
     }
 
-    // Keep browser open
-    await page.waitForTimeout(3000);
+    // Keep browser open briefly for screenshot
+    await page.waitForTimeout(100);
   });
 });

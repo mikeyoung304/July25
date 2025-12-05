@@ -135,6 +135,15 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     customerName: checkoutValidationRules.customerName,
   });
 
+  // Auto-fill demo data when VITE_DEMO_PANEL is enabled
+  useEffect(() => {
+    if (import.meta.env.VITE_DEMO_PANEL === '1') {
+      form.setFieldValue('customerName', 'Demo Customer');
+      form.setFieldValue('customerEmail', 'demo@example.com');
+      form.setFieldValue('customerPhone', '(555) 555-1234');
+    }
+  }, []); // Run once on mount
+
   // Create order function (shared by all payment methods)
   const createOrder = async () => {
     // Validate form

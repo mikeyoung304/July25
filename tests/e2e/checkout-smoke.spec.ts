@@ -69,7 +69,6 @@ test.describe('Online Order Checkout Smoke Test', () => {
     // Step 6: Add item to cart
     await menuItem.click();
     console.log('✓ Clicked on menu item');
-    await page.waitForTimeout(1000);
 
     const addButton = page.locator('button:has-text("Add to Cart"), button:has-text("Add")').first();
     const hasAddButton = await addButton.isVisible().catch(() => false);
@@ -77,20 +76,18 @@ test.describe('Online Order Checkout Smoke Test', () => {
     if (hasAddButton) {
       await addButton.click();
       console.log('✓ Clicked Add to Cart');
-      await page.waitForTimeout(500);
     }
 
-    // Step 7: Open cart
+    // Step 7: Open cart - wait for cart to be ready
     await cartButton.click();
     console.log('✓ Opened cart');
-    await page.waitForTimeout(1000);
 
-    // Step 8: Click checkout
+    // Step 8: Click checkout and wait for navigation
     const checkoutButton = page.locator('button:has-text("Checkout"), a:has-text("Checkout")').first();
     await checkoutButton.waitFor({ state: 'visible', timeout: 5000 });
     await checkoutButton.click();
     console.log('✓ Clicked Checkout');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Step 9: Verify checkout form
     const emailInput = page.locator('input[type="email"], input#email, input[name="customerEmail"]').first();
@@ -172,7 +169,6 @@ test.describe('Kiosk Checkout Smoke Test', () => {
     }
 
     await menuItem.click();
-    await page.waitForTimeout(1000);
 
     const addButton = page.locator('button:has-text("Add to Cart"), button:has-text("Add")').first();
     const hasAddButton = await addButton.isVisible().catch(() => false);
@@ -180,19 +176,17 @@ test.describe('Kiosk Checkout Smoke Test', () => {
     if (hasAddButton) {
       await addButton.click();
       console.log('✓ Added item to cart');
-      await page.waitForTimeout(500);
     }
 
     // Step 7: Open cart
     await cartButton.click();
     console.log('✓ Opened cart');
-    await page.waitForTimeout(1000);
 
-    // Step 8: Checkout
+    // Step 8: Checkout and wait for navigation
     const checkoutButton = page.locator('button:has-text("Checkout"), a:has-text("Checkout")').first();
     await checkoutButton.click();
     console.log('✓ Clicked Checkout');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Step 9: Verify kiosk checkout form (has name field)
     const nameInput = page.locator('input#name, input[name="customerName"], input[placeholder*="name" i]').first();

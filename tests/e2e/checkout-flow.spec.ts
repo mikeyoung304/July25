@@ -51,10 +51,7 @@ test.describe('Online Order Checkout Flow', () => {
     await firstButton.click();
     console.log('✓ Added item to cart');
 
-    // Wait a moment for cart to update
-    await page.waitForTimeout(1000);
-
-    // Step 6: Navigate to checkout
+    // Step 6: Navigate to checkout - wait for checkout button to be visible after adding item
     const checkoutButton = page.locator('button:has-text("Checkout"), button:has-text("View Cart"), a:has-text("Checkout")').first();
     await checkoutButton.waitFor({ state: 'visible', timeout: 5000 });
     await checkoutButton.click();
@@ -147,18 +144,14 @@ test.describe('Kiosk Checkout Flow', () => {
     await firstButton.click();
     console.log('✓ Added item to cart');
 
-    // Wait for cart to update
-    await page.waitForTimeout(1000);
-
-    // Step 8: Navigate to checkout
+    // Step 8: Navigate to checkout - wait for checkout button after adding item
     const checkoutButton = page.locator('button:has-text("Checkout"), button:has-text("View Cart"), a:has-text("Checkout")').first();
     await checkoutButton.waitFor({ state: 'visible', timeout: 5000 });
     await checkoutButton.click();
     console.log('✓ Navigated to checkout');
 
-    // Step 9: Wait for checkout page
-    // Kiosk might have different checkout URL
-    await page.waitForTimeout(2000); // Give time for navigation
+    // Step 9: Wait for checkout page to load
+    await page.waitForLoadState('networkidle');
     console.log(`Current URL: ${page.url()}`);
 
     // Step 10: Verify contact information form exists
@@ -236,7 +229,8 @@ test.describe('Checkout Validation', () => {
     const addToCartButton = page.locator('button:has-text("Add to Cart"), button:has-text("Add")').first();
     await addToCartButton.waitFor({ state: 'visible', timeout: 15000 });
     await addToCartButton.click();
-    await page.waitForTimeout(1000);
+
+    // Wait for cart to update by checking checkout button visibility
 
     const checkoutButton = page.locator('button:has-text("Checkout"), button:has-text("View Cart")').first();
     await checkoutButton.click();

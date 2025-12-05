@@ -26,8 +26,8 @@ test.describe('Production Auth & Order Flow', () => {
     console.log('🔍 Step 1: Navigate to server view');
     await page.goto(`${PRODUCTION_URL}/server`);
 
-    // Should be redirected to auth or show login modal
-    await page.waitForTimeout(2000);
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
 
     console.log('🔍 Step 2: Find and fill login form');
     // Look for email and password inputs
@@ -45,7 +45,7 @@ test.describe('Production Auth & Order Flow', () => {
     await submitButton.click();
 
     // Wait for navigation or auth completion
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     console.log('🔍 Step 4: Verify we reached server view');
     // Should see server view elements
@@ -104,7 +104,7 @@ test.describe('Production Auth & Order Flow', () => {
 
     // Login first
     await page.goto(`${PRODUCTION_URL}/server`);
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const emailInput = page.locator('input[type="email"]').first();
     const passwordInput = page.locator('input[type="password"]').first();
@@ -115,7 +115,7 @@ test.describe('Production Auth & Order Flow', () => {
     const submitButton = page.locator('button[type="submit"]').first();
     await submitButton.click();
 
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     console.log('🔍 Looking for table selection');
     // Wait for table selection to appear
@@ -125,22 +125,19 @@ test.describe('Production Auth & Order Flow', () => {
     const firstTable = page.locator('[data-testid*="table"], button:has-text("Table"), div[class*="table"]').first();
     await firstTable.click();
 
-    await page.waitForTimeout(1000);
-
     console.log('🔍 Looking for seat selection');
-    // Select a seat
+    // Select a seat - wait for it to be visible
     const firstSeat = page.locator('button:has-text("1"), [data-testid*="seat"]').first();
+    await firstSeat.waitFor({ state: 'visible', timeout: 5000 });
     await firstSeat.click();
 
-    await page.waitForTimeout(1000);
-
     console.log('🔍 Looking for Touch Order button');
-    // Click Touch Order
+    // Click Touch Order and wait for menu to load
     const touchOrderButton = page.locator('button:has-text("Touch Order")');
     await expect(touchOrderButton).toBeVisible({ timeout: 5000 });
     await touchOrderButton.click();
 
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     console.log('🔍 Looking for menu items');
     // Should see menu items
@@ -151,7 +148,6 @@ test.describe('Production Auth & Order Flow', () => {
     if (await addButton.isVisible()) {
       await addButton.click();
       console.log('✅ Added item to cart');
-      await page.waitForTimeout(1000);
     }
 
     // Look for Send Order / Submit button
@@ -226,7 +222,7 @@ test.describe('Production Auth & Order Flow', () => {
 
     // Login
     await page.goto(`${PRODUCTION_URL}/server`);
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const emailInput = page.locator('input[type="email"]').first();
     const passwordInput = page.locator('input[type="password"]').first();
@@ -237,16 +233,15 @@ test.describe('Production Auth & Order Flow', () => {
     const submitButton = page.locator('button[type="submit"]').first();
     await submitButton.click();
 
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     // Select table and seat
     const firstTable = page.locator('[data-testid*="table"], button:has-text("Table")').first();
     await firstTable.click();
-    await page.waitForTimeout(1000);
 
     const firstSeat = page.locator('button:has-text("1")').first();
+    await firstSeat.waitFor({ state: 'visible', timeout: 5000 });
     await firstSeat.click();
-    await page.waitForTimeout(1000);
 
     // Click Voice Order
     console.log('🔍 Clicking Voice Order button');
@@ -259,8 +254,6 @@ test.describe('Production Auth & Order Flow', () => {
     });
 
     await voiceOrderButton.click();
-
-    await page.waitForTimeout(2000);
 
     // Check if voice order modal opened
     const voiceModal = page.locator('text=/Voice Order|Recording|Microphone/i');

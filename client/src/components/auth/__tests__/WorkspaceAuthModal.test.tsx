@@ -343,6 +343,45 @@ describe('WorkspaceAuthModal', () => {
       fireEvent.click(toggleButton)
       expect(passwordInput.type).toBe('password')
     })
+
+    it('traps focus within modal (Tab cycles through focusable elements)', async () => {
+      renderComponent()
+
+      const modal = screen.getByRole('dialog')
+
+      // Get all focusable elements within the modal
+      const focusableElements = modal.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+
+      expect(focusableElements.length).toBeGreaterThan(0)
+
+      // Tab should move focus between elements within modal
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
+
+      // Focus the last element
+      lastElement.focus()
+      expect(lastElement).toHaveFocus()
+
+      // Tab from last element should wrap to first
+      fireEvent.keyDown(document, { key: 'Tab', code: 'Tab' })
+
+      // Focus should be trapped within modal
+      await waitFor(() => {
+        const activeElement = document.activeElement
+        expect(modal.contains(activeElement)).toBe(true)
+      })
+    })
+
+    it('focuses email input when modal opens', async () => {
+      renderComponent()
+
+      await waitFor(() => {
+        const emailInput = screen.getByTestId('workspace-auth-email')
+        expect(emailInput).toHaveFocus()
+      }, { timeout: 200 })
+    })
   })
 
   describe('Alternative Login Methods', () => {

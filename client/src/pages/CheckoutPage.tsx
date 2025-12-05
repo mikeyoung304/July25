@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BackToDashboard } from '@/components/navigation/BackToDashboard';
 import { useUnifiedCart } from '@/contexts/cart.hooks';
@@ -36,6 +36,14 @@ const CheckoutPageContent: React.FC = () => {
     customerEmail: checkoutValidationRules.customerEmail,
     customerPhone: checkoutValidationRules.customerPhone,
   });
+
+  // Auto-fill demo data when VITE_DEMO_PANEL is enabled
+  useEffect(() => {
+    if (import.meta.env.VITE_DEMO_PANEL === '1') {
+      form.setFieldValue('customerEmail', 'demo@example.com');
+      form.setFieldValue('customerPhone', '(555) 555-1234');
+    }
+  }, []); // Run once on mount
 
   const handleDemoPayment = async () => {
     // Validate form

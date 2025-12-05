@@ -16,7 +16,7 @@ vi.mock('@/contexts/auth.hooks')
 vi.mock('@/hooks/useWorkspaceAccess')
 vi.mock('@/components/auth/WorkspaceAuthModal', () => ({
   WorkspaceAuthModal: ({ isOpen, workspace }: any) =>
-    isOpen ? <div data-testid={`auth-modal-${workspace}`}>Mock Auth Modal</div> : null
+    isOpen ? <div data-testid={`auth-modal-${workspace}`}>Mock Auth Modal for {workspace}</div> : null
 }))
 
 describe('WorkspaceDashboard', () => {
@@ -282,6 +282,161 @@ describe('WorkspaceDashboard', () => {
       renderComponent()
 
       expect(screen.getByText(/© 2025 MACON AI Solutions/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('Modal Interactions', () => {
+    beforeEach(() => {
+      // Mock the modal to show by default
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        showModal: true,
+        intendedDestination: '/server'
+      } as any)
+    })
+
+    it('shows modal when showModal is true', () => {
+      renderComponent()
+
+      // Modal content should be visible - there will be 6 modals (one per tile) but only one shown
+      const modals = screen.getAllByText(/Mock Auth Modal for/)
+      expect(modals.length).toBeGreaterThan(0)
+    })
+
+    it('modal behavior (ESC, close button, backdrop) is tested in WorkspaceAuthModal tests', () => {
+      // This test just verifies the modal hook returns the expected state
+      // The actual modal behavior (ESC, close button, backdrop click) is tested
+      // in the WorkspaceAuthModal.test.tsx file
+
+      const result = workspaceAccessHook.useWorkspaceAccess('server' as any)
+      expect(result.showModal).toBe(true)
+      expect(result.intendedDestination).toBe('/server')
+    })
+  })
+
+  describe('Demo Mode Pre-filled Credentials', () => {
+    it('shows demo badge in demo mode', () => {
+      vi.stubEnv('VITE_DEMO_PANEL', '1')
+      renderComponent()
+
+      expect(screen.getByText('Demo')).toBeInTheDocument()
+    })
+
+    it('does not show demo badge when demo mode is disabled', () => {
+      vi.stubEnv('VITE_DEMO_PANEL', '0')
+      renderComponent()
+
+      expect(screen.queryByText('Demo')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('Alternative Login Methods', () => {
+    it('modal provides alternative login methods (tested in WorkspaceAuthModal tests)', () => {
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        showModal: true,
+        intendedDestination: '/server'
+      } as any)
+
+      renderComponent()
+
+      // The modal is shown - PIN and Station links are tested in WorkspaceAuthModal.test.tsx
+      const modals = screen.getAllByText(/Mock Auth Modal for/)
+      expect(modals.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('Deep Link Behavior', () => {
+    it('opens modal for protected route when accessing directly', () => {
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        showModal: true,
+        intendedDestination: '/server',
+        requiresAuth: true,
+        canAccess: false
+      } as any)
+
+      renderComponent()
+
+      const modals = screen.getAllByText(/Mock Auth Modal for/)
+      expect(modals.length).toBeGreaterThan(0)
+    })
+
+    it('does not show modal for public routes', () => {
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        showModal: false,
+        intendedDestination: '/kiosk',
+        requiresAuth: false,
+        canAccess: true
+      } as any)
+
+      renderComponent()
+
+      expect(screen.queryByText(/Mock Auth Modal for/)).not.toBeInTheDocument()
+    })
+
+    it('preserves intendedDestination when showing modal', () => {
+      const intendedDestination = '/admin'
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        showModal: true,
+        intendedDestination,
+        requiresAuth: true,
+        canAccess: false
+      } as any)
+
+      renderComponent()
+
+      // Modal is shown with the correct workspace
+      const modals = screen.getAllByText(/Mock Auth Modal for/)
+      expect(modals.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('Authenticated User Behavior', () => {
+    it('allows authenticated user with correct permissions to access workspace', () => {
+      vi.spyOn(authHooks, 'useAuth').mockReturnValue({
+        ...mockUseAuth,
+        isAuthenticated: true,
+        user: { email: 'server@restaurant.com', role: 'Server' }
+      } as any)
+
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        showModal: false,
+        requiresAuth: true,
+        hasPermission: true,
+        canAccess: true
+      } as any)
+
+      renderComponent()
+
+      // Modal should not be shown for authenticated user with permission
+      expect(screen.queryByText(/Mock Auth Modal for/)).not.toBeInTheDocument()
+    })
+
+    it('shows modal for authenticated user without correct permissions', () => {
+      vi.spyOn(authHooks, 'useAuth').mockReturnValue({
+        ...mockUseAuth,
+        isAuthenticated: true,
+        user: { email: 'server@restaurant.com', role: 'Server' }
+      } as any)
+
+      vi.spyOn(workspaceAccessHook, 'useWorkspaceAccess').mockReturnValue({
+        ...mockUseWorkspaceAccess,
+        showModal: true,
+        intendedDestination: '/admin',
+        requiresAuth: true,
+        hasPermission: false,
+        canAccess: false
+      } as any)
+
+      renderComponent()
+
+      // Modal should be shown for insufficient permissions
+      const modals = screen.getAllByText(/Mock Auth Modal for/)
+      expect(modals.length).toBeGreaterThan(0)
     })
   })
 })

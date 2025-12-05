@@ -11,7 +11,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: process.env.CI ? 4 : undefined,
   timeout: 30 * 1000,
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
@@ -116,13 +116,22 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: 'npm run dev:e2e',
-    port: 5173,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-    env: {
-      NODE_ENV: 'test',
+  webServer: [
+    {
+      command: 'npm run dev:server',
+      url: 'http://localhost:3001/api/v1/health',
+      timeout: 120 * 1000,
+      reuseExistingServer: !process.env.CI,
+      stdout: 'pipe',
+      stderr: 'pipe',
     },
-  },
+    {
+      command: 'npm run dev:client',
+      url: 'http://localhost:5173',
+      timeout: 120 * 1000,
+      reuseExistingServer: !process.env.CI,
+      stdout: 'pipe',
+      stderr: 'pipe',
+    },
+  ],
 });
