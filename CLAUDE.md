@@ -120,7 +120,7 @@ import { httpClient } from '@/services/http/httpClient';
 ### Type System
 All types from shared workspace only:
 ```typescript
-import { Order, Table, User } from 'shared/types';
+import { Order, Table, User } from '@rebuild/shared/types';
 // Never define types locally in components
 ```
 
@@ -145,19 +145,21 @@ logger.info('Message', { data });
 // Never use console.log - enforced by pre-commit hook
 ```
 
-## Current Status (v6.0.17)
+## Current Status (v6.0.18)
 
 - **Production Readiness**: 99%
-- **Test Pass Rate**: 99.8% (430/431 tests passing)
+- **Unit Tests**: 1,397 passing (980 client + 417 server)
+- **E2E Tests**: 188 tests across 31 files (Playwright)
+- **Type Safety**: 0 source type errors
 - **Payment System**: Stripe (migrated from Square)
 - **Fall Menu**: Deployed and operational
 
 ### Recent Improvements
-- Stripe payment integration (migrated from Square)
-- Fall menu deployed
+- Full type safety cleanup (37 files fixed)
+- ADR-001 snake_case migration completed
+- Playwright E2E configuration fixed
 - Voice ordering with gpt-4o-transcribe model
 - Slug-based restaurant routing (e.g., /order/grow)
-- Complete documentation suite updated
 
 ### Known Considerations
 - localStorage for auth tokens is intentional for shared devices

@@ -74,7 +74,6 @@ const DriveThruPageContent: React.FC = () => {
   }, [menuItems, addItem]);
 
   const handleConfirmOrder = useCallback(() => {
-    // TODO: Navigate to checkout or confirmation
     window.location.href = '/checkout';
   }, []);
 
