@@ -1,0 +1,4801 @@
+{
+  "config": {
+    "configFile": "/Users/mikeyoung/CODING/rebuild-6.0/playwright.config.ts",
+    "rootDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-report/e2e-results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "visual-regression",
+        "name": "visual-regression",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/visual",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "accessibility",
+        "name": "accessibility",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/a11y",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "api",
+        "name": "api",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/api",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "performance",
+        "name": "performance",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/performance",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/mikeyoung/CODING/rebuild-6.0/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "smoke",
+        "name": "smoke",
+        "testDir": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e",
+        "testIgnore": [
+          "**/*.tsx",
+          "**/kds-websocket-race-conditions.spec.ts"
+        ],
+        "testMatch": [
+          "/.*\\.smoke\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 7,
+    "webServer": {
+      "command": "npm run dev:e2e",
+      "port": 5173,
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "env": {
+        "NODE_ENV": "test"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "auth/login.smoke.spec.ts",
+      "file": "auth/login.smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication - Smoke Tests",
+          "file": "auth/login.smoke.spec.ts",
+          "line": 16,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should login as server role successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ac5f658c61f6baee872e-bc6cf7c57c0903f981c8",
+              "file": "auth/login.smoke.spec.ts",
+              "line": 22,
+              "column": 7
+            },
+            {
+              "title": "should persist session across page reload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ac5f658c61f6baee872e-d07e82d688d084c12718",
+              "file": "auth/login.smoke.spec.ts",
+              "line": 31,
+              "column": 7
+            },
+            {
+              "title": "should navigate to correct role-specific page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ac5f658c61f6baee872e-a28b057b02480e867541",
+              "file": "auth/login.smoke.spec.ts",
+              "line": 43,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth/login.spec.ts",
+      "file": "auth/login.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication",
+          "file": "auth/login.spec.ts",
+          "line": 16,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Demo Login",
+              "file": "auth/login.spec.ts",
+              "line": 21,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should login as server successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-e143efecd0db0aca6667",
+                  "file": "auth/login.spec.ts",
+                  "line": 23,
+                  "column": 11
+                },
+                {
+                  "title": "should login as cashier successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-e1e4f5ed7b39217b9171",
+                  "file": "auth/login.spec.ts",
+                  "line": 23,
+                  "column": 11
+                },
+                {
+                  "title": "should login as kitchen successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-0740f48068476bb5d968",
+                  "file": "auth/login.spec.ts",
+                  "line": 23,
+                  "column": 11
+                },
+                {
+                  "title": "should login as manager successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-019ed0c400186cdc8ef2",
+                  "file": "auth/login.spec.ts",
+                  "line": 23,
+                  "column": 11
+                },
+                {
+                  "title": "should login as owner successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-3caaa55c7ae24e8180cd",
+                  "file": "auth/login.spec.ts",
+                  "line": 23,
+                  "column": 11
+                }
+              ]
+            },
+            {
+              "title": "Session Persistence",
+              "file": "auth/login.spec.ts",
+              "line": 37,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should maintain authentication after page reload",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-cb96503933acc5b7a71b",
+                  "file": "auth/login.spec.ts",
+                  "line": 38,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain authentication after navigation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-d5e1ce584d548d5d489e",
+                  "file": "auth/login.spec.ts",
+                  "line": 54,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Role-Based Access",
+              "file": "auth/login.spec.ts",
+              "line": 68,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "server role should access ServerView",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-67f0cedfc488ea1c7d43",
+                  "file": "auth/login.spec.ts",
+                  "line": 69,
+                  "column": 9
+                },
+                {
+                  "title": "kitchen role should access KDS",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-7ffa257adf583617cfc4",
+                  "file": "auth/login.spec.ts",
+                  "line": 74,
+                  "column": 9
+                },
+                {
+                  "title": "cashier role should access checkout",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-8182d8edacd929e8bd5a",
+                  "file": "auth/login.spec.ts",
+                  "line": 79,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Error Handling",
+              "file": "auth/login.spec.ts",
+              "line": 85,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should handle network errors gracefully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "231ca1f0f4db3e4958c3-078a05323f29f254f846",
+                  "file": "auth/login.spec.ts",
+                  "line": 86,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "basic-routes.spec.ts",
+      "file": "basic-routes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Basic route smoke tests @smoke",
+          "file": "basic-routes.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "home page loads @smoke",
+              "ok": true,
+              "tags": [
+                "smoke",
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "768eb4097b80e1e12291-2459e236d901914d7078",
+              "file": "basic-routes.spec.ts",
+              "line": 4,
+              "column": 7
+            },
+            {
+              "title": "navigate to order via UI @smoke",
+              "ok": true,
+              "tags": [
+                "smoke",
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "768eb4097b80e1e12291-85fa4440096fd12e4d8a",
+              "file": "basic-routes.spec.ts",
+              "line": 14,
+              "column": 7
+            },
+            {
+              "title": "checkout page loads @smoke",
+              "ok": true,
+              "tags": [
+                "smoke",
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "768eb4097b80e1e12291-ea9cdce2eb7609814a4d",
+              "file": "basic-routes.spec.ts",
+              "line": 37,
+              "column": 7
+            },
+            {
+              "title": "kitchen page loads @smoke",
+              "ok": true,
+              "tags": [
+                "smoke",
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "768eb4097b80e1e12291-f2fa0726863d312e4477",
+              "file": "basic-routes.spec.ts",
+              "line": 52,
+              "column": 7
+            },
+            {
+              "title": "app renders without fatal errors @smoke",
+              "ok": true,
+              "tags": [
+                "smoke",
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "768eb4097b80e1e12291-305420a1e37d9d7c52fd",
+              "file": "basic-routes.spec.ts",
+              "line": 67,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "card-payment.spec.ts",
+      "file": "card-payment.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Card Payment Workflow",
+          "file": "card-payment.spec.ts",
+          "line": 30,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-CARD-001: Complete card payment flow with Visa (success)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-eb630548c8d45add3cbe",
+              "file": "card-payment.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-002: Card payment decline handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-bb7bb0ea10a2d3f950d4",
+              "file": "card-payment.spec.ts",
+              "line": 123,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-003: Demo mode when Stripe credentials missing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-e4d54bf6978bc7930481",
+              "file": "card-payment.spec.ts",
+              "line": 149,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-004: Mastercard payment success",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-9de8a7d3a8aaa399c3b6",
+              "file": "card-payment.spec.ts",
+              "line": 176,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-005: American Express payment success",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-c30d0181b373e3da26f7",
+              "file": "card-payment.spec.ts",
+              "line": 199,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-006: Payment audit logging with Stripe payment ID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-0c88cc101516801d7949",
+              "file": "card-payment.spec.ts",
+              "line": 222,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-007: Cancel payment returns to tender selection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-43c23df67451561374eb",
+              "file": "card-payment.spec.ts",
+              "line": 273,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-008: Environment indicator shows test vs production",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-5656354fb0deee222e42",
+              "file": "card-payment.spec.ts",
+              "line": 290,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-009: Stripe SDK load failure shows error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-04efd3e2d2eb3f7534d7",
+              "file": "card-payment.spec.ts",
+              "line": 307,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-010: Secure payment badge displays throughout flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-41fdfa093399de1bd566",
+              "file": "card-payment.spec.ts",
+              "line": 326,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-011: Payment processing shows loading state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-2b1d0c298ea8f18af76e",
+              "file": "card-payment.spec.ts",
+              "line": 342,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-012: Multiple payment attempts after decline",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-ddacd519117f6887054e",
+              "file": "card-payment.spec.ts",
+              "line": 372,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-013: Table status updates only after successful payment",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-ecb69869274313d57311",
+              "file": "card-payment.spec.ts",
+              "line": 412,
+              "column": 7
+            },
+            {
+              "title": "TC-CARD-014: Card form validation before submission",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "315941776b91cb691015-ea0e6df3f943c607252a",
+              "file": "card-payment.spec.ts",
+              "line": 442,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "cash-payment.spec.ts",
+      "file": "cash-payment.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Cash Payment Workflow",
+          "file": "cash-payment.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-CASH-001: Complete cash payment flow with exact amount",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-7313aa78dd9961957ef4",
+              "file": "cash-payment.spec.ts",
+              "line": 75,
+              "column": 7
+            },
+            {
+              "title": "TC-CASH-002: Cash payment with fast cash button ($100)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-6e43e3cea54287ce27e2",
+              "file": "cash-payment.spec.ts",
+              "line": 113,
+              "column": 7
+            },
+            {
+              "title": "TC-CASH-003: Cash payment with fast cash button ($50)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-1c07a173c252530db68f",
+              "file": "cash-payment.spec.ts",
+              "line": 137,
+              "column": 7
+            },
+            {
+              "title": "TC-CASH-004: Insufficient cash payment shows correct shortage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-3ad191f61ed119fe125d",
+              "file": "cash-payment.spec.ts",
+              "line": 156,
+              "column": 7
+            },
+            {
+              "title": "TC-CASH-005: Custom amount input with change calculation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-0fe64647f27ae6ce3e64",
+              "file": "cash-payment.spec.ts",
+              "line": 177,
+              "column": 7
+            },
+            {
+              "title": "TC-CASH-006: Payment updates all orders for table",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-7b914d33e89321c6ef88",
+              "file": "cash-payment.spec.ts",
+              "line": 198,
+              "column": 7
+            },
+            {
+              "title": "TC-CASH-007: Cancel payment returns to check closing screen",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-8106a8071f055ba60517",
+              "file": "cash-payment.spec.ts",
+              "line": 231,
+              "column": 7
+            },
+            {
+              "title": "TC-CASH-008: Payment audit logging records transaction",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-56d2cdb4706e866b8030",
+              "file": "cash-payment.spec.ts",
+              "line": 248,
+              "column": 7
+            },
+            {
+              "title": "TC-CASH-009: Multiple fast cash button clicks update amount",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-2b877799e5e790107a92",
+              "file": "cash-payment.spec.ts",
+              "line": 281,
+              "column": 7
+            },
+            {
+              "title": "TC-CASH-010: Edge case - zero dollar order (comped)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "abd056ddf35337d974c6-ad09142cbfd9a1f4b78e",
+              "file": "cash-payment.spec.ts",
+              "line": 301,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "checkout-flow.spec.ts",
+      "file": "checkout-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Online Order Checkout Flow",
+          "file": "checkout-flow.spec.ts",
+          "line": 24,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-ONLINE-001: Complete online order with auto-filled contact info",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bd61b1856f0a92f3f43c-22fa287643e8f0be6707",
+              "file": "checkout-flow.spec.ts",
+              "line": 25,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Kiosk Checkout Flow",
+          "file": "checkout-flow.spec.ts",
+          "line": 110,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-KIOSK-001: Complete kiosk order with auto-filled contact info",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bd61b1856f0a92f3f43c-583335d302db4a4dab38",
+              "file": "checkout-flow.spec.ts",
+              "line": 111,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Checkout Validation",
+          "file": "checkout-flow.spec.ts",
+          "line": 225,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-VALIDATION-001: Shared validation rules work correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bd61b1856f0a92f3f43c-f904e8859013001f48fc",
+              "file": "checkout-flow.spec.ts",
+              "line": 226,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "checkout-smoke.spec.ts",
+      "file": "checkout-smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Online Order Checkout Smoke Test",
+          "file": "checkout-smoke.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Can complete online order checkout flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "baa54ecd0c4d0248c569-b9ad31ebf5a2f2334cdc",
+              "file": "checkout-smoke.spec.ts",
+              "line": 23,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Kiosk Checkout Smoke Test",
+          "file": "checkout-smoke.spec.ts",
+          "line": 123,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Can complete kiosk checkout flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "baa54ecd0c4d0248c569-72dffd15ec4cc2231806",
+              "file": "checkout-smoke.spec.ts",
+              "line": 124,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "csp-check.e2e.test.ts",
+      "file": "csp-check.e2e.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "CSP Compliance Check",
+          "file": "csp-check.e2e.test.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load homepage with correct CSP headers and title",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "56177b515aee793b4c2e-60c4f3aead0193164fdb",
+              "file": "csp-check.e2e.test.ts",
+              "line": 4,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "debug-blank-page.spec.ts",
+      "file": "debug-blank-page.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Debug blank page issue",
+          "file": "debug-blank-page.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "check what is actually rendered",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5fd2e2586a17c4693b93-5a1b98fb1e012f8730fe",
+              "file": "debug-blank-page.spec.ts",
+              "line": 4,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e-kds-realtime.spec.ts",
+      "file": "e2e-kds-realtime.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "KDS Realtime E2E",
+          "file": "e2e-kds-realtime.spec.ts",
+          "line": 29,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Scenario A: Happy path - 2 orders appear with single connection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ddc7e62a89518e857b8f-af3d3d174f1545b14438",
+              "file": "e2e-kds-realtime.spec.ts",
+              "line": 36,
+              "column": 7
+            },
+            {
+              "title": "Scenario B: Thrash - logout/login twice, verify no duplicates",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ddc7e62a89518e857b8f-1dcc272d5730e82bcfdd",
+              "file": "e2e-kds-realtime.spec.ts",
+              "line": 76,
+              "column": 7
+            },
+            {
+              "title": "Scenario C: Nav churn - away/back 5x, verify stable connection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ddc7e62a89518e857b8f-46e24ad2d9b69e9234ae",
+              "file": "e2e-kds-realtime.spec.ts",
+              "line": 134,
+              "column": 7
+            },
+            {
+              "title": "Scenario D: Duplicate event detection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ddc7e62a89518e857b8f-2bbab69bf3887bc9007f",
+              "file": "e2e-kds-realtime.spec.ts",
+              "line": 192,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "kds/kitchen-display.smoke.spec.ts",
+      "file": "kds/kitchen-display.smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Kitchen Display System - Smoke Tests",
+          "file": "kds/kitchen-display.smoke.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load KDS interface successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db41abf86215d28ef881-4a8b5c3bda81f647096e",
+              "file": "kds/kitchen-display.smoke.spec.ts",
+              "line": 23,
+              "column": 7
+            },
+            {
+              "title": "should display order cards",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db41abf86215d28ef881-e9e11d8023b6dd825a64",
+              "file": "kds/kitchen-display.smoke.spec.ts",
+              "line": 35,
+              "column": 7
+            },
+            {
+              "title": "should have status update controls visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db41abf86215d28ef881-51b165ac2d505dd5881c",
+              "file": "kds/kitchen-display.smoke.spec.ts",
+              "line": 57,
+              "column": 7
+            },
+            {
+              "title": "should show real-time connection indicator",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db41abf86215d28ef881-7316d10a36237b6fcdec",
+              "file": "kds/kitchen-display.smoke.spec.ts",
+              "line": 79,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "kiosk-voice-button.spec.ts",
+      "file": "kiosk-voice-button.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Kiosk Voice Button UX",
+          "file": "kiosk-voice-button.spec.ts",
+          "line": 10,
+          "column": 6,
+          "specs": [
+            {
+              "title": "button shows \"Tap to Connect\" when disconnected",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20d914edb797b6a5563-1e7609359aa02b222c86",
+              "file": "kiosk-voice-button.spec.ts",
+              "line": 42,
+              "column": 7
+            },
+            {
+              "title": "button transitions from \"Tap to Connect\" to \"Connecting...\" on tap",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20d914edb797b6a5563-4211ab1cf11c0c2020d9",
+              "file": "kiosk-voice-button.spec.ts",
+              "line": 52,
+              "column": 7
+            },
+            {
+              "title": "button has correct size for kiosk mode (large)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20d914edb797b6a5563-99f3df3757a3e65a8b1f",
+              "file": "kiosk-voice-button.spec.ts",
+              "line": 66,
+              "column": 7
+            },
+            {
+              "title": "button is accessible with correct ARIA label",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20d914edb797b6a5563-36e899c9c0bf326f7704",
+              "file": "kiosk-voice-button.spec.ts",
+              "line": 78,
+              "column": 7
+            },
+            {
+              "title": "button responds to touch events",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d20d914edb797b6a5563-55ad63a0391a2ca34027",
+              "file": "kiosk-voice-button.spec.ts",
+              "line": 88,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "multi-seat-ordering.spec.ts",
+      "file": "multi-seat-ordering.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Multi-Seat Ordering Workflow",
+          "file": "multi-seat-ordering.spec.ts",
+          "line": 38,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Complete multi-seat ordering flow: Seat 1 → Seat 2 → Finish",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-a0938c0e72f3d68e3b06",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 283,
+              "column": 7
+            },
+            {
+              "title": "Seat selection modal shows available seats correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-5d241b095308033dd0b7",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 363,
+              "column": 7
+            },
+            {
+              "title": "Cannot start voice order without selecting a seat",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-29153734110fe2628218",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 375,
+              "column": 7
+            },
+            {
+              "title": "Can cancel seat selection and return to floor plan",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-efdc2edf5220744352a0",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 386,
+              "column": 7
+            },
+            {
+              "title": "PostOrderPrompt buttons work correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-4ba3d97482e373c74d77",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 402,
+              "column": 7
+            },
+            {
+              "title": "Kitchen Display shows seat numbers on order cards",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-af46de0e3668d9173c56",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 427,
+              "column": 7
+            },
+            {
+              "title": "Multiple orders for same table are grouped correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-3a6348a58ed5885d30da",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 458,
+              "column": 7
+            },
+            {
+              "title": "Error handling: Order submission fails gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-ab5fbbec1c767d4b24a7",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 496,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Multi-Seat Ordering: Edge Cases",
+          "file": "multi-seat-ordering.spec.ts",
+          "line": 535,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Handles maximum capacity (all 4 seats ordered)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-9ba2dbd1724b7407b537",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 536,
+              "column": 7
+            },
+            {
+              "title": "Prevents duplicate orders for same seat",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-df6e30770ba2605b82ca",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 541,
+              "column": 7
+            },
+            {
+              "title": "Allows server to skip seats (order Seat 1, then Seat 3)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-934bc04880f8098043e0",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 546,
+              "column": 7
+            },
+            {
+              "title": "Handles concurrent orders at same table",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-75e88179655dc23ecbb6",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 550,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Multi-Seat Ordering: Integration with Payment",
+          "file": "multi-seat-ordering.spec.ts",
+          "line": 555,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Individual seat orders can be paid separately",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-f333a17e6ed2178fc7bf",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 556,
+              "column": 7
+            },
+            {
+              "title": "All seats at table can be paid together (split check)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3cb6c4cfcd4f6a5705e9-a6b884dd13b24c4486a4",
+              "file": "multi-seat-ordering.spec.ts",
+              "line": 560,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "orders/server-order-flow.smoke.spec.ts",
+      "file": "orders/server-order-flow.smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Server Order Flow - Smoke Tests",
+          "file": "orders/server-order-flow.smoke.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should create and submit a simple order",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5f6eeb28dd268a482ed9-fa7269d9463e64638041",
+              "file": "orders/server-order-flow.smoke.spec.ts",
+              "line": 24,
+              "column": 7
+            },
+            {
+              "title": "should display menu items with prices",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5f6eeb28dd268a482ed9-7fafa9e660a4913f8646",
+              "file": "orders/server-order-flow.smoke.spec.ts",
+              "line": 72,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "production-auth-test-v2.spec.ts",
+      "file": "production-auth-test-v2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Production Auth Test - Real Flow",
+          "file": "production-auth-test-v2.spec.ts",
+          "line": 7,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Complete login and order submission flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "261abda79b12cc0f8074-ad38fe7a7c69abe6d366",
+              "file": "production-auth-test-v2.spec.ts",
+              "line": 8,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "production-auth-test.spec.ts",
+      "file": "production-auth-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Production Auth & Order Flow",
+          "file": "production-auth-test.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Login flow and JWT scope verification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1e639245bba651401f98-a2fdb848bc648a244c2a",
+              "file": "production-auth-test.spec.ts",
+              "line": 25,
+              "column": 7
+            },
+            {
+              "title": "Touch order submission with auth",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1e639245bba651401f98-cb845f5d3d807495c5f2",
+              "file": "production-auth-test.spec.ts",
+              "line": 102,
+              "column": 7
+            },
+            {
+              "title": "Voice order modal loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1e639245bba651401f98-1f87716697100fc45054",
+              "file": "production-auth-test.spec.ts",
+              "line": 224,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "production-complete-flow.spec.ts",
+      "file": "production-complete-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Production Complete Order Flow",
+          "file": "production-complete-flow.spec.ts",
+          "line": 7,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Full order submission test with detailed diagnostics",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2fd2705722ece427c618-75c99aca87805adcb9c8",
+              "file": "production-complete-flow.spec.ts",
+              "line": 8,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "production-serverview-detailed.spec.ts",
+      "file": "production-serverview-detailed.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Production ServerView Detailed Analysis",
+          "file": "production-serverview-detailed.spec.ts",
+          "line": 21,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Monitor ServerView loading with network analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "57154d25d52c65cfcfba-11219801734d6dd28db1",
+              "file": "production-serverview-detailed.spec.ts",
+              "line": 22,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "production-serverview-interaction.spec.ts",
+      "file": "production-serverview-interaction.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Production ServerView Interaction Test",
+          "file": "production-serverview-interaction.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Complete table selection and seat interaction flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cfb9b726190761fe453b-bc7dcbfe997e6b4d0ed6",
+              "file": "production-serverview-interaction.spec.ts",
+              "line": 19,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "production-serverview-test.spec.ts",
+      "file": "production-serverview-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Production ServerView Flow Test",
+          "file": "production-serverview-test.spec.ts",
+          "line": 57,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Complete ServerView flow on production",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ff4be3e5b7e874a501d7-c5270323a26dde58d73b",
+              "file": "production-serverview-test.spec.ts",
+              "line": 64,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "production-smoke.test.ts",
+      "file": "production-smoke.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Production Smoke Tests",
+          "file": "production-smoke.test.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load the homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-db816b25e95f26d5e177",
+              "file": "production-smoke.test.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "should have working navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-94a3730561774fcd68cc",
+              "file": "production-smoke.test.ts",
+              "line": 33,
+              "column": 7
+            },
+            {
+              "title": "should load menu page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-fe08e3ba944ed17a3cfd",
+              "file": "production-smoke.test.ts",
+              "line": 41,
+              "column": 7
+            },
+            {
+              "title": "should handle 404 gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-24f61a0c8142fe8de4e3",
+              "file": "production-smoke.test.ts",
+              "line": 50,
+              "column": 7
+            },
+            {
+              "title": "should have no accessibility violations on homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-59497308fed8efa8b7df",
+              "file": "production-smoke.test.ts",
+              "line": 62,
+              "column": 7
+            },
+            {
+              "title": "should load without JavaScript errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-7178c9876889cb0a83f8",
+              "file": "production-smoke.test.ts",
+              "line": 75,
+              "column": 7
+            },
+            {
+              "title": "should have proper security headers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-963518210da5d8ae238c",
+              "file": "production-smoke.test.ts",
+              "line": 88,
+              "column": 7
+            },
+            {
+              "title": "should load assets successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-75ef7898dee76dfe6b7e",
+              "file": "production-smoke.test.ts",
+              "line": 100,
+              "column": 7
+            },
+            {
+              "title": "should have responsive layout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-cc40047079a8706c230d",
+              "file": "production-smoke.test.ts",
+              "line": 118,
+              "column": 7
+            },
+            {
+              "title": "should have working cart functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-6be4dd536064ec836573",
+              "file": "production-smoke.test.ts",
+              "line": 133,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Performance Tests",
+          "file": "production-smoke.test.ts",
+          "line": 144,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load within acceptable time",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-ceb6526bd85e60d1981d",
+              "file": "production-smoke.test.ts",
+              "line": 145,
+              "column": 7
+            },
+            {
+              "title": "should have acceptable bundle size",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9286b957fea02cdab869-81107818bdbc1054c65a",
+              "file": "production-smoke.test.ts",
+              "line": 156,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "server-touch-voice-ordering.spec.ts",
+      "file": "server-touch-voice-ordering.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Server Touch + Voice Ordering",
+          "file": "server-touch-voice-ordering.spec.ts",
+          "line": 26,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Voice Mode",
+              "file": "server-touch-voice-ordering.spec.ts",
+              "line": 178,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should default to voice mode when opening order",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-68b2e41ce59d43c9fb5b",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 179,
+                  "column": 9
+                },
+                {
+                  "title": "should show microphone button in voice mode",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-40bf252a6cae91af2eb0",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 195,
+                  "column": 9
+                },
+                {
+                  "title": "should display current transcript when speaking",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-184f3b63754bd45931b7",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 203,
+                  "column": 9
+                },
+                {
+                  "title": "should add items to order via voice",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-03f8ffad6f3ff00af4ff",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 219,
+                  "column": 9
+                },
+                {
+                  "title": "should show voice badge on voice-added items",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-87e62f8b922b355595d4",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 246,
+                  "column": 9
+                },
+                {
+                  "title": "should show processing state during voice recognition",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-96314c5c9f6719465a68",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 272,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Touch Mode",
+              "file": "server-touch-voice-ordering.spec.ts",
+              "line": 289,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should switch to touch mode and show menu grid",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-386a628b22e0e2b1ae89",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 290,
+                  "column": 9
+                },
+                {
+                  "title": "should display menu items in grid",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-af25e41435bc1ce2b3f7",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 309,
+                  "column": 9
+                },
+                {
+                  "title": "should open ItemDetailModal when clicking menu item",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-eafb8e5b5bfa57be04ea",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 331,
+                  "column": 9
+                },
+                {
+                  "title": "should allow selecting modifiers in ItemDetailModal",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-d1a15c7620dd3e19e5bc",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 355,
+                  "column": 9
+                },
+                {
+                  "title": "should allow adjusting quantity in ItemDetailModal",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-f46c93de44098bdb0e9b",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 395,
+                  "column": 9
+                },
+                {
+                  "title": "should add item to order from ItemDetailModal",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-32cdf54566b34c661b2f",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 427,
+                  "column": 9
+                },
+                {
+                  "title": "should show touch badge on touch-added items",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-b74161cf0d7cf79f8558",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 463,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Cross-Mode Functionality",
+              "file": "server-touch-voice-ordering.spec.ts",
+              "line": 502,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should allow switching between modes multiple times",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-4f56767623cb9eb7cd49",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 503,
+                  "column": 9
+                },
+                {
+                  "title": "should preserve order items when switching modes",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-97103c7332db63e031f9",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 524,
+                  "column": 9
+                },
+                {
+                  "title": "should create mixed order with voice and touch items",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-6472b50fa08ae86818f0",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 561,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Order Review & Editing",
+              "file": "server-touch-voice-ordering.spec.ts",
+              "line": 618,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display inline quantity adjuster for order items",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-5c356b6cfcde3cdfe6cf",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 619,
+                  "column": 9
+                },
+                {
+                  "title": "should increase item quantity when clicking +",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-526da192b214bfe1e3e0",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 647,
+                  "column": 9
+                },
+                {
+                  "title": "should decrease item quantity when clicking -",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-5b1f0843030e4c746798",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 677,
+                  "column": 9
+                },
+                {
+                  "title": "should show edit button for items with menuItemId",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-8eeebacaffd4cdf72843",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 707,
+                  "column": 9
+                },
+                {
+                  "title": "should show remove button for all items",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-f565248d4ad39e70e0ca",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 733,
+                  "column": 9
+                },
+                {
+                  "title": "should show confirmation when clicking remove",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-2cdc7f5fb7b77852ded9",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 758,
+                  "column": 9
+                },
+                {
+                  "title": "should display order notes field",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-6c73651b61b563270d06",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 788,
+                  "column": 9
+                },
+                {
+                  "title": "should enforce character limit on order notes",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-3894061eeb6cd71f516f",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 813,
+                  "column": 9
+                },
+                {
+                  "title": "should display source badges for voice and touch items",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-88409bfcd843aa274b8b",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 848,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Order Confirmation & Submission",
+              "file": "server-touch-voice-ordering.spec.ts",
+              "line": 899,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should disable submit button when no items in order",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-e30e5cabf438d9e7294c",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 900,
+                  "column": 9
+                },
+                {
+                  "title": "should enable submit button when items are added",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-0c95c21384a6cfc82fbf",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 908,
+                  "column": 9
+                },
+                {
+                  "title": "should display item count on submit button",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-1606685e963a2b6c0837",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 933,
+                  "column": 9
+                },
+                {
+                  "title": "should display total price on submit button",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-ea24a92d2250f3370204",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 967,
+                  "column": 9
+                },
+                {
+                  "title": "should show loading state when submitting order",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-8b0ae74df0f0cdfaba6b",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 992,
+                  "column": 9
+                },
+                {
+                  "title": "should show success state after submission",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-2513037f629fb4532797",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 1032,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Responsive Layouts",
+              "file": "server-touch-voice-ordering.spec.ts",
+              "line": 1076,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display desktop layout with side-by-side panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-6de756327a29fece278b",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 1077,
+                  "column": 9
+                },
+                {
+                  "title": "should display mobile layout with stacked panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-a8fab0948bbef17ce697",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 1092,
+                  "column": 9
+                },
+                {
+                  "title": "should be usable on tablet viewport",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-e90abb0c1bcecb0ee0bd",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 1104,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Integration & End-to-End",
+              "file": "server-touch-voice-ordering.spec.ts",
+              "line": 1127,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "complete order flow: voice item + touch item + submit",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "87a5491991fbddbb3803-6324c883cfd43dba6a2f",
+                  "file": "server-touch-voice-ordering.spec.ts",
+                  "line": 1128,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "table-realtime.spec.ts",
+      "file": "table-realtime.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Table Real-time Status Updates",
+          "file": "table-realtime.spec.ts",
+          "line": 23,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-REALTIME-001: Table status update is received in real-time via subscription",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "eae33d4365e5bac1f917-9ab1fec986fc3edad710",
+              "file": "table-realtime.spec.ts",
+              "line": 64,
+              "column": 7
+            },
+            {
+              "title": "TC-REALTIME-002: Paid status displays with correct gold/yellow styling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "eae33d4365e5bac1f917-4b458065c5a0956f6e2d",
+              "file": "table-realtime.spec.ts",
+              "line": 96,
+              "column": 7
+            },
+            {
+              "title": "TC-REALTIME-003: Multiple browser tabs receive synchronized updates",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "eae33d4365e5bac1f917-47356cdd1c1aff98cc61",
+              "file": "table-realtime.spec.ts",
+              "line": 139,
+              "column": 7
+            },
+            {
+              "title": "TC-REALTIME-004: Subscription handles rapid status changes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "eae33d4365e5bac1f917-bac6cc04600a52eac322",
+              "file": "table-realtime.spec.ts",
+              "line": 211,
+              "column": 7
+            },
+            {
+              "title": "TC-REALTIME-005: Subscription reconnects after network interruption",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "eae33d4365e5bac1f917-209439923c26798f85bb",
+              "file": "table-realtime.spec.ts",
+              "line": 245,
+              "column": 7
+            },
+            {
+              "title": "TC-REALTIME-006: Stats update in real-time when table status changes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "eae33d4365e5bac1f917-8317bb3188e06210fad5",
+              "file": "table-realtime.spec.ts",
+              "line": 287,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "viewport-test.spec.ts",
+      "file": "viewport-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Viewport Scale Verification",
+          "file": "viewport-test.spec.ts",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should render at correct scale without zoom",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "165d6365e5bfce0add29-f7de4711b0de85fff608",
+              "file": "viewport-test.spec.ts",
+              "line": 13,
+              "column": 7
+            },
+            {
+              "title": "should display UI elements at correct size",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "165d6365e5bfce0add29-cbca4816eb7cdcfb7419",
+              "file": "viewport-test.spec.ts",
+              "line": 38,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "voice-control.e2e.test.ts",
+      "file": "voice-control.e2e.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Voice Control E2E",
+          "file": "voice-control.e2e.test.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shows connection status indicator",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5cacfad0bf2cdf0108df-4b63852af2dfffb794b5",
+              "file": "voice-control.e2e.test.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "disables button when WebSocket is not connected",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5cacfad0bf2cdf0108df-dab3b7fa0e1226083abb",
+              "file": "voice-control.e2e.test.ts",
+              "line": 24,
+              "column": 7
+            },
+            {
+              "title": "captures and transcribes voice input",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5cacfad0bf2cdf0108df-f9b2bd32b061caf41312",
+              "file": "voice-control.e2e.test.ts",
+              "line": 43,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "voice-order.spec.ts",
+      "file": "voice-order.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Voice Ordering E2E",
+          "file": "voice-order.spec.ts",
+          "line": 233,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Run 1: Normal Network",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "aaaa881fb523f50f06ca-111ac2d452ba03d20c26",
+              "file": "voice-order.spec.ts",
+              "line": 494,
+              "column": 7
+            },
+            {
+              "title": "Run 2: Degraded Network (3G)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "aaaa881fb523f50f06ca-d00265ea9d1ac6ae6f09",
+              "file": "voice-order.spec.ts",
+              "line": 499,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "voice-ordering-debug.spec.ts",
+      "file": "voice-ordering-debug.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Voice Ordering Connection Debug",
+          "file": "voice-ordering-debug.spec.ts",
+          "line": 7,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should capture console logs when opening voice modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c2261e2961e66794b04b-9ed9133c8c8829c3ae16",
+              "file": "voice-ordering-debug.spec.ts",
+              "line": 8,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "voice-ordering.spec.ts",
+      "file": "voice-ordering.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Voice Ordering Smoke Test",
+          "file": "voice-ordering.spec.ts",
+          "line": 15,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Critical: Homepage loads with voice ordering button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "94d64718072a6bde18fa-291e960f6f4960f0588d",
+              "file": "voice-ordering.spec.ts",
+              "line": 18,
+              "column": 7
+            },
+            {
+              "title": "Critical: Kiosk page voice ordering flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "94d64718072a6bde18fa-1ae941c8c7b2a72f80e6",
+              "file": "voice-ordering.spec.ts",
+              "line": 34,
+              "column": 7
+            },
+            {
+              "title": "Critical: Drive-thru page voice ordering",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "94d64718072a6bde18fa-7cd16182190289bcc874",
+              "file": "voice-ordering.spec.ts",
+              "line": 139,
+              "column": 7
+            },
+            {
+              "title": "Critical: Server view with floor plan",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "94d64718072a6bde18fa-072a7ac5c86d68c541a5",
+              "file": "voice-ordering.spec.ts",
+              "line": 182,
+              "column": 7
+            },
+            {
+              "title": "Critical: Menu endpoint returns data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "94d64718072a6bde18fa-ae6107df6dc106dc9c77",
+              "file": "voice-ordering.spec.ts",
+              "line": 210,
+              "column": 7
+            },
+            {
+              "title": "Critical: Health check passes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "94d64718072a6bde18fa-296329db87db355831eb",
+              "file": "voice-ordering.spec.ts",
+              "line": 226,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "websocket-service.e2e.test.ts",
+      "file": "websocket-service.e2e.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "WebSocket Service E2E",
+          "file": "websocket-service.e2e.test.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should establish WebSocket connection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "88eae92fe2a9be94eedc-07f7d13628ebbb2d1c3a",
+              "file": "websocket-service.e2e.test.ts",
+              "line": 9,
+              "column": 7
+            },
+            {
+              "title": "should receive real-time order updates",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "88eae92fe2a9be94eedc-6d38cec829e245135a8a",
+              "file": "websocket-service.e2e.test.ts",
+              "line": 37,
+              "column": 7
+            },
+            {
+              "title": "should handle reconnection after disconnect",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "88eae92fe2a9be94eedc-f9a9d4909795c89ee973",
+              "file": "websocket-service.e2e.test.ts",
+              "line": 61,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "workspace-auth-flow.spec.ts",
+      "file": "workspace-auth-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Workspace Authentication Flow",
+          "file": "workspace-auth-flow.spec.ts",
+          "line": 94,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Kitchen: should login and access kitchen workspace",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e520cdc8f615e7c746f9-750ebec5747b7b64501f",
+              "file": "workspace-auth-flow.spec.ts",
+              "line": 100,
+              "column": 7
+            },
+            {
+              "title": "Server: should login and access server workspace",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e520cdc8f615e7c746f9-0b3470ac50b74a9280d7",
+              "file": "workspace-auth-flow.spec.ts",
+              "line": 122,
+              "column": 7
+            },
+            {
+              "title": "Manager: should login and access admin workspace",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e520cdc8f615e7c746f9-e84e8565abe922a5fdc8",
+              "file": "workspace-auth-flow.spec.ts",
+              "line": 139,
+              "column": 7
+            },
+            {
+              "title": "Expo: should login and access expo workspace",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e520cdc8f615e7c746f9-e7ff815bb54a3418dc6e",
+              "file": "workspace-auth-flow.spec.ts",
+              "line": 156,
+              "column": 7
+            },
+            {
+              "title": "Network trace: verify X-Restaurant-ID header on /auth/me",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e520cdc8f615e7c746f9-5c71eff95e6c39018a5c",
+              "file": "workspace-auth-flow.spec.ts",
+              "line": 173,
+              "column": 7
+            },
+            {
+              "title": "Error case: should show insufficient permissions for wrong role",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e520cdc8f615e7c746f9-098adb04797d5528624d",
+              "file": "workspace-auth-flow.spec.ts",
+              "line": 203,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Network Performance",
+          "file": "workspace-auth-flow.spec.ts",
+          "line": 222,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should complete auth flow within 5 seconds",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e520cdc8f615e7c746f9-d7b7ea4b9a8889e9c281",
+              "file": "workspace-auth-flow.spec.ts",
+              "line": 223,
+              "column": 7
+            },
+            {
+              "title": "should make minimal API calls during auth",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e520cdc8f615e7c746f9-5956de561f3cd27462de",
+              "file": "workspace-auth-flow.spec.ts",
+              "line": 235,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "workspace-landing.spec.ts",
+      "file": "workspace-landing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Workspace Landing Flow",
+          "file": "workspace-landing.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Feature Flag Enabled",
+              "file": "workspace-landing.spec.ts",
+              "line": 21,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "displays workspace dashboard at root path",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-bf44a465a79155e92dcf",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 31,
+                  "column": 9
+                },
+                {
+                  "title": "displays all 6 workspace tiles",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-bf95f04a9e92980079b1",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 41,
+                  "column": 9
+                },
+                {
+                  "title": "does NOT show login or sign-in text on landing",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-129a69ccaf471b671f81",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 52,
+                  "column": 9
+                },
+                {
+                  "title": "kiosk tile navigates directly without authentication",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-30fd077d9e53b17888d1",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 61,
+                  "column": 9
+                },
+                {
+                  "title": "online order tile navigates directly without authentication",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-0ac4557284e174ab9c89",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 69,
+                  "column": 9
+                },
+                {
+                  "title": "protected tile opens authentication modal",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-6ae3e94d819d77ee9e65",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 77,
+                  "column": 9
+                },
+                {
+                  "title": "modal can be closed with ESC key",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-29cb4cf995e5fafa84f2",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 88,
+                  "column": 9
+                },
+                {
+                  "title": "modal can be closed with close button",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-a20ad6cd392855a1bc8e",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 99,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Demo Mode",
+              "file": "workspace-landing.spec.ts",
+              "line": 111,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "shows demo badge when VITE_DEMO_PANEL=1",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Demo panel disabled in environment",
+                          "location": {
+                            "file": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/workspace-landing.spec.ts",
+                            "line": 112,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-85b3c7739ea8b6e51a16",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 114,
+                  "column": 9
+                },
+                {
+                  "title": "pre-fills credentials for role-specific workspace",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Demo panel disabled in environment",
+                          "location": {
+                            "file": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/workspace-landing.spec.ts",
+                            "line": 112,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-20364345c423944541fa",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 121,
+                  "column": 9
+                },
+                {
+                  "title": "can clear pre-filled demo credentials",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Demo panel disabled in environment",
+                          "location": {
+                            "file": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/workspace-landing.spec.ts",
+                            "line": 112,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-7c9db645656c81cb6dd1",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 135,
+                  "column": 9
+                },
+                {
+                  "title": "demo login flow works end-to-end",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Demo panel disabled in environment",
+                          "location": {
+                            "file": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/workspace-landing.spec.ts",
+                            "line": 112,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-cf8061251a0bf4e3db52",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 150,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Deep Links",
+              "file": "workspace-landing.spec.ts",
+              "line": 165,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "deep link to protected route shows modal",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-362e4ce6c450f1fcaa2a",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 166,
+                  "column": 9
+                },
+                {
+                  "title": "deep link navigates to destination after login",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-19db98c9b89a7663d2f8",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 174,
+                  "column": 9
+                },
+                {
+                  "title": "deep link to public route works without authentication",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-79d246e0cdca1d672f5d",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 192,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Authenticated User",
+              "file": "workspace-landing.spec.ts",
+              "line": 201,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "authenticated user with permission navigates directly",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Demo panel disabled in environment",
+                          "location": {
+                            "file": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/workspace-landing.spec.ts",
+                            "line": 202,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-75bd58f397a64bf9a4d4",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 204,
+                  "column": 9
+                },
+                {
+                  "title": "authenticated user without permission shows modal with switch account",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Demo panel disabled in environment",
+                          "location": {
+                            "file": "/Users/mikeyoung/CODING/rebuild-6.0/tests/e2e/workspace-landing.spec.ts",
+                            "line": 202,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-4cfa86eeecd27b0bf5c0",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 224,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Accessibility",
+              "file": "workspace-landing.spec.ts",
+              "line": 241,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "all workspace tiles are keyboard accessible",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-1344989bcdbe2c292405",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 242,
+                  "column": 9
+                },
+                {
+                  "title": "modal has proper focus management",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-b2a28922dc149394247d",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 259,
+                  "column": 9
+                },
+                {
+                  "title": "modal traps focus within it",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-54ba3c6af7ab9149eb84",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 269,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Old Landing Page Fallback",
+              "file": "workspace-landing.spec.ts",
+              "line": 295,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "old landing page is accessible at /welcome",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-38dae17c0f93244408fc",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 296,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Alternative Login Methods",
+              "file": "workspace-landing.spec.ts",
+              "line": 305,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "PIN login link works from modal",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-0c7ed367410fa5687acd",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "Station login link works from modal",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "99edd712fefbb9a2a059-c4031187a1b0fa084467",
+                  "file": "workspace-landing.spec.ts",
+                  "line": 315,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-12-05T05:18:02.042Z",
+    "duration": 85.70999999999998,
+    "expected": 0,
+    "skipped": 188,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

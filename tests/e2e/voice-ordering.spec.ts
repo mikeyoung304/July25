@@ -1,11 +1,9 @@
 import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 
-// Get current directory for fixtures
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const AUDIO_FIXTURE = path.join(__dirname, '../fixtures/test-audio.wav');
+// Use process.cwd() relative path for fixtures (works with Playwright's module resolution)
+const AUDIO_FIXTURE = path.join(process.cwd(), 'tests/fixtures/test-audio.wav');
 
 // Ensure test audio fixture exists
 test.beforeAll(async () => {

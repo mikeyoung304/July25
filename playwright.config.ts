@@ -3,14 +3,19 @@ import { VIEWPORTS, CHROME_LAUNCH_ARGS, createLaunchOptions } from './tests/conf
 
 export default defineConfig({
   testDir: './tests/e2e',
+  // Exclude .tsx files - these are React component tests that use @testing-library/react
+  // and should be run with Vitest, not Playwright
+  // Also exclude kds-websocket-race-conditions.spec.ts - it uses require() in page.evaluate()
+  // which doesn't work in browser context (needs architectural fix to expose service on window)
+  testIgnore: ['**/*.tsx', '**/kds-websocket-race-conditions.spec.ts'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
   timeout: 30 * 1000,
   reporter: [
-    ['html', { outputFolder: 'test-results/e2e-html-report' }],
-    ['json', { outputFile: 'test-results/e2e-results.json' }],
+    ['html', { outputFolder: 'playwright-report' }],
+    ['json', { outputFile: 'playwright-report/e2e-results.json' }],
     ['list'],
     ...(process.env.CI ? [['github']] : []),
   ],
