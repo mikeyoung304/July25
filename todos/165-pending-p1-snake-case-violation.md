@@ -1,5 +1,5 @@
 ---
-status: ready
+status: pending
 priority: p1
 issue_id: "165"
 tags: [code-review, architecture, adr-001, type-safety, 86-item-management]

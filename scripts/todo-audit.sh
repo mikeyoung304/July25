@@ -79,14 +79,17 @@ echo "Step 2: Checking for duplicates..."
 
 # Check for duplicate filenames across directories
 if [ -d "$TODO_DIR" ]; then
-    find "$TODO_DIR" -name "*.md" -type f -exec basename {} \; | \
-        sort | uniq -d | while read dup; do
+    DUPE_LIST=$(find "$TODO_DIR" -name "*.md" -type f -exec basename {} \; | \
+        sort | uniq -d || true)
+    if [ -n "$DUPE_LIST" ]; then
+        while read dup; do
             if [ -n "$dup" ]; then
                 DUPLICATES=$((DUPLICATES + 1))
                 echo "  ⚠ Duplicate: $dup"
                 find "$TODO_DIR" "$SOLUTION_DIR" -name "$dup" 2>/dev/null
             fi
-        done
+        done <<< "$DUPE_LIST"
+    fi
 
     if [ "$DUPLICATES" -eq 0 ]; then
         echo "  ✓ No duplicates detected"
@@ -119,7 +122,7 @@ echo "Step 4: Validation checks..."
 # Check for TODO files without required fields
 MISSING_REQUIRED=0
 if [ -d "$TODO_DIR" ]; then
-    find "$TODO_DIR" -name "*.md" -type f | while read -r todo_file; do
+    while read -r todo_file; do
         BASENAME=$(basename "$todo_file")
 
         # Check for required fields
@@ -131,7 +134,7 @@ if [ -d "$TODO_DIR" ]; then
             echo "  ⚠ Missing fields in $BASENAME:$MISSING"
             MISSING_REQUIRED=$((MISSING_REQUIRED + 1))
         fi
-    done
+    done < <(find "$TODO_DIR" -name "*.md" -type f)
 fi
 
 echo ""
@@ -148,7 +151,9 @@ if [ "$FILES_IN_ROOT" -gt 0 ]; then
     echo "  ⚠ Found TODO files in root (should be in subdirectories)"
     ROOT_FILES=$(find "$TODO_DIR" -maxdepth 1 -name "*.md" -type f || true)
     if [ -n "$ROOT_FILES" ]; then
-        echo "$ROOT_FILES" | xargs -I {} basename {}
+        while read -r file; do
+            basename "$file"
+        done <<< "$ROOT_FILES"
     fi
 fi
 

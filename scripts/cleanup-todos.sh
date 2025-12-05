@@ -85,12 +85,15 @@ if [ -d "$TODO_DIR" ]; then
 
     if [ "$DUPES" -gt 0 ]; then
         echo "  WARNING: Found $DUPES potential duplicates"
-        find "$TODO_DIR" -name "*.md" -type f | \
+        DUPE_LIST=$(find "$TODO_DIR" -name "*.md" -type f | \
             awk -F/ '{print $NF}' | \
-            sort | uniq -d | while read dup; do
+            sort | uniq -d || true)
+        if [ -n "$DUPE_LIST" ]; then
+            while read dup; do
                 echo "    - $dup"
                 find "$TODO_DIR" -name "$dup"
-            done
+            done <<< "$DUPE_LIST"
+        fi
     else
         echo "  ✓ No duplicate TODO files found"
     fi

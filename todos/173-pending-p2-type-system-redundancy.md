@@ -1,5 +1,5 @@
 ---
-status: ready
+status: pending
 priority: p2
 issue_id: "173"
 tags: [code-review, architecture, type-safety, 86-item-management]
