@@ -1,4 +1,5 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv, type UserConfig } from 'vite'
+import type { PreRenderedChunk, PreRenderedAsset } from 'rollup'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -67,7 +68,7 @@ export default defineConfig(async ({ mode }) => {
       rollupOptions: {
         output: {
           // CRITICAL: Manual chunks prevent memory explosion
-          manualChunks: (id) => {
+          manualChunks: (id: string) => {
             // node_modules chunks - more aggressive splitting
             if (id.includes('node_modules')) {
               // IMPORTANT: Keep React and React-DOM together to prevent forwardRef issues
@@ -123,20 +124,20 @@ export default defineConfig(async ({ mode }) => {
           },
           
           // Chunk file naming
-          chunkFileNames: (chunkInfo) => {
+          chunkFileNames: (chunkInfo: PreRenderedChunk) => {
             const facadeModuleId = chunkInfo.name || 'chunk';
             return `js/[name]-${facadeModuleId}-[hash].js`;
           },
           
           // Entry file naming
-          entryFileNames: (chunkInfo) => {
+          entryFileNames: (chunkInfo: PreRenderedChunk) => {
             const facadeModuleId = chunkInfo.facadeModuleId ? 
               chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
             return `js/[name]-${facadeModuleId}-[hash].js`;
           },
           
           // Asset file naming
-          assetFileNames: (assetInfo) => {
+          assetFileNames: (assetInfo: PreRenderedAsset) => {
             const extType = assetInfo.name?.split('.').pop() || 'asset';
             if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
               return `images/[name]-[hash][extname]`;

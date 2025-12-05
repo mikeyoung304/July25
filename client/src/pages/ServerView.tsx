@@ -20,7 +20,7 @@ import { DEFAULT_TAX_RATE } from '@rebuild/shared/constants/business'
 import { useHttpClient } from '@/services/http'
 import { useToast } from '@/hooks/useToast'
 import { logger } from '@/services/logger'
-import type { Order } from '@rebuild/shared/types'
+import type { Order, Table } from '@rebuild/shared/types'
 
 // Payment state for Close Table flow
 interface PaymentState {
@@ -61,21 +61,17 @@ export const ServerView = memo(() => {
   // Payment modal state
   const [paymentState, setPaymentState] = useState<PaymentState>(initialPaymentState)
   const [isLoadingPayment, setIsLoadingPayment] = useState(false)
-  const { get, patch } = useHttpClient()
+  const { get, patch } = useHttpClient<Order[]>()
   const { toast } = useToast()
 
   // Memoize table transformation to avoid duplicate code and stabilize references
+  // Transform Table to include table_number alias for component compatibility
   const transformedTable = useMemo(() =>
     selectedTable ? {
-      id: selectedTable.id,
-      restaurant_id: selectedTable.restaurant_id || '',
+      ...selectedTable,
       table_number: selectedTable.label,
-      capacity: selectedTable.seats,
-      status: selectedTable.status === 'unavailable' ? 'cleaning' : selectedTable.status as 'available' | 'occupied' | 'reserved',
-      current_order_id: selectedTable.current_order_id,
-      created_at: selectedTable.created_at || '',
-      updated_at: selectedTable.updated_at || ''
-    } : null,
+      capacity: selectedTable.seats
+    } as Table & { table_number: string; capacity: number } : null,
     [selectedTable]
   )
 
@@ -144,7 +140,7 @@ export const ServerView = memo(() => {
     setIsLoadingPayment(true)
     try {
       // Fetch orders for this table that are not yet paid
-      const ordersResponse = await get<Order[]>(`/api/v1/orders`, {
+      const ordersResponse = await get(`/api/v1/orders`, {
         params: {
           restaurant_id: restaurant.id,
           table_number: selectedTable.label,
@@ -247,9 +243,7 @@ export const ServerView = memo(() => {
         <ServerHeader restaurant={restaurant ? {
           ...restaurant,
           logo_url: undefined,
-          tax_rate: restaurant.tax_rate ?? DEFAULT_TAX_RATE, // ADR-013: Shared constant
-          created_at: restaurant.created_at || '',
-          updated_at: restaurant.updated_at || ''
+          tax_rate: restaurant.tax_rate ?? DEFAULT_TAX_RATE // ADR-013: Shared constant
         } : null} />
         
         <div className="max-w-7xl mx-auto px-4 py-8">
