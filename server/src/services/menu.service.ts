@@ -4,6 +4,7 @@ import { logger } from '../utils/logger';
 import { getConfig } from '../config/environment';
 import { menuIdMapper } from './menu-id-mapper';
 import { mapMenuItem, mapMenuItems, mapMenuCategories } from '../mappers/menu.mapper';
+import { AuditService } from './audit.service';
 
 const config = getConfig();
 const menuCache = new NodeCache({ stdTTL: config.cache.ttlSeconds });
@@ -15,39 +16,10 @@ const CACHE_KEYS = {
   ITEM: 'item:',
 };
 
-export interface MenuCategory {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  displayOrder: number;
-  active: boolean;
-}
-
-export interface MenuItem {
-  id: string;
-  categoryId?: string;
-  name: string;
-  description?: string;
-  price: number;
-  active: boolean;
-  available: boolean;
-  dietaryFlags: string[];
-  modifiers: Array<{
-    id?: string;
-    name: string;
-    price: number;
-    group?: string;
-  }>;
-  aliases: string[];
-  prepTimeMinutes: number;
-  imageUrl?: string;
-}
-
-export interface MenuResponse {
-  categories: MenuCategory[];
-  items: MenuItem[];
-}
+// Use shared API types for consistency (Todo #173)
+// MenuItem and MenuCategory are mapped from snake_case DB to camelCase API format
+import type { ApiMenuItem as MenuItem, ApiMenuCategory as MenuCategory, ApiMenuResponse as MenuResponse } from '../mappers/menu.mapper';
+export type { MenuItem, MenuCategory, MenuResponse };
 
 export class MenuService {
   private static logger = logger.child({ service: 'MenuService' });
@@ -204,20 +176,51 @@ export class MenuService {
 
   /**
    * Update a menu item (e.g., toggle availability)
+   *
+   * @param restaurantId - Restaurant ID for multi-tenant isolation
+   * @param itemId - Menu item ID
+   * @param updates - Update payload with is_available and optional updated_at for optimistic locking
+   * @param auditContext - Optional context for audit logging (userId, ipAddress, userAgent)
+   * @returns Updated menu item or null if not found
+   * @throws ConflictError if optimistic lock fails (item was modified by another user)
    */
   static async updateItem(
     restaurantId: string,
     itemId: string,
-    updates: { is_available: boolean }
+    updates: { is_available: boolean; updated_at?: string },
+    auditContext?: { userId: string; ipAddress?: string; userAgent?: string }
   ): Promise<MenuItem | null> {
     try {
+      // Fetch current item for audit logging and optimistic locking validation
+      const { data: currentItem, error: fetchError } = await supabase
+        .from('menu_items')
+        .select('*')
+        .eq('id', itemId)
+        .eq('restaurant_id', restaurantId)
+        .single();
+
+      if (fetchError) {
+        if (fetchError.code === 'PGRST116') return null; // Not found
+        throw fetchError;
+      }
+
+      // Optimistic locking: If client provided updated_at, verify it matches (Todo #170)
+      if (updates.updated_at && currentItem.updated_at !== updates.updated_at) {
+        const error = new Error('Item was modified by another user. Please refresh and try again.');
+        (error as any).code = 'CONFLICT';
+        (error as any).statusCode = 409;
+        throw error;
+      }
+
+      const newUpdatedAt = new Date().toISOString();
+
       // CRITICAL: Always filter by restaurant_id for multi-tenant isolation
       // Note: DB column is 'available', API uses 'is_available' (snake_case convention)
       const { data, error } = await supabase
         .from('menu_items')
         .update({
           available: updates.is_available,
-          updated_at: new Date().toISOString()
+          updated_at: newUpdatedAt
         })
         .eq('id', itemId)
         .eq('restaurant_id', restaurantId)
@@ -237,6 +240,20 @@ export class MenuService {
         itemId,
         updates
       });
+
+      // Audit logging for menu availability changes (Todo #169)
+      if (auditContext?.userId && currentItem.available !== updates.is_available) {
+        await AuditService.logMenuItemAvailabilityChange(
+          auditContext.userId,
+          restaurantId,
+          itemId,
+          currentItem.name,
+          currentItem.available,
+          updates.is_available,
+          auditContext.ipAddress,
+          auditContext.userAgent
+        );
+      }
 
       return mapMenuItem(data);
     } catch (error) {

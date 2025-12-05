@@ -26,7 +26,10 @@ export type SecurityEventType =
   | 'PERMISSION_DENIED'
   | 'RATE_LIMIT_EXCEEDED'
   | 'SESSION_CREATED'
-  | 'SESSION_TERMINATED';
+  | 'SESSION_TERMINATED'
+  | 'MENU_ITEM_AVAILABILITY_CHANGED'
+  | 'MENU_ITEM_86ED'
+  | 'MENU_ITEM_RESTORED';
 
 /**
  * Severity levels for security events
@@ -285,6 +288,52 @@ export class AuditService {
       severity: 'HIGH',
       ipAddress,
       userAgent,
+    });
+  }
+
+  /**
+   * Log menu item availability change (Todo #169)
+   * Creates audit trail for compliance and dispute resolution
+   *
+   * @param userId - User who made the change
+   * @param restaurantId - Restaurant the item belongs to
+   * @param itemId - Menu item that was changed
+   * @param itemName - Name of the item (for readability in logs)
+   * @param oldValue - Previous availability state
+   * @param newValue - New availability state
+   * @param ipAddress - Client IP address
+   * @param userAgent - Client user agent
+   */
+  static async logMenuItemAvailabilityChange(
+    userId: string,
+    restaurantId: string,
+    itemId: string,
+    itemName: string,
+    oldValue: boolean,
+    newValue: boolean,
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<void> {
+    // Determine specific event type
+    const eventType: SecurityEventType = newValue
+      ? 'MENU_ITEM_RESTORED'
+      : 'MENU_ITEM_86ED';
+
+    return this.logSecurityEvent({
+      eventType,
+      userId,
+      authenticatedRestaurantId: restaurantId,
+      attemptedRestaurantId: restaurantId,
+      severity: 'LOW',
+      ipAddress,
+      userAgent,
+      metadata: {
+        item_id: itemId,
+        item_name: itemName,
+        old_value: oldValue,
+        new_value: newValue,
+        change_type: newValue ? 'restored' : '86ed',
+      },
     });
   }
 }

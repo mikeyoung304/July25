@@ -146,3 +146,28 @@ export const transcriptionLimiter = rateLimit({
     });
   }
 });
+
+// Menu update rate limiter (Todo #171)
+// Stricter than general API limiter because each update clears cache
+export const menuUpdateLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: isDevelopment ? 100 : 30, // 30 updates per minute max in production
+  keyGenerator: getUserRateLimitKey,
+  message: 'Too many menu updates. Please wait before making more changes.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    const authReq = req as AuthenticatedRequest;
+    logger.warn('[RATE_LIMIT] Menu update limit exceeded', {
+      ip: getClientIp(req),
+      userId: authReq.user?.id,
+      restaurantId: authReq.restaurantId,
+      userAgent: req.headers['user-agent'],
+      rateLimitKey: getUserRateLimitKey(req)
+    });
+    res.status(429).json({
+      error: 'Too many menu updates. Please wait 1 minute.',
+      retryAfter: 60
+    });
+  }
+});

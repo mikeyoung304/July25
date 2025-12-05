@@ -57,6 +57,11 @@ export interface ApiMenuCategory {
   active: boolean;
 }
 
+export interface ApiMenuResponse {
+  categories: ApiMenuCategory[];
+  items: ApiMenuItem[];
+}
+
 /**
  * Map database menu item to API format
  */
