@@ -23,7 +23,7 @@ interface AvailabilityToggleProps {
 
 function AvailabilityToggle({ item, onToggle }: AvailabilityToggleProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const isAvailable = item.isAvailable !== false
+  const isAvailable = item.is_available !== false
 
   const handleToggle = async () => {
     setIsLoading(true)
@@ -100,7 +100,7 @@ export function MenuManagement({ restaurantId, onBack }: MenuManagementProps) {
 
       // Update local state optimistically
       setItems(prev => prev.map(item =>
-        item.id === itemId ? { ...item, isAvailable } : item
+        item.id === itemId ? { ...item, is_available: isAvailable } : item
       ))
 
       toast.success(isAvailable ? 'Item is now available' : 'Item marked as sold out')
@@ -127,7 +127,7 @@ export function MenuManagement({ restaurantId, onBack }: MenuManagementProps) {
 
   // Count unavailable items (Todo #174: memoized)
   const unavailableCount = useMemo(() => {
-    return items.filter(item => item.isAvailable === false).length
+    return items.filter(item => item.is_available === false).length
   }, [items])
 
   if (isLoading) {
@@ -190,13 +190,13 @@ export function MenuManagement({ restaurantId, onBack }: MenuManagementProps) {
               {categoryItems.map(item => (
                 <Card
                   key={item.id}
-                  className={`p-4 ${item.isAvailable === false ? 'opacity-60 border-red-200' : ''}`}
+                  className={`p-4 ${item.is_available === false ? 'opacity-60 border-red-200' : ''}`}
                 >
                   <div className="flex gap-4">
                     {/* Item Image */}
                     <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                       <OptimizedImage
-                        src={item.imageUrl}
+                        src={item.image_url}
                         alt={item.name}
                         width={80}
                         height={80}
@@ -215,8 +215,8 @@ export function MenuManagement({ restaurantId, onBack }: MenuManagementProps) {
                           item={item}
                           onToggle={handleToggleAvailability}
                         />
-                        <span className={`text-sm ${item.isAvailable !== false ? 'text-teal-600' : 'text-red-500'}`}>
-                          {item.isAvailable !== false ? 'Available' : 'Sold Out'}
+                        <span className={`text-sm ${item.is_available !== false ? 'text-teal-600' : 'text-red-500'}`}>
+                          {item.is_available !== false ? 'Available' : 'Sold Out'}
                         </span>
                       </div>
                     </div>

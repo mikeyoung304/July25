@@ -12,30 +12,30 @@ import type { ApiMenuItem } from '@rebuild/shared';
 const exampleMenuItems: ApiMenuItem[] = [
   {
     id: '1',
-    restaurantId: 'demo-restaurant',
-    categoryId: 'entrees',
+    restaurant_id: 'demo-restaurant',
+    category_id: 'entrees',
     name: 'Soul Bowl',
     description: 'Delicious soul food in a bowl',
     price: 12.99,
-    isAvailable: true
+    is_available: true
   },
   {
     id: '2',
-    restaurantId: 'demo-restaurant',
-    categoryId: 'salads',
+    restaurant_id: 'demo-restaurant',
+    category_id: 'salads',
     name: 'Greek Salad',
     description: 'Fresh Mediterranean salad',
     price: 9.99,
-    isAvailable: true
+    is_available: true
   },
   {
     id: '3',
-    restaurantId: 'demo-restaurant',
-    categoryId: 'sides',
+    restaurant_id: 'demo-restaurant',
+    category_id: 'sides',
     name: 'French Fries',
     description: 'Crispy golden fries',
     price: 4.99,
-    isAvailable: true
+    is_available: true
   }
 ];
 

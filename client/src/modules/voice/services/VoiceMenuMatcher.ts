@@ -50,7 +50,7 @@ export class VoiceMenuMatcher {
       }
 
       const { items } = await menuService.getMenu();
-      this.menuItems = items.filter(item => item.isAvailable !== false);
+      this.menuItems = items.filter(item => item.is_available !== false);
       this.isInitialized = true;
 
       if (this.debug) {
@@ -193,7 +193,7 @@ export class VoiceMenuMatcher {
     }
 
     // Boost confidence for featured items (more likely to be ordered)
-    if (menuItem.isFeatured && confidence > 0) {
+    if (menuItem.is_featured && confidence > 0) {
       confidence = Math.min(1.0, confidence * 1.1);
     }
 

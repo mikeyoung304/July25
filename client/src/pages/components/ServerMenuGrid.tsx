@@ -95,13 +95,13 @@ export const ServerMenuGrid: React.FC<ServerMenuGridProps> = ({
     const categoryMap = new Map<string, { id: string; name: string; count: number }>()
 
     menuItems.forEach((item) => {
-      if (item.categoryId && item.category?.name) {
-        const existing = categoryMap.get(item.categoryId)
+      if (item.category_id && item.category?.name) {
+        const existing = categoryMap.get(item.category_id)
         if (existing) {
           existing.count++
         } else {
-          categoryMap.set(item.categoryId, {
-            id: item.categoryId,
+          categoryMap.set(item.category_id, {
+            id: item.category_id,
             name: item.category.name,
             count: 1
           })
@@ -118,7 +118,7 @@ export const ServerMenuGrid: React.FC<ServerMenuGridProps> = ({
 
     // Filter by category
     if (selectedCategory) {
-      filtered = filtered.filter((item) => item.categoryId === selectedCategory)
+      filtered = filtered.filter((item) => item.category_id === selectedCategory)
     }
 
     // Filter by search query using fuzzy matching

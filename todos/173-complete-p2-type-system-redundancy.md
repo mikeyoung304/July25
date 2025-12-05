@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 priority: p2
 issue_id: "173"
 tags: [code-review, architecture, type-safety, 86-item-management]
@@ -84,6 +84,7 @@ Implement Solution A after #165 (snake_case violation) is resolved.
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-12-04 | Created | From PR #152 multi-agent review |
+| 2025-12-04 | Completed | Updated shared/api-types.ts to snake_case, consolidated with menu.types.ts; server mappers simplified to pass-through |
 
 ## Resources
 

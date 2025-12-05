@@ -213,3 +213,79 @@ This ADR was created to document a production-blocking issue and its resolution.
 
 **Revision History**:
 - 2025-10-12: Initial version (v1.0)
+- 2025-12-04: Added research validation and errata (v1.1)
+
+---
+
+## Errata & Research Validation (2025-12-04)
+
+### Corrections to Original ADR
+
+The original ADR was written as an emergency fix and contained some inaccurate claims:
+
+1. **"95% Code Alignment" was aspirational, not measured**: Actual analysis found ~29 files still using camelCase for menu-related types, and TODO-165/TODO-173 were created to track remaining violations.
+
+2. **"2 hour immediate fix" underestimated scope**: Implementation took 2+ months of follow-up commits to fully migrate the codebase.
+
+3. **Phase 2 is NOT optional**: Dead code (responseTransform.ts) and dual-format schemas created confusion. These must be cleaned up.
+
+### Research Validation (December 2025)
+
+Multi-agent research was conducted to validate ADR-001 against industry best practices. Key findings:
+
+#### Stack-Specific Analysis
+
+| Component | Native Format | Transform Support |
+|-----------|---------------|-------------------|
+| **Supabase** | snake_case | None (postgrest-js archived Oct 2025) |
+| **Prisma** | snake_case | Manual @map only (no global config) |
+| **PostgreSQL** | snake_case | Industry standard |
+
+**Conclusion**: ADR-001 IS the correct decision for this stack. Supabase and Prisma don't support automatic camelCase transformation, and forcing it would conflict with ADR-010 (remote-first database).
+
+#### Industry Precedent
+
+Major APIs using snake_case:
+- **Stripe** (properties)
+- **Twitter**
+- **GitHub**
+- **OAuth2 spec**
+- **Facebook**
+
+Major APIs using camelCase:
+- **Google**
+- **Microsoft**
+
+**Conclusion**: Industry is genuinely divided. The choice depends on your stack, not a universal standard.
+
+#### Performance Consideration
+
+Transformation overhead: 1-50ms per request depending on payload size. For high-traffic APIs, this can consume significant CPU cycles.
+
+### Implementation Completed (2025-12-04)
+
+1. **Dead code removed**:
+   - `server/src/middleware/responseTransform.ts` - DELETED
+   - `server/src/utils/case.ts` - No longer imported by critical paths
+
+2. **Types consolidated**:
+   - `shared/api-types.ts` - Updated to snake_case
+   - `server/src/mappers/menu.mapper.ts` - Simplified to pass-through
+   - `server/src/mappers/cart.mapper.ts` - Simplified to pass-through
+
+3. **Client components updated**:
+   - MenuItemGrid.tsx, ServerMenuGrid.tsx, MenuService.ts, VoiceOrderingMode.tsx, MenuManagement.tsx, ItemModifiersModal.tsx, ItemDetailModal.tsx, MenuGrid.tsx, MenuItemCard.tsx, VoiceMenuMatcher.ts, fuzzyMenuMatcher tests
+
+### References
+
+Research sources:
+- [Google JSON Style Guide](https://google.github.io/styleguide/jsoncstyleguide.xml) - camelCase
+- [Supabase Discussion #7136](https://github.com/orgs/supabase/discussions/7136) - No camelCase support
+- [Prisma Issue #8283](https://github.com/prisma/prisma/issues/8283) - No global casing config
+- [Stack Overflow: JSON Naming Convention](https://stackoverflow.com/questions/5543490/json-naming-convention-snake-case-camelcase-or-pascalcase) - No universal standard
+
+### Status Update
+
+**Status**: VALIDATED AND COMPLETED (2025-12-04)
+
+The decision made under pressure on 2025-10-12 has been validated through comprehensive research. ADR-001 is the correct architectural choice for this PostgreSQL/Supabase/Prisma stack.

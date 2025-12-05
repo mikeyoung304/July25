@@ -47,7 +47,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       quantity,
       modifiers: selectedModifiers.length > 0 ? selectedModifiers : undefined,
       specialInstructions: specialInstructions.trim() || undefined,
-      imageUrl: item.imageUrl
+      imageUrl: item.image_url
     };
 
     onAddToCart(cartItem);
@@ -73,9 +73,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
         <div className="flex flex-col h-full">
           {/* Header with image */}
           <div className="relative">
-            {item.imageUrl && (
-              <img 
-                src={item.imageUrl} 
+            {item.image_url && (
+              <img
+                src={item.image_url}
                 alt={item.name}
                 className="w-full h-48 object-cover"
               />

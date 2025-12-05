@@ -1,7 +1,8 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { logger } from './logger';
 import { verifyWebSocketAuth } from '../middleware/auth';
-import { transformWebSocketMessage } from '../middleware/responseTransform';
+
+// ADR-001: No transformation needed - all layers use snake_case
 
 interface ExtendedWebSocket extends WebSocket {
   restaurantId?: string | undefined;
@@ -72,7 +73,7 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
         handleWebSocketMessage(ws, message, wss);
       } catch (error) {
         wsLogger.error('Invalid WebSocket message:', error);
-        ws.send(JSON.stringify(transformWebSocketMessage({ error: 'Invalid message format' })));
+        ws.send(JSON.stringify({ error: 'Invalid message format' }));
       }
     });
 
@@ -85,10 +86,10 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
     });
 
     // Send welcome message
-    ws.send(JSON.stringify(transformWebSocketMessage({
+    ws.send(JSON.stringify({
       type: 'connected',
       timestamp: new Date().toISOString(),
-    })));
+    }));
   });
 
   wss.on('close', () => {
@@ -111,15 +112,14 @@ export function cleanupWebSocketServer(): void {
 
 /**
  * Broadcast message to all clients in a restaurant
- * Automatically transforms payload to camelCase
+ * ADR-001: Messages use snake_case, no transformation needed
  */
 export function broadcastToRestaurant(
   wss: WebSocketServer,
   restaurantId: string,
   message: any
 ): void {
-  const transformedMessage = transformWebSocketMessage(message);
-  const messageStr = JSON.stringify(transformedMessage);
+  const messageStr = JSON.stringify(message);
 
   wss.clients.forEach((client: ExtendedWebSocket) => {
     if (
@@ -149,11 +149,11 @@ function handleWebSocketMessage(
   switch (type) {
     case 'orders:sync':
       wsLogger.info(`Client requested order sync for restaurant: ${ws.restaurantId}`);
-      ws.send(JSON.stringify(transformWebSocketMessage({
+      ws.send(JSON.stringify({
         type: 'sync_complete',
         payload: { status: 'synced' },
         timestamp: new Date().toISOString(),
-      })));
+      }));
       break;
 
     case 'order:update_status':
@@ -167,16 +167,16 @@ function handleWebSocketMessage(
       break;
 
     case 'ping':
-      ws.send(JSON.stringify(transformWebSocketMessage({ type: 'pong' })));
+      ws.send(JSON.stringify({ type: 'pong' }));
       break;
 
     default:
       wsLogger.warn(`Unknown message type: ${type}`);
-      ws.send(JSON.stringify(transformWebSocketMessage({
+      ws.send(JSON.stringify({
         type: 'error',
         payload: { message: 'Unknown message type', type },
         timestamp: new Date().toISOString(),
-      })));
+      }));
   }
 }
 

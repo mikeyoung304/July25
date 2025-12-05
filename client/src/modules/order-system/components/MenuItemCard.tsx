@@ -86,8 +86,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onCl
     }
   };
 
-  // Check availability - support both isAvailable (camelCase) and is_available (snake_case)
-  const isAvailable = item.isAvailable !== false && (item as { is_available?: boolean }).is_available !== false;
+  // Check availability
+  const isAvailable = item.is_available !== false;
 
   return (
     <div className={`h-full flex flex-col bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-gray-200 relative ${!isAvailable ? 'opacity-60' : ''}`}>
@@ -110,7 +110,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick: _onCl
       {/* Image Zone - Fixed aspect ratio 4:3 */}
       <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
         <OptimizedImage
-          src={item.imageUrl}
+          src={item.image_url}
           alt={`${item.name} - ${item.category || 'menu item'}`}
           width={400}
           height={300}

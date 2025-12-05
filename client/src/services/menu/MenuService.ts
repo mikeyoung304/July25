@@ -1,6 +1,5 @@
-import { MenuItem as SharedMenuItem, MenuCategory } from '@rebuild/shared'
 import { httpClient } from '@/services/http/httpClient'
-import { MenuItem } from '@/services/types'
+import { MenuItem, MenuCategory } from '@/services/types'
 import { logger } from '@/services/logger'
 
 export interface IMenuService {
@@ -14,47 +13,17 @@ export class MenuService implements IMenuService {
   // Note: Client-side cache removed - backend handles caching with 300s TTL
   // This prevents unbounded memory growth in long-running sessions
 
-  // Transform backend API response to client MenuItem format
-  private transformMenuItem(item: any, categories?: MenuCategory[]): MenuItem {
-    // Handle both SharedMenuItem format and API response format
-    let category: any = undefined
-
-    if (item.category?.name) {
-      category = item.category
-    } else if (item.categoryId && categories) {
-      const cat = categories.find(c => c.id === item.categoryId)
-      category = cat ? { name: cat.name, id: cat.id } : undefined
-    } else if (item.category_id && categories) {
-      const cat = categories.find(c => c.id === item.category_id)
-      category = cat ? { name: cat.name, id: cat.id } : undefined
+  // Per ADR-001: No transformation needed - API uses snake_case, client uses snake_case
+  // Just enrich with category object if needed
+  private transformMenuItem(item: MenuItem, categories?: MenuCategory[]): MenuItem {
+    // If category is not already populated, populate it from categories array
+    if (!item.category && item.category_id && categories) {
+      const category = categories.find(c => c.id === item.category_id)
+      if (category) {
+        return { ...item, category }
+      }
     }
-
-    return {
-      id: item.id,
-      menuItemId: item.menuItemId || item.id,
-      restaurantId: item.restaurant_id || item.restaurantId,
-      categoryId: item.categoryId || item.category_id,
-      category,
-      name: item.name,
-      description: item.description,
-      price: item.price,
-      imageUrl: item.imageUrl || item.image_url,
-      isAvailable: item.isAvailable !== undefined ? item.isAvailable : (item.is_available !== undefined ? item.is_available : item.available),
-      isFeatured: item.isFeatured || item.is_featured,
-      dietaryFlags: item.dietaryFlags || item.dietary_flags || [],
-      preparationTime: item.preparationTime || item.preparation_time || item.prepTimeMinutes,
-      modifiers: item.modifiers?.map((mod: any) => ({
-        id: mod.id,
-        name: mod.name,
-        price: mod.price
-      })) || [],
-      // Compatibility fields
-      available: item.available,
-      active: item.active,
-      prepTimeMinutes: item.prepTimeMinutes || item.preparation_time,
-      aliases: item.aliases || [],
-      calories: item.calories
-    }
+    return item
   }
 
   async getMenu(): Promise<{ items: MenuItem[]; categories: MenuCategory[] }> {
@@ -67,7 +36,7 @@ export class MenuService implements IMenuService {
         return this.getMockMenu();
       }
       
-      const response = await httpClient.get<{ items: SharedMenuItem[]; categories: MenuCategory[] }>('/api/v1/menu')
+      const response = await httpClient.get<{ items: MenuItem[]; categories: MenuCategory[] }>('/api/v1/menu')
 
       return {
         items: response.items.map(item => this.transformMenuItem(item, response.categories)),
@@ -93,7 +62,7 @@ export class MenuService implements IMenuService {
       // (~40-50% latency reduction vs sequential waterfall)
       const [categories, response] = await Promise.all([
         this.getMenuCategories(),
-        httpClient.get<any[]>('/api/v1/menu/items')
+        httpClient.get<MenuItem[]>('/api/v1/menu/items')
       ]);
       return response.map(item => this.transformMenuItem(item, categories))
     } catch (error) {
@@ -129,29 +98,41 @@ export class MenuService implements IMenuService {
       items: [
         {
           id: '1',
-          restaurantId: 'rest-1',
-          categoryId: '2',
+          restaurant_id: 'rest-1',
+          category_id: '2',
           name: 'Classic Burger',
           description: 'Juicy beef patty with lettuce, tomato, and cheese',
           price: 12.99,
-          category: 'Main Course' as any,
-          isAvailable: true,
-          imageUrl: '/images/menu/Gemini_Generated_Image_5m93ul5m93ul5m93.jpeg',
-          preparationTime: 15,
-          dietaryFlags: ['dairy', 'gluten']
+          category: {
+            id: '2',
+            name: 'Main Course',
+            description: 'Our signature dishes',
+            display_order: 2,
+            is_active: true
+          },
+          is_available: true,
+          image_url: '/images/menu/Gemini_Generated_Image_5m93ul5m93ul5m93.jpeg',
+          preparation_time: 15,
+          dietary_flags: ['dairy', 'gluten']
         },
         {
           id: '2',
-          restaurantId: 'rest-1',
-          categoryId: '1',
+          restaurant_id: 'rest-1',
+          category_id: '1',
           name: 'Caesar Salad',
           description: 'Fresh romaine lettuce with Caesar dressing',
           price: 8.99,
-          category: 'Appetizers' as any,
-          isAvailable: true,
-          imageUrl: '/images/menu/greek-salad.jpeg',
-          preparationTime: 8,
-          dietaryFlags: ['dairy', 'eggs']
+          category: {
+            id: '1',
+            name: 'Appetizers',
+            description: 'Start your meal right',
+            display_order: 1,
+            is_active: true
+          },
+          is_available: true,
+          image_url: '/images/menu/greek-salad.jpeg',
+          preparation_time: 8,
+          dietary_flags: ['dairy', 'eggs']
         }
       ],
       categories: [

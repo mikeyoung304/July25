@@ -21,11 +21,11 @@ export const MenuGrid = React.memo(({
   const filteredItems = React.useMemo(() => {
     return items.filter(item => {
       const matchesCategory = !selectedCategory || item.category?.name === selectedCategory;
-      const matchesSearch = !searchQuery || 
+      const matchesSearch = !searchQuery ||
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description?.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      return matchesCategory && matchesSearch && item.isAvailable;
+
+      return matchesCategory && matchesSearch && item.is_available;
     });
   }, [items, selectedCategory, searchQuery]);
 

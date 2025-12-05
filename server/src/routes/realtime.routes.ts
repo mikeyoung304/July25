@@ -145,8 +145,8 @@ router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
     const availableItems = menuItems.filter(item => item.available !== false);
     const categoriesWithItems = new Set(
       menuItems
-        .filter(item => item.categoryId)
-        .map(item => item.categoryId)
+        .filter(item => item.category_id)
+        .map(item => item.category_id)
     ).size;
 
     const health = {
@@ -276,7 +276,7 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
         const menuItems = menuData.map(item => ({
           name: sanitizeForPrompt(item.name),
           price: item.price,
-          category: item.categoryId ? (categoryMap.get(item.categoryId) || 'Other') : 'Other',
+          category: item.category_id ? (categoryMap.get(item.category_id) || 'Other') : 'Other',
           description: sanitizeForPrompt(item.description || ''),
           available: item.available !== false
         })).filter(item => item.available);

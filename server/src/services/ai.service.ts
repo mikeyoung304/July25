@@ -303,7 +303,7 @@ export class AIService {
             id: item.id,
             name: item.name,
             price: item.price,
-            category: item.categoryId || 'Other'
+            category: item.category_id || 'Other'
           };
           if (item.description) {
             menuItem.description = item.description;

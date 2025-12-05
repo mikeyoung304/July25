@@ -27,19 +27,19 @@ interface VoiceOrderingModeProps {
 const convertApiMenuItemToShared = (apiItem: ApiMenuItem): SharedMenuItem => {
   return {
     id: apiItem.id,
-    restaurant_id: apiItem.restaurantId,
-    category_id: apiItem.categoryId,
+    restaurant_id: apiItem.restaurant_id,
+    category_id: apiItem.category_id,
     name: apiItem.name,
     description: apiItem.description,
     price: apiItem.price,
-    image_url: apiItem.imageUrl,
-    is_available: apiItem.isAvailable,
-    is_featured: apiItem.isFeatured,
-    dietary_flags: apiItem.dietaryFlags,
-    preparation_time: apiItem.preparationTime,
-    display_order: apiItem.displayOrder,
-    created_at: apiItem.createdAt || new Date().toISOString(),
-    updated_at: apiItem.updatedAt || new Date().toISOString()
+    image_url: apiItem.image_url,
+    is_available: apiItem.is_available,
+    is_featured: apiItem.is_featured,
+    dietary_flags: apiItem.dietary_flags,
+    preparation_time: apiItem.preparation_time,
+    display_order: apiItem.display_order,
+    created_at: apiItem.created_at || new Date().toISOString(),
+    updated_at: apiItem.updated_at || new Date().toISOString()
   };
 };
 

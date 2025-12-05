@@ -36,35 +36,35 @@ export const MenuGridCard: React.FC<MenuGridCardProps> = ({
   showImage = false
 }) => {
   const handleClick = () => {
-    if (onClick && item.isAvailable) {
+    if (onClick && item.is_available) {
       onClick(item);
     }
   };
 
   return (
     <motion.div
-      whileHover={item.isAvailable ? { scale: 1.02 } : undefined}
-      whileTap={item.isAvailable ? { scale: 0.98 } : undefined}
+      whileHover={item.is_available ? { scale: 1.02 } : undefined}
+      whileTap={item.is_available ? { scale: 0.98 } : undefined}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
     >
       <ActionButton
         onClick={handleClick}
-        disabled={!item.isAvailable}
-        color={item.isAvailable ? '#4ECDC4' : '#9CA3AF'}
+        disabled={!item.is_available}
+        color={item.is_available ? '#4ECDC4' : '#9CA3AF'}
         variant="solid"
         fullWidth
         className={cn(
           'h-full min-h-[120px] flex-col items-start justify-start text-left p-6',
-          !item.isAvailable && 'opacity-60'
+          !item.is_available && 'opacity-60'
         )}
       >
         <div className="w-full space-y-2">
-          {showImage && item.imageUrl && (
+          {showImage && item.image_url && (
             <div className="w-full h-32 mb-3 rounded-lg overflow-hidden">
               <img
-                src={item.imageUrl}
+                src={item.image_url}
                 alt={item.name}
                 className="w-full h-full object-cover"
               />
@@ -86,9 +86,9 @@ export const MenuGridCard: React.FC<MenuGridCardProps> = ({
             </p>
           )}
 
-          {item.dietaryFlags && item.dietaryFlags.length > 0 && (
+          {item.dietary_flags && item.dietary_flags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {item.dietaryFlags.map((flag) => (
+              {item.dietary_flags.map((flag) => (
                 <span
                   key={flag}
                   className="text-xs px-2 py-1 bg-white/20 rounded-full text-white"
@@ -99,15 +99,15 @@ export const MenuGridCard: React.FC<MenuGridCardProps> = ({
             </div>
           )}
 
-          {!item.isAvailable && (
+          {!item.is_available && (
             <span className="text-sm font-semibold text-white/80">
               Currently Unavailable
             </span>
           )}
 
-          {item.preparationTime && (
+          {item.preparation_time && (
             <span className="text-xs text-white/70">
-              Prep time: {item.preparationTime} min
+              Prep time: {item.preparation_time} min
             </span>
           )}
         </div>
@@ -133,7 +133,7 @@ export const MenuItemGrid: React.FC<MenuItemGridProps> = ({
 }) => {
   // Filter items by category if selected
   const filteredItems = selectedCategory
-    ? items.filter((item) => item.categoryId === selectedCategory)
+    ? items.filter((item) => item.category_id === selectedCategory)
     : items;
 
   // Loading state

@@ -89,8 +89,8 @@ export function ItemModifiersModal({
     setValidationErrors([])
     const groupId = group.id
 
-    // Check if this is a radio group (maxSelections === 1)
-    const isRadioGroup = group.maxSelections === 1
+    // Check if this is a radio group (max_selections === 1)
+    const isRadioGroup = group.max_selections === 1
 
     if (isRadioGroup) {
       // Radio button behavior: replace any existing selection in this group
@@ -106,10 +106,10 @@ export function ItemModifiersModal({
         // Deselect
         setSelectedModifiers(selectedModifiers.filter((_, i) => i !== existingIndex))
       } else {
-        // Check maxSelections
+        // Check max_selections
         const currentGroupSelections = selectedModifiers.filter(m => m.groupId === groupId).length
-        if (group.maxSelections && currentGroupSelections >= group.maxSelections) {
-          setValidationErrors([`${group.name} allows a maximum of ${group.maxSelections} selections`])
+        if (group.max_selections && currentGroupSelections >= group.max_selections) {
+          setValidationErrors([`${group.name} allows a maximum of ${group.max_selections} selections`])
           return
         }
         // Add selection
@@ -120,7 +120,7 @@ export function ItemModifiersModal({
 
   const validateModifiers = (): boolean => {
     const errors: string[] = []
-    const modifierGroups = item.modifierGroups || []
+    const modifierGroups = item.modifier_groups || []
 
     modifierGroups.forEach(group => {
       if (group.required) {
@@ -154,7 +154,7 @@ export function ItemModifiersModal({
     return selectedModifiers.some(m => m.groupId === groupId && m.optionId === optionId)
   }
 
-  const modifierGroups = item.modifierGroups || []
+  const modifierGroups = item.modifier_groups || []
   const totalPrice = calculateTotalPrice()
 
   return (
@@ -251,7 +251,7 @@ export function ItemModifiersModal({
                       Customize Your Order
                     </h4>
                     {modifierGroups.map(group => {
-                      const isRadioGroup = group.maxSelections === 1
+                      const isRadioGroup = group.max_selections === 1
                       return (
                         <motion.div
                           key={group.id}
@@ -266,9 +266,9 @@ export function ItemModifiersModal({
                                 <span className="text-red-500 ml-1">*</span>
                               )}
                             </h5>
-                            {group.maxSelections && group.maxSelections > 1 && (
+                            {group.max_selections && group.max_selections > 1 && (
                               <span className="text-xs text-neutral-500">
-                                Select up to {group.maxSelections}
+                                Select up to {group.max_selections}
                               </span>
                             )}
                           </div>

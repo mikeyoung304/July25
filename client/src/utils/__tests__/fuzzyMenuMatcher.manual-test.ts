@@ -18,11 +18,11 @@ import type { ApiMenuItem } from '@rebuild/shared';
 // Create sample menu items
 const createMenuItem = (id: string, name: string, price: number = 12.99): ApiMenuItem => ({
   id,
-  restaurantId: 'test-restaurant',
-  categoryId: 'test-category',
+  restaurant_id: 'test-restaurant',
+  category_id: 'test-category',
   name,
   price,
-  isAvailable: true
+  is_available: true
 });
 
 // Sample menu for a restaurant

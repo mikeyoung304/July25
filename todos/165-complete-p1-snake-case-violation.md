@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 priority: p1
 issue_id: "165"
 tags: [code-review, architecture, adr-001, type-safety, 86-item-management]
@@ -103,6 +103,7 @@ Implement Solution A in a separate PR focused solely on this cleanup.
 | Date | Action | Notes |
 |------|--------|-------|
 | 2025-12-04 | Created | From PR #152 multi-agent review |
+| 2025-12-04 | Completed | Multi-agent research validated ADR-001; updated api-types.ts to snake_case, deleted responseTransform.ts, updated all client components |
 
 ## Resources
 

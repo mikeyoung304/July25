@@ -16,11 +16,11 @@ import type { ApiMenuItem } from '@rebuild/shared';
 // Mock menu items for testing
 const createMenuItem = (id: string, name: string): ApiMenuItem => ({
   id,
-  restaurantId: 'test-restaurant',
-  categoryId: 'test-category',
+  restaurant_id: 'test-restaurant',
+  category_id: 'test-category',
   name,
   price: 12.99,
-  isAvailable: true
+  is_available: true
 });
 
 describe('fuzzyMenuMatcher', () => {
