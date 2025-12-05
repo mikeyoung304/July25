@@ -203,6 +203,7 @@ For test failures and E2E debugging, see [.github/TEST_DEBUGGING.md](.github/TES
 Codified lessons from major incidents. Check before working on:
 - **Auth code**: [CL-AUTH-001](.claude/lessons/CL-AUTH-001-strict-auth-drift.md) - STRICT_AUTH drift
 - **Vercel deploy**: [CL-BUILD-001](.claude/lessons/CL-BUILD-001-vercel-production-flag.md) - devDeps issue
+- **Shell scripts**: [CL-BUILD-003](.claude/lessons/CL-BUILD-003-xargs-empty-input.md) - BSD xargs false positive
 - **Database changes**: [CL-DB-001](.claude/lessons/CL-DB-001-migration-sync.md) - migration sync
 - **WebSocket/WebRTC**: [CL-WS-001](.claude/lessons/CL-WS-001-handler-timing-race.md) - timing race
 - **setInterval usage**: [CL-MEM-001](.claude/lessons/CL-MEM-001-interval-leaks.md) - memory leaks
