@@ -1,5 +1,5 @@
 import React from 'react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { HoldToRecordButton } from './HoldToRecordButton';
 
@@ -13,6 +13,11 @@ describe('HoldToRecordButton', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('renders with "Hold to Speak" text by default', () => {
@@ -39,7 +44,6 @@ describe('HoldToRecordButton', () => {
   });
 
   it('calls onMouseUp when button is released after mouseDown (with debounce)', async () => {
-    vi.useFakeTimers();
     render(<HoldToRecordButton {...defaultProps} debounceMs={0} />);
     const button = screen.getByRole('button');
     // Must press down first to set isHoldingRef.current = true
@@ -48,11 +52,9 @@ describe('HoldToRecordButton', () => {
     vi.advanceTimersByTime(200);
     fireEvent.mouseUp(button);
     expect(defaultProps.onMouseUp).toHaveBeenCalledTimes(1);
-    vi.useRealTimers();
   });
 
   it('calls onMouseUp when mouse leaves button after mouseDown (with debounce)', async () => {
-    vi.useFakeTimers();
     render(<HoldToRecordButton {...defaultProps} debounceMs={0} />);
     const button = screen.getByRole('button');
     // Must press down first to set isHoldingRef.current = true
@@ -61,11 +63,9 @@ describe('HoldToRecordButton', () => {
     vi.advanceTimersByTime(200);
     fireEvent.mouseLeave(button);
     expect(defaultProps.onMouseUp).toHaveBeenCalledTimes(1);
-    vi.useRealTimers();
   });
 
   it('handles touch events (with debounce)', async () => {
-    vi.useFakeTimers();
     render(<HoldToRecordButton {...defaultProps} debounceMs={0} />);
     const button = screen.getByRole('button');
 
@@ -79,7 +79,6 @@ describe('HoldToRecordButton', () => {
     // Touch end - should call onMouseUp since touchStart set isHoldingRef.current
     fireEvent.touchEnd(button);
     expect(defaultProps.onMouseUp).toHaveBeenCalledTimes(1);
-    vi.useRealTimers();
   });
 
   it('is disabled when disabled prop is true', () => {
@@ -307,25 +306,19 @@ describe('HoldToRecordButton', () => {
     });
 
     it('responds to touch events in toggle mode', async () => {
-      vi.useFakeTimers();
       render(<HoldToRecordButton {...defaultProps} mode="toggle" debounceMs={0} />);
       const button = screen.getByRole('button');
 
       fireEvent.touchStart(button);
       expect(defaultProps.onMouseDown).toHaveBeenCalledTimes(1);
-
-      vi.useRealTimers();
     });
 
     it('responds to touch events in VAD mode', async () => {
-      vi.useFakeTimers();
       render(<HoldToRecordButton {...defaultProps} mode="vad" debounceMs={0} />);
       const button = screen.getByRole('button');
 
       fireEvent.touchStart(button);
       expect(defaultProps.onMouseDown).toHaveBeenCalledTimes(1);
-
-      vi.useRealTimers();
     });
 
     it('rejects multi-touch events in toggle mode', () => {

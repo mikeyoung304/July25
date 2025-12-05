@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export interface ViewportSize {
   width: number;
@@ -15,6 +15,9 @@ export const BREAKPOINTS = {
   desktop: 1024,
   large: 1920,
 } as const;
+
+/** Throttle interval for resize events (ms) - limits to ~10 updates/second */
+const RESIZE_THROTTLE_MS = 100;
 
 /**
  * Custom hook to track viewport size and responsive breakpoints
@@ -46,10 +49,14 @@ export const useViewport = (): ViewportSize => {
     };
   });
 
+  // Track last execution time for throttling
+  const lastExecutionRef = useRef<number>(0);
+  const pendingUpdateRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const handleResize = () => {
+    const updateViewport = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
@@ -63,8 +70,36 @@ export const useViewport = (): ViewportSize => {
       });
     };
 
+    // Throttled resize handler - limits updates to ~10/second
+    const handleResize = () => {
+      const now = Date.now();
+      const timeSinceLastExecution = now - lastExecutionRef.current;
+
+      if (timeSinceLastExecution >= RESIZE_THROTTLE_MS) {
+        // Execute immediately if enough time has passed
+        lastExecutionRef.current = now;
+        updateViewport();
+      } else {
+        // Schedule trailing update if not already scheduled
+        if (!pendingUpdateRef.current) {
+          pendingUpdateRef.current = setTimeout(() => {
+            lastExecutionRef.current = Date.now();
+            pendingUpdateRef.current = null;
+            updateViewport();
+          }, RESIZE_THROTTLE_MS - timeSinceLastExecution);
+        }
+      }
+    };
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      // Clean up any pending throttled update
+      if (pendingUpdateRef.current) {
+        clearTimeout(pendingUpdateRef.current);
+        pendingUpdateRef.current = null;
+      }
+    };
   }, []);
 
   return viewport;
@@ -90,20 +125,24 @@ export const useMediaQuery = (query: string): boolean => {
       setMatches(e.matches);
     };
 
-    // Set initial value
-    setMatches(mediaQuery.matches);
+    // Sync state if query changed and initial value differs
+    // This handles the case where the query prop changes
+    const currentMatches = mediaQuery.matches;
+    if (currentMatches !== matches) {
+      setMatches(currentMatches);
+    }
 
     // Modern browsers
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-    // Legacy browsers
+    // Legacy browsers (Safari < 14)
     else if (mediaQuery.addListener) {
       mediaQuery.addListener(handleChange);
       return () => mediaQuery.removeListener(handleChange);
     }
-  }, [query]);
+  }, [query]); // Only re-run when query changes, not matches
 
   return matches;
 };

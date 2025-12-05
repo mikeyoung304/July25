@@ -10,6 +10,10 @@ concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   e2e:
     name: Playwright E2E Tests
@@ -18,9 +22,23 @@ jobs:
 
     env:
       NODE_ENV: test
+      NODE_OPTIONS: '--max-old-space-size=3072'
+      PUPPETEER_SKIP_DOWNLOAD: true
+      # Client environment
       VITE_API_BASE_URL: http://localhost:3001
       VITE_DEMO_PANEL: "1"
       VITE_DEFAULT_RESTAURANT_ID: "11111111-1111-1111-1111-111111111111"
+      VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+      # Server environment
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      KIOSK_JWT_SECRET: ${{ secrets.KIOSK_JWT_SECRET }}
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      DEFAULT_RESTAURANT_ID: "11111111-1111-1111-1111-111111111111"
 
     steps:
       - name: Checkout code

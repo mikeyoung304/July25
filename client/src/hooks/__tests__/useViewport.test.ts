@@ -187,26 +187,42 @@ describe('useViewport', () => {
       expect(removeEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function));
     });
 
-    it('should handle multiple rapid resize events', () => {
+    it('should handle multiple rapid resize events with throttling', () => {
+      vi.useFakeTimers();
       const { result } = renderHook(() => useViewport());
 
+      // First resize - executes immediately
       act(() => {
         Object.defineProperty(window, 'innerWidth', { writable: true, value: 375 });
         window.dispatchEvent(new Event('resize'));
       });
       expect(result.current.width).toBe(375);
 
+      // Advance past throttle interval (100ms)
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+
+      // Second resize - executes immediately (throttle expired)
       act(() => {
         Object.defineProperty(window, 'innerWidth', { writable: true, value: 768 });
         window.dispatchEvent(new Event('resize'));
       });
       expect(result.current.width).toBe(768);
 
+      // Advance past throttle interval
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+
+      // Third resize - executes immediately
       act(() => {
         Object.defineProperty(window, 'innerWidth', { writable: true, value: 1920 });
         window.dispatchEvent(new Event('resize'));
       });
       expect(result.current.width).toBe(1920);
+
+      vi.useRealTimers();
     });
   });
 
