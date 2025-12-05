@@ -243,7 +243,9 @@ export const ServerView = memo(() => {
         <ServerHeader restaurant={restaurant ? {
           ...restaurant,
           logo_url: undefined,
-          tax_rate: restaurant.tax_rate ?? DEFAULT_TAX_RATE // ADR-013: Shared constant
+          tax_rate: restaurant.tax_rate ?? DEFAULT_TAX_RATE, // ADR-013: Shared constant
+          created_at: restaurant.created_at || new Date().toISOString(),
+          updated_at: restaurant.updated_at || new Date().toISOString()
         } : null} />
         
         <div className="max-w-7xl mx-auto px-4 py-8">

@@ -57,7 +57,7 @@ export function SeatSelectionModal({
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h3 className="text-xl font-semibold text-neutral-800">
-                    Select Seat - {table.table_number}
+                    Select Seat - {table.label}
                   </h3>
                   <p className="text-sm text-neutral-600 mt-1">
                     Choose a seat number to continue with the order

@@ -272,7 +272,7 @@ export const UnifiedCartProvider: React.FC<UnifiedCartProviderProps> = ({
     restaurantId,
     isConfigReady,
     isConfigLoading,
-    configError: configError || null
+    configError: configError ? configError.message : null
   };
 
   return (

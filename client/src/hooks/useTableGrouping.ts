@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { Order, OrderItem } from '@rebuild/shared'
-import { getOrderUrgency } from '@rebuild/shared/config/kds'
+import { getOrderUrgency, KDSUrgencyLevel } from '@rebuild/shared/config/kds'
 
 /**
  * Type guard to validate that a value is a non-empty string
@@ -23,7 +23,7 @@ export interface TableGroup {
   serverName?: string
   section?: string
   estimatedCompletionTime?: string
-  urgencyLevel: 'normal' | 'warning' | 'urgent'
+  urgencyLevel: KDSUrgencyLevel
 }
 
 export interface GroupedOrders {

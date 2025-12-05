@@ -96,7 +96,7 @@ export function PostOrderPrompt({
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-neutral-700">
-                    {table.table_number} Progress
+                    {table.label} Progress
                   </span>
                   <span className="text-sm font-semibold text-primary">
                     {orderedSeats.length} of {totalSeats} seats ordered

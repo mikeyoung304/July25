@@ -230,7 +230,7 @@ export function VoiceOrderModal({
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-xl font-semibold text-neutral-800">
-                      Order - {table.table_number}, Seat {seat}
+                      Order - {table.label}, Seat {seat}
                     </h3>
                     <p className="text-sm text-neutral-600 mt-1">
                       {inputMode === 'voice'

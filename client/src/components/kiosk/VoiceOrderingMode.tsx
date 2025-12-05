@@ -106,11 +106,21 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
     if (!checkoutOrchestratorRef.current) {
       checkoutOrchestratorRef.current = new VoiceCheckoutOrchestrator({
         restaurantId: import.meta.env.VITE_DEFAULT_RESTAURANT_ID || 'demo-restaurant',
+        httpClient,
+        onToast: (message: string, type: 'success' | 'error' | 'loading') => {
+          if (type === 'error') {
+            toast.toast.error(message);
+          } else if (type === 'success') {
+            toast.toast.success(message);
+          } else {
+            toast.toast.info(message);
+          }
+        },
+        onNavigate: (path: string, options?: { state?: Record<string, unknown> }) => {
+          navigate(path, options);
+        },
         debug: import.meta.env.DEV
       });
-
-      // Initialize with React hooks
-      checkoutOrchestratorRef.current.initialize(httpClient, toast, navigate);
       
       // Notify parent that orchestrator is ready
       if (onOrchestratorReady) {

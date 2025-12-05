@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { env } from '@/config/env-validator'
-import type { DatabaseTable } from 'shared/types'
+import type { DatabaseTable } from '@rebuild/shared/types'
 
 // Environment variables are validated at app startup
 // If we reach this point, we know they exist and are valid

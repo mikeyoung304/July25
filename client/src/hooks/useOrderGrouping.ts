@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { Order, OrderStatus } from '@rebuild/shared'
-import { getCardSize, CardSize, getOrderUrgency } from '@rebuild/shared/config/kds'
+import { getCardSize, CardSize, getOrderUrgency, KDSUrgencyLevel } from '@rebuild/shared/config/kds'
 
 export interface OrderGroup {
   order_id: string                  // UUID
@@ -27,7 +27,7 @@ export interface OrderGroup {
   estimated_ready?: string
 
   // Urgency
-  urgency_level: 'normal' | 'warning' | 'urgent'
+  urgency_level: KDSUrgencyLevel
   age_minutes: number
 
   // Optional metadata
