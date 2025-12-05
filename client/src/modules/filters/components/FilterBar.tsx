@@ -4,7 +4,7 @@ import { X } from 'lucide-react'
 import { StatusFilter } from './StatusFilter'
 import { SearchFilter } from './SearchFilter'
 import { OrderFilterState } from '../types'
-import { OrderStatus } from '@shared'
+import { OrderStatus } from '@rebuild/shared/types/order.types'
 import { cn } from '@/utils'
 
 interface FilterBarProps {

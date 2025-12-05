@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import type { Restaurant } from '@shared'
+import type { Restaurant } from '@rebuild/shared/types'
 
 interface ServerHeaderProps {
   restaurant: Restaurant | null | undefined

@@ -4,7 +4,7 @@ import { X, Users, Check, CheckCircle2, MicOff, Mic, Hand } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ActionButton } from '@/components/ui/ActionButton'
-import type { Table } from '@shared'
+import type { Table } from '@rebuild/shared/types'
 import type { OrderInputMode } from '@/components/shared/OrderInputSelector'
 
 interface SeatSelectionModalProps {

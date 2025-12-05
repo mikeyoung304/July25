@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle2, Users, Check, CreditCard } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { ActionButton } from '@/components/ui/ActionButton'
-import type { Table } from '@shared'
+import type { Table } from '@rebuild/shared/types'
 
 interface PostOrderPromptProps {
   show: boolean

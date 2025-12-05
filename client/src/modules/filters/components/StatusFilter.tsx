@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { OrderStatus } from '@shared'
+import { OrderStatus } from '@rebuild/shared/types'
 import { FilterOption } from '../types'
 
 interface StatusFilterProps {

@@ -1,8 +1,8 @@
 // Compatibility wrapper for the filters module hook
 import { useOrderFilters as useModuleOrderFilters } from '@/modules/filters/hooks/useOrderFilters'
 import { useCallback, useMemo, useState } from 'react'
-import type { OrderStatus } from '@shared'
-import type { Station } from '@shared'
+import type { OrderStatus } from '@rebuild/shared/types'
+import type { Station } from '@rebuild/shared/types'
 
 export interface OrderFilterState {
   status: OrderStatus | 'all'
