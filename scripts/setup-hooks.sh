@@ -75,10 +75,15 @@ fi
 
 # 4. Check for completed TODOs in pending directory
 echo "4. Checking for completed TODOs in pending..."
-COMPLETED_STAGED=$(git diff --cached --name-only .claude/todos | xargs -I {} grep -l "status: completed" {} 2>/dev/null | wc -l || true)
-if [ "$COMPLETED_STAGED" -gt 0 ]; then
-    echo -e "   ${YELLOW}⚠${NC} Committing completed TODOs (should be archived):"
-    git diff --cached --name-only .claude/todos | xargs -I {} grep -l "status: completed" {} 2>/dev/null || true
+TODO_FILES=$(git diff --cached --name-only .claude/todos || true)
+if [ -n "$TODO_FILES" ]; then
+    COMPLETED_STAGED=$(echo "$TODO_FILES" | xargs -I {} grep -l "status: completed" {} 2>/dev/null | wc -l || true)
+    if [ "$COMPLETED_STAGED" -gt 0 ]; then
+        echo -e "   ${YELLOW}⚠${NC} Committing completed TODOs (should be archived):"
+        echo "$TODO_FILES" | xargs -I {} grep -l "status: completed" {} 2>/dev/null || true
+    else
+        echo -e "   ${GREEN}✓${NC} No completed TODOs in pending"
+    fi
 else
     echo -e "   ${GREEN}✓${NC} No completed TODOs in pending"
 fi

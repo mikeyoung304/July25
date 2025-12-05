@@ -30,12 +30,17 @@ echo "Step 1: Scanning TODO files..."
 
 # Analyze TODO status
 if [ -d "$TODO_DIR" ]; then
-    find "$TODO_DIR" -name "*.md" -type f | while read -r todo_file; do
+    while read -r todo_file; do
         TOTAL_TODOS=$((TOTAL_TODOS + 1))
         BASENAME=$(basename "$todo_file")
 
         # Extract status
-        STATUS=$(grep "^status:" "$todo_file" 2>/dev/null | awk -F: '{print $2}' | xargs || echo "unknown")
+        STATUS_RAW=$(grep "^status:" "$todo_file" 2>/dev/null | awk -F: '{print $2}' || echo "")
+        if [ -n "$STATUS_RAW" ]; then
+            STATUS=$(echo "$STATUS_RAW" | xargs)
+        else
+            STATUS="unknown"
+        fi
 
         # Check age
         MODIFIED=$(stat -f %m "$todo_file" 2>/dev/null || stat -c %Y "$todo_file" 2>/dev/null)
@@ -66,7 +71,7 @@ if [ -d "$TODO_DIR" ]; then
                 INVALID_TODOS=$((INVALID_TODOS + 1))
                 ;;
         esac
-    done
+    done < <(find "$TODO_DIR" -name "*.md" -type f)
 fi
 
 echo ""
@@ -141,7 +146,10 @@ echo "  Files in root: $FILES_IN_ROOT"
 
 if [ "$FILES_IN_ROOT" -gt 0 ]; then
     echo "  ⚠ Found TODO files in root (should be in subdirectories)"
-    find "$TODO_DIR" -maxdepth 1 -name "*.md" -type f | xargs -I {} basename {}
+    ROOT_FILES=$(find "$TODO_DIR" -maxdepth 1 -name "*.md" -type f || true)
+    if [ -n "$ROOT_FILES" ]; then
+        echo "$ROOT_FILES" | xargs -I {} basename {}
+    fi
 fi
 
 echo ""

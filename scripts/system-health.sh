@@ -43,12 +43,12 @@ fi
 
 # Check for broken worktrees
 BROKEN_WORKTREES=0
-git worktree list | tail -n +2 | while IFS= read -r line; do
+while IFS= read -r line; do
     path=$(echo "$line" | awk '{print $1}')
     if [ -n "$path" ] && ! [ -d "$path" ]; then
         BROKEN_WORKTREES=$((BROKEN_WORKTREES + 1))
     fi
-done
+done < <(git worktree list | tail -n +2)
 
 if [ "$BROKEN_WORKTREES" -gt 0 ]; then
     echo -e "    ${RED}✗${NC} Found $BROKEN_WORKTREES broken worktree references"

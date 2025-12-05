@@ -1,6 +1,6 @@
 # TODO-175: Pre-commit hook uses GNU-only grep -P flag
 
-## Status: pending
+## Status: complete
 ## Priority: P1 (Critical - silently bypassed on macOS)
 ## Category: build-errors
 ## Tags: hooks, pre-commit, macos, bsd, grep

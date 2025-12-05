@@ -36,7 +36,7 @@ echo "Step 1: Archiving completed TODOs..."
 
 # Find completed TODOs and archive them
 if [ -d "$TODO_DIR" ]; then
-    find "$TODO_DIR" -name "*.md" -type f | while read -r todo_file; do
+    while read -r todo_file; do
         if grep -q "status: completed" "$todo_file" 2>/dev/null; then
             BASENAME=$(basename "$todo_file")
             TODAY=$(date +%Y-%m-%d)
@@ -54,7 +54,7 @@ if [ -d "$TODO_DIR" ]; then
                 FAILED=$((FAILED + 1))
             }
         fi
-    done
+    done < <(find "$TODO_DIR" -name "*.md" -type f)
 fi
 
 echo ""
@@ -62,7 +62,7 @@ echo "Step 2: Removing archived TODOs..."
 
 # Remove completed TODOs from pending
 if [ -d "$TODO_DIR" ]; then
-    find "$TODO_DIR" -name "*.md" -type f | while read -r todo_file; do
+    while read -r todo_file; do
         if grep -q "status: completed" "$todo_file" 2>/dev/null; then
             rm "$todo_file" && {
                 echo "  ✓ Removed: $(basename "$todo_file")"
@@ -71,7 +71,7 @@ if [ -d "$TODO_DIR" ]; then
                 FAILED=$((FAILED + 1))
             }
         fi
-    done
+    done < <(find "$TODO_DIR" -name "*.md" -type f)
 fi
 
 echo ""
@@ -102,12 +102,12 @@ echo "Step 4: Validating TODO status..."
 # Check for TODOs without status field
 INVALID=0
 if [ -d "$TODO_DIR" ]; then
-    find "$TODO_DIR" -name "*.md" -type f | while read -r todo_file; do
+    while read -r todo_file; do
         if ! grep -q "^status:" "$todo_file" 2>/dev/null; then
             echo "  ⚠ Missing status field: $(basename "$todo_file")"
             INVALID=$((INVALID + 1))
         fi
-    done
+    done < <(find "$TODO_DIR" -name "*.md" -type f)
 fi
 
 echo ""

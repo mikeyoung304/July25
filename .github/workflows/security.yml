@@ -82,7 +82,7 @@ jobs:
       - name: Run webhook HMAC proof tests
         run: |
           cd server
-          npm test tests/security/webhook.proof.test.ts || true
+          npm test tests/security/webhook.proof.test.ts
         env:
           NODE_ENV: test
           WEBHOOK_SECRET: test-webhook-secret
@@ -153,10 +153,9 @@ jobs:
 
       - name: Run npm audit
         run: |
-          npm audit --audit-level=high
-          cd client && npm audit --audit-level=high
-          cd ../server && npm audit --audit-level=high
-        continue-on-error: true
+          npm audit --audit-level=critical
+          cd client && npm audit --audit-level=critical
+          cd ../server && npm audit --audit-level=critical
 
       - name: Upload audit results
         uses: actions/upload-artifact@v4

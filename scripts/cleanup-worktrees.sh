@@ -32,7 +32,7 @@ echo ""
 echo "Step 2: Finding merged worktrees..."
 
 # Find and remove worktrees with merged branches
-git worktree list | tail -n +2 | while IFS= read -r line; do
+while IFS= read -r line; do
     # Parse worktree line: path (branch) hash (detached)
     path=$(echo "$line" | awk '{print $1}')
     branch_info=$(echo "$line" | grep -oP '\(\K[^)]+')
@@ -54,7 +54,7 @@ git worktree list | tail -n +2 | while IFS= read -r line; do
             }
         fi
     fi
-done
+done < <(git worktree list | tail -n +2)
 
 echo ""
 echo "Step 3: Removing broken worktrees..."

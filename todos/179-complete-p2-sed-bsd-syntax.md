@@ -1,6 +1,6 @@
 # TODO-179: sed -i syntax incompatible with macOS
 
-## Status: pending
+## Status: complete
 ## Priority: P2 (Important - schema sync fails on macOS)
 ## Category: build-errors
 ## Tags: shell, sed, macos, bsd

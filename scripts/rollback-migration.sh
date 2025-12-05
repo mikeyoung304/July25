@@ -178,7 +178,9 @@ MIGRATION_QUERY="$1"
 
 # Load environment
 if [ -f .env ]; then
-  export $(grep -v '^#' .env | xargs)
+  set -a  # Export all variables
+  source .env
+  set +a
   log_info "Loaded environment from .env"
 fi
 

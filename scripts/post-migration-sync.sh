@@ -11,7 +11,9 @@ echo ""
 
 # Load environment variables from .env if it exists
 if [ -f .env ]; then
-  export $(grep -v '^#' .env | xargs)
+  set -a  # Export all variables
+  source .env
+  set +a
   echo "✓ Loaded environment from .env"
 fi
 
@@ -42,14 +44,11 @@ echo ""
 # when the related model has @@ignore at model level
 echo "🔧 Patching @ignore attributes for user_pins relations..."
 
-# Fix users.user_pins relation field
-sed -i.bak 's/^  user_pins                   user_pins\[\]$/  user_pins                   user_pins[]            @ignore/' prisma/schema.prisma
+# Fix users.user_pins relation field (portable temp file approach)
+sed 's/^  user_pins                   user_pins\[\]$/  user_pins                   user_pins[]            @ignore/' prisma/schema.prisma > prisma/schema.prisma.tmp && mv prisma/schema.prisma.tmp prisma/schema.prisma
 
-# Fix restaurants.user_pins relation field
-sed -i.bak 's/^  user_pins            user_pins\[\]$/  user_pins            user_pins[]            @ignore/' prisma/schema.prisma
-
-# Remove backup files
-rm -f prisma/schema.prisma.bak
+# Fix restaurants.user_pins relation field (portable temp file approach)
+sed 's/^  user_pins            user_pins\[\]$/  user_pins            user_pins[]            @ignore/' prisma/schema.prisma > prisma/schema.prisma.tmp && mv prisma/schema.prisma.tmp prisma/schema.prisma
 
 echo "✓ Schema patching complete"
 echo ""

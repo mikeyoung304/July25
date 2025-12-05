@@ -29,12 +29,10 @@ jobs:
         run: npm ci --workspaces --include-workspace-root
 
       - name: Run linter
-        run: npm run lint || echo "Linting issues found"
-        continue-on-error: true
+        run: npm run lint
 
       - name: Run type check
-        run: npm run type-check || echo "Type check issues found"
-        continue-on-error: true
+        run: npm run type-check
 
       - name: Run unit tests
         run: npm run test:ci || npm run test || echo "No test script found"
@@ -62,19 +60,17 @@ jobs:
         run: npm ci --workspaces --include-workspace-root
 
       - name: Run npm audit
-        run: npm audit --audit-level=high
-        continue-on-error: true
+        run: npm audit --audit-level=critical
 
       - name: Check for TODO security issues
         run: |
           echo "Checking for critical security TODOs..."
           if grep -r "TODO.*security\|FIXME.*security\|HACK.*security" --include="*.ts" --include="*.tsx" server/src/ client/src/; then
             echo "Warning: Found security-related TODOs"
-            exit 0
+            exit 1
           else
             echo "No critical security TODOs found"
           fi
-        continue-on-error: true
 
   pre-deploy-validation:
     name: Pre-Deploy Validation

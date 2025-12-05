@@ -1,6 +1,6 @@
 # TODO-176: Shell scripts lose counter variables in piped subshells
 
-## Status: pending
+## Status: complete
 ## Priority: P1 (Critical - audit/cleanup reports show wrong counts)
 ## Category: build-errors
 ## Tags: shell, bash, subshell, pipes

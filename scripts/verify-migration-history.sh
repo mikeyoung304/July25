@@ -11,7 +11,9 @@ echo ""
 
 # Load environment variables
 if [ -f .env ]; then
-  export $(grep -v '^#' .env | xargs)
+  set -a  # Export all variables
+  source .env
+  set +a
 fi
 
 # Check DATABASE_URL

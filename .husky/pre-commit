@@ -59,7 +59,7 @@ if git diff --cached --name-only | grep -q "^supabase/migrations/.*\.sql$"; then
       fi
 
       # Check for TIMESTAMP without TZ (should be TIMESTAMPTZ)
-      if grep -q "RETURNS TABLE" "$file" && grep -P "\\bTIMESTAMP\\b(?!TZ)" "$file"; then
+      if grep -q "RETURNS TABLE" "$file" && grep -E "(^|[^A-Z])TIMESTAMP([^TZ]|$)" "$file"; then
         RPC_ERRORS+=("$file: Uses TIMESTAMP - should be TIMESTAMPTZ")
       fi
     fi
