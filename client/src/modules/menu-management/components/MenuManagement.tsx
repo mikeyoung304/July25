@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { ArrowLeft, Loader2, Check, X, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -113,17 +113,22 @@ export function MenuManagement({ restaurantId, onBack }: MenuManagementProps) {
     }
   }
 
-  // Group items by category
-  const groupedItems = items.reduce((acc, item) => {
-    const categoryName = item.category?.name || 'Uncategorized'
-    if (!acc[categoryName]) {
-      acc[categoryName] = []
-    }
-    acc[categoryName].push(item)
-    return acc
-  }, {} as Record<string, MenuItem[]>)
+  // Group items by category (Todo #174: memoized to avoid recomputation on every render)
+  const groupedItems = useMemo(() => {
+    return items.reduce((acc, item) => {
+      const categoryName = item.category?.name || 'Uncategorized'
+      if (!acc[categoryName]) {
+        acc[categoryName] = []
+      }
+      acc[categoryName].push(item)
+      return acc
+    }, {} as Record<string, MenuItem[]>)
+  }, [items])
 
-  const unavailableCount = items.filter(item => item.isAvailable === false).length
+  // Count unavailable items (Todo #174: memoized)
+  const unavailableCount = useMemo(() => {
+    return items.filter(item => item.isAvailable === false).length
+  }, [items])
 
   if (isLoading) {
     return (
