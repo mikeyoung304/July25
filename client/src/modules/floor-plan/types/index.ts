@@ -1,5 +1,6 @@
-// Re-export Table and related types from shared
-export type { Table, TableStatus, TableShape } from '@rebuild/shared/types'
+// Import and re-export Table and related types from shared
+import type { Table, TableStatus, TableShape } from '@rebuild/shared/types'
+export type { Table, TableStatus, TableShape }
 
 export interface FloorPlanState {
   tables: Table[]

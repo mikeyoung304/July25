@@ -17,7 +17,7 @@ export interface UseTableManagementResult {
  * Custom hook for managing table state and operations
  * Handles CRUD operations, selection, and keyboard shortcuts
  */
-export function useTableManagement(): UseTableManagementResult {
+export function useTableManagement(restaurantId: string): UseTableManagementResult {
   const [tables, setTables] = useState<Table[]>([])
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
 
@@ -72,6 +72,7 @@ export function useTableManagement(): UseTableManagementResult {
 
     const newTable: Table = {
       id: `table-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      restaurant_id: restaurantId,
       type,
       x: finalX,
       y: finalY,
@@ -86,7 +87,7 @@ export function useTableManagement(): UseTableManagementResult {
 
     setTables(prev => [...prev, newTable])
     setSelectedTableId(newTable.id)
-  }, [tables])
+  }, [tables, restaurantId])
 
   // Update table
   const updateTable = useCallback((id: string, updates: Partial<Table>) => {

@@ -240,13 +240,7 @@ export const ServerView = memo(() => {
   return (
     <RoleGuard suggestedRoles={['server', 'admin']} pageTitle="Server View - Dining Room">
       <div className="min-h-screen bg-macon-background">
-        <ServerHeader restaurant={restaurant ? {
-          ...restaurant,
-          logo_url: undefined,
-          tax_rate: restaurant.tax_rate ?? DEFAULT_TAX_RATE, // ADR-013: Shared constant
-          created_at: restaurant.created_at || new Date().toISOString(),
-          updated_at: restaurant.updated_at || new Date().toISOString()
-        } : null} />
+        <ServerHeader restaurant={restaurant} />
         
         <div className="max-w-7xl mx-auto px-4 py-8">
           <motion.div

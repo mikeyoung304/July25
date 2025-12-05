@@ -3,7 +3,7 @@ import { OrderParser, ParsedOrderItem } from '@/modules/orders/services/OrderPar
 import { useMenuItems } from '@/modules/menu/hooks/useMenuItems';
 import { useUnifiedCart } from '@/contexts/cart.hooks';
 import { useKioskOrderSubmission } from '@/hooks/kiosk/useKioskOrderSubmission';
-import { useHttpClient } from '@/services/http';
+import { httpClient } from '@/services/http/httpClient';
 import { useToast } from '@/hooks/useToast';
 import { useNavigate } from 'react-router-dom';
 import { VoiceCheckoutOrchestrator } from '@/modules/voice/services/VoiceCheckoutOrchestrator';
@@ -60,7 +60,6 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
   const { cart, addItem, removeFromCart, clearCart } = useUnifiedCart();
   const { items: menuItems, loading } = useMenuItems();
   const { submitOrderAndNavigate, isSubmitting } = useKioskOrderSubmission();
-  const httpClient = useHttpClient();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -113,7 +112,7 @@ export const VoiceOrderingMode: React.FC<VoiceOrderingModeProps> = ({
           } else if (type === 'success') {
             toast.toast.success(message);
           } else {
-            toast.toast.info(message);
+            toast.toast.loading(message);
           }
         },
         onNavigate: (path: string, options?: { state?: Record<string, unknown> }) => {

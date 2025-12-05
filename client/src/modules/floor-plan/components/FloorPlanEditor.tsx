@@ -35,7 +35,7 @@ export function FloorPlanEditor({ restaurantId, onSave, onBack }: FloorPlanEdito
     addTable,
     updateTable,
     deleteTable
-  } = useTableManagement()
+  } = useTableManagement(restaurantId)
 
   // Canvas container ref
   const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null)

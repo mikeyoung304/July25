@@ -5,11 +5,11 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 // https://vite.dev/config/
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(async ({ mode }): Promise<UserConfig> => {
   // IMPORTANT: Load .env from ROOT directory (monorepo setup)
   // This allows ONE .env file to serve both server and client
   const envDir = fileURLToPath(new URL('../', import.meta.url))
-  
+
   // Load from .env files (only VITE_ prefixed vars will be exposed to browser)
   const fileEnv = loadEnv(mode, envDir, 'VITE_');
 
@@ -17,7 +17,7 @@ export default defineConfig(async ({ mode }) => {
   const env = mode === 'production' ?
     { ...fileEnv, ...process.env } :
     fileEnv;
-    
+
   // Production safety check
   // Skip strict validation in CI environments (GitHub Actions smoke tests)
   // Enforce strict validation only for actual deployments (Vercel/production)
@@ -41,7 +41,7 @@ export default defineConfig(async ({ mode }) => {
     console.warn('⚠️  CI environment detected - skipping strict env validation');
     console.warn('   Production builds on Vercel will still enforce strict validation');
   }
-  
+
   // Conditionally load visualizer only when ANALYZE is set
   const analyzePlugins = [];
   if (process.env.ANALYZE) {

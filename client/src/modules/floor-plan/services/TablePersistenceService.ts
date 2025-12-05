@@ -55,6 +55,7 @@ export class TablePersistenceService {
         logger.info('Creating new tables:', newTables)
         for (const table of newTables) {
           const cleanNewTable = {
+            restaurant_id: restaurantId,
             label: table.label.trim(),
             seats: table.seats,
             x: Math.round(table.x),
