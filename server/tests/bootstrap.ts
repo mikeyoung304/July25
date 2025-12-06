@@ -16,8 +16,8 @@ process.env.KIOSK_JWT_SECRET = 'test-kiosk-jwt-secret';
 process.env.STATION_TOKEN_SECRET = 'test-station-secret';
 process.env.PIN_PEPPER = 'test-pepper';
 process.env.DEVICE_FINGERPRINT_SALT = 'test-salt';
-process.env.STRIPE_SECRET_KEY = 'sk_test_test-stripe-key';
-process.env.STRIPE_PUBLISHABLE_KEY = 'pk_test_test-stripe-key';
+process.env.STRIPE_SECRET_KEY = 'sk_test_FAKE_KEY_FOR_TESTING_ONLY';
+process.env.STRIPE_PUBLISHABLE_KEY = 'pk_test_FAKE_KEY_FOR_TESTING_ONLY';
 // AI config can be optional in tests
 process.env.AI_DEGRADED_MODE = 'true';
 

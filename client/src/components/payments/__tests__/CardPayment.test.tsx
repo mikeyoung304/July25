@@ -104,8 +104,8 @@ describe('CardPayment Component', () => {
     });
 
     it('shows test environment indicator when using test Stripe key', () => {
-      // Set test environment
-      (import.meta.env as any).VITE_STRIPE_PUBLISHABLE_KEY = 'pk_test_51234567890';
+      // Set test environment - using obviously fake key that still starts with pk_test_
+      (import.meta.env as any).VITE_STRIPE_PUBLISHABLE_KEY = 'pk_test_FAKE_KEY_FOR_TESTING_ONLY';
 
       render(<CardPayment {...defaultProps} />);
 
@@ -116,8 +116,8 @@ describe('CardPayment Component', () => {
     });
 
     it('does not show environment warning in production mode', () => {
-      // Set production environment
-      (import.meta.env as any).VITE_STRIPE_PUBLISHABLE_KEY = 'pk_live_51234567890';
+      // Set production environment - using obviously fake key that still starts with pk_live_
+      (import.meta.env as any).VITE_STRIPE_PUBLISHABLE_KEY = 'pk_live_FAKE_KEY_FOR_TESTING_ONLY';
       (import.meta.env as any).NODE_ENV = 'production';
 
       render(<CardPayment {...defaultProps} />);
