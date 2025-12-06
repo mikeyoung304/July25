@@ -11,6 +11,7 @@
 
 import { test, expect } from '@playwright/test';
 import { loginAsRole, clearAppState } from '../fixtures/test-helpers';
+import { TIMEOUTS } from '../constants/timeouts';
 
 test.describe('Authentication - Smoke Tests @smoke', () => {
   test.beforeEach(async ({ page }) => {
@@ -43,6 +44,6 @@ test.describe('Authentication - Smoke Tests @smoke', () => {
     await page.click('button:has-text("Sign In")');
 
     // Verify error shown
-    await expect(page.locator('text=/error|invalid|incorrect/i')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=/error|invalid|incorrect/i')).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
   });
 });

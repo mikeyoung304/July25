@@ -15,6 +15,7 @@
 
 import { test, expect } from '@playwright/test';
 import { loginAsRole, clearAppState } from '../fixtures/test-helpers';
+import { TIMEOUTS } from '../constants/timeouts';
 
 test.describe('Server Order Flow - Smoke Tests @smoke', () => {
   test('complete order flow: login -> view menu -> add item -> submit', async ({ page }) => {
@@ -30,7 +31,7 @@ test.describe('Server Order Flow - Smoke Tests @smoke', () => {
       .or(page.locator('.menu-item'))
       .or(page.locator('[role="button"]:has-text("$")'));
 
-    await expect(menuItems.first()).toBeVisible({ timeout: 10000 });
+    await expect(menuItems.first()).toBeVisible({ timeout: TIMEOUTS.ELEMENT_AFTER_NETWORK });
 
     // Verify at least one item has a price
     await expect(page.locator('text=/\\$\\d+\\.\\d{2}/')).toBeVisible();
@@ -40,7 +41,7 @@ test.describe('Server Order Flow - Smoke Tests @smoke', () => {
       .or(page.locator('button:has-text("New Order")'))
       .or(page.locator('button:has-text("Create Order")'));
 
-    if (await newOrderButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+    if (await newOrderButton.isVisible({ timeout: TIMEOUTS.ELEMENT_IMMEDIATE }).catch(() => false)) {
       await newOrderButton.click();
     }
 
@@ -52,13 +53,13 @@ test.describe('Server Order Flow - Smoke Tests @smoke', () => {
       .or(page.locator('button:has-text("Submit")'))
       .or(page.locator('button:has-text("Send to Kitchen")'));
 
-    await expect(submitButton).toBeVisible({ timeout: 5000 });
+    await expect(submitButton).toBeVisible({ timeout: TIMEOUTS.ELEMENT_VISIBLE });
     await submitButton.click();
 
     // 6. Verify success indication
     const successIndicator = page.locator('text=/success|sent|submitted|order #/i')
       .or(page.locator('[data-testid="order-success"]'));
 
-    await expect(successIndicator).toBeVisible({ timeout: 10000 });
+    await expect(successIndicator).toBeVisible({ timeout: TIMEOUTS.ELEMENT_AFTER_NETWORK });
   });
 });
