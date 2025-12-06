@@ -216,9 +216,16 @@ export class HttpClient extends SecureAPIClient {
     // Build cache key with restaurant_id prefix for tenant isolation (TODO-104 fix)
     // This prevents cross-tenant cache pollution when switching restaurants
     const restaurantId = getCurrentRestaurantId() || getRestaurantId()
-    const tenantPrefix = restaurantId || 'no-tenant'
 
-    let cacheKey = `${tenantPrefix}:${endpoint}`
+    // TODO-110 fix: Skip caching when no tenant is available to prevent cross-tenant cache pollution
+    if (!restaurantId) {
+      if (import.meta.env.DEV) {
+        logger.warn(`[Cache BYPASS] ${endpoint} (no restaurant_id available)`)
+      }
+      return this.request<T>(endpoint, { ...options, method: 'GET' })
+    }
+
+    let cacheKey = `${restaurantId}:${endpoint}`
     if (options?.params && Object.keys(options.params).length > 0) {
       const searchParams = new URLSearchParams()
       Object.entries(options.params).forEach(([key, value]) => {
@@ -226,7 +233,7 @@ export class HttpClient extends SecureAPIClient {
           searchParams.append(key, String(value))
         }
       })
-      cacheKey = `${tenantPrefix}:${endpoint}?${searchParams.toString()}`
+      cacheKey = `${restaurantId}:${endpoint}?${searchParams.toString()}`
     }
 
     // Check ResponseCache (C1: now the only cache)

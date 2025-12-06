@@ -77,10 +77,17 @@ fi
 echo "4. Checking for completed TODOs in pending..."
 TODO_FILES=$(git diff --cached --name-only .claude/todos || true)
 if [ -n "$TODO_FILES" ]; then
-    COMPLETED_STAGED=$(echo "$TODO_FILES" | xargs -I {} grep -l "status: completed" {} 2>/dev/null | wc -l || true)
-    if [ "$COMPLETED_STAGED" -gt 0 ]; then
+    # TODO-180 fix: Store xargs output in variable to safely handle empty input on BSD/macOS
+    COMPLETED_FILES=""
+    while IFS= read -r file; do
+        if [ -f "$file" ] && grep -q "status: completed" "$file" 2>/dev/null; then
+            COMPLETED_FILES="${COMPLETED_FILES}${file}"$'\n'
+        fi
+    done <<< "$TODO_FILES"
+
+    if [ -n "$COMPLETED_FILES" ]; then
         echo -e "   ${YELLOW}⚠${NC} Committing completed TODOs (should be archived):"
-        echo "$TODO_FILES" | xargs -I {} grep -l "status: completed" {} 2>/dev/null || true
+        echo "$COMPLETED_FILES"
     else
         echo -e "   ${GREEN}✓${NC} No completed TODOs in pending"
     fi
