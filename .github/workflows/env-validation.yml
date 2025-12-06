@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -92,15 +92,17 @@ jobs:
       - name: Generate validation report
         if: always()
         run: |
-          echo "## Environment Validation Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Repository: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Environment Validation Report"
+            echo ""
+            echo "- Repository: ${{ github.repository }}"
+            echo "- Branch: ${{ github.ref_name }}"
+            echo "- Commit: ${{ github.sha }}"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
 
           if node scripts/validate-env.cjs; then
-            echo "✅ **All validation checks passed**" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **All validation checks passed**" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "❌ **Validation failed - see logs above**" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Validation failed - see logs above**" >> "$GITHUB_STEP_SUMMARY"
           fi

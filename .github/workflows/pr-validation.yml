@@ -23,12 +23,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0  # Fetch all history for comparison
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -149,8 +149,10 @@ jobs:
 
           if [ ${#TYPE_VIOLATIONS[@]} -eq 0 ]; then
             echo "✅ No RPC type signature violations detected"
-            echo "valid=true" >> "$GITHUB_OUTPUT"
-            echo "violations=" >> "$GITHUB_OUTPUT"
+            {
+              echo "valid=true"
+              echo "violations="
+            } >> "$GITHUB_OUTPUT"
           else
             echo "❌ RPC type signature violations found:"
             printf '  - %s\n' "${TYPE_VIOLATIONS[@]}"
@@ -159,13 +161,15 @@ jobs:
             echo "  1. Replace VARCHAR with TEXT for string types"
             echo "  2. Replace TIMESTAMP with TIMESTAMPTZ for timestamp types"
             echo "  3. Ensure consistent type usage across all RPC functions"
-            echo "valid=false" >> "$GITHUB_OUTPUT"
 
             # Store violations for PR comment (escape newlines)
             VIOLATIONS_STR=$(printf '%s\\n' "${TYPE_VIOLATIONS[@]}")
-            echo "violations<<EOF" >> "$GITHUB_OUTPUT"
-            echo "$VIOLATIONS_STR" >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+            {
+              echo "valid=false"
+              echo "violations<<EOF"
+              echo "$VIOLATIONS_STR"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
             exit 1
           fi
           echo "::endgroup::"
@@ -241,8 +245,10 @@ jobs:
 
           if [ ${#DEP_VIOLATIONS[@]} -eq 0 ]; then
             echo "✅ No RPC dependency violations detected"
-            echo "valid=true" >> "$GITHUB_OUTPUT"
-            echo "violations=" >> "$GITHUB_OUTPUT"
+            {
+              echo "valid=true"
+              echo "violations="
+            } >> "$GITHUB_OUTPUT"
           else
             echo "❌ RPC dependency violations found:"
             printf '  - %s\n' "${DEP_VIOLATIONS[@]}"
@@ -251,13 +257,15 @@ jobs:
             echo "  1. Ensure all tables referenced in RPC functions exist in Prisma schema"
             echo "  2. Ensure all columns referenced in INSERT statements are defined"
             echo "  3. Run './scripts/post-migration-sync.sh' after adding missing columns"
-            echo "valid=false" >> "$GITHUB_OUTPUT"
 
             # Store violations for PR comment (escape newlines)
             VIOLATIONS_STR=$(printf '%s\\n' "${DEP_VIOLATIONS[@]}")
-            echo "violations<<EOF" >> "$GITHUB_OUTPUT"
-            echo "$VIOLATIONS_STR" >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+            {
+              echo "valid=false"
+              echo "violations<<EOF"
+              echo "$VIOLATIONS_STR"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
             exit 1
           fi
           echo "::endgroup::"
@@ -327,7 +335,7 @@ jobs:
 
       - name: Comment PR with results
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
           PRISMA_VALID: ${{ steps.prisma-validate.outputs.valid }}
           NAMING_VALID: ${{ steps.naming-check.outputs.valid }}

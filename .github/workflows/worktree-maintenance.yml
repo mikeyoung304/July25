@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
 
@@ -27,7 +27,7 @@ jobs:
 
           # List all worktrees
           WORKTREE_COUNT=$(git worktree list | tail -n +2 | wc -l)
-          echo "worktree_count=$WORKTREE_COUNT" >> $GITHUB_OUTPUT
+          echo "worktree_count=$WORKTREE_COUNT" >> "$GITHUB_OUTPUT"
 
           # Check for merged worktrees
           MERGED_COUNT=0
@@ -40,7 +40,7 @@ jobs:
               fi
           done < <(git worktree list | tail -n +2)
 
-          echo "merged_count=$MERGED_COUNT" >> $GITHUB_OUTPUT
+          echo "merged_count=$MERGED_COUNT" >> "$GITHUB_OUTPUT"
 
           # Check for broken worktrees
           BROKEN_COUNT=0
@@ -51,11 +51,11 @@ jobs:
               fi
           done < <(git worktree list | tail -n +2)
 
-          echo "broken_count=$BROKEN_COUNT" >> $GITHUB_OUTPUT
+          echo "broken_count=$BROKEN_COUNT" >> "$GITHUB_OUTPUT"
 
       - name: Create issue for maintenance
         if: steps.check.outputs.merged_count > 0 || steps.check.outputs.broken_count > 0
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const mergedCount = '${{ steps.check.outputs.merged_count }}';
@@ -102,14 +102,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Check TODO system health
         id: todo_check
         run: |
           # Count TODOs
           TODO_DIR=".claude/todos"
-          SOLUTION_DIR=".claude/solutions"
 
           PENDING=0
           INVALID=0
@@ -125,13 +124,15 @@ jobs:
               STALE=$(find "$TODO_DIR" -name "*.md" -type f -mtime +30 2>/dev/null | wc -l)
           fi
 
-          echo "pending_todos=$PENDING" >> $GITHUB_OUTPUT
-          echo "invalid_todos=$INVALID" >> $GITHUB_OUTPUT
-          echo "stale_todos=$STALE" >> $GITHUB_OUTPUT
+          {
+            echo "pending_todos=$PENDING"
+            echo "invalid_todos=$INVALID"
+            echo "stale_todos=$STALE"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Report issues
         if: steps.todo_check.outputs.invalid_todos > 0 || steps.todo_check.outputs.stale_todos > 10
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const pendingTodos = '${{ steps.todo_check.outputs.pending_todos }}';
@@ -176,7 +177,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Check Jest configuration
         run: |

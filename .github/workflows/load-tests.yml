@@ -51,10 +51,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup k6
-        uses: grafana/k6-action@v0.3.1
+        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
         with:
           k6-version: ${{ env.K6_VERSION }}
 
@@ -62,18 +62,22 @@ jobs:
         id: params
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "duration=${{ github.event.inputs.duration }}" >> $GITHUB_OUTPUT
-            echo "vus=${{ github.event.inputs.vus }}" >> $GITHUB_OUTPUT
+            {
+              echo "duration=${{ github.event.inputs.duration }}"
+              echo "vus=${{ github.event.inputs.vus }}"
+            } >> "$GITHUB_OUTPUT"
             if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
-              echo "base_url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
+              echo "base_url=${{ secrets.STAGING_API_URL }}" >> "$GITHUB_OUTPUT"
             else
-              echo "base_url=http://localhost:3001" >> $GITHUB_OUTPUT
+              echo "base_url=http://localhost:3001" >> "$GITHUB_OUTPUT"
             fi
           else
             # Scheduled run defaults
-            echo "duration=5m" >> $GITHUB_OUTPUT
-            echo "vus=50" >> $GITHUB_OUTPUT
-            echo "base_url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
+            {
+              echo "duration=5m"
+              echo "vus=50"
+              echo "base_url=${{ secrets.STAGING_API_URL }}"
+            } >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run Payment Load Test
@@ -90,7 +94,7 @@ jobs:
         id: k6_run
 
       - name: Upload k6 results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: k6-results-${{ github.run_id }}
@@ -107,7 +111,7 @@ jobs:
 
       - name: Notify on failure
         if: failure() && github.event_name == 'schedule'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const title = '🚨 Nightly Load Test Failed';
@@ -150,10 +154,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup k6
-        uses: grafana/k6-action@v0.3.1
+        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
 
       - name: Run Smoke Test (Quick)
         run: |

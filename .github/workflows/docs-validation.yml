@@ -20,12 +20,12 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0  # Need full history for timestamp checks
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c # v4
         with:
           python-version: '3.10'
 
@@ -38,7 +38,7 @@ jobs:
         run: |
           # Check for consistent header formatting
           echo "Checking header formatting..."
-          find docs -name "*.md" -type f | while read file; do
+          find docs -name "*.md" -type f | while read -r file; do
             # Check for space after # in headers
             if grep -q "^#[^# ]" "$file"; then
               echo "❌ $file: Missing space after # in headers"
@@ -97,10 +97,10 @@ jobs:
       - name: Check Documentation Timestamps
         run: |
           echo "Checking for outdated documentation..."
-          current_date=$(date +%Y-%m-%d)
+          # current_date unused but kept for potential future use
           thirty_days_ago=$(date -d '30 days ago' +%Y-%m-%d)
 
-          find docs -name "*.md" -type f | while read file; do
+          find docs -name "*.md" -type f | while read -r file; do
             # Check for Last Updated timestamp
             if grep -q "Last Updated:" "$file"; then
               last_updated=$(grep "Last Updated:" "$file" | head -1 | sed 's/.*Last Updated: *//' | cut -d' ' -f1)
@@ -185,30 +185,36 @@ jobs:
       - name: Generate Validation Report
         if: always()
         run: |
-          echo "# Documentation Validation Report" > validation_report.md
-          echo "Generated: $(date)" >> validation_report.md
-          echo "" >> validation_report.md
+          {
+            echo "# Documentation Validation Report"
+            echo "Generated: $(date)"
+            echo ""
+          } > validation_report.md
 
           # Link health
           if [ -f scripts/validate_links.py ]; then
-            echo "## Link Health" >> validation_report.md
-            python scripts/validate_links.py 2>&1 | grep -E "(Link health:|Broken links:)" >> validation_report.md
-            echo "" >> validation_report.md
+            {
+              echo "## Link Health"
+              python scripts/validate_links.py 2>&1 | grep -E "(Link health:|Broken links:)"
+              echo ""
+            } >> validation_report.md
           fi
 
           # File count
-          echo "## Documentation Statistics" >> validation_report.md
-          echo "- Total markdown files: $(find docs -name '*.md' | wc -l)" >> validation_report.md
-          echo "- Tutorial files: $(find docs/tutorials -name '*.md' 2>/dev/null | wc -l || echo 0)" >> validation_report.md
-          echo "- How-to guides: $(find docs/how-to -name '*.md' 2>/dev/null | wc -l || echo 0)" >> validation_report.md
-          echo "- Reference docs: $(find docs/reference -name '*.md' 2>/dev/null | wc -l || echo 0)" >> validation_report.md
-          echo "- Explanation docs: $(find docs/explanation -name '*.md' 2>/dev/null | wc -l || echo 0)" >> validation_report.md
+          {
+            echo "## Documentation Statistics"
+            echo "- Total markdown files: $(find docs -name '*.md' | wc -l)"
+            echo "- Tutorial files: $(find docs/tutorials -name '*.md' 2>/dev/null | wc -l || echo 0)"
+            echo "- How-to guides: $(find docs/how-to -name '*.md' 2>/dev/null | wc -l || echo 0)"
+            echo "- Reference docs: $(find docs/reference -name '*.md' 2>/dev/null | wc -l || echo 0)"
+            echo "- Explanation docs: $(find docs/explanation -name '*.md' 2>/dev/null | wc -l || echo 0)"
+          } >> validation_report.md
 
           cat validation_report.md
 
       - name: Upload Validation Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3
         with:
           name: documentation-validation-report
           path: validation_report.md
@@ -216,7 +222,7 @@ jobs:
 
       - name: Comment on PR
         if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const fs = require('fs');
