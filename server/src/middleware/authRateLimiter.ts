@@ -36,10 +36,11 @@ const getClientId = (req: Request): string => {
 // Track failed attempts
 const trackFailedAttempt = (clientId: string) => {
   const attempts = suspiciousIPs.get(clientId) || 0;
-  suspiciousIPs.set(clientId, attempts + 1);
+  const newAttempts = attempts + 1;
+  suspiciousIPs.set(clientId, newAttempts);  // Write immediately BEFORE check
 
   // Auto-block after 10 failed attempts
-  if (attempts >= 10) {
+  if (newAttempts >= 10) {
     blockedIPs.add(clientId);
     logger.error(`[SECURITY] Client blocked after 10 failed attempts: ${clientId}`);
 

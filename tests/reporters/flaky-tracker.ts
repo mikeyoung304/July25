@@ -15,7 +15,7 @@ interface FlakyTestInfo {
  * Note: console.log is intentional - Playwright reporters output to terminal.
  */
 class FlakyTracker implements Reporter {
-  private flakyTests: FlakyTestInfo[] = [];
+  private flakyTests: Map<string, FlakyTestInfo> = new Map();
 
   onTestEnd(test: TestCase, result: TestResult): void {
     // Log each retry attempt as it happens
@@ -26,7 +26,9 @@ class FlakyTracker implements Reporter {
       );
 
       // Track ALL tests that required retries, regardless of final outcome
-      this.flakyTests.push({
+      // Use Map to deduplicate - final call will have final status
+      const key = `${test.location.file}:${test.title}`;
+      this.flakyTests.set(key, {
         title: test.title,
         file: test.location.file,
         attempts: result.retry + 1,
@@ -36,12 +38,13 @@ class FlakyTracker implements Reporter {
   }
 
   onEnd(result: FullResult): void {
-    if (this.flakyTests.length > 0) {
+    const tests = Array.from(this.flakyTests.values());
+    if (tests.length > 0) {
       console.log('\n=== FLAKY TEST SUMMARY ===');
-      console.log(`Total flaky tests: ${this.flakyTests.length}`);
+      console.log(`Total flaky tests: ${tests.length}`);
       console.log('');
 
-      for (const test of this.flakyTests) {
+      for (const test of tests) {
         const statusIcon = test.finalStatus === 'passed' ? '✓' : '✗';
         console.log(`  ${statusIcon} ${test.title}`);
         console.log(`    File: ${test.file}`);

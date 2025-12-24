@@ -80,13 +80,13 @@ export class WebSocketService extends EventEmitter {
 
     // Guard: prevent double connection attempts
     if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
-      console.warn('[WebSocket] Already connected or connecting, skipping...')
+      logger.warn('Already connected or connecting, skipping...', { component: 'WebSocket' })
       return
     }
 
     // Guard: prevent connection during reconnection cycle
     if (this.isReconnecting) {
-      console.warn('[WebSocket] Reconnection in progress, skipping connect...')
+      logger.warn('Reconnection in progress, skipping connect...', { component: 'WebSocket' })
       return
     }
 
@@ -164,7 +164,7 @@ export class WebSocketService extends EventEmitter {
       this.ws.onclose = this.handleClose.bind(this)
 
     } catch (error) {
-      console.error('Failed to connect to WebSocket:', error)
+      logger.error('Failed to connect to WebSocket', { component: 'WebSocket', error: error instanceof Error ? error.message : String(error) })
       this.setConnectionState('error')
       this.scheduleReconnect()
     } finally {
@@ -212,7 +212,7 @@ export class WebSocketService extends EventEmitter {
    */
   send<T = unknown>(type: string, payload: T): void {
     if (!this.isConnected()) {
-      console.warn('Cannot send message - WebSocket not connected')
+      logger.warn('Cannot send message - WebSocket not connected', { component: 'WebSocket' })
       return
     }
 
@@ -228,7 +228,7 @@ export class WebSocketService extends EventEmitter {
       const serializedMessage = JSON.stringify(toSnakeCase(message))
       this.ws!.send(serializedMessage)
     } catch (error) {
-      console.error('Failed to send WebSocket message:', error)
+      logger.error('Failed to send WebSocket message', { component: 'WebSocket', error: error instanceof Error ? error.message : String(error) })
     }
   }
 
@@ -282,7 +282,7 @@ export class WebSocketService extends EventEmitter {
   }
 
   private handleOpen(): void {
-    console.warn('WebSocket connected')
+    logger.info('WebSocket connected', { component: 'WebSocket' })
     this.reconnectAttempts = 0
     this.isReconnecting = false // Reset reconnection flag on successful connection
     this.lastHeartbeat = Date.now()
@@ -339,12 +339,12 @@ export class WebSocketService extends EventEmitter {
       this.emit(`message:${message.type}`, message.payload)
       
     } catch (error) {
-      console.error('Failed to parse WebSocket message:', error)
+      logger.error('Failed to parse WebSocket message', { component: 'WebSocket', error: error instanceof Error ? error.message : String(error) })
     }
   }
 
   private handleError(event: Event): void {
-    console.error('WebSocket error:', event)
+    logger.error('WebSocket error', { component: 'WebSocket', event: event.type })
     this.setConnectionState('error')
     // Stop heartbeat on error to prevent memory leak
     this.stopHeartbeat()
@@ -352,7 +352,7 @@ export class WebSocketService extends EventEmitter {
   }
 
   private handleClose(event: CloseEvent): void {
-    console.warn('WebSocket closed:', event.code, event.reason)
+    logger.warn('WebSocket closed', { component: 'WebSocket', code: event.code, reason: event.reason })
     this.setConnectionState('disconnected')
     this.stopHeartbeat()
     this.emit('disconnected', event)
@@ -373,7 +373,7 @@ export class WebSocketService extends EventEmitter {
   private scheduleReconnect(): void {
     // Guard: Prevent double reconnection scheduling
     if (this.isReconnecting) {
-      console.warn('[WebSocket] Reconnection already scheduled, skipping...')
+      logger.warn('Reconnection already scheduled, skipping...', { component: 'WebSocket' })
       return
     }
 
@@ -384,7 +384,7 @@ export class WebSocketService extends EventEmitter {
     }
 
     if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
-      console.error('Max reconnection attempts reached')
+      logger.error('Max reconnection attempts reached', { component: 'WebSocket', attempts: this.reconnectAttempts, maxAttempts: this.config.maxReconnectAttempts })
       this.isReconnecting = false
       this.emit('maxReconnectAttemptsReached')
       return
@@ -403,7 +403,7 @@ export class WebSocketService extends EventEmitter {
 
     const delay = Math.min(baseDelay + jitter, 30000) // Ensure max 30 seconds
 
-    console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${Math.round(delay)}ms (exponential backoff with jitter)`)
+    logger.warn('Scheduling reconnection attempt', { component: 'WebSocket', attempt: this.reconnectAttempts, maxAttempts: this.config.maxReconnectAttempts, delayMs: Math.round(delay), strategy: 'exponential backoff with jitter' })
 
     this.reconnectTimer = setTimeout(async () => {
       this.reconnectTimer = null // Clear reference after execution
@@ -418,7 +418,7 @@ export class WebSocketService extends EventEmitter {
           await this.connect()
         } catch (error) {
           // connect() failed, will be handled by error/close handlers which may schedule another reconnect
-          console.error('[WebSocket] Reconnection attempt failed:', error)
+          logger.error('Reconnection attempt failed', { component: 'WebSocket', error: error instanceof Error ? error.message : String(error) })
         }
       }
     }, delay)
@@ -473,7 +473,7 @@ export class WebSocketService extends EventEmitter {
       
       // Check if we haven't received any data recently
       if (now - this.lastHeartbeat > this.heartbeatInterval * 2) {
-        console.warn('WebSocket heartbeat timeout - connection may be dead')
+        logger.warn('WebSocket heartbeat timeout - connection may be dead', { component: 'WebSocket', lastHeartbeat: this.lastHeartbeat, now, timeoutMs: this.heartbeatInterval * 2 })
         if (this.ws) {
           this.ws.close()
         }
