@@ -40,6 +40,10 @@ export class WebSocketService extends EventEmitter {
   private lastHeartbeat: number = 0
   private heartbeatTimer: NodeJS.Timeout | null = null
   private heartbeatInterval = 30000 // 30 seconds
+  // Store pending auth for first-message authentication
+  private pendingAuth: { token: string; restaurantId: string } | null = null
+  // Track if auth has been confirmed by server
+  private isAuthenticated = false
 
   constructor(config: WebSocketConfig = {}) {
     super()
@@ -140,13 +144,20 @@ export class WebSocketService extends EventEmitter {
       // Get restaurant ID with fallback for development
       const restaurantId = getCurrentRestaurantId() || 'grow'
 
-      // Build WebSocket URL with auth params
-      const wsUrl = new URL(this.config.url)
+      // Store auth for first-message authentication (more secure - no token in URL)
+      // Token is sent as first message after connection opens, not in URL
+      // This prevents token leakage in server logs, browser history, proxy logs
       if (token) {
-        wsUrl.searchParams.set('token', token)
+        this.pendingAuth = { token, restaurantId }
       } else {
+        this.pendingAuth = null
         logger.warn('⚠️ Connecting WebSocket without authentication token')
       }
+      this.isAuthenticated = false
+
+      // Build WebSocket URL without token (security improvement)
+      const wsUrl = new URL(this.config.url)
+      // Only send restaurant_id in URL for routing, not the sensitive token
       wsUrl.searchParams.set('restaurant_id', restaurantId)
 
       // Create WebSocket connection
@@ -180,6 +191,8 @@ export class WebSocketService extends EventEmitter {
     this.isIntentionallyClosed = true
     this.isReconnecting = false // Reset reconnection flag on disconnect
     this.isConnecting = false // Reset connection flag on disconnect
+    this.isAuthenticated = false // Reset auth flag on disconnect
+    this.pendingAuth = null // Clear any pending auth
     this.stopHeartbeat()
 
     // Clear reconnect timer first to prevent reconnection
@@ -282,20 +295,64 @@ export class WebSocketService extends EventEmitter {
   }
 
   private handleOpen(): void {
-    logger.info('WebSocket connected', { component: 'WebSocket' })
+    logger.info('WebSocket connection opened, sending auth...', { component: 'WebSocket' })
     this.reconnectAttempts = 0
     this.isReconnecting = false // Reset reconnection flag on successful connection
     this.lastHeartbeat = Date.now()
-    this.setConnectionState('connected')
-    this.startHeartbeat()
-    this.emit('connected')
+
+    // Send first-message authentication (security improvement: token not in URL)
+    if (this.pendingAuth && this.ws) {
+      logger.info('🔐 Sending WebSocket first-message auth', { component: 'WebSocket' })
+      this.ws.send(JSON.stringify({
+        type: 'auth',
+        token: this.pendingAuth.token,
+        restaurant_id: this.pendingAuth.restaurantId,
+        timestamp: new Date().toISOString()
+      }))
+      // Clear pending auth after sending (token should not be kept in memory longer than needed)
+      this.pendingAuth = null
+    } else {
+      // No auth to send - connection may be rejected by server
+      logger.warn('WebSocket opened without auth to send', { component: 'WebSocket' })
+      // Still emit connected for backward compatibility in dev mode
+      if (import.meta.env.DEV) {
+        this.setConnectionState('connected')
+        this.startHeartbeat()
+        this.emit('connected')
+      }
+    }
   }
 
   private handleMessage(event: MessageEvent): void {
     try {
       // Parse the message - server sends with payload wrapper
       const rawMessage = JSON.parse(event.data)
-      
+
+      // Handle auth responses (first-message authentication)
+      if (rawMessage.type === 'auth:success') {
+        logger.info('🔐 WebSocket authentication successful', { component: 'WebSocket' })
+        this.isAuthenticated = true
+        this.setConnectionState('connected')
+        this.startHeartbeat()
+        this.emit('connected')
+        return
+      }
+
+      if (rawMessage.type === 'auth:failed') {
+        logger.error('❌ WebSocket authentication failed', { component: 'WebSocket', error: rawMessage.error })
+        this.isAuthenticated = false
+        this.setConnectionState('error')
+        this.emit('error', new Error(rawMessage.error || 'Authentication failed'))
+        // Don't schedule reconnect for auth failures - likely a token issue
+        return
+      }
+
+      // Handle initial 'connected' message (before auth completes)
+      if (rawMessage.type === 'connected' && rawMessage.auth_required) {
+        logger.debug('WebSocket connected, awaiting auth response...', { component: 'WebSocket' })
+        return
+      }
+
       logger.info('[WebSocket] Raw message received:', { type: rawMessage.type, payload: rawMessage.payload ? 'has payload' : 'no payload' })
       
       // DIAGNOSTIC: Log the full structure for order events
@@ -428,6 +485,8 @@ export class WebSocketService extends EventEmitter {
     // Reset connection and reconnection state
     this.isReconnecting = false
     this.isConnecting = false
+    this.isAuthenticated = false
+    this.pendingAuth = null
 
     // Clear reconnect timer
     if (this.reconnectTimer) {

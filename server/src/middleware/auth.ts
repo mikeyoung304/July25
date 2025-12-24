@@ -263,6 +263,76 @@ export async function verifyWebSocketAuth(
   }
 }
 
+/**
+ * Verify WebSocket authentication from a token string (first-message auth)
+ * Used when token is sent as first message after connection, not in URL
+ * This is more secure as it prevents token leakage in logs
+ */
+export async function verifyWebSocketToken(
+  token: string,
+  restaurantId?: string
+): Promise<{ userId: string; restaurantId?: string } | null> {
+  try {
+    const config = getConfig();
+
+    if (!token) {
+      logger.warn('WebSocket token auth rejected: no token provided');
+      return null;
+    }
+
+    const jwtSecret = config.supabase.jwtSecret;
+    if (!jwtSecret) {
+      logger.error('⛔ JWT_SECRET not configured - WebSocket auth cannot proceed');
+      return null;
+    }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, jwtSecret) as any;
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        logger.warn('WebSocket token auth rejected: token expired', {
+          expiredAt: error.expiredAt
+        });
+      } else if (error instanceof jwt.JsonWebTokenError) {
+        logger.warn('WebSocket token auth rejected: invalid token', {
+          message: error.message
+        });
+      } else {
+        logger.error('WebSocket token auth rejected: unexpected error', { error });
+      }
+      return null;
+    }
+
+    // STRICT_AUTH enforcement
+    const strictAuth = process.env['STRICT_AUTH'] === 'true';
+    if (strictAuth && !decoded.restaurant_id) {
+      logger.error('⛔ WebSocket STRICT_AUTH: token missing restaurant_id rejected', {
+        userId: decoded.sub
+      });
+      return null;
+    }
+
+    // UUID format validation for restaurant_id
+    const effectiveRestaurantId = restaurantId || decoded.restaurant_id;
+    if (effectiveRestaurantId && !UUID_REGEX.test(effectiveRestaurantId)) {
+      logger.error('⛔ WebSocket: Invalid restaurant_id format', {
+        userId: decoded.sub,
+        restaurant_id: effectiveRestaurantId
+      });
+      return null;
+    }
+
+    return {
+      userId: decoded.sub,
+      restaurantId: effectiveRestaurantId || (strictAuth ? undefined : config.restaurant.defaultId),
+    };
+  } catch (error) {
+    logger.error('WebSocket token auth error:', error);
+    return null;
+  }
+}
+
 // Require specific role
 export function requireRole(roles: string[]) {
   return (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {

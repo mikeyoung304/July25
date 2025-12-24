@@ -173,7 +173,7 @@ describe('WebSocketService', { timeout: 10000 }, () => {
   })
   
   describe('connect', () => {
-    test('should establish WebSocket connection with auth params', async () => {
+    test('should establish WebSocket connection with first-message auth', async () => {
       const connectPromise = service.connect()
 
       // Wait for auth to be resolved and WebSocket to be created
@@ -182,11 +182,23 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       const wsCall = (global.WebSocket as unknown as vi.Mock).mock.calls[0]
       const url = new URL(wsCall[0])
 
-      expect(url.searchParams.get('token')).toBe('test-token')
+      // Security improvement: token is NOT in URL (sent via first-message auth)
+      expect(url.searchParams.get('token')).toBeNull()
       expect(url.searchParams.get('restaurant_id')).toBe('test-restaurant')
 
-      // Simulate WebSocket opening on the CURRENT mock (the one service is using)
+      // Simulate WebSocket opening - this triggers sending the auth message
       getCurrentMock().simulateOpen()
+
+      // Verify auth message was sent
+      expect(getCurrentMock().send).toHaveBeenCalled()
+      const authCall = getCurrentMock().send.mock.calls[0]
+      const authMessage = JSON.parse(authCall[0])
+      expect(authMessage.type).toBe('auth')
+      expect(authMessage.token).toBe('test-token')
+      expect(authMessage.restaurant_id).toBe('test-restaurant')
+
+      // Simulate server auth success response
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
       await connectPromise
 
       expect(service.isConnected()).toBe(true)
@@ -227,6 +239,8 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       expect(url.searchParams.get('restaurant_id')).toBe('grow')
 
       getCurrentMock().simulateOpen()
+      // Simulate auth success
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
       await connectPromise
 
       expect(service.isConnected()).toBe(true)
@@ -238,8 +252,9 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
 
-      // Simulate open and wait for the handler
-      getCurrentMock().simulateOpen() // Just advance a little for the setTimeout(0)
+      // Simulate open and auth success
+      getCurrentMock().simulateOpen()
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
       await firstConnect
 
       expect(service.isConnected()).toBe(true)
@@ -261,6 +276,7 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       getCurrentMock().simulateOpen()
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
 
       // Ensure connection is established
       expect(service.isConnected()).toBe(true)
@@ -278,11 +294,12 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       getCurrentMock().simulateOpen()
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
 
       // Connection should be established
       expect(service.isConnected()).toBe(true)
 
-      // Clear any previous sends (like heartbeat pings)
+      // Clear any previous sends (auth message, heartbeat pings)
       getCurrentMock().send.mockClear()
 
       const payload = { test: 'data' }
@@ -314,8 +331,9 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       getCurrentMock().simulateOpen()
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
 
-      // Clear any heartbeat sends
+      // Clear auth message and heartbeat sends
       getCurrentMock().send.mockClear()
 
       // Now sending should work
@@ -330,6 +348,7 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       getCurrentMock().simulateOpen()
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
 
       const callback = vi.fn()
       service.subscribe('test-message', callback)
@@ -351,6 +370,7 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       getCurrentMock().simulateOpen()
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
 
       const callback = vi.fn()
       const unsubscribe = service.subscribe('test-message', callback)
@@ -391,8 +411,9 @@ describe('WebSocketService', { timeout: 10000 }, () => {
         await vi.runOnlyPendingTimersAsync()
         expect(global.WebSocket).toHaveBeenCalled()
 
-        // Simulate successful connection
+        // Simulate successful connection with auth
         getCurrentMock().simulateOpen()
+        getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
         await connectPromise
 
         const initialCallCount = (global.WebSocket as unknown as vi.Mock).mock.calls.length
@@ -419,6 +440,7 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       getCurrentMock().simulateOpen()
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
 
       ;(global.WebSocket as unknown as vi.Mock).mockClear()
 
@@ -462,8 +484,9 @@ describe('WebSocketService', { timeout: 10000 }, () => {
         await vi.runOnlyPendingTimersAsync()
         expect(global.WebSocket).toHaveBeenCalled()
 
-        // Simulate successful connection
+        // Simulate successful connection with auth
         getCurrentMock().simulateOpen()
+        getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
         await connectPromise
 
         const initialCallCount = (global.WebSocket as unknown as vi.Mock).mock.calls.length
@@ -498,6 +521,11 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       getCurrentMock().simulateOpen()
+      // Heartbeat only starts after successful auth
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
+
+      // Clear auth message from send calls
+      getCurrentMock().send.mockClear()
 
       // Advance time to trigger heartbeat (30 seconds)
       await vi.advanceTimersByTimeAsync(30000)
@@ -517,6 +545,7 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       await vi.runOnlyPendingTimersAsync()
       expect(global.WebSocket).toHaveBeenCalled()
       getCurrentMock().simulateOpen()
+      getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
 
       // Clear any previous logger calls
       vi.mocked(logger.error).mockClear()

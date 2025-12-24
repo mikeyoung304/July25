@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { logger } from './logger';
-import { verifyWebSocketAuth } from '../middleware/auth';
+import { verifyWebSocketAuth, verifyWebSocketToken } from '../middleware/auth';
 
 // ADR-001: No transformation needed - all layers use snake_case
 
@@ -8,6 +8,7 @@ interface ExtendedWebSocket extends WebSocket {
   restaurantId?: string | undefined;
   userId?: string | undefined;
   isAlive?: boolean | undefined;
+  isAuthenticated?: boolean | undefined;
 }
 
 const wsLogger = logger.child({ module: 'websocket' });
@@ -39,37 +40,76 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
     if (request.url?.includes('/voice-stream')) {
       return;
     }
-    
+
     wsLogger.info('New WebSocket connection');
-    
+
     // Set up heartbeat
     ws.isAlive = true;
+    ws.isAuthenticated = false;
     ws.on('pong', () => {
       ws.isAlive = true;
     });
 
-    // Authenticate connection
+    // Try URL-based auth first (backward compatible, but logs warning)
+    // Prefer first-message auth for security (no token in URL/logs)
     try {
       const auth = await verifyWebSocketAuth(request);
-      if (!auth) {
-        wsLogger.warn('WebSocket authentication failed - no auth returned');
-        ws.close(1008, 'Unauthorized');
-        return;
+      if (auth) {
+        // URL-based auth succeeded (legacy mode)
+        wsLogger.warn('WebSocket using URL token auth (deprecated) - consider upgrading to first-message auth', {
+          userId: auth.userId
+        });
+        ws.userId = auth.userId;
+        ws.restaurantId = auth.restaurantId;
+        ws.isAuthenticated = true;
+        wsLogger.info(`WebSocket authenticated via URL for user: ${auth.userId}`);
       }
-      
-      ws.userId = auth.userId;
-      ws.restaurantId = auth.restaurantId;
-      wsLogger.info(`WebSocket authenticated for user: ${auth.userId} in restaurant: ${auth.restaurantId}`);
     } catch (error) {
-      wsLogger.error('WebSocket authentication failed:', error);
-      ws.close(1008, 'Authentication failed');
-      return;
+      wsLogger.error('WebSocket URL auth check failed:', error);
     }
 
     // Handle messages
-    ws.on('message', (data) => {
+    ws.on('message', async (data) => {
       try {
         const message = JSON.parse(data.toString());
+
+        // If not authenticated, first message must be auth
+        if (!ws.isAuthenticated) {
+          if (message.type === 'auth' && message.token) {
+            // First-message authentication (preferred, no token in URL)
+            const auth = await verifyWebSocketToken(message.token, message.restaurant_id);
+            if (auth) {
+              ws.userId = auth.userId;
+              ws.restaurantId = auth.restaurantId;
+              ws.isAuthenticated = true;
+              wsLogger.info(`WebSocket authenticated via first-message for user: ${auth.userId}`);
+              ws.send(JSON.stringify({
+                type: 'auth:success',
+                timestamp: new Date().toISOString(),
+              }));
+            } else {
+              wsLogger.warn('WebSocket first-message auth failed');
+              ws.send(JSON.stringify({
+                type: 'auth:failed',
+                error: 'Authentication failed',
+                timestamp: new Date().toISOString(),
+              }));
+              ws.close(1008, 'Authentication failed');
+            }
+          } else {
+            // First message is not auth - reject
+            wsLogger.warn('WebSocket received non-auth message before authentication');
+            ws.send(JSON.stringify({
+              type: 'error',
+              error: 'Authentication required',
+              timestamp: new Date().toISOString(),
+            }));
+            ws.close(1008, 'Authentication required');
+          }
+          return;
+        }
+
+        // Authenticated - handle normal messages
         handleWebSocketMessage(ws, message, wss);
       } catch (error) {
         wsLogger.error('Invalid WebSocket message:', error);
@@ -78,17 +118,19 @@ export function setupWebSocketHandlers(wss: WebSocketServer): void {
     });
 
     ws.on('close', () => {
-      wsLogger.info(`WebSocket disconnected: ${ws.userId}`);
+      wsLogger.info(`WebSocket disconnected: ${ws.userId || 'unauthenticated'}`);
     });
 
     ws.on('error', (error) => {
       wsLogger.error('WebSocket error:', error);
     });
 
-    // Send welcome message
+    // Send welcome message (before auth - just indicates connection is open)
     ws.send(JSON.stringify({
       type: 'connected',
       timestamp: new Date().toISOString(),
+      // Hint to client that auth is expected
+      auth_required: !ws.isAuthenticated,
     }));
   });
 
