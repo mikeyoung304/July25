@@ -145,21 +145,22 @@ logger.info('Message', { data });
 // Never use console.log - enforced by pre-commit hook
 ```
 
-## Current Status (v6.0.18)
+## Current Status (v6.0.14)
 
 - **Production Readiness**: 99%
-- **Unit Tests**: 1,397 passing (980 client + 417 server)
-- **E2E Tests**: 188 tests across 31 files (Playwright)
+- **Unit Tests**: 1,672 passing (1,241 client + 431 server)
+- **E2E Tests**: 188 tests across 33 files (Playwright)
 - **Type Safety**: 0 source type errors
-- **Payment System**: Stripe (migrated from Square)
-- **Fall Menu**: Deployed and operational
+- **Payment System**: Stripe (sandbox configured)
+- **Deployments**: Vercel (client) + Render (server)
 
-### Recent Improvements
-- Full type safety cleanup (37 files fixed)
-- ADR-001 snake_case migration completed
-- Playwright E2E configuration fixed
-- Voice ordering with gpt-4o-transcribe model
-- Slug-based restaurant routing (e.g., /order/grow)
+### Recent Improvements (Dec 2024)
+- Rate limiter TOCTOU race condition fixed
+- Structured logging migration (console → logger)
+- Flaky test tracker deduplication
+- Stripe sandbox integration with webhook
+- Security vulnerabilities reduced (15 → 6)
+- Comprehensive solution documentation (+1,626 lines)
 
 ### Known Considerations
 - localStorage for auth tokens is intentional for shared devices
