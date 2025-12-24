@@ -18,7 +18,7 @@ import { setupRoutes } from './routes';
 import { aiService } from './services/ai.service';
 import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
-import { stopRateLimiterCleanup } from './middleware/authRateLimiter';
+import { stopRateLimiterCleanup, startRateLimiterCleanup } from './middleware/authRateLimiter';
 import { OrdersService } from './services/orders.service';
 import { TableService } from './services/table.service';
 import { aiRoutes } from './routes/ai.routes';
@@ -243,6 +243,9 @@ async function startServer() {
     validateEnvironment();
     await initializeDatabase();
     const config = getConfig();
+
+    // Start rate limiter cleanup interval (explicitly called here, not at module load)
+    startRateLimiterCleanup();
 
     // Rate limiters now correctly detect Render production via RENDER env var
     // even when NODE_ENV=development (see rateLimiter.ts and authRateLimiter.ts)

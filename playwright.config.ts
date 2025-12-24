@@ -146,7 +146,7 @@ export default defineConfig({
       testMatch: /.*\.(production|prod)\.spec\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'https://july25-client.vercel.app',
+        baseURL: process.env.PRODUCTION_URL ?? 'https://july25-client.vercel.app',
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
       },

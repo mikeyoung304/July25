@@ -104,20 +104,23 @@ describe('ConnectionStatusBar', () => {
       // Mock window.location.reload
       const reloadMock = vi.fn()
       const originalLocation = window.location
-      Object.defineProperty(window, 'location', {
-        value: { ...originalLocation, reload: reloadMock },
-        writable: true
-      })
 
-      render(<ConnectionStatusBar />)
-      fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
-      expect(reloadMock).toHaveBeenCalled()
+      try {
+        Object.defineProperty(window, 'location', {
+          value: { ...originalLocation, reload: reloadMock },
+          writable: true
+        })
 
-      // Restore
-      Object.defineProperty(window, 'location', {
-        value: originalLocation,
-        writable: true
-      })
+        render(<ConnectionStatusBar />)
+        fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+        expect(reloadMock).toHaveBeenCalled()
+      } finally {
+        // Restore guaranteed even on test failure
+        Object.defineProperty(window, 'location', {
+          value: originalLocation,
+          writable: true
+        })
+      }
     })
   })
 

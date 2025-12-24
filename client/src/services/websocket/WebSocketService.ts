@@ -35,6 +35,8 @@ export class WebSocketService extends EventEmitter {
   private isIntentionallyClosed = false
   // Guard flag: prevents concurrent reconnection attempts and timer scheduling
   private isReconnecting = false
+  // Guard flag: prevents concurrent connection attempts (separate from isReconnecting)
+  private isConnecting = false
   private lastHeartbeat: number = 0
   private heartbeatTimer: NodeJS.Timeout | null = null
   private heartbeatInterval = 30000 // 30 seconds
@@ -70,6 +72,12 @@ export class WebSocketService extends EventEmitter {
    * Connect to WebSocket server
    */
   async connect(): Promise<void> {
+    // Guard: prevent concurrent connection attempts
+    if (this.isConnecting) {
+      logger.debug('[WebSocket] Connection attempt already in progress, skipping...')
+      return
+    }
+
     // Guard: prevent double connection attempts
     if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
       console.warn('[WebSocket] Already connected or connecting, skipping...')
@@ -82,6 +90,7 @@ export class WebSocketService extends EventEmitter {
       return
     }
 
+    this.isConnecting = true
     this.isIntentionallyClosed = false
     this.setConnectionState('connecting')
 
@@ -153,11 +162,14 @@ export class WebSocketService extends EventEmitter {
       this.ws.onmessage = this.handleMessage.bind(this)
       this.ws.onerror = this.handleError.bind(this)
       this.ws.onclose = this.handleClose.bind(this)
-      
+
     } catch (error) {
       console.error('Failed to connect to WebSocket:', error)
       this.setConnectionState('error')
       this.scheduleReconnect()
+    } finally {
+      // Always reset isConnecting flag to allow future connection attempts
+      this.isConnecting = false
     }
   }
 
@@ -167,6 +179,7 @@ export class WebSocketService extends EventEmitter {
   disconnect(): void {
     this.isIntentionallyClosed = true
     this.isReconnecting = false // Reset reconnection flag on disconnect
+    this.isConnecting = false // Reset connection flag on disconnect
     this.stopHeartbeat()
 
     // Clear reconnect timer first to prevent reconnection
@@ -412,8 +425,9 @@ export class WebSocketService extends EventEmitter {
   }
 
   private cleanup(): void {
-    // Reset reconnection state
+    // Reset connection and reconnection state
     this.isReconnecting = false
+    this.isConnecting = false
 
     // Clear reconnect timer
     if (this.reconnectTimer) {

@@ -375,30 +375,32 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       // Create a fresh service for this test
       const testService = new WebSocketService({ maxReconnectAttempts: 5 })
 
-      const connectPromise = testService.connect()
-      await vi.runOnlyPendingTimersAsync()
-      expect(global.WebSocket).toHaveBeenCalled()
+      try {
+        const connectPromise = testService.connect()
+        await vi.runOnlyPendingTimersAsync()
+        expect(global.WebSocket).toHaveBeenCalled()
 
-      // Simulate successful connection
-      getCurrentMock().simulateOpen()
-      await connectPromise
+        // Simulate successful connection
+        getCurrentMock().simulateOpen()
+        await connectPromise
 
-      const initialCallCount = (global.WebSocket as unknown as vi.Mock).mock.calls.length
-      expect(testService.isConnected()).toBe(true)
+        const initialCallCount = (global.WebSocket as unknown as vi.Mock).mock.calls.length
+        expect(testService.isConnected()).toBe(true)
 
-      // Simulate unexpected close - this should trigger scheduleReconnect
-      getCurrentMock().simulateClose(1006, 'Connection lost')
+        // Simulate unexpected close - this should trigger scheduleReconnect
+        getCurrentMock().simulateClose(1006, 'Connection lost')
 
-      // The reconnect timer is scheduled with exponential backoff (~2000-3000ms with jitter)
-      // We need to advance time and also allow the async operations to complete
-      // Use runAllTimersAsync which handles async callbacks in timers
-      await vi.runAllTimersAsync()
+        // The reconnect timer is scheduled with exponential backoff (~2000-3000ms with jitter)
+        // We need to advance time and also allow the async operations to complete
+        // Use runAllTimersAsync which handles async callbacks in timers
+        await vi.runAllTimersAsync()
 
-      // Should attempt reconnection (initial + at least 1 reconnect)
-      expect((global.WebSocket as unknown as vi.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
-
-      // Cleanup
-      testService.disconnect()
+        // Should attempt reconnection (initial + at least 1 reconnect)
+        expect((global.WebSocket as unknown as vi.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
+      } finally {
+        // Cleanup guaranteed even on test failure
+        testService.disconnect()
+      }
     })
     
     test('should not reconnect on intentional close', async () => {
@@ -444,34 +446,36 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       // Create a fresh service for this test
       const testService = new WebSocketService({ maxReconnectAttempts: 5 })
 
-      const connectPromise = testService.connect()
-      await vi.runOnlyPendingTimersAsync()
-      expect(global.WebSocket).toHaveBeenCalled()
+      try {
+        const connectPromise = testService.connect()
+        await vi.runOnlyPendingTimersAsync()
+        expect(global.WebSocket).toHaveBeenCalled()
 
-      // Simulate successful connection
-      getCurrentMock().simulateOpen()
-      await connectPromise
+        // Simulate successful connection
+        getCurrentMock().simulateOpen()
+        await connectPromise
 
-      const initialCallCount = (global.WebSocket as unknown as vi.Mock).mock.calls.length
-      expect(testService.isConnected()).toBe(true)
+        const initialCallCount = (global.WebSocket as unknown as vi.Mock).mock.calls.length
+        expect(testService.isConnected()).toBe(true)
 
-      // Simulate close to trigger reconnection
-      getCurrentMock().simulateClose(1006, 'Connection lost')
+        // Simulate close to trigger reconnection
+        getCurrentMock().simulateClose(1006, 'Connection lost')
 
-      // Try to connect manually while reconnection is scheduled (should be prevented)
-      // This should be blocked because isReconnecting is true
-      await testService.connect()
+        // Try to connect manually while reconnection is scheduled (should be prevented)
+        // This should be blocked because isReconnecting is true
+        await testService.connect()
 
-      // Wait for the reconnect timer to fire
-      await vi.advanceTimersByTimeAsync(5000)
-      await vi.runOnlyPendingTimersAsync()
+        // Wait for the reconnect timer to fire
+        await vi.advanceTimersByTimeAsync(5000)
+        await vi.runOnlyPendingTimersAsync()
 
-      // Should have only 1 reconnection attempt (concurrent attempts blocked)
-      // Initial connection + 1 reconnect = initialCallCount + 1
-      expect((global.WebSocket as unknown as vi.Mock).mock.calls.length).toBe(initialCallCount + 1)
-
-      // Cleanup
-      testService.disconnect()
+        // Should have only 1 reconnection attempt (concurrent attempts blocked)
+        // Initial connection + 1 reconnect = initialCallCount + 1
+        expect((global.WebSocket as unknown as vi.Mock).mock.calls.length).toBe(initialCallCount + 1)
+      } finally {
+        // Cleanup guaranteed even on test failure
+        testService.disconnect()
+      }
     })
   })
   

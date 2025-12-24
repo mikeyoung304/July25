@@ -16,6 +16,9 @@ const isDevelopment = process.env['NODE_ENV'] === 'development' && process.env['
 const suspiciousIPs = new Map<string, number>();
 const blockedIPs = new Set<string>();
 
+// Track unblock timers to prevent memory leaks
+const unblockTimers = new Map<string, NodeJS.Timeout>();
+
 // Cleanup interval reference for proper shutdown
 let cleanupInterval: NodeJS.Timeout | null = null;
 
@@ -34,18 +37,27 @@ const getClientId = (req: Request): string => {
 const trackFailedAttempt = (clientId: string) => {
   const attempts = suspiciousIPs.get(clientId) || 0;
   suspiciousIPs.set(clientId, attempts + 1);
-  
+
   // Auto-block after 10 failed attempts
   if (attempts >= 10) {
     blockedIPs.add(clientId);
     logger.error(`[SECURITY] Client blocked after 10 failed attempts: ${clientId}`);
-    
-    // Auto-unblock after 24 hours
-    setTimeout(() => {
+
+    // Clear any existing unblock timer for this client
+    const existingTimer = unblockTimers.get(clientId);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+    }
+
+    // Auto-unblock after 24 hours (tracked for cleanup)
+    const timer = setTimeout(() => {
       blockedIPs.delete(clientId);
       suspiciousIPs.delete(clientId);
+      unblockTimers.delete(clientId);
       logger.info(`[SECURITY] Client unblocked: ${clientId}`);
     }, 24 * 60 * 60 * 1000);
+
+    unblockTimers.set(clientId, timer);
   }
 };
 
@@ -59,6 +71,23 @@ export const resetFailedAttempts = (req: Request) => {
 const isBlocked = (req: Request): boolean => {
   const clientId = getClientId(req);
   return blockedIPs.has(clientId);
+};
+
+/**
+ * Middleware to check blocked IPs FIRST before any rate limit processing
+ * This ensures blocked IPs are rejected immediately with no resources consumed
+ */
+export const blockedIPCheck = (req: Request, res: any, next: any) => {
+  const clientId = getClientId(req);
+  if (blockedIPs.has(clientId)) {
+    logger.warn(`[SECURITY] Blocked IP rejected immediately: ${clientId}`);
+    return res.status(429).json({
+      error: 'Too many requests',
+      message: 'Your access has been temporarily suspended. Please try again later.',
+      retryAfter: 86400 // 24 hours
+    });
+  }
+  next();
 };
 
 // Login rate limiter - strict (relaxed for local development only)
@@ -206,8 +235,8 @@ export const stationAuthRateLimiter = rateLimit({
 export const suspiciousActivityCheck = (req: Request, res: any, next: any) => {
   const clientId = getClientId(req);
 
-  // 🔍 DIAGNOSTIC LOGGING
-  logger.info('🔍 AUTH CHECK:', {
+  // Diagnostic logging (debug level to avoid log noise in production)
+  logger.debug('Rate limiter diagnostic', {
     clientId,
     ip: req.ip,
     isBlocked: blockedIPs.has(clientId),
@@ -241,6 +270,7 @@ export const suspiciousActivityCheck = (req: Request, res: any, next: any) => {
 
 // Export all limiters as a group for easy application
 export const authRateLimiters = {
+  blockedIPCheck: blockedIPCheck, // Apply FIRST to reject blocked IPs immediately
   login: loginRateLimiter,
   pin: pinAuthRateLimiter,
   passwordReset: passwordResetRateLimiter,
@@ -277,6 +307,21 @@ export function startRateLimiterCleanup(): void {
 }
 
 /**
+ * Clean up all unblock timers to prevent memory leaks
+ * CRITICAL: Must be called during server shutdown
+ */
+export function cleanupRateLimiterTimers(): void {
+  const timerCount = unblockTimers.size;
+  for (const timer of unblockTimers.values()) {
+    clearTimeout(timer);
+  }
+  unblockTimers.clear();
+  if (timerCount > 0) {
+    logger.info(`[SECURITY] Cleared ${timerCount} unblock timers`);
+  }
+}
+
+/**
  * Stop the rate limiter cleanup and clear all tracked IPs
  * CRITICAL: Must be called during server shutdown to prevent memory leaks
  */
@@ -287,6 +332,9 @@ export function stopRateLimiterCleanup(): void {
     logger.info('[SECURITY] Rate limiter cleanup interval stopped');
   }
 
+  // Clear all unblock timers first
+  cleanupRateLimiterTimers();
+
   // Clear all tracked data
   const suspiciousCount = suspiciousIPs.size;
   const blockedCount = blockedIPs.size;
@@ -296,5 +344,5 @@ export function stopRateLimiterCleanup(): void {
   logger.info(`[SECURITY] Rate limiter data cleared: ${suspiciousCount} suspicious IPs, ${blockedCount} blocked IPs`);
 }
 
-// Start cleanup on module load
-startRateLimiterCleanup();
+// NOTE: startRateLimiterCleanup() is called explicitly in server.ts during initialization
+// Do NOT call it here at module level to avoid side effects during imports

@@ -177,21 +177,21 @@ describe('useOrderData', () => {
   it('should handle errors gracefully', async () => {
     const error = new Error('Failed to fetch orders')
     ;(orderService.getOrders as vi.Mock).mockRejectedValue(error)
-    
+
     // Suppress console.error for this test since we're testing error handling
-    const originalError = console.error
-    console.error = vi.fn()
-    
+    // Using vi.spyOn which auto-restores in vitest's afterEach
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     const { result } = renderHook(() => useOrderData())
-    
+
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
       expect(result.current.error).toEqual(error)
       expect(result.current.orders).toEqual([])
     })
-    
-    // Restore console.error
-    console.error = originalError
+
+    // Explicitly restore (though vitest handles this automatically)
+    consoleSpy.mockRestore()
   })
   
   it('should re-fetch when filters change', async () => {
