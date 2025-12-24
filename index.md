@@ -228,6 +228,23 @@ Looking for source code file locations? See [CODEBASE_INDEX.md](/CODEBASE_INDEX.
 - [Floor Plan RBAC Investigation](./docs/FLOOR_PLAN_RBAC_INVESTIGATION.md) — Authorization analysis
 - [Vercel Deployment Test Report](./docs/VERCEL_DEPLOYMENT_TEST_REPORT.md) — Deployment testing results
 
+## Knowledge Base (Codified Solutions)
+
+**Problem solutions documented for future reference:**
+- [Solutions Index](./docs/solutions/README.md) — All codified problem solutions
+  - [Build Errors](./docs/solutions/build-errors/) — TypeScript, Vercel, pre-commit issues
+  - [Test Failures](./docs/solutions/test-failures/) — Mock drift, isolation, E2E fixes
+  - [Security Issues](./docs/solutions/security-issues/) — Rate limiting, WebSocket auth, RLS
+  - [Process Issues](./docs/solutions/process-issues/) — Parallel agents, Claude Code, documentation cleanup
+  - [Performance Issues](./docs/solutions/performance-issues/) — Vitest, memory, query optimization
+  - [Database Issues](./docs/solutions/database-issues/) — Schema, migrations, column fixes
+  - [Auth Issues](./docs/solutions/auth-issues/) — Dual pattern, WebSocket station auth
+  - [Code Quality](./docs/solutions/code-quality/) — Logger migration, type safety
+
+**Prevention Strategies:**
+- [Prevention Index](./docs/prevention/README.md) — Proactive prevention patterns
+- [Testing Guides](./docs/guides/testing/README.md) — Test isolation and standards
+
 ## Archive
 - **2025-11**: [docs/archive/2025-11/](./docs/archive/2025-11/) — P0.9 Phase 1, Phase 2A, Auth audits, investigations (24 files archived)
 - **2025-10**: [docs/archive/2025-10/](./docs/archive/2025-10/) — Historical documentation
