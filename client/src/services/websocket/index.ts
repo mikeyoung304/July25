@@ -4,7 +4,15 @@
  * v2 - Fixed order handler payload handling
  */
 
-export { webSocketService, WebSocketService, type WebSocketMessage, type ConnectionState } from './WebSocketService'
+export {
+  webSocketService,
+  WebSocketService,
+  OptimisticWebSocketService,
+  optimisticWebSocketService,
+  type WebSocketMessage,
+  type ConnectionState,
+  type OptimisticUpdate
+} from './WebSocketService'
 export { orderUpdatesHandler, OrderUpdatesHandler, type OrderUpdatePayload } from './orderUpdates'
 
 // Import the singletons for convenience methods

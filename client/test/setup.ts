@@ -7,6 +7,34 @@ import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { afterEach, afterAll, beforeAll, vi } from 'vitest'
 
+// Global logger mock - auto-hoisted for all tests
+// This ensures consistent mocking regardless of import path resolution
+vi.mock('@/services/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    child: vi.fn(() => ({
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    })),
+    getRecentLogs: vi.fn(() => []),
+    clearLogs: vi.fn(),
+  },
+  Logger: vi.fn().mockImplementation(() => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    child: vi.fn(),
+    getRecentLogs: vi.fn(() => []),
+    clearLogs: vi.fn(),
+  })),
+}))
+
 // Enable manual GC for tests
 beforeAll(() => {
   if (!global.gc) {

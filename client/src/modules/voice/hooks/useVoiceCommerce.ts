@@ -18,9 +18,9 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { logger } from '../../../services/logger';
+import { logger } from '@/services/logger';
 import type { VoiceMenuConfiguration } from '@rebuild/shared';
-import { VoiceConfigService, voiceConfigService } from '../../../services/voice/VoiceConfigService';
+import { VoiceConfigService, voiceConfigService } from '@/services/voice/VoiceConfigService';
 
 /**
  * Minimal menu item interface for voice commerce

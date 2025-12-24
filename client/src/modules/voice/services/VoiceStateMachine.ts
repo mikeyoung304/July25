@@ -15,7 +15,7 @@
  * Created: 2025-01-23 (Phase 2: Stabilization)
  */
 
-import { logger } from '../../../services/logger';
+import { logger } from '@/services/logger';
 
 // ============================================================================
 // STATE AND EVENT DEFINITIONS

@@ -231,17 +231,24 @@ export const TableSchemas: any = {
   })
 } as const;
 
+// Error response schema (extracted for type inference simplicity)
+const ApiErrorSchema = z.object({
+  code: z.enum(['VALIDATION_ERROR', 'NOT_FOUND', 'SERVER_ERROR', 'UNAUTHORIZED', 'FORBIDDEN', 'CONFLICT', 'RATE_LIMITED']),
+  message: z.string().min(1),
+  details: z.record(z.array(z.string())).optional()
+});
+
 // API Response schemas
 export const ApiSchemas = {
-  // Generic API response
-  apiResponse: <T extends z.ZodType>(dataSchema: T) => z.object({
+  // Generic API response - explicit return type to avoid complex type inference issues
+  apiResponse: <T extends z.ZodType>(dataSchema: T): z.ZodObject<{
+    success: z.ZodBoolean;
+    data: z.ZodOptional<T>;
+    error: z.ZodOptional<typeof ApiErrorSchema>;
+  }> => z.object({
     success: z.boolean(),
     data: dataSchema.optional(),
-    error: z.object({
-      code: z.enum(['VALIDATION_ERROR', 'NOT_FOUND', 'SERVER_ERROR', 'UNAUTHORIZED', 'FORBIDDEN', 'CONFLICT', 'RATE_LIMITED']),
-      message: z.string().min(1),
-      details: z.record(z.array(z.string())).optional()
-    }).optional()
+    error: ApiErrorSchema.optional()
   }),
   
   // Paginated response

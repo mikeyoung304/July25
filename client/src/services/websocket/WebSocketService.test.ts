@@ -1,5 +1,5 @@
 import { describe, test, beforeEach, afterEach, vi, expect } from 'vitest'
-import { WebSocketService } from './WebSocketService'
+import { WebSocketService, OptimisticWebSocketService } from './WebSocketService'
 import { supabase } from '@/core/supabase'
 import { setCurrentRestaurantId } from '@/services/http/httpClient'
 import { toSnakeCase } from '@/services/utils/caseTransform'
@@ -561,5 +561,227 @@ describe('WebSocketService', { timeout: 10000 }, () => {
         expect.objectContaining({ component: 'WebSocket' })
       )
     })
+  })
+})
+
+describe('OptimisticWebSocketService optimistic update rollback', { timeout: 10000 }, () => {
+  let optimisticService: OptimisticWebSocketService
+  let mockWebSocket: MockWebSocket
+  let latestMockWebSocket: MockWebSocket
+
+  const getCurrentMock = () => latestMockWebSocket || mockWebSocket
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+
+    // Mock fetch to prevent actual network calls
+    ;(global.fetch as any).mockResolvedValue({
+      ok: true,
+      json: async () => ({ token: 'demo-token' })
+    })
+
+    // Set up auth mock
+    ;(supabase.auth.getSession as vi.Mock).mockResolvedValue({
+      data: {
+        session: {
+          access_token: 'test-token',
+          expires_at: Date.now() + 3600000,
+          user: {} as { id: string }
+        }
+      },
+      error: null
+    })
+
+    // Set restaurant ID
+    setCurrentRestaurantId('test-restaurant')
+
+    // Mock WebSocket constructor
+    // @ts-expect-error - Mock WebSocket for testing
+    global.WebSocket = vi.fn().mockImplementation(() => {
+      latestMockWebSocket = new MockWebSocket()
+      mockWebSocket = latestMockWebSocket
+      return latestMockWebSocket
+    }) as any
+    global.WebSocket.CONNECTING = 0
+    global.WebSocket.OPEN = 1
+    global.WebSocket.CLOSING = 2
+    global.WebSocket.CLOSED = 3
+
+    optimisticService = new OptimisticWebSocketService()
+  })
+
+  afterEach(async () => {
+    optimisticService.disconnect()
+    vi.clearAllTimers()
+    vi.clearAllMocks()
+
+    if (mockWebSocket) {
+      getCurrentMock().close()
+      mockWebSocket = null as any
+    }
+
+    if (latestMockWebSocket && latestMockWebSocket.onclose) {
+      latestMockWebSocket.simulateClose(1000, 'Test cleanup')
+    }
+
+    vi.clearAllTimers()
+    await vi.runAllTimersAsync()
+    vi.useRealTimers()
+    vi.clearAllMocks()
+  })
+
+  test('should rollback optimistic updates on connection failure', async () => {
+    const rollbackSpy = vi.fn()
+
+    // Setup optimistic update with rollback handler
+    optimisticService.onRollback(rollbackSpy)
+
+    // Start connection with pending optimistic update
+    const connectPromise = optimisticService.connect()
+    await vi.runOnlyPendingTimersAsync()
+
+    // Simulate open and auth success
+    getCurrentMock().simulateOpen()
+    getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
+    await connectPromise
+
+    expect(optimisticService.isConnected()).toBe(true)
+
+    // Clear auth message from send calls
+    getCurrentMock().send.mockClear()
+
+    // Send optimistic update
+    optimisticService.sendOptimisticUpdate({ order_id: '123', status: 'preparing' })
+
+    // Verify update was sent
+    expect(getCurrentMock().send).toHaveBeenCalled()
+
+    // Verify pending update count
+    expect(optimisticService.getPendingUpdateCount()).toBe(1)
+
+    // Simulate connection failure before ack
+    optimisticService.simulateConnectionFailure()
+
+    // Verify rollback was called with the update data
+    expect(rollbackSpy).toHaveBeenCalledTimes(1)
+    expect(rollbackSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        order_id: '123',
+        status: 'preparing'
+      })
+    )
+
+    // Verify pending updates cleared
+    expect(optimisticService.getPendingUpdateCount()).toBe(0)
+  })
+
+  test('should not rollback acknowledged updates', async () => {
+    const rollbackSpy = vi.fn()
+    optimisticService.onRollback(rollbackSpy)
+
+    // Connect
+    const connectPromise = optimisticService.connect()
+    await vi.runOnlyPendingTimersAsync()
+    getCurrentMock().simulateOpen()
+    getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
+    await connectPromise
+
+    // Send optimistic update
+    const updateId = optimisticService.sendOptimisticUpdate({ order_id: '456', status: 'ready' })
+
+    // Acknowledge the update (simulating server confirmation)
+    optimisticService.acknowledgeUpdate(updateId)
+
+    // Verify update was removed
+    expect(optimisticService.getPendingUpdateCount()).toBe(0)
+
+    // Simulate connection failure
+    optimisticService.simulateConnectionFailure()
+
+    // Rollback should NOT be called since update was acknowledged
+    expect(rollbackSpy).not.toHaveBeenCalled()
+  })
+
+  test('should rollback multiple pending updates on connection failure', async () => {
+    const rollbackSpy = vi.fn()
+    optimisticService.onRollback(rollbackSpy)
+
+    // Connect
+    const connectPromise = optimisticService.connect()
+    await vi.runOnlyPendingTimersAsync()
+    getCurrentMock().simulateOpen()
+    getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
+    await connectPromise
+
+    // Send multiple optimistic updates
+    optimisticService.sendOptimisticUpdate({ order_id: '111', status: 'preparing' })
+    optimisticService.sendOptimisticUpdate({ order_id: '222', status: 'ready' })
+    optimisticService.sendOptimisticUpdate({ order_id: '333', status: 'completed' })
+
+    expect(optimisticService.getPendingUpdateCount()).toBe(3)
+
+    // Simulate connection failure
+    optimisticService.simulateConnectionFailure()
+
+    // All three should be rolled back
+    expect(rollbackSpy).toHaveBeenCalledTimes(3)
+    expect(optimisticService.getPendingUpdateCount()).toBe(0)
+  })
+
+  test('should allow unsubscribing rollback handler', async () => {
+    const rollbackSpy = vi.fn()
+    const unsubscribe = optimisticService.onRollback(rollbackSpy)
+
+    // Connect
+    const connectPromise = optimisticService.connect()
+    await vi.runOnlyPendingTimersAsync()
+    getCurrentMock().simulateOpen()
+    getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
+    await connectPromise
+
+    // Send optimistic update
+    optimisticService.sendOptimisticUpdate({ order_id: '789', status: 'preparing' })
+
+    // Unsubscribe before failure
+    unsubscribe()
+
+    // Simulate connection failure
+    optimisticService.simulateConnectionFailure()
+
+    // Rollback should NOT be called since we unsubscribed
+    expect(rollbackSpy).not.toHaveBeenCalled()
+  })
+
+  test('should include rollback_data in rollback callback', async () => {
+    const rollbackSpy = vi.fn()
+    optimisticService.onRollback(rollbackSpy)
+
+    // Connect
+    const connectPromise = optimisticService.connect()
+    await vi.runOnlyPendingTimersAsync()
+    getCurrentMock().simulateOpen()
+    getCurrentMock().simulateMessage({ type: 'auth:success', timestamp: new Date().toISOString() })
+    await connectPromise
+
+    // Send optimistic update with rollback data
+    const previousStatus = 'pending'
+    optimisticService.sendOptimisticUpdate({
+      order_id: '999',
+      status: 'preparing',
+      rollback_data: { previous_status: previousStatus }
+    })
+
+    // Simulate connection failure
+    optimisticService.simulateConnectionFailure()
+
+    // Verify rollback was called with rollback_data
+    expect(rollbackSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        order_id: '999',
+        status: 'preparing',
+        rollback_data: { previous_status: previousStatus }
+      })
+    )
   })
 })

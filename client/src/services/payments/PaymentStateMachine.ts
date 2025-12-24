@@ -17,7 +17,7 @@
  * Payment Provider: Stripe
  */
 
-import { logger } from '../logger';
+import { logger } from '@/services/logger';
 
 // ============================================================================
 // STATE AND EVENT DEFINITIONS

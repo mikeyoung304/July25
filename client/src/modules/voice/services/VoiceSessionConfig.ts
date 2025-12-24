@@ -1,6 +1,6 @@
 /* eslint-env browser */
-import { logger } from '../../../services/logger';
-import { EventEmitter } from '../../../services/utils/EventEmitter';
+import { logger } from '@/services/logger';
+import { EventEmitter } from '@/services/utils/EventEmitter';
 import { PromptConfigService, type VoiceContext } from '@rebuild/shared';
 
 /**

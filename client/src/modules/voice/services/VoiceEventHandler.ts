@@ -1,7 +1,7 @@
 /* eslint-env browser */
-import { EventEmitter } from '../../../services/utils/EventEmitter';
+import { EventEmitter } from '@/services/utils/EventEmitter';
 import { LRUCache } from 'lru-cache';
-import { logger } from '../../../services/logger';
+import { logger } from '@/services/logger';
 
 import { VOICE_CONFIG } from '../constants';
 /**
