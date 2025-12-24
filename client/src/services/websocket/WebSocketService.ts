@@ -24,19 +24,18 @@ export interface WebSocketMessage<T = unknown> {
   restaurantId?: string
 }
 
-export type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'error'
+// Consolidated state machine for connection management
+// Eliminates separate boolean flags (isConnecting, isReconnecting) that could cause race conditions
+export type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'reconnecting' | 'error'
 
 export class WebSocketService extends EventEmitter {
   private ws: WebSocket | null = null
   private config: Required<Omit<WebSocketConfig, 'url'>> & { url: string }
   private reconnectAttempts = 0
   private reconnectTimer: NodeJS.Timeout | null = null
+  // Single source of truth for connection state - no separate boolean flags needed
   private connectionState: ConnectionState = 'disconnected'
   private isIntentionallyClosed = false
-  // Guard flag: prevents concurrent reconnection attempts and timer scheduling
-  private isReconnecting = false
-  // Guard flag: prevents concurrent connection attempts (separate from isReconnecting)
-  private isConnecting = false
   private lastHeartbeat: number = 0
   private heartbeatTimer: NodeJS.Timeout | null = null
   private heartbeatInterval = 30000 // 30 seconds
@@ -74,27 +73,30 @@ export class WebSocketService extends EventEmitter {
 
   /**
    * Connect to WebSocket server
+   * Uses consolidated state machine to prevent race conditions
    */
   async connect(): Promise<void> {
-    // Guard: prevent concurrent connection attempts
-    if (this.isConnecting) {
-      logger.debug('[WebSocket] Connection attempt already in progress, skipping...')
+    // Consolidated state check: only connect if disconnected or in error state
+    // This eliminates race conditions from separate boolean flags
+    if (this.connectionState === 'connecting' || this.connectionState === 'connected') {
+      logger.debug('[WebSocket] Already connected or connecting, skipping...', { state: this.connectionState })
       return
     }
 
-    // Guard: prevent double connection attempts
-    if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
-      logger.warn('Already connected or connecting, skipping...', { component: 'WebSocket' })
-      return
+    // Allow connection during reconnecting state only if WebSocket is actually closed
+    // This handles the edge case where reconnect timer fires but we want to connect immediately
+    if (this.connectionState === 'reconnecting') {
+      // Clear the pending reconnect timer since we're connecting now
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer)
+        this.reconnectTimer = null
+      }
+      logger.debug('[WebSocket] Connecting during reconnection phase')
     }
 
-    // Guard: prevent connection during reconnection cycle
-    if (this.isReconnecting) {
-      logger.warn('Reconnection in progress, skipping connect...', { component: 'WebSocket' })
-      return
-    }
+    // Track whether we were in reconnecting state for retry logic
+    const wasReconnecting = this.connectionState === 'reconnecting'
 
-    this.isConnecting = true
     this.isIntentionallyClosed = false
     this.setConnectionState('connecting')
 
@@ -178,10 +180,8 @@ export class WebSocketService extends EventEmitter {
       logger.error('Failed to connect to WebSocket', { component: 'WebSocket', error: error instanceof Error ? error.message : String(error) })
       this.setConnectionState('error')
       this.scheduleReconnect()
-    } finally {
-      // Always reset isConnecting flag to allow future connection attempts
-      this.isConnecting = false
     }
+    // No finally block needed - state is managed through setConnectionState()
   }
 
   /**
@@ -189,8 +189,6 @@ export class WebSocketService extends EventEmitter {
    */
   disconnect(): void {
     this.isIntentionallyClosed = true
-    this.isReconnecting = false // Reset reconnection flag on disconnect
-    this.isConnecting = false // Reset connection flag on disconnect
     this.isAuthenticated = false // Reset auth flag on disconnect
     this.pendingAuth = null // Clear any pending auth
     this.stopHeartbeat()
@@ -297,7 +295,7 @@ export class WebSocketService extends EventEmitter {
   private handleOpen(): void {
     logger.info('WebSocket connection opened, sending auth...', { component: 'WebSocket' })
     this.reconnectAttempts = 0
-    this.isReconnecting = false // Reset reconnection flag on successful connection
+    // State transition happens when auth completes (auth:success) or immediately in dev mode
     this.lastHeartbeat = Date.now()
 
     // Send first-message authentication (security improvement: token not in URL)
@@ -428,8 +426,8 @@ export class WebSocketService extends EventEmitter {
   }
 
   private scheduleReconnect(): void {
-    // Guard: Prevent double reconnection scheduling
-    if (this.isReconnecting) {
+    // Consolidated state check: only schedule reconnect if not already reconnecting
+    if (this.connectionState === 'reconnecting') {
       logger.warn('Reconnection already scheduled, skipping...', { component: 'WebSocket' })
       return
     }
@@ -442,12 +440,13 @@ export class WebSocketService extends EventEmitter {
 
     if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
       logger.error('Max reconnection attempts reached', { component: 'WebSocket', attempts: this.reconnectAttempts, maxAttempts: this.config.maxReconnectAttempts })
-      this.isReconnecting = false
+      this.setConnectionState('error')
       this.emit('maxReconnectAttemptsReached')
       return
     }
 
-    this.isReconnecting = true
+    // Transition to reconnecting state
+    this.setConnectionState('reconnecting')
     this.reconnectAttempts++
 
     // Improved exponential backoff with jitter
@@ -465,12 +464,9 @@ export class WebSocketService extends EventEmitter {
     this.reconnectTimer = setTimeout(async () => {
       this.reconnectTimer = null // Clear reference after execution
 
-      // Reset isReconnecting BEFORE calling connect() so that connect() is not blocked
-      // This flag is only meant to prevent external connect() calls during the delay period
-      this.isReconnecting = false
-
-      // Only reconnect if still disconnected
-      if (!this.isConnected() && !this.isIntentionallyClosed) {
+      // Only reconnect if still in reconnecting state and not intentionally closed
+      // connect() will handle the state transition to 'connecting'
+      if (this.connectionState === 'reconnecting' && !this.isIntentionallyClosed) {
         try {
           await this.connect()
         } catch (error) {
@@ -482,9 +478,7 @@ export class WebSocketService extends EventEmitter {
   }
 
   private cleanup(): void {
-    // Reset connection and reconnection state
-    this.isReconnecting = false
-    this.isConnecting = false
+    // Reset auth state (connection state is managed via setConnectionState)
     this.isAuthenticated = false
     this.pendingAuth = null
 
