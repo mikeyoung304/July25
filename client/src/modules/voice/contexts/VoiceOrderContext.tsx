@@ -7,7 +7,7 @@ export const VoiceOrderProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [items, setItems] = useState<VoiceOrderItem[]>([]);
 
   const calculateSubtotal = useCallback((menuItem: MenuItem, quantity: number, mods: OrderModification[]) => {
-    // FLOATING-POINT FIX (TODO-051): Use cents (integer) arithmetic to avoid rounding errors
+    // Use cents (integer) arithmetic to avoid floating-point rounding errors
     const basePriceCents = Math.round(menuItem.price * 100);
     const modPriceCents = Math.round(mods.reduce((sum, mod) => sum + (mod.price || 0), 0) * 100);
     const totalCents = (basePriceCents + modPriceCents) * quantity;

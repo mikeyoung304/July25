@@ -216,7 +216,8 @@ test.describe('Kiosk Checkout Flow', () => {
 });
 
 test.describe('Checkout Validation', () => {
-  test('TC-VALIDATION-001: Shared validation rules work correctly', async ({ page }) => {
+  // SKIPPED: Fully covered by CheckoutValidation.test.ts (37 unit tests)
+  test.skip('TC-VALIDATION-001: Shared validation rules work correctly', async ({ page }) => {
     console.log('🧪 Testing shared validation rules...');
 
     // Navigate to online order checkout

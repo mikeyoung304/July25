@@ -56,8 +56,8 @@ export interface OrderConfirmation {
  * This function is for UI preview purposes only. The server ALWAYS recalculates
  * all financial values and never trusts client-provided totals (Phase 5).
  *
- * ⚠️ **FLOATING-POINT FIX (TODO-051)** - Calculations use cents (integer) arithmetic
- * to avoid floating-point rounding errors. Only converted to dollars for display.
+ * Uses cents (integer) arithmetic to avoid floating-point rounding errors.
+ * Only converted to dollars for display.
  *
  * @param items - Cart items to calculate totals for
  * @param taxRate - Tax rate as decimal (e.g., 0.0825 for 8.25%)
@@ -79,7 +79,7 @@ export function calculateCartTotals(
 ): Pick<Cart, 'subtotal' | 'tax' | 'tip' | 'total'> {
   // Work in cents (integers) to avoid floating-point errors
   const subtotalCents = items.reduce((sumCents, item) => {
-    // Sanitize prices to prevent NaN/Infinity propagation (TODO-082)
+    // Sanitize prices to prevent NaN/Infinity propagation
     const itemPrice = sanitizePrice(item.price);
     const itemPriceCents = Math.round(itemPrice * 100);
     const modifierPriceCents = Math.round(

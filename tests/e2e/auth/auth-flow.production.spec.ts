@@ -1,20 +1,17 @@
 /**
  * Comprehensive End-to-End Authentication & Authorization Test
  *
- * Tests the complete user journey:
+ * Tests the complete user journey against PRODUCTION:
  * 1. Demo login functionality
  * 2. Authorization checks for each role
  * 3. Navigation and route protection
  * 4. Scopes verification
+ *
+ * Run with: npx playwright test --project=production tests/e2e/auth/auth-flow.production.spec.ts
  */
 
-import { test, expect, Page } from '@playwright/test';
-
-// Production URL (publicly accessible)
-// Preview deployments require Vercel auth, so use production for E2E tests
-// Override with: VERCEL_URL=<url> npx playwright test
-const VERCEL_URL = process.env.VERCEL_URL || 'https://july25-client.vercel.app';
-const TEST_TIMEOUT = 60000;
+import { test, expect } from '@playwright/test';
+import { TIMEOUTS, PRODUCTION_TIMEOUTS, TEST_CONFIG } from '../constants/timeouts';
 
 interface TestRole {
   name: string;
@@ -48,22 +45,21 @@ const TEST_ROLES: TestRole[] = [
   }
 ];
 
-test.describe('Authentication & Authorization Flow', () => {
+test.describe('Authentication & Authorization Flow @production', () => {
 
   test.beforeEach(async ({ page }) => {
-    // Set longer timeout for each test
-    test.setTimeout(TEST_TIMEOUT);
+    // Set longer timeout for production tests
+    test.setTimeout(60000);
 
     // Clear all cookies and storage before each test
     await page.context().clearCookies();
-    await page.goto(`${VERCEL_URL}/login`);
+    await page.goto(`${TEST_CONFIG.PRODUCTION_URL}/login`);
     await page.waitForLoadState('networkidle');
 
     // Wait for splash screen to disappear (if present)
-    // Look for common splash screen indicators and wait for them to be hidden
     const splashScreen = page.locator('[data-testid="splash-screen"], .splash-screen, .loading-screen').first();
     if (await splashScreen.isVisible().catch(() => false)) {
-      await splashScreen.waitFor({ state: 'hidden', timeout: 10000 });
+      await splashScreen.waitFor({ state: 'hidden', timeout: TIMEOUTS.FULL_PAGE_LOAD });
     }
 
     // Wait a bit for any animations to complete
@@ -81,7 +77,7 @@ test.describe('Authentication & Authorization Flow', () => {
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
 
       const demoSection = page.locator('text=Quick Demo Access');
-      await expect(demoSection).toBeVisible({ timeout: 10000 });
+      await expect(demoSection).toBeVisible({ timeout: PRODUCTION_TIMEOUTS.DASHBOARD_LOAD });
     });
 
     await test.step('All demo role cards are present', async () => {
@@ -109,7 +105,7 @@ test.describe('Authentication & Authorization Flow', () => {
         await test.step('Wait for login to complete', async () => {
           // Wait for navigation away from login page
           await page.waitForURL(url => !url.pathname.includes('/login'), {
-            timeout: 15000
+            timeout: PRODUCTION_TIMEOUTS.AUTH_COMPLETE
           });
         });
 
@@ -141,11 +137,11 @@ test.describe('Authentication & Authorization Flow', () => {
         const button = page.locator(`button:has-text("${role.name}")`).first();
         await button.scrollIntoViewIfNeeded();
         await button.click();
-        await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
+        await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: PRODUCTION_TIMEOUTS.AUTH_COMPLETE });
 
         for (const route of role.allowedRoutes) {
           await test.step(`Access ${route}`, async () => {
-            await page.goto(`${VERCEL_URL}${route}`);
+            await page.goto(`${TEST_CONFIG.PRODUCTION_URL}${route}`);
             await page.waitForLoadState('networkidle');
 
             // Should NOT see unauthorized message
@@ -153,7 +149,7 @@ test.describe('Authentication & Authorization Flow', () => {
             expect(pageText).not.toContain('Access Denied');
             expect(pageText).not.toContain('Unauthorized Access');
 
-            console.log(`✅ ${role.name} can access ${route}`);
+            console.log(`[PASS] ${role.name} can access ${route}`);
           });
         }
       });
@@ -164,11 +160,11 @@ test.describe('Authentication & Authorization Flow', () => {
         const button = page.locator(`button:has-text("${role.name}")`).first();
         await button.scrollIntoViewIfNeeded();
         await button.click();
-        await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
+        await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: PRODUCTION_TIMEOUTS.AUTH_COMPLETE });
 
         for (const route of role.deniedRoutes) {
           await test.step(`Denied from ${route}`, async () => {
-            await page.goto(`${VERCEL_URL}${route}`);
+            await page.goto(`${TEST_CONFIG.PRODUCTION_URL}${route}`);
             await page.waitForLoadState('networkidle');
 
             // Check if redirected to unauthorized page OR shows unauthorized message
@@ -183,7 +179,7 @@ test.describe('Authentication & Authorization Flow', () => {
               pageText?.includes('permission');
 
             expect(isUnauthorized).toBeTruthy();
-            console.log(`✅ ${role.name} correctly denied from ${route}`);
+            console.log(`[PASS] ${role.name} correctly denied from ${route}`);
           });
         }
       });
@@ -199,7 +195,7 @@ test.describe('Authentication & Authorization Flow', () => {
         try {
           const json = await response.json();
           loginRequests.push(json);
-        } catch (e) {
+        } catch {
           // Not JSON response
         }
       }
@@ -210,7 +206,7 @@ test.describe('Authentication & Authorization Flow', () => {
     const managerButton = page.locator('button:has-text("Manager")').first();
     await managerButton.scrollIntoViewIfNeeded();
     await managerButton.click();
-    await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
+    await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: PRODUCTION_TIMEOUTS.AUTH_COMPLETE });
 
     // Verify scopes in response
     await test.step('Login response includes scopes', async () => {
@@ -250,13 +246,13 @@ test.describe('Authentication & Authorization Flow', () => {
     });
 
     // Navigate and login
-    await page.goto(`${VERCEL_URL}/login`);
+    await page.goto(`${TEST_CONFIG.PRODUCTION_URL}/login`);
     await page.waitForLoadState('networkidle');
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
     const managerButton = page.locator('button:has-text("Manager")').first();
     await managerButton.scrollIntoViewIfNeeded();
     await managerButton.click();
-    await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
+    await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: PRODUCTION_TIMEOUTS.AUTH_COMPLETE });
     await page.waitForLoadState('networkidle');
 
     // Check for critical errors
@@ -287,83 +283,10 @@ test.describe('Authentication & Authorization Flow', () => {
   });
 
   test('Unauthorized page exists and displays correctly', async ({ page }) => {
-    await page.goto(`${VERCEL_URL}/unauthorized`);
+    await page.goto(`${TEST_CONFIG.PRODUCTION_URL}/unauthorized`);
     await page.waitForLoadState('networkidle');
 
     await expect(page.locator('text=Access Denied')).toBeVisible();
     await expect(page.locator('a:has-text("Go to Home")')).toBeVisible();
-  });
-});
-
-test.describe('Debug: Investigate "No Access" Issue', () => {
-
-  test('Capture full auth flow details', async ({ page }) => {
-    const logs: any[] = [];
-
-    // Capture all relevant events
-    page.on('console', msg => {
-      if (msg.text().includes('canAccess') ||
-          msg.text().includes('Authorization') ||
-          msg.text().includes('🔐')) {
-        logs.push({ type: 'console', text: msg.text() });
-      }
-    });
-
-    page.on('response', async response => {
-      if (response.url().includes('/api/v1/auth/')) {
-        try {
-          const json = await response.json();
-          logs.push({
-            type: 'api-response',
-            url: response.url(),
-            status: response.status(),
-            data: json
-          });
-        } catch (e) {
-          // Not JSON
-        }
-      }
-    });
-
-    // Perform login
-    await page.goto(`${VERCEL_URL}/login`);
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
-    const managerButton = page.locator('button:has-text("Manager")').first();
-    await managerButton.scrollIntoViewIfNeeded();
-    await managerButton.click();
-
-    // Wait and capture state
-    await page.waitForTimeout(3000);
-
-    // Get localStorage
-    const localStorage = await page.evaluate(() => {
-      return JSON.stringify(window.localStorage);
-    });
-
-    // Get current user state from React DevTools if available
-    const reactState = await page.evaluate(() => {
-      return (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__;
-    });
-
-    // Print all captured data
-    console.log('=== AUTH FLOW LOGS ===');
-    console.log(JSON.stringify(logs, null, 2));
-    console.log('\n=== LOCAL STORAGE ===');
-    console.log(localStorage);
-    console.log('\n=== CURRENT URL ===');
-    console.log(page.url());
-
-    // Check what page is actually showing
-    const bodyText = await page.textContent('body');
-    console.log('\n=== PAGE CONTENT PREVIEW ===');
-    console.log(bodyText?.substring(0, 500));
-
-    // Take screenshot
-    await page.screenshot({
-      path: '/tmp/auth-debug-screenshot.png',
-      fullPage: true
-    });
-    console.log('\n📸 Screenshot saved to: /tmp/auth-debug-screenshot.png');
   });
 });

@@ -74,7 +74,7 @@ const DEFAULT_ERROR_RESET_DELAY_MS = 3000;
  * Note: This service is now decoupled from React hooks.
  * Dependencies are passed as plain functions/callbacks in the constructor.
  *
- * ⚠️ **FIX (TODO-084)**: All timeouts are now tracked and cancellable to prevent:
+ * All timeouts are tracked and cancellable to prevent:
  * - Memory leaks from uncancelled timeouts
  * - Navigation after component unmount
  * - Race conditions during checkout
@@ -88,7 +88,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
   private onToast: (message: string, type: ToastType) => void;
   private onNavigate: (path: string, options?: NavigateOptions) => void;
 
-  // Tracked timeout IDs for cleanup (TODO-084)
+  // Tracked timeout IDs for cleanup
   private checkoutTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private summaryTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private errorTimeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -170,7 +170,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     });
 
     // Auto-navigate to checkout after a brief delay for voice confirmation
-    // Clear any existing timeout to prevent race conditions (TODO-084)
+    // Clear any existing timeout to prevent race conditions
     this.clearCheckoutTimeout();
     this.checkoutTimeoutId = setTimeout(() => {
       this.checkoutTimeoutId = null;
@@ -236,7 +236,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     const summaryText = this.generateSummaryText();
     this.emit('summary.text', { text: summaryText, timestamp: Date.now() });
 
-    // Reset to idle after summary (TODO-084: cancellable timeout)
+    // Reset to idle after summary
     this.clearSummaryTimeout();
     this.summaryTimeoutId = setTimeout(() => {
       this.summaryTimeoutId = null;
@@ -375,7 +375,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
     const feedbackText = 'There was an issue processing your payment. Please try again or select a different payment method.';
     this.emit('payment.error.feedback', { text: feedbackText, timestamp: Date.now() });
 
-    // Reset to idle after error (TODO-084: cancellable timeout)
+    // Reset to idle after error
     this.clearErrorTimeout();
     this.errorTimeoutId = setTimeout(() => {
       this.errorTimeoutId = null;
@@ -436,7 +436,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
    * Reset orchestrator to idle state
    */
   reset(): void {
-    // Clear all pending timeouts to prevent state changes after reset (TODO-084)
+    // Clear all pending timeouts to prevent state changes after reset
     this.clearAllTimeouts();
     this.setCheckoutState('idle');
     this.currentCart = [];
@@ -452,7 +452,7 @@ export class VoiceCheckoutOrchestrator extends EventEmitter {
    * IMPORTANT: Call this in useEffect cleanup to prevent memory leaks
    */
   destroy(): void {
-    // Clear all timeouts first to prevent any callbacks from firing (TODO-084)
+    // Clear all timeouts first to prevent any callbacks from firing
     this.clearAllTimeouts();
     this.removeAllListeners();
     this.reset();

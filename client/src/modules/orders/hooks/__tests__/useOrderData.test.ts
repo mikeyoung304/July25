@@ -102,16 +102,15 @@ describe('useOrderData', () => {
   it('should fetch orders on mount', async () => {
     const { result } = renderHook(() => useOrderData())
 
-    // Initially loading should be false (useAsyncState starts with loading: false)
-    // Then when refetch is called in useEffect, it will become true briefly
-    // Wait for data to be loaded
+    // Wait for both data to be loaded AND loading to be false
+    // React 18 batches state updates, so we need to wait for both conditions
     await waitFor(() => {
       expect(result.current.orders.length).toBeGreaterThan(0)
-    }, { timeout: 5000 })
+      expect(result.current.loading).toBe(false)
+    }, { timeout: 3000 })
 
     expect(result.current.orders).toEqual(mockOrders)
     expect(result.current.error).toBe(null)
-    expect(result.current.loading).toBe(false)
     expect(orderService.getOrders).toHaveBeenCalled()
     expect(orderService.getOrders).toHaveBeenCalledWith(undefined)
   })
@@ -123,23 +122,27 @@ describe('useOrderData', () => {
     }
     const { result } = renderHook(() => useOrderData(filters))
 
+    // Wait for data to be loaded AND loading to be false
+    // Orders is initialized to [], so we wait for length > 0
     await waitFor(() => {
-      expect(result.current.orders).toBeDefined()
-    }, { timeout: 5000 })
+      expect(result.current.orders.length).toBeGreaterThan(0)
+      expect(result.current.loading).toBe(false)
+    }, { timeout: 3000 })
 
-    expect(result.current.loading).toBe(false)
     expect(orderService.getOrders).toHaveBeenCalledWith({
       status: 'new',
       tableId: undefined
     })
   })
-  
+
   it('should refetch orders', async () => {
     const { result } = renderHook(() => useOrderData())
 
+    // Wait for initial load to complete
     await waitFor(() => {
       expect(result.current.orders.length).toBeGreaterThan(0)
-    }, { timeout: 5000 })
+      expect(result.current.loading).toBe(false)
+    }, { timeout: 3000 })
 
     const initialCallCount = (orderService.getOrders as vi.Mock).mock.calls.length
 
@@ -149,15 +152,18 @@ describe('useOrderData', () => {
 
     await waitFor(() => {
       expect((orderService.getOrders as vi.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
+      expect(result.current.loading).toBe(false)
     })
   })
   
   it('should update order status optimistically', async () => {
     const { result } = renderHook(() => useOrderData())
 
+    // Wait for initial load to complete
     await waitFor(() => {
       expect(result.current.orders.length).toBeGreaterThan(0)
-    }, { timeout: 5000 })
+      expect(result.current.loading).toBe(false)
+    }, { timeout: 3000 })
 
     await act(async () => {
       await result.current.updateOrderStatus('1', 'preparing')
@@ -194,9 +200,12 @@ describe('useOrderData', () => {
       { initialProps: { filters: undefined as UIOrderFilters | undefined } }
     )
 
+    // Wait for initial load to complete
+    // Orders is initialized to [], so we wait for length > 0
     await waitFor(() => {
-      expect(result.current.orders).toBeDefined()
-    }, { timeout: 5000 })
+      expect(result.current.orders.length).toBeGreaterThan(0)
+      expect(result.current.loading).toBe(false)
+    }, { timeout: 3000 })
 
     const initialCallCount = (orderService.getOrders as vi.Mock).mock.calls.length
 
@@ -205,6 +214,7 @@ describe('useOrderData', () => {
 
     await waitFor(() => {
       expect((orderService.getOrders as vi.Mock).mock.calls.length).toBeGreaterThan(initialCallCount)
+      expect(result.current.loading).toBe(false)
     })
 
     expect(orderService.getOrders).toHaveBeenLastCalledWith({

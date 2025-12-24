@@ -105,7 +105,7 @@ Test with multiple restaurant IDs:
 ### Memory Constraints
 ```javascript
 // Hard limits enforced by CI/CD
-Development: 3GB (NODE_OPTIONS='--max-old-space-size=3072')
+Development/Tests: 4GB (NODE_OPTIONS='--max-old-space-size=4096 --expose-gc')
 Production: Target 1GB
 ```
 

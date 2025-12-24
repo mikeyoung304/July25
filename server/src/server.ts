@@ -244,9 +244,10 @@ async function startServer() {
     await initializeDatabase();
     const config = getConfig();
 
-    // TODO-151: Security warning for development rate limit on production
+    // Rate limiters now correctly detect Render production via RENDER env var
+    // even when NODE_ENV=development (see rateLimiter.ts and authRateLimiter.ts)
     if (process.env['RENDER'] === 'true' && process.env['NODE_ENV'] === 'development') {
-      logger.error('SECURITY WARNING: NODE_ENV=development on production environment. Rate limits are 3x more permissive. Set NODE_ENV=production.');
+      logger.warn('Note: NODE_ENV=development on Render, but rate limits correctly use production values via RENDER env detection.');
     }
 
     // Initialize menu context for AI service

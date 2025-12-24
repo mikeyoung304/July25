@@ -2,32 +2,20 @@
  * Authentication Smoke Tests
  * Part of: Production Launch Preparation - Work Stream 1
  *
- * Critical Path: Demo login must work
+ * Critical Path: Invalid credentials error handling
  *
- * Test Coverage:
- * - Server role login with session persistence
- * - Invalid credentials error handling
+ * Note: This test covers error scenarios NOT tested in login.spec.ts.
+ * The main login.spec.ts tests successful logins and session persistence,
+ * while this smoke test validates error handling for invalid credentials.
  */
 
 import { test, expect } from '@playwright/test';
-import { loginAsRole, clearAppState } from '../fixtures/test-helpers';
+import { clearAppState } from '../fixtures/test-helpers';
 import { TIMEOUTS } from '../constants/timeouts';
 
 test.describe('Authentication - Smoke Tests @smoke', () => {
   test.beforeEach(async ({ page }) => {
     await clearAppState(page);
-  });
-
-  test('should login as server role and navigate to server view', async ({ page }) => {
-    // Login as server
-    await loginAsRole(page, 'server');
-
-    // Verify navigation to server page
-    await expect(page).toHaveURL(/\/server/);
-
-    // Verify session persists across reload
-    await page.reload();
-    await expect(page).toHaveURL(/\/server/);
   });
 
   test('should show error for invalid credentials', async ({ page }) => {

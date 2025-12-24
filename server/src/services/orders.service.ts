@@ -7,7 +7,8 @@ import { NotFound } from '../middleware/errorHandler';
 import OrderStateMachine from './orderStateMachine';
 // Import shared validation schemas (Single Source of Truth)
 import {
-  mapOrderTypeToDb
+  mapOrderTypeToDb,
+  sanitizePrice
 } from '@rebuild/shared';
 // Removed mapOrder - returning raw snake_case data for frontend consistency
 // import { menuIdMapper } from './menu-id-mapper'; // Not currently used
@@ -178,15 +179,16 @@ export class OrdersService {
 
       // PHASE 5: Server ALWAYS calculates totals (never trusts client)
       // This eliminates trust boundary violation and ensures financial accuracy
-      //
-      // ⚠️ **FLOATING-POINT FIX (TODO-080/P1)** - Uses cents (integer) arithmetic
-      // to avoid floating-point rounding errors. Only converted to dollars for storage.
+      // Uses cents (integer) arithmetic to avoid floating-point rounding errors
       const subtotalCents = itemsWithUuids.reduce((totalCents, item) => {
-        const itemPriceCents = Math.round(item.price * 100);
+        // Sanitize prices to prevent NaN/Infinity propagation
+        const itemPrice = sanitizePrice(item.price);
+        const itemPriceCents = Math.round(itemPrice * 100);
         const itemTotalCents = itemPriceCents * item.quantity;
         const modifiersTotalCents = (item.modifiers || []).reduce(
           (modTotalCents, mod) => {
-            const modPriceCents = Math.round(mod.price * 100);
+            const modPrice = sanitizePrice(mod.price);
+            const modPriceCents = Math.round(modPrice * 100);
             return modTotalCents + (modPriceCents * item.quantity);
           },
           0

@@ -45,6 +45,9 @@ export class WebSocketService extends EventEmitter {
     // Dev-only instrumentation for e2e tests
     if (import.meta.env.DEV) {
       (window as any).__dbgWS = (window as any).__dbgWS || { connectCount: 0, subCount: 0 }
+      // Expose service instance for Playwright e2e tests (dev only)
+      // This allows tests to access the service without using require() in browser context
+      ;(window as any).__webSocketService = this
     }
 
     // Set default configuration with enhanced resilience settings
@@ -390,16 +393,20 @@ export class WebSocketService extends EventEmitter {
     console.warn(`Scheduling reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${Math.round(delay)}ms (exponential backoff with jitter)`)
 
     this.reconnectTimer = setTimeout(async () => {
-      try {
-        this.reconnectTimer = null // Clear reference after execution
+      this.reconnectTimer = null // Clear reference after execution
 
-        // Only reconnect if still disconnected
-        if (!this.isConnected() && !this.isIntentionallyClosed) {
+      // Reset isReconnecting BEFORE calling connect() so that connect() is not blocked
+      // This flag is only meant to prevent external connect() calls during the delay period
+      this.isReconnecting = false
+
+      // Only reconnect if still disconnected
+      if (!this.isConnected() && !this.isIntentionallyClosed) {
+        try {
           await this.connect()
+        } catch (error) {
+          // connect() failed, will be handled by error/close handlers which may schedule another reconnect
+          console.error('[WebSocket] Reconnection attempt failed:', error)
         }
-      } finally {
-        // ALWAYS reset flag, even if connect() throws
-        this.isReconnecting = false
       }
     }, delay)
   }

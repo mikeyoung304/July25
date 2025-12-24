@@ -36,7 +36,7 @@ export function useKioskOrderSubmission() {
 
     setIsSubmitting(true);
     try {
-      // FLOATING-POINT FIX (TODO-051): Use cents (integer) arithmetic to avoid rounding errors
+      // Use cents (integer) arithmetic to avoid floating-point rounding errors
       const subtotalCents = items.reduce((sumCents, item) => {
         const itemPriceCents = Math.round(item.price * 100);
         return sumCents + (itemPriceCents * item.quantity);
@@ -109,7 +109,7 @@ export function useKioskOrderSubmission() {
     const result = await submitOrder(items, customerInfo);
     
     if (result.success) {
-      // FLOATING-POINT FIX (TODO-051): Use cents arithmetic for confirmation total
+      // Use cents arithmetic for confirmation total to avoid floating-point errors
       const confirmationTotalCents = items.reduce((sumCents, item) => {
         const itemPriceCents = Math.round(item.price * 100);
         return sumCents + (itemPriceCents * item.quantity);

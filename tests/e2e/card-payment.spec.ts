@@ -27,7 +27,20 @@ const STRIPE_TEST_CARDS = {
   AMEX_SUCCESS: '378282246310005',
 };
 
+/**
+ * QUARANTINE NOTE:
+ * Most UI/component tests in this file are now covered by unit tests in:
+ * - client/src/components/payments/__tests__/CardPayment.test.tsx (27 tests)
+ *
+ * Keeping TC-CARD-001 through TC-CARD-005 as true Stripe integration tests.
+ * UI state tests (TC-CARD-007-014) are skipped - covered by unit tests.
+ *
+ * See: tests/e2e/payments/payment.smoke.spec.ts for consolidated smoke tests.
+ */
+
 test.describe('Card Payment Workflow', () => {
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async ({ page }) => {
     // Navigate to server view
     await page.goto('/server');
@@ -270,7 +283,8 @@ test.describe('Card Payment Workflow', () => {
     });
   });
 
-  test('TC-CARD-007: Cancel payment returns to tender selection', async ({ page }) => {
+  // SKIPPED: Covered by CardPayment.test.tsx - "calls onBack when back button is clicked"
+  test.skip('TC-CARD-007: Cancel payment returns to tender selection', async ({ page }) => {
     // Navigate to card payment
     await page.click(`[data-table-id="${MOCK_TABLE_5.id}"]`);
     await page.click('button:has-text("Close Check")');
@@ -287,7 +301,8 @@ test.describe('Card Payment Workflow', () => {
     await expect(page.locator('button:has-text("Card Payment")')).toBeVisible();
   });
 
-  test('TC-CARD-008: Environment indicator shows test vs production', async ({ page }) => {
+  // SKIPPED: Covered by CardPayment.test.tsx - "shows test environment indicator"
+  test.skip('TC-CARD-008: Environment indicator shows test vs production', async ({ page }) => {
     // Set test environment (Stripe uses test mode)
     await page.addInitScript(() => {
       (window as any).STRIPE_ENVIRONMENT = 'test';
@@ -304,6 +319,7 @@ test.describe('Card Payment Workflow', () => {
     await expect(envBadge).toHaveClass(/bg-yellow/); // Warning color
   });
 
+  // Keep as E2E - tests network-level SDK loading failure
   test('TC-CARD-009: Stripe SDK load failure shows error', async ({ page }) => {
     // Block Stripe SDK from loading
     await page.route('**/js.stripe.com/**', route => route.abort());
@@ -323,7 +339,8 @@ test.describe('Card Payment Workflow', () => {
     await expect(retryButton).toBeVisible();
   });
 
-  test('TC-CARD-010: Secure payment badge displays throughout flow', async ({ page }) => {
+  // SKIPPED: Covered by CardPayment.test.tsx - "displays secure payment badge"
+  test.skip('TC-CARD-010: Secure payment badge displays throughout flow', async ({ page }) => {
     // Navigate to card payment
     await page.click(`[data-table-id="${MOCK_TABLE_5.id}"]`);
     await page.click('button:has-text("Close Check")');
@@ -339,7 +356,8 @@ test.describe('Card Payment Workflow', () => {
     await expect(lockIcon).toBeVisible();
   });
 
-  test('TC-CARD-011: Payment processing shows loading state', async ({ page }) => {
+  // SKIPPED: Covered by CardPayment.test.tsx - "shows processing state during payment"
+  test.skip('TC-CARD-011: Payment processing shows loading state', async ({ page }) => {
     // Mock slow payment response
     await page.route('**/api/v1/payments/card', async (route) => {
       await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
@@ -369,7 +387,8 @@ test.describe('Card Payment Workflow', () => {
     await expect(submitButton).toBeDisabled();
   });
 
-  test('TC-CARD-012: Multiple payment attempts after decline', async ({ page }) => {
+  // SKIPPED: Covered by CardPayment.test.tsx - "allows retry after payment failure"
+  test.skip('TC-CARD-012: Multiple payment attempts after decline', async ({ page }) => {
     // Mock alternating decline/success
     let attemptCount = 0;
     await page.route('**/api/v1/payments/card', async (route) => {
@@ -409,7 +428,8 @@ test.describe('Card Payment Workflow', () => {
     await expect(page.locator('.toast-success')).toContainText('successful', { timeout: 5000 });
   });
 
-  test('TC-CARD-013: Table status updates only after successful payment', async ({ page }) => {
+  // SKIPPED: Covered by CardPayment.test.tsx - "updates table status after successful payment"
+  test.skip('TC-CARD-013: Table status updates only after successful payment', async ({ page }) => {
     // Mock payment failure
     await page.route('**/api/v1/payments/card', async (route) => {
       await route.fulfill({
@@ -439,6 +459,7 @@ test.describe('Card Payment Workflow', () => {
     await expect(tableCard).not.toHaveAttribute('data-status', 'paid');
   });
 
+  // Keep as E2E - tests Stripe iframe validation
   test('TC-CARD-014: Card form validation before submission', async ({ page }) => {
     // Navigate to card payment
     await page.click(`[data-table-id="${MOCK_TABLE_5.id}"]`);

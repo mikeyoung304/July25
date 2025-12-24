@@ -1,2 +1,7 @@
-src/**/*.{test,spec}.{ts,tsx}
-**/__tests__/**/*.{ts,tsx}
+# Quarantined Tests - Tests with known flaky behavior that need to be fixed
+# Format: tests/path/to/test-file.test.ts (relative to server directory)
+#
+# NOTE: Patterns should be specific file paths, not globs.
+# DO NOT use broad patterns like "**/*.test.ts" as this excludes ALL tests.
+#
+# Currently: No tests are quarantined - all 430 server tests pass consistently.

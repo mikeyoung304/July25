@@ -1,3 +1,26 @@
+/**
+ * Playwright Configuration - Main E2E Test Suite
+ *
+ * This is the PRIMARY Playwright config for all E2E tests.
+ *
+ * Projects included:
+ * - chromium, firefox, webkit: Desktop browser testing (local dev)
+ * - Mobile Chrome, Mobile Safari: Mobile device testing
+ * - visual-regression: Screenshot comparison tests
+ * - accessibility: a11y testing with axe-core
+ * - api: API endpoint testing
+ * - performance: Performance/Lighthouse tests
+ * - smoke: Critical path smoke tests
+ * - production: Tests against deployed Vercel app (no webServer needed)
+ *
+ * Usage:
+ *   npm run test:e2e                    # Run all e2e tests (chromium)
+ *   npx playwright test --project=smoke # Run smoke tests only
+ *   npx playwright test --project=production tests/e2e/auth/  # Production auth tests
+ *
+ * Note: Voice ordering tests require separate config (playwright-e2e-voice.config.ts)
+ * due to WebRTC SDK conflicts and special Chrome launch args for fake media streams.
+ */
 import { defineConfig, devices } from '@playwright/test';
 import { VIEWPORTS, CHROME_LAUNCH_ARGS, createLaunchOptions } from './tests/config/viewport.config';
 
@@ -5,9 +28,7 @@ export default defineConfig({
   testDir: './tests/e2e',
   // Exclude .tsx files - these are React component tests that use @testing-library/react
   // and should be run with Vitest, not Playwright
-  // Also exclude kds-websocket-race-conditions.spec.ts - it uses require() in page.evaluate()
-  // which doesn't work in browser context (needs architectural fix to expose service on window)
-  testIgnore: ['**/*.tsx', '**/kds-websocket-race-conditions.spec.ts'],
+  testIgnore: ['**/*.tsx'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -17,6 +38,7 @@ export default defineConfig({
     ['html', { outputFolder: 'playwright-report' }],
     ['json', { outputFile: 'playwright-report/e2e-results.json' }],
     ['list'],
+    ['./tests/reporters/flaky-tracker.ts'],
     ...(process.env.CI ? [['github']] : []),
   ],
   use: {
@@ -113,6 +135,23 @@ export default defineConfig({
         launchOptions: createLaunchOptions(CHROME_LAUNCH_ARGS.desktop),
       },
       testDir: './tests/e2e',
+    },
+
+    // Production tests - run against deployed Vercel app
+    // No webServer needed since we're testing the live deployment
+    // Use: npx playwright test --project=production tests/e2e/production/
+    //   or: npx playwright test --project=production tests/e2e/auth/auth-flow.production.spec.ts
+    {
+      name: 'production',
+      testMatch: /.*\.(production|prod)\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'https://july25-client.vercel.app',
+        trace: 'on-first-retry',
+        screenshot: 'only-on-failure',
+      },
+      testDir: './tests/e2e',
+      retries: 1,
     },
   ],
 

@@ -3,6 +3,9 @@
  *
  * Tests that rapid login/logout cycles on the Kitchen Display System
  * don't create duplicate WebSocket connections or event streams.
+ *
+ * Note: The WebSocketService automatically exposes itself on window.__webSocketService
+ * in development mode, so we don't need to use require() in browser context.
  */
 
 import { test, expect, Page } from '@playwright/test'
@@ -10,7 +13,7 @@ import { test, expect, Page } from '@playwright/test'
 // Helper to count WebSocket connections in browser
 async function getWebSocketConnectionCount(page: Page): Promise<number> {
   return await page.evaluate(() => {
-    // Access the webSocketService singleton
+    // Access the webSocketService singleton (exposed in dev mode by WebSocketService constructor)
     const wsService = (window as any).__webSocketService
     if (!wsService) return 0
 
@@ -25,11 +28,11 @@ async function checkForDuplicateListeners(page: Page): Promise<number> {
     const wsService = (window as any).__webSocketService
     if (!wsService) return 0
 
-    // Count event listeners for 'order:created'
-    const listeners = wsService._events?.['order:created']
-    if (!listeners) return 0
-
-    return Array.isArray(listeners) ? listeners.length : 1
+    // Use the public listenerCount method from EventEmitter
+    // The 'message' event is used for all message subscriptions
+    return typeof wsService.listenerCount === 'function'
+      ? wsService.listenerCount('message')
+      : 0
   })
 }
 
@@ -38,14 +41,27 @@ test.describe('KDS WebSocket Race Conditions', () => {
     // Navigate to the app
     await page.goto('/')
 
-    // Wait for the app to load
+    // Wait for the app to be fully ready (past splash screen)
+    // The app creates a data-testid="app-ready" element when initialization is complete
+    await page.waitForSelector('[data-testid="app-ready"]', { timeout: 30000 })
     await page.waitForLoadState('networkidle')
 
-    // Expose WebSocket service for testing
-    await page.evaluate(() => {
-      const { webSocketService } = require('@/services/websocket')
-      ;(window as any).__webSocketService = webSocketService
-    })
+    // Verify the WebSocket service is exposed (it's done automatically in dev mode)
+    // Wait for service exposure with retry since it may take time to initialize
+    let wsServiceExists = false
+    for (let i = 0; i < 10; i++) {
+      wsServiceExists = await page.evaluate(() => {
+        return !!(window as any).__webSocketService
+      })
+      if (wsServiceExists) break
+      await page.waitForTimeout(500)
+    }
+
+    // The service should be exposed in dev mode
+    // If not available, skip the tests gracefully
+    if (!wsServiceExists) {
+      test.skip(true, 'WebSocket service not exposed (not in dev mode)')
+    }
   })
 
   test('should not create duplicate WebSocket connections on rapid login/logout', async ({ page }) => {
@@ -164,12 +180,17 @@ test.describe('KDS WebSocket Race Conditions', () => {
       }
     })
 
-    // Simulate creating an order (you'll need to implement this based on your app)
-    // This is a placeholder - adjust based on your actual UI
+    // Simulate creating an order by emitting a WebSocket message
+    // The WebSocketService is exposed on window.__webSocketService in dev mode
     await page.evaluate(() => {
-      // Simulate a WebSocket message for a new order
-      const { webSocketService } = require('@/services/websocket')
-      webSocketService.emit('message', {
+      const wsService = (window as any).__webSocketService
+      if (!wsService) {
+        console.warn('WebSocket service not available for test')
+        return
+      }
+
+      // Emit a simulated WebSocket message for a new order
+      wsService.emit('message', {
         type: 'order:created',
         payload: {
           order: {

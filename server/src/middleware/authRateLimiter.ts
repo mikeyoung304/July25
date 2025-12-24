@@ -9,6 +9,9 @@ import rateLimit from 'express-rate-limit';
 import { Request } from 'express';
 import { logger } from '../utils/logger';
 
+// Only disable rate limiting in local development (not on Render production)
+const isDevelopment = process.env['NODE_ENV'] === 'development' && process.env['RENDER'] !== 'true';
+
 // Store for tracking suspicious IPs
 const suspiciousIPs = new Map<string, number>();
 const blockedIPs = new Set<string>();
@@ -58,10 +61,10 @@ const isBlocked = (req: Request): boolean => {
   return blockedIPs.has(clientId);
 };
 
-// Login rate limiter - strict (relaxed for development)
+// Login rate limiter - strict (relaxed for local development only)
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env['NODE_ENV'] === 'development' ? 100 : 5, // 100 in dev, 5 in production
+  max: isDevelopment ? 100 : 5, // 100 in local dev, 5 in production (including Render)
   keyGenerator: getClientId,
   message: 'Too many login attempts. Please try again in 15 minutes.',
   standardHeaders: true,

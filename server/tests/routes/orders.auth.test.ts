@@ -324,12 +324,18 @@ describe('Orders Routes - Auth Integration Tests', () => {
     });
   });
 
-  describe('Test 6: invalid role → 403', () => {
-    // SKIPPED: Route uses optionalAuth with no RBAC enforcement
-    // POST /api/v1/orders allows any authenticated user regardless of role
-    // TODO P0.9: Add RBAC middleware if role restrictions are required
-    it.skip('should reject tokens with invalid/unauthorized roles', async () => {
-      const token = createTestToken({ role: 'kitchen' });
+  describe('Test 6: role-based scope enforcement', () => {
+    // POST /api/v1/orders enforces RBAC for staff orders via inline scope check.
+    // - Customer orders (X-Client-Flow: online|kiosk): Allow anonymous access
+    // - Staff orders: Require authentication AND orders:create scope
+    // Kitchen role has orders:read and orders:status, but NOT orders:create
+    it('should reject roles without orders:create scope for staff orders', async () => {
+      // Kitchen role only has: orders:read, orders:status, menu:read
+      // Does NOT have orders:create scope
+      const token = createTestToken({
+        role: 'kitchen',
+        scopes: ['orders:read', 'orders:status', 'menu:read']  // Kitchen's actual scopes
+      });
 
       const response = await request(app)
         .post('/api/v1/orders')
@@ -342,11 +348,13 @@ describe('Orders Routes - Auth Integration Tests', () => {
             quantity: 1,
             price: 1.00
           }],
-          type: 'dine-in'
+          type: 'dine-in'  // Staff order (not online/kiosk)
         });
 
-      // Expect 401 or 403 (depends on where validation fails)
-      expect([401, 403]).toContain(response.status);
+      // Route handler checks scopes inline (line 67-70 in orders.routes.ts)
+      // Missing orders:create scope returns 401 Unauthorized
+      expect(response.status).toBe(401);
+      expect(response.body.error.message).toMatch(/orders:create/i);
     });
 
     it('should reject tokens with missing required scopes', async () => {

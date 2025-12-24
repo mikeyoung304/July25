@@ -213,11 +213,12 @@ export class HttpClient extends SecureAPIClient {
    * Convenience methods that properly type the parameters
    */
   async get<T>(endpoint: string, options?: HttpRequestOptions): Promise<T> {
-    // Build cache key with restaurant_id prefix for tenant isolation (TODO-104 fix)
+    // Build cache key with restaurant_id prefix for tenant isolation
+    // Pattern: `tenant:${tenantId}:resource:${id}` per CLAUDE.md
     // This prevents cross-tenant cache pollution when switching restaurants
     const restaurantId = getCurrentRestaurantId() || getRestaurantId()
 
-    // TODO-110 fix: Skip caching when no tenant is available to prevent cross-tenant cache pollution
+    // Skip caching when no tenant is available to prevent cross-tenant cache pollution
     if (!restaurantId) {
       if (import.meta.env.DEV) {
         logger.warn(`[Cache BYPASS] ${endpoint} (no restaurant_id available)`)
@@ -290,16 +291,27 @@ export class HttpClient extends SecureAPIClient {
   }
 
   /**
-   * Clear related cache entries based on mutation endpoint (TODO-106 fix)
+   * Clear related cache entries based on mutation endpoint
+   * Scoped to current restaurant to maintain tenant isolation
    * Extracted to single source of truth for cache invalidation patterns
    */
   private clearRelatedCache(endpoint: string): void {
+    // Get current restaurant for scoped cache invalidation
+    const restaurantId = getCurrentRestaurantId() || getRestaurantId()
+
+    // Build scoped pattern - only clears cache for the current tenant
+    const scopedPattern = restaurantId ? `^${restaurantId}:` : ''
+
     if (endpoint.startsWith('/api/v1/menu')) {
-      this.clearCache('/api/v1/menu')
+      this.responseCache.invalidate(new RegExp(`${scopedPattern}/api/v1/menu`))
     } else if (endpoint.startsWith('/api/v1/tables')) {
-      this.clearCache('/api/v1/tables')
+      this.responseCache.invalidate(new RegExp(`${scopedPattern}/api/v1/tables`))
     } else if (endpoint.startsWith('/api/v1/voice-config')) {
-      this.clearCache('/api/v1/voice-config/menu')
+      this.responseCache.invalidate(new RegExp(`${scopedPattern}/api/v1/voice-config/menu`))
+    }
+
+    if (import.meta.env.DEV && restaurantId) {
+      logger.info(`[Cache INVALIDATE] ${endpoint} (scoped to restaurant ${restaurantId})`)
     }
   }
 

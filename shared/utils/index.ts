@@ -10,7 +10,7 @@ export * from './order-constants';
 // Order status utilities (STATUS_GROUPS, isStatusInGroup, etc.)
 export * from './orderStatus';
 
-// Price validation utilities (TODO-082)
+// Price validation utilities
 export * from './price-validation';
 
 // DISABLED FOR SERVER BUILD - these use browser APIs

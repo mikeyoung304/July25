@@ -22,7 +22,7 @@ jobs:
 
     env:
       NODE_ENV: test
-      NODE_OPTIONS: '--max-old-space-size=3072'
+      NODE_OPTIONS: '--max-old-space-size=4096 --expose-gc'
       PUPPETEER_SKIP_DOWNLOAD: true
       # Client environment
       VITE_API_BASE_URL: http://localhost:3001

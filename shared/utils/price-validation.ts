@@ -7,8 +7,6 @@
  * - Negative prices
  * - Extreme values that exceed reasonable limits
  * - Database corruption from invalid values
- *
- * @see TODO-082: Missing NaN/Infinity/Invalid Price Validation
  */
 
 /**

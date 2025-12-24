@@ -1,104 +1,255 @@
 import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { ConnectionStatusBar } from '../ConnectionStatusBar'
+import { useConnectionStatus, type ConnectionState } from '@/hooks/useConnectionStatus'
 
 // Mock the useConnectionStatus hook
 vi.mock('@/hooks/useConnectionStatus')
 
+const mockUseConnectionStatus = useConnectionStatus as Mock
+
 describe('ConnectionStatusBar', () => {
+  const createMockReturn = (overrides: Partial<ReturnType<typeof useConnectionStatus>> = {}) => ({
+    connectionState: 'disconnected' as ConnectionState,
+    lastConnected: null,
+    reconnectAttempts: 0,
+    isOnline: true,
+    ...overrides
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
+    mockUseConnectionStatus.mockReturnValue(createMockReturn())
   })
 
   describe('Connected state', () => {
-    it('displays connected status message', () => {
-      // TODO: Mock useConnectionStatus hook to return connected state
-      // TODO: Verify 'Connected' text is displayed
-      // TODO: Verify green background is applied (bg-green-500)
-      // TODO: Verify Wifi icon is rendered
-      // TODO: Verify no pulse animation is shown
+    it('returns null when connected and online (no status bar shown)', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connected',
+        isOnline: true
+      }))
+
+      const { container } = render(<ConnectionStatusBar />)
+      expect(container.firstChild).toBeNull()
     })
   })
 
   describe('Connecting state', () => {
     it('displays connecting message with spinner', () => {
-      // TODO: Mock useConnectionStatus hook to return connecting state
-      // TODO: Verify 'Connecting...' text is displayed
-      // TODO: Verify yellow background is applied (bg-yellow-500)
-      // TODO: Verify RefreshCw icon (spinner) is rendered
-      // TODO: Verify pulse animation is applied
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connecting',
+        reconnectAttempts: 1
+      }))
+
+      render(<ConnectionStatusBar />)
+      expect(screen.getByText('Connecting...')).toBeInTheDocument()
     })
 
-    it('displays reconnect attempt counter', () => {
-      // TODO: Mock useConnectionStatus hook with reconnectAttempts > 0
-      // TODO: Verify 'Reconnecting... (N)' format is displayed
+    it('displays reconnect attempt counter when attempts > 1', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connecting',
+        reconnectAttempts: 3
+      }))
+
+      render(<ConnectionStatusBar />)
+      expect(screen.getByText('Reconnecting... (3)')).toBeInTheDocument()
+    })
+
+    it('applies yellow background for connecting state', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connecting'
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('Connecting...').closest('div')
+      expect(statusBar).toHaveClass('bg-yellow-500')
     })
   })
 
   describe('Error state', () => {
     it('displays connection error message', () => {
-      // TODO: Mock useConnectionStatus hook to return error state
-      // TODO: Verify 'Connection Error' text is displayed
-      // TODO: Verify red background is applied (bg-red-500)
-      // TODO: Verify AlertCircle icon is rendered
-      // TODO: Verify pulse animation is applied
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'error'
+      }))
+
+      render(<ConnectionStatusBar />)
+      expect(screen.getByText('Connection Error')).toBeInTheDocument()
+    })
+
+    it('applies red background for error state', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'error'
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('Connection Error').closest('div')
+      expect(statusBar).toHaveClass('bg-red-500')
+    })
+
+    it('shows Retry button in error state', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'error'
+      }))
+
+      render(<ConnectionStatusBar />)
+      expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument()
+    })
+
+    it('reloads page when Retry button is clicked', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'error'
+      }))
+
+      // Mock window.location.reload
+      const reloadMock = vi.fn()
+      const originalLocation = window.location
+      Object.defineProperty(window, 'location', {
+        value: { ...originalLocation, reload: reloadMock },
+        writable: true
+      })
+
+      render(<ConnectionStatusBar />)
+      fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+      expect(reloadMock).toHaveBeenCalled()
+
+      // Restore
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true
+      })
     })
   })
 
   describe('Offline state', () => {
     it('displays offline message when isOnline is false', () => {
-      // TODO: Mock useConnectionStatus hook with isOnline=false
-      // TODO: Verify 'No Internet Connection' text is displayed
-      // TODO: Verify red background is applied (bg-red-500)
-      // TODO: Verify WifiOff icon is rendered
-      // TODO: Verify pulse animation is applied
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connected', // Even if "connected", offline takes precedence
+        isOnline: false
+      }))
+
+      render(<ConnectionStatusBar />)
+      expect(screen.getByText('No Internet Connection')).toBeInTheDocument()
+    })
+
+    it('applies red background for offline state', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        isOnline: false
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('No Internet Connection').closest('div')
+      expect(statusBar).toHaveClass('bg-red-500')
     })
   })
 
   describe('Disconnected state', () => {
     it('displays disconnected message', () => {
-      // TODO: Mock useConnectionStatus hook to return disconnected state
-      // TODO: Verify 'Disconnected' text is displayed
-      // TODO: Verify gray background is applied (bg-gray-500)
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'disconnected'
+      }))
+
+      render(<ConnectionStatusBar />)
+      expect(screen.getByText('Disconnected')).toBeInTheDocument()
+    })
+
+    it('applies gray background for disconnected state', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'disconnected'
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('Disconnected').closest('div')
+      expect(statusBar).toHaveClass('bg-gray-500')
+    })
+  })
+
+  describe('Last connected timestamp', () => {
+    it('shows last connected time when not connected', () => {
+      const lastConnected = new Date('2024-01-01T12:30:00')
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'disconnected',
+        lastConnected
+      }))
+
+      render(<ConnectionStatusBar />)
+      expect(screen.getByText(/Last:/)).toBeInTheDocument()
+    })
+
+    it('does not show last connected time when connected', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connected',
+        isOnline: true,
+        lastConnected: new Date()
+      }))
+
+      const { container } = render(<ConnectionStatusBar />)
+      // Component returns null when connected
+      expect(container.firstChild).toBeNull()
     })
   })
 
   describe('Styling and layout', () => {
     it('applies white text color for all states', () => {
-      // TODO: Verify text-white class is applied
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'disconnected'
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('Disconnected').closest('div')
+      expect(statusBar).toHaveClass('text-white')
     })
 
-    it('displays status bar as horizontal layout', () => {
-      // TODO: Verify flex layout is applied
+    it('displays status bar as flex layout', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'disconnected'
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('Disconnected').closest('div')
+      expect(statusBar).toHaveClass('flex')
     })
 
-    it('includes appropriate padding', () => {
-      // TODO: Verify padding is applied (px-4 py-2 or similar)
+    it('applies pulse animation for connecting state', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connecting'
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('Connecting...').closest('div')
+      expect(statusBar).toHaveClass('animate-pulse')
+    })
+
+    it('does not apply pulse animation for disconnected state', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'disconnected'
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('Disconnected').closest('div')
+      expect(statusBar).not.toHaveClass('animate-pulse')
     })
   })
 
   describe('Accessibility', () => {
-    it('provides accessible status text', () => {
-      // TODO: Verify status text is accessible to screen readers
+    it('provides accessible retry button', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'error'
+      }))
+
+      render(<ConnectionStatusBar />)
+      const button = screen.getByRole('button', { name: 'Retry' })
+      expect(button).toBeInTheDocument()
     })
 
-    it('marks icons as aria-hidden', () => {
-      // TODO: Verify icons have aria-hidden="true"
-    })
-  })
+    it('status text is accessible to screen readers', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'error'
+      }))
 
-  describe('State transitions', () => {
-    it('updates UI when connection state changes', () => {
-      // TODO: Mock initial state, verify initial render
-      // TODO: Update mock state, verify re-render
-      // TODO: Verify smooth transitions between states
-    })
-
-    it('shows reconnect button during error state', () => {
-      // TODO: Mock error state
-      // TODO: Verify reconnect button appears
-      // TODO: Mock reconnect callback and verify it's called
+      render(<ConnectionStatusBar />)
+      // Text is directly in the DOM, accessible by default
+      expect(screen.getByText('Connection Error')).toBeInTheDocument()
     })
   })
 })

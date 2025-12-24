@@ -21,7 +21,7 @@ export function useOrderSubmission() {
 
     setIsSubmitting(true)
     try {
-      // FLOATING-POINT FIX (TODO-051): Use cents (integer) arithmetic to avoid rounding errors
+      // Use cents (integer) arithmetic to avoid floating-point rounding errors
       const totalCents = items.reduce((sumCents, item) => {
         const itemPriceCents = Math.round(item.menuItem.price * 100)
         return sumCents + (itemPriceCents * item.quantity)

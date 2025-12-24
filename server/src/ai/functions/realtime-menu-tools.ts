@@ -492,16 +492,16 @@ async function saveCart(cart: Cart): Promise<void> {
  *
  * ADR-013: Using shared DEFAULT_TAX_RATE constant
  *
- * ⚠️ **FLOATING-POINT FIX (TODO-051/P1-080)** - Uses cents (integer) arithmetic
- * to avoid floating-point rounding errors. Only converted to dollars for storage.
+ * Uses cents (integer) arithmetic to avoid floating-point rounding errors.
+ * Only converted to dollars for storage.
  *
- * ⚠️ **NaN/INFINITY FIX (TODO-082)** - Validates all prices before calculation
- * and validates results before storing to prevent data corruption.
+ * Validates all prices before calculation and validates results before storing
+ * to prevent data corruption.
  */
 function updateCartTotals(cart: Cart, taxRate: number = DEFAULT_TAX_RATE): void {
   // Work in cents (integers) to avoid floating-point errors like 0.1 + 0.2 = 0.30000000000000004
   const subtotalCents = cart.items.reduce((sumCents, item) => {
-    // Sanitize prices to prevent NaN/Infinity propagation (TODO-082)
+    // Sanitize prices to prevent NaN/Infinity propagation
     const itemPrice = sanitizePrice(item.price);
     const itemPriceCents = Math.round(itemPrice * 100);
     const modifierPriceCents = Math.round(
@@ -525,7 +525,7 @@ function updateCartTotals(cart: Cart, taxRate: number = DEFAULT_TAX_RATE): void 
   const tax = taxCents / 100;
   const total = totalCents / 100;
 
-  // Validate calculated totals before storing (TODO-082)
+  // Validate calculated totals before storing
   try {
     validateCartTotals(subtotal, tax, total);
   } catch (error) {
