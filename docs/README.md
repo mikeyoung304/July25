@@ -20,7 +20,12 @@ Our documentation follows the [Diátaxis framework](https://diataxis.fr/) - a sy
 **Solve specific problems.** Practical recipes for common tasks.
 
 - [Operations](./how-to/operations/) - Deployment, KDS operations, runbooks
+  - [Production Monitoring](./how-to/operations/monitoring/PRODUCTION_MONITORING.md) - Monitoring setup and dashboards
+  - [Voice Model Migration](./how-to/operations/VOICE_MODEL_MIGRATION_GUIDE.md) - Migrating voice ordering models
+  - [Voice Ordering Troubleshooting](./how-to/operations/VOICE_ORDERING_TROUBLESHOOTING.md) - Voice ordering diagnostics
+  - Runbooks: [Incident Response](./how-to/operations/runbooks/INCIDENT_RESPONSE.md) | [Rollback Procedures](./how-to/operations/runbooks/ROLLBACK_PROCEDURES.md) | [Auth Debugging](./how-to/operations/runbooks/AUTH_DEBUGGING_RUNBOOK.md)
 - [Development](./how-to/development/) - Development process, CI/CD, contributing
+  - [Auth Development Guide](./how-to/development/AUTH_DEVELOPMENT_GUIDE.md) - Authentication implementation patterns
 - [Troubleshooting](./how-to/troubleshooting/) - Common issues and diagnostics
 
 ### 📋 [Reference](./reference/) - Information-Oriented
@@ -83,11 +88,23 @@ docs/
 │   ├── architecture/            # System & auth architecture
 │   ├── architecture-decisions/  # ADRs
 │   └── concepts/                # Menu system, order flow
+├── guides/                       # Practical guides
+│   └── testing/                 # Test isolation, standards, patterns
+├── prevention/                   # Prevention strategies and automation
+│   ├── AUTH_DUAL_PATTERN_PREVENTION_SUMMARY.md
+│   ├── KDS_PREVENTION_STRATEGIES.md
+│   └── KDS_ESLINT_AUTOMATION.md
 ├── naming/                       # Terminology standards
 ├── investigations/               # Incident analysis
 ├── meta/                         # Documentation about docs
 ├── voice/                        # Voice ordering implementation
 └── archive/                      # Historical documentation
+
+tests/
+└── multi-tenant/                # Multi-tenant test documentation
+    ├── QUICK-START.md
+    ├── 24H-TEST-PLAN.md
+    └── TEST-STATUS.md
 ```
 
 ## 🔍 Find Documentation by Keyword
@@ -95,6 +112,8 @@ docs/
 **Authentication & Security**
 - [Authentication Architecture](./explanation/architecture/AUTHENTICATION_ARCHITECTURE.md) - Complete auth flows, session management, RLS
 - [ADR-006: Dual Authentication](./explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md) - Production + demo auth patterns
+- [Auth Development Guide](./how-to/development/AUTH_DEVELOPMENT_GUIDE.md) - Authentication implementation patterns
+- [Auth Debugging Runbook](./how-to/operations/runbooks/AUTH_DEBUGGING_RUNBOOK.md) - Troubleshooting auth issues
 - [Security Policies](./SECURITY.md) - Security controls and compliance
 - [Auth Roles](./reference/config/AUTH_ROLES.md) - Role definitions and permissions
 
@@ -104,18 +123,36 @@ docs/
 - [Voice Ordering Architecture](./explanation/architecture/ARCHITECTURE.md#voice-ordering-architecture) - Service-oriented design
 - [ADR-005: Client-Side Voice Ordering](./explanation/architecture-decisions/ADR-005-client-side-voice-ordering.md) - Voice integration approach
 - [Voice Ordering Explained](./voice/VOICE_ORDERING_EXPLAINED.md) - Implementation details
+- [Voice Ordering Troubleshooting](./how-to/operations/VOICE_ORDERING_TROUBLESHOOTING.md) - Voice ordering diagnostics
+- [Voice Model Migration Guide](./how-to/operations/VOICE_MODEL_MIGRATION_GUIDE.md) - Migrating voice ordering models
 
 **Deployment & Operations**
 - [Deployment Guide](./how-to/operations/DEPLOYMENT.md) - Production deployment procedures
 - [Production Status](./PRODUCTION_STATUS.md) - Readiness assessment
+- [Production Monitoring](./how-to/operations/monitoring/PRODUCTION_MONITORING.md) - Monitoring setup and dashboards
 - [Runbooks](./how-to/operations/runbooks/) - Operational procedures and checklists
+  - [Incident Response](./how-to/operations/runbooks/INCIDENT_RESPONSE.md) - Incident handling procedures
+  - [Rollback Procedures](./how-to/operations/runbooks/ROLLBACK_PROCEDURES.md) - Deployment rollback guide
 - [CI/CD Workflows](./how-to/development/CI_CD_WORKFLOWS.md) - Automation pipelines
 
 **Testing & Quality**
 - [Development Process](./how-to/development/DEVELOPMENT_PROCESS.md) - Workflows and best practices
 - [CI/CD Workflows](./how-to/development/CI_CD_WORKFLOWS.md) - Automated testing
 - [Testing Checklist](./TESTING_CHECKLIST.md) - QA procedures
+- [Test Health Dashboard](../TEST_HEALTH.md) - Current test health status
 - [Troubleshooting](./how-to/troubleshooting/TROUBLESHOOTING.md) - Common issues and fixes
+
+**Testing Guides**
+- [Testing Standards](./guides/testing/TESTING-STANDARDS.md) - Coding standards for tests
+- [Test Isolation Strategy](./guides/testing/TEST-ISOLATION-STRATEGY.md) - Preventing test pollution
+- [Test Isolation Prevention](./guides/testing/test-isolation-prevention.md) - Anti-patterns and fixes
+- [State Isolation Patterns](./guides/testing/state-isolation-patterns.md) - Clean state management
+- [Quick Reference](./guides/testing/QUICK-REFERENCE.md) - Fast lookup for test patterns
+
+**Multi-Tenant Testing**
+- [Quick Start](../tests/multi-tenant/QUICK-START.md) - Get started with multi-tenant tests
+- [24H Test Plan](../tests/multi-tenant/24H-TEST-PLAN.md) - Comprehensive test plan
+- [Test Status](../tests/multi-tenant/TEST-STATUS.md) - Current test coverage status
 
 **Database & Schema**
 - [Database Guide](./reference/schema/DATABASE.md) - Schema and data model
@@ -196,6 +233,19 @@ Additional documentation categories:
 - [Incidents](./incidents/README.md) - Historical incident reports
 - [Research](./research/README.md) - Best practices and technology research
 - [Meta](./meta/README.md) - Documentation about documentation
+
+### Prevention Strategies
+
+Documentation for preventing common issues and implementing automated safeguards:
+
+- [Executive Summary](./prevention/EXECUTIVE_SUMMARY.md) - Overview of prevention strategies
+- [Issues Mapping](./prevention/ISSUES_MAPPING.md) - Mapping of issues to prevention strategies
+- **Authentication Prevention**
+  - [Auth Dual Pattern Prevention](./prevention/AUTH_DUAL_PATTERN_PREVENTION_SUMMARY.md) - Preventing dual auth pattern issues
+- **KDS Prevention**
+  - [KDS Prevention Strategies](./prevention/KDS_PREVENTION_STRATEGIES.md) - Kitchen Display System safeguards
+  - [KDS ESLint Automation](./prevention/KDS_ESLINT_AUTOMATION.md) - Automated linting for KDS code
+  - [KDS Quick Reference](./prevention/KDS_QUICK_REFERENCE.md) - Quick reference for KDS patterns
 
 ## 🗂️ Archive
 
