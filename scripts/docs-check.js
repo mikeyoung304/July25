@@ -53,6 +53,7 @@ const indexPath = path.join(ROOT, 'index.md');
 const indexContent = fs.readFileSync(indexPath, 'utf8');
 
 // Find all .md files, excluding docs/archive/** and generated/test outputs
+// Respects .gitignore patterns for generated artifacts
 const allMarkdownFiles = glob.sync('**/*.md', {
   cwd: ROOT,
   ignore: [
@@ -70,6 +71,10 @@ const allMarkdownFiles = glob.sync('**/*.md', {
     'coverage/**',
     'e2e/**',
     'examples/**',
+    // Generated artifacts (match .gitignore)
+    'playwright-report/data/**',
+    '.worktrees/**',
+    '.conductor/**',
   ],
   absolute: false,
 });

@@ -4,6 +4,46 @@ This directory contains proactive prevention strategies to avoid recurring issue
 
 ## Documents
 
+### [DOCUMENTATION-ORPHAN-PREVENTION.md](./DOCUMENTATION-ORPHAN-PREVENTION.md)
+
+**New** - Complete prevention framework for documentation orphan accumulation (December 2024).
+
+**Problem Pattern:**
+- Generated files (playwright-report/data/) accidentally committed
+- Old reports (reports/) accumulate without archival discipline
+- Pre-commit warnings don't block, files slip through
+- No naming convention or retention policy enforcement
+
+**3-Layer Prevention:**
+1. **Automation**: .gitignore hardening, pre-commit hooks, weekly GitHub Actions cleanup
+2. **Architecture**: Directory reorganization (active/snapshots/archive), YYYY-MM-DD naming convention
+3. **Discipline**: 30-second pre-commit checklist, weekly triage, monthly reviews
+
+**Key Sections:**
+- Problem analysis (current state, root causes)
+- .gitignore hardening with validation
+- Pre-commit hook implementation
+- Automated cleanup via GitHub Actions
+- Report lifecycle management (7/14/60/365-day retention)
+- Weekly triage protocol
+- Monthly archive review
+
+**When to Use:**
+- Before committing documentation files
+- When designing documentation storage structure
+- When setting up team documentation discipline
+- During quarterly review of documentation health
+
+**Quick Reference:** [DOCUMENTATION-ORPHAN-QUICK-REF.md](./DOCUMENTATION-ORPHAN-QUICK-REF.md)
+**Implementation Guide:** [DOCUMENTATION-ORPHAN-IMPLEMENTATION.md](./DOCUMENTATION-ORPHAN-IMPLEMENTATION.md)
+**Summary:** [DOCUMENTATION-ORPHAN-SUMMARY.md](./DOCUMENTATION-ORPHAN-SUMMARY.md)
+
+**Documents**: 4 files (2,609 lines)
+**Effort**: 3-4 weeks (phased implementation)
+**Status**: ACTIVE (implementation pending)
+
+---
+
 ### [INPUT-VALIDATION-AND-ERROR-SAFETY.md](./INPUT-VALIDATION-AND-ERROR-SAFETY.md)
 
 **New** - Comprehensive prevention strategies for input validation, error handling, and code quality (TODO-144 through TODO-150).
