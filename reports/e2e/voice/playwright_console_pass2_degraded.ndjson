@@ -9,3 +9,37 @@
 {"type":"console","level":"warning","text":"[DEBUG] Window loaded successfully","args":["[DEBUG] Window loaded successfully"],"t":1763611284723}
 {"type":"console","level":"warning","text":"Video failed to load, falling back to logo animation","args":["Video failed to load, falling back to logo animation"],"t":1763611284772}
 {"type":"requestfailed","url":"https://july25-client.vercel.app/assets/mikeyoung304-1.mp4","method":"GET","failure":"net::ERR_ABORTED","t":1763611284773}
+{"type":"console","level":"warning","text":"<link rel=preload> uses an unsupported `as` value","args":[],"t":1764913930949}
+{"type":"console","level":"warning","text":"LocalStorage: 0 items, 0.0KB used","args":["LocalStorage: 0 items, 0.0KB used"],"t":1764913931114}
+{"type":"console","level":"warning","text":"LocalStorage: 0 items, 0.0KB used","args":["LocalStorage: 0 items, 0.0KB used"],"t":1764913931117}
+{"type":"console","level":"warning","text":"Video failed to load, falling back to logo animation","args":["Video failed to load, falling back to logo animation"],"t":1764913931182}
+{"type":"console","level":"warning","text":"[DEBUG] Window loaded successfully","args":["[DEBUG] Window loaded successfully"],"t":1764913931360}
+{"type":"console","level":"warning","text":"[2025-12-05T05:52:11.357Z] [WARN] ❌ No authentication available for API request (no Supabase or localStorage session)","args":["[2025-12-05T05:52:11.357Z] [WARN]","❌ No authentication available for API request (no Supabase or localStorage session)"],"t":1764913931361}
+{"type":"response_error","url":"https://july25.onrender.com/api/v1/analytics/performance","status":400,"statusText":"","t":1764913931669}
+{"type":"console","level":"error","text":"Failed to load resource: the server responded with a status of 400 ()","args":[],"t":1764913931669}
+{"type":"console","level":"warning","text":"<link rel=preload> uses an unsupported `as` value","args":[],"t":1764913932512}
+{"type":"console","level":"error","text":"Failed to load resource: the server responded with a status of 400 ()","args":[],"t":1764913932513}
+{"type":"console","level":"warning","text":"[2025-12-05T05:52:16.830Z] [WARN] ❌ No authentication available for API request (no Supabase or localStorage session)","args":["[2025-12-05T05:52:16.830Z] [WARN]","❌ No authentication available for API request (no Supabase or localStorage session)"],"t":1764913936832}
+{"type":"console","level":"warning","text":"<link rel=preload> uses an unsupported `as` value","args":[],"t":1764946160602}
+{"type":"console","level":"warning","text":"LocalStorage: 0 items, 0.0KB used","args":["LocalStorage: 0 items, 0.0KB used"],"t":1764946160715}
+{"type":"console","level":"warning","text":"LocalStorage: 0 items, 0.0KB used","args":["LocalStorage: 0 items, 0.0KB used"],"t":1764946160717}
+{"type":"console","level":"warning","text":"Video failed to load, falling back to logo animation","args":["Video failed to load, falling back to logo animation"],"t":1764946160774}
+{"type":"console","level":"warning","text":"[DEBUG] Window loaded successfully","args":["[DEBUG] Window loaded successfully"],"t":1764946160877}
+{"type":"console","level":"warning","text":"[2025-12-05T14:49:20.874Z] [WARN] ❌ No authentication available for API request (no Supabase or localStorage session)","args":["[2025-12-05T14:49:20.874Z] [WARN]","❌ No authentication available for API request (no Supabase or localStorage session)"],"t":1764946160878}
+{"type":"response_error","url":"https://july25.onrender.com/api/v1/analytics/performance","status":400,"statusText":"","t":1764946161267}
+{"type":"console","level":"error","text":"Failed to load resource: the server responded with a status of 400 ()","args":[],"t":1764946161267}
+{"type":"console","level":"warning","text":"<link rel=preload> uses an unsupported `as` value","args":[],"t":1764946162038}
+{"type":"console","level":"error","text":"Failed to load resource: the server responded with a status of 400 ()","args":[],"t":1764946162039}
+{"type":"console","level":"warning","text":"[2025-12-05T14:49:26.429Z] [WARN] ❌ No authentication available for API request (no Supabase or localStorage session)","args":["[2025-12-05T14:49:26.429Z] [WARN]","❌ No authentication available for API request (no Supabase or localStorage session)"],"t":1764946166430}
+{"type":"console","level":"warning","text":"<link rel=preload> uses an unsupported `as` value","args":[],"t":1764952073983}
+{"type":"console","level":"warning","text":"LocalStorage: 0 items, 0.0KB used","args":["LocalStorage: 0 items, 0.0KB used"],"t":1764952074198}
+{"type":"console","level":"warning","text":"LocalStorage: 0 items, 0.0KB used","args":["LocalStorage: 0 items, 0.0KB used"],"t":1764952074201}
+{"type":"console","level":"warning","text":"Video failed to load, falling back to logo animation","args":["Video failed to load, falling back to logo animation"],"t":1764952074320}
+{"type":"console","level":"warning","text":"[DEBUG] Window loaded successfully","args":["[DEBUG] Window loaded successfully"],"t":1764952074323}
+{"type":"requestfailed","url":"https://july25-client.vercel.app/assets/mikeyoung304-1.mp4","method":"GET","failure":"net::ERR_ABORTED","t":1764952074325}
+{"type":"console","level":"warning","text":"[2025-12-05T16:27:54.321Z] [WARN] ❌ No authentication available for API request (no Supabase or localStorage session)","args":["[2025-12-05T16:27:54.321Z] [WARN]","❌ No authentication available for API request (no Supabase or localStorage session)"],"t":1764952074329}
+{"type":"response_error","url":"https://july25.onrender.com/api/v1/analytics/performance","status":400,"statusText":"","t":1764952074642}
+{"type":"console","level":"error","text":"Failed to load resource: the server responded with a status of 400 ()","args":[],"t":1764952074642}
+{"type":"console","level":"warning","text":"<link rel=preload> uses an unsupported `as` value","args":[],"t":1764952075583}
+{"type":"console","level":"error","text":"Failed to load resource: the server responded with a status of 400 ()","args":[],"t":1764952075583}
+{"type":"console","level":"warning","text":"[2025-12-05T16:27:59.915Z] [WARN] ❌ No authentication available for API request (no Supabase or localStorage session)","args":["[2025-12-05T16:27:59.915Z] [WARN]","❌ No authentication available for API request (no Supabase or localStorage session)"],"t":1764952079916}

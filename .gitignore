@@ -71,6 +71,9 @@ artifacts/
 test-results/
 .env.vercel*
 
+# Playwright report artifacts (generated)
+playwright-report/data/
+
 /generated/prisma
 .vercel
 claude-lessons3/node_modules/
@@ -79,3 +82,6 @@ claude-lessons3/
 # Git Worktrees
 .worktrees/
 .conductor/
+
+# Claude Code MCP config (contains secrets)
+.mcp.json
