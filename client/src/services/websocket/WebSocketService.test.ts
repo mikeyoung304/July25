@@ -3,6 +3,17 @@ import { WebSocketService } from './WebSocketService'
 import { supabase } from '@/core/supabase'
 import { setCurrentRestaurantId } from '@/services/http/httpClient'
 import { toSnakeCase } from '@/services/utils/caseTransform'
+import { logger } from '@/services/logger'
+
+// Mock the logger
+vi.mock('@/services/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  },
+}))
 
 // Mock WebSocket with proper event handling
 class MockWebSocket {
@@ -507,15 +518,19 @@ describe('WebSocketService', { timeout: 10000 }, () => {
       expect(global.WebSocket).toHaveBeenCalled()
       getCurrentMock().simulateOpen()
 
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+      // Clear any previous logger calls
+      vi.mocked(logger.error).mockClear()
 
       // Send invalid JSON
       if (getCurrentMock().onmessage) {
         getCurrentMock().onmessage(new MessageEvent('message', { data: 'invalid json' }))
       }
 
-      expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('Failed to parse'), expect.any(Error))
-      consoleError.mockRestore()
+      // Verify logger.error was called with the parse failure message
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to parse WebSocket message',
+        expect.objectContaining({ component: 'WebSocket' })
+      )
     })
   })
 })

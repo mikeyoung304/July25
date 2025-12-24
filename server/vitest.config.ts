@@ -14,7 +14,7 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],           // allow our contract tests
     testTimeout: 15000,
     hookTimeout: 15000,
-    exclude: ['**/node_modules/**','**/dist/**','**/tests/quarantine/**', ...qList],
+    exclude: ['**/node_modules/**','**/dist/**','**/tests/quarantine/**', '**/.worktrees/**', '**/.conductor/**', ...qList],
     passWithNoTests: true,
     setupFiles: ['./tests/bootstrap.ts'],
   },
