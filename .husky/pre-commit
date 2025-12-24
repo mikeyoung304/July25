@@ -12,8 +12,9 @@ fi
 npm run lint --workspaces --silent || exit 1
 
 # Check for console.log statements (Per Technical Roadmap Phase 0)
+# Excludes: tests/reporters/* (Playwright reporters need console.log for terminal output)
 echo "[husky] Checking for console.log statements..."
-JS_FILES=$(git diff --cached --name-only | grep -E '\.(js|jsx|ts|tsx)$' || true)
+JS_FILES=$(git diff --cached --name-only | grep -E '\.(js|jsx|ts|tsx)$' | grep -v 'tests/reporters/' || true)
 if [ -n "$JS_FILES" ]; then
   if echo "$JS_FILES" | xargs grep -l 'console\.\(log\|debug\)' 2>/dev/null; then
     echo ""

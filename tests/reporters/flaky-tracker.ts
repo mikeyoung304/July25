@@ -9,9 +9,10 @@ interface FlakyTestInfo {
 
 /**
  * Custom Playwright reporter that tracks and logs flaky tests.
- * A test is considered flaky if it required retries to pass.
+ * A test is considered flaky if it required retries, regardless of final outcome.
  *
  * Logs each retry as it happens and provides a summary at the end.
+ * Note: console.log is intentional - Playwright reporters output to terminal.
  */
 class FlakyTracker implements Reporter {
   private flakyTests: FlakyTestInfo[] = [];
@@ -24,15 +25,13 @@ class FlakyTracker implements Reporter {
         `[FLAKY] ${test.title} - attempt ${result.retry + 1} ${status} (${test.location.file})`
       );
 
-      // Track tests that eventually passed after retries
-      if (result.status === 'passed') {
-        this.flakyTests.push({
-          title: test.title,
-          file: test.location.file,
-          attempts: result.retry + 1,
-          finalStatus: 'passed',
-        });
-      }
+      // Track ALL tests that required retries, regardless of final outcome
+      this.flakyTests.push({
+        title: test.title,
+        file: test.location.file,
+        attempts: result.retry + 1,
+        finalStatus: result.status,
+      });
     }
   }
 
@@ -43,9 +42,10 @@ class FlakyTracker implements Reporter {
       console.log('');
 
       for (const test of this.flakyTests) {
-        console.log(`  - ${test.title}`);
+        const statusIcon = test.finalStatus === 'passed' ? '✓' : '✗';
+        console.log(`  ${statusIcon} ${test.title}`);
         console.log(`    File: ${test.file}`);
-        console.log(`    Required ${test.attempts} attempts to pass`);
+        console.log(`    Attempts: ${test.attempts}, Final: ${test.finalStatus}`);
         console.log('');
       }
 
