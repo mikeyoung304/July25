@@ -581,6 +581,7 @@ export interface OptimisticUpdate {
 // Extend WebSocketService with optimistic update capabilities
 export class OptimisticWebSocketService extends WebSocketService {
   private pendingOptimisticUpdates: Map<string, OptimisticUpdate> = new Map()
+  private pendingTimeouts: Map<string, NodeJS.Timeout> = new Map()
   private rollbackHandlers: Array<(update: OptimisticUpdate) => void> = []
   private ackTimeout = 5000 // 5 seconds to receive ack
 
@@ -629,12 +630,14 @@ export class OptimisticWebSocketService extends WebSocketService {
     })
 
     // Set timeout for ack - if no ack received, rollback
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
+      this.pendingTimeouts.delete(updateId)
       if (this.pendingOptimisticUpdates.has(updateId)) {
         logger.warn('Optimistic update ack timeout, rolling back', { updateId })
         this.rollbackUpdate(updateId)
       }
     }, this.ackTimeout)
+    this.pendingTimeouts.set(updateId, timeoutId)
 
     return updateId
   }
@@ -643,6 +646,11 @@ export class OptimisticWebSocketService extends WebSocketService {
    * Acknowledge an optimistic update (called when server confirms)
    */
   acknowledgeUpdate(updateId: string): void {
+    const timeoutId = this.pendingTimeouts.get(updateId)
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      this.pendingTimeouts.delete(updateId)
+    }
     this.pendingOptimisticUpdates.delete(updateId)
   }
 
@@ -650,6 +658,11 @@ export class OptimisticWebSocketService extends WebSocketService {
    * Rollback a specific optimistic update
    */
   private rollbackUpdate(updateId: string): void {
+    const timeoutId = this.pendingTimeouts.get(updateId)
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      this.pendingTimeouts.delete(updateId)
+    }
     const update = this.pendingOptimisticUpdates.get(updateId)
     if (update) {
       this.pendingOptimisticUpdates.delete(updateId)
@@ -661,6 +674,10 @@ export class OptimisticWebSocketService extends WebSocketService {
    * Rollback all pending optimistic updates (called on connection failure)
    */
   private rollbackAllPending(): void {
+    // Clear all pending timeouts to prevent memory leaks
+    this.pendingTimeouts.forEach(timeoutId => clearTimeout(timeoutId))
+    this.pendingTimeouts.clear()
+
     const updates = Array.from(this.pendingOptimisticUpdates.values())
     this.pendingOptimisticUpdates.clear()
 

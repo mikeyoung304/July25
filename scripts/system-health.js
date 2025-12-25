@@ -94,11 +94,12 @@ if (depsInstalled) {
 }
 
 // Check for vulnerabilities
+// Note: npm audit exits non-zero when vulnerabilities exist, so use || true
 try {
-  const auditResult = execSync('npm audit --json 2>/dev/null', {
+  const auditResult = execSync('npm audit --json 2>&1 || true', {
     cwd: ROOT,
     encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe']
+    shell: true
   });
   const auditData = JSON.parse(auditResult);
 
@@ -110,37 +111,11 @@ try {
     vulnCount = Object.keys(auditData.vulnerabilities).length;
   }
 
-  if (vulnCount === 0) {
-    console.log('Security: No known vulnerabilities');
-  } else {
-    console.log(`Security: ${vulnCount} vulnerabilities - run npm audit for details`);
-  }
+  console.log(vulnCount === 0
+    ? 'Security: No known vulnerabilities'
+    : `Security: ${vulnCount} vulnerabilities - run npm audit for details`);
 } catch {
-  // npm audit exits with non-zero when vulnerabilities exist
-  try {
-    const auditResult = execSync('npm audit --json 2>&1 || true', {
-      cwd: ROOT,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-      shell: true
-    });
-    const auditData = JSON.parse(auditResult);
-
-    let vulnCount = 0;
-    if (auditData.metadata && auditData.metadata.vulnerabilities) {
-      vulnCount = auditData.metadata.vulnerabilities.total || 0;
-    } else if (auditData.vulnerabilities) {
-      vulnCount = Object.keys(auditData.vulnerabilities).length;
-    }
-
-    if (vulnCount === 0) {
-      console.log('Security: No known vulnerabilities');
-    } else {
-      console.log(`Security: ${vulnCount} vulnerabilities - run npm audit for details`);
-    }
-  } catch {
-    console.log('Security: Could not check (run npm audit manually)');
-  }
+  console.log('Security: Could not check (run npm audit manually)');
 }
 
 // Check workspace status
