@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { ChatAgent, ChatMessage, ChatOptions, ChatResponse, Chat, ChatResult } from '../../core/chat';
 import { withRetry } from './utils';
 import { logger } from '../../../utils/logger';
+import { getErrorMessage } from '@rebuild/shared';
 
 const chatLogger = logger.child({ service: 'OpenAIChat' });
 
@@ -83,7 +84,7 @@ If asked about menu items, you can reference general categories but specific ite
       chatLogger.error('Chat completion failed', {
         requestId,
         restaurantId,
-        error: error instanceof Error ? error.message : String(error)
+        error: getErrorMessage(error)
       });
       
       // Return degraded response

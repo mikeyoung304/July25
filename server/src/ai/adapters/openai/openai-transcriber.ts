@@ -4,6 +4,7 @@ import { bufferToTmpFile, withRetry } from './utils';
 import { unlink } from 'fs/promises';
 import { createReadStream } from 'fs';
 import { logger } from '../../../utils/logger';
+import { getErrorMessage, getErrorStack } from '@rebuild/shared';
 
 const transcriberLogger = logger.child({ service: 'OpenAITranscriber' });
 
@@ -83,13 +84,13 @@ export class OpenAITranscriber implements Transcriber {
         }
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = getErrorMessage(error);
       transcriberLogger.error('Transcription failed', {
         requestId,
         error: errorMessage,
-        stack: error instanceof Error ? error.stack : undefined
+        stack: getErrorStack(error)
       });
-      
+
       // STOP HIDING ERRORS - Throw them so we can see what's wrong
       throw new Error(`OpenAI Transcription failed: ${errorMessage}`);
     }

@@ -3,7 +3,7 @@ import { logger } from '../../utils/logger';
 import NodeCache from 'node-cache';
 import { DEFAULT_TAX_RATE, TAX_RATE_SOURCE } from '@rebuild/shared/constants/business';
 import { Mutex } from 'async-mutex';
-import { sanitizePrice, validateCartTotals } from '@rebuild/shared';
+import { sanitizePrice, validateCartTotals, getErrorMessage } from '@rebuild/shared';
 
 // Types
 export interface MenuItem {
@@ -534,7 +534,7 @@ function updateCartTotals(cart: Cart, taxRate: number = DEFAULT_TAX_RATE): void 
       tax,
       total,
       itemCount: cart.items.length,
-      error: error instanceof Error ? error.message : String(error)
+      error: getErrorMessage(error)
     });
     // Fall back to zero values to prevent data corruption
     cart.subtotal = 0;

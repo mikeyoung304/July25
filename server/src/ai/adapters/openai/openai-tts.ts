@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { TTS, TTSOptions, TTSResult } from '../../core/tts';
 import { withRetry } from './utils';
 import { logger } from '../../../utils/logger';
+import { getErrorMessage, getErrorStack } from '@rebuild/shared';
 
 const ttsLogger = logger.child({ service: 'OpenAITTS' });
 
@@ -52,13 +53,13 @@ export class OpenAITextToSpeech implements TTS {
         mimeType: 'audio/mpeg'
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = getErrorMessage(error);
       ttsLogger.error('TTS synthesis failed', {
         requestId,
         error: errorMessage,
-        stack: error instanceof Error ? error.stack : undefined
+        stack: getErrorStack(error)
       });
-      
+
       // STOP HIDING ERRORS - Throw them so we can see what's wrong
       throw new Error(`OpenAI TTS failed: ${errorMessage}`);
     }

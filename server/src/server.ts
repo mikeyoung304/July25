@@ -20,6 +20,7 @@ import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocke
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { stopRateLimiterCleanup, startRateLimiterCleanup } from './middleware/authRateLimiter';
 import { startCartCleanup, stopCartCleanup } from './ai/functions/realtime-menu-tools';
+import { getErrorMessage } from '@rebuild/shared';
 import { OrdersService } from './services/orders.service';
 import { TableService } from './services/table.service';
 import { aiRoutes } from './routes/ai.routes';
@@ -350,7 +351,7 @@ async function gracefulShutdown(signal: string) {
     //   buildPanelServiceInstance.cleanup();
     // }
   } catch (error) {
-    logger.debug('AI cleanup not needed:', error instanceof Error ? error.message : String(error));
+    logger.debug('AI cleanup not needed:', getErrorMessage(error));
   }
 
   // Force exit after 5 seconds (increased from 3s to allow cleanup)

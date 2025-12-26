@@ -1,0 +1,1235 @@
+[
+  {
+    "id": "FIX-001",
+    "title": "Remove PIN_PEPPER default fallback",
+    "category": "security",
+    "severity": "P0",
+    "effort": "S",
+    "risk": "Med",
+    "files": ["server/src/services/auth/pinAuth.ts"],
+    "rationale": "Default pepper 'default-pepper-change-in-production' allows rainbow table attacks if production deployment misses PIN_PEPPER env var",
+    "steps": [
+      "Remove fallback value from PIN_PEPPER assignment",
+      "Add production check that throws if PIN_PEPPER is missing",
+      "Keep dev-only fallback for local development"
+    ],
+    "verification": ["npm run test:server -- auth", "Test PIN login flow manually"],
+    "history_refs": [],
+    "history_reason": "New finding - no prior fix attempt",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-002",
+    "title": "Require restaurant_id in AI routes",
+    "category": "security",
+    "severity": "P0",
+    "effort": "S",
+    "risk": "Med",
+    "files": ["server/src/routes/ai.routes.ts"],
+    "rationale": "AI routes fall back to DEFAULT_RESTAURANT_ID, potentially leaking menu data across tenants",
+    "steps": [
+      "Remove DEFAULT_RESTAURANT_ID fallback at lines 102 and 159",
+      "Return 400 if x-restaurant-id header is missing for public endpoints",
+      "Or document in ADR that public menu browsing is intentional"
+    ],
+    "verification": ["npm run test:server -- ai", "Test AI endpoints without restaurant ID header"],
+    "history_refs": [],
+    "history_reason": "Multi-tenant isolation gap",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-003",
+    "title": "Fix setInterval timer leak in realtime-menu-tools.ts",
+    "category": "ai",
+    "severity": "P0",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/ai/functions/realtime-menu-tools.ts"],
+    "rationale": "Unguarded setInterval at line 1159 causes memory leak - per lesson CL-MEM-001",
+    "steps": [
+      "Store interval reference in module-level variable",
+      "Export cleanup function or use server shutdown hook",
+      "Clear interval on graceful shutdown"
+    ],
+    "verification": ["npm run test:server", "Memory profiling during extended run"],
+    "history_refs": [],
+    "history_reason": "Known anti-pattern per CL-MEM-001 lesson",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-004",
+    "title": "Implement menu RAG pattern for AI instructions",
+    "category": "ai",
+    "severity": "P0",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["server/src/routes/realtime.routes.ts"],
+    "rationale": "Full menu in instructions wastes ~1000 tokens per session (~$25-50/mo)",
+    "steps": [
+      "Move menu items to function tool definitions",
+      "Create find_menu_items tool for dynamic lookup",
+      "Cache formatted menu context per restaurant",
+      "Remove inline menu dump from instructions"
+    ],
+    "verification": ["Voice ordering E2E tests", "Monitor token usage before/after"],
+    "history_refs": [],
+    "history_reason": "Cost optimization opportunity",
+    "churn_level": "high",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-005",
+    "title": "Fix type-check script name in deploy workflow",
+    "category": "cicd",
+    "severity": "P1",
+    "effort": "S",
+    "risk": "Low",
+    "files": [".github/workflows/deploy-with-validation.yml"],
+    "rationale": "Workflow references npm run type-check but script is npm run typecheck",
+    "steps": [
+      "Change line 35 from 'npm run type-check' to 'npm run typecheck'"
+    ],
+    "verification": ["Run workflow in GitHub Actions"],
+    "history_refs": [],
+    "history_reason": "Script naming inconsistency",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-006",
+    "title": "Remove auth secrets empty string fallback",
+    "category": "security",
+    "severity": "P1",
+    "effort": "S",
+    "risk": "Med",
+    "files": ["server/src/config/environment.ts"],
+    "rationale": "Empty strings for KIOSK_JWT_SECRET, STATION_TOKEN_SECRET, PIN_PEPPER could lead to predictable tokens",
+    "steps": [
+      "Add validateRequiredSecrets function",
+      "Throw on startup if critical secrets missing in production",
+      "Allow empty values only in development"
+    ],
+    "verification": ["npm run test:server", "Test server startup without secrets"],
+    "history_refs": [],
+    "history_reason": "Fail-fast security pattern",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-007",
+    "title": "Align version numbers to 6.0.14",
+    "category": "docs",
+    "severity": "P1",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["README.md", "docs/VERSION.md", "docs/meta/SOURCE_OF_TRUTH.md"],
+    "rationale": "Version conflicts: package.json=6.0.14, README=6.0.17, VERSION.md=6.0.16",
+    "steps": [
+      "Update README.md line 1 to v6.0.14",
+      "Update docs/VERSION.md Application row to 6.0.14",
+      "Add CI check to validate version consistency"
+    ],
+    "verification": ["grep -r '6.0.1[567]' --include='*.md'"],
+    "history_refs": [],
+    "history_reason": "Documentation drift",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-008",
+    "title": "Extract duplicate tax rate lookup to shared service",
+    "category": "arch",
+    "severity": "P1",
+    "effort": "S",
+    "risk": "Med",
+    "files": ["server/src/services/orders.service.ts", "server/src/services/payment.service.ts"],
+    "rationale": "Both services implement getRestaurantTaxRate() with different fallback logic - financial accuracy risk",
+    "steps": [
+      "Create server/src/services/tax.service.ts",
+      "Implement single getRestaurantTaxRate with caching",
+      "Update OrdersService to use shared service",
+      "Update PaymentService to use shared service"
+    ],
+    "verification": ["npm run test:server -- orders payment", "Verify tax calculation matches"],
+    "history_refs": [],
+    "history_reason": "DRY violation affecting financial logic",
+    "churn_level": "medium",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-009",
+    "title": "Remove header fallback in realtime routes",
+    "category": "security",
+    "severity": "P1",
+    "effort": "S",
+    "risk": "Med",
+    "files": ["server/src/routes/realtime.routes.ts"],
+    "rationale": "Header fallback at line 238 could allow cross-tenant WebSocket connections",
+    "steps": [
+      "Remove x-restaurant-id header fallback for authenticated routes",
+      "Only use req.restaurantId from validated token",
+      "Add explicit check for authentication state"
+    ],
+    "verification": ["npm run test:server -- realtime", "Test WebSocket connection with spoofed header"],
+    "history_refs": [],
+    "history_reason": "Multi-tenant isolation",
+    "churn_level": "medium",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-010",
+    "title": "Split realtime-menu-tools.ts god file",
+    "category": "refactor",
+    "severity": "P1",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["server/src/ai/functions/realtime-menu-tools.ts"],
+    "rationale": "1163-line file mixing types, cart logic, validation, and 8 tool implementations",
+    "steps": [
+      "Extract types to types/menu-tools.types.ts",
+      "Extract cart CRUD to services/cart.service.ts",
+      "Extract modifier pricing to services/modifier-pricing.service.ts",
+      "Extract validation to validators/menu-input.validator.ts",
+      "Keep tool definitions in main file"
+    ],
+    "verification": ["npm run typecheck", "npm run test:server"],
+    "history_refs": [],
+    "history_reason": "God file - exceeds 800 lines",
+    "churn_level": "high",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-011",
+    "title": "Extract VoiceEventHandler types to separate file",
+    "category": "refactor",
+    "severity": "P1",
+    "effort": "M",
+    "risk": "Low",
+    "files": ["client/src/modules/voice/services/VoiceEventHandler.ts"],
+    "rationale": "1271-line file with 420 lines of type definitions",
+    "steps": [
+      "Create client/src/modules/voice/types/realtime-events.types.ts",
+      "Move all interface/type definitions (lines 59-449)",
+      "Update imports in VoiceEventHandler.ts",
+      "Update any other consumers of these types"
+    ],
+    "verification": ["npm run typecheck", "npm run test:client -- voice"],
+    "history_refs": [],
+    "history_reason": "Type explosion in implementation file",
+    "churn_level": "high",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-012",
+    "title": "Extract FloorPlanCanvas drawing functions",
+    "category": "refactor",
+    "severity": "P1",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["client/src/modules/floor-plan/components/FloorPlanCanvas.tsx"],
+    "rationale": "345-line drawTable function handles gradients, shapes, selection, and text",
+    "steps": [
+      "Extract getTableGradient(ctx, table)",
+      "Extract drawChipMonkey(ctx, table)",
+      "Extract drawSelectionHighlight(ctx, table, zoomLevel)",
+      "Extract drawTableLabel(ctx, table, zoomLevel)"
+    ],
+    "verification": ["npm run test:e2e -- --grep 'floor plan'", "Visual regression test"],
+    "history_refs": [],
+    "history_reason": "Long function - 345 lines",
+    "churn_level": "medium",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-013",
+    "title": "Split orders.service.ts god file",
+    "category": "refactor",
+    "severity": "P1",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["server/src/services/orders.service.ts"],
+    "rationale": "820-line file mixing tax calculation, CRUD, payment, voice, WebSocket, and validation",
+    "steps": [
+      "Extract TaxCalculationService (lines 87-152)",
+      "Extract OrderValidationService (lines 768-818)",
+      "Keep core order CRUD in this file"
+    ],
+    "verification": ["npm run test:server -- orders"],
+    "history_refs": [],
+    "history_reason": "God file with mixed concerns",
+    "churn_level": "high",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-014",
+    "title": "Fix Square to Stripe documentation references",
+    "category": "docs",
+    "severity": "P1",
+    "effort": "M",
+    "risk": "Low",
+    "files": ["docs/reference/api/api/README.md", "index.md", "docs/README.md"],
+    "rationale": "138+ files still reference Square despite migration to Stripe",
+    "steps": [
+      "Update docs/reference/api/api/README.md line 267",
+      "Update index.md lines 95-99",
+      "Update docs/README.md line 164",
+      "Run grep -r 'Square' docs/ and fix remaining references",
+      "Delete broken Square documentation links"
+    ],
+    "verification": ["python3 scripts/validate_links.py"],
+    "history_refs": ["7df34c66"],
+    "history_reason": "Incomplete migration in commit 7df34c66",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-015",
+    "title": "Deduplicate system prompts in AI routes",
+    "category": "ai",
+    "severity": "P1",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/routes/ai.routes.ts"],
+    "rationale": "Identical systemMessage at lines 316-339 and 471-494 wastes tokens and creates drift risk",
+    "steps": [
+      "Extract system prompt to PromptConfigService",
+      "Import and use shared prompt in both endpoints",
+      "Add unit test for prompt consistency"
+    ],
+    "verification": ["npm run test:server -- ai"],
+    "history_refs": [],
+    "history_reason": "Token waste and maintainability",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-016",
+    "title": "Add request tracing to AI service",
+    "category": "ai",
+    "severity": "P1",
+    "effort": "M",
+    "risk": "Low",
+    "files": ["server/src/services/ai.service.ts"],
+    "rationale": "AI calls lack request correlation IDs, latency tracking, and cost tracking",
+    "steps": [
+      "Add requestId (UUID) generation",
+      "Log latencyMs from timer",
+      "Log tokensUsed from API response",
+      "Log modelUsed for cost calculation"
+    ],
+    "verification": ["npm run test:server -- ai", "Check log output format"],
+    "history_refs": [],
+    "history_reason": "Missing observability",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-017",
+    "title": "Complete VoiceStateMachine migration",
+    "category": "unfinished",
+    "severity": "P1",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["client/src/modules/voice/services/VoiceEventHandler.ts", "client/src/modules/voice/services/WebRTCVoiceClient.ts"],
+    "rationale": "TurnState deprecated but still used in tests; VoiceStateMachine is the replacement",
+    "steps": [
+      "Identify all test files using TurnState",
+      "Migrate tests to use VoiceStateMachine",
+      "Remove deprecated TurnState type and turnState property",
+      "Update external consumers if any"
+    ],
+    "verification": ["npm run test:client -- voice"],
+    "history_refs": ["07930fc2", "4adf6917"],
+    "history_reason": "Part of PHASE 2 refactor - incomplete",
+    "churn_level": "high",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-018",
+    "title": "Add orders composite database index",
+    "category": "perf",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["supabase/migrations/"],
+    "rationale": "Orders queries filter on (restaurant_id, status) and (restaurant_id, created_at) frequently without index",
+    "steps": [
+      "Create new migration file",
+      "Add CREATE INDEX CONCURRENTLY idx_orders_restaurant_status",
+      "Add CREATE INDEX CONCURRENTLY idx_orders_restaurant_created",
+      "Run EXPLAIN ANALYZE to verify improvement"
+    ],
+    "verification": ["npm run db:push", "EXPLAIN ANALYZE on getOrders query"],
+    "history_refs": [],
+    "history_reason": "Missing index for common query patterns",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-019",
+    "title": "Add LIMIT to scheduledOrders query",
+    "category": "perf",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/services/scheduledOrders.service.ts"],
+    "rationale": "Fetches ALL scheduled orders for restaurant without pagination at line 37",
+    "steps": [
+      "Add .limit(100) to scheduled orders query",
+      "Add batch processing if more than 100 exist",
+      "Log warning if batch limit reached"
+    ],
+    "verification": ["npm run test:server -- scheduled"],
+    "history_refs": [],
+    "history_reason": "Unbounded query safety",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-020",
+    "title": "Add LIMIT to table orders query",
+    "category": "perf",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/services/table.service.ts"],
+    "rationale": "Fetches ALL non-cancelled orders for a table at line 67 without limit",
+    "steps": [
+      "Add .limit(50) to table orders query",
+      "Or filter by recent date range (last 24 hours)"
+    ],
+    "verification": ["npm run test:server -- table"],
+    "history_refs": [],
+    "history_reason": "Unbounded query safety",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-021",
+    "title": "Delete high-confidence orphan files",
+    "category": "orphan",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": [
+      "client/src/hooks/useSquareTerminal.refactored.ts",
+      "client/src/hooks/terminalStateMachine.ts",
+      "client/src/hooks/kiosk/useOrderSubmission.ts",
+      "client/src/routes/LazyRoutes.tsx",
+      "client/src/components/shared/MenuItemGrid.example.tsx",
+      "client/src/contexts/UnifiedCartContext.refactored.tsx",
+      "client/src/components/shared/lists/VirtualizedOrderList.tsx",
+      "client/src/hooks/useFocusManagement.ts",
+      "client/src/hooks/useWebSocketConnection.ts",
+      "client/public/logo-animation/"
+    ],
+    "rationale": "10 files with HIGH confidence never imported or used",
+    "steps": [
+      "Verify each file has 0 imports via grep",
+      "Delete all listed files",
+      "Run typecheck to confirm no breaks"
+    ],
+    "verification": ["npm run typecheck"],
+    "history_refs": [],
+    "history_reason": "Dead code from abandoned refactors",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-022",
+    "title": "Create getErrorMessage utility",
+    "category": "refactor",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["shared/utils/error-utils.ts"],
+    "rationale": "Pattern 'error instanceof Error ? error.message : String(error)' duplicated 50 times across 23 files",
+    "steps": [
+      "Create shared/utils/error-utils.ts",
+      "Implement getErrorMessage function",
+      "Export from shared/utils/index.ts",
+      "Search and replace all occurrences"
+    ],
+    "verification": ["npm run typecheck", "npm test"],
+    "history_refs": [],
+    "history_reason": "DRY violation - 50 occurrences",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-023",
+    "title": "Add React.memo to MenuGridCard",
+    "category": "perf",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["client/src/components/shared/MenuItemGrid.tsx"],
+    "rationale": "MenuGridCard re-renders on any parent state change even with unchanged props",
+    "steps": [
+      "Wrap MenuGridCard export with React.memo",
+      "Add custom comparison function if needed"
+    ],
+    "verification": ["npm run test:client", "React DevTools render count"],
+    "history_refs": [],
+    "history_reason": "Missing memoization",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-024",
+    "title": "Add useMemo to filteredItems in MenuItemGrid",
+    "category": "perf",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["client/src/components/shared/MenuItemGrid.tsx"],
+    "rationale": "Category filtering runs on every parent render even with unchanged items",
+    "steps": [
+      "Wrap filteredItems calculation in useMemo",
+      "Add [items, selectedCategory] as dependencies"
+    ],
+    "verification": ["npm run test:client"],
+    "history_refs": [],
+    "history_reason": "Expensive computation on every render",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-025",
+    "title": "Cache restaurant tax rate",
+    "category": "perf",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/services/tax.service.ts"],
+    "rationale": "Tax rate queried separately by PaymentService and OrdersService for same order",
+    "steps": [
+      "Add NodeCache with 5-10s TTL for restaurant config",
+      "Or pass tax rate through order object to avoid duplicate fetch"
+    ],
+    "verification": ["npm run test:server -- orders payment"],
+    "history_refs": [],
+    "history_reason": "Duplicate database queries",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-026",
+    "title": "Add Zod validation to order status update endpoint",
+    "category": "security",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/routes/orders.routes.ts"],
+    "rationale": "Status parameter at line 244 not validated against OrderStatus enum",
+    "steps": [
+      "Create StatusUpdateSchema with z.enum for valid statuses",
+      "Add validateBody(StatusUpdateSchema) middleware to route",
+      "Remove manual status check"
+    ],
+    "verification": ["npm run test:server -- orders"],
+    "history_refs": [],
+    "history_reason": "Defense in depth - input validation",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-027",
+    "title": "Add Zod validation to legacy parseOrder interface",
+    "category": "ai",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/ai/adapters/openai/openai-order-nlp.ts"],
+    "rationale": "parseOrder method at line 62 uses JSON.parse without Zod validation unlike parse method",
+    "steps": [
+      "Import DraftSchema from existing validation",
+      "Add DraftSchema.parse() after JSON.parse",
+      "Handle validation errors appropriately"
+    ],
+    "verification": ["npm run test:server -- ai"],
+    "history_refs": [],
+    "history_reason": "Type safety gap in AI response handling",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-028",
+    "title": "Add Zod validation to function call arguments",
+    "category": "ai",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["client/src/modules/voice/services/VoiceEventHandler.ts"],
+    "rationale": "Function call args at line 1014 use type assertion without runtime validation",
+    "steps": [
+      "Create Zod schemas for AddToOrderArgs, ConfirmOrderArgs, RemoveFromOrderArgs",
+      "Add schema.parse() before type assertion",
+      "Handle validation errors with fallback"
+    ],
+    "verification": ["npm run test:client -- voice"],
+    "history_refs": [],
+    "history_reason": "Missing runtime validation",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-029",
+    "title": "Implement exponential backoff in AI retry logic",
+    "category": "ai",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/ai/adapters/openai/utils.ts"],
+    "rationale": "Fixed retry delay of 1000ms at line 44 - should use exponential backoff",
+    "steps": [
+      "Calculate delay as retryDelayMs * 2^attempt",
+      "Add jitter to prevent thundering herd",
+      "Cap maximum delay at reasonable value (30s)"
+    ],
+    "verification": ["npm run test:server -- ai"],
+    "history_refs": [],
+    "history_reason": "Standard resilience pattern",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-030",
+    "title": "Create ADR-010 Remote-First Database",
+    "category": "docs",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["docs/explanation/architecture-decisions/ADR-010-remote-first-database.md"],
+    "rationale": "CLAUDE.md references ADR-010 but file doesn't exist",
+    "steps": [
+      "Create ADR-010-remote-first-database.md",
+      "Document remote Supabase as source of truth",
+      "Explain Prisma schema is generated via db pull",
+      "Reference CL-DB-001 and CL-DB-002 lessons"
+    ],
+    "verification": ["Verify file exists and CLAUDE.md link works"],
+    "history_refs": [],
+    "history_reason": "Missing documented ADR",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-031",
+    "title": "Update lessons index to match actual lessons",
+    "category": "docs",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": [".claude/lessons/README.md"],
+    "rationale": "README claims 6 lessons but lists 14 entries; uncommitted files exist",
+    "steps": [
+      "Commit CL-TIMER-001, CL-TOOL-EXIT-001, PREVENTION_STRATEGIES_SUMMARY",
+      "Update lesson count in README.md",
+      "Verify all lessons are linked correctly"
+    ],
+    "verification": ["git status --porcelain .claude/lessons/"],
+    "history_refs": [],
+    "history_reason": "Documentation drift",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-032",
+    "title": "Fix broken documentation links",
+    "category": "docs",
+    "severity": "P2",
+    "effort": "M",
+    "risk": "Low",
+    "files": ["docs/"],
+    "rationale": "Link validation shows ~90.4% health - ~10% broken",
+    "steps": [
+      "Run python3 scripts/validate_links.py",
+      "Fix all broken internal links",
+      "Remove references to deleted Square docs",
+      "Add link validation to CI pipeline"
+    ],
+    "verification": ["python3 scripts/validate_links.py"],
+    "history_refs": [],
+    "history_reason": "Documentation maintenance",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-033",
+    "title": "Resolve LICENSE field mismatch",
+    "category": "docs",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["package.json", "README.md"],
+    "rationale": "package.json says PROPRIETARY, README says MIT - mutually exclusive",
+    "steps": [
+      "Determine actual license with stakeholder",
+      "Update conflicting file",
+      "Add LICENSE file to root if missing"
+    ],
+    "verification": ["Verify LICENSE, package.json, and README.md all match"],
+    "history_refs": [],
+    "history_reason": "Legal inconsistency",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-034",
+    "title": "Remove deprecated kiosk_demo role",
+    "category": "security",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/middleware/rbac.ts"],
+    "rationale": "kiosk_demo role marked deprecated at line 173 but still defined in ROLE_SCOPES",
+    "steps": [
+      "Verify no active tokens use kiosk_demo role",
+      "Remove kiosk_demo from ROLE_SCOPES object",
+      "Update any documentation references"
+    ],
+    "verification": ["npm run test:server -- auth rbac"],
+    "history_refs": [],
+    "history_reason": "Deprecated code cleanup",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-035",
+    "title": "Add Playwright browser caching in E2E workflow",
+    "category": "cicd",
+    "severity": "P2",
+    "effort": "M",
+    "risk": "Low",
+    "files": [".github/workflows/e2e-tests.yml"],
+    "rationale": "npx playwright install runs every time without caching - wastes 5-10 minutes",
+    "steps": [
+      "Add cache action with hash of package-lock.json",
+      "Cache ~/.cache/ms-playwright directory",
+      "Skip playwright install if cache hit"
+    ],
+    "verification": ["Run E2E workflow twice, verify second is faster"],
+    "history_refs": [],
+    "history_reason": "CI performance optimization",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-036",
+    "title": "Archive one-time diagnostic scripts",
+    "category": "orphan",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": [
+      "scripts/check-orders-kds.ts",
+      "scripts/check-schema.ts",
+      "scripts/check-db-schema.ts",
+      "scripts/diagnose-demo-auth.ts",
+      "scripts/fix-kitchen-scopes.ts",
+      "scripts/test-kitchen-auth.ts",
+      "scripts/verify_p0_db.sh",
+      "scripts/verify_p0_local.sh",
+      "scripts/verify_track_a_stabilization.sh",
+      "scripts/verify_schema_sync.sh",
+      "scripts/validate-square-credentials.sh"
+    ],
+    "rationale": "12 one-time diagnostic/verification scripts no longer needed",
+    "steps": [
+      "Create scripts/archive/2025-12/ directory if not exists",
+      "Move all listed scripts to archive",
+      "Remove validate:square from package.json scripts"
+    ],
+    "verification": ["npm run typecheck"],
+    "history_refs": [],
+    "history_reason": "One-time scripts from past incidents",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-037",
+    "title": "Address esbuild security vulnerability",
+    "category": "cicd",
+    "severity": "P2",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["package.json", "package-lock.json"],
+    "rationale": "npm audit shows 2 moderate vulnerabilities in esbuild <=0.24.2 via vite",
+    "steps": [
+      "Upgrade vite to 6.2+ which includes fixed esbuild",
+      "Or apply npm audit fix --force",
+      "Test build and dev server",
+      "Update any vite.config.ts if needed for breaking changes"
+    ],
+    "verification": ["npm audit", "npm run build", "npm run dev"],
+    "history_refs": [],
+    "history_reason": "Security vulnerability",
+    "churn_level": "medium",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-038",
+    "title": "Consolidate duplicate CI workflows",
+    "category": "cicd",
+    "severity": "P2",
+    "effort": "M",
+    "risk": "Low",
+    "files": [".github/workflows/gates.yml", ".github/workflows/quick-tests.yml"],
+    "rationale": "Both workflows run on same triggers and run test:healthy - wasted CI minutes",
+    "steps": [
+      "Analyze differences between workflows",
+      "Consolidate into single workflow",
+      "Or differentiate triggers (quick-tests for drafts only)"
+    ],
+    "verification": ["Push to PR and verify single workflow runs"],
+    "history_refs": [],
+    "history_reason": "Duplicate CI configuration",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-039",
+    "title": "Add missing route integration tests",
+    "category": "tests",
+    "severity": "P2",
+    "effort": "L",
+    "risk": "Low",
+    "files": ["server/src/routes/__tests__/"],
+    "rationale": "Only 5/12 route files have dedicated tests - auth, webhook, tables missing",
+    "steps": [
+      "Create auth.routes.test.ts with login flow tests",
+      "Create webhook.routes.test.ts with signature verification",
+      "Create tables.routes.test.ts with CRUD tests",
+      "Prioritize by criticality: auth > webhook > tables"
+    ],
+    "verification": ["npm run test:server"],
+    "history_refs": [],
+    "history_reason": "API contract coverage gap",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-040",
+    "title": "Implement circuit breaker for external services",
+    "category": "tests",
+    "severity": "P2",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["server/src/utils/circuit-breaker.ts"],
+    "rationale": "No formal circuit breaker that stops calling failing service after N failures",
+    "steps": [
+      "Install opossum or implement custom circuit breaker",
+      "Wrap Stripe API calls",
+      "Wrap OpenAI API calls",
+      "Wrap Supabase calls for critical paths",
+      "Add metrics for circuit state"
+    ],
+    "verification": ["npm run test:server", "Simulate service failure"],
+    "history_refs": [],
+    "history_reason": "Missing resilience pattern",
+    "churn_level": "low",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-041",
+    "title": "Update stale documentation timestamps",
+    "category": "docs",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["docs/README.md", "docs/meta/SOURCE_OF_TRUTH.md", "docs/VERSION.md"],
+    "rationale": "Last Updated timestamps are 1-2 months stale despite ongoing development",
+    "steps": [
+      "Update all Last Updated timestamps to current date",
+      "Or remove manual timestamps and rely on git history",
+      "Consider automating via pre-commit hook"
+    ],
+    "verification": ["Review updated files"],
+    "history_refs": [],
+    "history_reason": "Stale metadata",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-042",
+    "title": "Extract KioskCheckoutPage payment completion logic",
+    "category": "refactor",
+    "severity": "P2",
+    "effort": "M",
+    "risk": "Low",
+    "files": ["client/src/components/kiosk/KioskCheckoutPage.tsx"],
+    "rationale": "732-line file with duplicate payment completion patterns across terminal/card/cash handlers",
+    "steps": [
+      "Create usePaymentCompletion hook",
+      "Extract common order creation logic",
+      "Extract navigation and voice orchestrator notification",
+      "Use hook in all three payment handlers"
+    ],
+    "verification": ["npm run test:e2e -- payment"],
+    "history_refs": [],
+    "history_reason": "Duplicate payment logic",
+    "churn_level": "medium",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-043",
+    "title": "Extract OptimisticWebSocketService to separate file",
+    "category": "refactor",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["client/src/services/websocket/WebSocketService.ts"],
+    "rationale": "720-line file contains two classes - OptimisticWebSocketService should be separate",
+    "steps": [
+      "Create OptimisticWebSocketService.ts",
+      "Move OptimisticWebSocketService class (lines 582-714)",
+      "Update imports in consumers"
+    ],
+    "verification": ["npm run typecheck", "npm run test:client -- WebSocket"],
+    "history_refs": [],
+    "history_reason": "Multiple classes in single file",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-044",
+    "title": "Unify payment error handling patterns",
+    "category": "refactor",
+    "severity": "P2",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["server/src/routes/payments.routes.ts"],
+    "rationale": "Three different Stripe error handling patterns in 775-line file",
+    "steps": [
+      "Create handleStripeError utility function",
+      "Handle StripeCardError, StripeInvalidRequestError consistently",
+      "Replace all three patterns with utility calls"
+    ],
+    "verification": ["npm run test:server -- payments"],
+    "history_refs": [],
+    "history_reason": "Inconsistent error handling",
+    "churn_level": "medium",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-045",
+    "title": "Split EnterpriseErrorHandler god file",
+    "category": "refactor",
+    "severity": "P2",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["shared/utils/error-handling.ts"],
+    "rationale": "852-line file with 18+ methods handling diverse concerns",
+    "steps": [
+      "Extract ErrorReporter.ts (lines 663-687)",
+      "Extract ErrorRecovery.ts (lines 502-589)",
+      "Extract ErrorPatternTracker.ts (lines 468-497)",
+      "Keep core error creation in main file"
+    ],
+    "verification": ["npm run typecheck", "npm run test -- error-handling"],
+    "history_refs": [],
+    "history_reason": "God file - 852 lines",
+    "churn_level": "medium",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-046",
+    "title": "Extract AuthContext localStorage utilities",
+    "category": "refactor",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["client/src/contexts/AuthContext.tsx"],
+    "rationale": "577-line file with localStorage session parsing repeated 3 times",
+    "steps": [
+      "Create utils/auth-storage.ts",
+      "Implement saveAuthSession and getAuthSession",
+      "Replace duplicate patterns in initializeAuth, login, loginWithPin"
+    ],
+    "verification": ["npm run test:client -- auth", "Test auth flows manually"],
+    "history_refs": [],
+    "history_reason": "Duplicate localStorage patterns",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-047",
+    "title": "Move hardcoded restaurant content to config",
+    "category": "ai",
+    "severity": "P2",
+    "effort": "M",
+    "risk": "Med",
+    "files": ["shared/src/voice/PromptConfigService.ts"],
+    "rationale": "Hardcoded 'Grow Restaurant' and transcription hints sent to all restaurants",
+    "steps": [
+      "Move transcription hints to per-restaurant config",
+      "Store in database or config file",
+      "Load dynamically in PromptConfigService",
+      "Remove hardcoded restaurant-specific content"
+    ],
+    "verification": ["npm run test:client -- voice", "Test with different restaurant"],
+    "history_refs": [],
+    "history_reason": "Token waste and maintainability",
+    "churn_level": "medium",
+    "unattended_eligible": false
+  },
+  {
+    "id": "FIX-048",
+    "title": "Update GitHub Action versions",
+    "category": "cicd",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": [".github/workflows/docs-validation.yml"],
+    "rationale": "Uses actions/upload-artifact@v3 and setup-python@v4 instead of @v4/@v5",
+    "steps": [
+      "Update actions/upload-artifact@v3 to @v4",
+      "Update actions/setup-python@v4 to @v5"
+    ],
+    "verification": ["Run docs-validation workflow"],
+    "history_refs": [],
+    "history_reason": "Outdated action versions",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-049",
+    "title": "Remove nov18scan path from check-links workflow",
+    "category": "cicd",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": [".github/workflows/check-links.yml"],
+    "rationale": "Path filter includes nov18scan/**/*.md which no longer exists",
+    "steps": [
+      "Remove nov18scan/**/*.md from paths list at line 9"
+    ],
+    "verification": ["Verify workflow syntax"],
+    "history_refs": [],
+    "history_reason": "Dead path reference",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-050",
+    "title": "Fix bundle budget script directory path",
+    "category": "cicd",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["scripts/check-bundle-budget.mjs"],
+    "rationale": "Script looks for client/dist/js but Vite outputs to client/dist/assets",
+    "steps": [
+      "Change line 5 from 'client/dist/js' to 'client/dist/assets'"
+    ],
+    "verification": ["npm run build && node scripts/check-bundle-budget.mjs"],
+    "history_refs": [],
+    "history_reason": "Incorrect path assumption",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-051",
+    "title": "Move TypeScript to devDependencies",
+    "category": "cicd",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["package.json"],
+    "rationale": "TypeScript at line 179 is in dependencies instead of devDependencies",
+    "steps": [
+      "Move typescript from dependencies to devDependencies",
+      "Run npm install to update lock file"
+    ],
+    "verification": ["npm run build"],
+    "history_refs": [],
+    "history_reason": "Build-time dependency in runtime",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-052",
+    "title": "Upgrade husky to v9",
+    "category": "cicd",
+    "severity": "P2",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["package.json", ".husky/"],
+    "rationale": "husky 8.0.0 is outdated, v9 has improved performance",
+    "steps": [
+      "Upgrade husky to ^9.1.7",
+      "Run npx husky-init if hooks need updating",
+      "Test pre-commit hook"
+    ],
+    "verification": ["git commit with changes, verify hooks run"],
+    "history_refs": [],
+    "history_reason": "Outdated dependency",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-053",
+    "title": "Extract rate limiter magic numbers to constants",
+    "category": "refactor",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/middleware/rateLimiter.ts"],
+    "rationale": "Hardcoded values like 15 * 60 * 1000 and 10000 vs 1000",
+    "steps": [
+      "Create RATE_LIMIT_CONFIG object",
+      "Define GLOBAL_WINDOW_MS, GLOBAL_MAX_DEV, GLOBAL_MAX_PROD, etc.",
+      "Replace magic numbers with named constants"
+    ],
+    "verification": ["npm run test:server"],
+    "history_refs": [],
+    "history_reason": "Magic numbers",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-054",
+    "title": "Extract JWT expiry magic numbers to config",
+    "category": "refactor",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/routes/auth.routes.ts"],
+    "rationale": "Hardcoded 8 * 60 * 60 and 12 * 60 * 60 for JWT expiry",
+    "steps": [
+      "Create config/auth.config.ts",
+      "Define JWT_EXPIRY_EMAIL, JWT_EXPIRY_STAFF constants",
+      "Import and use in auth.routes.ts"
+    ],
+    "verification": ["npm run test:server -- auth"],
+    "history_refs": [],
+    "history_reason": "Magic numbers",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-055",
+    "title": "Implement role inheritance in RBAC scopes",
+    "category": "refactor",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/middleware/rbac.ts"],
+    "rationale": "ROLE_SCOPES duplicates many scopes across roles - owner/manager share 90%",
+    "steps": [
+      "Define BASE_STAFF_SCOPES array",
+      "Define PAYMENT_SCOPES array",
+      "Use spread operator to compose role scopes",
+      "Test all role access patterns"
+    ],
+    "verification": ["npm run test:server -- rbac"],
+    "history_refs": [],
+    "history_reason": "Repeated scope definitions",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-056",
+    "title": "Standardize logger import paths",
+    "category": "arch",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["client/src/"],
+    "rationale": "Logger imports use both @/services/logger and @/services/monitoring/logger",
+    "steps": [
+      "Grep for @/services/monitoring/logger imports",
+      "Replace with @/services/logger",
+      "Verify logger barrel export is correct"
+    ],
+    "verification": ["npm run typecheck"],
+    "history_refs": [],
+    "history_reason": "Import path inconsistency",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-057",
+    "title": "Move browser-only utils from shared",
+    "category": "arch",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["shared/utils/index.ts"],
+    "rationale": "Memory monitoring and cleanup manager are commented out with DISABLED FOR SERVER BUILD",
+    "steps": [
+      "Move browser-only utils to client/src/utils/",
+      "Remove commented code from shared",
+      "Or create shared/utils/browser/ directory"
+    ],
+    "verification": ["npm run typecheck", "npm run build"],
+    "history_refs": [],
+    "history_reason": "Dead code in shared package",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-058",
+    "title": "Fix deep nesting in security.ts detectSuspiciousActivity",
+    "category": "refactor",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/middleware/security.ts"],
+    "rationale": "4 levels of nesting with multiple regex checks at lines 407-460",
+    "steps": [
+      "Create SUSPICIOUS_PATTERNS array with pattern and name",
+      "Implement detectSuspiciousPatterns function",
+      "Return matched pattern names"
+    ],
+    "verification": ["npm run test:server -- security"],
+    "history_refs": [],
+    "history_reason": "Deep nesting code smell",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-059",
+    "title": "Lazy-initialize OpenAI client",
+    "category": "ai",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/ai/index.ts"],
+    "rationale": "API key read at module load prevents graceful degradation",
+    "steps": [
+      "Convert openaiClient initialization to lazy pattern",
+      "Initialize on first use instead of module load",
+      "Allow server to start without API key"
+    ],
+    "verification": ["npm run test:server -- ai", "Start server without OPENAI_API_KEY"],
+    "history_refs": [],
+    "history_reason": "Unsafe initialization",
+    "churn_level": "low",
+    "unattended_eligible": true
+  },
+  {
+    "id": "FIX-060",
+    "title": "Add input token estimation before AI calls",
+    "category": "ai",
+    "severity": "P3",
+    "effort": "S",
+    "risk": "Low",
+    "files": ["server/src/routes/realtime.routes.ts"],
+    "rationale": "No input token limit check before calling OpenAI at lines 478-496",
+    "steps": [
+      "Implement token estimation function",
+      "Check input size before API call",
+      "Reject if too large with appropriate error"
+    ],
+    "verification": ["npm run test:server -- realtime", "Test with large input"],
+    "history_refs": [],
+    "history_reason": "Missing guard",
+    "churn_level": "low",
+    "unattended_eligible": true
+  }
+]

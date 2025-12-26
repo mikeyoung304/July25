@@ -1,5 +1,6 @@
 import { env, validateEnv } from './env';
 import { logger } from '../utils/logger';
+import { getErrorMessage } from '@rebuild/shared';
 
 export interface EnvironmentConfig {
   port: number;
@@ -105,7 +106,7 @@ export function validateEnvironment(): void {
 
     logger.info('✅ JWT authentication configured');
   } catch (error) {
-    throw new Error(`Environment validation failed: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(`Environment validation failed: ${getErrorMessage(error)}`);
   }
 }
 

@@ -19,6 +19,7 @@ import { OpenAIOrderNLP } from './adapters/openai/openai-order-nlp';
 import { OrderMatchingService } from '../services/OrderMatchingService';
 import { MenuService } from '../services/menu.service';
 import { logger } from '../utils/logger';
+import { getErrorMessage } from '@rebuild/shared';
 
 // Export interfaces
 export * from './core/transcriber';
@@ -117,9 +118,9 @@ export const checkAIHealth = async (): Promise<{
     return {
       status: 'unhealthy',
       provider: 'openai',
-      details: { 
+      details: {
         message: 'OpenAI API not accessible',
-        error: error instanceof Error ? error.message : String(error)
+        error: getErrorMessage(error)
       }
     };
   }

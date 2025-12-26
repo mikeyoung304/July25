@@ -20,7 +20,6 @@
     "docs:validate": "./scripts/pre-commit-docs-check.sh",
     "docs:cleanup": "./scripts/cleanup-root-documentation.sh",
     "docs:cleanup:dry-run": "./scripts/cleanup-root-documentation.sh --dry-run",
-    "validate:square": "./scripts/validate-square-credentials.sh",
     "validate:workflows": "actionlint .github/workflows/*.yml",
     "vercel:check": "node tools/verify-vercel-project.mjs",
     "vercel:link": "vercel link --project july25-client --yes",

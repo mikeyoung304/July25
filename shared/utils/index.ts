@@ -13,6 +13,9 @@ export * from './orderStatus';
 // Price validation utilities
 export * from './price-validation';
 
+// Error handling utilities (getErrorMessage, getErrorStack)
+export * from './error-utils';
+
 // DISABLED FOR SERVER BUILD - these use browser APIs
 // Cleanup and resource management - uses EventListener
 // export * from './cleanup-manager';
