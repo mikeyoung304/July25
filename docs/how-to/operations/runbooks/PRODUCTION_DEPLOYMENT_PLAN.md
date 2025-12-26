@@ -15,18 +15,18 @@
 **Can run 3 agents in parallel**
 
 ### Agent A: Payment System Configuration
-1. Configure Square API in `.env`:
-   - Add `SQUARE_ACCESS_TOKEN` (sandbox first)
-   - Add `SQUARE_ENVIRONMENT=sandbox`
-   - Add `SQUARE_LOCATION_ID`
+1. Configure Stripe API in `.env`:
+   - Add `STRIPE_SECRET_KEY` (test key first)
+   - Add `VITE_STRIPE_PUBLISHABLE_KEY` (test key)
+   - Add `STRIPE_WEBHOOK_SECRET`
 
 2. Test payment endpoint:
    ```bash
-   ./scripts/validate-square-credentials.sh
+   ./scripts/validate-stripe-credentials.sh
    curl -X POST http://localhost:3001/api/v1/payments/create \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer YOUR_TOKEN" \
-     -d '{"amount": 100, "source_id": "cnon:card-nonce-ok", "order_id": "test-order-id"}'
+     -d '{"amount": 100, "payment_method_id": "pm_card_visa", "order_id": "test-order-id"}'
    ```
    **Success:** Returns 200 with payment confirmation
 

@@ -463,7 +463,7 @@ setInterval(async () => {
 
 ## Payment Failures
 
-**For comprehensive Square setup and troubleshooting, see [SQUARE_API_SETUP.md](../../reference/api/api/SQUARE_API_SETUP.md)**
+**For comprehensive Stripe setup and troubleshooting, see [STRIPE_API_SETUP.md](../../reference/api/api/STRIPE_API_SETUP.md)**
 
 ### Problem: Online Ordering Checkout Fails with "Internal server error"
 
@@ -508,7 +508,7 @@ LIMIT 10;
 
 ---
 
-### Problem: Square Payment Not Completing
+### Problem: Stripe Payment Not Completing
 
 **Symptoms**:
 - Payment form loads
@@ -519,14 +519,13 @@ LIMIT 10;
 **Diagnosis**:
 
 ```typescript
-// Check Square Web SDK initialization (browser console)
-console.log('Square payments:', window.Square);
-console.log('Payment form:', window.__square_payment_form__);
+// Check Stripe Elements initialization (browser console)
+console.log('Stripe:', window.Stripe);
 
 // Check API response
 fetch('/api/v1/payments/create', {
   method: 'POST',
-  body: JSON.stringify({ orderId, token, amount }),
+  body: JSON.stringify({ orderId, paymentMethodId, amount }),
 }).then(r => r.json()).then(console.log);
 ```
 
@@ -534,47 +533,39 @@ fetch('/api/v1/payments/create', {
 
 | Cause | Fix |
 | --- | --- |
-| **Invalid access token** | Check `VITE_SQUARE_ACCESS_TOKEN` environment variable |
-| **Sandbox vs Production mismatch** | Use sandbox token with sandbox mode |
-| **CORS blocking** | Add Square domain to CORS whitelist |
+| **Invalid API key** | Check `STRIPE_SECRET_KEY` environment variable |
+| **Test vs Live mismatch** | Use test keys (sk_test_...) with test mode |
+| **CORS blocking** | Add Stripe domain to CORS whitelist |
 | **Network timeout** | Increase timeout, check Render/Vercel logs |
 
-**Fix - Verify Square configuration**:
+**Fix - Verify Stripe configuration**:
 
 ```bash
 # .env.local (client)
-VITE_SQUARE_ACCESS_TOKEN=sandbox-sq0... # Sandbox for testing
-VITE_SQUARE_APPLICATION_ID=sandbox-sq0atb...
-VITE_SQUARE_LOCATION_ID=LOCATION_ID
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_... # Test mode for testing
 
 # .env (server)
-SQUARE_ACCESS_TOKEN=sandbox-sq0...
-SQUARE_ENVIRONMENT=sandbox # or 'production'
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_... # optional
 ```
 
-**Test Square connection**:
+**Test Stripe connection**:
 
 ```bash
-# Validate Square credentials
-./scripts/validate-square-credentials.sh
-
 # Test payment flow end-to-end
 ./scripts/test-payment-flow.sh
 
-# Manual API test
-curl -X GET \
-  'https://connect.squareupsandbox.com/v2/locations' \
-  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN'
+# Manual API test (check Stripe Dashboard > Developers > Logs)
 ```
 
-**See [SQUARE_API_SETUP.md](../../reference/api/api/SQUARE_API_SETUP.md) for detailed troubleshooting steps.**
+**See [STRIPE_API_SETUP.md](../../reference/api/api/STRIPE_API_SETUP.md) for detailed troubleshooting steps.**
 
 ---
 
 ### Problem: Demo Mode Not Working
 
 **Symptoms**:
-- `VITE_SQUARE_ACCESS_TOKEN` not set or set to 'demo'
+- `STRIPE_SECRET_KEY` not set or set to 'demo'
 - Demo order button not showing
 - Or demo button shows but payment fails
 
@@ -582,8 +573,7 @@ curl -X GET \
 
 ```typescript
 // Check demo mode detection (client)
-const isDemoMode = !import.meta.env.VITE_SQUARE_ACCESS_TOKEN ||
-                    import.meta.env.VITE_SQUARE_ACCESS_TOKEN === 'demo' ||
+const isDemoMode = !import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
                     import.meta.env.DEV;
 console.log('Demo mode:', isDemoMode);
 ```
@@ -593,10 +583,10 @@ console.log('Demo mode:', isDemoMode);
 ```typescript
 // Ensure demo payment endpoint exists (server)
 router.post('/api/v1/payments/create', async (req, res) => {
-  const { token, amount, orderId } = req.body;
+  const { paymentMethodId, amount, orderId } = req.body;
 
-  // Check for demo token
-  if (token === 'demo-token' || process.env.NODE_ENV === 'development') {
+  // Check for demo mode
+  if (process.env.STRIPE_SECRET_KEY === 'demo' || process.env.NODE_ENV === 'development') {
     // Create mock payment
     return res.json({
       id: `demo-payment-${Date.now()}`,
@@ -606,7 +596,7 @@ router.post('/api/v1/payments/create', async (req, res) => {
     });
   }
 
-  // Real Square payment logic...
+  // Real Stripe payment logic...
 });
 ```
 

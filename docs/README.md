@@ -31,7 +31,7 @@ Our documentation follows the [Diátaxis framework](https://diataxis.fr/) - a sy
 ### 📋 [Reference](./reference/) - Information-Oriented
 **Look up facts.** APIs, schemas, configuration options.
 
-- [API Reference](./reference/api/) - REST endpoints, WebSocket events, Square integration
+- [API Reference](./reference/api/) - REST endpoints, WebSocket events, Stripe integration
 - [Schema](./reference/schema/) - Database tables and relationships
 - [Configuration](./reference/config/) - Environment variables, auth roles
 
@@ -81,7 +81,7 @@ docs/
 │   ├── development/             # Dev process, CI/CD, contributing
 │   └── troubleshooting/         # Common issues, diagnostics
 ├── reference/                    # Information-oriented docs
-│   ├── api/                     # REST API, WebSocket, Square
+│   ├── api/                     # REST API, WebSocket, Stripe
 │   ├── schema/                  # Database schema
 │   └── config/                  # Environment, auth roles
 ├── explanation/                  # Understanding-oriented docs
@@ -161,7 +161,7 @@ tests/
 
 **API & Integration**
 - [API Reference](./reference/api/api/README.md) - REST endpoints
-- [Square API Setup](./reference/api/api/SQUARE_API_SETUP.md) - Payment integration
+- [Stripe API Setup](./reference/api/api/STRIPE_API_SETUP.md) - Payment integration
 - [WebSocket Events](./reference/api/WEBSOCKET_EVENTS.md) - Real-time updates
 
 ## 🎯 Documentation by User Journey
@@ -181,7 +181,7 @@ tests/
 
 ### "I need API documentation"
 1. [api/README.md](./reference/api/api/README.md) - API reference
-2. [Square API Setup](./reference/api/api/SQUARE_API_SETUP.md) - Payment integration
+2. [Stripe API Setup](./reference/api/api/STRIPE_API_SETUP.md) - Payment integration
 3. [WebSocket Events](./reference/api/WEBSOCKET_EVENTS.md) - Real-time events
 
 ### "I'm debugging an issue"

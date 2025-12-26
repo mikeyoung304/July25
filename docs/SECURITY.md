@@ -186,13 +186,13 @@ Compliance-critical operations MUST fail-fast (throw errors that halt the operat
 - ✅ **Authentication failures** - No access without valid authentication
 - ✅ **Authorization failures** - No access without proper permissions
 - ✅ **Database connection failures** - Cannot operate without data access
-- ✅ **Payment processor failures** - Cannot process payments without Square
+- ✅ **Payment processor failures** - Cannot process payments without Stripe
 
 **Rationale**:
 - Better to deny service temporarily than violate compliance requirements
 - Missing audit logs = PCI DSS violation = fines, penalties, loss of payment processing
 - Fail-fast makes problems immediately visible (alerts, monitoring)
-- Similar to Square credential validation (fails fast on startup)
+- Similar to Stripe credential validation (fails fast on startup)
 
 **Examples**:
 ```typescript

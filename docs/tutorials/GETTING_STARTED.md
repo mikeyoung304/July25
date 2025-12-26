@@ -143,7 +143,7 @@ npm run build:server
 
 - **Voice Ordering**: AI-powered voice ordering with OpenAI Realtime API
 - **Kitchen Display**: Real-time order management for kitchen staff
-- **Payment Processing**: Square integration for payments
+- **Payment Processing**: Stripe integration for payments
 - **Multi-tenant**: Support for multiple restaurants
 - **Real-time Updates**: WebSocket-based live updates
 

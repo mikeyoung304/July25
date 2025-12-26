@@ -117,7 +117,7 @@ function checkHardcodedDefaults(dir) {
     'DEVICE_FINGERPRINT_SALT',
     'STATION_TOKEN_SECRET',
     'SUPABASE_SERVICE_KEY',
-    'SQUARE_ACCESS_TOKEN'
+    'STRIPE_SECRET_KEY'
   ];
 
   function scanFile(filePath) {
@@ -287,7 +287,7 @@ function validate() {
       'TEST_TOKEN',            // → Use fixtures
       'SUPABASE_SERVICE_ROLE_KEY', // → SUPABASE_SERVICE_KEY
       'VITE_OPENAI_API_KEY',   // REMOVED for security (server-side only)
-      'VITE_SQUARE_ACCESS_TOKEN', // NEVER expose payment tokens to client
+      'VITE_STRIPE_SECRET_KEY', // NEVER expose payment secret keys to client
     ];
 
     // Security/policy configs (hardcoded by design per ADR-009)
@@ -361,9 +361,9 @@ function validate() {
       errors.push('VITE_DEMO_PANEL must be false in production (security risk)');
     }
 
-    // Check for sandbox Square in production
-    if (localVars['NODE_ENV'] === 'production' && localVars['SQUARE_ENVIRONMENT'] === 'sandbox') {
-      warnings.push('SQUARE_ENVIRONMENT is sandbox but NODE_ENV is production');
+    // Check for test Stripe keys in production
+    if (localVars['NODE_ENV'] === 'production' && localVars['STRIPE_SECRET_KEY']?.startsWith('sk_test_')) {
+      warnings.push('STRIPE_SECRET_KEY is test key but NODE_ENV is production');
     }
 
     // Check secret lengths

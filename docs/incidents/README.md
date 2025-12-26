@@ -36,11 +36,11 @@ This directory tracks production incidents and their initial response documentat
 - **Resolution:** Implemented automated drift detection workflow
 - **Post-mortem:** [2025-10-21 - Schema Drift - TODO: link to correct file]
 
-**Oct 14, 2025 - Square Payment Credentials Mismatch**
+**Oct 14, 2025 - Payment Credentials Mismatch**
 - **Duration:** 4 hours
 - **Impact:** All payments failing in production
 - **Root Cause:** Production using sandbox credentials
-- **Resolution:** Updated to production Square credentials
+- **Resolution:** Updated to production Stripe credentials
 
 ## Incident Response Protocol
 

@@ -748,7 +748,7 @@ routes/
 ├── restaurants.routes.ts       # Restaurant config
 ├── security.routes.ts          # Security endpoints
 ├── tables.routes.ts            # Table management
-├── terminal.routes.ts          # Terminal (Square) operations
+├── terminal.routes.ts          # Terminal (Stripe) operations
 ├── voice-config.routes.ts      # Voice configuration
 └── webhook.routes.ts           # Webhook handlers
 ```

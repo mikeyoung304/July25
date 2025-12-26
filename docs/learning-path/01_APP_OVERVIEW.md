@@ -13,7 +13,7 @@ Restaurant OS is an **intelligent, multi-tenant SaaS restaurant management syste
 - Menu management and display
 - Order placement and tracking (dine-in, takeout, online)
 - Kitchen Display System (KDS) for order fulfillment
-- Payment processing via Square
+- Payment processing via Stripe
 - Real-time updates using WebSockets
 - AI-powered voice ordering with OpenAI Realtime API
 - Multi-tenant architecture supporting multiple restaurants
@@ -46,14 +46,14 @@ Restaurant OS is an **intelligent, multi-tenant SaaS restaurant management syste
 - **Database:** PostgreSQL 15 (via Supabase)
 - **Authentication:** Supabase Auth (JWT with RS256)
 - **Real-time:** WebSocket server (ws library)
-- **Payments:** Square SDK v43
+- **Payments:** Stripe SDK
 - **AI:** OpenAI API (GPT-4 Turbo, Realtime API)
 - **Deployment:** Render
 
 #### Database & Services
 - **Database:** PostgreSQL (Supabase Cloud)
 - **Row-Level Security:** Enabled for multi-tenancy
-- **Payment Gateway:** Square (sandbox + production)
+- **Payment Gateway:** Stripe (sandbox + production)
 - **AI Provider:** OpenAI
 - **Error Tracking:** Sentry (optional)
 
@@ -207,16 +207,16 @@ pending → confirmed → preparing → ready → completed
 ### 3.4 Payment Processing
 
 **Payment Providers:**
-- **Square:** Primary payment processor
+- **Stripe:** Primary payment processor
 - **Demo Mode:** Test payments without real transactions
 
 **Payment Flow:**
 ```
 Client initiates payment
-  → Square Web SDK collects card info
-  → Client receives nonce from Square
-  → Client sends nonce to backend
-  → Backend processes payment with Square API
+  → Stripe Elements collects card info
+  → Client receives PaymentMethod from Stripe
+  → Client sends PaymentMethod to backend
+  → Backend processes payment with Stripe API
   → Backend records transaction in audit log
   → Backend updates order status
   → Client receives confirmation
@@ -224,7 +224,7 @@ Client initiates payment
 
 **Security:**
 - Card data never touches our servers (PCI compliance)
-- Square handles tokenization
+- Stripe handles tokenization
 - Audit log for all payment attempts
 - Idempotency keys prevent duplicate charges
 
@@ -232,7 +232,7 @@ Client initiates payment
 - `POST /api/v1/payments/create` - Process card payment
 - `POST /api/v1/payments/cash` - Process cash payment
 - `POST /api/v1/payments/:paymentId/refund` - Process refund
-- `GET /api/v1/payments/terminal/devices` - List Square Terminal devices
+- `GET /api/v1/payments/terminal/devices` - List terminal devices
 - `POST /api/v1/payments/terminal/checkout` - Create Terminal checkout
 
 ### 3.5 Voice Ordering
@@ -774,7 +774,7 @@ After understanding this overview, explore:
 - [Express Guide](https://expressjs.com)
 - [PostgreSQL Tutorial](https://www.postgresql.org/docs/)
 - [Supabase Docs](https://supabase.com/docs)
-- [Square Developer](https://developer.squareup.com)
+- [Stripe Developer](https://stripe.com/docs)
 
 ### Community
 - GitHub Issues for bug reports

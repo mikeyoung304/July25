@@ -3,7 +3,7 @@
 
 **Last Updated:** 2025-08-26
 
-Production-ready Express.js backend for Restaurant OS 6.0 - A revolutionary restaurant management system with real-time order processing, AI-powered voice ordering, and Square payment integration.
+Production-ready Express.js backend for Restaurant OS 6.0 - A revolutionary restaurant management system with real-time order processing, AI-powered voice ordering, and Stripe payment integration.
 
 ## 🚀 Quick Start
 
@@ -42,12 +42,12 @@ src/
 │   ├── health.routes.ts            # Health & monitoring endpoints
 │   ├── orders.routes.ts            # Order management endpoints
 │   ├── menu.routes.ts              # Menu CRUD operations
-│   ├── payments.routes.ts          # Square payment integration
+│   ├── payments.routes.ts          # Stripe payment integration
 │   ├── tables.routes.ts            # Table management endpoints
 │   ├── auth.routes.ts              # Authentication endpoints
 │   ├── ai.routes.ts                # AI services (voice, transcription)
 │   ├── realtime.routes.ts          # WebRTC session management
-│   └── terminal.routes.ts          # Square Terminal integration
+│   └── terminal.routes.ts          # Terminal integration
 ├── services/                        # Business logic layer
 │   ├── orders.service.ts           # Order processing logic
 │   ├── menu.service.ts             # Menu management
@@ -84,7 +84,7 @@ src/
 - **Multi-tenant Architecture**: Restaurant-based data isolation with context headers
 - **Real-time WebSocket**: Instant order updates for KDS, POS, and Expo stations
 - **AI Voice Ordering**: OpenAI Realtime API with WebRTC integration
-- **Square Payment Integration**: Terminal checkout and card processing
+- **Stripe Payment Integration**: Card payment processing
 - **Fuzzy Menu Matching**: Intelligent item recognition for voice orders
 - **JWT Authentication**: Supabase-based auth with role-based access
 - **Rate Limiting**: API protection with configurable limits
@@ -123,7 +123,7 @@ src/
 
 ### Payment Processing
 - `POST /api/v1/payments/process` - Process card payment
-- `POST /api/v1/payments/terminal-checkout` - Square Terminal checkout
+- `POST /api/v1/payments/terminal-checkout` - Terminal checkout
 - `POST /api/v1/payments/refund` - Process refund
 - `GET /api/v1/payments/:id/status` - Payment status
 
@@ -223,8 +223,8 @@ JWT_EXPIRY=24h                      # Token expiry time
 
 # External Services
 OPENAI_API_KEY=your_openai_key     # OpenAI API key (REQUIRED for AI features)
-SQUARE_ACCESS_TOKEN=your_token      # Square payment token
-SQUARE_ENVIRONMENT=sandbox          # Square environment (sandbox/production)
+STRIPE_SECRET_KEY=your_stripe_key   # Stripe secret key (sk_test_... or sk_live_...)
+STRIPE_WEBHOOK_SECRET=your_webhook  # Stripe webhook secret (optional)
 
 # CORS & Security
 FRONTEND_URL=http://localhost:5173  # Frontend URL for CORS

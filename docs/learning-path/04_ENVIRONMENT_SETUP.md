@@ -127,26 +127,22 @@ VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
 VITE_ENVIRONMENT=development
 ```
 
-#### Square Payment Integration (Client)
+#### Stripe Payment Integration (Client)
 
 | Variable | Required | Default | Description |
 | --- | --- | --- | --- |
-| `VITE_SQUARE_APP_ID` | For payments | - | Square application ID (Web SDK) |
-| `VITE_SQUARE_LOCATION_ID` | For payments | - | Square location ID for web payments |
-| `VITE_SQUARE_ENVIRONMENT` | For payments | sandbox | 'sandbox' or 'production' (must match server) |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | For payments | - | Stripe publishable key (pk_test_... or pk_live_...) |
 
 **Example:**
 ```bash
-VITE_SQUARE_APP_ID=sandbox-sq0idb-XYZ123
-VITE_SQUARE_LOCATION_ID=LABHCDEFG1234
-VITE_SQUARE_ENVIRONMENT=sandbox
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_abc123xyz...
 ```
 
-**Get Square Credentials:**
-1. Go to [Square Developer Dashboard](https://developer.squareup.com/apps)
-2. Create or select an application
-3. Copy Application ID
-4. Go to Locations tab for Location ID
+**Get Stripe Credentials:**
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
+2. Navigate to Developers > API keys
+3. Copy Publishable key (for client-side)
+4. Copy Secret key (for server-side only)
 
 #### AI & Voice Features (Client)
 
@@ -239,26 +235,22 @@ OPENAI_API_KEY=sk-proj-abc123xyz...
 3. Create new secret key
 4. Copy immediately (won't be shown again)
 
-#### Square Payments (Server)
+#### Stripe Payments (Server)
 
 | Variable | Required | Default | Description |
 | --- | --- | --- | --- |
-| `SQUARE_ACCESS_TOKEN` | For payments | - | Square API access token (SB* = sandbox, EAAA* = production) |
-| `SQUARE_LOCATION_ID` | For payments | - | Square location ID for payment processing |
-| `SQUARE_ENVIRONMENT` | ✅ Yes | sandbox | 'sandbox' or 'production' |
-| `SQUARE_WEBHOOK_SIGNATURE_KEY` | No | - | Square webhook signature verification key |
+| `STRIPE_SECRET_KEY` | For payments | - | Stripe secret key (sk_test_... or sk_live_...) |
+| `STRIPE_WEBHOOK_SECRET` | No | - | Stripe webhook signature verification key (whsec_...) |
 
 **Example:**
 ```bash
-SQUARE_ACCESS_TOKEN=EAAAEBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-SQUARE_LOCATION_ID=LABHCDEFG1234
-SQUARE_ENVIRONMENT=production
-SQUARE_WEBHOOK_SIGNATURE_KEY=webhook_signature_key_from_square
+STRIPE_SECRET_KEY=sk_test_abc123xyz...
+STRIPE_WEBHOOK_SECRET=whsec_abc123xyz...
 ```
 
-**Token Prefix:**
-- `SB*` = Sandbox token (for testing)
-- `EAAA*` = Production token (for live payments)
+**Key Prefix:**
+- `sk_test_*` = Test mode key (for testing)
+- `sk_live_*` = Live mode key (for production payments)
 
 #### Security & Authentication
 
@@ -351,41 +343,39 @@ npx supabase link --project-ref YOUR_PROJECT_REF
 **Project Ref:** The part of your URL after `https://` and before `.supabase.co`
 - Example: `https://abcdefgh.supabase.co` → project ref is `abcdefgh`
 
-### 3.2 Square Setup
+### 3.2 Stripe Setup
 
-**Step 1: Create Square Account**
-1. Go to [Square Developer](https://developer.squareup.com)
+**Step 1: Create Stripe Account**
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
 2. Sign up or log in
-3. Create a new application
+3. Complete account verification
 
-**Step 2: Get Sandbox Credentials**
-1. Select your application
-2. Go to "Credentials" tab
-3. Under "Sandbox" section, copy:
-   - Application ID → `VITE_SQUARE_APP_ID`
-   - Access Token → `SQUARE_ACCESS_TOKEN`
-4. Go to "Locations" tab
-5. Copy a location ID → `SQUARE_LOCATION_ID` and `VITE_SQUARE_LOCATION_ID`
+**Step 2: Get Test Mode Credentials**
+1. Toggle "Test mode" ON in the dashboard
+2. Navigate to Developers > API keys
+3. Copy:
+   - Publishable key → `VITE_STRIPE_PUBLISHABLE_KEY`
+   - Secret key → `STRIPE_SECRET_KEY`
 
-**Step 3: Set Environment**
+**Step 3: Set Environment Variables**
 ```bash
-SQUARE_ENVIRONMENT=sandbox
-VITE_SQUARE_ENVIRONMENT=sandbox
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
 ```
 
 **Step 4: Test Payments**
-Use Square's test card numbers:
-- Success: `4111 1111 1111 1111`
+Use Stripe's test card numbers:
+- Success: `4242 4242 4242 4242`
 - Decline: `4000 0000 0000 0002`
 
 **Step 5: Production (When Ready)**
-1. Complete Square account verification
-2. Switch to "Production" tab in Square dashboard
+1. Complete Stripe account verification
+2. Toggle "Test mode" OFF in the dashboard
 3. Copy production credentials
 4. Update environment variables:
 ```bash
-SQUARE_ENVIRONMENT=production
-VITE_SQUARE_ENVIRONMENT=production
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_SECRET_KEY=sk_live_...
 ```
 
 ### 3.3 OpenAI Setup
@@ -473,7 +463,7 @@ VITE_SQUARE_ENVIRONMENT=production
 - [ ] npm 10.7.0+ installed (`npm --version`)
 - [ ] Git installed (`git --version`)
 - [ ] Supabase account created
-- [ ] Square developer account created (for payments)
+- [ ] Stripe account created (for payments)
 - [ ] OpenAI account created (for AI features)
 - [ ] Code editor (VS Code recommended)
 
@@ -555,7 +545,7 @@ VITE_ENVIRONMENT=development
 ```
 
 **Optional for full features:**
-- Square variables (for payment testing)
+- Stripe variables (for payment testing)
 - Sentry DSN (for error tracking)
 - Performance monitoring flags
 
@@ -737,9 +727,7 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key
 VITE_DEFAULT_RESTAURANT_ID=11111111-1111-1111-1111-111111111111
 VITE_ENVIRONMENT=production
-VITE_SQUARE_APP_ID=your_square_app_id
-VITE_SQUARE_LOCATION_ID=your_square_location_id
-VITE_SQUARE_ENVIRONMENT=production
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
 ```
 
 **Build Settings:**
@@ -762,9 +750,8 @@ SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_KEY=your_service_key
 SUPABASE_JWT_SECRET=your_jwt_secret
 OPENAI_API_KEY=sk-proj-...
-SQUARE_ACCESS_TOKEN=EAAA...
-SQUARE_LOCATION_ID=L...
-SQUARE_ENVIRONMENT=production
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 PIN_PEPPER=production-pepper
 DEVICE_FINGERPRINT_SALT=production-salt
 FRONTEND_URL=https://your-frontend.vercel.app
@@ -780,7 +767,7 @@ FRONTEND_URL=https://your-frontend.vercel.app
 **Before Deploying:**
 - [ ] All environment variables set in platform dashboards
 - [ ] Database migrations applied to production database
-- [ ] Square production credentials configured
+- [ ] Stripe production credentials configured
 - [ ] CORS origins updated (`ALLOWED_ORIGINS`)
 - [ ] Health check endpoints working
 - [ ] Error tracking configured (Sentry)
@@ -964,35 +951,35 @@ FRONTEND_URL=https://your-frontend.vercel.app
 **Problem:** Payments fail
 
 **Symptoms:**
-- "Invalid Square credentials" errors
+- "Invalid Stripe credentials" errors
 - Payments stuck in "pending"
 - Network errors during payment
 
 **Solutions:**
 
-1. **Verify Square Environment Match:**
+1. **Verify Key Environment Match:**
    ```bash
-   # Server and client must match!
-   SQUARE_ENVIRONMENT=sandbox
-   VITE_SQUARE_ENVIRONMENT=sandbox
+   # Test mode keys start with pk_test_ and sk_test_
+   VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+   STRIPE_SECRET_KEY=sk_test_...
    ```
 
-2. **Check Token Prefix:**
+2. **Check Key Prefix:**
    ```bash
-   # Sandbox tokens start with SB
-   SQUARE_ACCESS_TOKEN=SBxxxxxxxx
+   # Test mode keys
+   STRIPE_SECRET_KEY=sk_test_...
 
-   # Production tokens start with EAAA
-   SQUARE_ACCESS_TOKEN=EAAAxxxxxxxx
+   # Live mode keys
+   STRIPE_SECRET_KEY=sk_live_...
    ```
 
-3. **Test with Square Test Cards:**
-   - Success: `4111 1111 1111 1111`
+3. **Test with Stripe Test Cards:**
+   - Success: `4242 4242 4242 4242`
    - Decline: `4000 0000 0000 0002`
 
-4. **Check Square Dashboard:**
-   - Verify credentials are active
-   - Check for API errors in Square logs
+4. **Check Stripe Dashboard:**
+   - Verify API keys are active
+   - Check for API errors in Stripe logs
 
 ### 8.7 Getting Help
 
@@ -1034,7 +1021,7 @@ npm run docs:check
 - **Deployment Guide:** [DEPLOYMENT.md](../DEPLOYMENT.md)
 - **Getting Started:** [GETTING_STARTED.md](../tutorials/GETTING_STARTED.md)
 - **Supabase Docs:** https://supabase.com/docs
-- **Square Developer:** https://developer.squareup.com
+- **Stripe Developer:** https://stripe.com/docs
 - **Vercel Docs:** https://vercel.com/docs
 - **Render Docs:** https://render.com/docs
 

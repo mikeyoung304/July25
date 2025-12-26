@@ -122,7 +122,7 @@ describe('PaymentService - Two-Phase Audit Logging', () => {
 
   describe('updatePaymentAuditStatus() - Phase 2: Status Update', () => {
     it('should successfully update audit status to success', async () => {
-      const mockPaymentId = 'square-payment-123';
+      const mockPaymentId = 'pi_stripe_payment_123';
       const mockFrom = vi.fn().mockReturnValue({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({
@@ -263,11 +263,11 @@ describe('PaymentService - Two-Phase Audit Logging', () => {
       await PaymentService.updatePaymentAuditStatus(
         mockIdempotencyKey,
         'success',
-        'square-pay-789'
+        'pi_stripe_789'
       );
 
       expect(updatedData.status).toBe('success');
-      expect(updatedData.payment_id).toBe('square-pay-789');
+      expect(updatedData.payment_id).toBe('pi_stripe_789');
     });
   });
 });

@@ -194,37 +194,47 @@ done
 check_var_exists "STRICT_AUTH" "OPTIONAL" "Multi-tenant security (recommended: true for production)"
 echo ""
 
-echo -e "${BLUE}=== Square Payment ===${NC}"
-check_var_exists "SQUARE_ACCESS_TOKEN" "OPTIONAL" "Square payment token"
-check_var_exists "SQUARE_LOCATION_ID" "OPTIONAL" "Square location ID"
-check_var_exists "SQUARE_ENVIRONMENT" "OPTIONAL" "sandbox or production"
-check_var_exists "SQUARE_APP_ID" "OPTIONAL" "Square application ID"
+echo -e "${BLUE}=== Stripe Payment ===${NC}"
+check_var_exists "STRIPE_SECRET_KEY" "OPTIONAL" "Stripe secret key (sk_test_* or sk_live_*)"
+check_var_exists "STRIPE_WEBHOOK_SECRET" "OPTIONAL" "Stripe webhook secret (whsec_*)"
+check_var_exists "VITE_STRIPE_PUBLISHABLE_KEY" "OPTIONAL" "Stripe publishable key (pk_test_* or pk_live_*)"
 
-# Check Square consistency
-if grep -q "^SQUARE_ENVIRONMENT=" .env; then
-    square_env=$(grep "^SQUARE_ENVIRONMENT=" .env | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//')
+# Check Stripe key consistency
+if grep -q "^STRIPE_SECRET_KEY=" .env; then
+    stripe_key=$(grep "^STRIPE_SECRET_KEY=" .env | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//')
+    node_env=$(grep "^NODE_ENV=" .env | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//')
 
-    if [ "$square_env" == "production" ]; then
-        if grep -q "^SQUARE_ACCESS_TOKEN=" .env; then
-            token=$(grep "^SQUARE_ACCESS_TOKEN=" .env | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//')
-            if [[ ! $token == EAAA* ]]; then
-                echo -e "${YELLOW}⚠ WARNING: SQUARE_ENVIRONMENT=production but token doesn't start with EAAA${NC}"
-                WARNING_CHECKS=$((WARNING_CHECKS + 1))
-            fi
+    if [[ $stripe_key == sk_live_* ]]; then
+        echo -e "${GREEN}✓ STRIPE_SECRET_KEY is production key${NC}"
+        PASSED_CHECKS=$((PASSED_CHECKS + 1))
+    elif [[ $stripe_key == sk_test_* ]]; then
+        if [ "$node_env" == "production" ]; then
+            echo -e "${YELLOW}⚠ WARNING: STRIPE_SECRET_KEY is test key in production${NC}"
+            WARNING_CHECKS=$((WARNING_CHECKS + 1))
+        else
+            echo -e "${GREEN}✓ STRIPE_SECRET_KEY is test key (valid for development)${NC}"
+            PASSED_CHECKS=$((PASSED_CHECKS + 1))
         fi
+    elif [[ $stripe_key == "demo" ]]; then
+        echo -e "${GREEN}✓ STRIPE_SECRET_KEY=demo (demo mode enabled)${NC}"
+        PASSED_CHECKS=$((PASSED_CHECKS + 1))
     fi
+    TOTAL_CHECKS=$((TOTAL_CHECKS + 1))
 fi
 
-# Check client-side Square vars
-if grep -q "^VITE_SQUARE_ENVIRONMENT=" .env && grep -q "^SQUARE_ENVIRONMENT=" .env; then
-    vite_sq_env=$(grep "^VITE_SQUARE_ENVIRONMENT=" .env | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//')
-    sq_env=$(grep "^SQUARE_ENVIRONMENT=" .env | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//')
+# Check publishable key matches secret key environment
+if grep -q "^VITE_STRIPE_PUBLISHABLE_KEY=" .env && grep -q "^STRIPE_SECRET_KEY=" .env; then
+    vite_stripe_key=$(grep "^VITE_STRIPE_PUBLISHABLE_KEY=" .env | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//')
+    stripe_key=$(grep "^STRIPE_SECRET_KEY=" .env | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//')
 
-    if [ "$vite_sq_env" != "$sq_env" ]; then
-        echo -e "${RED}✗ SQUARE_ENVIRONMENT mismatch: server=$sq_env, client=$vite_sq_env${NC}"
+    if [[ $vite_stripe_key == pk_live_* ]] && [[ $stripe_key == sk_test_* ]]; then
+        echo -e "${RED}✗ Stripe key mismatch: publishable is live but secret is test${NC}"
+        FAILED_CHECKS=$((FAILED_CHECKS + 1))
+    elif [[ $vite_stripe_key == pk_test_* ]] && [[ $stripe_key == sk_live_* ]]; then
+        echo -e "${RED}✗ Stripe key mismatch: publishable is test but secret is live${NC}"
         FAILED_CHECKS=$((FAILED_CHECKS + 1))
     else
-        echo -e "${GREEN}✓ SQUARE_ENVIRONMENT matches between server and client${NC}"
+        echo -e "${GREEN}✓ Stripe keys are consistent (both test or both live)${NC}"
         PASSED_CHECKS=$((PASSED_CHECKS + 1))
     fi
     TOTAL_CHECKS=$((TOTAL_CHECKS + 1))

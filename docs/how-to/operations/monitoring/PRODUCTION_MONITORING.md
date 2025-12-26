@@ -73,7 +73,7 @@ Restaurant OS provides multiple health check endpoints for different monitoring 
     },
     "payments": {
       "status": "ok",
-      "provider": "square",
+      "provider": "stripe",
       "environment": "production"
     },
     "monitoring": {
@@ -329,7 +329,7 @@ fi
 
 **Where to Monitor:**
 - Application logs (Render)
-- Square Dashboard > Reporting
+- Stripe Dashboard > Payments
 - Health endpoint: `/api/health` - `services.payments.status`
 
 **Custom Monitoring:**
@@ -961,13 +961,13 @@ prisma.$use(async (params, next) => {
 
 3. **External API Latency**
 ```javascript
-// Track Square API latency
+// Track Stripe API latency
 const start = Date.now();
-const payment = await squareClient.payments.create(...);
+const payment = await stripe.paymentIntents.create(...);
 const latency = Date.now() - start;
 
-logger.info('Square API call', {
-  endpoint: 'payments.create',
+logger.info('Stripe API call', {
+  endpoint: 'paymentIntents.create',
   latency_ms: latency,
   status: 'success'
 });
@@ -1082,7 +1082,7 @@ ws.on('message', (data) => {
 | Service | Status Page | SLA | Monitor |
 |---------|-------------|-----|---------|
 | Supabase | https://status.supabase.com | 99.9% | Yes |
-| Square | https://status.squareup.com | 99.9% | Yes |
+| Stripe | https://status.stripe.com | 99.9% | Yes |
 | OpenAI | https://status.openai.com | - | Yes |
 | Render | https://status.render.com | 99.95% | Yes |
 | Vercel | https://vercel-status.com | 99.99% | Yes |
@@ -1100,10 +1100,10 @@ if [ "$SUPABASE_STATUS" != "none" ]; then
   send_alert "P1: Supabase incident detected: $SUPABASE_STATUS"
 fi
 
-# Check Square
-SQUARE_STATUS=$(curl -s https://www.issquareup.com/api/status | jq -r '.status')
-if [ "$SQUARE_STATUS" != "operational" ]; then
-  send_alert "P1: Square incident detected"
+# Check Stripe
+STRIPE_STATUS=$(curl -s https://status.stripe.com/api/v2/status.json | jq -r '.status.indicator')
+if [ "$STRIPE_STATUS" != "none" ]; then
+  send_alert "P1: Stripe incident detected"
 fi
 
 # Check OpenAI via our health endpoint
@@ -1120,20 +1120,20 @@ fi
 **Automatic Fallback:**
 ```javascript
 // Check if external service is down
-async function checkSquareHealth() {
+async function checkStripeHealth() {
   try {
-    await squareClient.locations.list();
+    await stripe.balance.retrieve();
     return true;
   } catch (error) {
-    logger.error('Square API unreachable', { error });
+    logger.error('Stripe API unreachable', { error });
     return false;
   }
 }
 
-// Enable demo mode if Square is down
-if (!await checkSquareHealth()) {
-  logger.warn('Enabling payment demo mode due to Square outage');
-  process.env.SQUARE_ACCESS_TOKEN = 'demo';
+// Enable demo mode if Stripe is down
+if (!await checkStripeHealth()) {
+  logger.warn('Enabling payment demo mode due to Stripe outage');
+  process.env.STRIPE_SECRET_KEY = 'demo';
 }
 ```
 
@@ -1217,7 +1217,7 @@ if echo "$LOGS" | grep -q "ECONNREFUSED.*database"; then
   send_alert "P0: Database connection failures detected"
 fi
 
-if echo "$LOGS" | grep -q "SQUARE_LOCATION_ID mismatch"; then
+if echo "$LOGS" | grep -q "Invalid API key"; then
   send_alert "P1: Payment configuration error detected"
 fi
 ```

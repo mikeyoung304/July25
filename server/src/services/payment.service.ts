@@ -133,7 +133,7 @@ export class PaymentService {
       throw BadRequest(`Order total must be at least $${this.MINIMUM_ORDER_AMOUNT}`);
     }
 
-    // Generate server-side idempotency key (max 45 chars per Square)
+    // Generate server-side idempotency key (max 255 chars per Stripe)
     // Format: last 12 chars of order ID + timestamp = 26 chars total
     const idempotencyKey = `${order.id.slice(-12)}-${Date.now()}`;
 
@@ -386,7 +386,7 @@ export class PaymentService {
       throw BadRequest('Unable to determine refund amount');
     }
 
-    // Generate refund idempotency key (max 45 chars per Square)
+    // Generate refund idempotency key (max 255 chars per Stripe)
     // Format: "ref-" + last 12 chars of payment ID + timestamp = 30 chars total
     const idempotencyKey = `ref-${paymentId.slice(-12)}-${Date.now()}`;
 

@@ -84,7 +84,7 @@ $ curl -X POST https://july25.onrender.com/api/v1/payments/create
 **Analysis:** Payment endpoint is working correctly:
 - Returns 401 (authentication required) - not 500
 - Proper error handling in place
-- Demo mode configured (Square API won't be called without valid auth)
+- Demo mode configured (Stripe API won't be called without valid auth)
 
 ### Frontend ✅
 
@@ -100,15 +100,14 @@ content-type: text/html; charset=utf-8
 
 ### Current Configuration
 
-**SQUARE_ACCESS_TOKEN:** `demo` (confirmed in Render)
-**SQUARE_ENVIRONMENT:** `sandbox`
+**STRIPE_SECRET_KEY:** `demo` (confirmed in Render)
 **Behavior:**
-- ✅ All payment flows work end-to-end
-- ✅ Orders can be created and completed
-- ✅ UI shows successful payments
-- ❌ No real credit cards are charged
-- ❌ No actual Square API calls made
-- ✅ Safe for production testing
+- All payment flows work end-to-end
+- Orders can be created and completed
+- UI shows successful payments
+- No real credit cards are charged
+- No actual Stripe API calls made
+- Safe for production testing
 
 ### Why Demo Mode?
 
@@ -223,29 +222,28 @@ Switch from demo to real payments when:
 
 ### How to Switch
 
-**Step 1: Get Production Square Credentials**
-- Login to Square Dashboard
-- Navigate to: Developer → Production → Access Tokens
-- Copy Production Access Token
-- Copy Production Location ID
+**Step 1: Get Production Stripe Credentials**
+- Login to Stripe Dashboard
+- Navigate to: Developers → API keys
+- Copy Secret key (sk_live_...)
+- Copy Publishable key (pk_live_...)
 
 **Step 2: Update Render Environment**
 ```bash
 # In Render Dashboard → Environment Variables
-SQUARE_ACCESS_TOKEN=<your-production-token>  # Change from "demo"
-SQUARE_ENVIRONMENT=production                 # Change from "sandbox"
-SQUARE_LOCATION_ID=<your-production-location> # Verify matches token
+STRIPE_SECRET_KEY=<your-production-secret-key>  # Change from "demo"
+STRIPE_WEBHOOK_SECRET=<your-webhook-secret>     # From Stripe webhook settings
 ```
 
 **Step 3: Redeploy**
 - Click "Save" in Render
 - Automatic redeploy will trigger
-- Monitor logs for: "Square credentials validated successfully"
+- Monitor logs for: "Stripe credentials validated successfully"
 
 **Step 4: Test with Real Test Card**
-- Use Square test card: 4111 1111 1111 1111
+- Use Stripe test card: 4242 4242 4242 4242
 - Verify payment processes
-- Check Square Dashboard for transaction
+- Check Stripe Dashboard for transaction
 - Verify audit logs created
 
 ---
@@ -307,7 +305,7 @@ git log --oneline -5
 ### Documentation References
 - **Deployment Checklist:** docs/runbooks/PRODUCTION_DEPLOYMENT_CHECKLIST.md
 - **Source of Truth:** docs/meta/SOURCE_OF_TRUTH.md
-- **Square Setup:** docs/api/SQUARE_API_SETUP.md
+- **Stripe Setup:** docs/api/STRIPE_API_SETUP.md
 - **Security Policy:** docs/SECURITY.md
 
 ---

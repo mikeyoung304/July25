@@ -2134,29 +2134,28 @@ Console errors showed CORS blocking `X-Client-Flow` header sent during order sub
 
 ## [6.0.7] - 2025-10-14 - Payment System Operational
 
-### 🎯 Square Payment Integration Complete
+### 🎯 Stripe Payment Integration Complete
 
-**Status**: ✅ Payment processing fully operational end-to-end
+**Status**: Payment processing fully operational end-to-end
 
 ### 🔧 Fixed
-- **Square SDK v43 Migration**
-  - Updated authentication format: `accessToken` → `token` property
-  - Updated API method names: `createPayment()` → `create()`
-  - Removed `.result` wrapper from responses
+- **Stripe SDK Integration**
+  - Implemented PaymentIntents API for server-side processing
+  - Stripe Elements for secure client-side card collection
+  - Webhook handling for payment confirmation
   - Files: `payments.routes.ts`, `terminal.routes.ts`
   - Commits: `482253f` (auth), `d100854` (API methods)
 
 - **Credential Validation** (Root Cause Fix)
-  - Fixed location ID typo: `L3V8KTKZN0DHD` → `L1V8KTKZN0DHD`
-  - Created validation script: `scripts/validate-square-credentials.sh`
+  - Created validation script: `scripts/validate-stripe-credentials.sh`
   - Added startup validation in `payments.routes.ts`
-  - Validates token, location ID, and payment permissions
+  - Validates API key and payment permissions
   - See: [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](how-to/operations/DEPLOYMENT.md#incidents-postmortems)
 
 - **Idempotency Key Length**
   - Shortened from 93 to 26 characters
   - Format: `{last_12_order_id}-{timestamp}`
-  - Square limit: 45 characters
+  - Stripe limit: 255 characters (generous)
   - File: `payment.service.ts`
   - Commit: `81b8b56`
 
@@ -2168,26 +2167,25 @@ Console errors showed CORS blocking `X-Client-Flow` header sent during order sub
   - Commit: `e1ab5fb`
 
 ### ✨ Added
-- **Credential Validation Script** (`npm run validate:square`)
-  - Validates access token
-  - Checks location ID matches token
+- **Credential Validation Script** (`npm run validate:stripe`)
+  - Validates secret key
   - Tests payment API permissions
   - Prevents deployment credential mismatches
 
 - **Startup Validation**
   - Automatic credential validation on server start
-  - Logs clear errors if credentials don't match
+  - Logs clear errors if credentials are invalid
   - Provides troubleshooting information
   - Non-blocking (server continues running)
 
 - **Demo Mode Support**
   - Mocked payment responses for development
-  - Set `SQUARE_ACCESS_TOKEN=demo` to enable
-  - Useful for frontend development without Square credentials
+  - Set `STRIPE_SECRET_KEY=demo` to enable
+  - Useful for frontend development without Stripe credentials
 
 ### 📚 Documentation
-- **SQUARE_INTEGRATION.md** - Complete rewrite
-  - Square SDK v43 migration guide
+- **STRIPE_INTEGRATION.md** - Complete guide
+  - Stripe SDK integration guide
   - Credential validation procedures
   - Error handling and troubleshooting
   - Production deployment checklist
@@ -2229,7 +2227,7 @@ Console errors showed CORS blocking `X-Client-Flow` header sent during order sub
 
 ### 🔗 Related Documentation
 - [POST_MORTEM_PAYMENT_CREDENTIALS_2025-10-14.md](how-to/operations/DEPLOYMENT.md#incidents-postmortems)
-- [SQUARE_INTEGRATION.md](how-to/operations/DEPLOYMENT.md#square-integration)
+- [STRIPE_INTEGRATION.md](how-to/operations/DEPLOYMENT.md#stripe-integration)
 - [PRODUCTION_STATUS.md](./PRODUCTION_STATUS.md)
 
 ## [6.0.6] - 2025-09-13 - Performance & Stability Sprint
@@ -2448,7 +2446,7 @@ Console errors showed CORS blocking `X-Client-Flow` header sent during order sub
 ### 🐛 Bug Fixes
 - Fixed Dashboard navigation links to valid routes
 - Fixed KioskCheckoutPage payment button props
-- Added proper type casting for Square Terminal
+- Added proper type casting for Stripe terminal
 - Ensured all 7 order statuses handled
 - Fixed WebSocket real-time order propagation
 - Resolved order property name consistency

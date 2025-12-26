@@ -269,7 +269,7 @@ validate_frontend_boundaries() {
         "VITE_KIOSK_JWT_SECRET"
         "VITE_STATION_TOKEN_SECRET"
         "VITE_DEVICE_FINGERPRINT_SALT"
-        "VITE_SQUARE_ACCESS_TOKEN"
+        "VITE_STRIPE_SECRET_KEY"
     )
 
     info "Checking for forbidden VITE_ prefixed secrets..."
@@ -350,24 +350,24 @@ validate_environment_consistency() {
         esac
     fi
 
-    # SQUARE_ENVIRONMENT validation
-    if check_var_exists "SQUARE_ENVIRONMENT"; then
-        local square_env=$(get_var_value "SQUARE_ENVIRONMENT")
+    # Stripe key environment validation
+    if check_var_exists "STRIPE_SECRET_KEY"; then
+        local stripe_key=$(get_var_value "STRIPE_SECRET_KEY")
         local node_env=$(get_var_value "NODE_ENV")
 
-        case "$square_env" in
-            sandbox|production)
-                success "SQUARE_ENVIRONMENT=$square_env (valid)"
-
-                # Check for mismatch
-                if [[ "$node_env" == "production" ]] && [[ "$square_env" == "sandbox" ]]; then
-                    warn "SQUARE_ENVIRONMENT=sandbox in production NODE_ENV"
-                fi
-                ;;
-            *)
-                error "SQUARE_ENVIRONMENT=$square_env (invalid, must be sandbox|production)"
-                ;;
-        esac
+        if [[ "$stripe_key" == sk_live_* ]]; then
+            success "STRIPE_SECRET_KEY is production key"
+        elif [[ "$stripe_key" == sk_test_* ]]; then
+            if [[ "$node_env" == "production" ]]; then
+                warn "STRIPE_SECRET_KEY is test key in production NODE_ENV"
+            else
+                success "STRIPE_SECRET_KEY is test key (valid for development)"
+            fi
+        elif [[ "$stripe_key" == "demo" ]]; then
+            success "STRIPE_SECRET_KEY=demo (demo mode enabled)"
+        else
+            warn "STRIPE_SECRET_KEY format not recognized"
+        fi
     fi
 
     # VITE_ENVIRONMENT vs NODE_ENV consistency
@@ -386,31 +386,43 @@ validate_environment_consistency() {
 validate_payment_config() {
     header "8. Payment Configuration Validation"
 
-    # Check if Square is configured
-    if check_var_exists "SQUARE_ACCESS_TOKEN"; then
-        local token=$(get_var_value "SQUARE_ACCESS_TOKEN")
-        local env=$(get_var_value "SQUARE_ENVIRONMENT")
+    # Check if Stripe is configured
+    if check_var_exists "STRIPE_SECRET_KEY"; then
+        local key=$(get_var_value "STRIPE_SECRET_KEY")
         local node_env=$(get_var_value "NODE_ENV")
 
         # Check for placeholder
-        if is_placeholder "$token"; then
+        if is_placeholder "$key"; then
             if [[ "$node_env" == "production" ]]; then
-                error "SQUARE_ACCESS_TOKEN is placeholder in production"
+                error "STRIPE_SECRET_KEY is placeholder in production"
             else
-                warn "SQUARE_ACCESS_TOKEN is placeholder (payments won't work)"
+                warn "STRIPE_SECRET_KEY is placeholder (payments won't work)"
             fi
-        elif [[ "$env" == "production" ]]; then
-            # Production tokens should start with 'EAAA'
-            if [[ "$token" =~ ^EAAA ]]; then
-                success "SQUARE_ACCESS_TOKEN appears to be production token"
+        elif [[ "$key" == sk_live_* ]]; then
+            success "STRIPE_SECRET_KEY is production key"
+        elif [[ "$key" == sk_test_* ]]; then
+            if [[ "$node_env" == "production" ]]; then
+                warn "STRIPE_SECRET_KEY is test key but NODE_ENV is production"
             else
-                warn "SQUARE_ACCESS_TOKEN doesn't start with EAAA (expected for production)"
+                success "STRIPE_SECRET_KEY is test key (valid for development)"
             fi
+        elif [[ "$key" == "demo" ]]; then
+            success "STRIPE_SECRET_KEY=demo (demo mode enabled)"
         else
-            success "SQUARE_ACCESS_TOKEN is set"
+            success "STRIPE_SECRET_KEY is set"
         fi
     else
-        info "SQUARE_ACCESS_TOKEN not set (payments disabled)"
+        info "STRIPE_SECRET_KEY not set (payments disabled)"
+    fi
+
+    # Check webhook secret
+    if check_var_exists "STRIPE_WEBHOOK_SECRET"; then
+        local webhook=$(get_var_value "STRIPE_WEBHOOK_SECRET")
+        if [[ "$webhook" == whsec_* ]]; then
+            success "STRIPE_WEBHOOK_SECRET format is valid"
+        else
+            warn "STRIPE_WEBHOOK_SECRET doesn't start with whsec_ (expected format)"
+        fi
     fi
 }
 

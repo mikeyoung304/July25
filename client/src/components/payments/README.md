@@ -130,7 +130,7 @@ Request body:
 ```typescript
 {
   order_id: string;
-  token: string; // From Square SDK
+  payment_method_id: string; // From Stripe Elements
   idempotency_key: string;
 }
 ```

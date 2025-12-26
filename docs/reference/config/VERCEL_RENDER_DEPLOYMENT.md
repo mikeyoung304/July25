@@ -103,8 +103,7 @@
 | `VITE_SUPABASE_ANON_KEY` | `eyJhbG...` | (same) | (same) |
 | `VITE_DEFAULT_RESTAURANT_ID` | `grow` | (same) | `grow` |
 | `VITE_DEMO_PANEL` | `false` ⚠️ | `false` | `true` |
-| `VITE_SQUARE_APP_ID` | `sandbox_...` | (same) | (same) |
-| `VITE_SQUARE_LOCATION_ID` | `L7G3P...` | (same) | (same) |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | `pk_test_...` or `pk_live_...` | (same) | (same) |
 | `VITE_OPENAI_API_KEY` | **(DO NOT SET)** | - | - |
 
 **⚠️ SECURITY CRITICAL:**
@@ -174,8 +173,8 @@ services:
 | `PIN_PEPPER` | 64-char hex | **Yes** |
 | `DEVICE_FINGERPRINT_SALT` | 64-char hex | **Yes** |
 | `STATION_TOKEN_SECRET` | 64-char hex | **Yes** |
-| `SQUARE_ACCESS_TOKEN` | `EAAA...` | **Yes** |
-| `SQUARE_WEBHOOK_SIGNATURE_KEY` | Square-provided | **Yes** |
+| `STRIPE_SECRET_KEY` | `sk_test_...` or `sk_live_...` | **Yes** |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_...` | **Yes** |
 
 **⚠️ SECURITY:**
 - ALL secrets marked **Yes** are sensitive
@@ -378,7 +377,7 @@ npm run test:smoke
 # 1. Load homepage
 # 2. View menu
 # 3. Add item to cart
-# 4. Checkout (Square sandbox)
+# 4. Checkout (Stripe test mode)
 # 5. View order in KDS
 ```
 

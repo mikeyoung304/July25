@@ -723,7 +723,7 @@ curl https://july25.onrender.com/api/v1/orders
 
    Example:
    AI_DEGRADED_MODE=true  # Disables AI features
-   SQUARE_ACCESS_TOKEN=demo  # Demo mode for payments
+   STRIPE_SECRET_KEY=demo  # Demo mode for payments
    ```
 
 3. **Service Auto-Restarts**
@@ -817,9 +817,10 @@ curl https://july25.onrender.com/api/v1/orders
 
 **Common Rollbacks:**
 ```bash
-# Square configuration
-SQUARE_ACCESS_TOKEN=<previous-token>
-SQUARE_LOCATION_ID=<previous-location-id>
+# Stripe configuration
+STRIPE_SECRET_KEY=<previous-secret-key>
+STRIPE_WEBHOOK_SECRET=<previous-webhook-secret>
+VITE_STRIPE_PUBLISHABLE_KEY=<previous-publishable-key>
 
 # JWT secret
 SUPABASE_JWT_SECRET=<previous-secret>

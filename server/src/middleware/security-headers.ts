@@ -143,7 +143,7 @@ export function securityHeaders(config?: Partial<SecurityConfig>) {
       'gyroscope=(), ' +
       'magnetometer=(), ' +
       'microphone=(self), ' + // For voice ordering
-      'payment=(self), ' + // For Square payments
+      'payment=(self), ' + // For Stripe payments
       'usb=(), ' +
       'interest-cohort=()' // Opt out of FLoC
     );

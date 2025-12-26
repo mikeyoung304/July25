@@ -395,7 +395,7 @@ Problems:
 │ Backend: Payment processing         │
 │ POST /api/v1/payments/create        │
 │ • Anonymous customer allowed        │
-│ • Square payment integration        │
+│ • Stripe payment integration        │
 └───────────────┬─────────────────────┘
                 │
                 │ Payment successful

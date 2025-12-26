@@ -232,11 +232,11 @@ curl -X POST https://july25.onrender.com/api/v1/auth/login \
 
 **Payment Processing Issues:**
 ```bash
-# Check Square configuration
+# Check Stripe configuration
 curl https://july25.onrender.com/api/health | jq '.services.payments'
 
-# Expected: {"status":"ok","provider":"square","environment":"sandbox"}
-# If error: Check SQUARE_ACCESS_TOKEN and SQUARE_LOCATION_ID
+# Expected: {"status":"ok","provider":"stripe","environment":"sandbox"}
+# If error: Check STRIPE_SECRET_KEY and VITE_STRIPE_PUBLISHABLE_KEY
 ```
 
 **Voice Ordering Issues:**
@@ -253,7 +253,7 @@ curl https://july25.onrender.com/api/status | jq '.services.ai'
 Common root causes:
 - Environment variable misconfiguration
 - Database migration failure
-- Third-party service outage (OpenAI, Square, Supabase)
+- Third-party service outage (OpenAI, Stripe, Supabase)
 - CORS configuration issue
 - Rate limiting triggered
 - Memory/resource exhaustion
@@ -326,7 +326,7 @@ vercel --prod
 AI_DEGRADED_MODE=true
 
 # For payment issues - enable demo mode
-SQUARE_ACCESS_TOKEN=demo
+STRIPE_SECRET_KEY=demo
 ```
 
 **5. Database Rollback**
@@ -618,26 +618,26 @@ curl https://july25.onrender.com/api/health
 - Health check shows payments status: "error"
 
 **Likely Causes:**
-- SQUARE_LOCATION_ID mismatch
-- Invalid SQUARE_ACCESS_TOKEN
-- Square API outage
-- Token expired or revoked
+- Invalid STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET mismatch
+- Stripe API outage
+- Key expired or revoked
 
 **Investigation:**
 ```bash
-# Check Square configuration
+# Check Stripe configuration
 curl https://july25.onrender.com/api/health | jq '.services.payments'
 
-# Check Render logs for Square API errors
-# Look for: "SQUARE_LOCATION_ID mismatch"
+# Check Render logs for Stripe API errors
+# Look for: "Invalid API key" or "Webhook signature verification failed"
 ```
 
 **Resolution:**
-1. Verify SQUARE_LOCATION_ID matches Square dashboard
-2. Verify SQUARE_ACCESS_TOKEN is valid
-3. Check Square API status page
-4. Enable demo mode as temporary workaround: `SQUARE_ACCESS_TOKEN=demo`
-5. Contact Square support if API issue
+1. Verify STRIPE_SECRET_KEY is valid in Stripe dashboard
+2. Verify STRIPE_WEBHOOK_SECRET matches webhook settings
+3. Check Stripe API status page
+4. Enable demo mode as temporary workaround: `STRIPE_SECRET_KEY=demo`
+5. Contact Stripe support if API issue
 
 ---
 
@@ -774,7 +774,7 @@ curl https://july25.onrender.com/api/status | jq '.services.ai'
 **Authority:**
 - Deploy hotfixes
 - Change system architecture
-- Contact vendors (Square, OpenAI, Supabase)
+- Contact vendors (Stripe, OpenAI, Supabase)
 - Declare extended outage
 
 **Escalate to L3 if:**
@@ -820,7 +820,7 @@ curl https://july25.onrender.com/api/status | jq '.services.ai'
 ### External Status Pages
 
 - **Supabase:** https://status.supabase.com
-- **Square:** https://status.squareup.com
+- **Stripe:** https://status.stripe.com
 - **OpenAI:** https://status.openai.com
 - **Render:** https://status.render.com
 - **Vercel:** https://vercel-status.com
@@ -890,7 +890,7 @@ Use this checklist during active incidents:
 
 **Vendor Support:**
 - Supabase Support: https://supabase.com/support
-- Square Support: https://squareup.com/help
+- Stripe Support: https://support.stripe.com
 - OpenAI Support: https://help.openai.com
 - Render Support: https://render.com/support
 - Vercel Support: https://vercel.com/support

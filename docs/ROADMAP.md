@@ -14,7 +14,7 @@
 - **P0.9 Auth Stabilization**: ✅ Phase 2A COMPLETE + 🟢 Phase 2B READY FOR DEPLOYMENT
 - **Authentication**: ✅ COMPLETE (Pure Supabase JWT + RBAC + Multi-tenancy)
 - **Kitchen Display**: ✅ UPGRADED (Table grouping + dual view modes)
-- **Payment Integration**: ✅ CONFIGURED (Demo mode active, Square ready)
+- **Payment Integration**: ✅ CONFIGURED (Demo mode active, Stripe ready)
 - **Last Updated**: November 11, 2025
 
 ---

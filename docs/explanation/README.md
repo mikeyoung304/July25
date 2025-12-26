@@ -44,7 +44,7 @@ Core concepts and domain knowledge:
 
 - [Menu System](./concepts/MENU_SYSTEM.md) - How the menu system works
 - [Order Flow](./concepts/ORDER_FLOW.md) - Order lifecycle and state management
-- [Square Integration](./concepts/SQUARE_INTEGRATION.md) - Payment processing concepts
+- [Stripe Integration](./concepts/STRIPE_INTEGRATION.md) - Payment processing concepts
 - [Migration V6 Auth](./concepts/MIGRATION_V6_AUTH.md) - Authentication migration explained
 
 ## What is Explanation Documentation?

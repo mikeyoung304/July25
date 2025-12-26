@@ -100,10 +100,10 @@ Version information is sourced from:
   - Commit: `94b6ea4`
 
 - 2025-10-14: Version 6.0.7 - Payment System Operational
-  - **Square Payment Integration Complete**: Payment processing fully operational end-to-end
-  - Square SDK v43 Migration: Updated authentication format and API method names
-  - Updated `accessToken` to `token` property, `createPayment()` to `create()`
-  - Removed `.result` wrapper from responses
+  - **Stripe Payment Integration Complete**: Payment processing fully operational end-to-end
+  - Stripe SDK integration with PaymentIntents API
+  - Stripe Elements for secure client-side card collection
+  - Webhook handling for payment confirmation
   - See docs/CHANGELOG.md v6.0.7 for details
 
 - 2025-09-13: Version 6.0.6 - Performance & Stability Sprint

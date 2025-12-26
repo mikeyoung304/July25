@@ -9,7 +9,7 @@ sequenceDiagram
     participant Client
     participant API as API Server
     participant DB as Supabase
-    participant Square as Square API
+    participant Stripe as Stripe API
 
     Client->>API: POST /orders {items, qty}
     Note over Client: Client does NOT send totals
@@ -23,8 +23,8 @@ sequenceDiagram
     API->>DB: Fetch order
     DB-->>API: Order with items
     API->>API: Recalculate & validate total
-    API->>Square: CreatePayment(total, idempotencyKey)
-    Square-->>API: {paymentId, status}
+    API->>Stripe: CreatePaymentIntent(total, idempotencyKey)
+    Stripe-->>API: {paymentIntentId, status}
     API->>DB: Update order status
     API-->>Client: {paymentId, receiptUrl}
 ```

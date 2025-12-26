@@ -168,16 +168,16 @@ const { tipPercentages = [15, 18, 20, 25] } = useRestaurantConfig(restaurantId);
 |------|------|-------|---------|
 | `useSquareTerminal.ts` | 105 | `300000` ms (5 min) | Terminal checkout timeout |
 | `useSquareTerminal.ts` | 105 | `2000` ms | Terminal polling interval |
-| `payments.routes.ts` | 50 | `30000` ms | Square API call timeout |
+| `payments.routes.ts` | 50 | `30000` ms | Stripe API call timeout |
 | `WebSocketService.ts` | 40 | `30000` ms | Client heartbeat |
 | `server/utils/websocket.ts` | 34 | `60000` ms | Server heartbeat |
 
 **Migration Plan**:
 ```bash
 # Environment variables
-SQUARE_PAYMENT_TIMEOUT_MS=300000
-SQUARE_POLLING_INTERVAL_MS=2000
-SQUARE_API_TIMEOUT_MS=30000
+STRIPE_PAYMENT_TIMEOUT_MS=300000
+STRIPE_POLLING_INTERVAL_MS=2000
+STRIPE_API_TIMEOUT_MS=30000
 WS_CLIENT_HEARTBEAT_MS=30000
 WS_SERVER_HEARTBEAT_MS=60000
 ```
@@ -274,23 +274,21 @@ DEMO_KITCHEN_PASSWORD=Demo456!
 
 ---
 
-### 3.3 Square Environment URLs (2 instances)
+### 3.3 Stripe Environment URLs
 
-**Current State**: Hardcoded sandbox URL
+**Current State**: Stripe uses a single SDK URL for both test and production modes.
 **Files**:
-- `CardPayment.tsx` (Line 74): `https://sandbox.web.squarecdn.com/v1/square.js`
-- `SquarePaymentForm.tsx` (Line 67): Same URL
+- `CardPayment.tsx`: Uses Stripe Elements with `@stripe/react-stripe-js`
 
 **Migration Plan**:
 ```typescript
-// shared/constants/square.ts
-export const SQUARE_SDK_URLS = {
-  sandbox: 'https://sandbox.web.squarecdn.com/v1/square.js',
-  production: 'https://web.squarecdn.com/v1/square.js'
-};
+// shared/constants/stripe.ts
+// Stripe uses the same SDK URL for both test and production
+// Mode is determined by the API key (pk_test_* vs pk_live_*)
+export const STRIPE_SDK_URL = 'https://js.stripe.com/v3/';
 
-const environment = import.meta.env.VITE_SQUARE_ENVIRONMENT || 'sandbox';
-script.src = SQUARE_SDK_URLS[environment];
+const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+const stripe = loadStripe(publishableKey);
 ```
 
 ---

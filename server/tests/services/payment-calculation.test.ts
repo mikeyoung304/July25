@@ -594,7 +594,7 @@ describe('PaymentService - Payment Calculations', () => {
 
   describe('validateRefundRequest()', () => {
     it('should validate full refund request', async () => {
-      const paymentId = 'square-payment-123';
+      const paymentId = 'pi_stripe_payment_123';
       const originalAmount = 25.50;
 
       const result = await PaymentService.validateRefundRequest(
@@ -609,7 +609,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should validate partial refund request', async () => {
-      const paymentId = 'square-payment-456';
+      const paymentId = 'pi_stripe_payment_456';
       const originalAmount = 50.00;
       const refundAmount = 10.00;
 

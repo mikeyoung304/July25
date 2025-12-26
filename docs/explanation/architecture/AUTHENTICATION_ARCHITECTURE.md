@@ -46,9 +46,9 @@ Database uses Supabase with Row-Level Security (RLS) policies for multi-tenant i
 
 **Implementation:** `supabase/migrations/20251015_multi_tenancy_rls_and_pin_fix.sql`
 
-**Payment Adapter: Square**
+**Payment Adapter: Stripe**
 
-Square adapter handles payment processing.
+Stripe adapter handles payment processing.
 
 **Implementation:** `server/src/routes/payments.routes.ts:28`
 
@@ -875,7 +875,7 @@ Order lifecycle statuses: `new`, `pending`, `confirmed`, `preparing`, `ready`, `
 
 ### Payment Integration
 
-Payment integration with Square API. Audit trail logging confirmed.
+Payment integration with Stripe API. Audit trail logging confirmed.
 
 **Implementation:** `server/src/routes/payments.routes.ts`
 

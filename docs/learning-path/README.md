@@ -101,7 +101,7 @@ This guide provides a **structured learning path** for mastering the Restaurant 
 **Accounts to Create:**
 - ✅ GitHub account
 - ✅ Supabase account (free tier)
-- ✅ Square developer account (sandbox)
+- ✅ Stripe account (free test mode)
 - ✅ OpenAI account (paid API access)
 
 **Verify Installation:**

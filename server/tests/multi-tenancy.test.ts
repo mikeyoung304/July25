@@ -56,11 +56,10 @@ vi.mock('../src/config/environment', () => ({
       pinPepper: 'test-pepper',
       deviceFingerprintSalt: 'test-salt'
     },
-    square: {
-      accessToken: 'test-square-token',
-      environment: 'sandbox',
-      locationId: 'test-location',
-      appId: 'test-app'
+    stripe: {
+      secretKey: 'sk_test_mock_key',
+      publishableKey: 'pk_test_mock_key',
+      webhookSecret: 'whsec_test_mock_secret'
     }
   })),
   validateEnvironment: vi.fn()

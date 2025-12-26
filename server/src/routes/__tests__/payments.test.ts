@@ -18,19 +18,18 @@ vi.mock('../../utils/logger', () => ({
   }
 }));
 
-// Mock Square client
-vi.mock('square', () => ({
-  SquareClient: vi.fn(() => ({
-    payments: {
-      createPayment: vi.fn(),
-      getPayment: vi.fn(),
-      refundPayment: vi.fn(),
+// Mock Stripe client
+vi.mock('stripe', () => ({
+  default: vi.fn(() => ({
+    paymentIntents: {
+      create: vi.fn(),
+      retrieve: vi.fn(),
+      confirm: vi.fn(),
+    },
+    refunds: {
+      create: vi.fn(),
     }
-  })),
-  SquareEnvironment: {
-    Production: 'production',
-    Sandbox: 'sandbox'
-  }
+  }))
 }));
 
 describe('Payment Routes', () => {
@@ -309,23 +308,23 @@ describe('Payment Routes', () => {
   describe('Webhook Security', () => {
     it('should verify webhook signature', async () => {
       const webhookPayload = {
-        type: 'payment.created',
+        type: 'payment_intent.succeeded',
         data: {
-          payment: {
-            id: 'payment-123',
-            status: 'COMPLETED'
+          object: {
+            id: 'pi_123',
+            status: 'succeeded'
           }
         }
       };
 
-      const signature = 'valid-square-signature';
-      
+      const signature = 'valid-stripe-signature';
+
       // vi.mocked(PaymentService.verifyWebhookSignature).mockReturnValue(true);
       // vi.mocked(PaymentService.processWebhook).mockResolvedValue();
 
       const response = await request(app)
-        .post('/api/v1/webhooks/square/payments')
-        .set('Square-Signature', signature)
+        .post('/api/v1/webhooks/stripe/payments')
+        .set('Stripe-Signature', signature)
         .send(webhookPayload);
 
       expect(response.status).toBe(200);
@@ -339,8 +338,8 @@ describe('Payment Routes', () => {
       // vi.mocked(PaymentService.verifyWebhookSignature).mockReturnValue(false);
 
       const response = await request(app)
-        .post('/api/v1/webhooks/square/payments')
-        .set('Square-Signature', 'invalid-signature')
+        .post('/api/v1/webhooks/stripe/payments')
+        .set('Stripe-Signature', 'invalid-signature')
         .send({});
 
       expect(response.status).toBe(401);

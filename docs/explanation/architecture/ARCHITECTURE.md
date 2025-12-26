@@ -33,7 +33,7 @@ graph LR
     API[/REST/]
     WS[/WebSocket/]
     RT[/Realtime/]
-    Pay[/Square Adapter/]
+    Pay[/Stripe Adapter/]
   end
   subgraph Supabase[DB+Auth+RLS]
     RLS[(Policies)]
@@ -44,7 +44,7 @@ graph LR
   Voice --> RT
   API --> Supabase
   API --> Pay
-  Pay --> Square[(Square)]
+  Pay --> Stripe[(Stripe)]
 Order→Pay→KDS
 ```
 
@@ -53,13 +53,13 @@ sequenceDiagram
   participant C as Client
   participant S as Server
   participant DB as Supabase (RLS)
-  participant SQ as Square
+  participant ST as Stripe
   C->>S: POST /orders (camelCase)
   S->>DB: insert order (tenant-scoped)
   S-->>C: 201
   C->>S: POST /payments {items, qty}  # no client totals
   S->>DB: compute totals
-  S->>SQ: CreatePayment(total, idempotency)
+  S->>ST: CreatePaymentIntent(total, idempotency)
   S-->>C: 200
   S-->>C: WS status updates
 ```

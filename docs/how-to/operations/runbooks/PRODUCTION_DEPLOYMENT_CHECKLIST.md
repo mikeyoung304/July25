@@ -18,10 +18,10 @@ Before pushing to main, verify these settings in Render Dashboard:
 #### Required Variables - Check These Now:
 
 ```bash
-# 1. SQUARE CONFIGURATION (DEMO MODE)
-SQUARE_ACCESS_TOKEN=demo                    # ← MUST be "demo" for safe testing
-SQUARE_ENVIRONMENT=sandbox                   # ← Keep as sandbox
-SQUARE_LOCATION_ID=L1V8KTKZN0DHD           # ← Can be any valid format
+# 1. STRIPE CONFIGURATION (DEMO MODE)
+STRIPE_SECRET_KEY=demo                       # ← MUST be "demo" for safe testing
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...     # ← Stripe test publishable key
+STRIPE_WEBHOOK_SECRET=whsec_...             # ← From Stripe webhook settings
 
 # 2. AUTHENTICATION (REQUIRED)
 SUPABASE_JWT_SECRET=<your-jwt-secret>       # ← From Supabase Dashboard
@@ -42,7 +42,7 @@ NODE_ENV=production                          # ← Must be "production"
 
 ### Critical Settings to Verify
 
-- [ ] **SQUARE_ACCESS_TOKEN** = `demo` (NOT a real token)
+- [ ] **STRIPE_SECRET_KEY** = `demo` (NOT a real token)
 - [ ] **NODE_ENV** = `production`
 - [ ] **SUPABASE_JWT_SECRET** is set (server will fail-fast if missing)
 - [ ] **FRONTEND_URL** matches your Vercel deployment URL
@@ -50,14 +50,14 @@ NODE_ENV=production                          # ← Must be "production"
 
 ### What Demo Mode Does
 
-When `SQUARE_ACCESS_TOKEN=demo`:
-- ✅ All payment flows work end-to-end
-- ✅ Orders can be created and completed
-- ✅ UI shows successful payments
-- ✅ Audit logs are created properly
-- ❌ No real credit cards are charged
-- ❌ No actual Square API calls are made
-- ✅ Safe for production testing
+When `STRIPE_SECRET_KEY=demo`:
+- All payment flows work end-to-end
+- Orders can be created and completed
+- UI shows successful payments
+- Audit logs are created properly
+- No real credit cards are charged
+- No actual Stripe API calls are made
+- Safe for production testing
 
 ## Deployment Process
 
@@ -98,10 +98,10 @@ Look for:
 
 Check logs for:
 ```
-✅ Square credentials validated successfully (demo mode)
-✅ Server started on port 3001
-✅ Database connected
-✅ WebSocket server running
+Stripe credentials validated successfully (demo mode)
+Server started on port 3001
+Database connected
+WebSocket server running
 ```
 
 ### Step 4: Health Checks
@@ -127,13 +127,13 @@ Visit your Vercel frontend:
 - https://july25-client.vercel.app (or your URL)
 
 Test flow:
-1. ✅ Page loads
-2. ✅ Login works
-3. ✅ Can create an order
-4. ✅ Can proceed to checkout
-5. ✅ Payment form shows (Square sandbox form)
-6. ✅ Payment completes (demo mode - no real charge)
-7. ✅ Order appears in KDS
+1. Page loads
+2. Login works
+3. Can create an order
+4. Can proceed to checkout
+5. Payment form shows (Stripe Elements form)
+6. Payment completes (demo mode - no real charge)
+7. Order appears in KDS
 
 ## Post-Deployment Testing
 
@@ -206,7 +206,7 @@ Deployment is successful when:
 
 **Expected in Demo Mode:**
 - Payment succeeds without real card processing
-- Square API not called (normal - demo mode)
+- Stripe API not called (normal - demo mode)
 - Logs show "demo mode active"
 
 **Expected Warnings (Safe to Ignore):**
@@ -222,7 +222,7 @@ Deployment is successful when:
 **Solution:** Check SUPABASE_JWT_SECRET is set correctly
 
 ### Issue: Payment returns 500
-**Solution:** Verify SQUARE_ACCESS_TOKEN=demo in Render
+**Solution:** Verify STRIPE_SECRET_KEY=demo in Render
 
 ### Issue: CORS errors in browser console
 **Solution:** Verify ALLOWED_ORIGINS includes your Vercel URL
@@ -244,9 +244,9 @@ Once production is stable with demo payments:
    - Verify all features work as expected
 
 3. **Switch to Real Payments** (when ready)
-   - Get production Square credentials
-   - Update SQUARE_ACCESS_TOKEN in Render
-   - Set SQUARE_ENVIRONMENT=production
+   - Get production Stripe credentials
+   - Update STRIPE_SECRET_KEY in Render
+   - Update VITE_STRIPE_PUBLISHABLE_KEY to production key
    - Test with real test card first
 
 ## Support Commands

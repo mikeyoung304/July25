@@ -16,10 +16,10 @@ This guide provides actionable prevention strategies for the four most common te
 **Problem Pattern:**
 ```typescript
 // production code deleted
-// export class SquarePaymentProcessor { ... }
+// export class LegacyPaymentProcessor { ... }
 
 // but test still exists
-describe('SquarePaymentProcessor', () => {
+describe('LegacyPaymentProcessor', () => {
   // FAILS: referencing non-existent class
 })
 ```
@@ -82,21 +82,21 @@ Instead of immediate deletion, use deprecation warnings:
 // shared/types/payment.ts
 
 /**
- * @deprecated Use StripePaymentService instead
+ * @deprecated Use NewPaymentService instead
  * Removal date: 2025-12-15
  * Migration guide: See MIGRATION_PAYMENT_v2.md
  */
-export class SquarePaymentProcessor {
+export class LegacyPaymentProcessor {
   constructor() {
     if (process.env.NODE_ENV === 'production') {
       throw new Error(
-        'SquarePaymentProcessor removed. Use StripePaymentService. ' +
+        'LegacyPaymentProcessor removed. Use NewPaymentService. ' +
         'See MIGRATION_PAYMENT_v2.md for migration guide.'
       );
     }
 
     const logger = require('../utils/logger').logger;
-    logger.warn('SquarePaymentProcessor is deprecated, use StripePaymentService', {
+    logger.warn('LegacyPaymentProcessor is deprecated, use NewPaymentService', {
       removedAt: '2025-12-15'
     });
   }
@@ -330,18 +330,18 @@ const _typeCheck: typeof ProdPaymentService = PaymentService;
 
 **Problem Pattern:**
 ```typescript
-// ORIGINAL: Orders could be paid with Square
-it('should process Square payment', async () => {
-  const result = await service.processSquarePayment(order);
+// ORIGINAL: Orders could be paid with legacy processor
+it('should process legacy payment', async () => {
+  const result = await service.processLegacyPayment(order);
   expect(result.status).toBe('completed');
 });
 
-// AFTER REFACTOR: Square removed, Stripe only
+// AFTER REFACTOR: Legacy processor removed, new processor only
 // Test still runs but now tests old/deleted code path
 // If test is deleted without documenting WHY, future devs won't understand the decision
 
 // OR: Test is skipped without explanation
-it.skip('should process Square payment', async () => { ... });
+it.skip('should process legacy payment', async () => { ... });
 // Was this skipped because: feature removed? test broken? temporary? Nobody knows.
 ```
 
@@ -394,18 +394,18 @@ export function describeAnnotated(
 Usage:
 ```typescript
 describeAnnotated(
-  'Square Payment Processing',
+  'Legacy Payment Processing',
   {
     status: TestStatus.DEPRECATED,
-    reason: 'Square payment processor replaced with Stripe integration',
+    reason: 'Legacy payment processor replaced with new integration',
     date: '2025-11-20',
     jiraTicket: 'MIGRATE-234',
     expectedResolutionDate: '2025-12-04',
-    removedFeature: 'SquarePaymentService',
-    replacementTest: 'Stripe Payment Processing'
+    removedFeature: 'LegacyPaymentService',
+    replacementTest: 'New Payment Processing'
   },
   () => {
-    it('should process Square payment', async () => {
+    it('should process legacy payment', async () => {
       // Test content
     });
   }
@@ -507,7 +507,7 @@ generateTestReport();
 ```markdown
 # TEST_MIGRATION_GUIDE.md
 
-## Payment System Migration (Square → Stripe)
+## Payment System Migration (Legacy → New Processor)
 
 ### Affected Tests
 - `server/src/routes/__tests__/payments.test.ts` (12 tests)
@@ -515,18 +515,18 @@ generateTestReport();
 
 ### Migration Path
 
-#### Before (Square)
+#### Before (Legacy)
 ```typescript
-it('should process payment with Square', async () => {
-  const result = await paymentService.processSquarePayment({
+it('should process payment with legacy processor', async () => {
+  const result = await paymentService.processLegacyPayment({
     token: '...',
     amount: 2550
   });
-  expect(result.type).toBe('square');
+  expect(result.type).toBe('legacy');
 });
 ```
 
-#### After (Stripe)
+#### After (New Processor)
 ```typescript
 it('should process payment with Stripe', async () => {
   const result = await paymentService.processStripePayment({
@@ -537,13 +537,13 @@ it('should process payment with Stripe', async () => {
 });
 ```
 
-### Deleted Tests (Square specific)
-- `should handle Square card errors` → Not applicable to Stripe
-- `should validate Square device fingerprint` → Stripe handles differently
-- `should process Square refunds with reversals` → Stripe refund logic differs
+### Deleted Tests (Legacy-specific)
+- `should handle legacy card errors` → Not applicable to new processor
+- `should validate legacy device fingerprint` → New processor handles differently
+- `should process legacy refunds with reversals` → New processor refund logic differs
 
 ### Status Changes Required
-- Run: `npm run migrate:tests -- --from=square --to=stripe`
+- Run: `npm run migrate:tests -- --from=legacy --to=stripe`
 - Verify: All Stripe tests pass with `npm test:server`
 - Document: Update `.claude/test-prevention-strategies.md`
 ```
